@@ -116,16 +116,16 @@ namespace DotVVM.Framework.Binding.Expressions
             }
         }
 
-        public static object ViewModelNameParameter = new object();
-        public static object SenderElementParameter = new object();
-        public static object CurrentPathParameter = new object();
-        public static object CommandIdParameter = new object();
-        public static object ControlUniqueIdParameter = new object();
-        public static object UseObjectSetTimeoutParameter = new object();
-        public static object ValidationPathParameter = new object();
-        public static object OptionalKnockoutContextParameter = new object();
-        public static object PostbackHandlersParameter = new object();
-        public static object CommandArgumentsParameter = new object();
+        public readonly static object ViewModelNameParameter = new object();
+        public readonly static object SenderElementParameter = new object();
+        public readonly static object CurrentPathParameter = new object();
+        public readonly static object CommandIdParameter = new object();
+        public readonly static object ControlUniqueIdParameter = new object();
+        public readonly static object UseObjectSetTimeoutParameter = new object();
+        public readonly static object ValidationPathParameter = new object();
+        public readonly static object OptionalKnockoutContextParameter = new object();
+        public readonly static object PostbackHandlersParameter = new object();
+        public readonly static object CommandArgumentsParameter = new object();
         private static ParametrizedCode javascriptPostbackInvocation =
             new JsIdentifierExpression("dotvvm").Member("postBack").Invoke(
                 new JsSymbolicParameter(ViewModelNameParameter),

@@ -44,18 +44,18 @@ namespace DotVVM.Framework.Compilation
             else return t => TypeRegistry.CreateStatic(ReflectionUtils.FindType(import.Namespace + "." + t));
         }
 
-        public BindingParserOptions(Type bindingType, string scopeParameter = "_this", ImmutableList<NamespaceImport> importNamespaces = null, ImmutableList<BindingExtensionParameter> extParameters = null)
+        public BindingParserOptions(Type bindingType, string scopeParameter = "_this", ImmutableList<NamespaceImport> importNamespaces = null, ImmutableList<BindingExtensionParameter> extensionParameters = null)
         {
             BindingType = bindingType;
             ScopeParameter = scopeParameter;
             ImportNamespaces = importNamespaces ?? ImmutableList<NamespaceImport>.Empty;
-            ExtensionParameters = extParameters ?? ImmutableList<BindingExtensionParameter>.Empty;
+            ExtensionParameters = extensionParameters ?? ImmutableList<BindingExtensionParameter>.Empty;
         }
 
         public static BindingParserOptions Create<TBinding>(string scopeParameter = "_this", IEnumerable<NamespaceImport> importNs = null, ImmutableList<BindingExtensionParameter> extParameters = null)
             => new BindingParserOptions(typeof(TBinding), scopeParameter, 
                 importNamespaces: importNs?.ToImmutableList(), 
-                extParameters: extParameters);
+                extensionParameters: extParameters);
 
         public BindingParserOptions AddImports(params NamespaceImport[] imports)
             => AddImports((IEnumerable<NamespaceImport>)imports);

@@ -118,7 +118,7 @@ namespace DotVVM.Framework.Configuration
                 RegisterJsTranslation(prop.desc.JsExpression, prop.desc.Type, configuration);
         }
 
-        class ApiGroupDescriptor
+        public class ApiGroupDescriptor
         {
             public object Instance { get; }
             public ImmutableArray<ApiDescriptor> Properties { get; }
@@ -132,28 +132,28 @@ namespace DotVVM.Framework.Configuration
             }
         }
 
-        class ApiDescriptor
+        public class ApiDescriptor
         {
             public string Name { get; }
             public PropertyInfo PropInfo { get; }
             public Type Type { get; }
             public JsExpression JsExpression { get; }
 
-            public ApiDescriptor(string name, PropertyInfo propInfo, Type type, JsExpression expression)
+            public ApiDescriptor(string name, PropertyInfo propInfo, Type type, JsExpression jsExpression)
             {
                 this.Name = name;
                 this.PropInfo = propInfo;
                 this.Type = type;
-                expression.Freeze();
-                this.JsExpression = expression;
+                jsExpression.Freeze();
+                this.JsExpression = jsExpression;
             }
         }
 
-        class ApiExtensionParameter : BindingExtensionParameter
+        public class ApiExtensionParameter : BindingExtensionParameter
         {
-            public ApiExtensionParameter(string identifier, ApiGroupDescriptor descriptor) : base(identifier, new ResolvedTypeDescriptor(descriptor.Type), inherit: true)
+            public ApiExtensionParameter(string identifier, ApiGroupDescriptor apiDescriptor) : base(identifier, new ResolvedTypeDescriptor(apiDescriptor.Type), inherit: true)
             {
-                this.ApiDescriptor = descriptor;
+                this.ApiDescriptor = apiDescriptor;
             }
 
             public ApiGroupDescriptor ApiDescriptor { get; }

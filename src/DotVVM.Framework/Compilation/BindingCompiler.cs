@@ -78,14 +78,19 @@ namespace DotVVM.Framework.Compilation
             return new KeyValuePair<string, Expression>(name, Expression.Convert(Expression.ArrayIndex(vmArray, Expression.Constant(index)), parents[index]));
         }
 
+        public static IEnumerable<object> GetMinimalCloneProperties(IBinding binding)
+        {
+            var requirements = binding.GetProperty<BindingCompilationService>().GetRequirements(binding);
+
+            return requirements.Required.Concat(requirements.Optional)
+                    .Concat(new[] { typeof(OriginalStringBindingProperty), typeof(DataContextStack), typeof(LocationInfoBindingProperty), typeof(BindingParserOptions) })
+                    .Select(p => binding.GetProperty(p, ErrorHandlingMode.ReturnNull))
+                    .Where(p => p != null).ToArray();
+        }
+
         public virtual IBinding CreateMinimalClone(ResolvedBinding binding)
         {
-            var requirements = binding.BindingService.GetRequirements(binding.Binding);
-
-            var properties = requirements.Required.Concat(requirements.Optional)
-                    .Concat(new[] { typeof(OriginalStringBindingProperty), typeof(DataContextStack), typeof(LocationInfoBindingProperty), typeof(BindingParserOptions) })
-                    .Select(p => binding.Binding.GetProperty(p, ErrorHandlingMode.ReturnNull))
-                    .Where(p => p != null).ToArray();
+            var properties = GetMinimalCloneProperties(binding.Binding);
             return (IBinding)Activator.CreateInstance(binding.BindingType, new object[] {
                 binding.BindingService,
                 properties

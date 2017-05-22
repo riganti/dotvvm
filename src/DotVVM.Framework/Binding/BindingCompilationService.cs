@@ -25,8 +25,10 @@ namespace DotVVM.Framework.Binding
 
     public class BindingCompilationService
     {
-        public BindingCompilationService(IOptions<BindingCompilationOptions> options)
+        private readonly IExpressionToDelegateCompiler expressionCompiler;
+        public BindingCompilationService(IOptions<BindingCompilationOptions> options, IExpressionToDelegateCompiler expressionCompiler)
         {
+            this.expressionCompiler = expressionCompiler;
             resolvers.AddResolver(new Func<BindingAdditionalResolvers, BindingResolverCollection>(
                 rr => new BindingResolverCollection(rr.Resolvers)));
             foreach (var p in GetDelegates(options.Value.TransformerClasses))
@@ -87,6 +89,13 @@ namespace DotVVM.Framework.Binding
                     value = postProcessor.ExceptionSafeDynamicInvoke(arguments) ?? value;
                 }
                 return value ?? new InvalidOperationException($"Could not resolve binding property '{type}'.");
+            }
+            else if (typeof(Delegate).IsAssignableFrom(type))
+            {
+                var result = ComputeProperty(typeof(Expression<>).MakeGenericType(type), binding);
+                if (result is LambdaExpression lambda)
+                    return expressionCompiler.Compile(lambda);
+                else return result;
             }
             else return new InvalidOperationException($"Could not resolve binding property '{type}', resolver not found."); // don't throw the exception, since it creates noise for debugger
         }
@@ -164,6 +173,7 @@ namespace DotVVM.Framework.Binding
         }
 
         ConcurrentDictionary<Type, BindingCompilationRequirementsAttribute> defaultRequirementCache = new ConcurrentDictionary<Type, BindingCompilationRequirementsAttribute>();
+
         protected BindingCompilationRequirementsAttribute GetDefaultRequirements(Type bindingType)
         {
             return defaultRequirementCache.GetOrAdd(bindingType, t =>

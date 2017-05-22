@@ -18,9 +18,9 @@ namespace DotVVM.Framework.Compilation.Javascript
 {
     public class JavascriptTranslator
     {
-        public static object KnockoutContextParameter = new object();
-        public static object KnockoutViewModelParameter = new object();
-        public static object CurrentIndexParameter = new object();
+        public readonly static object KnockoutContextParameter = new object();
+        public readonly static object KnockoutViewModelParameter = new object();
+        public readonly static object CurrentIndexParameter = new object();
 
         public static JsExpression CompileToJavascript(Expression binding, DataContextStack dataContext, IViewModelSerializationMapper mapper)
         {

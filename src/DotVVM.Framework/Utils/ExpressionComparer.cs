@@ -92,6 +92,7 @@ namespace DotVVM.Framework.Utils
                 case ExpressionType.LessThan:
                 case ExpressionType.LessThanOrEqual:
                 case ExpressionType.Coalesce:
+                case ExpressionType.Assign:
                     var binX = (BinaryExpression)x;
                     var binY = (BinaryExpression)y;
                     return Equals(binX.Method, binY.Method) && Equals(binX.Left, binY.Left) && Equals(binX.Right, binY.Right);

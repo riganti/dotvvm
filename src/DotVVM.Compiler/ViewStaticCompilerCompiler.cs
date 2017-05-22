@@ -17,11 +17,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using DotVVM.Framework.Binding;
 
 namespace DotVVM.Compiler
 {
     internal class ViewStaticCompilerCompiler
     {
+        private const string ObjectsClassName = "SerializedObjects";
+
         private static ConcurrentDictionary<string, Assembly> assemblyDictionary = new ConcurrentDictionary<string, Assembly>();
         private static ConcurrentDictionary<string, DotvvmConfiguration> cachedConfig = new ConcurrentDictionary<string, DotvvmConfiguration>();
 
@@ -64,20 +67,20 @@ namespace DotVVM.Compiler
 
             var wsa = assemblyDictionary.GetOrAdd(Options.WebSiteAssembly, _ => Assembly.LoadFile(Options.WebSiteAssembly));
             configuration = GetCachedConfiguration(wsa, Options.WebSitePath,
-                 (config, services) =>
-                 {
+                 (config, services) => {
                      if (Options.FullCompile)
                      {
                          bindingCompiler = new AssemblyBindingCompiler(Options.BindingsAssemblyName, Options.BindingClassName, Path.Combine(Options.OutputPath, Options.BindingsAssemblyName + ".dll"), config);
                          services.AddSingleton<IBindingCompiler>(bindingCompiler);
+                         services.AddSingleton<IExpressionToDelegateCompiler>(bindingCompiler.GetExpressionToDelegateCompiler());
                      }
                  });
 
             if (Options.DothtmlFiles == null)
             {
-                Options.DothtmlFiles = configuration.RouteTable.Select(r => r.VirtualPath).ToArray();
+                Options.DothtmlFiles = configuration.RouteTable.Select(r => r.VirtualPath).Where(r => r != null).ToArray();
             }
-            
+
             if (Options.FullCompile)
             {
                 controlTreeResolver = configuration.ServiceLocator.GetService<IControlTreeResolver>();
@@ -97,18 +100,28 @@ namespace DotVVM.Compiler
             if (Options.FullCompile)
             {
                 var bindingsAssemblyPath = bindingCompiler.OutputFileName;
+                var (builder, fields) = configuration.ServiceLocator.GetService<RefObjectSerializer>().CreateBuilder(configuration);
+                bindingCompiler.AddSerializedObjects(ObjectsClassName, builder, fields);
                 bindingCompiler.SaveAssembly();
 
                 Program2.WriteInfo($"Bindings saved to {bindingsAssemblyPath}.");
 
                 compilation = compilation.AddReferences(MetadataReference.CreateFromFile(Path.GetFullPath(bindingsAssemblyPath)));
-                var compiledViewsFileName = Path.Combine(Options.OutputPath, Options.AssemblyName + ".dll");
+                var compiledViewsFileName = Path.Combine(Options.OutputPath, Options.AssemblyName + "_Views" + ".dll");
 
                 var result = compilation.Emit(compiledViewsFileName);
                 if (!result.Success)
                 {
                     throw new Exception("The compilation failed!");
                 }
+
+                var merger = new ILMerging.ILMerge() {
+                    OutputFile = Path.Combine(Options.OutputPath, Options.AssemblyName + ".dll"),
+                };
+                merger.SetInputAssemblies(new[] { compiledViewsFileName, bindingsAssemblyPath });
+                merger.SetSearchDirectories(new[] { Path.GetDirectoryName(Options.WebSiteAssembly) });
+                merger.Merge();
+
                 Program2.WriteInfo($"Compiled views saved to {compiledViewsFileName}.");
             }
         }
@@ -127,8 +140,7 @@ namespace DotVVM.Compiler
                 }
                 catch (DotvvmCompilationException exception)
                 {
-                    result.Files.Add(file, new FileCompilationResult
-                    {
+                    result.Files.Add(file, new FileCompilationResult {
                         Errors = new List<Exception>() { exception }
                     });
                 }
@@ -182,6 +194,9 @@ namespace DotVVM.Compiler
                 }
             }
 
+            var contextSpaceVisitor = new DataContextPropertyAssigningVisitor();
+            resolvedView.Accept(contextSpaceVisitor);
+
             var styleVisitor = new StylingVisitor(configuration);
             resolvedView.Accept(styleVisitor);
 
@@ -200,7 +215,7 @@ namespace DotVVM.Compiler
                 var namespaceName = DefaultControlBuilderFactory.GetNamespaceFromFileName(file.FileName, file.LastWriteDateTimeUtc);
                 var className = DefaultControlBuilderFactory.GetClassFromFileName(file.FileName) + "ControlBuilder";
                 fullClassName = namespaceName + "." + className;
-                emitter = new DefaultViewCompilerCodeEmitter();
+                emitter = new CompileTimeCodeEmitter(configuration.ServiceLocator.GetService<RefObjectSerializer>(), ObjectsClassName);
                 var compilingVisitor = new ViewCompilingVisitor(emitter, configuration.ServiceLocator.GetService<IBindingCompiler>(), className);
 
                 resolvedView.Accept(compilingVisitor);
@@ -210,15 +225,14 @@ namespace DotVVM.Compiler
                     CompileFile(resolvedView.Directives["masterPage"].Single().Value);
 
                 compilation = compilation
-                    .AddSyntaxTrees(emitter.BuildTree(namespaceName, className, fileName)/*.Select(t => SyntaxFactory.ParseSyntaxTree(t.GetRoot().NormalizeWhitespace().ToString()))*/)
+                    .AddSyntaxTrees(emitter.BuildTree(namespaceName, className, fileName))
                     .AddReferences(emitter.UsedAssemblies
                         .Select(a => CompiledAssemblyCache.Instance.GetAssemblyMetadata(a)));
             }
 
             Program2.WriteInfo($"The view { fileName } compiled successfully.");
 
-            var res = new ViewCompilationResult
-            {
+            var res = new ViewCompilationResult {
                 BuilderClassName = fullClassName,
                 ControlType = resolvedView.Metadata.Type,
                 DataContextType = emitter?.BuilderDataContextType,

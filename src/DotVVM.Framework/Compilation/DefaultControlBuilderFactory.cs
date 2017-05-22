@@ -129,10 +129,10 @@ namespace DotVVM.Framework.Compilation
             var assembly = TryFindAssembly(filePath);
             if (assembly != null)
             {
-                LoadCompiledViewsAssembly(assembly);
-
                 var bindings = Path.Combine(Path.GetDirectoryName(assembly.GetCodeBasePath()), "CompiledViewsBindings.dll");
-                if (File.Exists(bindings)) AssemblyLoader.LoadFile(bindings);
+                if (File.Exists(bindings)) LoadCompiledViewsAssembly(AssemblyLoader.LoadFile(bindings));
+
+                LoadCompiledViewsAssembly(assembly);
             }
         }
 
@@ -141,6 +141,14 @@ namespace DotVVM.Framework.Compilation
             if (File.Exists(fileName)) return AssemblyLoader.LoadFile(fileName);
             if (Path.IsPathRooted(fileName)) return null;
             var cleanName = Path.GetFileNameWithoutExtension(Path.GetFileName(fileName));
+            foreach (var assemblyDirectory in new[] { Path.GetDirectoryName(typeof(DefaultControlBuilderFactory).GetTypeInfo().Assembly.GetCodeBasePath()), configuration.ApplicationPhysicalPath })
+            {
+                if (!string.IsNullOrEmpty(assemblyDirectory))
+                {
+                    var possibleFileName = Path.Combine(assemblyDirectory, fileName);
+                    if (File.Exists(possibleFileName)) return AssemblyLoader.LoadFile(possibleFileName);
+                }
+            }
             foreach (var assembly in ReflectionUtils.GetAllAssemblies())
             {
                 // get already loaded assembly
@@ -150,19 +158,22 @@ namespace DotVVM.Framework.Compilation
                     if (codeBase.EndsWith(fileName, StringComparison.OrdinalIgnoreCase)) return assembly;
                 }
             }
-            foreach (var assemblyDirectory in new[] { Path.GetDirectoryName(typeof(DefaultControlBuilderFactory).GetTypeInfo().Assembly.GetCodeBasePath()), configuration.ApplicationPhysicalPath })
-            {
-                if (!string.IsNullOrEmpty(assemblyDirectory))
-                {
-                    var possibleFileName = Path.Combine(assemblyDirectory, fileName);
-                    if (File.Exists(possibleFileName)) return AssemblyLoader.LoadFile(possibleFileName);
-                }
-            }
             return null;
         }
 
         public void LoadCompiledViewsAssembly(Assembly assembly)
         {
+            var initMethods = assembly.GetTypes()
+                .Where(t => t.Name == "SerializedObjects")
+                .SelectMany(t => t.GetMethods(BindingFlags.Public | BindingFlags.Static))
+                .Where(m => m.Name == "Init")
+                .ToArray();
+            foreach (var initMethod in initMethods)
+            {
+                var args = initMethod.GetParameters().Select(p => configuration.ServiceLocator.GetServiceProvider().GetService(p.ParameterType)).ToArray();
+                initMethod.Invoke(null, args);
+            }
+
             var builders = assembly.GetTypes().Select(t => new
             {
                 type = t,

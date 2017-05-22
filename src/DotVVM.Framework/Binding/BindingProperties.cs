@@ -216,9 +216,9 @@ namespace DotVVM.Framework.Binding.Properties
     public sealed class AssignedPropertyBindingProperty
     {
         public readonly DotvvmProperty DotvvmProperty;
-        public AssignedPropertyBindingProperty(DotvvmProperty property)
+        public AssignedPropertyBindingProperty(DotvvmProperty dotvvmProperty)
         {
-            this.DotvvmProperty = property;
+            this.DotvvmProperty = dotvvmProperty;
         }
     }
 

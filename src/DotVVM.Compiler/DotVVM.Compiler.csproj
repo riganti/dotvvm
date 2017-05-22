@@ -41,6 +41,9 @@
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ILMerge">
+      <HintPath>..\packages\ILMerge.2.14.1208\tools\ILMerge.exe</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CodeAnalysis, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.CodeAnalysis.Common.1.0.0\lib\net45\Microsoft.CodeAnalysis.dll</HintPath>
       <Private>True</Private>
@@ -155,6 +158,9 @@
       <HintPath>..\packages\System.Threading.Thread.4.0.0\lib\net46\System.Threading.Thread.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.4.0-preview1-25305-02\lib\net461\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -188,6 +194,7 @@
     <Compile Include="AssemblyBindingCompiler.cs" />
     <Compile Include="CompilationResult.cs" />
     <Compile Include="CompilerOptions.cs" />
+    <Compile Include="CompileTimeCodeEmitter.cs" />
     <Compile Include="ControlCompilationInfo.cs" />
     <Compile Include="FileCompilationResult.cs" />
     <Compile Include="OfflineCompilationControlResolver.cs" />
@@ -195,7 +202,9 @@
     <Compile Include="Program.cs" />
     <Compile Include="Program2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RefObjectSerializer.cs" />
     <Compile Include="ResolvedControlInfoVisitor.cs" />
+    <Compile Include="UnallowedConstantRemover.cs" />
     <Compile Include="ViewStaticCompilerCompiler.cs" />
   </ItemGroup>
   <ItemGroup>

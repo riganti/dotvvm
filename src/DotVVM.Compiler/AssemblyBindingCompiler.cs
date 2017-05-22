@@ -36,7 +36,7 @@ namespace DotVVM.Compiler
             OutputFileName = outputFileName;
         }
 
-        protected string CompileMethod(LambdaExpression expr)
+        protected MethodInfo CompileMethod(LambdaExpression expr)
         {
             var returnType = expr.Type;
             var parameters = expr.Parameters.Select(p => p.Type).ToArray();
@@ -45,7 +45,29 @@ namespace DotVVM.Compiler
                 var name = "Binding_" + (methodCounter++);
                 var method = bindingsClass.DefineMethod(name, MethodAttributes.Public | MethodAttributes.Static, returnType, parameters);
                 expr.CompileToMethod(method);
-                return bindingsClass.FullName + "." + name;
+                return method;
+            }
+        }
+
+        public IExpressionToDelegateCompiler GetExpressionToDelegateCompiler()
+        {
+            return new ExpressionToDelegateCompiler(this);
+        }
+        class ExpressionToDelegateCompiler : IExpressionToDelegateCompiler
+        {
+            private AssemblyBindingCompiler assemblyBindingCompiler;
+
+            public ExpressionToDelegateCompiler(AssemblyBindingCompiler assemblyBindingCompiler)
+            {
+                this.assemblyBindingCompiler = assemblyBindingCompiler;
+            }
+
+            public Delegate Compile(LambdaExpression expression)
+            {
+                //assemblyBindingCompiler.CompileMethod(expression);
+                var realDelegate = expression.Compile();
+                RefObjectSerializer.RegisterDelegateTranslation(realDelegate, expression);
+                return realDelegate;
             }
         }
 
@@ -69,16 +91,16 @@ namespace DotVVM.Compiler
         //    return result;
         //}
 
-        public override ExpressionSyntax EmitCreateBinding(DefaultViewCompilerCodeEmitter emitter, ResolvedBinding binding)
-        {
-            throw new NotImplementedException();
-            //var info = PrecompileBinding(binding, id, expectedType);
-            //if (emitter != null)
-            //{
-            //    return GetCachedInitializer(emitter, GetCompiledBindingCreation(emitter, info.MethodName, info.UpdateMethodName, info.OriginalString, this.GetAttributeInitializers(info.ActionFilters, emitter)?.ToArray(), info.Javascript, id));
-            //}
-            //else return null;
-        }
+        //public override ExpressionSyntax EmitCreateBinding(DefaultViewCompilerCodeEmitter emitter, ResolvedBinding binding)
+        //{
+        //    throw new NotImplementedException();
+        //var info = PrecompileBinding(binding, id, expectedType);
+        //if (emitter != null)
+        //{
+        //    return GetCachedInitializer(emitter, GetCompiledBindingCreation(emitter, info.MethodName, info.UpdateMethodName, info.OriginalString, this.GetAttributeInitializers(info.ActionFilters, emitter)?.ToArray(), info.Javascript, id));
+        //}
+        //else return null;
+        //}
 
         //protected ExpressionSyntax GetCompiledBindingCreation(DefaultViewCompilerCodeEmitter emitter, string methodName, string updateMethodName, string originalString, ExpressionSyntax[] actionFilters, string javascript, string id)
         //{
@@ -155,6 +177,21 @@ namespace DotVVM.Compiler
         {
             bindingsClass.CreateType();
             assemblyBuilder.Save(Path.GetFileName(OutputFileName));
+        }
+
+
+        public void AddSerializedObjects(string typeName, Expression builder, ParameterExpression[] fields)
+        {
+            var type = moduleBuilder.DefineType(typeName, TypeAttributes.Class | TypeAttributes.Public);
+            var builtFields = fields.Select(f => type.DefineField(f.Name, f.Type, FieldAttributes.Static | FieldAttributes.Public)).ToArray();
+            var expandedBuilder = ExpressionUtils.Replace(
+                Expression.Lambda(builder, fields),
+                builtFields.Select(f => Expression.Field(null, f)).ToArray()
+            );
+            var initMethod = type.DefineMethod("Init", MethodAttributes.Static | MethodAttributes.Public, typeof(void), new[] { typeof(DotvvmConfiguration), typeof(IServiceProvider) });
+            var methodExpression = Expression.Lambda(expandedBuilder, RefObjectSerializer.DotvvmConfigurationParameter, RefObjectSerializer.ServiceProviderParameter);
+            methodExpression.CompileToMethod(initMethod);
+            type.CreateType();
         }
 
         public class BindingExpressionCompilationInfo

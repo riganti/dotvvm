@@ -326,7 +326,7 @@ namespace DotVVM.Framework.Compilation
             return SyntaxFactory.LiteralExpression(value ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression);
         }
 
-        public ExpressionSyntax EmitValueReference(object value)
+        public virtual ExpressionSyntax EmitValueReference(object value)
         {
             var id = AddObject(value);
             return SyntaxFactory.ElementAccessExpression(SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,

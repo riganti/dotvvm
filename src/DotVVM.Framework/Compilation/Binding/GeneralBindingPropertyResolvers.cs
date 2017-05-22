@@ -141,10 +141,6 @@ namespace DotVVM.Framework.Compilation.Binding
                 .ToImmutableArray());
         }
 
-        public CompiledBindingExpression.BindingDelegate Compile(Expression<CompiledBindingExpression.BindingDelegate> expr) => expr.Compile();
-        public CompiledBindingExpression.BindingUpdateDelegate Compile(Expression<CompiledBindingExpression.BindingUpdateDelegate> expr) => expr.Compile();
-
-
         private ConditionalWeakTable<ResolvedTreeRoot, ConcurrentDictionary<DataContextStack, int>> bindingCounts = new ConditionalWeakTable<ResolvedTreeRoot, ConcurrentDictionary<DataContextStack, int>>();
         public IdBindingProperty CreateBindingId(
             OriginalStringBindingProperty originalString = null,

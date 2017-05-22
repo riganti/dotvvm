@@ -47,5 +47,8 @@ namespace DotVVM.Framework.Utils
                     yield return ce;
             }
         }
+
+        public static IEnumerable<(int, T)> Indexed<T>(this IEnumerable<T> enumerable) =>
+            enumerable.Select((a, b) => (b, a));
     }
 }

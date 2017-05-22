@@ -189,11 +189,11 @@ namespace DotVVM.Framework.Compilation.Javascript
         /// </summary>
         public readonly bool IsSafeMemberAccess;
 
-        public CodeParameterInfo(object parameter, byte operatorPrecence = 20, bool isMemberAccess = false)
+        public CodeParameterInfo(object parameter, byte operatorPrecedence = 20, bool isSafeMemberAccess = false)
         {
             this.Parameter = parameter;
-            this.OperatorPrecedence = operatorPrecence;
-            this.IsSafeMemberAccess = isMemberAccess;
+            this.OperatorPrecedence = operatorPrecedence;
+            this.IsSafeMemberAccess = isSafeMemberAccess;
         }
 
         public static CodeParameterInfo FromExpression(JsSymbolicParameter expression)

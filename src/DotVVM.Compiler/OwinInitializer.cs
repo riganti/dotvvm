@@ -17,7 +17,7 @@ namespace DotVVM.Compiler
 {
     class OwinInitializer
     {
-		public static DotvvmConfiguration InitDotVVM(Assembly webSiteAssembly, string webSitePath, ViewStaticCompilerCompiler viewStaticCompilerCompiler, Action<DotvvmConfiguration, IServiceCollection> registerServices)
+        public static DotvvmConfiguration InitDotVVM(Assembly webSiteAssembly, string webSitePath, ViewStaticCompilerCompiler viewStaticCompilerCompiler, Action<DotvvmConfiguration, IServiceCollection> registerServices)
         {
             var dotvvmStartups = webSiteAssembly.GetLoadableTypes()
                 .Where(t => typeof(IDotvvmStartup).IsAssignableFrom(t) && t.GetConstructor(Type.EmptyTypes) != null).ToArray();
@@ -27,15 +27,15 @@ namespace DotVVM.Compiler
 
             var startup = (IDotvvmStartup)Activator.CreateInstance(dotvvmStartups[0]);
             IServiceCollection serviceCollection = null;
-			var config = DotvvmConfiguration.CreateDefault(
-			    services =>
-			    {
-			        serviceCollection = services;
+            var config = DotvvmConfiguration.CreateDefault(
+                services => {
+                    serviceCollection = services;
 
-			        if (viewStaticCompilerCompiler != null)
-			        {
-			            services.AddSingleton<ViewStaticCompilerCompiler>(viewStaticCompilerCompiler);
-			            services.AddSingleton<IControlResolver, OfflineCompilationControlResolver>();
+                    if (viewStaticCompilerCompiler != null)
+                    {
+                        services.AddSingleton<ViewStaticCompilerCompiler>(viewStaticCompilerCompiler);
+                        services.AddSingleton<IControlResolver, OfflineCompilationControlResolver>();
+                        services.AddSingleton(new RefObjectSerializer());
                     }
                 });
             registerServices(config, serviceCollection);

@@ -44,6 +44,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
         {
             return dataContext.Member("$control").WithAnnotation(new ViewModelInfoAnnotation(ResolvedTypeDescriptor.ToSystemType(this.ParameterType), isControl: true));
         }
+
+
+        public static CurrentMarkupControlExtensionParameter refserializer_create(ITypeDescriptor parameterType) => new CurrentMarkupControlExtensionParameter(parameterType);
     }
 
     public class CurrentCollectionIndexExtensionParameter : BindingExtensionParameter
