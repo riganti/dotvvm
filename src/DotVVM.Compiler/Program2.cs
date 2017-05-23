@@ -78,7 +78,9 @@ namespace DotVVM.Compiler
             try
             {
                 WriteInfo($"Resolving assembly `{args.Name}`.");
-                var r = LoadFromAlternativeFolder(args.Name);
+                var r = 
+                    AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == args.Name || a.GetName().Name == args.Name) ??
+                    LoadFromAlternativeFolder(args.Name);
                 if (r != null) return r;
                 WriteInfo($"Assembly `{args.Name}` resolve failed.");
 

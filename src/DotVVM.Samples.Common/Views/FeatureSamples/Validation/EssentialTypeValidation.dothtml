@@ -2,6 +2,8 @@
 
 <!DOCTYPE html>
 
+<%-- TODO UI test --%>
+
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
@@ -59,7 +61,7 @@
         <dot:Button Click="{command: AddNestedVMs()}" Text="Add nested VMs" Validation.Enabled="false" />
     </p>
     <p>
-        <dot:Button Click="{command: Postback()}" Validation.Enabled="true" Validation.Target="_root" Text="Postback with validation" />
+        <dot:Button Click="{command: Postback()}" Validation.Enabled="true" Validation.Target="{value: _root}" Text="Postback with validation" />
         <dot:Button Click="{command: Postback()}" Validation.Enabled="false" Text="Postback without validation" />
     </p>
     <dot:ValidationSummary IncludeErrorsFromChildren="true" />
