@@ -5,7 +5,6 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Owin.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Linq;

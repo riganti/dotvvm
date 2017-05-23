@@ -121,6 +121,8 @@ namespace DotVVM.Compiler
                 merger.SetInputAssemblies(new[] { compiledViewsFileName, bindingsAssemblyPath });
                 merger.SetSearchDirectories(new[] { Path.GetDirectoryName(Options.WebSiteAssembly) });
                 merger.Merge();
+                File.Delete(compiledViewsFileName);
+                File.Delete(bindingsAssemblyPath);
 
                 Program2.WriteInfo($"Compiled views saved to {compiledViewsFileName}.");
             }
