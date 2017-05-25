@@ -1,8 +1,13 @@
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var DotvvmDomUtils = (function () {
     function DotvvmDomUtils() {
     }
@@ -548,6 +553,7 @@ var DotvvmSerialization = (function () {
                 }
                 var options = viewModel[prop + "$options"];
                 if (!opt.serializeAll && options && options.doNotPost) {
+                    // continue
                 }
                 else if (opt.oneLevel) {
                     result[prop] = ko.unwrap(value);
@@ -2112,6 +2118,20 @@ var DotvvmEventHub = (function () {
     };
     return DotvvmEventHub;
 }());
+function basicAuthenticatedFetch(input, init) {
+    var auth = sessionStorage.getItem("someAuth") || (function () {
+        var a = prompt("You credentials for " + (input["url"] || input)) || "";
+        sessionStorage.setItem("someAuth", a);
+        return a;
+    })();
+    if (init == null)
+        init = {};
+    if (init.headers == null)
+        init.headers = {};
+    if (init.headers['Authorization'] == null)
+        init.headers["Authorization"] = 'Basic ' + btoa(auth);
+    return window.fetch(input, init);
+}
 (function () {
     var cachedValues = {};
     DotVVM.prototype.invokeApiFn = function (callback, refreshTriggers, notifyTriggers, commandId) {
@@ -2120,17 +2140,22 @@ var DotvvmEventHub = (function () {
         if (commandId === void 0) { commandId = callback.toString(); }
         var cachedValue = cachedValues[commandId] || (cachedValues[commandId] = ko.observable(null));
         var load = function () {
-            var result = window["Promise"].resolve(ko.ignoreDependencies(callback));
-            result.then(function (val) {
-                if (val) {
-                    dotvvm.serialization.deserialize(val, cachedValue);
-                    cachedValue.notifySubscribers();
-                }
-                for (var _i = 0, notifyTriggers_1 = notifyTriggers; _i < notifyTriggers_1.length; _i++) {
-                    var t = notifyTriggers_1[_i];
-                    dotvvm.eventHub.notify(t);
-                }
-            }, console.warn);
+            try {
+                var result = window["Promise"].resolve(ko.ignoreDependencies(callback));
+                result.then(function (val) {
+                    if (val) {
+                        dotvvm.serialization.deserialize(val, cachedValue);
+                        cachedValue.notifySubscribers();
+                    }
+                    for (var _i = 0, notifyTriggers_1 = notifyTriggers; _i < notifyTriggers_1.length; _i++) {
+                        var t = notifyTriggers_1[_i];
+                        dotvvm.eventHub.notify(t);
+                    }
+                }, console.warn);
+            }
+            catch (e) {
+                console.warn(e);
+            }
         };
         var cmp = ko.pureComputed(function () { return cachedValue(); });
         cmp.refreshValue = function () {

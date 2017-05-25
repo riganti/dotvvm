@@ -1,0 +1,29 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Api.GithubRepoApiViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <dot:RequiredResource Name="apiInit_github" />
+</head>
+<body>
+
+    <p>
+        <dot:TextBox Text="{value: UserName}" placeholder="user name" />
+        <dot:ComboBox SelectedValue="{value: Repo}" DataSource="{value: Api.RefreshOnChange(_github.Root.Repos12(UserName, null, null, null, null, null, null, null), UserName)}" ValueMember="name" DisplayMember="name" />
+    </p>
+    <p>
+        Open Issues:
+        <dot:GridView DataSource="{value: _page.EvaluatingOnServer ? null : Api.RefreshOnChange(_github.Root.Issues2(UserName, Repo, 'All', 'Open', '', 'Updated', 'Desc', '1950-01-01T00:00:00Z', null, null, null, null, null, null), Repo + UserName)}">
+            <EmptyDataTemplate>No issues</EmptyDataTemplate>
+            <dot:GridViewTextColumn ValueBinding="{value: _this.Title}" HeaderText="Title" />
+            <dot:GridViewTextColumn ValueBinding="{value: User.Login}" HeaderText="User" />
+            <dot:GridViewTemplateColumn HeaderText="...">
+                <a href="{value: "https://github.com/" + _root.UserName + "/" + _root.Repo + "/issues/" + Number}" >github.com</a>
+            </dot:GridViewTemplateColumn>
+        </dot:GridView>
+    </p>
+</body>
+</html>

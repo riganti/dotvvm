@@ -86,20 +86,23 @@ namespace DotVVM.Framework.Configuration
             }
         }
 
-        public static void RegisterApiGroup(this DotvvmConfiguration configuration, Type wrapperType, string apiServerUrl, string jsApiClientFile, string identifier = "_api")
+        public static void RegisterApiGroup(this DotvvmConfiguration configuration, Type wrapperType, string apiServerUrl, string jsApiClientFile, string identifier = "_api", string customFetchFunction = null)
         {
             apiServerUrl = apiServerUrl.TrimEnd('/');
             var jsidentifier = new JsIdentifierExpression("dotvvm").Member("api").Member(identifier);
 
             var properties = (from prop in wrapperType.GetProperties()
-                              let ctor = prop.PropertyType.GetConstructor(new[] { typeof(string) })
-                              let instance = ctor.Invoke(new[] { apiServerUrl })
+                              let instance = prop.PropertyType.GetConstructor(new[] { typeof(string) })?.Invoke(new[] { apiServerUrl }) ??
+                                             prop.PropertyType.GetConstructor(Type.EmptyTypes)?.Invoke(new object[] { })
                               let jsName = KnockoutHelper.ConvertToCamelCase(prop.Name)
                               select new { instance, jsName, desc = new ApiDescriptor(prop.Name, prop, prop.PropertyType, jsidentifier.Clone().Member(jsName)) }).ToArray();
 
             var jsinitializer = new JsExpressionStatement(new JsAssignmentExpression(jsidentifier.Clone(), new JsObjectExpression(
                 properties.Select(p =>
-                    new JsObjectProperty(p.jsName, new JsNewExpression(new JsIdentifierExpression(p.desc.Type.Name), new JsLiteral(apiServerUrl)))
+                    new JsObjectProperty(p.jsName, new JsNewExpression(new JsIdentifierExpression(p.desc.Type.Name),
+                        new JsLiteral(apiServerUrl),
+                        customFetchFunction == null ? null : new JsObjectExpression(new JsObjectProperty("fetch", new JsIdentifierExpression(customFetchFunction)))
+                    ))
                 )
             )));
 

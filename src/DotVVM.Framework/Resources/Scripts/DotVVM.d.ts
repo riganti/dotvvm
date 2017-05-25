@@ -349,3 +349,4 @@ declare class DotvvmEventHub {
     notify(id: string): void;
     get(id: string): KnockoutObservable<number>;
 }
+declare function basicAuthenticatedFetch(input: RequestInfo, init: RequestInit): Promise<Response>;

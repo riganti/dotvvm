@@ -21,6 +21,18 @@ class DotvvmEventHub {
     }
 }
 
+function basicAuthenticatedFetch(input: RequestInfo, init: RequestInit) {
+    var auth = sessionStorage.getItem("someAuth") || (() => {
+        var a = prompt("You credentials for " + (input["url"] || input)) || "";
+        sessionStorage.setItem("someAuth", a);
+        return a;
+    })();
+    if (init == null) init = {}
+    if (init.headers == null) init.headers = {};
+    if (init.headers['Authorization'] == null) init.headers["Authorization"] = 'Basic ' + btoa(auth);
+    return window.fetch(input, init);
+}
+
 (function () {
 
     let cachedValues: { [key: string]: KnockoutObservable<any> } = {};
@@ -28,15 +40,20 @@ class DotvvmEventHub {
         let cachedValue = cachedValues[commandId] || (cachedValues[commandId] = ko.observable<any>(null));
 
         const load = () => {
-            var result = window["Promise"].resolve(ko.ignoreDependencies(callback));
-            result.then((val) => {
-                if (val) {
-                    dotvvm.serialization.deserialize(val, cachedValue);
-                    cachedValue.notifySubscribers();
-                }
-                for (var t of notifyTriggers)
-                    dotvvm.eventHub.notify(t);
-            }, console.warn);
+            try {
+                var result = window["Promise"].resolve(ko.ignoreDependencies(callback));
+                result.then((val) => {
+                    if (val) {
+                        dotvvm.serialization.deserialize(val, cachedValue);
+                        cachedValue.notifySubscribers();
+                    }
+                    for (var t of notifyTriggers)
+                        dotvvm.eventHub.notify(t);
+                }, console.warn);
+            }
+            catch (e) {
+                console.warn(e);
+            }
         };
 
         const cmp = <ApiComputed<T>><any>ko.pureComputed(() => cachedValue());

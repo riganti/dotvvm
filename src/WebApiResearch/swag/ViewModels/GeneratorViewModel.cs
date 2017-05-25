@@ -28,7 +28,7 @@ namespace swag.ViewModels
 
 	        var settings = new SwaggerToCSharpClientGeneratorSettings()
 	        {
-                GenerateSyncMethods = true
+                GenerateSyncMethods = true,
             };
 
 	        var generator = new SwaggerToCSharpClientGenerator(document, settings);
@@ -54,6 +54,9 @@ namespace swag.ViewModels
 
 	    private async Task<SwaggerDocument> GetSwaggerDocument()
 	    {
+
+            return await SwaggerDocument.FromFileAsync("c:/users/exyi/Downloads/github-swagger.json");
+
 	        var settings = new WebApiToSwaggerGeneratorSettings();
 	        var generator = new WebApiToSwaggerGenerator(settings);
 
