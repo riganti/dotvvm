@@ -164,7 +164,6 @@ namespace DotVVM.Framework.Compilation.Binding
             sb.Append(dataContext?.GetHashCode());
             sb.Append("|||");
             sb.Append(assignedProperty?.DotvvmProperty?.FullName);
-            sb.Append(assignedProperty?.DotvvmProperty?.GetHashCode());
 
             if (resolvedBinding?.TreeRoot != null)
             {

@@ -115,7 +115,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 }
 
                 hashCode = (hashCode * 397) ^ (Parent?.GetHashCode() ?? 0);
-                hashCode = (hashCode * 13) ^ (DataContextType?.GetHashCode() ?? 0);
+                hashCode = (hashCode * 13) ^ (DataContextType?.FullName?.GetHashCode() ?? 0);
                 return hashCode;
             }
         }
