@@ -411,7 +411,7 @@ namespace DotVVM.Framework.Controls
                     else result.Add(JavascriptCompilationHelper.CompileConstant(f));
                 }
                 if (service == null) throw new NotSupportedException();
-                return ValueBindingExpression.CreateBinding<string>(service, h => null, result.Build(new OperatorPrecedence()));
+                return ValueBindingExpression.CreateBinding<string>(service.WithoutInitialization(), h => null, result.Build(new OperatorPrecedence()));
             }
         }
 

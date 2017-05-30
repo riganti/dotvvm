@@ -25,8 +25,11 @@ namespace DotVVM.Framework.Binding
 
     public class BindingCompilationService
     {
+        private readonly BindingCompilationService noInitService;
+
         public BindingCompilationService(IOptions<BindingCompilationOptions> options)
         {
+            noInitService = new NoInitService(options);
             resolvers.AddResolver(new Func<BindingAdditionalResolvers, BindingResolverCollection>(
                 rr => new BindingResolverCollection(rr.Resolvers)));
             foreach (var p in GetDelegates(options.Value.TransformerClasses))
@@ -51,7 +54,7 @@ namespace DotVVM.Framework.Binding
             }
         }
 
-        public object ComputeProperty(Type type, IBinding binding)
+        public virtual object ComputeProperty(Type type, IBinding binding)
         {
             if (type == typeof(BindingCompilationService)) return this;
             if (type.IsAssignableFrom(binding.GetType())) return binding;
@@ -182,7 +185,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Resolves required and optional properties
         /// </summary>
-        public void InitializeBinding(IBinding binding, IEnumerable<BindingCompilationRequirementsAttribute> bindingRequirements = null)
+        public virtual void InitializeBinding(IBinding binding, IEnumerable<BindingCompilationRequirementsAttribute> bindingRequirements = null)
         {
             InitializeBindingCore(binding, GetRequirements(binding, bindingRequirements));
         }
@@ -213,5 +216,17 @@ namespace DotVVM.Framework.Binding
             where m.DeclaringType != typeof(object)
             select t is Delegate ? (Delegate)t : m.CreateDelegate(MethodGroupExpression.GetDelegateType(m), t)
         ).ToArray();
+
+        class NoInitService: BindingCompilationService
+        {
+            public NoInitService(IOptions<BindingCompilationOptions> options) : base(options) { }
+
+            public override void InitializeBinding(IBinding binding, IEnumerable<BindingCompilationRequirementsAttribute> bindingRequirements = null)
+            {
+                // no-op
+            }
+        }
+
+        public BindingCompilationService WithoutInitialization() => this.noInitService;
     }
 }

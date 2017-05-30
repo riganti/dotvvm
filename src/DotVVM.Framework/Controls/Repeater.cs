@@ -122,7 +122,7 @@ namespace DotVVM.Framework.Controls
                     var placeholder = new DataItemContainer { DataItemIndex = index };
                     ItemTemplate.BuildContent(context, placeholder);
                     placeholder.SetBinding(DataContextProperty, ValueBindingExpression.CreateBinding(
-                        bindingService,
+                        bindingService.WithoutInitialization(),
                         j => item,
                         itemBinding.KnockoutExpression.AssignParameters(p =>
                             p == JavascriptTranslator.CurrentIndexParameter ? new CodeParameterAssignment(index.ToString(), OperatorPrecedence.Max) :

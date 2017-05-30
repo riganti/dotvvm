@@ -193,7 +193,7 @@ namespace DotVVM.Framework.Controls
                     // create row
                     var placeholder = new DataItemContainer { DataItemIndex = index };
                     placeholder.SetBinding(DataContextProperty, ValueBindingExpression.CreateBinding(
-                        bindingService,
+                        bindingService.WithoutInitialization(),
                         j => item,
                         itemBinding.KnockoutExpression.AssignParameters(p =>
                             p == JavascriptTranslator.CurrentIndexParameter ? new CodeParameterAssignment(index.ToString(), OperatorPrecedence.Max) :
