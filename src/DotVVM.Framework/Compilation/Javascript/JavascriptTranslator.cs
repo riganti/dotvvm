@@ -91,9 +91,9 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             // TODO(exyi): more symbolic parameters
             return AdjustKnockoutScriptContext(expression, dataContextLevel)
-                .ToString(o => o == KnockoutContextParameter ? CodeParameterAssignment.FromExpression(new JsIdentifierExpression("$context"), true) :
-                               o == KnockoutViewModelParameter ? CodeParameterAssignment.FromExpression(new JsIdentifierExpression("$data"), allowDataGlobal) :
-                               o == CurrentIndexParameter ? CodeParameterAssignment.FromExpression(new JsIdentifierExpression("$index").Invoke()) :
+                .ToString(o => o == KnockoutContextParameter ? CodeParameterAssignment.FromIdentifier("$context", true) :
+                               o == KnockoutViewModelParameter ? CodeParameterAssignment.FromIdentifier("$data", allowDataGlobal) :
+                               o == CurrentIndexParameter ? CodeParameterAssignment.FromIdentifier("$index()") :
                                throw new Exception());
         }
 

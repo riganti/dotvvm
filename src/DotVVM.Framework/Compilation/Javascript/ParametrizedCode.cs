@@ -6,6 +6,7 @@ using DotVVM.Framework.Compilation.Javascript.Ast;
 using System.Collections.Immutable;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Binding.Expressions;
+using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Compilation.Javascript
 {
@@ -220,6 +221,11 @@ namespace DotVVM.Framework.Compilation.Javascript
             var code = expression.FormatParametrizedScript();
             return new CodeParameterAssignment(code, isGlobalContext);
         }
+
+        public static CodeParameterAssignment FromIdentifier(string identifier, bool isGlobalContext = false) =>
+            new CodeParameterAssignment(identifier, OperatorPrecedence.Max, isGlobalContext);
+        public static CodeParameterAssignment FromLiteral(string value, bool isGlobalContext = false) =>
+            new CodeParameterAssignment(JsonConvert.ToString(value), OperatorPrecedence.Max, isGlobalContext);
 
         public static implicit operator CodeParameterAssignment(ParametrizedCode val) => new CodeParameterAssignment(val);
     }

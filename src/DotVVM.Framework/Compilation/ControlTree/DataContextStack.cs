@@ -10,7 +10,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
     /// <summary>
     /// Represents compile-time DataContext info - Type of current DataContext, it's parent and other available parameters
     /// </summary>
-    public class DataContextStack : IDataContextStack
+    public sealed class DataContextStack : IDataContextStack
     {
         public DataContextStack Parent { get; }
         public Type DataContextType { get; }

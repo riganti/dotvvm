@@ -50,18 +50,20 @@ namespace DotVVM.Framework.Binding.Expressions
         public static ValueBindingExpression CreateThisBinding<T>(BindingCompilationService service, DataContextStack dataContext) =>
             CreateBinding<T>(service, o => (T)o[0], dataContext);
 
-        public static ValueBindingExpression CreateBinding<T>(BindingCompilationService service, Func<object[], T> func, JsExpression expression) =>
+        public static ValueBindingExpression CreateBinding<T>(BindingCompilationService service, Func<object[], T> func, JsExpression expression, DataContextStack dataContext = null) =>
             new ValueBindingExpression(service, new object[] {
                 new CompiledBindingExpression.BindingDelegate((o, c) => func(o)),
                 new ResultTypeBindingProperty(typeof(T)),
-                new KnockoutJsExpressionBindingProperty(expression)
+                new KnockoutJsExpressionBindingProperty(expression),
+                dataContext
             });
 
-        public static ValueBindingExpression CreateBinding<T>(BindingCompilationService service, Func<object[], T> func, ParametrizedCode expression) =>
+        public static ValueBindingExpression CreateBinding<T>(BindingCompilationService service, Func<object[], T> func, ParametrizedCode expression, DataContextStack dataContext = null) =>
             new ValueBindingExpression(service, new object[] {
                 new CompiledBindingExpression.BindingDelegate((o, c) => func(o)),
                 new ResultTypeBindingProperty(typeof(T)),
-                new KnockoutExpressionBindingProperty(expression, expression)
+                new KnockoutExpressionBindingProperty(expression, expression),
+                dataContext
             });
 
         public static ValueBindingExpression CreateBinding<T>(BindingCompilationService service, Expression<Func<object[], T>> expr, DataContextStack dataContext)

@@ -13,6 +13,7 @@ using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime.Filters;
 using DotVVM.Framework.Utils;
+using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Binding.Expressions
 {
@@ -141,7 +142,7 @@ namespace DotVVM.Framework.Binding.Expressions
             ).FormatParametrizedScript();
         public static ParametrizedCode CreateJsPostbackInvocation(string id) =>
             javascriptPostbackInvocation.AssignParameters(p =>
-                p == CommandIdParameter ? CodeParameterAssignment.FromExpression(new JsLiteral(id)) :
+                p == CommandIdParameter ? CodeParameterAssignment.FromLiteral(id) :
                 default(CodeParameterAssignment));
 
         public CommandBindingExpression(BindingCompilationService service, Action<object[]> command, string id)

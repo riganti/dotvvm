@@ -25,11 +25,11 @@ namespace DotVVM.Framework.Binding
 
     public class BindingCompilationService
     {
-        private readonly BindingCompilationService noInitService;
+        private readonly Lazy<BindingCompilationService> noInitService;
 
         public BindingCompilationService(IOptions<BindingCompilationOptions> options)
         {
-            noInitService = new NoInitService(options);
+            noInitService = new Lazy<BindingCompilationService>(() => new NoInitService(options));
             resolvers.AddResolver(new Func<BindingAdditionalResolvers, BindingResolverCollection>(
                 rr => new BindingResolverCollection(rr.Resolvers)));
             foreach (var p in GetDelegates(options.Value.TransformerClasses))
@@ -227,6 +227,6 @@ namespace DotVVM.Framework.Binding
             }
         }
 
-        public BindingCompilationService WithoutInitialization() => this.noInitService;
+        public BindingCompilationService WithoutInitialization() => this.noInitService.Value;
     }
 }
