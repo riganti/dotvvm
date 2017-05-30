@@ -154,19 +154,6 @@ namespace DotVVM.Framework.Binding.Properties
         }
     }
 
-
-    /// <summary>
-    /// Contains array of Delegates that are to find resolvers for another computed properties. These have precedence before global ones.
-    /// </summary>
-    public sealed class BindingAdditionalResolvers
-    {
-        public ImmutableArray<Delegate> Resolvers { get; }
-        public BindingAdditionalResolvers(IEnumerable<Delegate> resolvers)
-        {
-            Resolvers = resolvers.ToImmutableArray();
-        }
-    }
-
     /// <summary>
     /// Contains expected type of the binding - typically type of the bound property.
     /// </summary>

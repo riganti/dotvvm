@@ -30,13 +30,11 @@ namespace DotVVM.Framework.Binding
         public BindingCompilationService(IOptions<BindingCompilationOptions> options)
         {
             noInitService = new Lazy<BindingCompilationService>(() => new NoInitService(options));
-            resolvers.AddResolver(new Func<BindingAdditionalResolvers, BindingResolverCollection>(
-                rr => new BindingResolverCollection(rr.Resolvers)));
             foreach (var p in GetDelegates(options.Value.TransformerClasses))
                 resolvers.AddDelegate(p);
         }
 
-        BindingResolverCollection resolvers = new BindingResolverCollection();
+        BindingResolverCollection resolvers = new BindingResolverCollection(Enumerable.Empty<Delegate>());
         [ThreadStatic]
         private static bool LookingForResolvers = false;
 
@@ -108,63 +106,7 @@ namespace DotVVM.Framework.Binding
                 new BindingResolverCollection(t.GetTypeInfo().GetCustomAttributes<BindingCompilationOptionsAttribute>(true)
                 .SelectMany(o => o.GetResolvers())));
         }
-
-        //struct PropertyResolver
-        //{
-        //    public readonly Delegate Func;
-        //    public readonly List<Delegate> PostProcs;
-
-        //    public PropertyResolver(Delegate func, IEnumerable<Delegate> postProcs = null)
-        //    {
-        //        this.Func = func;
-        //        this.PostProcs = postProcs?.ToList() ?? new List<Delegate>();
-        //    }
-        //}
-
-        public class BindingResolverCollection
-        {
-            private readonly ConcurrentDictionary<Type, Delegate> resolvers = new ConcurrentDictionary<Type, Delegate>();
-            private readonly ConcurrentDictionary<Type, ConcurrentStack<Delegate>> postProcs = new ConcurrentDictionary<Type, ConcurrentStack<Delegate>>();
-
-            public BindingResolverCollection() { }
-
-            public BindingResolverCollection(IEnumerable<Delegate> delegates)
-            {
-                foreach (var d in delegates) AddDelegate(d, replace: true);
-            }
-
-            public void AddResolver(Delegate resolver, bool replace = false)
-            {
-                if (replace) resolvers[resolver.GetMethodInfo().ReturnType] = resolver;
-                else if (!resolvers.TryAdd(resolver.GetMethodInfo().ReturnType, resolver))
-                    throw new NotSupportedException($"Can't insert more resolvers for property of type '{resolver.GetMethodInfo().ReturnType}'.");
-            }
-
-            public void AddPostProcessor(Delegate processor)
-            {
-                var method = processor.GetMethodInfo();
-                var type = method.GetParameters().First().ParameterType;
-                if (method.ReturnType != typeof(void) && method.ReturnType != type)
-                    throw new Exception("Binding property post-processing function must return void or first parameter's type.");
-                var list = postProcs.GetOrAdd(type, _ => new ConcurrentStack<Delegate>());
-                list.Push(processor);
-            }
-
-            public void AddDelegate(Delegate func, bool replace = false)
-            {
-                var method = func.GetMethodInfo();
-                var type = method.GetParameters().FirstOrDefault()?.ParameterType;
-                if (method.ReturnType == typeof(void) || method.ReturnType == type)
-                    AddPostProcessor(func);
-                else AddResolver(func, replace);
-            }
-
-            public IEnumerable<Delegate> GetPostProcessors(Type type) =>
-                postProcs.TryGetValue(type, out var result) ? result : Enumerable.Empty<Delegate>();
-
-            public Delegate FindResolver(Type type) =>
-                resolvers.TryGetValue(type, out var result) ? result : null;
-        }
+        
 
         ConcurrentDictionary<Type, BindingCompilationRequirementsAttribute> defaultRequirementCache = new ConcurrentDictionary<Type, BindingCompilationRequirementsAttribute>();
         protected BindingCompilationRequirementsAttribute GetDefaultRequirements(Type bindingType)
@@ -228,5 +170,50 @@ namespace DotVVM.Framework.Binding
         }
 
         public BindingCompilationService WithoutInitialization() => this.noInitService.Value;
+    }
+
+    public sealed class BindingResolverCollection
+    {
+        private readonly ConcurrentDictionary<Type, Delegate> resolvers = new ConcurrentDictionary<Type, Delegate>();
+        private readonly ConcurrentDictionary<Type, ConcurrentStack<Delegate>> postProcs = new ConcurrentDictionary<Type, ConcurrentStack<Delegate>>();
+
+        public IEnumerable<Delegate> Delegates => resolvers.Values.Concat(postProcs.Values.SelectMany(_ => _));
+
+        public BindingResolverCollection(IEnumerable<Delegate> delegates)
+        {
+            foreach (var d in delegates) AddDelegate(d, replace: true);
+        }
+
+        public void AddResolver(Delegate resolver, bool replace = false)
+        {
+            if (replace) resolvers[resolver.GetMethodInfo().ReturnType] = resolver;
+            else if (!resolvers.TryAdd(resolver.GetMethodInfo().ReturnType, resolver))
+                throw new NotSupportedException($"Can't insert more resolvers for property of type '{resolver.GetMethodInfo().ReturnType}'.");
+        }
+
+        public void AddPostProcessor(Delegate processor)
+        {
+            var method = processor.GetMethodInfo();
+            var type = method.GetParameters().First().ParameterType;
+            if (method.ReturnType != typeof(void) && method.ReturnType != type)
+                throw new Exception("Binding property post-processing function must return void or first parameter's type.");
+            var list = postProcs.GetOrAdd(type, _ => new ConcurrentStack<Delegate>());
+            list.Push(processor);
+        }
+
+        public void AddDelegate(Delegate func, bool replace = false)
+        {
+            var method = func.GetMethodInfo();
+            var type = method.GetParameters().FirstOrDefault()?.ParameterType;
+            if (method.ReturnType == typeof(void) || method.ReturnType == type)
+                AddPostProcessor(func);
+            else AddResolver(func, replace);
+        }
+
+        public IEnumerable<Delegate> GetPostProcessors(Type type) =>
+            postProcs.TryGetValue(type, out var result) ? result : Enumerable.Empty<Delegate>();
+
+        public Delegate FindResolver(Type type) =>
+            resolvers.TryGetValue(type, out var result) ? result : null;
     }
 }
