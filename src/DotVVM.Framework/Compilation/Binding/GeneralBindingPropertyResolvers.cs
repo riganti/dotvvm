@@ -158,17 +158,39 @@ namespace DotVVM.Framework.Compilation.Binding
             // don't append expression when original string is present, so it does not have to be always exactly same
             if (originalString != null)
                 sb.Append(originalString.Code);
-            else sb.Append(expression.ToString());
+            else sb.Append(expression.Expression.ToString());
 
-            sb.Append("|||");
-            sb.Append(dataContext?.GetHashCode());
-            sb.Append("|||");
+            sb.Append(" || ");
+            while (dataContext != null)
+            {
+                sb.Append(dataContext.DataContextType.FullName);
+                sb.Append('(');
+                foreach (var ns in dataContext.NamespaceImports)
+                {
+                    sb.Append(ns.Alias);
+                    sb.Append('=');
+                    sb.Append(ns.Namespace);
+                }
+                sb.Append(';');
+                foreach (var ext in dataContext.ExtensionParameters)
+                {
+                    sb.Append(ext.Identifier);
+                    if (ext.Inherit) sb.Append('*');
+                    sb.Append(':');
+                    sb.Append(ext.ParameterType.FullName);
+                    sb.Append(':');
+                    sb.Append(ext.GetType().FullName);
+                }
+                sb.Append(") -- ");
+                dataContext = dataContext.Parent;
+            }
+            sb.Append(" || ");
             sb.Append(assignedProperty?.DotvvmProperty?.FullName);
 
             if (resolvedBinding?.TreeRoot != null)
             {
                 var bindingIndex = bindingCounts.GetOrCreateValue(resolvedBinding.TreeRoot).AddOrUpdate(dataContext, 0, (_, i) => i + 1);
-                sb.Append("|||");
+                sb.Append(" || ");
                 sb.Append(bindingIndex);
             }
 
