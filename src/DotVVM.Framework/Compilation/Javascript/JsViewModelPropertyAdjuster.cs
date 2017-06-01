@@ -73,6 +73,11 @@ namespace DotVVM.Framework.Compilation.Javascript
         private ResultIsObservableAnnotation() { }
         public static ResultIsObservableAnnotation Instance = new ResultIsObservableAnnotation();
     }
+    public sealed class ResultMayBeObservableAnnotation
+    {
+        private ResultMayBeObservableAnnotation() { }
+        public static ResultMayBeObservableAnnotation Instance = new ResultMayBeObservableAnnotation();
+    }
     public sealed class ShouldBeObservableAnnotation
     {
         private ShouldBeObservableAnnotation() { }

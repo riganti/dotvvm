@@ -14,15 +14,17 @@ namespace DotVVM.Framework.Compilation.Javascript
             this.AllowObservableResult = allowObservableResult;
         }
 
+        private bool NeedsUnwrap(JsNode node) => node.HasAnnotation<ResultIsObservableAnnotation>() || node.HasAnnotation<ResultMayBeObservableAnnotation>();
+
         protected override void DefaultVisit(JsNode node)
         {
-            if (node is JsExpression expression && node.HasAnnotation<ResultIsObservableAnnotation>() && !node.Parent.HasAnnotation<ObservableUnwrapInvocationAnnotation>() && !(node.Role == JsAssignmentExpression.LeftRole && node.Parent is JsAssignmentExpression) && node.Parent != null)
+            if (node is JsExpression expression && NeedsUnwrap(node) && !node.Parent.HasAnnotation<ObservableUnwrapInvocationAnnotation>() && !(node.Role == JsAssignmentExpression.LeftRole && node.Parent is JsAssignmentExpression) && node.Parent != null)
             {
                 if (!(AllowObservableResult && node.IsRootResultExpression()) &&
                     !node.SatisfyResultCondition(n => n.HasAnnotation<ShouldBeObservableAnnotation>()))
                 {
                     // may be null is copied to the observable result
-                    node.ReplaceWith(_ => KoUnwrap(expression, expression, false));
+                    node.ReplaceWith(_ => KoUnwrap(expression, expression, !node.HasAnnotation<ResultIsObservableAnnotation>()));
                     node.RemoveAnnotations<MayBeNullAnnotation>();
                 }
             }
@@ -33,6 +35,8 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             base.VisitAssignmentExpression(assignmentExpression);
 
+            // change assignment to observable property to observable invocation
+            // only do for RestultIsObservable, not ResultMayBeObservable
             if (assignmentExpression.Left.HasAnnotation<ResultIsObservableAnnotation>())
             {
                 var value = assignmentExpression.Right.Detach();
@@ -63,11 +67,10 @@ namespace DotVVM.Framework.Compilation.Javascript
                     assignmentExpression.ReplaceWith(newExpression);
                 }
             }
-
         }
 
-        private JsExpression KoUnwrap(JsExpression expr, JsExpression rootExpression, bool isRootResult) =>
-            isRootResult ? (rootExpression == expr ? expr : AddAnnotations(expr, rootExpression)) : AddAnnotations(expr.Invoke(), rootExpression);
+        private JsExpression KoUnwrap(JsExpression expr, JsExpression rootExpression, bool weakObservable) =>
+            AddAnnotations(weakObservable ? new JsIdentifierExpression("ko").Member("unwrap").Invoke(expr) : expr.Invoke(), rootExpression);
 
         private JsExpression AddAnnotations(JsExpression expr, JsExpression originalNode) =>
             expr.WithAnnotation(expr is JsInvocationExpression ? ObservableUnwrapInvocationAnnotation.Instance : null)

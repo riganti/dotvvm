@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using DotVVM.Framework.Utils;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
@@ -55,6 +56,18 @@ namespace DotVVM.Framework.Compilation.Binding
             //    );
             //}
             //else return base.VisitMember(node);
+        }
+
+        protected override Expression VisitLambda<T>(Expression<T> expression)
+        {
+            // assert non-null for lambda expressions returning value types
+            var body = Visit(expression.Body);
+            if (body.Type != expression.ReturnType)
+            {
+                Debug.Assert(Nullable.GetUnderlyingType(body.Type) == expression.ReturnType);
+                body = Expression.Property(body, "Value");
+            }
+            return expression.Update(body, expression.Parameters);
         }
 
         protected override Expression VisitBinary(BinaryExpression node)

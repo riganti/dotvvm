@@ -74,7 +74,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             return iife;
         }
 
-        private static IEnumerable<string> GetNames()
+        public static IEnumerable<string> GetNames(string baseName = null)
         {
             IEnumerable<char> getChars(bool isFirst)
             {
@@ -88,10 +88,11 @@ namespace DotVVM.Framework.Compilation.Javascript
                 yield return '_';
                 // TODO unicode :P
             }
-            foreach (var c in getChars(true)) yield return c.ToString();
-            foreach (var name in GetNames())
+            if (baseName != null) yield return baseName;
+            foreach (var c in getChars(baseName == null)) yield return baseName + c.ToString();
+            foreach (var name in GetNames(baseName))
             {
-                foreach (var c in getChars(true)) yield return name + c;
+                foreach (var c in getChars(false)) yield return name + c;
             }
         }
 
@@ -99,6 +100,7 @@ namespace DotVVM.Framework.Compilation.Javascript
     public sealed class JsTemporaryVariableParameter
     {
         public JsExpression Initializer { get; }
+        public string PreferedName { get; }
 
         public JsTemporaryVariableParameter(JsExpression initializer = null)
         {
