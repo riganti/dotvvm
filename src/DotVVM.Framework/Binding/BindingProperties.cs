@@ -33,7 +33,7 @@ namespace DotVVM.Framework.Binding.Properties
             this.UnwrapedCode = unwrapedCode;
         }
     }
-    
+
     /// <summary>
     /// Contains string that identifies the translated binding.
     /// </summary>
@@ -250,6 +250,15 @@ namespace DotVVM.Framework.Binding.Properties
         public DataSourceLengthBinding(IBinding binding)
         {
             this.Binding = binding;
+        }
+    }
+
+    public sealed class SelectorItemBindingProperty
+    {
+        public readonly IValueBinding Expression;
+        public SelectorItemBindingProperty(IValueBinding expression)
+        {
+            this.Expression = expression;
         }
     }
 }

@@ -12,7 +12,7 @@
 
     <p>
         <dot:TextBox Text="{value: UserName}" placeholder="user name" />
-        <dot:ComboBox SelectedValue="{value: Repo}" DataSource="{value: Api.RefreshOnChange(_github.Root.Repos12(UserName, null, null, null, null, null, null, null), UserName)}" ValueMember="name" DisplayMember="name" />
+        <dot:ComboBox SelectedValue="{value: Repo}" DataSource="{value: Api.RefreshOnChange(_github.Root.Repos12(UserName, null, null, null, null, null, null, null), UserName)}" ItemValueBinding="{value: name}" ItemTextBinding="{value: name}" />
     </p>
     <p>
         Open Issues:

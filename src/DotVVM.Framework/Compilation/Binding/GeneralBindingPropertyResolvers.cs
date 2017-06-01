@@ -220,7 +220,7 @@ namespace DotVVM.Framework.Compilation.Binding
                     new ParsedExpressionBindingProperty(
                         Expression.Property(expression.Expression, ifc.GetProperty(nameof(ICollection.Count)))
                     )));
-            
+
             else if (expression.Expression.Type.Implements(typeof(IBaseGridViewDataSet), out var igridviewdataset))
                 return new DataSourceLengthBinding(binding.DeriveBinding(
                     new ParsedExpressionBindingProperty(
@@ -265,6 +265,19 @@ namespace DotVVM.Framework.Compilation.Binding
                 resolvedBinding.DothtmlNode?.Tokens?.FirstOrDefault()?.LineNumber ?? -1,
                 resolvedBinding.TreeRoot.GetAncestors().OfType<ResolvedControl>().FirstOrDefault()?.Metadata?.Type);
         }
-        //public OriginalStringBindingProperty
+
+        public SelectorItemBindingProperty GetItemLambda(ParsedExpressionBindingProperty expression, DataContextStack dataContext, IValueBinding binding)
+        {
+            var argument = Expression.Parameter(dataContext.DataContextType, "i");
+            return new SelectorItemBindingProperty(binding.DeriveBinding(
+                dataContext.Parent,
+                Expression.Lambda(expression.Expression.ReplaceAll(e =>
+                    e.GetParameterAnnotation() is BindingParameterAnnotation annotation &&
+                        annotation.DataContext == dataContext &&
+                        annotation.ExtensionParameter == null ?
+                   argument :
+                   e), argument)
+            ));
+        }
     }
 }

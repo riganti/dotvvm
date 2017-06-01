@@ -10,10 +10,10 @@
 <body>
 
     <p>
-        <dot:ComboBox DataSource="{value: Items}" SelectedValue="{value: A}" DisplayMember="Name" ValueMember="Id" />
+        <dot:ComboBox DataSource="{value: Items}" SelectedValue="{value: A}" ItemTextBinding="{value: Name}" ItemValueBinding="{value: Id}" />
     </p>
     <p>
-        <dot:ComboBox DataSource="{value: Items}" SelectedValue="{value: Z}" DisplayMember="Name" ValueMember="Id" />
+        <dot:ComboBox DataSource="{value: Items}" SelectedValue="{value: Z}" ItemTextBinding="{value: Name}" ItemValueBinding="{value: Id}" />
     </p>
 
     <dot:Button Text="Change Collections" Click="{command: ChangeCollections()}" />

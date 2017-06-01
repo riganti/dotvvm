@@ -27,9 +27,9 @@
         <legend>Detail</legend>
 
         <p>
-            <dot:ComboBox DataSource="{value: Regions}" DisplayMember="Name" ValueMember="Id" SelectedValue="{value: Selected.RegionId}" SelectionChanged="{command: OnRegionChanged()}" />
-            <dot:ComboBox DataSource="{value: Countries}" DisplayMember="Name" ValueMember="Id" SelectedValue="{value: Selected.CountryId}" SelectionChanged="{command: OnCountryChanged()}" />
-            <dot:ComboBox DataSource="{value: Cities}" DisplayMember="Name" ValueMember="Id" SelectedValue="{value: Selected.CityId}" />
+            <dot:ComboBox DataSource="{value: Regions}" ItemTextBinding="{value: Name}" ItemValueBinding="{value: Id}" SelectedValue="{value: Selected.RegionId}" SelectionChanged="{command: OnRegionChanged()}" />
+            <dot:ComboBox DataSource="{value: Countries}" ItemTextBinding="{value: Name}" ItemValueBinding="{value: Id}" SelectedValue="{value: Selected.CountryId}" SelectionChanged="{command: OnCountryChanged()}" />
+            <dot:ComboBox DataSource="{value: Cities}" ItemTextBinding="{value: Name}" ItemValueBinding="{value: Id}" SelectedValue="{value: Selected.CityId}" />
         </p>
 
         <dot:Repeater DataSource="{value: Regions}" WrapperTagName="ul" style="display: inline-block">
