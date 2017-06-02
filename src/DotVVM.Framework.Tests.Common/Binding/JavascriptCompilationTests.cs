@@ -15,6 +15,7 @@ using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.Configuration;
+using System.Linq.Expressions;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -33,6 +34,23 @@ namespace DotVVM.Framework.Tests.Binding
             }
             var parser = new BindingExpressionBuilder();
             var expressionTree = TypeConversion.ImplicitConversion(parser.Parse(expression, context, BindingParserOptions.Create<ValueBindingExpression>()), expectedType, true, true);
+            var jsExpression = new JsParenthesizedExpression(JavascriptTranslator.CompileToJavascript(expressionTree, context,
+                 DotvvmConfiguration.CreateDefault().ServiceLocator.GetService<IViewModelSerializationMapper>()));
+            jsExpression.AcceptVisitor(new KnockoutObservableHandlingVisitor(true));
+            JsTemporaryVariableResolver.ResolveVariables(jsExpression);
+            return JavascriptTranslator.FormatKnockoutScript(jsExpression.Expression);
+        }
+
+        public string CompileBinding(Func<Dictionary<string, Expression>, Expression> expr, Type[] contexts)
+        {
+            var context = DataContextStack.Create(contexts.FirstOrDefault() ?? typeof(object), extenstionParameters: new BindingExtensionParameter[]{
+                new BindingPageInfoExtensionParameter()
+                });
+            for (int i = 1; i < contexts.Length; i++)
+            {
+                context = DataContextStack.Create(contexts[i], context);
+            }
+            var expressionTree = expr(BindingExpressionBuilder.GetParameters(context).ToDictionary(e => e.Name, e => (Expression)e));
             var jsExpression = new JsParenthesizedExpression(JavascriptTranslator.CompileToJavascript(expressionTree, context,
                  DotvvmConfiguration.CreateDefault().ServiceLocator.GetService<IViewModelSerializationMapper>()));
             jsExpression.AcceptVisitor(new KnockoutObservableHandlingVisitor(true));
@@ -112,6 +130,45 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual("DateFrom()==null||DateTo()==null||DateFrom()<=DateTo()", result);
             var result2 = CompileBinding("DateFrom == null || DateTo == null || DateFrom <= DateTo", typeof(TestViewModel));
             Assert.AreEqual("DateFrom()==null||DateTo()==null||DateFrom()<=DateTo()", result2);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_LambdaExpression()
+        {
+            var funcP = Expression.Parameter(typeof(string), "parameter");
+            var blockLocal = Expression.Parameter(typeof(int), "local");
+            var result = CompileBinding(p =>
+                Expression.Lambda(
+                    Expression.Block(
+                        new [] { blockLocal },
+                        Expression.Assign(blockLocal, Expression.Add(Expression.Constant(6), p["_this"])),
+                        blockLocal
+                    ),
+                    new [] { funcP }
+                ),
+                new [] {
+                    typeof(int)
+                }
+            );
+            Assert.AreEqual("function(parameter,local){local=6+$data;return local;}", result);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_BlockExpression()
+        {
+            var funcP = Expression.Parameter(typeof(string), "parameter");
+            var blockLocal = Expression.Parameter(typeof(int), "local");
+            var result = CompileBinding(p =>
+                Expression.Block(
+                    new [] { blockLocal },
+                    Expression.Assign(blockLocal, Expression.Add(Expression.Constant(6), p["_this"])),
+                    blockLocal
+                ),
+                new [] {
+                    typeof(int)
+                }
+            );
+            Assert.AreEqual("function(local){local=6+$data;return local;}()", result);
         }
     }
 }

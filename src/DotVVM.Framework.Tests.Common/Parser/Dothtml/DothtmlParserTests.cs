@@ -200,7 +200,7 @@ this is a content";
 
             Assert.AreEqual(1, result.Content.Count);
             Assert.IsInstanceOfType(result.Content[0], typeof(DothtmlLiteralNode));
-            Assert.AreEqual("\r\nthis is a content", ((DothtmlLiteralNode)result.Content[0]).Value);
+            Assert.AreEqual("this is a content", ((DothtmlLiteralNode)result.Content[0]).Value.Trim());
         }
 
         [TestMethod]
@@ -208,8 +208,7 @@ this is a content";
         {
             var markup = @"@viewmodel MyNamespace.TestViewModel, MyAssembly   
 
-<!DOCTYPE html>
-test";
+<!DOCTYPE html> test";
             var result = ParseMarkup(markup);
 
             Assert.AreEqual(1, result.Directives.Count);
@@ -218,7 +217,7 @@ test";
 
             Assert.AreEqual(1, result.Content.Count);
             Assert.IsInstanceOfType(result.Content[0], typeof(DothtmlLiteralNode));
-            Assert.AreEqual("\r\n<!DOCTYPE html>\r\ntest", ((DothtmlLiteralNode)result.Content[0]).Value);
+            Assert.AreEqual("<!DOCTYPE html> test", ((DothtmlLiteralNode)result.Content[0]).Value.Trim());
         }
 
 

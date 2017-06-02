@@ -269,23 +269,26 @@ namespace DotVVM.Framework.Compilation.Javascript
         public JsExpression TranslateLambda(LambdaExpression expression)
         {
             var args = expression.Parameters.Select(_ => new object()).ToArray();
-            var (body, additionalVariables) = TranslateLambdaBody(ReplaceVariables(expression.Body, expression.Parameters, args));
+            var (body, additionalVariables, additionalVarNames) = TranslateLambdaBody(ReplaceVariables(expression.Body, expression.Parameters, args));
             var usedNames = new HashSet<string>(body.DescendantNodesAndSelf().OfType<JsIdentifierExpression>().Select(i => i.Identifier));
             var argsNames = expression.Parameters.Select(p => JsTemporaryVariableResolver.GetNames(p.Name).First(usedNames.Add)).ToArray();
+            additionalVarNames = additionalVarNames.Select(p => JsTemporaryVariableResolver.GetNames(p).First(usedNames.Add)).ToArray();
             foreach (var symArg in body.DescendantNodesAndSelf().OfType<JsSymbolicParameter>())
             {
                 var aIndex = Array.IndexOf(args, symArg.Symbol);
                 if (aIndex >= 0) symArg.ReplaceWith(new JsIdentifierExpression(argsNames[aIndex]).WithAnnotation(ResultMayBeObservableAnnotation.Instance));
+                aIndex = Array.IndexOf(additionalVariables, symArg.Symbol);
+                if (aIndex >= 0) symArg.ReplaceWith(new JsIdentifierExpression(additionalVarNames[aIndex]));
             }
             return new JsFunctionExpression(
-                argsNames.Select(n => new JsIdentifier(n)),
+                argsNames.Concat(additionalVarNames).Select(n => new JsIdentifier(n)),
                 body is JsBlockStatement block ? block :
                 body is JsStatement statement ? new JsBlockStatement(statement) :
                 body is JsExpression bodyExpression ? new JsBlockStatement(new JsReturnStatement(bodyExpression)) :
                 throw new NotSupportedException()
             );
         }
-        (JsNode node, (object symbol, string preferedName)[] variables) TranslateLambdaBody(Expression expression)
+        (JsNode node, object[] variables, string[] variableNames) TranslateLambdaBody(Expression expression)
         {
             if (expression is BlockExpression block)
             {
@@ -295,10 +298,11 @@ namespace DotVVM.Framework.Compilation.Javascript
                     new JsBlockStatement(
                         expressions.Take(expressions.Length - 1).Select(e => (JsStatement)new JsExpressionStatement(e)).Concat(new [] { new JsReturnStatement(expressions.Last()) }).ToArray()
                     ),
-                    args.Zip(block.Variables, (a, b) => (a, b.Name)).ToArray()
+                    args,
+                    block.Variables.Select(a => a.Name).ToArray()
                 );
             }
-            else return (Translate(expression), new (object, string)[0]);
+            else return (Translate(expression), new object[0], new string[0]);
         }
 
 
@@ -326,6 +330,14 @@ namespace DotVVM.Framework.Compilation.Javascript
                 var value = Translate(expression.Right);
                 return TryTranslateMethodCall(target, new[] { value }, (property.Member as PropertyInfo)?.SetMethod, property.Expression, new[] { expression.Right }) ??
                     SetProperty(target, property.Member as PropertyInfo, value);
+            }
+            else if (expression.Left.GetParameterAnnotation() is BindingParameterAnnotation annotation)
+            {
+                if (annotation.ExtensionParameter == null) throw new NotSupportedException($"Can not assign to data context parameter {expression.Left}");
+                return new JsAssignmentExpression(
+                    TranslateParameter(expression.Left, annotation),
+                    Translate(expression.Right)
+                );
             }
             throw new NotSupportedException($"Can not assign expression of type {expression.Left.NodeType}!");
         }
