@@ -13,7 +13,7 @@
     </style>
 </head>
 <body >
-    <dot:TextBox Validator.InvalidCssClass="has-error" ValueType="DateTime" Text="{value: DateTimeTestValue}" Validator.Value="{value:  DateTimeTestValue }" />
+    <dot:TextBox Validator.InvalidCssClass="has-error" Text="{value: DateTimeTestValue}" Validator.Value="{value:  DateTimeTestValue }" />
     <dot:Button Text="Validate" Click="{command:  ValidateRequiredDateTime() }" ID="ValidateButton"></dot:Button>
     <p>
         REM: This viewmodel tests even Validation.Target on each property.
