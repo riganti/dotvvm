@@ -276,6 +276,39 @@ var DotvvmGlobalize = (function () {
     DotvvmGlobalize.prototype.parseDate = function (value, format, previousValue) {
         return dotvvm_Globalize.parseDate(value, format, dotvvm.culture, previousValue);
     };
+    DotvvmGlobalize.prototype.bindingDateToString = function (value, format) {
+        if (format === void 0) { format = "G"; }
+        var unwrapedVal = ko.unwrap(value);
+        var date = typeof unwrapedVal == "string" ? this.parseDotvvmDate(unwrapedVal) : unwrapedVal;
+        if (date == null)
+            return "";
+        if (ko.isWriteableObservable(value)) {
+            var setter_1 = typeof unwrapedVal == "string" ? function (v) { return value(dotvvm.serialization.serializeDate(v)); } : value;
+            return ko.pureComputed({
+                read: function () { return dotvvm_Globalize.format(date, format, dotvvm.culture); },
+                write: function (val) { return setter_1(dotvvm_Globalize.parseDate(val, format, dotvvm.culture)); }
+            });
+        }
+        else {
+            return dotvvm_Globalize.format(date, format, dotvvm.culture);
+        }
+    };
+    DotvvmGlobalize.prototype.bindingNumberToString = function (value, format) {
+        if (format === void 0) { format = "G"; }
+        var unwrapedVal = ko.unwrap(value);
+        var num = typeof unwrapedVal == "string" ? this.parseNumber(unwrapedVal) : unwrapedVal;
+        if (num == null)
+            return "";
+        if (ko.isWriteableObservable(value)) {
+            return ko.pureComputed({
+                read: function () { return dotvvm_Globalize.format(num, format, dotvvm.culture); },
+                write: function (val) { return value(dotvvm_Globalize.parseFloat(val, 10, dotvvm.culture)); }
+            });
+        }
+        else {
+            return dotvvm_Globalize.format(num, format, dotvvm.culture);
+        }
+    };
     return DotvvmGlobalize;
 }());
 var DotvvmPostBackHandler = (function () {

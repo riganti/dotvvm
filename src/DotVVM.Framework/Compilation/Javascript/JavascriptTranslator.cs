@@ -197,6 +197,34 @@ namespace DotVVM.Framework.Compilation.Javascript
                         a[1].WithAnnotation(ShouldBeObservableAnnotation.Instance),
                         new JsIdentifierExpression("dotvvm").Member("eventHub").Member("get").Invoke(a[2]))));
             BindingPageInfo.RegisterJavascriptTranslations();
+
+            // string formatting
+            var stringFormatTranslator = new GenericMethodCompiler(
+                args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("format").Invoke(args[1], new JsArrayExpression(args.Skip(2)))
+            );
+            // TODO: string.Format could be two-way
+            AddMethodTranslator(typeof(string).GetMethod("Format", new [] { typeof(string), typeof(object) }), stringFormatTranslator);
+            AddMethodTranslator(typeof(string).GetMethod("Format", new [] { typeof(string), typeof(object), typeof(object) }), stringFormatTranslator);
+            AddMethodTranslator(typeof(string).GetMethod("Format", new [] { typeof(string), typeof(object), typeof(object), typeof(object) }), stringFormatTranslator);
+            AddMethodTranslator(typeof(string).GetMethod("Format", new [] { typeof(string), typeof(object[]) }), new GenericMethodCompiler(
+                args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("format").Invoke(args[1], args[2])
+            ));
+            AddMethodTranslator(typeof(DateTime).GetMethod("ToString", Type.EmptyTypes), new GenericMethodCompiler(
+                args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingDateToString").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])
+            ));
+            AddMethodTranslator(typeof(DateTime).GetMethod("ToString", new [] { typeof(string) }), new GenericMethodCompiler(
+                args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingDateToString").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])
+            ));
+
+            foreach(var num in ReflectionUtils.NumericTypes.Except(new[] { typeof(char) }))
+            {
+                AddMethodTranslator(num.GetMethod("ToString", Type.EmptyTypes), new GenericMethodCompiler(
+                    args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingNumberToString").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])
+                ));
+                AddMethodTranslator(num.GetMethod("ToString", new [] { typeof(string) }), new GenericMethodCompiler(
+                    args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingNumberToString").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])
+                ));
+            }
         }
 
         static bool ToStringCheck(Expression expr)
