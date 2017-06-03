@@ -141,6 +141,16 @@ namespace DotVVM.Framework.Compilation.Binding
                 .ToImmutableArray());
         }
 
+        public BindingCompilationRequirementsAttribute GetAdditionalResolversFromProperty(AssignedPropertyBindingProperty property)
+        {
+            var prop = property?.DotvvmProperty;
+            if (prop == null) return new BindingCompilationRequirementsAttribute();
+
+            return
+                (prop.PropertyInfo?.GetCustomAttributes<BindingCompilationRequirementsAttribute>() ?? Enumerable.Empty<BindingCompilationRequirementsAttribute>())
+                .Aggregate((a, b) => a.ApplySecond(b));
+        }
+
         public CompiledBindingExpression.BindingDelegate Compile(Expression<CompiledBindingExpression.BindingDelegate> expr) => expr.Compile();
         public CompiledBindingExpression.BindingUpdateDelegate Compile(Expression<CompiledBindingExpression.BindingUpdateDelegate> expr) => expr.Compile();
 
