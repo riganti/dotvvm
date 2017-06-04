@@ -5,6 +5,7 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls
 {
@@ -31,6 +32,7 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the type of value being formatted - Number or DateTime.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
+        [Obsolete("ValueType property is no longer required, it is automatically inferred from compile-time type of Text binding")]
         public FormatValueType ValueType
         {
             get { return (FormatValueType)GetValue(ValueTypeProperty); }
@@ -101,7 +103,7 @@ namespace DotVVM.Framework.Controls
 
         protected internal override void OnPreRender(Hosting.IDotvvmRequestContext context)
         {
-            isFormattingRequired = !string.IsNullOrEmpty(FormatString) || ValueType != FormatValueType.Text;
+            isFormattingRequired = !string.IsNullOrEmpty(FormatString) || ValueType != FormatValueType.Text || Literal.NeedsFormatting(GetValueBinding(TextProperty));
             if (isFormattingRequired)
             {
                 context.ResourceManager.AddCurrentCultureGlobalizationResource();
@@ -182,7 +184,7 @@ namespace DotVVM.Framework.Controls
             var changedBinding = GetCommandBinding(ChangedProperty);
             if (changedBinding != null)
             {
-                writer.AddAttribute("onchange", KnockoutHelper.GenerateClientPostBackScript(nameof(Changed), changedBinding, this, true, isOnChange: true));
+                writer.AddAttribute("onchange", KnockoutHelper.GenerateClientPostBackScript(nameof(Changed), changedBinding, this, useWindowSetTimeout: true, isOnChange: true));
             }
 
             base.AddAttributesToRender(writer, context);
@@ -212,14 +214,20 @@ namespace DotVVM.Framework.Controls
                         writer.AddAttribute("value", Text);
                     }
                 }, UpdateTextAfterKeydown ? "afterkeydown" : null, renderEvenInServerRenderingMode: true);
-
+                var binding = GetValueBinding(TextProperty);
                 var formatString = FormatString;
                 if (string.IsNullOrEmpty(formatString))
                 {
-                    formatString = "G";
+                    if (Type == TextBoxType.Date)
+                        formatString = "yyyy-MM-dd";
+                    else
+                        formatString = "G";
                 }
                 writer.AddAttribute("data-dotvvm-format", formatString);
-                writer.AddAttribute("data-dotvvm-value-type", ValueType.ToString().ToLowerInvariant());
+
+                if (ValueType != FormatValueType.Text) writer.AddAttribute("data-dotvvm-value-type", ValueType.ToString().ToLowerInvariant());
+                else if (binding?.ResultType == typeof(DateTime)) writer.AddAttribute("data-dotvvm-value-type", "datetime");
+                else if (ReflectionUtils.IsNumericType(binding?.ResultType)) writer.AddAttribute("data-dotvvm-value-type", "number");
             }
         }
 

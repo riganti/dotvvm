@@ -52,10 +52,14 @@ namespace DotVVM.Framework.Hosting
                 dotvvmContext.ChangeCurrentCulture(Configuration.DefaultCulture);
             }
 
-            foreach (var middleware in middlewares)
+            try
             {
-                if (await middleware.Handle(dotvvmContext)) return;
+                foreach (var middleware in middlewares)
+                {
+                    if (await middleware.Handle(dotvvmContext)) return;
+                }
             }
+            catch (DotvvmInterruptRequestExecutionException) { return; }
 
             await next(context);
         }
@@ -88,7 +92,8 @@ namespace DotVVM.Framework.Hosting
                 HttpContext = ConvertHttpContext(context),
                 Configuration = Configuration,
                 ResourceManager = new ResourceManager(Configuration),
-                ViewModelSerializer = Configuration.ServiceLocator.GetService<IViewModelSerializer>()
+                ViewModelSerializer = Configuration.ServiceLocator.GetService<IViewModelSerializer>(),
+                Services = context.RequestServices
             };
         }
 

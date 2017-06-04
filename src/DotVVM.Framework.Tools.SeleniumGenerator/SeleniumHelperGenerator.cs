@@ -112,7 +112,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
             var parser = new DothtmlParser();
             var rootNode = parser.Parse(tokenizer.Tokens);
 
-            var treeResolver = new DefaultControlTreeResolver(dotvvmConfiguration);
+            var treeResolver = dotvvmConfiguration.ServiceLocator.GetService<IControlTreeResolver>();
             return treeResolver.ResolveTree(rootNode, filePath);
         }
     }

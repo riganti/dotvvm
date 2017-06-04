@@ -1,3 +1,4 @@
+using System.Reflection;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.ResourceManagement;
@@ -28,30 +29,30 @@ namespace DotVVM.Samples.BasicSamples
 
             // configure serializer
             config.GetSerializationMapper()
-                .Map(typeof(SerializationViewModel), map =>
-                {
+                .Map(typeof(SerializationViewModel), map => {
                     map.Property(nameof(SerializationViewModel.Value)).Bind(Direction.ServerToClient);
                     map.Property(nameof(SerializationViewModel.Value2)).Bind(Direction.ClientToServer);
                     map.Property(nameof(SerializationViewModel.IgnoredProperty)).Ignore();
                 });
+
+            config.RegisterApiGroup(typeof(ApiClientWrapper), "http://localhost:5000/", "Scripts/ApiClient.js");
+            config.RegisterApiGroup(typeof(GithubClientWrapper), "https://api.github.com/", "Scripts/GithubApiClient.js", "_github", customFetchFunction: "basicAuthenticatedFetch");
         }
 
         private static void RegisterResources(DotvvmConfiguration config)
         {
-            config.Resources.Register("ControlSamples_SpaContentPlaceHolder_testCss", new StylesheetResource(new LocalFileResourceLocation("Content/testResource.css")));
-            config.Resources.Register("ControlSamples_SpaContentPlaceHolder_testJs", new ScriptResource(new LocalFileResourceLocation("Scripts/testResource.js")));
-            config.Resources.Register("ControlSamples_SpaContentPlaceHolder_MasterPageResource", new ScriptResource(new LocalFileResourceLocation("Scripts/testResource2.js")));
+            config.Resources.Register("ControlSamples_SpaContentPlaceHolder_testCss", new StylesheetResource(new FileResourceLocation("Content/testResource.css")));
+            config.Resources.Register("ControlSamples_SpaContentPlaceHolder_testJs", new ScriptResource(new FileResourceLocation("Scripts/testResource.js")));
+            config.Resources.Register("ControlSamples_SpaContentPlaceHolder_MasterPageResource", new ScriptResource(new FileResourceLocation("Scripts/testResource2.js")));
 
-            config.Resources.Register("FeatureSamples_Resources_CdnUnavailableResourceLoad", new ScriptResource()
-            {
-                Location = new RemoteResourceLocation("http://unavailable.local/testResource.js"),
-                LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new LocalFileResourceLocation("~/Scripts/testResource.js"))
+            config.Resources.Register("FeatureSamples_Resources_CdnUnavailableResourceLoad", new ScriptResource() {
+                Location = new UrlResourceLocation("http://unavailable.local/testResource.js"),
+                LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new FileResourceLocation("~/Scripts/testResource.js"))
             });
 
-            config.Resources.Register("FeatureSamples_Resources_CdnScriptPriority", new ScriptResource
-            {
-                Location = new LocalFileResourceLocation("~/Scripts/testResource.js"),
-                LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new LocalFileResourceLocation("~/Scripts/testResource2.js"))
+            config.Resources.Register("FeatureSamples_Resources_CdnScriptPriority", new ScriptResource {
+                Location = new FileResourceLocation("~/Scripts/testResource.js"),
+                LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new FileResourceLocation("~/Scripts/testResource2.js"))
             });
 
             // dev files
@@ -76,14 +77,15 @@ namespace DotVVM.Samples.BasicSamples
 
         private static void AddControls(DotvvmConfiguration config)
         {
-            config.Markup.AddCodeControl("PropertyUpdate", typeof(Controls.ServerRenderedLabel));
+            config.Markup.AddCodeControls("PropertyUpdate", typeof(Controls.ServerRenderedLabel));
+            config.Markup.AddCodeControls("cc", typeof(Controls.PromptButton));
             config.Markup.AddMarkupControl("IdGeneration", "Control", "Views/FeatureSamples/IdGeneration/IdGeneration_control.dotcontrol");
             config.Markup.AddMarkupControl("FileUploadInRepeater", "FileUploadWrapper", "Views/ComplexSamples/FileUploadInRepeater/FileUploadWrapper.dotcontrol");
             config.Markup.AddMarkupControl("sample", "PasswordStrengthControl", "Views/FeatureSamples/ClientExtenders/PasswordStrengthControl.dotcontrol");
             config.Markup.AddMarkupControl("sample", "Localization_Control", "Views/FeatureSamples/Localization/Localization_Control.dotcontrol");
             config.Markup.AddMarkupControl("sample", "ControlCommandBinding", "Views/FeatureSamples/MarkupControl/ControlCommandBinding.dotcontrol");
             config.Markup.AddMarkupControl("sample", "ControlValueBindingWithCommand", "Views/FeatureSamples/MarkupControl/ControlValueBindingWithCommand.dotcontrol");
-            
+
             config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/ComplexSamples/ServerRendering/"));
             config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/FeatureSamples/MarkupControl/"));
             config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/Errors/"));

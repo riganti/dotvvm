@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Configuration
         }
 
         public T GetService<T>() 
-            => (T)GetServiceProvider().GetService(typeof(T));
+            => GetServiceProvider().GetService<T>();
 
         [Obsolete("You should not register service on ServiceLocator, use IServiceCollection instead", true)]
         public void RegisterTransient<T>(Func<T> factory)

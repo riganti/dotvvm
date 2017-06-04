@@ -5,6 +5,7 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Runtime;
 using Newtonsoft.Json;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.ViewModel.Serialization;
 
 namespace DotVVM.Framework.Controls
 {
@@ -13,7 +14,6 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     public class Validator : HtmlGenericControl
     {
-
         /// <summary>
         /// Gets or sets whether the control should be hidden even for valid values.
         /// </summary>
@@ -46,7 +46,6 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<bool, Validator>(() => ShowErrorMessageTextProperty, isValueInherited: true);
 
 
-
         /// <summary>
         /// Gets or sets a binding that points to the validated value.
         /// </summary>
@@ -55,9 +54,6 @@ namespace DotVVM.Framework.Controls
         public static readonly ActiveDotvvmProperty ValueProperty =
             DelegateActionProperty<object>.Register<Validator>("Value", AddValidatedValue);
 
-
-
-
         public static List<DotvvmProperty> ValidationOptionProperties { get; } = new List<DotvvmProperty>()
         {
             HideWhenValidProperty,
@@ -65,9 +61,6 @@ namespace DotVVM.Framework.Controls
             SetToolTipTextProperty,
             ShowErrorMessageTextProperty
         };
-
-
-
 
         private static void AddValidatedValue(IHtmlWriter writer, IDotvvmRequestContext context, DotvvmProperty prop, DotvvmControl control)
         {
@@ -81,13 +74,11 @@ namespace DotVVM.Framework.Controls
                 var optionValue = control.GetValue(property);
                 if (!object.Equals(optionValue, property.DefaultValue))
                 {
-                    bindingGroup.Add(javascriptName, JsonConvert.SerializeObject(optionValue));
+                    bindingGroup.Add(javascriptName, JsonConvert.SerializeObject(optionValue, DefaultViewModelSerializer.CreateDefaultSettings()));
                 }
             }
             writer.AddKnockoutDataBind("dotvvmValidationOptions", bindingGroup);
         }
-
-
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Validator"/> class.
@@ -97,6 +88,5 @@ namespace DotVVM.Framework.Controls
             TagName = "span";
             SetValue(HideWhenValidProperty, true);
         }
-
     }
 }

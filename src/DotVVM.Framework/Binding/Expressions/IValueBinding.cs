@@ -1,7 +1,12 @@
-﻿namespace DotVVM.Framework.Binding.Expressions
+﻿using DotVVM.Framework.Compilation.Javascript;
+
+namespace DotVVM.Framework.Binding.Expressions
 {
-    public interface IValueBinding: IStaticValueBinding
+    public interface IValueBinding : IStaticValueBinding
     {
-        string GetKnockoutBindingExpression();
+        ParametrizedCode KnockoutExpression { get; }
+        ParametrizedCode UnwrapedKnockoutExpression { get; }
+        //string GetKnockoutBindingExpression();
     }
+
 }

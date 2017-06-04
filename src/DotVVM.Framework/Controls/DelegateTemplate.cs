@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Compilation;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Controls
 {
@@ -12,10 +13,20 @@ namespace DotVVM.Framework.Controls
 
         public Action<IControlBuilderFactory, DotvvmControl> BuildContentBody { get; set; }
 
+        public DelegateTemplate()
+        {
+            // this constructor must be here otherwise the user controls won't compile
+        }
+
+        public DelegateTemplate(Action<IControlBuilderFactory, DotvvmControl> buildContentBody)
+        {
+            this.BuildContentBody = buildContentBody;
+        }
+
 
         public void BuildContent(IDotvvmRequestContext context, DotvvmControl container)
         {
-            var controlBuilderFactory = context.Configuration.ServiceLocator.GetService<IControlBuilderFactory>();
+            var controlBuilderFactory = context.Services.GetService<IControlBuilderFactory>();
             BuildContentBody.Invoke(controlBuilderFactory, container);
         }
     }

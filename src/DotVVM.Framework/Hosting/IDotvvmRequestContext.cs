@@ -117,6 +117,8 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         string ResultIdFragment { get; set; }
 
+        IServiceProvider Services { get; }
+
         /// <summary>
         /// Changes the current culture of this HTTP request.
         /// </summary>

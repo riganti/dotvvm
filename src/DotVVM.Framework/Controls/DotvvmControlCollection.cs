@@ -290,7 +290,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Invokes the specified method on all controls in the page control tree.
         /// </summary>
-        internal static void InvokePageLifeCycleEventRecursive(DotvvmControl rootControl, LifeCycleEventType eventType)
+        public static void InvokePageLifeCycleEventRecursive(DotvvmControl rootControl, LifeCycleEventType eventType)
         {
             rootControl.Children.InvokeMissedPageLifeCycleEvents(eventType, isMissingInvoke: false);
         }

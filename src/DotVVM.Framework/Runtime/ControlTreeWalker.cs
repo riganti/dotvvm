@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Runtime
@@ -49,22 +50,12 @@ namespace DotVVM.Framework.Runtime
         {
             // if there is a DataContext binding, locate the correct token
             var hasDataContext = false;
-            var pathValue = control.GetValue(Internal.PathFragmentProperty, false);
+            var pathValue = control.GetDataContextPathFragment();
             if (pathValue != null)
             {
                 CurrentPath.Push(pathValue as string);
                 RefreshCurrentPathArray();
                 hasDataContext = true;
-            }
-            else
-            {
-                var binding = control.GetValueBinding(DotvvmBindableObject.DataContextProperty, false);
-                if (binding != null)
-                {
-                    CurrentPath.Push(binding.GetKnockoutBindingExpression());
-                    RefreshCurrentPathArray();
-                    hasDataContext = true;
-                }
             }
 
             action(control);

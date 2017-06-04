@@ -9,8 +9,8 @@
 <body>
     <p ID="dateformat">
         DATE: <br>
-        <dot:textbox iD="dateTextbox" ClientIDMode="Static" Text="{value: DateValue }" style="height: 20px; width: 200px;" FormatString="d" ValueType="DateTime" />
-        <dot:Literal ID="DateValueText" ClientIDMode="Static" Text="{value: DateValue}" ValueType="DateTime"></dot:Literal>
+        <dot:textbox iD="dateTextbox" ClientIDMode="Static" Text="{value: DateValue }" style="height: 20px; width: 200px;" FormatString="d" />
+        <dot:Literal ID="DateValueText" ClientIDMode="Static" Text="{value: DateValue}"></dot:Literal>
 		<span ID="date-result1">{{value: DateResult1}}</span>
 		<span ID="date-result2">{{value: DateResult2}}</span>
 		<span ID="date-result3">{{value: DateResult3}}</span>

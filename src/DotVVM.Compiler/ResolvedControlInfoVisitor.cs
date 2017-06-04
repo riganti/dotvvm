@@ -44,7 +44,8 @@ namespace DotVVM.Compiler
                 // try to compile bindings to see errors
                 try
                 {
-                    BindingCompiler.PrecompileBinding(propertyBinding.Binding, "id123", propertyBinding.Property.PropertyType);
+                    // T+
+                    //BindingCompiler.PrecompileBinding(propertyBinding.Binding, "id123", propertyBinding.Property.PropertyType);
                 }
                 catch(Exception exception)
                 {

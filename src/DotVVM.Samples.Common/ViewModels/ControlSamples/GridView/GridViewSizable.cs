@@ -27,7 +27,13 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
 
         public GridViewSizableViewModel()
         {
-            CustomersDataSet = new GridViewDataSet<CustomerData>() { PageSize = 10 };
+            CustomersDataSet = new GridViewDataSet<CustomerData>()
+            {
+                PagingOptions = new PagingOptions()
+                {
+                    PageSize = 10
+                }
+            };
         }
 
         public GridViewDataSet<CustomerData> CustomersDataSet { get; set; }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Resources;
+using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Controls.Infrastructure;
@@ -11,30 +12,23 @@ using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Binding.Expressions
 {
-    [BindingCompilationRequirements(OriginalString = BindingCompilationRequirementType.StronglyRequire, Delegate = BindingCompilationRequirementType.StronglyRequire)]
-    [BindingCompilation]
+    [BindingCompilationRequirements(
+        required: new[] {typeof(CompiledBindingExpression.BindingDelegate)}
+        )]
+    [Options]
     public class ResourceBindingExpression : BindingExpression, IStaticValueBinding
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ResourceBindingExpression"/> class.
-        /// </summary>
-        public ResourceBindingExpression()
-        {
-        }
+        public ResourceBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties) { }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ResourceBindingExpression"/> class.
-        /// </summary>
-        public ResourceBindingExpression(CompiledBindingExpression expression) : base(expression)
-        {
-        }
+        public CompiledBindingExpression.BindingDelegate BindingDelegate => this.GetProperty<CompiledBindingExpression.BindingDelegate>();
 
-        /// <summary>
-        /// Evaluates the binding.
-        /// </summary>
-        public object Evaluate(Controls.DotvvmBindableObject control, DotvvmProperty property)
+        public Type ResultType => this.GetProperty<ResultTypeBindingProperty>().Type;
+
+        public class OptionsAttribute : BindingCompilationOptionsAttribute
         {
-            return ExecDelegate(control, true);
+            public override IEnumerable<Delegate> GetResolvers() => new Delegate[] {
+
+            };
         }
     }
 }

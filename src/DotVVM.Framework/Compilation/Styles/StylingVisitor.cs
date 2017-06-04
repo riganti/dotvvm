@@ -1,25 +1,26 @@
 ﻿using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Configuration;
 
 namespace DotVVM.Framework.Compilation.Styles
 {
     public class StylingVisitor: ResolvedControlTreeVisitor
     {
-        public StyleMatcher Matcher { get; set; }
+        private DotvvmConfiguration configuration;
 
-        public StylingVisitor(StyleMatcher matcher)
+        public StyleMatcher Matcher { get; }
+
+        public StylingVisitor(DotvvmConfiguration configuration)
         {
-            this.Matcher = matcher;
+            this.configuration = configuration;
+            this.Matcher = configuration.Styles.CreateMatcher();
         }
-
-        public StylingVisitor(StyleRepository styleRepo) : this(styleRepo.CreateMatcher())
-        { }
 
         public override void VisitControl(ResolvedControl control)
         {
             Matcher.PushControl(control);
             foreach (var style in Matcher.GetMatchingStyles())
             {
-                style.ApplyStyle(control);
+                style.ApplyStyle(control, configuration);
             }
             base.VisitControl(control);
             Matcher.PopControl();

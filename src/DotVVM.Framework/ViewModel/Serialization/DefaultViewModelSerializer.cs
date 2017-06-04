@@ -61,8 +61,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         {
             // serialize the ViewModel
             var serializer = CreateJsonSerializer();
-            var viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper)
-            {
+            var viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper) {
                 UsedSerializationMaps = new HashSet<ViewModelSerializationMap>()
             };
             serializer.Converters.Add(viewModelConverter);
@@ -82,7 +81,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             // persist encrypted values
             if (viewModelConverter.EncryptedValues.Count > 0)
                 writer.Token["$encryptedValues"] = viewModelProtector.Protect(viewModelConverter.EncryptedValues.ToString(Formatting.None), context);
-            
+
             // serialize validation rules
             bool useClientSideValidation = context.Configuration.ClientSideValidation;
             var validationRules = useClientSideValidation ?
@@ -114,16 +113,36 @@ namespace DotVVM.Framework.ViewModel.Serialization
             context.ViewModelJson = result;
         }
 
-        protected virtual JsonSerializer CreateJsonSerializer()
+        public string BuildStaticCommandResponse(IDotvvmRequestContext context, object result)
         {
-            var s = new JsonSerializer()
+            var serializer = CreateJsonSerializer();
+            var viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper) {
+                UsedSerializationMaps = new HashSet<ViewModelSerializationMap>()
+            };
+            serializer.Converters.Add(viewModelConverter);
+            var writer = new JTokenWriter();
+            try
             {
+                serializer.Serialize(writer, result);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Could not serialize viewModel of type { context.ViewModel.GetType().Name }. Serialization failed at property { writer.Path }. {GeneralViewModelRecomendations}", ex);
+            }
+            return writer.Token.ToString(JsonFormatting);
+        }
+
+        public static JsonSerializerSettings CreateDefaultSettings()
+        {
+            var s = new JsonSerializerSettings() {
                 DateTimeZoneHandling = DateTimeZoneHandling.Unspecified
             };
             s.Converters.Add(new DotvvmDateTimeConverter());
             s.Converters.Add(new StringEnumConverter());
             return s;
         }
+
+        protected virtual JsonSerializer CreateJsonSerializer() => CreateDefaultSettings().Apply(JsonSerializer.Create);
 
         public JObject BuildResourcesJson(IDotvvmRequestContext context, Func<string, bool> predicate)
         {
@@ -230,35 +249,32 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Resolves the command for the specified post data.
         /// </summary>
-        public void ResolveCommand(IDotvvmRequestContext context, DotvvmView view, string serializedPostData, out ActionInfo actionInfo)
+        public ActionInfo ResolveCommand(IDotvvmRequestContext context, DotvvmView view)
         {
             // get properties
-            var data = JObject.Parse(serializedPostData);
+            var data = context.ReceivedViewModelJson;
             var path = data["currentPath"].Values<string>().ToArray();
             var command = data["command"].Value<string>();
             var controlUniqueId = data["controlUniqueId"]?.Value<string>();
+            var args = data["commandArgs"]?.ToObject<object[]>() ?? new object[0];
 
-            if (string.IsNullOrEmpty(command))
+            // empty command
+            if (string.IsNullOrEmpty(command)) return null;
+
+            // find the command target
+            if (!string.IsNullOrEmpty(controlUniqueId))
             {
-                // empty command
-                actionInfo = null;
+                var target = view.FindControlByUniqueId(controlUniqueId);
+                if (target == null)
+                {
+                    throw new Exception(string.Format("The control with ID '{0}' was not found!", controlUniqueId));
+                }
+                // TODO(exyi) parameters from 
+                return commandResolver.GetFunction(target, view, context, path, command, args);
             }
             else
             {
-                // find the command target
-                if (!string.IsNullOrEmpty(controlUniqueId))
-                {
-                    var target = view.FindControlByUniqueId(controlUniqueId);
-                    if (target == null)
-                    {
-                        throw new Exception(string.Format("The control with ID '{0}' was not found!", controlUniqueId));
-                    }
-                    actionInfo = commandResolver.GetFunction(target, view, context, path, command);
-                }
-                else
-                {
-                    actionInfo = commandResolver.GetFunction(view, context, path, command);
-                }
+                return commandResolver.GetFunction(view, context, path, command, args);
             }
         }
 

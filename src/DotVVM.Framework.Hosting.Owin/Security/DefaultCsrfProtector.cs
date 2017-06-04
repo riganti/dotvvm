@@ -15,7 +15,7 @@ namespace DotVVM.Framework.Security
     /// <summary>
     /// Implements synchronizer token pattern for CSRF protection.
     /// <para>The token is generated based on Session ID (random 256-bit value persisted in cookie), 
-    /// Request identity (full URI) and User identity (user name, if authenticated).</para>
+    /// In contrast to ViewModelProtector, the request identity (full URI) and User identity (user name, if authenticated) cannot be used here, because of Back button which doesn't refresh the token in the cookie.</para>
     /// <para>Value of stored Session ID and the token itself is encrypted and signed.</para>
     /// </summary>
     public class DefaultCsrfProtector : ICsrfProtector
@@ -25,10 +25,12 @@ namespace DotVVM.Framework.Security
         private const string PURPOSE_TOKEN = "DotVVM.Framework.Security.DefaultCsrfProtector.Token"; // Key derivation label for protecting token
 
         private IDataProtectionProvider protectionProvider;
+        private readonly ICookieManager cookieManager;
 
-        public DefaultCsrfProtector(IDataProtectionProvider protectionProvider)
+        public DefaultCsrfProtector(IDataProtectionProvider protectionProvider, ICookieManager cookieManager)
         {
             this.protectionProvider = protectionProvider;
+            this.cookieManager = cookieManager;
         }
 
         public string GenerateToken(IDotvvmRequestContext context)
@@ -39,9 +41,7 @@ namespace DotVVM.Framework.Security
             var sid = this.GetOrCreateSessionId(context);
 
             // Construct protector with purposes
-            var userIdentity = ProtectionHelpers.GetUserIdentity(context);
-            var requestIdentity = ProtectionHelpers.GetRequestIdentity(context);
-            var protector = this.protectionProvider.Create(PURPOSE_TOKEN, userIdentity, requestIdentity);
+            var protector = this.protectionProvider.Create(PURPOSE_TOKEN);
 
             // Get token
             var tokenData = protector.Protect(sid);
@@ -56,9 +56,7 @@ namespace DotVVM.Framework.Security
             if (string.IsNullOrWhiteSpace(token)) throw new SecurityException("CSRF protection token is missing.");
 
             // Construct protector with purposes
-            var userIdentity = ProtectionHelpers.GetUserIdentity(context);
-            var requestIdentity = ProtectionHelpers.GetRequestIdentity(context);
-            var protector = this.protectionProvider.Create(PURPOSE_TOKEN, userIdentity, requestIdentity);
+            var protector = this.protectionProvider.Create(PURPOSE_TOKEN);
 
             // Get token
             byte[] tokenSid;
@@ -84,16 +82,11 @@ namespace DotVVM.Framework.Security
             var sessionIdCookieName = GetSessionIdCookieName(context);
             if (string.IsNullOrWhiteSpace(sessionIdCookieName)) throw new FormatException("Configured SessionIdCookieName is missing or empty.");
 
-            // Get cookie manager
-            var mgr = new ChunkingCookieManager(); // TODO: Make this configurable
-
             // Construct protector with purposes
-            var userIdentity = ProtectionHelpers.GetUserIdentity(context);
-            var requestIdentity = ProtectionHelpers.GetRequestIdentity(context);
             var protector = this.protectionProvider.Create(PURPOSE_SID);
 
             // Get cookie value
-            var sidCookieValue = mgr.GetRequestCookie(context.GetOwinContext(), sessionIdCookieName);
+            var sidCookieValue = cookieManager.GetRequestCookie(context.GetOwinContext(), sessionIdCookieName);
 
             if (!string.IsNullOrWhiteSpace(sidCookieValue))
             {
@@ -125,7 +118,7 @@ namespace DotVVM.Framework.Security
 
                 // Save to cookie
                 sidCookieValue = Convert.ToBase64String(protectedSid);
-                mgr.AppendResponseCookie(
+                cookieManager.AppendResponseCookie(
                     context.GetOwinContext(),
                     sessionIdCookieName,                                // Configured cookie name
                     sidCookieValue,                                     // Base64-encoded SID value

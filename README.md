@@ -18,18 +18,11 @@ It also offers a free extension for Visual Studio 2015 with IntelliSense and oth
 
 <br />
 
-How to Start
-------------
-
-1. Install the **[DotVVM for Visual Studio 2015](https://www.dotvvm.com/landing/dotvvm-for-visual-studio-extension)** extension.
-
-2. Read the **[documentation](http://www.dotvvm.com/docs)**. 
-
-<br />
-
-Simple Sample
+How It Works?
 -------------
-DotHTML markup: 
+
+The **Views** in DotVVM use HTML syntax with __controls__ and __data-bindings__.
+
 ```html
 <div class="form-control">
   <dot:TextBox Text="{value: Name}" />
@@ -42,7 +35,8 @@ DotHTML markup:
 </div>
 ```
 
-ViewModel in C#:
+The **ViewModels** are plain C# objects. You can call public methods from the **View**.
+
 ```C#
 public class ContactFormViewModel
 {
@@ -55,8 +49,55 @@ public class ContactFormViewModel
 }
 ```
 
+You just need to know C#, HTML and CSS. For most scenarios you don't have to write any JavaScript code.
+
+<br />
+
+
+Features of DotVVM (Open Source & Free for Everyone)
+----------------------------------------------------
+
+* Many built-in controls
+    + [GridView](https://www.dotvvm.com/docs/controls/builtin/GridView/latest), [Repeater](https://www.dotvvm.com/docs/controls/builtin/Repeater/latest)
+    + [FileUpload](https://www.dotvvm.com/docs/controls/builtin/FileUpload/latest)
+    + [TextBox](https://www.dotvvm.com/docs/controls/builtin/TextBox/latest), [ComboBox](https://www.dotvvm.com/docs/controls/builtin/ComboBox/latest), [CheckBox](https://www.dotvvm.com/docs/controls/builtin/CheckBox/latest), [RadioButton](https://www.dotvvm.com/docs/controls/builtin/RadioButton/latest)
+    + [Button](https://www.dotvvm.com/docs/controls/builtin/Button/latest), [LinkButton](https://www.dotvvm.com/docs/controls/builtin/LinkButton/latest), [RouteLink](https://www.dotvvm.com/docs/controls/builtin/RouteLink/latest)
+    + [Validator](https://www.dotvvm.com/docs/controls/builtin/Validator/latest), [ValidationSummary](https://www.dotvvm.com/docs/controls/builtin/ValidationSummary/latest)
+    + ...
+* [Advanced validation rules](https://www.dotvvm.com/docs/tutorials/basics-validation/latest) integrated with .NET data annotation attributes
+* Support for [.NET cultures](https://www.dotvvm.com/docs/tutorials/basics-globalization/latest), number & date formats and RESX localization
+* [SPA (Single Page App)](https://www.dotvvm.com/docs/tutorials/basics-single-page-applications-spa/latest) support
+* [User controls](https://www.dotvvm.com/docs/tutorials/control-development-introduction/latest)
+* MVVM with [testable ViewModels](https://www.dotvvm.com/docs/tutorials/advanced-testing-viewmodels/latest) and [IoC/DI support](https://www.dotvvm.com/docs/tutorials/advanced-ioc-di-container/latest)
+* [Visual Studio integration with IntelliSense](https://www.dotvvm.com/landing/dotvvm-for-visual-studio-extension)
+* [OWIN](https://www.dotvvm.com/docs/tutorials/how-to-start-dotnet-451/latest) and [ASP.NET Core](https://www.dotvvm.com/docs/tutorials/how-to-start-dnx/1-1) support
+* [DotVVM Dynamic Data](https://github.com/riganti/dotvvm-dynamic-data)
+
+<br />
+
+Need More? We have Commercial Controls!
+---------------------------------------
+
+* [Bootstrap for DotVVM](https://www.dotvvm.com/landing/bootstrap-for-dotvvm) - more than 40 controls that make using Bootstrap easier and your code much cleaner
+* [DotVVM Business Pack](https://www.dotvvm.com/landing/business-pack) (COMING SOON) - Enterprise ready controls for Line of business web apps
+
+<br />
+
+How to Start
+------------
+
+1. Install the **[DotVVM for Visual Studio](https://www.dotvvm.com/landing/dotvvm-for-visual-studio-extension)** extension.
+
+2. Read the **[documentation](http://www.dotvvm.com/docs)**. 
+
+<br />
 
 More Info
 ---------
 
-You'll find more information on our website [DotVVM.com](https://www.dotvvm.com).
+* [DotVVM.com](https://www.dotvvm.com)
+* [DotVVM Blog](https://www.dotvvm.com/blog)
+* [Documentation](https://www.dotvvm.com/docs)
+* [Twitter @dotvvm](https://twitter.com/dotvvm)
+* [Gitter Chat](https://gitter.im/riganti/dotvvm)
+* [Samples](https://github.com/search?q=topic%3Adotvvm-sample+org%3Ariganti&type=Repositories)

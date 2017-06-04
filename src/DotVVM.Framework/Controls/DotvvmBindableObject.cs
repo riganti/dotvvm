@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation.Javascript;
 
 namespace DotVVM.Framework.Controls
 {
@@ -16,11 +17,11 @@ namespace DotVVM.Framework.Controls
 
 
         protected internal Dictionary<DotvvmProperty, object> properties;
-        
+
         /// <summary>
         /// Gets the collection of control property values.
         /// </summary>
-        protected internal Dictionary<DotvvmProperty, object> Properties
+        public Dictionary<DotvvmProperty, object> Properties
         {
             get
             {
@@ -36,7 +37,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets whether this control should be rendered on the server.
         /// </summary>
-        protected internal virtual bool RenderOnServer
+        public virtual bool RenderOnServer
         {
             get { return (RenderMode)GetValue(RenderSettings.ModeProperty) == RenderMode.Server; }
         }
@@ -54,7 +55,7 @@ namespace DotVVM.Framework.Controls
         {
             return declaredProperties.GetOrAdd(GetType(), DotvvmProperty.ResolveProperties);
         }
-        
+
         /// <summary>
         /// Determines whether the specified property is set.
         /// </summary>
@@ -67,6 +68,8 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets a data context for the control and its children. All value and command bindings are evaluated in context of this value.
         /// </summary>
+        [BindingCompilationRequirements(
+                required: new[] { typeof(Binding.Properties.SimplePathExpressionBindingProperty) })]
         public object DataContext
         {
             get { return (object)GetValue(DataContextProperty); }
@@ -74,7 +77,6 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty DataContextProperty =
             DotvvmProperty.Register<object, DotvvmBindableObject>(c => c.DataContext, isValueInherited: true);
-
 
         public T GetValue<T>(DotvvmProperty property, bool inherit = true)
         {
@@ -91,21 +93,16 @@ namespace DotVVM.Framework.Controls
             while (value is IBinding)
             {
                 DotvvmBindableObject control = this;
-                if (inherit && !properties.ContainsKey(property))
+                // DataContext is always bound to it's parent, setting it right here is a bit faster
+                if (property == DataContextProperty) control = control.Parent;
+                // handle binding
+                if (value is IStaticValueBinding binding)
                 {
-                    int n;
-                    control = GetClosestWithPropertyValue(out n, d => d.properties != null && d.properties.ContainsKey(property));
+                    value = binding.Evaluate(control);
                 }
-                if (value is IStaticValueBinding)
+                else if (value is ICommandBinding command)
                 {
-                    // handle binding
-                    var binding = (IStaticValueBinding)value;
-                    value = binding.Evaluate(control, property);
-                }
-                else if (value is CommandBindingExpression)
-                {
-                    var binding = (CommandBindingExpression)value;
-                    value = binding.GetCommandDelegate(control, property);
+                    value = command.GetCommandDelegate(control);
                 }
             }
             return value;
@@ -114,7 +111,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets the value or a binding object for a specified property.
         /// </summary>
-        protected internal virtual object GetValueRaw(DotvvmProperty property, bool inherit = true)
+        public virtual object GetValueRaw(DotvvmProperty property, bool inherit = true)
         {
             return property.GetValue(this, inherit);
         }
@@ -129,7 +126,7 @@ namespace DotVVM.Framework.Controls
             if (originalValue is IUpdatableValueBinding && !(value is BindingExpression))
             {
                 // if the property contains a binding and we are not passing another binding, update the value
-                ((IUpdatableValueBinding)originalValue).UpdateSource(value, this, property);
+                ((IUpdatableValueBinding)originalValue).UpdateSource(value, this);
             }
             else
             {
@@ -140,7 +137,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Sets the value or a binding to the specified property.
         /// </summary>
-        protected virtual void SetValueRaw(DotvvmProperty property, object value)
+        public void SetValueRaw(DotvvmProperty property, object value)
         {
             property.SetValue(this, value);
         }
@@ -163,6 +160,10 @@ namespace DotVVM.Framework.Controls
             }
             return binding as IValueBinding;
         }
+
+        public ParametrizedCode GetJavascriptValue(DotvvmProperty property, bool inherit = true) =>
+            GetValueBinding(property, inherit)?.KnockoutExpression ??
+            new ParametrizedCode(JavascriptCompilationHelper.CompileConstant(GetValue(property)), OperatorPrecedence.Max);
 
         /// <summary>
         /// Gets the command binding set to a specified property.
@@ -214,8 +215,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public DotvvmBindableObject GetClosestControlBindingTarget()
         {
-            int numberOfDataContextChanges;
-            return GetClosestControlBindingTarget(out numberOfDataContextChanges);
+            return GetClosestControlBindingTarget(out int numberOfDataContextChanges);
         }
 
         /// <summary>
@@ -264,39 +264,36 @@ namespace DotVVM.Framework.Controls
             return current;
         }
 
-        protected internal bool HasBinding(DotvvmProperty property)
+        public bool HasBinding(DotvvmProperty property)
         {
-            object value;
-            return Properties.TryGetValue(property, out value) && value is IBinding;
+            return Properties.TryGetValue(property, out object value) && value is IBinding;
         }
-        protected internal bool HasValueBinding(DotvvmProperty property)
+        public bool HasValueBinding(DotvvmProperty property)
         {
-            object value;
-            return Properties.TryGetValue(property, out value) && value is IValueBinding;
+            return Properties.TryGetValue(property, out object value) && value is IValueBinding;
         }
 
-        protected internal bool HasBinding<TBinding>(DotvvmProperty property)
+        public bool HasBinding<TBinding>(DotvvmProperty property)
             where TBinding : IBinding
         {
-            object value;
-            return Properties.TryGetValue(property, out value) && value is TBinding;
+            return Properties.TryGetValue(property, out object value) && value is TBinding;
         }
 
         /// <summary>
         /// Gets all bindings set on the control (excluding BindingProperties).
         /// </summary>
-        public IEnumerable<KeyValuePair<DotvvmProperty, BindingExpression>> GetAllBindings()
+        public IEnumerable<KeyValuePair<DotvvmProperty, IBinding>> GetAllBindings()
         {
-            return Properties.Where(p => p.Value is BindingExpression) // && !p.Key.IsBindingProperty)
-                .Select(p => new KeyValuePair<DotvvmProperty, BindingExpression>(p.Key, (BindingExpression)p.Value));
+            return Properties.Where(p => p.Value is IBinding) // && !p.Key.IsBindingProperty)
+                .Select(p => new KeyValuePair<DotvvmProperty, IBinding>(p.Key, (IBinding)p.Value));
         }
 
         /// <summary>
         /// Gets all ancestors of this control starting with the parent.
         /// </summary>
-        public IEnumerable<DotvvmControl> GetAllAncestors()
+        public IEnumerable<DotvvmControl> GetAllAncestors(bool incudingThis = false)
         {
-            var ancestor = Parent;
+            var ancestor = incudingThis ? (DotvvmControl)this : Parent;
             while (ancestor != null)
             {
                 yield return ancestor;

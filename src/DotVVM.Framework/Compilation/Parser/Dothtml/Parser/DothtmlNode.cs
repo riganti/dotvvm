@@ -8,7 +8,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
     {
         public int StartPosition => Tokens.FirstOrDefault()?.StartPosition ?? 0;
 
-        public int Length => Tokens.Select(t => t.Length).Sum();
+        public int Length => Tokens.SumTokenLength();
         public int EndPosition => StartPosition + Length; 
 
         public AggregateList<DothtmlToken> Tokens { get; private set; } = new AggregateList<DothtmlToken>();

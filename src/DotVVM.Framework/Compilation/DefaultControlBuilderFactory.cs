@@ -95,6 +95,7 @@ namespace DotVVM.Framework.Compilation
 
         protected static string GetValidIdentifier(string identifier)
         {
+            if (string.IsNullOrEmpty(identifier)) return "_";
             var arr = identifier.ToCharArray();
             for (int i = 0; i < arr.Length; i++)
             {

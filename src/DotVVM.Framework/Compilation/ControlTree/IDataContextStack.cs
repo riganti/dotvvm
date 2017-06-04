@@ -10,5 +10,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
         IDataContextStack Parent { get; }
 
         IReadOnlyList<NamespaceImport> NamespaceImports { get; }
+
+        IReadOnlyList<BindingExtensionParameter> ExtensionParameters { get; }
+        IEnumerable<(int dataContextLevel, BindingExtensionParameter parameter)> GetCurrentExtensionParameters();
+
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DotVVM.CommandLine.Commands.Templates;
 using DotVVM.CommandLine.Metadata;
 
 namespace DotVVM.CommandLine.Commands.Implementation
@@ -10,7 +11,7 @@ namespace DotVVM.CommandLine.Commands.Implementation
     {
         public override string Name => "Add Control";
 
-        public override string Usage => "dotvvm add control <NAME>\ndotvvm ac <NAME>";
+        public override string Usage => "dotvvm add control <NAME> [-c|--code|--codebehind]\ndotvvm ac <NAME> [-c|--code|--codebehind]";
 
         public override bool CanHandle(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
         {
@@ -37,10 +38,42 @@ namespace DotVVM.CommandLine.Commands.Implementation
             {
                 throw new InvalidCommandUsageException("You have to specify the NAME.");
             }
+            name = PathHelpers.EnsureFileExtension(name, "dotcontrol");
 
-            var baseType = args.HasOption("-c", "-code");
+            var codeBehind = args.HasOption("-c", "--code", "--codebehind");
 
-            // TODO: create a new master page (with the master page)
+            CreateControl(name, codeBehind, dotvvmProjectMetadata);
+        }
+
+        private void CreateControl(string viewPath, bool createCodeBehind, DotvvmProjectMetadata dotvvmProjectMetadata)
+        {
+            var codeBehindPath = PathHelpers.ChangeExtension(viewPath, "cs");
+            var codeBehindClassName = NamingHelpers.GetClassNameFromPath(viewPath);
+            var codeBehindClassNamespace = NamingHelpers.GetNamespaceFromPath(viewPath, dotvvmProjectMetadata.ProjectDirectory, dotvvmProjectMetadata.RootNamespace);
+
+            // create control
+            var controlTemplate = new ControlTemplate()
+            {
+                CreateCodeBehind = createCodeBehind
+            };
+            if (createCodeBehind)
+            {
+                controlTemplate.CodeBehindClassName = codeBehindClassName;
+                controlTemplate.CodeBehindClassNamespace = codeBehindClassNamespace;
+                controlTemplate.CodeBehindClassRootNamespace = dotvvmProjectMetadata.RootNamespace;
+            }
+            FileSystemHelpers.WriteFile(viewPath, controlTemplate.TransformText());
+
+            // create code behind
+            if (createCodeBehind)
+            {
+                var codeBehindTemplate = new ControlCodeBehindTemplate()
+                {
+                    CodeBehindClassNamespace = codeBehindClassNamespace,
+                    CodeBehindClassName = codeBehindClassName
+                };
+                FileSystemHelpers.WriteFile(codeBehindPath, codeBehindTemplate.TransformText());
+            }
         }
     }
 }

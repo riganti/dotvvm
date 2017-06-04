@@ -13,10 +13,6 @@
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="**\*.cs" />
-    <EmbeddedResource Include="**\*.resx" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="app.config" />
     <None Include="dotvvmwizard.snk" />
   </ItemGroup>
@@ -25,10 +21,10 @@
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.NETCore.App" Version="1.0.1" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0-preview-20161123-03" />
-    <PackageReference Include="MSTest.TestAdapter" Version="1.1.6-preview" />
-    <PackageReference Include="MSTest.TestFramework" Version="1.0.7-preview" />
+    <PackageReference Include="Microsoft.NETCore.App" Version="1.1.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="1.1.13" />
+    <PackageReference Include="MSTest.TestFramework" Version="1.1.13" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />

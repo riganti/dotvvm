@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Compilation
 {
-	public struct NamespaceImport
+	public struct NamespaceImport: IEquatable<NamespaceImport>
 	{
 		[JsonProperty("namespace")]
 		public readonly string Namespace;
@@ -25,5 +25,14 @@ namespace DotVVM.Framework.Compilation
 			this.Namespace = @namespace;
 			this.Alias = alias;
 		}
-	}
+
+        public override bool Equals(object obj) =>
+            obj is NamespaceImport other && Equals(other);
+
+        public bool Equals(NamespaceImport other) =>
+            string.Equals(Namespace, other.Namespace) && string.Equals(Alias, other.Alias);
+
+        public override int GetHashCode() =>
+            unchecked(((Namespace?.GetHashCode() ?? 0) * 397) ^ (Alias?.GetHashCode() ?? 0));
+    }
 }

@@ -4,7 +4,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation.Javascript;
+using System.Reflection;
+using DotVVM.Framework.Utils;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Compilation.Styles;
+using DotVVM.Framework.Compilation.ControlTree;
+using System.Linq.Expressions;
 
 namespace DotVVM.Framework.Controls
 {
@@ -17,6 +24,9 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the source collection or a GridViewDataSet that contains data in the control.
         /// </summary>
         [MarkupOptions(AllowHardCodedValue = false)]
+        [BindingCompilationRequirements(
+            required: new[] { typeof(DataSourceAccessBinding) },
+            optional: new[] { typeof(DataSourceLengthBinding) })]
         public object DataSource
         {
             get { return GetValue(DataSourceProperty); }
@@ -53,45 +63,34 @@ namespace DotVVM.Framework.Controls
             return binding;
         }
 
-        protected ValueBindingExpression GetItemBinding(IList items, string dataSourceJs, int index)
+        protected IValueBinding GetItemBinding()
         {
-            return new ValueBindingExpression(new CompiledBindingExpression()
-            {
-                Delegate = (h, c) => items[index],
-                Javascript = JavascriptCompilationHelper.AddIndexerToViewModel(WrapJavascriptDataSourceAccess(dataSourceJs), index, true)
-            });
+            return GetForeachDataBindExpression().CastTo<ValueBindingExpression>().GetListIndexer();
         }
 
-        public static IEnumerable GetIEnumerableFromDataSource(object dataSource)
-        {
-            if (dataSource == null)
-            {
-                return null;
-            }
-            if (dataSource is IEnumerable)
-            {
-                return (IEnumerable)dataSource;
-            }
-            if (dataSource is IGridViewDataSet)
-            {
-                return ((IGridViewDataSet)dataSource).Items;
-            }
-            throw new NotSupportedException($"The object of type '{dataSource.GetType()}' is not supported in the DataSource property!");
-        }
+        public IEnumerable GetIEnumerableFromDataSource() =>
+            (IEnumerable)GetForeachDataBindExpression().Evaluate(this);
 
-        protected string WrapJavascriptDataSourceAccess(string expression)
-        {
-            return "dotvvm.evaluator.getDataSourceItems(" + expression + ")";
-        }
+        protected IValueBinding GetForeachDataBindExpression() =>
+            (IValueBinding)GetDataSourceBinding().GetProperty<DataSourceAccessBinding>().Binding;
 
-        protected string GetForeachDataBindJavascriptExpression()
-        {
-            return WrapJavascriptDataSourceAccess(GetDataSourceBinding().GetKnockoutBindingExpression());
-        }
+        protected string GetPathFragmentExpression() =>
+            GetDataSourceBinding().GetKnockoutBindingExpression(this);
 
-        protected string GetPathFragmentExpression()
+        [ApplyControlStyle]
+        public static void OnCompilation(ResolvedControl control, BindingCompilationService bindingService)
         {
-            return GetDataSourceBinding().GetKnockoutBindingExpression();
+            // ComboBoxed does not have to have the DataSource property and then they don't use the CurrentIndexBindingProperty
+            if (!control.HasProperty(DataSourceProperty)) return;
+
+            var dcChange = ControlTreeResolverBase.ApplyContextChange(control.DataContextTypeStack,
+                new DataContextChangeAttribute[] { new ControlPropertyBindingDataContextChangeAttribute(nameof(DataSource)), new CollectionElementDataContextChangeAttribute(0) },
+                control, null);
+            var dataContext = DataContextStack.Create(ResolvedTypeDescriptor.ToSystemType(dcChange.type), control.DataContextTypeStack, extenstionParameters: dcChange.extensionParameters);
+            control.SetProperty(new ResolvedPropertyBinding(Internal.CurrentIndexBindingProperty,
+                new ResolvedBinding(bindingService, new Compilation.BindingParserOptions(typeof(ValueBindingExpression)), dataContext,
+                parsedExpression: Expression.Parameter(typeof(int), "_index").AddParameterAnnotation(
+                    new BindingParameterAnnotation(dataContext, new CurrentCollectionIndexExtensionParameter())))));
         }
     }
 }

@@ -1,9 +1,11 @@
-﻿using DotVVM.Framework.Compilation;
+﻿using DotVVM.Framework.Binding;
+using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Runtime;
@@ -39,12 +41,17 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IViewCompiler, DefaultViewCompiler>();
             services.TryAddSingleton<IBindingCompiler, BindingCompiler>();
             services.TryAddSingleton<IBindingExpressionBuilder, BindingExpressionBuilder>();
-            services.TryAddSingleton<IBindingIdGenerator, OriginalStringBindingIdGenerator>();
+            services.TryAddSingleton<BindingCompilationService, BindingCompilationService>();
+            services.TryAddSingleton<DataPager.CommonBindings>();
             services.TryAddSingleton<IControlUsageValidator, DefaultControlUsageValidator>();
             services.TryAddSingleton<ILocalResourceUrlManager, LocalResourceUrlManager>();
             services.TryAddSingleton<IResourceHashService, DefaultResourceHashService>();
             
             services.AddSingleton(s => configuration ?? (configuration = DotvvmConfiguration.CreateDefault(s)));
+
+            services.Configure<BindingCompilationOptions>(o => {
+                 o.TransformerClasses.Add(ActivatorUtilities.CreateInstance<BindingPropertyResolvers>(configuration.ServiceLocator.GetServiceProvider()));
+            });
 
             return services;
         }

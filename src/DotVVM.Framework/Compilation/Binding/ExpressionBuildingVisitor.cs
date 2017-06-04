@@ -225,6 +225,12 @@ namespace DotVVM.Framework.Compilation.Binding
             var falseExpr = HandleErrors(node.FalseExpression, Visit);
             ThrowOnErrors();
 
+            if (trueExpr.Type != falseExpr.Type)
+            {
+                trueExpr = TypeConversion.ImplicitConversion(trueExpr, falseExpr.Type, allowToString: true) ?? trueExpr;
+                falseExpr = TypeConversion.ImplicitConversion(falseExpr, trueExpr.Type, allowToString: true) ?? falseExpr;
+            }
+
             return Expression.Condition(condition, trueExpr, falseExpr);
         }
 

@@ -23,7 +23,7 @@ class DotvvmSerialization {
 
         // handle arrays
         if (viewModel instanceof Array) {
-            if (ko.isObservable(target) && target.removeAll && target() != null && target().length === viewModel.length) {
+            if (ko.isObservable(target) && "removeAll" in target && target() != null && target().length === viewModel.length) {
                 // the array has the same number of items, update it
                 var targetArray = target();
                 for (var i = 0; i < viewModel.length; i++) {
@@ -37,13 +37,13 @@ class DotvvmSerialization {
 
             } else {
                 // rebuild the array because it is different
-                var array = [];
+                var array: KnockoutObservable<any>[] = [];
                 for (var i = 0; i < viewModel.length; i++) {
                     array.push(this.wrapObservable(this.deserialize(viewModel[i], {}, deserializeAll)));
                 }
 
                 if (ko.isObservable(target)) {
-                    if (!target.removeAll) {
+                    if (!("removeAll" in target)) {
                         // if the previous value was null, the property is not an observable array - make it
                         ko.utils.extend(target, ko.observableArray['fn']);
                         target = target.extend({ 'trackArrayChanges': true });
@@ -152,15 +152,15 @@ class DotvvmSerialization {
         }
 
         if (viewModel instanceof Array) {
-            if (opt.pathOnly) {
-                var index = parseInt(opt.path.pop());
-                var array = new Array(index + 1);
+            if (opt.pathOnly && opt.path) {
+                var index = parseInt(<string>opt.path.pop());
+                let array = new Array(index + 1);
                 array[index] = this.serialize(viewModel[index], opt);
                 opt.path.push(index.toString());
                 return array;
             } else {
 
-                var array = [];
+                let array: any[] = [];
                 for (var i = 0; i < viewModel.length; i++) {
                     array.push(this.serialize(viewModel[i], opt));
                 }
@@ -201,7 +201,7 @@ class DotvvmSerialization {
                 else if (opt.oneLevel) {
                     result[prop] = ko.unwrap(value);
                 }
-                else if (!opt.serializeAll && options && options.pathOnly) {
+                else if (!opt.serializeAll && options && options.pathOnly && opt.pathMatcher) {
                     var path = options.pathOnly;
                     if (!(path instanceof Array)) {
                         path = opt.path || this.findObject(value, opt.pathMatcher);
@@ -224,7 +224,7 @@ class DotvvmSerialization {
                 }
             }
         }
-        if (pathProp) opt.path.push(pathProp);
+        if (pathProp && opt.path) opt.path.push(pathProp);
         return result;
     }
 
@@ -233,7 +233,7 @@ class DotvvmSerialization {
         if (nullable) {
             type = type.substr(0, type.length - 1);
         }
-        if (nullable && (typeof(value) === "undefined" || value == null)) {
+        if (nullable && (value == null || value == "")) {
             return true;
         }
 
@@ -253,12 +253,13 @@ class DotvvmSerialization {
             return int >= minValue && int <= maxValue && int === parseFloat(value);
         }
         if (type === "number" || type === "single" || type === "double" || type === "decimal") {
-            return !isNaN(value) || value === NaN;
+            // should check if the value is numeric or number in a string
+            return +value === value || (!isNaN(+value) && typeof value == "string");
         }
         return true;
     }
 
-    private findObject(obj: any, matcher: (o) => boolean): string[] {
+    private findObject(obj: any, matcher: (o) => boolean): string[] | null {
         if (matcher(obj)) return [];
         obj = ko.unwrap(obj);
         if (matcher(obj)) return [];

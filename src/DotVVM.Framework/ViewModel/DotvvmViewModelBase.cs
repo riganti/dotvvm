@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.ViewModel.Validation;
 using Newtonsoft.Json;
 
 namespace DotVVM.Framework.ViewModel

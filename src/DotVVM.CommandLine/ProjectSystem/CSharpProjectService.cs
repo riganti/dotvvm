@@ -11,22 +11,29 @@ namespace DotVVM.CommandLine.ProjectSystem
     {
         private XDocument xml;
         private XNamespace ns;
+        private string defaultProjectName;
 
         public void Load(string projectFile)
         {
             xml = XDocument.Load(projectFile);
             ns = XNamespace.Get("http://schemas.microsoft.com/developer/msbuild/2003");
+
+            defaultProjectName = Path.GetFileNameWithoutExtension(projectFile);
         }
 
         public string GetRootNamespace()
         {
             EnsureProjectLoaded();
-            return xml.Root.Descendants(ns + "RootNamespace").FirstOrDefault()?.Value;
+            return xml.Root.Descendants(ns + "RootNamespace").FirstOrDefault()?.Value
+                ?? xml.Root.Descendants("RootNamespace").FirstOrDefault()?.Value
+                ?? defaultProjectName;
         }
 
         public string GetAssemblyName()
         {
-            return xml.Root.Descendants(ns + "AssemblyName").FirstOrDefault()?.Value;
+            return xml.Root.Descendants(ns + "AssemblyName").FirstOrDefault()?.Value
+                ?? xml.Root.Descendants("AssemblyName").FirstOrDefault()?.Value
+                ?? defaultProjectName;
         }
 
 

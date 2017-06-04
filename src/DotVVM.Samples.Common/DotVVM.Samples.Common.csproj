@@ -1,5 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
+﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard1.6;net451</TargetFrameworks>
     <AssemblyName>DotVVM.Samples.Common</AssemblyName>
@@ -14,13 +13,25 @@
     <None Include="**\*.dothtml" />
     <None Include="**\*.dotcontrol" />
     <None Include="**\*.dotmaster" />
-    <Compile Include="**\*.cs" />
-    <EmbeddedResource Include="**\*.resx" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Views\ComplexSamples\CascadeSelectors\TripleComboBoxes.dothtml" />
+    <None Remove="Views\ComplexSamples\GridViewDataSet\GridViewDataSetDelegate.dothtml" />
+    <None Remove="Views\ControlSamples\ComboBox\ComboBoxDelaySync.dothtml" />
+    <None Remove="Views\ControlSamples\ComboBox\ComboBoxDelaySync2.dothtml" />
+    <None Remove="Views\FeatureSamples\ActionFilterErrorHandling\ActionFilterRedirect.dothtml" />
+    <None Remove="Views\FeatureSamples\Api\GetCollection.dothtml" />
+    <None Remove="Views\FeatureSamples\Api\GithubRepoApi.dothtml" />
+    <None Remove="Views\FeatureSamples\CommandArguments\CommandArguments.dothtml" />
     <None Remove="Views\FeatureSamples\MarkupControl\CommandBindingInDataContextWithControlProperty.dothtml" />
+    <None Remove="Views\FeatureSamples\MarkupControl\control2.dotcontrol" />
     <None Remove="Views\FeatureSamples\MarkupControl\ControlCommandBinding.dotcontrol" />
     <None Remove="Views\FeatureSamples\MarkupControl\ControlValueBindingWithCommand.dotcontrol" />
+    <None Remove="Views\FeatureSamples\MarkupControl\HierarchyControl.dotcontrol" />
+    <None Remove="Views\FeatureSamples\MarkupControl\HierarchyControlPage.dothtml" />
+    <None Remove="Views\FeatureSamples\MarkupControl\MultiControlHierarchy.dothtml" />
+    <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_ComboBoxSelectionChanged.dothtml" />
+    <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_ComboBoxSelectionChanged_Objects.dothtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Scripts\ClientExtenders.js" />
@@ -28,9 +39,25 @@
     <Content Include="Scripts\GridViewSizable.js" />
     <Content Include="Scripts\testResource.js" />
     <Content Include="Scripts\testResource2.js" />
+    <Content Include="Views\ComplexSamples\CascadeSelectors\TripleComboBoxes.dothtml" />
+    <Content Include="Views\ComplexSamples\GridViewDataSet\GridViewDataSetDelegate.dothtml" />
+    <Content Include="Views\ControlSamples\ComboBox\ComboBoxDelaySync.dothtml" />
+    <Content Include="Views\ControlSamples\ComboBox\ComboBoxDelaySync2.dothtml" />
+    <Content Include="Views\FeatureSamples\ActionFilterErrorHandling\ActionFilterRedirect.dothtml" />
+    <Content Include="Views\FeatureSamples\Api\GetCollection.dothtml" />
+    <Content Include="Views\FeatureSamples\Api\GithubRepoApi.dothtml" />
+    <Content Include="Views\FeatureSamples\CommandArguments\CommandArguments.dothtml" />
+    <Content Include="Views\FeatureSamples\DependencyInjection\ViewModelScopedService.dothtml" />
+    <Content Include="Views\FeatureSamples\MarkupControl\Control1.dotcontrol" />
+    <Content Include="Views\FeatureSamples\MarkupControl\Control2.dotcontrol" />
     <Content Include="Views\FeatureSamples\MarkupControl\ControlValueBindingWithCommand.dotcontrol" />
     <Content Include="Views\FeatureSamples\MarkupControl\ControlCommandBinding.dotcontrol" />
     <Content Include="Views\FeatureSamples\MarkupControl\CommandBindingInDataContextWithControlProperty.dothtml" />
+    <Content Include="Views\FeatureSamples\MarkupControl\HierarchyControl.dotcontrol" />
+    <Content Include="Views\FeatureSamples\MarkupControl\HierarchyControlPage.dothtml" />
+    <Content Include="Views\FeatureSamples\MarkupControl\MultiControlHierarchy.dothtml" />
+    <Content Include="Views\FeatureSamples\StaticCommand\StaticCommand_ComboBoxSelectionChanged.dothtml" />
+    <Content Include="Views\FeatureSamples\StaticCommand\StaticCommand_ComboBoxSelectionChanged_Objects.dothtml" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="NETStandard.Library" Version="1.6.0" />

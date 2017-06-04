@@ -15,6 +15,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Utils;
 using System.Linq.Expressions;
+using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Binding.Properties;
+using DotVVM.Framework.Compilation.Binding;
 
 namespace DotVVM.Framework.Tests.Runtime.ControlTree
 {
@@ -28,7 +31,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         public void TestInit()
         {
             configuration = DotvvmConfiguration.CreateDefault();
-            configuration.Markup.AddCodeControl("cc", typeof(ClassWithInnerElementProperty));
+            configuration.Markup.AddCodeControls("cc", typeof(ClassWithInnerElementProperty));
             controlTreeResolver = configuration.ServiceLocator.GetService<IControlTreeResolver>();
         }
 
@@ -74,6 +77,16 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual(root, control.Parent);
         }
 
+        private static string GetParsingError(IBinding binding)
+        {
+            var ex = binding.GetProperty(typeof(ParsedExpressionBindingProperty), ErrorHandlingMode.ReturnException) as Exception;
+            if (ex == null) return null;
+            var errors = new List<BindingCompilationException>();
+            ex.ForInnerExceptions<BindingCompilationException>(e => errors.Add(e));
+            if (errors.Any()) return string.Join("; ", errors.Select(e => e.Message));
+            else return ex.ToString();
+        }
+
         [TestMethod]
         public void ResolvedTree_SingleControlWithBinding_BindingError_MissingViewModelDirective()
         {
@@ -81,8 +94,9 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
             var control = root.Content.First();
             var textBinding = (ResolvedPropertyBinding)control.Properties[ButtonBase.TextProperty];
-            Assert.IsNotNull(textBinding.Binding.ParsingError);
-            Assert.IsTrue(textBinding.Binding.ParsingError.Message.Contains("Could not resolve identifier"));
+            var error = GetParsingError(textBinding.Binding.Binding);
+            Assert.IsNotNull(error);
+            Assert.IsTrue(error.Contains("Could not resolve identifier"));
 
             Assert.AreEqual(root, control.Parent);
             Assert.AreEqual(control, textBinding.Parent);
@@ -96,8 +110,9 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
             var control = root.Content.First();
             var textBinding = (ResolvedPropertyBinding)control.Properties[ButtonBase.TextProperty];
-            Assert.IsNotNull(textBinding.Binding.ParsingError);
-            Assert.IsTrue(textBinding.Binding.ParsingError.Message.Contains("Type of '_this' could not be resolved."));
+            var error = GetParsingError(textBinding.Binding.Binding);
+            Assert.IsNotNull(error);
+            Assert.IsTrue(error.Contains("Type of '_this' could not be resolved."));
 
             Assert.AreEqual(root, control.Parent);
             Assert.AreEqual(control, textBinding.Parent);
@@ -112,8 +127,9 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
             var control = root.Content.First();
             var textBinding = (ResolvedPropertyBinding)control.Properties[ButtonBase.TextProperty];
-            Assert.IsNotNull(textBinding.Binding.ParsingError);
-            Assert.IsTrue(textBinding.Binding.ParsingError.Message.Contains("Could not resolve identifier"));
+            var error = GetParsingError(textBinding.Binding.Binding);
+            Assert.IsNotNull(error);
+            Assert.IsTrue(error.Contains("Could not resolve identifier"));
 
             Assert.AreEqual(root, control.Parent);
             Assert.AreEqual(control, textBinding.Parent);
@@ -128,7 +144,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
             var control = root.Content.First().Properties.Values.OfType<ResolvedPropertyTemplate>().First().Content.First();
             var textBinding = (ResolvedPropertyBinding)control.Properties[ButtonBase.TextProperty];
-            Assert.IsNull(textBinding.Binding.ParsingError);
+            textBinding.Binding.GetExpression();
         }
 
         [TestMethod]
@@ -139,7 +155,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
             var control = root.Content.First();
             var textBinding = (ResolvedPropertyBinding)control.Properties[ButtonBase.TextProperty];
-            Assert.IsNull(textBinding.Binding.ParsingError);
+            textBinding.Binding.GetExpression();
             Assert.AreEqual(typeof(int), ResolvedTypeDescriptor.ToSystemType(textBinding.Binding.ResultType));
 
             Assert.AreEqual(root, control.Parent);
@@ -167,8 +183,8 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 <dot:Button class='{value: Length}' />");
 
             var control = root.Content.First();
-            var attribute = ((ResolvedPropertyBinding) control.GetHtmlAttribute("class"));
-            Assert.IsNull(attribute.Binding.ParsingError);
+            var attribute = ((ResolvedPropertyBinding)control.GetHtmlAttribute("class"));
+            attribute.Binding.GetExpression();
             Assert.AreEqual(typeof(int), ResolvedTypeDescriptor.ToSystemType(attribute.Binding.ResultType));
 
             Assert.AreEqual(root, control.Parent);
@@ -234,13 +250,13 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual(typeof(Repeater), control.Metadata.Type);
 
             var dataSource = (ResolvedPropertyBinding)control.Properties[ItemsControl.DataSourceProperty];
-            Assert.IsNull(dataSource.Binding.ParsingError);
+            dataSource.Binding.GetExpression();
 
             var itemTemplate = (ResolvedPropertyTemplate)control.Properties[Repeater.ItemTemplateProperty];
             var button = itemTemplate.Content.FirstOrDefault(c => c.Metadata.Type == typeof(Button));
 
             var text = (ResolvedPropertyBinding)button.Properties[ButtonBase.TextProperty];
-            Assert.IsNull(text.Binding.ParsingError);
+            text.Binding.GetExpression();
 
             Assert.AreEqual(root, control.Parent);
             Assert.AreEqual(control, dataSource.Parent);
@@ -263,13 +279,13 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual(typeof(Repeater), control.Metadata.Type);
 
             var dataSource = (ResolvedPropertyBinding)control.Properties[ItemsControl.DataSourceProperty];
-            Assert.IsNull(dataSource.Binding.ParsingError);
+            dataSource.Binding.GetExpression();
 
             var itemTemplate = (ResolvedPropertyTemplate)control.Properties[Repeater.ItemTemplateProperty];
             var button = itemTemplate.Content.FirstOrDefault(c => c.Metadata.Type == typeof(Button));
 
             var text = (ResolvedPropertyBinding)button.Properties[ButtonBase.TextProperty];
-            Assert.IsNull(text.Binding.ParsingError);
+            text.Binding.GetExpression();
 
             Assert.AreEqual(root, control.Parent);
             Assert.AreEqual(control, dataSource.Parent);
@@ -292,13 +308,13 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual(typeof(Repeater), control.Metadata.Type);
 
             var dataSource = (ResolvedPropertyBinding)control.Properties[ItemsControl.DataSourceProperty];
-            Assert.IsNotNull(dataSource.Binding.ParsingError);
+            Assert.AreEqual(true, GetParsingError(dataSource.Binding.Binding)?.Contains("resolve identifier"));
 
             var itemTemplate = (ResolvedPropertyTemplate)control.Properties[Repeater.ItemTemplateProperty];
             var button = itemTemplate.Content.FirstOrDefault(c => c.Metadata.Type == typeof(Button));
 
             var text = (ResolvedPropertyBinding)button.Properties[ButtonBase.TextProperty];
-            Assert.IsNotNull(text.Binding.ParsingError);
+            Assert.IsNotNull(GetParsingError(text.Binding.Binding));
 
             Assert.AreEqual(root, control.Parent);
             Assert.AreEqual(control, dataSource.Parent);
@@ -381,7 +397,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 </div>
 ");
             var div = root.Content.First(r => r.Metadata.Name == nameof(HtmlGenericControl));
-            Assert.IsTrue((div.Properties[DotvvmBindableObject.DataContextProperty] as ResolvedPropertyBinding).Binding.ParsingError != null);
+            Assert.IsTrue((div.Properties[DotvvmBindableObject.DataContextProperty] as ResolvedPropertyBinding).Binding.Errors.Any());
 
         }
 
@@ -513,7 +529,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.IsTrue(roles.CastTo<string[]>().SequenceEqual(new[] { "a", "b", "c", "d", "e", "f" }));
         }
 
-        
+
         [TestMethod]
         public void ResolvedTree_InnerElementProperty_String()
         {
@@ -560,6 +576,54 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual(null, root.DataContextTypeStack.DataContextType);
         }
 
+        private ResolvedBinding[] GetLiteralBindings(ResolvedContentNode node) =>
+            (from c in node.Content.SelectRecursively(c => c.Content)
+            where c.Metadata.Type == typeof(Literal)
+            let text = c.Properties.GetValueOrDefault(Literal.TextProperty)
+            where text is ResolvedPropertyBinding
+            select ((ResolvedPropertyBinding)text).Binding).ToArray();
+
+   [TestMethod]
+        public void ResolvedTree_ContentDataContextChange()
+        {
+            var root = ParseSource(@"@viewModel System.String
+<cc:ControlWithContentDataContext>
+    {{value: _this}}
+    {{value: _parent}}
+</cc:ControlWithContentDataContext>");
+            var types = GetLiteralBindings(root)
+                .Select(l => l.ResultType)
+                .Select(ResolvedTypeDescriptor.ToSystemType)
+                .ToArray();
+            Assert.AreEqual(typeof(int), types[0]);
+            Assert.AreEqual(typeof(string), types[1]);
+        }
+
+        [TestMethod]
+        public void ResolvedTree_CustomBindingResolverInDataContext()
+        {
+            // Demonstrates usage of binding property post-processor registered by DataContext change inside one control.
+            // The post-processor just replaces 'abc' binding with 'def'
+            var root = ParseSource(@"@viewModel System.String
+<cc:ControlWithSpecialBindingsInside>
+    {{value: 'abc'}}
+    {{value: 'll'}}
+</cc:ControlWithSpecialBindingsInside>
+
+{{value: 'abc'}}
+");
+            var literals =
+                (from binding in GetLiteralBindings(root)
+                 let expression = binding.GetExpression()
+                 let constantExpression = ((ConstantExpression)expression)
+                 select constantExpression.Value).ToArray();
+
+            Assert.AreEqual("def", literals[0]);
+            Assert.AreEqual("ll", literals[1]);
+            Assert.AreEqual("abc", literals[2]);
+
+        }
+
         private ResolvedTreeRoot ParseSource(string markup, string fileName = "default.dothtml")
         {
             var tokenizer = new DothtmlTokenizer();
@@ -596,7 +660,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             throw new NotImplementedException();
         }
     }
-    
+
     public class ClassWithoutInnerElementProperty : PostBackHandler
     {
         [MarkupOptions(MappingMode = MappingMode.Attribute)]
@@ -613,6 +677,38 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         protected internal override Dictionary<string, string> GetHandlerOptionClientExpressions()
         {
             throw new NotImplementedException();
+        }
+    }
+
+    [DataContextChanger]
+    public class ControlWithContentDataContext : DotvvmControl
+    {
+        public class DataContextChanger : DataContextChangeAttribute
+        {
+            public override int Order => 0;
+
+            public override ITypeDescriptor GetChildDataContextType(ITypeDescriptor dataContext, IDataContextStack controlContextStack, IAbstractControl control, IPropertyDescriptor property = null)
+            {
+                return new ResolvedTypeDescriptor(typeof(int));
+            }
+        }
+    }
+
+    [DataContextChanger]
+    public class ControlWithSpecialBindingsInside : DotvvmControl
+    {
+        public class DataContextChanger : DataContextStackManipulationAttribute
+        {
+            public override IDataContextStack ChangeStackForChildren(IDataContextStack original, IAbstractControl control, IPropertyDescriptor property, Func<IDataContextStack, ITypeDescriptor, IDataContextStack> createNewFrame)
+            {
+                return DataContextStack.Create(ResolvedTypeDescriptor.ToSystemType(original.DataContextType), (DataContextStack)original.Parent,
+                    bindingPropertyResolvers: new Delegate[]{
+                        new Func<ParsedExpressionBindingProperty, ParsedExpressionBindingProperty>(e => {
+                            if (e.Expression.NodeType == ExpressionType.Constant && (string)((ConstantExpression)e.Expression).Value == "abc") return new ParsedExpressionBindingProperty(Expression.Constant("def"));
+                            else return e;
+                        })
+                    });
+            }
         }
     }
 }

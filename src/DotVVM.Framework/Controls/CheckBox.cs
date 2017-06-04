@@ -84,14 +84,18 @@ namespace DotVVM.Framework.Controls
         protected virtual void RenderCheckedItemsBinding(IHtmlWriter writer)
         {
             var checkedItemsBinding = GetValueBinding(CheckedItemsProperty);
-            writer.AddKnockoutDataBind("checked", checkedItemsBinding);
+            writer.AddKnockoutDataBind("checked", checkedItemsBinding.GetKnockoutBindingExpression(this));
         }
 
         protected virtual void RenderCheckedProperty(IHtmlWriter writer)
         {
             var checkedBinding = GetValueBinding(CheckedProperty);
-            writer.AddKnockoutDataBind("checked", checkedBinding);
+            writer.AddKnockoutDataBind("checked", checkedBinding.GetKnockoutBindingExpression(this));
             writer.AddKnockoutDataBind("checkedValue", "true");
+
+            // Boolean mode can have prerendered `checked` attribute
+            if (RenderOnServer && true.Equals(GetValue(CheckedProperty)))
+                writer.AddAttribute("checked", null);
         }
     }
 }

@@ -181,10 +181,12 @@ namespace DotVVM.Framework.ViewModel.Serialization
             else if (existingValue != null && property.Populate)
             {
                 if (jtoken.Type == JTokenType.Null)
+                {
                     return null;
+                }
                 else if (jtoken.Type == JTokenType.Object)
                 {
-                    serializer.Converters.OfType<ViewModelJsonConverter>().First().Populate((JObject)jtoken, serializer, existingValue);
+                    serializer.Converters.OfType<ViewModelJsonConverter>().First().Populate((JObject) jtoken, serializer, existingValue);
                     return existingValue;
                 }
                 else
@@ -195,7 +197,14 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             else
             {
-                return serializer.Deserialize(jtoken.CreateReader(), property.Type);
+                if (property.Type.GetTypeInfo().IsValueType && jtoken.Type == JTokenType.Null)
+                {
+                    return Activator.CreateInstance(property.Type);
+                }
+                else
+                {
+                    return serializer.Deserialize(jtoken.CreateReader(), property.Type);
+                }
             }
         }
 
@@ -303,18 +312,13 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     // render empty property options - we need to create the observable on the client, however we don't transfer the value
                     options["doNotUpdate"] = true;
                 }
-
-                if ((property.Type == typeof(DateTime) || property.Type == typeof(DateTime?)) && property.JsonConverter == null)      // TODO: allow customization using attributes
-                {
-                    options["isDate"] = true;
-                }
-
+                
                 if (property.ClientExtenders.Any())
                 {
                     options[CLIENT_EXTENDERS_KEY] = property.ClientExtenders.ToArray();
                 }
 
-                AddTypeOptions(options, property.Type);
+                AddTypeOptions(options, property);
                 
                 block.Add(Expression.Label(endPropertyLabel));
                 if (options.Any())
@@ -364,18 +368,24 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 }
             }
             block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteEndObject(), writer));
-
         }
 
-        private void AddTypeOptions(Dictionary<string, object> options, Type type)
+        private void AddTypeOptions(Dictionary<string, object> options, ViewModelPropertyMap property)
         {
-            if (type.IsNumericType())
+            if (property.TransferToClient || property.TransferToServer)
             {
-                options["type"] = type.Name.ToLower();
-            }
-            else if (Nullable.GetUnderlyingType(type)?.IsNumericType() == true)
-            {
-                options["type"] = Nullable.GetUnderlyingType(type).Name.ToLower() + "?";
+                if ((property.Type == typeof(DateTime) || property.Type == typeof(DateTime?)) && property.JsonConverter == null) // TODO: allow customization using attributes
+                {
+                    options["isDate"] = true;
+                }
+                else if (property.Type.IsNumericType())
+                {
+                    options["type"] = property.Type.Name.ToLower();
+                }
+                else if (Nullable.GetUnderlyingType(property.Type)?.IsNumericType() == true)
+                {
+                    options["type"] = Nullable.GetUnderlyingType(property.Type).Name.ToLower() + "?";
+                }
             }
         }
 

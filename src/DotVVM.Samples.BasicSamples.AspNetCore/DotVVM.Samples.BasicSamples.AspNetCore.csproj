@@ -1,12 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFrameworks>netcoreapp1.0</TargetFrameworks>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <OutputType>Exe</OutputType>
   </PropertyGroup>
   <ItemGroup>
-    <EmbeddedResource Include="compiler\resources\**\*" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
   <ItemGroup>

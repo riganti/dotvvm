@@ -33,6 +33,10 @@
                 <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" AllowSorting="True" />
                 <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />
                 <dot:GridViewTextColumn HeaderText="Birth Date" ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True" />
+                <dot:GridViewTemplateColumn>
+                    <dot:Button Text="Test Click Propagation" Click="{command: ChangeName()}" />
+                    <dot:LinkButton Text="Test Click Propagation" Click="{command: ChangeName()}" />
+                </dot:GridViewTemplateColumn>
             </Columns>
         </dot:GridView>
 

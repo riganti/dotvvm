@@ -19,9 +19,8 @@ namespace DotVVM.CommandLine
             var metadata = metadataService.FindInDirectory(Directory.GetCurrentDirectory());
             if (metadata == null)
             {
-                Console.WriteLine("No DotVVM project metadata was found on current path.");
-                Console.WriteLine("Is the current directory the root directory of DotVVM project? [y] or [n]");
-                if (Console.ReadKey().Key == ConsoleKey.Y)
+                Console.WriteLine("No DotVVM project metadata file (.dotvvm.json) was found on current path.");
+                if (ConsoleHelpers.AskForYesNo("Is the current directory the root directory of DotVVM project?"))
                 {
                     Console.WriteLine();
                     metadata = metadataService.CreateDefaultConfiguration(Directory.GetCurrentDirectory());
@@ -29,7 +28,7 @@ namespace DotVVM.CommandLine
                 }
                 else
                 {
-                    Console.WriteLine();
+                    Console.WriteLine("There is no DotVVM project metadata file!");
                     Environment.Exit(1);
                 }
             }
@@ -37,29 +36,36 @@ namespace DotVVM.CommandLine
             // find applicable command
             var commands = new CommandBase[]
             {
-                new CreateProjectCommand(),
-
                 new AddPageCommand(),
                 new AddMasterPageCommand(),
                 new AddViewModelCommand(),
                 new AddControlCommand(),
 
-                new GenerateUiTestStubCommand()
+                //new GenerateUiTestStubCommand()
             };
             var arguments = new Arguments(args);
             var command = commands.FirstOrDefault(c => c.CanHandle(arguments, metadata));
 
             // execute the command
-            if (command != null)
+            try
             {
-                command.Handle(arguments, metadata);
+                if (command != null)
+                {
+                    command.Handle(arguments, metadata);
 
-                // save project metadata
-                metadataService.Save(metadata);
+                    // save project metadata
+                    metadataService.Save(metadata);
+                }
+                else
+                {
+                    throw new InvalidCommandUsageException("Unknown command!");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                throw new InvalidCommandUsageException("Invalid command!");
+                Console.WriteLine("ERROR: " + ex.Message);
+                Console.Error.WriteLine(ex.ToString());
+                Environment.Exit(1);
             }
         }
     }

@@ -13,7 +13,7 @@
 
 	<dot:Repeater DataSource="{value: SelectedItemIds}" WrapperTagName="ul">
 		<li>
-			<dot:ComboBox DataSource="{value: _parent.Items}" DisplayMember="Name" ValueMember="Id" SelectedValue="{value: _this}" />
+			<dot:ComboBox DataSource="{value: _parent.Items}" ItemTextBinding="{value: Name}" ItemValueBinding="{value: Id}" SelectedValue="{value: _this}" />
 		</li>
 	</dot:Repeater>
 

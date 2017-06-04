@@ -11,6 +11,7 @@ using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using System.Security.Cryptography;
 using System.Text;
+using System.Collections.Concurrent;
 
 #if DotNetCore
 using Microsoft.Extensions.DependencyModel;
@@ -221,7 +222,7 @@ namespace DotVVM.Framework.Utils
             return ResolvedTypeDescriptor.ToSystemType(result);
         }
 
-        private static readonly HashSet<Type> NumericTypes = new HashSet<Type>()
+        public static readonly HashSet<Type> NumericTypes = new HashSet<Type>()
         {
             typeof (sbyte),
             typeof (byte),
@@ -263,12 +264,17 @@ namespace DotVVM.Framework.Utils
             return superClass.IsAssignableFrom(T);
         }
 
-        public static bool Implements(this Type T, Type interfaceType)
+
+        public static bool Implements(this Type type, Type ifc) => Implements(type, ifc, out var _);
+        public static bool Implements(this Type type, Type ifc, out Type concreteInterface)
         {
-            return T.GetInterfaces().Any(x =>
+            bool isInterface(Type a, Type b) => a == b || a.GetTypeInfo().IsGenericType && a.GetGenericTypeDefinition() == b;
+            if (isInterface(type, ifc))
             {
-                return x.Name == interfaceType.Name;
-            });
+                concreteInterface = type;
+                return true;
+            }
+            return (concreteInterface = type.GetInterfaces().FirstOrDefault(i => isInterface(i, ifc))) != null;
         }
 
         public static bool IsDynamic(this Type type)
@@ -286,7 +292,13 @@ namespace DotVVM.Framework.Utils
             return Nullable.GetUnderlyingType(type) != null;
         }
 
-        public static T GetCustomAttribute<T>(this ICustomAttributeProvider attributeProvider, bool inherit = true) => 
+        public static Type MakeNullableType(this Type type)
+        {
+            return type.GetTypeInfo().IsValueType && Nullable.GetUnderlyingType(type) == null && type != typeof(void) ? typeof(Nullable<>).MakeGenericType(type) : type;
+        }
+
+
+        public static T GetCustomAttribute<T>(this ICustomAttributeProvider attributeProvider, bool inherit = true) =>
             (T)attributeProvider.GetCustomAttributes(typeof(T), inherit).FirstOrDefault();
 
         public static IEnumerable<T> GetCustomAttributes<T>(this ICustomAttributeProvider attributeProvider, bool inherit = true) =>
@@ -301,5 +313,25 @@ namespace DotVVM.Framework.Utils
                 return Convert.ToBase64String(hashBytes);
             }
         }
+
+        private static ConcurrentDictionary<Type, Func<Delegate, object[], object>> delegateInvokeCache = new ConcurrentDictionary<Type, Func<Delegate, object[], object>>();
+        private static ParameterExpression delegateParameter = Expression.Parameter(typeof(Delegate), "delegate");
+        private static ParameterExpression argsParameter = Expression.Parameter(typeof(object[]), "args");
+        public static object ExceptionSafeDynamicInvoke(this Delegate d, object[] args) =>
+            delegateInvokeCache.GetOrAdd(d.GetType(), type =>
+                Expression.Lambda<Func<Delegate, object[], object>>(
+                    Expression.Invoke(Expression.Convert(delegateParameter, type), d.GetMethodInfo().GetParameters().Select((p, i) =>
+                        Expression.Convert(Expression.ArrayIndex(argsParameter, Expression.Constant(i)), p.ParameterType))).ConvertToObject(),
+                delegateParameter, argsParameter)
+                .Compile())
+            .Invoke(d, args);
+
+        public static Type GetResultType(this MemberInfo member) =>
+            member is PropertyInfo property ? property.PropertyType :
+            member is FieldInfo field ? field.FieldType :
+            member is MethodInfo method ? method.ReturnType :
+            member is TypeInfo type ? type.AsType() :
+            throw new NotImplementedException($"Could not get return type of member {member.GetType().FullName}");
+
     }
 }

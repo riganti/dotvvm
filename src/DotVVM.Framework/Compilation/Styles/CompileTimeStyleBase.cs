@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Configuration;
 
 namespace DotVVM.Framework.Compilation.Styles
 {
     public abstract class CompileTimeStyleBase : IStyle
     {
-        internal Dictionary<DotvvmProperty, PropertyInsertionInfo> SetProperties { get; } = new Dictionary<DotvvmProperty, PropertyInsertionInfo>();
+        public Dictionary<DotvvmProperty, PropertyInsertionInfo> SetProperties { get; } = new Dictionary<DotvvmProperty, PropertyInsertionInfo>();
 
         public IStyleApplicator Applicator => new StyleApplicator(this);
 
@@ -18,36 +19,15 @@ namespace DotVVM.Framework.Compilation.Styles
 
         public abstract bool Matches(StyleMatchContext matcher);
 
-        protected virtual void ApplyStyle(ResolvedControl control)
+        protected virtual void ApplyStyle(ResolvedControl control, DotvvmConfiguration configuration)
         {
-            //if (SetHtmlAttributes != null)
-            //{
-            //    foreach (var attr in SetHtmlAttributes)
-            //    {
-            //        if (!control.HtmlAttributes.ContainsKey(attr.Key) || attr.Value.append)
-            //        {
-            //            ResolvedHtmlAttributeSetter setter = null;
-            //            if (attr.Value.value is ResolvedBinding)
-            //            {
-            //                setter = new ResolvedHtmlAttributeBinding(attr.Key, (ResolvedBinding)attr.Value.value);
-            //            }
-            //            else
-            //            {
-            //                setter = new ResolvedHtmlAttributeValue(attr.Key, (string)attr.Value.value);
-            //            }
-
-            //            control.SetHtmlAttribute(setter);
-            //        }
-            //    }
-            //}
             if (SetProperties != null)
             {
                 foreach (var prop in SetProperties)
                 {
-                    if (!control.Properties.ContainsKey(prop.Key))
+                    if (!control.Properties.ContainsKey(prop.Key) || prop.Value.Append)
                     {
-                        string error;
-                        control.SetProperty(prop.Value.Value, prop.Value.Append, out error);
+                        control.SetProperty(prop.Value.Value, prop.Value.Append, out string error);
                     }
                 }
             }
@@ -62,9 +42,9 @@ namespace DotVVM.Framework.Compilation.Styles
                 this.@this = @this;
             }
 
-            public void ApplyStyle(ResolvedControl control)
+            public void ApplyStyle(ResolvedControl control, DotvvmConfiguration configuration)
             {
-                @this.ApplyStyle(control);
+                @this.ApplyStyle(control, configuration);
             }
         }
 

@@ -1,11 +1,13 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.ViewModel.Serialization;
 using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Controls
 {
-    public class KnockoutBindingGroup
+    public class KnockoutBindingGroup: IEnumerable<KnockoutBindingGroup.KnockoutBindingInfo>
     {
 
         private List<KnockoutBindingInfo> entries = new List<KnockoutBindingInfo>();
@@ -18,11 +20,11 @@ namespace DotVVM.Framework.Controls
             if (binding == null)
             {
                 if (nullBindingAction != null) nullBindingAction();
-                else Add(name, JsonConvert.SerializeObject(control.GetValue(property)));
+                else Add(name, JsonConvert.SerializeObject(control.GetValue(property), DefaultViewModelSerializer.CreateDefaultSettings()));
             }
             else
             {
-                entries.Add(new KnockoutBindingInfo() { Name = name, Expression = control.GetValueBinding(property).GetKnockoutBindingExpression() });
+                entries.Add(new KnockoutBindingInfo() { Name = name, Expression = control.GetValueBinding(property).GetKnockoutBindingExpression(control) });
             }
         }
 
@@ -41,14 +43,19 @@ namespace DotVVM.Framework.Controls
             entries.AddRange(other.entries);
         }
 
+        public List<KnockoutBindingInfo>.Enumerator GetEnumerator() => entries.GetEnumerator();
+
         public override string ToString()
         {
+            if (entries.Count == 0) return "{}";
             return "{ " + string.Join(", ", entries) + " }";
         }
 
+        IEnumerator<KnockoutBindingInfo> IEnumerable<KnockoutBindingInfo>.GetEnumerator() => GetEnumerator();
 
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        class KnockoutBindingInfo
+        public class KnockoutBindingInfo
         {
             public string Name { get; set; }
             public string Expression { get; set; }

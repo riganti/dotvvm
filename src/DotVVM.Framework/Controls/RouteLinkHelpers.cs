@@ -8,6 +8,7 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.ViewModel.Serialization;
 
 namespace DotVVM.Framework.Controls
 {
@@ -54,7 +55,7 @@ namespace DotVVM.Framework.Controls
             foreach (var param in parameters.Where(p => p.Value is IStaticValueBinding).ToList())
             {
                 EnsureValidBindingType(param.Value as BindingExpression);
-                parameters[param.Key] = ((ValueBindingExpression)param.Value).Evaluate(control, null);   // TODO: see below
+                parameters[param.Key] = ((ValueBindingExpression)param.Value).Evaluate(control);   // TODO: see below
             }
 
             // generate the URL
@@ -84,16 +85,14 @@ namespace DotVVM.Framework.Controls
         private static string GetUrlSuffixExpression(HtmlGenericControl control, DotvvmProperty urlSuffixProperty)
         {
             var urlSuffixBinding = control.GetValueBinding(urlSuffixProperty);
-            string urlSuffix;
             if (urlSuffixBinding != null)
             {
-                urlSuffix = urlSuffixBinding.GetKnockoutBindingExpression();
+                return "(" + urlSuffixBinding.GetKnockoutBindingExpression(control) + ")";
             }
             else
             {
-                urlSuffix = JsonConvert.SerializeObject(control.GetValue(urlSuffixProperty) as string ?? "");
+                return JsonConvert.SerializeObject(control.GetValue(urlSuffixProperty) as string ?? "");
             }
-            return urlSuffix;
         }
 
         private static string GenerateRouteLinkCore(string routeName, HtmlGenericControl control, IDotvvmRequestContext context)
@@ -118,12 +117,12 @@ namespace DotVVM.Framework.Controls
             {
                 EnsureValidBindingType(param.Value as IBinding);
 
-                expression = (param.Value as IValueBinding)?.GetKnockoutBindingExpression()
-                    ?? JsonConvert.SerializeObject((param.Value as IStaticValueBinding)?.Evaluate(control, null));
+                expression = (param.Value as IValueBinding)?.GetKnockoutBindingExpression(control)
+                    ?? JsonConvert.SerializeObject((param.Value as IStaticValueBinding)?.Evaluate(control), DefaultViewModelSerializer.CreateDefaultSettings());
             }
             else
             {
-                expression = JsonConvert.SerializeObject(param.Value);
+                expression = JsonConvert.SerializeObject(param.Value, DefaultViewModelSerializer.CreateDefaultSettings());
             }
             return JsonConvert.SerializeObject(param.Key.ToLower()) + ": " + expression;
         }

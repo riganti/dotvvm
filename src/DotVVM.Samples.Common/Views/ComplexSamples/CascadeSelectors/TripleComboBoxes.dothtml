@@ -1,0 +1,51 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ComplexSamples.CascadeSelectors.TripleComboBoxesViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        li.active {
+            border: 3px solid green;
+        }
+    </style>
+</head>
+<body>
+
+    <dot:GridView DataSource="{value: GridItems}">
+        <dot:GridViewTextColumn ValueBinding="{value: Region}" />
+        <dot:GridViewTextColumn ValueBinding="{value: Country}" />
+        <dot:GridViewTextColumn ValueBinding="{value: City}" />
+        <dot:GridViewTemplateColumn>
+            <dot:Button Text="Show Details" Click="{command: _parent.Select(_this)}" />
+        </dot:GridViewTemplateColumn>
+    </dot:GridView>
+
+    <fieldset>
+        <legend>Detail</legend>
+
+        <p>
+            <dot:ComboBox DataSource="{value: Regions}" ItemTextBinding="{value: Name}" ItemValueBinding="{value: Id}" SelectedValue="{value: Selected.RegionId}" SelectionChanged="{command: OnRegionChanged()}" />
+            <dot:ComboBox DataSource="{value: Countries}" ItemTextBinding="{value: Name}" ItemValueBinding="{value: Id}" SelectedValue="{value: Selected.CountryId}" SelectionChanged="{command: OnCountryChanged()}" />
+            <dot:ComboBox DataSource="{value: Cities}" ItemTextBinding="{value: Name}" ItemValueBinding="{value: Id}" SelectedValue="{value: Selected.CityId}" />
+        </p>
+
+        <dot:Repeater DataSource="{value: Regions}" WrapperTagName="ul" style="display: inline-block">
+            <li Class-active="{value: Id == _root.Selected.RegionId}">{{value: Name}}: {{value: Id}}</li>
+        </dot:Repeater>
+
+        <dot:Repeater DataSource="{value: Countries}" WrapperTagName="ul" style="display: inline-block">
+            <li Class-active="{value: Id == _root.Selected.CountryId}">{{value: Name}}: {{value: Id}}</li>
+        </dot:Repeater>
+
+        <dot:Repeater DataSource="{value: Cities}" WrapperTagName="ul" style="display: inline-block">
+            <li Class-active="{value: Id == _root.Selected.CityId}">{{value: Name}}: {{value: Id}}</li>
+        </dot:Repeater>
+    </fieldset>
+
+</body>
+</html>
+
+

@@ -1,0 +1,18 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.FileUpload.FileUploadViewModel, DotVVM.Samples.Common
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+	<dot:FileUpload UploadedFiles="{value: Files}" AllowMultipleFiles="false" AllowedFileTypes=".txt" MaxFileSize="1" UploadCompleted="{command: CheckFile()}" />
+    <div>
+        File type allowed: <span class="isFileTypeAllowed">{{value: IsFileTypeAllowed}}</span>
+    </div>
+    <div>
+        Max size exceeded: <span class="isMaxSizeExceeded">{{value: IsMaxSizeExceeded}}</span>
+    </div>
+</body>
+</html>

@@ -30,6 +30,7 @@ module.exports = function (grunt) {
                     "Resources/Scripts/DotVVM.Promise.ts",
                     "Resources/Scripts/DotVVM.Serialization.ts",
                     "Resources/Scripts/DotVVM.Validation.ts",
+                    "Resources/Scripts/DotVVM.Api.ts",
                     "Resources/Scripts/DotVVM.ts",
                     "Resources/Scripts/DotVVM.Evaluator.ts",
                 ],

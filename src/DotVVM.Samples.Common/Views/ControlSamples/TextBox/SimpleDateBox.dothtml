@@ -1,0 +1,27 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.TextBox.SimpleDateBoxViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />    
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+    <%-- TODO UI test --%>
+    <p>
+        html input type=date
+	    <dot:TextBox Type="date" Text="{value: Date}" />
+    </p>
+    <p>
+        html input type=text
+	    <dot:TextBox Text="{value: Date}" />
+    </p>
+    <p>
+        with format string dd-mm-yy
+	    <dot:TextBox FormatString="dd-MM-yy" Text="{value: Date}" />
+    </p>
+    <dot:Button Text="Postback" Click="{command: FillName()}" />
+    {{value: NameOfDay}}
+</body>
+</html>

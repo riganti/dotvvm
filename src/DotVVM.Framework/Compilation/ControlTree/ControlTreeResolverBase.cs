@@ -15,6 +15,7 @@ using DotVVM.Framework.Compilation.Parser.Binding.Parser;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Utils;
 using System.Collections.ObjectModel;
+using DotVVM.Framework.Binding;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
@@ -54,7 +55,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Resolves the control tree.
         /// </summary>
-        public IAbstractTreeRoot ResolveTree(DothtmlRootNode root, string fileName)
+        public virtual IAbstractTreeRoot ResolveTree(DothtmlRootNode root, string fileName)
         {
             var directives = ProcessDirectives(root);
             var wrapperType = ResolveWrapperType(directives, fileName);
@@ -66,9 +67,13 @@ namespace DotVVM.Framework.Compilation.ControlTree
             // actually resolved when the control builder is ready and the metadata are complete.
             var viewMetadata = controlResolver.BuildControlMetadata(CreateControlType(wrapperType, fileName));
 
-            var dataContextTypeStack = CreateDataContextTypeStack(viewModelType, wrapperType, null, namespaceImports);
+            var dataContextTypeStack = CreateDataContextTypeStack(viewModelType, null, namespaceImports, new BindingExtensionParameter[] {
+                new CurrentMarkupControlExtensionParameter(wrapperType),
+                new BindingPageInfoExtensionParameter()
+            });
 
             var view = treeBuilder.BuildTreeRoot(this, viewMetadata, root, dataContextTypeStack, directives);
+            view.FileName = fileName;
 
             ResolveRootContent(root, view, viewMetadata);
 
@@ -232,7 +237,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var bindingNode = (DothtmlBindingNode)node;
             var literal = treeBuilder.BuildControl(literalMetadata.Value, node, dataContext);
 
-            var textBinding = ProcessBinding(bindingNode, dataContext);
+            var textBinding = ProcessBinding(bindingNode, dataContext, Literal.TextProperty);
             var textProperty = treeBuilder.BuildPropertyBinding(Literal.TextProperty, textBinding, null);
             string error;
             treeBuilder.AddProperty(literal, textProperty, out error); // this can't fail
@@ -248,10 +253,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// </summary>
         private IAbstractControl ProcessObjectElement(DothtmlElementNode element, IDataContextStack dataContext)
         {
-            object[] constructorParameters;
 
             // build control
-            var controlMetadata = controlResolver.ResolveControl(element.TagPrefix, element.TagName, out constructorParameters);
+            var controlMetadata = controlResolver.ResolveControl(element.TagPrefix, element.TagName, out var constructorParameters);
             if (controlMetadata == null)
             {
                 controlMetadata = controlResolver.ResolveControl("", element.TagName, out constructorParameters);
@@ -278,7 +282,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 }
                 else if (dataContext != null)
                 {
-                    dataContext = CreateDataContextTypeStack(null, null, dataContext);
+                    dataContext = CreateDataContextTypeStack(null, dataContext);
                 }
                 else
                 {
@@ -314,7 +318,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Processes the binding node.
         /// </summary>
-        public IAbstractBinding ProcessBinding(DothtmlBindingNode node, IDataContextStack context)
+        public IAbstractBinding ProcessBinding(DothtmlBindingNode node, IDataContextStack context, IPropertyDescriptor property)
         {
             var bindingOptions = controlResolver.ResolveBinding(node.Name);
             if (bindingOptions == null)
@@ -326,7 +330,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             if (context != null && context.NamespaceImports.Count > 0)
                 bindingOptions = bindingOptions.AddImports(context.NamespaceImports);
 
-            return CompileBinding(node, bindingOptions, context);
+            return CompileBinding(node, bindingOptions, context, property);
         }
 
         protected virtual IAbstractDirective ProcessDirective(DothtmlDirectiveNode directiveNode)
@@ -361,8 +365,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         {
             var tokenizer = new BindingTokenizer();
             tokenizer.Tokenize(directiveNode.ValueNode.Text);
-            var parser = new BindingParser()
-            {
+            var parser = new BindingParser() {
                 Tokens = tokenizer.Tokens
             };
             var valueSyntaxRoot = parser.ReadDirectiveTypeName();
@@ -377,8 +380,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         {
             var tokenizer = new BindingTokenizer();
             tokenizer.Tokenize(directiveNode.ValueNode.Text);
-            var parser = new BindingParser()
-            {
+            var parser = new BindingParser() {
                 Tokens = tokenizer.Tokens
             };
             var valueSyntaxRoot = parser.ReadDirectiveValue();
@@ -453,17 +455,12 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     {
                         attribute.ValueNode.AddError($"The property '{ property.FullName }' cannot contain bindings because it's not DotvvmProperty.");
                     }
-                    else if (treatBindingAsHardCodedValue.Contains(bindingNode.Name))
-                    {
-                        if (!property.MarkupOptions.AllowHardCodedValue)
-                            attribute.ValueNode.AddError($"The property '{ property.FullName }' cannot contain {bindingNode.Name} binding, it can contain only hard-coded value or resource binding.");
-                    }
-                    else
+                    else if (!treatBindingAsHardCodedValue.Contains(bindingNode.Name))
                     {
                         if (!property.MarkupOptions.AllowBinding)
                             attribute.ValueNode.AddError($"The property '{ property.FullName }' cannot contain {bindingNode.Name} binding.");
                     }
-                    var binding = ProcessBinding(bindingNode, dataContext);
+                    var binding = ProcessBinding(bindingNode, dataContext, property);
                     var bindingProperty = treeBuilder.BuildPropertyBinding(property, binding, attribute);
                     string error;
                     if (!treeBuilder.AddProperty(control, bindingProperty, out error)) attribute.AddError(error);
@@ -562,9 +559,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// </summary>
         protected virtual void ResolveControlContentImmediately(IAbstractControl control, List<DothtmlNode> content)
         {
+            var dataContext = GetDataContextChange(control.DataContextTypeStack, control, null);
             foreach (var node in content)
             {
-                var child = ProcessNode(control, node, control.Metadata, control.DataContextTypeStack);
+                var child = ProcessNode(control, node, control.Metadata, dataContext);
                 if (child != null) treeBuilder.AddChildControl(control, child);
             }
         }
@@ -766,13 +764,21 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var attributes = property != null ? property.DataContextChangeAttributes : control.Metadata.DataContextChangeAttributes;
             if (attributes == null || attributes.Length == 0) return dataContext;
 
+            var (type, extensionParameters) = ApplyContextChange(dataContext, attributes, control, property);
+            return CreateDataContextTypeStack(type, parentDataContextStack: dataContext, extensionParameters: extensionParameters.ToArray());
+        }
+
+        public static (ITypeDescriptor type, List<BindingExtensionParameter> extensionParameters) ApplyContextChange(IDataContextStack dataContext, DataContextChangeAttribute[] attributes, IAbstractControl control, IPropertyDescriptor property)
+        {
             var type = dataContext.DataContextType;
+            var extensionParameters = new List<BindingExtensionParameter>();
             foreach (var attribute in attributes.OrderBy(a => a.Order))
             {
-                type = attribute.GetChildDataContextType(type, dataContext, control, property);
                 if (type == null) break;
+                extensionParameters.AddRange(attribute.GetExtensionParameters(type));
+                type = attribute.GetChildDataContextType(type, dataContext, control, property);
             }
-            return CreateDataContextTypeStack(type, parentDataContextStack: dataContext);
+            return (type, extensionParameters);
         }
 
 
@@ -784,7 +790,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Creates the data context type stack object.
         /// </summary>
-        protected abstract IDataContextStack CreateDataContextTypeStack(ITypeDescriptor viewModelType, ITypeDescriptor wrapperType = null, IDataContextStack parentDataContextStack = null, IReadOnlyList<NamespaceImport> imports = null);
+        protected abstract IDataContextStack CreateDataContextTypeStack(ITypeDescriptor viewModelType, IDataContextStack parentDataContextStack = null, IReadOnlyList<NamespaceImport> imports = null, IReadOnlyList<BindingExtensionParameter> extensionParameters = null);
 
         /// <summary>
         /// Converts the value to the property type.
@@ -794,7 +800,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Compiles the binding.
         /// </summary>
-        protected abstract IAbstractBinding CompileBinding(DothtmlBindingNode node, BindingParserOptions bindingOptions, IDataContextStack context);
+        protected abstract IAbstractBinding CompileBinding(DothtmlBindingNode node, BindingParserOptions bindingOptions, IDataContextStack context, IPropertyDescriptor property);
 
     }
 }

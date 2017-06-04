@@ -31,10 +31,15 @@ namespace DotVVM.Compiler
 			    services =>
 			    {
 			        serviceCollection = services;
-                    services.AddSingleton<ViewStaticCompilerCompiler>(viewStaticCompilerCompiler);
-                    services.AddSingleton<IControlResolver, OfflineCompilationControlResolver>();
+
+			        if (viewStaticCompilerCompiler != null)
+			        {
+			            services.AddSingleton<ViewStaticCompilerCompiler>(viewStaticCompilerCompiler);
+			            services.AddSingleton<IControlResolver, OfflineCompilationControlResolver>();
+                    }
                 });
             registerServices(config, serviceCollection);
+            config.ApplicationPhysicalPath = webSitePath;
             startup.Configure(config, webSitePath);
             config.CompiledViewsAssemblies = null;
             return config;

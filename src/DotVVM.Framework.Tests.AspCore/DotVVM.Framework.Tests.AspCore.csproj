@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
+﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
   </PropertyGroup>
@@ -14,7 +13,6 @@
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="**\*.cs" />
     <EmbeddedResource Include="**\*.resx" />
   </ItemGroup>
   <ItemGroup>
@@ -27,9 +25,9 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NETCore.App" Version="1.0.1" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0-preview-20161123-03" />
-    <PackageReference Include="MSTest.TestAdapter" Version="1.1.6-preview" />
-    <PackageReference Include="MSTest.TestFramework" Version="1.0.7-preview" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="1.1.13" />
+    <PackageReference Include="MSTest.TestFramework" Version="1.1.13" />
     <PackageReference Include="Moq" Version="4.6.38-alpha" />
   </ItemGroup>
   <ItemGroup>

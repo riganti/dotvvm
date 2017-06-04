@@ -21,14 +21,12 @@ namespace DotVVM.Framework.Compilation
         protected string className;
         protected ControlResolverMetadata lastMetadata;
         protected string controlName;
-        protected Func<ResolvedBinding, string> bindingIdGenerator;
 
-        public ViewCompilingVisitor(DefaultViewCompilerCodeEmitter emitter, IBindingCompiler bindingCompiler, string className, Func<ResolvedBinding, string> bindingIdGenerator)
+        public ViewCompilingVisitor(DefaultViewCompilerCodeEmitter emitter, IBindingCompiler bindingCompiler, string className)
         {
             this.emitter = emitter;
             this.className = className;
             this.bindingCompiler = bindingCompiler;
-            this.bindingIdGenerator = bindingIdGenerator;
         }
 
         public override void VisitView(ResolvedTreeRoot view)
@@ -91,7 +89,7 @@ namespace DotVVM.Framework.Compilation
 
         public override void VisitPropertyBinding(ResolvedPropertyBinding propertyBinding)
         {
-            emitter.EmitSetDotvvmProperty(controlName, propertyBinding.Property, ProcessBinding(propertyBinding.Binding, propertyBinding.Property.IsBindingProperty ? typeof(object) : propertyBinding.Property.PropertyType));
+            emitter.EmitSetDotvvmProperty(controlName, propertyBinding.Property, ProcessBinding(propertyBinding.Binding));
             base.VisitPropertyBinding(propertyBinding);
         }
 
@@ -190,10 +188,9 @@ namespace DotVVM.Framework.Compilation
         /// <summary>
         /// Emits binding contructor and returns variable name
         /// </summary>
-        protected ExpressionSyntax ProcessBinding(ResolvedBinding binding, Type expectedType)
+        protected ExpressionSyntax ProcessBinding(ResolvedBinding binding)
         {
-            //return emitter.EmitCreateObject(binding.Type, new object[] { binding.Value });
-            return emitter.CreateObjectExpression(binding.BindingType, new[] { bindingCompiler.EmitCreateBinding(emitter, binding, bindingIdGenerator(binding), expectedType) });
+            return bindingCompiler.EmitCreateBinding(emitter, binding);
         }
 
         /// <summary>

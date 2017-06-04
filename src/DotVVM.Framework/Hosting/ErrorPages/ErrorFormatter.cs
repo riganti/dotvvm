@@ -94,7 +94,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                     // guess by method name
                     var fileName = frame.Method.DeclaringType.FullName.Replace("DotVVM.Framework", "").Replace('.', '/');
                     if (fileName.Contains("+")) fileName = fileName.Remove(fileName.IndexOf('+')); // remove nested class
-                    var url = GithubUrl + fileName + ".cs";
+                    var url = GithubUrl + "DotVVM.Framework" + fileName + ".cs";
                     return FrameMoreInfo.CreateThumbLink(url, Octocat);
                 }
             }
