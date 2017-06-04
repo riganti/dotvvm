@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
@@ -83,6 +84,21 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 new JsObjectProperty(nameof(BindingPageInfo.EvaluatingOnServer), new JsLiteral(false)),
                 new JsObjectProperty(nameof(BindingPageInfo.IsPostbackRunning), new JsIdentifierExpression("dotvvm").Member("isPostbackRunning").Invoke())
             );
+        }
+    }
+
+    public class BindingCollectionInfoExtensionParameter : BindingExtensionParameter
+    {
+        public BindingCollectionInfoExtensionParameter(string identifier) : base(identifier, new ResolvedTypeDescriptor(typeof(BindingCollectionInfo)), true)
+        {
+        }
+
+        public override Expression GetServerEquivalent(Expression controlParameter) =>
+            ExpressionUtils.Replace((DotvvmBindableObject c) => new BindingCollectionInfo(c.GetAllAncestors(true).OfType<DataItemContainer>().First().DataItemIndex.Value), controlParameter);
+
+        public override JsExpression GetJsTranslation(JsExpression dataContext)
+        {
+            return new JsObjectExpression();
         }
     }
 }

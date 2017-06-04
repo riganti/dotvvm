@@ -197,6 +197,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                         a[1].WithAnnotation(ShouldBeObservableAnnotation.Instance),
                         new JsIdentifierExpression("dotvvm").Member("eventHub").Member("get").Invoke(a[2]))));
             BindingPageInfo.RegisterJavascriptTranslations();
+            BindingCollectionInfo.RegisterJavascriptTranslations();
 
             // string formatting
             var stringFormatTranslator = new GenericMethodCompiler(
