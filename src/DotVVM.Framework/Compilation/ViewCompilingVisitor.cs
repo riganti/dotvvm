@@ -8,7 +8,9 @@ using DotVVM.Framework.Controls.Infrastructure;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
+using DotVVM.Framework.Compilation.Binding;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -22,7 +24,8 @@ namespace DotVVM.Framework.Compilation
         protected ControlResolverMetadata lastMetadata;
         protected string controlName;
 
-        public ViewCompilingVisitor(DefaultViewCompilerCodeEmitter emitter, IBindingCompiler bindingCompiler, string className)
+        public ViewCompilingVisitor(DefaultViewCompilerCodeEmitter emitter, IBindingCompiler bindingCompiler,
+            string className)
         {
             this.emitter = emitter;
             this.className = className;
@@ -37,13 +40,16 @@ namespace DotVVM.Framework.Compilation
             emitter.BuilderDataContextType = view.DataContextTypeStack?.DataContextType;
             emitter.ResultControlType = wrapperClassName;
             // build the statements
-            emitter.PushNewMethod(DefaultViewCompilerCodeEmitter.BuildControlFunctionName, typeof(DotvvmControl), emitter.EmitControlBuilderParameter());
+            emitter.PushNewMethod(DefaultViewCompilerCodeEmitter.BuildControlFunctionName, typeof(DotvvmControl),
+                emitter.EmitControlBuilderParameters());
             var pageName = emitter.EmitCreateObject(wrapperClassName);
             emitter.EmitSetDotvvmProperty(pageName, Internal.UniqueIDProperty, pageName);
             emitter.EmitSetDotvvmProperty(pageName, Internal.MarkupFileNameProperty, view.Metadata.VirtualPath);
             if (typeof(DotvvmView).IsAssignableFrom(view.Metadata.Type))
-                emitter.EmitSetProperty(pageName, nameof(DotvvmView.ViewModelType), emitter.EmitValue(view.DataContextTypeStack.DataContextType));
-            if (view.Metadata.Type.IsAssignableFrom(typeof(DotvvmView)) || typeof(DotvvmMarkupControl).IsAssignableFrom(view.Metadata.Type))
+                emitter.EmitSetProperty(pageName, nameof(DotvvmView.ViewModelType),
+                    emitter.EmitValue(view.DataContextTypeStack.DataContextType));
+            if (view.Metadata.Type.IsAssignableFrom(typeof(DotvvmView)) ||
+                typeof(DotvvmMarkupControl).IsAssignableFrom(view.Metadata.Type))
             {
                 foreach (var directive in view.Directives)
                 {
@@ -58,6 +64,25 @@ namespace DotVVM.Framework.Compilation
             emitter.EmitReturnClause(pageName);
             emitter.PopMethod();
         }
+
+        protected string EmitCreateControl(Type type, object[] arguments)
+        {
+            // if matching ctor exists, invoke it directly
+            if (type.GetConstructors().Any(ctor =>
+                ctor.GetParameters().Length == (arguments?.Length ?? 0) &&
+                ctor.GetParameters().Zip(arguments ?? Enumerable.Empty<object>(),
+                        (p, a) => TypeConversion.ImplicitConversion(Expression.Constant(a), p.ParameterType))
+                    .All(a => a != null)))
+                return emitter.EmitCreateObject(type, arguments);
+            // othervise invoke DI factory
+            else
+                return emitter.EmitInjectionFactoryInvocation(
+                    type,
+                    (arguments ?? Enumerable.Empty<object>()).Select(a => (a.GetType(), emitter.EmitValue(a))).ToArray(),
+                    emitter.InvokeDefaultInjectionFactory
+                );
+        }
+
 
         /// <summary>
         /// Processes the node.
@@ -129,7 +154,7 @@ namespace DotVVM.Framework.Compilation
         {
             var parentName = controlName;
             var methodName = DefaultViewCompilerCodeEmitter.BuildTemplateFunctionName + $"_{propertyTemplate.Property.DeclaringType.Name}_{propertyTemplate.Property.Name}_{currentTemplateIndex++}";
-            emitter.PushNewMethod(methodName, typeof(void), emitter.EmitControlBuilderParameter(), emitter.EmitParameter("templateContainer", typeof(DotvvmControl)));
+            emitter.PushNewMethod(methodName, typeof(void), emitter.EmitControlBuilderParameters().Concat(new [] { emitter.EmitParameter("templateContainer", typeof(DotvvmControl))}).ToArray());
             // build the statements
             controlName = "templateContainer";
 
@@ -166,7 +191,7 @@ namespace DotVVM.Framework.Compilation
             if (control.Metadata.ControlBuilderType == null)
             {
                 // compiled control
-                name = emitter.EmitCreateObject(control.Metadata.Type, control.ConstructorParameters);
+                name = EmitCreateControl(control.Metadata.Type, control.ConstructorParameters);
             }
             else
             {

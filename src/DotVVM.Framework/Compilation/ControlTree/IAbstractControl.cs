@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
@@ -7,8 +9,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
         IEnumerable<IPropertyDescriptor> PropertyNames { get; }
 
         bool TryGetProperty(IPropertyDescriptor property, out IAbstractPropertySetter value);
-
-        //IEnumerable<IAbstractHtmlAttributeSetter> HtmlAttributes { get; }
 
         object[] ConstructorParameters { get; set; }
         

@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Collections.Immutable;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
@@ -92,7 +93,12 @@ namespace DotVVM.Framework.Compilation
             return compilation
                 .AddSyntaxTrees(tree)
                 .AddReferences(emitter.UsedAssemblies
-                    .Select(a => assemblyCache.GetAssemblyMetadata(a)));
+                    .Select(a => GetAssemblyCache().GetAssemblyMetadata(a.Key).WithAliases(ImmutableArray.Create(a.Value, "global"))));
+        }
+
+        private CompiledAssemblyCache GetAssemblyCache()
+        {
+            return assemblyCache;
         }
 
         public virtual CSharpCompilation CreateCompilation(string assemblyName)

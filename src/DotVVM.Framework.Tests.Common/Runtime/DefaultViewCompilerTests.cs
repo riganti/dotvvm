@@ -333,14 +333,14 @@ test <dot:Literal><a /></dot:Literal>";
             var controlBuilderFactory = context.Configuration.ServiceLocator.GetService<IControlBuilderFactory>();
             var controlBuilder = controlBuilderFactory.GetControlBuilder(fileName + ".dothtml");
 
-            var result = controlBuilder.BuildControl(controlBuilderFactory);
+            var result = controlBuilder.BuildControl(controlBuilderFactory, context.Services);
             if (compileTwice)
             {
-                result = controlBuilder.BuildControl(controlBuilderFactory);
+                result = controlBuilder.BuildControl(controlBuilderFactory, context.Services);
             }
             return result;
         }
-
+    
     }
 
     public class ViewCompilerTestViewModel
@@ -351,6 +351,16 @@ test <dot:Literal><a /></dot:Literal>";
     public class TestControl : DotvvmMarkupControl
     {
 
+    }
+
+    public class TestDIControl : DotvvmControl
+    {
+        public readonly DotvvmConfiguration config;
+
+        public TestDIControl(DotvvmConfiguration configuration)
+        {
+            this.config = configuration;
+        }
     }
 
     [Flags]

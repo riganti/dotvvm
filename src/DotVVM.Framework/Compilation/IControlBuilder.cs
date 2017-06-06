@@ -5,7 +5,7 @@ namespace DotVVM.Framework.Compilation
 {
     public interface IControlBuilder
     {
-        DotvvmControl BuildControl(IControlBuilderFactory controlBuilderFactory);
+        DotvvmControl BuildControl(IControlBuilderFactory controlBuilderFactory, IServiceProvider services);
         /// <summary>
         /// Gets required data context for the control
         /// </summary>
