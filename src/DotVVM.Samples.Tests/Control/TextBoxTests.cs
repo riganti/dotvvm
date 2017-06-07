@@ -88,7 +88,7 @@ namespace DotVVM.Samples.Tests.Control
                 };
 
                 //en-US
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_TextBox_TextBox_Format);
+                browser.NavigateToUrl(url);
                 checkForLanguage("en-US");
 
                 //cs-CZ | reload
