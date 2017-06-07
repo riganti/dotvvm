@@ -39,4 +39,7 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp1.0|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG;NETCOREAPP1_0</DefineConstants>
+  </PropertyGroup>
 </Project>
