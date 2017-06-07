@@ -208,7 +208,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             else
             {
-                if (property.Type.GetTypeInfo().IsValueType && reader.TokenType == JTokenType.Null)
+                if (property.Type.GetTypeInfo().IsValueType && reader.TokenType == JsonToken.Null)
                 {
                     return Activator.CreateInstance(property.Type);
                 }
