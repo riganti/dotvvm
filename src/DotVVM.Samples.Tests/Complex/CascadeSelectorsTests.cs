@@ -40,7 +40,6 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.ElementAt(".active", 1).CheckIfInnerTextEquals("Canada: 12");
                 browser.ElementAt(".active", 2).CheckIfInnerTextEquals("Toronto: 121");
 
-
                 browser.ElementAt("input[type=button]", 5).Click().Wait();
                 browser.ElementAt(".active", 0).CheckIfInnerTextEquals("Europe: 2");
                 browser.ElementAt(".active", 1).CheckIfInnerTextEquals("Germany: 21");

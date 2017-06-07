@@ -428,14 +428,14 @@ namespace DotVVM.Samples.Tests.Control
 
                 // check that clicking selects the row which gets the 'selected' class
                 // we dont want to check if element is clickable, it is not a button just fire click event
-                browser.ElementAt("tr", 3).WebElement.Click();
+                browser.ElementAt("tr", 3).ElementAt("td", 0).Click();
                 browser.Wait();
                 for (int i = 0; i < 6; i++)
                 {
                     browser.ElementAt("table", 0).ElementAt("tr", i).CheckClassAttribute(v => v.Contains("selected") == (i == 3));
                 }
                 // we dont want to check if element is clickable, it is not a button just fire click event
-                browser.ElementAt("tr", 2).WebElement.Click();
+                browser.ElementAt("tr", 2).ElementAt("td", 0).Click();
                 browser.Wait();
                 for (int i = 0; i < 6; i++)
                 {

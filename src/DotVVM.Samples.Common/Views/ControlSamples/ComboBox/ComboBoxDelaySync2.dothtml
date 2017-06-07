@@ -14,9 +14,8 @@
             <dot:ComboBox SelectedValue="{value: SelectedValue}" ItemTextBinding="{value: Text}" ItemValueBinding="{value: Value}" DataSource="{value: _parent.SecondList}">
             </dot:ComboBox>
 
-            Selected: {{value: SelectedValue}}
+            Selected: <span class="result">{{value: SelectedValue}}</span>
         </ItemTemplate>
     </dot:Repeater>
-
 </body>
 </html>
