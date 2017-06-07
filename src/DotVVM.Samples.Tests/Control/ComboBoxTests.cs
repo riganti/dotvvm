@@ -11,7 +11,7 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class ComboBoxTests : SeleniumTestBase
+    public class ComboBoxTests : SeleniumTest
     {
         [TestMethod]
         public void Control_ComboBox()

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class DataPagerTests : SeleniumTestBase
+    public class DataPagerTests : SeleniumTest
     {
         [TestMethod]
         public void Control_DataPager_ShowHideControl()

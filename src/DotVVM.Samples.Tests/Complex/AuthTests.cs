@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace DotVVM.Samples.Tests.Complex
 {
     [TestClass]
-    public class AuthTests : SeleniumTestBase
+    public class AuthTests : SeleniumTest
     {
         [TestMethod]
         public void Complex_Auth()

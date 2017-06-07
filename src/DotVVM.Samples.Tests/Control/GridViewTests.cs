@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class GridViewTests : SeleniumTestBase
+    public class GridViewTests : SeleniumTest
     {
 
 

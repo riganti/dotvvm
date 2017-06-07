@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class ViewModelDeserializationTests : SeleniumTestBase
+    public class ViewModelDeserializationTests : SeleniumTest
     {
         [TestMethod]
         public void Feature_ViewModelDeserialization_DoesNotDropObject()

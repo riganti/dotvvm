@@ -7,7 +7,7 @@ using System.Linq;
 namespace DotVVM.Samples.Tests
 {
     [TestClass]
-    public class ErrorsTests : SeleniumTestBase
+    public class ErrorsTests : SeleniumTest
     {
         [TestMethod]
         public void Error_MissingViewModel()

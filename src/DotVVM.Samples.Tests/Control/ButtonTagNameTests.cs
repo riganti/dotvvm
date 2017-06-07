@@ -10,7 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class ButtonTagNameTests : SeleniumTestBase
+    public class ButtonTagNameTests : SeleniumTest
     {
 
         [TestMethod]

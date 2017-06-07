@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class ValidationRulesLoadOnPostbackTests : SeleniumTestBase
+    public class ValidationRulesLoadOnPostbackTests : SeleniumTest
     {
         /// <summary>
         /// Feature_s the validation rules load on postback.

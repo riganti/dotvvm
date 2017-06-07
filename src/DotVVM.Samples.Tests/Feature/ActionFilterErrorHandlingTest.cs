@@ -10,7 +10,7 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class ActionFilterErrorHandlingTest : SeleniumTestBase
+    public class ActionFilterErrorHandlingTest : SeleniumTest
     {
         [TestMethod]
         public void Feature_ActionFilterErrorHandling_CommandException()

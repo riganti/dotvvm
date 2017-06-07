@@ -11,7 +11,7 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Complex
 {
     [TestClass]
-    public class ChangedEventTests : SeleniumTestBase
+    public class ChangedEventTests : SeleniumTest
     {
         [TestMethod]
         public void Complex_ChangedEvent()

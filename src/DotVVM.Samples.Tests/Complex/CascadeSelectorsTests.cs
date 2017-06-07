@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace DotVVM.Samples.Tests.Complex
 {
     [TestClass]
-    public class CascadeSelectorsTests : SeleniumTestBase
+    public class CascadeSelectorsTests : SeleniumTest
     {
         [TestMethod]
         public void Complex_CascadeSelectorsServerRender()

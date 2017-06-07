@@ -11,7 +11,7 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class TextBoxTests : SeleniumTestBase
+    public class TextBoxTests : SeleniumTest
     {
         [TestMethod]
         public void Control_TextBox()

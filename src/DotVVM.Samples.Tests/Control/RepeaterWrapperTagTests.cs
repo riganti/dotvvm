@@ -11,7 +11,7 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class RepeaterWrapperTagTests : SeleniumTestBase
+    public class RepeaterWrapperTagTests : SeleniumTest
     {
         [TestMethod]
         public void Control_RepeaterWrapperTag()
