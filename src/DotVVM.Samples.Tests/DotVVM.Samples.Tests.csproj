@@ -48,7 +48,7 @@
     <PackageReference Include="Moq" Version="4.6.38-alpha" />
     <PackageReference Include="MSTest.TestFramework" Version="1.1.18" />
     <PackageReference Include="Riganti.Utils.Testing.Selenium.Core" Version="1.0.2" />
-    <PackageReference Include="Riganti.Utils.Testing.Selenium.DotVVM" Version="0.1.0-pre" />
+    <PackageReference Include="Riganti.Utils.Testing.Selenium.DotVVM" Version="1.0.2" />
     <PackageReference Include="Riganti.Utils.Testing.Selenium.MSTest2Integration" Version="1.0.2" />
     <PackageReference Include="Selenium.Support" Version="3.4.0" />
     <PackageReference Include="Selenium.WebDriver" Version="3.4.0" />
