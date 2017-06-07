@@ -26,7 +26,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public DotvvmMarkupControl() : this("div")
         {
-            this.LifecycleRequirements &= ControlLifecycleRequirements.PreInit;
+            this.LifecycleRequirements |= ControlLifecycleRequirements.PreInit;
         }
 
         /// <summary>
