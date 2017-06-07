@@ -33,7 +33,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
 
 #if !NETCOREAPP1_0
-            System.Threading.Thread.CurrentThread.CurrentUCulture = 
+            System.Threading.Thread.CurrentThread.CurrentCulture = 
             System.Threading.Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo("cs-CZ");
 #else
             CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = new CultureInfo("cs-CZ");
