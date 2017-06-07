@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Configuration;
@@ -21,10 +22,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultControlTreeResolver"/> class.
         /// </summary>
-        public DefaultControlTreeResolver(DotvvmConfiguration configuration)
-            : base(configuration.ServiceLocator.GetService<IControlResolver>(), configuration.ServiceLocator.GetService<IAbstractTreeBuilder>())
+        public DefaultControlTreeResolver(IControlResolver controlResolver, IAbstractTreeBuilder treeBuilder, IBindingExpressionBuilder expressionBuilder)
+            : base(controlResolver, treeBuilder)
         {
-            this.bindingExpressionBuilder = configuration.ServiceLocator.GetService<IBindingExpressionBuilder>();
+            this.bindingExpressionBuilder = expressionBuilder;
         }
 
         protected override IControlType CreateControlType(ITypeDescriptor wrapperType, string virtualPath)
@@ -32,37 +33,22 @@ namespace DotVVM.Framework.Compilation.ControlTree
             return new ControlType(ResolvedTypeDescriptor.ToSystemType(wrapperType), virtualPath: virtualPath);
         }
 
-        protected override IDataContextStack CreateDataContextTypeStack(ITypeDescriptor viewModelType, ITypeDescriptor wrapperType = null, IDataContextStack parentDataContextStack = null,  IReadOnlyList<NamespaceImport> namespaceImports = null)
+        protected override IDataContextStack CreateDataContextTypeStack(ITypeDescriptor viewModelType, IDataContextStack parentDataContextStack = null,  IReadOnlyList<NamespaceImport> namespaceImports = null, IReadOnlyList<BindingExtensionParameter> extensionParameters = null)
         {
-            return new DataContextStack(
+
+            return DataContextStack.Create(
                 ResolvedTypeDescriptor.ToSystemType(viewModelType),
                 parentDataContextStack as DataContextStack,
-                ResolvedTypeDescriptor.ToSystemType(wrapperType), namespaceImports);
+                namespaceImports, extensionParameters);
         }
 
-        protected override IAbstractBinding CompileBinding(DothtmlBindingNode node, BindingParserOptions bindingOptions, IDataContextStack context)
+        protected override IAbstractBinding CompileBinding(DothtmlBindingNode node, BindingParserOptions bindingOptions, IDataContextStack context, IPropertyDescriptor property)
         {
-            Expression expression = null;
-            Exception parsingError = null;
-            ITypeDescriptor resultType = null;
-
             if (context == null)
             {
-                parsingError = new DotvvmCompilationException("The DataContext couldn't be evaluated because of the errors above.", node.Tokens);
+                node.AddError("The DataContext couldn't be evaluated because of the errors above.");
             }
-            else
-            {
-                try
-                {
-                    expression = bindingExpressionBuilder.Parse(node.Value, (DataContextStack)context, bindingOptions);
-                    resultType = new ResolvedTypeDescriptor(expression.Type);
-                }
-                catch (Exception exception)
-                {
-                    parsingError = exception;
-                }
-            }
-            return treeBuilder.BuildBinding(bindingOptions, context, node, resultType, parsingError, expression);
+            return treeBuilder.BuildBinding(bindingOptions, context, node, property);
         }
 
         protected override object ConvertValue(string value, ITypeDescriptor propertyType)

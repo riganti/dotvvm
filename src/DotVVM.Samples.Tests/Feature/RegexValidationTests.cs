@@ -11,7 +11,7 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class RegexValidationTests : SeleniumTestBase
+    public class RegexValidationTests : SeleniumTest
     {
         [TestMethod]
         public void Feature_RegexValidation()

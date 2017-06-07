@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace DotVVM.Samples.Tests.Complex
 {
     [TestClass]
-    public class RedirectUrlFragment : SeleniumTestBase
+    public class RedirectUrlFragment : SeleniumTest
     {
         [TestMethod]
         public void RedirectUrlFragment_PostbackInteruption()

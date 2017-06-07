@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class GridViewTests : SeleniumTestBase
+    public class GridViewTests : SeleniumTest
     {
 
 
@@ -428,18 +428,19 @@ namespace DotVVM.Samples.Tests.Control
 
                 // check that clicking selects the row which gets the 'selected' class
                 // we dont want to check if element is clickable, it is not a button just fire click event
-                browser.ElementAt("tr", 3).WebElement.Click();
+                browser.ElementAt("tr", 3).ElementAt("td", 0).Click();
+                browser.Wait();
                 for (int i = 0; i < 6; i++)
                 {
                     browser.ElementAt("table", 0).ElementAt("tr", i).CheckClassAttribute(v => v.Contains("selected") == (i == 3));
                 }
                 // we dont want to check if element is clickable, it is not a button just fire click event
-                browser.ElementAt("tr", 2).WebElement.Click();
+                browser.ElementAt("tr", 2).ElementAt("td", 0).Click();
+                browser.Wait();
                 for (int i = 0; i < 6; i++)
                 {
                     browser.ElementAt("table", 0).ElementAt("tr", i).CheckClassAttribute(v => v.Contains("selected") == (i == 2));
                 }
-
                 
                 // check that the edit row has the 'edit' class while the other rows have the 'normal' class
                 for (int i = 1; i < 6; i++)
@@ -453,6 +454,27 @@ namespace DotVVM.Samples.Tests.Control
                         browser.ElementAt("table", 1).ElementAt("tr", i).CheckIfHasClass("edit").CheckIfHasNotClass("normal");
                     }
                 }
+            });
+        }
+
+        [TestMethod]
+        public void Control_GridViewRowDecorators_ClickPropagation()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewRowDecorators);
+                browser.Wait();
+
+                browser.ElementAt("table", 0).ElementAt("tr", 4).First("input[type=button]").Click().Wait();
+                browser.ElementAt("table", 0).ElementAt("tr", 4).CheckIfHasNotClass("selected");
+                browser.ElementAt("table", 0).ElementAt("tr", 4).ElementAt("td", 1).CheckIfInnerText(t => t == "xxx");
+
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewRowDecorators);
+                browser.Wait();
+
+                browser.ElementAt("table", 0).ElementAt("tr", 4).First("a").Click().Wait();
+                browser.ElementAt("table", 0).ElementAt("tr", 4).CheckIfHasNotClass("selected");
+                browser.ElementAt("table", 0).ElementAt("tr", 4).ElementAt("td", 1).CheckIfInnerText(t => t == "xxx");
             });
         }
 

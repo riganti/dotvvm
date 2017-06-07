@@ -1,12 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
+﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>library</OutputType>
     <TargetFramework>net461</TargetFramework>
     <RuntimeIdentifiers>win7-x86;win7-x64</RuntimeIdentifiers>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="**\*.cs" />
     <EmbeddedResource Include="**\*.resx" />
   </ItemGroup>
   <ItemGroup>
@@ -32,19 +30,28 @@
     <None Include="App.Release.config">
       <DependentUpon>App.config</DependentUpon>
     </None>
-    <None Include="SamplesRouteUrls.tt">
+  </ItemGroup>
+    <ItemGroup>
+    <None Update="SamplesRouteUrls.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>SamplesRouteUrls.cs</LastGenOutput>
     </None>
+    <None Update="SamplesRouteUrls.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SamplesRouteUrls.tt</DependentUpon>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0-preview-20161123-03" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
     <PackageReference Include="Microsoft.Owin.Security" Version="3.0.1" />
     <PackageReference Include="Moq" Version="4.6.38-alpha" />
-    <PackageReference Include="Riganti.Utils.Testing.Selenium.Core" Version="1.0.0-beta" />
+    <PackageReference Include="MSTest.TestFramework" Version="1.1.18" />
+    <PackageReference Include="Riganti.Utils.Testing.Selenium.Core" Version="1.0.2" />
     <PackageReference Include="Riganti.Utils.Testing.Selenium.DotVVM" Version="0.1.0-pre" />
-    <PackageReference Include="Selenium.Support" Version="2.53.1" />
-    <PackageReference Include="Selenium.WebDriver" Version="2.53.1" />
+    <PackageReference Include="Riganti.Utils.Testing.Selenium.MSTest2Integration" Version="1.0.2" />
+    <PackageReference Include="Selenium.Support" Version="3.4.0" />
+    <PackageReference Include="Selenium.WebDriver" Version="3.4.0" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
     <Reference Include="System" />
@@ -53,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="SamplesRouteUrls.cs">
@@ -60,10 +68,5 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>SamplesRouteUrls.tt</DependentUpon>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework">
-      <HintPath>C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\ReferenceAssemblies\v4.0\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll</HintPath>
-    </Reference>
   </ItemGroup>
 </Project>

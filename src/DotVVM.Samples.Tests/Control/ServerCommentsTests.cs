@@ -10,7 +10,7 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class ServerCommentsTests : SeleniumTestBase
+    public class ServerCommentsTests : SeleniumTest
     {
         [TestMethod]
         public void ServerComments()

@@ -114,7 +114,7 @@ namespace DotVVM.Framework.Controls
                     if (attribute.Value is IValueBinding)
                     {
                         var binding = attribute.Value as IValueBinding;
-                        attrBindingGroup.Add(attribute.Key, binding.GetKnockoutBindingExpression());
+                        attrBindingGroup.Add(attribute.Key, binding.GetKnockoutBindingExpression(this));
                         if (!RenderOnServer)
                             continue;
                     }
@@ -147,7 +147,7 @@ namespace DotVVM.Framework.Controls
                         Children.Clear();
                         Children.Add(new Literal(InnerText));
                     }
-                });
+                }, renderEvenInServerRenderingMode: true);
             }
 
             base.AddAttributesToRender(writer, context);
@@ -168,7 +168,7 @@ namespace DotVVM.Framework.Controls
             }
             else if (value is IStaticValueBinding)
             {
-                AddHtmlAttribute(writer, name, ((IStaticValueBinding)value).Evaluate(this, null));
+                AddHtmlAttribute(writer, name, ((IStaticValueBinding)value).Evaluate(this));
             }
             else throw new NotSupportedException($"Attribute value of type '{value.GetType().FullName}' is not supported.");
         }
@@ -220,7 +220,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected virtual void EnsureNoAttributesSet()
         {
-            if (Attributes.Any() || IsPropertySet(VisibleProperty) || HasBinding(DataContextProperty))
+            if (Attributes.Count > 0 || IsPropertySet(VisibleProperty) || HasBinding(DataContextProperty))
             {
                 throw new DotvvmControlException(this, "Cannot set HTML attributes, Visible, DataContext, ID, Postback.Update, ... bindings on a control which does not render its own element!");
             }

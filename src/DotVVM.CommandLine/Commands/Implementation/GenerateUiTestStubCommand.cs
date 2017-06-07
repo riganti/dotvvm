@@ -7,9 +7,7 @@ using System.Threading.Tasks;
 using DotVVM.CommandLine.Metadata;
 using DotVVM.CommandLine.ProjectSystem;
 using DotVVM.Framework.Configuration;
-using DotVVM.Framework.Tools.SeleniumGenerator;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
+//using DotVVM.Framework.Tools.SeleniumGenerator;
 
 namespace DotVVM.CommandLine.Commands.Implementation
 {
@@ -42,7 +40,7 @@ namespace DotVVM.CommandLine.Commands.Implementation
             // make sure the test directory exists
             if (string.IsNullOrEmpty(dotvvmProjectMetadata.UITestProjectPath))
             {
-                dotvvmProjectMetadata.UITestProjectPath = Helpers.AskForValue($"Enter the path to the test project\n(relative to DotVVM project directory, e.g. '..\\{dotvvmProjectMetadata.ProjectName}.Tests'): ");
+                dotvvmProjectMetadata.UITestProjectPath = ConsoleHelpers.AskForValue($"Enter the path to the test project\n(relative to DotVVM project directory, e.g. '..\\{dotvvmProjectMetadata.ProjectName}.Tests'): ");
             }
             var testProjectDirectory = dotvvmProjectMetadata.GetUITestProjectFullPath();
             if (!Directory.Exists(testProjectDirectory))
@@ -62,7 +60,7 @@ namespace DotVVM.CommandLine.Commands.Implementation
                 }
                 else
                 {
-                    dotvvmProjectMetadata.UITestProjectRootNamespace = Helpers.AskForValue("Enter the test project root namespace: ");
+                    dotvvmProjectMetadata.UITestProjectRootNamespace = ConsoleHelpers.AskForValue("Enter the test project root namespace: ");
                     if (string.IsNullOrEmpty(dotvvmProjectMetadata.UITestProjectRootNamespace))
                     {
                         throw new Exception("The test project root namespace must not be empty!");
@@ -79,22 +77,22 @@ namespace DotVVM.CommandLine.Commands.Implementation
                 Console.WriteLine($"Generating stub for {file}...");
 
                 // determine full type name and target file
-                var relativePath = Helpers.GetDothtmlFileRelativePath(dotvvmProjectMetadata, file);
-                var relativeTypeName = Helpers.TrimFileExtension(relativePath) + "Helper";
-                var fullTypeName = dotvvmProjectMetadata.UITestProjectRootNamespace + "." + Helpers.CreateTypeNameFromPath(relativeTypeName);
+                var relativePath = PathHelpers.GetDothtmlFileRelativePath(dotvvmProjectMetadata, file);
+                var relativeTypeName = PathHelpers.TrimFileExtension(relativePath) + "Helper";
+                var fullTypeName = dotvvmProjectMetadata.UITestProjectRootNamespace + "." + PathHelpers.CreateTypeNameFromPath(relativeTypeName);
                 var targetFileName = Path.Combine(dotvvmProjectMetadata.UITestProjectPath, "Helpers", relativeTypeName + ".cs");
 
                 // generate the file
-                var generator = new SeleniumHelperGenerator();
-                var config = new SeleniumGeneratorConfiguration()
-                {
-                    TargetNamespace = Helpers.GetNamespaceFromFullType(fullTypeName),
-                    HelperName = Helpers.GetTypeNameFromFullType(fullTypeName),
-                    HelperFileFullPath = targetFileName,
-                    ViewFullPath = file
-                };
+                //var generator = new SeleniumHelperGenerator();
+                //var config = new SeleniumGeneratorConfiguration()
+                //{
+                //    TargetNamespace = PathHelpers.GetNamespaceFromFullType(fullTypeName),
+                //    HelperName = PathHelpers.GetTypeNameFromFullType(fullTypeName),
+                //    HelperFileFullPath = targetFileName,
+                //    ViewFullPath = file
+                //};
 
-                generator.ProcessMarkupFile(DotvvmConfiguration.CreateDefault(), config);
+                //generator.ProcessMarkupFile(DotvvmConfiguration.CreateDefault(), config);
             }
         }
     }

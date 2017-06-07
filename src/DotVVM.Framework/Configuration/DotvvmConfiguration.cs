@@ -119,7 +119,7 @@ namespace DotVVM.Framework.Configuration
             Resources = new DotvvmResourceRepository();
             Security = new DotvvmSecurityConfiguration();
             Runtime = new DotvvmRuntimeConfiguration();
-            Styles = new StyleRepository();
+            Styles = new StyleRepository(this);
         }
 
         /// <summary>
@@ -129,6 +129,7 @@ namespace DotVVM.Framework.Configuration
         public static DotvvmConfiguration CreateDefault(Action<IServiceCollection> registerServices = null)
         {
             var services = new ServiceCollection();
+            services.AddOptions();
             var config = CreateDefault(new ServiceLocator(services));
             
             DotvvmServiceCollectionExtensions.RegisterDotVVMServices(services, config);
@@ -206,7 +207,7 @@ namespace DotVVM.Framework.Configuration
         private static void RegisterResources(DotvvmConfiguration configuration)
         {
             configuration.Resources.Register(ResourceConstants.JQueryResourceName,
-                new ScriptResource(new RemoteResourceLocation("https://code.jquery.com/jquery-2.1.1.min.js"))
+                new ScriptResource(new UrlResourceLocation("https://code.jquery.com/jquery-2.1.1.min.js"))
                 {
                     LocationFallback = new ResourceLocationFallback(
                         "window.jQuery",

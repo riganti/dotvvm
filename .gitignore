@@ -196,3 +196,8 @@ FakesAssemblies/
 /src/DotVVM.Samples.Common/Temp/returnedFiles
 
 /.vs
+/src/.vscode
+/.vscode
+/.idea
+/src/.idea
+

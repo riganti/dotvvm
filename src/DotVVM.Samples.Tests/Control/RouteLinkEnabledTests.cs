@@ -10,7 +10,7 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class RouteLinkEnabledTests : SeleniumTestBase  
+    public class RouteLinkEnabledTests : SeleniumTest  
     {
         [TestMethod]
         public void RouteLinkEnabledTest()

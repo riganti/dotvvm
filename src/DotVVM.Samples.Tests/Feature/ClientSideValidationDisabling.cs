@@ -10,7 +10,7 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class ClientSideValidationDisabling: SeleniumTestBase
+    public class ClientSideValidationDisabling: SeleniumTest
     {
         [TestMethod]
         public void Feature_ClientSideValidationDisabling_ClientSideValidationDisabled()

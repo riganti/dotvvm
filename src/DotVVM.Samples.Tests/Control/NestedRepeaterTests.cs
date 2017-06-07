@@ -11,7 +11,7 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class NestedRepeaterTests : SeleniumTestBase
+    public class NestedRepeaterTests : SeleniumTest
     {
         [TestMethod]
         public void Control_NestedRepeater()

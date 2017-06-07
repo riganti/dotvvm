@@ -11,7 +11,7 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class DynamicValidationTests : SeleniumTestBase
+    public class DynamicValidationTests : SeleniumTest
     {
         [TestMethod]
         public void Feature_DynamicValidation()

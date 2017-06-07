@@ -51,6 +51,10 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 return VisitMultiExpression((MultiExpressionBindingParserNode)node);
             }
+            else if (node is AssemblyQualifiedNameBindingParserNode)
+            {
+                return VisitAssemblyQualifiedName((AssemblyQualifiedNameBindingParserNode)node);
+            }
             else
             {
                 throw new NotSupportedException($"The node of type {node.GetType()} is not supported!");
@@ -112,6 +116,10 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             return DefaultVisit(node);
         }
 
+        private T VisitAssemblyQualifiedName(AssemblyQualifiedNameBindingParserNode node)
+        {
+            return DefaultVisit(node);
+        }
         protected virtual T DefaultVisit(BindingParserNode node)
         {
             throw new NotImplementedException("The visitor implementation should implement this method!");

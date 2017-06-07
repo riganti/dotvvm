@@ -17,7 +17,7 @@
 					<li><dot:Literal Text="{value: Number}" ValueType="Number" /></li>
 					<li><dot:Literal Text="{value: Number}" FormatString="c2" /></li>
 					<li><dot:Literal Text="{value: Number}" FormatString="n2" /></li>
-					<li><dot:Literal Text="{value: Date}" ValueType="DateTime" /></li>
+					<li><dot:Literal Text="{value: Date}" /></li>
 					<li><dot:Literal Text="{value: Date}" FormatString="d.M.yyyy H:mm:ss" /></li>
 					<li><dot:Literal Text="{value: Date}" FormatString="d" /></li>
 					<li><dot:Literal Text="{value: Date}" FormatString="D" /></li>
@@ -38,7 +38,7 @@
 					<li><dot:Literal Text="{value: Number}" ValueType="Number" /></li>
 					<li><dot:Literal Text="{value: Number}" FormatString="c2" /></li>
 					<li><dot:Literal Text="{value: Number}" FormatString="n2" /></li>
-					<li><dot:Literal Text="{value: Date}" ValueType="DateTime" /></li>
+					<li><dot:Literal Text="{value: Date}" /></li>
 					<li><dot:Literal Text="{value: Date}" FormatString="d.M.yyyy H:mm:ss" /></li>
 					<li><dot:Literal Text="{value: Date}" FormatString="d" /></li>
 					<li><dot:Literal Text="{value: Date}" FormatString="D" /></li>

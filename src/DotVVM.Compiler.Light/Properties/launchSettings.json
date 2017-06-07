@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "DotVVM.Compiler.Light": {
+      "commandName": "Project",
+      "commandLineArgs": "--json \"{\\\"WebSiteAssembly\\\":\\\"d:\\\\dokumenty\\\\visual studio 2017\\\\Projects\\\\DotvvmApplication12\\\\DotvvmApplication12\\\\bin\\\\Debug\\\\netcoreapp1.0\\\\DotvvmApplication12.dll\\\",\\\"WebSitePath\\\":\\\"d:\\\\dokumenty\\\\visual studio 2017\\\\Projects\\\\DotvvmApplication12\\\\DotvvmApplication12\\\",\\\"FullCompile\\\":false,\\\"SerializeConfig\\\":true,\\\"DothtmlFiles\\\":[],\\\"OutputResolvedDothtmlMap\\\":true,\\\"CheckBindingErrors\\\":true}\"",
+      "workingDirectory": "d:\\Dokumenty\\Visual Studio 2017\\Projects\\DotvvmApplication12\\DotvvmApplication12\\bin\\Debug\\netcoreapp1.0\\.."
+    }
+  }
+}

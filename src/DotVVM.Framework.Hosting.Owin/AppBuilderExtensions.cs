@@ -6,6 +6,7 @@ using DotVVM.Framework.Hosting.Middlewares;
 using DotVVM.Framework.Security;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Owin.Infrastructure;
 using Microsoft.Owin.Security.DataProtection;
 
 namespace Owin
@@ -39,6 +40,7 @@ namespace Owin
                 s.TryAddSingleton<IViewModelProtector, DefaultViewModelProtector>();
                 s.TryAddSingleton<ICsrfProtector, DefaultCsrfProtector>();
                 s.TryAddSingleton<IEnvironmentNameProvider, DotvvmEnvironmentNameProvider>();
+                s.TryAddSingleton<ICookieManager, ChunkingCookieManager>();
                 options?.Invoke(new DotvvmOptions(s));
             });
 

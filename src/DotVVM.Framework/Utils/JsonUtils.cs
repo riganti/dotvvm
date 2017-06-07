@@ -25,13 +25,23 @@ namespace DotVVM.Framework.Utils
                 }
                 else if (sourceItem.Type == JTokenType.Date)
                 {
-                    if (item.Value.Type != JTokenType.String || item.Value.Type != JTokenType.Date)
+                    if (item.Value.Type != JTokenType.String && item.Value.Type != JTokenType.Date)
                         diff[item.Key] = item.Value;
                     else
                     {
                         var sourceTime = sourceItem.ToObject<DateTime>();
-                        var targetJson = $@"{{""Time"": ""{item.Value}""}}";
-                        var targetTime = JObject.Parse(targetJson)["Time"].ToObject<DateTime>();
+
+                        DateTime targetTime;
+                        if (item.Value.Type == JTokenType.Date)
+                        {
+                            targetTime = item.Value.ToObject<DateTime>();
+                        }
+                        else
+                        {
+                            var targetJson = $@"{{""Time"": ""{item.Value}""}}";
+                            targetTime = JObject.Parse(targetJson)["Time"].ToObject<DateTime>();
+                        }
+
                         if (!sourceTime.Equals(targetTime)) {
                             diff[item.Key] = item.Value;
                         }

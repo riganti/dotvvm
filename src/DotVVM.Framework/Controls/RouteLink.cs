@@ -94,7 +94,7 @@ namespace DotVVM.Framework.Controls
 
         protected virtual void WriteEnabledBinding(IHtmlWriter writer, IValueBinding binding)
         {
-            writer.AddKnockoutDataBind("dotvvmEnable", binding);
+            writer.AddKnockoutDataBind("dotvvmEnable", binding.GetKnockoutBindingExpression(this));
             writer.AddAttribute("onclick", "return !this.hasAttribute('disabled');");
         }
 

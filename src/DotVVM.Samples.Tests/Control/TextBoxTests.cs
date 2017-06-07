@@ -11,7 +11,7 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class TextBoxTests : SeleniumTestBase
+    public class TextBoxTests : SeleniumTest
     {
         [TestMethod]
         public void Control_TextBox()
@@ -28,11 +28,12 @@ namespace DotVVM.Samples.Tests.Control
         }
                 
         [TestMethod]
-        public void Control_TextBox_StringFormat()
+        public void Control_TextBox_StringFormat(string url = null)
         {
+            url = url ?? SamplesRouteUrls.ControlSamples_TextBox_TextBox_Format;
             RunInAllBrowsers(browser =>
             {
-                Action<string> checkForLanguage = (language) =>
+                void checkForLanguage(string language)
                 {
                     var culture = new CultureInfo(language);
                     var dateResult1 = browser.First("#date-result1").GetText();
@@ -90,6 +91,12 @@ namespace DotVVM.Samples.Tests.Control
                 browser.First("#czech").Click();
                 checkForLanguage("cs-CZ");
             });
+        }
+
+        [TestMethod]
+        public void Control_TextBox_StringFormat_Bindings()
+        {
+            Control_TextBox_StringFormat(SamplesRouteUrls.ControlSamples_TextBox_TextBox_Format_Binding);
         }
 
 

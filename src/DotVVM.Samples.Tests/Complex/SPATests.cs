@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace DotVVM.Samples.Tests.Complex
 {
     [TestClass]
-    public class SPATests : SeleniumTestBase
+    public class SPATests : SeleniumTest
     {
         [TestMethod]
         public void Complex_SPA()

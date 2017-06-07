@@ -8,6 +8,7 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.Parser;
 using System.Reflection;
+using DotVVM.Framework.ViewModel.Serialization;
 
 namespace DotVVM.Framework.Controls
 {
@@ -80,7 +81,7 @@ namespace DotVVM.Framework.Controls
                 return new PropertySerializeInfo
                 {
                     Property = property,
-                    Js = JsonConvert.SerializeObject(GetValue(property), Formatting.None),
+                    Js = JsonConvert.SerializeObject(GetValue(property), Formatting.None, DefaultViewModelSerializer.CreateDefaultSettings()),
                     IsSerializable = true
                 };
             }
@@ -89,7 +90,7 @@ namespace DotVVM.Framework.Controls
                 return new PropertySerializeInfo
                 {
                     Property = property,
-                    Js = (binding as IValueBinding).GetKnockoutBindingExpression(),
+                    Js = (binding as IValueBinding).GetKnockoutBindingExpression(this),
                     IsSerializable = true
 
                 };

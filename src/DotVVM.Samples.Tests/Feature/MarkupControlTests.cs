@@ -11,7 +11,7 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class MarkupControlTests : SeleniumTestBase
+    public class MarkupControlTests : SeleniumTest
     {
         [TestMethod]
         public void Feature_MarkupControl_CommandBindingInRepeater()
@@ -157,6 +157,19 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.ElementAt("input[type=text]", 1).CheckIfValue("27");
                 browser.ElementAt("input[type=button]", 3).Click().Wait();
                 browser.ElementAt("input[type=text]", 1).CheckIfValue("26");
+            });
+        }
+
+
+        [TestMethod]
+        public void Feature_MarkupControl_MultiControlHierarchy()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_MarkupControl_MultiControlHierarchy);
+
+                var ul = browser.First("ul", By.CssSelector);
+                ul.FindElements("li", By.CssSelector).ThrowIfDifferentCountThan(20);
             });
         }
     }

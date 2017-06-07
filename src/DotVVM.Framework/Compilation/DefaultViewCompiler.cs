@@ -64,7 +64,10 @@ namespace DotVVM.Framework.Compilation
                 }
             }
 
-            var styleVisitor = new StylingVisitor(configuration.Styles);
+            var contextSpaceVisitor = new DataContextPropertyAssigningVisitor();
+            resolvedView.Accept(contextSpaceVisitor);
+
+            var styleVisitor = new StylingVisitor(configuration);
             resolvedView.Accept(styleVisitor);
 
             var validationVisitor = new Validation.ControlUsageValidationVisitor(configuration);
@@ -75,15 +78,8 @@ namespace DotVVM.Framework.Compilation
                 throw new DotvvmCompilationException(controlUsageError.ErrorMessage, controlUsageError.Nodes.SelectMany(n => n.Tokens));
             }
 
-            if (configuration.Debug && configuration.ApplicationPhysicalPath != null)
-            {
-                var addExpressionDebugvisitor = new ExpressionDebugInfoAddingVisitor(Path.Combine(configuration.ApplicationPhysicalPath, fileName));
-                addExpressionDebugvisitor.VisitView(resolvedView);
-            }
-
             var emitter = new DefaultViewCompilerCodeEmitter();
-            var compilingVisitor = new ViewCompilingVisitor(emitter, configuration.ServiceLocator.GetService<IBindingCompiler>(), className,
-                b => configuration.ServiceLocator.GetService<IBindingIdGenerator>().GetId(b, fileName));
+            var compilingVisitor = new ViewCompilingVisitor(emitter, configuration.ServiceLocator.GetService<IBindingCompiler>(), className);
 
             resolvedView.Accept(compilingVisitor);
 

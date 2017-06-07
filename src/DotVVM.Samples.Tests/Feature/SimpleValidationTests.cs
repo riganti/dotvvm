@@ -11,7 +11,7 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class SimpleValidationTests : SeleniumTestBase
+    public class SimpleValidationTests : SeleniumTest
     {
         [TestMethod]
         public void Feature_SimpleValidation()

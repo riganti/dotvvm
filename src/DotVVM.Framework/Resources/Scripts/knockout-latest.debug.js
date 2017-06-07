@@ -55,10 +55,40 @@ ko.options = {
 };
 
 //ko.exportSymbol('options', ko.options);   // 'options' isn't minified
+ko.delaySync = (function () {
+    var isPaused = false;
+    var queue = [];
+
+    return {
+        pause: function () {
+            isPaused = true;
+        },
+        resume: function () {
+            for (var i = 0; i < queue.length; i++) {
+                queue[i]();
+            }
+            queue = [];
+            isPaused = false;
+        },
+        run: function(action) {
+            if (!isPaused) {
+                action();
+            } else {
+                queue.push(action);
+            }
+        }
+    };
+})();
+ko.exportSymbol('delaySync', ko.delaySync);
+ko.exportSymbol('delaySync.pause', ko.delaySync.pause);
+ko.exportSymbol('delaySync.resume', ko.delaySync.resume);
+ko.exportSymbol('delaySync.run', ko.delaySync.run);
 ko.utils = (function () {
+    var hasOwnProperty = Object.prototype.hasOwnProperty;
+
     function objectForEach(obj, action) {
         for (var prop in obj) {
-            if (obj.hasOwnProperty(prop)) {
+            if (hasOwnProperty.call(obj, prop)) {
                 action(prop, obj[prop]);
             }
         }
@@ -67,7 +97,7 @@ ko.utils = (function () {
     function extend(target, source) {
         if (source) {
             for(var prop in source) {
-                if(source.hasOwnProperty(prop)) {
+                if(hasOwnProperty.call(source, prop)) {
                     target[prop] = source[prop];
                 }
             }
@@ -123,6 +153,8 @@ ko.utils = (function () {
     // For details on the pattern for changing node classes
     // see: https://github.com/knockout/knockout/issues/1597
     var cssClassNameRegex = /\S+/g;
+
+    var jQueryEventAttachName;
 
     function toggleDomNodeCssClass(node, classNames, shouldHaveClass) {
         var addOrRemoveFn;
@@ -260,7 +292,7 @@ ko.utils = (function () {
                 return source;
             var target = {};
             for (var prop in source) {
-                if (source.hasOwnProperty(prop)) {
+                if (hasOwnProperty.call(source, prop)) {
                     target[prop] = mapping(source[prop], prop, source);
                 }
             }
@@ -387,7 +419,7 @@ ko.utils = (function () {
             if (node.nodeType === 11)
                 return false; // Fixes issue #1162 - can't use node.contains for document fragments on IE8
             if (containedByNode.contains)
-                return containedByNode.contains(node.nodeType === 3 ? node.parentNode : node);
+                return containedByNode.contains(node.nodeType !== 1 ? node.parentNode : node);
             if (containedByNode.compareDocumentPosition)
                 return (containedByNode.compareDocumentPosition(node) & 16) == 16;
             while (node && node != containedByNode) {
@@ -436,9 +468,12 @@ ko.utils = (function () {
         registerEventHandler: function (element, eventType, handler) {
             var wrappedHandler = ko.utils.catchFunctionErrors(handler);
 
-            var mustUseAttachEvent = ieVersion && eventsThatMustBeRegisteredUsingAttachEvent[eventType];
+            var mustUseAttachEvent = eventsThatMustBeRegisteredUsingAttachEvent[eventType];
             if (!ko.options['useOnlyNativeEvents'] && !mustUseAttachEvent && jQueryInstance) {
-                jQueryInstance(element)['bind'](eventType, wrappedHandler);
+                if (!jQueryEventAttachName) {
+                    jQueryEventAttachName = (typeof jQueryInstance(element)['on'] == 'function') ? 'on' : 'bind';
+                }
+                jQueryInstance(element)[jQueryEventAttachName](eventType, wrappedHandler);
             } else if (!mustUseAttachEvent && typeof element.addEventListener == "function")
                 element.addEventListener(eventType, wrappedHandler, false);
             else if (typeof element.attachEvent != "undefined") {
@@ -818,11 +853,14 @@ ko.utils.domNodeDisposal = new (function () {
 
                 // ... then its descendants, where applicable
                 if (cleanableNodeTypesWithDescendants[node.nodeType]) {
-                    // Clone the descendants list in case it changes during iteration
-                    var descendants = [];
-                    ko.utils.arrayPushAll(descendants, node.getElementsByTagName("*"));
-                    for (var i = 0, j = descendants.length; i < j; i++)
-                        cleanSingleNode(descendants[i]);
+                    var descendants = node.getElementsByTagName("*");
+                    var cleanedNode;
+                    for (var i = 0; i < descendants.length; i++) {
+                        cleanSingleNode(cleanedNode = descendants[i]);
+                        if (descendants[i] !== cleanedNode) {
+                            throw Error("ko.cleanNode: An already cleaned node was removed from the document");
+                        }
+                    }
                 }
             }
             return node;
@@ -1206,11 +1244,20 @@ ko.extenders = {
         if (!target._deferUpdates) {
             target._deferUpdates = true;
             target.limit(function (callback) {
-                var handle;
+                var handle,
+                    ignoreUpdates = false;
                 return function () {
-                    ko.tasks.cancel(handle);
-                    handle = ko.tasks.schedule(callback);
-                    target['notifySubscribers'](undefined, 'dirty');
+                    if (!ignoreUpdates) {
+                        ko.tasks.cancel(handle);
+                        handle = ko.tasks.schedule(callback);
+
+                        try {
+                            ignoreUpdates = true;
+                            target['notifySubscribers'](undefined, 'dirty');
+                        } finally {
+                            ignoreUpdates = false;
+                        }
+                    }
                 };
             });
         }
@@ -1296,7 +1343,7 @@ function limitNotifySubscribers(value, event) {
 
 var ko_subscribable_fn = {
     init: function(instance) {
-        instance._subscriptions = {};
+        instance._subscriptions = { "change": [] };
         instance._versionNumber = 1;
     },
 
@@ -1328,9 +1375,10 @@ var ko_subscribable_fn = {
             this.updateVersion();
         }
         if (this.hasSubscriptionsForEvent(event)) {
+            var subs = event === defaultEvent && this._changeSubscriptions || this._subscriptions[event].slice(0);
             try {
                 ko.dependencyDetection.begin(); // Begin suppressing dependency detection (by setting the top frame to undefined)
-                for (var a = this._subscriptions[event].slice(0), i = 0, subscription; subscription = a[i]; ++i) {
+                for (var i = 0, subscription; subscription = subs[i]; ++i) {
                     // In case a subscription was disposed during the arrayForEach cycle, check
                     // for isDisposed on each subscription before invoking its callback
                     if (!subscription.isDisposed)
@@ -1356,7 +1404,7 @@ var ko_subscribable_fn = {
 
     limit: function(limitFunction) {
         var self = this, selfIsObservable = ko.isObservable(self),
-            ignoreBeforeChange, previousValue, pendingValue, beforeChange = 'beforeChange';
+            ignoreBeforeChange, notifyNextChange, previousValue, pendingValue, beforeChange = 'beforeChange';
 
         if (!self._origNotifySubscribers) {
             self._origNotifySubscribers = self["notifySubscribers"];
@@ -1369,15 +1417,19 @@ var ko_subscribable_fn = {
             // If an observable provided a reference to itself, access it to get the latest value.
             // This allows computed observables to delay calculating their value until needed.
             if (selfIsObservable && pendingValue === self) {
-                pendingValue = self();
+                pendingValue = self._evalIfChanged ? self._evalIfChanged() : self();
             }
-            ignoreBeforeChange = false;
-            if (self.isDifferent(previousValue, pendingValue)) {
+            var shouldNotify = notifyNextChange || self.isDifferent(previousValue, pendingValue);
+
+            notifyNextChange = ignoreBeforeChange = false;
+
+            if (shouldNotify) {
                 self._origNotifySubscribers(previousValue = pendingValue);
             }
         });
 
         self._limitChange = function(value) {
+            self._changeSubscriptions = self._subscriptions[defaultEvent].slice(0);
             self._notificationIsPending = ignoreBeforeChange = true;
             pendingValue = value;
             finish();
@@ -1386,6 +1438,11 @@ var ko_subscribable_fn = {
             if (!ignoreBeforeChange) {
                 previousValue = value;
                 self._origNotifySubscribers(value, beforeChange);
+            }
+        };
+        self._notifyNextChangeIfValueIsDifferent = function() {
+            if (self.isDifferent(previousValue, self.peek(true /*evaluate*/))) {
+                notifyNextChange = true;
             }
         };
     },
@@ -1543,7 +1600,10 @@ ko.observable = function (initialValue) {
 var observableFn = {
     'equalityComparer': valuesArePrimitiveAndEqual,
     peek: function() { return this[observableLatestValue]; },
-    valueHasMutated: function () { this['notifySubscribers'](this[observableLatestValue]); },
+    valueHasMutated: function () {
+        this['notifySubscribers'](this[observableLatestValue], 'spectate');
+        this['notifySubscribers'](this[observableLatestValue]);
+    },
     valueWillMutate: function () { this['notifySubscribers'](this[observableLatestValue], 'beforeChange'); }
 };
 
@@ -1556,25 +1616,19 @@ if (ko.utils.canSetPrototype) {
 var protoProperty = ko.observable.protoProperty = '__ko_proto__';
 observableFn[protoProperty] = ko.observable;
 
-ko.hasPrototype = function(instance, prototype) {
-    if ((instance === null) || (instance === undefined) || (instance[protoProperty] === undefined)) return false;
-    if (instance[protoProperty] === prototype) return true;
-    return ko.hasPrototype(instance[protoProperty], prototype); // Walk the prototype chain
+ko.isObservable = function (instance) {
+    var proto = typeof instance == 'function' && instance[protoProperty];
+    if (proto && proto !== ko.observable && proto !== ko.computed) {
+        throw Error("Invalid object that looks like an observable; possibly from another Knockout instance");
+    }
+    return !!proto;
 };
 
-ko.isObservable = function (instance) {
-    return ko.hasPrototype(instance, ko.observable);
-}
 ko.isWriteableObservable = function (instance) {
-    // Observable
-    if ((typeof instance == 'function') && instance[protoProperty] === ko.observable)
-        return true;
-    // Writeable dependent observable
-    if ((typeof instance == 'function') && (instance[protoProperty] === ko.dependentObservable) && (instance.hasWriteFunction))
-        return true;
-    // Anything else
-    return false;
-}
+    return (typeof instance == 'function' && (
+        (instance[protoProperty] === ko.observable) ||  // Observable
+        (instance[protoProperty] === ko.computed && instance.hasWriteFunction)));   // Writable computed observable
+};
 
 ko.exportSymbol('observable', ko.observable);
 ko.exportSymbol('isObservable', ko.isObservable);
@@ -1724,6 +1778,7 @@ ko.extenders['trackArrayChanges'] = function(target, options) {
         cachedDiff = null,
         arrayChangeSubscription,
         pendingNotifications = 0,
+        underlyingNotifySubscribersFunction,
         underlyingBeforeSubscriptionAddFunction = target.beforeSubscriptionAdd,
         underlyingAfterSubscriptionRemoveFunction = target.afterSubscriptionRemove;
 
@@ -1740,6 +1795,10 @@ ko.extenders['trackArrayChanges'] = function(target, options) {
         if (underlyingAfterSubscriptionRemoveFunction)
             underlyingAfterSubscriptionRemoveFunction.call(target, event);
         if (event === arrayChangeEventName && !target.hasSubscriptionsForEvent(arrayChangeEventName)) {
+            if (underlyingNotifySubscribersFunction) {
+                target['notifySubscribers'] = underlyingNotifySubscribersFunction;
+                underlyingNotifySubscribersFunction = undefined;
+            }
             arrayChangeSubscription.dispose();
             trackingChanges = false;
         }
@@ -1754,7 +1813,7 @@ ko.extenders['trackArrayChanges'] = function(target, options) {
         trackingChanges = true;
 
         // Intercept "notifySubscribers" to track how many times it was called.
-        var underlyingNotifySubscribersFunction = target['notifySubscribers'];
+        underlyingNotifySubscribersFunction = target['notifySubscribers'];
         target['notifySubscribers'] = function(valueToNotify, event) {
             if (!event || event === defaultEvent) {
                 ++pendingNotifications;
@@ -1872,6 +1931,7 @@ ko.computed = ko.dependentObservable = function (evaluatorFunctionOrOptions, eva
     var state = {
         latestValue: undefined,
         isStale: true,
+        isDirty: true,
         isBeingEvaluated: false,
         suppressDisposalUntilDisposeWhenReturnsFalse: false,
         isDisposed: false,
@@ -1899,7 +1959,7 @@ ko.computed = ko.dependentObservable = function (evaluatorFunctionOrOptions, eva
         } else {
             // Reading the value
             ko.dependencyDetection.registerDependency(computedObservable);
-            if (state.isStale || (state.isSleeping && computedObservable.haveDependenciesChanged())) {
+            if (state.isDirty || (state.isSleeping && computedObservable.haveDependenciesChanged())) {
                 computedObservable.evaluateImmediate();
             }
             return state.latestValue;
@@ -1989,6 +2049,10 @@ function computedBeginDependencyDetectionCallback(subscribable, id) {
             // Brand new subscription - add it
             computedObservable.addDependencyTracking(id, subscribable, state.isSleeping ? { _target: subscribable } : computedObservable.subscribeToDependency(subscribable));
         }
+        // If the observable we've accessed has a pending notification, ensure we get notified of the actual final value (bypass equality checks)
+        if (subscribable._notificationIsPending) {
+            subscribable._notifyNextChangeIfValueIsDifferent();
+        }
     }
 }
 
@@ -2009,7 +2073,7 @@ var computedFn = {
     haveDependenciesChanged: function () {
         var id, dependency, dependencyTracking = this[computedState].dependencyTracking;
         for (id in dependencyTracking) {
-            if (dependencyTracking.hasOwnProperty(id)) {
+            if (Object.prototype.hasOwnProperty.call(dependencyTracking, id)) {
                 dependency = dependencyTracking[id];
                 if (dependency._target.hasChanged(dependency._version)) {
                     return true;
@@ -2020,16 +2084,19 @@ var computedFn = {
     markDirty: function () {
         // Process "dirty" events if we can handle delayed notifications
         if (this._evalDelayed && !this[computedState].isBeingEvaluated) {
-            this._evalDelayed();
+            this._evalDelayed(false /*isChange*/);
         }
     },
     isActive: function () {
-        return this[computedState].isStale || this[computedState].dependenciesCount > 0;
+        var state = this[computedState];
+        return state.isDirty || state.dependenciesCount > 0;
     },
     respondToChange: function () {
         // Ignore "change" events if we've already scheduled a delayed notification
         if (!this._notificationIsPending) {
             this.evaluatePossiblyAsync();
+        } else if (this[computedState].isDirty) {
+            this[computedState].isStale = true;
         }
     },
     subscribeToDependency: function (target) {
@@ -2056,7 +2123,7 @@ var computedFn = {
                 computedObservable.evaluateImmediate(true /*notifyChange*/);
             }, throttleEvaluationTimeout);
         } else if (computedObservable._evalDelayed) {
-            computedObservable._evalDelayed();
+            computedObservable._evalDelayed(true /*isChange*/);
         } else {
             computedObservable.evaluateImmediate(true /*notifyChange*/);
         }
@@ -2064,7 +2131,8 @@ var computedFn = {
     evaluateImmediate: function (notifyChange) {
         var computedObservable = this,
             state = computedObservable[computedState],
-            disposeWhen = state.disposeWhen;
+            disposeWhen = state.disposeWhen,
+            changed = false;
 
         if (state.isBeingEvaluated) {
             // If the evaluation of a ko.computed causes side effects, it's possible that it will trigger its own re-evaluation.
@@ -2092,7 +2160,7 @@ var computedFn = {
 
         state.isBeingEvaluated = true;
         try {
-            this.evaluateImmediate_CallReadWithDependencyDetection(notifyChange);
+            changed = this.evaluateImmediate_CallReadWithDependencyDetection(notifyChange);
         } finally {
             state.isBeingEvaluated = false;
         }
@@ -2100,6 +2168,8 @@ var computedFn = {
         if (!state.dependenciesCount) {
             computedObservable.dispose();
         }
+
+        return changed;
     },
     evaluateImmediate_CallReadWithDependencyDetection: function (notifyChange) {
         // This function is really just part of the evaluateImmediate logic. You would never call it from anywhere else.
@@ -2107,7 +2177,8 @@ var computedFn = {
         // which contributes to saving about 40% off the CPU overhead of computed evaluation (on V8 at least).
 
         var computedObservable = this,
-            state = computedObservable[computedState];
+            state = computedObservable[computedState],
+            changed = false;
 
         // Initially, we assume that none of the subscriptions are still being used (i.e., all are candidates for disposal).
         // Then, during evaluation, we cross off any that are in fact still being used.
@@ -2133,20 +2204,27 @@ var computedFn = {
         if (computedObservable.isDifferent(state.latestValue, newValue)) {
             if (!state.isSleeping) {
                 computedObservable["notifySubscribers"](state.latestValue, "beforeChange");
+            } else {
+                computedObservable.updateVersion();
             }
 
             state.latestValue = newValue;
+            if (DEBUG) computedObservable._latestValue = newValue;
 
-            if (state.isSleeping) {
-                computedObservable.updateVersion();
-            } else if (notifyChange) {
+            computedObservable["notifySubscribers"](state.latestValue, "spectate");
+
+            if (!state.isSleeping && notifyChange) {
                 computedObservable["notifySubscribers"](state.latestValue);
             }
+
+            changed = true;
         }
 
         if (isInitial) {
             computedObservable["notifySubscribers"](state.latestValue, "awake");
         }
+
+        return changed;
     },
     evaluateImmediate_CallReadThenEndDependencyDetection: function (state, dependencyDetectionContext) {
         // This function is really part of the evaluateImmediate_CallReadWithDependencyDetection logic.
@@ -2165,13 +2243,14 @@ var computedFn = {
                 ko.utils.objectForEach(dependencyDetectionContext.disposalCandidates, computedDisposeDependencyCallback);
             }
 
-            state.isStale = false;
+            state.isStale = state.isDirty = false;
         }
     },
-    peek: function () {
-        // Peek won't re-evaluate, except while the computed is sleeping or to get the initial value when "deferEvaluation" is set.
+    peek: function (evaluate) {
+        // By default, peek won't re-evaluate, except while the computed is sleeping or to get the initial value when "deferEvaluation" is set.
+        // Pass in true to evaluate if needed.
         var state = this[computedState];
-        if ((state.isStale && !state.dependenciesCount) || (state.isSleeping && this.haveDependenciesChanged())) {
+        if ((state.isDirty && (evaluate || !state.dependenciesCount)) || (state.isSleeping && this.haveDependenciesChanged())) {
             this.evaluateImmediate();
         }
         return state.latestValue;
@@ -2179,15 +2258,25 @@ var computedFn = {
     limit: function (limitFunction) {
         // Override the limit function with one that delays evaluation as well
         ko.subscribable['fn'].limit.call(this, limitFunction);
-        this._evalDelayed = function () {
+        this._evalIfChanged = function () {
+            if (this[computedState].isStale) {
+                this.evaluateImmediate();
+            }
+            return this[computedState].latestValue;
+        };
+        this._evalDelayed = function (isChange) {
             this._limitBeforeChange(this[computedState].latestValue);
 
-            this[computedState].isStale = true; // Mark as dirty
+            // Mark as dirty
+            this[computedState].isDirty = true;
+            if (isChange) {
+                this[computedState].isStale = true;
+            }
 
-            // Pass the observable to the "limit" code, which will access it when
+            // Pass the observable to the "limit" code, which will evaluate it when
             // it's time to do the notification.
             this._limitChange(this);
-        }
+        };
     },
     dispose: function () {
         var state = this[computedState];
@@ -2200,12 +2289,18 @@ var computedFn = {
         if (state.disposeWhenNodeIsRemoved && state.domNodeDisposalCallback) {
             ko.utils.domNodeDisposal.removeDisposeCallback(state.disposeWhenNodeIsRemoved, state.domNodeDisposalCallback);
         }
-        state.dependencyTracking = null;
+        state.dependencyTracking = undefined;
         state.dependenciesCount = 0;
         state.isDisposed = true;
         state.isStale = false;
+        state.isDirty = false;
         state.isSleeping = false;
-        state.disposeWhenNodeIsRemoved = null;
+        state.disposeWhenNodeIsRemoved = undefined;
+        state.disposeWhen = undefined;
+        state.readFunction = undefined;
+        if (!this.hasWriteFunction) {
+            state.evaluatorFunctionTarget = undefined;
+        }
     }
 };
 
@@ -2219,8 +2314,9 @@ var pureComputedOverrides = {
             if (state.isStale || computedObservable.haveDependenciesChanged()) {
                 state.dependencyTracking = null;
                 state.dependenciesCount = 0;
-                state.isStale = true;
-                computedObservable.evaluateImmediate();
+                if (computedObservable.evaluateImmediate()) {
+                    computedObservable.updateVersion();
+                }
             } else {
                 // First put the dependencies in order
                 var dependeciesOrder = [];
@@ -2285,18 +2381,16 @@ if (ko.utils.canSetPrototype) {
     ko.utils.setPrototypeOf(computedFn, ko.subscribable['fn']);
 }
 
-// Set the proto chain values for ko.hasPrototype
+// Set the proto values for ko.computed
 var protoProp = ko.observable.protoProperty; // == "__ko_proto__"
-ko.computed[protoProp] = ko.observable;
 computedFn[protoProp] = ko.computed;
 
 ko.isComputed = function (instance) {
-    return ko.hasPrototype(instance, ko.computed);
+    return (typeof instance == 'function' && instance[protoProp] === ko.computed);
 };
 
 ko.isPureComputed = function (instance) {
-    return ko.hasPrototype(instance, ko.computed)
-        && instance[computedState] && instance[computedState].pure;
+    return ko.isComputed(instance) && instance[computedState] && instance[computedState].pure;
 };
 
 ko.exportSymbol('computed', ko.computed);
@@ -2465,7 +2559,7 @@ ko.exportSymbol('toJSON', ko.toJSON);
                     for (var i = 0, n = element.options.length, optionValue; i < n; ++i) {
                         optionValue = ko.selectExtensions.readValue(element.options[i]);
                         // Include special check to handle selecting a caption with a blank string value
-                        if (optionValue == value || (optionValue == "" && value === undefined)) {
+                        if (optionValue == value || (optionValue === "" && value === undefined)) {
                             selection = i;
                             break;
                         }
@@ -2504,26 +2598,29 @@ ko.expressionRewriting = (function () {
 
     // The following regular expressions will be used to split an object-literal string into tokens
 
-        // These two match strings, either with double quotes or single quotes
-    var stringDouble = '"(?:[^"\\\\]|\\\\.)*"',
-        stringSingle = "'(?:[^'\\\\]|\\\\.)*'",
-        // Matches a regular expression (text enclosed by slashes), but will also match sets of divisions
-        // as a regular expression (this is handled by the parsing loop below).
-        stringRegexp = '/(?:[^/\\\\]|\\\\.)*/\w*',
-        // These characters have special meaning to the parser and must not appear in the middle of a
-        // token, except as part of a string.
-        specials = ',"\'{}()/:[\\]',
-        // Match text (at least two characters) that does not contain any of the above special characters,
-        // although some of the special characters are allowed to start it (all but the colon and comma).
-        // The text can contain spaces, but leading or trailing spaces are skipped.
-        everyThingElse = '[^\\s:,/][^' + specials + ']*[^\\s' + specials + ']',
-        // Match any non-space character not matched already. This will match colons and commas, since they're
-        // not matched by "everyThingElse", but will also match any other single character that wasn't already
-        // matched (for example: in "a: 1, b: 2", each of the non-space characters will be matched by oneNotSpace).
-        oneNotSpace = '[^\\s]',
-
-        // Create the actual regular expression by or-ing the above strings. The order is important.
-        bindingToken = RegExp(stringDouble + '|' + stringSingle + '|' + stringRegexp + '|' + everyThingElse + '|' + oneNotSpace, 'g'),
+    var specials = ',"\'`{}()/:[\\]',    // These characters have special meaning to the parser and must not appear in the middle of a token, except as part of a string.
+        // Create the actual regular expression by or-ing the following regex strings. The order is important.
+        bindingToken = RegExp([
+            // These match strings, either with double quotes, single quotes, or backticks
+            '"(?:\\\\.|[^"])*"',
+            "'(?:\\\\.|[^'])*'",
+            "`(?:\\\\.|[^`])*`",
+            // Match C style comments
+            "/\\*(?:[^*]|\\*+[^*/])*\\*+/",
+            // Match C++ style comments
+            "//.*\n",
+            // Match a regular expression (text enclosed by slashes), but will also match sets of divisions
+            // as a regular expression (this is handled by the parsing loop below).
+            '/(?:\\\\.|[^/])+/\w*',
+            // Match text (at least two characters) that does not contain any of the above special characters,
+            // although some of the special characters are allowed to start it (all but the colon and comma).
+            // The text can contain spaces, but leading or trailing spaces are skipped.
+            '[^\\s:,/][^' + specials + ']*[^\\s' + specials + ']',
+            // Match any non-space character not matched already. This will match colons and commas, since they're
+            // not matched by "everyThingElse", but will also match any other single character that wasn't already
+            // matched (for example: in "a: 1, b: 2", each of the non-space characters will be matched by oneNotSpace).
+            '[^\\s]'
+        ].join('|'), 'g'),
 
         // Match end of previous token to determine whether a slash is a division or regex.
         divisionLookBehind = /[\])"'A-Za-z0-9_$]+$/,
@@ -2536,13 +2633,14 @@ ko.expressionRewriting = (function () {
         // Trim braces '{' surrounding the whole object literal
         if (str.charCodeAt(0) === 123) str = str.slice(1, -1);
 
+        // Add a newline to correctly match a C++ style comment at the end of the string and
+        // add a comma so that we don't need a separate code block to deal with the last item
+        str += "\n,";
+
         // Split into tokens
         var result = [], toks = str.match(bindingToken), key, values = [], depth = 0;
 
-        if (toks) {
-            // Append a comma so that we don't need a separate code block to deal with the last item
-            toks.push(',');
-
+        if (toks.length > 1) {
             for (var i = 0, tok; tok = toks[i]; ++i) {
                 var c = tok.charCodeAt(0);
                 // A comma signals the end of a key/value pair if depth is zero
@@ -2559,6 +2657,9 @@ ko.expressionRewriting = (function () {
                         key = values.pop();
                         continue;
                     }
+                // Comments: skip them
+                } else if (c === 47 && tok.length > 1 && (tok.charCodeAt(1) === 47 || tok.charCodeAt(1) === 42)) {  // "//" or "/*"
+                    continue;
                 // A set of slashes is initially matched as a regular expression, but could be division
                 } else if (c === 47 && i && tok.length > 1) {  // "/"
                     // Look at the end of the previous token to determine if the slash is actually division
@@ -2567,7 +2668,6 @@ ko.expressionRewriting = (function () {
                         // The slash is actually a division punctuator; re-parse the remainder of the string (not including the slash)
                         str = str.substr(str.indexOf(tok) + 1);
                         toks = str.match(bindingToken);
-                        toks.push(',');
                         i = -1;
                         // Continue with just the slash
                         tok = '/';
@@ -3398,9 +3498,15 @@ ko.exportSymbol('bindingProvider', ko.bindingProvider);
             jQueryInstance = window['jQuery'];
         }
 
-        if (rootNode && (rootNode.nodeType !== 1) && (rootNode.nodeType !== 8))
-            throw new Error("ko.applyBindings: first parameter should be your view model; second parameter should be a DOM node");
-        rootNode = rootNode || window.document.body; // Make "rootNode" parameter optional
+        // rootNode is optional
+        if (!rootNode) {
+            rootNode = window.document.body;
+            if (!rootNode) {
+                throw Error("ko.applyBindings: could not find window.document.body; has the document been loaded?");
+            }
+        } else if (rootNode.nodeType !== 1 && rootNode.nodeType !== 8) {
+            throw Error("ko.applyBindings: first parameter should be your view model; second parameter should be a DOM node");
+        }
 
         applyBindingsToNodeAndDescendantsInternal(getBindingContext(viewModelOrBindingContext), rootNode, true);
     };
@@ -3463,7 +3569,7 @@ ko.exportSymbol('bindingProvider', ko.bindingProvider);
     };
 
     function getObjectOwnProperty(obj, propName) {
-        return obj.hasOwnProperty(propName) ? obj[propName] : undefined;
+        return Object.prototype.hasOwnProperty.call(obj, propName) ? obj[propName] : undefined;
     }
 
     function loadComponentAndNotify(componentName, callback) {
@@ -3600,7 +3706,7 @@ ko.exportSymbol('bindingProvider', ko.bindingProvider);
     };
 
     ko.components.isRegistered = function(componentName) {
-        return defaultConfigRegistry.hasOwnProperty(componentName);
+        return Object.prototype.hasOwnProperty.call(defaultConfigRegistry, componentName);
     };
 
     ko.components.unregister = function(componentName) {
@@ -3610,7 +3716,7 @@ ko.exportSymbol('bindingProvider', ko.bindingProvider);
 
     ko.components.defaultLoader = {
         'getConfig': function(componentName, callback) {
-            var result = defaultConfigRegistry.hasOwnProperty(componentName)
+            var result = ko.components.isRegistered(componentName)
                 ? defaultConfigRegistry[componentName]
                 : null;
             callback(result);
@@ -3873,7 +3979,7 @@ ko.exportSymbol('bindingProvider', ko.bindingProvider);
             // Give access to the raw computeds, as long as that wouldn't overwrite any custom param also called '$raw'
             // This is in case the developer wants to react to outer (binding) observability separately from inner
             // (model value) observability, or in case the model value observable has subobservables.
-            if (!result.hasOwnProperty('$raw')) {
+            if (!Object.prototype.hasOwnProperty.call(result, '$raw')) {
                 result['$raw'] = rawParamComputedValues;
             }
 
@@ -3905,7 +4011,7 @@ ko.exportSymbol('bindingProvider', ko.bindingProvider);
                 var newDocFrag = originalFunction(),
                     allComponents = ko.components._allRegisteredComponents;
                 for (var componentName in allComponents) {
-                    if (allComponents.hasOwnProperty(componentName)) {
+                    if (Object.prototype.hasOwnProperty.call(allComponents, componentName)) {
                         newDocFrag.createElement(componentName);
                     }
                 }
@@ -4154,7 +4260,16 @@ ko.bindingHandlers['checkedValue'] = {
 };
 
 })();var classesWrittenByBindingKey = '__ko__cssValue';
-ko.bindingHandlers['class'] = ko.bindingHandlers['css'] = {
+ko.bindingHandlers['class'] = {
+    'update': function (element, valueAccessor) {
+        var value = ko.utils.stringTrim(ko.utils.unwrapObservable(valueAccessor()));
+        ko.utils.toggleDomNodeCssClass(element, element[classesWrittenByBindingKey], false);
+        element[classesWrittenByBindingKey] = value;
+        ko.utils.toggleDomNodeCssClass(element, value, true);
+    }
+};
+
+ko.bindingHandlers['css'] = {
     'update': function (element, valueAccessor) {
         var value = ko.utils.unwrapObservable(valueAccessor());
         if (value !== null && typeof value == "object") {
@@ -4163,10 +4278,7 @@ ko.bindingHandlers['class'] = ko.bindingHandlers['css'] = {
                 ko.utils.toggleDomNodeCssClass(element, className, shouldHaveClass);
             });
         } else {
-            value = ko.utils.stringTrim(String(value || '')); // Make sure we don't try to store or set a non-string value
-            ko.utils.toggleDomNodeCssClass(element, element[classesWrittenByBindingKey], false);
-            element[classesWrittenByBindingKey] = value;
-            ko.utils.toggleDomNodeCssClass(element, value, true);
+            ko.bindingHandlers['class']['update'](element, valueAccessor);
         }
     }
 };
@@ -4654,10 +4766,15 @@ if (window && window.navigator) {
     };
 
     // Detect various browser versions because some old versions don't fully support the 'input' event
-    var operaVersion = window.opera && window.opera.version && parseInt(window.opera.version()),
-        userAgent = window.navigator.userAgent,
-        safariVersion = parseVersion(userAgent.match(/^(?:(?!chrome).)*version\/([^ ]*) safari/i)),
-        firefoxVersion = parseVersion(userAgent.match(/Firefox\/([^ ]*)/));
+    var userAgent = window.navigator.userAgent,
+        operaVersion, chromeVersion, safariVersion, firefoxVersion, ieVersion;
+
+    (operaVersion = window.opera && window.opera.version && parseInt(window.opera.version()))
+        || (chromeVersion = parseVersion(userAgent.match(/Chrome\/([^ ]+)/)))
+        || (safariVersion = parseVersion(userAgent.match(/Version\/([^ ]+) Safari/)))
+        || (firefoxVersion = parseVersion(userAgent.match(/Firefox\/([^ ]+)/)))
+        || (ieVersion = ko.utils.ieVersion || parseVersion(userAgent.match(/MSIE ([^ ]+)/)))      // Detects up to IE 10
+        || (ieVersion = parseVersion(userAgent.match(/rv:([^ )]+)/)));      // Detects IE 11
 }
 
 // IE 8 and 9 have bugs that prevent the normal events from firing when the value changes.
@@ -4666,7 +4783,7 @@ if (window && window.navigator) {
 // fired at the document level only and doesn't directly indicate which element changed. We
 // set up just one event handler for the document and use 'activeElement' to determine which
 // element was changed.
-if (ko.utils.ieVersion < 10) {
+if (ieVersion >= 8 && ieVersion < 10) {
     var selectionChangeRegisteredName = ko.utils.domData.nextKey(),
         selectionChangeHandlerName = ko.utils.domData.nextKey();
     var selectionChangeHandler = function(event) {
@@ -4756,61 +4873,69 @@ ko.bindingHandlers['textInput'] = {
                 }
             });
         } else {
-            if (ko.utils.ieVersion < 10) {
+            if (ieVersion) {
+                // All versions (including 11) of Internet Explorer have a bug that they don't generate an input or propertychange event when ESC is pressed
+                onEvent('keypress', updateModel);
+            }
+            if (ieVersion < 11) {
                 // Internet Explorer <= 8 doesn't support the 'input' event, but does include 'propertychange' that fires whenever
                 // any property of an element changes. Unlike 'input', it also fires if a property is changed from JavaScript code,
-                // but that's an acceptable compromise for this binding. IE 9 does support 'input', but since it doesn't fire it
-                // when using autocomplete, we'll use 'propertychange' for it also.
+                // but that's an acceptable compromise for this binding. IE 9 and 10 support 'input', but since they don't always
+                // fire it when using autocomplete, we'll use 'propertychange' for them also.
                 onEvent('propertychange', function(event) {
                     if (event.propertyName === 'value') {
                         ieUpdateModel(event);
                     }
                 });
+            }
+            if (ieVersion == 8) {
+                // IE 8 has a bug where it fails to fire 'propertychange' on the first update following a value change from
+                // JavaScript code. It also doesn't fire if you clear the entire value. To fix this, we bind to the following
+                // events too.
+                onEvent('keyup', updateModel);      // A single keystoke
+                onEvent('keydown', updateModel);    // The first character when a key is held down
+            }
+            if (registerForSelectionChangeEvent) {
+                // Internet Explorer 9 doesn't fire the 'input' event when deleting text, including using
+                // the backspace, delete, or ctrl-x keys, clicking the 'x' to clear the input, dragging text
+                // out of the field, and cutting or deleting text using the context menu. 'selectionchange'
+                // can detect all of those except dragging text out of the field, for which we use 'dragend'.
+                // These are also needed in IE8 because of the bug described above.
+                registerForSelectionChangeEvent(element, ieUpdateModel);  // 'selectionchange' covers cut, paste, drop, delete, etc.
+                onEvent('dragend', deferUpdateModel);
+            }
 
-                if (ko.utils.ieVersion == 8) {
-                    // IE 8 has a bug where it fails to fire 'propertychange' on the first update following a value change from
-                    // JavaScript code. It also doesn't fire if you clear the entire value. To fix this, we bind to the following
-                    // events too.
-                    onEvent('keyup', updateModel);      // A single keystoke
-                    onEvent('keydown', updateModel);    // The first character when a key is held down
-                }
-                if (ko.utils.ieVersion >= 8) {
-                    // Internet Explorer 9 doesn't fire the 'input' event when deleting text, including using
-                    // the backspace, delete, or ctrl-x keys, clicking the 'x' to clear the input, dragging text
-                    // out of the field, and cutting or deleting text using the context menu. 'selectionchange'
-                    // can detect all of those except dragging text out of the field, for which we use 'dragend'.
-                    // These are also needed in IE8 because of the bug described above.
-                    registerForSelectionChangeEvent(element, ieUpdateModel);  // 'selectionchange' covers cut, paste, drop, delete, etc.
-                    onEvent('dragend', deferUpdateModel);
-                }
-            } else {
+            if (!ieVersion || ieVersion >= 9) {
                 // All other supported browsers support the 'input' event, which fires whenever the content of the element is changed
                 // through the user interface.
-                onEvent('input', updateModel);
+                onEvent('input', ieUpdateModel);
+            }
 
-                if (safariVersion < 5 && ko.utils.tagNameLower(element) === "textarea") {
-                    // Safari <5 doesn't fire the 'input' event for <textarea> elements (it does fire 'textInput'
-                    // but only when typing). So we'll just catch as much as we can with keydown, cut, and paste.
-                    onEvent('keydown', deferUpdateModel);
-                    onEvent('paste', deferUpdateModel);
-                    onEvent('cut', deferUpdateModel);
-                } else if (operaVersion < 11) {
-                    // Opera 10 doesn't always fire the 'input' event for cut, paste, undo & drop operations.
-                    // We can try to catch some of those using 'keydown'.
-                    onEvent('keydown', deferUpdateModel);
-                } else if (firefoxVersion < 4.0) {
-                    // Firefox <= 3.6 doesn't fire the 'input' event when text is filled in through autocomplete
-                    onEvent('DOMAutoComplete', updateModel);
+            if (safariVersion < 5 && ko.utils.tagNameLower(element) === "textarea") {
+                // Safari <5 doesn't fire the 'input' event for <textarea> elements (it does fire 'textInput'
+                // but only when typing). So we'll just catch as much as we can with keydown, cut, and paste.
+                onEvent('keydown', deferUpdateModel);
+                onEvent('paste', deferUpdateModel);
+                onEvent('cut', deferUpdateModel);
+            } else if (operaVersion < 11) {
+                // Opera 10 doesn't always fire the 'input' event for cut, paste, undo & drop operations.
+                // We can try to catch some of those using 'keydown'.
+                onEvent('keydown', deferUpdateModel);
+            } else if (firefoxVersion < 4.0) {
+                // Firefox <= 3.6 doesn't fire the 'input' event when text is filled in through autocomplete
+                onEvent('DOMAutoComplete', updateModel);
 
-                    // Firefox <=3.5 doesn't fire the 'input' event when text is dropped into the input.
-                    onEvent('dragdrop', updateModel);       // <3.5
-                    onEvent('drop', updateModel);           // 3.5
-                }
+                // Firefox <=3.5 doesn't fire the 'input' event when text is dropped into the input.
+                onEvent('dragdrop', updateModel);       // <3.5
+                onEvent('drop', updateModel);           // 3.5
             }
         }
 
         // Bind to the change event so that we can catch programmatic updates of the value that fire this event.
         onEvent('change', updateModel);
+
+        // To deal with browsers that don't notify any kind of event for some changes (IE, Safari, etc.)
+        onEvent('blur', updateModel);
 
         ko.computed(updateView, null, { disposeWhenNodeIsRemoved: element });
     }
@@ -4834,11 +4959,23 @@ ko.bindingHandlers['textinput'] = {
     }
 };
 ko.bindingHandlers['uniqueName'].currentIndex = 0;
+ko.bindingHandlers['using'] = {
+    'init': function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+        var innerContext = bindingContext['createChildContext'](valueAccessor);
+        ko.applyBindingsToDescendants(innerContext, element);
+
+        return { 'controlsDescendantBindings': true };
+    }
+};
+ko.virtualElements.allowedBindings['using'] = true;
 ko.bindingHandlers['value'] = {
     'after': ['options', 'foreach'],
     'init': function (element, valueAccessor, allBindings) {
+        var tagName = ko.utils.tagNameLower(element),
+            isInputElement = tagName == "input";
+
         // If the value binding is placed on a radio/checkbox, then just pass through to checkedValue and quit
-        if (element.tagName.toLowerCase() == "input" && (element.type == "checkbox" || element.type == "radio")) {
+        if (isInputElement && (element.type == "checkbox" || element.type == "radio")) {
             ko.applyBindingAccessorsToNode(element, { 'checkedValue': valueAccessor });
             return;
         }
@@ -4866,7 +5003,7 @@ ko.bindingHandlers['value'] = {
 
         // Workaround for https://github.com/SteveSanderson/knockout/issues/122
         // IE doesn't fire "change" events on textboxes if the user selects a value from its autocomplete list
-        var ieAutoCompleteHackNeeded = ko.utils.ieVersion && element.tagName.toLowerCase() == "input" && element.type == "text"
+        var ieAutoCompleteHackNeeded = ko.utils.ieVersion && isInputElement && element.type == "text"
                                        && element.autocomplete != "off" && (!element.form || element.form.autocomplete != "off");
         if (ieAutoCompleteHackNeeded && ko.utils.arrayIndexOf(eventsToCatch, "propertychange") == -1) {
             ko.utils.registerEventHandler(element, "propertychange", function () { propertyChangedFired = true });
@@ -4900,40 +5037,56 @@ ko.bindingHandlers['value'] = {
             ko.utils.registerEventHandler(element, eventName, handler);
         });
 
-        var updateFromModel = function () {
-            var newValue = ko.utils.unwrapObservable(valueAccessor());
-            var elementValue = ko.selectExtensions.readValue(element);
+        var updateFromModel;
 
-            if (elementValueBeforeEvent !== null && newValue === elementValueBeforeEvent) {
-                ko.utils.setTimeout(updateFromModel, 0);
-                return;
-            }
-
-            var valueHasChanged = (newValue !== elementValue);
-
-            if (valueHasChanged) {
-                if (ko.utils.tagNameLower(element) === "select") {
-                    var allowUnset = allBindings.get('valueAllowUnset');
-                    var applyValueAction = function () {
-                        ko.selectExtensions.writeValue(element, newValue, allowUnset);
-                    };
-                    applyValueAction();
-
-                    if (!allowUnset && newValue !== ko.selectExtensions.readValue(element)) {
-                        // If you try to set a model value that can't be represented in an already-populated dropdown, reject that change,
-                        // because you're not allowed to have a model value that disagrees with a visible UI selection.
-                        ko.dependencyDetection.ignore(ko.utils.triggerEvent, null, [element, "change"]);
-                    } else {
-                        // Workaround for IE6 bug: It won't reliably apply values to SELECT nodes during the same execution thread
-                        // right after you've changed the set of OPTION nodes on it. So for that node type, we'll schedule a second thread
-                        // to apply the value as well.
-                        ko.utils.setTimeout(applyValueAction, 0);
-                    }
+        if (isInputElement && element.type == "file") {
+            // For file input elements, can only write the empty string
+            updateFromModel = function () {
+                var newValue = ko.utils.unwrapObservable(valueAccessor());
+                if (newValue === null || newValue === undefined || newValue === "") {
+                    element.value = "";
                 } else {
-                    ko.selectExtensions.writeValue(element, newValue);
+                    valueUpdateHandler();   // reset the model to match the element
                 }
             }
-        };
+        } else {
+            updateFromModel = function () {
+                var newValue = ko.utils.unwrapObservable(valueAccessor());
+                var elementValue = ko.selectExtensions.readValue(element);
+
+                if (elementValueBeforeEvent !== null && newValue === elementValueBeforeEvent) {
+                    ko.utils.setTimeout(updateFromModel, 0);
+                    return;
+                }
+
+                var valueHasChanged = (newValue !== elementValue);
+
+                if (valueHasChanged) {
+                    if (tagName === "select") {
+                        var allowUnset = allBindings.get('valueAllowUnset');
+                        var applyValueAction = function () {
+                            ko.selectExtensions.writeValue(element, newValue, allowUnset);
+                            ko.expressionRewriting.writeValueToProperty(valueAccessor(), allBindings, 'value', newValue);
+                        };
+						ko.delaySync.run(function () {
+                            applyValueAction();
+                            if (!allowUnset && newValue !== ko.selectExtensions.readValue(element)) {
+                                // If you try to set a model value that can't be represented in an already-populated dropdown, reject that change,
+                                // because you're not allowed to have a model value that disagrees with a visible UI selection.
+                                ko.dependencyDetection.ignore(ko.utils.triggerEvent, null, [element, "change"]);
+                            } else {
+                                // Workaround for IE6 bug: It won't reliably apply values to SELECT nodes during the same execution thread
+                                // right after you've changed the set of OPTION nodes on it. So for that node type, we'll schedule a second thread
+                                // to apply the value as well.
+                                ko.utils.setTimeout(applyValueAction, 0);
+                            }
+                        });
+					} else {
+                        ko.selectExtensions.writeValue(element, newValue);
+                    }
+                }
+            };
+        }
 
         ko.computed(updateFromModel, null, { disposeWhenNodeIsRemoved: element });
     },
@@ -5033,7 +5186,7 @@ ko.templateRewriting = (function () {
         var allValidators = ko.expressionRewriting.bindingRewriteValidators;
         for (var i = 0; i < keyValueArray.length; i++) {
             var key = keyValueArray[i]['key'];
-            if (allValidators.hasOwnProperty(key)) {
+            if (Object.prototype.hasOwnProperty.call(allValidators, key)) {
                 var validator = allValidators[key];
 
                 if (typeof validator === "function") {
@@ -5393,7 +5546,7 @@ ko.exportSymbol('__tr_ambtns', ko.templateRewriting.applyMemoizedBindingsToNextS
             });
 
             var templateName = resolveTemplateName(template, arrayValue, arrayItemContext);
-            return executeTemplate(null, "ignoreTargetNode", templateName, arrayItemContext, options);
+            return executeTemplate(targetNode, "ignoreTargetNode", templateName, arrayItemContext, options);
         }
 
         // This will be called whenever setDomNodeChildrenFromArrayMapping has added nodes to targetNode

@@ -5,6 +5,7 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
+using DotVVM.Framework.Utils;
 using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Controls
@@ -44,6 +45,7 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the type of value being formatted - Number or DateTime.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
+        [Obsolete("ValueType property is no longer required, it is automatically inferred from compile-time type of Text binding")]
         public FormatValueType ValueType
         {
             get { return (FormatValueType)GetValue(ValueTypeProperty); }
@@ -64,11 +66,8 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty RenderSpanElementProperty =
             DotvvmProperty.Register<bool, Literal>(t => t.RenderSpanElement, true);
 
-
         private bool renderAsKnockoutBinding;
         private string knockoutBindingExpression;
-        private bool isFormattingRequired;
-
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Literal"/> class.
@@ -83,27 +82,35 @@ namespace DotVVM.Framework.Controls
         public Literal(string text) : base("span")
         {
             Text = text;
+            RenderSpanElement = false;
         }
 
+        public static bool NeedsFormatting(IValueBinding binding) => binding != null && (binding.ResultType == typeof(DateTime) || ReflectionUtils.IsNumericType(binding.ResultType));
 
         protected override bool RendersHtmlTag => RenderSpanElement;
-         
-        protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
-        {
-            base.AddAttributesToRender(writer, context);
 
-            isFormattingRequired = !string.IsNullOrEmpty(FormatString) || ValueType != FormatValueType.Text;
-            if (isFormattingRequired)
+        public bool IsFormattingRequired => !string.IsNullOrEmpty(FormatString) || ValueType != FormatValueType.Text || NeedsFormatting(GetValueBinding(TextProperty));
+
+        protected internal override void OnPreRender(Hosting.IDotvvmRequestContext context)
+        {
+            base.OnPreRender(context);
+
+            if (IsFormattingRequired)
             {
                 context.ResourceManager.AddCurrentCultureGlobalizationResource();
             }
+        }
+
+        protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
+        {
+            base.AddAttributesToRender(writer, context);
 
             // render Knockout data-bind
             renderAsKnockoutBinding = HasBinding<IValueBinding>(TextProperty) && !RenderOnServer;
             if (renderAsKnockoutBinding)
             {
-                var expression = GetValueBinding(TextProperty).GetKnockoutBindingExpression();
-                if (isFormattingRequired)
+                var expression = GetValueBinding(TextProperty).GetKnockoutBindingExpression(this);
+                if (IsFormattingRequired)
                 {
                     expression = "dotvvm.globalize.formatString(" + JsonConvert.SerializeObject(FormatString) + ", " + expression + ")";
                 }
@@ -133,7 +140,7 @@ namespace DotVVM.Framework.Controls
             if (!renderAsKnockoutBinding)
             {
                 var textToDisplay = "";
-                if (isFormattingRequired)
+                if (IsFormattingRequired)
                 {
                     var formatString = FormatString;
                     if (string.IsNullOrEmpty(formatString))

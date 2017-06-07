@@ -10,18 +10,17 @@ using System.Threading.Tasks;
 namespace DotVVM.Samples.Tests.Complex
 {
     [TestClass]
-    public class DataTemplateTests : SeleniumTestBase
+    public class DataTemplateTests : SeleniumTest
     {
         [TestMethod]
         public void Complex_EmptyDataTemplateRepeaterGridView()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_DataTemplate_EmptyDataTemplateRepeaterGridView);
                 browser.Wait();
-                Action<string> isDisplayed = id =>  browser.CheckIfIsDisplayed("#" + id);
-                Action<string> isHidden = id => browser.CheckIfIsNotDisplayed("#"+ id);
-                Action<string> isNotPresent = id => browser.FindElements("#" + id + " > *").ThrowIfDifferentCountThan(0);
+                void isDisplayed(string id) => browser.CheckIfIsDisplayed("#" + id);
+                void isHidden(string id) => browser.CheckIfIsNotDisplayed("#" + id);
+                void isNotPresent(string id) => browser.FindElements("#" + id + " > *").ThrowIfDifferentCountThan(0);
 
                 isHidden("marker1_parent");
                 isDisplayed("marker1");

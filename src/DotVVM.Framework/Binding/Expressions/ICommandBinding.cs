@@ -1,7 +1,13 @@
-﻿namespace DotVVM.Framework.Binding.Expressions
+﻿using System.Collections.Immutable;
+using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Runtime.Filters;
+
+namespace DotVVM.Framework.Binding.Expressions
 {
-    public interface ICommandBinding: IBinding
+    public interface ICommandBinding : IBinding
     {
-        string GetCommandJavascript();
+        ParametrizedCode CommandJavascript { get; }
+        CompiledBindingExpression.BindingDelegate BindingDelegate { get; }
+        ImmutableArray<IActionFilter> ActionFilters { get; }
     }
 }

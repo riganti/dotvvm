@@ -268,6 +268,16 @@ namespace DotVVM.Framework.Tests.Routing
             Assert.AreEqual("~/", result);
         }
 
+        [TestMethod]
+        public void DotvvmRoute_BuildUrl_NoParameter()
+        {
+            var route = new DotvvmRoute("RR", null, null, null, configuration);
+
+            var result = route.BuildUrl(null);
+
+            Assert.AreEqual("~/RR", result);
+        }
+
 
         [TestMethod]
         public void DotvvmRoute_BuildUrl_Invalid_UnclosedParameter()

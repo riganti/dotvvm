@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Routing
 {
@@ -20,7 +21,14 @@ namespace DotVVM.Framework.Routing
             foreach (var prop in (JObject)JObject.ReadFrom(reader))
             {
                 var route = (JObject)prop.Value;
-                rt.Add(prop.Key, route["url"].Value<string>(), route["virtualPath"].Value<string>(), route["defaultValues"].ToObject<IDictionary<string, string>>());
+                try
+                {
+                    rt.Add(prop.Key, route["url"].Value<string>(), route["virtualPath"].Value<string>(), route["defaultValues"].ToObject<IDictionary<string, object>>());
+                }
+                catch (Exception error)
+                {
+                    rt.Add(prop.Key, new ErrorRoute(route["url"].Value<string>(), route["virtualPath"].Value<string>(), prop.Key, route["defaultValues"].ToObject<IDictionary<string, object>>(), error));
+                }
             }
             return rt;
         }
@@ -33,14 +41,31 @@ namespace DotVVM.Framework.Routing
             foreach (var route in value)
             {
                 writer.WritePropertyName(route.RouteName);
-                new JObject()
-                {
+                new JObject() {
                     ["url"] = route.Url,
                     ["virtualPath"] = route.VirtualPath,
                     ["defaultValues"] = JObject.FromObject(route.DefaultValues)
                 }.WriteTo(writer);
             }
             writer.WriteEndObject();
+        }
+
+        class ErrorRoute : RouteBase
+        {
+            private readonly Exception error;
+
+            public ErrorRoute(string url, string virtualPath, string name, IDictionary<string, object> defaultValues, Exception error) : base(url, virtualPath, name, defaultValues)
+            {
+                this.error = error;
+            }
+
+            public override IEnumerable<string> ParameterNames => new string[0];
+
+            public override IDotvvmPresenter GetPresenter() => throw new InvalidOperationException($"Could not create route {RouteName}", error);
+
+            public override bool IsMatch(string url, out IDictionary<string, object> values) => throw new InvalidOperationException($"Could not create route {RouteName}", error);
+
+            protected override string BuildUrlCore(Dictionary<string, object> values) => throw new InvalidOperationException($"Could not create route {RouteName}", error);
         }
     }
 }

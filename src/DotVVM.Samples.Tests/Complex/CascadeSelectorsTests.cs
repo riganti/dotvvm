@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace DotVVM.Samples.Tests.Complex
 {
     [TestClass]
-    public class CascadeSelectorsTests : SeleniumTestBase
+    public class CascadeSelectorsTests : SeleniumTest
     {
         [TestMethod]
         public void Complex_CascadeSelectorsServerRender()
@@ -22,6 +22,34 @@ namespace DotVVM.Samples.Tests.Complex
         public void Complex_CascadeSelectors()
         {
             Complex_CascadeSelectorsBase(SamplesRouteUrls.ComplexSamples_CascadeSelectors_CascadeSelectors);
+        }
+
+        [TestMethod]
+        public void Complex_TripleComboBoxes()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_CascadeSelectors_TripleComboBoxes);
+                browser.ElementAt("input[type=button]", 0).Click().Wait();
+                browser.ElementAt(".active", 0).CheckIfInnerTextEquals("North America: 1");
+                browser.ElementAt(".active", 1).CheckIfInnerTextEquals("USA: 11");
+                browser.ElementAt(".active", 2).CheckIfInnerTextEquals("New York: 111");
+
+                browser.ElementAt("input[type=button]", 2).Click().Wait();
+                browser.ElementAt(".active", 0).CheckIfInnerTextEquals("North America: 1");
+                browser.ElementAt(".active", 1).CheckIfInnerTextEquals("Canada: 12");
+                browser.ElementAt(".active", 2).CheckIfInnerTextEquals("Toronto: 121");
+
+                browser.ElementAt("input[type=button]", 5).Click().Wait();
+                browser.ElementAt(".active", 0).CheckIfInnerTextEquals("Europe: 2");
+                browser.ElementAt(".active", 1).CheckIfInnerTextEquals("Germany: 21");
+                browser.ElementAt(".active", 2).CheckIfInnerTextEquals("Munich: 212");
+
+                browser.ElementAt("input[type=button]", 8).Click().Wait();
+                browser.ElementAt(".active", 0).CheckIfInnerTextEquals("Asia: 3");
+                browser.ElementAt(".active", 1).CheckIfInnerTextEquals("China: 31");
+                browser.ElementAt(".active", 2).CheckIfInnerTextEquals("Beijing: 311");
+            });
         }
 
         public void Complex_CascadeSelectorsBase(string url)

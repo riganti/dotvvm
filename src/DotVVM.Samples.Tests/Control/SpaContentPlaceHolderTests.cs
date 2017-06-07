@@ -10,7 +10,7 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class SpaContentPlaceHolderTests : SeleniumTestBase
+    public class SpaContentPlaceHolderTests : SeleniumTest
     {
 
         [TestMethod]

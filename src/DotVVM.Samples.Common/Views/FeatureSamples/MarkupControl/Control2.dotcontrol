@@ -1,0 +1,6 @@
+﻿@viewModel System.Object, mscorlib
+@baseType DotVVM.Samples.Common.Views.FeatureSamples.MarkupControl.Control2, DotVVM.Samples.Common
+
+<dot:Repeater DataSource="{controlProperty: MyProperty}" WrapperTagName="ul" RenderSettings.Mode="Server">
+    <li>{{value: _this}}</li>
+</dot:Repeater>

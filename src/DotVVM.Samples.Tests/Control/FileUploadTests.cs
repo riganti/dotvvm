@@ -8,7 +8,7 @@ using Riganti.Utils.Testing.Selenium.DotVVM;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class FileUploadTests : SeleniumTestBase
+    public class FileUploadTests : SeleniumTest
     {
         [TestMethod]
         [Timeout(120000)]
@@ -58,15 +58,15 @@ namespace DotVVM.Samples.Tests.Control
 
         [TestMethod]
         [Timeout(120000)]
-        public void Control_FileUpload_FileTypeAllowed()
+        public void Control_FileUpload_IsFileAllowed()
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_FileUpload_AllowedOrNot);
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_FileUpload_IsAllowedOrNot);
                 browser.Wait(1000);
 
-                var fileTypeAllowed = browser.Single("span.fileTypeAllowed");
-                var maxSizeExceeded = browser.Single("span.maxSizeExceeded");
+                var isFileTypeAllowed = browser.Single("span.isFileTypeAllowed");
+                var isMaxSizeExceeded = browser.Single("span.isMaxSizeExceeded");
                 
                 var textFile = CreateTempFile("txt", 1);
                 browser.First(".dotvvm-upload-button a").UploadFile(textFile);
@@ -74,8 +74,8 @@ namespace DotVVM.Samples.Tests.Control
                 browser.WaitFor(() => browser.First(".dotvvm-upload-files").GetText() == "1 files", 60000,
                     "File was not uploaded in 1 min interval.");
 
-                fileTypeAllowed.CheckIfTextEquals("true");
-                maxSizeExceeded.CheckIfTextEquals("false");
+                isFileTypeAllowed.CheckIfTextEquals("true");
+                isMaxSizeExceeded.CheckIfTextEquals("false");
 
                 File.Delete(textFile);
             });
@@ -83,15 +83,15 @@ namespace DotVVM.Samples.Tests.Control
 
         [TestMethod]
         [Timeout(120000)]
-        public void Control_FileUpload_FileTypeNotAllowed()
+        public void Control_FileUpload_IsFileNotAllowed()
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_FileUpload_AllowedOrNot);
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_FileUpload_IsAllowedOrNot);
                 browser.Wait(1000);
 
-                var fileTypeAllowed = browser.Single("span.fileTypeAllowed");
-                var maxSizeExceeded = browser.Single("span.maxSizeExceeded");
+                var isFileTypeAllowed = browser.Single("span.isFileTypeAllowed");
+                var isMaxSizeExceeded = browser.Single("span.isMaxSizeExceeded");
 
                 var mdFile = CreateTempFile("md", 1);
                 browser.First(".dotvvm-upload-button a").UploadFile(mdFile);
@@ -99,8 +99,8 @@ namespace DotVVM.Samples.Tests.Control
                 browser.WaitFor(() => browser.First(".dotvvm-upload-files").GetText() == "1 files", 60000,
                     "File was not uploaded in 1 min interval.");
 
-                fileTypeAllowed.CheckIfTextEquals("false");
-                maxSizeExceeded.CheckIfTextEquals("false");
+                isFileTypeAllowed.CheckIfTextEquals("false");
+                isMaxSizeExceeded.CheckIfTextEquals("false");
 
                 File.Delete(mdFile);
             });
@@ -112,11 +112,11 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_FileUpload_AllowedOrNot);
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_FileUpload_IsAllowedOrNot);
                 browser.Wait(1000);
 
-                var fileTypeAllowed = browser.Single("span.fileTypeAllowed");
-                var maxSizeExceeded = browser.Single("span.maxSizeExceeded");
+                var isFileTypeAllowed = browser.Single("span.isFileTypeAllowed");
+                var isMaxSizeExceeded = browser.Single("span.isMaxSizeExceeded");
 
                 var largeFile = CreateTempFile("txt", 2);
                 browser.First(".dotvvm-upload-button a").UploadFile(largeFile);
@@ -124,10 +124,33 @@ namespace DotVVM.Samples.Tests.Control
                 browser.WaitFor(() => browser.First(".dotvvm-upload-files").GetText() == "1 files", 60000,
                     "File was not uploaded in 1 min interval.");
 
-                fileTypeAllowed.CheckIfTextEquals("true");
-                maxSizeExceeded.CheckIfTextEquals("true");
+                isFileTypeAllowed.CheckIfTextEquals("true");
+                isMaxSizeExceeded.CheckIfTextEquals("true");
 
                 File.Delete(largeFile);
+            });
+        }
+
+        [TestMethod]
+        [Timeout(120000)]
+        public void Control_FileUpload_FileSize()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_FileUpload_FileSize);
+                browser.Wait(1000);
+
+                var fileSize = browser.Single("span.fileSize");
+
+                var file = CreateTempFile("txt", 2);
+                browser.First(".dotvvm-upload-button a").UploadFile(file);
+
+                browser.WaitFor(() => browser.First(".dotvvm-upload-files").GetText() == "1 files", 60000,
+                    "File was not uploaded in 1 min interval.");
+
+                fileSize.CheckIfTextEquals("2 MB");
+
+                File.Delete(file);
             });
         }
 

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Newtonsoft.Json;
 
@@ -10,7 +11,6 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     public abstract class PostBackHandler : DotvvmBindableObject
     {
-
         /// <summary>
         /// Gets or sets the name of the event which the handler applies to. If this property is not set, it applies to all events.
         /// </summary>
@@ -34,8 +34,6 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty EnabledProperty
             = DotvvmProperty.Register<bool, PostBackHandler>(c => c.Enabled, true);
 
-
-
         /// <summary>
         /// Gets the key of the handler registered in the dotvvm.extensions.postBackHandlers javascript object.
         /// </summary>
@@ -46,18 +44,16 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected internal abstract Dictionary<string, string> GetHandlerOptionClientExpressions();
 
-
-
         protected internal string TranslateValueOrBinding(DotvvmProperty property)
         {
             var binding = GetValueBinding(property);
             if (binding == null)
             {
-                return JsonConvert.SerializeObject(GetValue(property));
+                return JsonConvert.SerializeObject(GetValue(property), DefaultViewModelSerializer.CreateDefaultSettings());
             }
             else
             {
-                return "ko.unwrap(" + binding.GetKnockoutBindingExpression() + ")";
+                return "ko.unwrap(" + binding.GetKnockoutBindingExpression(this) + ")";
             }
         }
     }

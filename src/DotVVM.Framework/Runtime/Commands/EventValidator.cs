@@ -53,8 +53,8 @@ namespace DotVVM.Framework.Runtime.Commands
                 if (resultBinding == null && ViewModelPathComparer.AreEqual(path, walker.CurrentPathArray))
                 {
                     // find bindings of current control
-                    var binding = control.GetAllBindings().Where(p => p.Value is CommandBindingExpression)
-                        .FirstOrDefault(b => b.Value.BindingId == commandId);
+                    var binding = control.GetAllBindings()
+                        .FirstOrDefault(b => b.Value is CommandBindingExpression commandBinding && commandBinding.BindingId == commandId);
                     if (binding.Key != null)
                     {
                         // we have found the binding, now get the validation path
@@ -109,8 +109,8 @@ namespace DotVVM.Framework.Runtime.Commands
                 if (ViewModelPathComparer.AreEqual(path, walker.CurrentPathArray))
                 {
                     // find bindings of current control
-                    var binding = control.GetAllBindings().Where(p => p.Value is CommandBindingExpression)
-                        .FirstOrDefault(b => b.Value.BindingId == commandId);
+                    var binding = control.GetAllBindings()
+                        .FirstOrDefault(b => b.Value is CommandBindingExpression commandBinding && commandBinding.BindingId == commandId);
                     if (binding.Key != null)
                     {
                         // verify that the target control is the control command target

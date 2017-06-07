@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         IAbstractControl BuildControl(IControlResolverMetadata metadata, DothtmlNode node, IDataContextStack dataContext);
 
-        IAbstractBinding BuildBinding(BindingParserOptions bindingOptions, IDataContextStack dataContext, DothtmlBindingNode node, ITypeDescriptor resultType = null, Exception parsingError = null, object customData = null);
+        IAbstractBinding BuildBinding(BindingParserOptions bindingOptions, IDataContextStack dataContext, DothtmlBindingNode node, IPropertyDescriptor property);
         
         IAbstractDirective BuildDirective(DothtmlDirectiveNode node);
 

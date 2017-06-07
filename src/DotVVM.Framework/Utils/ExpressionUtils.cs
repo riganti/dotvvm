@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Diagnostics;
+using DotVVM.Framework.Compilation.ControlTree;
 
 namespace DotVVM.Framework.Utils
 {
@@ -59,7 +60,7 @@ namespace DotVVM.Framework.Utils
                 Expression.IfThenElse(condition, body, Expression.Goto(brkLabel)), brkLabel);
         }
 
-        public static Expression ConvertToObject(Expression expr)
+        public static Expression ConvertToObject(this Expression expr)
         {
             if (expr.Type == typeof(object)) return expr;
             else if (expr.Type == typeof(void)) return WrapInReturnNull(expr);
@@ -333,5 +334,20 @@ namespace DotVVM.Framework.Utils
                 else return base.VisitUnary(node);
             }
         }
+
+        public static Expression ReplaceAll(this Expression expr, Func<Expression, Expression> replacer)
+        {
+            return new AnonymousActionVisitor { Replacer = replacer }.Visit(expr);
+        }
+        
+        class AnonymousActionVisitor: ExpressionVisitor
+        {
+            public Func<Expression, Expression> Replacer { get; set; }
+            public override Expression Visit(Expression expr)
+            {
+                return Replacer(base.Visit(expr));
+            }
+        }
     }
+
 }

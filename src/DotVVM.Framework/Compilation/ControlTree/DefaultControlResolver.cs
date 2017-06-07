@@ -52,7 +52,13 @@ namespace DotVVM.Framework.Compilation.ControlTree
             {
                 if (type.GetTypeInfo().GetCustomAttribute<ContainsDotvvmPropertiesAttribute>(true) != null)
                 {
-                    RuntimeHelpers.RunClassConstructor(type.TypeHandle);
+                    var tt = type;
+                    do
+                    {
+                        RuntimeHelpers.RunClassConstructor(tt.TypeHandle);
+                        tt = tt.GetTypeInfo().BaseType;
+                    }
+                    while (tt != null && tt.GetTypeInfo().IsGenericType);
                 }
             }
         }

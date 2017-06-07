@@ -38,9 +38,18 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
 
         public GridViewInlineEditingPrimaryKeyStringViewModel()
         {
-            CustomersDataSet = new GridViewDataSet<CustomerDataString>() { PageSize = 10 };
-            CustomersDataSet.PrimaryKeyPropertyName = "CustomerId";
-            CustomersDataSet.EditRowId = EditRowId;
+            CustomersDataSet = new GridViewDataSet<CustomerDataString>()
+            {
+                PagingOptions = new PagingOptions()
+                {
+                    PageSize = 10
+                },
+                RowEditOptions =
+                {
+                    PrimaryKeyPropertyName = "CustomerId",
+                    EditRowId = EditRowId
+                }
+            };
         }
 
         public override Task PreRender()
@@ -58,7 +67,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
         public void EditItem(CustomerDataString item)
         {
             EditRowId = item.CustomerId;
-            CustomersDataSet.EditRowId = item.CustomerId;
+            CustomersDataSet.RowEditOptions.EditRowId = item.CustomerId;
             EditMode = !EditMode;
         }
 
@@ -66,7 +75,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
         {
             //save item
             EditRowId = "Z";
-            CustomersDataSet.EditRowId = EditRowId;
+            CustomersDataSet.RowEditOptions.EditRowId = EditRowId;
 
             var updateItem = CustomersDataSet.Items.FirstOrDefault(s => s.CustomerId == item.CustomerId);
             updateItem = item;
@@ -76,7 +85,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
         public void CancelEditItem()
         {
             EditRowId ="Z";
-            CustomersDataSet.EditRowId = EditRowId;
+            CustomersDataSet.RowEditOptions.EditRowId = EditRowId;
             EditMode = !EditMode;
         }
     }

@@ -21,12 +21,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
             return mapper;
         }
 
-        public static ViewModelPropertyMap Property(this ViewModelSerializationMap map, string name)
-        {
-            var r = map.Properties.SingleOrDefault(p => p.Name == name);
-            if (r == null) throw new InvalidOperationException($"Property '{name}' was not found on '{map.Type}'.");
-            return r;
-        }
+        public static ViewModelPropertyMap Property(this ViewModelSerializationMap map, string name) =>
+            map.Properties.SingleOrDefault(p => p.PropertyInfo.Name == name) ??
+            throw new InvalidOperationException($"Property '{name}' was not found on '{map.Type}'.");
 
         public static ViewModelPropertyMap Bind(this ViewModelPropertyMap property, Direction direction)
         {

@@ -12,13 +12,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public string Name { get; }
 
-        public override Type Type
-        {
-            get
-            {
-                throw Error();
-            }
-        }
+        public override Type Type => throw Error();
 
         public override Expression Reduce()
         {
@@ -35,13 +29,7 @@ namespace DotVVM.Framework.Compilation.Binding
             throw Error();
         }
 
-        public override ExpressionType NodeType
-        {
-            get
-            {
-                throw Error();
-            }
-        }
+        public override ExpressionType NodeType => throw Error();
 
         public Exception Error()
             => new Exception($"Could not resolve identifier '{Name}'.");

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Globalization;
 
 namespace DotVVM.Framework.Tests.Runtime.ControlTree
 {
@@ -24,6 +25,14 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         {
             Assert.AreEqual(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, ReflectionUtils.ConvertValue("Instance, Public, NonPublic", typeof(BindingFlags)));
             Assert.AreEqual(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic, ReflectionUtils.ConvertValue("Static | Public | NonPublic", typeof(BindingFlags)));
+        }
+
+        [TestMethod]
+        public void ValueConversion_DoubleInStrangeCulture()
+        {
+            CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = new CultureInfo("cs-CZ");
+            Assert.AreEqual(1.2, double.Parse("1,2"));
+            Assert.AreEqual(1.2, ReflectionUtils.ConvertValue("1.2", typeof(double)));
         }
 
         [TestMethod]

@@ -10,7 +10,7 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class ActionFilterErrorHandlingTest : SeleniumTestBase
+    public class ActionFilterErrorHandlingTest : SeleniumTest
     {
         [TestMethod]
         public void Feature_ActionFilterErrorHandling_CommandException()
@@ -38,6 +38,28 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ActionFilterErrorHandling_ActionFilterPageErrorHandling);
                 browser.Wait(1000);
                 browser.CheckUrl(u => u.Contains("error500"));
+            });
+        }
+
+
+        [TestMethod]
+        public void Feature_ActionFilterErrorHandling_Redirects()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                // try the first button
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ActionFilterErrorHandling_ActionFilterRedirect);
+                browser.Wait();
+                browser.CheckUrl(u => !u.Contains("?redirected=true"));
+                browser.ElementAt("input", 0).Click().Wait();
+                browser.CheckUrl(u => u.Contains("?redirected=true"));
+
+                // try the second button
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ActionFilterErrorHandling_ActionFilterRedirect);
+                browser.Wait();
+                browser.CheckUrl(u => !u.Contains("?redirected=true"));
+                browser.ElementAt("input", 1).Click().Wait();
+                browser.CheckUrl(u => u.Contains("?redirected=true"));
             });
         }
     }

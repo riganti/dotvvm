@@ -11,7 +11,7 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Feature
 {   
     [TestClass]
-    public class DateTimeSerializationTests : SeleniumTestBase
+    public class DateTimeSerializationTests : SeleniumTest
     {
         [TestMethod]
         public void Feature_DateTimeSerialization()

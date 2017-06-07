@@ -11,7 +11,7 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class RepeaterTests : SeleniumTestBase
+    public class RepeaterTests : SeleniumTest
     {
         [TestMethod]
         public void Control_Repeater_RouteLink()

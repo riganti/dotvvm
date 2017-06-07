@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ViewModel.Validation;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Runtime.Filters
 {
@@ -14,7 +15,7 @@ namespace DotVVM.Framework.Runtime.Filters
         {
             if (!string.IsNullOrEmpty(context.ModelState.ValidationTargetPath))
             {
-                var validator = context.Configuration.ServiceLocator.GetService<IViewModelValidator>();
+                var validator = context.Services.GetService<IViewModelValidator>();
                 context.ModelState.Errors.AddRange(validator.ValidateViewModel(context.ModelState.ValidationTarget));
                 context.FailOnInvalidModelState();
             }

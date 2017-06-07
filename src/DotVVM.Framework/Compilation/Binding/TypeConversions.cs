@@ -93,15 +93,23 @@ namespace DotVVM.Framework.Compilation.Binding
         }
 
         //6.1.4 Nullable Type conversions
-        public static Expression NullableConverion(Expression src, Type destType)
+        public static Expression NullableConversion(Expression src, Type destType)
         {
             if (Nullable.GetUnderlyingType(src.Type) == destType)
             {
                 return Expression.Property(src, "Value");
             }
-            if (Nullable.GetUnderlyingType(destType) == src.Type)
+            else if (Nullable.GetUnderlyingType(destType) == src.Type)
             {
                 return Expression.Convert(src, destType);
+            }
+            else if (src.Type.IsNullable() || destType.IsNullable())
+            {
+                var srcLift = src.Type.IsNullable() ? Expression.Property(src, "Value") : src;
+                var destLift = Nullable.GetUnderlyingType(destType) ?? destType;
+                var liftedConverted = ImplicitConversion(srcLift, destLift);
+                if (liftedConverted != null && liftedConverted.NodeType == ExpressionType.Convert && liftedConverted.CastTo<UnaryExpression>().Operand == srcLift)
+                    return Expression.Convert(src, destType);
             }
             return null;
         }
@@ -109,7 +117,7 @@ namespace DotVVM.Framework.Compilation.Binding
         // 6.1.5 Null literal conversions
         // An implicit conversion exists from the null literal to any nullable type.
         // This conversion produces the null value (§4.1.10) of the given nullable type.
-        public static Expression NullLiteralConverion(Expression src, Type destType)
+        public static Expression NullLiteralConversion(Expression src, Type destType)
         {
             if (src.NodeType == ExpressionType.Constant && src.Type == typeof(object) && ((ConstantExpression)src).Value == null)
             {
@@ -144,8 +152,8 @@ namespace DotVVM.Framework.Compilation.Binding
             if (src.Type == destType) return src;
             var result = ImplicitConstantConversion(src, destType) ??
                   ImplicitNumericConversion(src, destType) ??
-                  NullableConverion(src, destType) ??
-                  NullLiteralConverion(src, destType) ??
+                  NullableConversion(src, destType) ??
+                  NullLiteralConversion(src, destType) ??
                   BoxingConversion(src, destType) ??
                   ReferenceConversion(src, destType);
             if (allowToString && destType == typeof(string) && result == null)
@@ -177,6 +185,11 @@ namespace DotVVM.Framework.Compilation.Binding
         [SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
         public static Expression ImplicitConstantConversion(Expression src, Type destType)
         {
+            if (src.NodeType == ExpressionType.Conditional && src is ConditionalExpression conditional &&
+                ImplicitConversion(conditional.IfTrue, destType) is Expression ifTrue &&
+                ImplicitConversion(conditional.IfFalse, destType) is Expression ifFalse)
+                return Expression.Condition(conditional.Test, ifTrue, ifFalse);
+
             if (src.NodeType != ExpressionType.Constant)
                 return null;
 

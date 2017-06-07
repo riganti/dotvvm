@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DotVVM.CommandLine.Commands.Templates;
 using DotVVM.CommandLine.Metadata;
 
 namespace DotVVM.CommandLine.Commands.Implementation
@@ -37,8 +38,29 @@ namespace DotVVM.CommandLine.Commands.Implementation
             {
                 throw new InvalidCommandUsageException("You have to specify the NAME.");
             }
+            name = PathHelpers.EnsureFileExtension(name, "cs");
 
-            // TODO: create the viewmodel
+            if (PathHelpers.IsCurrentDirectory(dotvvmProjectMetadata.ProjectDirectory) && !name.Contains("/") && !name.Contains("\\"))
+            {
+                name = "ViewModels/" + name;
+            }
+
+            CreateViewModel(name, dotvvmProjectMetadata);
+        }
+
+        private void CreateViewModel(string viewModelPath, DotvvmProjectMetadata dotvvmProjectMetadata)
+        {
+            var viewModelName = NamingHelpers.GetClassNameFromPath(viewModelPath);
+            var viewModelNamespace = NamingHelpers.GetNamespaceFromPath(viewModelPath, dotvvmProjectMetadata.ProjectDirectory, dotvvmProjectMetadata.RootNamespace);
+            
+            // create viewmodel
+            var viewModelTemplate = new ViewModelTemplate()
+            {
+                ViewModelName = viewModelName,
+                ViewModelNamespace = viewModelNamespace
+                // TODO: BaseViewModel
+            };
+            FileSystemHelpers.WriteFile(viewModelPath, viewModelTemplate.TransformText());
         }
     }
 }

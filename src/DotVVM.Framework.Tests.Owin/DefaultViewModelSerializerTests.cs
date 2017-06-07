@@ -16,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Owin;
 using Microsoft.Owin.Security.DataProtection;
 using Newtonsoft.Json.Linq;
+using Microsoft.Owin.Infrastructure;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -34,6 +35,7 @@ namespace DotVVM.Framework.Tests.Runtime
 				services.AddSingleton<IDataProtectionProvider>(new DpapiDataProtectionProvider("DotVVM Tests"));
                 services.AddTransient<IViewModelProtector, DefaultViewModelProtector>();
                 services.AddTransient<ICsrfProtector, DefaultCsrfProtector>();
+                services.AddSingleton<ICookieManager, ChunkingCookieManager>();
             });
 			configuration.Security.SigningKey = Convert.FromBase64String("Uiq1FXs016lC6QaWIREB7H2P/sn4WrxkvFkqaIKpB27E7RPuMipsORgSgnT+zJmUu8zXNSJ4BdL73JEMRDiF6A1ScRNwGyDxDAVL3nkpNlGrSoLNM1xHnVzSbocLFDrdEiZD2e3uKujguycvWSNxYzjgMjXNsaqvCtMu/qRaEGc=");
 			configuration.Security.EncryptionKey = Convert.FromBase64String("jNS9I3ZcxzsUSPYJSwzCOm/DEyKFNlBmDGo9wQ6nxKg=");
@@ -111,6 +113,26 @@ namespace DotVVM.Framework.Tests.Runtime
 			Assert.AreEqual(123, viewModel.Property.GetPrivateField());
 		}
 
+        [TestMethod]
+        public void Serializer_Tuples()
+        {
+            var json = SerializeViewModel(new TestViewModelWithTuple {
+                TupleProperty = Tuple.Create(
+                    new TestViewModel2 {
+                        PropertyA = "abc"
+                    },
+                    new TestViewModel3 {
+                        Property1 = "def"
+                    }
+                )
+            });
+
+            var result = new TestViewModelWithTuple();
+            PopulateViewModel(result, json);
+            Assert.AreEqual("abc", result.TupleProperty.Item1.PropertyA);
+            Assert.AreEqual("def", result.TupleProperty.Item2.Property1);
+        }
+
        
 
         private string SerializeViewModel(object viewModel)
@@ -127,6 +149,11 @@ namespace DotVVM.Framework.Tests.Runtime
 			serializer.PopulateViewModel(context,
 				"{'validationTargetPath': null,'viewModel':" + json + "}");
 		}
+
+        public class TestViewModelWithTuple
+        {
+            public Tuple<TestViewModel2, TestViewModel3> TupleProperty { get; set; }
+        }
 
 		class TestViewModel12
 		{

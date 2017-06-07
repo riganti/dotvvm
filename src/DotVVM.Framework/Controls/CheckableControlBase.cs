@@ -116,7 +116,7 @@ namespace DotVVM.Framework.Controls
             {
                 if (HasValueBinding(TextProperty))
                 {
-                    writer.AddKnockoutDataBind("text", GetValueBinding(TextProperty));
+                    writer.AddKnockoutDataBind("text", GetValueBinding(TextProperty).GetKnockoutBindingExpression(this));
                     writer.RenderBeginTag(TagName);
                     writer.RenderEndTag();
                 }
@@ -141,7 +141,7 @@ namespace DotVVM.Framework.Controls
             var changedBinding = GetCommandBinding(ChangedProperty);
             if (changedBinding != null)
             {
-                writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript(nameof(Changed), changedBinding, this, true, true, isOnChange: true));
+                writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript(nameof(Changed), changedBinding, this, useWindowSetTimeout: true, returnValue: true, isOnChange: true));
             }
 
             // handle enabled attribute

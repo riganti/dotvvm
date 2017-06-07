@@ -8,11 +8,13 @@ namespace DotVVM.Framework.Storage
 
         public string FileName { get; set; }
 
-        public bool FileTypeAllowed { get; set; } = true;
+        public FileSize FileSize { get; set; } = new FileSize();
 
-        public bool MaxSizeExceeded { get; set; } = false;
+        public bool IsFileTypeAllowed { get; set; } = true;
 
-        public bool Allowed
-            => FileTypeAllowed && !MaxSizeExceeded;
+        public bool IsMaxSizeExceeded { get; set; } = false;
+
+        public bool IsAllowed
+            => IsFileTypeAllowed && !IsMaxSizeExceeded;
     }
 }

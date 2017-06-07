@@ -11,7 +11,7 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class IdGenerationTests : SeleniumTestBase
+    public class IdGenerationTests : SeleniumTest
     {
         [TestMethod]
         public void Feature_IdGeneration()

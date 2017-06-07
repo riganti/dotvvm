@@ -56,7 +56,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// </summary>
         public override bool CanConvert(Type objectType)
         {
-            return !IsEnumerable(objectType) && IsComplexType(objectType);
+            return !IsEnumerable(objectType) && IsComplexType(objectType) && !IsTuple(objectType);
         }
 
         /// <summary>
@@ -100,6 +100,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
             serializationMap.ReaderFactory(reader, serializer, value, evReader.Value);
         }
 
+        public static bool IsTuple(Type type) =>
+            type.FullName.StartsWith(typeof(Tuple).FullName + "`");
 
         public static bool IsEnumerable(Type type)
         {

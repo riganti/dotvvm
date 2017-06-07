@@ -1,4 +1,5 @@
 /// <reference path="typings/knockout/knockout.d.ts" />
+/// <reference path="typings/knockout/knockout.dotvvm.d.ts" />
 /// <reference path="typings/knockout.mapper/knockout.mapper.d.ts" />
 /// <reference path="typings/globalize/globalize.d.ts" />
 declare class DotvvmDomUtils {
@@ -76,18 +77,39 @@ declare class DotvvmRedirectEventArgs extends DotvvmEventArgs {
     isHandled: boolean;
     constructor(viewModel: any, viewModelName: string, url: string, replace: boolean);
 }
-declare class DotvvmEvaluator {
-    evaluateOnViewModel(context: any, expression: any): any;
-    evaluateOnContext(context: any, expression: string): any;
-    getDataSourceItems(viewModel: any): any;
-    tryEval(func: () => any): any;
+declare class DotvvmFileUpload {
+    showUploadDialog(sender: HTMLElement): void;
+    private getIframe(sender);
+    private openUploadDialog(iframe);
+    createUploadId(sender: HTMLElement, iframe: HTMLElement): void;
+    reportProgress(targetControlId: any, isBusy: boolean, progress: number, result: DotvvmFileUploadData[] | string): void;
+}
+declare class DotvvmFileUploadCollection {
+    Files: KnockoutObservableArray<KnockoutObservable<DotvvmFileUpload>>;
+    Progress: KnockoutObservable<number>;
+    Error: KnockoutObservable<string>;
+    IsBusy: KnockoutObservable<boolean>;
+}
+declare class DotvvmFileUploadData {
+    FileId: KnockoutObservable<string>;
+    FileName: KnockoutObservable<string>;
+    FileSize: KnockoutObservable<DotvvmFileSize>;
+    IsFileTypeAllowed: KnockoutObservable<boolean>;
+    IsMaxSizeExceeded: KnockoutObservable<boolean>;
+    IsAllowed: KnockoutObservable<boolean>;
+}
+declare class DotvvmFileSize {
+    Bytes: KnockoutObservable<number>;
+    FormattedText: KnockoutObservable<string>;
 }
 declare class DotvvmGlobalize {
     format(format: string, ...values: string[]): string;
     formatString(format: string, value: any): string;
-    parseDotvvmDate(value: string): Date;
+    parseDotvvmDate(value: string): Date | null;
     parseNumber(value: string): number;
     parseDate(value: string, format: string, previousValue?: Date): Date;
+    bindingDateToString(value: KnockoutObservable<string | Date> | string | Date, format?: string): string | KnockoutComputed<string>;
+    bindingNumberToString(value: KnockoutObservable<string | number> | string | number, format?: string): string | KnockoutComputed<string>;
 }
 declare class DotvvmPostBackHandler {
     execute(callback: () => void, sender: HTMLElement): void;
@@ -121,10 +143,10 @@ declare class DotvvmPromise<TArg> implements IDotvvmPromise<TArg> {
     private argument;
     private error;
     done(callback: (arg: TArg) => void, forceAsync?: boolean): void;
-    fail(callback: (error) => void, forceAsync?: boolean): DotvvmPromise<TArg>;
-    resolve(arg: TArg): DotvvmPromise<TArg>;
-    reject(error: any): DotvvmPromise<TArg>;
-    chainFrom(promise: IDotvvmPromise<TArg>): DotvvmPromise<TArg>;
+    fail(callback: (error) => void, forceAsync?: boolean): this;
+    resolve(arg: TArg): this;
+    reject(error: any): this;
+    chainFrom(promise: IDotvvmPromise<TArg>): this;
 }
 interface ISerializationOptions {
     serializeAll?: boolean;
@@ -141,7 +163,7 @@ declare class DotvvmSerialization {
     validateType(value: any, type: string): boolean;
     private findObject(obj, matcher);
     flatSerialize(viewModel: any): any;
-    getPureObject(viewModel: any): any;
+    getPureObject(viewModel: any): {};
     private pad(value, digits);
     serializeDate(date: Date, convertToUtc?: boolean): string;
 }
@@ -190,6 +212,7 @@ declare class ValidationError {
     constructor(targetObservable: KnockoutObservable<any>, errorMessage: string);
     static getOrCreate(targetObservable: KnockoutObservable<any> & {
         validationErrors?: KnockoutObservableArray<ValidationError>;
+        wrappedProperty?: any;
     }): KnockoutObservableArray<ValidationError>;
     static isValid(observable: KnockoutObservable<any> & {
         validationErrors?: KnockoutObservableArray<ValidationError>;
@@ -281,7 +304,8 @@ declare class DotVVM {
     private isPostBackStillActive(currentPostBackCounter);
     staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback?: (_: any) => void, errorCallback?: (xhr: XMLHttpRequest, error?: any) => void): void;
     private processPassedId(id, context);
-    postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, useWindowSetTimeout: boolean, validationTargetPath?: any, context?: any, handlers?: IDotvvmPostBackHandlerConfiguration[]): IDotvvmPromise<DotvvmAfterPostBackEventArgs>;
+    applyPostbackHandlers<T>(callback: () => IDotvvmPromise<T>, sender: HTMLElement, handlers?: IDotvvmPostBackHandlerConfiguration[], context?: any): IDotvvmPromise<T>;
+    postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, useWindowSetTimeout: boolean, validationTargetPath?: any, context?: any, handlers?: IDotvvmPostBackHandlerConfiguration[], commandArgs?: any[]): IDotvvmPromise<DotvvmAfterPostBackEventArgs>;
     private error(viewModel, xhr, promise?);
     private loadResourceList(resources, callback);
     private loadResourceElements(elements, offset, callback);
@@ -305,23 +329,26 @@ declare class DotVVM {
     private isPostBackProhibited(element);
     private addKnockoutBindingHandlers();
 }
-declare class DotvvmFileUpload {
-    showUploadDialog(sender: HTMLElement): void;
-    private getIframe(sender);
-    private openUploadDialog(iframe);
-    createUploadId(sender: HTMLElement, iframe: HTMLElement): void;
-    reportProgress(targetControlId: any, isBusy: boolean, progress: number, result: DotvvmFileUploadData[] | string): void;
+declare class DotvvmEvaluator {
+    evaluateOnViewModel(context: any, expression: any): any;
+    evaluateOnContext(context: any, expression: string): any;
+    getDataSourceItems(viewModel: any): any;
+    tryEval(func: () => any): any;
 }
-declare class DotvvmFileUploadCollection {
-    Files: KnockoutObservableArray<KnockoutObservable<DotvvmFileUpload>>;
-    Progress: KnockoutObservable<number>;
-    Error: KnockoutObservable<string>;
-    IsBusy: KnockoutObservable<boolean>;
+declare type ApiComputed<T> = KnockoutObservable<T | null> & {
+    refreshValue: () => void;
+};
+interface DotVVM {
+    invokeApiFn<T>(callback: () => PromiseLike<T>): ApiComputed<T>;
+    apiRefreshOn<T>(value: KnockoutObservable<T>, refreshOn: KnockoutObservable<any>): KnockoutObservable<T>;
+    api: {
+        [name: string]: any;
+    };
+    eventHub: DotvvmEventHub;
 }
-declare class DotvvmFileUploadData {
-    FileId: KnockoutObservable<string>;
-    FileName: KnockoutObservable<string>;
-    FileTypeAllowed: KnockoutObservable<boolean>;
-    MaxSizeExceeded: KnockoutObservable<boolean>;
-    Allowed: KnockoutObservable<boolean>;
+declare class DotvvmEventHub {
+    private map;
+    notify(id: string): void;
+    get(id: string): KnockoutObservable<number>;
 }
+declare function basicAuthenticatedFetch(input: RequestInfo, init: RequestInit): Promise<Response>;

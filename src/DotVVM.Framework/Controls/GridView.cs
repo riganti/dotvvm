@@ -5,10 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
-using DotVVM.Framework.Runtime;
 using System.Collections;
 using System.Reflection;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Utils;
 
@@ -23,7 +23,7 @@ namespace DotVVM.Framework.Controls
         private EmptyData emptyDataContainer;
         private int numberOfRows;
         private HtmlGenericControl head;
-
+        
         public GridView() : base("table")
         {
             SetValue(Internal.IsNamingContainerProperty, true);
@@ -150,8 +150,11 @@ namespace DotVVM.Framework.Controls
             base.OnPreRender(context);
         }
 
-
-        private void DataBind(Hosting.IDotvvmRequestContext context)
+        private void CallGridViewDataSetRefreshRequest(IRefreshableGridViewDataSet refreshableGridViewDataSet)
+        {
+            refreshableGridViewDataSet.RequestRefresh();
+        }
+        private void DataBind(IDotvvmRequestContext context)
         {
             Children.Clear();
             emptyDataContainer = null;
@@ -160,22 +163,21 @@ namespace DotVVM.Framework.Controls
             var dataSourceBinding = GetDataSourceBinding();
             var dataSource = DataSource;
 
-            Action<string> sortCommand = null;
-            var set = dataSource as IGridViewDataSet;
-            if (set != null)
+
+            if (dataSource is IRefreshableGridViewDataSet refreshableDataSet)
             {
-                sortCommand = set.SetSortExpression;
-            }
-            else
-            {
-                sortCommand = SortChanged;
+                CallGridViewDataSetRefreshRequest(refreshableDataSet);
             }
 
+            var sortCommand = 
+                dataSource is ISortableGridViewDataSet sortableGridViewDataSet ?
+                sortableGridViewDataSet.SetSortExpression :
+                SortChanged;
+           
             // WORKAROUND: DataSource is null => don't throw exception
             if (sortCommand == null && dataSource == null)
             {
-                sortCommand = s =>
-                {
+                sortCommand = s => {
                     throw new DotvvmControlException(this, "Cannot sort when DataSource is null.");
                 };
             }
@@ -184,19 +186,22 @@ namespace DotVVM.Framework.Controls
             var index = 0;
             if (dataSource != null)
             {
-                // create header row
-                var items = GetIEnumerableFromDataSource(dataSource);
-                var javascriptDataSourceExpression = dataSourceBinding.GetKnockoutBindingExpression();
-
-                foreach (var item in items)
+                var itemBinding = GetItemBinding();
+                var bindingService = context.Configuration.ServiceLocator.GetService<BindingCompilationService>();
+                foreach (var item in GetIEnumerableFromDataSource())
                 {
                     // create row
                     var placeholder = new DataItemContainer { DataItemIndex = index };
-                    placeholder.SetBinding(DataContextProperty, GetItemBinding((IList)items, javascriptDataSourceExpression, index));
-                    placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), index));
+                    placeholder.SetBinding(DataContextProperty, ValueBindingExpression.CreateBinding(
+                        bindingService.WithoutInitialization(),
+                        j => item,
+                        itemBinding.KnockoutExpression.AssignParameters(p =>
+                            p == JavascriptTranslator.CurrentIndexParameter ? new CodeParameterAssignment(index.ToString(), OperatorPrecedence.Max) :
+                            default(CodeParameterAssignment))));
+                    placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[" + index + "]");
                     placeholder.ID = index.ToString();
-                    CreateRowWithCells(context, placeholder);
                     Children.Add(placeholder);
+                    CreateRowWithCells(context, placeholder);
 
                     index++;
                 }
@@ -217,7 +222,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void CreateHeaderRow(Hosting.IDotvvmRequestContext context, Action<string> sortCommand)
+        private void CreateHeaderRow(IDotvvmRequestContext context, Action<string> sortCommand)
         {
             head = new HtmlGenericControl("thead");
             Children.Add(head);
@@ -303,6 +308,7 @@ namespace DotVVM.Framework.Controls
             foreach (var column in Columns)
             {
                 var cell = new HtmlGenericControl("td");
+                cell.SetValue(Internal.DataContextTypeProperty, cell.GetValueRaw(Internal.DataContextTypeProperty));
                 SetCellAttributes(column, cell, false);
                 row.Children.Add(cell);
 
@@ -338,10 +344,10 @@ namespace DotVVM.Framework.Controls
 
         private bool IsEditedRow(DataItemContainer placeholder)
         {
-            var primaryKeyPropertyName = ((IGridViewDataSet)DataSource).PrimaryKeyPropertyName;
+            var primaryKeyPropertyName = ((IGridViewDataSet)DataSource).RowEditOptions.PrimaryKeyPropertyName;
             if (string.IsNullOrEmpty(primaryKeyPropertyName))
             {
-                throw new DotvvmControlException(this, $"The {nameof(IGridViewDataSet)} must specify the {nameof(IGridViewDataSet.PrimaryKeyPropertyName)} property when inline editing is enabled on the {nameof(GridView)} control!");
+                throw new DotvvmControlException(this, $"The {nameof(IGridViewDataSet)} must specify the {nameof(IRowEditOptions.PrimaryKeyPropertyName)} property when inline editing is enabled on the {nameof(GridView)} control!");
             }
 
             PropertyInfo prop;
@@ -349,7 +355,7 @@ namespace DotVVM.Framework.Controls
 
             if (value != null)
             {
-                var editRowId = ((IGridViewDataSet)DataSource).EditRowId;
+                var editRowId = ((IGridViewDataSet)DataSource).RowEditOptions.EditRowId;
                 if (editRowId != null && value.Equals(ReflectionUtils.ConvertValue(editRowId, prop.PropertyType)))
                 {
                     return true;
@@ -362,11 +368,12 @@ namespace DotVVM.Framework.Controls
         private void CreateTemplates(Hosting.IDotvvmRequestContext context, DataItemContainer placeholder, bool isInEditMode = false)
         {
             var row = CreateRow(placeholder, isInEditMode);
-            
+
             // create cells
             foreach (var column in Columns)
             {
                 var cell = new HtmlGenericControl("td");
+                cell.SetValue(Internal.DataContextTypeProperty, cell.GetValueRaw(Internal.DataContextTypeProperty));
                 row.Children.Add(cell);
                 SetCellAttributes(column, cell, false);
                 if (isInEditMode && column.IsEditable)
@@ -409,18 +416,18 @@ namespace DotVVM.Framework.Controls
                 if (InlineEditing)
                 {
                     var placeholder = new DataItemContainer { DataContext = null };
-                    placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
-                    placeholder.SetValue(Internal.ClientIDFragmentProperty, "$index()");
-                    writer.WriteKnockoutDataBindComment("if", "ko.unwrap(ko.unwrap($gridViewDataSet).EditRowId) !== ko.unwrap($data[ko.unwrap(ko.unwrap($gridViewDataSet).PrimaryKeyPropertyName)])");
+                    placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
+                    placeholder.SetValue(Internal.ClientIDFragmentProperty, GetValueRaw(Internal.CurrentIndexBindingProperty));
+                    writer.WriteKnockoutDataBindComment("if", "ko.unwrap(ko.unwrap($gridViewDataSet).RowEditOptions().EditRowId) !== ko.unwrap($data[ko.unwrap(ko.unwrap($gridViewDataSet).RowEditOptions().PrimaryKeyPropertyName)])");
                     CreateTemplates(context, placeholder);
                     Children.Add(placeholder);
                     placeholder.Render(writer, context);
                     writer.WriteKnockoutDataBindEndComment();
 
                     var placeholderEdit = new DataItemContainer { DataContext = null };
-                    placeholderEdit.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
-                    placeholderEdit.SetValue(Internal.ClientIDFragmentProperty, "$index()");
-                    writer.WriteKnockoutDataBindComment("if", "ko.unwrap(ko.unwrap($gridViewDataSet).EditRowId) === ko.unwrap($data[ko.unwrap(ko.unwrap($gridViewDataSet).PrimaryKeyPropertyName)])");
+                    placeholderEdit.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
+                    placeholderEdit.SetValue(Internal.ClientIDFragmentProperty, GetValueRaw(Internal.CurrentIndexBindingProperty));
+                    writer.WriteKnockoutDataBindComment("if", "ko.unwrap(ko.unwrap($gridViewDataSet).RowEditOptions().EditRowId) === ko.unwrap($data[ko.unwrap(ko.unwrap($gridViewDataSet).RowEditOptions().PrimaryKeyPropertyName)])");
                     CreateTemplates(context, placeholderEdit, true);
                     Children.Add(placeholderEdit);
                     placeholderEdit.Render(writer, context);
@@ -429,10 +436,10 @@ namespace DotVVM.Framework.Controls
                 else
                 {
                     var placeholder = new DataItemContainer { DataContext = null };
-                    placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
-                    placeholder.SetValue(Internal.ClientIDFragmentProperty, "$index()");
-                    CreateRowWithCells(context, placeholder);
+                    placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
+                    placeholder.SetValue(Internal.ClientIDFragmentProperty, GetValueRaw(Internal.CurrentIndexBindingProperty));
                     Children.Add(placeholder);
+                    CreateRowWithCells(context, placeholder);
                     placeholder.Render(writer, context);
 
                 }
@@ -462,11 +469,12 @@ namespace DotVVM.Framework.Controls
 
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            writer.AddKnockoutDataBind("withGridViewDataSet", GetDataSourceBinding());
+            writer.AddKnockoutDataBind("withGridViewDataSet", GetDataSourceBinding().GetKnockoutBindingExpression(this));
 
             if (!ShowHeaderWhenNoData && !IsPropertySet(VisibleProperty))
             {
-                writer.AddKnockoutDataBind("visible", $"dotvvm.evaluator.getDataSourceItems({GetDataSourceBinding().GetKnockoutBindingExpression()}).length");
+                writer.AddKnockoutDataBind("visible",
+                    GetForeachDataBindExpression().GetProperty<DataSourceLengthBinding>().Binding.CastTo<IValueBinding>().GetKnockoutBindingExpression(this));
             }
 
             base.AddAttributesToRender(writer, context);

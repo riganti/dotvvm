@@ -10,23 +10,44 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Binding.Properties;
+using System.Collections.Immutable;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Tests.Binding
 {
     [TestClass]
     public class BindingCompilationTests
     {
+        private DotvvmConfiguration configuration;
+        private BindingCompilationService bindingService;
+
+        [TestInitialize]
+        public void INIT()
+        {
+            this.configuration = DotvvmConfiguration.CreateDefault();
+            this.bindingService = configuration.ServiceLocator.GetService<BindingCompilationService>();
+        }
+
         public object ExecuteBinding(string expression, object[] contexts, DotvvmControl control, NamespaceImport[] imports = null, Type expectedType = null)
         {
-            var context = new DataContextStack(contexts.FirstOrDefault()?.GetType() ?? typeof(object), rootControlType: control?.GetType() ?? typeof(DotvvmControl));
+            var context = DataContextStack.Create(contexts.FirstOrDefault()?.GetType() ?? typeof(object), extenstionParameters: new[] {
+                new CurrentMarkupControlExtensionParameter(new ResolvedTypeDescriptor(control?.GetType() ?? typeof(DotvvmControl)))
+            });
             for (int i = 1; i < contexts.Length; i++)
             {
-                context = new DataContextStack(contexts[i].GetType(), context);
+                context = DataContextStack.Create(contexts[i].GetType(), context);
             }
-            var parser = new BindingExpressionBuilder();
-            var expressionTree = parser.Parse(expression, context, BindingParserOptions.Create<ValueBindingExpression>(importNs: new[] { new NamespaceImport("DotVVM.Framework.Tests.Binding") }.Concat(imports ?? Enumerable.Empty<NamespaceImport>()).ToArray()));
             Array.Reverse(contexts);
-            return new BindingCompilationAttribute().CompileToDelegate(expressionTree, context, expectedType ?? typeof(object)).Compile()(contexts, control);
+            var binding = new ResourceBindingExpression(bindingService, new object[] {
+                context,
+                new OriginalStringBindingProperty(expression),
+                new BindingParserOptions(typeof(ResourceBindingExpression), importNamespaces: imports?.ToImmutableList()),
+                new ExpectedTypeBindingProperty(expectedType ?? typeof(object))
+            });
+            return binding.BindingDelegate.Invoke(contexts, control);
         }
 
         public object ExecuteBinding(string expression, params object[] contexts)
@@ -81,7 +102,7 @@ namespace DotVVM.Framework.Tests.Binding
             }
             catch (Exception x)
             {
-                Assert.AreEqual("Could not find static member NotExist on type DotVVM.Framework.Tests.Resource1.", x.Message);
+                Assert.IsTrue(x.AllInnerExceptions().Any(e => e.Message.Contains("Could not find static member NotExist on type DotVVM.Framework.Tests.Resource1.")));
             }
         }
 
@@ -134,8 +155,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void BindingCompiler_PropertyRegisteredTwiceThrowException()
         {
-            Assert.ThrowsException<ArgumentException>(() =>
-            {
+            Assert.ThrowsException<ArgumentException>(() => {
                 MoqComponent.PropertyProperty = DotvvmProperty.Register<object, MoqComponent>(t => t.Property);
                 DotvvmProperty.Register<bool, MoqComponent>(t => t.Property);
             });
@@ -185,8 +205,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void BindingCompiler_Invalid_EnumStringComparison()
         {
-            Assert.ThrowsException<InvalidOperationException>(() =>
-            {
+            Assert.ThrowsException<AggregateException>(() => {
                 var viewModel = new TestViewModel { EnumProperty = TestEnum.A };
                 ExecuteBinding("Enum == 'ghfjdskdjhbvdksdj'", viewModel);
             });
@@ -314,10 +333,9 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        public void BindingCompiler_InValid_ToStringConversion()
+        public void BindingCompiler_Invalid_ToStringConversion()
         {
-            Assert.ThrowsException<InvalidOperationException>(() =>
-            {
+            Assert.ThrowsException<AggregateException>(() => {
                 var testViewModel = new TestViewModel();
                 var result = ExecuteBinding("_this", new[] { testViewModel }, null, expectedType: typeof(string));
             });
@@ -341,6 +359,32 @@ namespace DotVVM.Framework.Tests.Binding
                 new TestViewModel { StringProp = "5" }});
             Assert.AreEqual("54554321", result);
         }
+
+        [TestMethod]
+        public void BindingCompiler_NullableDateExpression()
+        {
+            bool execute(TestViewModel viewModel)
+            {
+                var result = ExecuteBinding("DateFrom == null || DateTo == null || DateFrom.Value <= DateTo.Value", viewModel);
+                var result2 = ExecuteBinding("DateFrom == null || DateTo == null || DateFrom <= DateTo", viewModel);
+                Assert.IsInstanceOfType(result, typeof(bool));
+                Assert.AreEqual(result, result2);
+                return (bool)result;
+            }
+
+            Assert.AreEqual(true, execute(new TestViewModel { DateFrom = null, DateTo = new DateTime(5) }));
+            Assert.AreEqual(true, execute(new TestViewModel { DateTo = new DateTime(5), DateFrom = null }));
+            Assert.AreEqual(true, execute(new TestViewModel { DateFrom = new DateTime(0), DateTo = new DateTime(5) }));
+            Assert.AreEqual(false, execute(new TestViewModel { DateFrom = new DateTime(5), DateTo = new DateTime(0) }));
+        }
+
+
+        [TestMethod]
+        public void BindingCompiler_ImplicitConstantConversionInsideConditional()
+        {
+            var result = ExecuteBinding("true ? 'Utc' : 'Local'", new object[] { }, null, null, typeof(DateTimeKind));
+            Assert.AreEqual(DateTimeKind.Utc, result);
+        }
     }
     class TestViewModel
     {
@@ -349,6 +393,9 @@ namespace DotVVM.Framework.Tests.Binding
         public TestViewModel2 TestViewModel2 { get; set; }
         public TestEnum EnumProperty { get; set; }
         public string StringProp2 { get; set; }
+        public DateTime? DateFrom { get; set; }
+        public DateTime? DateTo { get; set; }
+        public object Time { get; set; } = TimeSpan.FromSeconds(5);
 
         public string SetStringProp(string a, int b)
         {
@@ -397,6 +444,7 @@ namespace DotVVM.Framework.Tests.Binding
     class Something
     {
         public bool Value { get; set; }
+        public string StringValue { get; set; }
     }
     enum TestEnum
     {

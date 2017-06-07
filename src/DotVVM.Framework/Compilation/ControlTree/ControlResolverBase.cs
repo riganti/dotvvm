@@ -32,7 +32,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 			this.configuration = configuration;
 			foreach (var ccc in this.BindingTypes.Keys.ToArray())
 			{
-				BindingTypes[ccc] = BindingTypes[ccc].AddImports(configuration.Markup.ImportedNamespaces);
+				BindingTypes[ccc] = BindingTypes[ccc].AddImports(configuration.Markup.ImportedNamespaces).AddParameters(configuration.Markup.DefaultExtensionParameters);
 			}
 
 

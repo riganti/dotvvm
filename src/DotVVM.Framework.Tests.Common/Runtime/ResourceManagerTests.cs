@@ -60,25 +60,25 @@ namespace DotVVM.Framework.Tests.Runtime
         public void ResourceManager_ConfigurationDeserialization()
         {
             var config1 = DotvvmConfiguration.CreateDefault();
-            config1.Resources.Register("rs1", new ScriptResource(new LocalFileResourceLocation("file.js")));
-            config1.Resources.Register("rs2", new StylesheetResource(new RemoteResourceLocation("http://c.c/")));
+            config1.Resources.Register("rs1", new ScriptResource(new FileResourceLocation("file.js")));
+            config1.Resources.Register("rs2", new StylesheetResource(new UrlResourceLocation("http://c.c/")));
             config1.Resources.Register("rs3", new StylesheetResource(new EmbeddedResourceLocation(typeof(DotvvmConfiguration).GetTypeInfo().Assembly, "DotVVM.Framework.Resources.Scripts.jquery-2.1.1.min.js", "../file.js")));
             config1.Resources.Register("rs4", new InlineScriptResource(ResourceRenderPosition.Head) { Code = "CODE" });
             config1.Resources.Register("rs5", new NullResource());
             config1.Resources.Register("rs6", new ScriptResource(
-                new RemoteResourceLocation("http://d.d/"))
+                new UrlResourceLocation("http://d.d/"))
             {
-                LocationFallback = new ResourceLocationFallback("condition", new LocalFileResourceLocation("file1.js"))
+                LocationFallback = new ResourceLocationFallback("condition", new FileResourceLocation("file1.js"))
             });
 
             JsonSerializerSettings settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto };
             var config2 = JsonConvert.DeserializeObject<DotvvmConfiguration>(JsonConvert.SerializeObject(config1, settings), settings);
 
             Assert.IsTrue(config2.Resources.FindResource("rs1") is ScriptResource rs1 &&
-                rs1.Location is LocalFileResourceLocation rs1loc &&
+                rs1.Location is FileResourceLocation rs1loc &&
                 rs1loc.FilePath == "file.js");
             Assert.IsTrue(config2.Resources.FindResource("rs2") is StylesheetResource rs2 &&
-                rs2.Location is RemoteResourceLocation rs2loc &&
+                rs2.Location is UrlResourceLocation rs2loc &&
                 rs2loc.Url == "http://c.c/");
             Assert.IsTrue(config2.Resources.FindResource("rs3") is StylesheetResource rs3 &&
                 rs3.Location is EmbeddedResourceLocation rs3loc &&
@@ -90,9 +90,9 @@ namespace DotVVM.Framework.Tests.Runtime
                 rs4.Code == "CODE");
             Assert.IsTrue(config2.Resources.FindResource("rs5") is NullResource);
             Assert.IsTrue(config2.Resources.FindResource("rs6") is ScriptResource rs6 &&
-                rs6.Location is RemoteResourceLocation rs6loc && rs6loc.Url == "http://d.d/" &&
+                rs6.Location is UrlResourceLocation rs6loc && rs6loc.Url == "http://d.d/" &&
                 rs6.LocationFallback.JavascriptCondition == "condition" &&
-                rs6.LocationFallback.AlternativeLocations.Single() is LocalFileResourceLocation rs6loc2 &&
+                rs6.LocationFallback.AlternativeLocations.Single() is FileResourceLocation rs6loc2 &&
                 rs6loc2.FilePath == "file1.js");
         }
 

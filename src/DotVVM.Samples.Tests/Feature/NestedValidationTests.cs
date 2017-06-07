@@ -11,7 +11,7 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class NestedValidationTests : SeleniumTestBase
+    public class NestedValidationTests : SeleniumTest
     {
         [TestMethod]
         public void Feature_NestedValidation()

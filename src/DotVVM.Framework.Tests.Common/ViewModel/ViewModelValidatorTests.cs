@@ -74,6 +74,19 @@ namespace DotVVM.Framework.Tests.ViewModel
         }
 
         [TestMethod]
+        public void ViewModelValidator_ListChild_CustomValidationAttribute()
+        {
+            var testViewModel = new List<TestViewModel4>{
+                new TestViewModel4() { Child = new TestViewModel4Child() { IsChecked = true } }
+            };
+            var validator = CreateValidator();
+            var results = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath).ToList();
+
+            Assert.AreEqual(1, results.Count);
+            Assert.AreEqual("$data[0]().Child().ConditionalRequired", results[0].PropertyPath);
+        }
+
+        [TestMethod]
         public void ViewModelValidator_Child_IValidatableObject()
         {
             var testViewModel = new TestViewModel5() { Child = new TestViewModel5Child() { IsChecked = true } };

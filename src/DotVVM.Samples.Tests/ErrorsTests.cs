@@ -7,7 +7,7 @@ using System.Linq;
 namespace DotVVM.Samples.Tests
 {
     [TestClass]
-    public class ErrorsTests : SeleniumTestBase
+    public class ErrorsTests : SeleniumTest
     {
         [TestMethod]
         public void Error_MissingViewModel()
@@ -135,7 +135,7 @@ namespace DotVVM.Samples.Tests
             {
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_BindingInvalidProperty);
 
-                browser.First("p.summary").CheckIfInnerText(s => s.Contains("is not valid"));
+                browser.First(".exceptionMessage").CheckIfInnerText(s => s.Contains("Could not resolve identifier"));
                 browser.First("[class='source-errorLine']").CheckIfInnerText(s => s.Contains("InvalidPropertyName"));
                 browser.First("[class='errorUnderline']").CheckIfInnerText(s => s.Contains("InvalidPropertyName"));
             });
@@ -148,7 +148,7 @@ namespace DotVVM.Samples.Tests
             {
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_BindingInvalidCommand);
 
-                browser.First("p.summary").CheckIfInnerText(s => s.Contains("is not valid") && s.Contains("The binding"));
+                browser.First(".exceptionMessage").CheckIfInnerText(s => s.Contains("Could not resolve identifier") && s.Contains("NonExistingCommand"));
                 browser.First("[class='source-errorLine']").CheckIfInnerText(s => s.Contains("NonExistingCommand"));
                 browser.First("[class='errorUnderline']").CheckIfInnerText(s => s.Contains("NonExistingCommand"));
             });
@@ -161,7 +161,7 @@ namespace DotVVM.Samples.Tests
             {
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_MalformedBinding);
 
-                browser.First("p.summary").CheckIfInnerText(s => s.Contains("is not valid") && s.Contains("The binding"));
+                browser.First(".exceptionMessage").CheckIfInnerText(s => s.Contains("Unexpected token"));
                 browser.First("[class='errorUnderline']").CheckIfInnerText(s => s.Contains("!"));
             });
         }
@@ -173,7 +173,7 @@ namespace DotVVM.Samples.Tests
             {
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_EmptyBinding);
 
-                browser.First("p.summary").CheckIfInnerText(s => s.Contains("is not valid") && s.Contains("The binding"));
+                browser.First(".exceptionMessage").CheckIfInnerText(s => s.Contains("Identifier name was expected"));
                 browser.First(".errorUnderline").CheckIfInnerText(s => s.Contains("{{value: }}"));
             });
         }
@@ -208,7 +208,7 @@ namespace DotVVM.Samples.Tests
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_EncryptedPropertyInValueBinding);
-                browser.First("p.summary").CheckIfInnerText(s => s.Contains("Could not compile binding to Javascript"));
+                browser.First(".exceptionMessage").CheckIfInnerText(s => s.Contains("is encrypted and cannot be used in JS"));
                 browser.First(".errorUnderline").CheckIfInnerText(s => s.Contains("{{value: SomeProperty}}"));
             });
         }
@@ -219,7 +219,7 @@ namespace DotVVM.Samples.Tests
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_FieldInValueBinding);
-                browser.First("p.summary").CheckIfInnerText(s => s.Contains("Could not compile binding to Javascript"));
+                browser.First(".exceptionMessage").CheckIfInnerText(s => s.Contains("Can not translate field"));
                 browser.First(".errorUnderline").CheckIfInnerText(s => s.Contains("{{value: SomeField}}"));
             });
         }

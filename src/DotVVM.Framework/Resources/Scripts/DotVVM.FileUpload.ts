@@ -1,4 +1,3 @@
-/// <reference path="dotvvm.ts" />
 class DotvvmFileUpload {
     public showUploadDialog(sender: HTMLElement) {
         // trigger the file upload dialog
@@ -7,7 +6,7 @@ class DotvvmFileUpload {
         this.openUploadDialog(iframe);
     }
     private getIframe(sender:HTMLElement) {
-        return <HTMLIFrameElement>sender.parentElement.previousSibling;
+        return <HTMLIFrameElement>sender.parentElement!.previousSibling;
     }
     private openUploadDialog(iframe: HTMLIFrameElement) {
         var fileUpload = <HTMLInputElement>iframe.contentWindow.document.getElementById('upload');
@@ -17,7 +16,7 @@ class DotvvmFileUpload {
     public createUploadId(sender: HTMLElement, iframe: HTMLElement) {
         iframe = iframe || this.getIframe(sender);
         var uploadId = "DotVVM_upl" + new Date().getTime().toString();
-        sender.parentElement.parentElement.setAttribute("data-dotvvm-upload-id", uploadId);
+        sender.parentElement!.parentElement!.setAttribute("data-dotvvm-upload-id", uploadId);
 
         iframe.setAttribute("data-dotvvm-upload-id", uploadId);
     }
@@ -57,7 +56,12 @@ class DotvvmFileUploadCollection {
 class DotvvmFileUploadData {
     public FileId = ko.observable<string>();
     public FileName = ko.observable<string>();
-    public FileTypeAllowed = ko.observable<boolean>();
-    public MaxSizeExceeded = ko.observable<boolean>();
-    public Allowed = ko.observable<boolean>();
+    public FileSize = ko.observable<DotvvmFileSize>();
+    public IsFileTypeAllowed = ko.observable<boolean>();
+    public IsMaxSizeExceeded = ko.observable<boolean>();
+    public IsAllowed = ko.observable<boolean>();
+}
+class DotvvmFileSize {
+    public Bytes = ko.observable<number>();
+    public FormattedText = ko.observable<string>();
 }
