@@ -23,14 +23,14 @@ namespace DotVVM.Framework.Compilation.Javascript
             JsNode lca(JsNode a, JsNode b) =>
                 a.Ancestors.First(b.Ancestors.Contains);
 
-            var allVariables = new Dictionary<JsTemporaryVariableParameter, (int, int)>();
+            var allVariables = new Dictionary<JsTemporaryVariableParameter, (int from, int to)>();
             var usedNames = new HashSet<string>();
             foreach (var n in node.DescendantNodesAndSelf())
             {
                 if (n is JsSymbolicParameter symExpr && symExpr.Symbol is JsTemporaryVariableParameter parameter)
                 {
                     if (allVariables.TryGetValue(parameter, out var currentInterval))
-                        allVariables[parameter] = (Math.Min(currentInterval.Item1, eulerPath.IndexOf((symExpr, true))), Math.Max(currentInterval.Item2, eulerPath.IndexOf((symExpr, false))));
+                        allVariables[parameter] = (Math.Min(currentInterval.from, eulerPath.IndexOf((symExpr, true))), Math.Max(currentInterval.to, eulerPath.IndexOf((symExpr, false))));
                     else allVariables.Add(parameter, (parameter.Initializer == null ? eulerPath.IndexOf((symExpr, true)) : 0, eulerPath.IndexOf((symExpr, false))));
                 }
                 if (n is JsIdentifierExpression identifierExpression)
@@ -45,17 +45,17 @@ namespace DotVVM.Framework.Compilation.Javascript
             // a + a + (b)
             //bool intersects(JsTemporaryVariableParameter a, JsTemporaryVariableParameter b) =>
             var groups = new SortedDictionary<int, List<JsTemporaryVariableParameter>>();
-            foreach (var k in allVariables.OrderBy(k => k.Value.Item1))
+            foreach (var k in allVariables.OrderBy(k => k.Value.from))
             {
-                if (groups.Count > 0 && groups.First() is var first && first.Key < k.Value.Item1)
+                if (groups.Count > 0 && groups.First() is var first && first.Key < k.Value.from && k.Key.Initializer == null)
                 {
                     groups.Remove(first.Key);
                     first.Value.Add(k.Key);
-                    groups.Add(k.Value.Item2, first.Value);
+                    groups.Add(k.Value.to, first.Value);
                 }
                 else
                 {
-                    groups.Add(k.Value.Item2, new List<JsTemporaryVariableParameter> { k.Key });
+                    groups.Add(k.Value.to, new List<JsTemporaryVariableParameter> { k.Key });
                 }
             }
 
@@ -65,7 +65,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 foreach (var symbolNode in node.DescendantNodesAndSelf().OfType<JsSymbolicParameter>().Where(s => s.Symbol is JsTemporaryVariableParameter p && group.vars.Contains(p)))
                     symbolNode.ReplaceWith(new JsIdentifierExpression(group.name));
             }
-            JsNode iife = new JsFunctionExpression(namedGroups.OrderBy(g => g.vars.Any(v => v.Initializer != null)).Select(g => new JsIdentifier(g.name)),
+            JsNode iife = new JsFunctionExpression(namedGroups.OrderBy(g => !g.vars.Any(v => v.Initializer != null)).Select(g => new JsIdentifier(g.name)),
                 node is JsBlockStatement block ? block :
                 node is JsStatement statement ? new JsBlockStatement(statement) :
                 node is JsExpression expression ? new JsBlockStatement(new JsReturnStatement(expression)) :
