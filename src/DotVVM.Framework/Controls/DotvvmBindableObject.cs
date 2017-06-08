@@ -213,16 +213,14 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets the closest control binding target.
         /// </summary>
-        public DotvvmBindableObject GetClosestControlBindingTarget()
-        {
-            return GetClosestControlBindingTarget(out int numberOfDataContextChanges);
-        }
+        public DotvvmBindableObject GetClosestControlBindingTarget() =>
+            GetClosestControlBindingTarget(out int numberOfDataContextChanges);
 
         /// <summary>
         /// Gets the closest control binding target and returns number of DataContext changes since the target.
         /// </summary>
         public DotvvmBindableObject GetClosestControlBindingTarget(out int numberOfDataContextChanges) =>
-            GetClosestWithPropertyValue(out numberOfDataContextChanges, control => (bool)control.GetValue(Internal.IsControlBindingTargetProperty));
+            Parent.GetClosestWithPropertyValue(out numberOfDataContextChanges, control => (bool)control.GetValue(Internal.IsControlBindingTargetProperty));
 
         /// <summary>
         /// Gets the closest control binding target and returns number of DataContext changes since the target.
