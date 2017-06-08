@@ -99,7 +99,7 @@ namespace DotVVM.Framework.Configuration
 
             var jsinitializer = new JsExpressionStatement(new JsAssignmentExpression(jsidentifier.Clone(), new JsObjectExpression(
                 properties.Select(p =>
-                    new JsObjectProperty(p.jsName, new JsNewExpression(new JsIdentifierExpression(p.desc.Type.Name),
+                    new JsObjectProperty(p.jsName, new JsNewExpression(new JsIdentifierExpression(p.desc.Type.FullName),
                         new JsLiteral(apiServerUrl),
                         customFetchFunction == null ? null : new JsObjectExpression(new JsObjectProperty("fetch", new JsIdentifierExpression(customFetchFunction)))
                     ))

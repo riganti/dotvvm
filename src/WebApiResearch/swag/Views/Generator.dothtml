@@ -11,6 +11,10 @@
 
     <h1>Generate Web API Classes</h1>
 
+    <p>
+        Namespace: <dot:TextBox Text="{value: Namespace}" />
+    </p>
+
     <fieldset style="width: 40%; display: inline-block">
         <legend>C# Client</legend>
 
