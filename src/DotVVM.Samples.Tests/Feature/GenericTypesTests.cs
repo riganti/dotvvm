@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class GenericTypesTests : SeleniumTestBase
+    public class GenericTypesTests : SeleniumTest
     {
         [TestMethod]
         public void GenericTypes_TypedInResourceBinding()

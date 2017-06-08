@@ -11,7 +11,7 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class TextBoxTests : SeleniumTestBase
+    public class TextBoxTests : SeleniumTest
     {
         [TestMethod]
         public void Control_TextBox()
@@ -26,11 +26,15 @@ namespace DotVVM.Samples.Tests.Control
                 browser.First("#TextArea2").CheckTagName("textarea");
             });
         }
-                
+
         [TestMethod]
-        public void Control_TextBox_StringFormat(string url = null)
+        public void Control_TextBox_StringFormat()
         {
-            url = url ?? SamplesRouteUrls.ControlSamples_TextBox_TextBox_Format;
+            Control_TextBox_StringFormat_core(SamplesRouteUrls.ControlSamples_TextBox_TextBox_Format);
+        }
+        public void Control_TextBox_StringFormat_core(string url)
+        {
+
             RunInAllBrowsers(browser =>
             {
                 void checkForLanguage(string language)
@@ -84,7 +88,7 @@ namespace DotVVM.Samples.Tests.Control
                 };
 
                 //en-US
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_TextBox_TextBox_Format);
+                browser.NavigateToUrl(url);
                 checkForLanguage("en-US");
 
                 //cs-CZ | reload
@@ -96,7 +100,7 @@ namespace DotVVM.Samples.Tests.Control
         [TestMethod]
         public void Control_TextBox_StringFormat_Bindings()
         {
-            Control_TextBox_StringFormat(SamplesRouteUrls.ControlSamples_TextBox_TextBox_Format_Binding);
+            Control_TextBox_StringFormat_core(SamplesRouteUrls.ControlSamples_TextBox_TextBox_Format_Binding);
         }
 
 

@@ -11,7 +11,7 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Feature
 {   
     [TestClass]
-    public class BindingContextsTests : SeleniumTestBase
+    public class BindingContextsTests : SeleniumTest
     {
         [TestMethod]
         public void Feature_BindingContextsTest()

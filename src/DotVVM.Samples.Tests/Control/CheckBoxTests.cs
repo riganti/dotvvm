@@ -11,7 +11,7 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class CheckBoxTests : SeleniumTestBase
+    public class CheckBoxTests : SeleniumTest
     {
         [TestMethod]
         public void Control_CheckBox()

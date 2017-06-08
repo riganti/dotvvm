@@ -27,7 +27,10 @@ namespace DotVVM.Framework.Binding.Expressions
     [Options]
     public class ValueBindingExpression : BindingExpression, IUpdatableValueBinding, IValueBinding
     {
-        public ValueBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties) { }
+        public ValueBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties)
+        {
+            AddNullResolvers();
+        }
 
         public CompiledBindingExpression.BindingDelegate BindingDelegate => this.GetProperty<CompiledBindingExpression.BindingDelegate>();
 

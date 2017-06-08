@@ -11,7 +11,7 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class CheckBoxInRepeaterTests:SeleniumTestBase
+    public class CheckBoxInRepeaterTests:SeleniumTest
     {
         [TestMethod]
         public void CheckBoxInRepeaterTest()

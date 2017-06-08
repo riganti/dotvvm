@@ -11,7 +11,7 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class ComboBoxTests : SeleniumTestBase
+    public class ComboBoxTests : SeleniumTest
     {
         [TestMethod]
         public void Control_ComboBox()
@@ -52,6 +52,24 @@ namespace DotVVM.Samples.Tests.Control
                 browser.First("input").Click().Wait();
                 browser.ElementAt("select", 0).ElementAt("option", 1).CheckIfIsSelected();
                 browser.ElementAt("select", 1).ElementAt("option", 1).CheckIfIsSelected();
+            });
+        }
+
+        [TestMethod]
+        public void Control_ComboBoxDelaySync2()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ComboBoxDelaySync2);
+                browser.First("input[type=button]").Click().Wait();
+
+                // check the comboboxes
+                browser.ElementAt("select", 0).ElementAt("option", 0).CheckIfIsSelected();
+                browser.ElementAt("select", 1).ElementAt("option", 1).CheckIfIsSelected();
+
+                // check the labels
+                browser.ElementAt(".result", 0).CheckIfInnerTextEquals("1");
+                browser.ElementAt(".result", 1).CheckIfInnerTextEquals("2");
             });
         }
     }

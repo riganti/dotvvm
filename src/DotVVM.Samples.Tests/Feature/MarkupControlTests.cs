@@ -11,7 +11,7 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class MarkupControlTests : SeleniumTestBase
+    public class MarkupControlTests : SeleniumTest
     {
         [TestMethod]
         public void Feature_MarkupControl_CommandBindingInRepeater()

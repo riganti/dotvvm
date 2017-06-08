@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace DotVVM.Samples.Tests.Complex
 {
     [TestClass]
-    public class CascadeSelectorsTests : SeleniumTestBase
+    public class CascadeSelectorsTests : SeleniumTest
     {
         [TestMethod]
         public void Complex_CascadeSelectorsServerRender()
@@ -39,7 +39,6 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.ElementAt(".active", 0).CheckIfInnerTextEquals("North America: 1");
                 browser.ElementAt(".active", 1).CheckIfInnerTextEquals("Canada: 12");
                 browser.ElementAt(".active", 2).CheckIfInnerTextEquals("Toronto: 121");
-
 
                 browser.ElementAt("input[type=button]", 5).Click().Wait();
                 browser.ElementAt(".active", 0).CheckIfInnerTextEquals("Europe: 2");

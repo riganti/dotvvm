@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace DotVVM.Samples.Tests.Complex
 {
     [TestClass]
-    public class PostbackUpdate : SeleniumTestBase
+    public class PostbackUpdate : SeleniumTest
     {
         [TestMethod]
         public void PostbackUpdate_DataContext_WrongUpdateOnPostback()

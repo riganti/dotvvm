@@ -11,7 +11,7 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class MasterPageTests : SeleniumTestBase
+    public class MasterPageTests : SeleniumTest
     {
         [TestMethod]
         public void Feature_TwoNestedMasterPages()

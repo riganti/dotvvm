@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class LocalizationTests : SeleniumTestBase
+    public class LocalizationTests : SeleniumTest
     {
         [TestMethod]
         public void Feature_Localization()

@@ -29,7 +29,10 @@ namespace DotVVM.Framework.Binding.Expressions
     [Options]
     public class CommandBindingExpression : BindingExpression, ICommandBinding
     {
-        public CommandBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties) { }
+        public CommandBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties)
+        {
+            AddNullResolvers();
+        }
 
         public ImmutableArray<IActionFilter> ActionFilters =>
             this.GetProperty<ActionFiltersBindingProperty>(ErrorHandlingMode.ReturnNull)?.Filters ?? ImmutableArray<IActionFilter>.Empty;

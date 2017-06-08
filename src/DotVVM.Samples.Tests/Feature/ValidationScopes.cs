@@ -10,7 +10,7 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class ValidationScopes: SeleniumTestBase
+    public class ValidationScopes: SeleniumTest
     {
         [TestMethod]
         public void Feature_ValidationScopesTest()

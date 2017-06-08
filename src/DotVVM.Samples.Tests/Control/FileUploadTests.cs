@@ -8,7 +8,7 @@ using Riganti.Utils.Testing.Selenium.DotVVM;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class FileUploadTests : SeleniumTestBase
+    public class FileUploadTests : SeleniumTest
     {
         [TestMethod]
         [Timeout(120000)]

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
@@ -24,11 +25,58 @@ namespace DotVVM.Framework.Routing
         private Dictionary<string, RouteBase> dictionary = new Dictionary<string, RouteBase>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
+        /// Dictionary for groups of RouteTables.
+        /// </summary>
+        private Dictionary<string, DotvvmRouteTable> routeTableGroups = new Dictionary<string, DotvvmRouteTable>();
+
+        /// <summary>
+        /// Contains information about the group of this RouteTable.
+        /// </summary>
+        private RouteTableGroup group = null;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmRouteTable"/> class.
         /// </summary>
         public DotvvmRouteTable(DotvvmConfiguration configuration)
         {
             this.configuration = configuration;
+        }
+
+        /// <summary>
+        /// Returns RouteTable of specific group name.
+        /// </summary>
+        /// <param name="groupName">Name of the group</param>
+        /// <returns></returns>
+        public DotvvmRouteTable GetGroup(string groupName)
+        {
+            if (groupName == null)
+                throw new ArgumentNullException("Name of the group cannot be null!");
+            var group = routeTableGroups[groupName];
+            return group;
+        }
+
+        /// <summary>
+        /// Adds a group of routes
+        /// </summary>
+        /// <param name="groupName">Name of the group</param>
+        /// <param name="urlPrefix">Url prefix of added routes</param>
+        /// <param name="virtualPathPrefix">Virtual path prefix of added routes</param>
+        /// <param name="content">Contains routes to be added</param>
+        public void AddGroup(string groupName, string urlPrefix, string virtualPathPrefix, Action<DotvvmRouteTable> content)
+        {
+            if (groupName == null || groupName == "")
+                throw new ArgumentNullException("Name of the group cannot be null or empty!");
+            if (routeTableGroups.ContainsKey(groupName))
+            {
+                throw new InvalidOperationException($"The group with name '{groupName}' has already been registered!");
+            }
+            urlPrefix = group?.UrlPrefix + ((urlPrefix == null || urlPrefix == "") ? "" : urlPrefix + "/");
+            virtualPathPrefix = group?.VirtualPathPrefix + ((virtualPathPrefix == null || virtualPathPrefix == "") ? "" : virtualPathPrefix + "/");
+            var newGroup = new DotvvmRouteTable(configuration);
+            newGroup.group = new RouteTableGroup(groupName, group?.RouteNamePrefix + groupName + "_", urlPrefix, virtualPathPrefix, Add);
+
+            content(newGroup);
+            routeTableGroups.Add(groupName, newGroup);
         }
 
         /// <summary>
@@ -54,7 +102,7 @@ namespace DotVVM.Framework.Routing
                 presenterFactory = GetDefaultPresenter;
             }
 
-            Add(routeName, new DotvvmRoute(url, virtualPath, defaultValues, presenterFactory, configuration));
+            Add(group?.RouteNamePrefix + routeName, new DotvvmRoute(group?.UrlPrefix + url, group?.VirtualPathPrefix + virtualPath, defaultValues, presenterFactory, configuration));
         }
 
         /// <summary>
@@ -68,6 +116,8 @@ namespace DotVVM.Framework.Routing
             }
             // internal assign routename 
             route.RouteName = routeName;
+
+            group?.AddToParentRouteTable?.Invoke(routeName, route);
 
             // The list is used for finding the routes because it keeps the ordering, the dictionary is for checking duplicates
             list.Add(new KeyValuePair<string, RouteBase>(routeName, route));

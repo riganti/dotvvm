@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class HtmlTagTests : SeleniumTestBase
+    public class HtmlTagTests : SeleniumTest
     {
         [TestMethod]
         public void Feature_NonPairHtmlTagMatching()
