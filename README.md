@@ -79,7 +79,7 @@ Need More? We have Commercial Controls!
 ---------------------------------------
 
 * [Bootstrap for DotVVM](https://www.dotvvm.com/landing/bootstrap-for-dotvvm) - more than 40 controls that make using Bootstrap easier and your code much cleaner
-* [DotVVM Business Pack](https://www.dotvvm.com/landing/business-pack) (COMING SOON) - Enterprise ready controls for Line of business web apps
+* [DotVVM Business Pack](https://www.dotvvm.com/landing/business-pack) (BETA RELEASED) - Enterprise ready controls for Line of business web apps
 
 <br />
 
