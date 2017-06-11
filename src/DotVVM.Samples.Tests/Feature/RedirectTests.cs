@@ -14,7 +14,7 @@ namespace DotVVM.Samples.Tests.Feature
     public class RedirectTests : SeleniumTest
     {
         [TestMethod]
-        public void Feature_Redirect()
+        public void Feature_Redirect_Redirect()
         {
             RunInAllBrowsers(browser =>
             {

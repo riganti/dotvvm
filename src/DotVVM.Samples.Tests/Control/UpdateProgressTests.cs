@@ -14,7 +14,7 @@ namespace DotVVM.Samples.Tests.Control
     {
 
         [TestMethod]
-        public void Control_UpdateProgress()
+        public void Control_UpdateProgress_UpdateProgress()
         {
             RunInAllBrowsers(browser =>
             {

@@ -14,7 +14,7 @@ namespace DotVVM.Samples.Tests.Control
     public class EnabledPropertyTests : SeleniumTest
     {
         [TestMethod]
-        public void Control_EnabledProperty()
+        public void Control_EnabledProperty_EnabledProperty()
         {
             RunInAllBrowsers(browser =>
             {

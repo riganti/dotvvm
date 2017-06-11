@@ -1,4 +1,4 @@
-namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.RepeaterWrapperTag
+namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.Repeater
 {
     public class RepeaterWrapperTagViewModel
     {

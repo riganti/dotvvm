@@ -14,7 +14,7 @@ namespace DotVVM.Samples.Tests.Control
     {
 
         [TestMethod]
-        public void Control_Literal()
+        public void Control_Literal_Literal()
         {
             RunInAllBrowsers(browser =>
             {
@@ -38,7 +38,7 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
         [TestMethod]
-        public void Control_Literal_FormatString()
+        public void Control_Literal_Literal_FormatString()
         {
             RunInAllBrowsers(browser =>
             {
@@ -60,7 +60,7 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [TestMethod]
-        public void Control_Literal_CollectionLength()
+        public void Control_Literal_Literal_CollectionLength()
         {
             RunInAllBrowsers(browser =>
             {
@@ -85,7 +85,7 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
         [TestMethod]
-        public void Control_Literal_ArrayLength()
+        public void Control_Literal_Literal_ArrayLength()
         {
             RunInAllBrowsers(browser =>
             {

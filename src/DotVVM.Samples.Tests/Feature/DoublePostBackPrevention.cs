@@ -14,7 +14,7 @@ namespace DotVVM.Samples.Tests.Feature
     public class DoublePostBackPreventionTests : SeleniumTest
     {
         [TestMethod]
-        public void Feature_DoublePostBackPrevention()
+        public void Feature_DoublePostBackPrevention_DoublePostBackPrevention()
         {
             RunInAllBrowsers(browser =>
             {

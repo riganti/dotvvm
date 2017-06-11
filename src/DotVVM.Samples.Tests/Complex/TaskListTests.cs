@@ -14,7 +14,7 @@ namespace DotVVM.Samples.Tests.Complex
     public class TaskListTests : SeleniumTest
     {
         [TestMethod]
-        public void Complex_TaskListAsyncCommands()
+        public void Complex_TaskList_TaskListAsyncCommands()
         {
             RunInAllBrowsers(browser =>
             {
@@ -41,7 +41,7 @@ namespace DotVVM.Samples.Tests.Complex
         }
 
         [TestMethod]
-        public void Complex_ServerRenderedTaskList()
+        public void Complex_TaskList_ServerRenderedTaskList()
         {
             RunInAllBrowsers(browser =>
             {

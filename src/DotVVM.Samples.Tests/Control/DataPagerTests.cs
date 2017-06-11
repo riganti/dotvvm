@@ -13,7 +13,8 @@ namespace DotVVM.Samples.Tests.Control
     public class DataPagerTests : SeleniumTest
     {
         [TestMethod]
-        public void Control_DataPager_ShowHideControl()
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_DataPager_DataPager))]
+        public void Control_DataPager_DataPager_ShowHideControl()
         {
             RunInAllBrowsers(browser =>
             {
@@ -43,7 +44,8 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [TestMethod]
-        public void Control_DataPager_ActiveCssClass()
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_DataPager_DataPager))]
+        public void Control_DataPager_DataPager_ActiveCssClass()
         {
             RunInAllBrowsers(browser =>
             {
@@ -60,7 +62,8 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [TestMethod]
-        public void Control_DataPager_DisabledAttribute()
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_DataPager_DataPager))]
+        public void Control_DataPager_DataPager_DisabledAttribute()
         {
             RunInAllBrowsers(browser =>
             {
@@ -100,7 +103,8 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [TestMethod]
-        public void Control_DataPager_DisabledControlClick()
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_DataPager_DataPager))]
+        public void Control_DataPager_DataPager_DisabledControlClick()
         {
             RunInAllBrowsers(browser =>
             {
@@ -144,7 +148,8 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [TestMethod]
-        public void Control_DataPager_DisabledByBindingControlClick()
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_DataPager_DataPager))]
+        public void Control_DataPager_DataPager_DisabledByBindingControlClick()
         {
             RunInAllBrowsers(browser =>
             {

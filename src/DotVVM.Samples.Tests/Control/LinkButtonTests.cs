@@ -14,7 +14,7 @@ namespace DotVVM.Samples.Tests.Control
     public class LinkButtonTests : SeleniumTest
     {
         [TestMethod]
-        public void Control_LinkButton()
+        public void Control_LinkButton_LinkButton()
         {
             RunInAllBrowsers(browser =>
             {

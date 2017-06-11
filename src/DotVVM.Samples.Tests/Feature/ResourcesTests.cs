@@ -14,7 +14,7 @@ namespace DotVVM.Samples.Tests.Feature
     {
 
         [TestMethod]
-        public void CdnUnavailableResourceLoad()
+        public void Feature_Resources_CdnUnavailableResourceLoad()
         {
             RunInAllBrowsers(browser =>
             {
@@ -29,7 +29,7 @@ namespace DotVVM.Samples.Tests.Feature
 
 
         [TestMethod]
-        public void CdnScriptPriority()
+        public void Feature_Resources_CdnScriptPriority()
         {
             RunInAllBrowsers(browser =>
             {

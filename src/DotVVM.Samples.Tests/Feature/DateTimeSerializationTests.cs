@@ -14,7 +14,7 @@ namespace DotVVM.Samples.Tests.Feature
     public class DateTimeSerializationTests : SeleniumTest
     {
         [TestMethod]
-        public void Feature_DateTimeSerialization()
+        public void Feature_DateTimeSerialization_DateTimeSerialization()
         {
             var culture = new CultureInfo("cs-CZ");
             CultureInfo.CurrentCulture = new CultureInfo("en");

@@ -10,11 +10,11 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class RecursiveValidationSummaryTests : SeleniumTest
+    public class ValidationSummaryTests : SeleniumTest
     {
 
         [TestMethod]
-        public void Control_RecursiveValidationSummary()
+        public void Control_ValidationSummary_RecursiveValidationSummary()
         {
             RunInAllBrowsers(browser =>
             {

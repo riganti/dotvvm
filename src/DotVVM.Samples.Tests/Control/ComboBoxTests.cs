@@ -14,7 +14,7 @@ namespace DotVVM.Samples.Tests.Control
     public class ComboBoxTests : SeleniumTest
     {
         [TestMethod]
-        public void Control_ComboBox()
+        public void Control_ComboBox_ComboBox()
         {
             RunInAllBrowsers(browser =>
             {
@@ -38,7 +38,7 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [TestMethod]
-        public void Control_ComboBoxDelaySync()
+        public void Control_ComboBox_ComboBoxDelaySync()
         {
             RunInAllBrowsers(browser =>
             {
@@ -56,7 +56,7 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [TestMethod]
-        public void Control_ComboBoxDelaySync2()
+        public void Control_ComboBox_ComboBoxDelaySync2()
         {
             RunInAllBrowsers(browser =>
             {

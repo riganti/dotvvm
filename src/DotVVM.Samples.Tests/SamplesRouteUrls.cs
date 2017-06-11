@@ -10,7 +10,7 @@ namespace Dotvvm.Samples.Tests{
 			public static string ComplexSamples_CascadeSelectors_CascadeSelectorsServerRender => "ComplexSamples/CascadeSelectors/CascadeSelectorsServerRender";
 			public static string ComplexSamples_CascadeSelectors_TripleComboBoxes => "ComplexSamples/CascadeSelectors/TripleComboBoxes";
 			public static string ComplexSamples_ChangedEvent_ChangedEvent => "ComplexSamples/ChangedEvent/ChangedEvent";
-			public static string ComplexSamples_DataTemplate_EmptyDataTemplateRepeaterGridView => "ComplexSamples/DataTemplate/EmptyDataTemplateRepeaterGridView";
+			public static string ComplexSamples_EmptyDataTemplate_RepeaterGridView => "ComplexSamples/EmptyDataTemplate/RepeaterGridView";
 			public static string ComplexSamples_FileUploadInRepeater_FileUploadInRepeater => "ComplexSamples/FileUploadInRepeater/FileUploadInRepeater";
 			public static string ComplexSamples_GridViewDataSet_GridViewDataSet => "ComplexSamples/GridViewDataSet/GridViewDataSet";
 			public static string ComplexSamples_GridViewDataSet_GridViewDataSetDelegate => "ComplexSamples/GridViewDataSet/GridViewDataSetDelegate";
@@ -68,9 +68,9 @@ namespace Dotvvm.Samples.Tests{
 			public static string ControlSamples_Literal_Literal_FormatString => "ControlSamples/Literal/Literal_FormatString";
 			public static string ControlSamples_RadioButton_RadioButton => "ControlSamples/RadioButton/RadioButton";
 			public static string ControlSamples_Repeater_NestedRepeater => "ControlSamples/Repeater/NestedRepeater";
+			public static string ControlSamples_Repeater_RepeaterWrapperTag => "ControlSamples/Repeater/RepeaterWrapperTag";
 			public static string ControlSamples_Repeater_RouteLink => "ControlSamples/Repeater/RouteLink";
 			public static string ControlSamples_Repeater_RouteLinkUrlSuffix => "ControlSamples/Repeater/RouteLinkUrlSuffix";
-			public static string ControlSamples_RepeaterWrapperTag_RepeaterWrapperTag => "ControlSamples/RepeaterWrapperTag/RepeaterWrapperTag";
 			public static string ControlSamples_RoleView_RoleViewTest => "ControlSamples/RoleView/RoleViewTest";
 			public static string ControlSamples_RouteLink_RouteLinkEnabled => "ControlSamples/RouteLink/RouteLinkEnabled";
 			public static string ControlSamples_RouteLink_RouteLinkEnabledFalse => "ControlSamples/RouteLink/RouteLinkEnabledFalse";

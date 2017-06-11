@@ -10,9 +10,11 @@ using System.Threading.Tasks;
 namespace DotVVM.Samples.Tests.Complex
 {
     [TestClass]
-    public class SPAViewModelReaplicationTests : SeleniumTest
+    public class SPAViewModelReapplicationTests : SeleniumTest
     {
         [TestMethod]
+        [SampleReference(nameof(SamplesRouteUrls.ComplexSamples_SPAViewModelReapplication_pageA))]
+        [SampleReference(nameof(SamplesRouteUrls.ComplexSamples_SPAViewModelReapplication_pageB))]
         public void Complex_SPAViewModelReapplication()
         {
             RunInAllBrowsers(browser =>

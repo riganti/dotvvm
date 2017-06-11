@@ -13,10 +13,10 @@ namespace DotVVM.Samples.Tests.Complex
     public class DataTemplateTests : SeleniumTest
     {
         [TestMethod]
-        public void Complex_EmptyDataTemplateRepeaterGridView()
+        public void Complex_EmptyDataTemplate_RepeaterGridView()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_DataTemplate_EmptyDataTemplateRepeaterGridView);
+                browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_EmptyDataTemplate_RepeaterGridView);
                 browser.Wait();
                 void isDisplayed(string id) => browser.CheckIfIsDisplayed("#" + id);
                 void isHidden(string id) => browser.CheckIfIsNotDisplayed("#" + id);

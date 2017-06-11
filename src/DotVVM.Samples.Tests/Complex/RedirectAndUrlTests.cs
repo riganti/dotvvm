@@ -11,10 +11,11 @@ using System.Threading.Tasks;
 namespace DotVVM.Samples.Tests.Complex
 {
     [TestClass]
-    public class RedirectUrlFragment : SeleniumTest
+    public class RedirectAndUrlTests : SeleniumTest
     {
         [TestMethod]
-        public void RedirectUrlFragment_PostbackInteruption()
+        [SampleReference(nameof(SamplesRouteUrls.ComplexSamples_RedirectAndUrl_ScrollingPage))]
+        public void Complex_RedirectAndUrl_PostbackInteruption()
         {
             //When redirecting to fragment e.g. /uri#element-id postback gets interupted and the page does not reload 
             //Expected: Page reloads and scrolls to element-id
@@ -47,7 +48,7 @@ namespace DotVVM.Samples.Tests.Complex
         }
 
         [TestMethod]
-        public void RedirectUrlFragment_ResultIdFragment_Navigation()
+        public void Complex_RedirectAndUrl_ScrollingPage()
         {
             //There I am testing that scrolling to element using Context.ResultIdFragment works correctly
             //It should scroll to element without interupting the postback

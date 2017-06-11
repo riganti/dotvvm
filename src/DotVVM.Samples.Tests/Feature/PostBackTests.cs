@@ -16,7 +16,7 @@ namespace DotVVM.Samples.Tests.Feature
     public class PostBackTests : SeleniumTest
     {
         [TestMethod]
-        public void Feature_PostBackUpdate()
+        public void Feature_PostBack_PostbackUpdate()
         {
             RunInAllBrowsers(browser =>
             {
@@ -41,7 +41,7 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [TestMethod]
-        public void Feature_PostBackUpdateRepeater()
+        public void Feature_PostBack_PostbackUpdateRepeater()
         {
             RunInAllBrowsers(browser =>
             {
@@ -67,7 +67,7 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [TestMethod]
-        public void Feature_PostBackHandlers()
+        public void Feature_PostBack_PostBackHandlers()
         {
             RunInAllBrowsers(browser =>
             {

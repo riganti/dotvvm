@@ -14,7 +14,7 @@ namespace DotVVM.Samples.Tests.Feature
     public class ViewModelProtectionTests : SeleniumTest
     {
         [TestMethod]
-        public void Feature_ViewModelProtection()
+        public void Feature_ViewModelProtection_ViewModelProtection()
         {
             RunInAllBrowsers(browser =>
             {

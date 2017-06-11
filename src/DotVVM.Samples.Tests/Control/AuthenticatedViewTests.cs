@@ -14,7 +14,7 @@ namespace DotVVM.Samples.Tests.Control
     {
 
         [TestMethod]
-        public void AuthenticatedViewTest()
+        public void Control_AuthenticatedView_AuthenticatedViewTest()
         {
             RunInAllBrowsers(browser =>
             {

@@ -13,7 +13,7 @@ namespace DotVVM.Samples.Tests.Feature
     public class HtmlTagTests : SeleniumTest
     {
         [TestMethod]
-        public void Feature_NonPairHtmlTagMatching()
+        public void Feature_HtmlTag_NonPairHtmlTag()
         {
             RunInAllBrowsers(browser =>
             {

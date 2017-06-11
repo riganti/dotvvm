@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using DotVVM.Framework.ViewModel;
 
-namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.DataTemplate
+namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.EmptyDataTemplate
 {
-    public class EmptyDataTemplateRepeaterGridViewViewModel : DotvvmViewModelBase
+    public class RepeaterGridViewViewModel : DotvvmViewModelBase
     {
         public List<Customer> Null => null;
 

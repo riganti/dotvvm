@@ -224,8 +224,37 @@ namespace DotVVM.Samples.Tests
             });
         }
 
+
         [TestMethod]
-        public void LabelClickableTest()
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_Button_InputTypeButton_HtmlContentInside))]
+        public void Error_InputTypeButton_HtmlContentInside()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Button_InputTypeButton_HtmlContentInside);
+                browser.First("p.summary").CheckIfInnerText(s => s.Contains("control cannot have inner HTML"));
+            });
+        }
+
+        [TestMethod]
+        public void Error_MarkupControlInvalidViewModel()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_MarkupControlInvalidViewModel);
+                browser.First("p.summary")
+                    .CheckIfInnerText(
+                        s =>
+                            s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException") &&
+                            s.Contains("requires a DataContext of type")
+                        );
+            });
+        }
+
+
+        [TestMethod]
+        [SampleReference(nameof(SamplesRouteUrls.Errors_FieldInValueBinding))]
+        public void Error_ExceptionWindow_LabelClickableTest()
         {
             RunInAllBrowsers(browser =>
             {
@@ -250,57 +279,8 @@ namespace DotVVM.Samples.Tests
         }
 
         [TestMethod]
-        public void Error_InputTypeButton_HtmlContentInside()
-        {
-            RunInAllBrowsers(browser =>
-            {
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Button_InputTypeButton_HtmlContentInside);
-                browser.First("p.summary").CheckIfInnerText(s => s.Contains("control cannot have inner HTML"));
-            });
-        }
-
-        [TestMethod]
-        public void Error_MarkupControl_InvalidViewModel()
-        {
-            RunInAllBrowsers(browser =>
-            {
-                browser.NavigateToUrl(SamplesRouteUrls.Errors_MarkupControlInvalidViewModel);
-                browser.First("p.summary")
-                    .CheckIfInnerText(
-                        s =>
-                            s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException") &&
-                            s.Contains("requires a DataContext of type")
-                        );
-            });
-        }
-
-        [TestMethod, Ignore]
-        public void Exception_GitHubRedirect()
-        {
-            RunInAllBrowsers(browser =>
-            {
-                browser.NavigateToUrl(SamplesRouteUrls.Errors_FieldInValueBinding);
-                //open exception tab
-                browser.First("label[for=menu_radio_exception]").Click();
-
-                //find and click on github link
-                var link = browser.FindElements("div.exceptionStackTrace  span.docLinks  a")
-                       .First(s => s.Children.Any(c => c.GetTagName() == "img" && ((c.GetAttribute("src")?.IndexOf("github", StringComparison.OrdinalIgnoreCase) ?? -1) > -1)))
-                       .GetAttribute("href");
-                var wr = (System.Net.HttpWebRequest)System.Net.WebRequest.CreateHttp(link);
-
-                using (var response = wr.GetResponse())
-                {
-                    if ((response as System.Net.HttpWebResponse).StatusCode == System.Net.HttpStatusCode.NotFound)
-                    {
-                        throw new Exception($"GitHub link does not exist. Link: {link}");
-                    }
-                }
-            });
-        }
-
-        [TestMethod]
-        public void Exception_dotNetRedirect()
+        [SampleReference(nameof(SamplesRouteUrls.Errors_FieldInValueBinding))]
+        public void Error_ExceptionWindow_DotNetReferenceSourceRedirect()
         {
             RunInAllBrowsers(browser =>
             {
@@ -326,5 +306,32 @@ namespace DotVVM.Samples.Tests
 
             });
         }
+
+        [TestMethod, Ignore]
+        [SampleReference(nameof(SamplesRouteUrls.Errors_FieldInValueBinding))]
+        public void Error_ExceptionWindow_GitHubRedirect()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_FieldInValueBinding);
+                //open exception tab
+                browser.First("label[for=menu_radio_exception]").Click();
+
+                //find and click on github link
+                var link = browser.FindElements("div.exceptionStackTrace  span.docLinks  a")
+                    .First(s => s.Children.Any(c => c.GetTagName() == "img" && ((c.GetAttribute("src")?.IndexOf("github", StringComparison.OrdinalIgnoreCase) ?? -1) > -1)))
+                    .GetAttribute("href");
+                var wr = (System.Net.HttpWebRequest)System.Net.WebRequest.CreateHttp(link);
+
+                using (var response = wr.GetResponse())
+                {
+                    if ((response as System.Net.HttpWebResponse).StatusCode == System.Net.HttpStatusCode.NotFound)
+                    {
+                        throw new Exception($"GitHub link does not exist. Link: {link}");
+                    }
+                }
+            });
+        }
+
     }
 }

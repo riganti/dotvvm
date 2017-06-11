@@ -1,4 +1,4 @@
-﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.RepeaterWrapperTag.RepeaterWrapperTagViewModel, DotVVM.Samples.Common
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.Repeater.RepeaterWrapperTagViewModel, DotVVM.Samples.Common
 
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">

@@ -14,7 +14,7 @@ namespace DotVVM.Samples.Tests.Complex
     public class InvoiceCalculatorTests : SeleniumTest
     {
         [TestMethod]
-        public void Complex_InvoiceCalculator()
+        public void Complex_InvoiceCalculator_InvoiceCalculator()
         {
             RunInAllBrowsers(browser =>
             {

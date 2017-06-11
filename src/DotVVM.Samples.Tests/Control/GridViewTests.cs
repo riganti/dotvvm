@@ -15,19 +15,19 @@ namespace DotVVM.Samples.Tests.Control
 
 
         [TestMethod]
-        public void Control_GridViewPagingSorting()
+        public void Control_GridView_GridViewPagingSorting()
         {
             Control_GridViewPagingSortingBase( SamplesRouteUrls.ControlSamples_GridView_GridViewPagingSorting);
 
         }
         [TestMethod]
-        public void Control_GridViewServerRender()
+        public void Control_GridView_GridViewServerRender()
         {
             Control_GridViewPagingSortingBase(SamplesRouteUrls.ControlSamples_GridView_GridViewServerRender);
         }
 
         [TestMethod]
-        public void Control_GridViewStaticCommand()
+        public void Control_GridView_GridViewStaticCommand()
         {
             RunInAllBrowsers(browser =>
             {
@@ -48,7 +48,7 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [TestMethod]
-        public void Control_GridViewInlineEditingValidation()
+        public void Control_GridView_GridViewInlineEditingValidation()
         {
             RunInAllBrowsers(browser =>
             {
@@ -102,7 +102,7 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [TestMethod]
-        public void Control_GridViewInlineEditingFormat()
+        public void Control_GridView_GridViewInlineEditingValidation_GridViewInlineEditingFormat()
         {
             RunInAllBrowsers(browser =>
             {
@@ -132,7 +132,7 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [TestMethod]
-        public void Control_GridViewInlineEditingPrimaryKeyGuid()
+        public void Control_GridView_GridViewInlineEditingPrimaryKeyGuid()
         {
             RunInAllBrowsers(browser =>
             {
@@ -179,7 +179,7 @@ namespace DotVVM.Samples.Tests.Control
 
 
         [TestMethod]
-        public void Control_GridViewInlineEditingPrimaryKeyString()
+        public void Control_GridView_GridViewInlineEditingPrimaryKeyString()
         {
             RunInAllBrowsers(browser =>
             {
@@ -226,27 +226,30 @@ namespace DotVVM.Samples.Tests.Control
         }
         
         [TestMethod]
-        public void Control_GridViewInlineEditingServer()
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing))]
+        public void Control_GridView_GridViewInlineEditing_Server()
         {
             Control_GridViewInlineEditing(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing, 0);
         }
 
         [TestMethod]
-        public void Control_GridViewInlineEditingClient()
+        public void Control_GridView_GridViewInlineEditing()
         {
             Control_GridViewInlineEditing(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing, 1);
         }
 
         [TestMethod]
-        public void Control_GridViewInlineEditingPagingWhenEditModeServer()
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing))]
+        public void Control_GridView_GridViewInlineEditing_PagingWhenEditModeServer()
         {
-            Control_GridViewInlineEditingPagingWhenEditing(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing, 0);
+            Control_GridView_GridViewInlineEditing_PagingWhenEditing(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing, 0);
         }
 
         [TestMethod]
-        public void Control_GridViewInlineEditingPagingWhenEditModeClient()
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing))]
+        public void Control_GridView_GridViewInlineEditing_PagingWhenEditModeClient()
         {
-            Control_GridViewInlineEditingPagingWhenEditing(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing, 1);
+            Control_GridView_GridViewInlineEditing_PagingWhenEditing(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing, 1);
         }
 
         public void Control_GridViewInlineEditing(string path, int tableID)
@@ -289,7 +292,7 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
-        public void Control_GridViewInlineEditingPagingWhenEditing(string path, int tableID)
+        public void Control_GridView_GridViewInlineEditing_PagingWhenEditing(string path, int tableID)
         {
             RunInAllBrowsers(browser =>
             {
@@ -418,7 +421,7 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [TestMethod]
-        public void Control_GridViewRowDecorators()
+        public void Control_GridView_GridViewRowDecorators()
         {
             RunInAllBrowsers(browser =>
             {
@@ -458,7 +461,8 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [TestMethod]
-        public void Control_GridViewRowDecorators_ClickPropagation()
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_GridView_GridViewRowDecorators))]
+        public void Control_GridView_GridViewRowDecorators_ClickPropagation()
         {
             RunInAllBrowsers(browser =>
             {
@@ -479,7 +483,7 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [TestMethod]
-        public void Control_GridViewColumnVisible()
+        public void Control_GridView_ColumnVisible()
         {
             RunInAllBrowsers(browser =>
             {

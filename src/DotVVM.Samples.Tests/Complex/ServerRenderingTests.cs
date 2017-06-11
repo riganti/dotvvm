@@ -11,10 +11,10 @@ using System.Threading.Tasks;
 namespace DotVVM.Samples.Tests.Complex
 {
     [TestClass]
-    public class PostbackUpdate : SeleniumTest
+    public class ServerRenderingTests : SeleniumTest
     {
         [TestMethod]
-        public void PostbackUpdate_DataContext_WrongUpdateOnPostback()
+        public void Complex_ServerRendering_ControlUsageSample()
         {
             //As I am writing this, test should fail because on postback there will be two <!-- ko with: EditedArticle --/> elements inside each other instead of one.
             //Caused by DataContext, Visible, RenderSettings.Mode, PostBack.Update being all on the same div
@@ -28,7 +28,7 @@ namespace DotVVM.Samples.Tests.Complex
         }
 
         [TestMethod]
-        public void PostbackUpdate_DataContext_RewritingAndHiding()
+        public void Complex_ServerRendering_ControlUsageSampleRewriting()
         {
             //As I am writing this, test should work because RenderSettings.Mode, PostBack.Update are on div that is inside div with DataContext.
             RunInAllBrowsers(browser =>
@@ -44,7 +44,7 @@ namespace DotVVM.Samples.Tests.Complex
         }
 
         [TestMethod]
-        public void PostbackUpdate_ServerRendering_AddingIntoRepeater()
+        public void Complex_ServerRendering_AddingIntoEmptyRepeater()
         {
             RunInAllBrowsers(browser =>
             {
@@ -71,7 +71,7 @@ namespace DotVVM.Samples.Tests.Complex
             });
         }
 
-        public static void  CheckArticleCount(BrowserWrapper browser, string repeaterUiId, int expectedCount)
+        public static void CheckArticleCount(BrowserWrapper browser, string repeaterUiId, int expectedCount)
         {
             var articles = browser.First($"div[data-ui='{repeaterUiId}']").FindElements("article[data-ui='test-article']");
             if (articles.Count != expectedCount)

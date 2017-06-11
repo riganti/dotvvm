@@ -13,7 +13,7 @@ namespace DotVVM.Samples.Tests.Complex
     public class NamespaceCollisionTests : SeleniumTest
     {
         [TestMethod]
-        public void NamespaceCollision()
+        public void Complex_NamespaceCollision_NamespaceCollision()
         {
             RunInAllBrowsers(browser =>
             {

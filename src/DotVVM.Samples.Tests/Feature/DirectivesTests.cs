@@ -8,7 +8,7 @@ namespace DotVVM.Samples.Tests.Feature
     public class DirectivesTests : SeleniumTest
     {
         [TestMethod]
-        public void Feature_Directives_MissingAssembly()
+        public void Feature_Directives_ViewModelMissingAssembly()
         {
             RunInAllBrowsers(browser =>
             {

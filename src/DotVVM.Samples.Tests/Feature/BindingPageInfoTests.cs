@@ -14,7 +14,7 @@ namespace DotVVM.Samples.Tests.Feature
     public class BindingPageInfoTests : SeleniumTest
     {
         [TestMethod]
-        public void Feature_BindingPageInfoTests()
+        public void Feature_BindingPageInfo_BindingPageInfo()
         {
             RunInAllBrowsers(browser =>
             {

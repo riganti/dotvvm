@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Dotvvm.Samples.Tests;
+﻿using Dotvvm.Samples.Tests;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Riganti.Utils.Testing.Selenium.Core;
 
-namespace DotVVM.Samples.Tests.Control
+namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
     public class ServerCommentsTests : SeleniumTest
     {
         [TestMethod]
-        public void ServerComments()
+        public void Feature_ServerComments_ServerComments()
         {
             RunInAllBrowsers(browser =>
             {
@@ -24,7 +19,6 @@ namespace DotVVM.Samples.Tests.Control
                 browser.Single("#afterOther").CheckIfInnerText(s => s.Contains("After Other"));
                 browser.FindElements("#firstHidden").ThrowIfDifferentCountThan(0);
                 browser.FindElements("#otherHidden").ThrowIfDifferentCountThan(0);
-                
             });
         }
     }

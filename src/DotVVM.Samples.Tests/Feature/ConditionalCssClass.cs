@@ -13,7 +13,7 @@ namespace DotVVM.Samples.Tests.Feature
     public class ConditionalCssClass : SeleniumTest
     {
         [TestMethod]
-        public void ConditionalCssClasses()
+        public void Feature_ConditionalCssClasses_ConditionalCssClasses()
         {
             RunInAllBrowsers(browser =>
             {

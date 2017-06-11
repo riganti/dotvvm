@@ -14,7 +14,8 @@ namespace DotVVM.Samples.Tests.Feature
     public class MasterPageTests : SeleniumTest
     {
         [TestMethod]
-        public void Feature_TwoNestedMasterPages()
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_NestedMasterPages_Content))]
+        public void Feature_NestedMasterPages_Content_TwoNestedMasterPages()
         {
             RunInAllBrowsers(browser =>
             {
