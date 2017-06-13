@@ -1,0 +1,32 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.CheckBox.CheckedItemsNullViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <fieldset>
+        <dot:CheckBox CheckedItems="{value: Colors}"
+                      CheckedValue="orange"
+                      Text="Orange"
+                      Changed="{command: UpdateSelectedColors()}" />
+        <dot:CheckBox CheckedItems="{value: Colors}"
+                      CheckedValue="red"
+                      Text="Red"
+                      Changed="{command: UpdateSelectedColors()}" />
+        <dot:CheckBox CheckedItems="{value: Colors}"
+                      CheckedValue="black"
+                      Text="Black"
+                      Changed="{command: UpdateSelectedColors()}" />
+
+        <dot:Button Text="Set checked state on server"
+                    Click="{command: SetCheckedItems()}" />
+        <span data-ui="selectedColors">{{value: SelectedColors}}</span>
+    </fieldset>
+</body>
+</html>
+
+

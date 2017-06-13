@@ -35,8 +35,8 @@ namespace Dotvvm.Samples.Tests{
 			public static string ControlSamples_Button_InputTypeButton_HtmlContentInside => "ControlSamples/Button/InputTypeButton_HtmlContentInside";
 			public static string ControlSamples_Button_InputTypeButton_TextContentInside => "ControlSamples/Button/InputTypeButton_TextContentInside";
 			public static string ControlSamples_CheckBox_CheckBox => "ControlSamples/CheckBox/CheckBox";
-			public static string ControlSamples_CheckBox_CheckboxInRepeater => "ControlSamples/CheckBox/CheckboxInRepeater";
-			public static string ControlSamples_CheckBox_CheckBox_CheckedItems_NullCollection => "ControlSamples/CheckBox/CheckBox_CheckedItems_NullCollection";
+			public static string ControlSamples_CheckBox_CheckedItemsNull => "ControlSamples/CheckBox/CheckedItemsNull";
+			public static string ControlSamples_CheckBox_InRepeater => "ControlSamples/CheckBox/InRepeater";
 			public static string ControlSamples_ClaimView_ClaimViewTest => "ControlSamples/ClaimView/ClaimViewTest";
 			public static string ControlSamples_ComboBox_ComboBox => "ControlSamples/ComboBox/ComboBox";
 			public static string ControlSamples_ComboBox_ComboBoxDelaySync => "ControlSamples/ComboBox/ComboBoxDelaySync";
