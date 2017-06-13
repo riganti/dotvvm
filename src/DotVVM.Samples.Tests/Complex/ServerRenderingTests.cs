@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OpenQA.Selenium;
 
 namespace DotVVM.Samples.Tests.Complex
 {
@@ -68,6 +69,32 @@ namespace DotVVM.Samples.Tests.Complex
                 var eArticlesPostAdd = browser.Single("div[data-ui='empty-repeater']").FindElements("article[data-ui='test-article']");
                 CheckArticleCount(browser, "empty-repeater", 1);
                 eArticlesPostAdd.SingleOrDefault().Single("span[data-ui='detail-text']").CheckIfInnerTextEquals("EmptyArticles 1");
+            });
+        }
+
+        [TestMethod]
+        public void Complex_ServerRendering_MarkupControlInRepeaterEditing()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_ServerRendering_MarkupControlInRepeaterEditing);
+
+                // Does the repeater display the correct number of articles?
+                var repeater = browser.Single("div[data-ui='repeater']");
+                CheckArticleCount(browser, "repeater", 4);
+
+                // Get message from an article
+                var articleDetail = repeater.ElementAt("div", 0);
+                var message = articleDetail.Single("span[data-ui='detail-text']").GetText();
+
+                // Click 'Edit'
+                articleDetail.Single("a").Click();
+                browser.Wait(500);
+
+                // Check if the textbox contains the same message
+                repeater = browser.Single("div[data-ui='repeater']");
+                var articleEditor = repeater.ElementAt("div", 1);
+                articleEditor.Single("input[data-ui='textbox']").CheckIfTextEquals(message);
             });
         }
 
