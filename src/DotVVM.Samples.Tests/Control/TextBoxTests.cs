@@ -121,6 +121,27 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
+        [TestMethod]
+        public void Control_TextBox_SimpleDateBox()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_TextBox_SimpleDateBox);
+
+                var now = DateTime.Now;
+
+                var typeText = browser.Single("[data-ui='type-text']").GetText();
+                var typeTextDateTime = DateTime.Parse(typeText, DateTimeFormatInfo.InvariantInfo);
+                Assert.AreEqual(now.ToShortDateString(), typeTextDateTime.ToShortDateString());
+
+                var customFormat = browser.Single("[data-ui='custom-format']").GetText();
+                Assert.AreEqual(customFormat, now.ToString("dd-MM-yy"));
+
+                browser.Single("[data-ui='fill-name-button']").Click();
+                browser.Single("[data-ui='name-of-day']")
+                .CheckIfTextEquals(now.DayOfWeek.ToString());
+            });
+        }
 
     }
 }

@@ -1,4 +1,4 @@
-@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.TextBox.SimpleDateBoxViewModel, DotVVM.Samples.Common
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.TextBox.SimpleDateBoxViewModel, DotVVM.Samples.Common
 
 <!DOCTYPE html>
 
@@ -11,17 +11,24 @@
     <%-- TODO UI test --%>
     <p>
         html input type=date
-	    <dot:TextBox Type="date" Text="{value: Date}" />
+        <dot:TextBox Type="date" 
+                     Text="{value: Date}"
+                     data-ui="type-date"/>
     </p>
     <p>
         html input type=text
-	    <dot:TextBox Text="{value: Date}" />
+        <dot:TextBox Text="{value: Date}"
+                     data-ui="type-text"/>
     </p>
     <p>
         with format string dd-mm-yy
-	    <dot:TextBox FormatString="dd-MM-yy" Text="{value: Date}" />
+        <dot:TextBox FormatString="dd-MM-yy" 
+                     Text="{value: Date}"
+                     data-ui="custom-format"/>
     </p>
-    <dot:Button Text="Postback" Click="{command: FillName()}" />
-    {{value: NameOfDay}}
+    <dot:Button Text="Postback" 
+                Click="{command: FillName()}"
+                data-ui="fill-name-button"/>
+    <span data-ui="name-of-day">{{value: NameOfDay}}</span>
 </body>
 </html>
