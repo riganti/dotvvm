@@ -524,5 +524,30 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
+        [TestMethod]
+        public void Control_GridView_LargeGrid()
+        {
+            const int RowCount = 1000;
+            const int ColumnCount = 28;
+            const string FirstCell = "FirstName0";
+            const string LastCell = "DataZ999";
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_LargeGrid);
+
+                // Check Row and Column count
+                var tbody = browser.Single("tbody");
+                tbody.FindElements("tr").ThrowIfDifferentCountThan(RowCount);
+                tbody.First("tr").FindElements("td").ThrowIfDifferentCountThan(ColumnCount);
+
+                // Check first cell
+                tbody.First("tr").First("td").Single("span").CheckIfTextEquals(FirstCell);
+
+                // Check last cell
+                tbody.Last("tr").Last("td").Single("span").CheckIfTextEquals(LastCell);
+
+            });
+        }
+
     }
 }

@@ -23,8 +23,8 @@
 
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
-	<script src="/Scripts/colResizable-1.5.min.js"></script>
-	<script src="/Scripts/GridViewSizable.js"></script>
+    <script src="/Scripts/colResizable-1.5.min.js"></script>
+    <script src="/Scripts/GridViewSizable.js"></script>
 </head>
 <body>
     <div class="container">
@@ -37,9 +37,9 @@
             </Columns>
         </dot:GridView>
 
-		<div>
-			<label id="sizableGridTxt">Drag the columns to start</label>				
-		</div>
+        <div>
+            <label id="sizableGridTxt">Drag the columns to start</label>				
+        </div>
     </div>
 </body>
 
