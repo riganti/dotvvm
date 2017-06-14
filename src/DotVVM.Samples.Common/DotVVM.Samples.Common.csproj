@@ -35,8 +35,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Scripts\ClientExtenders.js" />
-    <Content Include="Scripts\colResizable-1.5.min.js" />
-    <Content Include="Scripts\GridViewSizable.js" />
     <Content Include="Scripts\testResource.js" />
     <Content Include="Scripts\testResource2.js" />
     <Content Include="Views\ComplexSamples\CascadeSelectors\TripleComboBoxes.dothtml" />
