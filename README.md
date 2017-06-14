@@ -1,7 +1,7 @@
 DotVVM = HTML + C#
 ==================
 
-## .NET-based Framework for Modern Web Apps
+## .NET-based MVVM Framework for Web Apps
 
 
 [![license](https://img.shields.io/github/license/riganti/dotvvm.svg?maxAge=2592000?style=plastic)]()
