@@ -55,6 +55,11 @@ namespace DotVVM.Samples.BasicSamples
                 LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new FileResourceLocation("~/Scripts/testResource2.js"))
             });
 
+            config.Resources.Register("extenders", new ScriptResource
+            {
+                Location = new FileResourceLocation("Scripts/ClientExtenders.js")
+            });
+
             // dev files
             config.Resources.SetEmbeddedResourceDebugFile("dotvvm.internal", "../DotVVM.Framework/Resources/Scripts/DotVVM.js");
             config.Resources.SetEmbeddedResourceDebugFile("dotvvm.debug", "../DotVVM.Framework/Resources/Scripts/DotVVM.Debug.js");
