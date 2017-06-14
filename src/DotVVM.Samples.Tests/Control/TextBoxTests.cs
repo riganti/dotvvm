@@ -143,5 +143,20 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
+        [TestMethod]
+        public void Control_TextBox_FormatDoubleProperty()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_TextBox_TextBox_FormatDoubleProperty);
+
+                browser.Single("[data-ui='textBox']").CheckIfTextEquals("0.00");
+                browser.Single("[data-ui='button']").Click();
+                browser.Wait(500);
+
+                browser.Single("[data-ui='textBox']").CheckIfTextEquals("10.50");
+            });
+        }
+
     }
 }

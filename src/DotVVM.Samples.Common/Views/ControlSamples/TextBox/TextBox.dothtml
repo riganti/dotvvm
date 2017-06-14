@@ -14,13 +14,19 @@
 <body>
     <div class="container">
         <h1>TextBox sample</h1>
-        <dot:TextBox ID="TextBox1" Text="text in property" />
+        <dot:TextBox ID="TextBox1" 
+                     Text="text in property" />
         <br/>
-		<dot:TextBox ID="TextBox2" Text="{value: TextValue}" />
+        <dot:TextBox ID="TextBox2" 
+                     Text="{value: TextValue}" />
         <br/>
-		<dot:TextBox ID="TextArea1" Text="text in property" Type="MultiLine" />
+        <dot:TextBox ID="TextArea1" 
+                     Text="text in property" 
+                     Type="MultiLine" />
         <br/>
-		<dot:TextBox ID="TextArea2" Text="{value: TextValue}" Type="MultiLine" />
+        <dot:TextBox ID="TextArea2" 
+                     Text="{value: TextValue}" 
+                     Type="MultiLine" />
     </div>
 </body>
 </html>
