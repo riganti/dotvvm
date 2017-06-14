@@ -64,11 +64,11 @@ ko.delaySync = (function () {
             isPaused = true;
         },
         resume: function () {
+            isPaused = false;
             for (var i = 0; i < queue.length; i++) {
                 queue[i]();
             }
             queue = [];
-            isPaused = false;
         },
         run: function(action) {
             if (!isPaused) {

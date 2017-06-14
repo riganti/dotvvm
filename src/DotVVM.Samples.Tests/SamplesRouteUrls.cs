@@ -10,6 +10,8 @@ namespace Dotvvm.Samples.Tests{
 			public static string ComplexSamples_CascadeSelectors_CascadeSelectorsServerRender => "ComplexSamples/CascadeSelectors/CascadeSelectorsServerRender";
 			public static string ComplexSamples_CascadeSelectors_TripleComboBoxes => "ComplexSamples/CascadeSelectors/TripleComboBoxes";
 			public static string ComplexSamples_ChangedEvent_ChangedEvent => "ComplexSamples/ChangedEvent/ChangedEvent";
+			public static string ComplexSamples_CustomValidationError_TargetOnLoginForm => "ComplexSamples/CustomValidationError/TargetOnLoginForm";
+			public static string ComplexSamples_CustomValidationError_TargetOnValidationSummary => "ComplexSamples/CustomValidationError/TargetOnValidationSummary";
 			public static string ComplexSamples_DataTemplate_EmptyDataTemplateRepeaterGridView => "ComplexSamples/DataTemplate/EmptyDataTemplateRepeaterGridView";
 			public static string ComplexSamples_FileUploadInRepeater_FileUploadInRepeater => "ComplexSamples/FileUploadInRepeater/FileUploadInRepeater";
 			public static string ComplexSamples_GridViewDataSet_GridViewDataSet => "ComplexSamples/GridViewDataSet/GridViewDataSet";
@@ -41,6 +43,7 @@ namespace Dotvvm.Samples.Tests{
 			public static string ControlSamples_ComboBox_ComboBox => "ControlSamples/ComboBox/ComboBox";
 			public static string ControlSamples_ComboBox_ComboBoxDelaySync => "ControlSamples/ComboBox/ComboBoxDelaySync";
 			public static string ControlSamples_ComboBox_ComboBoxDelaySync2 => "ControlSamples/ComboBox/ComboBoxDelaySync2";
+			public static string ControlSamples_ComboBox_ComboBoxDelaySync3 => "ControlSamples/ComboBox/ComboBoxDelaySync3";
 			public static string ControlSamples_ContentPlaceHolder_ContentPlaceHolderPage => "ControlSamples/ContentPlaceHolder/ContentPlaceHolderPage";
 			public static string ControlSamples_ContentPlaceHolder_ContentPlaceHolderPage_ContentTest => "ControlSamples/ContentPlaceHolder/ContentPlaceHolderPage_ContentTest";
 			public static string ControlSamples_DataPager_DataPager => "ControlSamples/DataPager/DataPager";

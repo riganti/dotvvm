@@ -20,6 +20,7 @@
     <None Remove="Views\ComplexSamples\CustomValidationError\master.dotmaster" />
     <None Remove="Views\ControlSamples\ComboBox\ComboBoxDelaySync.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\ComboBoxDelaySync2.dothtml" />
+    <None Remove="Views\ControlSamples\ComboBox\ComboBoxDelaySync3.dothtml" />
     <None Remove="Views\FeatureSamples\ActionFilterErrorHandling\ActionFilterRedirect.dothtml" />
     <None Remove="Views\FeatureSamples\MarkupControl\CommandBindingInDataContextWithControlProperty.dothtml" />
     <None Remove="Views\FeatureSamples\MarkupControl\control2.dotcontrol" />
@@ -42,6 +43,7 @@
     <Content Include="Views\ComplexSamples\CustomValidationError\TargetOnLoginForm.dothtml" />
     <Content Include="Views\ControlSamples\ComboBox\ComboBoxDelaySync.dothtml" />
     <Content Include="Views\ControlSamples\ComboBox\ComboBoxDelaySync2.dothtml" />
+    <Content Include="Views\ControlSamples\ComboBox\ComboBoxDelaySync3.dothtml" />
     <Content Include="Views\FeatureSamples\ActionFilterErrorHandling\ActionFilterRedirect.dothtml" />
     <Content Include="Views\FeatureSamples\DependencyInjection\ViewModelScopedService.dothtml" />
     <Content Include="Views\FeatureSamples\MarkupControl\Control1.dotcontrol" />

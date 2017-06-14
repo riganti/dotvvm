@@ -72,5 +72,19 @@ namespace DotVVM.Samples.Tests.Control
                 browser.ElementAt(".result", 1).CheckIfInnerTextEquals("2");
             });
         }
+
+
+        [TestMethod]
+        public void Control_ComboBox_ComboBoxDelaySync3()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ComboBoxDelaySync3);
+                browser.First("input[type=button]").Click().Wait();
+
+                // check that the combobox appears
+                browser.ElementAt("select", 0).ElementAt("option", 0).CheckIfIsSelected();
+            });
+        }
     }
 }

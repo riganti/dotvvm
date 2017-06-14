@@ -62,8 +62,7 @@ namespace DotVVM.Samples.BasicSamples
 
             // test debug version of knockout
             //((ScriptResource)config.Resources.FindResource("knockout"))
-            //    .Location = new FileResourceLocation("..\\DotVVM.Framework\\Resources\\Scripts\\knockout-latest.debug.js");
-                
+            //    .Location = new FileResourceLocation("..\\DotVVM.Framework\\Resources\\Scripts\\knockout-latest.js");
         }
 
         private static void AddRoutes(DotvvmConfiguration config)
