@@ -6,8 +6,8 @@ using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.CommandArguments
 {
-	public class CommandArgumentsViewModel : DotvvmViewModelBase
-	{
+    public class CommandArgumentsViewModel : DotvvmViewModelBase
+    {
         public string Value { get; set; } = "Nothing here";
 
         public void Command(string arg)
