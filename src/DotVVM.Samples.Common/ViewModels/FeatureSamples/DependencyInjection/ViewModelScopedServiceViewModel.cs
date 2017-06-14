@@ -12,17 +12,21 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection
     public class ViewModelScopedServiceViewModel : DotvvmViewModelBase
     {
         public int DependencyInstanceID { get; }
+
         public ViewModelScopedServiceViewModel(ViewModelScopedDependency dependency, IServiceProvider serviceProvider)
         {
             DependencyInstanceID = dependency.InstanceID;
-            Debug.Assert(DependencyInstanceID == serviceProvider.GetService<ViewModelScopedDependency>().InstanceID);
+            var v = serviceProvider.GetService<ViewModelScopedDependency>();
+            Debug.Assert(dependency.InstanceID != v.InstanceID);
         }
     }
 
     public class ViewModelScopedDependency
     {
         static int _instanceCounter;
+
         public int InstanceID { get; }
+
         public DotvvmConfiguration Configuration { get; }
 
         public ViewModelScopedDependency(DotvvmConfiguration config)
