@@ -22,18 +22,18 @@ namespace DotVVM.Samples.Tests.Control
 
                 foreach (var column in browser.FindElements("td"))
                 {
-                    column.ElementAt("fieldset", 0).Single("span").CheckIfInnerTextEquals("Hardcoded value");
-                    column.ElementAt("fieldset", 1).Single("span").CheckIfInnerTextEquals("Hello");
-                    column.ElementAt("fieldset", 2).Single("span").CheckIfInnerTextEquals("1/1/2000");
+                    column.ElementAt("fieldset", 0).Single("span").Check().InnerText(s=> s.Equals("Hardcoded value"));
+                    column.ElementAt("fieldset", 1).Single("span").Check().InnerText(s => s.Equals("Hello"));
+                    column.ElementAt("fieldset", 2).Single("span").Check().InnerText(s => s.Equals("1/1/2000"));
 
                     column.ElementAt("fieldset", 3).FindElements("span").ThrowIfDifferentCountThan(0);
-                    column.ElementAt("fieldset", 3).CheckIfInnerText(t => t.Contains("Hardcoded value"));
+                    column.ElementAt("fieldset", 3).Check().InnerText(t => t.Contains("Hardcoded value"));
 
                     column.ElementAt("fieldset", 4).FindElements("span").ThrowIfDifferentCountThan(0);
-                    column.ElementAt("fieldset", 4).CheckIfInnerText(t => t.Contains("Hello"));
+                    column.ElementAt("fieldset", 4).Check().InnerText(t => t.Contains("Hello"));
 
                     column.ElementAt("fieldset", 5).FindElements("span").ThrowIfDifferentCountThan(0);
-                    column.ElementAt("fieldset", 5).CheckIfInnerText(t => t.Contains("1/1/2000"));
+                    column.ElementAt("fieldset", 5).Check().InnerText(t => t.Contains("1/1/2000"));
                 }
             });
         }
@@ -47,7 +47,7 @@ namespace DotVVM.Samples.Tests.Control
                     //check format d
                     var text = browser.First("#results-" + format).GetText();
                     browser.First("#client-format-" + format).CheckIfInnerTextEquals(text, false);
-                    browser.First("#server-render-format-" + format).CheckIfInnerTextEquals(text, false);
+                    browser.First("#server-render-format-" + format).Check().InnerText(s=> s.Equals(text, StringComparison.OrdinalIgnoreCase));
 
                 };
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Literal_Literal_FormatString);
@@ -71,16 +71,16 @@ namespace DotVVM.Samples.Tests.Control
                 browser.Single("#second").CheckIfIsNotDisplayed();
                 browser.First("#first").Click();
 
-                browser.Single("span").CheckIfInnerText(s => s.Contains("1"));
+                browser.Single("span").Check().InnerText(s => s.Contains("1"));
                 browser.Single("#second").CheckIfIsNotDisplayed();
                 browser.First("#first").Click();
 
 
-                browser.Single("span").CheckIfInnerText(s => s.Contains("2"));
+                browser.Single("span").Check().InnerText(s => s.Contains("2"));
                 browser.Single("#second").CheckIfIsNotDisplayed();
                 browser.First("#first").Click();
 
-                browser.Single("span").CheckIfInnerText(s => s.Contains("3"));
+                browser.Single("span").Check().InnerText(s => s.Contains("3"));
                 browser.Single("#second").CheckIfIsDisplayed();
             });
         }
@@ -92,20 +92,20 @@ namespace DotVVM.Samples.Tests.Control
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Literal_Literal_ArrayLength);
 
 
-                browser.Single("span").CheckIfInnerText(s => s.Contains("0"));
+                browser.Single("span").Check().InnerText(s => s.Contains("0"));
                 browser.Single("#second").CheckIfIsNotDisplayed();
                 browser.First("#first").Click();
 
-                browser.Single("span").CheckIfInnerText(s => s.Contains("1"));
+                browser.Single("span").Check().InnerText(s => s.Contains("1"));
                 browser.Single("#second").CheckIfIsNotDisplayed();
                 browser.First("#first").Click();
 
 
-                browser.Single("span").CheckIfInnerText(s => s.Contains("2"));
+                browser.Single("span").Check().InnerText(s => s.Contains("2"));
                 browser.Single("#second").CheckIfIsNotDisplayed();
                 browser.First("#first").Click();
 
-                browser.Single("span").CheckIfInnerText(s => s.Contains("3"));
+                browser.Single("span").Check().InnerText(s => s.Contains("3"));
                 browser.Single("#second").CheckIfIsDisplayed();
             });
         }
