@@ -1652,7 +1652,16 @@ var DotVVM = (function () {
                 this.fakeRedirectAnchor = fakeAnchor;
             }
             fakeAnchor.href = url;
-            fakeAnchor.click();
+
+            if (fakeAnchor.click) {
+                fakeAnchor.click();
+                return;
+            }
+
+            // primarily for safari 5.1.7 on windows - all other supported browsers should use click function above
+            var e = document.createEvent('MouseEvents');
+            e.initEvent('click', true, true);
+            fakeAnchor.dispatchEvent(e);
         }
     };
     DotVVM.prototype.fixSpaUrlPrefix = function (url) {
