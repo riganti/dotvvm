@@ -185,19 +185,16 @@ declare class DotvvmRangeValidator extends DotvvmValidatorBase {
 declare class DotvvmNotNullValidator extends DotvvmValidatorBase {
     isValid(context: DotvvmValidationContext): boolean;
 }
+declare type KnockoutValidatedObservable<T> = KnockoutObservable<T> & {
+    validationErrors?: KnockoutObservableArray<ValidationError>;
+};
 declare class ValidationError {
-    targetObservable: KnockoutObservable<any>;
+    validatedObservable: KnockoutValidatedObservable<any>;
     errorMessage: string;
-    constructor(targetObservable: KnockoutObservable<any>, errorMessage: string);
-    static getOrCreate(targetObservable: KnockoutObservable<any> & {
-        validationErrors?: KnockoutObservableArray<ValidationError>;
-    }): KnockoutObservableArray<ValidationError>;
-    static isValid(observable: KnockoutObservable<any> & {
-        validationErrors?: KnockoutObservableArray<ValidationError>;
-    }): boolean;
-    static clear(observable: KnockoutObservable<any> & {
-        validationErrors?: KnockoutObservableArray<ValidationError>;
-    }): void;
+    constructor(validatedObservable: KnockoutValidatedObservable<any>, errorMessage: string);
+    static getOrCreate(validatedObservable: KnockoutValidatedObservable<any>): KnockoutObservableArray<ValidationError>;
+    static isValid(validatedObservable: KnockoutValidatedObservable<any>): boolean;
+    clear(validation: DotvvmValidation): void;
 }
 interface IDotvvmViewModelInfo {
     validationRules?: {
@@ -211,28 +208,44 @@ interface IDotvvmPropertyValidationRuleInfo {
     errorMessage: string;
     parameters: any[];
 }
-interface IDotvvmValidationRules {
+declare type DotvvmValidationRules = {
     [name: string]: DotvvmValidatorBase;
-}
-interface IDotvvmValidationElementUpdateFunctions {
+};
+declare type DotvvmValidationElementUpdateFunctions = {
     [name: string]: (element: HTMLElement, errorMessages: string[], param: any) => void;
-}
+};
 declare class DotvvmValidation {
-    rules: IDotvvmValidationRules;
+    rules: DotvvmValidationRules;
     errors: KnockoutObservableArray<ValidationError>;
     events: {
         validationErrorsChanged: DotvvmEvent<DotvvmEventArgs>;
     };
-    elementUpdateFunctions: IDotvvmValidationElementUpdateFunctions;
+    elementUpdateFunctions: DotvvmValidationElementUpdateFunctions;
     constructor(dotvvm: DotVVM);
+    /**
+     * Validates the specified view model
+    */
     validateViewModel(viewModel: any): void;
     validateProperty(viewModel: any, property: KnockoutObservable<any>, value: any, rulesForProperty: IDotvvmPropertyValidationRuleInfo[]): void;
     mergeValidationRules(args: DotvvmAfterPostBackEventArgs): void;
-    clearValidationErrors(viewModel: any): void;
-    private clearValidationErrorsCore(viewModel);
-    getValidationErrors(viewModel: any, recursive: any): ValidationError[];
+    /**
+      * Clears validation errors from the passed viewModel, from its children
+      * and from the DotvvmValidation.errors array
+    */
+    clearValidationErrors(validatedObservable: KnockoutValidatedObservable<any>): void;
+    /**
+     * Gets validation errors from the passed object and its children.
+     * @param target Object that is supposed to contain the errors or properties with the errors
+     * @param includeErrorsFromGrandChildren Is called "IncludeErrorsFromChildren" in ValidationSummary.cs
+     * @param includeErrorsFromChildren Sets whether to include errors from children at all
+     * @returns By default returns only errors from the viewModel's immediate children
+     */
+    getValidationErrors(validationTargetObservable: KnockoutValidatedObservable<any>, includeErrorsFromGrandChildren: any, includeErrorsFromTarget: any, includeErrorsFromChildren?: boolean): ValidationError[];
+    /**
+     * Adds validation errors from the server to the appropriate arrays
+     */
     showValidationErrorsFromServer(args: DotvvmAfterPostBackEventArgs): void;
-    private addValidationError(viewModel, error);
+    private addValidationError(validatedProperty, error);
 }
 declare var dotvvm: DotVVM;
 interface Document {
@@ -260,7 +273,9 @@ declare class DotVVM {
     private fakeRedirectAnchor;
     private resourceSigns;
     private isViewModelUpdating;
-    private viewModelObservables;
+    viewModelObservables: {
+        [name: string]: KnockoutObservable<IDotvvmViewModelInfo>;
+    };
     isSpaReady: KnockoutObservable<boolean>;
     viewModels: IDotvvmViewModels;
     culture: string;

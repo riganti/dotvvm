@@ -631,6 +631,7 @@ var DotvvmSerialization = (function () {
     return DotvvmSerialization;
 })();
 /// <reference path="typings/knockout/knockout.d.ts" />
+/// <reference path="DotVVM.ts" />
 var DotvvmValidationContext = (function () {
     function DotvvmValidationContext(valueToValidate, parentViewModel, parameters) {
         this.valueToValidate = valueToValidate;
@@ -754,28 +755,28 @@ var DotvvmNotNullValidator = (function (_super) {
     return DotvvmNotNullValidator;
 })(DotvvmValidatorBase);
 var ValidationError = (function () {
-    function ValidationError(targetObservable, errorMessage) {
-        this.targetObservable = targetObservable;
+    function ValidationError(validatedObservable, errorMessage) {
+        this.validatedObservable = validatedObservable;
         this.errorMessage = errorMessage;
     }
-    ValidationError.getOrCreate = function (targetObservable) {
-        if (targetObservable["wrappedProperty"]) {
-            var newOne = targetObservable["wrappedProperty"]();
-            if (ko.isObservable(newOne))
-                targetObservable = newOne;
+    ValidationError.getOrCreate = function (validatedObservable) {
+        if (validatedObservable["wrappedProperty"]) {
+            var wrapped = validatedObservable["wrappedProperty"]();
+            if (ko.isObservable(wrapped))
+                validatedObservable = wrapped;
         }
-        if (!targetObservable.validationErrors) {
-            targetObservable.validationErrors = ko.observableArray();
+        if (!validatedObservable.validationErrors) {
+            validatedObservable.validationErrors = ko.observableArray();
         }
-        return targetObservable.validationErrors;
+        return validatedObservable.validationErrors;
     };
-    ValidationError.isValid = function (observable) {
-        return !observable.validationErrors || observable.validationErrors().length === 0;
+    ValidationError.isValid = function (validatedObservable) {
+        return !validatedObservable.validationErrors || validatedObservable.validationErrors().length === 0;
     };
-    ValidationError.clear = function (observable) {
-        if (observable.validationErrors != null) {
-            observable.validationErrors.removeAll();
-        }
+    ValidationError.prototype.clear = function (validation) {
+        var localErrors = this.validatedObservable.validationErrors;
+        localErrors.remove(this);
+        validation.errors.remove(this);
     };
     return ValidationError;
 })();
@@ -834,10 +835,10 @@ var DotvvmValidation = (function () {
                 var context = ko.contextFor(args.sender);
                 var validationTarget = dotvvm.evaluator.evaluateOnViewModel(context, args.validationTargetPath);
                 // validate the object
-                _this.clearValidationErrors(args.viewModel);
+                _this.clearValidationErrors(dotvvm.viewModelObservables[args.viewModelName]);
                 _this.validateViewModel(validationTarget);
                 if (_this.errors().length > 0) {
-                    console.warn("Validation failed: postback aborted; errors: ", _this.errors());
+                    console.log("Validation failed: postback aborted; errors: ", _this.errors());
                     args.cancel = true;
                     args.clientValidationFailed = true;
                 }
@@ -881,8 +882,13 @@ var DotvvmValidation = (function () {
             }
         };
     }
-    /// Validates the specified view model
+    /**
+     * Validates the specified view model
+    */
     DotvvmValidation.prototype.validateViewModel = function (viewModel) {
+        if (ko.isObservable(viewModel)) {
+            viewModel = ko.unwrap(viewModel);
+        }
         if (!viewModel || !dotvvm.viewModels['root'].validationRules)
             return;
         // find validation rules
@@ -905,15 +911,14 @@ var DotvvmValidation = (function () {
             var options = viewModel[property + "$options"];
             if (options && options.type && ValidationError.isValid(viewModelProperty) && !dotvvm.serialization.validateType(value, options.type)) {
                 var error = new ValidationError(viewModelProperty, "The value of property " + property + " (" + value + ") is invalid value for type " + options.type + ".");
-                ValidationError.getOrCreate(viewModelProperty).push(error);
-                this.addValidationError(viewModel, error);
+                this.addValidationError(viewModelProperty, error);
             }
             if (value) {
                 if (Array.isArray(value)) {
                     // handle collections
                     for (var _i = 0; _i < value.length; _i++) {
                         var item = value[_i];
-                        this.validateViewModel(ko.unwrap(item));
+                        this.validateViewModel(item);
                     }
                 }
                 else if (value.$type) {
@@ -934,8 +939,7 @@ var DotvvmValidation = (function () {
                 var validationErrors = ValidationError.getOrCreate(property);
                 // add error message
                 var validationError = new ValidationError(property, rule.errorMessage);
-                validationErrors.push(validationError);
-                this.addValidationError(viewModel, validationError);
+                this.addValidationError(property, validationError);
             }
         }
     };
@@ -954,111 +958,111 @@ var DotvvmValidation = (function () {
             }
         }
     };
-    DotvvmValidation.prototype.clearValidationErrors = function (viewModel) {
-        this.clearValidationErrorsCore(viewModel);
-        this.errors.removeAll();
-    };
-    DotvvmValidation.prototype.clearValidationErrorsCore = function (viewModel) {
-        viewModel = ko.unwrap(viewModel);
-        if (!viewModel || !viewModel.$type)
+    /**
+      * Clears validation errors from the passed viewModel, from its children
+      * and from the DotvvmValidation.errors array
+    */
+    DotvvmValidation.prototype.clearValidationErrors = function (validatedObservable) {
+        if (!validatedObservable || !ko.isObservable(validatedObservable))
             return;
-        // clear validation errors
-        if (viewModel.$validationErrors) {
-            viewModel.$validationErrors.removeAll();
-        }
-        else {
-            viewModel.$validationErrors = ko.observableArray([]);
-        }
-        // validate all properties
-        for (var property in viewModel) {
-            if (!viewModel.hasOwnProperty(property) || property.indexOf("$") === 0)
-                continue;
-            var viewModelProperty = viewModel[property];
-            if (!viewModelProperty || !ko.isObservable(viewModelProperty))
-                continue;
-            ValidationError.clear(viewModel[property]);
-            var value = viewModel[property]();
-            if (value) {
-                if (Array.isArray(value)) {
-                    // handle collections
-                    for (var i = 0; i < value.length; i++) {
-                        this.clearValidationErrorsCore(ko.unwrap(value[i]));
-                    }
-                }
-                else if (value.$type) {
-                    // handle nested objects
-                    this.clearValidationErrorsCore(value);
-                }
+        if (validatedObservable.validationErrors) {
+            for (var _i = 0, _a = validatedObservable.validationErrors(); _i < _a.length; _i++) {
+                var error = _a[_i];
+                error.clear(this);
             }
         }
+        var validatedObject = validatedObservable();
+        if (!validatedObject)
+            return;
+        // Do the same for every object in the array
+        if (Array.isArray(validatedObject)) {
+            for (var _b = 0; _b < validatedObject.length; _b++) {
+                var item = validatedObject[_b];
+                this.clearValidationErrors(item);
+            }
+        }
+        // Do the same for every subordinate property
+        for (var propertyName in validatedObject) {
+            if (!validatedObject.hasOwnProperty(propertyName) || propertyName.indexOf("$") === 0)
+                continue;
+            var property = validatedObject[propertyName];
+            this.clearValidationErrors(property);
+        }
     };
-    // get validation errors
-    DotvvmValidation.prototype.getValidationErrors = function (viewModel, recursive) {
-        viewModel = ko.unwrap(viewModel);
-        if (!viewModel || !viewModel.$type)
+    /**
+     * Gets validation errors from the passed object and its children.
+     * @param target Object that is supposed to contain the errors or properties with the errors
+     * @param includeErrorsFromGrandChildren Is called "IncludeErrorsFromChildren" in ValidationSummary.cs
+     * @param includeErrorsFromChildren Sets whether to include errors from children at all
+     * @returns By default returns only errors from the viewModel's immediate children
+     */
+    DotvvmValidation.prototype.getValidationErrors = function (validationTargetObservable, includeErrorsFromGrandChildren, includeErrorsFromTarget, includeErrorsFromChildren) {
+        if (includeErrorsFromChildren === void 0) { includeErrorsFromChildren = true; }
+        // Check the passed viewModel
+        if (!validationTargetObservable)
             return [];
-        if (viewModel.$validationErrors == null)
-            viewModel.$validationErrors = ko.observableArray([]);
-        var errors = viewModel.$validationErrors();
-        if (recursive) {
-            // get child validation errors
-            for (var property in viewModel) {
-                if (!viewModel.hasOwnProperty(property) || property.indexOf("$") === 0)
-                    continue;
-                var viewModelProperty = viewModel[property];
-                if (!viewModelProperty || !ko.isObservable(viewModelProperty))
-                    continue;
-                var value = viewModel[property]();
-                if (value) {
-                    if (Array.isArray(value)) {
-                        // handle collections
-                        for (var _i = 0; _i < value.length; _i++) {
-                            var item = value[_i];
-                            errors = errors.concat(this.getValidationErrors(ko.unwrap(item), recursive));
-                        }
-                    }
-                    else if (value.$type) {
-                        // handle nested objects
-                        errors = errors.concat(this.getValidationErrors(value, recursive));
-                    }
+        var errors = [];
+        // Include errors from the validation target
+        if (includeErrorsFromTarget) {
+            errors = errors.concat(ValidationError.getOrCreate(validationTargetObservable)());
+        }
+        if (includeErrorsFromChildren) {
+            var validationTarget = ko.unwrap(validationTargetObservable);
+            if (Array.isArray(validationTarget)) {
+                for (var _i = 0; _i < validationTarget.length; _i++) {
+                    var item = validationTarget[_i];
+                    // This is correct because in the next children and further all children are grandchildren
+                    errors = errors.concat(this.getValidationErrors(item, includeErrorsFromGrandChildren, true, includeErrorsFromGrandChildren));
+                }
+            }
+            else {
+                for (var propertyName in validationTarget) {
+                    if (!validationTarget.hasOwnProperty(propertyName) || propertyName.indexOf("$") === 0)
+                        continue;
+                    var property = validationTarget[propertyName];
+                    if (!property || !ko.isObservable(property))
+                        continue;
+                    // Nested properties are children too
+                    errors = errors.concat(this.getValidationErrors(property, includeErrorsFromGrandChildren, true, includeErrorsFromGrandChildren));
                 }
             }
         }
         return errors;
     };
-    // shows the validation errors from server
+    /**
+     * Adds validation errors from the server to the appropriate arrays
+     */
     DotvvmValidation.prototype.showValidationErrorsFromServer = function (args) {
         // resolve validation target
         var context = ko.contextFor(args.sender);
         var validationTarget = dotvvm.evaluator.evaluateOnViewModel(context, args.validationTargetPath);
-        validationTarget = ko.unwrap(validationTarget);
-        if (validationTarget == null)
+        if (!validationTarget)
             return;
         // add validation errors
-        this.clearValidationErrors(args.viewModel);
+        this.clearValidationErrors(dotvvm.viewModelObservables[args.viewModelName]);
         var modelState = args.serverResponseObject.modelState;
         for (var i = 0; i < modelState.length; i++) {
-            // find the observable property
+            // find the property
             var propertyPath = modelState[i].propertyPath;
-            var observable = dotvvm.evaluator.evaluateOnViewModel(validationTarget, propertyPath);
-            var parentPath = propertyPath.substring(0, propertyPath.lastIndexOf("."));
-            var parent = parentPath ? dotvvm.evaluator.evaluateOnViewModel(validationTarget, parentPath) : validationTarget;
-            parent = ko.unwrap(parent);
-            if (!ko.isObservable(observable) || !parent || !parent.$validationErrors) {
-                throw "Invalid validation path!";
+            var property;
+            if (propertyPath) {
+                if (ko.isObservable(validationTarget)) {
+                    validationTarget = ko.unwrap(validationTarget);
+                }
+                property = dotvvm.evaluator.evaluateOnViewModel(validationTarget, propertyPath);
+            }
+            else {
+                property = validationTarget;
             }
             // add the error to appropriate collections
-            var errors = ValidationError.getOrCreate(observable);
-            var error = new ValidationError(observable, modelState[i].errorMessage);
-            errors.push(error);
-            this.addValidationError(parent, error);
+            var error = new ValidationError(property, modelState[i].errorMessage);
+            this.addValidationError(property, error);
         }
     };
-    DotvvmValidation.prototype.addValidationError = function (viewModel, error) {
-        if (viewModel.$validationErrors == null)
-            viewModel.$validationErrors = ko.observableArray([]);
-        if (viewModel.$validationErrors.indexOf(error) < 0) {
-            viewModel.$validationErrors.push(error);
+    DotvvmValidation.prototype.addValidationError = function (validatedProperty, error) {
+        var errors = ValidationError.getOrCreate(validatedProperty);
+        if (errors.indexOf(error) < 0) {
+            validatedProperty.validationErrors.push(error);
             this.errors.push(error);
         }
     };
@@ -1227,7 +1231,10 @@ var DotVVM = (function () {
             finally {
                 _this.isViewModelUpdating = false;
             }
-        }, errorCallback, function (xhr) {
+        }, function (xhr) {
+            console.warn("StaticCommand postback failed: " + xhr.status + " - " + xhr.statusText, xhr);
+            errorCallback(xhr);
+        }, function (xhr) {
             xhr.setRequestHeader("X-PostbackType", "StaticCommand");
         });
     };

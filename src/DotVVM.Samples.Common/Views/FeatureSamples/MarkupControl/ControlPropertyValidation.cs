@@ -7,8 +7,8 @@ using DotVVM.Framework.Binding;
 
 namespace DotVVM.Samples.BasicSamples.Views.FeatureSamples.MarkupControl
 {
-	public class ControlPropertyValidation : DotvvmMarkupControl
-	{
+    public class ControlPropertyValidation : DotvvmMarkupControl
+    {
         public string Value
         {
             get { return (string)GetValue(ValueProperty); }

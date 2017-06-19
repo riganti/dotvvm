@@ -1,15 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Validation;
 
-namespace DotVVM.Samples.Common.ViewModels.ComplexSamples.CustomValidationError
+namespace DotVVM.Samples.Common.ViewModels.ControlSamples.ValidationSummary
 {
-    public class CustomValidationErrorViewModel : DotvvmViewModelBase
+    public class IncludeErrorsFromTargetViewModel : DotvvmViewModelBase
     {
         public LoginInfo Login { get; set; } = new LoginInfo();
+
+        public string PropertyPath { get; set; } = null;
 
         public void LogIn()
         {
@@ -22,7 +20,7 @@ namespace DotVVM.Samples.Common.ViewModels.ComplexSamples.CustomValidationError
                 Context.ModelState.Errors.Add(new ViewModelValidationError()
                 {
                     ErrorMessage = "Wrong Nick or Password.",
-                    PropertyPath = GetPropertyPath()
+                    PropertyPath = PropertyPath
                 });
                 Context.FailOnInvalidModelState();
             }
@@ -32,11 +30,5 @@ namespace DotVVM.Samples.Common.ViewModels.ComplexSamples.CustomValidationError
         {
             Login.IsLoggedIn = false;
         }
-
-        public virtual string GetPropertyPath()
-        {
-            return null;
-        }
-
     }
 }

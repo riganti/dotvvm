@@ -47,10 +47,11 @@ class DotVVM {
     private fakeRedirectAnchor: HTMLAnchorElement;
     private resourceSigns: { [name: string]: boolean } = {}
     private isViewModelUpdating: boolean = true;
-    private viewModelObservables: {
+    
+    // warning this property is referenced in ModelState.cs and KnockoutHelper.cs
+    public viewModelObservables: {
         [name: string]: KnockoutObservable<IDotvvmViewModelInfo>;
     } = {};
-
     public isSpaReady = ko.observable(false);
     public viewModels: IDotvvmViewModels = {};
     public culture: string;

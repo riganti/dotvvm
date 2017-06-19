@@ -1,4 +1,4 @@
-﻿@viewModel DotVVM.Samples.Common.ViewModels.ComplexSamples.CustomValidationError.CustomValidationErrorViewModel, DotVVM.Samples.Common
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.ValidationSummary.IncludeErrorsFromTargetViewModel, DotVVM.Samples.Common
 
 <!DOCTYPE html>
 
@@ -10,6 +10,7 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+
         .has-error {
             background-color: darkred;
         }

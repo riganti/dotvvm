@@ -206,7 +206,7 @@ namespace DotVVM.Framework.Controls
             var validationTargetControl = control.GetClosestControlValidationTarget(out dataSourceChanges);
             if (validationTargetControl == null)
             {
-                return "$root";
+                return "dotvvm.viewModelObservables['root']";
             }
 
             // reparent the expression to work in current DataContext

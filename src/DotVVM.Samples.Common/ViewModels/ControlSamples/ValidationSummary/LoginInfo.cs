@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Text;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace DotVVM.Samples.Common.ViewModels.ComplexSamples.CustomValidationError
+namespace DotVVM.Samples.Common.ViewModels.ControlSamples.ValidationSummary
 {
     public class LoginInfo
     {
@@ -14,6 +11,5 @@ namespace DotVVM.Samples.Common.ViewModels.ComplexSamples.CustomValidationError
 
         [Required]
         public string Password { get; set; }
-
     }
 }
