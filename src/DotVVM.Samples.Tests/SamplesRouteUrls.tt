@@ -12,27 +12,27 @@
 <#@ output extension=".cs" #>
 
 namespace Dotvvm.Samples.Tests{
-	public class SamplesRouteUrls{
-	<# 
-	
-	
-	//define paths
-	var SamplesFolderPath = "DotVVM.Samples.Common";
-	DirectoryInfo dir = new DirectoryInfo(this.Host.ResolveAssemblyReference("$(ProjectDir)"));
-	var samplesProjectDir = Path.Combine(dir.Parent.FullName, SamplesFolderPath);
-    
-	//simulate route strategy
-	var config = DotvvmConfiguration.CreateDefault();
-	config.ApplicationPhysicalPath = samplesProjectDir ;
-    var data = new List<RouteBase> (new DefaultRouteStrategy(config).GetRoutes());
-	
-	 #>
-	
+    public class SamplesRouteUrls{
     <# 
-	//generate constants
-	foreach (var info in data){
-		#>
-		public static string <#= info.RouteName #> => "<#=  info.Url #>";
-	<# } #>
-	}
+    
+    
+    //define paths
+    var SamplesFolderPath = "DotVVM.Samples.Common";
+    DirectoryInfo dir = new DirectoryInfo(this.Host.ResolveAssemblyReference("$(ProjectDir)"));
+    var samplesProjectDir = Path.Combine(dir.Parent.FullName, SamplesFolderPath);
+    
+    //simulate route strategy
+    var config = DotvvmConfiguration.CreateDefault();
+    config.ApplicationPhysicalPath = samplesProjectDir ;
+    var data = new List<RouteBase> (new DefaultRouteStrategy(config).GetRoutes());
+    
+     #>
+    
+    <# 
+    //generate constants
+    foreach (var info in data){
+        #>
+        public static string <#= info.RouteName #> => "<#=  info.Url #>";
+    <# } #>
+    }
 }

@@ -25,7 +25,7 @@ namespace DotVVM.Framework.Tests.Binding
         public string CompileBinding(string expression, params Type[] contexts) => CompileBinding(expression, contexts, expectedType: typeof(object));
         public string CompileBinding(string expression, Type[] contexts, Type expectedType)
         {
-            var context = DataContextStack.Create(contexts.FirstOrDefault() ?? typeof(object), extenstionParameters: new BindingExtensionParameter[]{
+            var context = DataContextStack.Create(contexts.FirstOrDefault() ?? typeof(object), extensionParameters: new BindingExtensionParameter[]{
                 new BindingPageInfoExtensionParameter()
                 });
             for (int i = 1; i < contexts.Length; i++)
@@ -43,7 +43,7 @@ namespace DotVVM.Framework.Tests.Binding
 
         public string CompileBinding(Func<Dictionary<string, Expression>, Expression> expr, Type[] contexts)
         {
-            var context = DataContextStack.Create(contexts.FirstOrDefault() ?? typeof(object), extenstionParameters: new BindingExtensionParameter[]{
+            var context = DataContextStack.Create(contexts.FirstOrDefault() ?? typeof(object), extensionParameters: new BindingExtensionParameter[]{
                 new BindingPageInfoExtensionParameter()
                 });
             for (int i = 1; i < contexts.Length; i++)

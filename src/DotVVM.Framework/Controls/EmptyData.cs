@@ -13,7 +13,7 @@ using DotVVM.Framework.Binding.Expressions;
 namespace DotVVM.Framework.Controls
 {
     /// <summary>
-    /// Content of this control is displayed iff DataSource is empty or null
+    /// Content of this control is displayed if DataSource is empty or null
     /// </summary>
     public class EmptyData : ItemsControl
     {

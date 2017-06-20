@@ -23,13 +23,13 @@ namespace DotVVM.Framework.Compilation.ControlTree
         private DataContextStack(Type type,
             DataContextStack parent = null,
             IReadOnlyList<NamespaceImport> imports = null,
-            IReadOnlyList<BindingExtensionParameter> extenstionParameters = null,
+            IReadOnlyList<BindingExtensionParameter> extensionParameters = null,
             IReadOnlyList<Delegate> bindingPropertyResolvers = null)
         {
             Parent = parent;
             DataContextType = type;
             NamespaceImports = imports ?? parent?.NamespaceImports ?? new NamespaceImport[0];
-            ExtensionParameters = extenstionParameters ?? new BindingExtensionParameter[0];
+            ExtensionParameters = extensionParameters ?? new BindingExtensionParameter[0];
             BindingPropertyResolvers = bindingPropertyResolvers ?? new Delegate[0];
 
             hashCode = ComputeHashCode();
@@ -125,10 +125,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
         public static DataContextStack Create(Type type,
             DataContextStack parent = null,
             IReadOnlyList<NamespaceImport> imports = null,
-            IReadOnlyList<BindingExtensionParameter> extenstionParameters = null,
+            IReadOnlyList<BindingExtensionParameter> extensionParameters = null,
             IReadOnlyList<Delegate> bindingPropertyResolvers = null)
         {
-            var dcs = new DataContextStack(type, parent, imports, extenstionParameters, bindingPropertyResolvers);
+            var dcs = new DataContextStack(type, parent, imports, extensionParameters, bindingPropertyResolvers);
             return dcs;// internCache.GetValue(dcs, _ => dcs);
         }
     }

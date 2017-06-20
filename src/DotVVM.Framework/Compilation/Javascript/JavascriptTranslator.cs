@@ -268,7 +268,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                     return TranslateIndex((IndexExpression)expression);
 
                 case ExpressionType.Assign:
-                    return TranslateAssing((BinaryExpression)expression);
+                    return TranslateAssign((BinaryExpression)expression);
 
                 case ExpressionType.Lambda:
                     return TranslateLambda((LambdaExpression)expression);
@@ -350,7 +350,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             }
         }
 
-        public JsExpression TranslateAssing(BinaryExpression expression)
+        public JsExpression TranslateAssign(BinaryExpression expression)
         {
             var property = expression.Left as MemberExpression;
             if (property != null)
