@@ -122,28 +122,43 @@ namespace DotVVM.Samples.Tests.Feature
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_DateTimeValidation_NullableDateTime);
-                var textBox = browser.First("input[type=text]");
-                var button = browser.First("input[type=button]");
-                var errorField = browser.First(".validation-error");
+                var textBox1 = browser.ElementAt("input[type=text]", 0);
+                var textBox2 = browser.ElementAt("input[type=text]", 1);
+                var button = browser.Single("input[type=button]");
+                var errorField = browser.Single(".validation-error");
 
                 // empty field - no error
-                textBox.Clear();
+                textBox1.Clear();
                 button.Click();
-                textBox.CheckIfHasNotClass("has-error");
+                textBox1.CheckIfHasNotClass("has-error");
+                textBox2.CheckIfHasNotClass("has-error");
                 errorField.CheckIfIsNotDisplayed();
 
                 // invalid value - should report error
-                textBox.SendKeys("06-14-2017");
+                textBox1.SendKeys("06-14-2017");
                 button.Click();
-                textBox.CheckIfHasClass("has-error");
+                textBox1.CheckIfHasClass("has-error");
+                textBox2.CheckIfHasClass("has-error");
                 errorField.CheckIfIsDisplayed();
 
-                // valid valie - no error
-                textBox.Clear();
-                textBox.SendKeys(DateTime.Now.ToString("dd/MM/yyyy H:mm:ss", CultureInfo.InvariantCulture));
+                // valid value - no error
+                textBox1.Clear();
+                textBox1.SendKeys(DateTime.Now.ToString("dd/MM/yyyy H:mm:ss", CultureInfo.InvariantCulture));
                 button.Click();
-                textBox.CheckIfHasNotClass("has-error");
+                textBox1.CheckIfHasNotClass("has-error");
+                textBox2.CheckIfHasNotClass("has-error");
                 errorField.CheckIfIsNotDisplayed();
+                textBox1.CheckIfInnerTextEquals(textBox2.GetInnerText());
+
+                // one textbox has invalid value and second gets valid - should have no error
+                textBox1.Clear();
+                textBox1.SendKeys("Invalid value");
+                textBox2.SendKeys(DateTime.Now.ToString("dd/MM/yyyy H:mm:ss", CultureInfo.InvariantCulture));
+                button.Click();
+                textBox1.CheckIfHasNotClass("has-error");
+                textBox2.CheckIfHasNotClass("has-error");
+                errorField.CheckIfIsNotDisplayed();
+                textBox1.CheckIfInnerTextEquals(textBox2.GetInnerText());
             });
         }
 
