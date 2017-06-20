@@ -51,20 +51,20 @@ namespace DotVVM.Samples.Tests.Control
 
                 if(clickButton)
                 {
-                    browser.Single("setup-button", this.SelectByDataUiId).Click();
+                    browser.Single("setup-button", this.SelectByDataUi).Click();
                     browser.Wait();
                 }
 
-                var loginButton = browser.Single("login-button", this.SelectByDataUiId);
+                var loginButton = browser.Single("login-button", this.SelectByDataUi);
                 loginButton.Click();
                 browser.Wait();
 
                 CheckValidationSummary(browser, "The Nick field is required.", "The Password field is required.");
 
-                var nickTextbox = browser.Single("nick-textbox", this.SelectByDataUiId);
+                var nickTextbox = browser.Single("nick-textbox", this.SelectByDataUi);
                 nickTextbox.SendKeys("Mike");
 
-                var passwordTextbox = browser.Single("password-textbox", this.SelectByDataUiId);
+                var passwordTextbox = browser.Single("password-textbox", this.SelectByDataUi);
                 passwordTextbox.SendKeys("123");
 
                 browser.FireJsBlur();
@@ -79,14 +79,14 @@ namespace DotVVM.Samples.Tests.Control
                 loginButton.Click();
                 browser.Wait();
 
-                browser.Single("logout-button", this.SelectByDataUiId).CheckIfIsDisplayed();
+                browser.Single("logout-button", this.SelectByDataUi).CheckIfIsDisplayed();
 
             });
         }
 
         private void CheckValidationSummary(BrowserWrapper browser, params string[] errors)
         {
-            var validationSummary = browser.Single("validationSummary", this.SelectByDataUiId);
+            var validationSummary = browser.Single("validationSummary", this.SelectByDataUi);
             Assert.AreEqual(errors.Length, validationSummary.Children.Count);
             for (int i = 0; i < errors.Length; i++)
             {
