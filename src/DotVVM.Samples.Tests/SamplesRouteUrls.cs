@@ -60,6 +60,7 @@ namespace Dotvvm.Samples.Tests{
             public static string ControlSamples_GridView_GridViewStaticCommand => "ControlSamples/GridView/GridViewStaticCommand";
             public static string ControlSamples_GridView_LargeGrid => "ControlSamples/GridView/LargeGrid";
             public static string ControlSamples_HtmlLiteral_HtmlLiteral => "ControlSamples/HtmlLiteral/HtmlLiteral";
+            public static string ControlSamples_IncludeInPageProperty_IncludeInPage => "ControlSamples/IncludeInPageProperty/IncludeInPage";
             public static string ControlSamples_LinkButton_LinkButton => "ControlSamples/LinkButton/LinkButton";
             public static string ControlSamples_Literal_Literal => "ControlSamples/Literal/Literal";
             public static string ControlSamples_Literal_Literal_ArrayLength => "ControlSamples/Literal/Literal_ArrayLength";

@@ -1,0 +1,35 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.IncludeInPageProperty.IncludeInPageViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <dot:TextBox Text="{value: Text}"
+                 IncludeInPage="{value: IncludeInPage}"
+                 data-ui="textbox"></dot:TextBox>
+    <br/>
+    <dot:Repeater DataSource="{value: Texts}">
+        <ItemTemplate>
+            <dot:Literal Text="{value: _this}"
+                         IncludeInPage="{value: _root.IncludeInPage}"
+                         data-ui="repeater-literal"/>
+            <br/>
+        </ItemTemplate>
+    </dot:Repeater>
+    <br/>
+    <dot:Literal DataContext="{value: Texts[0]}" 
+                 Text="{value: _this}"
+                 IncludeInPage="{value: _root.IncludeInPage}"
+                 data-ui="literal"/>
+    <br/>
+    <dot:Button Click="{command: IncludeInPage = !IncludeInPage}"
+                data-ui="switch">Switch</dot:Button>
+
+</body>
+</html>
+

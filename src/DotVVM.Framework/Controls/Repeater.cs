@@ -28,7 +28,6 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<string, Repeater>(t => t.WrapperTagName, "div");
 
         private EmptyData emptyDataContainer;
-        private int numberOfRows;
 
         public Repeater()
         {
