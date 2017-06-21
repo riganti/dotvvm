@@ -236,9 +236,9 @@ namespace DotVVM.Framework.Hosting
                 {
                     ViewModelLoader.DisposeViewModel(context.ViewModel);
                 }
-                System.Threading.Thread.Sleep(1000);
                 foreach (var f in requestFilters) await f.OnPageLoadedAsync(context);
                 lastStopwatchState = addTraceData(lastStopwatchState, "EndRequest", context);
+
             }
             catch (DotvvmInterruptRequestExecutionException) { throw; }
             catch (DotvvmHttpException) { throw; }
