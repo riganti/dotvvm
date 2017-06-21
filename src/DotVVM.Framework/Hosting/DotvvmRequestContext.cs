@@ -80,7 +80,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets the data gathered during execution of the request.
         /// </summary>
-        public Dictionary<string, object> TraceData { get; set; }
+        public Dictionary<string, object> TraceData { get; private set; }
 
         public Dictionary<string, string> PostBackUpdatedControls { get; private set; }
 

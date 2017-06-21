@@ -28,7 +28,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets the data gathered during execution of the request.
         /// </summary>
-        Dictionary<string, object> TraceData { get; set; }
+        Dictionary<string, object> TraceData { get; }
 
         /// <summary>
         /// Gets the unique id of the SpaContentPlaceHolder that should be loaded.
