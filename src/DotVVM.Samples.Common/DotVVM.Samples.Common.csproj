@@ -20,6 +20,7 @@
     <None Remove="Views\ControlSamples\ComboBox\ComboBoxDelaySync.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\ComboBoxDelaySync2.dothtml" />
     <None Remove="Views\ControlSamples\IncludeInPageProperty\IncludeInPage.dothtml" />
+    <None Remove="Views\ControlSamples\TextBox\SelectAllOnFocus.dothtml" />
     <None Remove="Views\FeatureSamples\ActionFilterErrorHandling\ActionFilterRedirect.dothtml" />
     <None Remove="Views\FeatureSamples\Api\GetCollection.dothtml" />
     <None Remove="Views\FeatureSamples\Api\GithubRepoApi.dothtml" />
@@ -43,6 +44,7 @@
     <Content Include="Views\ControlSamples\ComboBox\ComboBoxDelaySync.dothtml" />
     <Content Include="Views\ControlSamples\ComboBox\ComboBoxDelaySync2.dothtml" />
     <Content Include="Views\ControlSamples\IncludeInPageProperty\IncludeInPage.dothtml" />
+    <Content Include="Views\ControlSamples\TextBox\SelectAllOnFocus.dothtml" />
     <Content Include="Views\FeatureSamples\ActionFilterErrorHandling\ActionFilterRedirect.dothtml" />
     <Content Include="Views\FeatureSamples\Api\GetCollection.dothtml" />
     <Content Include="Views\FeatureSamples\Api\GithubRepoApi.dothtml" />

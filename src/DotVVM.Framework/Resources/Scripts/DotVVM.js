@@ -1652,16 +1652,7 @@ var DotVVM = (function () {
                 this.fakeRedirectAnchor = fakeAnchor;
             }
             fakeAnchor.href = url;
-
-            if (fakeAnchor.click) {
-                fakeAnchor.click();
-                return;
-            }
-
-            // primarily for safari 5.1.7 on windows - all other supported browsers should use click function above
-            var e = document.createEvent('MouseEvents');
-            e.initEvent('click', true, true);
-            fakeAnchor.dispatchEvent(e);
+            fakeAnchor.click();
         }
     };
     DotVVM.prototype.fixSpaUrlPrefix = function (url) {
@@ -2093,6 +2084,25 @@ var DotVVM = (function () {
                     else {
                         element.value = value;
                     }
+                }
+            }
+        };
+        ko.bindingHandlers["dotvvm-textbox-select-all-on-focus"] = {
+            init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+                element.$selectAllOnFocusHandler = function () {
+                    element.select();
+                };
+            },
+            update: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+                var value = valueAccessor();
+                if (typeof (value) === "function") {
+                    value = value();
+                }
+                if (value === true) {
+                    element.addEventListener("focus", element.$selectAllOnFocusHandler);
+                }
+                else {
+                    element.removeEventListener("focus", element.$selectAllOnFocusHandler);
                 }
             }
         };

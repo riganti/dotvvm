@@ -33,6 +33,7 @@ namespace Dotvvm.Samples.Tests{
     foreach (var info in data){
         #>
         public static string <#= info.RouteName #> => "<#=  info.Url #>";
+
     <# } #>
     }
 }
