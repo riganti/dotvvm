@@ -1,30 +1,34 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
+using System.Text;
 using DotVVM.Framework.Configuration;
 
 namespace DotVVM.Framework.Hosting
 {
-    public class DefaultMarkupFileLoader : IMarkupFileLoader
+    public class AggregateMarkupFileLoader : IMarkupFileLoader
     {
+        public List<IMarkupFileLoader> Loaders { get; private set; } = new List<IMarkupFileLoader>();
+
+        public AggregateMarkupFileLoader()
+        {
+            Loaders.Add(new DefaultMarkupFileLoader());
+            Loaders.Add(new EmbeddedMarkupFileLoader());
+        }
+
         /// <summary>
         /// Gets the markup file for the specified virtual path.
         /// </summary>
         public MarkupFile GetMarkup(DotvvmConfiguration configuration, string virtualPath)
         {
-            // check that we are not outside application directory
-            var fullPath = Path.Combine(configuration.ApplicationPhysicalPath, virtualPath);
-            fullPath = Path.GetFullPath(fullPath);
-            if (!fullPath.Replace('\\', '/').StartsWith(configuration.ApplicationPhysicalPath.Replace('\\', '/'), StringComparison.CurrentCultureIgnoreCase))
-            {
-                return null;
-            }
+            MarkupFile result;
 
-            if (File.Exists(fullPath))
+            for (int i = 0; i < Loaders.Count; i++)
             {
-                // load the file
-                return new MarkupFile(virtualPath, fullPath);
+                if (((result = Loaders[i].GetMarkup(configuration, virtualPath))) != null)
+                {
+                    return result;
+                }
             }
 
             return null;
