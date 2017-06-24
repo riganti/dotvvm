@@ -14,12 +14,14 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public MarkupFile GetMarkup(DotvvmConfiguration configuration, string virtualPath)
         {
-            if (virtualPath.IndexOf('.') == -1 || virtualPath.IndexOf('.') == 0)
+            string resourceName = virtualPath.Remove(0, 11);
+
+            if (resourceName.IndexOf('/') == -1 || resourceName.IndexOf('/') == 0)
             {
                 return null;
             }
 
-            string assemblyName = virtualPath.Substring(0, virtualPath.IndexOf("."));
+            string assemblyName = resourceName.Substring(0, resourceName.IndexOf("/"));
 
             Assembly assembly = null;
             try
@@ -34,15 +36,16 @@ namespace DotVVM.Framework.Hosting
             }
 
             //no such resource found
-            if( assembly.GetManifestResourceInfo(virtualPath) == null)
+            resourceName = resourceName.Replace('/', '.');
+            if( assembly.GetManifestResourceInfo(resourceName) == null)
             { 
                 return null;
             }
 
             //load the file
-            Stream stream = assembly.GetManifestResourceStream(virtualPath);
+            Stream stream = assembly.GetManifestResourceStream(resourceName);
             StreamReader sr = new StreamReader(stream);
-            return new MarkupFile(virtualPath, virtualPath, sr.ReadToEnd());
+            return new MarkupFile(resourceName, resourceName, sr.ReadToEnd());
         }
 
         /// <summary>

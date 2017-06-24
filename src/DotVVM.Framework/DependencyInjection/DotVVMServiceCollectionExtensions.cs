@@ -33,7 +33,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IViewModelSerializationMapper, ViewModelSerializationMapper>();
             services.TryAddSingleton<IOutputRenderer, DefaultOutputRenderer>();
             services.TryAddSingleton<IDotvvmPresenter, DotvvmPresenter>();
-            services.TryAddSingleton<IMarkupFileLoader, DefaultMarkupFileLoader>();
+            services.TryAddSingleton<IMarkupFileLoader, AggregateMarkupFileLoader>();
             services.TryAddSingleton<IControlBuilderFactory, DefaultControlBuilderFactory>();
             services.TryAddSingleton<IControlResolver, DefaultControlResolver>();
             services.TryAddSingleton<IControlTreeResolver, DefaultControlTreeResolver>();
