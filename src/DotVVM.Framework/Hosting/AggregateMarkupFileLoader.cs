@@ -12,7 +12,6 @@ namespace DotVVM.Framework.Hosting
 
         public AggregateMarkupFileLoader()
         {
-            
             Loaders.Add(new DefaultMarkupFileLoader());
             Loaders.Add(new EmbeddedMarkupFileLoader());
         }
