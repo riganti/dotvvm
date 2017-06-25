@@ -14,11 +14,16 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public MarkupFile GetMarkup(DotvvmConfiguration configuration, string virtualPath)
         {
+            if (!virtualPath.StartsWith("embedded://"))
+            {
+                return null;
+            }
+
             string resourceName = virtualPath.Remove(0, 11);
 
             if (resourceName.IndexOf('/') == -1 || resourceName.IndexOf('/') == 0)
             {
-                return null;
+                throw new ArgumentException("Wrong string format", "virtualPath");
             }
 
             string assemblyName = resourceName.Substring(0, resourceName.IndexOf("/"));
@@ -32,14 +37,14 @@ namespace DotVVM.Framework.Hosting
             //no such assembly found
             catch (FileLoadException)
             {
-                return null;
+                throw new ArgumentException("No such assembly was found", "virtualPath");
             }
 
             //no such resource found
             resourceName = resourceName.Replace('/', '.');
             if( assembly.GetManifestResourceInfo(resourceName) == null)
-            { 
-                return null;
+            {
+                throw new ArgumentException("No such resource was found", "virtualPath");
             }
 
             //load the file

@@ -12,8 +12,9 @@ namespace DotVVM.Framework.Hosting
 
         public AggregateMarkupFileLoader()
         {
-            Loaders.Add(new EmbeddedMarkupFileLoader());
+            
             Loaders.Add(new DefaultMarkupFileLoader());
+            Loaders.Add(new EmbeddedMarkupFileLoader());
         }
 
         /// <summary>
@@ -23,12 +24,7 @@ namespace DotVVM.Framework.Hosting
         {
             MarkupFile result;
 
-            if(virtualPath.StartsWith("embedded://"))
-            {
-                return Loaders[0].GetMarkup(configuration, virtualPath);
-            }
-
-            for (int i = 1; i < Loaders.Count; i++)
+            for (int i = 0; i < Loaders.Count; i++)
             {
                 if (((result = Loaders[i].GetMarkup(configuration, virtualPath))) != null)
                 {

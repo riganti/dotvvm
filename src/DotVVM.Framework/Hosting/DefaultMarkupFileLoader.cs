@@ -15,7 +15,15 @@ namespace DotVVM.Framework.Hosting
         {
             // check that we are not outside application directory
             var fullPath = Path.Combine(configuration.ApplicationPhysicalPath, virtualPath);
-            fullPath = Path.GetFullPath(fullPath);
+            try
+            {
+                fullPath = Path.GetFullPath(fullPath);
+            }
+            catch(NotSupportedException)
+            {
+                return null;
+            }
+
             if (!fullPath.Replace('\\', '/').StartsWith(configuration.ApplicationPhysicalPath.Replace('\\', '/'), StringComparison.CurrentCultureIgnoreCase))
             {
                 return null;
