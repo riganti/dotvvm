@@ -13,18 +13,6 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     public class HtmlGenericControl : DotvvmControl, IControlWithHtmlAttributes
     {
-        public static readonly DotvvmProperty IncludeInPageProperty =
-            DotvvmProperty.Register<bool, HtmlGenericControl>(t => t.IncludeInPage, true);
-
-        public static readonly DotvvmProperty InnerTextProperty =
-            DotvvmProperty.Register<string, HtmlGenericControl>(t => t.InnerText, null);
-
-        public static readonly DotvvmProperty VisibleProperty =
-            DotvvmProperty.Register<bool, HtmlGenericControl>(t => t.Visible, true);
-
-        public static DotvvmPropertyGroup CssClassesGroupDescriptor =
-            DotvvmPropertyGroup.Register<string, HtmlGenericControl>("Class-", "CssClasses");
-
         /// <summary>
         /// Initializes a new instance of the <see cref="HtmlGenericControl"/> class.
         /// </summary>
@@ -55,6 +43,9 @@ namespace DotVVM.Framework.Controls
 
         public VirtualPropertyGroupDictionary<string> CssClasses => new VirtualPropertyGroupDictionary<string>(this, CssClassesGroupDescriptor);
 
+        public static DotvvmPropertyGroup CssClassesGroupDescriptor =
+            DotvvmPropertyGroup.Register<string, HtmlGenericControl>("Class-", "CssClasses");
+
         /// <summary>
         /// Gets or sets whether the control is included in the page using the Knockout 'if' binding.
         /// </summary>
@@ -65,6 +56,9 @@ namespace DotVVM.Framework.Controls
             set { SetValue(IncludeInPageProperty, value); }
         }
 
+        public static readonly DotvvmProperty IncludeInPageProperty =
+            DotvvmProperty.Register<bool, HtmlGenericControl>(t => t.IncludeInPage, true);
+
         /// <summary>
         /// Gets or sets the inner text of the HTML element.
         /// </summary>
@@ -73,6 +67,9 @@ namespace DotVVM.Framework.Controls
             get { return (string)GetValue(InnerTextProperty); }
             set { SetValue(InnerTextProperty, value); }
         }
+
+        public static readonly DotvvmProperty InnerTextProperty =
+            DotvvmProperty.Register<string, HtmlGenericControl>(t => t.InnerText, null);
 
         /// <summary>
         /// Gets the tag name.
@@ -89,6 +86,9 @@ namespace DotVVM.Framework.Controls
             get { return (bool)GetValue(VisibleProperty); }
             set { SetValue(VisibleProperty, value); }
         }
+
+        public static readonly DotvvmProperty VisibleProperty =
+            DotvvmProperty.Register<bool, HtmlGenericControl>(t => t.Visible, true);
 
         /// <summary>
         /// Gets a value whether this control renders a HTML tag.

@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DotVVM.Framework.Runtime;
-using DotVVM.Framework.Hosting;
-using DotVVM.Framework.Binding.Properties;
-using DotVVM.Framework.Binding;
-using DotVVM.Framework.Utils;
+﻿using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Binding.Properties;
+using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Utils;
+using System.Linq;
 
 namespace DotVVM.Framework.Controls
 {
     /// <summary>
-    /// Content of this control is displayed if DataSource is empty or null
+    /// Content of this control is displayed if and only if DataSource is empty or null
     /// </summary>
     public class EmptyData : ItemsControl
     {
@@ -26,6 +21,7 @@ namespace DotVVM.Framework.Controls
             get { return (string)GetValue(WrapperTagNameProperty); }
             set { SetValue(WrapperTagNameProperty, value); }
         }
+
         public static readonly DotvvmProperty WrapperTagNameProperty =
             DotvvmProperty.Register<string, EmptyData>(t => t.WrapperTagName, "div");
 
@@ -38,12 +34,15 @@ namespace DotVVM.Framework.Controls
             get { return (bool)GetValue(RenderWrapperTagProperty); }
             set { SetValue(RenderWrapperTagProperty, value); }
         }
+
         public static readonly DotvvmProperty RenderWrapperTagProperty =
             DotvvmProperty.Register<bool, EmptyData>(t => t.RenderWrapperTag, true);
 
         protected override bool RendersHtmlTag => RenderWrapperTag;
 
-        public EmptyData() { }
+        public EmptyData()
+        {
+        }
 
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {

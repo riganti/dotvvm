@@ -12,21 +12,6 @@ namespace DotVVM.Framework.Controls
     [ControlMarkupOptions(AllowContent = false, DefaultContentProperty = nameof(ItemTemplate))]
     public class Repeater : ItemsControl
     {
-        public static readonly DotvvmProperty EmptyDataTemplateProperty =
-            DotvvmProperty.Register<ITemplate, Repeater>(t => t.EmptyDataTemplate, null);
-
-        public static readonly DotvvmProperty ItemTemplateProperty =
-            DotvvmProperty.Register<ITemplate, Repeater>(t => t.ItemTemplate, null);
-
-        public static readonly DotvvmProperty RenderWrapperTagProperty =
-            DotvvmProperty.Register<bool, Repeater>(t => t.RenderWrapperTag, true);
-
-        public static readonly DotvvmProperty SeparatorTemplateProperty =
-            DotvvmProperty.Register<ITemplate, Repeater>(t => t.SeparatorTemplate, null);
-
-        public static readonly DotvvmProperty WrapperTagNameProperty =
-            DotvvmProperty.Register<string, Repeater>(t => t.WrapperTagName, "div");
-
         private EmptyData emptyDataContainer;
 
         public Repeater()
@@ -44,6 +29,9 @@ namespace DotVVM.Framework.Controls
             set { SetValue(EmptyDataTemplateProperty, value); }
         }
 
+        public static readonly DotvvmProperty EmptyDataTemplateProperty =
+            DotvvmProperty.Register<ITemplate, Repeater>(t => t.EmptyDataTemplate, null);
+
         /// <summary>
         /// Gets or sets the template for each Repeater item.
         /// </summary>
@@ -56,6 +44,9 @@ namespace DotVVM.Framework.Controls
             set { SetValue(ItemTemplateProperty, value); }
         }
 
+        public static readonly DotvvmProperty ItemTemplateProperty =
+            DotvvmProperty.Register<ITemplate, Repeater>(t => t.ItemTemplate, null);
+
         /// <summary>
         /// Gets or sets whether the control should render a wrapper element.
         /// </summary>
@@ -65,6 +56,9 @@ namespace DotVVM.Framework.Controls
             get { return (bool)GetValue(RenderWrapperTagProperty); }
             set { SetValue(RenderWrapperTagProperty, value); }
         }
+
+        public static readonly DotvvmProperty RenderWrapperTagProperty =
+            DotvvmProperty.Register<bool, Repeater>(t => t.RenderWrapperTag, true);
 
         /// <summary>
         /// Gets or sets the template containing the elements that separate items.
@@ -76,6 +70,9 @@ namespace DotVVM.Framework.Controls
             set { SetValue(SeparatorTemplateProperty, value); }
         }
 
+        public static readonly DotvvmProperty SeparatorTemplateProperty =
+            DotvvmProperty.Register<ITemplate, Repeater>(t => t.SeparatorTemplate, null);
+
         /// <summary>
         /// Gets or sets the name of the tag that wraps the Repeater.
         /// </summary>
@@ -85,6 +82,9 @@ namespace DotVVM.Framework.Controls
             get { return (string)GetValue(WrapperTagNameProperty); }
             set { SetValue(WrapperTagNameProperty, value); }
         }
+
+        public static readonly DotvvmProperty WrapperTagNameProperty =
+            DotvvmProperty.Register<string, Repeater>(t => t.WrapperTagName, "div");
 
         protected override bool RendersHtmlTag => RenderWrapperTag;
 

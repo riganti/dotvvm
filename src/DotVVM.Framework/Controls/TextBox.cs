@@ -12,30 +12,6 @@ namespace DotVVM.Framework.Controls
     [ControlMarkupOptions(AllowContent = false)]
     public class TextBox : HtmlGenericControl
     {
-        public static readonly DotvvmProperty EnabledProperty =
-            DotvvmProperty.Register<bool, TextBox>(t => t.Enabled, true);
-
-        public static readonly DotvvmProperty FormatStringProperty =
-            DotvvmProperty.Register<string, TextBox>(t => t.FormatString);
-
-        public static readonly DotvvmProperty ChangedProperty =
-            DotvvmProperty.Register<Command, TextBox>(t => t.Changed, null);
-
-        public static readonly DotvvmProperty SelectAllOnFocusProperty =
-            DotvvmProperty.Register<bool, TextBox>(t => t.SelectAllOnFocus, false);
-
-        public static readonly DotvvmProperty TextProperty =
-            DotvvmProperty.Register<string, TextBox>(t => t.Text, "");
-
-        public static readonly DotvvmProperty TypeProperty =
-            DotvvmProperty.Register<TextBoxType, TextBox>(c => c.Type, TextBoxType.Normal);
-
-        public static readonly DotvvmProperty UpdateTextAfterKeydownProperty =
-            DotvvmProperty.Register<bool, TextBox>(c => c.UpdateTextAfterKeydown, false);
-
-        public static readonly DotvvmProperty ValueTypeProperty =
-            DotvvmProperty.Register<FormatValueType, TextBox>(t => t.ValueType);
-
         private bool isFormattingRequired;
 
         /// <summary>
@@ -47,6 +23,9 @@ namespace DotVVM.Framework.Controls
             set { SetValue(EnabledProperty, value); }
         }
 
+        public static readonly DotvvmProperty EnabledProperty =
+            DotvvmProperty.Register<bool, TextBox>(t => t.Enabled, true);
+
         /// <summary>
         /// Gets or sets a format of presentation of value to client.
         /// </summary>
@@ -57,6 +36,9 @@ namespace DotVVM.Framework.Controls
             set { SetValue(FormatStringProperty, value); }
         }
 
+        public static readonly DotvvmProperty FormatStringProperty =
+            DotvvmProperty.Register<string, TextBox>(t => t.FormatString);
+
         /// <summary>
         /// Gets or sets the command that will be triggered when the control text is changed.
         /// </summary>
@@ -66,6 +48,9 @@ namespace DotVVM.Framework.Controls
             set { SetValue(ChangedProperty, value); }
         }
 
+        public static readonly DotvvmProperty ChangedProperty =
+            DotvvmProperty.Register<Command, TextBox>(t => t.Changed, null);
+
         /// <summary>
         /// Gets or sets whether all text inside the TextBox becomes selected when the element gets focused.
         /// </summary>
@@ -74,6 +59,9 @@ namespace DotVVM.Framework.Controls
             get { return (bool)GetValue(SelectAllOnFocusProperty); }
             set { SetValue(SelectAllOnFocusProperty, value); }
         }
+
+        public static readonly DotvvmProperty SelectAllOnFocusProperty =
+            DotvvmProperty.Register<bool, TextBox>(t => t.SelectAllOnFocus, false);
 
         /// <summary>
         /// Gets or sets the text in the control.
@@ -85,6 +73,9 @@ namespace DotVVM.Framework.Controls
             set { SetValue(TextProperty, value); }
         }
 
+        public static readonly DotvvmProperty TextProperty =
+            DotvvmProperty.Register<string, TextBox>(t => t.Text, "");
+
         /// <summary>
         /// Gets or sets the mode of the text field.
         /// </summary>
@@ -94,6 +85,9 @@ namespace DotVVM.Framework.Controls
             get { return (TextBoxType)GetValue(TypeProperty); }
             set { SetValue(TypeProperty, value); }
         }
+
+        public static readonly DotvvmProperty TypeProperty =
+            DotvvmProperty.Register<TextBoxType, TextBox>(c => c.Type, TextBoxType.Normal);
 
         /// <summary>
         /// Gets or sets whether the viewmodel property will be updated after the key is pressed. 
@@ -106,6 +100,9 @@ namespace DotVVM.Framework.Controls
             set { SetValue(UpdateTextAfterKeydownProperty, value); }
         }
 
+        public static readonly DotvvmProperty UpdateTextAfterKeydownProperty =
+            DotvvmProperty.Register<bool, TextBox>(c => c.UpdateTextAfterKeydown, false);
+
         /// <summary>
         /// Gets or sets the type of value being formatted - Number or DateTime.
         /// </summary>
@@ -116,6 +113,9 @@ namespace DotVVM.Framework.Controls
             get { return (FormatValueType)GetValue(ValueTypeProperty); }
             set { SetValue(ValueTypeProperty, value); }
         }
+
+        public static readonly DotvvmProperty ValueTypeProperty =
+            DotvvmProperty.Register<FormatValueType, TextBox>(t => t.ValueType);
 
         protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
