@@ -1,9 +1,13 @@
-﻿using DotVVM.Framework.Compilation;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
+using DotVVM.Framework.Binding;
+using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Runtime;
@@ -44,6 +48,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<ILocalResourceUrlManager, LocalResourceUrlManager>();
             services.TryAddSingleton<IResourceHashService, DefaultResourceHashService>();
             services.TryAddSingleton<IStopwatch, DefaultStopwatch>();
+            services.AddScoped<ITraceData, DefaultTraceData>();
 
             services.AddSingleton(s => configuration ?? (configuration = DotvvmConfiguration.CreateDefault(s)));
 

@@ -34,14 +34,14 @@ namespace Owin
 
         private static DotvvmConfiguration UseDotVVM(this IAppBuilder app, string applicationRootPath, bool useErrorPages, bool debug, Action<IDotvvmOptions> options)
         {
-            var config = DotvvmConfiguration.CreateDefault(s =>
+            var config = DotvvmConfiguration.CreateDefault((s, c) =>
             {
                 s.TryAddSingleton<IDataProtectionProvider>(p => new DefaultDataProtectionProvider(app));
                 s.TryAddSingleton<IViewModelProtector, DefaultViewModelProtector>();
                 s.TryAddSingleton<ICsrfProtector, DefaultCsrfProtector>();
                 s.TryAddSingleton<IEnvironmentNameProvider, DotvvmEnvironmentNameProvider>();
                 s.TryAddSingleton<ICookieManager, ChunkingCookieManager>();
-                options?.Invoke(new DotvvmOptions(s));
+                options?.Invoke(new DotvvmOptions(s, c));
             });
 
             config.Debug = debug;
@@ -52,6 +52,7 @@ namespace Owin
                 app.Use<DotvvmErrorPageMiddleware>();
             }
 
+            
             app.Use<DotvvmMiddleware>(config, new List<IMiddleware> {
                 ActivatorUtilities.CreateInstance<DotvvmLocalResourceMiddleware>(config.ServiceLocator.GetServiceProvider()),
                 new DotvvmFileUploadMiddleware(),
