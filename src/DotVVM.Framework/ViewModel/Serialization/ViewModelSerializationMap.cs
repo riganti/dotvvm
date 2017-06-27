@@ -96,11 +96,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             // go through all properties that should be read
             foreach (var property in Properties.Where(p => p.PropertyInfo.SetMethod != null))
             {
-                if(!property.TransferToServer)
-                {
-                    block.Add(Expression.Call(encryptedValuesReader, nameof(EncryptedValuesReader.SkipProperty), Type.EmptyTypes));
-                }
-                else if (property.ViewModelProtection == ProtectMode.EncryptData || property.ViewModelProtection == ProtectMode.SignData)
+                if (property.ViewModelProtection == ProtectMode.EncryptData || property.ViewModelProtection == ProtectMode.SignData)
                 {
                     // encryptedValues[(int)jobj["{p.Name}"]]
 
@@ -117,7 +113,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 }
                 else
                 {
-                    var checkEV = property.TransferAfterPostback && property.TransferFirstRequest && ShouldCheckEncrypedValues(property.Type);
+                    var checkEV = property.TransferAfterPostback && property.TransferFirstRequest && ShouldCheckEncryptedValues(property.Type);
                     if (checkEV)
                     {
                         // lastEncrypedValuesCount = encrypedValues.Count
@@ -274,7 +270,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
                         property.ViewModelProtection == ProtectMode.SignData)
                     {
                         var checkEV = property.ViewModelProtection == ProtectMode.None &&
-                                           ShouldCheckEncrypedValues(property.Type);
+                            property.TransferToServer &&
+                            ShouldCheckEncryptedValues(property.Type);
                         if (checkEV)
                         {
                             // lastEncrypedValuesCount = encrypedValues.Count
@@ -396,7 +393,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Determines whether type can contain encrypted fields
         /// </summary>
-        private bool ShouldCheckEncrypedValues(Type type)
+        private bool ShouldCheckEncryptedValues(Type type)
         {
             return !(
                 // primitives can't contain encrypted fields

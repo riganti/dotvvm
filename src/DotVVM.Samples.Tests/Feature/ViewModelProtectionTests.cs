@@ -136,6 +136,7 @@ namespace DotVVM.Samples.Tests.Feature
 
                 beforePostback(browser);
                 browser.Single("postback", this.SelectByDataUi).Click();
+                browser.Wait(500);
                 afterPostback(browser);
             });
         }
