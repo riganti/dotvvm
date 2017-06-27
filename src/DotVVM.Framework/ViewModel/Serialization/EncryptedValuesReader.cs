@@ -50,7 +50,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 virtualNests--;
                 propertyIndex = propertyIndices.Pop();
             }
-            else if(json.TokenType == JsonToken.EndObject)
+            else if (json.TokenType == JsonToken.EndObject)
             {
                 json.Read();
                 propertyIndex = propertyIndices.Pop();
@@ -77,6 +77,17 @@ namespace DotVVM.Framework.ViewModel.Serialization
             Debug.Assert(reader.TokenType == JsonToken.StartObject);
             reader.Read();
             return new EncryptedValuesReader(reader);
+        }
+
+        public void SkipProperty()
+        {
+            if (HasProperty(propertyIndex))
+            {
+                json.Skip();
+                json.Read();
+
+            }
+            propertyIndex++;
         }
     }
 }

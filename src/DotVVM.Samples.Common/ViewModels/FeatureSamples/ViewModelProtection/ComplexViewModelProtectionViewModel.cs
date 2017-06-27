@@ -18,7 +18,10 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.ViewModelProtection
 
         public class Message
         {
+            [Protect(ProtectMode.SignData)]
             public string Text { get; set; } = "Sample text";
+
+            public Song AnotherSong { get; set; }
         }
 
         public class Song
