@@ -11,7 +11,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.DataPager
         public GridViewDataSet<Data> DataSet { get; set; }
         public override Task Init()
         {
-            DataSet = GridViewDataSet.Create(GetData, pageSize: 3);
+            DataSet = GridViewDataSet.Create(GetDataAsync, pageSize: 3);
             return base.Init();
         }
 
@@ -30,6 +30,12 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.DataPager
         {
             var queryable = FakeDB(ItemsInDatabaseCount);
             return queryable.GetDataFromQueryable(gridViewDataSetLoadOptions);
+        }
+
+        private async Task<GridViewDataSetLoadedData<Data>> GetDataAsync(IGridViewDataSetLoadOptions gridViewDataSetLoadOptions)
+        {
+            var queryable = FakeDB(ItemsInDatabaseCount);
+            return await Task.Run(() => queryable.GetDataFromQueryable(gridViewDataSetLoadOptions));
         }
 
         private IQueryable<Data> FakeDB(int itemsCreatorCounter)

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Framework.Controls
@@ -37,6 +38,24 @@ namespace DotVVM.Framework.Controls
                     return null;
                 }
                 return options => OnLoadingData(options);
+            }
+        }
+
+        /// <summary>
+        /// Called when the GridViewDataSet should be refreshed (on initial page load and when paging or sort options change).
+        /// </summary>
+        [Bind(Direction.None)]
+        public AsyncGridViewDataSetLoadDelegate<T> OnLoadingDataAsync { get; set; }
+
+        AsyncGridViewDataSetLoadDelegate IRefreshableGridViewDataSet.OnLoadingDataAsync
+        {
+            get
+            {
+                if (OnLoadingDataAsync == null)
+                {
+                    return null;
+                }
+                return async options => await OnLoadingDataAsync(options);
             }
         }
 
@@ -152,8 +171,6 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-
-
         /// <summary>
         /// Creates a GridViewDataSetLoadOptions object which provides information for loading the data.
         /// </summary>
@@ -169,11 +186,21 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Refreshes the GridViewDataSet immediately, or switches the flag that the refresh is needed.
         /// </summary>
-        protected virtual void NotifyRefreshRequired()
+        protected virtual async Task NotifyRefreshRequired()
         {
-            if (OnLoadingData != null)
+            if(OnLoadingData != null && OnLoadingDataAsync != null)
+            {
+                throw new Exception();
+            }
+            else if (OnLoadingData != null)
             {
                 var gridViewDataSetLoadedData = OnLoadingData(CreateGridViewDataSetLoadOptions());
+                FillDataSet(gridViewDataSetLoadedData);
+                IsRefreshRequired = false;
+            }
+            else if(OnLoadingDataAsync != null)
+            {
+                var gridViewDataSetLoadedData = await OnLoadingDataAsync(CreateGridViewDataSetLoadOptions());
                 FillDataSet(gridViewDataSetLoadedData);
                 IsRefreshRequired = false;
             }
@@ -281,6 +308,7 @@ namespace DotVVM.Framework.Controls
         [Bind(Direction.None)]
         [Obsolete("Use RowEditOptions.EditRowId instead. This property will be removed in future versions.")]
         public object EditRowId { get => RowEditOptions.EditRowId; set => RowEditOptions.EditRowId = value; }
+
     }
     public class GridViewDataSet
     {
@@ -290,6 +318,19 @@ namespace DotVVM.Framework.Controls
             return new GridViewDataSet<T>
             {
                 OnLoadingData = gridViewDataSetLoadDelegate,
+                PagingOptions = new PagingOptions
+                {
+                    PageSize = pageSize
+                }
+            };
+        }
+
+        public static GridViewDataSet<T> Create<T>(AsyncGridViewDataSetLoadDelegate<T> asyncGridViewDataSetLoadDelegate,
+            int pageSize)
+        {
+            return new GridViewDataSet<T>
+            {
+                OnLoadingDataAsync = asyncGridViewDataSetLoadDelegate,
                 PagingOptions = new PagingOptions
                 {
                     PageSize = pageSize
