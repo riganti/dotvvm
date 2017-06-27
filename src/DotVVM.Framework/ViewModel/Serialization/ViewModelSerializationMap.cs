@@ -94,9 +94,13 @@ namespace DotVVM.Framework.ViewModel.Serialization
             block.Add(Expression.Assign(value, Expression.Convert(valueParam, Type)));
 
             // go through all properties that should be read
-            foreach (var property in Properties.Where(p => p.TransferToServer && p.PropertyInfo.SetMethod != null))
+            foreach (var property in Properties.Where(p => p.PropertyInfo.SetMethod != null))
             {
-                if (property.ViewModelProtection == ProtectMode.EncryptData || property.ViewModelProtection == ProtectMode.SignData)
+                if(!property.TransferToServer)
+                {
+                    block.Add(Expression.Call(encryptedValuesReader, nameof(EncryptedValuesReader.SkipProperty), Type.EmptyTypes));
+                }
+                else if (property.ViewModelProtection == ProtectMode.EncryptData || property.ViewModelProtection == ProtectMode.SignData)
                 {
                     // encryptedValues[(int)jobj["{p.Name}"]]
 

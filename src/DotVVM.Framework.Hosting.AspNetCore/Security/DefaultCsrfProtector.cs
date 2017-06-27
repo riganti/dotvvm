@@ -80,8 +80,8 @@ namespace DotVVM.Framework.Security
         private byte[] GetOrCreateSessionId(IDotvvmRequestContext context, bool canGenerate = true)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
-			var originalHttpContext = context.GetAspNetCoreContext();
-			var sessionIdCookieName = GetSessionIdCookieName(context);
+            var originalHttpContext = context.GetAspNetCoreContext();
+            var sessionIdCookieName = GetSessionIdCookieName(context);
             if (string.IsNullOrWhiteSpace(sessionIdCookieName)) throw new FormatException("Configured SessionIdCookieName is missing or empty.");
             
             // Construct protector with purposes
@@ -113,7 +113,7 @@ namespace DotVVM.Framework.Security
 
             if(canGenerate)
             {
-				var rng = System.Security.Cryptography.RandomNumberGenerator.Create();
+                var rng = System.Security.Cryptography.RandomNumberGenerator.Create();
                 var sid = new byte[SID_LENGTH];
                 rng.GetBytes(sid);
                 var protectedSid = protector.Protect(sid);
@@ -121,7 +121,7 @@ namespace DotVVM.Framework.Security
                 // Save to cookie
                 sidCookieValue = Convert.ToBase64String(protectedSid);
                 cookieManager.AppendResponseCookie(
-					originalHttpContext,
+                    originalHttpContext,
                     sessionIdCookieName,                                // Configured cookie name
                     sidCookieValue,                                     // Base64-encoded SID value
                     new CookieOptions

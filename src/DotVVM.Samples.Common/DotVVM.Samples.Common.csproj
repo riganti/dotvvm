@@ -28,6 +28,7 @@
     <None Remove="Views\FeatureSamples\MarkupControl\MultiControlHierarchy.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_ComboBoxSelectionChanged.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_ComboBoxSelectionChanged_Objects.dothtml" />
+    <None Remove="Views\FeatureSamples\ViewModelProtection\ComplexViewModelProtection.dothtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Scripts\ClientExtenders.js" />
@@ -52,6 +53,7 @@
     <Content Include="Views\FeatureSamples\MarkupControl\MultiControlHierarchy.dothtml" />
     <Content Include="Views\FeatureSamples\StaticCommand\StaticCommand_ComboBoxSelectionChanged.dothtml" />
     <Content Include="Views\FeatureSamples\StaticCommand\StaticCommand_ComboBoxSelectionChanged_Objects.dothtml" />
+    <Content Include="Views\FeatureSamples\ViewModelProtection\ComplexViewModelProtection.dothtml" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="NETStandard.Library" Version="1.6.0" />

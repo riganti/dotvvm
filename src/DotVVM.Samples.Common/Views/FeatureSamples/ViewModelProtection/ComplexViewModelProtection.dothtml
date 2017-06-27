@@ -1,0 +1,76 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.ViewModelProtection.ComplexViewModelProtectionViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Complex ViewModel protection</title>
+    <style>
+        div {
+            margin: 20px;
+            padding: 20px;
+            border: solid 1px gray;
+            background-color: rgba(120, 120, 120, 0.10)
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h4>Signed string</h4>
+        <dot:RadioButton CheckedItem="{value: SelectedColor}"
+                         CheckedValue="red"
+                         data-ui="radio-red"/>
+        <dot:RadioButton CheckedItem="{value: SelectedColor}"
+                         CheckedValue="green"
+                         data-ui="radio-green"/>
+        <dot:RadioButton CheckedItem="{value: SelectedColor}"
+                         CheckedValue="blue" 
+                         data-ui="radio-blue"/>
+        <span>Selected color: </span>
+        <span data-ui="selected-color">{{value: SelectedColor}}</span>
+        <br />
+        <dot:Button Click="{staticCommand: SelectedColor = "green"}"
+                    data-ui="change-color">Change Selected color</dot:Button>
+    </div>
+    <div>
+        <h4>Signed list of strings</h4>
+        <span>Seasons: </span>
+        <dot:Repeater DataSource="{value: Seasons}"
+                      data-ui="repeater-seasons">
+            <span>{{value: _this}}</span><span>,</span>
+        </dot:Repeater>
+        <br />
+        <button onclick="dotvvm.viewModels.root.viewModel.Seasons(null)"
+                data-ui="change-seasons">Try to change the Seasons</button>
+    </div>
+    <div>
+        <h4>A ServerToClient Message</h4>
+        <span>Message: </span>
+        <span data-ui="message">{{value: TestMessage.Text}}</span>
+        <br/>
+        <dot:Button Click="{staticCommand: TestMessage.Text = "A different message"}"
+                    data-ui="change-message">Change the Message</dot:Button>
+    </div>
+    <div>
+        <h4>Nested protection</h4>
+        <p>The Song's Title is not protected, Author is signed.</p>
+        <span>Title: </span>
+        <span data-ui="song-title">{{value: TestSong.Title}}</span>
+        <br/>
+        <span>Author: </span>
+        <span data-ui="song-author">{{value: TestSong.Author}}</span>
+        <br/>
+        <dot:Button Click="{staticCommand: TestSong.Title = "New Title"}"
+                    data-ui="change-song-title">Change Title</dot:Button>
+        <dot:Button Click="{staticCommand: TestSong.Author = "Joe Pirate"}"
+                    data-ui="change-song-author">Change Author</dot:Button>
+    </div>
+    <div>
+        <dot:Button Click="{command: 0}"
+                    data-ui="postback">Postback</dot:Button>
+    </div>
+</body>
+</html>
+
+

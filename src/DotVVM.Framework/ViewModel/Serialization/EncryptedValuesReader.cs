@@ -68,6 +68,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
             return result;
         }
 
+        public void SkipProperty()
+        {
+            propertyIndex++;
+        }
+
         Exception SecurityError() => new SecurityException("Failed to deserialize viewModel encrypted values");
 
         public static EncryptedValuesReader FromObject(JObject encryptedValues)
