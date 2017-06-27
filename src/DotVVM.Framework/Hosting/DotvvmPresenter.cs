@@ -59,6 +59,7 @@ namespace DotVVM.Framework.Hosting
             try
             {
                 await ProcessRequestCore(context);
+                await TraceRequestAsync(context);
             }
             catch (UnauthorizedAccessException)
             {
@@ -74,6 +75,15 @@ namespace DotVVM.Framework.Hosting
             }
         }
 
+        public async Task TraceRequestAsync(IDotvvmRequestContext context)
+        {
+            var reporters = context.Configuration.Runtime.Reporters;
+            foreach(var reporter in reporters)
+            {
+                await reporter.TraceEvents(context, context.TraceData);
+            } 
+        }
+        
         /// <summary>
         /// </summary>
         /// <param name="context"></param>
@@ -81,6 +91,8 @@ namespace DotVVM.Framework.Hosting
         public async Task ProcessRequestCore(IDotvvmRequestContext context)
         {
             var stopwatch = context.Configuration.ServiceLocator.GetService<IStopwatch>();
+
+            //AddTraceData(context, RequestTracingConstants.BeginRequest);
 
             long lastStopwatchState = AddTraceData(stopwatch.GetElapsedMiliseconds(), RequestTracingConstants.BeginRequest, context, stopwatch);
             if (context.HttpContext.Request.Method != "GET" && context.HttpContext.Request.Method != "POST")

@@ -64,6 +64,8 @@ namespace DotVVM.Framework.Hosting.Middlewares
 
         public async Task<bool> Handle(IDotvvmRequestContext context)
         {
+            await StartTraceRequestAsync(context);
+
             IDictionary<string, object> parameters;
             var route = FindMatchingRoute(context.Configuration.RouteTable, context, out parameters);
 
@@ -94,6 +96,14 @@ namespace DotVVM.Framework.Hosting.Middlewares
                 throw;
             }
             return true;
+        }
+        public async Task StartTraceRequestAsync(IDotvvmRequestContext context)
+        {
+            var reporters = context.Configuration.Runtime.Reporters;
+            foreach (var reporter in reporters)
+            {
+                await reporter.StartTraceEvents();
+            }
         }
     }
 }

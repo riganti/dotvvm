@@ -1,0 +1,15 @@
+﻿@viewModel DotVVM.Samples.ApplicationInsights.AspNetCore.Views.Test.correctCommandViewModel, DotVVM.Samples.ApplicationInsights.AspNetCore.Views.Test
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <dot:Button Text="This button does nothing" Click="{command: Submit()}" />
+    <br />
+    <dot:RouteLink RouteName="Default" Text="Redirect to default view" />
+</body>
+</html>

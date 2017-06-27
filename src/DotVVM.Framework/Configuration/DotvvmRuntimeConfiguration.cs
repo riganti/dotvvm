@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using DotVVM.Framework.Runtime.Filters;
+using DotVVM.Framework.Runtime.Tracing;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -15,6 +16,11 @@ namespace DotVVM.Framework.Configuration
         [JsonIgnore()]
         public List<IActionFilter> GlobalFilters { get; private set; }
 
+        /// <summary>
+        /// Gets reqistered request tracing reporters.
+        /// </summary>
+        [JsonIgnore()]
+        public List<IRequestTracingReporter> Reporters { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmRuntimeConfiguration"/> class.
@@ -22,6 +28,7 @@ namespace DotVVM.Framework.Configuration
         public DotvvmRuntimeConfiguration()
         {
             GlobalFilters = new List<IActionFilter>();
+            Reporters = new List<IRequestTracingReporter>();
         }
     }
 }
