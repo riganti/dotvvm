@@ -10,8 +10,8 @@ namespace DotVVM.Framework.Controls
 
     public delegate GridViewDataSetLoadedData<T> GridViewDataSetLoadDelegate<T>(IGridViewDataSetLoadOptions gridViewDataSetLoadOptions);
 
-    public delegate Task<GridViewDataSetLoadedData> AsyncGridViewDataSetLoadDelegate(IGridViewDataSetLoadOptions gridViewDataSetLoadOptions);
+    public delegate Task<GridViewDataSetLoadedData> GridViewDataSetLoadAsyncDelegate(IGridViewDataSetLoadOptions gridViewDataSetLoadOptions);
 
-    public delegate Task<GridViewDataSetLoadedData<T>> AsyncGridViewDataSetLoadDelegate<T>(IGridViewDataSetLoadOptions gridViewDataSetLoadOptions);
+    public delegate Task<GridViewDataSetLoadedData<T>> GridViewDataSetLoadAsyncDelegate<T>(IGridViewDataSetLoadOptions gridViewDataSetLoadOptions);
 
 }
