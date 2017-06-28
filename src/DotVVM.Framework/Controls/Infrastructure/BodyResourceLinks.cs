@@ -37,33 +37,10 @@ namespace DotVVM.Framework.Controls.Infrastructure
 
             // init on load
             writer.RenderBeginTag("script");
-            writer.WriteUnencodedText($@" (function () {{
-            var initAttempts = 0;
-            var initDotVVMfunc = function () {{
-                window.dotvvm.domUtils.onDocumentReady(function () {{
-                    window.dotvvm.init('root', '{CultureInfo.CurrentCulture.Name}');
-                }}}});
-            }};
-
-            if (window.dotvvm) {{
-                initDotVVMfunc();
-            }}
-            else {{
-                function tryInitDotvvm() {{
-                    if (initAttempts > 500) {{
-                        console.error(""DotVVM cannot be initialized!"")
-        }} else {{
-            if (window.dotvvm) {{
-                initDotVVMfunc();
-            }} else {{
-                initAttempts++;
-                setTimeout(tryInitDotvvm, 30);
-            }}
-        }}
-    }}
-    tryInitDotvvm();
-}}
-}})();");
+            writer.WriteUnencodedText($@"
+window.dotvvm.domUtils.onDocumentReady(function () {{ 
+    window.dotvvm.init('root', '{CultureInfo.CurrentCulture.Name}'); 
+}});");
             writer.RenderEndTag();
         }
     }
