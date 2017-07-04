@@ -78,12 +78,12 @@ namespace DotVVM.Framework.Hosting
         public async Task TraceRequestAsync(IDotvvmRequestContext context)
         {
             var reporters = context.Configuration.Runtime.Reporters;
-            foreach(var reporter in reporters)
+            foreach (var reporter in reporters)
             {
                 await reporter.TraceEvents(context, context.TraceData);
-            } 
+            }
         }
-        
+
         /// <summary>
         /// </summary>
         /// <param name="context"></param>
@@ -203,8 +203,8 @@ namespace DotVVM.Framework.Hosting
                             methodFilters = methodFilters.Concat(filters.Filters.OfType<ICommandActionFilter>());
 
                         await ExecuteCommand(actionInfo, context, methodFilters);
+                        lastStopwatchState = AddTraceData(lastStopwatchState, RequestTracingConstants.CommandExecuted, context, stopwatch);
                     }
-                    lastStopwatchState = AddTraceData(lastStopwatchState, RequestTracingConstants.CommandExecuted, context, stopwatch);
                 }
 
                 if (context.ViewModel is IDotvvmViewModel)
@@ -307,7 +307,8 @@ namespace DotVVM.Framework.Hosting
                 arguments.Skip(methodInfo.IsStatic ? 0 : 1)
                     .Zip(methodInfo.GetParameters(), (arg, parameter) => arg.ToObject(parameter.ParameterType))
                     .ToArray();
-            var actionInfo = new ActionInfo {
+            var actionInfo = new ActionInfo
+            {
                 IsControlCommand = false,
                 Action = () => methodInfo.Invoke(target, methodArguments)
             };
