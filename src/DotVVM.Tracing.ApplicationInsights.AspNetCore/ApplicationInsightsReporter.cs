@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime.Tracing;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 
@@ -13,16 +14,16 @@ namespace DotVVM.Tracing.ApplicationInsights
     {
         private RequestTelemetry requestMetrics;
 
-        public Task StartTraceEvents()
+        public virtual Task StartTraceEvents()
         {
             requestMetrics = new RequestTelemetry();
             requestMetrics.Start();
             return Task.CompletedTask;
         }
 
-        public Task TraceEvents(IDotvvmRequestContext context, Dictionary<string, object> traceData)
+        public virtual Task TraceEvents(IDotvvmRequestContext context, Dictionary<string, object> traceData)
         {
-            var client = context.Configuration.ServiceLocator.GetService<TelemetryClient>();
+            TelemetryClient client = GetTelemetryClient(context);
 
             requestMetrics.Name = context.HttpContext.Request.Method + " " + context.HttpContext.Request.Path.Value;
             requestMetrics.Url = context.HttpContext.Request.Url;
@@ -36,12 +37,18 @@ namespace DotVVM.Tracing.ApplicationInsights
             return Task.CompletedTask;
         }
 
-        public Task TraceException(IDotvvmRequestContext context, Exception e)
+        public virtual Task TraceException(IDotvvmRequestContext context, Exception e)
         {
-            var client = context.Configuration.ServiceLocator.GetService<TelemetryClient>();
+            var client = GetTelemetryClient(context);
 
             client.TrackException(e);
             return Task.CompletedTask;
         }
+
+        private static TelemetryClient GetTelemetryClient(IDotvvmRequestContext context)
+        {
+            return context.Services.GetService<TelemetryClient>();
+        }
+
     }
 }
