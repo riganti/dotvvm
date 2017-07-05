@@ -1,4 +1,4 @@
-@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.Repeater.NestedRepeaterViewModel, DotVVM.Samples.Common
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.Repeater.NestedRepeaterViewModel, DotVVM.Samples.Common
 
 <!DOCTYPE html>
 
@@ -9,45 +9,45 @@
 </head>
 <body ClientIDMode="Static">
 
-	<div ID="sample1">
-		<dot:Repeater DataSource="{value: Children}" WrapperTagName="ul">
-			<ItemTemplate>
-				<li>
-					<p>{{value: Name}}</p>
+    <div ID="sample1">
+        <dot:Repeater DataSource="{value: Children}" WrapperTagName="ul">
+            <ItemTemplate>
+                <li>
+                    <p>{{value: Name}}</p>
 
-					<dot:Repeater DataSource="{value: Children}" WrapperTagName="ul">
-						<ItemTemplate>
-							<li>
-								{{value: Name}}
-								<dot:LinkButton Click="{command: _root.Click(_parent.Name, Name)}" Text="Select" />
-							</li>
-						</ItemTemplate>
-					</dot:Repeater>
-				</li>
-			</ItemTemplate>
-		</dot:Repeater>
-	</div>
+                    <dot:Repeater DataSource="{value: Children}" WrapperTagName="ul">
+                        <ItemTemplate>
+                            <li>
+                                {{value: Name}}
+                                <dot:LinkButton Click="{command: _root.Click(_parent.Name, Name)}" Text="Select" />
+                            </li>
+                        </ItemTemplate>
+                    </dot:Repeater>
+                </li>
+            </ItemTemplate>
+        </dot:Repeater>
+    </div>
 
-	<div ID="sample2">
-		<dot:Repeater DataSource="{value: Children}" WrapperTagName="ul" RenderSettings.Mode="Server">
-			<ItemTemplate>
-				<li>
-					<p>{{value: Name}}</p>
+    <div ID="sample2">
+        <dot:Repeater DataSource="{value: Children}" WrapperTagName="ul" RenderSettings.Mode="Server">
+            <ItemTemplate>
+                <li>
+                    <p>{{value: Name}}</p>
 
-					<dot:Repeater DataSource="{value: Children}" WrapperTagName="ul">
-						<ItemTemplate>
-							<li>
-								{{value: Name}}
-								<dot:LinkButton Click="{command: _root.Click(_parent.Name, Name)}" Text="Select" />
-							</li>
-						</ItemTemplate>
-					</dot:Repeater>
-				</li>
-			</ItemTemplate>
-		</dot:Repeater>
-	</div>
+                    <dot:Repeater DataSource="{value: Children}" WrapperTagName="ul">
+                        <ItemTemplate>
+                            <li>
+                                {{value: Name}}
+                                <dot:LinkButton Click="{command: _root.Click(_parent.Name, Name)}" Text="Select" />
+                            </li>
+                        </ItemTemplate>
+                    </dot:Repeater>
+                </li>
+            </ItemTemplate>
+        </dot:Repeater>
+    </div>
 
-	<p ID="result">{{value: ClickedChild}}</p>
+    <p ID="result">{{value: ClickedChild}}</p>
 
 </body>
 </html>
