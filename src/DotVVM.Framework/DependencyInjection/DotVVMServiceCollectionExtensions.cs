@@ -29,6 +29,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IValidationRuleTranslator, ViewModelValidationRuleTranslator>();
             services.TryAddSingleton<IViewModelValidator, ViewModelValidator>();
             services.TryAddSingleton<IViewModelSerializationMapper, ViewModelSerializationMapper>();
+            services.TryAddSingleton<IViewModelParameterBinder, AttributeViewModelParameterBinder>();
             services.TryAddSingleton<IOutputRenderer, DefaultOutputRenderer>();
             services.TryAddSingleton<IDotvvmPresenter, DotvvmPresenter>();
             services.TryAddSingleton<IMarkupFileLoader, DefaultMarkupFileLoader>();

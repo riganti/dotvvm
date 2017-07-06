@@ -26,13 +26,14 @@ namespace DotVVM.Framework.Hosting
         /// Initializes a new instance of the <see cref="DotvvmPresenter" /> class.
         /// </summary>
         public DotvvmPresenter(DotvvmConfiguration configuration, IDotvvmViewBuilder viewBuilder, IViewModelLoader viewModelLoader, IViewModelSerializer viewModelSerializer,
-            IOutputRenderer outputRender, ICsrfProtector csrfProtector)
+            IOutputRenderer outputRender, ICsrfProtector csrfProtector, IViewModelParameterBinder viewModelParameterBinder)
         {
             DotvvmViewBuilder = viewBuilder;
             ViewModelLoader = viewModelLoader;
             ViewModelSerializer = viewModelSerializer;
             OutputRenderer = outputRender;
             CsrfProtector = csrfProtector;
+            ViewModelParameterBinder = viewModelParameterBinder;
             ApplicationPath = configuration.ApplicationPhysicalPath;
         }
 
@@ -45,6 +46,8 @@ namespace DotVVM.Framework.Hosting
         public IOutputRenderer OutputRenderer { get; }
 
         public ICsrfProtector CsrfProtector { get; }
+
+        public IViewModelParameterBinder ViewModelParameterBinder { get; }
 
         public string ApplicationPath { get; }
 
@@ -119,10 +122,25 @@ namespace DotVVM.Framework.Hosting
                     await filter.OnViewModelCreatedAsync(context);
                 }
 
+                // set context to the viewmodel
+                if (context.ViewModel is IDotvvmViewModel)
+                {
+                    ((IDotvvmViewModel) context.ViewModel).Context = context;
+                }
+
+                // perform parameter binding
+                if (context.ViewModel is DotvvmViewModelBase dotvvmViewModelBase)
+                {
+                    dotvvmViewModelBase.ExecuteOnViewModelRecursive(v => ViewModelParameterBinder.BindParameters(context, v));
+                }
+                else
+                {
+                    ViewModelParameterBinder.BindParameters(context, context.ViewModel);
+                }
+
                 // init the view model lifecycle
                 if (context.ViewModel is IDotvvmViewModel)
                 {
-                    ((IDotvvmViewModel)context.ViewModel).Context = context;
                     await ((IDotvvmViewModel)context.ViewModel).Init();
                 }
 

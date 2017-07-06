@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Runtime
         public void BindParameters(IDotvvmRequestContext context, object viewModel)
         {
             var method = cache.GetOrAdd(viewModel.GetType(), BuildParameterBindingMethod);
-            method(context, viewModel);
+            method?.Invoke(context, viewModel);
         }
 
         /// <summary>
@@ -37,11 +37,16 @@ namespace DotVVM.Framework.Runtime
         /// </summary>
         private Action<IDotvvmRequestContext, object> BuildParameterBindingMethod(Type type)
         {
-            var properties = FindPropertiesWithParameterBinding(type);
+            var properties = FindPropertiesWithParameterBinding(type).ToList();
+            if (!properties.Any())
+            {
+                return null;
+            }
 
             var viewModelParameter = Expression.Parameter(typeof(object), "viewModel");
             var contextParameter = Expression.Parameter(typeof(IDotvvmRequestContext), "context");
             var statements = properties.Select(p => GenerateParameterBindStatement(type, viewModelParameter, contextParameter, p));
+
 
             var lambda = Expression.Lambda<Action<IDotvvmRequestContext, object>>(Expression.Block(statements), contextParameter, viewModelParameter);
             return lambda.Compile();
