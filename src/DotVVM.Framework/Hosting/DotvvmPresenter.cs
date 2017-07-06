@@ -210,7 +210,7 @@ namespace DotVVM.Framework.Hosting
                         if (actionInfo.Binding.ActionFilters != null) methodFilters = methodFilters.Concat(actionInfo.Binding.ActionFilters.OfType<ICommandActionFilter>());
 
                         await ExecuteCommand(actionInfo, context, methodFilters);
-                        lastStopwatchState = AddTraceData(lastStopwatchState, RequestTracingConstants.CommandExecuted, context, stopwatch);
+                        lastStopwatchState = AddTraceData(lastStopwatchState, RequestTracingConstants.CommandExecuted, context, Stopwatch);
                     }
                 }
 
