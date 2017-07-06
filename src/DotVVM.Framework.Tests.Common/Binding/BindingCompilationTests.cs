@@ -33,7 +33,7 @@ namespace DotVVM.Framework.Tests.Binding
 
         public object ExecuteBinding(string expression, object[] contexts, DotvvmControl control, NamespaceImport[] imports = null, Type expectedType = null)
         {
-            var context = DataContextStack.Create(contexts.FirstOrDefault()?.GetType() ?? typeof(object), extenstionParameters: new[] {
+            var context = DataContextStack.Create(contexts.FirstOrDefault()?.GetType() ?? typeof(object), extensionParameters: new[] {
                 new CurrentMarkupControlExtensionParameter(new ResolvedTypeDescriptor(control?.GetType() ?? typeof(DotvvmControl)))
             });
             for (int i = 1; i < contexts.Length; i++)

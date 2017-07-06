@@ -923,7 +923,7 @@ class DotVVM {
             update(element, valueAccessor) {
                 element.dotvvmChangeVisibility(ko.unwrap(valueAccessor()));
             }
-        }
+        };
         ko.bindingHandlers['dotvvm-textbox-text'] = {
             init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
                 var obs = valueAccessor();
@@ -943,7 +943,7 @@ class DotVVM {
                     }
                     obs.dotvvmMetadata.elementsMetadata.push(elmMetadata);
                 }
-                setTimeout((metaArray: DotvvmValidationElementMetadata[], element:HTMLElement) => {
+                setTimeout((metaArray: DotvvmValidationElementMetadata[], element: HTMLElement) => {
                     // remove element from collection when its removed from dom
                     ko.utils.domNodeDisposal.addDisposeCallback(element, () => {
                         for (var meta of metaArray) {
@@ -964,7 +964,7 @@ class DotVVM {
                         // parse date
                         var currentValue = obs();
                         if (currentValue != null) {
-                            currentValue=dotvvm.globalize.parseDotvvmDate(currentValue);
+                            currentValue = dotvvm.globalize.parseDotvvmDate(currentValue);
                         }
                         result = dotvvm.globalize.parseDate(element.value, elmMetadata.format, currentValue);
                         isEmpty = result === null;
@@ -1008,5 +1008,27 @@ class DotVVM {
                 }
             }
         };
+        ko.bindingHandlers["dotvvm-textbox-select-all-on-focus"] = {
+            init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
+                element.$selectAllOnFocusHandler = () => {
+                    element.select();
+                };
+            },
+            update(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
+                var value = valueAccessor();
+                if (typeof (value) === "function")
+                {
+                    value = value();
+                }
+
+                if (value === true) {
+                    element.addEventListener("focus", element.$selectAllOnFocusHandler);
+                }
+                else {
+                    element.removeEventListener("focus", element.$selectAllOnFocusHandler);
+                }
+            }
+        };
+
     }
 }
