@@ -49,7 +49,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<ILocalResourceUrlManager, LocalResourceUrlManager>();
             services.TryAddSingleton<IResourceHashService, DefaultResourceHashService>();
             services.TryAddSingleton<IStopwatch, DefaultStopwatch>();
-            services.AddScoped<ITraceData, DefaultTraceData>();
 
             services.AddSingleton(s => configuration ?? (configuration = DotvvmConfiguration.CreateDefault(s)));
 
