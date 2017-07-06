@@ -42,6 +42,7 @@ namespace DotVVM.Framework.Testing
         public string ApplicationHostPath { get; set; }
         public string ResultIdFragment { get; set; }
         public Dictionary<string, string> PostBackUpdatedControls { get; }
+        public Dictionary<string, object> TraceData { get; private set; }
         public DotvvmView View { get; set; }
 
         private IServiceProvider _services;

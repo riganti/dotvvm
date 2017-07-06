@@ -59,6 +59,7 @@ namespace DotVVM.Framework.Hosting
             try
             {
                 await ProcessRequestCore(context);
+                await TraceRequestAsync(context);
             }
             catch (UnauthorizedAccessException)
             {
@@ -74,12 +75,26 @@ namespace DotVVM.Framework.Hosting
             }
         }
 
+        public async Task TraceRequestAsync(IDotvvmRequestContext context)
+        {
+            var reporters = context.Configuration.Runtime.Reporters;
+            foreach (var reporter in reporters)
+            {
+                await reporter.TraceEvents(context, context.TraceData);
+            }
+        }
+
         /// <summary>
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
         public async Task ProcessRequestCore(IDotvvmRequestContext context)
         {
+            var stopwatch = context.Configuration.ServiceLocator.GetService<IStopwatch>();
+
+            //AddTraceData(context, RequestTracingConstants.BeginRequest);
+
+            long lastStopwatchState = AddTraceData(stopwatch.GetElapsedMiliseconds(), RequestTracingConstants.BeginRequest, context, stopwatch);
             if (context.HttpContext.Request.Method != "GET" && context.HttpContext.Request.Method != "POST")
             {
                 // unknown HTTP method
@@ -97,6 +112,7 @@ namespace DotVVM.Framework.Hosting
             var page = DotvvmViewBuilder.BuildView(context);
             page.SetValue(Internal.RequestContextProperty, context);
             context.View = page;
+            lastStopwatchState = AddTraceData(lastStopwatchState, RequestTracingConstants.ViewInitialized, context, stopwatch);
 
             // locate and create the view model
             context.ViewModel = ViewModelLoader.InitializeViewModel(context, page);
@@ -109,7 +125,6 @@ namespace DotVVM.Framework.Hosting
             {
                 await f.OnPageLoadingAsync(context);
             }
-
             try
             {
                 // run the preinit phase in the page
@@ -121,6 +136,7 @@ namespace DotVVM.Framework.Hosting
                 {
                     await filter.OnViewModelCreatedAsync(context);
                 }
+                lastStopwatchState = AddTraceData(lastStopwatchState, RequestTracingConstants.ViewModelCreated, context, stopwatch);
 
                 // set context to the viewmodel
                 if (context.ViewModel is IDotvvmViewModel)
@@ -146,6 +162,7 @@ namespace DotVVM.Framework.Hosting
 
                 // run the init phase in the page
                 DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Init);
+                lastStopwatchState = AddTraceData(lastStopwatchState, RequestTracingConstants.InitCompleted, context, stopwatch);
 
                 if (!isPostBack)
                 {
@@ -157,6 +174,7 @@ namespace DotVVM.Framework.Hosting
 
                     // run the load phase in the page
                     DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Load);
+                    lastStopwatchState = AddTraceData(lastStopwatchState, RequestTracingConstants.LoadCompleted, context, stopwatch);
                 }
                 else
                 {
@@ -173,6 +191,7 @@ namespace DotVVM.Framework.Hosting
                     {
                         await filter.OnViewModelDeserializedAsync(context);
                     }
+                    lastStopwatchState = AddTraceData(lastStopwatchState, RequestTracingConstants.ViewModelDeserialized, context, stopwatch);
 
                     // validate CSRF token 
                     CsrfProtector.VerifyToken(context, context.CsrfToken);
@@ -181,9 +200,10 @@ namespace DotVVM.Framework.Hosting
                     {
                         await ((IDotvvmViewModel)context.ViewModel).Load();
                     }
-                    
+
                     // run the load phase in the page
                     DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Load);
+                    lastStopwatchState = AddTraceData(lastStopwatchState, RequestTracingConstants.LoadCompleted, context, stopwatch);
 
                     // invoke the postback command
                     ActionInfo actionInfo;
@@ -197,6 +217,7 @@ namespace DotVVM.Framework.Hosting
                         if (actionInfo.Binding.ActionFilters != null) methodFilters = methodFilters.Concat(actionInfo.Binding.ActionFilters.OfType<ICommandActionFilter>());
 
                         await ExecuteCommand(actionInfo, context, methodFilters);
+                        lastStopwatchState = AddTraceData(lastStopwatchState, RequestTracingConstants.CommandExecuted, context, stopwatch);
                     }
                 }
 
@@ -210,6 +231,7 @@ namespace DotVVM.Framework.Hosting
 
                 // run the prerender complete phase in the page
                 DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreRenderComplete);
+                lastStopwatchState = AddTraceData(lastStopwatchState, RequestTracingConstants.PreRenderCompleted, context, stopwatch);
 
                 // generate CSRF token if required
                 if (string.IsNullOrEmpty(context.CsrfToken))
@@ -222,6 +244,7 @@ namespace DotVVM.Framework.Hosting
                 {
                     await filter.OnViewModelSerializingAsync(context);
                 }
+                lastStopwatchState = AddTraceData(lastStopwatchState, RequestTracingConstants.ViewModelSerialized, context, stopwatch);
 
                 // render the output
                 ViewModelSerializer.BuildViewModel(context);
@@ -237,13 +260,14 @@ namespace DotVVM.Framework.Hosting
                     ViewModelSerializer.AddPostBackUpdatedControls(context);
                     await OutputRenderer.WriteViewModelResponse(context, page);
                 }
+                lastStopwatchState = AddTraceData(lastStopwatchState, RequestTracingConstants.OutputRendered, context, stopwatch);
 
                 if (context.ViewModel != null)
                 {
                     ViewModelLoader.DisposeViewModel(context.ViewModel);
                 }
-
                 foreach (var f in requestFilters) await f.OnPageLoadedAsync(context);
+                lastStopwatchState = AddTraceData(lastStopwatchState, RequestTracingConstants.EndRequest, context, stopwatch);
             }
             catch (DotvvmInterruptRequestExecutionException) { throw; }
             catch (DotvvmHttpException) { throw; }
@@ -261,6 +285,13 @@ namespace DotVVM.Framework.Hosting
                 }
                 throw;
             }
+        }
+
+        private long AddTraceData(long lastStopwatchState, string eventName, IDotvvmRequestContext context, IStopwatch stopwatch)
+        {
+            long nextStopwatchState = stopwatch.GetElapsedMiliseconds();
+            context.TraceData.Add(eventName, nextStopwatchState - lastStopwatchState);
+            return nextStopwatchState;
         }
 
         public async Task ProcessStaticCommandRequest(IDotvvmRequestContext context)
@@ -290,7 +321,8 @@ namespace DotVVM.Framework.Hosting
                 arguments.Skip(methodInfo.IsStatic ? 0 : 1)
                     .Zip(methodInfo.GetParameters(), (arg, parameter) => arg.ToObject(parameter.ParameterType))
                     .ToArray();
-            var actionInfo = new ActionInfo {
+            var actionInfo = new ActionInfo
+            {
                 IsControlCommand = false,
                 Action = () => methodInfo.Invoke(target, methodArguments)
             };

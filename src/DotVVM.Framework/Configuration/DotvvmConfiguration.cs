@@ -126,15 +126,30 @@ namespace DotVVM.Framework.Configuration
         /// Creates the default configuration and optionally registers additional application services.
         /// </summary>
         /// <param name="registerServices">An action to register additional services.</param>
-        public static DotvvmConfiguration CreateDefault(Action<IServiceCollection> registerServices = null)
+        public static DotvvmConfiguration CreateDefault(Action<IServiceCollection, DotvvmConfiguration> registerServices)
         {
             var services = new ServiceCollection();
             var config = CreateDefault(new ServiceLocator(services));
-            
+
             DotvvmServiceCollectionExtensions.RegisterDotVVMServices(services, config);
-            registerServices?.Invoke(services);
-            
+            registerServices?.Invoke(services, config);
+
             return config;
+        }
+
+        /// <summary>
+        /// Creates the default configuration and optionally registers additional application services.
+        /// </summary>
+        /// <param name="registerServices">An action to register additional services.</param>
+        public static DotvvmConfiguration CreateDefault(Action<IServiceCollection> registerServices = null)
+        {
+            Action<IServiceCollection, DotvvmConfiguration> action = null;
+            if (registerServices != null)
+            {
+                action = (s, c) => registerServices(s);
+            }
+
+            return CreateDefault(action);
         }
 
         /// <summary>
