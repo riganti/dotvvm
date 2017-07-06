@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Hosting.Middlewares;
+using DotVVM.Framework.Runtime.Tracing;
 using DotVVM.Framework.Security;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -34,25 +35,26 @@ namespace Owin
 
         private static DotvvmConfiguration UseDotVVM(this IAppBuilder app, string applicationRootPath, bool useErrorPages, bool debug, Action<IDotvvmOptions> options)
         {
-            var config = DotvvmConfiguration.CreateDefault((s, c) =>
+            var config = DotvvmConfiguration.CreateDefault(s =>
             {
                 s.TryAddSingleton<IDataProtectionProvider>(p => new DefaultDataProtectionProvider(app));
                 s.TryAddSingleton<IViewModelProtector, DefaultViewModelProtector>();
                 s.TryAddSingleton<ICsrfProtector, DefaultCsrfProtector>();
                 s.TryAddSingleton<IEnvironmentNameProvider, DotvvmEnvironmentNameProvider>();
                 s.TryAddSingleton<ICookieManager, ChunkingCookieManager>();
-                options?.Invoke(new DotvvmOptions(s, c));
+                options?.Invoke(new DotvvmOptions(s));
             });
 
             config.Debug = debug;
             config.ApplicationPhysicalPath = applicationRootPath;
+
+            config.Runtime.Reporters.AddRange(config.ServiceLocator.GetServiceProvider().GetServices<IRequestTracingReporter>());
 
             if (useErrorPages)
             {
                 app.Use<DotvvmErrorPageMiddleware>();
             }
 
-            
             app.Use<DotvvmMiddleware>(config, new List<IMiddleware> {
                 ActivatorUtilities.CreateInstance<DotvvmLocalResourceMiddleware>(config.ServiceLocator.GetServiceProvider()),
                 new DotvvmFileUploadMiddleware(),

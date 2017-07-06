@@ -11,6 +11,11 @@ namespace DotVVM.Samples.ApplicationInsingts.Owin.ViewModels.Test
         public void Submit()
         {
         }
+
+        public void Redirect()
+        {
+            Context.RedirectToRoute("default");
+        }
 	}
 }
 

@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Configuration
     public class DotvvmConfiguration
     {
         public const string DotvvmControlTagPrefix = "dot";
-        
+
         /// <summary>
         /// Gets or sets the application physical path.
         /// </summary>
@@ -126,43 +126,29 @@ namespace DotVVM.Framework.Configuration
         /// Creates the default configuration and optionally registers additional application services.
         /// </summary>
         /// <param name="registerServices">An action to register additional services.</param>
-        public static DotvvmConfiguration CreateDefault(Action<IServiceCollection, DotvvmConfiguration> registerServices)
+        public static DotvvmConfiguration CreateDefault(Action<IServiceCollection> registerServices = null)
         {
             var services = new ServiceCollection();
             services.AddOptions();
             var config = CreateDefault(new ServiceLocator(services));
 
             DotvvmServiceCollectionExtensions.RegisterDotVVMServices(services, config);
-            registerServices?.Invoke(services, config);
+            registerServices?.Invoke(services);
 
             return config;
-        }
-
-        /// <summary>
-        /// Creates the default configuration and optionally registers additional application services.
-        /// </summary>
-        /// <param name="registerServices">An action to register additional services.</param>
-        public static DotvvmConfiguration CreateDefault(Action<IServiceCollection> registerServices = null)
-        {
-            Action<IServiceCollection, DotvvmConfiguration> action = null;
-            if (registerServices != null)
-            {
-                action = (s, c) => registerServices(s);
-            }
-
-            return CreateDefault(action);
         }
 
         /// <summary>
         /// Creates the default configuration using the given service provider.
         /// </summary>
         /// <param name="serviceProvider">The service provider to resolve services from.</param>
-        public static DotvvmConfiguration CreateDefault(IServiceProvider serviceProvider) 
+        public static DotvvmConfiguration CreateDefault(IServiceProvider serviceProvider)
             => CreateDefault(new ServiceLocator(serviceProvider));
 
         private static DotvvmConfiguration CreateDefault(ServiceLocator serviceLocator)
         {
-            var config = new DotvvmConfiguration {
+            var config = new DotvvmConfiguration
+            {
                 ServiceLocator = serviceLocator
             };
 
@@ -230,7 +216,7 @@ namespace DotVVM.Framework.Configuration
                 });
             configuration.Resources.Register(ResourceConstants.KnockoutJSResourceName,
                 new ScriptResource(new EmbeddedResourceLocation(
-                    typeof(DotvvmConfiguration).GetTypeInfo().Assembly, 
+                    typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
                     "DotVVM.Framework.Resources.Scripts.knockout-latest.js")));
 
             configuration.Resources.Register(ResourceConstants.DotvvmResourceName + ".internal",
@@ -257,7 +243,7 @@ namespace DotVVM.Framework.Configuration
 
             configuration.Resources.Register(ResourceConstants.DotvvmFileUploadCssResourceName,
                 new StylesheetResource(new EmbeddedResourceLocation(
-                    typeof (DotvvmConfiguration).GetTypeInfo().Assembly,
+                    typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
                     "DotVVM.Framework.Resources.Scripts.DotVVM.FileUpload.css")));
 
             RegisterGlobalizeResources(configuration);
@@ -272,6 +258,6 @@ namespace DotVVM.Framework.Configuration
 
             configuration.Resources.RegisterNamedParent("globalize", new JQueryGlobalizeResourceRepository());
         }
-        
+
     }
 }
