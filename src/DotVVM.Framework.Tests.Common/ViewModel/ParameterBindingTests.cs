@@ -160,7 +160,7 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
             public bool B { get; set; }
 
             [FromRoute("C")]
-            public string C { get; set; }
+            public string C { get; private set; }
         }
 
         public enum TestEnum
