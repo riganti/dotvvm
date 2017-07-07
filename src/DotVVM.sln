@@ -61,8 +61,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework.Tests.Comm
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{85FD5610-F03A-4BB7-806E-5EE790042331}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.Tests.CompletenessChecker", "DotVVM.Samples.Tests.CompletenessChecker\DotVVM.Samples.Tests.CompletenessChecker.csproj", "{B5EE84D8-8BC7-478A-9215-422133774F61}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.ApplicationInsights.AspNetCore", "DotVVM.Samples.ApplicationInsights.AspNetCore\DotVVM.Samples.ApplicationInsights.AspNetCore.csproj", "{AD27EAF9-54C0-44A4-9128-EFDC63E547FB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.ApplicationInsingts.Owin", "DotVVM.Samples.ApplicationInsingts.Owin\DotVVM.Samples.ApplicationInsingts.Owin.csproj", "{85617AC0-D0A5-40B8-8C81-4B13877E7837}"
