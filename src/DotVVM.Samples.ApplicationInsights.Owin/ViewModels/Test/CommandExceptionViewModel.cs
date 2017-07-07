@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using DotVVM.Framework.ViewModel;
 
-namespace DotVVM.Samples.ApplicationInsingts.Owin.ViewModels.Test
+namespace DotVVM.Samples.ApplicationInsights.Owin.ViewModels.Test
 {
 	public class CommandExceptionViewModel : DotvvmViewModelBase
 	{

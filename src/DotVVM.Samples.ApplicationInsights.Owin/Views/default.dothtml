@@ -1,4 +1,4 @@
-﻿@viewModel DotVVM.Samples.ApplicationInsingts.Owin.ViewModels.DefaultViewModel, DotVVM.Samples.ApplicationInsingts.Owin
+﻿@viewModel DotVVM.Samples.ApplicationInsights.Owin.ViewModels.DefaultViewModel, DotVVM.Samples.ApplicationInsights.Owin
 
 <!DOCTYPE html>
 

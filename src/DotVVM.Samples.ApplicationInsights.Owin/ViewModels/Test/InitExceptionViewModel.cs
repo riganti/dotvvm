@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.ViewModel;
 
-namespace DotVVM.Samples.ApplicationInsingts.Owin.ViewModels.Test
+namespace DotVVM.Samples.ApplicationInsights.Owin.ViewModels.Test
 {
 	public class InitExceptionViewModel : DotvvmViewModelBase
 	{

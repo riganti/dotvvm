@@ -63,7 +63,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{85FD5610
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.ApplicationInsights.AspNetCore", "DotVVM.Samples.ApplicationInsights.AspNetCore\DotVVM.Samples.ApplicationInsights.AspNetCore.csproj", "{AD27EAF9-54C0-44A4-9128-EFDC63E547FB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.ApplicationInsingts.Owin", "DotVVM.Samples.ApplicationInsingts.Owin\DotVVM.Samples.ApplicationInsingts.Owin.csproj", "{85617AC0-D0A5-40B8-8C81-4B13877E7837}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.ApplicationInsights.Owin", "DotVVM.Samples.ApplicationInsights.Owin\DotVVM.Samples.ApplicationInsights.Owin.csproj", "{85617AC0-D0A5-40B8-8C81-4B13877E7837}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Tracing.ApplicationInsights", "DotVVM.Tracing.ApplicationInsights\DotVVM.Tracing.ApplicationInsights.csproj", "{5367A0F4-B8FE-426A-8390-BBCE98FFC221}"
 EndProject

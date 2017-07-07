@@ -7,7 +7,7 @@ using DotVVM.Framework;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Routing;
 
-namespace DotVVM.Samples.ApplicationInsingts.Owin
+namespace DotVVM.Samples.ApplicationInsights.Owin
 {
     public class DotvvmStartup : IDotvvmStartup
     {

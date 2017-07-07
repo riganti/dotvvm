@@ -10,8 +10,8 @@ using DotVVM.Framework.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Tracing.ApplicationInsights;
 
-[assembly: OwinStartup(typeof(DotVVM.Samples.ApplicationInsingts.Owin.Startup))]
-namespace DotVVM.Samples.ApplicationInsingts.Owin
+[assembly: OwinStartup(typeof(DotVVM.Samples.ApplicationInsights.Owin.Startup))]
+namespace DotVVM.Samples.ApplicationInsights.Owin
 {
     public class Startup
     {
