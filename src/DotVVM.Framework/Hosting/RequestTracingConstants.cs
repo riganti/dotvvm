@@ -20,5 +20,6 @@ namespace DotVVM.Framework.Hosting
         public static readonly string ViewModelSerialized = "ViewModelSerialized";
         public static readonly string OutputRendered = "OutputRendered";
         public static readonly string EndRequest = "EndRequest";
+        public static readonly string StaticCommandExecuted = "StaticCommandExecuted";
     }
 }

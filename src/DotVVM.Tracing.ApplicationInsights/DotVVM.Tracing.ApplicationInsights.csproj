@@ -7,8 +7,8 @@
     <ProjectGuid>{9D052DD0-8CC4-469D-8031-F4716EBA4447}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DotVVM.Tracing.ApplicationInsights.Owin</RootNamespace>
-    <AssemblyName>DotVVM.Tracing.ApplicationInsights.Owin</AssemblyName>
+    <RootNamespace>DotVVM.Tracing.ApplicationInsights</RootNamespace>
+    <AssemblyName>DotVVM.Tracing.ApplicationInsights</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

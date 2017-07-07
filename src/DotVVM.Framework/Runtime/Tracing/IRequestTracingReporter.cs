@@ -7,10 +7,8 @@ namespace DotVVM.Framework.Runtime.Tracing
 {
     public interface IRequestTracingReporter
     {
-        Task StartTraceEvents();
+        Task TraceMetrics(Dictionary<string, object> traceData);
 
-        Task TraceEvents(IDotvvmRequestContext context, Dictionary<string, object> traceData);
-
-        Task TraceException(IDotvvmRequestContext context, Exception e);
+        Task TraceException(Exception exception);
     }
 }

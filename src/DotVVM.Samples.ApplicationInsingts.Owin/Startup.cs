@@ -1,4 +1,5 @@
 using System.Web.Hosting;
+using ApplicationInsights.OwinExtensions;
 using Microsoft.Owin;
 using Microsoft.Owin.FileSystems;
 using Microsoft.Owin.StaticFiles;
@@ -8,7 +9,6 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Tracing.ApplicationInsights;
-using DotVVM.Tracing.ApplicationInsights.Owin;
 
 [assembly: OwinStartup(typeof(DotVVM.Samples.ApplicationInsingts.Owin.Startup))]
 namespace DotVVM.Samples.ApplicationInsingts.Owin
@@ -17,6 +17,8 @@ namespace DotVVM.Samples.ApplicationInsingts.Owin
     {
         public void Configuration(IAppBuilder app)
         {
+            app.UseApplicationInsights();
+
             var applicationPhysicalPath = HostingEnvironment.ApplicationPhysicalPath;
 
             // use DotVVM

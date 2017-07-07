@@ -11,5 +11,9 @@ namespace DotVVM.Samples.ApplicationInsights.AspNetCore.ViewModels.Test
         public void Submit()
         {
         }
+        public void Redirect()
+        {
+            Context.RedirectToRoute("default");
+        }
     }
 }
