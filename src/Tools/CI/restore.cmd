@@ -44,3 +44,9 @@ dotnet restore
 
 cd ../DotVVM.Samples.Tests
 dotnet restore
+
+cd ../DotVVM.Tracing.ApplicationInsights
+dotnet restore
+
+cd ../DotVVM.Samples.ApplicationInsights.AspNetCore
+dotnet restore
