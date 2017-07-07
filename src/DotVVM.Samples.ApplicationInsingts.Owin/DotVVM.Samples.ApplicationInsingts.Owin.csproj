@@ -164,7 +164,7 @@
       <Name>DotVVM.Framework</Name>
     </ProjectReference>
     <ProjectReference Include="..\DotVVM.Tracing.ApplicationInsights\DotVVM.Tracing.ApplicationInsights.csproj">
-      <Project>{9d052dd0-8cc4-469d-8031-f4716eba4447}</Project>
+      <Project>{5367a0f4-b8fe-426a-8390-bbce98ffc221}</Project>
       <Name>DotVVM.Tracing.ApplicationInsights</Name>
     </ProjectReference>
   </ItemGroup>

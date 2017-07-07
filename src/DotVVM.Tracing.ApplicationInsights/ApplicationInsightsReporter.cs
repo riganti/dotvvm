@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DotVVM.Framework.Runtime.Tracing;
+using DotVVM.Framework.Utils;
 using Microsoft.ApplicationInsights;
 
 namespace DotVVM.Tracing.ApplicationInsights
@@ -21,24 +22,29 @@ namespace DotVVM.Tracing.ApplicationInsights
             {
                 if (traceData == null)
                 {
-                    return Task.CompletedTask;
+                    return TaskUtils.GetCompletedTask();
                 }
+
                 foreach (string eventName in traceData.Keys)
                 {
-                    if (traceData[eventName] != null)
+                    // track only numeric values
+                    var value = traceData[eventName];
+                    if (value != null && value.GetType().IsNumericType())
                     {
-                        telemetryClient.TrackMetric(eventName, double.Parse(traceData[eventName].ToString()));
+                        telemetryClient.TrackMetric(eventName, Convert.ToDouble(value));
                     }
                 }
             }
-            catch (Exception) { }
-            return Task.CompletedTask;
+            catch
+            {
+            }
+            return TaskUtils.GetCompletedTask();
         }
 
         public Task TraceException(Exception exception)
         {
             telemetryClient.TrackException(exception);
-            return Task.CompletedTask;
+            return TaskUtils.GetCompletedTask();
         }
     }
 }
