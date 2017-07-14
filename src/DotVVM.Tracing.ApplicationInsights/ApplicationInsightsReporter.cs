@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Runtime.Tracing;
+using DotVVM.Framework.Utils;
 using Microsoft.ApplicationInsights;
 
 namespace DotVVM.Tracing.ApplicationInsights
@@ -21,7 +24,7 @@ namespace DotVVM.Tracing.ApplicationInsights
             {
                 if (traceData == null)
                 {
-                    return Task.CompletedTask;
+                    return TaskUtils.GetCompletedTask();
                 }
                 foreach (string eventName in traceData.Keys)
                 {
@@ -32,13 +35,13 @@ namespace DotVVM.Tracing.ApplicationInsights
                 }
             }
             catch (Exception) { }
-            return Task.CompletedTask;
+            return TaskUtils.GetCompletedTask();
         }
 
         public Task TraceException(Exception exception)
         {
             telemetryClient.TrackException(exception);
-            return Task.CompletedTask;
+            return TaskUtils.GetCompletedTask();
         }
     }
 }

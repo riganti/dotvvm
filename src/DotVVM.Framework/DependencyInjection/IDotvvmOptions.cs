@@ -11,10 +11,5 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Gets the <see cref="IServiceCollection" /> where DotVVM services are configured.
         /// </summary>
         IServiceCollection Services { get; }
-
-        /// <summary>
-        /// Gets the <see cref="DotvvmConfiguration" />.
-        /// </summary>
-        DotvvmConfiguration Configuration { get; }
     }
 }
