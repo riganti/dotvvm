@@ -1,5 +1,6 @@
 ﻿using System;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Runtime.Tracing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using StackExchange.Profiling;
@@ -15,6 +16,8 @@ namespace DotVVM.Tracing.MiniProfiler
         /// <returns></returns>
         public static IDotvvmOptions AddMiniProfilerEventTracing(this IDotvvmOptions options)
         {
+            options.Services.AddTransient<MiniProfilerTracer>();
+            options.Services.AddSingleton<Func<IRequestTracer>>((c) => () => c.GetRequiredService<MiniProfilerTracer>());
             options.Services.AddTransient<IConfigureOptions<DotvvmConfiguration>, MiniProfilerSetup>();
 
             return options;
@@ -26,7 +29,6 @@ namespace DotVVM.Tracing.MiniProfiler
         public void Configure(DotvvmConfiguration config)
         {
             config.Markup.AddCodeControls("dot", typeof(MiniProfilerWidget));
-            config.Runtime.TracerFactories.Add(() => new MiniProfilerTracer());
             config.Runtime.GlobalFilters.Add(new MiniProfilerActionFilter());
 
             var currentProfiler = StackExchange.Profiling.MiniProfiler.Settings.ProfilerProvider
