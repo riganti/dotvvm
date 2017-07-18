@@ -12,8 +12,9 @@
 	<h1>{{value: Title}}</h1>
 
     <a href="/profiler/results-index">MiniProfiler dataset</a>
-    <mp:MiniProfilerWidget Position="Right" />
+    <dot:MiniProfilerWidget Position="Right" />
 
     <dot:Button Text="Sample Command" Click="{command:  Command()}"/>
+
 </body>
 </html>

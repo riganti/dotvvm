@@ -1,5 +1,4 @@
 using DotVVM.Framework.Configuration;
-using DotVVM.Tracing.MiniProfiler;
 
 namespace DotVVM.Samples.MiniProfiler.AspNetCore
 {
@@ -11,8 +10,6 @@ namespace DotVVM.Samples.MiniProfiler.AspNetCore
             ConfigureRoutes(config, applicationPath);
             ConfigureControls(config, applicationPath);
             ConfigureResources(config, applicationPath);
-
-            config.AddMiniProfilerEventTracing();
         }
 
         private void ConfigureRoutes(DotvvmConfiguration config, string applicationPath)

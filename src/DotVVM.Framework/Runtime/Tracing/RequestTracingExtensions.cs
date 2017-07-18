@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
 
@@ -19,6 +20,14 @@ namespace DotVVM.Framework.Runtime.Tracing
             foreach (var tracer in requestTracers)
             {
                 await tracer.EndRequest(context);
+            }
+        }
+
+        public static async Task TracingException(this IEnumerable<IRequestTracer> requestTracers, IDotvvmRequestContext context, Exception exception)
+        {
+            foreach (var tracer in requestTracers)
+            {
+                await tracer.EndRequest(context, exception);
             }
         }
     }

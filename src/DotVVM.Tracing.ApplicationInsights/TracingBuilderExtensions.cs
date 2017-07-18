@@ -1,18 +1,17 @@
-﻿using System;
-using DotVVM.Framework.Configuration;
-using DotVVM.Framework.Hosting;
+﻿using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Runtime.Tracing;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace DotVVM.Tracing.ApplicationInsights
 {
     public static class TracingBuilderExtensions
     {
         /// <summary>
-        /// Registers TelemetryClient, ApplicationInsightsTracer and ApplicationInsightExceptionFilter
+        /// Registers ApplicationInsightsTracer
         /// </summary>
         /// <param name="options"></param>
         /// <returns></returns>
@@ -20,29 +19,23 @@ namespace DotVVM.Tracing.ApplicationInsights
         {
             var builder = TelemetryConfiguration.Active.TelemetryProcessorChainBuilder;
             builder.Use((next) => new RequestTelemetryFilter(next));
-
             builder.Build();
 
-            options.Services.AddTransient<IRequestTracer, ApplicationInsightsTracer>();
-            //options.Services.AddSingleton<Func<IRequestTracer>, Func<ApplicationInsightsTracer>>();
+            options.Services.TryAddSingleton<TelemetryClient>();
 
-            //options.Services.TryAddSingleton<Func<IRequestTracer>, Func<ApplicationInsightsTracer>>();
-            options.Services.AddTransient<Func<IRequestTracer>>((c) => () => c.GetRequiredService<ApplicationInsightsTracer>());
-            //options.Configuration.Runtime.GlobalFilters.Add(new ApplicationInsightExceptionFilter());
+            options.Services.AddTransient<ApplicationInsightsTracer>();
+            options.Services.AddTransient<IConfigureOptions<DotvvmConfiguration>, ApplicationInsightSetup>();
 
             return options;
         }
+    }
 
-        public static DotvvmConfiguration AddApplicationInsightsTracing(this DotvvmConfiguration config)
+    internal class ApplicationInsightSetup : IConfigureOptions<DotvvmConfiguration>
+    {
+        public void Configure(DotvvmConfiguration config)
         {
-            var telemetryClient = config.ServiceLocator.GetService<TelemetryClient>();
-            var stopwatch = config.ServiceLocator.GetService<IStopwatch>();
-
-            config.Runtime.TracerFactories.Add(() => new ApplicationInsightsTracer(telemetryClient, stopwatch));
-
-            config.Runtime.GlobalFilters.Add(new ApplicationInsightExceptionFilter(telemetryClient));
-
-            return config;
+            var serviceProvider = config.ServiceLocator.GetServiceProvider();
+            config.Runtime.TracerFactories.Add(() => serviceProvider.GetService<ApplicationInsightsTracer>());
         }
     }
 }

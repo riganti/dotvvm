@@ -22,16 +22,13 @@ namespace DotVVM.Samples.ApplicationInsingts.Owin
 
             var applicationPhysicalPath = HostingEnvironment.ApplicationPhysicalPath;
 
-            //var builder = TelemetryConfiguration.Active.TelemetryProcessorChainBuilder;
-            //builder.Use((next) => new RequestFilter(next));
-            //builder.Build();
-
             // use DotVVM
-
             var dotvvmConfiguration = app.UseDotVVM<DotvvmStartup>(applicationPhysicalPath, options: options =>
             {
                 options.AddDefaultTempStorages("temp");
                 options.AddApplicationInsightsTracing();
+                options.Services.AddTransient<Test, Test1>();
+                options.Services.AddTransient<Test, Test2>();
             });
 #if !DEBUG
             dotvvmConfiguration.Debug = false;
@@ -44,4 +41,12 @@ namespace DotVVM.Samples.ApplicationInsingts.Owin
             });
         }
     }
+    public interface Test
+    {
+    }
+    public class Test1 : Test
+    { }
+
+    public class Test2 : Test
+    { }
 }

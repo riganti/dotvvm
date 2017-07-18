@@ -3,6 +3,7 @@ using StackExchange.Profiling;
 using DotVVM.Framework.Runtime.Tracing;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
+using System;
 
 namespace DotVVM.Tracing.MiniProfiler
 {
@@ -11,6 +12,11 @@ namespace DotVVM.Tracing.MiniProfiler
         private Timing currentTiming;
 
         public Task EndRequest(IDotvvmRequestContext context)
+        {
+            return TaskUtils.GetCompletedTask();
+        }
+
+        public Task EndRequest(IDotvvmRequestContext context, Exception exception)
         {
             return TaskUtils.GetCompletedTask();
         }

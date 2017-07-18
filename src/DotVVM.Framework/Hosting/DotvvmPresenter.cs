@@ -261,6 +261,8 @@ namespace DotVVM.Framework.Hosting
                         context.InterruptRequest();
                     }
                 }
+                await requestTracers.TracingException(context, ex);
+
                 throw;
             }
         }

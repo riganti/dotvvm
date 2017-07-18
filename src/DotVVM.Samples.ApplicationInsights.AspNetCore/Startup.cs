@@ -46,8 +46,9 @@ namespace DotVVM.Samples.ApplicationInsights.AspNetCore
 
             services.AddDotVVM(options =>
             {
-                options.AddDefaultTempStorages("Temp");
-                //options.AddApplicationInsightsTracing();
+                options
+                    .AddDefaultTempStorages("Temp")
+                    .AddApplicationInsightsTracing();
             });
 
             services.AddApplicationInsightsTelemetry(Configuration);

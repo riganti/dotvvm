@@ -13,8 +13,6 @@ namespace DotVVM.Samples.ApplicationInsights.AspNetCore
             ConfigureRoutes(config, applicationPath);
             ConfigureControls(config, applicationPath);
             ConfigureResources(config, applicationPath);
-
-            config.AddApplicationInsightsTracing();
         }
 
         private void ConfigureRoutes(DotvvmConfiguration config, string applicationPath)

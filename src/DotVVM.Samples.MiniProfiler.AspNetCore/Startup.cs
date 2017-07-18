@@ -7,7 +7,6 @@ using DotVVM.Tracing.MiniProfiler;
 using StackExchange.Profiling;
 using StackExchange.Profiling.Storage;
 using System;
-using Microsoft.AspNetCore.Http;
 
 namespace DotVVM.Samples.MiniProfiler.AspNetCore
 {
@@ -24,7 +23,8 @@ namespace DotVVM.Samples.MiniProfiler.AspNetCore
             services.AddDotVVM(options =>
             {
                 options
-                    .AddDefaultTempStorages("Temp");
+                    .AddDefaultTempStorages("Temp")
+                    .AddMiniProfilerEventTracing();
             });
 
             services.AddMemoryCache();

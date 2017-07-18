@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime.Tracing;
 using DotVVM.Framework.Utils;
@@ -34,6 +35,13 @@ namespace DotVVM.Tracing.ApplicationInsights
 
         public Task EndRequest(IDotvvmRequestContext context)
         {
+            return TaskUtils.GetCompletedTask();
+        }
+
+        public Task EndRequest(IDotvvmRequestContext context, Exception exception)
+        {
+            telemetryClient.TrackException(exception);
+
             return TaskUtils.GetCompletedTask();
         }
     }
