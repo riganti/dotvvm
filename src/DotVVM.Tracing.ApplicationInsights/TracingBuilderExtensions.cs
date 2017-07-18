@@ -1,4 +1,7 @@
-﻿using DotVVM.Framework.Runtime.Tracing;
+﻿using System;
+using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Runtime.Tracing;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,7 +12,7 @@ namespace DotVVM.Tracing.ApplicationInsights
     public static class TracingBuilderExtensions
     {
         /// <summary>
-        /// Registers TelemetryClient and ApplicationInsightsReporter
+        /// Registers TelemetryClient, ApplicationInsightsTracer and ApplicationInsightExceptionFilter
         /// </summary>
         /// <param name="options"></param>
         /// <returns></returns>
@@ -22,8 +25,27 @@ namespace DotVVM.Tracing.ApplicationInsights
             builder.Build();
 
             options.Services.TryAddSingleton<TelemetryClient>();
-            options.Services.TryAddSingleton<IRequestTracingReporter, ApplicationInsightsReporter>();
+
+            options.Services.AddTransient<IRequestTracer, ApplicationInsightsTracer>();
+            //options.Services.AddSingleton<Func<IRequestTracer>, Func<ApplicationInsightsTracer>>();
+
+            //options.Services.TryAddSingleton<Func<IRequestTracer>, Func<ApplicationInsightsTracer>>();
+            options.Services.AddTransient<Func<IRequestTracer>>((c) => () => c.GetRequiredService<ApplicationInsightsTracer>());
+            //options.Configuration.Runtime.GlobalFilters.Add(new ApplicationInsightExceptionFilter());
+
             return options;
+        }
+
+        public static DotvvmConfiguration AddApplicationInsightsTracing(this DotvvmConfiguration config)
+        {
+            var telemetryClient = config.ServiceLocator.GetService<TelemetryClient>();
+            var stopwatch = config.ServiceLocator.GetService<IStopwatch>();
+
+            config.Runtime.TracerFactories.Add(() => new ApplicationInsightsTracer(telemetryClient, stopwatch));
+
+            config.Runtime.GlobalFilters.Add(new ApplicationInsightExceptionFilter(telemetryClient));
+
+            return config;
         }
     }
 }

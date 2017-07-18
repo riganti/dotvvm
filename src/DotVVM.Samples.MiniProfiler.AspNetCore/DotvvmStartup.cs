@@ -1,9 +1,7 @@
-using DotVVM.Framework;
 using DotVVM.Framework.Configuration;
-using DotVVM.Framework.Routing;
-using DotVVM.Tracing.ApplicationInsights;
+using DotVVM.Tracing.MiniProfiler;
 
-namespace DotVVM.Samples.ApplicationInsights.AspNetCore
+namespace DotVVM.Samples.MiniProfiler.AspNetCore
 {
     public class DotvvmStartup : IDotvvmStartup
     {
@@ -14,17 +12,13 @@ namespace DotVVM.Samples.ApplicationInsights.AspNetCore
             ConfigureControls(config, applicationPath);
             ConfigureResources(config, applicationPath);
 
-            config.AddApplicationInsightsTracing();
+            config.AddMiniProfilerEventTracing();
         }
 
         private void ConfigureRoutes(DotvvmConfiguration config, string applicationPath)
         {
             config.RouteTable.Add("Default", "", "Views/default.dothtml");
 
-            config.RouteTable.Add("InitException", "Test/InitException", "Views/Test/initException.dothtml");
-            config.RouteTable.Add("CommandException", "Test/CommandException", "Views/Test/commandException.dothtml");
-            config.RouteTable.Add("Correct", "Test/Correct", "Views/Test/correct.dothtml");
-            config.RouteTable.Add("CorrectCommand", "Test/CorrectCommand", "Views/Test/correctCommand.dothtml");
             // Uncomment the following line to auto-register all dothtml files in the Views folder
             // config.RouteTable.AutoDiscoverRoutes(new DefaultRouteStrategy(config));    
         }

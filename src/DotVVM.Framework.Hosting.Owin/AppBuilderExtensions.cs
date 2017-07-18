@@ -48,7 +48,7 @@ namespace Owin
             config.Debug = debug;
             config.ApplicationPhysicalPath = applicationRootPath;
 
-            config.Runtime.Reporters.AddRange(config.ServiceLocator.GetServiceProvider().GetServices<IRequestTracingReporter>());
+            config.Runtime.Reporters.AddRange(config.ServiceLocator.GetServiceProvider().GetServices<IRequestReporter>());
 
             if (useErrorPages)
             {

@@ -91,30 +91,29 @@ namespace DotVVM.Framework.Hosting.Middlewares
                     await f.OnPageExceptionAsync(context, exception);
                     if (context.IsPageExceptionHandled) context.InterruptRequest();
                 }
-                await TraceExceptionAsync(context, exception);
+                await ReportExceptionAsync(context, exception);
                 throw;
             }
 
-            await TraceRequestAsync(context);
+            await ReportRequestAsync(context);
             return true;
         }
 
-        public async Task TraceRequestAsync(IDotvvmRequestContext context)
+        public async Task ReportRequestAsync(IDotvvmRequestContext context)
         {
-            var reporters = context.Configuration.Runtime.Reporters;
-            foreach (var reporter in reporters)
-            {
-                await reporter.TraceMetrics(context.TraceData);
-            }
+            //foreach (var tracer in context.Configuration.Runtime.Tracers)
+            //{
+            //    await tracer.EndRequest();
+            //}
         }
 
-        public async Task TraceExceptionAsync(IDotvvmRequestContext context, Exception exception)
+        public async Task ReportExceptionAsync(IDotvvmRequestContext context, Exception exception)
         {
-            var reporters = context.Configuration.Runtime.Reporters;
-            foreach (var reporter in reporters)
-            {
-                await reporter.TraceException(exception);
-            }
+            //var reporters = context.Configuration.Runtime.Reporters;
+            //foreach (var reporter in reporters)
+            //{
+            //    await reporter.ReportException(exception);
+            //}
         }
     }
 }

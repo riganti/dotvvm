@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
@@ -39,7 +40,7 @@ namespace Microsoft.AspNetCore.Builder
             config.Debug = env.IsDevelopment();
             config.ApplicationPhysicalPath = applicationRootPath ?? env.ContentRootPath;
 
-            config.Runtime.Reporters.AddRange(config.ServiceLocator.GetServiceProvider().GetServices<IRequestTracingReporter>());
+            config.Runtime.TracerFactories.AddRange(config.ServiceLocator.GetServiceProvider().GetServices<Func<IRequestTracer>>());
 
             if (useErrorPages ?? env.IsDevelopment())
             {

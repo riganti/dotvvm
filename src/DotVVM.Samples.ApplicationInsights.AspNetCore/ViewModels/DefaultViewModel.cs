@@ -18,6 +18,5 @@ namespace DotVVM.Samples.ApplicationInsights.AspNetCore.ViewModels
         {
             Title = "Hello from DotVVM!";
         }
-
     }
 }

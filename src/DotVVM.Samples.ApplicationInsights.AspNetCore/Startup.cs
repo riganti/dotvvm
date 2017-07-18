@@ -47,7 +47,7 @@ namespace DotVVM.Samples.ApplicationInsights.AspNetCore
             services.AddDotVVM(options =>
             {
                 options.AddDefaultTempStorages("Temp");
-                options.AddApplicationInsightsTracing();
+                //options.AddApplicationInsightsTracing();
             });
 
             services.AddApplicationInsightsTelemetry(Configuration);
@@ -60,12 +60,6 @@ namespace DotVVM.Samples.ApplicationInsights.AspNetCore
 
             // use DotVVM
             var dotvvmConfiguration = app.UseDotVVM<DotvvmStartup>(env.ContentRootPath);
-
-            // use static files
-            app.UseStaticFiles(new StaticFileOptions
-            {
-                FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(env.WebRootPath)
-            });
         }
     }
 }
