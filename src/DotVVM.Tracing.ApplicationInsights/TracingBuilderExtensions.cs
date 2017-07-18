@@ -36,6 +36,8 @@ namespace DotVVM.Tracing.ApplicationInsights
     {
         public void Configure(DotvvmConfiguration config)
         {
+            config.Markup.AddCodeControls("dot", typeof(ApplicationInsightJavascript));
+
             var serviceProvider = config.ServiceLocator.GetServiceProvider();
             config.Runtime.TracerFactories.Add(() => serviceProvider.GetRequiredService<ApplicationInsightsTracer>());
         }

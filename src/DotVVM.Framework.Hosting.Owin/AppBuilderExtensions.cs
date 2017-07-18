@@ -49,15 +49,6 @@ namespace Owin
             config.Debug = debug;
             config.ApplicationPhysicalPath = applicationRootPath;
 
-            config.Runtime.TracerFactories.AddRange(config.ServiceLocator.GetServiceProvider().GetServices<Func<IRequestTracer>>());
-            var configurators = config.ServiceLocator.GetServiceProvider().GetServices<IConfigureOptions<DotvvmConfiguration>>();
-
-            foreach (var configurator in configurators)
-            {
-                configurator.Configure(config);
-            }
-
-
             if (useErrorPages)
             {
                 app.Use<DotvvmErrorPageMiddleware>();
@@ -69,6 +60,14 @@ namespace Owin
                 new DotvvmReturnedFileMiddleware(),
                 new DotvvmRoutingMiddleware()
             });
+
+            config.Runtime.TracerFactories.AddRange(config.ServiceLocator.GetServiceProvider().GetServices<Func<IRequestTracer>>());
+            var configurators = config.ServiceLocator.GetServiceProvider().GetServices<IConfigureOptions<DotvvmConfiguration>>();
+
+            foreach (var configurator in configurators)
+            {
+                configurator.Configure(config);
+            }
 
             return config;
         }
