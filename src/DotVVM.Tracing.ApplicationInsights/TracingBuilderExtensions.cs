@@ -24,7 +24,7 @@ namespace DotVVM.Tracing.ApplicationInsights
 
             options.Services.TryAddSingleton<TelemetryClient>();
 
-            options.Services.AddTransient<ApplicationInsightsTracer>();
+            options.Services.AddTransient<IRequestTracer, ApplicationInsightsTracer>();
             //options.Services.AddSingleton<Func<IRequestTracer>>((c) => () => c.GetRequiredService<ApplicationInsightsTracer>());
             options.Services.AddTransient<IConfigureOptions<DotvvmConfiguration>, ApplicationInsightSetup>();
 
@@ -37,9 +37,6 @@ namespace DotVVM.Tracing.ApplicationInsights
         public void Configure(DotvvmConfiguration config)
         {
             config.Markup.AddCodeControls("dot", typeof(ApplicationInsightJavascript));
-
-            var serviceProvider = config.ServiceLocator.GetServiceProvider();
-            config.Runtime.TracerFactories.Add(() => serviceProvider.GetRequiredService<ApplicationInsightsTracer>());
         }
     }
 }

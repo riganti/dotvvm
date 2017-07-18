@@ -61,9 +61,7 @@ namespace Owin
                 new DotvvmRoutingMiddleware()
             });
 
-            config.Runtime.TracerFactories.AddRange(config.ServiceLocator.GetServiceProvider().GetServices<Func<IRequestTracer>>());
             var configurators = config.ServiceLocator.GetServiceProvider().GetServices<IConfigureOptions<DotvvmConfiguration>>();
-
             foreach (var configurator in configurators)
             {
                 configurator.Configure(config);

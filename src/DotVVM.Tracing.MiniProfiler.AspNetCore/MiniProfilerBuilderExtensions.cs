@@ -16,8 +16,7 @@ namespace DotVVM.Tracing.MiniProfiler.AspNetCore
         /// <returns></returns>
         public static IDotvvmOptions AddMiniProfilerEventTracing(this IDotvvmOptions options)
         {
-            options.Services.AddTransient<MiniProfilerTracer>();
-            options.Services.AddSingleton<Func<IRequestTracer>>((c) => () => c.GetRequiredService<MiniProfilerTracer>());
+            options.Services.AddTransient<IRequestTracer, MiniProfilerTracer>();
             options.Services.AddTransient<IConfigureOptions<DotvvmConfiguration>, MiniProfilerSetup>();
 
             return options;

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using DotVVM.Framework.Runtime.Tracing;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Hosting.Middlewares
 {
@@ -65,8 +66,8 @@ namespace DotVVM.Framework.Hosting.Middlewares
 
         public async Task<bool> Handle(IDotvvmRequestContext context)
         {
-            context.RequestTracers.AddRange(context.Configuration.Runtime
-                .TracerFactories.Select(factory => factory()));
+            context.RequestTracers.AddRange(
+                context.Configuration.ServiceLocator.GetServiceProvider().GetServices<IRequestTracer>());
 
             await context.RequestTracers.TracingEvent(RequestTracingConstants.BeginRequest, context);
 
