@@ -25,6 +25,7 @@ using System.Reflection;
 using DotVVM.Framework.Hosting.Middlewares;
 using DotVVM.Framework.Utils;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -161,6 +162,13 @@ namespace DotVVM.Framework.Configuration
 
             RegisterConstraints(config);
             RegisterResources(config);
+
+            var configurators = config.ServiceLocator.GetServiceProvider().GetServices<IConfigureOptions<DotvvmConfiguration>>();
+
+            foreach (var configurator in configurators)
+            {
+                configurator.Configure(config);
+            }
 
             return config;
         }
