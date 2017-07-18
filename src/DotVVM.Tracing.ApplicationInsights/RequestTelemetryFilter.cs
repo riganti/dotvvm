@@ -4,11 +4,11 @@ using Microsoft.ApplicationInsights.Extensibility;
 
 namespace DotVVM.Tracing.ApplicationInsights
 {
-    public class RequestFilter : ITelemetryProcessor
+    public class RequestTelemetryFilter : ITelemetryProcessor
     {
         private ITelemetryProcessor Next { get; set; }
 
-        public RequestFilter(ITelemetryProcessor next)
+        public RequestTelemetryFilter(ITelemetryProcessor next)
         {
             this.Next = next;
         }

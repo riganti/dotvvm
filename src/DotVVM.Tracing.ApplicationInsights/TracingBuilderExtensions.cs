@@ -18,13 +18,10 @@ namespace DotVVM.Tracing.ApplicationInsights
         /// <returns></returns>
         public static IDotvvmOptions AddApplicationInsightsTracing(this IDotvvmOptions options)
         {
-
             var builder = TelemetryConfiguration.Active.TelemetryProcessorChainBuilder;
-            builder.Use((next) => new RequestFilter(next));
+            builder.Use((next) => new RequestTelemetryFilter(next));
 
             builder.Build();
-
-            options.Services.TryAddSingleton<TelemetryClient>();
 
             options.Services.AddTransient<IRequestTracer, ApplicationInsightsTracer>();
             //options.Services.AddSingleton<Func<IRequestTracer>, Func<ApplicationInsightsTracer>>();

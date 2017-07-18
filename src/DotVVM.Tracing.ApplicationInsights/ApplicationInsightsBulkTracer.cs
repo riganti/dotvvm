@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime.Tracing;
+using DotVVM.Framework.Utils;
 using Microsoft.ApplicationInsights;
 
 namespace DotVVM.Tracing.ApplicationInsights
@@ -19,14 +20,14 @@ namespace DotVVM.Tracing.ApplicationInsights
             this.stopwatch = stopwatch;
         }
 
-        public Task EndRequest()
+        public Task EndRequest(IDotvvmRequestContext context)
         {
             foreach (var @event in events)
             {
                 telemetryClient.TrackMetric(@event.Name, @event.TimeStamp);
             }
 
-            return Task.CompletedTask;
+            return TaskUtils.GetCompletedTask();
         }
 
         public Task TraceEvent(string eventName, IDotvvmRequestContext context)
@@ -39,7 +40,7 @@ namespace DotVVM.Tracing.ApplicationInsights
 
             events.Add(newEvent);
 
-            return Task.CompletedTask;
+            return TaskUtils.GetCompletedTask();
         }
 
         internal struct Event
