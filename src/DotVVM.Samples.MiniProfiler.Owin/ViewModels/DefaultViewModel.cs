@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using DotVVM.Framework.ViewModel;
 
@@ -13,11 +9,31 @@ namespace DotVVM.Samples.MiniProfiler.Owin.ViewModels
 
         public string Title { get; set; }
 
-
         public DefaultViewModel()
         {
             Title = "Hello from DotVVM!";
         }
 
+        public override Task Init()
+        {
+            Thread.Sleep(50);
+            return base.Init();
+        }
+
+        public override Task Load()
+        {
+            Thread.Sleep(100);
+            return base.Load();
+        }
+
+        public override Task PreRender()
+        {
+            Thread.Sleep(200);
+            return base.PreRender();
+        }
+
+        public void Command()
+        {
+        }
     }
 }

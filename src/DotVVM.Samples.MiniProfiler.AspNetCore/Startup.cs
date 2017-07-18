@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Caching.Memory;
-using DotVVM.Tracing.MiniProfiler;
+using DotVVM.Tracing.MiniProfiler.AspNetCore;
 using StackExchange.Profiling;
 using StackExchange.Profiling.Storage;
 using System;

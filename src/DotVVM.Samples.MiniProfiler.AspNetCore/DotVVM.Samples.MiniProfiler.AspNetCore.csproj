@@ -22,6 +22,6 @@
   <ItemGroup>
     <ProjectReference Include="..\DotVVM.Framework.Hosting.AspNetCore\DotVVM.Framework.Hosting.AspNetCore.csproj" />
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
-    <ProjectReference Include="..\DotVVM.Tracing.Miniprofiler\DotVVM.Tracing.MiniProfiler.AspNetCore.csproj" />
+    <ProjectReference Include="..\DotVVM.Tracing.MiniProfiler.AspNetCore\DotVVM.Tracing.MiniProfiler.AspNetCore.csproj" />
   </ItemGroup>
 </Project>

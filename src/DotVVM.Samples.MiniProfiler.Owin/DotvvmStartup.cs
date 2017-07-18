@@ -1,11 +1,4 @@
-using System.Web.Hosting;
-using Microsoft.Owin;
-using Microsoft.Owin.FileSystems;
-using Microsoft.Owin.StaticFiles;
-using Owin;
-using DotVVM.Framework;
 using DotVVM.Framework.Configuration;
-using DotVVM.Framework.Routing;
 
 namespace DotVVM.Samples.MiniProfiler.Owin
 {

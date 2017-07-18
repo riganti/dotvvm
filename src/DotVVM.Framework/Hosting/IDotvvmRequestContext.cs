@@ -7,6 +7,7 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Routing;
+using DotVVM.Framework.Runtime.Tracing;
 using Newtonsoft.Json.Linq;
 
 namespace DotVVM.Framework.Hosting
@@ -117,6 +118,11 @@ namespace DotVVM.Framework.Hosting
         string ResultIdFragment { get; set; }
 
         IServiceProvider Services { get; }
+
+        /// <summary>
+        /// Gets a list of tracers for current HTTP request
+        /// </summary>
+        List<IRequestTracer> RequestTracers { get; }
 
         /// <summary>
         /// Changes the current culture of this HTTP request.
