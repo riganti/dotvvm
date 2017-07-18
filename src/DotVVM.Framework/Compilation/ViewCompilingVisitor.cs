@@ -68,7 +68,9 @@ namespace DotVVM.Framework.Compilation
         protected string EmitCreateControl(Type type, object[] arguments)
         {
             // if matching ctor exists, invoke it directly
-            if (type.GetConstructors().Any(ctor =>
+            if (type.GetTypeInfo().GetCustomAttribute(typeof(DependencyInjection.RequireDependencyInjectionAttribute)) is DependencyInjection.RequireDependencyInjectionAttribute requireDiAttr)
+                return emitter.EmitCustomInjectionFactoryInvocation(requireDiAttr.FactoryType, type);
+            else if (type.GetConstructors().Any(ctor =>
                 ctor.GetParameters().Length == (arguments?.Length ?? 0) &&
                 ctor.GetParameters().Zip(arguments ?? Enumerable.Empty<object>(),
                         (p, a) => TypeConversion.ImplicitConversion(Expression.Constant(a), p.ParameterType))

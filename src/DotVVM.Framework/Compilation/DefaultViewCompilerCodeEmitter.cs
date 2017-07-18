@@ -100,8 +100,29 @@ namespace DotVVM.Framework.Compilation
                     EmitValue(objectType).Apply(SyntaxFactory.Argument),
                     EmitValue(parameterTypes).Apply(SyntaxFactory.Argument),
                 })));
+
         
-        public string EmitInjectionFactoryInvocation(Type type, (Type type, ExpressionSyntax expression)[] arguments,
+        public string EmitCustomInjectionFactoryInvocation(Type factoryType, Type controlType) =>
+                SyntaxFactory.IdentifierName(ServiceProviderParameterName)
+                .Apply(i => SyntaxFactory.MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    i,
+                    SyntaxFactory.IdentifierName(nameof(IServiceProvider.GetService))))
+                .Apply(SyntaxFactory.InvocationExpression)
+                    .WithArgumentList(SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.Argument
+                (EmitValue(factoryType)))))
+                .Apply(n => SyntaxFactory.CastExpression(ParseTypeName(factoryType), n))
+                .Apply(SyntaxFactory.InvocationExpression)
+                    .WithArgumentList(SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>(new[] {
+                        SyntaxFactory.Argument(SyntaxFactory.IdentifierName(ServiceProviderParameterName)),
+                        SyntaxFactory.Argument(EmitValue(controlType))
+                    })))
+                .Apply(a => SyntaxFactory.CastExpression(ParseTypeName(controlType), a))
+                .Apply(EmitCreateVariable);
+        
+        public string EmitInjectionFactoryInvocation(
+            Type type,
+            (Type type, ExpressionSyntax expression)[] arguments,
             Func<Type, Type[], ExpressionSyntax> factoryInvocation) =>
                 this.injectionFactoryCache.GetOrAdd((type, string.Join(";", arguments.Select(i => i.type))), _ =>
                 {

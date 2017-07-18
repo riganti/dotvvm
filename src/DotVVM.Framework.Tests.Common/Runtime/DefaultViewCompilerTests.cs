@@ -15,6 +15,7 @@ using DotVVM.Framework.Runtime;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Binding.Properties;
 using System.Linq;
+using DotVVM.Framework.DependencyInjection;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -308,6 +309,16 @@ test <dot:Literal><a /></dot:Literal>";
             Assert.AreEqual(FlaggyEnum.A | FlaggyEnum.B | FlaggyEnum.C, page.GetThisAndAllDescendants().OfType<TestCodeControl>().First().Flags);
         }
 
+        [TestMethod]
+        public void DefaultViewCompiler_CustomDependencyInjection()
+        {
+            var markup = @"
+@viewModel System.Object
+<ff:TestCustomDependencyInjectionControl />";
+            var page = CompileMarkup(markup);
+            Assert.IsTrue(page.GetThisAndAllDescendants().OfType<TestCustomDependencyInjectionControl>().First().IsCorrectlyCreated);
+        }
+
         private DotvvmControl CompileMarkup(string markup, Dictionary<string, string> markupFiles = null, bool compileTwice = false, [CallerMemberName]string fileName = null)
         {
             if (markupFiles == null)
@@ -320,6 +331,9 @@ test <dot:Literal><a /></dot:Literal>";
             context.Configuration = DotvvmConfiguration.CreateDefault(services =>
             {
                 services.AddSingleton<IMarkupFileLoader>(new FakeMarkupFileLoader(markupFiles));
+                services.AddSingleton<Func<IServiceProvider, Type, DotvvmControl>>((s, t) =>
+                    t == typeof(TestCustomDependencyInjectionControl) ? new TestCustomDependencyInjectionControl("") { IsCorrectlyCreated = true } :
+                    throw new Exception());
             });
             context.Configuration.ApplicationPhysicalPath = Path.GetTempPath();
 
@@ -340,7 +354,7 @@ test <dot:Literal><a /></dot:Literal>";
             }
             return result;
         }
-    
+
     }
 
     public class ViewCompilerTestViewModel
@@ -376,6 +390,14 @@ test <dot:Literal><a /></dot:Literal>";
 
         public static readonly DotvvmProperty FlagsProperty =
             DotvvmProperty.Register<FlaggyEnum, TestCodeControl>(nameof(Flags));
+    }
+
+    [RequireDependencyInjection]
+    public class TestCustomDependencyInjectionControl: DotvvmControl
+    {
+        public bool IsCorrectlyCreated { get; set; } = false;
+
+        public TestCustomDependencyInjectionControl(string something) { }
     }
 
     public class FakeMarkupFileLoader : IMarkupFileLoader
