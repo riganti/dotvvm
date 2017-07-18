@@ -5,7 +5,7 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
 using System;
 
-namespace DotVVM.Tracing.MiniProfiler
+namespace DotVVM.Tracing.MiniProfiler.AspNetCore
 {
     public class MiniProfilerTracer : IRequestTracer
     {

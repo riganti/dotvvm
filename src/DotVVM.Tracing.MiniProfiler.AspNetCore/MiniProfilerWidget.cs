@@ -3,7 +3,7 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using StackExchange.Profiling;
 
-namespace DotVVM.Tracing.MiniProfiler
+namespace DotVVM.Tracing.MiniProfiler.AspNetCore
 {
     public class MiniProfilerWidget : DotvvmControl
     {

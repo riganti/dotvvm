@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using StackExchange.Profiling;
 
-namespace DotVVM.Tracing.MiniProfiler
+namespace DotVVM.Tracing.MiniProfiler.AspNetCore
 {
     public static class MiniProfilerBuilderExtensions
     {
@@ -37,4 +37,5 @@ namespace DotVVM.Tracing.MiniProfiler
             StackExchange.Profiling.MiniProfiler.Settings.ProfilerProvider = new DotVVMProfilerProvider(currentProfiler);
         }
     }
+
 }

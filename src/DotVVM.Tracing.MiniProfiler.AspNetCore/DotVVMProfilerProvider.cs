@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using StackExchange.Profiling;
 
-namespace DotVVM.Tracing.MiniProfiler
+namespace DotVVM.Tracing.MiniProfiler.AspNetCore
 {
     public class DotVVMProfilerProvider : IAsyncProfilerProvider
     {

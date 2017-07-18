@@ -2,7 +2,7 @@
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime.Filters;
 
-namespace DotVVM.Tracing.MiniProfiler
+namespace DotVVM.Tracing.MiniProfiler.AspNetCore
 {
     public class MiniProfilerActionFilter : ActionFilterAttribute
     {
