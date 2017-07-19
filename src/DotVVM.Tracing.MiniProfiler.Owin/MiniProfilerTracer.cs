@@ -9,11 +9,12 @@ namespace DotVVM.Tracing.MiniProfiler.Owin
 {
     public class MiniProfilerTracer : IRequestTracer
     {
+        private const string endRequestEventName = "RequestEnded";
         private Timing currentTiming;
-        private bool requestStarted;
 
         public Task EndRequest(IDotvvmRequestContext context)
         {
+            SetEventNameStopCurrentTiming(endRequestEventName);
             StackExchange.Profiling.MiniProfiler.Stop();
 
             return TaskUtils.GetCompletedTask();
@@ -21,6 +22,7 @@ namespace DotVVM.Tracing.MiniProfiler.Owin
 
         public Task EndRequest(IDotvvmRequestContext context, Exception exception)
         {
+            SetEventNameStopCurrentTiming(endRequestEventName);
             StackExchange.Profiling.MiniProfiler.Stop();
 
             return TaskUtils.GetCompletedTask();
@@ -33,14 +35,19 @@ namespace DotVVM.Tracing.MiniProfiler.Owin
                 StackExchange.Profiling.MiniProfiler.Start();
             }
 
+            SetEventNameStopCurrentTiming(eventName);
+
+            currentTiming = (Timing)StackExchange.Profiling.MiniProfiler.Current.Step(string.Empty);
+            return TaskUtils.GetCompletedTask();
+        }
+
+        private void SetEventNameStopCurrentTiming(string eventName)
+        {
             if (currentTiming != null)
             {
                 currentTiming.Name = eventName;
                 currentTiming.Stop();
             }
-
-            currentTiming = (Timing)StackExchange.Profiling.MiniProfiler.Current.Step(string.Empty);
-            return TaskUtils.GetCompletedTask();
         }
     }
 }
