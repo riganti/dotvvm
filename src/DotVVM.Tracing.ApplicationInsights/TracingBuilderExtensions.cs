@@ -25,7 +25,6 @@ namespace DotVVM.Tracing.ApplicationInsights
             options.Services.TryAddSingleton<TelemetryClient>();
 
             options.Services.AddTransient<IRequestTracer, ApplicationInsightsTracer>();
-            //options.Services.AddSingleton<Func<IRequestTracer>>((c) => () => c.GetRequiredService<ApplicationInsightsTracer>());
             options.Services.AddTransient<IConfigureOptions<DotvvmConfiguration>, ApplicationInsightSetup>();
 
             return options;
