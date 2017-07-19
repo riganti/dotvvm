@@ -128,7 +128,7 @@ namespace DotVVM.Framework.Runtime
                 }
 
                 // replace the contents
-                content.Parent.Children.Remove(content);
+                (content.Parent as DotvvmControl)?.Children.Remove(content);
                 placeHolder.Children.Clear();
                 placeHolder.Children.Add(content);
                 content.SetValue(Internal.IsMasterPageCompositionFinishedProperty, true);

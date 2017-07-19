@@ -322,9 +322,9 @@ namespace DotVVM.Framework.Controls
         public DotvvmControl GetNamingContainer()
         {
             var control = this;
-            while (!IsNamingContainer(control) && control.Parent != null)
+            while (!IsNamingContainer(control) && control.Parent is DotvvmControl parent)
             {
-                control = control.Parent;
+                control = parent;
             }
             return control;
         }
@@ -332,7 +332,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Determines whether the specified control is a naming container.
         /// </summary>
-        public static bool IsNamingContainer(DotvvmControl control)
+        public static bool IsNamingContainer(DotvvmBindableObject control)
         {
             return (bool)control.GetValue(Internal.IsNamingContainerProperty);
         }
@@ -452,7 +452,7 @@ namespace DotVVM.Framework.Controls
             var fragments = new List<object> { rawId };
             DotvvmControl childContainer = null;
             bool searchingForIdElement = false;
-            foreach (var ancestor in GetAllAncestors())
+            foreach (DotvvmControl ancestor in GetAllAncestors())
             {
                 if (IsNamingContainer(ancestor))
                 {

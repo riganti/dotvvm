@@ -46,7 +46,7 @@ namespace DotVVM.Framework.Controls
         /// Gets the parent control.
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.Exclude)]
-        public DotvvmControl Parent { get; set; }
+        public DotvvmBindableObject Parent { get; set; }
 
         // WORKAROUND: Roslyn is unable to cache the delegate itself
         private static Func<Type, DotvvmProperty[]> _dotvvmProperty_ResolveProperties = DotvvmProperty.ResolveProperties;
@@ -292,9 +292,9 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets all ancestors of this control starting with the parent.
         /// </summary>
-        public IEnumerable<DotvvmControl> GetAllAncestors(bool incudingThis = false)
+        public IEnumerable<DotvvmBindableObject> GetAllAncestors(bool incudingThis = false)
         {
-            var ancestor = incudingThis ? (DotvvmControl)this : Parent;
+            var ancestor = incudingThis ? this : Parent;
             while (ancestor != null)
             {
                 yield return ancestor;
