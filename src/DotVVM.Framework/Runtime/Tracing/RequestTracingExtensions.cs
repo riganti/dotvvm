@@ -8,7 +8,6 @@ namespace DotVVM.Framework.Runtime.Tracing
 {
     public static class RequestTracingExtensions
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static async Task TracingEvent(this IEnumerable<IRequestTracer> requestTracers, string eventName, IDotvvmRequestContext context)
         {
             foreach (var tracer in requestTracers)
@@ -17,7 +16,6 @@ namespace DotVVM.Framework.Runtime.Tracing
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static async Task TracingEndRequest(this IEnumerable<IRequestTracer> requestTracers, IDotvvmRequestContext context)
         {
             foreach (var tracer in requestTracers)
@@ -26,7 +24,6 @@ namespace DotVVM.Framework.Runtime.Tracing
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static async Task TracingException(this IEnumerable<IRequestTracer> requestTracers, IDotvvmRequestContext context, Exception exception)
         {
             foreach (var tracer in requestTracers)
