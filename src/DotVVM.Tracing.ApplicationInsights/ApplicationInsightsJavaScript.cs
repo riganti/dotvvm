@@ -6,6 +6,7 @@ using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 
 namespace DotVVM.Tracing.ApplicationInsights
 {
@@ -46,7 +47,14 @@ namespace DotVVM.Tracing.ApplicationInsights
 
         protected override void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
         {
+            var doNotTrack = false;
+            if (context.HttpContext.Request.Headers.TryGetValue("DNT", out var doNotTrackHeaderValue))
+            {
+                doNotTrack = string.Equals(doNotTrackHeaderValue, "1");
+            }
+
             if (!telemetryConfiguration.DisableTelemetry && 
+                !doNotTrack && 
                 !string.IsNullOrEmpty(telemetryConfiguration.InstrumentationKey))
             {
                 string additionalJS = string.Empty;
@@ -55,7 +63,7 @@ namespace DotVVM.Tracing.ApplicationInsights
                     identity != null &&
                     identity.IsAuthenticated)
                 {
-                    string escapedUserName = identity.Name.Replace("\\", "\\\\");
+                    string escapedUserName = JsonConvert.ToString(identity.Name);
                     additionalJS = string.Format(CultureInfo.InvariantCulture, AuthSnippet, escapedUserName);
                 }
 
