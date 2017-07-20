@@ -15,14 +15,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
         public new Type Type => controlType.Type;
 
         [JsonIgnore]
-        public Type ControlBuilderType => controlType.ControlBuilderType;
-
-        [JsonIgnore]
         public new DotvvmProperty DefaultContentProperty => (DotvvmProperty) base.DefaultContentProperty;
 
         [JsonIgnore]
         public new Type DataContextConstraint => controlType.DataContextRequirement;
-
 
         public ControlResolverMetadata(ControlType controlType) : base(controlType)
         {

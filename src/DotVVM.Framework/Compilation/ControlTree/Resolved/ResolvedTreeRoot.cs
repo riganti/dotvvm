@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         public string FileName { get; set; }
 
         public ResolvedTreeRoot(ControlResolverMetadata metadata, DothtmlNode node, DataContextStack dataContext, IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives)
-            : base(metadata, node, dataContext)
+            : base(metadata, node, null, dataContext)
         {
             Directives = directives.ToDictionary(d => d.Key, d => d.Value.ToList());
             foreach (var ds in Directives.Values) foreach (var d in ds)
