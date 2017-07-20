@@ -96,19 +96,19 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public KnockoutExpressionBindingProperty FormatJavascript(KnockoutJsExpressionBindingProperty expression)
         {
-            return new KnockoutExpressionBindingProperty(FormatJavascript(expression.Expression, true), FormatJavascript(expression.Expression, false));
+            return new KnockoutExpressionBindingProperty(FormatJavascript(expression.Expression, true, niceMode: configuration.Debug), FormatJavascript(expression.Expression, false, niceMode: configuration.Debug));
         }
 
-        private ParametrizedCode FormatJavascript(JsExpression node, bool allowObservableResult = true)
+        public static ParametrizedCode FormatJavascript(JsExpression node, bool allowObservableResult = true, bool niceMode = false, bool nullChecks = true)
         {
             var expr = new JsParenthesizedExpression(node.Clone());
             expr.AcceptVisitor(new KnockoutObservableHandlingVisitor(allowObservableResult));
-            JavascriptNullCheckAdder.AddNullChecks(expr);
+            if (nullChecks) JavascriptNullCheckAdder.AddNullChecks(expr);
             expr = new JsParenthesizedExpression((JsExpression)JsTemporaryVariableResolver.ResolveVariables(expr.Expression.Detach()));
-            return (StartsWithStatementLikeExpression(expr.Expression) ? expr : expr.Expression).FormatParametrizedScript(niceMode: configuration.Debug);
+            return (StartsWithStatementLikeExpression(expr.Expression) ? expr : expr.Expression).FormatParametrizedScript(niceMode);
         }
 
-        private bool StartsWithStatementLikeExpression(JsExpression expression)
+        private static bool StartsWithStatementLikeExpression(JsExpression expression)
         {
             if (expression is JsFunctionExpression || expression is JsObjectExpression) return true;
             if (expression == null || !expression.HasChildren ||
@@ -129,16 +129,26 @@ namespace DotVVM.Framework.Compilation.Binding
             return new ExpectedTypeBindingProperty(prop.IsBindingProperty ? typeof(object) : prop.PropertyType);
         }
 
-        public BindingAdditionalResolvers GetAdditionalResolversFromProperty(AssignedPropertyBindingProperty property = null, DataContextStack stack = null)
+        public BindingResolverCollection GetAdditionalResolversFromProperty(AssignedPropertyBindingProperty property = null, DataContextStack stack = null)
         {
             var prop = property?.DotvvmProperty;
-            if (prop == null) return new BindingAdditionalResolvers(Enumerable.Empty<Delegate>());
+            if (prop == null) return new BindingResolverCollection(Enumerable.Empty<Delegate>());
 
-            return new BindingAdditionalResolvers(
+            return new BindingResolverCollection(
                 (prop.PropertyInfo?.GetCustomAttributes<BindingCompilationOptionsAttribute>() ?? Enumerable.Empty<BindingCompilationOptionsAttribute>())
                 .SelectMany(o => o.GetResolvers())
                 .Concat(stack.EnumerableItems().Reverse().SelectMany(s => s.BindingPropertyResolvers))
                 .ToImmutableArray());
+        }
+
+        public BindingCompilationRequirementsAttribute GetAdditionalResolversFromProperty(AssignedPropertyBindingProperty property)
+        {
+            var prop = property?.DotvvmProperty;
+            if (prop == null) return new BindingCompilationRequirementsAttribute();
+
+            return
+                (prop.PropertyInfo?.GetCustomAttributes<BindingCompilationRequirementsAttribute>() ?? Enumerable.Empty<BindingCompilationRequirementsAttribute>())
+                .Aggregate((a, b) => a.ApplySecond(b));
         }
 
         public CompiledBindingExpression.BindingDelegate Compile(Expression<CompiledBindingExpression.BindingDelegate> expr) => expr.Compile();
@@ -158,18 +168,39 @@ namespace DotVVM.Framework.Compilation.Binding
             // don't append expression when original string is present, so it does not have to be always exactly same
             if (originalString != null)
                 sb.Append(originalString.Code);
-            else sb.Append(expression.ToString());
+            else sb.Append(expression.Expression.ToString());
 
-            sb.Append("|||");
-            sb.Append(dataContext?.GetHashCode());
-            sb.Append("|||");
+            sb.Append(" || ");
+            while (dataContext != null)
+            {
+                sb.Append(dataContext.DataContextType.FullName);
+                sb.Append('(');
+                foreach (var ns in dataContext.NamespaceImports)
+                {
+                    sb.Append(ns.Alias);
+                    sb.Append('=');
+                    sb.Append(ns.Namespace);
+                }
+                sb.Append(';');
+                foreach (var ext in dataContext.ExtensionParameters)
+                {
+                    sb.Append(ext.Identifier);
+                    if (ext.Inherit) sb.Append('*');
+                    sb.Append(':');
+                    sb.Append(ext.ParameterType.FullName);
+                    sb.Append(':');
+                    sb.Append(ext.GetType().FullName);
+                }
+                sb.Append(") -- ");
+                dataContext = dataContext.Parent;
+            }
+            sb.Append(" || ");
             sb.Append(assignedProperty?.DotvvmProperty?.FullName);
-            sb.Append(assignedProperty?.DotvvmProperty?.GetHashCode());
 
             if (resolvedBinding?.TreeRoot != null)
             {
                 var bindingIndex = bindingCounts.GetOrCreateValue(resolvedBinding.TreeRoot).AddOrUpdate(dataContext, 0, (_, i) => i + 1);
-                sb.Append("|||");
+                sb.Append(" || ");
                 sb.Append(bindingIndex);
             }
 
@@ -199,7 +230,7 @@ namespace DotVVM.Framework.Compilation.Binding
                     new ParsedExpressionBindingProperty(
                         Expression.Property(expression.Expression, ifc.GetProperty(nameof(ICollection.Count)))
                     )));
-            
+
             else if (expression.Expression.Type.Implements(typeof(IBaseGridViewDataSet), out var igridviewdataset))
                 return new DataSourceLengthBinding(binding.DeriveBinding(
                     new ParsedExpressionBindingProperty(
@@ -232,7 +263,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public StaticCommandJavascriptProperty CompileStaticCommand(DataContextStack dataContext, ParsedExpressionBindingProperty expression)
         {
-            return new StaticCommandJavascriptProperty(FormatJavascript(new StaticCommandBindingCompiler(vmMapper).CompileToJavascript(dataContext, expression.Expression)));
+            return new StaticCommandJavascriptProperty(FormatJavascript(new StaticCommandBindingCompiler(vmMapper).CompileToJavascript(dataContext, expression.Expression), niceMode: configuration.Debug));
         }
 
         public LocationInfoBindingProperty GetLocationInfo(ResolvedBinding resolvedBinding)
@@ -244,6 +275,19 @@ namespace DotVVM.Framework.Compilation.Binding
                 resolvedBinding.DothtmlNode?.Tokens?.FirstOrDefault()?.LineNumber ?? -1,
                 resolvedBinding.TreeRoot.GetAncestors().OfType<ResolvedControl>().FirstOrDefault()?.Metadata?.Type);
         }
-        //public OriginalStringBindingProperty
+
+        public SelectorItemBindingProperty GetItemLambda(ParsedExpressionBindingProperty expression, DataContextStack dataContext, IValueBinding binding)
+        {
+            var argument = Expression.Parameter(dataContext.DataContextType, "i");
+            return new SelectorItemBindingProperty(binding.DeriveBinding(
+                dataContext.Parent,
+                Expression.Lambda(expression.Expression.ReplaceAll(e =>
+                    e.GetParameterAnnotation() is BindingParameterAnnotation annotation &&
+                        annotation.DataContext == dataContext &&
+                        annotation.ExtensionParameter == null ?
+                   argument :
+                   e), argument)
+            ));
+        }
     }
 }

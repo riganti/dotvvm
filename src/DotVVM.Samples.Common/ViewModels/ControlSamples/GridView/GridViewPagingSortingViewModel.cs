@@ -103,5 +103,11 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
 
         public DateTime BirthDate { get; set; }
         public bool MessageReceived { get; set; }
+
+
+        public void ChangeName()
+        {
+            Name = "xxx";
+        }
     }
 }

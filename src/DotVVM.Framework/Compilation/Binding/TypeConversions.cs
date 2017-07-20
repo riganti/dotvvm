@@ -99,9 +99,17 @@ namespace DotVVM.Framework.Compilation.Binding
             {
                 return Expression.Property(src, "Value");
             }
-            if (Nullable.GetUnderlyingType(destType) == src.Type)
+            else if (Nullable.GetUnderlyingType(destType) == src.Type)
             {
                 return Expression.Convert(src, destType);
+            }
+            else if (src.Type.IsNullable() || destType.IsNullable())
+            {
+                var srcLift = src.Type.IsNullable() ? Expression.Property(src, "Value") : src;
+                var destLift = Nullable.GetUnderlyingType(destType) ?? destType;
+                var liftedConverted = ImplicitConversion(srcLift, destLift);
+                if (liftedConverted != null && liftedConverted.NodeType == ExpressionType.Convert && liftedConverted.CastTo<UnaryExpression>().Operand == srcLift)
+                    return Expression.Convert(src, destType);
             }
             return null;
         }

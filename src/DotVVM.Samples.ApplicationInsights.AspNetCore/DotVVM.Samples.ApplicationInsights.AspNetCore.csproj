@@ -1,0 +1,33 @@
+﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk.Web">
+	<PropertyGroup>
+		<TargetFramework>netcoreapp1.0</TargetFramework>
+		<ApplicationInsightsResourceId>/subscriptions/1f41fa3c-37d6-4b89-b5dc-913463de0d9a/resourcegroups/DotVVMWeb/providers/microsoft.insights/components/DotvvmTrackingPoints</ApplicationInsightsResourceId>
+		<ApplicationInsightsAnnotationResourceId>/subscriptions/1f41fa3c-37d6-4b89-b5dc-913463de0d9a/resourcegroups/DotVVMWeb/providers/microsoft.insights/components/DotvvmTrackingPoints</ApplicationInsightsAnnotationResourceId>
+	</PropertyGroup>
+	<ItemGroup>
+		<Content Include="**\*.dothtml" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Remove="dotvvm_serialized_config.json.tmp" />
+	</ItemGroup>
+	<ItemGroup>
+		<Folder Include="wwwroot\" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.1.0" />
+		<PackageReference Include="Microsoft.AspNetCore" Version="1.0.3" />
+		<PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="1.1.0" />
+	</ItemGroup>
+  <ItemGroup>
+    <DotNetCliToolReference Include="DotVVM.Compiler.Light" Version="1.1.0.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj" />
+    <ProjectReference Include="..\DotVVM.Framework.Hosting.AspNetCore\DotVVM.Framework.Hosting.AspNetCore.csproj" />
+    <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
+    <ProjectReference Include="..\DotVVM.Tracing.ApplicationInsights\DotVVM.Tracing.ApplicationInsights.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services" />
+  </ItemGroup>
+</Project>

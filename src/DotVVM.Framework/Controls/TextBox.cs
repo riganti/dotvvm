@@ -1,10 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Hosting;
-using DotVVM.Framework.Runtime;
+using DotVVM.Framework.Utils;
+using System;
 
 namespace DotVVM.Framework.Controls
 {
@@ -14,30 +12,7 @@ namespace DotVVM.Framework.Controls
     [ControlMarkupOptions(AllowContent = false)]
     public class TextBox : HtmlGenericControl
     {
-
-        /// <summary>
-        /// Gets or sets the text in the control.
-        /// </summary>
-        [MarkupOptions(Required = true)]
-        public string Text
-        {
-            get { return Convert.ToString(GetValue(TextProperty)); }
-            set { SetValue(TextProperty, value); }
-        }
-        public static readonly DotvvmProperty TextProperty =
-            DotvvmProperty.Register<string, TextBox>(t => t.Text, "");
-
-        /// <summary>
-        /// Gets or sets the type of value being formatted - Number or DateTime.
-        /// </summary>
-        [MarkupOptions(AllowBinding = false)]
-        public FormatValueType ValueType
-        {
-            get { return (FormatValueType)GetValue(ValueTypeProperty); }
-            set { SetValue(ValueTypeProperty, value); }
-        }
-        public static readonly DotvvmProperty ValueTypeProperty =
-            DotvvmProperty.Register<FormatValueType, TextBox>(t => t.ValueType);
+        private bool isFormattingRequired;
 
         /// <summary>
         /// Gets or sets a value indicating whether the control is enabled and can be modified.
@@ -47,6 +22,7 @@ namespace DotVVM.Framework.Controls
             get { return (bool)GetValue(EnabledProperty); }
             set { SetValue(EnabledProperty, value); }
         }
+
         public static readonly DotvvmProperty EnabledProperty =
             DotvvmProperty.Register<bool, TextBox>(t => t.Enabled, true);
 
@@ -59,8 +35,46 @@ namespace DotVVM.Framework.Controls
             get { return (string)GetValue(FormatStringProperty); }
             set { SetValue(FormatStringProperty, value); }
         }
+
         public static readonly DotvvmProperty FormatStringProperty =
             DotvvmProperty.Register<string, TextBox>(t => t.FormatString);
+
+        /// <summary>
+        /// Gets or sets the command that will be triggered when the control text is changed.
+        /// </summary>
+        public Command Changed
+        {
+            get { return (Command)GetValue(ChangedProperty); }
+            set { SetValue(ChangedProperty, value); }
+        }
+
+        public static readonly DotvvmProperty ChangedProperty =
+            DotvvmProperty.Register<Command, TextBox>(t => t.Changed, null);
+
+        /// <summary>
+        /// Gets or sets whether all text inside the TextBox becomes selected when the element gets focused.
+        /// </summary>
+        public bool SelectAllOnFocus
+        {
+            get { return (bool)GetValue(SelectAllOnFocusProperty); }
+            set { SetValue(SelectAllOnFocusProperty, value); }
+        }
+
+        public static readonly DotvvmProperty SelectAllOnFocusProperty =
+            DotvvmProperty.Register<bool, TextBox>(t => t.SelectAllOnFocus, false);
+
+        /// <summary>
+        /// Gets or sets the text in the control.
+        /// </summary>
+        [MarkupOptions(Required = true)]
+        public string Text
+        {
+            get { return Convert.ToString(GetValue(TextProperty)); }
+            set { SetValue(TextProperty, value); }
+        }
+
+        public static readonly DotvvmProperty TextProperty =
+            DotvvmProperty.Register<string, TextBox>(t => t.Text, "");
 
         /// <summary>
         /// Gets or sets the mode of the text field.
@@ -71,11 +85,13 @@ namespace DotVVM.Framework.Controls
             get { return (TextBoxType)GetValue(TypeProperty); }
             set { SetValue(TypeProperty, value); }
         }
+
         public static readonly DotvvmProperty TypeProperty =
             DotvvmProperty.Register<TextBoxType, TextBox>(c => c.Type, TextBoxType.Normal);
 
         /// <summary>
-        /// Gets or sets whether the viewmodel property will be updated after the key is pressed. By default, the viewmodel is updated after the control loses its focus.
+        /// Gets or sets whether the viewmodel property will be updated after the key is pressed. 
+        /// By default, the viewmodel is updated after the control loses its focus.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
         public bool UpdateTextAfterKeydown
@@ -83,146 +99,55 @@ namespace DotVVM.Framework.Controls
             get { return (bool)GetValue(UpdateTextAfterKeydownProperty); }
             set { SetValue(UpdateTextAfterKeydownProperty, value); }
         }
-        public static readonly DotvvmProperty UpdateTextAfterKeydownProperty
-            = DotvvmProperty.Register<bool, TextBox>(c => c.UpdateTextAfterKeydown, false);
+
+        public static readonly DotvvmProperty UpdateTextAfterKeydownProperty =
+            DotvvmProperty.Register<bool, TextBox>(c => c.UpdateTextAfterKeydown, false);
 
         /// <summary>
-        /// Gets or sets the command that will be triggered when the control text is changed.
+        /// Gets or sets the type of value being formatted - Number or DateTime.
         /// </summary>
-        public Command Changed
+        [MarkupOptions(AllowBinding = false)]
+        [Obsolete("ValueType property is no longer required, it is automatically inferred from compile-time type of Text binding")]
+        public FormatValueType ValueType
         {
-            get { return (Command)GetValue(ChangedProperty); }
-            set { SetValue(ChangedProperty, value); }
+            get { return (FormatValueType)GetValue(ValueTypeProperty); }
+            set { SetValue(ValueTypeProperty, value); }
         }
-        public static readonly DotvvmProperty ChangedProperty =
-            DotvvmProperty.Register<Command, TextBox>(t => t.Changed, null);
 
-        private bool isFormattingRequired;
+        public static readonly DotvvmProperty ValueTypeProperty =
+            DotvvmProperty.Register<FormatValueType, TextBox>(t => t.ValueType);
 
-        protected internal override void OnPreRender(Hosting.IDotvvmRequestContext context)
+        protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
-            isFormattingRequired = !string.IsNullOrEmpty(FormatString) || ValueType != FormatValueType.Text;
+            isFormattingRequired = !string.IsNullOrEmpty(FormatString) ||
+                ValueType != FormatValueType.Text ||
+                Literal.NeedsFormatting(GetValueBinding(TextProperty));
             if (isFormattingRequired)
             {
                 context.ResourceManager.AddCurrentCultureGlobalizationResource();
             }
+
             base.OnPreRender(context);
         }
-
 
         /// <summary>
         /// Adds all attributes that should be added to the control begin tag.
         /// </summary>
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            writer.AddKnockoutDataBind("enable", this, EnabledProperty, () =>
+            AddEnabledPropertyToRender(writer);
+            AddTypeAttributeToRender(writer);
+            AddChangedPropertyToRender(writer, context);
+            AddSelectAllOnFocusPropertyToRender(writer, context);
+            if (isFormattingRequired)
             {
-                if (!Enabled)
-                {
-                    writer.AddAttribute("disabled", "disabled");
-                }
-            });
-
-            AddValueAndFormatBindingAttribute(writer, context);
-
-            if (Type == TextBoxType.MultiLine)
-            {
-                TagName = "textarea";
-            }
-            else if (Type == TextBoxType.Normal)
-            {
-                TagName = "input";
-
-                // do not overwrite type attribute
-                if (!Attributes.ContainsKey("type"))
-                {
-                    writer.AddAttribute("type", "text");
-                }
+                AddFormatBindingToRender(writer, context);
             }
             else
             {
-                string type = null;
-                switch (Type)
-                {
-                    case TextBoxType.Password:
-                        type = "password";
-                        break;
-                    case TextBoxType.Telephone:
-                        type = "tel";
-                        break;
-                    case TextBoxType.Url:
-                        type = "url";
-                        break;
-                    case TextBoxType.Email:
-                        type = "email";
-                        break;
-                    case TextBoxType.Date:
-                        type = "date";
-                        break;
-                    case TextBoxType.Time:
-                        type = "time";
-                        break;
-                    case TextBoxType.Color:
-                        type = "color";
-                        break;
-                    case TextBoxType.Search:
-                        type = "search";
-                        break;
-                    case TextBoxType.Number:
-                        type = "number";
-                        break;
-                    default:
-                        throw new NotSupportedException($"TextBox Type '{ Type }' not supported");
-                }
-                writer.AddAttribute("type", type);
-                TagName = "input";
-            }
-
-            // prepare changed event attribute
-            var changedBinding = GetCommandBinding(ChangedProperty);
-            if (changedBinding != null)
-            {
-                writer.AddAttribute("onchange", KnockoutHelper.GenerateClientPostBackScript(nameof(Changed), changedBinding, this, true, isOnChange: true));
-            }
-
-            base.AddAttributesToRender(writer, context);
-        }
-
-        private void AddValueAndFormatBindingAttribute(IHtmlWriter writer, IDotvvmRequestContext context)
-        {
-            if (!isFormattingRequired)
-            {
-                // use standard value binding 
-                writer.AddKnockoutDataBind("value", this, TextProperty, () =>
-                {
-                    if (Type != TextBoxType.MultiLine)
-                    {
-                        writer.AddAttribute("value", Text);
-                    }
-                }, UpdateTextAfterKeydown ? "afterkeydown" : null, renderEvenInServerRenderingMode: true);
-            }
-            else
-            {
-                
-                // if format is set then use different value binding  which supports the format
-                writer.AddKnockoutDataBind("dotvvm-textbox-text", this, TextProperty, () =>
-                {
-                    if (Type != TextBoxType.MultiLine)
-                    {
-                        writer.AddAttribute("value", Text);
-                    }
-                }, UpdateTextAfterKeydown ? "afterkeydown" : null, renderEvenInServerRenderingMode: true);
-
-                var formatString = FormatString;
-                if (string.IsNullOrEmpty(formatString))
-                {
-                    formatString = "G";
-                }
-                writer.AddAttribute("data-dotvvm-format", formatString);
-                writer.AddAttribute("data-dotvvm-value-type", ValueType.ToString().ToLowerInvariant());
+                AddValueBindingToRender(writer, context);
             }
         }
-
 
         /// <summary>
         /// Renders the contents inside the control begin and end tags.
@@ -233,6 +158,112 @@ namespace DotVVM.Framework.Controls
             {
                 writer.WriteText(Text);
             }
+        }
+
+        private void AddEnabledPropertyToRender(IHtmlWriter writer)
+        {
+            writer.AddKnockoutDataBind("enable", this, EnabledProperty, () =>
+            {
+                if (!Enabled)
+                {
+                    writer.AddAttribute("disabled", "disabled");
+                }
+            });
+        }
+
+        private void AddFormatBindingToRender(IHtmlWriter writer, IDotvvmRequestContext context)
+        {
+            // if format is set then use different value binding  which supports the format
+            writer.AddKnockoutDataBind("dotvvm-textbox-text", this, TextProperty, () =>
+            {
+                if (Type != TextBoxType.MultiLine)
+                {
+                    writer.AddAttribute("value", Text);
+                }
+            }, UpdateTextAfterKeydown ? "afterkeydown" : null, renderEvenInServerRenderingMode: true);
+            var binding = GetValueBinding(TextProperty);
+            var formatString = FormatString;
+            if (string.IsNullOrEmpty(formatString))
+            {
+                if (Type == TextBoxType.Date)
+                    formatString = "yyyy-MM-dd";
+                else
+                    formatString = "G";
+            }
+
+            writer.AddAttribute("data-dotvvm-format", formatString);
+            if (ValueType != FormatValueType.Text)
+            {
+                writer.AddAttribute("data-dotvvm-value-type", ValueType.ToString().ToLowerInvariant());
+            }
+            else if (binding?.ResultType == typeof(DateTime))
+            {
+                writer.AddAttribute("data-dotvvm-value-type", "datetime");
+            }
+            else if (ReflectionUtils.IsNumericType(binding?.ResultType))
+            {
+                writer.AddAttribute("data-dotvvm-value-type", "number");
+            }
+        }
+
+        private void AddChangedPropertyToRender(IHtmlWriter writer, IDotvvmRequestContext context)
+        {
+            // prepare changed event attribute
+            var changedBinding = GetCommandBinding(ChangedProperty);
+            if (changedBinding != null)
+            {
+                writer.AddAttribute("onchange", KnockoutHelper.GenerateClientPostBackScript(nameof(Changed), 
+                    changedBinding, this, useWindowSetTimeout: true, isOnChange: true));
+            }
+
+            base.AddAttributesToRender(writer, context);
+        }
+
+        private void AddSelectAllOnFocusPropertyToRender(IHtmlWriter writer, IDotvvmRequestContext context)
+        {
+            const string KoBindingName = "dotvvm-textbox-select-all-on-focus";
+            writer.AddKnockoutDataBind(KoBindingName, this, SelectAllOnFocusProperty, () =>
+            {
+                writer.AddKnockoutDataBind(KoBindingName, this.GetKnockoutBindingExpression(SelectAllOnFocusProperty));
+            }, renderEvenInServerRenderingMode: true);
+        }
+
+        private void AddTypeAttributeToRender(IHtmlWriter writer)
+        {
+            var isTagName = Type.TryGetTagName(out string tagName);
+            var isInputType = Type.TryGetInputType(out string inputType);
+
+            if (isTagName)
+            {
+                TagName = tagName;
+                // do not overwrite type attribute
+                if (Type == TextBoxType.Normal && !Attributes.ContainsKey("type"))
+                {
+                    writer.AddAttribute("type", "text");
+                }
+                return;
+            }
+
+            if (isInputType)
+            {
+                writer.AddAttribute("type", inputType);
+                TagName = "input";
+                return;
+            }
+
+            throw new NotSupportedException($"TextBox Type '{ Type }' not supported");
+        }
+
+        private void AddValueBindingToRender(IHtmlWriter writer, IDotvvmRequestContext context)
+        {
+            // use standard value binding
+            writer.AddKnockoutDataBind("value", this, TextProperty, () =>
+            {
+                if (Type != TextBoxType.MultiLine)
+                {
+                    writer.AddAttribute("value", Text);
+                }
+            }, UpdateTextAfterKeydown ? "afterkeydown" : null, renderEvenInServerRenderingMode: true);
         }
     }
 }

@@ -80,8 +80,8 @@ namespace DotVVM.Framework.Tests.Runtime
             Repeater createRepeater(RenderMode renderMode)
             {
                 var repeater = new Repeater() {
-                    ItemTemplate = new DelegateTemplate((f, c) => c.Children.Add(new HtmlGenericControl("ITEM_TAG"))),
-                    EmptyDataTemplate = new DelegateTemplate((f, c) => c.Children.Add(new HtmlGenericControl("EMPTY_DATA"))),
+                    ItemTemplate = new DelegateTemplate((f, s, c) => c.Children.Add(new HtmlGenericControl("ITEM_TAG"))),
+                    EmptyDataTemplate = new DelegateTemplate((f, s, c) => c.Children.Add(new HtmlGenericControl("EMPTY_DATA"))),
                     DataSource = ValueBindingExpression.CreateThisBinding<string[]>(configuration.ServiceLocator.GetService<BindingCompilationService>(), null),
                     RenderWrapperTag = false
                 };
@@ -99,6 +99,64 @@ namespace DotVVM.Framework.Tests.Runtime
             var serverHtml = InvokeLifecycleAndRender(createRepeater(RenderMode.Server), CreateContext(viewModel));
             Assert.IsTrue(serverHtml.Contains("<EMPTY_DATA"));
             Assert.IsTrue(!serverHtml.Contains("<div"));
+        }
+
+        [TestMethod]
+        public void BindingGroup_EnumProperty()
+        {
+            var writer = new StringWriter();
+            var html = new HtmlWriter(writer, CreateContext(new object()));
+            html.AddKnockoutDataBind("tt", new KnockoutBindingGroup() {
+                { "test", new TextBox(){ Type = TextBoxType.Date }, TextBox.TypeProperty }
+            });
+            html.RenderSelfClosingTag("span");
+            Assert.AreEqual("<spandata-bind=\"tt:{&#39;test&#39;:&quot;Date&quot;}\"/>", writer.ToString().Replace(" ", ""));
+        }
+
+        [TestMethod]
+        public void MarkupControl_NoWrapperTagDirective()
+        {
+            var viewModel = new string[] { };
+            var clientHtml = InvokeLifecycleAndRender(new HtmlGenericControl("elem1"){
+                Children = {
+                    new DotvvmMarkupControl(){
+                        Directives = {
+                            ["noWrapperTag"] = ""
+                        },
+                        Children = {
+                            new HtmlGenericControl("elem2")
+                        }
+                    }
+                }
+            }, CreateContext(viewModel));
+
+            Assert.IsTrue(clientHtml.Contains("<elem1"));
+            Assert.IsTrue(clientHtml.Contains("<elem2"));
+            Assert.IsTrue(!clientHtml.Contains("<div"));
+            Assert.IsTrue(clientHtml.Contains("<!-- ko "));
+        }
+
+        [TestMethod]
+        public void MarkupControl_WrapperTagDirective()
+        {
+            var viewModel = new string[] { };
+            var clientHtml = InvokeLifecycleAndRender(new HtmlGenericControl("elem1"){
+                Children = {
+                    new DotvvmMarkupControl(){
+                        Directives = {
+                            ["wrapperTag"] = "elem3"
+                        },
+                        Children = {
+                            new HtmlGenericControl("elem2")
+                        }
+                    }
+                }
+            }, CreateContext(viewModel));
+
+            Assert.IsTrue(clientHtml.Contains("<elem1"));
+            Assert.IsTrue(clientHtml.Contains("<elem2"));
+            Assert.IsTrue(!clientHtml.Contains("<div"));
+            Assert.IsTrue(clientHtml.Contains("<elem3"));
         }
     }
 }

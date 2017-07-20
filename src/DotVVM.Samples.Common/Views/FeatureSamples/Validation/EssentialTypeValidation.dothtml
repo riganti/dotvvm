@@ -11,7 +11,7 @@
     <p>
         int <dot:TextBox Text="{value: IntegerProperty}" />
     </p>
-    <p>
+    <p class="nullableInt">
         int? <dot:TextBox Text="{value: NullableIntegerProperty}" />
     </p>
     <p>
@@ -26,13 +26,13 @@
         <p>
             int <dot:TextBox Text="{value: IntegerProperty}" />
         </p>
-        <p>
+        <p class="nullableInt">
             int? <dot:TextBox Text="{value: NullableIntegerProperty}" />
         </p>
         <p>
             double <dot:TextBox Text="{value: FloatProperty}" />
         </p>
-        <p>
+        <p class="NaNTest">
             double? <dot:TextBox Text="{value: NullableFloatProperty}" />
         </p>
     </div>
@@ -43,7 +43,7 @@
                 <p>
                     int <dot:TextBox Text="{value: IntegerProperty}" />
                 </p>
-                <p>
+                <p class="nullableInt">
                     int? <dot:TextBox Text="{value: NullableIntegerProperty}" />
                 </p>
                 <p>
@@ -59,7 +59,7 @@
         <dot:Button Click="{command: AddNestedVMs()}" Text="Add nested VMs" Validation.Enabled="false" />
     </p>
     <p>
-        <dot:Button Click="{command: Postback()}" Validation.Enabled="true" Validation.Target="_root" Text="Postback with validation" />
+        <dot:Button Click="{command: Postback()}" Validation.Enabled="true" Validation.Target="{value: _root}" Text="Postback with validation" />
         <dot:Button Click="{command: Postback()}" Validation.Enabled="false" Text="Postback without validation" />
     </p>
     <dot:ValidationSummary IncludeErrorsFromChildren="true" />

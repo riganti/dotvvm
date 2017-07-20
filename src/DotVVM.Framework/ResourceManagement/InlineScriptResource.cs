@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
+using Newtonsoft.Json;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -11,8 +12,15 @@ namespace DotVVM.Framework.ResourceManagement
     /// </summary>
     public class InlineScriptResource : ResourceBase
     {
+        [Obsolete("Code parameter is required, please provide it in the constructor.")]
         public InlineScriptResource(ResourceRenderPosition renderPosition = ResourceRenderPosition.Body) : base(renderPosition)
         {
+        }
+
+        [JsonConstructor]
+        public InlineScriptResource(string code, ResourceRenderPosition renderPosition = ResourceRenderPosition.Body) : base(renderPosition)
+        {
+            this.Code = code;
         }
 
         /// <summary>

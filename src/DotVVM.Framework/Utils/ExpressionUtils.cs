@@ -257,6 +257,19 @@ namespace DotVVM.Framework.Utils
             }
         }
 
+        public static Expression ReplaceAll(this Expression expr, Func<Expression, Expression> replacer)
+        {
+            return new AnonymousActionVisitor { Replacer = replacer }.Visit(expr);
+        }
+        
+        class AnonymousActionVisitor: ExpressionVisitor
+        {
+            public Func<Expression, Expression> Replacer { get; set; }
+            public override Expression Visit(Expression expr)
+            {
+                return Replacer(base.Visit(expr));
+            }
+        }
     }
 
 }

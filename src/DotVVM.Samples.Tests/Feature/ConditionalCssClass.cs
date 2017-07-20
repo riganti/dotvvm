@@ -10,10 +10,10 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class ConditionalCssClass : SeleniumTestBase
+    public class ConditionalCssClass : SeleniumTest
     {
         [TestMethod]
-        public void ConditionalCssClasses()
+        public void Feature_ConditionalCssClasses_ConditionalCssClasses()
         {
             RunInAllBrowsers(browser =>
             {

@@ -57,8 +57,8 @@
 						</td>
 						<td>
 							<dot:ComboBox DataSource="{value: _parent.TaxRates}" 
-								DisplayMember="Title" 
-								ValueMember="Coeff"
+								ItemTextBinding="{value: Title}" 
+								ItemValueBinding="{value: Coeff}"
 								SelectedValue="{value: TaxCoeff}"
 								style="width: 120px" />
 						</td>

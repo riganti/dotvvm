@@ -5,6 +5,7 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Runtime;
 using Newtonsoft.Json;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.ViewModel.Serialization;
 
 namespace DotVVM.Framework.Controls
 {
@@ -73,7 +74,7 @@ namespace DotVVM.Framework.Controls
                 var optionValue = control.GetValue(property);
                 if (!object.Equals(optionValue, property.DefaultValue))
                 {
-                    bindingGroup.Add(javascriptName, JsonConvert.SerializeObject(optionValue));
+                    bindingGroup.Add(javascriptName, JsonConvert.SerializeObject(optionValue, DefaultViewModelSerializer.CreateDefaultSettings()));
                 }
             }
             writer.AddKnockoutDataBind("dotvvmValidationOptions", bindingGroup);

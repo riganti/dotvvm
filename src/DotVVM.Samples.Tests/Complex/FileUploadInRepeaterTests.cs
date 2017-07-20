@@ -9,10 +9,10 @@ using Riganti.Utils.Testing.Selenium.DotVVM;
 namespace DotVVM.Samples.Tests.Complex
 {
     [TestClass]
-    public class FileUploadInRepeaterTests : SeleniumTestBase
+    public class FileUploadInRepeaterTests : SeleniumTest
     {
         [TestMethod]
-        public void Complex_FileUploadInRepeater()
+        public void Complex_FileUploadInRepeater_FileUploadInRepeater()
         {
             RunInAllBrowsers(browser =>
             {

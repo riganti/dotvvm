@@ -10,10 +10,11 @@ using System.Threading.Tasks;
 namespace DotVVM.Samples.Tests.Complex
 {
     [TestClass]
-    public class AuthTests : SeleniumTestBase
+    public class AuthTests : SeleniumTest
     {
         [TestMethod]
-        public void Complex_Auth()
+        [SampleReference(nameof(SamplesRouteUrls.ComplexSamples_Auth_SecuredPage))]
+        public void Complex_Auth_Login()
         {
             RunInAllBrowsers(browser =>
             {

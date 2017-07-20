@@ -6,9 +6,9 @@ using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.BindingNamespaces
 {
-	public class BindingUsingNamespaceViewModel : DotvvmViewModelBase
-	{
+    public class BindingUsingNamespaceViewModel : DotvvmViewModelBase
+    {
         public static string Property => "Works";
-	}
+    }
 }
 

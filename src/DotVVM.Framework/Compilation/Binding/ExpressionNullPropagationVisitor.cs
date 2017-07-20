@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using DotVVM.Framework.Utils;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
@@ -55,6 +56,18 @@ namespace DotVVM.Framework.Compilation.Binding
             //    );
             //}
             //else return base.VisitMember(node);
+        }
+
+        protected override Expression VisitLambda<T>(Expression<T> expression)
+        {
+            // assert non-null for lambda expressions returning value types
+            var body = Visit(expression.Body);
+            if (body.Type != expression.ReturnType)
+            {
+                Debug.Assert(Nullable.GetUnderlyingType(body.Type) == expression.ReturnType);
+                body = Expression.Property(body, "Value");
+            }
+            return expression.Update(body, expression.Parameters);
         }
 
         protected override Expression VisitBinary(BinaryExpression node)
@@ -157,6 +170,14 @@ namespace DotVVM.Framework.Compilation.Binding
                 suppress: node.Object?.Type?.IsNullable() ?? true
             );
         }
+
+        protected override Expression VisitNew(NewExpression node)
+        {
+            return CheckForNulls(node.Arguments.Select(Visit).ToArray(), args =>
+                    Expression.New(node.Constructor, args),
+                suppressThisOne: (arg, i) => node.Arguments[i].Type.IsNullable() || !arg.Type.GetTypeInfo().IsValueType);
+        }
+
         protected Expression CheckForNulls(Expression[] parameters, Func<Expression[], Expression> callback, Func<Expression, int, bool> suppressThisOne = null)
         {
             if (parameters.Length == 0) return callback(new Expression[0]);

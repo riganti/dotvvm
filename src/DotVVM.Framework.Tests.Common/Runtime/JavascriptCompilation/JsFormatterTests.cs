@@ -100,5 +100,15 @@ namespace DotVVM.Framework.Tests.Common.Runtime.JavascriptCompilation
             Assert.AreEqual("a<=b", expr.FormatScript());
             Assert.AreEqual("a <= b", expr.FormatScript(niceMode: true));
         }
+
+        [TestMethod]
+        public void JsFormatter_ObjectExpression()
+        {
+            var expr = new JsObjectExpression(
+                new JsObjectProperty("a", new JsObjectExpression(new JsObjectProperty("c", new JsLiteral(2)))),
+                new JsObjectProperty("baa", new JsLiteral(null)));
+            Assert.AreEqual("{a:{c:2},baa:null}", expr.FormatScript());
+            Assert.AreEqual("{\n\ta: {c: 2},\n\tbaa: null\n}", expr.FormatScript(niceMode: true));
+        }
     }
 }

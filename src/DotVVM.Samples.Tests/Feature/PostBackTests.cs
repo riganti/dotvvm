@@ -13,10 +13,10 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class PostBackTests : SeleniumTestBase
+    public class PostBackTests : SeleniumTest
     {
         [TestMethod]
-        public void Feature_PostBackUpdate()
+        public void Feature_PostBack_PostbackUpdate()
         {
             RunInAllBrowsers(browser =>
             {
@@ -41,7 +41,7 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [TestMethod]
-        public void Feature_PostBackUpdateRepeater()
+        public void Feature_PostBack_PostbackUpdateRepeater()
         {
             RunInAllBrowsers(browser =>
             {
@@ -67,19 +67,20 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [TestMethod]
-        public void Feature_PostBackHandlers()
+        public void Feature_PostBack_PostBackHandlers()
         {
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostBack_PostBackHandlers);
                 browser.Wait();
+                var index = browser.First("[data-ui=\"command-index\"]");
 
                 // confirm first
                 browser.ElementAt("input[type=button]", 0).Click();
                 browser.CheckIfAlertTextEquals("Confirmation 1");
                 browser.ConfirmAlert();
                 browser.Wait();
-                browser.Last("span").CheckIfInnerTextEquals("1");
+                index.CheckIfInnerTextEquals("1");
 
                 // cancel second
                 browser.ElementAt("input[type=button]", 1).Click();
@@ -90,7 +91,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.CheckIfAlertTextEquals("Confirmation 2");
                 browser.GetAlert().Dismiss();
                 browser.Wait();
-                browser.FindElements("span").Last().CheckIfInnerTextEquals("1");
+                index.CheckIfInnerTextEquals("1");
                 // confirm second
                 browser.ElementAt("input[type=button]", 1).Click();
                 browser.CheckIfAlertTextEquals("Confirmation 1");
@@ -99,33 +100,33 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.CheckIfAlertTextEquals("Confirmation 2");
                 browser.ConfirmAlert();
                 browser.Wait();
-                browser.Last("span").CheckIfInnerTextEquals("2");
+                index.CheckIfInnerTextEquals("2");
 
                 // confirm third
                 browser.ElementAt("input[type=button]", 2).Click();
                 Assert.IsFalse(browser.HasAlert());
                 browser.Wait();
-                browser.Last("span").CheckIfInnerTextEquals("3");
+                index.CheckIfInnerTextEquals("3");
 
                 // confirm fourth
                 browser.ElementAt("input[type=button]", 3).Click();
                 browser.CheckIfAlertTextEquals("Generated 1");
                 browser.ConfirmAlert();
                 browser.Wait();
-                browser.Last("span").CheckIfInnerTextEquals("4");
+                index.CheckIfInnerTextEquals("4");
 
                 // confirm fifth
                 browser.ElementAt("input[type=button]", 4).Click();
                 browser.CheckIfAlertTextEquals("Generated 2");
                 browser.ConfirmAlert();
                 browser.Wait();
-                browser.Last("span").CheckIfInnerTextEquals("5");
+                index.CheckIfInnerTextEquals("5");
 
                 // confirm conditional
                 browser.ElementAt("input[type=button]", 5).Click();
                 Assert.IsFalse(browser.HasAlert());
                 browser.Wait();
-                browser.Last("span").CheckIfInnerTextEquals("6");
+                index.CheckIfInnerTextEquals("6");
 
                 browser.First("input[type=checkbox]").Click();
 
@@ -133,14 +134,14 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.CheckIfAlertTextEquals("Conditional 1");
                 browser.ConfirmAlert();
                 browser.Wait();
-                browser.Last("span").CheckIfInnerTextEquals("6");
+                index.CheckIfInnerTextEquals("6");
 
                 browser.First("input[type=checkbox]").Click();
 
                 browser.ElementAt("input[type=button]", 5).Click();
                 Assert.IsFalse(browser.HasAlert());
                 browser.Wait();
-                browser.Last("span").CheckIfInnerTextEquals("6");
+                index.CheckIfInnerTextEquals("6");
 
                 browser.First("input[type=checkbox]").Click();
 
@@ -148,7 +149,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.CheckIfAlertTextEquals("Conditional 1");
                 browser.ConfirmAlert();
                 browser.Wait();
-                browser.Last("span").CheckIfInnerTextEquals("6");
+                index.CheckIfInnerTextEquals("6");
             });
         }
     }

@@ -5,6 +5,7 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
+using DotVVM.Framework.Utils;
 using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Controls
@@ -44,6 +45,7 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the type of value being formatted - Number or DateTime.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
+        [Obsolete("ValueType property is no longer required, it is automatically inferred from compile-time type of Text binding")]
         public FormatValueType ValueType
         {
             get { return (FormatValueType)GetValue(ValueTypeProperty); }
@@ -83,11 +85,11 @@ namespace DotVVM.Framework.Controls
             RenderSpanElement = false;
         }
 
+        public static bool NeedsFormatting(IValueBinding binding) => binding != null && (binding.ResultType == typeof(DateTime) || ReflectionUtils.IsNumericType(binding.ResultType));
 
         protected override bool RendersHtmlTag => RenderSpanElement;
 
-        public bool IsFormattingRequired => !string.IsNullOrEmpty(FormatString) || ValueType != FormatValueType.Text;
-
+        public bool IsFormattingRequired => !string.IsNullOrEmpty(FormatString) || ValueType != FormatValueType.Text || NeedsFormatting(GetValueBinding(TextProperty));
 
         protected internal override void OnPreRender(Hosting.IDotvvmRequestContext context)
         {

@@ -184,7 +184,7 @@ namespace DotVVM.Framework.Binding
             object[] getContextProperties(IBinding b) =>
                 new object[] {
                     b.GetProperty<DataContextStack>(ErrorHandlingMode.ReturnNull),
-                    b.GetProperty<BindingAdditionalResolvers>(ErrorHandlingMode.ReturnNull),
+                    b.GetProperty<BindingResolverCollection>(ErrorHandlingMode.ReturnNull),
                     b.GetProperty<BindingErrorReporterProperty>(ErrorHandlingMode.ReturnNull),
                     b.GetProperty<LocationInfoBindingProperty>(ErrorHandlingMode.ReturnNull)
                 };

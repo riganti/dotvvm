@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Hosting.Middlewares;
+using DotVVM.Framework.Runtime.Tracing;
 using DotVVM.Framework.Security;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -46,6 +47,8 @@ namespace Owin
 
             config.Debug = debug;
             config.ApplicationPhysicalPath = applicationRootPath;
+
+            config.Runtime.Reporters.AddRange(config.ServiceLocator.GetServiceProvider().GetServices<IRequestTracingReporter>());
 
             if (useErrorPages)
             {

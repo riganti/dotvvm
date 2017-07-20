@@ -8,9 +8,13 @@
     <title></title>
 </head>
 <body>
-    {{value: DependencyInstanceID}}
+    <span data-ui="id-span">
+        {{value: DependencyInstanceID}}
+    </span>
 
-    <dot:Button Text="Postback" Click="{command: 0}" />
+    <dot:Button Text="Postback"
+                Click="{command: 0}"
+                data-ui="postback-button" />
 
     <!-- TODO: UI test: should increment ID on every request and postback -->
 </body>

@@ -19,8 +19,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
 	{
 		private readonly DotvvmConfiguration configuration;
 
-		private ConcurrentDictionary<string, IControlType> cachedTagMappings = new ConcurrentDictionary<string, IControlType>(StringComparer.OrdinalIgnoreCase);
-		private ConcurrentDictionary<IControlType, IControlResolverMetadata> cachedMetadata = new ConcurrentDictionary<IControlType, IControlResolverMetadata>();
+		private readonly ConcurrentDictionary<string, IControlType> cachedTagMappings = new ConcurrentDictionary<string, IControlType>(StringComparer.OrdinalIgnoreCase);
+		private readonly ConcurrentDictionary<IControlType, IControlResolverMetadata> cachedMetadata = new ConcurrentDictionary<IControlType, IControlResolverMetadata>();
 
 		private readonly Lazy<IControlResolverMetadata> htmlGenericControlMetadata;
 
@@ -32,7 +32,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 			this.configuration = configuration;
 			foreach (var ccc in this.BindingTypes.Keys.ToArray())
 			{
-				BindingTypes[ccc] = BindingTypes[ccc].AddImports(configuration.Markup.ImportedNamespaces);
+				BindingTypes[ccc] = BindingTypes[ccc].AddImports(configuration.Markup.ImportedNamespaces).AddParameters(configuration.Markup.DefaultExtensionParameters);
 			}
 
 

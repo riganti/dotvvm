@@ -542,11 +542,6 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
             Assert.AreEqual(@"Test", tokens[9].Text);
         }
 
-
-
-
-
-
         [TestMethod]
         public void DothtmlTokenizer_Valid_ServerCommentBeforeDirective()
         {
@@ -582,6 +577,38 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             Assert.AreEqual(DothtmlTokenType.Text, tokens[9].Type);
             Assert.AreEqual(@"Test", tokens[9].Text);
+        }
+
+        [TestMethod]
+        public void BindingTokenizer_UnclosedHtmlComment_Error()
+        {
+            var tokens = Tokenize(@"<!--REEEEEEEEE");
+
+            Assert.AreEqual(3, tokens.Count);
+
+            Assert.AreEqual(DothtmlTokenType.OpenComment,   tokens[0].Type);
+            Assert.AreEqual(DothtmlTokenType.CommentBody,          tokens[1].Type);
+            Assert.AreEqual(DothtmlTokenType.CloseComment,  tokens[2].Type);
+
+            Assert.AreEqual(null, tokens[0].Error, "This token is just opening token nothing wrong here.");
+            Assert.AreEqual(null, tokens[1].Error, "This token is just body nothing wrong with that.");
+            Assert.IsTrue(tokens[2].Error.ErrorMessage.Contains("not closed"),"This token had to be created artificialy.");
+        }
+
+        [TestMethod]
+        public void BindingTokenizer_UnclosedServerComment_Error()
+        {
+            var tokens = Tokenize(@"<%--REEEEEEEEE");
+
+            Assert.AreEqual(3, tokens.Count);
+
+            Assert.AreEqual(DothtmlTokenType.OpenServerComment, tokens[0].Type);
+            Assert.AreEqual(DothtmlTokenType.CommentBody, tokens[1].Type);
+            Assert.AreEqual(DothtmlTokenType.CloseComment, tokens[2].Type);
+
+            Assert.AreEqual(null, tokens[0].Error, "This token is just opening token nothing wrong here.");
+            Assert.AreEqual(null, tokens[1].Error, "This token is just body nothing wrong with that.");
+            Assert.IsTrue(tokens[2].Error.ErrorMessage.Contains("not closed"), "This token had to be created artificialy.");
         }
     }
 }

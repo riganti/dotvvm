@@ -2,15 +2,6 @@
 /// <reference path="typings/knockout/knockout.dotvvm.d.ts" />
 /// <reference path="typings/knockout.mapper/knockout.mapper.d.ts" />
 /// <reference path="typings/globalize/globalize.d.ts" />
-/// <reference path="dotvvm.domutils.ts" />
-/// <reference path="dotvvm.evaluator.ts" />
-/// <reference path="dotvvm.events.ts" />
-/// <reference path="dotvvm.fileupload.ts" />
-/// <reference path="dotvvm.globalize.ts" />
-/// <reference path="dotvvm.postbackhandlers.ts" />
-/// <reference path="dotvvm.promise.ts" />
-/// <reference path="dotvvm.serialization.ts" />
-/// <reference path="dotvvm.validation.ts" />
 
 interface Document {
     getElementByDotvvmId(id: string): HTMLElement;
@@ -199,7 +190,10 @@ class DotVVM {
             } finally {
                 this.isViewModelUpdating = false;
             }
-        }, errorCallback,
+        }, (xhr) => {
+            console.warn(`StaticCommand postback failed: ${xhr.status} - ${xhr.statusText}`, xhr);
+            errorCallback(xhr);
+        },
         xhr => {
             xhr.setRequestHeader("X-PostbackType", "StaticCommand");
         });
@@ -929,7 +923,7 @@ class DotVVM {
             update(element, valueAccessor) {
                 element.dotvvmChangeVisibility(ko.unwrap(valueAccessor()));
             }
-        }
+        };
         ko.bindingHandlers['dotvvm-textbox-text'] = {
             init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
                 var obs = valueAccessor();
@@ -949,7 +943,7 @@ class DotVVM {
                     }
                     obs.dotvvmMetadata.elementsMetadata.push(elmMetadata);
                 }
-                setTimeout((metaArray: DotvvmValidationElementMetadata[], element:HTMLElement) => {
+                setTimeout((metaArray: DotvvmValidationElementMetadata[], element: HTMLElement) => {
                     // remove element from collection when its removed from dom
                     ko.utils.domNodeDisposal.addDisposeCallback(element, () => {
                         for (var meta of metaArray) {
@@ -970,7 +964,7 @@ class DotVVM {
                         // parse date
                         var currentValue = obs();
                         if (currentValue != null) {
-                            currentValue=dotvvm.globalize.parseDotvvmDate(currentValue);
+                            currentValue = dotvvm.globalize.parseDotvvmDate(currentValue);
                         }
                         result = dotvvm.globalize.parseDate(element.value, elmMetadata.format, currentValue);
                         isEmpty = result === null;
@@ -1014,5 +1008,27 @@ class DotVVM {
                 }
             }
         };
+        ko.bindingHandlers["dotvvm-textbox-select-all-on-focus"] = {
+            init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
+                element.$selectAllOnFocusHandler = () => {
+                    element.select();
+                };
+            },
+            update(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
+                var value = valueAccessor();
+                if (typeof (value) === "function")
+                {
+                    value = value();
+                }
+
+                if (value === true) {
+                    element.addEventListener("focus", element.$selectAllOnFocusHandler);
+                }
+                else {
+                    element.removeEventListener("focus", element.$selectAllOnFocusHandler);
+                }
+            }
+        };
+
     }
 }

@@ -11,10 +11,10 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Complex
 {
     [TestClass]
-    public class InvoiceCalculatorTests : SeleniumTestBase
+    public class InvoiceCalculatorTests : SeleniumTest
     {
         [TestMethod]
-        public void Complex_InvoiceCalculator()
+        public void Complex_InvoiceCalculator_InvoiceCalculator()
         {
             RunInAllBrowsers(browser =>
             {

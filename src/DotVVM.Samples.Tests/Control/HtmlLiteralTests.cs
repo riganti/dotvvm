@@ -10,11 +10,11 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class HtmlLiteralTests : SeleniumTestBase
+    public class HtmlLiteralTests : SeleniumTest
     {
 
         [TestMethod]
-        public void Control_HtmlLiteral()
+        public void Control_HtmlLiteral_HtmlLiteral()
         {
             RunInAllBrowsers(browser =>
             {

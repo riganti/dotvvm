@@ -8,6 +8,7 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.ViewModel.Serialization;
 
 namespace DotVVM.Framework.Controls
 {
@@ -117,11 +118,11 @@ namespace DotVVM.Framework.Controls
                 EnsureValidBindingType(param.Value as IBinding);
 
                 expression = (param.Value as IValueBinding)?.GetKnockoutBindingExpression(control)
-                    ?? JsonConvert.SerializeObject((param.Value as IStaticValueBinding)?.Evaluate(control));
+                    ?? JsonConvert.SerializeObject((param.Value as IStaticValueBinding)?.Evaluate(control), DefaultViewModelSerializer.CreateDefaultSettings());
             }
             else
             {
-                expression = JsonConvert.SerializeObject(param.Value);
+                expression = JsonConvert.SerializeObject(param.Value, DefaultViewModelSerializer.CreateDefaultSettings());
             }
             return JsonConvert.SerializeObject(param.Key.ToLower()) + ": " + expression;
         }

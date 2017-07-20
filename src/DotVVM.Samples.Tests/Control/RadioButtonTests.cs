@@ -10,11 +10,11 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class RadioButtonTests : SeleniumTestBase
+    public class RadioButtonTests : SeleniumTest
     {
 
         [TestMethod]
-        public void Control_RadioButton()
+        public void Control_RadioButton_RadioButton()
         {
             RunInAllBrowsers(browser =>
             {

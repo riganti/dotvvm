@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Collections.Immutable;
 
 namespace DotVVM.Compiler
 {
@@ -212,7 +213,7 @@ namespace DotVVM.Compiler
                 compilation = compilation
                     .AddSyntaxTrees(emitter.BuildTree(namespaceName, className, fileName)/*.Select(t => SyntaxFactory.ParseSyntaxTree(t.GetRoot().NormalizeWhitespace().ToString()))*/)
                     .AddReferences(emitter.UsedAssemblies
-                        .Select(a => CompiledAssemblyCache.Instance.GetAssemblyMetadata(a)));
+                        .Select(a => CompiledAssemblyCache.Instance.GetAssemblyMetadata(a.Key).WithAliases(ImmutableArray.Create(a.Value))));
             }
 
             Program2.WriteInfo($"The view { fileName } compiled successfully.");

@@ -1,6 +1,6 @@
 namespace DotVVM.Framework.Controls
 {
-    internal enum LifeCycleEventType
+    public enum LifeCycleEventType
     {
         None = 0,
         PreInit = 1,

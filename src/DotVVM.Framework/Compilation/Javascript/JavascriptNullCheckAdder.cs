@@ -17,6 +17,13 @@ namespace DotVVM.Framework.Compilation.Javascript
             this.root = root;
         }
 
+        public override void VisitConditionalExpression(JsConditionalExpression conditionalExpression)
+        {
+            if (conditionalExpression.TrueExpression.HasAnnotation<MayBeNullAnnotation>() || conditionalExpression.FalseExpression.HasAnnotation<MayBeNullAnnotation>())
+                conditionalExpression.AddAnnotation(MayBeNullAnnotation.Instance);
+            base.VisitConditionalExpression(conditionalExpression);
+        }
+
         public override void VisitInvocationExpression(JsInvocationExpression invocationExpression)
         {
             base.VisitInvocationExpression(invocationExpression);

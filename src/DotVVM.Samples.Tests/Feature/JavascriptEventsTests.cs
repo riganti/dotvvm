@@ -11,10 +11,10 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class JavascriptEventsTests : SeleniumTestBase
+    public class JavascriptEventsTests : SeleniumTest
     {
         [TestMethod]
-        public void Feature_JavascriptEvents()
+        public void Feature_JavascriptEvents_JavascriptEvents()
         {
             RunInAllBrowsers(browser =>
             {

@@ -3,6 +3,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Compilation.Javascript.Ast;
 
 namespace DotVVM.Framework.ViewModel
 {
@@ -26,7 +29,7 @@ namespace DotVVM.Framework.ViewModel
         {
             var viewModels = viewModelType
                 .GetProperties()
-                .Where(p => typeof(IEnumerable<IDotvvmViewModel>).IsAssignableFrom(p.PropertyType)); ;
+                .Where(p => typeof(IEnumerable<IDotvvmViewModel>).IsAssignableFrom(p.PropertyType));
 
             return viewModels.ToArray();
         }
@@ -40,5 +43,14 @@ namespace DotVVM.Framework.ViewModel
 
             return viewModels.ToArray();
         }
+
+        public static ParametrizedCode RootViewModelPath = new JsSymbolicParameter(JavascriptTranslator.KnockoutViewModelParameter).FormatParametrizedScript();
+
+        static ConditionalWeakTable<IDotvvmViewModel, ParametrizedCode> viewModelPaths = new ConditionalWeakTable<IDotvvmViewModel, ParametrizedCode>();
+        public static void SetViewModelClientPath(IDotvvmViewModel viewModel, ParametrizedCode path) =>
+            viewModelPaths.Add(viewModel, path);
+
+        public static ParametrizedCode GetViewModelClientPath(IDotvvmViewModel viewModel) =>
+            viewModelPaths.TryGetValue(viewModel, out var p) ? p : p;
     }
 }

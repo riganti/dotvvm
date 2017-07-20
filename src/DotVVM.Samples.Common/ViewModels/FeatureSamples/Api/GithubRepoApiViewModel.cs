@@ -1,0 +1,15 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using DotVVM.Framework.ViewModel;
+
+namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.Api
+{
+	public class GithubRepoApiViewModel : DotvvmViewModelBase
+	{
+        public string UserName { get; set; } = "riganti";
+        public string Repo { get; set; } = "dotvvm";
+    }
+}
+

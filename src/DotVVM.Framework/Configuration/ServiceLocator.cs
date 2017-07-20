@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Configuration
@@ -22,10 +23,16 @@ namespace DotVVM.Framework.Configuration
         {
             if (serviceProvider == null)
             {
-                serviceProvider = serviceCollection.BuildServiceProvider();
+                serviceProvider = BuildServiceProvider();
                 serviceCollection = null;
             }
             return serviceProvider;
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private IServiceProvider BuildServiceProvider()
+        {
+            return serviceCollection.BuildServiceProvider();
         }
 
         public T GetService<T>() 

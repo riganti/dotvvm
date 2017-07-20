@@ -73,7 +73,7 @@
         </p>
         <dot:Repeater DataSource="{value: ViewModel1Property.AllChildren}">
             <div style="{value: "padding-left: " + 30 * Offset + "px;"}">
-                Item (<span data-ui="offset">{{value: Offset}}</span>):
+                Item (<span data-ui="{value: "offset_" + Offset}">{{value: Offset}}</span>):
             </div>
         </dot:Repeater>
     </div>

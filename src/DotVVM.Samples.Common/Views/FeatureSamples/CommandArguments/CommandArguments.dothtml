@@ -8,10 +8,12 @@
     <title></title>
 </head>
 <body>
-    <!-- TODO: UI test - it should ask for a value using js prompt() on click, then the value should be shown in the Value field -->
-    <p>Value: {{value: Value}}</p>
-    <cc:PromptButton Click="{command: Command}">
-        Button
-    </cc:PromptButton>
+    <p>Value:</p>
+    <p data-ui="value">{{value: Value}}</p>
+    <div data-ui="button">
+        <cc:PromptButton Click="{command: Command}">
+            Button
+        </cc:PromptButton>
+    </div>
 </body>
 </html>

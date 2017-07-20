@@ -11,10 +11,10 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class CheckBoxTests : SeleniumTestBase
+    public class CheckBoxTests : SeleniumTest
     {
         [TestMethod]
-        public void Control_CheckBox()
+        public void Control_CheckBox_CheckBox()
         {
             RunInAllBrowsers(browser =>
             {
@@ -80,5 +80,52 @@ namespace DotVVM.Samples.Tests.Control
                     .CheckIfInnerTextEquals("true");
             });
         }
+
+        [TestMethod]
+        public void Control_CheckBox_InRepeater()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_CheckBox_InRepeater);
+
+                var repeater = browser.Single("div[data-ui='repeater']");
+                var checkBoxes = browser.FindElements("label[data-ui='checkBox']");
+
+                var checkBox = checkBoxes.ElementAt(0).Single("input");
+                checkBox.Click();
+                checkBox.CheckIfIsChecked();
+                browser.Single("span[data-ui='selectedColors']")
+                .CheckIfInnerText(s => s.Contains("orange"));
+
+                checkBox = checkBoxes.ElementAt(1).Single("input");
+                checkBox.Click();
+                checkBox.CheckIfIsChecked();
+                browser.Single("span[data-ui='selectedColors']")
+                .CheckIfInnerText(s => s.Contains("orange") && s.Contains("red"));
+
+                checkBox = checkBoxes.ElementAt(2).Single("input");
+                checkBox.Click();
+                checkBox.CheckIfIsChecked();
+                browser.Single("span[data-ui='selectedColors']")
+                .CheckIfInnerText(s => s.Contains("orange") && s.Contains("red") && s.Contains("black"));
+
+                checkBoxes = browser.FindElements("label[data-ui='checkBox']");
+
+                browser.First("[data-ui='set-server-values']").Click();
+                checkBoxes.ElementAt(0).Single("input").CheckIfIsChecked();
+                checkBoxes.ElementAt(2).Single("input").CheckIfIsChecked();
+                browser.Single("span[data-ui='selectedColors']")
+                .CheckIfInnerText(s => s.Contains("orange") && s.Contains("black"));
+            });
+        }
+
+        //[TestMethod]
+        //public void Control_CheckBox_NullCollection()
+        //{
+        //    RunInAllBrowsers(browser =>
+        //    {
+        //        browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_CheckBox_CheckedItemsNull);
+        //    });
+        //}
     }
 }

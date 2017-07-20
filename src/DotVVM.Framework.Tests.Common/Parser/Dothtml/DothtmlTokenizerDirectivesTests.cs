@@ -208,7 +208,7 @@ test";
             Assert.AreEqual(0, tokenizer.Tokens[i].Length);
             Assert.AreEqual(DothtmlTokenType.DirectiveValue, tokenizer.Tokens[i++].Type);
 
-            Assert.AreEqual("\r\n", tokenizer.Tokens[i].Text);
+            Assert.IsTrue(tokenizer.Tokens[i].Text.All(char.IsWhiteSpace));
             Assert.AreEqual(DothtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
 
             Assert.AreEqual("test", tokenizer.Tokens[i].Text);
@@ -239,7 +239,7 @@ test";
             Assert.AreEqual(0, tokenizer.Tokens[i].Length);
             Assert.AreEqual(DothtmlTokenType.DirectiveValue, tokenizer.Tokens[i++].Type);
 
-            Assert.AreEqual("\r\n", tokenizer.Tokens[i].Text);
+            Assert.IsTrue(tokenizer.Tokens[i].Text.All(char.IsWhiteSpace));
             Assert.AreEqual(DothtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
 
             Assert.AreEqual("test", tokenizer.Tokens[i].Text);
@@ -272,7 +272,7 @@ test";
             Assert.AreEqual(0, tokenizer.Tokens[i].Length);
             Assert.AreEqual(DothtmlTokenType.DirectiveValue, tokenizer.Tokens[i++].Type);
 
-            Assert.AreEqual("\r\n", tokenizer.Tokens[i].Text);
+            Assert.IsTrue(tokenizer.Tokens[i].Text.All(char.IsWhiteSpace));
             Assert.AreEqual(DothtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
 
             Assert.AreEqual("test", tokenizer.Tokens[i].Text);

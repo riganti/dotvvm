@@ -6,16 +6,28 @@
 <head>
     <meta charset="utf-8" />
     <title></title>
-    <dot:InlineScript Dependencies="dotvvm,ApiClient">
-        dotvvm.api.companies = new CompaniesClient("http://localhost:5000")
-    </dot:InlineScript>
+    <dot:RequiredResource Name="apiInit_api" />
 </head>
 <body>
-    <div data-bind="foreach: dotvvm.invokeApiFn(function () { return dotvvm.api.companies.get(); })" >
+    <dot:Repeater DataSource="{value: _api.Companies.Get()}" RenderSettings.Mode="Server">
         <p>
-            <span data-bind="text: id" />: 
-            <span data-bind="text: name" />
+            {{value: Id}}: 
+            {{value: Name}}
+        
+            <div style="margin-left: 30px">
+                <dot:Button Text="select company" Click="{staticCommand: _parent.SelectedCompanyId = Id}" />
+            </div>
         </p>
+    </dot:Repeater>
+    <hr />
+    <div style="margin-left: 30px">
+
+        <dot:Repeater DataSource="{value: Api.RefreshOnChange(_api.Orders.Get(SelectedCompanyId, 0, 20), SelectedCompanyId)}">
+            <p>
+                OrderId: {{value: Id}}, Date: {{value: Date}}, 
+                <dot:Button Click="{staticCommand: _api.Orders.Delete(Id)}" Text="Delete" />
+            </p>
+        </dot:Repeater>
     </div>
 
 </body>

@@ -11,6 +11,9 @@ using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Compilation.Javascript;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Configuration;
+using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 
 namespace DotVVM.Framework.Controls
 {
@@ -160,13 +163,14 @@ namespace DotVVM.Framework.Controls
         {
             gridViewDataSet.RequestRefresh();
         }
+
         private void DataBind(Hosting.IDotvvmRequestContext context)
         {
             if (DataSet is IRefreshableGridViewDataSet refreshableDataSet)
             {
                 CallGridViewDataSetRefreshRequest(refreshableDataSet);
             }
-           
+
             Children.Clear();
 
             content = new HtmlGenericControl("ul");
@@ -180,9 +184,9 @@ namespace DotVVM.Framework.Controls
             var dataSet = DataSet;
             if (dataSet != null)
             {
-                object enabledValue = HasValueBinding(EnabledProperty) ? 
+                object enabledValue = HasValueBinding(EnabledProperty) ?
                     (object)ValueBindingExpression.CreateBinding<bool>(
-                        context.Configuration.ServiceLocator.GetService<BindingCompilationService>(),
+                        context.Configuration.ServiceLocator.GetService<BindingCompilationService>().WithoutInitialization(),
                         h => (bool)GetValueBinding(EnabledProperty).Evaluate(this),
                         new JsSymbolicParameter(JavascriptTranslator.KnockoutContextParameter).Member("$pagerEnabled")) :
                     Enabled;
@@ -259,11 +263,15 @@ namespace DotVVM.Framework.Controls
             }
         }
 
+        private ConditionalWeakTable<DotvvmConfiguration, ConcurrentDictionary<int, ValueBindingExpression>> _nearIndexesBindingCache = new ConditionalWeakTable<DotvvmConfiguration, ConcurrentDictionary<int, ValueBindingExpression>>();
         private ValueBindingExpression GetNearIndexesBinding(IDotvvmRequestContext context, int i, DataContextStack dataContext = null)
         {
-            return ValueBindingExpression.CreateBinding(
-                context.Configuration.ServiceLocator.GetService<BindingCompilationService>(),
-                h => ((IPageableGridViewDataSet)h[0]).PagingOptions.NearPageIndexes[i], dataContext);
+            return
+                _nearIndexesBindingCache.GetOrCreateValue(context.Configuration)
+                .GetOrAdd(i, _ =>
+                ValueBindingExpression.CreateBinding(
+                context.Configuration.ServiceLocator.GetService<BindingCompilationService>().WithoutInitialization(),
+                h => ((IPageableGridViewDataSet)h[0]).PagingOptions.NearPageIndexes[i], dataContext));
         }
 
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
@@ -272,7 +280,7 @@ namespace DotVVM.Framework.Controls
             {
                 throw new DotvvmControlException(this, "The DataPager control cannot be rendered in the RenderSettings.Mode='Server'.");
             }
-            
+
             base.AddAttributesToRender(writer, context);
         }
 
@@ -294,14 +302,28 @@ namespace DotVVM.Framework.Controls
         protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (HasValueBinding(EnabledProperty))
-                writer.WriteKnockoutDataBindComment("dotvvm_introduceAlias", $"{{ '$pagerEnabled': { GetValueBinding(EnabledProperty).GetKnockoutBindingExpression(this) }}}");
+                writer.WriteKnockoutDataBindComment("dotvvm_introduceAlias",
+                    $"{{ '$pagerEnabled': { GetValueBinding(EnabledProperty).GetKnockoutBindingExpression(this) }}}");
+
+            if (HasBinding(EnabledProperty))
+            {
+                writer.AddKnockoutDataBind("css", "{disabled:$pagerEnabled()}");
+            }
+            else
+            {
+                writer.AddKnockoutDataBind("css", $"{{ 'disabled': { (!Enabled).ToString().ToLower() } }}");
+            }
 
             writer.AddKnockoutDataBind("with", this, DataSetProperty, renderEvenInServerRenderingMode: true);
             writer.RenderBeginTag("ul");
+
         }
+
+        private static ParametrizedCode currentPageTextJs = new JsBinaryExpression(new JsBinaryExpression(new JsLiteral(1), BinaryOperatorType.Plus, new JsSymbolicParameter(JavascriptTranslator.KnockoutViewModelParameter)), BinaryOperatorType.Plus, new JsLiteral("")).FormatParametrizedScript();
 
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
+
             writer.AddKnockoutDataBind("css", "{ 'disabled': PagingOptions().IsFirstPage() }");
             firstLi.Render(writer, context);
 
@@ -314,6 +336,11 @@ namespace DotVVM.Framework.Controls
             // render page number
             numbersPlaceHolder.Children.Clear();
             HtmlGenericControl li;
+            var currentPageTextContext = DataContextStack.Create(typeof(int), numbersPlaceHolder.GetDataContextType());
+            var currentPageTextBinding = ValueBindingExpression.CreateBinding(context.Configuration.ServiceLocator.GetService<BindingCompilationService>().WithoutInitialization(),
+                    vm => ((int)vm[0] + 1).ToString(),
+                    currentPageTextJs,
+                    currentPageTextContext);
             if (!RenderLinkForCurrentPage)
             {
                 writer.AddKnockoutDataBind("visible", "$data == $parent.PagingOptions().PageIndex()");
@@ -321,13 +348,9 @@ namespace DotVVM.Framework.Controls
                 li = new HtmlGenericControl("li");
                 var literal = new Literal();
                 literal.DataContext = 0;
-                literal.SetDataContextType(DataContextStack.Create(typeof(int), numbersPlaceHolder.GetDataContextType()));
+                literal.SetDataContextType(currentPageTextContext);
 
-                var textBinding = ValueBindingExpression.CreateBinding(context.Configuration.ServiceLocator.GetService<BindingCompilationService>(),
-                    vm => ((int)vm[0] + 1).ToString(),
-                    literal.GetDataContextType()
-                );
-                literal.SetBinding(Literal.TextProperty, textBinding);
+                literal.SetBinding(Literal.TextProperty, currentPageTextBinding);
                 li.Children.Add(literal);
                 numbersPlaceHolder.Children.Add(li);
                 li.Render(writer, context);
@@ -339,13 +362,11 @@ namespace DotVVM.Framework.Controls
             li.SetValue(Internal.PathFragmentProperty, "PagingOptions.NearPageIndexes[$index]");
             var link = new LinkButton();
             li.Children.Add(link);
-            link.SetDataContextType(DataContextStack.Create(typeof(int), numbersPlaceHolder.GetDataContextType()));
-            link.SetBinding(ButtonBase.TextProperty, ValueBindingExpression.CreateBinding(context.Configuration.ServiceLocator.GetService<BindingCompilationService>(),
-                vm => ((int)vm[0] + 1).ToString(),
-                link.GetDataContextType()));
+            link.SetDataContextType(currentPageTextContext);
+            link.SetBinding(ButtonBase.TextProperty, currentPageTextBinding);
             link.SetBinding(ButtonBase.ClickProperty, context.Services.GetService<CommonBindings>().GoToThisPageCommand);
             object enabledValue = HasValueBinding(EnabledProperty) ?
-                (object)ValueBindingExpression.CreateBinding(context.Configuration.ServiceLocator.GetService<BindingCompilationService>(),
+                (object)ValueBindingExpression.CreateBinding(context.Configuration.ServiceLocator.GetService<BindingCompilationService>().WithoutInitialization(),
                     h => GetValueBinding(EnabledProperty).Evaluate(this),
                     new JsSymbolicParameter(JavascriptTranslator.KnockoutContextParameter).Member("$pagerEnabled")) :
                 Enabled;

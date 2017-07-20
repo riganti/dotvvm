@@ -19,7 +19,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 {
     public class DefaultViewModelSerializer : IViewModelSerializer
     {
-        private const string GeneralViewModelRecomendations = "Check out general viewModel recomedation at http://www.dotvvm.com/docs/tutorials/basics-viewmodels";
+        private const string GeneralViewModelRecommendations = "Check out general viewModel recommendation at http://www.dotvvm.com/docs/tutorials/basics-viewmodels.";
 
         private CommandResolver commandResolver = new CommandResolver();
 
@@ -72,7 +72,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             catch (Exception ex)
             {
-                throw new Exception($"Could not serialize viewModel of type { context.ViewModel.GetType().Name }. Serialization failed at property { writer.Path }. {GeneralViewModelRecomendations}", ex);
+                throw new Exception($"Could not serialize viewModel of type { context.ViewModel.GetType().Name }. Serialization failed at property { writer.Path }. {GeneralViewModelRecommendations}", ex);
             }
 
             // persist CSRF token
@@ -127,20 +127,22 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             catch (Exception ex)
             {
-                throw new Exception($"Could not serialize viewModel of type { context.ViewModel.GetType().Name }. Serialization failed at property { writer.Path }. {GeneralViewModelRecomendations}", ex);
+                throw new Exception($"Could not serialize viewModel of type { context.ViewModel.GetType().Name }. Serialization failed at property { writer.Path }. {GeneralViewModelRecommendations}", ex);
             }
             return writer.Token.ToString(JsonFormatting);
         }
 
-        protected virtual JsonSerializer CreateJsonSerializer()
+        public static JsonSerializerSettings CreateDefaultSettings()
         {
-            var s = new JsonSerializer() {
+            var s = new JsonSerializerSettings() {
                 DateTimeZoneHandling = DateTimeZoneHandling.Unspecified
             };
             s.Converters.Add(new DotvvmDateTimeConverter());
             s.Converters.Add(new StringEnumConverter());
             return s;
         }
+
+        protected virtual JsonSerializer CreateJsonSerializer() => CreateDefaultSettings().Apply(JsonSerializer.Create);
 
         public JObject BuildResourcesJson(IDotvvmRequestContext context, Func<string, bool> predicate)
         {
@@ -240,7 +242,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             catch (Exception ex)
             {
-                throw new Exception($"Could not deserialize viewModel of type { context.ViewModel.GetType().Name }. {GeneralViewModelRecomendations}", ex);
+                throw new Exception($"Could not deserialize viewModel of type { context.ViewModel.GetType().Name }. {GeneralViewModelRecommendations}", ex);
             }
         }
 

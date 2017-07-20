@@ -19,6 +19,7 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Controls;
+using System.Diagnostics;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -41,6 +42,7 @@ namespace DotVVM.Framework.Compilation
         {
             private readonly Dictionary<DataContextStack, int> ContextMap;
             private readonly bool AssertAllReplaced;
+            private readonly HashSet<ParameterExpression> contextParameters = new HashSet<ParameterExpression>();
 
             public ParameterReplacementVisitor(DataContextStack dataContext, bool assertAllReplaced = true)
             {
@@ -65,9 +67,31 @@ namespace DotVVM.Framework.Compilation
                 return base.Visit(node);
             }
 
+            protected override Expression VisitLambda<T>(Expression<T> expr)
+            {
+                var currentParameters = expr.Parameters.Where(contextParameters.Add).ToList();
+                try {
+                    return base.VisitLambda(expr);
+                }
+                finally {
+                    Debug.Assert(currentParameters.TrueForAll(contextParameters.Remove));
+                }
+            }
+
+            protected override Expression VisitBlock(BlockExpression expr)
+            {
+                var currentParameters = expr.Variables.Where(contextParameters.Add).ToList();
+                try {
+                    return base.VisitBlock(expr);
+                }
+                finally {
+                    Debug.Assert(currentParameters.TrueForAll(contextParameters.Remove));
+                }
+            }
+
             protected override Expression VisitParameter(ParameterExpression node)
             {
-                if (AssertAllReplaced && node != CurrentControlParameter && node != ViewModelsParameter)
+                if (AssertAllReplaced && node != CurrentControlParameter && node != ViewModelsParameter && !contextParameters.Contains(node))
                     throw new Exception($"Parameter {node.Name}:{node.Type.Name} could not be translated.");
                 return base.VisitParameter(node);
             }
@@ -83,7 +107,7 @@ namespace DotVVM.Framework.Compilation
             var requirements = binding.BindingService.GetRequirements(binding.Binding);
 
             var properties = requirements.Required.Concat(requirements.Optional)
-                    .Concat(new[] { typeof(OriginalStringBindingProperty), typeof(DataContextStack), typeof(LocationInfoBindingProperty) })
+                    .Concat(new[] { typeof(OriginalStringBindingProperty), typeof(DataContextStack), typeof(LocationInfoBindingProperty), typeof(BindingParserOptions) })
                     .Select(p => binding.Binding.GetProperty(p, ErrorHandlingMode.ReturnNull))
                     .Where(p => p != null).ToArray();
             return (IBinding)Activator.CreateInstance(binding.BindingType, new object[] {

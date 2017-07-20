@@ -13,7 +13,7 @@ namespace DotVVM.Framework.Compilation
         /// Gets type of result control
         /// </summary>
         Type ControlType { get; }
-        DotvvmControl BuildControl(IControlBuilderFactory controlBuilderFactory);
+        DotvvmControl BuildControl(IControlBuilderFactory controlBuilderFactory, IServiceProvider services);
     }
 
     public class ControlBuilderDescriptor

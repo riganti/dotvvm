@@ -205,8 +205,7 @@ namespace DotVVM.Framework.Binding
             var propertyInfo = property.DeclaringType.GetProperty(property.Name);
             var markupOptions = propertyInfo?.GetCustomAttribute<MarkupOptionsAttribute>()
                 ?? attributeProvider.GetCustomAttribute<MarkupOptionsAttribute>()
-                ?? new MarkupOptionsAttribute()
-                {
+                ?? new MarkupOptionsAttribute() {
                     AllowBinding = true,
                     AllowHardCodedValue = true,
                     MappingMode = MappingMode.Attribute,
@@ -233,8 +232,7 @@ namespace DotVVM.Framework.Binding
                let markupOptions = GetVirtualPropertyMarkupOptions(p)
                where markupOptions != null
                where markupOptions.MappingMode != MappingMode.Exclude
-               select new DotvvmProperty
-               {
+               select new DotvvmProperty {
                    DeclaringType = controlType,
                    IsValueInherited = false,
                    MarkupOptions = markupOptions,
@@ -282,7 +280,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Resolves all properties of specified type.
         /// </summary>
-        public static IReadOnlyList<DotvvmProperty> ResolveProperties(Type type)
+        public static DotvvmProperty[] ResolveProperties(Type type)
         {
             var types = new HashSet<Type>();
             while (type.GetTypeInfo().BaseType != null)
@@ -291,12 +289,13 @@ namespace DotVVM.Framework.Binding
                 type = type.GetTypeInfo().BaseType;
             }
 
-            return registeredProperties.Values.Where(p => types.Contains(p.DeclaringType)).ToList();
+            return registeredProperties.Values.Where(p => types.Contains(p.DeclaringType)).ToArray();
         }
 
         /// <summary>
         /// Called when a control of the property type is created and initialized.
         /// </summary>
+        [Obsolete("Does not work as you would expect and will be changed/removed")]
         protected internal virtual void OnControlInitialized(DotvvmBindableObject dotvvmControl)
         {
         }

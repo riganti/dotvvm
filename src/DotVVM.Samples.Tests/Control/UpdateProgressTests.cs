@@ -10,11 +10,11 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class UpdateProgressTests : SeleniumTestBase
+    public class UpdateProgressTests : SeleniumTest
     {
 
         [TestMethod]
-        public void Control_UpdateProgress()
+        public void Control_UpdateProgress_UpdateProgress()
         {
             RunInAllBrowsers(browser =>
             {

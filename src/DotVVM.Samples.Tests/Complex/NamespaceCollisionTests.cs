@@ -10,10 +10,10 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Complex
 {
     [TestClass]
-    public class NamespaceCollisionTests : SeleniumTestBase
+    public class NamespaceCollisionTests : SeleniumTest
     {
         [TestMethod]
-        public void NamespaceCollision()
+        public void Complex_NamespaceCollision_NamespaceCollision()
         {
             RunInAllBrowsers(browser =>
             {

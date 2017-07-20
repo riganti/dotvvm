@@ -10,10 +10,12 @@ using System.Threading.Tasks;
 namespace DotVVM.Samples.Tests.Complex
 {
     [TestClass]
-    public class SPATests : SeleniumTestBase
+    public class SPATests : SeleniumTest
     {
         [TestMethod]
-        public void Complex_SPA()
+        [SampleReference(nameof(SamplesRouteUrls.ComplexSamples_SPA_default))]
+        [SampleReference(nameof(SamplesRouteUrls.ComplexSamples_SPA_test))]
+        public void Complex_SPA_NavigationAndBackButtons()
         {
             RunInAllBrowsers(browser =>
             {

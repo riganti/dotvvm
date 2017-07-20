@@ -6,9 +6,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.HelperNamespace;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
 
@@ -89,9 +91,9 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             // TODO(exyi): more symbolic parameters
             return AdjustKnockoutScriptContext(expression, dataContextLevel)
-                .ToString(o => o == KnockoutContextParameter ? CodeParameterAssignment.FromExpression(new JsIdentifierExpression("$context"), true) :
-                               o == KnockoutViewModelParameter ? CodeParameterAssignment.FromExpression(new JsIdentifierExpression("$data"), allowDataGlobal) :
-                               o == CurrentIndexParameter ? CodeParameterAssignment.FromExpression(new JsIdentifierExpression("$index").Invoke()) :
+                .ToString(o => o == KnockoutContextParameter ? CodeParameterAssignment.FromIdentifier("$context", true) :
+                               o == KnockoutViewModelParameter ? CodeParameterAssignment.FromIdentifier("$data", allowDataGlobal) :
+                               o == CurrentIndexParameter ? CodeParameterAssignment.FromIdentifier("$index()") :
                                throw new Exception());
         }
 
@@ -174,7 +176,56 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddPropertyGetterTranslator(typeof(Nullable<>), "Value", new GenericMethodCompiler((args, method) => args[0]));
             //AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Count), lengthMethod, new[] { typeof(IEnumerable) });
 
+            JavascriptTranslator.AddMethodTranslator(typeof(Api), nameof(Api.RefreshOnChange),
+                new GenericMethodCompiler(a => a[2] is JsIdentifierExpression || a[2] is JsMemberAccessExpression member && member.Target is JsSymbolicParameter && !member.Target.HasAnnotation<ResultIsObservableAnnotation>() ?
+                    new JsIdentifierExpression("dotvvm").Member("apiRefreshOn").Invoke(
+                        a[1].WithAnnotation(ShouldBeObservableAnnotation.Instance),
+                        a[2].WithAnnotation(ShouldBeObservableAnnotation.Instance))
+                        .WithAnnotation(a[1].Annotation<ResultIsObservableAnnotation>())
+                        .WithAnnotation(a[1].Annotation<MayBeNullAnnotation>()):
+                    new JsIdentifierExpression("dotvvm").Member("apiRefreshOn").Invoke(
+                        a[1].WithAnnotation(ShouldBeObservableAnnotation.Instance),
+                        new JsIdentifierExpression("ko").Member("pureComputed").Invoke(new JsFunctionExpression(
+                            parameters: Enumerable.Empty<JsIdentifier>(),
+                            bodyBlock: new JsBlockStatement(new JsReturnStatement(a[2])))))
+                        .WithAnnotation(a[1].Annotation<ResultIsObservableAnnotation>())
+                        .WithAnnotation(a[1].Annotation<MayBeNullAnnotation>())
+                ));
+            JavascriptTranslator.AddMethodTranslator(typeof(Api), nameof(Api.RefreshOnEvent),
+                new GenericMethodCompiler(a =>
+                    new JsIdentifierExpression("dotvvm").Member("apiRefreshOn").Invoke(
+                        a[1].WithAnnotation(ShouldBeObservableAnnotation.Instance),
+                        new JsIdentifierExpression("dotvvm").Member("eventHub").Member("get").Invoke(a[2]))));
             BindingPageInfo.RegisterJavascriptTranslations();
+            BindingCollectionInfo.RegisterJavascriptTranslations();
+
+            // string formatting
+            var stringFormatTranslator = new GenericMethodCompiler(
+                args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("format").Invoke(args[1], new JsArrayExpression(args.Skip(2)))
+            );
+            // TODO: string.Format could be two-way
+            AddMethodTranslator(typeof(string).GetMethod("Format", new [] { typeof(string), typeof(object) }), stringFormatTranslator);
+            AddMethodTranslator(typeof(string).GetMethod("Format", new [] { typeof(string), typeof(object), typeof(object) }), stringFormatTranslator);
+            AddMethodTranslator(typeof(string).GetMethod("Format", new [] { typeof(string), typeof(object), typeof(object), typeof(object) }), stringFormatTranslator);
+            AddMethodTranslator(typeof(string).GetMethod("Format", new [] { typeof(string), typeof(object[]) }), new GenericMethodCompiler(
+                args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("format").Invoke(args[1], args[2])
+            ));
+            AddMethodTranslator(typeof(DateTime).GetMethod("ToString", Type.EmptyTypes), new GenericMethodCompiler(
+                args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingDateToString").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])
+            ));
+            AddMethodTranslator(typeof(DateTime).GetMethod("ToString", new [] { typeof(string) }), new GenericMethodCompiler(
+                args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingDateToString").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])
+            ));
+
+            foreach(var num in ReflectionUtils.NumericTypes.Except(new[] { typeof(char) }))
+            {
+                AddMethodTranslator(num.GetMethod("ToString", Type.EmptyTypes), new GenericMethodCompiler(
+                    args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingNumberToString").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])
+                ));
+                AddMethodTranslator(num.GetMethod("ToString", new [] { typeof(string) }), new GenericMethodCompiler(
+                    args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingNumberToString").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])
+                ));
+            }
         }
 
         static bool ToStringCheck(Expression expr)
@@ -217,7 +268,13 @@ namespace DotVVM.Framework.Compilation.Javascript
                     return TranslateIndex((IndexExpression)expression);
 
                 case ExpressionType.Assign:
-                    return TranslateAssing((BinaryExpression)expression);
+                    return TranslateAssign((BinaryExpression)expression);
+
+                case ExpressionType.Lambda:
+                    return TranslateLambda((LambdaExpression)expression);
+
+                case ExpressionType.Block:
+                    return TranslateBlock((BlockExpression)expression);
             }
             if (expression is BinaryExpression)
             {
@@ -231,7 +288,69 @@ namespace DotVVM.Framework.Compilation.Javascript
             throw new NotSupportedException($"The expression type {expression.NodeType} can not be translated to Javascript!");
         }
 
-        public JsExpression TranslateAssing(BinaryExpression expression)
+        private Expression ReplaceVariables(Expression node, IReadOnlyList<ParameterExpression> variables, object[] args)
+        {
+            return ExpressionUtils.Replace(Expression.Lambda(node, variables), args.Zip(variables, (o, a) => Expression.Parameter(a.Type, a.Name).AddParameterAnnotation(
+                new BindingParameterAnnotation(extensionParameter: new FakeExtensionParameter(_ => new JsSymbolicParameter(o)))
+            )).ToArray());
+        }
+
+        public JsExpression TranslateLambda(LambdaExpression expression)
+        {
+            var args = expression.Parameters.Select(_ => new object()).ToArray();
+            var (body, additionalVariables, additionalVarNames) = TranslateLambdaBody(ReplaceVariables(expression.Body, expression.Parameters, args));
+            var usedNames = new HashSet<string>(body.DescendantNodesAndSelf().OfType<JsIdentifierExpression>().Select(i => i.Identifier));
+            var argsNames = expression.Parameters.Select(p => JsTemporaryVariableResolver.GetNames(p.Name).First(usedNames.Add)).ToArray();
+            additionalVarNames = additionalVarNames.Select(p => JsTemporaryVariableResolver.GetNames(p).First(usedNames.Add)).ToArray();
+            foreach (var symArg in body.DescendantNodesAndSelf().OfType<JsSymbolicParameter>())
+            {
+                var aIndex = Array.IndexOf(args, symArg.Symbol);
+                if (aIndex >= 0) symArg.ReplaceWith(new JsIdentifierExpression(argsNames[aIndex]).WithAnnotation(ResultMayBeObservableAnnotation.Instance));
+                aIndex = Array.IndexOf(additionalVariables, symArg.Symbol);
+                if (aIndex >= 0) symArg.ReplaceWith(new JsIdentifierExpression(additionalVarNames[aIndex]));
+            }
+            return new JsFunctionExpression(
+                argsNames.Concat(additionalVarNames).Select(n => new JsIdentifier(n)),
+                body is JsBlockStatement block ? block :
+                body is JsStatement statement ? new JsBlockStatement(statement) :
+                body is JsExpression bodyExpression ? new JsBlockStatement(new JsReturnStatement(bodyExpression)) :
+                throw new NotSupportedException()
+            );
+        }
+        (JsNode node, object[] variables, string[] variableNames) TranslateLambdaBody(Expression expression)
+        {
+            if (expression is BlockExpression block)
+            {
+                var args = block.Variables.Select(_ => new object()).ToArray();
+                var expressions = block.Expressions.Select(s => Translate(ReplaceVariables(s, block.Variables, args))).ToArray();
+                return (
+                    new JsBlockStatement(
+                        expressions.Take(expressions.Length - 1).Select(e => (JsStatement)new JsExpressionStatement(e)).Concat(new [] { new JsReturnStatement(expressions.Last()) }).ToArray()
+                    ),
+                    args,
+                    block.Variables.Select(a => a.Name).ToArray()
+                );
+            }
+            else return (Translate(expression), new object[0], new string[0]);
+        }
+
+
+        public JsExpression TranslateBlock(BlockExpression expression)
+        {
+            if (expression.Variables.Any())
+            {
+                return TranslateLambda(Expression.Lambda(expression)).Invoke();
+            }
+            else
+            {
+                var body = expression.Expressions;
+                if (body.Count == 1) return Translate(body[0]);
+                return body.Select(Translate).Aggregate(
+                    (a, b) => (JsExpression)new JsBinaryExpression(a, BinaryOperatorType.Sequence, b));
+            }
+        }
+
+        public JsExpression TranslateAssign(BinaryExpression expression)
         {
             var property = expression.Left as MemberExpression;
             if (property != null)
@@ -240,6 +359,14 @@ namespace DotVVM.Framework.Compilation.Javascript
                 var value = Translate(expression.Right);
                 return TryTranslateMethodCall(target, new[] { value }, (property.Member as PropertyInfo)?.SetMethod, property.Expression, new[] { expression.Right }) ??
                     SetProperty(target, property.Member as PropertyInfo, value);
+            }
+            else if (expression.Left.GetParameterAnnotation() is BindingParameterAnnotation annotation)
+            {
+                if (annotation.ExtensionParameter == null) throw new NotSupportedException($"Can not assign to data context parameter {expression.Left}");
+                return new JsAssignmentExpression(
+                    TranslateParameter(expression.Left, annotation),
+                    Translate(expression.Right)
+                );
             }
             throw new NotSupportedException($"Can not assign expression of type {expression.Left.NodeType}!");
         }
@@ -332,19 +459,22 @@ namespace DotVVM.Framework.Compilation.Javascript
             return result;
         }
 
-        protected JsExpression TryTranslateMethodCall(JsExpression context, JsExpression[] args, MethodInfo method, Expression contextExpression, Expression[] argsExpressions)
+        protected static JsExpression TryTranslateMethodCall(JsExpression context, JsExpression[] args, MethodInfo method, Expression contextExpression, Expression[] argsExpressions) =>
+            FindMethodTranslator(method, contextExpression, argsExpressions)?.TranslateCall(context, args, method);
+
+        public static IJsMethodTranslator FindMethodTranslator(MethodInfo method, Expression contextExpression, Expression[] argsExpressions)
         {
             if (method == null) return null;
             if (MethodTranslators.TryGetValue(method, out var translator) && translator.CanTranslateCall(method, contextExpression, argsExpressions))
             {
-                return translator.TranslateCall(context, args, method);
+                return translator;
             }
             if (method.IsGenericMethod)
             {
                 var genericMethod = method.GetGenericMethodDefinition();
                 if (MethodTranslators.TryGetValue(genericMethod, out translator) && translator.CanTranslateCall(method, contextExpression, argsExpressions))
                 {
-                    return translator.TranslateCall(context, args, method);
+                    return translator;
                 }
             }
 
@@ -355,7 +485,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                     var map = method.DeclaringType.GetTypeInfo().GetRuntimeInterfaceMap(iface);
                     var imIndex = Array.IndexOf(map.TargetMethods, method);
                     if (imIndex >= 0 && MethodTranslators.TryGetValue(map.InterfaceMethods[imIndex], out translator) && translator.CanTranslateCall(method, contextExpression, argsExpressions))
-                        return translator.TranslateCall(context, args, method);
+                        return translator;
                 }
             }
             if (method.DeclaringType.GetTypeInfo().IsGenericType && !method.DeclaringType.GetTypeInfo().IsGenericTypeDefinition)
@@ -364,7 +494,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 var m2 = genericType.GetMethod(method.Name, BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
                 if (m2 != null)
                 {
-                    var r2 = TryTranslateMethodCall(context, args, m2, contextExpression, argsExpressions);
+                    var r2 = FindMethodTranslator(m2, contextExpression, argsExpressions);
                     if (r2 != null) return r2;
                 }
             }
@@ -373,12 +503,12 @@ namespace DotVVM.Framework.Compilation.Javascript
                 var m2 = typeof(Array).GetMethod(method.Name, BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
                 if (m2 != null)
                 {
-                    var r2 = TryTranslateMethodCall(context, args, m2, contextExpression, argsExpressions);
+                    var r2 = FindMethodTranslator(m2, contextExpression, argsExpressions);
                     if (r2 != null) return r2;
                 }
             }
             var baseMethod = method.GetBaseDefinition();
-            if (baseMethod != null && baseMethod != method) return TryTranslateMethodCall(context, args, baseMethod, contextExpression, argsExpressions);
+            if (baseMethod != null && baseMethod != method) return FindMethodTranslator(baseMethod, contextExpression, argsExpressions);
             else return null;
         }
 
@@ -497,6 +627,19 @@ namespace DotVVM.Framework.Compilation.Javascript
             //// Bind(None) can make sense to translate, since it can be used as client-only property
             return new JsMemberAccessExpression(context, name ?? propInfo.Name).WithAnnotation(new VMPropertyInfoAnnotation { MemberInfo = propInfo });
         }
+        class FakeExtensionParameter: BindingExtensionParameter
+        {
+            private readonly Func<JsExpression, JsExpression> getJsTranslation;
+
+            public FakeExtensionParameter(Func<JsExpression, JsExpression> getJsTranslation, string identifier = "__", ITypeDescriptor type = null, bool inherit = false): base(identifier, type, inherit)
+            { 
+                this.getJsTranslation = getJsTranslation;
+            }
+
+            public override Expression GetServerEquivalent(Expression controlParameter) => throw new NotSupportedException();
+            public override JsExpression GetJsTranslation(JsExpression dataContext) => getJsTranslation(dataContext);
+        }
+
     }
 
     public class ViewModelInfoAnnotation
@@ -511,6 +654,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             this.Type = type;
             this.IsControl = isControl;
         }
+
     }
 
     public class VMPropertyInfoAnnotation

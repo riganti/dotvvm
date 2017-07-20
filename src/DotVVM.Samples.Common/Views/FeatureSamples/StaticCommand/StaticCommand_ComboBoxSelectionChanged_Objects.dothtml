@@ -11,14 +11,14 @@
 <body>
 
     <dot:ComboBox DataSource="{value: Select1}"
-                  DisplayMember="Text"
-                  ValueMember="Id"
+                  ItemTextBinding="{value: Text}"
+                  ItemValueBinding="{value: Id}"
                   SelectedValue="{value: SelectedValue1.Value}"
                   SelectionChanged="{staticCommand: SelectedValue2 = StaticCommand_ComboBoxSelectionChanged_ObjectsViewModel.Function2(SelectedValue1)}" />
 
     <dot:ComboBox DataSource="{value: Select2}"
-                  DisplayMember="Text"
-                  ValueMember="Id"
+                  ItemTextBinding="{value: Text}"
+                  ItemValueBinding="{value: Id}"
                   SelectedValue="{value: SelectedValue2.Value}" />
 
     <dot:Button Text="Set Value1 in CB1" Click="{staticCommand: SelectedValue1.Value = 1}" />

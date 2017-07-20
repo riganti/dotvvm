@@ -11,10 +11,10 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class ViewModelProtectionTests : SeleniumTestBase
+    public class ViewModelProtectionTests : SeleniumTest
     {
         [TestMethod]
-        public void Feature_ViewModelProtection()
+        public void Feature_ViewModelProtection_ViewModelProtection()
         {
             RunInAllBrowsers(browser =>
             {

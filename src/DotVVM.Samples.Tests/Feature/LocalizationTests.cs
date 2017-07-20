@@ -13,10 +13,10 @@ using System.Threading.Tasks;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class LocalizationTests : SeleniumTestBase
+    public class LocalizationTests : SeleniumTest
     {
         [TestMethod]
-        public void Feature_Localization()
+        public void Feature_Localization_Localization()
         {
             RunInAllBrowsers(browser =>
             {
@@ -33,8 +33,10 @@ namespace DotVVM.Samples.Tests.Feature
             browser.Last("a").Click();
             browser.First("p").CheckIfInnerTextEquals("Tohle pochází z resource souboru!", false, true);
         }
+
+
         [TestMethod]
-        public void Feature_Localization_NestedPage_Type()
+        public void Feature_Localization_Localization_NestedPage_Type()
         {
             RunInAllBrowsers(browser =>
             {
@@ -53,7 +55,8 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [TestMethod]
-        public void Feature_Localization_Control_FullNames()
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_Localization_Localization_Control_Page))]
+        public void Feature_Localization_Localization_Control_Page_FullNames()
         {
             RunInAllBrowsers(browser =>
             {
@@ -68,7 +71,8 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [TestMethod]
-        public void Feature_Localization_Control_ImportUsed()
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_Localization_Localization_Control_Page))]
+        public void Feature_Localization_Localization_Control_Page_ImportUsed()
         {
             RunInAllBrowsers(browser =>
             {

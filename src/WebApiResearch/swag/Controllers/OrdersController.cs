@@ -74,7 +74,7 @@ namespace swag.Controllers
             }
         }
 
-        [Route("{orderId}")]
+        [Route("delete-{orderId}")]
         public void Delete(int orderId)
         {
             lock (Database.Instance)

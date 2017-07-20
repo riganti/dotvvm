@@ -5,11 +5,6 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.CheckBox
 {
     public class CheckBoxViewModel
     {
-        public CheckBoxViewModel()
-        {
-            CheckedItems = new List<string>();
-        }
-
         public string Text { get; set; } = "Label text";
 
         public Grenade Bomb { get; set; } = new Grenade {Name = "McXplode"};
@@ -18,7 +13,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.CheckBox
 
         public string CheckedDescription { get; set; }
 
-        public List<string> CheckedItems { get; set; }
+        public List<string> CheckedItems { get; set; } = new List<string>();
 
         public string CheckedItemsDescription { get; set; }
 

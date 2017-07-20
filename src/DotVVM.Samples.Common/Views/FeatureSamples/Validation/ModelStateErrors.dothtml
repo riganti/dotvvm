@@ -1,0 +1,34 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Validation.ModelStateErrorsViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <p>
+        <dot:ValidationSummary class="vmErrors" IncludeErrorsFromChildren="true" />
+    </p>
+    <p>
+        Nested VM:
+        <dot:Validator class="vm1Error" ShowErrorMessageText Value="{value:  Nested1.MyProperty}" />
+    </p>
+    <p class=".vm2Errors">
+        Nested collection:
+        <dot:Repeater DataSource="{value: Nested2}" WrapperTagName="ul">
+            <li>
+                {{value: Property123}}
+                <dot:Validator class="vm2Error" ShowErrorMessageText Value="{value: Property123}" />
+            </li>
+        </dot:Repeater>
+    </p>
+
+    <dot:Button Click="{command: Command1()}">Command 1</dot:Button>
+    <dot:Button Click="{command: Command2()}">Command 2</dot:Button>
+    <dot:Button Click="{command: Command3()}">Command 3</dot:Button>
+</body>
+</html>
+
+
