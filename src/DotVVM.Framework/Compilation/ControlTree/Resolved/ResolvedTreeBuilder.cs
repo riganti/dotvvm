@@ -62,6 +62,30 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             return new ResolvedPropertyValue((DotvvmProperty)property, value) { DothtmlNode = sourceNode };
         }
 
+        public IAbstractServiceInjectDirective BuildServiceInjectDirective(
+            DothtmlDirectiveNode node,
+            SimpleNameBindingParserNode nameSyntax,
+            BindingParserNode typeSyntax)
+        {
+            foreach (var syntaxNode in nameSyntax.EnumerateNodes().Concat(typeSyntax?.EnumerateNodes() ?? Enumerable.Empty<BindingParserNode>()))
+            {
+                syntaxNode.NodeErrors.ForEach(node.AddError);
+            }
+
+            var expression = ParseDirectiveExpression(node, typeSyntax);
+
+            if (expression is UnknownStaticClassIdentifierExpression)
+            {
+                node.AddError($"{nameSyntax.ToDisplayString()} is not a type or namespace.");
+                return new ResolvedServiceInjectDirective(nameSyntax, typeSyntax, null) { DothtmlNode = node };
+            }
+            else if (expression is StaticClassIdentifierExpression)
+            {
+                return new ResolvedServiceInjectDirective(nameSyntax, typeSyntax, expression.Type) { DothtmlNode = node };
+            }
+            else throw new NotSupportedException();
+        }
+
         public IAbstractImportDirective BuildImportDirective(
             DothtmlDirectiveNode node,
             BindingParserNode aliasSyntax,
