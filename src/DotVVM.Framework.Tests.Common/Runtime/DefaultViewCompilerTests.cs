@@ -347,10 +347,10 @@ test <dot:Literal><a /></dot:Literal>";
             var controlBuilderFactory = context.Configuration.ServiceLocator.GetService<IControlBuilderFactory>();
             var (_, controlBuilder) = controlBuilderFactory.GetControlBuilder(fileName + ".dothtml");
 
-            var result = controlBuilder.BuildControl(controlBuilderFactory, context.Services);
+            var result = controlBuilder.Value.BuildControl(controlBuilderFactory, context.Services);
             if (compileTwice)
             {
-                result = controlBuilder.BuildControl(controlBuilderFactory, context.Services);
+                result = controlBuilder.Value.BuildControl(controlBuilderFactory, context.Services);
             }
             return result;
         }
