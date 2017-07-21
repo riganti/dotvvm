@@ -17,7 +17,6 @@ namespace DotVVM.Framework.Controls
         /// Either <see cref="OnLoadingData"/> or <see cref="OnLoadingDataAsync"/> can be set but not both.
         /// </remarks>
         [Bind(Direction.None)]
-        [Obsolete("Use IRefreshableGridViewDataSet.OnLoadingDataAsync instead.This property will be removed in future versions.")]
         GridViewDataSetLoadDelegate OnLoadingData { get; }
 
         /// <summary>
@@ -32,7 +31,6 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Requests to refresh the GridViewDataSet.
         /// </summary>
-        [Obsolete("Use IRefreshableGridViewDataSet.RequestRefreshAsync instead.This property will be removed in future versions.")]
         void RequestRefresh(bool forceRefresh = false);
 
         /// <summary>

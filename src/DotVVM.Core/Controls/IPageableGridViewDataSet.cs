@@ -16,7 +16,6 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Navigates to the first page.
         /// </summary>
-        [Obsolete("Use IPageableGridViewDataSet.GoToFirstPageAsync instead.This property will be removed in future versions.")]
         void GoToFirstPage();
 
         /// <summary>
@@ -28,7 +27,6 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Navigates to the last page.
         /// </summary>
-        [Obsolete("Use IPageableGridViewDataSet.GoToLastPageAsync instead.This property will be removed in future versions.")]
         void GoToLastPage();
 
         /// <summary>
@@ -39,7 +37,6 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Navigates to the next page (if possible).
         /// </summary>
-        [Obsolete("Use IPageableGridViewDataSet.GoToNextPageAsync instead.This property will be removed in future versions.")]
         void GoToNextPage();
 
         /// <summary>
@@ -51,7 +48,6 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Navigates to the specific page.
         /// </summary>
-        [Obsolete("Use IPageableGridViewDataSet.GoToPageAsync instead.This property will be removed in future versions.")]
         void GoToPage(int index);
 
         /// <summary>
@@ -62,7 +58,6 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Navigates to the previous page (if possible).
         /// </summary>
-        [Obsolete("Use IPageableGridViewDataSet.GoToPreviousPageAsync instead.This property will be removed in future versions.")]
         void GoToPreviousPage();
 
         /// <summary>

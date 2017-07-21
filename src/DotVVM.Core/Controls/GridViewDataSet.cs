@@ -68,7 +68,6 @@ namespace DotVVM.Framework.Controls
         /// Either <see cref="OnLoadingData"/> or <see cref="OnLoadingDataAsync"/> can be set but not both.
         /// </remarks>
         [Bind(Direction.None)]
-        [Obsolete("Use IRefreshableGridViewDataSet.OnLoadingDataAsync instead.This property will be removed in future versions.")]
         public GridViewDataSetLoadDelegate<T> OnLoadingData { get; set; }
 
         /// <summary>
@@ -78,7 +77,6 @@ namespace DotVVM.Framework.Controls
         /// Either <see cref="OnLoadingData"/> or <see cref="OnLoadingDataAsync"/> can be set but not both.
         /// </remarks>
         [Bind(Direction.None)]
-        [Obsolete("Use IRefreshableGridViewDataSet.OnLoadingDataAsync instead.This property will be removed in future versions.")]
         GridViewDataSetLoadDelegate IRefreshableGridViewDataSet.OnLoadingData
         {
             get
@@ -180,7 +178,6 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Navigates to the first page.
         /// </summary>
-        [Obsolete("Use GoToFirstPageAsync instead.This property will be removed in future versions.")]
         public void GoToFirstPage() => GoToFirstPageAsync().Wait();
 
         /// <summary>
@@ -195,7 +192,6 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Navigates to the last page.
         /// </summary>
-        [Obsolete("Use GoToLastPageAsync instead.This property will be removed in future versions.")]
         public void GoToLastPage() => GoToLastPageAsync().Wait();
 
         /// <summary>
@@ -210,7 +206,6 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Navigates to the next page (if possible).
         /// </summary>
-        [Obsolete("Use GoToNextPageAsync instead.This property will be removed in future versions.")]
         public void GoToNextPage() => GoToNextPageAsync().Wait();
 
         /// <summary>
@@ -229,7 +224,6 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Navigates to the specific page.
         /// </summary>
-        [Obsolete("Use GoToPageAsync instead.This property will be removed in future versions.")]
         public void GoToPage(int index) => GoToPageAsync(index).Wait();
 
         /// <summary>
@@ -244,7 +238,6 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Navigates to the previous page (if possible).
         /// </summary>
-        [Obsolete("Use GoToPreviousPageAsync instead.This property will be removed in future versions.")]
         public void GoToPreviousPage() => GoToPreviousPageAsync().Wait();
 
         /// <summary>
@@ -274,7 +267,6 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Requests to refresh the GridViewDataSet.
         /// </summary>
-        [Obsolete("Use RequestRefreshAsync instead.This property will be removed in future versions.")]
         public void RequestRefresh(bool forceRefresh = false) => RequestRefreshAsync(forceRefresh).Wait();
 
         /// <summary>
