@@ -342,8 +342,7 @@ namespace DotVVM.Framework.Controls
         {
             if (OnLoadingData != null && OnLoadingDataAsync != null)
             {
-                //TODO: What type of exception should be here?
-                throw new Exception();
+                throw new InvalidOperationException($"The {nameof(OnLoadingData)} and {nameof(OnLoadingDataAsync)} properties may not be set both at once.");
             }
             else if (OnLoadingData != null)
             {
