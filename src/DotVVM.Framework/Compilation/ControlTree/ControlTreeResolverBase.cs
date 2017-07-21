@@ -430,7 +430,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 var name = assigment.FirstExpression as SimpleNameBindingParserNode;
                 if (name == null)
                 {
-                    directiveNode.AddError($"The service type has to be assigned to a simple name.");
+                    directiveNode.AddError($"Identifier expected on the left side of the assigment.");
                     name = new SimpleNameBindingParserNode(new BindingToken{ Text = "service" });
                 }
                 var type = assigment.SecondExpression;
@@ -438,7 +438,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
             else
             {
-                directiveNode.AddError($"Assignment operation expected - the valid format for @{ParserConstants.ServiceInjectDirective} directive is `@{ParserConstants.ServiceInjectDirective} myStringService = ISomeService<string>`");
+                directiveNode.AddError($"Assignment operation expected - the correct form is `@{ParserConstants.ServiceInjectDirective} myStringService = ISomeService<string>`");
                 return treeBuilder.BuildServiceInjectDirective(directiveNode, new SimpleNameBindingParserNode(new BindingToken { Text = "service" }), valueSyntaxRoot);
             }
         }

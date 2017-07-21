@@ -76,7 +76,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
             if (expression is UnknownStaticClassIdentifierExpression)
             {
-                node.AddError($"{nameSyntax.ToDisplayString()} is not a type or namespace.");
+                node.AddError($"{typeSyntax.ToDisplayString()} is not a valid type.");
                 return new ResolvedServiceInjectDirective(nameSyntax, typeSyntax, null) { DothtmlNode = node };
             }
             else if (expression is StaticClassIdentifierExpression)
