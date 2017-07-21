@@ -319,6 +319,20 @@ test <dot:Literal><a /></dot:Literal>";
             Assert.IsTrue(page.GetThisAndAllDescendants().OfType<TestCustomDependencyInjectionControl>().First().IsCorrectlyCreated);
         }
 
+        [TestMethod]
+        public void DefaultViewCompiler_ViewDependencyInjection()
+        {
+            var markup = @"
+@viewModel System.Object
+@service config=DotVVM.Framework.Configuration.DotvvmConfiguration
+{{resource: config.ApplicationPhysicalPath}}{{resource: config.DefaultCulture}}";
+            var page = CompileMarkup(markup);
+            var literals = page.GetAllDescendants().OfType<Literal>().ToArray();
+            Assert.AreEqual(2, literals.Length);
+            Assert.AreEqual(context.Configuration.ApplicationPhysicalPath, literals[0].Text);
+            Assert.AreEqual(context.Configuration.DefaultCulture, literals[1].Text);
+        }
+
         private DotvvmControl CompileMarkup(string markup, Dictionary<string, string> markupFiles = null, bool compileTwice = false, [CallerMemberName]string fileName = null)
         {
             if (markupFiles == null)
@@ -352,6 +366,7 @@ test <dot:Literal><a /></dot:Literal>";
             {
                 result = controlBuilder.Value.BuildControl(controlBuilderFactory, context.Services);
             }
+            result.SetValue(Internal.RequestContextProperty, context);
             return result;
         }
 
