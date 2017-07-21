@@ -7,6 +7,7 @@ using DotVVM.Framework.Compilation;
 using System.Reflection;
 using System.ComponentModel;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -47,6 +48,9 @@ namespace DotVVM.Framework.Configuration
 
 
         public List<BindingExtensionParameter> DefaultExtensionParameters { get; set; } = new List<BindingExtensionParameter>();
+
+        public void AddServiceImport(string identifier, Type type) =>
+            DefaultExtensionParameters.Add(new InjectedServiceExtensionParameter(identifier, new ResolvedTypeDescriptor(type)));
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmMarkupConfiguration"/> class.
