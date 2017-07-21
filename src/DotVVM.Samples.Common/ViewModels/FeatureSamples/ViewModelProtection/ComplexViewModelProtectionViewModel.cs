@@ -1,35 +1,45 @@
 using DotVVM.Framework.ViewModel;
-using System.Collections.Generic;
 
 namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.ViewModelProtection
 {
     public class ComplexViewModelProtectionViewModel : DotvvmViewModelBase
     {
-        [Protect(ProtectMode.SignData)]
-        public List<string> Seasons { get; set; } = new List<string> { "Spring", "Summer", "Autumn", "Winter" };
+        public const string OriginalText = "Lorem Ipsum Dolor Sit Amet";
 
-        [Protect(ProtectMode.SignData)]
-        public string SelectedColor { get; set; } = "red";
+        public string ChangedText => "The quick brown fox jumps over the lazy dog";
+
+        [Bind(Direction.Both)]
+        public Message BothMessage { get; set; } = new Message(OriginalText);
+
+        [Bind(Direction.ClientToServer)]
+        public Message ClientToServerMessage { get; set; } = new Message(OriginalText);
+
+        [Bind(Direction.IfInPostbackPath)]
+        public Message IfInPostbackPathMessage { get; set; } = new Message(OriginalText);
+
+        [Bind(Direction.None)]
+        public Message NoneMessage { get; set; } = new Message(OriginalText);
+
+        [Bind(Direction.ServerToClientFirstRequest)]
+        public Message ServerToClientFirstRequestMessage { get; set; } = new Message(OriginalText);
 
         [Bind(Direction.ServerToClient)]
-        public Message TestMessage { get; set; } = new Message();
+        public Message ServerToClientMessage { get; set; } = new Message(OriginalText);
 
-        public Song TestSong { get; set; } = new Song();
+        [Bind(Direction.ServerToClientPostback)]
+        public Message ServerToClientPostbackMessage { get; set; } = new Message(OriginalText);
+
+        [Protect(ProtectMode.SignData)]
+        public string SignedColor { get; set; } = "red";
 
         public class Message
         {
-            [Protect(ProtectMode.SignData)]
-            public string Text { get; set; } = "Sample text";
+            public Message(string text)
+            {
+                Text = text;
+            }
 
-            public Song AnotherSong { get; set; }
-        }
-
-        public class Song
-        {
-            [Protect(ProtectMode.SignData)]
-            public string Author { get; set; } = "John Smith";
-
-            public string Title { get; set; } = "A Song";
+            public string Text { get; set; }
         }
     }
 }

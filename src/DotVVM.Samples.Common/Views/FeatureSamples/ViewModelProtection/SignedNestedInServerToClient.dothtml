@@ -1,0 +1,15 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.ViewModelProtection.SignedNestedInServerToClientViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <p>CartoonBomb countdown:</p>
+    <p>{{value: CartoonBomb.Countdown}}</p>
+    <dot:Button Click="{command: 0}">Postback</dot:Button>
+</body>
+</html>

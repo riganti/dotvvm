@@ -18,57 +18,82 @@
 <body>
     <div>
         <h4>Signed string</h4>
-        <dot:RadioButton CheckedItem="{value: SelectedColor}"
+        <dot:RadioButton CheckedItem="{value: SignedColor}"
                          CheckedValue="red"
-                         data-ui="radio-red"/>
-        <dot:RadioButton CheckedItem="{value: SelectedColor}"
+                         data-ui="radio-red" />
+        <dot:RadioButton CheckedItem="{value: SignedColor}"
                          CheckedValue="green"
-                         data-ui="radio-green"/>
-        <dot:RadioButton CheckedItem="{value: SelectedColor}"
-                         CheckedValue="blue" 
-                         data-ui="radio-blue"/>
-        <span>Selected color: </span>
-        <span data-ui="selected-color">{{value: SelectedColor}}</span>
+                         data-ui="radio-green" />
+        <dot:RadioButton CheckedItem="{value: SignedColor}"
+                         CheckedValue="blue"
+                         data-ui="radio-blue" />
+        <span>Signed color: </span>
+        <span data-ui="selected-color">
+            {{value: SignedColor}}
+        </span>
+
         <br />
-        <dot:Button Click="{staticCommand: SelectedColor = "green"}"
-                    data-ui="change-color">Change Selected color</dot:Button>
+        <dot:Button Click="{staticCommand: SignedColor = "green"}"
+                    data-ui="change-color">
+            Change Selected color
+        </dot:Button>
     </div>
     <div>
-        <h4>Signed list of strings</h4>
-        <span>Seasons: </span>
-        <dot:Repeater DataSource="{value: Seasons}"
-                      data-ui="repeater-seasons">
-            <span>{{value: _this}}</span><span>,</span>
-        </dot:Repeater>
-        <br />
-        <button onclick="dotvvm.viewModels.root.viewModel.Seasons(null)"
-                data-ui="change-seasons">Try to change the Seasons</button>
-    </div>
-    <div>
-        <h4>A ServerToClient Message</h4>
-        <span>Message: </span>
-        <span data-ui="message">{{value: TestMessage.Text}}</span>
-        <br/>
-        <dot:Button Click="{staticCommand: TestMessage.Text = "A different message"}"
-                    data-ui="change-message">Change the Message</dot:Button>
-    </div>
-    <div>
-        <h4>Nested protection</h4>
-        <p>The Song's Title is not protected, Author is signed.</p>
-        <span>Title: </span>
-        <span data-ui="song-title">{{value: TestSong.Title}}</span>
-        <br/>
-        <span>Author: </span>
-        <span data-ui="song-author">{{value: TestSong.Author}}</span>
-        <br/>
-        <dot:Button Click="{staticCommand: TestSong.Title = "New Title"}"
-                    data-ui="change-song-title">Change Title</dot:Button>
-        <dot:Button Click="{staticCommand: TestSong.Author = "Joe Pirate"}"
-                    data-ui="change-song-author">Change Author</dot:Button>
+        <h4>Messages</h4>
+        <span>BothMessage: </span>
+        <span data-ui="bothMessage">{{value: BothMessage.Text}}</span><br />
+        <dot:Button data-ui="change-bothMessage"
+                    Click="{staticCommand: BothMessage.Text = ChangedText}">
+            Change through JS
+        </dot:Button><br />
+
+        <span>ClientToServerMessage: </span>
+        <span data-ui="clientToServerMessage">{{value: ClientToServerMessage.Text}}</span><br />
+        <dot:Button data-ui="change-clientToServerMessage"
+                    onclick="dotvvm.viewModels.root.viewModel.ClientToServerMessage({Text: ko.observable(dotvvm.viewModels.root.viewModel.ChangedText())})">
+            Create through JS
+        </dot:Button><br />
+
+        <span>IfInPostbackPathMessage: </span>
+        <span data-ui="ifInPostbackPathMessage">{{value: IfInPostbackPathMessage.Text}}</span><br />
+        <dot:Button data-ui="change-ifInPostbackPathMessage"
+                    Click="{staticCommand: IfInPostbackPathMessage.Text = ChangedText}">
+            Change through JS
+        </dot:Button><br />
+
+        <span>NoneMessage: </span>
+        <span data-ui="noneMessage">{{value: NoneMessage.Text}}</span><br />
+        <dot:Button data-ui="change-noneMessage"
+                    Click="{staticCommand: NoneMessage.Text = ChangedText}">
+            Change through JS
+        </dot:Button><br />
+
+        <span>ServerToClientFirstRequestMessage: </span>
+        <span data-ui="serverToClientFirstRequestMessage">{{value: ServerToClientFirstRequestMessage.Text}}</span><br />
+        <dot:Button data-ui="change-serverToClientFirstRequestMessage"
+                    Click="{staticCommand: ServerToClientFirstRequestMessage.Text = ChangedText}">
+            Change through JS
+        </dot:Button><br />
+
+        <span>ServerToClientMessage: </span>
+        <span data-ui="serverToClientMessage">{{value: ServerToClientMessage.Text}}</span><br />
+        <dot:Button data-ui="change-serverToClientMessage"
+                    Click="{staticCommand: ServerToClientMessage.Text = ChangedText}">
+            Change through JS
+        </dot:Button><br />
+
+        <span>ServerToClientPostbackMessage: </span>
+        <span data-ui="serverToClientPostbackMessage">{{value: ServerToClientPostbackMessage.Text}}</span><br />
+        <dot:Button data-ui="change-serverToClientPostbackMessage"
+                    Click="{staticCommand: ServerToClientPostbackMessage.Text = ChangedText}">
+            Change through JS
+        </dot:Button><br />
     </div>
     <div>
         <dot:Button Click="{command: 0}"
-                    data-ui="postback">Postback</dot:Button>
+                    data-ui="postback">
+            Postback
+        </dot:Button>
     </div>
 </body>
 </html>

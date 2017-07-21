@@ -1090,6 +1090,7 @@ var DotVVM = (function () {
         this.postBackCounter = 0;
         this.resourceSigns = {};
         this.isViewModelUpdating = true;
+        // warning this property is referenced in ModelState.cs and KnockoutHelper.cs
         this.viewModelObservables = {};
         this.isSpaReady = ko.observable(false);
         this.viewModels = {};

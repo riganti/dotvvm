@@ -11,7 +11,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         JsonSerializer serializer;
         Stack<int> propertyIndices = new Stack<int>();
         int virtualNests = 0;
-        int propertyIndex = 0;
+        int propertyIndex = -1;
 
         public EncryptedValuesWriter(JsonWriter jsonWriter)
         {
@@ -21,8 +21,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         public void Nest()
         {
-            propertyIndices.Push(propertyIndex + 1);
-            propertyIndex = 0;
+            propertyIndices.Push(propertyIndex);
+            propertyIndex = -1;
             virtualNests++;
         }
 
@@ -35,9 +35,14 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         public void ClearEmptyNest()
         {
-            if (virtualNests <= 0) throw new Exception("");
+            if (virtualNests <= 0) throw new NotSupportedException("There is no nest to be cleared.");
             virtualNests--;
-            propertyIndex = propertyIndices.Pop() - 1;
+            propertyIndex = propertyIndices.Pop();
+        }
+
+        public void IncrementIndex()
+        {
+            propertyIndex++;
         }
 
         private void WritePropertyName(int index)
@@ -51,7 +56,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 foreach (var p in propertyIndices.Take(virtualNests).Reverse())
                 {
-                    WritePropertyName(p - 1); // the property was not writter, -1 to write it
+                    WritePropertyName(p); // the property was not writter, -1 to write it
                     writer.WriteStartObject();
                 }
                 virtualNests = 0;
@@ -63,7 +68,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public void Value(object value)
         {
             EnsureObjectStarted();
-            WritePropertyName(propertyIndex++);
+            WritePropertyName(propertyIndex);
             serializer.Serialize(writer, value);
         }
     }
