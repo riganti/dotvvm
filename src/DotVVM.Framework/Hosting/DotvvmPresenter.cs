@@ -4,11 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime;
@@ -17,6 +19,7 @@ using DotVVM.Framework.Security;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -272,6 +275,27 @@ namespace DotVVM.Framework.Hosting
             return nextStopwatchState;
         }
 
+        private (object, object[]) DeserializeStaticCommandArguments(JArray array, MethodInfo method, IDotvvmRequestContext context)
+        {
+            var encryptionPurposes = StaticCommandBindingCompiler.GetArgumentEncryptionPurposes(StaticCommandBindingCompiler.GetMethodName(method)).Take(array.Count).ToArray();
+            var types = (method.IsStatic ? new Type[0] : new [] { method.DeclaringType }).Concat(method.GetParameters().Select(p => p.ParameterType)).ToArray();
+            var result = new object[array.Count];
+            for (var i = 0; i < array.Count; i++)
+            {
+                if (array[i] is JObject jobj && jobj.Count == 1 && jobj["@service"] is JValue serviceValue)
+                {
+                    result[i] = context.Services.GetService<IViewModelProtector>()
+                        .Unprotect(Convert.FromBase64String((string)serviceValue.Value), encryptionPurposes[i])
+                        .Apply(Encoding.UTF8.GetString)
+                        .Apply(Type.GetType)
+                        .Assert(types[i].GetTypeInfo().IsAssignableFrom, $"The specified service type is not assignable to the argument type.")
+                        .Apply(context.Services.GetService);
+                }
+                else result[i] = array[i].ToObject(types[i]);
+            }
+            return method.IsStatic ? (null, result) : (result[0], result.Skip(1).ToArray());
+        }
+
         public async Task ProcessStaticCommandRequest(IDotvvmRequestContext context)
         {
             JObject postData;
@@ -294,11 +318,7 @@ namespace DotVVM.Framework.Hosting
             {
                 throw new DotvvmHttpException($"This method cannot be called from the static command. If you need to call this method, add the '{nameof(AllowStaticCommandAttribute)}' to the method.");
             }
-            var target = methodInfo.IsStatic ? null : arguments[0].ToObject(methodInfo.DeclaringType);
-            var methodArguments =
-                arguments.Skip(methodInfo.IsStatic ? 0 : 1)
-                    .Zip(methodInfo.GetParameters(), (arg, parameter) => arg.ToObject(parameter.ParameterType))
-                    .ToArray();
+            var (target, methodArguments) = DeserializeStaticCommandArguments(arguments, methodInfo, context);
             var actionInfo = new ActionInfo
             {
                 IsControlCommand = false,

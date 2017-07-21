@@ -28,12 +28,14 @@ namespace DotVVM.Framework.Compilation.Binding
         private readonly DotvvmConfiguration configuration;
         private readonly IBindingExpressionBuilder bindingParser;
         private readonly IViewModelSerializationMapper vmMapper;
+        private readonly StaticCommandBindingCompiler staticCommandBindingCompiler;
 
-        public BindingPropertyResolvers(IBindingExpressionBuilder bindingParser, IViewModelSerializationMapper vmMapper, DotvvmConfiguration configuration)
+        public BindingPropertyResolvers(IBindingExpressionBuilder bindingParser, IViewModelSerializationMapper vmMapper, DotvvmConfiguration configuration, StaticCommandBindingCompiler staticCommandBindingCompiler)
         {
             this.configuration = configuration;
             this.bindingParser = bindingParser;
             this.vmMapper = vmMapper;
+            this.staticCommandBindingCompiler = staticCommandBindingCompiler;
         }
 
         public ActionFiltersBindingProperty GetActionFilters(ParsedExpressionBindingProperty parsedExpression)
@@ -156,6 +158,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
 
         private ConditionalWeakTable<ResolvedTreeRoot, ConcurrentDictionary<DataContextStack, int>> bindingCounts = new ConditionalWeakTable<ResolvedTreeRoot, ConcurrentDictionary<DataContextStack, int>>();
+
         public IdBindingProperty CreateBindingId(
             OriginalStringBindingProperty originalString = null,
             ParsedExpressionBindingProperty expression = null,
@@ -263,7 +266,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public StaticCommandJavascriptProperty CompileStaticCommand(DataContextStack dataContext, ParsedExpressionBindingProperty expression)
         {
-            return new StaticCommandJavascriptProperty(FormatJavascript(new StaticCommandBindingCompiler(vmMapper).CompileToJavascript(dataContext, expression.Expression), niceMode: configuration.Debug));
+            return new StaticCommandJavascriptProperty(FormatJavascript(this.staticCommandBindingCompiler.CompileToJavascript(dataContext, expression.Expression), niceMode: configuration.Debug));
         }
 
         public LocationInfoBindingProperty GetLocationInfo(ResolvedBinding resolvedBinding)

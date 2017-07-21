@@ -1,4 +1,5 @@
 @viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand.StaticCommandViewModel, DotVVM.Samples.Common
+@service greetingService = DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand.IGreetingComputationService
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -10,6 +11,7 @@
 		<p>Name: <dot:TextBox Text="{value:  Name}" /></p>
 		<dot:Button Text="Compute greeting using static command" Click="{staticCommand: Greeting = ViewModel.GetGreeting(Name)}" />
 		<dot:Button Text="Compute greeting pure js function" Click="{staticCommand: Greeting = 'Hello ' + Name + '!'}" />
+		<dot:Button Text="Compute using abstract service" Click="{staticCommand: Greeting = greetingService.GetGreeting(Name)}" />
 		<p>
 		<span InnerText="{value: Greeting}"></span>	
 		</p>

@@ -17,17 +17,13 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser =>
                 {
-                    browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_StaticCommand_StaticCommand);
-                    browser.Wait();
-
-                    browser.First("input[type=button]").Click();
-                    browser.First("span").CheckIfInnerTextEquals("Hello Deep Thought!");
-
-                    browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_StaticCommand_StaticCommand);
-                    browser.Wait();
-
-                    browser.Last("input[type=button]").Click();
-                    browser.First("span").CheckIfInnerTextEquals("Hello Deep Thought!");
+                    foreach(var b in browser.FindElements("input[type=button]"))
+                    {
+                        browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_StaticCommand_StaticCommand);
+                        browser.Wait();
+                        b.Click();
+                        browser.First("span").CheckIfInnerTextEquals("Hello Deep Thought!");
+                    }
                 });
         }
 

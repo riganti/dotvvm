@@ -4,10 +4,16 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
+using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Security;
+using DotVVM.Framework.Testing;
+using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
 
@@ -16,9 +22,11 @@ namespace DotVVM.Framework.Compilation.Binding
     public class StaticCommandBindingCompiler
     {
         private readonly IViewModelSerializationMapper vmMapper;
-        public StaticCommandBindingCompiler(IViewModelSerializationMapper vmMapper)
+        private readonly IViewModelProtector protector;
+        public StaticCommandBindingCompiler(IViewModelSerializationMapper vmMapper, IViewModelProtector protector)
         {
             this.vmMapper = vmMapper;
+            this.protector = protector;
         }
 
         public JsExpression CompileToJavascript(DataContextStack dataContext, Expression expression)
@@ -59,20 +67,45 @@ namespace DotVVM.Framework.Compilation.Binding
             if (callbackFunction == null) callbackFunction = new JsLiteral(null);
             if (methodExpression == null) throw new NotSupportedException("Static command binding must be a method call!");
 
-            var argsScript = GetArgsScript(methodExpression, dataContext);
-            return new JsIdentifierExpression("dotvvm").Member("staticCommandPostback").Invoke(new JsSymbolicParameter(CommandBindingExpression.ViewModelNameParameter), new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter), new JsLiteral(GetMethodName(methodExpression)), argsScript, callbackFunction);
+            string methodName = GetMethodName(methodExpression.Method);
+            var argsScript = GetArgsScript(methodExpression, dataContext, GetArgumentEncryptionPurposes(methodName));
+            return new JsIdentifierExpression("dotvvm").Member("staticCommandPostback").Invoke(new JsSymbolicParameter(CommandBindingExpression.ViewModelNameParameter), new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter), new JsLiteral(methodName), argsScript, callbackFunction);
         }
 
-        public JsExpression GetArgsScript(MethodCallExpression expression, DataContextStack dataContext)
+        private JsExpression TranslateArgument(Expression expr, DataContextStack dataContext, string[] encryptionPurpose)
         {
-            var arguments = (expression.Object == null ? new Expression[0] : new[] { expression.Object })
-                .Concat(expression.Arguments).Select(a => JavascriptTranslator.CompileToJavascript(a, dataContext, vmMapper));
-            return new JsArrayExpression(arguments);
+            if (expr.GetParameterAnnotation() is BindingParameterAnnotation annotation && annotation.ExtensionParameter is InjectedServiceExtensionParameter service)
+                return new JsObjectExpression(new JsObjectProperty("@service", new JsLiteral(
+                    protector.Protect(
+                        ((ResolvedTypeDescriptor)service.ParameterType).Type.AssemblyQualifiedName.Apply(Encoding.UTF8.GetBytes),
+                        encryptionPurpose
+                    )
+                    .Apply(Convert.ToBase64String)
+                )));
+            else
+                return JavascriptTranslator.CompileToJavascript(expr, dataContext, vmMapper);
         }
 
-        public static string GetMethodName(MethodCallExpression methodInvocation)
+        public JsExpression GetArgsScript(MethodCallExpression expression, DataContextStack dataContext, IEnumerable<string[]> encryptionPurpose) =>
+            (expression.Object == null ? new Expression[0] : new[] { expression.Object })
+            .Concat(expression.Arguments).Zip(encryptionPurpose, (a, e) => TranslateArgument(a, dataContext, e))
+            .Apply(a => new JsArrayExpression(a));
+
+        public static string GetMethodName(MethodInfo method)
         {
-            return methodInvocation.Method.DeclaringType.AssemblyQualifiedName + "." + methodInvocation.Method.Name;
+            return method.DeclaringType.AssemblyQualifiedName + "." + method.Name;
+        }
+
+        public static IEnumerable<string[]> GetArgumentEncryptionPurposes(string methodName)
+        {
+            for (int i = 0; true; i++)
+            {
+                yield return new [] {
+                    "StaticCommand",
+                    methodName, // different method calls should have different keys, so you can't swap arguments between calls of different methods
+                    i.ToString(), // different arguments should have different keys, so you can't swap arguments in one method call
+                };
+            }
         }
     }
 }
