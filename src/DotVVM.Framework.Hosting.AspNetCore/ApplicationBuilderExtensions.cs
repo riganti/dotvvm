@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
@@ -6,6 +7,7 @@ using DotVVM.Framework.Runtime.Filters;
 using DotVVM.Framework.Runtime.Tracing;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.Builder
 {
@@ -39,8 +41,6 @@ namespace Microsoft.AspNetCore.Builder
             config.Debug = env.IsDevelopment();
             config.ApplicationPhysicalPath = applicationRootPath ?? env.ContentRootPath;
 
-            config.Runtime.Reporters.AddRange(config.ServiceLocator.GetServiceProvider().GetServices<IRequestTracingReporter>());
-
             if (useErrorPages ?? env.IsDevelopment())
             {
                 app.UseMiddleware<DotvvmErrorPageMiddleware>();
@@ -52,6 +52,12 @@ namespace Microsoft.AspNetCore.Builder
                 new DotvvmReturnedFileMiddleware(),
                 new DotvvmRoutingMiddleware()
             });
+
+            var configurators = config.ServiceLocator.GetServiceProvider().GetServices<IConfigureOptions<DotvvmConfiguration>>();
+            foreach (var configurator in configurators)
+            {
+                configurator.Configure(config);
+            }
 
             return config;
         }

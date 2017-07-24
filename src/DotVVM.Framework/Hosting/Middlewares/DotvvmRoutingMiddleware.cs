@@ -5,10 +5,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using DotVVM.Framework.Runtime.Tracing;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Hosting.Middlewares
 {
-    public class DotvvmRoutingMiddleware: IMiddleware
+    public class DotvvmRoutingMiddleware : IMiddleware
     {
         private const string GooglebotHashbangEscapedFragment = "_escaped_fragment_=";
         /// <summary>
@@ -35,7 +37,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
             url = null;
             return false;
         }
-        
+
         public static RouteBase FindMatchingRoute(IEnumerable<RouteBase> routes, IDotvvmRequestContext context, out IDictionary<string, object> parameters)
         {
             string url;
@@ -64,6 +66,11 @@ namespace DotVVM.Framework.Hosting.Middlewares
 
         public async Task<bool> Handle(IDotvvmRequestContext context)
         {
+            context.RequestTracers.AddRange(
+                context.Configuration.ServiceLocator.GetServiceProvider().GetServices<IRequestTracer>());
+
+            await context.RequestTracers.TracingEvent(RequestTracingConstants.BeginRequest, context);
+
             IDictionary<string, object> parameters;
             var route = FindMatchingRoute(context.Configuration.RouteTable, context, out parameters);
 
@@ -91,30 +98,13 @@ namespace DotVVM.Framework.Hosting.Middlewares
                     await f.OnPageExceptionAsync(context, exception);
                     if (context.IsPageExceptionHandled) context.InterruptRequest();
                 }
-                await TraceExceptionAsync(context, exception);
+                await context.RequestTracers.TracingException(context, exception);
                 throw;
             }
 
-            await TraceRequestAsync(context);
+            await context.RequestTracers.TracingEndRequest(context);
+
             return true;
-        }
-
-        public async Task TraceRequestAsync(IDotvvmRequestContext context)
-        {
-            var reporters = context.Configuration.Runtime.Reporters;
-            foreach (var reporter in reporters)
-            {
-                await reporter.TraceMetrics(context.TraceData);
-            }
-        }
-
-        public async Task TraceExceptionAsync(IDotvvmRequestContext context, Exception exception)
-        {
-            var reporters = context.Configuration.Runtime.Reporters;
-            foreach (var reporter in reporters)
-            {
-                await reporter.TraceException(exception);
-            }
         }
     }
 }

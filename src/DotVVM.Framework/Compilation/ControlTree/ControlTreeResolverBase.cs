@@ -83,7 +83,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Resolves the content of the root node.
         /// </summary>
-        private void ResolveRootContent(DothtmlRootNode root, IAbstractTreeRoot view, IControlResolverMetadata viewMetadata)
+        protected virtual void ResolveRootContent(DothtmlRootNode root, IAbstractTreeRoot view, IControlResolverMetadata viewMetadata)
         {
             foreach (var node in root.Content)
             {

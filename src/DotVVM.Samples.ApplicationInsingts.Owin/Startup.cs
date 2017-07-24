@@ -19,8 +19,9 @@ namespace DotVVM.Samples.ApplicationInsingts.Owin
             // use DotVVM
             var dotvvmConfiguration = app.UseDotVVM<DotvvmStartup>(applicationPhysicalPath, options: options =>
             {
-                options.AddDefaultTempStorages("temp");
-                options.AddApplicationInsightsTracing();
+                options
+                    .AddDefaultTempStorages("temp")
+                    .AddApplicationInsightsTracing();
             });
 #if !DEBUG
             dotvvmConfiguration.Debug = false;

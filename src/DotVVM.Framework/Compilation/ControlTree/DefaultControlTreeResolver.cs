@@ -28,6 +28,11 @@ namespace DotVVM.Framework.Compilation.ControlTree
             this.bindingExpressionBuilder = expressionBuilder;
         }
 
+        protected override void ResolveRootContent(DothtmlRootNode root, IAbstractTreeRoot view, IControlResolverMetadata viewMetadata)
+        {
+            ((ResolvedTreeRoot)view).ResolveContentAction = () => base.ResolveRootContent(root, view, viewMetadata);
+        }
+
         protected override IControlType CreateControlType(ITypeDescriptor wrapperType, string virtualPath)
         {
             return new ControlType(ResolvedTypeDescriptor.ToSystemType(wrapperType), virtualPath: virtualPath);

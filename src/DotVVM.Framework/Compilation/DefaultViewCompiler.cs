@@ -36,7 +36,7 @@ namespace DotVVM.Framework.Compilation
         /// <summary>
         /// Compiles the view and returns a function that can be invoked repeatedly. The function builds full control tree and activates the page.
         /// </summary>
-        public virtual CSharpCompilation CompileView(string sourceCode, string fileName, CSharpCompilation compilation, string namespaceName, string className)
+        public virtual (ControlBuilderDescriptor, Func<CSharpCompilation>) CompileView(string sourceCode, string fileName, CSharpCompilation compilation, string namespaceName, string className)
         {
             // parse the document
             var tokenizer = new DothtmlTokenizer();
@@ -46,45 +46,49 @@ namespace DotVVM.Framework.Compilation
 
             var resolvedView = (ResolvedTreeRoot)controlTreeResolver.ResolveTree(node, fileName);
 
-            var errorCheckingVisitor = new ErrorCheckingVisitor();
-            resolvedView.Accept(errorCheckingVisitor);
+            return (new ControlBuilderDescriptor(resolvedView.DataContextTypeStack.DataContextType, resolvedView.Metadata.Type), () => {
 
-            foreach (var token in tokenizer.Tokens)
-            {
-                if (token.HasError && token.Error.IsCritical)
+                var errorCheckingVisitor = new ErrorCheckingVisitor();
+                resolvedView.Accept(errorCheckingVisitor);
+
+                foreach (var token in tokenizer.Tokens)
                 {
-                    throw new DotvvmCompilationException(token.Error.ErrorMessage, new[] { (token.Error as BeginWithLastTokenOfTypeTokenError<DothtmlToken, DothtmlTokenType>)?.LastToken ?? token });
+                    if (token.HasError && token.Error.IsCritical)
+                    {
+                        throw new DotvvmCompilationException(token.Error.ErrorMessage, new[] { (token.Error as BeginWithLastTokenOfTypeTokenError<DothtmlToken, DothtmlTokenType>)?.LastToken ?? token });
+                    }
                 }
-            }
 
-            foreach (var n in node.EnumerateNodes())
-            {
-                if (n.HasNodeErrors)
+                foreach (var n in node.EnumerateNodes())
                 {
-                    throw new DotvvmCompilationException(string.Join(", ", n.NodeErrors), n.Tokens);
+                    if (n.HasNodeErrors)
+                    {
+                        throw new DotvvmCompilationException(string.Join(", ", n.NodeErrors), n.Tokens);
+                    }
                 }
+
+                var contextSpaceVisitor = new DataContextPropertyAssigningVisitor();
+                resolvedView.Accept(contextSpaceVisitor);
+
+                var styleVisitor = new StylingVisitor(configuration);
+                resolvedView.Accept(styleVisitor);
+
+                var validationVisitor = new Validation.ControlUsageValidationVisitor(configuration);
+                resolvedView.Accept(validationVisitor);
+                if (validationVisitor.Errors.Any())
+                {
+                    var controlUsageError = validationVisitor.Errors.First();
+                    throw new DotvvmCompilationException(controlUsageError.ErrorMessage, controlUsageError.Nodes.SelectMany(n => n.Tokens));
+                }
+
+                var emitter = new DefaultViewCompilerCodeEmitter();
+                var compilingVisitor = new ViewCompilingVisitor(emitter, configuration.ServiceLocator.GetService<IBindingCompiler>(), className);
+
+                resolvedView.Accept(compilingVisitor);
+
+                return AddToCompilation(compilation, emitter, fileName, namespaceName, className);
             }
-
-            var contextSpaceVisitor = new DataContextPropertyAssigningVisitor();
-            resolvedView.Accept(contextSpaceVisitor);
-
-            var styleVisitor = new StylingVisitor(configuration);
-            resolvedView.Accept(styleVisitor);
-
-            var validationVisitor = new Validation.ControlUsageValidationVisitor(configuration);
-            resolvedView.Accept(validationVisitor);
-            if (validationVisitor.Errors.Any())
-            {
-                var controlUsageError = validationVisitor.Errors.First();
-                throw new DotvvmCompilationException(controlUsageError.ErrorMessage, controlUsageError.Nodes.SelectMany(n => n.Tokens));
-            }
-
-            var emitter = new DefaultViewCompilerCodeEmitter();
-            var compilingVisitor = new ViewCompilingVisitor(emitter, configuration.ServiceLocator.GetService<IBindingCompiler>(), className);
-
-            resolvedView.Accept(compilingVisitor);
-
-            return AddToCompilation(compilation, emitter, fileName, namespaceName, className);
+            );
         }
 
         protected virtual CSharpCompilation AddToCompilation(CSharpCompilation compilation, DefaultViewCompilerCodeEmitter emitter, string fileName, string namespaceName, string className)
@@ -112,7 +116,8 @@ namespace DotVVM.Framework.Compilation
 #if DotNetCore
                     Assembly.Load(new AssemblyName("System.Runtime")),
                     Assembly.Load(new AssemblyName("System.Collections.Concurrent")),
-                    Assembly.Load(new AssemblyName("System.Collections"))
+                    Assembly.Load(new AssemblyName("System.Collections")),
+                    Assembly.Load(new AssemblyName("System.ValueTuple"))
 #else
                     typeof(System.Collections.Generic.List<>).Assembly
 #endif
@@ -150,12 +155,15 @@ namespace DotVVM.Framework.Compilation
             }
         }
 
-        public virtual IControlBuilder CompileView(string sourceCode, string fileName, string assemblyName, string namespaceName, string className)
+        public virtual (ControlBuilderDescriptor, Func<IControlBuilder>) CompileView(string sourceCode, string fileName, string assemblyName, string namespaceName, string className)
         {
             var compilation = CreateCompilation(assemblyName);
-            compilation = CompileView(sourceCode, fileName, compilation, namespaceName, className);
-            var assembly = BuildAssembly(compilation);
-            return GetControlBuilder(assembly, namespaceName, className);
+            var (descriptor, compilationGetter) = CompileView(sourceCode, fileName, compilation, namespaceName, className);
+            return (descriptor, () => {
+                var assembly = BuildAssembly(compilationGetter());
+                return GetControlBuilder(assembly, namespaceName, className);
+            }
+            );
         }
     }
 }

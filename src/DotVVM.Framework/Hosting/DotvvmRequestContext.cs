@@ -19,7 +19,7 @@ using DotVVM.Framework.Hosting.Middlewares;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.Extensions.DependencyInjection;
-
+using DotVVM.Framework.Runtime.Tracing;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -76,11 +76,6 @@ namespace DotVVM.Framework.Hosting
         /// Gets the <see cref="ModelState"/> object that manages validation errors for the viewmodel.
         /// </summary>
         public ModelState ModelState { get; private set; }
-
-        /// <summary>
-        /// Gets the data gathered during execution of the request.
-        /// </summary>
-        public Dictionary<string, object> TraceData { get; private set; }
 
         public Dictionary<string, string> PostBackUpdatedControls { get; private set; }
 
@@ -148,6 +143,11 @@ namespace DotVVM.Framework.Hosting
         }
 
         /// <summary>
+        /// Gets a list of tracers for current HTTP request
+        /// </summary>
+        public List<IRequestTracer> RequestTracers { get; }
+
+        /// <summary>
         /// Gets the unique id of the SpaContentPlaceHolder that should be loaded.
         /// </summary>
         public string GetSpaContentPlaceHolderUniqueId()
@@ -162,7 +162,7 @@ namespace DotVVM.Framework.Hosting
         {
             ModelState = new ModelState();
             PostBackUpdatedControls = new Dictionary<string, string>();
-            TraceData = new Dictionary<string, object>();
+            RequestTracers = new List<IRequestTracer>();
         }
 
         /// <summary>
