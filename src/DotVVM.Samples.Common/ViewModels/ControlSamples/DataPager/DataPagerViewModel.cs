@@ -24,7 +24,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.DataPager
             }
             else
             {
-                DataSet = GridViewDataSet.Create(GetData, pageSize: 3);
+                DataSet = GridViewDataSet.Create((options) => Task.FromResult(GetData(options)), pageSize: 3);
             }
             return base.Init();
         }

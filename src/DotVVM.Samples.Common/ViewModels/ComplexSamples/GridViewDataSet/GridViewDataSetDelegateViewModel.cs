@@ -14,7 +14,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.GridViewDataSet
 
         public override Task Init()
         {
-            DataSet = Framework.Controls.GridViewDataSet.Create(GetData, pageSize: 3);
+            DataSet = Framework.Controls.GridViewDataSet.Create((options) => Task.FromResult(GetData(options)), pageSize: 3);
             return base.Init();
         }
 

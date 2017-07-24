@@ -175,7 +175,7 @@ namespace DotVVM.Samples.Tests.Control
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_DataPager_DataPager);
                 browser.Wait();
 
-                browser.Single("shouldLoadAsync-button", this.SelectByDataUi);
+                browser.Single("shouldLoadAsync-button", this.SelectByDataUi).Click().Wait();
 
                 ShowHideControl(browser);
             });
