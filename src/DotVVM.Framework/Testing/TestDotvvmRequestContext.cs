@@ -9,6 +9,7 @@ using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Routing;
+using DotVVM.Framework.Runtime.Tracing;
 using Newtonsoft.Json.Linq;
 
 namespace DotVVM.Framework.Testing
@@ -51,6 +52,8 @@ namespace DotVVM.Framework.Testing
             get => _services ?? Configuration?.ServiceLocator?.GetServiceProvider() ?? throw new NotSupportedException();
             set => _services = value;
         }
+
+        public List<IRequestTracer> RequestTracers { get; }
 
         public void ChangeCurrentCulture(string cultureName)
             => ChangeCurrentCulture(cultureName, cultureName);

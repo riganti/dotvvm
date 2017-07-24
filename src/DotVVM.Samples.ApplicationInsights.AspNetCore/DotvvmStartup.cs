@@ -1,6 +1,4 @@
-using DotVVM.Framework;
 using DotVVM.Framework.Configuration;
-using DotVVM.Framework.Routing;
 
 namespace DotVVM.Samples.ApplicationInsights.AspNetCore
 {
