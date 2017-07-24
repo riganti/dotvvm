@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 using DotVVM.Tracing.ApplicationInsights;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -45,8 +46,9 @@ namespace DotVVM.Samples.ApplicationInsights.AspNetCore
 
             services.AddDotVVM(options =>
             {
-                options.AddDefaultTempStorages("Temp");
-                options.AddApplicationInsightsTracing();
+                options
+                    .AddDefaultTempStorages("Temp")
+                    .AddApplicationInsightsTracing();
             });
 
             services.AddApplicationInsightsTelemetry(Configuration);
@@ -59,12 +61,6 @@ namespace DotVVM.Samples.ApplicationInsights.AspNetCore
 
             // use DotVVM
             var dotvvmConfiguration = app.UseDotVVM<DotvvmStartup>(env.ContentRootPath);
-
-            // use static files
-            app.UseStaticFiles(new StaticFileOptions
-            {
-                FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(env.WebRootPath)
-            });
         }
     }
 }

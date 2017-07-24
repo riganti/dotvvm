@@ -6,6 +6,8 @@
 <head>
     <meta charset="utf-8" />
     <title></title>
+
+    <dot:ApplicationInsightJavascript />
 </head>
 <body>
     <dot:RouteLink RouteName="InitException" Text="Redirect to init exception view" />

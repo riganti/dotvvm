@@ -1,12 +1,7 @@
 using System.Web.Hosting;
 using ApplicationInsights.OwinExtensions;
 using Microsoft.Owin;
-using Microsoft.Owin.FileSystems;
-using Microsoft.Owin.StaticFiles;
 using Owin;
-using DotVVM.Framework;
-using DotVVM.Framework.Configuration;
-using DotVVM.Framework.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Tracing.ApplicationInsights;
 
@@ -24,18 +19,13 @@ namespace DotVVM.Samples.ApplicationInsingts.Owin
             // use DotVVM
             var dotvvmConfiguration = app.UseDotVVM<DotvvmStartup>(applicationPhysicalPath, options: options =>
             {
-                options.AddDefaultTempStorages("temp");
-                options.AddApplicationInsightsTracing();
+                options
+                    .AddDefaultTempStorages("temp")
+                    .AddApplicationInsightsTracing();
             });
 #if !DEBUG
             dotvvmConfiguration.Debug = false;
 #endif
-
-            // use static files
-            app.UseStaticFiles(new StaticFileOptions()
-            {
-                FileSystem = new PhysicalFileSystem(applicationPhysicalPath)
-            });
         }
     }
 }

@@ -25,6 +25,8 @@ using System.Reflection;
 using DotVVM.Framework.Hosting.Middlewares;
 using DotVVM.Framework.Utils;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using DotVVM.Framework.Runtime.Tracing;
 
 namespace DotVVM.Framework.Configuration
 {
