@@ -1,4 +1,4 @@
-﻿@viewModel DotVVM.Samples.ApplicationInsights.Owin.ViewModels.DefaultViewModel, DotVVM.Samples.ApplicationInsights.Owin
+﻿@viewModel DotVVM.Samples.ApplicationInsights.Owin.ViewModels.DefaultViewModel, DotVVM.Samples.ApplicationInsingts.Owin
 
 <!DOCTYPE html>
 
@@ -6,6 +6,8 @@
 <head>
     <meta charset="utf-8" />
     <title></title>
+
+    <dot:ApplicationInsightJavascript EnableAuthSnippet="true" />
 </head>
 <body>
     <dot:RouteLink RouteName="InitException" Text="Redirect to init exception view" />

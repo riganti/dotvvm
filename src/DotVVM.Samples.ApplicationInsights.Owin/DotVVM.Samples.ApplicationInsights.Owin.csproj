@@ -133,7 +133,9 @@
     <Compile Include="ViewModels\Test\CommandExceptionViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Views\default.dothtml" />
     <Content Include="packages.config" />
     <Content Include="Views\Test\initException.dothtml" />
@@ -163,9 +165,9 @@
       <Project>{8bb2217d-0f2d-49d1-97bc-3654ed321f3b}</Project>
       <Name>DotVVM.Framework</Name>
     </ProjectReference>
-    <ProjectReference Include="..\DotVVM.Tracing.ApplicationInsights\DotVVM.Tracing.ApplicationInsights.csproj">
-      <Project>{5367a0f4-b8fe-426a-8390-bbce98ffc221}</Project>
-      <Name>DotVVM.Tracing.ApplicationInsights</Name>
+    <ProjectReference Include="..\DotVVM.Tracing.ApplicationInsights.Owin\DotVVM.Tracing.ApplicationInsights.Owin.csproj">
+      <Project>{E25432DB-B173-4ED4-96A5-E60DF440DE49}</Project>
+      <Name>DotVVM.Tracing.ApplicationInsights.Owin</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
