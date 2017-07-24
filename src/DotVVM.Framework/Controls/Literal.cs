@@ -67,7 +67,6 @@ namespace DotVVM.Framework.Controls
 
         private bool renderAsKnockoutBinding;
         private string knockoutBindingExpression;
-        private bool isFormattingRequired;
 
 
         /// <summary>

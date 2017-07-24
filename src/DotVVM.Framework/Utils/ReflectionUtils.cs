@@ -122,29 +122,36 @@ namespace DotVVM.Framework.Utils
         public static object ConvertValue(object value, Type type)
         {
             var typeinfo = type.GetTypeInfo();
+
             // handle null values
-            if ((value == null) && (typeinfo.IsValueType))
+            if (value == null && typeinfo.IsValueType)
+            {
                 return Activator.CreateInstance(type);
+            }
 
             // handle nullable types
             if (typeinfo.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
-                if ((value is string) && ((string)value == string.Empty))
+                if (value is string && (string)value == string.Empty)
                 {
                     // value is an empty string, return null
                     return null;
                 }
-                else
-                {
-                    // value is not null
-                    type = Nullable.GetUnderlyingType(type); typeinfo = type.GetTypeInfo();
-                }
+
+                // value is not null
+                type = Nullable.GetUnderlyingType(type);
+                typeinfo = type.GetTypeInfo();
             }
 
             // handle exceptions
-            if ((value is string) && (type == typeof(Guid)))
-                return new Guid((string)value);
-            if (type == typeof(object)) return value;
+            if (value is string && type == typeof(Guid))
+            {
+                return new Guid((string) value);
+            }
+            if (type == typeof(object))
+            {
+                return value;
+            }
 
             // handle enums
             if (typeinfo.IsEnum && value is string)
@@ -178,10 +185,12 @@ namespace DotVVM.Framework.Utils
                 return value.ToString();
             }
 
+            // comma-separated array values
             if (value is string && type.IsArray)
             {
                 var str = value as string;
-                var objectArray = str.Split(',').Select(s => ConvertValue(s.Trim(), typeinfo.GetElementType()))
+                var objectArray = str.Split(',')
+                    .Select(s => ConvertValue(s.Trim(), typeinfo.GetElementType()))
                     .ToArray();
                 var array = Array.CreateInstance(type.GetElementType(), objectArray.Length);
                 objectArray.CopyTo(array, 0);

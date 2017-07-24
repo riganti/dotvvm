@@ -139,6 +139,7 @@ namespace Dotvvm.Samples.Tests{
 			public static string FeatureSamples_MarkupControl_MarkupControlRegistration => "FeatureSamples/MarkupControl/MarkupControlRegistration";
 			public static string FeatureSamples_MarkupControl_MultiControlHierarchy => "FeatureSamples/MarkupControl/MultiControlHierarchy";
 			public static string FeatureSamples_NestedMasterPages_Content => "FeatureSamples/NestedMasterPages/Content";
+			public static string FeatureSamples_ParameterBinding_ParameterBinding => "FeatureSamples/ParameterBinding/ParameterBinding";
 			public static string FeatureSamples_PostBack_PostBackHandlers => "FeatureSamples/PostBack/PostBackHandlers";
 			public static string FeatureSamples_PostBack_PostbackUpdate => "FeatureSamples/PostBack/PostbackUpdate";
 			public static string FeatureSamples_PostBack_PostbackUpdateRepeater => "FeatureSamples/PostBack/PostbackUpdateRepeater";
@@ -169,6 +170,7 @@ namespace Dotvvm.Samples.Tests{
 			public static string FeatureSamples_ViewModelDeserialization_DoesNotDropObject => "FeatureSamples/ViewModelDeserialization/DoesNotDropObject";
 			public static string FeatureSamples_ViewModelNesting_NestedViewModel => "FeatureSamples/ViewModelNesting/NestedViewModel";
 			public static string FeatureSamples_ViewModelProtection_ComplexViewModelProtection => "FeatureSamples/ViewModelProtection/ComplexViewModelProtection";
+			public static string FeatureSamples_ViewModelProtection_SignedNestedInServerToClient => "FeatureSamples/ViewModelProtection/SignedNestedInServerToClient";
 			public static string FeatureSamples_ViewModelProtection_ViewModelProtection => "FeatureSamples/ViewModelProtection/ViewModelProtection";
 		}
 }

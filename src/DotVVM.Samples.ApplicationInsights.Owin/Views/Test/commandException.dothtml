@@ -1,0 +1,16 @@
+﻿@viewModel DotVVM.Samples.ApplicationInsights.Owin.ViewModels.Test.CommandExceptionViewModel, DotVVM.Samples.ApplicationInsights.Owin
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <dot:Button Click="{command: TestCommand()}" Text="Throw exception in this command" />
+
+</body>
+</html>
+
+

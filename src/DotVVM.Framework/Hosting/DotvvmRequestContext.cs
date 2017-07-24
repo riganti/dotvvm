@@ -77,6 +77,11 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public ModelState ModelState { get; private set; }
 
+        /// <summary>
+        /// Gets the data gathered during execution of the request.
+        /// </summary>
+        public Dictionary<string, object> TraceData { get; private set; }
+
         public Dictionary<string, string> PostBackUpdatedControls { get; private set; }
 
         public JObject ViewModelJson { get; set; }
@@ -157,6 +162,7 @@ namespace DotVVM.Framework.Hosting
         {
             ModelState = new ModelState();
             PostBackUpdatedControls = new Dictionary<string, string>();
+            TraceData = new Dictionary<string, object>();
         }
 
         /// <summary>

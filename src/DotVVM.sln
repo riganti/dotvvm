@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.9
+VisualStudioVersion = 15.0.26430.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{B760209E-57D7-4AEF-A726-69F73BBE52C0}"
 EndProject
@@ -47,19 +47,25 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework.Tools.Sele
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Compiler.Light", "DotVVM.Compiler.Light\DotVVM.Compiler.Light.csproj", "{08C18C97-72BA-40D5-9DD6-245AE352D6EA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Framework.Tests.Owin", "DotVVM.Framework.Tests.Owin\DotVVM.Framework.Tests.Owin.csproj", "{96A89C66-D5E2-4A09-8083-C0FE8A7A2AFE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework.Tests.Owin", "DotVVM.Framework.Tests.Owin\DotVVM.Framework.Tests.Owin.csproj", "{96A89C66-D5E2-4A09-8083-C0FE8A7A2AFE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.Tests", "DotVVM.Samples.Tests\DotVVM.Samples.Tests.csproj", "{96C99BC7-A588-4F75-972D-76C23C8AD6C2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.Tests", "DotVVM.Samples.Tests\DotVVM.Samples.Tests.csproj", "{96C99BC7-A588-4F75-972D-76C23C8AD6C2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Framework.PerfTests", "DotVVM.Framework.PerfTests\DotVVM.Framework.PerfTests.csproj", "{7FEC151D-6B54-4B6B-921E-590B9E11D650}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework.PerfTests", "DotVVM.Framework.PerfTests\DotVVM.Framework.PerfTests.csproj", "{7FEC151D-6B54-4B6B-921E-590B9E11D650}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Framework.Hosting.Owin", "DotVVM.Framework.Hosting.Owin\DotVVM.Framework.Hosting.Owin.csproj", "{F578AC17-9BBF-40FB-B0EE-9059CD08865B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework.Hosting.Owin", "DotVVM.Framework.Hosting.Owin\DotVVM.Framework.Hosting.Owin.csproj", "{F578AC17-9BBF-40FB-B0EE-9059CD08865B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Framework.Testing.SeleniumHelpers", "DotVVM.Framework.Testing.SeleniumHelpers\DotVVM.Framework.Testing.SeleniumHelpers.csproj", "{0F9076E3-72DE-4D1D-83DE-5A828B71DB58}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework.Testing.SeleniumHelpers", "DotVVM.Framework.Testing.SeleniumHelpers\DotVVM.Framework.Testing.SeleniumHelpers.csproj", "{0F9076E3-72DE-4D1D-83DE-5A828B71DB58}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Framework.Tests.Common", "DotVVM.Framework.Tests.Common\DotVVM.Framework.Tests.Common.csproj", "{336EC89B-A12B-4519-B66A-0A0C2F6BBA41}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework.Tests.Common", "DotVVM.Framework.Tests.Common\DotVVM.Framework.Tests.Common.csproj", "{336EC89B-A12B-4519-B66A-0A0C2F6BBA41}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{85FD5610-F03A-4BB7-806E-5EE790042331}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.ApplicationInsights.AspNetCore", "DotVVM.Samples.ApplicationInsights.AspNetCore\DotVVM.Samples.ApplicationInsights.AspNetCore.csproj", "{AD27EAF9-54C0-44A4-9128-EFDC63E547FB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.ApplicationInsights.Owin", "DotVVM.Samples.ApplicationInsights.Owin\DotVVM.Samples.ApplicationInsights.Owin.csproj", "{85617AC0-D0A5-40B8-8C81-4B13877E7837}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Tracing.ApplicationInsights", "DotVVM.Tracing.ApplicationInsights\DotVVM.Tracing.ApplicationInsights.csproj", "{5367A0F4-B8FE-426A-8390-BBCE98FFC221}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -283,6 +289,42 @@ Global
 		{336EC89B-A12B-4519-B66A-0A0C2F6BBA41}.Release|x64.Build.0 = Release|Any CPU
 		{336EC89B-A12B-4519-B66A-0A0C2F6BBA41}.Release|x86.ActiveCfg = Release|Any CPU
 		{336EC89B-A12B-4519-B66A-0A0C2F6BBA41}.Release|x86.Build.0 = Release|Any CPU
+		{AD27EAF9-54C0-44A4-9128-EFDC63E547FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD27EAF9-54C0-44A4-9128-EFDC63E547FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD27EAF9-54C0-44A4-9128-EFDC63E547FB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{AD27EAF9-54C0-44A4-9128-EFDC63E547FB}.Debug|x64.Build.0 = Debug|Any CPU
+		{AD27EAF9-54C0-44A4-9128-EFDC63E547FB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AD27EAF9-54C0-44A4-9128-EFDC63E547FB}.Debug|x86.Build.0 = Debug|Any CPU
+		{AD27EAF9-54C0-44A4-9128-EFDC63E547FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD27EAF9-54C0-44A4-9128-EFDC63E547FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD27EAF9-54C0-44A4-9128-EFDC63E547FB}.Release|x64.ActiveCfg = Release|Any CPU
+		{AD27EAF9-54C0-44A4-9128-EFDC63E547FB}.Release|x64.Build.0 = Release|Any CPU
+		{AD27EAF9-54C0-44A4-9128-EFDC63E547FB}.Release|x86.ActiveCfg = Release|Any CPU
+		{AD27EAF9-54C0-44A4-9128-EFDC63E547FB}.Release|x86.Build.0 = Release|Any CPU
+		{85617AC0-D0A5-40B8-8C81-4B13877E7837}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{85617AC0-D0A5-40B8-8C81-4B13877E7837}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{85617AC0-D0A5-40B8-8C81-4B13877E7837}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{85617AC0-D0A5-40B8-8C81-4B13877E7837}.Debug|x64.Build.0 = Debug|Any CPU
+		{85617AC0-D0A5-40B8-8C81-4B13877E7837}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{85617AC0-D0A5-40B8-8C81-4B13877E7837}.Debug|x86.Build.0 = Debug|Any CPU
+		{85617AC0-D0A5-40B8-8C81-4B13877E7837}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{85617AC0-D0A5-40B8-8C81-4B13877E7837}.Release|Any CPU.Build.0 = Release|Any CPU
+		{85617AC0-D0A5-40B8-8C81-4B13877E7837}.Release|x64.ActiveCfg = Release|Any CPU
+		{85617AC0-D0A5-40B8-8C81-4B13877E7837}.Release|x64.Build.0 = Release|Any CPU
+		{85617AC0-D0A5-40B8-8C81-4B13877E7837}.Release|x86.ActiveCfg = Release|Any CPU
+		{85617AC0-D0A5-40B8-8C81-4B13877E7837}.Release|x86.Build.0 = Release|Any CPU
+		{5367A0F4-B8FE-426A-8390-BBCE98FFC221}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5367A0F4-B8FE-426A-8390-BBCE98FFC221}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5367A0F4-B8FE-426A-8390-BBCE98FFC221}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5367A0F4-B8FE-426A-8390-BBCE98FFC221}.Debug|x64.Build.0 = Debug|Any CPU
+		{5367A0F4-B8FE-426A-8390-BBCE98FFC221}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5367A0F4-B8FE-426A-8390-BBCE98FFC221}.Debug|x86.Build.0 = Debug|Any CPU
+		{5367A0F4-B8FE-426A-8390-BBCE98FFC221}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5367A0F4-B8FE-426A-8390-BBCE98FFC221}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5367A0F4-B8FE-426A-8390-BBCE98FFC221}.Release|x64.ActiveCfg = Release|Any CPU
+		{5367A0F4-B8FE-426A-8390-BBCE98FFC221}.Release|x64.Build.0 = Release|Any CPU
+		{5367A0F4-B8FE-426A-8390-BBCE98FFC221}.Release|x86.ActiveCfg = Release|Any CPU
+		{5367A0F4-B8FE-426A-8390-BBCE98FFC221}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -300,5 +342,7 @@ Global
 		{7FEC151D-6B54-4B6B-921E-590B9E11D650} = {B760209E-57D7-4AEF-A726-69F73BBE52C0}
 		{0F9076E3-72DE-4D1D-83DE-5A828B71DB58} = {469DD245-D8BF-4927-92C2-827FDDC3B138}
 		{336EC89B-A12B-4519-B66A-0A0C2F6BBA41} = {B760209E-57D7-4AEF-A726-69F73BBE52C0}
+		{AD27EAF9-54C0-44A4-9128-EFDC63E547FB} = {13011738-A4B3-47B0-9E50-C0323EB19F76}
+		{85617AC0-D0A5-40B8-8C81-4B13877E7837} = {13011738-A4B3-47B0-9E50-C0323EB19F76}
 	EndGlobalSection
 EndGlobal
