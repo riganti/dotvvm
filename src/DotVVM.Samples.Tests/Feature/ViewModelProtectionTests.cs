@@ -2,78 +2,71 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Riganti.Utils.Testing.Selenium.Core;
 using System;
+using System.Collections.Generic;
 
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
     public class ViewModelProtectionTests : SeleniumTestBase
     {
-        [TestMethod]
-        public void Feature_ViewModelProtection_ComplexViewModelProtection_NestedProtection()
+        public const string ChangedText = "The quick brown fox jumps over the lazy dog";
+        public const string OriginalText = "Lorem Ipsum Dolor Sit Amet";
+        private enum RadioButtonValues
         {
-            RunComplexViewModelProtectionTest(browser =>
-            {
-                var songTitle = browser.Single("song-title", this.SelectByDataUi);
-                var songAuthor = browser.Single("song-author", this.SelectByDataUi);
-                songTitle.CheckIfTextEquals("A Song");
-                songAuthor.CheckIfTextEquals("John Smith");
-                browser.Single("change-song-title", this.SelectByDataUi).Click();
-                browser.Single("change-song-author", this.SelectByDataUi).Click();
-                songTitle.CheckIfTextEquals("New Title");
-                songAuthor.CheckIfTextEquals("Joe Pirate");
-            }, browser =>
-            {
-                var songTitle = browser.Single("song-title", this.SelectByDataUi);
-                var songAuthor = browser.Single("song-author", this.SelectByDataUi);
-                songTitle.CheckIfTextEquals("New Title");
-                songAuthor.CheckIfTextEquals("John Smith");
-            });
+            Red,
+            Green,
+            Blue
         }
 
         [TestMethod]
-        public void Feature_ViewModelProtection_ComplexViewModelProtection_ServerToClient()
-        {
-            // this test is here because it's necessary to test if the BindAttribute and ProtectAttribute can both work in the same viewModel
-            RunComplexViewModelProtectionTest(browser =>
-            {
-                var message = browser.Single("message", this.SelectByDataUi);
-                message.CheckIfTextEquals("Sample text");
-                browser.Single("change-message", this.SelectByDataUi).Click();
-                message.CheckIfTextEquals("A different message");
-            }, browser =>
-            {
-                var message = browser.Single("message", this.SelectByDataUi);
-                message.CheckIfTextEquals("Sample text");
-            });
-        }
+        public void Feature_ViewModelProtection_ComplexViewModelProtection_BothMessage() => 
+            CheckMessage("bothMessage", OriginalText, ChangedText, ChangedText);
 
         [TestMethod]
-        public void Feature_ViewModelProtection_ComplexViewModelProtection_SignedList()
-        {
-            RunComplexViewModelProtectionTest(browser =>
-            {
-                var repeater = browser.Single("repeater-seasons", this.SelectByDataUi);
-                repeater.CheckIfTextEquals("Spring, Summer, Autumn, Winter,");
-                browser.Single("change-seasons", this.SelectByDataUi).Click();
-                repeater.CheckIfInnerTextEquals("");
-            }, browser =>
-            {
-                var repeater = browser.Single("repeater-seasons", this.SelectByDataUi);
-                repeater.CheckIfTextEquals("Spring, Summer, Autumn, Winter,");
-            });
-        }
+        public void Feature_ViewModelProtection_ComplexViewModelProtection_ClientToServerMessage() => 
+            CheckMessage("clientToServerMessage", "", ChangedText, ChangedText);
+
+        [TestMethod]
+        public void Feature_ViewModelProtection_ComplexViewModelProtection_IfInPostbackPathMessage() => 
+            CheckMessage("ifInPostbackPathMessage", OriginalText, ChangedText, OriginalText);
+
+        [TestMethod]
+        public void Feature_ViewModelProtection_ComplexViewModelProtection_NoneMessage() => 
+            CheckMessage("noneMessage", "", "", "");
+
+        [TestMethod]
+        public void Feature_ViewModelProtection_ComplexViewModelProtection_ServerToClientFirstRequestMessage() => 
+            CheckMessage("serverToClientFirstRequestMessage", OriginalText, ChangedText, ChangedText);
+
+        [TestMethod]
+        public void Feature_ViewModelProtection_ComplexViewModelProtection_ServerToClientMessage() => 
+            CheckMessage("serverToClientMessage", OriginalText, ChangedText, OriginalText);
+
+        [TestMethod]
+        public void Feature_ViewModelProtection_ComplexViewModelProtection_ServerToClientPostbackMessage() => 
+            CheckMessage("serverToClientPostbackMessage", "", "", OriginalText);
 
         [TestMethod]
         public void Feature_ViewModelProtection_ComplexViewModelProtection_SignedString()
         {
             RunComplexViewModelProtectionTest(browser =>
             {
-                CheckRadioButtonsInitialState(browser);
+                CheckRadioButtonsState(browser, RadioButtonValues.Red);
                 browser.Single("change-color", this.SelectByDataUi).Click();
-                CheckRadioButtonsChangedState(browser);
-            }, CheckRadioButtonsInitialState);
+                CheckRadioButtonsState(browser, RadioButtonValues.Green);
+            }, browser => CheckRadioButtonsState(browser, RadioButtonValues.Red));
         }
 
+        [TestMethod]
+        public void Feature_ViewModelProtection_SignedNestedInServerToClient()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModelProtection_SignedNestedInServerToClient);
+
+                browser.First("h1").CheckIfTextEquals("Server Error, HTTP 500: Unhandled exception occured");
+            });
+        }
         [TestMethod]
         public void Feature_ViewModelProtection_ViewModelProtection()
         {
@@ -102,32 +95,40 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
-        private void CheckRadioButtonsChangedState(BrowserWrapper browser)
+        private void CheckMessage(string messageDataUi, string originalText, string changedText, string afterPostBackText)
         {
-            var radioRed = browser.Single("radio-red", this.SelectByDataUi);
-            var radioGreen = browser.Single("radio-green", this.SelectByDataUi);
-            var radioBlue = browser.Single("radio-blue", this.SelectByDataUi);
-            var selectedColor = browser.Single("selected-color", this.SelectByDataUi);
+            RunComplexViewModelProtectionTest(browser =>
+            {
+                var message = browser.Single(messageDataUi, this.SelectByDataUi);
+                message.CheckIfTextEquals(originalText);
+                browser.Single($"change-{messageDataUi}", this.SelectByDataUi).Click().Wait();
 
-            radioRed.CheckIfIsNotChecked();
-            radioGreen.CheckIfIsChecked();
-            radioBlue.CheckIfIsNotChecked();
-            selectedColor.CheckIfTextEquals("green");
+                message = browser.Single(messageDataUi, this.SelectByDataUi);
+                message.CheckIfTextEquals(changedText);
+
+            },
+            browser => 
+            {
+                var message = browser.Single(messageDataUi, this.SelectByDataUi);
+                message.CheckIfTextEquals(afterPostBackText);
+            });
         }
 
-        private void CheckRadioButtonsInitialState(BrowserWrapper browser)
+        private void CheckRadioButtonsState(BrowserWrapper browser, RadioButtonValues selectedColor)
         {
-            var radioRed = browser.Single("radio-red", this.SelectByDataUi);
-            var radioGreen = browser.Single("radio-green", this.SelectByDataUi);
-            var radioBlue = browser.Single("radio-blue", this.SelectByDataUi);
-            var selectedColor = browser.Single("selected-color", this.SelectByDataUi);
+            var radios = new List<ElementWrapper>();
+            radios.Add(browser.Single("radio-red", this.SelectByDataUi));
+            radios.Add(browser.Single("radio-green", this.SelectByDataUi));
+            radios.Add(browser.Single("radio-blue", this.SelectByDataUi));
+            var selectedColorElement = browser.Single("selected-color", this.SelectByDataUi);
 
-            radioRed.CheckIfIsChecked();
-            radioGreen.CheckIfIsNotChecked();
-            radioBlue.CheckIfIsNotChecked();
-            selectedColor.CheckIfTextEquals("red");
+            int checkedRadioIndex = (int)selectedColor;
+            radios[checkedRadioIndex].CheckIfIsChecked();
+            radios.RemoveAt(checkedRadioIndex);
+            radios.ForEach(r => r.CheckIfIsNotChecked());
+
+            selectedColorElement.CheckIfTextEquals(selectedColor.ToString().ToLower());
         }
-
         private void RunComplexViewModelProtectionTest(Action<BrowserWrapper> beforePostback, Action<BrowserWrapper> afterPostback)
         {
             RunInAllBrowsers(browser =>
