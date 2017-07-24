@@ -64,14 +64,20 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Called when the GridViewDataSet should be refreshed (on initial page load and when paging or sort options change).
         /// </summary>
+        /// <remarks>
+        /// Either <see cref="OnLoadingData"/> or <see cref="OnLoadingDataAsync"/> can be set but not both.
+        /// </remarks>
         [Bind(Direction.None)]
-        public GridViewDataSetLoadAsyncDelegate<T> OnLoadingData { get; set; }
+        public GridViewDataSetLoadDelegate<T> OnLoadingData { get; set; }
 
         /// <summary>
         /// Called when the GridViewDataSet should be refreshed (on initial page load and when paging or sort options change).
         /// </summary>
+        /// <remarks>
+        /// Either <see cref="OnLoadingData"/> or <see cref="OnLoadingDataAsync"/> can be set but not both.
+        /// </remarks>
         [Bind(Direction.None)]
-        GridViewDataSetLoadAsyncDelegate IRefreshableGridViewDataSet.OnLoadingData
+        GridViewDataSetLoadDelegate IRefreshableGridViewDataSet.OnLoadingData
         {
             get
             {
@@ -79,7 +85,28 @@ namespace DotVVM.Framework.Controls
                 {
                     return null;
                 }
-                return async options => await OnLoadingData(options);
+                return options => OnLoadingData(options);
+            }
+        }
+
+        /// <summary>
+        /// Called when the GridViewDataSet should be refreshed (on initial page load and when paging or sort options change).
+        /// </summary>
+        /// <remarks>
+        /// Either <see cref="OnLoadingData"/> or <see cref="OnLoadingDataAsync"/> can be set but not both.
+        /// </remarks>
+        [Bind(Direction.None)]
+        public GridViewDataSetLoadAsyncDelegate<T> OnLoadingDataAsync { get; set; }
+
+        GridViewDataSetLoadAsyncDelegate IRefreshableGridViewDataSet.OnLoadingDataAsync
+        {
+            get
+            {
+                if (OnLoadingDataAsync == null)
+                {
+                    return null;
+                }
+                return async options => await OnLoadingDataAsync(options);
             }
         }
 
@@ -313,9 +340,17 @@ namespace DotVVM.Framework.Controls
 
         private async Task<GridViewDataSetLoadedData<T>> LoadData()
         {
-            if (OnLoadingData != null)
+            if (OnLoadingData != null && OnLoadingDataAsync != null)
             {
-                return await OnLoadingData(CreateGridViewDataSetLoadOptions());
+                throw new InvalidOperationException($"The {nameof(OnLoadingData)} and {nameof(OnLoadingDataAsync)} properties may not be set both at once.");
+            }
+            else if (OnLoadingData != null)
+            {
+                return OnLoadingData(CreateGridViewDataSetLoadOptions());
+            }
+            else if (OnLoadingDataAsync != null)
+            {
+                return await OnLoadingDataAsync(CreateGridViewDataSetLoadOptions());
             }
             else
             {
@@ -326,12 +361,25 @@ namespace DotVVM.Framework.Controls
 
     public class GridViewDataSet
     {
-        public static GridViewDataSet<T> Create<T>(GridViewDataSetLoadAsyncDelegate<T> gridViewDataSetLoadDelegate,
+        public static GridViewDataSet<T> Create<T>(GridViewDataSetLoadDelegate<T> gridViewDataSetLoadDelegate,
             int pageSize)
         {
             return new GridViewDataSet<T>
             {
                 OnLoadingData = gridViewDataSetLoadDelegate,
+                PagingOptions = new PagingOptions
+                {
+                    PageSize = pageSize
+                }
+            };
+        }
+
+        public static GridViewDataSet<T> Create<T>(GridViewDataSetLoadAsyncDelegate<T> asyncGridViewDataSetLoadDelegate,
+            int pageSize)
+        {
+            return new GridViewDataSet<T>
+            {
+                OnLoadingDataAsync = asyncGridViewDataSetLoadDelegate,
                 PagingOptions = new PagingOptions
                 {
                     PageSize = pageSize

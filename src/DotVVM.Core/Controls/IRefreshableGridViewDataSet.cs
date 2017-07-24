@@ -13,8 +13,20 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Called when the GridViewDataSet should be refreshed (on initial page load and when paging or sort options change).
         /// </summary>
+        /// <remarks>
+        /// Either <see cref="OnLoadingData"/> or <see cref="OnLoadingDataAsync"/> can be set but not both.
+        /// </remarks>
         [Bind(Direction.None)]
-        GridViewDataSetLoadAsyncDelegate OnLoadingData { get; }
+        GridViewDataSetLoadDelegate OnLoadingData { get; }
+
+        /// <summary>
+        /// Called when the GridViewDataSet should be refreshed (on initial page load and when paging or sort options change).
+        /// </summary>
+        /// <remarks>
+        /// Either <see cref="OnLoadingData"/> or <see cref="OnLoadingDataAsync"/> can be set but not both.
+        /// </remarks>
+        [Bind(Direction.None)]
+        GridViewDataSetLoadAsyncDelegate OnLoadingDataAsync { get; }
 
         /// <summary>
         /// Requests to refresh the GridViewDataSet.
