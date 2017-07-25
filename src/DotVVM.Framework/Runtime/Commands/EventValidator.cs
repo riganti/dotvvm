@@ -60,7 +60,7 @@ namespace DotVVM.Framework.Runtime.Commands
                     // find bindings of current control
                     var bindings = control.GetAllBindings()
                         .Where(b => b.Value is CommandBindingExpression);
-                    string exceptionPropertyKey = null;
+                    List<string> exceptionPropertyKeys = new List<string>();
                     foreach (var binding in bindings)
                     {
                         StringBuilder infoMessage = new StringBuilder();
@@ -68,7 +68,7 @@ namespace DotVVM.Framework.Runtime.Commands
                         // checking path
                         if (!ViewModelPathComparer.AreEqual(path, walker.CurrentPathArray))
                         {
-                            exceptionPropertyKey = "DataContext path";
+                            exceptionPropertyKeys.Add("DataContext path");
                             infoMessage.Append(
                                 $"Expected DataContext path: '{string.Join("/", path)}' Command binding DataContext path: '{string.Join("/", walker.CurrentPathArray)}'");
                         }
@@ -81,21 +81,17 @@ namespace DotVVM.Framework.Runtime.Commands
                         //checking binding id
                         if (((CommandBindingExpression)binding.Value).BindingId != commandId)
                         {
-                            exceptionPropertyKey = exceptionPropertyKey == null
-                                ? "binding id"
-                                : string.Join(", ", exceptionPropertyKey, "binding id");
+                            exceptionPropertyKeys.Add("binding id");
                         }
 
                         //checking validation path
                         var currentValidationTargetPath = KnockoutHelper.GetValidationTargetExpression(control);
                         if (currentValidationTargetPath != validationTargetPath)
                         {
-                            exceptionPropertyKey = exceptionPropertyKey == null
-                                ? "binding id"
-                                : string.Join(", ", exceptionPropertyKey, "validation path");
+                            exceptionPropertyKeys.Add("validation path");
                             infoMessage.Append($"Expected validation path: '{string.Join("/", validationTargetPath)}' Command binding validation path: '{string.Join("/", currentValidationTargetPath)}'");
                         }
-                        if(exceptionPropertyKey == null)
+                        if(!exceptionPropertyKeys.Any())
                         {
                             //correct binding found
                             resultBinding = (CommandBindingExpression)binding.Value;
@@ -104,7 +100,7 @@ namespace DotVVM.Framework.Runtime.Commands
                         }
                         else
                         {
-                            exceptionPropertyKey = "Command bindings with wrong " + exceptionPropertyKey;
+                            var exceptionPropertyKey = "Command bindings with wrong " + string.Join(", ", exceptionPropertyKeys) + ":";
                             if (!candidateBindings.ContainsKey(exceptionPropertyKey))
                             {
                                 candidateBindings.Add(exceptionPropertyKey, new CandidateBindings());
@@ -117,7 +113,7 @@ namespace DotVVM.Framework.Runtime.Commands
 
             return new FindBindingResult
             {
-                ErrorMessage = bindingInPath ? null : "Nothing was found in found inside specified DataContext, check if ViewModel is populated",
+                ErrorMessage = bindingInPath ? null : "Nothing was found in found inside specified DataContext check if ViewModel is populated",
                 CandidateBindings = candidateBindings,
                 Binding = resultBinding,
                 Control = resultControl,
@@ -162,7 +158,7 @@ namespace DotVVM.Framework.Runtime.Commands
                     // find bindings of current control
                     var bindings = control.GetAllBindings()
                         .Where(b => b.Value is CommandBindingExpression);
-                    string exceptionPropertyKey = null;
+                    List<string> exceptionPropertyKeys = new List<string>();
                     foreach (var binding in bindings)
                     {
                         StringBuilder infoMessage = new StringBuilder();
@@ -170,7 +166,7 @@ namespace DotVVM.Framework.Runtime.Commands
                         // checking path
                         if (!ViewModelPathComparer.AreEqual(path, walker.CurrentPathArray))
                         {
-                            exceptionPropertyKey = "DataContext path";
+                            exceptionPropertyKeys.Add("DataContext path");
                             infoMessage.Append(
                                 $"Expected DataContext path: '{string.Join("/", path)}' Command binding DataContext path: '{string.Join("/", walker.CurrentPathArray)}'");
                         }
@@ -183,18 +179,14 @@ namespace DotVVM.Framework.Runtime.Commands
                         //checking binding id
                         if (((CommandBindingExpression)binding.Value).BindingId != commandId)
                         {
-                            exceptionPropertyKey = exceptionPropertyKey == null
-                                ? "binding id"
-                                : string.Join(", ", exceptionPropertyKey, "binding id");
+                            exceptionPropertyKeys.Add("binding id");
                         }
 
                         //checking validation path
                         var currentValidationTargetPath = KnockoutHelper.GetValidationTargetExpression(control);
                         if (currentValidationTargetPath != validationTargetPath)
                         {
-                            exceptionPropertyKey = exceptionPropertyKey == null
-                                ? "binding id"
-                                : string.Join(", ", exceptionPropertyKey, "validation path");
+                            exceptionPropertyKeys.Add("validation path");
                             infoMessage.Append(
                                 $"Expected validation path: '{string.Join("/", validationTargetPath)}' Command binding validation path: '{string.Join("/", currentValidationTargetPath)}'");
                         }
@@ -202,16 +194,16 @@ namespace DotVVM.Framework.Runtime.Commands
                         //checking if binding is control binding
                         isControl = control.GetClosestControlBindingTarget() == targetControl;
 
-                        if (exceptionPropertyKey == null && isControl)
+                        if (!exceptionPropertyKeys.Any() && isControl)
                         {
                             //correct binding found
                             resultBinding = (CommandBindingExpression)binding.Value;
                             resultControl = control;
                             resultProperty = binding.Key;
                         }
-                        else if (exceptionPropertyKey != null)
+                        else if (exceptionPropertyKeys.Any())
                         {
-                            exceptionPropertyKey = (isControl ? "Control command bindings with wrong " : "Command bindings with wrong ") + exceptionPropertyKey;
+                            var exceptionPropertyKey = (isControl ? "Control command bindings with wrong " : "Command bindings with wrong ") + string.Join(", ", exceptionPropertyKeys) + ":";
                             if (!candidateBindings.ContainsKey(exceptionPropertyKey))
                             {
                                 candidateBindings.Add(exceptionPropertyKey, new CandidateBindings());
@@ -242,18 +234,8 @@ namespace DotVVM.Framework.Runtime.Commands
         /// <summary>
         /// Throws the event validation exception.
         /// </summary>
-        private Exception EventValidationException(string errorMessage = null, Dictionary<string, CandidateBindings> data = null)
-        {
-            var e = new Exception(errorMessage == null ? "Invalid command invocation!" : errorMessage);
-            if (data != null)
-            {
-                foreach (var bindings in data)
-                {
-                    e.Data.Add(bindings.Key, bindings.Value.ToString());
-                }
-            }
-            return e;
-        }
+        private InvalidCommandInvocationException EventValidationException(string errorMessage = null, Dictionary<string, CandidateBindings> data = null)
+            => new InvalidCommandInvocationException(errorMessage == null ? "Invalid command invocation!" : errorMessage, data);
     }
 
     public class FindBindingResult

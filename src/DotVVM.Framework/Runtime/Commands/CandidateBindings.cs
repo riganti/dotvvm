@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using DotVVM.Framework.Binding.Expressions;
 
 namespace DotVVM.Framework.Runtime.Commands
@@ -17,16 +18,7 @@ namespace DotVVM.Framework.Runtime.Commands
             Bindings.Add(binding);
         }
 
-        public override string ToString()
-        {
-            string result = null;
-            foreach (var binding in Bindings)
-            {
-                result = result == null
-                    ? $"[{(string.IsNullOrWhiteSpace(binding.Key) ? "" : $"{binding.Key}, ")}{binding.Value}]"
-                    : string.Join(";", result, $"[{binding.Key}, {binding.Value}]");
-            }
-            return result;
-        }
+        public override string ToString() =>
+            string.Join("; ", Bindings.Select(b => $"[{(string.IsNullOrWhiteSpace(b.Key) ? "" : $"{b.Key}, ")}{b.Value}]"));
     }
 }
