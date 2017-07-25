@@ -42,15 +42,26 @@ namespace DotVVM.Framework.Runtime.Commands
         /// <summary>
         /// Finds the binding of the specified type on the specified viewmodel path.
         /// </summary>
-        private FindBindingResult FindCommandBinding(string[] path, string commandId, DotvvmBindableObject viewRootControl, string validationTargetPath)
+        /// <param name="path">DataContext path of the binding</param>
+        /// <param name="commandId">Id of the binding</param>
+        /// <param name="viewRootControl">ViewRootControl of the binding</param>
+        /// <param name="targetControl">Target control of the binding, null if not finding control command binding</param>
+        /// <param name="validationTargetPath">Validation path of the binding</param>
+        /// <param name="findControl">Determinate whether finding control command binding or not</param>
+        /// <returns></returns>
+        private FindBindingResult FindCommandBinding(string[] path, string commandId, 
+            DotvvmBindableObject viewRootControl, DotvvmBindableObject targetControl, 
+            string validationTargetPath, bool findControl)
         {
             // walk the control tree and find the path
             CommandBindingExpression resultBinding = null;
             DotvvmBindableObject resultControl = null;
             DotvvmProperty resultProperty = null;
 
+            bool checkControl;
             bool bindingInPath = false;
             var candidateBindings = new Dictionary<string, CandidateBindings>();
+            string errorMessage = null;
 
             var walker = new ControlTreeWalker(viewRootControl);
             walker.ProcessControlTree((control) =>
@@ -91,21 +102,30 @@ namespace DotVVM.Framework.Runtime.Commands
                             exceptionPropertyKeys.Add("validation path");
                             infoMessage.Append($"Expected validation path: '{string.Join("/", validationTargetPath)}' Command binding validation path: '{string.Join("/", currentValidationTargetPath)}'");
                         }
-                        if(!exceptionPropertyKeys.Any())
+
+                        //If finding control command binding checks if the binding is control otherwise always true
+                        checkControl = !findControl || control.GetClosestControlBindingTarget() == targetControl;
+
+                        if (!exceptionPropertyKeys.Any() && checkControl)
                         {
                             //correct binding found
                             resultBinding = (CommandBindingExpression)binding.Value;
                             resultControl = control;
                             resultProperty = binding.Key;
                         }
-                        else
+                        else if (exceptionPropertyKeys.Any())
                         {
-                            var exceptionPropertyKey = "Command bindings with wrong " + string.Join(", ", exceptionPropertyKeys) + ":";
+                            var exceptionPropertyKey = (findControl && checkControl ? "Control command bindings with wrong " : "Command bindings with wrong ") + string.Join(", ", exceptionPropertyKeys) + ":";
                             if (!candidateBindings.ContainsKey(exceptionPropertyKey))
                             {
                                 candidateBindings.Add(exceptionPropertyKey, new CandidateBindings());
                             }
-                            candidateBindings[exceptionPropertyKey].AddBinding(new KeyValuePair<string, IBinding>(infoMessage.ToString(), binding.Value));
+                            candidateBindings[exceptionPropertyKey]
+                                .AddBinding(new KeyValuePair<string, IBinding>(infoMessage.ToString(), binding.Value));
+                        }
+                        else
+                        {
+                            errorMessage = "Invalid command invocation (the binding is not control command binding)";
                         }
                     }
                 }
@@ -113,13 +133,20 @@ namespace DotVVM.Framework.Runtime.Commands
 
             return new FindBindingResult
             {
-                ErrorMessage = bindingInPath ? null : "Nothing was found in found inside specified DataContext check if ViewModel is populated",
+                ErrorMessage = bindingInPath ? errorMessage : "Nothing was found in found inside specified DataContext check if ViewModel is populated",
                 CandidateBindings = candidateBindings,
                 Binding = resultBinding,
                 Control = resultControl,
                 Property = resultProperty
             };
         }
+
+        /// <summary>
+        /// Finds the binding of the specified type on the specified viewmodel path.
+        /// </summary>
+        private FindBindingResult FindCommandBinding(string[] path, string commandId,
+            DotvvmBindableObject viewRootControl, string validationTargetPath)
+            => FindCommandBinding(path, commandId, viewRootControl, null, validationTargetPath, false);
 
         /// <summary>
         /// Validates the control command.
@@ -138,97 +165,9 @@ namespace DotVVM.Framework.Runtime.Commands
         /// <summary>
         /// Finds the binding of the specified type on the specified viewmodel path.
         /// </summary>
-        private FindBindingResult FindControlCommandBinding(string[] path, string commandId, DotvvmControl viewRootControl, DotvvmBindableObject targetControl, string validationTargetPath)
-        {
-            // walk the control tree and find the path
-            CommandBindingExpression resultBinding = null;
-            DotvvmBindableObject resultControl = null;
-            DotvvmProperty resultProperty = null;
-
-            bool bindingInPath = false;
-            bool isControl;
-            string errorMessage = null;
-            var candidateBindings = new Dictionary<string, CandidateBindings>();
-
-            var walker = new ControlTreeWalker(viewRootControl);
-            walker.ProcessControlTree((control) =>
-            {
-                if (resultBinding == null)
-                {
-                    // find bindings of current control
-                    var bindings = control.GetAllBindings()
-                        .Where(b => b.Value is CommandBindingExpression);
-                    List<string> exceptionPropertyKeys = new List<string>();
-                    foreach (var binding in bindings)
-                    {
-                        StringBuilder infoMessage = new StringBuilder();
-
-                        // checking path
-                        if (!ViewModelPathComparer.AreEqual(path, walker.CurrentPathArray))
-                        {
-                            exceptionPropertyKeys.Add("DataContext path");
-                            infoMessage.Append(
-                                $"Expected DataContext path: '{string.Join("/", path)}' Command binding DataContext path: '{string.Join("/", walker.CurrentPathArray)}'");
-                        }
-                        else
-                        {
-                            //Found a binding in DataContext
-                            bindingInPath = true;
-                        }
-
-                        //checking binding id
-                        if (((CommandBindingExpression)binding.Value).BindingId != commandId)
-                        {
-                            exceptionPropertyKeys.Add("binding id");
-                        }
-
-                        //checking validation path
-                        var currentValidationTargetPath = KnockoutHelper.GetValidationTargetExpression(control);
-                        if (currentValidationTargetPath != validationTargetPath)
-                        {
-                            exceptionPropertyKeys.Add("validation path");
-                            infoMessage.Append(
-                                $"Expected validation path: '{string.Join("/", validationTargetPath)}' Command binding validation path: '{string.Join("/", currentValidationTargetPath)}'");
-                        }
-
-                        //checking if binding is control binding
-                        isControl = control.GetClosestControlBindingTarget() == targetControl;
-
-                        if (!exceptionPropertyKeys.Any() && isControl)
-                        {
-                            //correct binding found
-                            resultBinding = (CommandBindingExpression)binding.Value;
-                            resultControl = control;
-                            resultProperty = binding.Key;
-                        }
-                        else if (exceptionPropertyKeys.Any())
-                        {
-                            var exceptionPropertyKey = (isControl ? "Control command bindings with wrong " : "Command bindings with wrong ") + string.Join(", ", exceptionPropertyKeys) + ":";
-                            if (!candidateBindings.ContainsKey(exceptionPropertyKey))
-                            {
-                                candidateBindings.Add(exceptionPropertyKey, new CandidateBindings());
-                            }
-                            candidateBindings[exceptionPropertyKey]
-                                .AddBinding(new KeyValuePair<string, IBinding>(infoMessage.ToString(), binding.Value));
-                        }
-                        else
-                        {
-                            errorMessage = "Invalid command invocation (the binding is not control command binding)";
-                        }
-                    }
-                }
-            });
-
-            return new FindBindingResult
-            {
-                ErrorMessage = bindingInPath ? errorMessage : "Nothing was found in found inside specified DataContext, check if ViewModel is populated",
-                CandidateBindings = candidateBindings,
-                Binding = resultBinding,
-                Control = resultControl,
-                Property = resultProperty
-            };
-        }
-
+        private FindBindingResult FindControlCommandBinding(string[] path, string commandId,
+            DotvvmControl viewRootControl, DotvvmBindableObject targetControl, string validationTargetPath)
+            => FindCommandBinding(path, commandId, viewRootControl, targetControl, validationTargetPath, true);
 
 
         /// <summary>
