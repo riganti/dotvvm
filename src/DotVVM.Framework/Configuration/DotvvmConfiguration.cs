@@ -27,6 +27,7 @@ using DotVVM.Framework.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using DotVVM.Framework.Runtime.Tracing;
+using DotVVM.Framework.Compilation.Javascript;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -116,7 +117,7 @@ namespace DotVVM.Framework.Configuration
         internal DotvvmConfiguration()
         {
             DefaultCulture = CultureInfo.CurrentCulture.Name;
-            Markup = new DotvvmMarkupConfiguration();
+            Markup = new DotvvmMarkupConfiguration(new Lazy<JavascriptTranslatorConfiguration>(() => ServiceLocator.GetService<IOptions<JavascriptTranslatorConfiguration>>().Value));
             RouteTable = new DotvvmRouteTable(this);
             Resources = new DotvvmResourceRepository();
             Security = new DotvvmSecurityConfiguration();

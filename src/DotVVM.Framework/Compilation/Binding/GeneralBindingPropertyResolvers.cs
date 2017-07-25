@@ -27,13 +27,13 @@ namespace DotVVM.Framework.Compilation.Binding
     {
         private readonly DotvvmConfiguration configuration;
         private readonly IBindingExpressionBuilder bindingParser;
-        private readonly IViewModelSerializationMapper vmMapper;
+        private readonly JavascriptTranslator javascriptTranslator;
 
-        public BindingPropertyResolvers(IBindingExpressionBuilder bindingParser, IViewModelSerializationMapper vmMapper, DotvvmConfiguration configuration)
+        public BindingPropertyResolvers(IBindingExpressionBuilder bindingParser, JavascriptTranslator javascriptTranslator, DotvvmConfiguration configuration)
         {
             this.configuration = configuration;
             this.bindingParser = bindingParser;
-            this.vmMapper = vmMapper;
+            this.javascriptTranslator = javascriptTranslator;
         }
 
         public ActionFiltersBindingProperty GetActionFilters(ParsedExpressionBindingProperty parsedExpression)
@@ -86,7 +86,7 @@ namespace DotVVM.Framework.Compilation.Binding
             DataContextStack dataContext)
         {
             return new KnockoutJsExpressionBindingProperty(
-                   JavascriptTranslator.CompileToJavascript(expression.Expression, dataContext, vmMapper).ApplyAction(a => a.Freeze()));
+                   javascriptTranslator.CompileToJavascript(expression.Expression, dataContext).ApplyAction(a => a.Freeze()));
         }
 
         public SimplePathExpressionBindingProperty FormatSimplePath(KnockoutJsExpressionBindingProperty expression)
@@ -263,7 +263,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public StaticCommandJavascriptProperty CompileStaticCommand(DataContextStack dataContext, ParsedExpressionBindingProperty expression)
         {
-            return new StaticCommandJavascriptProperty(FormatJavascript(new StaticCommandBindingCompiler(vmMapper).CompileToJavascript(dataContext, expression.Expression), niceMode: configuration.Debug));
+            return new StaticCommandJavascriptProperty(FormatJavascript(new StaticCommandBindingCompiler(javascriptTranslator).CompileToJavascript(dataContext, expression.Expression), niceMode: configuration.Debug));
         }
 
         public LocationInfoBindingProperty GetLocationInfo(ResolvedBinding resolvedBinding)

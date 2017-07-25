@@ -68,7 +68,7 @@ namespace DotVVM.Framework.Configuration
                     {
                         var isRead = method.Name.Equals("get", StringComparison.OrdinalIgnoreCase);
 
-                        JavascriptTranslator.AddMethodTranslator(method, new GenericMethodCompiler(
+                        config.Markup.JavascriptTranslator.MethodCollection.AddMethodTranslator(method, new GenericMethodCompiler(
                             a => new JsIdentifierExpression("dotvvm").Member("invokeApiFn").Invoke(
                                 new JsFunctionExpression(new JsIdentifier[0], new JsBlockStatement(
                                     new JsReturnStatement(identifier.Clone().Member(KnockoutHelper.ConvertToCamelCase(method.Name)).Invoke(a.Skip(1).ToArray()))

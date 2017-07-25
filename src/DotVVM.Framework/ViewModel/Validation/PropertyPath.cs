@@ -15,8 +15,7 @@ namespace DotVVM.Framework.ViewModel.Validation
         public static string BuildPath<TValidationTarget>(Expression<Func<TValidationTarget, object>> propertyAccessor, DotvvmConfiguration configuration)
         {
             var context = DataContextStack.Create(typeof(TValidationTarget));
-            var js = JavascriptTranslator.CompileToJavascript(propertyAccessor, context,
-                configuration.ServiceLocator.GetService<IViewModelSerializationMapper>());
+            var js = configuration.ServiceLocator.GetService<JavascriptTranslator>().CompileToJavascript(propertyAccessor, context);
             js.AcceptVisitor(new KnockoutObservableHandlingVisitor(true));
             var propertyPathExtractingVisitor = new PropertyPathExtractingVisitor();
             js.AcceptVisitor(propertyPathExtractingVisitor);
