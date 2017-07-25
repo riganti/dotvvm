@@ -48,10 +48,16 @@ dotnet restore
 cd ../DotVVM.Tracing.ApplicationInsights
 dotnet restore
 
+cd ../DotVVM.Tracing.ApplicationInsights.Owin
+dotnet restore
+
 cd ../DotVVM.Tracing.ApplicationInsights.AspNetCore
 dotnet restore
 
 cd ../DotVVM.Samples.ApplicationInsights.AspNetCore
+dotnet restore
+
+cd ../DotVVM.Tracing.MiniProfiler.Owin
 dotnet restore
 
 cd ../DotVVM.Tracing.MiniProfiler.AspNetCore
