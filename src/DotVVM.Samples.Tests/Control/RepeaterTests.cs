@@ -189,6 +189,29 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
+        [TestMethod]
+        public void Control_Repeater_RepeaterAsSeparator()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_RepeaterAsSeparator);
+                browser.Wait();
+
+                var repeater = browser.Single("root-repeater", this.SelectByDataUi);
+                var separators = repeater.FindElements("separator", this.SelectByDataUi);
+                Assert.AreEqual(2, separators.Count);
+
+                foreach(var separator in separators)
+                {
+                    var texts = separator.FindElements("p");
+                    Assert.AreEqual(3, texts.Count);
+                    texts[0].CheckIfTextEquals("First separator");
+                    texts[1].CheckIfTextEquals("Second separator");
+                    texts[2].CheckIfTextEquals("Third separator");
+                }
+            });
+        }
+
         private void CheckSeparators(BrowserWrapper browser, string repeaterDataUi)
         {
             var repeater = browser.Single(repeaterDataUi, this.SelectByDataUi);

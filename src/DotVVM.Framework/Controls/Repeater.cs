@@ -149,9 +149,11 @@ namespace DotVVM.Framework.Controls
                 if (SeparatorTemplate != null)
                 {
                     writer.WriteKnockoutDataBindComment("if", "$index() > 0");
+                    writer.WriteKnockoutDataBindComment("with", "$parent");
                     var separatorContainer = GetSeparator(context);
                     Children.Add(separatorContainer);
                     separatorContainer.Render(writer, context);
+                    writer.WriteKnockoutDataBindEndComment();
                     writer.WriteKnockoutDataBindEndComment();
                 }
 
