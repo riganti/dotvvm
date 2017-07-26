@@ -7,7 +7,7 @@ namespace DotVVM.Framework.Compilation.Validation
     public class ControlUsageValidationVisitor: ResolvedControlTreeVisitor
     {
         public List<ControlUsageError> Errors { get; set; } = new List<ControlUsageError>();
-        IControlUsageValidator validator;
+        readonly IControlUsageValidator validator;
         public ControlUsageValidationVisitor(IControlUsageValidator validator)
         {
             this.validator = validator;
@@ -18,6 +18,9 @@ namespace DotVVM.Framework.Compilation.Validation
         {
             var err = validator.Validate(control);
             Errors.AddRange(err);
+            foreach (var e in err)
+                foreach (var node in e.Nodes)
+                    node.AddError(e.ErrorMessage);
             base.VisitControl(control);
         }
     }

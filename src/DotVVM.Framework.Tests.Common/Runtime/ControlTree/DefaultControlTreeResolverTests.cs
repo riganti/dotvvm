@@ -18,6 +18,9 @@ using System.Linq.Expressions;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation.Binding;
+using DotVVM.Framework.Compilation.Validation;
+using DotVVM.Framework.Compilation.Styles;
+using DotVVM.Framework.Compilation;
 
 namespace DotVVM.Framework.Tests.Runtime.ControlTree
 {
@@ -624,6 +627,41 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
         }
 
+
+        [TestMethod]
+        public void DefaultViewCompiler_ControlUsageValidator()
+        {
+            ResolvedControl[] getControls(string controlName)
+            {
+                var markup = $@"
+@viewModel System.Boolean
+<cc:{controlName} />
+<cc:{controlName} Visible='{{value: _this}}' />
+<cc:{controlName} Visible='{{value: _this}}' class='lol' />
+";
+                return ParseSource(markup)
+                    .Content.SelectRecursively(c => c.Content)
+                    .Where(c => c.Metadata.Name == controlName)
+                    .ToArray();
+            }
+
+            var control1 = getControls(nameof(ControlWithValidationRules));
+            Assert.IsTrue(control1[0].DothtmlNode.HasNodeErrors);
+            Assert.IsTrue(control1[1].DothtmlNode.HasNodeErrors);
+            Assert.IsFalse(control1[2].DothtmlNode.HasNodeErrors);
+
+            var control2 = getControls(nameof(ControlWithInheritedRules));
+            Assert.IsTrue(control2[0].DothtmlNode.HasNodeErrors);
+            Assert.IsTrue(control2[1].DothtmlNode.HasNodeErrors);
+            Assert.IsFalse(control2[2].DothtmlNode.HasNodeErrors);
+
+
+            var control3 = getControls(nameof(ControlWithOverridenRules));
+            Assert.IsFalse(control3[0].DothtmlNode.HasNodeErrors);
+            Assert.IsFalse(control3[1].DothtmlNode.HasNodeErrors);
+            Assert.IsFalse(control3[2].DothtmlNode.HasNodeErrors);
+        }
+
         private ResolvedTreeRoot ParseSource(string markup, string fileName = "default.dothtml")
         {
             var tokenizer = new DothtmlTokenizer();
@@ -632,7 +670,11 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             var parser = new DothtmlParser();
             var tree = parser.Parse(tokenizer.Tokens);
 
-            return (ResolvedTreeRoot)controlTreeResolver.ResolveTree(tree, fileName);
+            return controlTreeResolver.ResolveTree(tree, fileName)
+                .CastTo<ResolvedTreeRoot>()
+                .ApplyAction(new DataContextPropertyAssigningVisitor().VisitView)
+                .ApplyAction(new StylingVisitor(configuration).VisitView)
+                .ApplyAction(new ControlUsageValidationVisitor(configuration).VisitView);
         }
 
     }
@@ -709,6 +751,36 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
                         })
                     });
             }
+        }
+    }
+
+    public class ControlWithValidationRules : HtmlGenericControl
+    {
+        [ControlUsageValidator]
+        public static IEnumerable<ControlUsageError> Validate1(ResolvedControl control)
+        {
+            if (!control.Properties.ContainsKey(VisibleProperty))
+                yield return new ControlUsageError($"The Visible property is required");
+        }
+
+        [ControlUsageValidator]
+        public static IEnumerable<string> Validate2(DothtmlElementNode control)
+        {
+            if (control.Attributes.Count != 2)
+                yield return $"The control has to have exactly two attributes";
+        }
+    }
+
+    public class ControlWithInheritedRules : ControlWithValidationRules
+    {
+    }
+
+    public class ControlWithOverridenRules : ControlWithValidationRules
+    {
+        [ControlUsageValidator]
+        public static IEnumerable<ControlUsageError> Validate(ResolvedControl control)
+        {
+            yield break;
         }
     }
 }
