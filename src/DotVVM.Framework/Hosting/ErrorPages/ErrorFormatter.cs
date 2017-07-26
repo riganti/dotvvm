@@ -346,11 +346,8 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                     infos.Add(new ExceptionAdditionalInfo()
                     {
                         Title = data.Key,
-                        Objects = new object[]
-                        {
-                            data.Value
-                        },
-                        Display = ExceptionAdditionalInfo.DisplayMode.ToString
+                        Objects = data.Value,
+                        Display = ExceptionAdditionalInfo.DisplayMode.ToHtmlList
                     });
                 }
                 return infos;

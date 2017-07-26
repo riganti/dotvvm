@@ -71,7 +71,8 @@ namespace DotVVM.Framework.Runtime.Commands
                     // find bindings of current control
                     var bindings = control.GetAllBindings()
                         .Where(b => b.Value is CommandBindingExpression);
-                    List<string> exceptionPropertyKeys = new List<string>();
+                    List<string> wrongExceptionPropertyKeys = new List<string>();
+                    List<string> correctExceptionPropertyKeys = new List<string>();
                     foreach (var binding in bindings)
                     {
                         StringBuilder infoMessage = new StringBuilder();
@@ -79,7 +80,7 @@ namespace DotVVM.Framework.Runtime.Commands
                         // checking path
                         if (!ViewModelPathComparer.AreEqual(path, walker.CurrentPathArray))
                         {
-                            exceptionPropertyKeys.Add("DataContext path");
+                            wrongExceptionPropertyKeys.Add("DataContext path");
                             infoMessage.Append(
                                 $"Expected DataContext path: '{string.Join("/", path)}' Command binding DataContext path: '{string.Join("/", walker.CurrentPathArray)}'");
                         }
@@ -87,35 +88,51 @@ namespace DotVVM.Framework.Runtime.Commands
                         {
                             //Found a binding in DataContext
                             bindingInPath = true;
+                            correctExceptionPropertyKeys.Add("DataContext path");
                         }
 
                         //checking binding id
-                        if (((CommandBindingExpression)binding.Value).BindingId != commandId)
+                        if (((CommandBindingExpression) binding.Value).BindingId != commandId)
                         {
-                            exceptionPropertyKeys.Add("binding id");
+                            wrongExceptionPropertyKeys.Add("binding id");
+                        }
+                        else
+                        {
+                            correctExceptionPropertyKeys.Add("binding id");
                         }
 
                         //checking validation path
                         var currentValidationTargetPath = KnockoutHelper.GetValidationTargetExpression(control);
                         if (currentValidationTargetPath != validationTargetPath)
                         {
-                            exceptionPropertyKeys.Add("validation path");
+                            wrongExceptionPropertyKeys.Add("validation path");
                             infoMessage.Append($"Expected validation path: '{string.Join("/", validationTargetPath)}' Command binding validation path: '{string.Join("/", currentValidationTargetPath)}'");
+                        }
+                        else
+                        {
+                            correctExceptionPropertyKeys.Add("validation path");
                         }
 
                         //If finding control command binding checks if the binding is control otherwise always true
                         checkControl = !findControl || control.GetClosestControlBindingTarget() == targetControl;
 
-                        if (!exceptionPropertyKeys.Any() && checkControl)
+                        if(!wrongExceptionPropertyKeys.Any() && checkControl)
                         {
                             //correct binding found
                             resultBinding = (CommandBindingExpression)binding.Value;
                             resultControl = control;
                             resultProperty = binding.Key;
                         }
-                        else if (exceptionPropertyKeys.Any())
+                        else if (wrongExceptionPropertyKeys.Any())
                         {
-                            var exceptionPropertyKey = (findControl && checkControl ? "Control command bindings with wrong " : "Command bindings with wrong ") + string.Join(", ", exceptionPropertyKeys) + ":";
+                            var exceptionPropertyKey =
+                                (findControl && checkControl
+                                    ? "Control command bindings with wrong "
+                                    : "Command bindings with wrong ") + string.Join(", ", wrongExceptionPropertyKeys)
+                                + (correctExceptionPropertyKeys.Any()
+                                    ? " and correct " + string.Join(", ", correctExceptionPropertyKeys)
+                                    : "")
+                                + ":";
                             if (!candidateBindings.ContainsKey(exceptionPropertyKey))
                             {
                                 candidateBindings.Add(exceptionPropertyKey, new CandidateBindings());

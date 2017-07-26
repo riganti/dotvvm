@@ -5,7 +5,7 @@ namespace DotVVM.Framework.Runtime.Commands
 {
     public class InvalidCommandInvocationException : Exception
     {
-        public Dictionary<string, string> AdditionData { get; set; }
+        public Dictionary<string, string[]> AdditionData { get; set; }
 
         public InvalidCommandInvocationException(string message)
             : base(message)
@@ -30,10 +30,10 @@ namespace DotVVM.Framework.Runtime.Commands
         {
             if(data != null)
             {
-                AdditionData = new Dictionary<string, string>();
+                AdditionData = new Dictionary<string, string[]>();
                 foreach (var bindings in data)
                 {
-                    AdditionData.Add(bindings.Key, bindings.Value.ToString());
+                    AdditionData.Add(bindings.Key, bindings.Value.BindingsToString());
                 }
             }
 

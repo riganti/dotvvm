@@ -41,6 +41,11 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                     w.WriteText(info.Title);
                     w.WriteUnencoded("</h3>");
                     if (info.Objects != null)
+                    {
+                        if (info.Display == ExceptionAdditionalInfo.DisplayMode.ToHtmlList)
+                        {
+                            w.WriteUnencoded("<ul>");
+                        }
                         foreach (var obj in info.Objects)
                         {
                             if (info.Display == ExceptionAdditionalInfo.DisplayMode.ToString)
@@ -51,7 +56,16 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                             {
                                 w.ObjectBrowser(obj);
                             }
+                            else if (info.Display == ExceptionAdditionalInfo.DisplayMode.ToHtmlList)
+                            {
+                                w.WriteUnencoded("<li>" + WebUtility.HtmlEncode(obj.ToString()) + "</li>");
+                            }
                         }
+                        if (info.Display == ExceptionAdditionalInfo.DisplayMode.ToHtmlList)
+                        {
+                            w.WriteUnencoded("</ul>");
+                        }
+                    }
                     w.WriteUnencoded("</div><hr />");
                 }
                 w.WriteUnencoded("</div>");

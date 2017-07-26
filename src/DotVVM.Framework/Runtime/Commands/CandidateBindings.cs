@@ -18,6 +18,9 @@ namespace DotVVM.Framework.Runtime.Commands
             Bindings.Add(binding);
         }
 
+        public string[] BindingsToString() =>
+            Bindings.Select(b => $"[{(string.IsNullOrWhiteSpace(b.Key) ? "" : $"{b.Key}, ")}{b.Value}]").ToArray();
+
         public override string ToString() =>
             string.Join("; ", Bindings.Select(b => $"[{(string.IsNullOrWhiteSpace(b.Key) ? "" : $"{b.Key}, ")}{b.Value}]"));
     }
