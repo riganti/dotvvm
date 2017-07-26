@@ -135,6 +135,8 @@ namespace Dotvvm.Samples.Tests{
 
             public static string ControlSamples_RadioButton_RadioButton => "ControlSamples/RadioButton/RadioButton";
 
+            public static string ControlSamples_Repeater_DataSourceNull => "ControlSamples/Repeater/DataSourceNull";
+
             public static string ControlSamples_Repeater_NestedRepeater => "ControlSamples/Repeater/NestedRepeater";
 
             public static string ControlSamples_Repeater_RepeaterAsSeparator => "ControlSamples/Repeater/RepeaterAsSeparator";

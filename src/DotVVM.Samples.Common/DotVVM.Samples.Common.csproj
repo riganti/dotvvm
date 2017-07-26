@@ -22,6 +22,7 @@
     <None Remove="Views\ControlSamples\ComboBox\ComboBoxDelaySync2.dothtml" />
     <None Remove="Views\ControlSamples\IncludeInPageProperty\IncludeInPage.dothtml" />
     <None Remove="Views\ControlSamples\LinkButton\LinkButtonOnclick.dothtml" />
+    <None Remove="Views\ControlSamples\Repeater\DataSourceNull.dothtml" />
     <None Remove="Views\ControlSamples\Repeater\SeparatorMaster.dotmaster" />
     <None Remove="Views\ControlSamples\TextBox\SelectAllOnFocus.dothtml" />
     <None Remove="Views\FeatureSamples\ActionFilterErrorHandling\ActionFilterRedirect.dothtml" />
@@ -49,6 +50,7 @@
     <Content Include="Views\ControlSamples\ComboBox\ComboBoxDelaySync2.dothtml" />
     <Content Include="Views\ControlSamples\IncludeInPageProperty\IncludeInPage.dothtml" />
     <Content Include="Views\ControlSamples\LinkButton\LinkButtonOnclick.dothtml" />
+    <Content Include="Views\ControlSamples\Repeater\DataSourceNull.dothtml" />
     <Content Include="Views\ControlSamples\Repeater\SeparatorMaster.dotmaster" />
     <Content Include="Views\ControlSamples\TextBox\SelectAllOnFocus.dothtml" />
     <Content Include="Views\FeatureSamples\ActionFilterErrorHandling\ActionFilterRedirect.dothtml" />

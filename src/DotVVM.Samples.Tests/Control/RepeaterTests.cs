@@ -8,6 +8,31 @@ namespace DotVVM.Samples.Tests.Control
     public class RepeaterTests : SeleniumTest
     {
         [TestMethod]
+        public void Control_Repeater_DataSourceNull()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_DataSourceNull);
+                browser.Wait();
+
+                var clientRepeater = browser.Single("client-repeater", this.SelectByDataUi);
+                var serverRepeater = browser.Single("server-repeater", this.SelectByDataUi);
+
+                Assert.AreEqual(0, clientRepeater.Children.Count);
+                Assert.AreEqual(0, serverRepeater.Children.Count);
+
+                var button = browser.Single("set-collection-button", this.SelectByDataUi);
+                button.Click().Wait();
+
+                clientRepeater = browser.Single("client-repeater", this.SelectByDataUi);
+                serverRepeater = browser.Single("server-repeater", this.SelectByDataUi);
+
+                Assert.AreEqual(3, clientRepeater.Children.Count);
+                Assert.AreEqual(3, serverRepeater.Children.Count);
+            });
+        }
+
+        [TestMethod]
         public void Control_Repeater_NestedRepeater()
         {
             RunInAllBrowsers(browser =>
@@ -62,6 +87,29 @@ namespace DotVVM.Samples.Tests.Control
                 browser.ElementAt("a", 11).Click();
 
                 browser.First("#result").CheckIfInnerTextEquals("Child 3 Subchild 1");
+            });
+        }
+
+        [TestMethod]
+        public void Control_Repeater_RepeaterAsSeparator()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_RepeaterAsSeparator);
+                browser.Wait();
+
+                var repeater = browser.Single("root-repeater", this.SelectByDataUi);
+                var separators = repeater.FindElements("separator", this.SelectByDataUi);
+                Assert.AreEqual(2, separators.Count);
+
+                foreach (var separator in separators)
+                {
+                    var texts = separator.FindElements("p");
+                    Assert.AreEqual(3, texts.Count);
+                    texts[0].CheckIfTextEquals("First separator");
+                    texts[1].CheckIfTextEquals("Second separator");
+                    texts[2].CheckIfTextEquals("Third separator");
+                }
             });
         }
 
@@ -188,36 +236,12 @@ namespace DotVVM.Samples.Tests.Control
                 CheckSeparators(browser, "client-repeater");
             });
         }
-
-        [TestMethod]
-        public void Control_Repeater_RepeaterAsSeparator()
-        {
-            RunInAllBrowsers(browser =>
-            {
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_RepeaterAsSeparator);
-                browser.Wait();
-
-                var repeater = browser.Single("root-repeater", this.SelectByDataUi);
-                var separators = repeater.FindElements("separator", this.SelectByDataUi);
-                Assert.AreEqual(2, separators.Count);
-
-                foreach(var separator in separators)
-                {
-                    var texts = separator.FindElements("p");
-                    Assert.AreEqual(3, texts.Count);
-                    texts[0].CheckIfTextEquals("First separator");
-                    texts[1].CheckIfTextEquals("Second separator");
-                    texts[2].CheckIfTextEquals("Third separator");
-                }
-            });
-        }
-
         private void CheckSeparators(BrowserWrapper browser, string repeaterDataUi)
         {
             var repeater = browser.Single(repeaterDataUi, this.SelectByDataUi);
             for (int i = 0; i < repeater.Children.Count; i++)
             {
-                if(i % 2 == 0)
+                if (i % 2 == 0)
                 {
                     repeater.Children[i].CheckAttribute("data-ui", s => s == "item");
                 }
