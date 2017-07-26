@@ -102,6 +102,8 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(typeof(Enumerable).GetMethod("ElementAt", BindingFlags.Static | BindingFlags.Public), new GenericMethodCompiler((args, method) =>
                 BuildIndexer(args[1], args[2], method)));
             AddPropertyGetterTranslator(typeof(Nullable<>), "Value", new GenericMethodCompiler((args, method) => args[0]));
+            AddPropertyGetterTranslator(typeof(Nullable<>), "HasValue",
+                new GenericMethodCompiler(args => new JsBinaryExpression(args[0], BinaryOperatorType.NotEqual, new JsLiteral(null))));
             //AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Count), lengthMethod, new[] { typeof(IEnumerable) });
 
             AddMethodTranslator(typeof(Api), nameof(Api.RefreshOnChange),
@@ -154,6 +156,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                     args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingNumberToString").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])
                 ));
             }
+
         }
 
         public JsExpression TryTranslateCall(HalfTranslatedExpression context, HalfTranslatedExpression[] args, MethodInfo method)
@@ -186,7 +189,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 var m2 = genericType.GetMethod(method.Name, BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
                 if (m2 != null)
                 {
-                    var r2 = TryTranslateCall(context, args, method);
+                    var r2 = TryTranslateCall(context, args, m2);
                     if (r2 != null) return r2;
                 }
             }
@@ -195,7 +198,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 var m2 = typeof(Array).GetMethod(method.Name, BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
                 if (m2 != null)
                 {
-                    var r2 = TryTranslateCall(context, args, method);
+                    var r2 = TryTranslateCall(context, args, m2);
                     if (r2 != null) return r2;
                 }
             }
