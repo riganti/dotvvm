@@ -2,7 +2,7 @@
 
   <PropertyGroup>
   	<AssemblyTitle>DotVVM.Tracing.MiniProfiler.Owin</AssemblyTitle>
-    <VersionPrefix>1.1.5-alpha-01</VersionPrefix>
+    <VersionPrefix>1.1.5-beta-01</VersionPrefix>
     <TargetFramework>net451</TargetFramework>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -10,7 +10,7 @@
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>DotVVM.Tracing.MiniProfiler.Owin</PackageId>
-    <PackageVersion>1.1.5-alpha-01</PackageVersion>
+    <PackageVersion>1.1.5-beta-01</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>MiniProfiler Tracing module for OWIN and DotVVM</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
