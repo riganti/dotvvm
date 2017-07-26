@@ -59,6 +59,10 @@ namespace Dotvvm.Samples.Tests{
 
             public static string ControlSamples_Button_Button => "ControlSamples/Button/Button";
 
+            public static string ControlSamples_Button_ButtonOnclick => "ControlSamples/Button/ButtonOnclick";
+
+            public static string ControlSamples_LinkButton_LinkButtonOnclick => "ControlSamples/LinkButton/LinkButtonOnclick";
+
             public static string ControlSamples_Button_ButtonTagName => "ControlSamples/Button/ButtonTagName";
 
             public static string ControlSamples_Button_InputTypeButton_HtmlContentInside => "ControlSamples/Button/InputTypeButton_HtmlContentInside";

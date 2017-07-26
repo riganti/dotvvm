@@ -210,13 +210,14 @@ namespace DotVVM.Framework.Controls
         {
             // prepare changed event attribute
             var changedBinding = GetCommandBinding(ChangedProperty);
+
+            base.AddAttributesToRender(writer, context);
+
             if (changedBinding != null)
             {
                 writer.AddAttribute("onchange", KnockoutHelper.GenerateClientPostBackScript(nameof(Changed), 
-                    changedBinding, this, useWindowSetTimeout: true, isOnChange: true));
+                    changedBinding, this, useWindowSetTimeout: true, isOnChange: true), true, ";");
             }
-
-            base.AddAttributesToRender(writer, context);
         }
 
         private void AddSelectAllOnFocusPropertyToRender(IHtmlWriter writer, IDotvvmRequestContext context)

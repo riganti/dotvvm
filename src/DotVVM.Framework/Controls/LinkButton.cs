@@ -28,15 +28,16 @@ namespace DotVVM.Framework.Controls
 
             writer.AddAttribute("href", "#");
 
-            var clickBinding = GetCommandBinding(ClickProperty);
-            if (clickBinding != null)
-            {
-                writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript(nameof(Click), clickBinding, this));
-            }
 			var textbinding = GetValueBinding(TextProperty);
 			if (textbinding != null) writer.AddKnockoutDataBind("text", textbinding.GetKnockoutBindingExpression(this));
             
             base.AddAttributesToRender(writer, context);
+
+            var clickBinding = GetCommandBinding(ClickProperty);
+            if (clickBinding != null)
+            {
+                writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript(nameof(Click), clickBinding, this), true, ";");
+            }
         }
 
         /// <summary>
