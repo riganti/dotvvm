@@ -11,7 +11,7 @@
     <PackageId>DotVVM.Tracing.ApplicationInsights</PackageId>
     <PackageVersion>1.1.5-alpha-02</PackageVersion>
     <Authors>RIGANTI</Authors>
-    <Description>Application Insights Tracing module for DotVVM</Description>
+    <Description>Common infrastructure for Application Insights Tracing module for DotVVM</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>dotvvm;asp.net;mvvm;owin;dotnetcore;dnx</PackageTags>
     <PackageIconUrl>https://dotvvm.com/Content/images/icons/icon-blue-64x64.png</PackageIconUrl>
