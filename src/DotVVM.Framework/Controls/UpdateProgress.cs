@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Controls
     {
 
         /// <summary>
-        /// Gets or sets the delay after which the content inside UpdateProgress control is shown
+        /// Gets or sets the delay (in ms) after which the content inside UpdateProgress control is shown
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
         public int Delay
@@ -30,6 +30,15 @@ namespace DotVVM.Framework.Controls
 
         public UpdateProgress() : base("div")
         {
+        }
+
+        protected internal override void OnInit(IDotvvmRequestContext context)
+        {
+            if (Delay<0)
+            {
+                throw new DotvvmControlException(this,"Delay cannot be set to negative number.");
+            }
+            base.OnInit(context);
         }
 
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
