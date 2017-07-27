@@ -60,7 +60,7 @@ namespace Owin
                 new DotvvmFileUploadMiddleware(),
                 new DotvvmReturnedFileMiddleware(),
                 new DotvvmRoutingMiddleware()
-            });
+            }, new DotvvmDiagnosticsMiddleware());
 
             return config;
         }

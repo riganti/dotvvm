@@ -17,16 +17,18 @@ namespace DotVVM.Framework.Hosting
     {
         public readonly DotvvmConfiguration Configuration;
         private readonly IList<IMiddleware> middlewares;
+        private readonly IMiddleware diagnosticsMiddleware;
         private int configurationSaved;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmMiddleware" /> class.
         /// </summary>
-        public DotvvmMiddleware(OwinMiddleware next, DotvvmConfiguration configuration, IList<IMiddleware> middlewares)
+        public DotvvmMiddleware(OwinMiddleware next, DotvvmConfiguration configuration, IList<IMiddleware> middlewares, IMiddleware diagnosticsMiddleware)
             : base(next)
         {
             Configuration = configuration;
             this.middlewares = middlewares;
+            this.diagnosticsMiddleware = diagnosticsMiddleware;
         }
 
         /// <summary>
@@ -50,8 +52,17 @@ namespace DotVVM.Framework.Hosting
                     if (await middleware.Handle(dotvvmContext)) return;
                 }
             }
-            catch (DotvvmInterruptRequestExecutionException) { return; }
-
+            catch (DotvvmInterruptRequestExecutionException)
+            {
+                return;
+            }
+            finally
+            {
+                if (Configuration.Debug)
+                {
+                    await Task.Run(async ()=> await diagnosticsMiddleware.Handle(dotvvmContext));
+                }
+            }
             // we cannot handle the request, pass it to another component
             await Next.Invoke(context);
         }
