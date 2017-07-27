@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Controls
 {
@@ -35,7 +36,16 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty GroupNameProperty =
             DotvvmProperty.Register<string, RadioButton>(t => t.GroupName, "");
 
-
+        protected internal override void OnLoad(IDotvvmRequestContext context)
+        {
+            if (CheckedItem != null && CheckedValue != null && 
+                CheckedItem.GetType() != CheckedValue.GetType())
+            {
+                throw new DotvvmControlException(this,
+                    $"CheckedItem type \'{CheckedItem.GetType().FullName}\' must be same as CheckedValue type \'{CheckedValue.GetType().FullName}\'.");
+            }
+            base.OnLoad(context);
+        }
 
         protected override void RenderInputTag(IHtmlWriter writer)
         {

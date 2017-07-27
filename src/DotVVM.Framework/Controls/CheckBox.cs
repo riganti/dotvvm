@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
 
@@ -23,7 +24,17 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty CheckedItemsProperty =
             DotvvmProperty.Register<IEnumerable, CheckBox>(t => t.CheckedItems, null);
-        
+
+        protected internal override void OnLoad(IDotvvmRequestContext context)
+        {
+            if (CheckedItems != null && CheckedValue != null && 
+                CheckedItems.GetType().GetGenericArguments()[0] != CheckedValue.GetType())
+            {
+                throw new DotvvmControlException(this,
+                    $"Type of items in CheckedItems \'{CheckedItems.GetType().GetGenericArguments()[0].FullName}\' must be same as CheckedValue type \'{CheckedValue.GetType().FullName}\'.");
+            }
+            base.OnLoad(context);
+        }
 
         /// <summary>
         /// Renders the input tag.
