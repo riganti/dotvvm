@@ -34,8 +34,8 @@ namespace DotVVM.Framework.Tests.Binding
             }
             var parser = new BindingExpressionBuilder();
             var expressionTree = TypeConversion.ImplicitConversion(parser.Parse(expression, context, BindingParserOptions.Create<ValueBindingExpression>()), expectedType, true, true);
-            var jsExpression = new JsParenthesizedExpression(JavascriptTranslator.CompileToJavascript(expressionTree, context,
-                 DotvvmConfiguration.CreateDefault().ServiceLocator.GetService<IViewModelSerializationMapper>()));
+            var configuration = DotvvmConfiguration.CreateDefault();
+            var jsExpression = new JsParenthesizedExpression(configuration.ServiceLocator.GetService<JavascriptTranslator>().CompileToJavascript(expressionTree, context));
             jsExpression.AcceptVisitor(new KnockoutObservableHandlingVisitor(true));
             JsTemporaryVariableResolver.ResolveVariables(jsExpression);
             return JavascriptTranslator.FormatKnockoutScript(jsExpression.Expression);
@@ -51,8 +51,8 @@ namespace DotVVM.Framework.Tests.Binding
                 context = DataContextStack.Create(contexts[i], context);
             }
             var expressionTree = expr(BindingExpressionBuilder.GetParameters(context).ToDictionary(e => e.Name, e => (Expression)e));
-            var jsExpression = new JsParenthesizedExpression(JavascriptTranslator.CompileToJavascript(expressionTree, context,
-                 DotvvmConfiguration.CreateDefault().ServiceLocator.GetService<IViewModelSerializationMapper>()));
+            var configuration = DotvvmConfiguration.CreateDefault();
+            var jsExpression = new JsParenthesizedExpression(configuration.ServiceLocator.GetService<JavascriptTranslator>().CompileToJavascript(expressionTree, context));
             jsExpression.AcceptVisitor(new KnockoutObservableHandlingVisitor(true));
             JsTemporaryVariableResolver.ResolveVariables(jsExpression);
             return JavascriptTranslator.FormatKnockoutScript(jsExpression.Expression);

@@ -24,7 +24,7 @@ namespace DotVVM.Compiler
         {
             var cr = compiler.CompileFile(file);
             // the control builder type is not used anywhere...
-            return new ControlType(cr.ControlType, typeof(object), file, cr.DataContextType);
+            return new ControlType(cr.ControlType, file, cr.DataContextType);
         }
     }
 }

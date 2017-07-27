@@ -149,9 +149,11 @@ namespace DotVVM.Framework.Controls
                 if (SeparatorTemplate != null)
                 {
                     writer.WriteKnockoutDataBindComment("if", "$index() > 0");
+                    writer.WriteKnockoutDataBindComment("with", "$parent");
                     var separatorContainer = GetSeparator(context);
                     Children.Add(separatorContainer);
                     separatorContainer.Render(writer, context);
+                    writer.WriteKnockoutDataBindEndComment();
                     writer.WriteKnockoutDataBindEndComment();
                 }
 
@@ -190,7 +192,7 @@ namespace DotVVM.Framework.Controls
         private DotvvmControl GetItem(IDotvvmRequestContext context, object item = null, int index = -1, IValueBinding itemBinding = null)
         {
             var container = new DataItemContainer();
-            if (item == null)
+            if (item == null && index == -1)
             {
                 SetUpClientItem(container);
             }

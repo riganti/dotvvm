@@ -33,8 +33,6 @@ namespace DotVVM.Framework.Compilation
         public const string ServiceProviderParameterName = "services";
         public const string BuildControlFunctionName = nameof(IControlBuilder.BuildControl);
         public const string BuildTemplateFunctionName = "BuildTemplate";
-        public const string GetControlBuilderFunctionName = nameof(IControlBuilderFactory.GetControlBuilder);
-        public const string DataContextTypePropertyName = nameof(IControlBuilder.DataContextType);
 
         private Dictionary<GroupedDotvvmProperty, string> cachedGroupedDotvvmProperties = new Dictionary<GroupedDotvvmProperty, string>();
         private ConcurrentDictionary<(Type obj, string argTypes), string> injectionFactoryCache = new ConcurrentDictionary<(Type obj, string argTypes), string>();
@@ -231,15 +229,19 @@ namespace DotVVM.Framework.Compilation
                     SyntaxFactory.VariableDeclaration(SyntaxFactory.IdentifierName("var")).WithVariables(
                         SyntaxFactory.VariableDeclarator(builderName).WithInitializer(
                             SyntaxFactory.EqualsValueClause(
-                                SyntaxFactory.InvocationExpression(
+                                SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
                                     SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
-                                        SyntaxFactory.IdentifierName(ControlBuilderFactoryParameterName),
-                                        SyntaxFactory.IdentifierName(GetControlBuilderFunctionName)
-                                    ),
-                                    SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(new[] {
-                                        SyntaxFactory.Argument(EmitStringLiteral(virtualPath))
-                                    }))
-                                )
+                                        SyntaxFactory.InvocationExpression(
+                                            SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
+                                                SyntaxFactory.IdentifierName(ControlBuilderFactoryParameterName),
+                                                SyntaxFactory.IdentifierName(nameof(IControlBuilderFactory.GetControlBuilder))
+                                            ),
+                                            SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(new[] {
+                                                SyntaxFactory.Argument(EmitStringLiteral(virtualPath))
+                                            }))
+                                        ),
+                                    SyntaxFactory.IdentifierName("Item2")),
+                                SyntaxFactory.IdentifierName("Value"))
                             )
                         )
                     )
@@ -253,7 +255,7 @@ namespace DotVVM.Framework.Compilation
                                 SyntaxFactory.InvocationExpression(
                                     SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
                                         SyntaxFactory.IdentifierName(builderName),
-                                        SyntaxFactory.IdentifierName(BuildControlFunctionName)
+                                        SyntaxFactory.IdentifierName(nameof(IControlBuilder.BuildControl))
                                     ),
                                     SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(new[] {
                                         SyntaxFactory.Argument(SyntaxFactory.IdentifierName(ControlBuilderFactoryParameterName)),

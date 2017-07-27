@@ -59,6 +59,8 @@ namespace Dotvvm.Samples.Tests{
 
             public static string ControlSamples_Button_Button => "ControlSamples/Button/Button";
 
+            public static string ControlSamples_Button_ButtonOnclick => "ControlSamples/Button/ButtonOnclick";
+
             public static string ControlSamples_Button_ButtonTagName => "ControlSamples/Button/ButtonTagName";
 
             public static string ControlSamples_Button_InputTypeButton_HtmlContentInside => "ControlSamples/Button/InputTypeButton_HtmlContentInside";
@@ -121,6 +123,8 @@ namespace Dotvvm.Samples.Tests{
 
             public static string ControlSamples_LinkButton_LinkButton => "ControlSamples/LinkButton/LinkButton";
 
+            public static string ControlSamples_LinkButton_LinkButtonOnclick => "ControlSamples/LinkButton/LinkButtonOnclick";
+
             public static string ControlSamples_Literal_Literal => "ControlSamples/Literal/Literal";
 
             public static string ControlSamples_Literal_Literal_ArrayLength => "ControlSamples/Literal/Literal_ArrayLength";
@@ -131,7 +135,11 @@ namespace Dotvvm.Samples.Tests{
 
             public static string ControlSamples_RadioButton_RadioButton => "ControlSamples/RadioButton/RadioButton";
 
+            public static string ControlSamples_Repeater_DataSourceNull => "ControlSamples/Repeater/DataSourceNull";
+
             public static string ControlSamples_Repeater_NestedRepeater => "ControlSamples/Repeater/NestedRepeater";
+
+            public static string ControlSamples_Repeater_RepeaterAsSeparator => "ControlSamples/Repeater/RepeaterAsSeparator";
 
             public static string ControlSamples_Repeater_RepeaterWrapperTag => "ControlSamples/Repeater/RepeaterWrapperTag";
 
@@ -276,6 +284,8 @@ namespace Dotvvm.Samples.Tests{
             public static string FeatureSamples_MarkupControl_ControlPropertyUpdating => "FeatureSamples/MarkupControl/ControlPropertyUpdating";
 
             public static string FeatureSamples_MarkupControl_ControlPropertyValidationPage => "FeatureSamples/MarkupControl/ControlPropertyValidationPage";
+
+            public static string FeatureSamples_MarkupControl_HierarchyControlPage => "FeatureSamples/MarkupControl/HierarchyControlPage";
 
             public static string FeatureSamples_MarkupControl_MarkupControlRegistration => "FeatureSamples/MarkupControl/MarkupControlRegistration";
 

@@ -64,7 +64,7 @@ namespace DotVVM.Framework.Binding
             if (bindingContext == null || controlContext == null || controlContext.Equals(bindingContext)) return (0, control);
 
             var changes = 0;
-            foreach (var a in control.GetAllAncestors())
+            foreach (var a in control.GetAllAncestors(incudingThis: true))
             {
                 if (a.properties.ContainsKey(DotvvmBindableObject.DataContextProperty)) changes++;
                 if (bindingContext.Equals(a.GetValue(Internal.DataContextTypeProperty, inherit: false)))
@@ -85,6 +85,7 @@ namespace DotVVM.Framework.Binding
 
         /// <summary>
         /// Prepares DataContext hierarchy argument and executes update delegate.
+        /// </summary>
         public static object ExecDelegate(this CompiledBindingExpression.BindingDelegate func, DotvvmBindableObject contextControl)
         {
             var dataContexts = GetDataContexts(contextControl);

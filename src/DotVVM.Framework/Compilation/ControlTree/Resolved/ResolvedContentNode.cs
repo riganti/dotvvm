@@ -1,11 +1,31 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
     public abstract class ResolvedContentNode : ResolvedTreeNode, IAbstractContentNode 
     {
-        public List<ResolvedControl> Content { get; set; }
+        private List<ResolvedControl> content;
+        public List<ResolvedControl> Content
+        {
+            get
+            {
+                if (content == null)
+                {
+                    if (ResolveContentAction != null)
+                    {
+                        content = new List<ResolvedControl>();
+                        ResolveContentAction();
+                        ResolveContentAction = null;
+                    }
+                    else content = new List<ResolvedControl>();
+                }
+                return content;
+            }
+        }
+
+        public Action ResolveContentAction { get; set; }
 
         public ControlResolverMetadata Metadata { get; set; }
 
@@ -25,7 +45,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         {
             Metadata = metadata;
             DothtmlNode = node;
-            Content = content;
+            this.content = content;
             DataContextTypeStack = dataContext;
         }
 
