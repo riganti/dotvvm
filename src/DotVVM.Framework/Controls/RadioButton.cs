@@ -3,7 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls
 {
@@ -35,17 +39,6 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty GroupNameProperty =
             DotvvmProperty.Register<string, RadioButton>(t => t.GroupName, "");
-
-        protected internal override void OnLoad(IDotvvmRequestContext context)
-        {
-            if (CheckedItem != null && CheckedValue != null && 
-                CheckedItem.GetType() != CheckedValue.GetType())
-            {
-                throw new DotvvmControlException(this,
-                    $"CheckedItem type \'{CheckedItem.GetType().FullName}\' must be same as CheckedValue type \'{CheckedValue.GetType().FullName}\'.");
-            }
-            base.OnLoad(context);
-        }
 
         protected override void RenderInputTag(IHtmlWriter writer)
         {
@@ -100,6 +93,21 @@ namespace DotVVM.Framework.Controls
             {
                 // selected item mode
                 writer.AddKnockoutDataBind("checked", checkedItemBinding.GetKnockoutBindingExpression(this));
+            }
+        }
+
+        [ControlUsageValidator]
+        public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
+        {
+            var itemType = control.GetValue(CheckedItemProperty)?.GetResultType();
+            var valueType = control.GetValue(CheckedValueProperty)?.GetResultType();
+            if (itemType != null && valueType != null && itemType != valueType)
+            {
+                yield return new ControlUsageError(
+                    $"CheckedItem type \'{itemType}\' must be same as CheckedValue type \'{valueType}.",
+                    control.GetValue(CheckedItemProperty).DothtmlNode,
+                    control.GetValue(CheckedValueProperty).DothtmlNode
+                );
             }
         }
     }

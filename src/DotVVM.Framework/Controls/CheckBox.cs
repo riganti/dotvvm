@@ -5,6 +5,10 @@ using System.Linq;
 using System.Reflection;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Utils;
+using DotVVM.Framework.Compilation.Validation;
 
 namespace DotVVM.Framework.Controls
 {
@@ -24,17 +28,6 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty CheckedItemsProperty =
             DotvvmProperty.Register<IEnumerable, CheckBox>(t => t.CheckedItems, null);
-
-        protected internal override void OnLoad(IDotvvmRequestContext context)
-        {
-            if (CheckedItems != null && CheckedValue != null && 
-                CheckedItems.GetType().GetGenericArguments()[0] != CheckedValue.GetType())
-            {
-                throw new DotvvmControlException(this,
-                    $"Type of items in CheckedItems \'{CheckedItems.GetType().GetGenericArguments()[0].FullName}\' must be same as CheckedValue type \'{CheckedValue.GetType().FullName}\'.");
-            }
-            base.OnLoad(context);
-        }
 
         /// <summary>
         /// Renders the input tag.
@@ -108,5 +101,22 @@ namespace DotVVM.Framework.Controls
             if (RenderOnServer && true.Equals(GetValue(CheckedProperty)))
                 writer.AddAttribute("checked", null);
         }
+
+
+        [ControlUsageValidator]
+        public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
+        {
+            var collectionType = control.GetValue(CheckedItemsProperty)?.GetResultType();
+            var valueType = control.GetValue(CheckedValueProperty)?.GetResultType();
+            if (collectionType != null && valueType != null && ReflectionUtils.GetEnumerableType(collectionType) != valueType)
+            {
+                yield return new ControlUsageError(
+                    $"Type of items in CheckedItems \'{ReflectionUtils.GetEnumerableType(collectionType)}\' must be same as CheckedValue type \'{valueType}\'.",
+                    control.GetValue(CheckedItemsProperty).DothtmlNode,
+                    control.GetValue(CheckedValueProperty).DothtmlNode
+                );
+            }
+        }
+
     }
 }
