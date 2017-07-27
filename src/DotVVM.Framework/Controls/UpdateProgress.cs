@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Controls
     {
 
         /// <summary>
-        /// Gets or sets the command that will be triggered when the control text is changed.
+        /// Gets or sets the delay after which the content inside UpdateProgress control is shown
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
         public int Delay
