@@ -1948,23 +1948,54 @@ var DotVVM = (function () {
         ko.bindingHandlers["dotvvm-UpdateProgress-Visible"] = {
             init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
                 element.style.display = "none";
+                var delay = element.getAttribute("data-delay");
+                var timeout;
+                var running = false;
+                var show = function () {
+                    running = true;
+                    if (delay == null) {
+                        element.style.display = "";
+                    }
+                    else {
+                        timeout = setTimeout(function (e) {
+                            element.style.display = "";
+                        }, delay);
+                    }
+                };
+                var interrupt = function () {
+                    clearTimeout(timeout);
+                    element.style.display = "none";
+                };
+                var hide = function () {
+                    running = false;
+                    clearTimeout(timeout);
+                    element.style.display = "none";
+                };
                 dotvvm.events.beforePostback.subscribe(function (e) {
-                    element.style.display = "";
+                    if (running) {
+                        interrupt();
+                    }
+                    show();
                 });
                 dotvvm.events.spaNavigating.subscribe(function (e) {
-                    element.style.display = "";
+                    if (running) {
+                        interrupt();
+                    }
+                    show();
                 });
                 dotvvm.events.afterPostback.subscribe(function (e) {
-                    element.style.display = "none";
+                    if (!e.wasInterrupted) {
+                        hide();
+                    }
                 });
                 dotvvm.events.redirect.subscribe(function (e) {
-                    element.style.display = "none";
+                    hide();
                 });
                 dotvvm.events.spaNavigated.subscribe(function (e) {
-                    element.style.display = "none";
+                    hide();
                 });
                 dotvvm.events.error.subscribe(function (e) {
-                    element.style.display = "none";
+                    hide();
                 });
             }
         };

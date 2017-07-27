@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Hosting;
 
@@ -13,6 +14,20 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     public class UpdateProgress : HtmlGenericControl
     {
+
+        /// <summary>
+        /// Gets or sets the command that will be triggered when the control text is changed.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
+        public int Delay
+        {
+            get { return (int)GetValue(DelayProperty); }
+            set { SetValue(DelayProperty, value); }
+        }
+
+        public static readonly DotvvmProperty DelayProperty =
+            DotvvmProperty.Register<int, UpdateProgress>(t => t.Delay, 0);
+
         public UpdateProgress() : base("div")
         {
         }
@@ -20,6 +35,11 @@ namespace DotVVM.Framework.Controls
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             writer.AddKnockoutDataBind("dotvvm-UpdateProgress-Visible", "true");
+
+            if (Delay != 0)
+            {
+                writer.AddAttribute("data-delay", Delay.ToString());
+            }
 
             base.AddAttributesToRender(writer, context);
         }
