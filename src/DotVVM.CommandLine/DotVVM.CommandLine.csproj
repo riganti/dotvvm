@@ -73,6 +73,11 @@
       <DependentUpon>ViewModelTemplate.tt</DependentUpon>
     </Compile>
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="NSwag.CodeGeneration" Version="11.3.3" />
+    <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="11.3.3" />
+    <PackageReference Include="NSwag.CodeGeneration.Typescript" Version="11.3.3" />
+  </ItemGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>
   </PropertyGroup>

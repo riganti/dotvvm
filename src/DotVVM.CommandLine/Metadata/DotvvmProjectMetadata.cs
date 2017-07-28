@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -34,10 +35,34 @@ namespace DotVVM.CommandLine.Metadata
         [JsonIgnore()]
         public string ProjectDirectory { get; set; }
 
+        [JsonProperty("apiClients")]
+        public List<ApiClientDefinition> ApiClients { get; } = new List<ApiClientDefinition>();
+
 
         public string GetUITestProjectFullPath()
         {
             return Path.Combine(ProjectDirectory, UITestProjectPath);
         }
+    }
+
+    public class ApiClientDefinition
+    {
+        [JsonProperty("swaggerFile")]
+        public Uri SwaggerFile { get; set; }
+        [JsonProperty("csharpClient")]
+        public string CSharpClient { get; set; }
+        [JsonProperty("typescriptClient")]
+        public string TypescriptClient { get; set; }
+        [JsonProperty("namespace")]
+        public string Namespace { get; set; }
+        [JsonProperty("compileTypescript")]
+        [DefaultValue(true)]
+        public bool CompileTypescript { get; set; } = true;
+        [JsonProperty("generateWrapperClass")]
+        [DefaultValue(true)]
+        public bool GenerateWrapperClass { get; set; } = true;
+        [DefaultValue(false)]
+        [JsonProperty("isSingleClient")]
+        public bool IsSingleClient { get; set; }
     }
 }
