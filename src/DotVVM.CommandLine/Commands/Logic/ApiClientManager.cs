@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -119,7 +120,8 @@ namespace DotVVM.CommandLine.Commands.Logic
             ts = "namespace " + definition.Namespace + " {\n" + ConversionUtilities.Tab(ts, 1).TrimEnd('\n') + "\n}\n";
             File.WriteAllText(definition.TypescriptClient, generator.GenerateFile());
 
-            // TODO run typescript compilation
+            if (definition.CompileTypescript)
+                Process.Start("tsc", definition.TypescriptClient).WaitForExit();
         }
 
 
