@@ -19,11 +19,14 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand
         }
     }
 
-    
-    public interface IGreetingComputationService
+    public interface IGreetingComputationServiceBase
     {
         [AllowStaticCommand]
         string GetGreeting(string name);
+    }
+    
+    public interface IGreetingComputationService: IGreetingComputationServiceBase
+    {
     }
 
     public class HelloGreetingComputationService: IGreetingComputationService

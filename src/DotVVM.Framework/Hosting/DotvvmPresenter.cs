@@ -275,25 +275,16 @@ namespace DotVVM.Framework.Hosting
             return nextStopwatchState;
         }
 
-        private (object, object[]) DeserializeStaticCommandArguments(JArray array, MethodInfo method, IDotvvmRequestContext context)
+        private object ExecuteStaticCommandPlan(StaticCommandInvocationPlan plan, Queue<JToken> arguments, IDotvvmRequestContext context)
         {
-            var encryptionPurposes = StaticCommandBindingCompiler.GetArgumentEncryptionPurposes(StaticCommandBindingCompiler.GetMethodName(method)).Take(array.Count).ToArray();
-            var types = (method.IsStatic ? new Type[0] : new [] { method.DeclaringType }).Concat(method.GetParameters().Select(p => p.ParameterType)).ToArray();
-            var result = new object[array.Count];
-            for (var i = 0; i < array.Count; i++)
-            {
-                if (array[i] is JObject jobj && jobj.Count == 1 && jobj["@service"] is JValue serviceValue)
-                {
-                    result[i] = context.Services.GetService<IViewModelProtector>()
-                        .Unprotect(Convert.FromBase64String((string)serviceValue.Value), encryptionPurposes[i])
-                        .Apply(Encoding.UTF8.GetString)
-                        .Apply(Type.GetType)
-                        .Assert(types[i].GetTypeInfo().IsAssignableFrom, $"The specified service type is not assignable to the argument type.")
-                        .Apply(context.Services.GetService);
-                }
-                else result[i] = array[i].ToObject(types[i]);
-            }
-            return method.IsStatic ? (null, result) : (result[0], result.Skip(1).ToArray());
+            var methodArgs = plan.Arguments.Select((a, index) => 
+                a.Type == StaticCommandParameterType.Argument ? arguments.Dequeue().ToObject((Type)a.Arg) :
+                a.Type == StaticCommandParameterType.Constant || a.Type == StaticCommandParameterType.DefaultValue ? a.Arg :
+                a.Type == StaticCommandParameterType.Inject ? context.Services.GetRequiredService((Type)a.Arg) :
+                a.Type == StaticCommandParameterType.Invocation ? ExecuteStaticCommandPlan((StaticCommandInvocationPlan)a.Arg, arguments, context) :
+                throw new NotSupportedException("" + a.Type)
+            ).ToArray();
+            return plan.Method.Invoke(plan.Method.IsStatic ? null : methodArgs.First(), plan.Method.IsStatic ? methodArgs : methodArgs.Skip(1).ToArray());
         }
 
         public async Task ProcessStaticCommandRequest(IDotvvmRequestContext context)
@@ -309,23 +300,19 @@ namespace DotVVM.Framework.Hosting
 
             var command = postData["command"].Value<string>();
             var arguments = postData["args"] as JArray;
-            var lastDot = command.LastIndexOf('.');
-            var typeName = command.Remove(lastDot);
-            var methodName = command.Substring(lastDot + 1);
-            var methodInfo = Type.GetType(typeName).GetMethod(methodName);
+            var executionPlan =
+                StaticCommandBindingCompiler.DecryptJson(Convert.FromBase64String(command), context.Services.GetService<IViewModelProtector>())
+                .Apply(StaticCommandBindingCompiler.DeserializePlan);
 
-            if (!methodInfo.IsDefined(typeof(AllowStaticCommandAttribute)))
-            {
-                throw new DotvvmHttpException($"This method cannot be called from the static command. If you need to call this method, add the '{nameof(AllowStaticCommandAttribute)}' to the method.");
-            }
-            var (target, methodArguments) = DeserializeStaticCommandArguments(arguments, methodInfo, context);
             var actionInfo = new ActionInfo
             {
                 IsControlCommand = false,
-                Action = () => methodInfo.Invoke(target, methodArguments)
+                Action = () => {
+                    return ExecuteStaticCommandPlan(executionPlan, new Queue<JToken>(arguments), context);
+                }
             };
             var filters = context.Configuration.Runtime.GlobalFilters.OfType<ICommandActionFilter>()
-                .Concat(ActionFilterHelper.GetActionFilters<ICommandActionFilter>(methodInfo))
+                .Concat(executionPlan.GetAllMethods().SelectMany(m => ActionFilterHelper.GetActionFilters<ICommandActionFilter>(m)))
                 .ToArray();
 
             var result = await ExecuteCommand(actionInfo, context, filters);
