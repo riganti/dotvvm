@@ -74,7 +74,9 @@ namespace DotVVM.Framework.Compilation.Binding
             var (plan, args) = CreateExecutionPlan(methodExpression, dataContext);
             var encryptedPlan = EncryptJson(SerializePlan(plan), protector).Apply(Convert.ToBase64String);
 
-            return new JsIdentifierExpression("dotvvm").Member("staticCommandPostback").Invoke(new JsSymbolicParameter(CommandBindingExpression.ViewModelNameParameter), new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter), new JsLiteral(encryptedPlan), new JsArrayExpression(args), callbackFunction);
+            return new JsIdentifierExpression("dotvvm").Member("staticCommandPostback")
+                .Invoke(new JsSymbolicParameter(CommandBindingExpression.ViewModelNameParameter), new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter), new JsLiteral(encryptedPlan), new JsArrayExpression(args), callbackFunction)
+                .WithAnnotation(new StaticCommandInvocationJsAnnotation(plan));
         }
 
         public static string[] GetEncryptionPurposes()
@@ -206,6 +208,16 @@ namespace DotVVM.Framework.Compilation.Binding
             using (var reader = new JsonTextReader(new StreamReader(new MemoryStream(protector.Unprotect(data, GetEncryptionPurposes())))))
             {
                 return JToken.ReadFrom(reader);
+            }
+        }
+
+        public sealed class StaticCommandInvocationJsAnnotation
+        {
+            public MethodInfo Method => Plan.Method;
+            public StaticCommandInvocationPlan Plan { get; }
+            public StaticCommandInvocationJsAnnotation(StaticCommandInvocationPlan plan)
+            {
+                this.Plan = plan;
             }
         }
     }
