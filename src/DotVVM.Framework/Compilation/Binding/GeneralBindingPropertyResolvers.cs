@@ -27,15 +27,15 @@ namespace DotVVM.Framework.Compilation.Binding
     {
         private readonly DotvvmConfiguration configuration;
         private readonly IBindingExpressionBuilder bindingParser;
-        private readonly IViewModelSerializationMapper vmMapper;
         private readonly StaticCommandBindingCompiler staticCommandBindingCompiler;
+        private readonly JavascriptTranslator javascriptTranslator;
 
-        public BindingPropertyResolvers(IBindingExpressionBuilder bindingParser, IViewModelSerializationMapper vmMapper, DotvvmConfiguration configuration, StaticCommandBindingCompiler staticCommandBindingCompiler)
+        public BindingPropertyResolvers(IBindingExpressionBuilder bindingParser, StaticCommandBindingCompiler staticCommandBindingCompiler, JavascriptTranslator javascriptTranslator, DotvvmConfiguration configuration)
         {
             this.configuration = configuration;
             this.bindingParser = bindingParser;
-            this.vmMapper = vmMapper;
             this.staticCommandBindingCompiler = staticCommandBindingCompiler;
+            this.javascriptTranslator = javascriptTranslator;
         }
 
         public ActionFiltersBindingProperty GetActionFilters(ParsedExpressionBindingProperty parsedExpression)
@@ -88,7 +88,7 @@ namespace DotVVM.Framework.Compilation.Binding
             DataContextStack dataContext)
         {
             return new KnockoutJsExpressionBindingProperty(
-                   JavascriptTranslator.CompileToJavascript(expression.Expression, dataContext, vmMapper).ApplyAction(a => a.Freeze()));
+                   javascriptTranslator.CompileToJavascript(expression.Expression, dataContext).ApplyAction(a => a.Freeze()));
         }
 
         public SimplePathExpressionBindingProperty FormatSimplePath(KnockoutJsExpressionBindingProperty expression)

@@ -17,13 +17,18 @@
   <ItemGroup>
     <None Remove="Views\ComplexSamples\CascadeSelectors\TripleComboBoxes.dothtml" />
     <None Remove="Views\ComplexSamples\GridViewDataSet\GridViewDataSetDelegate.dothtml" />
+    <None Remove="Views\ControlSamples\Button\ButtonOnclick.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\ComboBoxDelaySync.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\ComboBoxDelaySync2.dothtml" />
     <None Remove="Views\ControlSamples\IncludeInPageProperty\IncludeInPage.dothtml" />
+    <None Remove="Views\ControlSamples\LinkButton\LinkButtonOnclick.dothtml" />
+    <None Remove="Views\ControlSamples\Repeater\DataSourceNull.dothtml" />
+    <None Remove="Views\ControlSamples\Repeater\SeparatorMaster.dotmaster" />
     <None Remove="Views\ControlSamples\TextBox\SelectAllOnFocus.dothtml" />
     <None Remove="Views\FeatureSamples\ActionFilterErrorHandling\ActionFilterRedirect.dothtml" />
     <None Remove="Views\FeatureSamples\Api\GetCollection.dothtml" />
     <None Remove="Views\FeatureSamples\Api\GithubRepoApi.dothtml" />
+    <None Remove="Views\FeatureSamples\BindingContexts\CollectionContext.dothtml" />
     <None Remove="Views\FeatureSamples\CommandArguments\CommandArguments.dothtml" />
     <None Remove="Views\FeatureSamples\MarkupControl\CommandBindingInDataContextWithControlProperty.dothtml" />
     <None Remove="Views\FeatureSamples\MarkupControl\control2.dotcontrol" />
@@ -41,13 +46,18 @@
     <Content Include="Scripts\testResource2.js" />
     <Content Include="Views\ComplexSamples\CascadeSelectors\TripleComboBoxes.dothtml" />
     <Content Include="Views\ComplexSamples\GridViewDataSet\GridViewDataSetDelegate.dothtml" />
+    <Content Include="Views\ControlSamples\Button\ButtonOnclick.dothtml" />
     <Content Include="Views\ControlSamples\ComboBox\ComboBoxDelaySync.dothtml" />
     <Content Include="Views\ControlSamples\ComboBox\ComboBoxDelaySync2.dothtml" />
     <Content Include="Views\ControlSamples\IncludeInPageProperty\IncludeInPage.dothtml" />
+    <Content Include="Views\ControlSamples\LinkButton\LinkButtonOnclick.dothtml" />
+    <Content Include="Views\ControlSamples\Repeater\DataSourceNull.dothtml" />
+    <Content Include="Views\ControlSamples\Repeater\SeparatorMaster.dotmaster" />
     <Content Include="Views\ControlSamples\TextBox\SelectAllOnFocus.dothtml" />
     <Content Include="Views\FeatureSamples\ActionFilterErrorHandling\ActionFilterRedirect.dothtml" />
     <Content Include="Views\FeatureSamples\Api\GetCollection.dothtml" />
     <Content Include="Views\FeatureSamples\Api\GithubRepoApi.dothtml" />
+    <Content Include="Views\FeatureSamples\BindingContexts\CollectionContext.dothtml" />
     <Content Include="Views\FeatureSamples\CommandArguments\CommandArguments.dothtml" />
     <Content Include="Views\FeatureSamples\DependencyInjection\ViewModelScopedService.dothtml" />
     <Content Include="Views\FeatureSamples\MarkupControl\Control1.dotcontrol" />

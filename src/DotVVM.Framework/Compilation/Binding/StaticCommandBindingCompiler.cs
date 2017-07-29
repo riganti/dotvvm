@@ -25,12 +25,12 @@ namespace DotVVM.Framework.Compilation.Binding
 {
     public class StaticCommandBindingCompiler
     {
-        private readonly IViewModelSerializationMapper vmMapper;
         private readonly IViewModelProtector protector;
-        public StaticCommandBindingCompiler(IViewModelSerializationMapper vmMapper, IViewModelProtector protector)
+        private readonly JavascriptTranslator javascriptTranslator;
+        public StaticCommandBindingCompiler(JavascriptTranslator javascriptTranslator, IViewModelProtector protector)
         {
-            this.vmMapper = vmMapper;
             this.protector = protector;
+            this.javascriptTranslator = javascriptTranslator;
         }
 
         public JsExpression CompileToJavascript(DataContextStack dataContext, Expression expression)
@@ -38,9 +38,9 @@ namespace DotVVM.Framework.Compilation.Binding
             var currentContextVariable = new JsTemporaryVariableParameter(new JsIdentifierExpression("ko").Member("contextFor").Invoke(new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter)));
             var resultPromiseVariable = new JsTemporaryVariableParameter(new JsNewExpression("DotvvmPromise"));
             var senderVariable = new JsTemporaryVariableParameter(new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter));
-            var visitor = new ExtractExpressionVisitor(ex => ex.NodeType == ExpressionType.Call && ex is MethodCallExpression methodCall && JavascriptTranslator.FindMethodTranslator(methodCall.Method, methodCall.Object, methodCall.Arguments.ToArray()) == null);
+            var visitor = new ExtractExpressionVisitor(ex => ex.NodeType == ExpressionType.Call && ex is MethodCallExpression methodCall && javascriptTranslator.TryTranslateMethodCall(methodCall.Object, methodCall.Arguments.ToArray(), methodCall.Method, dataContext) == null);
             var rootCallback = visitor.Visit(expression);
-            var js = SouldCompileCallback(rootCallback) ? new JsSymbolicParameter(resultPromiseVariable).Member("resolve").Invoke(JavascriptTranslator.CompileToJavascript(rootCallback, dataContext, vmMapper)) : null;
+            var js = SouldCompileCallback(rootCallback) ? new JsSymbolicParameter(resultPromiseVariable).Member("resolve").Invoke(javascriptTranslator.CompileToJavascript(rootCallback, dataContext)) : null;
             foreach (var param in visitor.ParameterOrder.Reverse<ParameterExpression>())
             {
                 js = js ?? new JsSymbolicParameter(resultPromiseVariable).Member("resolve").Invoke(new JsIdentifierExpression(param.Name));
@@ -101,7 +101,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
                 else
                 {
-                    clientArgs.Add(JavascriptTranslator.CompileToJavascript(arg, dataContext, vmMapper));
+                    clientArgs.Add(javascriptTranslator.CompileToJavascript(arg, dataContext));
                     return new StaticCommandParameterPlan(StaticCommandParameterType.Argument, arg.Type);
                 }
             }).ToArray();

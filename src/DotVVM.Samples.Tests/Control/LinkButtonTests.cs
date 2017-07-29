@@ -42,5 +42,22 @@ namespace DotVVM.Samples.Tests.Control
                 browser.Last("span").CheckIfInnerTextEquals("1");
             });
         }
+
+        [TestMethod]
+        public void Control_LinkButton_LinkButtonOnClick()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_LinkButton_LinkButtonOnclick);
+                var onclickResult = browser.First("span.result1").Check();
+                var clickResult = browser.First("span.result2").Check();
+                clickResult.InnerText(s => s.Equals(""));
+                onclickResult.InnerText(s => s.Equals(""));
+
+                browser.Click("#LinkButton");
+                clickResult.InnerText(s => s.Equals("Changed from command binding"));
+                onclickResult.InnerText(s => s.Contains("Changed from onclick"));
+            });
+        }
     }
 }

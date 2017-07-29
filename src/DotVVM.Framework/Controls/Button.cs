@@ -70,11 +70,6 @@ namespace DotVVM.Framework.Controls
             }
             writer.AddAttribute("type", IsSubmitButton ? "submit" : "button");
 
-            var clickBinding = GetCommandBinding(ClickProperty);
-            if (clickBinding != null)
-            {
-                writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript(nameof(Click), clickBinding, this));
-            }
 
             writer.AddKnockoutDataBind(ButtonTagName == ButtonTagName.input ? "value" : "text", this, TextProperty, () =>
             {
@@ -99,6 +94,12 @@ namespace DotVVM.Framework.Controls
             });
 
             base.AddAttributesToRender(writer, context);
+
+            var clickBinding = GetCommandBinding(ClickProperty);
+            if (clickBinding != null)
+            {
+                writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript(nameof(Click), clickBinding, this), true, ";");
+            }
         }
 
         protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)

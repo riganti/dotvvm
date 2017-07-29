@@ -9,7 +9,6 @@ namespace DotVVM.Framework.Configuration
 {
     public class DotvvmRuntimeConfiguration
     {
-
         /// <summary>
         /// Gets filters that are applied for all requests.
         /// </summary>
@@ -17,18 +16,11 @@ namespace DotVVM.Framework.Configuration
         public List<IActionFilter> GlobalFilters { get; private set; }
 
         /// <summary>
-        /// Gets reqistered request tracing reporters.
-        /// </summary>
-        [JsonIgnore()]
-        public List<IRequestTracingReporter> Reporters { get; private set; }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmRuntimeConfiguration"/> class.
         /// </summary>
         public DotvvmRuntimeConfiguration()
         {
             GlobalFilters = new List<IActionFilter>();
-            Reporters = new List<IRequestTracingReporter>();
         }
     }
 }

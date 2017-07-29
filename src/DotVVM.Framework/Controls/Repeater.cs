@@ -112,15 +112,16 @@ namespace DotVVM.Framework.Controls
 
             if (!RenderOnServer)
             {
-                var javascriptDataSourceExpression = GetForeachDataBindExpression().GetKnockoutBindingExpression(this);
 
                 if (RenderWrapperTag)
                 {
-                    writer.AddKnockoutForeachDataBind(javascriptDataSourceExpression);
+                    //writer.AddKnockoutForeachDataBind(javascriptDataSourceExpression);
+                    
+                    writer.AddKnockoutDataBind("foreach", GetForeachKnockoutBindingGroup());
                 }
                 else
                 {
-                    writer.WriteKnockoutForeachComment(javascriptDataSourceExpression);
+                    writer.WriteKnockoutDataBindComment("foreach", GetForeachKnockoutBindingGroup().ToString());
                 }
             }
 
@@ -128,6 +129,18 @@ namespace DotVVM.Framework.Controls
             {
                 base.RenderBeginTag(writer, context);
             }
+        }
+
+        private KnockoutBindingGroup GetForeachKnockoutBindingGroup()
+        {
+            var javascriptDataSourceExpression = GetForeachDataBindExpression().GetKnockoutBindingExpression(this);
+            var group = new KnockoutBindingGroup();
+            group.Add("data", javascriptDataSourceExpression);
+            if (SeparatorTemplate != null)
+            {
+                group.Add("separatorTemplate", GetValueRaw(Internal.UniqueIDProperty) + "_separator", true);
+            }
+            return group;
         }
 
         /// <summary>
@@ -146,18 +159,10 @@ namespace DotVVM.Framework.Controls
             else
             {
                 // render on client
-                if (SeparatorTemplate != null)
-                {
-                    writer.WriteKnockoutDataBindComment("if", "$index() > 0");
-                    var separatorContainer = GetSeparator(context);
-                    Children.Add(separatorContainer);
-                    separatorContainer.Render(writer, context);
-                    writer.WriteKnockoutDataBindEndComment();
-                }
-
                 var itemContainer = GetItem(context);
                 Children.Add(itemContainer);
                 itemContainer.Render(writer, context);
+
             }
         }
 
@@ -173,24 +178,38 @@ namespace DotVVM.Framework.Controls
                 writer.WriteKnockoutDataBindEndComment();
             }
 
+            if (!RenderOnServer && SeparatorTemplate != null)
+            {
+                writer.AddAttribute("type", "text/html");
+                writer.AddAttribute("id", GetValueRaw(Internal.UniqueIDProperty) + "_separator");
+                var unique = GetValueRaw(Internal.UniqueIDProperty);
+                var id = GetValueRaw(Internal.ClientIDFragmentProperty);
+                writer.RenderBeginTag("script");
+                GetSeparator(context).Render(writer, context);
+                writer.RenderEndTag();
+            }
+
             emptyDataContainer?.Render(writer, context);
         }
 
         private DotvvmControl GetEmptyItem(IDotvvmRequestContext context)
         {
-            var dataSourceBinding = GetDataSourceBinding();
-            emptyDataContainer = new EmptyData();
-            emptyDataContainer.SetValue(EmptyData.RenderWrapperTagProperty, GetValueRaw(RenderWrapperTagProperty));
-            emptyDataContainer.SetValue(EmptyData.WrapperTagNameProperty, GetValueRaw(WrapperTagNameProperty));
-            emptyDataContainer.SetBinding(DataSourceProperty, dataSourceBinding);
-            EmptyDataTemplate.BuildContent(context, emptyDataContainer);
+            if (emptyDataContainer == null)
+            {
+                var dataSourceBinding = GetDataSourceBinding();
+                emptyDataContainer = new EmptyData();
+                emptyDataContainer.SetValue(EmptyData.RenderWrapperTagProperty, GetValueRaw(RenderWrapperTagProperty));
+                emptyDataContainer.SetValue(EmptyData.WrapperTagNameProperty, GetValueRaw(WrapperTagNameProperty));
+                emptyDataContainer.SetBinding(DataSourceProperty, dataSourceBinding);
+                EmptyDataTemplate.BuildContent(context, emptyDataContainer);
+            }
             return emptyDataContainer;
         }
 
         private DotvvmControl GetItem(IDotvvmRequestContext context, object item = null, int index = -1, IValueBinding itemBinding = null)
         {
             var container = new DataItemContainer();
-            if (item == null)
+            if (item == null && index == -1)
             {
                 SetUpClientItem(container);
             }
