@@ -9,6 +9,7 @@ using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.ControlTree
@@ -100,5 +101,23 @@ namespace DotVVM.Framework.Compilation.ControlTree
         {
             return new JsObjectExpression();
         }
+    }
+
+    public class InjectedServiceExtensionParameter: BindingExtensionParameter
+    {
+        public InjectedServiceExtensionParameter(string identifier, ITypeDescriptor type)
+            : base(identifier, type, inherit: true) { }
+        
+        public override Expression GetServerEquivalent(Expression controlParameter)
+        {
+            var type = ((ResolvedTypeDescriptor)this.ParameterType).Type;
+            var expr = ExpressionUtils.Replace((DotvvmBindableObject c) => ((IDotvvmRequestContext)c.GetValue(Internal.RequestContextProperty, true)).Services.GetService(type), controlParameter);
+            return Expression.Convert(expr, type);
+        }
+
+        public override JsExpression GetJsTranslation(JsExpression dataContext)
+        {
+            throw new InvalidOperationException($"Can't use injected services in javascript-translated bindings");
+        } 
     }
 }
