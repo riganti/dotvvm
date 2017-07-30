@@ -185,6 +185,8 @@ namespace Dotvvm.Samples.Tests{
 
             public static string ControlSamples_UpdateProgress_UpdateProgress => "ControlSamples/UpdateProgress/UpdateProgress";
 
+            public static string ControlSamples_UpdateProgress_UpdateProgressDelay => "ControlSamples/UpdateProgress/UpdateProgressDelay";
+
             public static string ControlSamples_ValidationSummary_RecursiveValidationSummary => "ControlSamples/ValidationSummary/RecursiveValidationSummary";
 
             public static string Errors_BindingInvalidCommand => "Errors/BindingInvalidCommand";
