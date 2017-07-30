@@ -320,6 +320,26 @@ test <dot:Literal><a /></dot:Literal>";
         }
 
         [TestMethod]
+
+        public void ComboBox_ControlUsageValidation()
+        {
+            // CheckedItems must be a collection of CheckedValues
+            var markup = @"
+@viewModel System.String
+<dot:ComboBox CheckedValue='{value: Length}' CheckedItems='{value: _this}' />";
+            Assert.ThrowsException<DotvvmCompilationException>(() => CompileMarkup(markup));
+        }
+
+        [TestMethod]
+        public void RadioButton_ControlUsageValidation()
+        {
+            // CheckedValue and CheckedItem must be the same type
+            var markup = @"
+@viewModel System.String
+<dot:RadioButton CheckedValue='{value: _this}' CheckedItem='{value: Length}' />";
+            Assert.ThrowsException<DotvvmCompilationException>(() => CompileMarkup(markup));
+        }
+
         public void DefaultViewCompiler_ViewDependencyInjection()
         {
             var markup = @"
