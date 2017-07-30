@@ -15,13 +15,13 @@ namespace DotVVM.Framework.Binding
         public bool EvaluatingOnServer => true;
         public bool EvaluatingOnClient => false;
 
-        internal static void RegisterJavascriptTranslations()
+        internal static void RegisterJavascriptTranslations(JavascriptTranslatableMethodCollection methods)
         {
-            JavascriptTranslator.AddPropertyGetterTranslator(typeof(BindingPageInfo), nameof(EvaluatingOnServer),
+            methods.AddPropertyGetterTranslator(typeof(BindingPageInfo), nameof(EvaluatingOnServer),
                 new GenericMethodCompiler(_ => new JsLiteral(false)));
-            JavascriptTranslator.AddPropertyGetterTranslator(typeof(BindingPageInfo), nameof(EvaluatingOnClient),
+            methods.AddPropertyGetterTranslator(typeof(BindingPageInfo), nameof(EvaluatingOnClient),
                 new GenericMethodCompiler(_ => new JsLiteral(true)));
-            JavascriptTranslator.AddPropertyGetterTranslator(typeof(BindingPageInfo), nameof(IsPostbackRunning),
+            methods.AddPropertyGetterTranslator(typeof(BindingPageInfo), nameof(IsPostbackRunning),
                 new GenericMethodCompiler(_ => new JsIdentifierExpression("dotvvm").Member("isPostbackRunning").Invoke()));
         }
     }

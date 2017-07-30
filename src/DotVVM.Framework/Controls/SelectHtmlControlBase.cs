@@ -31,10 +31,11 @@ namespace DotVVM.Framework.Controls
         {
             RenderEnabledProperty(writer);
             RenderOptionsProperties(writer);
-            RenderChangedEvent(writer);
             RenderSelectedValueProperty(writer);
 
             base.AddAttributesToRender(writer, context);
+
+            RenderChangedEvent(writer);
         }
 
         protected virtual void RenderEnabledProperty(IHtmlWriter writer)

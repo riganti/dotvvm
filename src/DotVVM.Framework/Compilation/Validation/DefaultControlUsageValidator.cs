@@ -38,25 +38,33 @@ namespace DotVVM.Framework.Compilation.Validation
                     }
                 }
                 var r = method.Invoke(null, args);
-                if(r is IEnumerable<ControlUsageError>)
+                if (r is IEnumerable<ControlUsageError>)
                 {
                     result.AddRange((IEnumerable<ControlUsageError>)r);
                 }
-                else if(r is IEnumerable<string>)
+                else if (r is IEnumerable<string>)
                 {
-                    result.AddRange((r as IEnumerable<string>).Select(e => new ControlUsageError(e, new[] { control.DothtmlNode })));
+                    result.AddRange((r as IEnumerable<string>).Select(e => new ControlUsageError(e)));
                 }
                 continue;
                 Error:;
             }
-            return result;
+
+            return result
+                // add current node to the error, if no control is specified
+                .Select(e => e.Nodes.Length == 0 ?
+                    new ControlUsageError(e.ErrorMessage, control.DothtmlNode) :
+                    e);
         }
 
         protected virtual MethodInfo[] FindMethods(Type type)
         {
-            return type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.FlattenHierarchy)
+            var methods = type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
                 .Where(m => m.IsDefined(typeof(ControlUsageValidatorAttribute)))
                 .ToArray();
+            if (methods.Length > 0) return methods;
+            else if (type == typeof(object)) return new MethodInfo[0];
+            else return FindMethods(type.GetTypeInfo().BaseType);
         }
 
         protected virtual Type GetControlType(IControlResolverMetadata metadata)

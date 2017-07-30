@@ -8,6 +8,7 @@ using System.Reflection;
 using System.ComponentModel;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Compilation.Javascript;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -46,6 +47,10 @@ namespace DotVVM.Framework.Configuration
             new NamespaceImport("DotVVM.Framework.Binding.HelperNamespace")
         };
 
+        private readonly Lazy<JavascriptTranslatorConfiguration> javascriptTranslator;
+        [JsonIgnore]
+        public JavascriptTranslatorConfiguration JavascriptTranslator => javascriptTranslator.Value;
+
 
         public List<BindingExtensionParameter> DefaultExtensionParameters { get; set; } = new List<BindingExtensionParameter>();
 
@@ -55,8 +60,9 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmMarkupConfiguration"/> class.
         /// </summary>
-        public DotvvmMarkupConfiguration()
+        public DotvvmMarkupConfiguration(Lazy<JavascriptTranslatorConfiguration> javascriptConfig = null)
         {
+            this.javascriptTranslator = javascriptConfig ?? new Lazy<JavascriptTranslatorConfiguration>(() => new JavascriptTranslatorConfiguration());
             Controls = new List<DotvvmControlConfiguration>();
             Assemblies = new List<string>();
             DefaultDirectives = new Dictionary<string, string>();

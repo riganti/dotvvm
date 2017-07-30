@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.13
+VisualStudioVersion = 15.0.26430.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{B760209E-57D7-4AEF-A726-69F73BBE52C0}"
 EndProject
@@ -67,7 +67,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.ApplicationI
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.ApplicationInsingts.Owin", "DotVVM.Samples.ApplicationInsingts.Owin\DotVVM.Samples.ApplicationInsingts.Owin.csproj", "{85617AC0-D0A5-40B8-8C81-4B13877E7837}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Tracing.ApplicationInsights", "DotVVM.Tracing.ApplicationInsights\DotVVM.Tracing.ApplicationInsights.csproj", "{9D052DD0-8CC4-469D-8031-F4716EBA4447}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Tracing.ApplicationInsights", "DotVVM.Tracing.ApplicationInsights\DotVVM.Tracing.ApplicationInsights.csproj", "{9D052DD0-8CC4-469D-8031-F4716EBA4447}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Tracing.ApplicationInsights.AspNetCore", "DotVVM.Tracing.ApplicationInsights.AspNetCore\DotVVM.Tracing.ApplicationInsights.AspNetCore.csproj", "{4D712088-BA42-404B-9A1D-15032A2B3513}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Tracing.ApplicationInsights.Owin", "DotVVM.Tracing.ApplicationInsights.Owin\DotVVM.Tracing.ApplicationInsights.Owin.csproj", "{E25432DB-B173-4ED4-96A5-E60DF440DE49}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -339,6 +343,29 @@ Global
 		{9D052DD0-8CC4-469D-8031-F4716EBA4447}.Release|x64.Build.0 = Release|Any CPU
 		{9D052DD0-8CC4-469D-8031-F4716EBA4447}.Release|x86.ActiveCfg = Release|Any CPU
 		{9D052DD0-8CC4-469D-8031-F4716EBA4447}.Release|x86.Build.0 = Release|Any CPU
+		{4D712088-BA42-404B-9A1D-15032A2B3513}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D712088-BA42-404B-9A1D-15032A2B3513}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4D712088-BA42-404B-9A1D-15032A2B3513}.Debug|x64.Build.0 = Debug|Any CPU
+		{4D712088-BA42-404B-9A1D-15032A2B3513}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4D712088-BA42-404B-9A1D-15032A2B3513}.Debug|x86.Build.0 = Debug|Any CPU
+		{4D712088-BA42-404B-9A1D-15032A2B3513}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D712088-BA42-404B-9A1D-15032A2B3513}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D712088-BA42-404B-9A1D-15032A2B3513}.Release|x64.ActiveCfg = Release|Any CPU
+		{4D712088-BA42-404B-9A1D-15032A2B3513}.Release|x64.Build.0 = Release|Any CPU
+		{4D712088-BA42-404B-9A1D-15032A2B3513}.Release|x86.ActiveCfg = Release|Any CPU
+		{4D712088-BA42-404B-9A1D-15032A2B3513}.Release|x86.Build.0 = Release|Any CPU
+		{E25432DB-B173-4ED4-96A5-E60DF440DE49}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E25432DB-B173-4ED4-96A5-E60DF440DE49}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E25432DB-B173-4ED4-96A5-E60DF440DE49}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E25432DB-B173-4ED4-96A5-E60DF440DE49}.Debug|x64.Build.0 = Debug|Any CPU
+		{E25432DB-B173-4ED4-96A5-E60DF440DE49}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E25432DB-B173-4ED4-96A5-E60DF440DE49}.Debug|x86.Build.0 = Debug|Any CPU
+		{E25432DB-B173-4ED4-96A5-E60DF440DE49}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E25432DB-B173-4ED4-96A5-E60DF440DE49}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E25432DB-B173-4ED4-96A5-E60DF440DE49}.Release|x64.ActiveCfg = Release|Any CPU
+		{E25432DB-B173-4ED4-96A5-E60DF440DE49}.Release|x64.Build.0 = Release|Any CPU
+		{E25432DB-B173-4ED4-96A5-E60DF440DE49}.Release|x86.ActiveCfg = Release|Any CPU
+		{E25432DB-B173-4ED4-96A5-E60DF440DE49}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

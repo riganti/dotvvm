@@ -45,7 +45,7 @@ namespace DotVVM.Framework.Controls
             var selectionChangedBinding = selector.GetCommandBinding(SelectorBase.SelectionChangedProperty);
             if (selectionChangedBinding != null)
             {
-                writer.AddAttribute("onchange", KnockoutHelper.GenerateClientPostBackScript(nameof(SelectorBase.SelectionChanged), selectionChangedBinding, selector, isOnChange: true, useWindowSetTimeout: true));
+                writer.AddAttribute("onchange", KnockoutHelper.GenerateClientPostBackScript(nameof(SelectorBase.SelectionChanged), selectionChangedBinding, selector, isOnChange: true, useWindowSetTimeout: true), true, ";");
             }
         }
     }

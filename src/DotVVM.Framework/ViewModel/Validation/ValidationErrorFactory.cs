@@ -49,10 +49,7 @@ namespace DotVVM.Framework.ViewModel.Validation
             exprCache.GetOrAdd((config, expr), e => {
                 var dataContext = DataContextStack.Create(e.expression.Parameters.Single().Type);
                 var expression = ExpressionUtils.Replace(e.expression, BindingExpressionBuilder.GetParameters(dataContext).First(p => p.Name == "_this"));
-                var jsast = JavascriptTranslator.CompileToJavascript(
-                    expression,
-                    dataContext,
-                    config.ServiceLocator.GetService<IViewModelSerializationMapper>());
+                var jsast = config.ServiceLocator.GetService<JavascriptTranslator>().CompileToJavascript(expression, dataContext);
                 var pcode = BindingPropertyResolvers.FormatJavascript(jsast, niceMode: e.config.Debug, nullChecks: false);
                 return JavascriptTranslator.FormatKnockoutScript(pcode, allowDataGlobal: true);
             });

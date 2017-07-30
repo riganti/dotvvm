@@ -21,15 +21,15 @@ namespace DotVVM.Framework.Binding
         public bool IsOdd => Index % 2 == 1;
         public bool IsEven => Index % 2 == 0;
 
-        internal static void RegisterJavascriptTranslations()
+        internal static void RegisterJavascriptTranslations(JavascriptTranslatableMethodCollection methods)
         {
-            JavascriptTranslator.AddPropertyGetterTranslator(typeof(BindingCollectionInfo), nameof(Index),
+            methods.AddPropertyGetterTranslator(typeof(BindingCollectionInfo), nameof(Index),
                 new GenericMethodCompiler(_ => new JsSymbolicParameter(JavascriptTranslator.CurrentIndexParameter)));
-            JavascriptTranslator.AddPropertyGetterTranslator(typeof(BindingCollectionInfo), nameof(IsFirst),
+            methods.AddPropertyGetterTranslator(typeof(BindingCollectionInfo), nameof(IsFirst),
                 new GenericMethodCompiler(_ => new JsBinaryExpression(new JsSymbolicParameter(JavascriptTranslator.CurrentIndexParameter), BinaryOperatorType.Equal, new JsLiteral(0))));
-            JavascriptTranslator.AddPropertyGetterTranslator(typeof(BindingCollectionInfo), nameof(IsOdd),
+            methods.AddPropertyGetterTranslator(typeof(BindingCollectionInfo), nameof(IsOdd),
                     new GenericMethodCompiler(_ => new JsBinaryExpression(new JsBinaryExpression(new JsSymbolicParameter(JavascriptTranslator.CurrentIndexParameter), BinaryOperatorType.Modulo, new JsLiteral(2)), BinaryOperatorType.Equal, new JsLiteral(1))));
-            JavascriptTranslator.AddPropertyGetterTranslator(typeof(BindingCollectionInfo), nameof(IsEven),
+            methods.AddPropertyGetterTranslator(typeof(BindingCollectionInfo), nameof(IsEven),
                     new GenericMethodCompiler(_ => new JsBinaryExpression(new JsBinaryExpression(new JsSymbolicParameter(JavascriptTranslator.CurrentIndexParameter), BinaryOperatorType.Modulo, new JsLiteral(2)), BinaryOperatorType.Equal, new JsLiteral(0))));
         }
     }

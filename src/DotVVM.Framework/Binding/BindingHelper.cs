@@ -85,6 +85,7 @@ namespace DotVVM.Framework.Binding
 
         /// <summary>
         /// Prepares DataContext hierarchy argument and executes update delegate.
+        /// </summary>
         public static object ExecDelegate(this CompiledBindingExpression.BindingDelegate func, DotvvmBindableObject contextControl)
         {
             var dataContexts = GetDataContexts(contextControl);

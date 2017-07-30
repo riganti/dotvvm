@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
-    internal class TypeConversion
+    public class TypeConversion
     {
         private static Dictionary<Type, List<Type>> ImplicitNumericConversions = new Dictionary<Type, List<Type>>();
         private static readonly Dictionary<Type, int> typePrecedence = null;
