@@ -1,5 +1,4 @@
 ﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.DefaultViewModel, DotVVM.Samples.Common
-@service abc=DotVVM.Framework.Hosting.IStopwatch
 
 <!DOCTYPE html>
 
@@ -16,8 +15,6 @@
     </style>
 </head>
 <body>
-    {{resource: abc.GetElapsedMiliseconds() / 1000}}
-
     <dot:Repeater WrapperTagName="ul" DataSource="{value: Routes }">
         <li><a href="{value: Url}">{{value: RouteName}}</a></li>
     </dot:Repeater>
