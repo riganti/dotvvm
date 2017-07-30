@@ -47,19 +47,6 @@ namespace DotVVM.Framework.Controls
             DotvvmPropertyGroup.Register<string, HtmlGenericControl>("Class-", "CssClasses");
 
         /// <summary>
-        /// Gets or sets whether the control is included in the page using the Knockout 'if' binding.
-        /// </summary>
-        [MarkupOptions(AllowHardCodedValue = false)]
-        public bool IncludeInPage
-        {
-            get { return (bool)GetValue(IncludeInPageProperty); }
-            set { SetValue(IncludeInPageProperty, value); }
-        }
-
-        public static readonly DotvvmProperty IncludeInPageProperty =
-            DotvvmProperty.Register<bool, HtmlGenericControl>(t => t.IncludeInPage, true);
-
-        /// <summary>
         /// Gets or sets the inner text of the HTML element.
         /// </summary>
         public string InnerText
@@ -147,11 +134,6 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            if (HasBinding(IncludeInPageProperty))
-            {
-                writer.WriteKnockoutDataBindComment("if", this, IncludeInPageProperty);
-            }
-
             if (RendersHtmlTag)
             {
                 writer.RenderBeginTag(TagName);
@@ -166,11 +148,6 @@ namespace DotVVM.Framework.Controls
             if (RendersHtmlTag)
             {
                 writer.RenderEndTag();
-            }
-
-            if (HasBinding(IncludeInPageProperty))
-            {
-                writer.WriteKnockoutDataBindEndComment();
             }
         }
 
