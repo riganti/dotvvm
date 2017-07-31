@@ -41,9 +41,10 @@ declare class DotvvmBeforePostBackEventArgs extends DotvvmEventArgs {
     viewModel: any;
     viewModelName: string;
     validationTargetPath: any;
+    postbackClientId: number;
     cancel: boolean;
     clientValidationFailed: boolean;
-    constructor(sender: HTMLElement, viewModel: any, viewModelName: string, validationTargetPath: any);
+    constructor(sender: HTMLElement, viewModel: any, viewModelName: string, validationTargetPath: any, postbackClientId: number);
 }
 declare class DotvvmAfterPostBackEventArgs extends DotvvmEventArgs {
     sender: HTMLElement;
@@ -51,9 +52,10 @@ declare class DotvvmAfterPostBackEventArgs extends DotvvmEventArgs {
     viewModelName: string;
     validationTargetPath: any;
     serverResponseObject: any;
+    postbackClientId: number;
     isHandled: boolean;
     wasInterrupted: boolean;
-    constructor(sender: HTMLElement, viewModel: any, viewModelName: string, validationTargetPath: any, serverResponseObject: any);
+    constructor(sender: HTMLElement, viewModel: any, viewModelName: string, validationTargetPath: any, serverResponseObject: any, postbackClientId: number);
 }
 declare class DotvvmSpaNavigatingEventArgs extends DotvvmEventArgs {
     viewModel: any;
