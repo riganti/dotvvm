@@ -257,6 +257,14 @@ namespace DotVVM.Framework.Utils
             }
         }
 
+        public static List<T> AllDescendants<T>(this Expression expression, Func<T, bool> predicate = null)
+            where T: Expression
+        {
+            var result = new List<T>();
+            new AnonymousActionVisitor { Replacer = a => { if (a is T t && predicate?.Invoke(t) != false) result.Add(t); return a; } }.Visit(expression);
+            return result;
+        }
+
         public static Expression ReplaceAll(this Expression expr, Func<Expression, Expression> replacer)
         {
             return new AnonymousActionVisitor { Replacer = replacer }.Visit(expr);

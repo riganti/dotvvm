@@ -91,6 +91,9 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public SimplePathExpressionBindingProperty FormatSimplePath(KnockoutJsExpressionBindingProperty expression)
         {
+            // if contains api parameter, can't use this as a path
+            if (expression.Expression.DescendantNodes().Any(n => n.TryGetAnnotation(out ViewModelInfoAnnotation vmInfo) && vmInfo.ExtensionParameter is RestApiRegistrationHelpers.ApiExtensionParameter apiParameter))
+                throw new Exception($"Can't get a path expression for command binding from binding that is using rest api.");
             return new SimplePathExpressionBindingProperty(expression.Expression.FormatParametrizedScript());
         }
 

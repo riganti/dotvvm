@@ -162,7 +162,7 @@ namespace DotVVM.Framework.Configuration
                 RegisterJsTranslation(prop.JsExpression, prop.Type, configuration);
         }
 
-        class ApiGroupDescriptor
+        public class ApiGroupDescriptor
         {
             public object Instance { get; }
             public ImmutableArray<ApiDescriptor> Properties { get; }
@@ -177,7 +177,7 @@ namespace DotVVM.Framework.Configuration
             }
         }
 
-        class ApiDescriptor
+        public class ApiDescriptor
         {
             public string Name { get; }
             public PropertyInfo PropInfo { get; }
@@ -194,7 +194,7 @@ namespace DotVVM.Framework.Configuration
             }
         }
 
-        class ApiExtensionParameter : BindingExtensionParameter
+        public class ApiExtensionParameter : BindingExtensionParameter
         {
             public ApiExtensionParameter(string identifier, ApiGroupDescriptor descriptor) : base(identifier, new ResolvedTypeDescriptor(descriptor.Type), inherit: true)
             {
@@ -211,7 +211,7 @@ namespace DotVVM.Framework.Configuration
                 );
 
             public override Expression GetServerEquivalent(Expression controlParameter) =>
-                Expression.Constant(ApiDescriptor.Instance, ApiDescriptor.Type);
+                Expression.Constant(null, ApiDescriptor.Type);
         }
     }
 }
