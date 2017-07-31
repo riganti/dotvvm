@@ -18,7 +18,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowHardCodedValue = false)]
         public bool? Checked
         {
-            get { return (bool)GetValue(CheckedProperty); }
+            get { return (bool?)GetValue(CheckedProperty); }
             set { SetValue(CheckedProperty, value); }
         }
 
