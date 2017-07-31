@@ -1,13 +1,11 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
+using System.Collections.Generic;
 
 namespace DotVVM.Framework.Controls
 {
@@ -16,6 +14,19 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     public class RadioButton : CheckableControlBase
     {
+        /// <summary>
+        /// Gets or sets whether the control is checked.
+        /// </summary>
+        [MarkupOptions(AllowHardCodedValue = false)]
+        public bool Checked
+        {
+            get { return (bool)GetValue(CheckedProperty); }
+            set { SetValue(CheckedProperty, value); }
+        }
+
+        public static readonly DotvvmProperty CheckedProperty =
+            DotvvmProperty.Register<bool, RadioButton>(t => t.Checked, false);
+
         /// <summary>
         /// Gets or sets the <see cref="CheckableControlBase.CheckedValue"/> of the first <see cref="RadioButton" /> that is checked and bound to this collection.
         /// </summary>

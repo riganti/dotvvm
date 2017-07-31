@@ -25,8 +25,6 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
 
         public GridViewDataSet<CustomerDataValidation> CustomersDataSet { get; set; }
 
-
-
         public List<CustomerDataValidation> Customers { get; set; }
 
         public List<CustomerDataValidation> Null { get; set; }
@@ -84,10 +82,12 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
     public class CustomerDataValidation
     {
         public int CustomerId { get; set; }
+
         [Required]
         public string Name { get; set; }
 
         public DateTime BirthDate { get; set; }
+
         [EmailAddress]
         public string Email { get; set; }
 

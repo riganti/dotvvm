@@ -5,6 +5,7 @@
   "devDependencies": {
     "grunt": "0.4.5",
     "grunt-runtime-t4-template-task": "*",
-    "grunt-typescript": "*"
+    "grunt-typescript": "*",
+    "typescript": "^2.4.2"
   }
 }

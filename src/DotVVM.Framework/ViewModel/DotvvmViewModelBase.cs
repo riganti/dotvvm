@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -29,8 +30,7 @@ namespace DotVVM.Framework.ViewModel
         async Task IDotvvmViewModel.Init()
         {
             await Init();
-            var dotvvmViewModels = GetChildViewModels();
-            foreach (var childViewModel in dotvvmViewModels)
+            foreach (var childViewModel in GetChildViewModels())
             {
                 await childViewModel.Init();
             }
@@ -70,7 +70,25 @@ namespace DotVVM.Framework.ViewModel
             var properties = ChildViewModelsCache.GetChildViewModelsProperties(thisType).Select(p => (IDotvvmViewModel)p.GetValue(this, null));
             var collection = ChildViewModelsCache.GetChildViewModelsCollection(thisType).SelectMany(p => (IEnumerable<IDotvvmViewModel>)p.GetValue(this, null) ?? new IDotvvmViewModel[0]);
 
-            return properties.Concat(collection).ToArray();
+            return properties.Concat(collection).Where(c => c != null).ToArray();
         }
+
+
+        internal void ExecuteOnViewModelRecursive(Action<IDotvvmViewModel> action)
+        {
+            // TODO: viewmodel hierarchy should be managed in a separate class - we need something like IHierarchicalDotvvmViewModel and IViewModelHierarchyManager
+            action(this);
+            foreach (var childViewModel in GetChildViewModels())
+            {
+                if (childViewModel is DotvvmViewModelBase dotvvmChildViewModel)
+                {
+                    dotvvmChildViewModel.ExecuteOnViewModelRecursive(action);
+                }
+                else
+                {
+                    action(childViewModel);
+                }
+            }
+        } 
     }
 }

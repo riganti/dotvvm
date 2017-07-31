@@ -71,6 +71,8 @@ namespace Dotvvm.Samples.Tests{
 
             public static string ControlSamples_CheckBox_CheckedItemsNull => "ControlSamples/CheckBox/CheckedItemsNull";
 
+            public static string ControlSamples_CheckBox_Indeterminate => "ControlSamples/CheckBox/Indeterminate";
+
             public static string ControlSamples_CheckBox_InRepeater => "ControlSamples/CheckBox/InRepeater";
 
             public static string ControlSamples_ClaimView_ClaimViewTest => "ControlSamples/ClaimView/ClaimViewTest";
@@ -80,6 +82,8 @@ namespace Dotvvm.Samples.Tests{
             public static string ControlSamples_ComboBox_ComboBoxDelaySync => "ControlSamples/ComboBox/ComboBoxDelaySync";
 
             public static string ControlSamples_ComboBox_ComboBoxDelaySync2 => "ControlSamples/ComboBox/ComboBoxDelaySync2";
+
+            public static string ControlSamples_ComboBox_ComboBoxDelaySync3 => "ControlSamples/ComboBox/ComboBoxDelaySync3";
 
             public static string ControlSamples_ContentPlaceHolder_ContentPlaceHolderPage => "ControlSamples/ContentPlaceHolder/ContentPlaceHolderPage";
 
@@ -187,6 +191,10 @@ namespace Dotvvm.Samples.Tests{
 
             public static string ControlSamples_UpdateProgress_UpdateProgressDelay => "ControlSamples/UpdateProgress/UpdateProgressDelay";
 
+            public static string ControlSamples_ValidationSummary_IncludeErrorsFromTarget_PropertyPathNotNull => "ControlSamples/ValidationSummary/IncludeErrorsFromTarget_PropertyPathNotNull";
+
+            public static string ControlSamples_ValidationSummary_IncludeErrorsFromTarget_PropertyPathNull => "ControlSamples/ValidationSummary/IncludeErrorsFromTarget_PropertyPathNull";
+
             public static string ControlSamples_ValidationSummary_RecursiveValidationSummary => "ControlSamples/ValidationSummary/RecursiveValidationSummary";
 
             public static string Errors_BindingInvalidCommand => "Errors/BindingInvalidCommand";
@@ -234,6 +242,8 @@ namespace Dotvvm.Samples.Tests{
             public static string FeatureSamples_Api_GithubRepoApi => "FeatureSamples/Api/GithubRepoApi";
 
             public static string FeatureSamples_BindingContexts_BindingContext => "FeatureSamples/BindingContexts/BindingContext";
+
+            public static string FeatureSamples_BindingContexts_CollectionContext => "FeatureSamples/BindingContexts/CollectionContext";
 
             public static string FeatureSamples_BindingNamespaces_BindingUsingNamespace => "FeatureSamples/BindingNamespaces/BindingUsingNamespace";
 
@@ -295,6 +305,8 @@ namespace Dotvvm.Samples.Tests{
 
             public static string FeatureSamples_NestedMasterPages_Content => "FeatureSamples/NestedMasterPages/Content";
 
+            public static string FeatureSamples_ParameterBinding_ParameterBinding => "FeatureSamples/ParameterBinding/ParameterBinding";
+
             public static string FeatureSamples_PostBack_PostBackHandlers => "FeatureSamples/PostBack/PostBackHandlers";
 
             public static string FeatureSamples_PostBack_PostbackUpdate => "FeatureSamples/PostBack/PostbackUpdate";
@@ -354,6 +366,10 @@ namespace Dotvvm.Samples.Tests{
             public static string FeatureSamples_ViewModelDeserialization_DoesNotDropObject => "FeatureSamples/ViewModelDeserialization/DoesNotDropObject";
 
             public static string FeatureSamples_ViewModelNesting_NestedViewModel => "FeatureSamples/ViewModelNesting/NestedViewModel";
+
+            public static string FeatureSamples_ViewModelProtection_ComplexViewModelProtection => "FeatureSamples/ViewModelProtection/ComplexViewModelProtection";
+
+            public static string FeatureSamples_ViewModelProtection_SignedNestedInServerToClient => "FeatureSamples/ViewModelProtection/SignedNestedInServerToClient";
 
             public static string FeatureSamples_ViewModelProtection_ViewModelProtection => "FeatureSamples/ViewModelProtection/ViewModelProtection";
 

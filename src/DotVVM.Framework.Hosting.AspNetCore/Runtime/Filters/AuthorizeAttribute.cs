@@ -15,7 +15,7 @@ namespace DotVVM.Framework.Runtime.Filters
     /// <summary>
     /// Recognizes <see cref="Microsoft.AspNetCore.Authorization.AuthorizeAttribute" /> filters and applies a specific <see cref="AuthorizationPolicy" />.
     /// </summary>
-    public class AuthorizeAttribute : ActionFilterAttribute, IAuthorizeData
+    public class AuthorizeAttribute : ActionFilterAttribute
     {
         private static readonly ConcurrentDictionary<Type, bool> isAnonymousAllowedCache = new ConcurrentDictionary<Type, bool>();
 
@@ -49,7 +49,7 @@ namespace DotVVM.Framework.Runtime.Filters
         /// Gets or sets a comma delimited list of schemes from which user information is constructed.
         /// </summary>
         public string ActiveAuthenticationSchemes { get; set; }
-
+        
 
         /// <inheritdoc />
         protected override Task OnViewModelCreatedAsync(IDotvvmRequestContext context)
@@ -108,21 +108,51 @@ namespace DotVVM.Framework.Runtime.Filters
             }
         }
 
-        private Task<AuthorizationPolicy> GetAuthorizationPolicy(IDotvvmRequestContext context)
+        private async Task<AuthorizationPolicy> GetAuthorizationPolicy(IDotvvmRequestContext context)
         {
             var policyProvider = GetPolicyProvider(context);
 
-            return AuthorizationPolicy.CombineAsync(policyProvider, new IAuthorizeData[] { WrapInAuthorizeAttribute(this) });
+            var policyBuilder = new AuthorizationPolicyBuilder();
+            var useDefaultPolicy = true;
+
+            if (!string.IsNullOrWhiteSpace(Policy))
+            {
+                var policy = await policyProvider.GetPolicyAsync(Policy);
+                if (policy == null)
+                {
+                    throw new InvalidOperationException($"The policy '{Policy}' could not be found!");
+                }
+                policyBuilder.Combine(policy);
+                useDefaultPolicy = false;
+            }
+            var rolesSplit = Roles?.Split(',');
+            if (rolesSplit != null && rolesSplit.Any())
+            {
+                var trimmedRolesSplit = rolesSplit.Where(r => !string.IsNullOrWhiteSpace(r)).Select(r => r.Trim());
+                policyBuilder.RequireRole(trimmedRolesSplit);
+                useDefaultPolicy = false;
+            }
+            var authTypesSplit = ActiveAuthenticationSchemes?.Split(',');
+            if (authTypesSplit != null && authTypesSplit.Any())
+            {
+                foreach (var authType in authTypesSplit)
+                {
+                    if (!string.IsNullOrWhiteSpace(authType))
+                    {
+                        policyBuilder.AuthenticationSchemes.Add(authType.Trim());
+                    }
+                }
+            }
+            if (useDefaultPolicy)
+            {
+                policyBuilder.Combine(await policyProvider.GetDefaultPolicyAsync());
+            }
+
+            return policyBuilder.Build();
         }
 
         private IAuthorizationPolicyProvider GetPolicyProvider(IDotvvmRequestContext context)
             => context.GetAspNetCoreContext().RequestServices.GetRequiredService<IAuthorizationPolicyProvider>();
-
-        private IEnumerable<IAuthorizeData> GetAuthorizeData(Type viewModelType)
-            => viewModelType.GetTypeInfo().GetCustomAttributes().OfType<IAuthorizeData>().Select(WrapInAuthorizeAttribute);
-
-        private IEnumerable<IAuthorizeData> GetAuthorizeData(ActionInfo actionInfo)
-            => actionInfo?.Binding?.ActionFilters != null ? actionInfo.Binding.ActionFilters.OfType<IAuthorizeData>().Select(WrapInAuthorizeAttribute) : Enumerable.Empty<IAuthorizeData>();
 
         private bool IsAnonymousAllowed(object viewModel)
             => viewModel != null && isAnonymousAllowedCache.GetOrAdd(viewModel.GetType(), t => t.GetTypeInfo().GetCustomAttributes().OfType<IAllowAnonymous>().Any());

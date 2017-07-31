@@ -8,9 +8,7 @@
     <title></title>
 </head>
 <body>
-    <span data-ui="id-span">
-        {{value: DependencyInstanceID}}
-    </span>
+    <dot:Literal Text="{value: DependencyInstanceID}" class="result" />
 
     <dot:Button Text="Postback"
                 Click="{command: 0}"

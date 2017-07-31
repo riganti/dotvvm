@@ -13,7 +13,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         JsonSerializer serializer;
         Stack<int> propertyIndices = new Stack<int>();
         int virtualNests = 0;
-        int propertyIndex = 0;
+        int propertyIndex = -1;
 
         public EncryptedValuesReader(JsonReader json)
         {
@@ -39,8 +39,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 virtualNests++;
             }
-            propertyIndices.Push(propertyIndex + 1);
-            propertyIndex = 0;
+            propertyIndices.Push(propertyIndex);
+            propertyIndex = -1;
         }
 
         public void AssertEnd()
@@ -50,7 +50,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 virtualNests--;
                 propertyIndex = propertyIndices.Pop();
             }
-            else if(json.TokenType == JsonToken.EndObject)
+            else if (json.TokenType == JsonToken.EndObject)
             {
                 json.Read();
                 propertyIndex = propertyIndices.Pop();
@@ -61,11 +61,15 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public JToken ReadValue()
         {
             if (json.TokenType == JsonToken.EndArray || virtualNests > 0 || !HasProperty(propertyIndex)) throw SecurityError();
-            propertyIndex++;
             json.Read();
             var result = JToken.ReadFrom(json);
             json.Read();
             return result;
+        }
+
+        public void IncrementIndex()
+        {
+            propertyIndex++;
         }
 
         Exception SecurityError() => new SecurityException("Failed to deserialize viewModel encrypted values");
