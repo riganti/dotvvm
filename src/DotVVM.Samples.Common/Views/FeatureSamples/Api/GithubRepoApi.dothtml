@@ -6,7 +6,6 @@
 <head>
     <meta charset="utf-8" />
     <title></title>
-    <dot:RequiredResource Name="apiInit_github" />
 </head>
 <body>
 

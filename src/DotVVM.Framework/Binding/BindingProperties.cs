@@ -261,4 +261,14 @@ namespace DotVVM.Framework.Binding.Properties
             this.Expression = expression;
         }
     }
+
+    public sealed class RequiredRuntimeResourcesBindingProperty
+    {
+        public readonly ImmutableArray<string> Resources;
+        public RequiredRuntimeResourcesBindingProperty(ImmutableArray<string> resources)
+        {
+            this.Resources = resources;
+        }
+        public static readonly RequiredRuntimeResourcesBindingProperty Empty = new RequiredRuntimeResourcesBindingProperty(ImmutableArray<string>.Empty);
+    }
 }

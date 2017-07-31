@@ -21,17 +21,18 @@ namespace DotVVM.Framework.Compilation
 {
     public class DefaultViewCompiler : IViewCompiler
     {
-        public DefaultViewCompiler(DotvvmConfiguration configuration)
+        public DefaultViewCompiler(DotvvmConfiguration configuration, Func<BindingRequiredResourceVisitor> bindingResourceRegisteringVisitor)
         {
             this.configuration = configuration;
             this.controlTreeResolver = configuration.ServiceLocator.GetService<IControlTreeResolver>();
             this.assemblyCache = CompiledAssemblyCache.Instance;
+            this.bindingResourceRegisteringVisitor = bindingResourceRegisteringVisitor;
         }
-
 
         private readonly CompiledAssemblyCache assemblyCache;
         private readonly IControlTreeResolver controlTreeResolver;
         private readonly DotvvmConfiguration configuration;
+        private readonly Func<BindingRequiredResourceVisitor> bindingResourceRegisteringVisitor;
 
         /// <summary>
         /// Compiles the view and returns a function that can be invoked repeatedly. The function builds full control tree and activates the page.
@@ -67,11 +68,14 @@ namespace DotVVM.Framework.Compilation
                     }
                 }
 
-                var contextSpaceVisitor = new DataContextPropertyAssigningVisitor();
-                resolvedView.Accept(contextSpaceVisitor);
+                var bindingResourceRegisteringVisitor = this.bindingResourceRegisteringVisitor();
+                resolvedView.Accept(bindingResourceRegisteringVisitor);
 
                 var styleVisitor = new StylingVisitor(configuration);
                 resolvedView.Accept(styleVisitor);
+
+                var contextSpaceVisitor = new DataContextPropertyAssigningVisitor();
+                resolvedView.Accept(contextSpaceVisitor);
 
                 var validationVisitor = new Validation.ControlUsageValidationVisitor(configuration);
                 resolvedView.Accept(validationVisitor);

@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.Utils;
 using System.Diagnostics;
+using DotVVM.Framework.Binding.Properties;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -159,7 +160,10 @@ namespace DotVVM.Framework.Configuration
             configuration.Markup.DefaultExtensionParameters.Add(new ApiExtensionParameter(identifier, descriptor));
 
             foreach (var prop in descriptor.Properties)
+            {
+                prop.JsExpression.AddAnnotation(new RequiredRuntimeResourcesBindingProperty(ImmutableArray.Create("apiInit" + identifier)));
                 RegisterJsTranslation(prop.JsExpression, prop.Type, configuration);
+            }
         }
 
         public class ApiGroupDescriptor

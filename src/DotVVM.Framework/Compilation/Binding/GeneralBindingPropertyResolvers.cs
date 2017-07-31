@@ -111,6 +111,12 @@ namespace DotVVM.Framework.Compilation.Binding
             return (StartsWithStatementLikeExpression(expr.Expression) ? expr : expr.Expression).FormatParametrizedScript(niceMode);
         }
 
+        public RequiredRuntimeResourcesBindingProperty GetRequiredResources(KnockoutJsExpressionBindingProperty js)
+        {
+            var resources = js.Expression.DescendantNodesAndSelf().Select(n => n.Annotation<RequiredRuntimeResourcesBindingProperty>()).Where(n => n != null).SelectMany(n => n.Resources).ToImmutableArray();
+            return resources.Length == 0 ? RequiredRuntimeResourcesBindingProperty.Empty : new RequiredRuntimeResourcesBindingProperty(resources);
+        }
+
         private static bool StartsWithStatementLikeExpression(JsExpression expression)
         {
             if (expression is JsFunctionExpression || expression is JsObjectExpression) return true;
