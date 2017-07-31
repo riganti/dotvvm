@@ -12,6 +12,18 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     public class CheckBox : CheckableControlBase
     {
+        /// <summary>
+        /// Gets or sets whether the control is checked.
+        /// </summary>
+        [MarkupOptions(AllowHardCodedValue = false)]
+        public bool? Checked
+        {
+            get { return (bool)GetValue(CheckedProperty); }
+            set { SetValue(CheckedProperty, value); }
+        }
+
+        public static readonly DotvvmProperty CheckedProperty =
+            DotvvmProperty.Register<bool?, CheckBox>(t => t.Checked, false);
 
         /// <summary>
         /// Gets or sets a collection of values of all checked checkboxes. Use this property in combination with the CheckedValue property.
@@ -90,7 +102,7 @@ namespace DotVVM.Framework.Controls
         protected virtual void RenderCheckedProperty(IHtmlWriter writer)
         {
             var checkedBinding = GetValueBinding(CheckedProperty);
-            writer.AddKnockoutDataBind("checked", checkedBinding);
+            writer.AddKnockoutDataBind("dotvvm-CheckState", checkedBinding);
             writer.AddKnockoutDataBind("checkedValue", "true");
 
             // Boolean mode can have prerendered `checked` attribute

@@ -122,10 +122,10 @@ declare class DotvvmPromise<TArg> implements IDotvvmPromise<TArg> {
     private argument;
     private error;
     done(callback: (arg: TArg) => void, forceAsync?: boolean): void;
-    fail(callback: (error) => void, forceAsync?: boolean): DotvvmPromise<TArg>;
-    resolve(arg: TArg): DotvvmPromise<TArg>;
-    reject(error: any): DotvvmPromise<TArg>;
-    chainFrom(promise: IDotvvmPromise<TArg>): DotvvmPromise<TArg>;
+    fail(callback: (error) => void, forceAsync?: boolean): this;
+    resolve(arg: TArg): this;
+    reject(error: any): this;
+    chainFrom(promise: IDotvvmPromise<TArg>): this;
 }
 interface ISerializationOptions {
     serializeAll?: boolean;
@@ -142,7 +142,7 @@ declare class DotvvmSerialization {
     validateType(value: any, type: string): boolean;
     private findObject(obj, matcher);
     flatSerialize(viewModel: any): any;
-    getPureObject(viewModel: any): any;
+    getPureObject(viewModel: any): {};
     private pad(value, digits);
     serializeDate(date: Date, convertToUtc?: boolean): string;
 }

@@ -21,7 +21,7 @@ namespace DotVVM.Samples.Tests.Control
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_CheckBox_CheckBox);
 
                 var boxes = browser.FindElements("fieldset");
-                
+
                 // single check box
                 boxes.ElementAt(0).First("input[type=checkbox]").Click();
                 boxes.ElementAt(0).First("input[type=button]").Click();
@@ -60,7 +60,7 @@ namespace DotVVM.Samples.Tests.Control
                 browser.Wait();
 
                 boxes.ElementAt(2).Last("span.result")
-                   .CheckIfInnerTextEquals("2");
+                    .CheckIfInnerTextEquals("2");
                 boxes.ElementAt(2).First("input[type=checkbox]")
                     .CheckIfIsNotChecked();
 
@@ -78,6 +78,25 @@ namespace DotVVM.Samples.Tests.Control
                 boxes.ElementAt(5).First("input[type=checkbox]").Click();
                 boxes.ElementAt(5).First("span.result")
                     .CheckIfInnerTextEquals("true");
+            });
+        }
+
+        [TestMethod]
+        public void Control_CheckBox_Indeterminate()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_CheckBox_Indeterminate);
+
+                var checkBox = browser.First("input[type=checkbox]");
+                var reset = browser.First("input[type=button]");
+                var value = browser.First("span.value");
+
+                value.CheckIfTextEquals("Indeterminate");
+                checkBox.Click();
+                value.CheckIfTextEquals("Other");
+                reset.Click();
+                value.CheckIfTextEquals("Indeterminate");
             });
         }
     }
