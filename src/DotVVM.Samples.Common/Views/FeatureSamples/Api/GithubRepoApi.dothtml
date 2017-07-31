@@ -12,11 +12,11 @@
 
     <p>
         <dot:TextBox Text="{value: UserName}" placeholder="user name" />
-        <dot:ComboBox SelectedValue="{value: Repo}" DataSource="{value: Api.RefreshOnChange(_github.Root.Repos12(UserName, null, null, null, null, null, null, null), UserName)}" ItemValueBinding="{value: Name}" ItemTextBinding="{value: Name}" />
+        <dot:ComboBox SelectedValue="{value: Repo}" DataSource="{value: Api.RefreshOnChange(_github.Users.GetRepos(UserName), UserName)}" ItemValueBinding="{value: Name}" ItemTextBinding="{value: Name}" />
     </p>
     <p>
         Open Issues:
-        <dot:GridView DataSource="{value: _page.EvaluatingOnServer ? null : Api.RefreshOnChange(_github.Root.Issues2(UserName, Repo, 'All', 'Open', '', 'Updated', 'Desc', '1950-01-01T00:00:00Z', null, null, null, null, null, null), Repo + UserName)}">
+        <dot:GridView DataSource="{value: _page.EvaluatingOnServer ? null : Api.RefreshOnChange(_github.Repos.GetIssuesAll(UserName, Repo, 'All', 'Open', '', 'Updated', 'Desc', '1950-01-01T00:00:00Z'), Repo + UserName)}">
             <EmptyDataTemplate>No issues</EmptyDataTemplate>
             <dot:GridViewTextColumn ValueBinding="{value: _this.Title}" HeaderText="Title" />
             <dot:GridViewTextColumn ValueBinding="{value: User.Login}" HeaderText="User" />

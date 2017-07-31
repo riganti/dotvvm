@@ -93,14 +93,15 @@ namespace DotVVM.CommandLine.Commands.Logic
                 isSinlgeClient = false;
                 clientName = className;
                 var properties = from c in clients
-                                 let type = c + "Client"
-                                 select $"public {type} {type} {{ get; set; }}";
-                var wrapperClass = $@"public class {className}
+                                 let name = ConversionUtilities.ConvertToUpperCamelCase(c, true)
+                                 let type = name + "Client"
+                                 select $"public {type} {(string.IsNullOrEmpty(name) ? "Root" : name)} {{ get; set; }}";
+                var wrapperClass = $@"    public class {className}
 {{
-{ConversionUtilities.Tab(string.Join("\n", properties), 1)}
-}}".Replace("\r\n", "\n").Trim() + "\n";
+    {ConversionUtilities.Tab(string.Join("\n", properties), 1)}
+}}".Replace("\r\n", "\n");
                 var namespaceClosing = csharpCode.LastIndexOf('}');
-                return csharpCode.Insert(namespaceClosing, ConversionUtilities.Tab(wrapperClass, 1));
+                return csharpCode.Insert(namespaceClosing, ConversionUtilities.Tab(wrapperClass, 1) + "\n");
             }
         }
 
@@ -117,8 +118,8 @@ namespace DotVVM.CommandLine.Commands.Logic
 
             var generator = new SwaggerToTypeScriptClientGenerator(document, settings);
             var ts = generator.GenerateFile();
-            ts = "namespace " + definition.Namespace + " {\n" + ConversionUtilities.Tab(ts, 1).TrimEnd('\n') + "\n}\n";
-            File.WriteAllText(definition.TypescriptClient, generator.GenerateFile());
+            ts = "namespace " + definition.Namespace + " {\n    " + ConversionUtilities.Tab(ts, 1).TrimEnd('\n') + "\n}\n";
+            File.WriteAllText(definition.TypescriptClient, ts);
 
             if (definition.CompileTypescript)
                 Process.Start("tsc", definition.TypescriptClient).WaitForExit();

@@ -14,6 +14,7 @@ using DotVVM.Framework.Compilation.Javascript;
 using System.Threading.Tasks;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.Utils;
+using System.Diagnostics;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -50,6 +51,16 @@ namespace DotVVM.Framework.Configuration
                     RegisterApiDtoProperties(t, config);
             }
         }
+
+        private static JsExpression[] ReplaceDefaultWithUndefined(IEnumerable<JsExpression> arguments, ParameterInfo[] parameters)
+        {
+            var replaced = arguments.Zip(parameters, (a, p) => a is JsLiteral literal && literal.Value == p.DefaultValue ? new JsIdentifierExpression("undefined") : a).ToArray();
+            int trimCount = 0;
+            while (trimCount < replaced.Length && replaced[replaced.Length - trimCount - 1] is JsIdentifierExpression identifier && identifier.Identifier == "undefined")
+                trimCount++;
+            return replaced.Take(replaced.Length - trimCount).ToArray();
+        }
+
         private static void RegisterJsTranslation(JsExpression identifier, Type apiClient, DotvvmConfiguration config)
         {
             lock (locker)
@@ -71,7 +82,7 @@ namespace DotVVM.Framework.Configuration
                         config.Markup.JavascriptTranslator.MethodCollection.AddMethodTranslator(method, new GenericMethodCompiler(
                             a => new JsIdentifierExpression("dotvvm").Member("invokeApiFn").Invoke(
                                 new JsFunctionExpression(new JsIdentifier[0], new JsBlockStatement(
-                                    new JsReturnStatement(identifier.Clone().Member(KnockoutHelper.ConvertToCamelCase(method.Name)).Invoke(a.Skip(1).ToArray()))
+                                    new JsReturnStatement(identifier.Clone().Member(KnockoutHelper.ConvertToCamelCase(method.Name)).Invoke(ReplaceDefaultWithUndefined(a.Skip(1), method.GetParameters())))
                                 )),
                                 new JsArrayExpression(isRead ?
                                     new JsIdentifierExpression("dotvvm").Member("eventHub").Member("get").Invoke(new JsLiteral(identifier.FormatScript())) :

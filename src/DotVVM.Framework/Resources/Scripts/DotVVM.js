@@ -2202,18 +2202,30 @@ var DotvvmEventHub = (function () {
     return DotvvmEventHub;
 }());
 function basicAuthenticatedFetch(input, init) {
-    var auth = sessionStorage.getItem("someAuth") || (function () {
+    function requestAuth() {
         var a = prompt("You credentials for " + (input["url"] || input)) || "";
         sessionStorage.setItem("someAuth", a);
         return a;
-    })();
-    if (init == null)
-        init = {};
-    if (init.headers == null)
-        init.headers = {};
-    if (init.headers['Authorization'] == null)
-        init.headers["Authorization"] = 'Basic ' + btoa(auth);
-    return window.fetch(input, init);
+    }
+    var auth = sessionStorage.getItem("someAuth");
+    if (auth != null) {
+        if (init == null)
+            init = {};
+        if (init.headers == null)
+            init.headers = {};
+        if (init.headers['Authorization'] == null)
+            init.headers["Authorization"] = 'Basic ' + btoa(auth);
+    }
+    return window.fetch(input, init).then(function (response) {
+        if (response.status == 401 && auth == null) {
+            if (sessionStorage.getItem("someAuth") == null)
+                requestAuth();
+            return basicAuthenticatedFetch(input, init);
+        }
+        else {
+            return response;
+        }
+    });
 }
 (function () {
     var cachedValues = {};

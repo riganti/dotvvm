@@ -36,7 +36,7 @@ namespace DotVVM.Samples.BasicSamples
                 });
 
             config.RegisterApiGroup(typeof(ApiClientWrapper), "http://localhost:5000/", "Scripts/ApiClient.js");
-            config.RegisterApiGroup(typeof(GithubClientWrapper), "https://api.github.com/", "Scripts/GithubApiClient.js", "_github", customFetchFunction: "basicAuthenticatedFetch");
+            config.RegisterApiGroup(typeof(GithubApiClient.GithubApiClient), "https://api.github.com/", "Scripts/GithubApiClient.js", "_github", customFetchFunction: "basicAuthenticatedFetch");
         }
 
         private static void RegisterResources(DotvvmConfiguration config)
