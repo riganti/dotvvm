@@ -104,7 +104,7 @@ class ValidationError {
 
     public static getOrCreate(validatedObservable: KnockoutValidatedObservable<any>): KnockoutObservableArray<ValidationError> {
         if (validatedObservable["wrappedProperty"]) {
-            var wrapped = validatedObservable["wrappedProperty"]();
+            var wrapped = (validatedObservable["wrappedProperty"] as any)();
             if (ko.isObservable(wrapped)) validatedObservable = wrapped;
         }
         if (!validatedObservable.validationErrors) {
