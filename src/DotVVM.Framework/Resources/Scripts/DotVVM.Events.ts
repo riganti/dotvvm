@@ -58,14 +58,14 @@ class DotvvmErrorEventArgs extends DotvvmEventArgs {
 class DotvvmBeforePostBackEventArgs extends DotvvmEventArgs {
     public cancel: boolean = false;
     public clientValidationFailed: boolean = false;
-    constructor(public sender: HTMLElement, public viewModel: any, public viewModelName: string, public validationTargetPath: any) {
+    constructor(public sender: HTMLElement, public viewModel: any, public viewModelName: string, public validationTargetPath: any, public postbackClientId: number) {
         super(viewModel);
     }
 }
 class DotvvmAfterPostBackEventArgs extends DotvvmEventArgs {
     public isHandled: boolean = false;
     public wasInterrupted: boolean = false;
-    constructor(public sender: HTMLElement, public viewModel: any, public viewModelName: string, public validationTargetPath: any, public serverResponseObject: any) {
+    constructor(public sender: HTMLElement, public viewModel: any, public viewModelName: string, public validationTargetPath: any, public serverResponseObject: any, public postbackClientId: number) {
         super(viewModel);
     }
 }

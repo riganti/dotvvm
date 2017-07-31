@@ -248,11 +248,11 @@ class DotVVM {
         var currentPostBackCounter = this.backUpPostBackConter();
 
         // trigger beforePostback event
-        var beforePostbackArgs = new DotvvmBeforePostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath);
+        var beforePostbackArgs = new DotvvmBeforePostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, currentPostBackCounter);
         this.events.beforePostback.trigger(beforePostbackArgs);
         if (beforePostbackArgs.cancel) {
             // trigger afterPostback event
-            var afterPostBackArgsCanceled = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, null);
+            var afterPostBackArgsCanceled = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, null, currentPostBackCounter);
             afterPostBackArgsCanceled.wasInterrupted = true;
             this.events.afterPostback.trigger(afterPostBackArgsCanceled);
             return promise.reject("canceled");
@@ -274,7 +274,7 @@ class DotVVM {
         this.postJSON(this.viewModels[viewModelName].url, "POST", ko.toJSON(data), result => {
             // if another postback has already been passed, don't do anything
             if (!this.isPostBackStillActive(currentPostBackCounter)) {
-                var afterPostBackArgsCanceled = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, null);
+                var afterPostBackArgsCanceled = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, null, currentPostBackCounter);
                 afterPostBackArgsCanceled.wasInterrupted = true;
                 this.events.afterPostback.trigger(afterPostBackArgsCanceled);
                 promise.reject("postback collision");
@@ -336,7 +336,7 @@ class DotVVM {
                     }
 
                     // trigger afterPostback event
-                    var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, resultObject);
+                    var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, resultObject, currentPostBackCounter);
                     promise.resolve(afterPostBackArgs);
                     this.events.afterPostback.trigger(afterPostBackArgs);
                     if (!isSuccess && !afterPostBackArgs.isHandled) {
@@ -398,7 +398,7 @@ class DotVVM {
         var waitForScriptLoaded = false;
         if (el.tagName.toLowerCase() == "script") {
             // create the script element
-            var script = document.createElement("script");
+            var script = <HTMLScriptElement> document.createElement("script");
             if (el.src) {
                 script.src = el.src;
                 waitForScriptLoaded = true;
@@ -413,7 +413,7 @@ class DotVVM {
         }
         else if (el.tagName.toLowerCase() == "link") {
             // create link
-            var link = document.createElement("link");
+            var link =<HTMLLinkElement> document.createElement("link");
             if (el.href) {
                 link.href = el.href;
             }
@@ -564,7 +564,7 @@ class DotVVM {
         else {
             var fakeAnchor = this.fakeRedirectAnchor;
             if (!fakeAnchor) {
-                fakeAnchor = document.createElement("a");
+                fakeAnchor =<HTMLAnchorElement> document.createElement("a");
                 fakeAnchor.style.display = "none";
                 fakeAnchor.setAttribute("data-dotvvm-fake-id", "dotvvm_fake_redirect_anchor_87D7145D_8EA8_47BA_9941_82B75EE88CDB");
                 document.body.appendChild(fakeAnchor);

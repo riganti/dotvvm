@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "noEmitOnError": false,
+    "removeComments": false,
+    "sourceMap": true,
+    "target": "es5",
+    "outFile": "Resources/Scripts/DotVVM.js",
+    "declaration": true,
+    "strictNullChecks": true
+  },
+  "files": [
+    "Resources/Scripts/DotVVM.DomUtils.ts",
+    "Resources/Scripts/DotVVM.Events.ts",
+    "Resources/Scripts/DotVVM.FileUpload.ts",
+    "Resources/Scripts/DotVVM.Globalize.ts",
+    "Resources/Scripts/DotVVM.PostBackHandlers.ts",
+    "Resources/Scripts/DotVVM.Promise.ts",
+    "Resources/Scripts/DotVVM.Serialization.ts",
+    "Resources/Scripts/DotVVM.Validation.ts",
+    "Resources/Scripts/DotVVM.ts",
+    "Resources/Scripts/DotVVM.Evaluator.ts"
+  ],
+  "compileOnSave": true
+}

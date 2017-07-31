@@ -1,3 +1,13 @@
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var DotvvmDomUtils = (function () {
     function DotvvmDomUtils() {
     }
@@ -16,16 +26,6 @@ var DotvvmDomUtils = (function () {
     };
     return DotvvmDomUtils;
 }());
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 var DotvvmEvents = (function () {
     function DotvvmEvents() {
         this.init = new DotvvmEvent("dotvvm.events.init", true);
@@ -93,12 +93,13 @@ var DotvvmErrorEventArgs = (function (_super) {
 }(DotvvmEventArgs));
 var DotvvmBeforePostBackEventArgs = (function (_super) {
     __extends(DotvvmBeforePostBackEventArgs, _super);
-    function DotvvmBeforePostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath) {
+    function DotvvmBeforePostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, postbackClientId) {
         var _this = _super.call(this, viewModel) || this;
         _this.sender = sender;
         _this.viewModel = viewModel;
         _this.viewModelName = viewModelName;
         _this.validationTargetPath = validationTargetPath;
+        _this.postbackClientId = postbackClientId;
         _this.cancel = false;
         _this.clientValidationFailed = false;
         return _this;
@@ -107,13 +108,14 @@ var DotvvmBeforePostBackEventArgs = (function (_super) {
 }(DotvvmEventArgs));
 var DotvvmAfterPostBackEventArgs = (function (_super) {
     __extends(DotvvmAfterPostBackEventArgs, _super);
-    function DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, serverResponseObject) {
+    function DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, serverResponseObject, postbackClientId) {
         var _this = _super.call(this, viewModel) || this;
         _this.sender = sender;
         _this.viewModel = viewModel;
         _this.viewModelName = viewModelName;
         _this.validationTargetPath = validationTargetPath;
         _this.serverResponseObject = serverResponseObject;
+        _this.postbackClientId = postbackClientId;
         _this.isHandled = false;
         _this.wasInterrupted = false;
         return _this;
@@ -1289,11 +1291,11 @@ var DotVVM = (function () {
         // prevent double postbacks
         var currentPostBackCounter = this.backUpPostBackConter();
         // trigger beforePostback event
-        var beforePostbackArgs = new DotvvmBeforePostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath);
+        var beforePostbackArgs = new DotvvmBeforePostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, currentPostBackCounter);
         this.events.beforePostback.trigger(beforePostbackArgs);
         if (beforePostbackArgs.cancel) {
             // trigger afterPostback event
-            var afterPostBackArgsCanceled = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, null);
+            var afterPostBackArgsCanceled = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, null, currentPostBackCounter);
             afterPostBackArgsCanceled.wasInterrupted = true;
             this.events.afterPostback.trigger(afterPostBackArgsCanceled);
             return promise.reject("canceled");
@@ -1314,7 +1316,7 @@ var DotVVM = (function () {
         this.postJSON(this.viewModels[viewModelName].url, "POST", ko.toJSON(data), function (result) {
             // if another postback has already been passed, don't do anything
             if (!_this.isPostBackStillActive(currentPostBackCounter)) {
-                var afterPostBackArgsCanceled = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, null);
+                var afterPostBackArgsCanceled = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, null, currentPostBackCounter);
                 afterPostBackArgsCanceled.wasInterrupted = true;
                 _this.events.afterPostback.trigger(afterPostBackArgsCanceled);
                 promise.reject("postback collision");
@@ -1371,7 +1373,7 @@ var DotVVM = (function () {
                             location.hash = idFragment;
                     }
                     // trigger afterPostback event
-                    var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, resultObject);
+                    var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, resultObject, currentPostBackCounter);
                     promise.resolve(afterPostBackArgs);
                     _this.events.afterPostback.trigger(afterPostBackArgs);
                     if (!isSuccess && !afterPostBackArgs.isHandled) {
