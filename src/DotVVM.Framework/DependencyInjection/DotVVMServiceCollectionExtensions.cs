@@ -59,10 +59,10 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.TryAddScoped<AggregateRequestTracer, AggregateRequestTracer>();
             services.TryAddScoped<ResourceManager, ResourceManager>();
-            //services.TryAddSingleton<Func<BindingRequiredResourceVisitor>>(s => {
-            //    var requiredResourceControl = s.GetRequiredService<IControlResolver>().ResolveControl(new ResolvedTypeDescriptor(typeof(RequiredResource)));
-            //    return () => new BindingRequiredResourceVisitor((ControlResolverMetadata)requiredResourceControl);
-            //});
+            services.TryAddSingleton<Func<BindingRequiredResourceVisitor>>(s => {
+               var requiredResourceControl = s.GetRequiredService<IControlResolver>().ResolveControl(new ResolvedTypeDescriptor(typeof(RequiredResource)));
+               return () => new BindingRequiredResourceVisitor((ControlResolverMetadata)requiredResourceControl);
+            });
 
             services.AddSingleton(s => configuration ?? (configuration = DotvvmConfiguration.CreateDefault(s)));
 
