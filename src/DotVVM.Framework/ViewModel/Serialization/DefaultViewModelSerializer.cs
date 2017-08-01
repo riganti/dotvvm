@@ -281,12 +281,12 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Adds the post back updated controls.
         /// </summary>
-        public void AddPostBackUpdatedControls(IDotvvmRequestContext context)
+        public void AddPostBackUpdatedControls(IDotvvmRequestContext context, IEnumerable<(string name, string html)> postBackUpdatedControls)
         {
             var result = new JObject();
-            foreach (var control in context.PostBackUpdatedControls)
+            foreach (var (controlId, html) in postBackUpdatedControls)
             {
-                result[control.Key] = JValue.CreateString(control.Value);
+                result[controlId] = JValue.CreateString(html);
             }
             context.ViewModelJson["updatedControls"] = result;
         }

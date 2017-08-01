@@ -245,8 +245,8 @@ namespace DotVVM.Framework.Hosting
                 else
                 {
                     // postback or SPA content
-                    OutputRenderer.RenderPostbackUpdatedControls(context, page);
-                    ViewModelSerializer.AddPostBackUpdatedControls(context);
+                    var postBackUpdates = OutputRenderer.RenderPostbackUpdatedControls(context, page);
+                    ViewModelSerializer.AddPostBackUpdatedControls(context, postBackUpdates);
                     await OutputRenderer.WriteViewModelResponse(context, page);
                 }
                 await context.RequestTracers.TracingEvent(RequestTracingConstants.OutputRendered, context);

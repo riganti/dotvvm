@@ -38,7 +38,7 @@ namespace DotVVM.Framework.Runtime
             await context.HttpContext.Response.WriteAsync(html);
         }
 
-        public void RenderPostbackUpdatedControls(IDotvvmRequestContext context, DotvvmView page)
+        public IEnumerable<(string name, string html)> RenderPostbackUpdatedControls(IDotvvmRequestContext context, DotvvmView page)
         {
             var stack = new Stack<DotvvmControl>();
             stack.Push(page);
@@ -60,7 +60,7 @@ namespace DotVVM.Framework.Runtime
                         {
                             throw new DotvvmControlException(control, "This control cannot use PostBack.Update=\"true\" because it has dynamic ID. This happens when the control is inside a Repeater or other data-bound control and the RenderSettings.Mode=\"Client\".");
                         }
-                        context.PostBackUpdatedControls[clientId] = w.ToString();
+                        yield return (clientId, w.ToString());
                     }
                 }
                 else

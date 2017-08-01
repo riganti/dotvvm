@@ -13,6 +13,7 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Runtime;
+using DotVVM.Framework.Runtime.Tracing;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.ViewModel.Validation;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -55,6 +56,9 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IResourceHashService, DefaultResourceHashService>();
             services.TryAddSingleton<IStopwatch, DefaultStopwatch>();
             services.TryAddSingleton<JavascriptTranslator, JavascriptTranslator>();
+
+            services.TryAddScoped<AggregateRequestTracer, AggregateRequestTracer>();
+            services.TryAddScoped<ResourceManager, ResourceManager>();
             //services.TryAddSingleton<Func<BindingRequiredResourceVisitor>>(s => {
             //    var requiredResourceControl = s.GetRequiredService<IControlResolver>().ResolveControl(new ResolvedTypeDescriptor(typeof(RequiredResource)));
             //    return () => new BindingRequiredResourceVisitor((ControlResolverMetadata)requiredResourceControl);
