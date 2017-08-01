@@ -18,7 +18,6 @@ namespace DotVVM.Framework.Hosting
     {
         public readonly DotvvmConfiguration Configuration;
         private readonly IList<IMiddleware> middlewares;
-        private readonly IMiddleware diagnosticsMiddleware;
         private readonly RequestDelegate next;
 
         private int configurationSaved;
@@ -26,12 +25,11 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmMiddleware" /> class.
         /// </summary>
-        public DotvvmMiddleware(RequestDelegate next, DotvvmConfiguration configuration, IList<IMiddleware> middlewares, IMiddleware diagnosticsMiddleware)
+        public DotvvmMiddleware(RequestDelegate next, DotvvmConfiguration configuration, IList<IMiddleware> middlewares)
         {
             this.next = next;
             Configuration = configuration;
             this.middlewares = middlewares;
-            this.diagnosticsMiddleware = diagnosticsMiddleware;
         }
 
         /// <summary>
@@ -62,14 +60,7 @@ namespace DotVVM.Framework.Hosting
                 }
             }
             catch (DotvvmInterruptRequestExecutionException) { return; }
-            finally
-            {
-                if (Configuration.Debug)
-                {
-                    await Task.Run(() => diagnosticsMiddleware.Handle(dotvvmContext));
-                }
-            }
-
+            
             await next(context);
         }
 

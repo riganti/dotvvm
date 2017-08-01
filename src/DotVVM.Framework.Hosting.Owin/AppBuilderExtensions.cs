@@ -59,7 +59,7 @@ namespace Owin
                 new DotvvmFileUploadMiddleware(),
                 new DotvvmReturnedFileMiddleware(),
                 new DotvvmRoutingMiddleware()
-            }, new DotvvmDiagnosticsMiddleware());
+            });
 
             var configurators = config.ServiceLocator.GetServiceProvider().GetServices<IConfigureOptions<DotvvmConfiguration>>();
             foreach (var configurator in configurators)
