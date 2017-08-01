@@ -2,7 +2,6 @@ using System;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Hosting;
-using DotVVM.Framework.Runtime;
 
 namespace DotVVM.Framework.Controls
 {
@@ -24,19 +23,6 @@ namespace DotVVM.Framework.Controls
 
         public static readonly DotvvmProperty TextProperty =
             DotvvmProperty.Register<string, CheckableControlBase>(t => t.Text, "");
-
-        /// <summary>
-        /// Gets or sets whether the control is checked.
-        /// </summary>
-        [MarkupOptions(AllowHardCodedValue = false)]
-        public bool Checked
-        {
-            get { return (bool)GetValue(CheckedProperty); }
-            set { SetValue(CheckedProperty, value); }
-        }
-
-        public static readonly DotvvmProperty CheckedProperty =
-            DotvvmProperty.Register<bool, CheckableControlBase>(t => t.Checked, false);
 
         /// <summary>
         /// Gets or sets the value that will be used as a result when the control is checked.

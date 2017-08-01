@@ -70,6 +70,22 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<ClientIDMode, DotvvmControl>(c => c.ClientIDMode, ClientIDMode.Static, isValueInherited: true);
 
         /// <summary>
+        /// Gets or sets whether the control is included in the DOM of the page.
+        /// </summary>
+        /// <remarks>
+        /// Essentially wraps Knockout's 'if' binding.
+        /// </remarks>
+        [MarkupOptions(AllowHardCodedValue = false)]
+        public bool IncludeInPage
+        {
+            get { return (bool)GetValue(IncludeInPageProperty); }
+            set { SetValue(IncludeInPageProperty, value); }
+        }
+
+        public static readonly DotvvmProperty IncludeInPageProperty =
+            DotvvmProperty.Register<bool, DotvvmControl>(t => t.IncludeInPage, true);
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmControl"/> class.
         /// </summary>
         public DotvvmControl()
@@ -185,10 +201,21 @@ namespace DotVVM.Framework.Controls
             {
                 writer.WriteKnockoutWithComment(GetValueBinding(DataContextProperty).GetKnockoutBindingExpression(Parent));
             }
+
+            // if the IncludeInPage has binding, render the "if" binding
+            if (HasBinding(IncludeInPageProperty))
+            {
+                writer.WriteKnockoutDataBindComment("if", this, IncludeInPageProperty);
+            }
         }
 
         private void RenderEndWithDataBindAttribute(IHtmlWriter writer)
         {
+            if (HasBinding(IncludeInPageProperty))
+            {
+                writer.WriteKnockoutDataBindEndComment();
+            }
+
             if (HasBinding(DataContextProperty))
             {
                 writer.WriteKnockoutDataBindEndComment();

@@ -4,7 +4,6 @@ using System.Text.Encodings.Web;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
-using Microsoft.ApplicationInsights.AspNetCore;
 using Microsoft.ApplicationInsights.Extensibility;
 
 namespace DotVVM.Tracing.ApplicationInsights.Owin

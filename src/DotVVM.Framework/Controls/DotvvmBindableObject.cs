@@ -72,7 +72,7 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets a data context for the control and its children. All value and command bindings are evaluated in context of this value.
         /// </summary>
         [BindingCompilationRequirements(
-                required: new[] { typeof(Binding.Properties.SimplePathExpressionBindingProperty) })]
+                optional: new[] { typeof(Binding.Properties.SimplePathExpressionBindingProperty) })]
         public object DataContext
         {
             get { return (object)GetValue(DataContextProperty); }

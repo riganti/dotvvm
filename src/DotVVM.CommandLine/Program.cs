@@ -40,6 +40,8 @@ namespace DotVVM.CommandLine
                 new AddMasterPageCommand(),
                 new AddViewModelCommand(),
                 new AddControlCommand(),
+                new AddNswagCommand(),
+                new RegenNswagCommand()
 
                 //new GenerateUiTestStubCommand()
             };

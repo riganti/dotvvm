@@ -14,6 +14,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 
         public enum DisplayMode
         {
+            ToHtmlList,
             ToString,
             ObjectBrowser,
             KVTable

@@ -251,7 +251,7 @@ namespace DotVVM.Framework.Controls
         {
             if (lastLifeCycleEvent < eventType)
             {
-                lastLifeCycleEvent = eventType;
+                lastLifeCycleEvent = eventType; 
             }
         }
 

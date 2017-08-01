@@ -11,6 +11,8 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.CheckBox
 
         public bool Checked { get; set; }
 
+        public bool? Indeterminate { get; set; }
+
         public string CheckedDescription { get; set; }
 
         public List<string> CheckedItems { get; set; } = new List<string>();

@@ -93,11 +93,7 @@ namespace DotVVM.Framework.Hosting
         /// This property is typically set from the exception filter's OnCommandException method.
         /// </summary>
         public bool IsCommandExceptionHandled { get; set; }
-
-        internal void RedirectToUrl(object p)
-        {
-            throw new NotImplementedException();
-        }
+        
 
         /// <summary>
         /// Gets or sets the value indiciating whether the exception that occured during the page execution was handled and that the OnPageExceptionHandled will not be called on the next action filters. 

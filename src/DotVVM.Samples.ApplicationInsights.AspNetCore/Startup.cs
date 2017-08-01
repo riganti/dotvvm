@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using DotVVM.Tracing.ApplicationInsights.AspNetCore;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using DotVVM.Tracing.ApplicationInsights.AspNetCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -36,8 +36,9 @@ namespace DotVVM.Samples.ApplicationInsights.AspNetCore
 
             services.AddDotVVM(options =>
             {
-                options.AddDefaultTempStorages("Temp");
-                options.AddApplicationInsightsTracing();
+                options
+                    .AddDefaultTempStorages("Temp")
+                    .AddApplicationInsightsTracing();
             });
 
             services.AddApplicationInsightsTelemetry(Configuration);
