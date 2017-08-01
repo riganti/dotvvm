@@ -8,6 +8,11 @@ namespace DotVVM.Framework.Diagnostics
 {
     internal class DotvvmDiagnosticsConfiguration
     {
+        public DotvvmDiagnosticsConfiguration()
+        {
+            LoadConfiguration();
+        }
+
         private DiagnosticsServerConfiguration configuration = null;
 
         internal string DiagnosticsServerHostname

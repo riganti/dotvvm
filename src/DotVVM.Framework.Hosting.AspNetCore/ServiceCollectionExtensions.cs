@@ -1,5 +1,7 @@
 ﻿using System;
+using DotVVM.Framework.Diagnostics;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Runtime.Tracing;
 using DotVVM.Framework.Security;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -25,6 +27,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<ICookieManager, ChunkingCookieManager>();
             services.TryAddSingleton<IViewModelProtector, DefaultViewModelProtector>();
             services.TryAddSingleton<IEnvironmentNameProvider, DotvvmEnvironmentNameProvider>();
+            services.TryAddTransient<IRequestTracer, DiagnosticsRequestTracer>();
 
             if (options != null)
             {

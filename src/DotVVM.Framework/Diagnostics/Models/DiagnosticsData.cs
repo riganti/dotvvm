@@ -9,5 +9,6 @@ namespace DotVVM.Framework.Diagnostics.Models
     {
         public HttpRequestDiagnostics RequestDiagnostics { get; set; }
         public HttpResponseDiagnostics ResponseDiagnostics { get; set; }
+        public long TotalDuration { get; set; }
     }
 }

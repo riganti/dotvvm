@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Diagnostics;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Hosting.Middlewares;
 using DotVVM.Framework.Runtime.Tracing;
@@ -43,6 +44,7 @@ namespace Owin
                 s.TryAddSingleton<ICsrfProtector, DefaultCsrfProtector>();
                 s.TryAddSingleton<IEnvironmentNameProvider, DotvvmEnvironmentNameProvider>();
                 s.TryAddSingleton<ICookieManager, ChunkingCookieManager>();
+                s.TryAddTransient<IRequestTracer, DiagnosticsRequestTracer>();
                 options?.Invoke(new DotvvmOptions(s));
             });
 
