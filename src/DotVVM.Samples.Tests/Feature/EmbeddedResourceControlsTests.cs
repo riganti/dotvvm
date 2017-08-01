@@ -16,11 +16,29 @@ namespace DotVVM.Samples.Tests.Feature
     public class EmbeddedResourceControlsTests : SeleniumTest
     {
         [TestMethod]
-        public void Feature_EmbeddedResourceControls_Default()
+        public void Feature_EmbeddedResourceControls_EmbeddedResourceControls()
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_EmbeddedResourceControls_Default);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_EmbeddedResourceControls_EmbeddedResourceControls);
+
+                browser.First("input[type=button]")
+                    .Check().Attribute("value", s => s.Equals("Nothing"));
+
+                browser.First("input[type=button]").Click();
+
+                browser.First("input[type=button]")
+                    .Check().Attribute("value", s => s.Equals("This is text"));
+
+            });
+        }
+        
+        [TestMethod]
+        public void Feature_EmbeddedResourceControls_EmbeddedResourceView()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_EmbeddedResourceControls_EmbeddedResourceView);
 
                 browser.First("input[type=button]")
                     .Check().Attribute("value", s => s.Equals("Nothing"));

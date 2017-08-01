@@ -19,14 +19,14 @@ namespace DotVVM.Framework.Hosting
                 return null;
             }
 
-            string resourceName = virtualPath.Remove(0, 11);
+            string resourceName = virtualPath.Remove(0, "embedded://".Length);
 
             if (resourceName.IndexOf('/') == -1 || resourceName.IndexOf('/') == 0)
             {
                 throw new ArgumentException("Wrong string format", "virtualPath");
             }
 
-            string assemblyName = resourceName.Substring(0, resourceName.IndexOf("/"));
+            string assemblyName = resourceName.Substring(0, resourceName.IndexOf('/'));
 
             Assembly assembly = null;
             try

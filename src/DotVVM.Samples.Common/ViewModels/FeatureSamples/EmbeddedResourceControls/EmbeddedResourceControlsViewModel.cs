@@ -3,7 +3,7 @@
 
 namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.EmbeddedResourceControls
 {
-    public class DefaultViewModel : DotvvmViewModelBase
+    public class EmbeddedResourceControlsViewModel : DotvvmViewModelBase
     {
         public string Text { get; set; } = "Nothing";
 
