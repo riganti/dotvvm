@@ -10,7 +10,7 @@ namespace DotVVM.Framework.Runtime.Tracing
     {
         private readonly IRequestTracer[] tracers;
 
-        public RequestAggregateTracer(IServiceProvider services)
+        public AggregateRequestTracer(IServiceProvider services)
         {
             this.tracers = services.GetServices<IRequestTracer>().ToArray();
         }

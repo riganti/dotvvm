@@ -97,7 +97,6 @@ namespace DotVVM.Framework.Hosting
                 Services = scope.ServiceProvider,
                 HttpContext = ConvertHttpContext(context),
                 Configuration = Configuration,
-                ResourceManager = new ResourceManager(Configuration),
             };
         }
 

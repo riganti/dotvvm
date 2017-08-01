@@ -66,10 +66,9 @@ namespace DotVVM.Framework.Hosting.Middlewares
 
         public async Task<bool> Handle(IDotvvmRequestContext context)
         {
-            context.RequestTracers.AddRange(
-                context.Configuration.ServiceLocator.GetServiceProvider().GetServices<IRequestTracer>());
+            var requestTracer = context.Services.GetRequiredService<AggregateRequestTracer>();
 
-            await context.RequestTracers.TracingEvent(RequestTracingConstants.BeginRequest, context);
+            await requestTracer.TraceEvent(RequestTracingConstants.BeginRequest, context);
 
             IDictionary<string, object> parameters;
             var route = FindMatchingRoute(context.Configuration.RouteTable, context, out parameters);
@@ -98,11 +97,11 @@ namespace DotVVM.Framework.Hosting.Middlewares
                     await f.OnPageExceptionAsync(context, exception);
                     if (context.IsPageExceptionHandled) context.InterruptRequest();
                 }
-                await context.RequestTracers.TracingException(context, exception);
+                await requestTracer.EndRequest(context, exception);
                 throw;
             }
 
-            await context.RequestTracers.TracingEndRequest(context);
+            await requestTracer.EndRequest(context);
 
             return true;
         }

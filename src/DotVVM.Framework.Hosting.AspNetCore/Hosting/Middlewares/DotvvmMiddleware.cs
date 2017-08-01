@@ -91,8 +91,6 @@ namespace DotVVM.Framework.Hosting
             return new DotvvmRequestContext {
                 HttpContext = ConvertHttpContext(context),
                 Configuration = Configuration,
-                ResourceManager = new ResourceManager(Configuration),
-                ViewModelSerializer = Configuration.ServiceLocator.GetService<IViewModelSerializer>(),
                 Services = context.RequestServices
             };
         }

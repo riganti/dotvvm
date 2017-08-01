@@ -15,6 +15,7 @@ namespace DotVVM.Framework.Hosting
     {
         public string CsrfToken { get; set; }
         public JObject ReceivedViewModelJson { get; set; }
+
         public JObject ViewModelJson { get; set; }
 
         /// <summary>

@@ -1,3 +1,4 @@
+using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Validation;
 
