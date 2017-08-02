@@ -13,6 +13,7 @@
         <dot:TextBox Text="{value: UserName}" placeholder="user name" />
         <dot:ComboBox SelectedValue="{value: Repo}" DataSource="{value: Api.RefreshOnChange(_github.Users.GetRepos(UserName), UserName)}" ItemValueBinding="{value: Name}" ItemTextBinding="{value: Name}" />
     </p>
+
     <p>
         Open Issues:
         <dot:GridView DataSource="{value: Api.RefreshOnChange(_github.Repos.GetIssuesAll(UserName, Repo, 'All', 'Open', '', 'Updated', 'Desc', '1950-01-01T00:00:00Z'), Repo + UserName)}">
@@ -24,5 +25,13 @@
             </dot:GridViewTemplateColumn>
         </dot:GridView>
     </p>
+
+    <div DataContext="{value: NewIssue}" Visible="{value: _root.UserName != null && _root.Repo != null}">
+        <h2>New Issue </h2>
+        <dot:TextBox Text="{value: Title}" />
+        <dot:TextBox Type="MultiLine" Text="{value: Body}" />
+        {{value: Api.RefreshOnChange(_github.Repos.GetWatchers(_root.UserName, _root.Repo).Count, _root.Repo) == 0}}
+        <dot:Button Click="{staticCommand: _github.Repos.PostIssues(_root.UserName, _root.Repo, _this)}" Enabled="{value: Api.RefreshOnChange(_github.Repos.GetWatchers(_root.UserName, _root.Repo).Count, _root.Repo) == 0}"> Submit issue </dot:Button>
+    </div>
 </body>
 </html>

@@ -2255,7 +2255,7 @@ function basicAuthenticatedFetch(input, init) {
                 var result = window["Promise"].resolve(ko.ignoreDependencies(callback));
                 result.then(function (val) {
                     if (val) {
-                        dotvvm.serialization.deserialize(val, cachedValue);
+                        cachedValue(dotvvm.serialization.deserialize(val, cachedValue));
                         cachedValue.notifySubscribers();
                     }
                     for (var _i = 0, notifyTriggers_1 = notifyTriggers; _i < notifyTriggers_1.length; _i++) {

@@ -6,10 +6,12 @@ using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.Api
 {
-	public class GithubRepoApiViewModel : DotvvmViewModelBase
-	{
+    public class GithubRepoApiViewModel : DotvvmViewModelBase
+    {
         public string UserName { get; set; } = "riganti";
         public string Repo { get; set; } = "dotvvm";
+
+        public GithubApiClient.Issue NewIssue { get; set; } = new GithubApiClient.Issue();
     }
 }
 

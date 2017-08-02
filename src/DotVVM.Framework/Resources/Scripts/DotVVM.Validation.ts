@@ -439,7 +439,7 @@ class DotvvmValidation {
     private addValidationError(validatedProperty: KnockoutValidatedObservable<any>, error: ValidationError) {
         var errors = ValidationError.getOrCreate(validatedProperty);
         if (errors.indexOf(error) < 0) {
-            validatedProperty!.validationErrors.push(error);
+            validatedProperty.validationErrors!.push(error);
             this.errors.push(error);
         }
     }
