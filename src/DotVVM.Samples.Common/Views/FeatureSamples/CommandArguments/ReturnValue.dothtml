@@ -11,6 +11,7 @@
     <cc:RefreshTextButton Click="{command: RefreshText}" >Uninitialized</cc:RefreshTextButton>
     <cc:RefreshTextButton Click="{command: RefreshText()}" >Uninitialized</cc:RefreshTextButton>
     <cc:RefreshTextButton Click="{staticCommand: 'Text: ' + (Counter = Counter + 1)}" >Uninitialized</cc:RefreshTextButton>
+    <cc:RefreshTextButton Click="{staticCommand: ViewModel.JustGetTheText(Counter)}" >Uninitialized</cc:RefreshTextButton>
     <%-- TODO UI test --%>
 </body>
 </html>

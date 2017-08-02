@@ -14,6 +14,9 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.CommandArguments
         {
             return "Text: " + Counter++;
         }
+
+        [AllowStaticCommand]
+        public static string JustGetTheText(int counter) =>  "Text: " + counter;
     }
 }
 
