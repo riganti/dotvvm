@@ -21,4 +21,9 @@ namespace DotVVM.Framework.Binding.Expressions
         void AddProperty(object property);
         bool IsMutable { get; }
     }
+
+    public interface ICloneableBinding: IBinding
+    {
+        IEnumerable<object> GetAllComputedProperties();
+    }
 }

@@ -9,4 +9,7 @@ namespace DotVVM.Framework.Binding.Expressions
         //string GetKnockoutBindingExpression();
     }
 
+    public interface IValueBinding<out T> : IValueBinding, IStaticValueBinding<T>
+    {
+    }
 }

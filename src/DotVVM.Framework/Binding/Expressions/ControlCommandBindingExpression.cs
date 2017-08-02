@@ -19,4 +19,11 @@ namespace DotVVM.Framework.Binding.Expressions
             };
         }
     }
+
+    public class ControlCommandBindingExpression<T> : ControlCommandBindingExpression, ICommandBinding<T>
+    {
+        public ControlCommandBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties) { }
+
+        public new CompiledBindingExpression.BindingDelegate<T> BindingDelegate => base.BindingDelegate.ToGeneric<T>();
+    }
 }

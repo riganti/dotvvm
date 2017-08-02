@@ -81,12 +81,12 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
 		public Dictionary<string, BindingParserOptions> BindingTypes = new Dictionary<string, BindingParserOptions>(StringComparer.OrdinalIgnoreCase)
 		{
-			{ ParserConstants.ValueBinding, BindingParserOptions.Create<ValueBindingExpression>() },
-			{ ParserConstants.CommandBinding, BindingParserOptions.Create<CommandBindingExpression>() },
-			{ ParserConstants.ControlPropertyBinding, BindingParserOptions.Create<ControlPropertyBindingExpression>("_control") },
-			{ ParserConstants.ControlCommandBinding, BindingParserOptions.Create<ControlCommandBindingExpression>("_control") },
-			{ ParserConstants.ResourceBinding, BindingParserOptions.Create<ResourceBindingExpression>() },
-			{ ParserConstants.StaticCommandBinding, BindingParserOptions.Create<StaticCommandBindingExpression>() },
+			{ ParserConstants.ValueBinding, BindingParserOptions.Create(typeof(ValueBindingExpression<>)) },
+			{ ParserConstants.CommandBinding, BindingParserOptions.Create(typeof(CommandBindingExpression<>)) },
+			{ ParserConstants.ControlPropertyBinding, BindingParserOptions.Create(typeof(ControlPropertyBindingExpression<>), "_control") },
+			{ ParserConstants.ControlCommandBinding, BindingParserOptions.Create(typeof(ControlCommandBindingExpression<>), "_control") },
+			{ ParserConstants.ResourceBinding, BindingParserOptions.Create(typeof(ResourceBindingExpression<>)) },
+			{ ParserConstants.StaticCommandBinding, BindingParserOptions.Create(typeof(StaticCommandBindingExpression<>)) },
 		};
 
 		/// <summary>
