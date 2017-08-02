@@ -22,7 +22,16 @@
           "200": {
             "description": "Success operation",
             "schema": {
-              "type": "string"
+              "type": "object",
+              "properties": {
+                "Id": {
+                  "type": "number",
+                  "format": "integer"
+                },
+                "Name": {
+                  "type": "string"
+                }
+              }
             }
           }
         },

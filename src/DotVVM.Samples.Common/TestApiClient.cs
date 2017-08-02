@@ -37,7 +37,7 @@ namespace TestApiClient
     
         /// <returns>Success operation</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public string _api_HttpTriggerCSharp1_get()
+        public Response _api_HttpTriggerCSharp1_get()
         {
             return System.Threading.Tasks.Task.Run(async () => await _api_HttpTriggerCSharp1_getAsync(System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
@@ -45,7 +45,7 @@ namespace TestApiClient
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success operation</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task<string> _api_HttpTriggerCSharp1_getAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public async System.Threading.Tasks.Task<Response> _api_HttpTriggerCSharp1_getAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl).Append("/api/HttpTriggerCSharp1");
@@ -76,10 +76,10 @@ namespace TestApiClient
                         if (status_ == "200") 
                         {
                             var responseData_ = await response_.Content.ReadAsStringAsync().ConfigureAwait(false); 
-                            var result_ = default(string); 
+                            var result_ = default(Response); 
                             try
                             {
-                                result_ = Newtonsoft.Json.JsonConvert.DeserializeObject<string>(responseData_, _settings.Value);
+                                result_ = Newtonsoft.Json.JsonConvert.DeserializeObject<Response>(responseData_, _settings.Value);
                                 return result_; 
                             } 
                             catch (System.Exception exception) 
@@ -94,7 +94,7 @@ namespace TestApiClient
                             throw new SwaggerException("The HTTP status code of the response was not expected (" + (int)response_.StatusCode + ").", status_, responseData_, headers_, null);
                         }
             
-                        return default(string);
+                        return default(Response);
                     }
                     finally
                     {
@@ -178,7 +178,59 @@ namespace TestApiClient
     
     
 
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.4.2.0")]
+    public partial class Response : System.ComponentModel.INotifyPropertyChanged
+    {
+        private double? _id;
+        private string _name;
     
+        [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double? Id
+        {
+            get { return _id; }
+            set 
+            {
+                if (_id != value)
+                {
+                    _id = value; 
+                    RaisePropertyChanged();
+                }
+            }
+        }
+    
+        [Newtonsoft.Json.JsonProperty("Name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Name
+        {
+            get { return _name; }
+            set 
+            {
+                if (_name != value)
+                {
+                    _name = value; 
+                    RaisePropertyChanged();
+                }
+            }
+        }
+    
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+    
+        public string ToJson() 
+        {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
+        }
+        
+        public static Response FromJson(string data)
+        {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<Response>(data);
+        }
+    
+        protected virtual void RaisePropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string propertyName = null)
+        {
+            var handler = PropertyChanged;
+            if (handler != null) 
+                handler(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+        }
+    }
 
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "11.3.3.0")]
     public class SwaggerException : System.Exception

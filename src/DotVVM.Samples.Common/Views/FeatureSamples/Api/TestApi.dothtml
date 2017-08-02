@@ -9,7 +9,7 @@
 </head>
 <body>
     <p>
-        {{value: Api.RefreshOnChange(_test._api_HttpTriggerCSharp1_get(), Text)}}
+        {{value: Api.RefreshOnChange(_test._api_HttpTriggerCSharp1_get(), Text).Name}}
     </p>
     <dot:Button Click="{command: ChangeText()}"/>
     {{value: Text}}

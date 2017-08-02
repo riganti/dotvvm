@@ -21,7 +21,7 @@ namespace TestApiClient {
         /**
          * @return Success operation
          */
-        _api_HttpTriggerCSharp1_get(): Promise<string> {
+        _api_HttpTriggerCSharp1_get(): Promise<Anonymous> {
             let url_ = this.baseUrl + "/api/HttpTriggerCSharp1";
             url_ = url_.replace(/[?&]$/, "");
     
@@ -38,13 +38,13 @@ namespace TestApiClient {
             });
         }
     
-        protected process_api_HttpTriggerCSharp1_get(response: Response): Promise<string> {
+        protected process_api_HttpTriggerCSharp1_get(response: Response): Promise<Anonymous> {
             const status = response.status;
             if (status === 200) {
                 return response.text().then((_responseText) => {
-                let result200: string = null;
+                let result200: Anonymous = null;
                 let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+                result200 = resultData200 ? Anonymous.fromJS(resultData200) : new Anonymous();
                 return result200;
                 });
             } else if (status !== 200 && status !== 204) {
@@ -52,7 +52,7 @@ namespace TestApiClient {
                 return throwException("An unexpected server error occurred.", status, _responseText);
                 });
             }
-            return Promise.resolve<string>(<any>null);
+            return Promise.resolve<Anonymous>(<any>null);
         }
     
         /**
@@ -89,6 +89,44 @@ namespace TestApiClient {
         }
     }
     
+    export class Anonymous implements IAnonymous {
+        id?: number;
+        name?: string;
+    
+        constructor(data?: IAnonymous) {
+            if (data) {
+                for (var property in data) {
+                    if (data.hasOwnProperty(property))
+                        (<any>this)[property] = (<any>data)[property];
+                }
+            }
+        }
+    
+        init(data?: any) {
+            if (data) {
+                this.id = data["Id"] !== undefined ? data["Id"] : <any>null;
+                this.name = data["Name"] !== undefined ? data["Name"] : <any>null;
+            }
+        }
+    
+        static fromJS(data: any): Anonymous {
+            let result = new Anonymous();
+            result.init(data);
+            return result;
+        }
+    
+        toJSON(data?: any) {
+            data = typeof data === 'object' ? data : {};
+            data["Id"] = this.id !== undefined ? this.id : <any>null;
+            data["Name"] = this.name !== undefined ? this.name : <any>null;
+            return data; 
+        }
+    }
+    
+    export interface IAnonymous {
+        id?: number;
+        name?: string;
+    }
     
     export class SwaggerException extends Error {
         message: string;

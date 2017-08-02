@@ -48,7 +48,7 @@ var TestApiClient;
                 return response.text().then(function (_responseText) {
                     var result200 = null;
                     var resultData200 = _responseText === "" ? null : JSON.parse(_responseText, _this.jsonParseReviver);
-                    result200 = resultData200 !== undefined ? resultData200 : null;
+                    result200 = resultData200 ? Anonymous.fromJS(resultData200) : new Anonymous();
                     return result200;
                 });
             }
@@ -93,6 +93,35 @@ var TestApiClient;
         return Client;
     }());
     TestApiClient.Client = Client;
+    var Anonymous = (function () {
+        function Anonymous(data) {
+            if (data) {
+                for (var property in data) {
+                    if (data.hasOwnProperty(property))
+                        this[property] = data[property];
+                }
+            }
+        }
+        Anonymous.prototype.init = function (data) {
+            if (data) {
+                this.id = data["Id"] !== undefined ? data["Id"] : null;
+                this.name = data["Name"] !== undefined ? data["Name"] : null;
+            }
+        };
+        Anonymous.fromJS = function (data) {
+            var result = new Anonymous();
+            result.init(data);
+            return result;
+        };
+        Anonymous.prototype.toJSON = function (data) {
+            data = typeof data === 'object' ? data : {};
+            data["Id"] = this.id !== undefined ? this.id : null;
+            data["Name"] = this.name !== undefined ? this.name : null;
+            return data;
+        };
+        return Anonymous;
+    }());
+    TestApiClient.Anonymous = Anonymous;
     var SwaggerException = (function (_super) {
         __extends(SwaggerException, _super);
         function SwaggerException(message, status, response, result) {
