@@ -2,8 +2,8 @@
   "profiles": {
     "DotVVM.CommandLine": {
       "commandName": "Project",
-      "commandLineArgs": "ap NewPage4",
-      "workingDirectory": "d:\\Temp\\dotnetnew"
+      "commandLineArgs": "api create swagger.json TestApiClient TestApiClient.cs TestApiClient.ts",
+      "workingDirectory": "C:\\Users\\pkost\\Documents\\dotvvm-master\\dotvvm"
     }
   }
 }

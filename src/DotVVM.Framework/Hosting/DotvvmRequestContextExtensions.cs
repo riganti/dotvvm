@@ -7,6 +7,7 @@ using System.Net;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Storage;
 using System.Diagnostics;
+using System.Threading;
 using DotVVM.Framework.Hosting.Middlewares;
 using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.Extensions.DependencyInjection;

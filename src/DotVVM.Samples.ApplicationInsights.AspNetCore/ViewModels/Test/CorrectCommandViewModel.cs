@@ -13,7 +13,7 @@ namespace DotVVM.Samples.ApplicationInsights.AspNetCore.ViewModels.Test
         }
         public void Redirect()
         {
-            Context.RedirectToRoute("default");
+            //Context.RedirectToRoute("default");
         }
     }
 }

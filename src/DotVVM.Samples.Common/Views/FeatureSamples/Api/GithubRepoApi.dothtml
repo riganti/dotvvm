@@ -8,7 +8,7 @@
     <title></title>
 </head>
 <body>
-
+    <dot:RequiredResource Name="apiInit_github" />
     <p>
         <dot:TextBox Text="{value: UserName}" placeholder="user name" />
         <dot:ComboBox SelectedValue="{value: Repo}" DataSource="{value: Api.RefreshOnChange(_github.Users.GetRepos(UserName), UserName)}" ItemValueBinding="{value: Name}" ItemTextBinding="{value: Name}" />
