@@ -50,7 +50,14 @@ namespace DotVVM.Framework.Runtime
         {
             // if there is a DataContext binding, locate the correct token
             var hasDataContext = false;
-            var pathValue = control.GetDataContextPathFragment();
+            string pathValue;
+            try
+            {
+                // may throw exception if the control tree is not path-addressable
+                pathValue = control.GetDataContextPathFragment();
+            }
+            catch(Exception) { return; }
+
             if (pathValue != null)
             {
                 CurrentPath.Push(pathValue as string);

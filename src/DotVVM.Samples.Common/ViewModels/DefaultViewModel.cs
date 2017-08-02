@@ -13,12 +13,26 @@ namespace DotVVM.Samples.BasicSamples.ViewModels
     public class DefaultViewModel : DotvvmViewModelBase
     {
         public string Title { get; set; }
-        public List<RouteBase> Routes { get; set; }
+        public List<RouteData> Routes { get; set; }
 
         public override Task Init()
         {
-            Routes = new List<RouteBase>(Context.Configuration.RouteTable);
+            Routes = Context.Configuration.RouteTable
+                .Select(r => new RouteData()
+                {
+                    RouteName = r.RouteName,
+                    Url = Context.TranslateVirtualPath(r.BuildUrl())
+                })
+                .ToList();
+
             return base.Init();
+        }
+
+        public class RouteData
+        {
+            public string Url { get; set; }
+
+            public string RouteName { get; set; }
         }
     }
 }

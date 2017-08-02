@@ -9,8 +9,8 @@ using DotVVM.Framework.Controls;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
 {
-	public class LargeGridViewModel : DotvvmViewModelBase
-	{
+    public class LargeGridViewModel : DotvvmViewModelBase
+    {
         public GridViewDataSet<GridRow> DataSet { get; set; } = new GridViewDataSet<GridRow>();
 
         public override Task Init()
@@ -72,5 +72,5 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
             public string DataY { get; set; }
             public string DataZ { get; set; }
         }
-	}
+    }
 }

@@ -101,9 +101,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
                                   where genArguments[0].IsAssignableFrom(typeof(string))
                                   let valueType = genArguments[1]
                                   select new { ctor, parameters, valueType }).ToArray();
-            if (collectionCtors.Length > 1) throw new Exception(
-                $"Could not initialize {declaringType.Name} as property group collections - constructors {string.Join(", ", collectionCtors.Select(c => c.ctor))} are ambitious.");
-            if (collectionCtors.Length == 1) return new Tuple<Type, MethodBase>(collectionCtors[0].valueType, collectionCtors[0].ctor);
+            if (collectionCtors.Length >= 1)
+            {
+                return new Tuple<Type, MethodBase>(collectionCtors[0].valueType, collectionCtors[0].ctor);
+            }
 
             throw new NotSupportedException($"Could not initialize {declaringType.Name} as proeprty group collection - no suitable constructor found");
         }

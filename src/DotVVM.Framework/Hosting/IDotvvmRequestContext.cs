@@ -1,7 +1,7 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
@@ -25,20 +25,12 @@ namespace DotVVM.Framework.Hosting
 
         JObject ReceivedViewModelJson { get; set; }
 
-
-        /// <summary>
-        /// Gets the unique id of the SpaContentPlaceHolder that should be loaded.
-        /// </summary>
-        string GetSpaContentPlaceHolderUniqueId();
-
         /// <summary>
         /// Gets the view model for the current request.
         /// </summary>
         object ViewModel { get; set; }
 
         JObject ViewModelJson { get; set; }
-
-        Dictionary<string, string> PostBackUpdatedControls { get; }
 
         /// <summary>
         /// Gets the top-level control representing the whole view for the current request.
@@ -118,85 +110,5 @@ namespace DotVVM.Framework.Hosting
         string ResultIdFragment { get; set; }
 
         IServiceProvider Services { get; }
-
-        /// <summary>
-        /// Changes the current culture of this HTTP request.
-        /// </summary>
-        void ChangeCurrentCulture(string cultureName);
-
-        /// <summary>
-        /// Changes the current culture of this HTTP request.
-        /// </summary>
-        void ChangeCurrentCulture(string cultureName, string uiCultureName);
-
-        /// <summary>
-        /// Returns current UI culture of this HTTP request.
-        /// </summary>
-        CultureInfo GetCurrentUICulture();
-
-        /// <summary>
-        /// Returns current culture of this HTTP request.
-        /// </summary>
-        CultureInfo GetCurrentCulture();
-
-        /// <summary>
-        /// Interrupts the execution of the current request.
-        /// </summary>
-        void InterruptRequest();
-
-        /// <summary>
-        /// Gets the serialized view model.
-        /// </summary>
-        string GetSerializedViewModel();
-
-        /// <summary>
-        /// Returns the redirect response and interrupts the execution of current request.
-        /// </summary>
-        void RedirectToUrl(string url, bool replaceInHistory = false, bool allowSpaRedirect = false);
-
-        /// <summary>
-        /// Returns the redirect response and interrupts the execution of current request.
-        /// </summary>
-        void RedirectToRoute(string routeName, object newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true, string urlSuffix = null);
-
-        /// <summary>
-        /// Returns the permanent redirect response and interrupts the execution of current request.
-        /// </summary>
-        void RedirectToUrlPermanent(string url, bool replaceInHistory = false, bool allowSpaRedirect = false);
-
-        /// <summary>
-        /// Returns the permanent redirect response and interrupts the execution of current request.
-        /// </summary>
-        void RedirectToRoutePermanent(string routeName, object newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true);
-
-        /// <summary>
-        /// Ends the request execution when the <see cref="DotvvmRequestContext.ModelState"/> is not valid and displays the validation errors in <see cref="ValidationSummary"/> control.
-        /// If it is, it does nothing.
-        /// </summary>
-        void FailOnInvalidModelState();
-
-        /// <summary>
-        /// Translates the virtual path (~/something) to the domain relative path (/virtualDirectory/something). 
-        /// For example, when the app is configured to run in a virtual directory '/virtDir', the URL '~/myPage.dothtml' will be translated to '/virtDir/myPage.dothtml'.
-        /// </summary>
-        string TranslateVirtualPath(string virtualUrl);
-
-        /// <summary>
-        /// Sends data stream to client.
-        /// </summary>
-        /// <param name="bytes">Data to be sent.</param>
-        /// <param name="fileName">Name of file.</param>
-        /// <param name="mimeType">MIME type.</param>
-        /// <param name="additionalHeaders">Additional headers.</param>
-        void ReturnFile(byte[] bytes, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>> additionalHeaders = null);
-
-        /// <summary>
-        /// Sends data stream to client.
-        /// </summary>
-        /// <param name="stream">Data to be sent.</param>
-        /// <param name="fileName">Name of file.</param>
-        /// <param name="mimeType">MIME type.</param>
-        /// <param name="additionalHeaders">Additional headers.</param>
-        void ReturnFile(Stream stream, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>> additionalHeaders = null);
     }
 }

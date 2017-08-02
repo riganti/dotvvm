@@ -1,9 +1,9 @@
+using System;
+
 namespace DotVVM.Framework.Compilation
 {
     public interface IControlBuilderFactory
     {
-        
-        IControlBuilder GetControlBuilder(string virtualPath);
-
+        (ControlBuilderDescriptor descriptor, Lazy<IControlBuilder> builder) GetControlBuilder(string virtualPath);
     }
 }

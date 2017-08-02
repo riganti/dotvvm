@@ -86,7 +86,7 @@ namespace DotVVM.Framework.Controls
             var dcChange = ControlTreeResolverBase.ApplyContextChange(control.DataContextTypeStack,
                 new DataContextChangeAttribute[] { new ControlPropertyBindingDataContextChangeAttribute(nameof(DataSource)), new CollectionElementDataContextChangeAttribute(0) },
                 control, null);
-            var dataContext = DataContextStack.Create(ResolvedTypeDescriptor.ToSystemType(dcChange.type), control.DataContextTypeStack, extenstionParameters: dcChange.extensionParameters);
+            var dataContext = DataContextStack.Create(ResolvedTypeDescriptor.ToSystemType(dcChange.type), control.DataContextTypeStack, extensionParameters: dcChange.extensionParameters);
             control.SetProperty(new ResolvedPropertyBinding(Internal.CurrentIndexBindingProperty,
                 new ResolvedBinding(bindingService, new Compilation.BindingParserOptions(typeof(ValueBindingExpression)), dataContext,
                 parsedExpression: Expression.Parameter(typeof(int), "_index").AddParameterAnnotation(

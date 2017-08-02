@@ -11,10 +11,10 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class FormattingTests : SeleniumTestBase
+    public class FormattingTests : SeleniumTest
     {
         [TestMethod]
-        public void Feature_Formatting()
+        public void Feature_Formatting_Formatting()
         {
             RunInAllBrowsers(browser =>
             {

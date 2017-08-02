@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Hosting.Middlewares;
+using DotVVM.Framework.Runtime.Tracing;
 using DotVVM.Framework.Security;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using Microsoft.Owin.Infrastructure;
 using Microsoft.Owin.Security.DataProtection;
 
@@ -58,6 +60,12 @@ namespace Owin
                 new DotvvmReturnedFileMiddleware(),
                 new DotvvmRoutingMiddleware()
             });
+
+            var configurators = config.ServiceLocator.GetServiceProvider().GetServices<IConfigureOptions<DotvvmConfiguration>>();
+            foreach (var configurator in configurators)
+            {
+                configurator.Configure(config);
+            }
 
             return config;
         }

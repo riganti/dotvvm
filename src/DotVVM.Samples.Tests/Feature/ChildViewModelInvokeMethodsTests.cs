@@ -6,10 +6,10 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class ChildViewModelInvokeMethodsTests : SeleniumTestBase
+    public class ChildViewModelInvokeMethodsTests : SeleniumTest
     {
         [TestMethod]
-        public void Feature_ChildViewModelInvokeMethodsTests()
+        public void Feature_ChildViewModelInvokeMethods_ChildViewModelInvokeMethods()
         {
             RunInAllBrowsers(browser =>
             {

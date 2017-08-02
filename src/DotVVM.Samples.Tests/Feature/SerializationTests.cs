@@ -11,10 +11,10 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class SerializationTests : SeleniumTestBase
+    public class SerializationTests : SeleniumTest
     {
         [TestMethod]
-        public void Feature_Serialization()
+        public void Feature_Serialization_Serialization()
         {
             RunInAllBrowsers(browser =>
             {

@@ -2,8 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Utils;
+using DotVVM.Framework.Compilation.Validation;
 
 namespace DotVVM.Framework.Controls
 {
@@ -12,6 +17,18 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     public class CheckBox : CheckableControlBase
     {
+        /// <summary>
+        /// Gets or sets whether the control is checked.
+        /// </summary>
+        [MarkupOptions(AllowHardCodedValue = false)]
+        public bool? Checked
+        {
+            get { return (bool?)GetValue(CheckedProperty); }
+            set { SetValue(CheckedProperty, value); }
+        }
+
+        public static readonly DotvvmProperty CheckedProperty =
+            DotvvmProperty.Register<bool?, CheckBox>(t => t.Checked, false);
 
         /// <summary>
         /// Gets or sets a collection of values of all checked checkboxes. Use this property in combination with the CheckedValue property.
@@ -23,7 +40,6 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty CheckedItemsProperty =
             DotvvmProperty.Register<IEnumerable, CheckBox>(t => t.CheckedItems, null);
-        
 
         /// <summary>
         /// Renders the input tag.
@@ -90,12 +106,29 @@ namespace DotVVM.Framework.Controls
         protected virtual void RenderCheckedProperty(IHtmlWriter writer)
         {
             var checkedBinding = GetValueBinding(CheckedProperty);
-            writer.AddKnockoutDataBind("checked", checkedBinding.GetKnockoutBindingExpression(this));
+            writer.AddKnockoutDataBind("dotvvm-CheckState", checkedBinding);
             writer.AddKnockoutDataBind("checkedValue", "true");
 
             // Boolean mode can have prerendered `checked` attribute
             if (RenderOnServer && true.Equals(GetValue(CheckedProperty)))
                 writer.AddAttribute("checked", null);
         }
+
+
+        [ControlUsageValidator]
+        public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
+        {
+            var collectionType = control.GetValue(CheckedItemsProperty)?.GetResultType();
+            var valueType = control.GetValue(CheckedValueProperty)?.GetResultType();
+            if (collectionType != null && valueType != null && ReflectionUtils.GetEnumerableType(collectionType) != valueType)
+            {
+                yield return new ControlUsageError(
+                    $"Type of items in CheckedItems \'{ReflectionUtils.GetEnumerableType(collectionType)}\' must be same as CheckedValue type \'{valueType}\'.",
+                    control.GetValue(CheckedItemsProperty).DothtmlNode,
+                    control.GetValue(CheckedValueProperty).DothtmlNode
+                );
+            }
+        }
+
     }
 }

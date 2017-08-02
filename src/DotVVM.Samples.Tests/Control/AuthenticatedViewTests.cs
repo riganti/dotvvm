@@ -10,11 +10,11 @@ using System.Threading.Tasks;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class AuthenticatedViewTests : SeleniumTestBase
+    public class AuthenticatedViewTests : SeleniumTest
     {
 
         [TestMethod]
-        public void AuthenticatedViewTest()
+        public void Control_AuthenticatedView_AuthenticatedViewTest()
         {
             RunInAllBrowsers(browser =>
             {

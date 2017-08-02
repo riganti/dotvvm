@@ -11,10 +11,10 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class EnabledPropertyTests : SeleniumTestBase
+    public class EnabledPropertyTests : SeleniumTest
     {
         [TestMethod]
-        public void Control_EnabledProperty()
+        public void Control_EnabledProperty_EnabledProperty()
         {
             RunInAllBrowsers(browser =>
             {

@@ -11,10 +11,10 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Feature
 {   
     [TestClass]
-    public class BindingPageInfoTests : SeleniumTestBase
+    public class BindingPageInfoTests : SeleniumTest
     {
         [TestMethod]
-        public void Feature_BindingPageInfoTests()
+        public void Feature_BindingPageInfo_BindingPageInfo()
         {
             RunInAllBrowsers(browser =>
             {

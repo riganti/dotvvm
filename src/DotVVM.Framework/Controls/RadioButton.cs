@@ -1,8 +1,11 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.Validation;
+using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Utils;
+using System.Collections.Generic;
 
 namespace DotVVM.Framework.Controls
 {
@@ -11,6 +14,19 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     public class RadioButton : CheckableControlBase
     {
+        /// <summary>
+        /// Gets or sets whether the control is checked.
+        /// </summary>
+        [MarkupOptions(AllowHardCodedValue = false)]
+        public bool Checked
+        {
+            get { return (bool)GetValue(CheckedProperty); }
+            set { SetValue(CheckedProperty, value); }
+        }
+
+        public static readonly DotvvmProperty CheckedProperty =
+            DotvvmProperty.Register<bool, RadioButton>(t => t.Checked, false);
+
         /// <summary>
         /// Gets or sets the <see cref="CheckableControlBase.CheckedValue"/> of the first <see cref="RadioButton" /> that is checked and bound to this collection.
         /// </summary>
@@ -34,8 +50,6 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty GroupNameProperty =
             DotvvmProperty.Register<string, RadioButton>(t => t.GroupName, "");
-
-
 
         protected override void RenderInputTag(IHtmlWriter writer)
         {
@@ -90,6 +104,21 @@ namespace DotVVM.Framework.Controls
             {
                 // selected item mode
                 writer.AddKnockoutDataBind("checked", checkedItemBinding.GetKnockoutBindingExpression(this));
+            }
+        }
+
+        [ControlUsageValidator]
+        public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
+        {
+            var itemType = control.GetValue(CheckedItemProperty)?.GetResultType();
+            var valueType = control.GetValue(CheckedValueProperty)?.GetResultType();
+            if (itemType != null && valueType != null && itemType != valueType)
+            {
+                yield return new ControlUsageError(
+                    $"CheckedItem type \'{itemType}\' must be same as CheckedValue type \'{valueType}.",
+                    control.GetValue(CheckedItemProperty).DothtmlNode,
+                    control.GetValue(CheckedValueProperty).DothtmlNode
+                );
             }
         }
     }

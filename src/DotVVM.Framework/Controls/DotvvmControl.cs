@@ -99,6 +99,22 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<ClientIDMode, DotvvmControl>(c => c.ClientIDMode, ClientIDMode.Static, isValueInherited: true);
 
         /// <summary>
+        /// Gets or sets whether the control is included in the DOM of the page.
+        /// </summary>
+        /// <remarks>
+        /// Essentially wraps Knockout's 'if' binding.
+        /// </remarks>
+        [MarkupOptions(AllowHardCodedValue = false)]
+        public bool IncludeInPage
+        {
+            get { return (bool)GetValue(IncludeInPageProperty); }
+            set { SetValue(IncludeInPageProperty, value); }
+        }
+
+        public static readonly DotvvmProperty IncludeInPageProperty =
+            DotvvmProperty.Register<bool, DotvvmControl>(t => t.IncludeInPage, true);
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmControl"/> class.
         /// </summary>
         public DotvvmControl()
@@ -214,10 +230,21 @@ namespace DotVVM.Framework.Controls
             {
                 writer.WriteKnockoutWithComment(GetValueBinding(DataContextProperty).GetKnockoutBindingExpression(Parent));
             }
+
+            // if the IncludeInPage has binding, render the "if" binding
+            if (HasBinding(IncludeInPageProperty))
+            {
+                writer.WriteKnockoutDataBindComment("if", this, IncludeInPageProperty);
+            }
         }
 
         private void RenderEndWithDataBindAttribute(IHtmlWriter writer)
         {
+            if (HasBinding(IncludeInPageProperty))
+            {
+                writer.WriteKnockoutDataBindEndComment();
+            }
+
             if (HasBinding(DataContextProperty))
             {
                 writer.WriteKnockoutDataBindEndComment();
@@ -351,9 +378,9 @@ namespace DotVVM.Framework.Controls
         public DotvvmControl GetNamingContainer()
         {
             var control = this;
-            while (!IsNamingContainer(control) && control.Parent != null)
+            while (!IsNamingContainer(control) && control.Parent is DotvvmControl parent)
             {
-                control = control.Parent;
+                control = parent;
             }
             return control;
         }
@@ -361,7 +388,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Determines whether the specified control is a naming container.
         /// </summary>
-        public static bool IsNamingContainer(DotvvmControl control)
+        public static bool IsNamingContainer(DotvvmBindableObject control)
         {
             return (bool)control.GetValue(Internal.IsNamingContainerProperty);
         }
@@ -481,7 +508,7 @@ namespace DotVVM.Framework.Controls
             var fragments = new List<object> { rawId };
             DotvvmControl childContainer = null;
             bool searchingForIdElement = false;
-            foreach (var ancestor in GetAllAncestors())
+            foreach (DotvvmControl ancestor in GetAllAncestors())
             {
                 if (IsNamingContainer(ancestor))
                 {

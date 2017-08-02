@@ -13,8 +13,6 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.DateTimeSerializ
 {
     public class DateTimeSerializationViewModel : DotvvmViewModelBase
     {
-
-        [JsonConverter(typeof(DateTimeConverter1))]
         public DateTime Date1 { get; set; }
 
         public string Date1String { get; set; }
@@ -29,8 +27,6 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.DateTimeSerializ
             Date1 = DateTime.Now;
         }
 
-
-        [JsonConverter(typeof(DateTimeConverter2))]
         public DateTime? Date2 { get; set; }
 
         public string Date2String { get; set; } = "null";
@@ -43,17 +39,5 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.DateTimeSerializ
         {
             Date2 = DateTime.Now;
         }
-
     }
-
-    public class DateTimeConverter1 : DateTimeFormatJsonConverterBase
-    {
-        public override string[] DateTimeFormats => new[] { "d.M.yyyy" };
-    }
-
-    public class DateTimeConverter2 : DateTimeFormatJsonConverterBase
-    {
-        public override string[] DateTimeFormats => new[] { "yyyy-MM-dd HH:mm:ss" };
-    }
-    
 }

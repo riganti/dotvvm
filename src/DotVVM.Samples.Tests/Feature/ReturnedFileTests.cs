@@ -12,11 +12,12 @@ using System.Threading.Tasks;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class ReturnedFileTests : SeleniumTestBase
+    public class ReturnedFileTests : SeleniumTest
     {
 
         [TestMethod]
-        public void Feature_ReturnedFileSimple()
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ReturnedFile_ReturnedFileSample))]
+        public void Feature_ReturnedFile_ReturnedFileSample_Simple()
         {
             RunInAllBrowsers(browser => {
                 ReturnedFileDownload(browser, "Hello DotVVM returned file sample!");
@@ -24,7 +25,8 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [TestMethod]
-        public void Feature_ReturnedFileEmpty()
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ReturnedFile_ReturnedFileSample))]
+        public void Feature_ReturnedFile_ReturnedFileSample_Empty()
         {
             RunInAllBrowsers(browser =>
             {

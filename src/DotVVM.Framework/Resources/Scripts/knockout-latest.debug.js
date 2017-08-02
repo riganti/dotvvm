@@ -64,11 +64,11 @@ ko.delaySync = (function () {
             isPaused = true;
         },
         resume: function () {
+            isPaused = false;
             for (var i = 0; i < queue.length; i++) {
                 queue[i]();
             }
             queue = [];
-            isPaused = false;
         },
         run: function(action) {
             if (!isPaused) {
@@ -4367,6 +4367,7 @@ ko.bindingHandlers['foreach'] = {
             ko.utils.unwrapObservable(modelValue);
             return {
                 'foreach': unwrappedValue['data'],
+                'separatorTemplate': unwrappedValue['separatorTemplate'],
                 'as': unwrappedValue['as'],
                 'includeDestroyed': unwrappedValue['includeDestroyed'],
                 'afterAdd': unwrappedValue['afterAdd'],
@@ -5068,6 +5069,7 @@ ko.bindingHandlers['value'] = {
                         var allowUnset = allBindings.get('valueAllowUnset');
                         var applyValueAction = function () {
                             ko.selectExtensions.writeValue(element, newValue, allowUnset);
+                            ko.expressionRewriting.writeValueToProperty(valueAccessor(), allBindings, 'value', newValue);
                         };
 						ko.delaySync.run(function () {
                             applyValueAction();
@@ -5442,8 +5444,8 @@ ko.exportSymbol('__tr_ambtns', ko.templateRewriting.applyMemoizedBindingsToNextS
 
     function getFirstNodeFromPossibleArray(nodeOrNodeArray) {
         return nodeOrNodeArray.nodeType ? nodeOrNodeArray
-                                        : nodeOrNodeArray.length > 0 ? nodeOrNodeArray[0]
-                                        : null;
+            : nodeOrNodeArray.length > 0 ? nodeOrNodeArray[0]
+                : null;
     }
 
     function executeTemplate(targetNodeOrNodeArray, renderMode, template, bindingContext, options) {
@@ -5534,10 +5536,11 @@ ko.exportSymbol('__tr_ambtns', ko.templateRewriting.applyMemoizedBindingsToNextS
         }
     };
 
-    ko.renderTemplateForEach = function (template, arrayOrObservableArray, options, targetNode, parentBindingContext) {
+    ko.renderTemplateForEach = function (template, arrayOrObservableArray, options, targetNode, parentBindingContext, separatorTemplate) {
         // Since setDomNodeChildrenFromArrayMapping always calls executeTemplateForArrayItem and then
         // activateBindingsCallback for added items, we can store the binding context in the former to use in the latter.
         var arrayItemContext;
+        var separatorElementsCount;
 
         // This will be called by setDomNodeChildrenFromArrayMapping to get the nodes to add to targetNode
         var executeTemplateForArrayItem = function (arrayValue, index) {
@@ -5546,12 +5549,24 @@ ko.exportSymbol('__tr_ambtns', ko.templateRewriting.applyMemoizedBindingsToNextS
                 context['$index'] = index;
             });
 
+            var nodes = [];
+            separatorElementsCount = undefined;
+            if (separatorTemplate && ko.utils.peekObservable(index) > 0) {
+                nodes = nodes.concat(executeTemplate(targetNode, "ignoreTargetNode", separatorTemplate, parentBindingContext, options));
+                separatorElementsCount = nodes.length;
+            }
+
             var templateName = resolveTemplateName(template, arrayValue, arrayItemContext);
-            return executeTemplate(targetNode, "ignoreTargetNode", templateName, arrayItemContext, options);
+            nodes = nodes.concat(executeTemplate(targetNode, "ignoreTargetNode", templateName, arrayItemContext, options));
+            return nodes;
         }
 
         // This will be called whenever setDomNodeChildrenFromArrayMapping has added nodes to targetNode
         var activateBindingsCallback = function(arrayValue, addedNodesArray, index) {
+            if (separatorElementsCount !== undefined) {
+                activateBindingsOnContinuousNodeArray(addedNodesArray.splice(0, separatorElementsCount), parentBindingContext);
+            }
+
             activateBindingsOnContinuousNodeArray(addedNodesArray, arrayItemContext);
             if (options['afterRender'])
                 options['afterRender'](addedNodesArray, arrayValue);
@@ -5635,7 +5650,7 @@ ko.exportSymbol('__tr_ambtns', ko.templateRewriting.applyMemoizedBindingsToNextS
             if ('foreach' in options) {
                 // Render once for each data point (treating data set as empty if shouldDisplay==false)
                 var dataArray = (shouldDisplay && options['foreach']) || [];
-                templateComputed = ko.renderTemplateForEach(templateName || element, dataArray, options, element, bindingContext);
+                templateComputed = ko.renderTemplateForEach(templateName || element, dataArray, options, element, bindingContext, options['separatorTemplate']);
             } else if (!shouldDisplay) {
                 ko.virtualElements.emptyNode(element);
             } else {

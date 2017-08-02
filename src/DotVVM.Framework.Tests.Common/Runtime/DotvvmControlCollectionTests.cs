@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DotVVM.Framework.Tests.Runtime
@@ -89,7 +90,7 @@ namespace DotVVM.Framework.Tests.Runtime
                     {
                         InitAction = (control2, context2) =>
                         {
-                            control2.Parent.Children.First().Children.Add(new ControlLifeCycleMock()
+                            control2.Parent.CastTo<DotvvmControl>().Children.First().Children.Add(new ControlLifeCycleMock()
                             {
                                 InitAction = (control3, context3) =>
                                 {

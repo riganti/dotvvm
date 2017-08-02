@@ -170,6 +170,14 @@ namespace DotVVM.Framework.Compilation.Binding
                 suppress: node.Object?.Type?.IsNullable() ?? true
             );
         }
+
+        protected override Expression VisitNew(NewExpression node)
+        {
+            return CheckForNulls(node.Arguments.Select(Visit).ToArray(), args =>
+                    Expression.New(node.Constructor, args),
+                suppressThisOne: (arg, i) => node.Arguments[i].Type.IsNullable() || !arg.Type.GetTypeInfo().IsValueType);
+        }
+
         protected Expression CheckForNulls(Expression[] parameters, Func<Expression[], Expression> callback, Func<Expression, int, bool> suppressThisOne = null)
         {
             if (parameters.Length == 0) return callback(new Expression[0]);

@@ -17,7 +17,6 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         string SortExpression { get; set; }
 
-
         /// <summary>
         /// Applies the paging settings to the IQueryable object.
         /// </summary>

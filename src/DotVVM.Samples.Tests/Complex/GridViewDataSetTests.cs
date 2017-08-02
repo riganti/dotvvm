@@ -6,10 +6,10 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Complex
 {
     [TestClass]
-    public class GridViewDataSetTests : SeleniumTestBase
+    public class GridViewDataSetTests : SeleniumTest
     {
         [TestMethod]
-        public void Complex_GridViewDataSet()
+        public void Complex_GridViewDataSet_GridViewDataSet()
         {
             RunInAllBrowsers(browser =>
             {
@@ -19,7 +19,7 @@ namespace DotVVM.Samples.Tests.Complex
         }
 
         [TestMethod]
-        public void Complex_GridViewDataSetDelegate()
+        public void Complex_GridViewDataSet_GridViewDataSetDelegate()
         {
             RunInAllBrowsers(browser =>
             {

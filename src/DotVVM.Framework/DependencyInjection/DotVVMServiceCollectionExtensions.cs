@@ -1,17 +1,23 @@
-﻿using DotVVM.Framework.Binding;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Runtime;
+using DotVVM.Framework.Runtime.Tracing;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.ViewModel.Validation;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -24,6 +30,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configuration">The DotVVM configuration to use. A default one will be used if the value is <c>null</c>.</param>
         public static IServiceCollection RegisterDotVVMServices(IServiceCollection services, DotvvmConfiguration configuration = null)
         {
+            services.AddOptions();
             services.TryAddSingleton<IDotvvmViewBuilder, DefaultDotvvmViewBuilder>();
             services.TryAddSingleton<IViewModelSerializer, DefaultViewModelSerializer>();
             services.TryAddSingleton<IViewModelLoader, DefaultViewModelLoader>();
@@ -31,6 +38,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IValidationRuleTranslator, ViewModelValidationRuleTranslator>();
             services.TryAddSingleton<IViewModelValidator, ViewModelValidator>();
             services.TryAddSingleton<IViewModelSerializationMapper, ViewModelSerializationMapper>();
+            services.TryAddSingleton<IViewModelParameterBinder, AttributeViewModelParameterBinder>();
             services.TryAddSingleton<IOutputRenderer, DefaultOutputRenderer>();
             services.TryAddSingleton<IDotvvmPresenter, DotvvmPresenter>();
             services.TryAddSingleton<IMarkupFileLoader, DefaultMarkupFileLoader>();
@@ -46,7 +54,16 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IControlUsageValidator, DefaultControlUsageValidator>();
             services.TryAddSingleton<ILocalResourceUrlManager, LocalResourceUrlManager>();
             services.TryAddSingleton<IResourceHashService, DefaultResourceHashService>();
-            
+            services.TryAddSingleton<IStopwatch, DefaultStopwatch>();
+            services.TryAddSingleton<JavascriptTranslator, JavascriptTranslator>();
+
+            services.TryAddScoped<AggregateRequestTracer, AggregateRequestTracer>();
+            services.TryAddScoped<ResourceManager, ResourceManager>();
+            services.TryAddSingleton<Func<BindingRequiredResourceVisitor>>(s => {
+               var requiredResourceControl = s.GetRequiredService<IControlResolver>().ResolveControl(new ResolvedTypeDescriptor(typeof(RequiredResource)));
+               return () => new BindingRequiredResourceVisitor((ControlResolverMetadata)requiredResourceControl);
+            });
+
             services.AddSingleton(s => configuration ?? (configuration = DotvvmConfiguration.CreateDefault(s)));
 
             services.Configure<BindingCompilationOptions>(o => {

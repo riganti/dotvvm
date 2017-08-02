@@ -14,7 +14,7 @@ namespace DotVVM.Samples.Tests.Feature
     public class RegexValidationTests : SeleniumTestBase
     {
         [TestMethod]
-        public void Feature_RegexValidation()
+        public void Feature_Validation_RegexValidation()
         {
             RunInAllBrowsers(browser =>
             {
@@ -25,6 +25,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.ElementAt("input[type=button]", 0).Click();
 
                 browser.ElementAt("span", 0).CheckIfIsNotDisplayed();
+                browser.Wait();
                 browser.ElementAt("span", 1).CheckIfInnerTextEquals("25");
 
                 browser.ElementAt("input", 0).SendKeys("a");

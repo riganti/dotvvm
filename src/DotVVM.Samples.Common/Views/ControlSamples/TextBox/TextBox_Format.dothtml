@@ -9,36 +9,71 @@
 <body>
     <p ID="dateformat">
         DATE: <br>
-        <dot:textbox iD="dateTextbox" ClientIDMode="Static" Text="{value: DateValue }" style="height: 20px; width: 200px;" FormatString="d" />
-        <dot:Literal ID="DateValueText" ClientIDMode="Static" Text="{value: DateValue}"></dot:Literal>
-		<span ID="date-result1">{{value: DateResult1}}</span>
-		<span ID="date-result2">{{value: DateResult2}}</span>
-		<span ID="date-result3">{{value: DateResult3}}</span>
+        <dot:textbox ID="dateTextbox"
+                     ClientIDMode="Static"
+                     Text="{value: DateValue }"
+                     style="height: 20px; width: 200px;"
+                     FormatString="d" />
+        <dot:Literal ID="DateValueText"
+                     ClientIDMode="Static"
+                     Text="{value: DateValue}">
+        </dot:Literal>
+        <span ID="date-result1">{{value: DateResult1}}</span>
+        <span ID="date-result2">{{value: DateResult2}}</span>
+        <span ID="date-result3">{{value: DateResult3}}</span>
     </p>
 
     <p ID="numberformat">
         Number: <br>
-        <dot:textbox iD="numberTextbox" ClientIDMode="Static" Text="{value: NumberValue }" style="height: 20px; width: 200px;" FormatString="N4" />
-        <dot:Literal ID="numberValueText" ClientIDMode="Static" Text="{value: NumberValue }" ValueType="Number"></dot:Literal>
+        <dot:textbox ID="numberTextbox"
+                     ClientIDMode="Static"
+                     Text="{value: NumberValue }"
+                     style="height: 20px; width: 200px;"
+                     FormatString="N4" />
+        <dot:Literal ID="numberValueText"
+                     ClientIDMode="Static" 
+                     Text="{value: NumberValue }" 
+                     ValueType="Number">
+        </dot:Literal>
     </p>
     <p ID="customNumberformat">
         Custom Numeric Format: <br>
-        <dot:textbox iD="customFormatTextbox" ClientIDMode="Static" Text="{value: NumberValue }" style="height: 20px; width: 200px;" FormatString="#0.00" />
-        <dot:Literal ID="numberValueText" ClientIDMode="Static" Text="{value: NumberValue}" ValueType="Text" />
-        <dot:Literal ID="customFormatText" ClientIDMode="Static" Text="(Format: #0.00)" ValueType="Text" /> 
+        <dot:textbox ID="customFormatTextbox" 
+                     ClientIDMode="Static" 
+                     Text="{value: NumberValue }" 
+                     style="height: 20px; width: 200px;" 
+                     FormatString="#0.00" />
+        <dot:Literal ID="numberValueText" 
+                     ClientIDMode="Static" 
+                     Text="{value: NumberValue}" 
+                     ValueType="Text" />
+        <dot:Literal ID="customFormatText" 
+                     ClientIDMode="Static" 
+                     Text="(Format: #0.00)" 
+                     ValueType="Text" />
         <br />
         <br />
-        <dot:textbox iD="customFormatTextbox2" ClientIDMode="Static" Text="{value: BigNumberValue}" style="height: 20px; width: 200px;" FormatString="#,##0.0##" />
-        <dot:Literal ID="numberValueText" ClientIDMode="Static" Text="{value: BigNumberValue}" ValueType="Text" />
-        <dot:Literal ID="customFormatText2" ClientIDMode="Static" Text="(Format: #,##0.0##)" ValueType="Text" /> 
+        <dot:textbox ID="customFormatTextbox2"
+                     ClientIDMode="Static" 
+                     Text="{value: BigNumberValue}"
+                     style="height: 20px; width: 200px;" 
+                     FormatString="#,##0.0##" />
+        <dot:Literal ID="numberValueText" 
+                     ClientIDMode="Static" 
+                     Text="{value: BigNumberValue}" 
+                     ValueType="Text" />
+        <dot:Literal ID="customFormatText2" 
+                     ClientIDMode="Static" 
+                     Text="(Format: #,##0.0##)" 
+                     ValueType="Text" />
     </p>
     <div>
         <h3>Switch language</h3>
-		<p>
-			<span>Current: {{value: CurrentCulture}}</span><br />
-			<a id="english" href="?">English</a><br />
-			<a ID="czech" href="?lang=cs-CZ">Czech</a>
-		</p>
+        <p>
+            <span>Current: {{value: CurrentCulture}}</span><br />
+            <a ID="english" href="?">English</a><br />
+            <a ID="czech" href="?lang=cs-CZ">Czech</a>
+        </p>
     </div>
 </body>
 </html>

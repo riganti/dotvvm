@@ -88,18 +88,25 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var value = Expression.Variable(Type, "value");
 
             // add current object to encrypted values, this is needed because one property can potentionaly contain more objects (is a collection)
+            block.Add(Expression.Call(encryptedValuesReader, nameof(EncryptedValuesReader.IncrementIndex), Type.EmptyTypes));
             block.Add(Expression.Call(encryptedValuesReader, nameof(EncryptedValuesReader.Nest), Type.EmptyTypes));
 
-            // value = new {Type}();
+            // curly brackets are used for variables and methods from the scope of this factory method
+            // value = ({Type})valueParam;
             block.Add(Expression.Assign(value, Expression.Convert(valueParam, Type)));
 
             // go through all properties that should be read
-            foreach (var property in Properties.Where(p => p.TransferToServer && p.PropertyInfo.SetMethod != null))
+            foreach (var property in Properties)
             {
+                block.Add(Expression.Call(encryptedValuesReader, nameof(EncryptedValuesReader.IncrementIndex), Type.EmptyTypes));
+                if(!property.TransferToServer || property.PropertyInfo.SetMethod == null)
+                {
+                    continue;
+                }
+
                 if (property.ViewModelProtection == ProtectMode.EncryptData || property.ViewModelProtection == ProtectMode.SignData)
                 {
-                    // encryptedValues[(int)jobj["{p.Name}"]]
-
+                    // value.{PropertyInfo} = ({PropertyInfo.PropertyType})Deserialize(serializer, encryptedValuesReader.ReadValue(), {property}, (object)value.{PropertyInfo});
                     block.Add(Expression.Call(
                         value,
                         property.PropertyInfo.SetMethod,
@@ -113,16 +120,21 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 }
                 else
                 {
-                    var checkEV = property.TransferAfterPostback && property.TransferFirstRequest && ShouldCheckEncrypedValues(property.Type);
+                    var checkEV = CanContainEncryptedValues(property.Type);
                     if (checkEV)
                     {
-                        // lastEncrypedValuesCount = encrypedValues.Count
+                        // encryptedValuesReader.Nest();
                         block.Add(Expression.Call(encryptedValuesReader, nameof(EncryptedValuesReader.Nest), Type.EmptyTypes));
                     }
 
+                    // jobj[{property.Name}]
                     var jsonProp = ExpressionUtils.Replace((JObject j) => j[property.Name], jobj);
 
-                    // if ({jsonProp} != null) value.{p.Name} = deserialize();
+                    // object helperValueThatsNotActuallyThere = {property.Populate} ? (object)value.{property} : null;
+                    // if (jobj[{property.Name}] != null)
+                    // {
+                    //     value.{property.Name} = ({property.Type})Deserialize(serializer, jobj[{property.Name}], {property}, helperValueThatsNotActuallyThere);
+                    // }
                     block.Add(
                         Expression.IfThen(Expression.NotEqual(jsonProp, Expression.Constant(null)),
                             Expression.Call(
@@ -140,6 +152,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
                     if (checkEV)
                     {
+                        // encryptedValuesReader.AssertEnd();
                         block.Add(Expression.Call(encryptedValuesReader, nameof(EncryptedValuesReader.AssertEnd), Type.EmptyTypes));
                     }
                 }
@@ -221,47 +234,50 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var isPostback = Expression.Parameter(typeof(bool), "isPostback");
             var value = Expression.Variable(Type, "value");
 
+            // curly brackets are used for variables and methods from the scope of this factory method
             // value = ({Type})valueParam;
             block.Add(Expression.Assign(value, Expression.Convert(valueParam, Type)));
+
+            // encryptedValuesWriter.WriteStartObject();
             block.Add(Expression.Call(writer, "WriteStartObject", Type.EmptyTypes));
 
+            // encryptedValuesWriter.Nest();
+            block.Add(Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.IncrementIndex), Type.EmptyTypes));
             block.Add(Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.Nest), Type.EmptyTypes));
 
-            // writer.WritePropertyName("$validationErrors")
-            // writer.WriteStartArray()
-            // writer.WriteEndArray()
-            //block.Add(ExpressionUtils.Replace((JsonWriter w) => w.WritePropertyName("$validationErrors"), writer));
-            //block.Add(ExpressionUtils.Replace((JsonWriter w) => w.WriteStartArray(), writer));
-            //block.Add(ExpressionUtils.Replace((JsonWriter w) => w.WriteEndArray(), writer));
-
             // writer.WritePropertyName("$type");
-            // serializer.Serialize(writer, value.GetType().FullName)
             block.Add(ExpressionUtils.Replace((JsonWriter w) => w.WritePropertyName("$type"), writer));
+
+            // serializer.Serialize(writer, value.GetType().FullName)
             block.Add(ExpressionUtils.Replace((JsonSerializer s, JsonWriter w, string t) => s.Serialize(w, t), serializer, writer, Expression.Constant(Type.GetTypeHash())));
 
             // go through all properties that should be serialized
             foreach (var property in Properties)
             {
+                block.Add(Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.IncrementIndex), Type.EmptyTypes));
                 var endPropertyLabel = Expression.Label("end_property_" + property.Name);
                 var options = new Dictionary<string, object>();
                 if (property.TransferToClient && property.PropertyInfo.GetMethod != null)
                 {
                     if (property.TransferFirstRequest != property.TransferAfterPostback)
                     {
-                        if (property.ViewModelProtection != ProtectMode.None) throw new Exception("Property sent only on selected requests can use viewModel protection.");
+                        if (property.ViewModelProtection != ProtectMode.None)
+                        {
+                            throw new DotvvmPropertySerializationException("Property sent only on selected requests cannot use viewModel protection.", property);
+                        }
 
                         Expression condition = isPostback;
                         if (property.TransferAfterPostback) condition = Expression.Not(condition);
                         block.Add(Expression.IfThen(condition, Expression.Goto(endPropertyLabel)));
                     }
 
-                    // writer.WritePropertyName("{property.Name"});
+                    // (object)value.{property.PropertyInfo.Name}
                     var prop = Expression.Convert(Expression.Property(value, property.PropertyInfo), typeof(object));
 
                     if (property.ViewModelProtection == ProtectMode.EncryptData ||
                         property.ViewModelProtection == ProtectMode.SignData)
                     {
-                        // encryptedValues.Add(JsonConvert.SerializeObject({value}));
+                        // encryptedValuesWriter.Value((object)value.{property.PropertyInfo.Name});
                         block.Add(
                             Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.Value), Type.EmptyTypes, prop));
                     }
@@ -270,28 +286,32 @@ namespace DotVVM.Framework.ViewModel.Serialization
                         property.ViewModelProtection == ProtectMode.SignData)
                     {
                         var checkEV = property.ViewModelProtection == ProtectMode.None &&
-                                           ShouldCheckEncrypedValues(property.Type);
+                            CanContainEncryptedValues(property.Type);
                         if (checkEV)
                         {
-                            // lastEncrypedValuesCount = encrypedValues.Count
+                            // encryptedValuesWriter.Nest();
                             block.Add(Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.Nest), Type.EmptyTypes));
                         }
 
+                        // writer.WritePropertyName({property.Name});
                         block.Add(Expression.Call(writer, "WritePropertyName", Type.EmptyTypes,
                             Expression.Constant(property.Name)));
 
-                        // serializer.Serialize(writer, value.{property.Name});
+                        // serializer.Serialize(serializer, writer, {property}, (object)value.{property.PropertyInfo.Name});
                         block.Add(ExpressionUtils.Replace((JsonSerializer s, JsonWriter w, object v) => Serialize(s, w, property, v), serializer, writer, prop));
 
                         if (checkEV)
                         {
-                            // if not fully transported, ensure nothing happened
-                            if (property.TransferAfterPostback != property.TransferFirstRequest && !property.TransferToServer)
+                            // encryption is worthless if the property is not being transfered both ways 
+                            // therefore ClearEmptyNest throws exception if the property contains encrypted values
+                            if (!property.IsFullyTransfered())
                             {
+                                // encryptedValuesWriter.ClearEmptyNest();
                                 block.Add(Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.ClearEmptyNest), Type.EmptyTypes));
                             }
                             else
                             {
+                                // encryptedValuesWriter.End();
                                 block.Add(Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.End), Type.EmptyTypes));
                             }
                         }
@@ -327,8 +347,12 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 }
             }
 
+            // writer.WriteEndObject();
             block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteEndObject(), writer));
+
+            // encryptedValuesWriter.End();
             block.Add(Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.End), Type.EmptyTypes));
+
             // compile the expression
             var ex = Expression.Lambda<Action<JsonWriter, object, JsonSerializer, EncryptedValuesWriter, bool>>(
                 Expression.Block(new[] { value }, block).OptimizeConstants(), writer, valueParam, serializer, encryptedValuesWriter, isPostback);
@@ -392,7 +416,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Determines whether type can contain encrypted fields
         /// </summary>
-        private bool ShouldCheckEncrypedValues(Type type)
+        private bool CanContainEncryptedValues(Type type)
         {
             return !(
                 // primitives can't contain encrypted fields

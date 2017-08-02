@@ -6,10 +6,10 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class EnvironmentViewTests : SeleniumTestBase
+    public class EnvironmentViewTests : SeleniumTest
     {
         [TestMethod]
-        public void EnvironmentViewTest()
+        public void Control_EnvironmentView_EnvironmentViewTest()
         {
             RunInAllBrowsers(browser =>
             {

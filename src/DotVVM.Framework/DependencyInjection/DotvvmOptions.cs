@@ -1,4 +1,5 @@
 ﻿using System;
+using DotVVM.Framework.Configuration;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -9,7 +10,6 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         /// <inheritdoc />
         public IServiceCollection Services { get; }
-
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmOptions" /> class.

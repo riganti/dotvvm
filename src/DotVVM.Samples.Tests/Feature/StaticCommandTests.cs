@@ -10,10 +10,10 @@ using System.Threading.Tasks;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class StaticCommandTests : SeleniumTestBase
+    public class StaticCommandTests : SeleniumTest
     {
         [TestMethod]
-        public void Feature_StaticCommand()
+        public void Feature_StaticCommand_StaticCommand()
         {
             RunInAllBrowsers(browser =>
                 {
@@ -32,7 +32,7 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [TestMethod]
-        public void Feature_StaticCommand_ComboBoxSelectionChanged()
+        public void Feature_StaticCommand_StaticCommand_ComboBoxSelectionChanged()
         {
             RunInAllBrowsers(browser =>
             {
@@ -42,7 +42,7 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [TestMethod]
-        public void Feature_StaticCommand_ComboBoxSelectionChanged_Objects()
+        public void Feature_StaticCommand_StaticCommand_ComboBoxSelectionChanged_Objects()
         {
             RunInAllBrowsers(browser =>
             {

@@ -10,10 +10,12 @@ using System.Threading.Tasks;
 namespace DotVVM.Samples.Tests.Complex
 {
     [TestClass]
-    public class SPARedirectTests : SeleniumTestBase
+    public class SPARedirectTests : SeleniumTest
     {
         [TestMethod]
-        public void Complex_SPARedirect()
+        [SampleReference(nameof(SamplesRouteUrls.ComplexSamples_SPARedirect_home))]
+        [SampleReference(nameof(SamplesRouteUrls.ComplexSamples_SPARedirect_login))]
+        public void Complex_SPARedirect_RedirectToLoginPage()
         {
             RunInAllBrowsers(browser =>
             {

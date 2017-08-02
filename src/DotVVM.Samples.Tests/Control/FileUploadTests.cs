@@ -8,11 +8,11 @@ using Riganti.Utils.Testing.Selenium.DotVVM;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class FileUploadTests : SeleniumTestBase
+    public class FileUploadTests : SeleniumTest
     {
         [TestMethod]
         [Timeout(120000)]
-        public void Control_FileUpload()
+        public void Control_FileUpload_FileUpload()
         {
             RunInAllBrowsers(browser =>
             {
@@ -58,7 +58,8 @@ namespace DotVVM.Samples.Tests.Control
 
         [TestMethod]
         [Timeout(120000)]
-        public void Control_FileUpload_IsFileAllowed()
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_FileUpload_IsAllowedOrNot))]
+        public void Control_FileUpload_IsAllowedOrNot_IsFileAllowed()
         {
             RunInAllBrowsers(browser =>
             {
@@ -108,7 +109,8 @@ namespace DotVVM.Samples.Tests.Control
 
         [TestMethod]
         [Timeout(120000)]
-        public void Control_FileUpload_FileTooLarge()
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_FileUpload_IsAllowedOrNot))]
+        public void Control_FileUpload_IsAllowedOrNot_FileTooLarge()
         {
             RunInAllBrowsers(browser =>
             {

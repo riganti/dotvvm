@@ -3,13 +3,13 @@
   <PropertyGroup>
     <AssemblyTitle>DotVVM.CommandLine</AssemblyTitle>
     <AssemblyName>dotnet-dotvvm</AssemblyName>
-    <VersionPrefix>1.1.0.10</VersionPrefix>
+    <VersionPrefix>1.1.5-beta-01</VersionPrefix>
     <TargetFramework>netcoreapp1.0</TargetFramework>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>DotVVM.CommandLine</PackageId>
-    <PackageVersion>1.1.0.10</PackageVersion>
+    <PackageVersion>1.1.5-beta-01</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>Command-line tools for DotVVM.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
@@ -72,6 +72,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>ViewModelTemplate.tt</DependentUpon>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="NSwag.CodeGeneration" Version="11.3.3" />
+    <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="11.3.3" />
+    <PackageReference Include="NSwag.CodeGeneration.Typescript" Version="11.3.3" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>

@@ -10,10 +10,10 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class ContentPlaceHolderTests : SeleniumTestBase
+    public class ContentPlaceHolderTests : SeleniumTest
     {
         [TestMethod]
-        public void EmptyContentPlaceHolderTest()
+        public void Control_ContentPlaceHolder_ContentPlaceHolderPage()
         {
             RunInAllBrowsers(browser =>
             {
@@ -23,7 +23,7 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [TestMethod]
-        public void SpecifiedContentPlaceHolderTest()
+        public void Control_ContentPlaceHolder_ContentPlaceHolderPage_ContentTest()
         {
             RunInAllBrowsers(browser =>
             {
@@ -31,10 +31,6 @@ namespace DotVVM.Samples.Tests.Control
                 browser.First("#innerHtmlTest").CheckIfJsPropertyInnerHtml(html => !string.IsNullOrWhiteSpace(System.Net.WebUtility.HtmlDecode(html)), "Inner html has to contain specified content.");
             });
         }
-
-        
-
-
 
     }
 }

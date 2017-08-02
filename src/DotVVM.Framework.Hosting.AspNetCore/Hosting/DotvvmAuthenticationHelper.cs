@@ -11,7 +11,7 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public static Task ApplyRedirectResponse(HttpContext context, string redirectUri)
         {
-            DotvvmRequestContext.SetRedirectResponse(DotvvmMiddleware.ConvertHttpContext(context), redirectUri, (int)HttpStatusCode.Redirect, allowSpaRedirect: false);
+            DotvvmRequestContextExtensions.SetRedirectResponse(DotvvmRequestContext.GetCurrent(DotvvmMiddleware.ConvertHttpContext(context)), redirectUri, (int)HttpStatusCode.Redirect, allowSpaRedirect: false);
             throw new DotvvmInterruptRequestExecutionException();
         }
 

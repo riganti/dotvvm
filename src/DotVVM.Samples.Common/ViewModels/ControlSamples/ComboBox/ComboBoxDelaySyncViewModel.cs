@@ -7,10 +7,10 @@ using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Samples.Common.ViewModels.ControlSamples.ComboBox
 {
-	public class ComboBoxDelaySyncViewModel : DotvvmViewModelBase
-	{
+    public class ComboBoxDelaySyncViewModel : DotvvmViewModelBase
+    {
 
-	    public int A { get; set; }
+        public int A { get; set; }
 
         public int Z { get; set; }
 
@@ -18,21 +18,21 @@ namespace DotVVM.Samples.Common.ViewModels.ControlSamples.ComboBox
 
 
 
-	    public override Task Init()
-	    {
-	        if (!Context.IsPostBack)
-	        {
-	            Items = new List<ComboBoxItem>()
-	            {
-	                new ComboBoxItem() { Id = 1, Name = "One" },
-	                new ComboBoxItem() { Id = 2, Name = "Two" },
-	                new ComboBoxItem() { Id = 3, Name = "Three" }
-	            };
-	            A = 2;
-	            Z = 2;
-	        }
-	        return base.Init();
-	    }
+        public override Task Init()
+        {
+            if (!Context.IsPostBack)
+            {
+                Items = new List<ComboBoxItem>()
+                {
+                    new ComboBoxItem() { Id = 1, Name = "One" },
+                    new ComboBoxItem() { Id = 2, Name = "Two" },
+                    new ComboBoxItem() { Id = 3, Name = "Three" }
+                };
+                A = 2;
+                Z = 2;
+            }
+            return base.Init();
+        }
 
         public void ChangeCollections()
         {

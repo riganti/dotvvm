@@ -1,0 +1,26 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.Repeater.DataSourceNullViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <dot:Repeater DataSource="{value: Collection}"
+                  data-ui="client-repeater">
+        <p>{{value: _this}}</p>
+    </dot:Repeater>
+    <br/>
+    <dot:Repeater DataSource="{value: Collection}"
+                  RenderSettings.Mode="Server"
+                  PostBack.Update="true"
+                  data-ui="server-repeater">
+        <p>{{value: _this}}</p>
+    </dot:Repeater>
+    <div>
+        <dot:Button Click="{command: SetCollection()}"
+                    data-ui="set-collection-button">Set Collection</dot:Button>
+    </div>
+</body>
+</html>

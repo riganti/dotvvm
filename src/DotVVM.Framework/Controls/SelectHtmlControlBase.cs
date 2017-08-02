@@ -10,11 +10,11 @@ using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Controls
 {
-	/// <summary>
-	/// Renders <c>select</c> HTML element control.
-	/// </summary>
+    /// <summary>
+    /// Renders <c>select</c> HTML element control.
+    /// </summary>
     public abstract class SelectHtmlControlBase : Selector
-	{
+    {
         
         /// <summary>
         /// Initializes a new instance of the <see cref="SelectHtmlControlBase"/> class.
@@ -31,10 +31,11 @@ namespace DotVVM.Framework.Controls
         {
             RenderEnabledProperty(writer);
             RenderOptionsProperties(writer);
-            RenderChangedEvent(writer);
             RenderSelectedValueProperty(writer);
 
             base.AddAttributesToRender(writer, context);
+
+            RenderChangedEvent(writer);
         }
 
         protected virtual void RenderEnabledProperty(IHtmlWriter writer)
@@ -53,8 +54,8 @@ namespace DotVVM.Framework.Controls
         }
         
         protected virtual void RenderSelectedValueProperty(IHtmlWriter writer)
-	    {
-	        writer.AddKnockoutDataBind("value", this, SelectedValueProperty, renderEvenInServerRenderingMode: true);
-	    }
-	}
+        {
+            writer.AddKnockoutDataBind("value", this, SelectedValueProperty, renderEvenInServerRenderingMode: true);
+        }
+    }
 }

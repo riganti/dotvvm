@@ -6,6 +6,6 @@ namespace DotVVM.Samples.BasicSamples.TestNamespace2.SubNamespace
 {
     public class Class1
     {
-        public static string Property => "Class1.Property: ok.";
+        public static string Property => "Works";
     }
 }

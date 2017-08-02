@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -14,6 +14,8 @@ using DotVVM.Framework.Compilation.Javascript;
 using System.Threading.Tasks;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.Utils;
+using System.Diagnostics;
+using DotVVM.Framework.Binding.Properties;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -50,6 +52,16 @@ namespace DotVVM.Framework.Configuration
                     RegisterApiDtoProperties(t, config);
             }
         }
+
+        private static JsExpression[] ReplaceDefaultWithUndefined(IEnumerable<JsExpression> arguments, ParameterInfo[] parameters)
+        {
+            var replaced = arguments.Zip(parameters, (a, p) => a is JsLiteral literal && literal.Value == p.DefaultValue ? new JsIdentifierExpression("undefined") : a).ToArray();
+            int trimCount = 0;
+            while (trimCount < replaced.Length && replaced[replaced.Length - trimCount - 1] is JsIdentifierExpression identifier && identifier.Identifier == "undefined")
+                trimCount++;
+            return replaced.Take(replaced.Length - trimCount).ToArray();
+        }
+
         private static void RegisterJsTranslation(JsExpression identifier, Type apiClient, DotvvmConfiguration config)
         {
             lock (locker)
@@ -68,10 +80,10 @@ namespace DotVVM.Framework.Configuration
                     {
                         var isRead = method.Name.Equals("get", StringComparison.OrdinalIgnoreCase);
 
-                        JavascriptTranslator.AddMethodTranslator(method, new GenericMethodCompiler(
+                        config.Markup.JavascriptTranslator.MethodCollection.AddMethodTranslator(method, new GenericMethodCompiler(
                             a => new JsIdentifierExpression("dotvvm").Member("invokeApiFn").Invoke(
                                 new JsFunctionExpression(new JsIdentifier[0], new JsBlockStatement(
-                                    new JsReturnStatement(identifier.Clone().Member(KnockoutHelper.ConvertToCamelCase(method.Name)).Invoke(a.Skip(1).ToArray()))
+                                    new JsReturnStatement(identifier.Clone().Member(KnockoutHelper.ConvertToCamelCase(method.Name)).Invoke(ReplaceDefaultWithUndefined(a.Skip(1), method.GetParameters())))
                                 )),
                                 new JsArrayExpression(isRead ?
                                     new JsIdentifierExpression("dotvvm").Member("eventHub").Member("get").Invoke(new JsLiteral(identifier.FormatScript())) :
@@ -86,46 +98,80 @@ namespace DotVVM.Framework.Configuration
             }
         }
 
+        public static void RegisterApiClient(this DotvvmConfiguration configuration, Type clientType, string apiServerUrl, string jsApiClientFile, string identifier, string customFetchFunction = null)
+        {
+            apiServerUrl = apiServerUrl.TrimEnd('/');
+            var jsidentifier = new JsIdentifierExpression("dotvvm").Member("api").Member(identifier);
+            var jsinitializer = new JsExpressionStatement(new JsAssignmentExpression(
+                jsidentifier.Clone(),
+                new JsNewExpression(
+                    new JsIdentifierExpression(clientType.FullName),
+                    CreateHttpObj(customFetchFunction)
+                )
+            ));
+            var instance = CreateApiClientInstance(apiServerUrl, clientType);
+            var descriptor = new ApiGroupDescriptor(clientType, new [] { new ApiDescriptor(null, null, clientType, jsidentifier) }, instance);
+            RegisterApiDependencies(configuration, identifier, jsApiClientFile, jsinitializer, descriptor);
+        }
+
         public static void RegisterApiGroup(this DotvvmConfiguration configuration, Type wrapperType, string apiServerUrl, string jsApiClientFile, string identifier = "_api", string customFetchFunction = null)
         {
             apiServerUrl = apiServerUrl.TrimEnd('/');
             var jsidentifier = new JsIdentifierExpression("dotvvm").Member("api").Member(identifier);
 
             var properties = (from prop in wrapperType.GetProperties()
-                              let instance = prop.PropertyType.GetConstructor(new[] { typeof(string) })?.Invoke(new[] { apiServerUrl }) ??
-                                             prop.PropertyType.GetConstructor(Type.EmptyTypes)?.Invoke(new object[] { })
+                              let instance = CreateApiClientInstance(apiServerUrl, prop.PropertyType)
                               let jsName = KnockoutHelper.ConvertToCamelCase(prop.Name)
                               select new { instance, jsName, desc = new ApiDescriptor(prop.Name, prop, prop.PropertyType, jsidentifier.Clone().Member(jsName)) }).ToArray();
 
             var jsinitializer = new JsExpressionStatement(new JsAssignmentExpression(jsidentifier.Clone(), new JsObjectExpression(
                 properties.Select(p =>
-                    new JsObjectProperty(p.jsName, new JsNewExpression(new JsIdentifierExpression(p.desc.Type.Name),
+                    new JsObjectProperty(p.jsName, new JsNewExpression(new JsIdentifierExpression(p.desc.Type.FullName),
                         new JsLiteral(apiServerUrl),
-                        customFetchFunction == null ? null : new JsObjectExpression(new JsObjectProperty("fetch", new JsIdentifierExpression(customFetchFunction)))
+                        CreateHttpObj(customFetchFunction)
                     ))
                 )
             )));
-
-            configuration.Resources.Register("apiClient" + identifier, new ScriptResource(new FileResourceLocation(jsApiClientFile)));
-            configuration.Resources.Register("apiInit" + identifier, new InlineScriptResource(jsinitializer.FormatScript(niceMode: configuration.Debug)) { Dependencies = new[] { "dotvvm", "apiClient" + identifier } });
 
             var wrapperInstance = Activator.CreateInstance(wrapperType);
             foreach (var prop in properties)
                 prop.desc.PropInfo.SetValue(wrapperInstance, prop.instance);
 
             var descriptor = new ApiGroupDescriptor(wrapperType, properties.Select(p => p.desc), wrapperInstance);
+            RegisterApiDependencies(configuration, identifier, jsApiClientFile, jsinitializer, descriptor);
+        }
+
+        private static object CreateApiClientInstance(string apiServerUrl, Type type)
+        {
+            return type.GetConstructor(new[] { typeof(string) })?.Invoke(new[] { apiServerUrl }) ??
+                   type.GetConstructor(Type.EmptyTypes)?.Invoke(new object[] { });
+        }
+
+        private static JsObjectExpression CreateHttpObj(string customFetchFunction)
+        {
+            return customFetchFunction == null ? null : new JsObjectExpression(new JsObjectProperty("fetch", new JsIdentifierExpression(customFetchFunction)));
+        }
+
+        private static void RegisterApiDependencies(DotvvmConfiguration configuration, string identifier, string jsApiClientFile, JsNode jsinitializer, ApiGroupDescriptor descriptor)
+        {
+            configuration.Resources.Register("apiClient" + identifier, new ScriptResource(new FileResourceLocation(jsApiClientFile)));
+            configuration.Resources.Register("apiInit" + identifier, new InlineScriptResource(jsinitializer.FormatScript(niceMode: configuration.Debug)) { Dependencies = new[] { "dotvvm", "apiClient" + identifier } });
 
             configuration.Markup.DefaultExtensionParameters.Add(new ApiExtensionParameter(identifier, descriptor));
 
-            foreach (var prop in properties)
-                RegisterJsTranslation(prop.desc.JsExpression, prop.desc.Type, configuration);
+            foreach (var prop in descriptor.Properties)
+            {
+                prop.JsExpression.AddAnnotation(new RequiredRuntimeResourcesBindingProperty(ImmutableArray.Create("apiInit" + identifier)));
+                RegisterJsTranslation(prop.JsExpression, prop.Type, configuration);
+            }
         }
 
-        class ApiGroupDescriptor
+        public class ApiGroupDescriptor
         {
             public object Instance { get; }
             public ImmutableArray<ApiDescriptor> Properties { get; }
             public Type Type { get; }
+            public bool IsSingleClient => Properties.Length == 1 && Properties.Single().Name == null;
 
             public ApiGroupDescriptor(Type type, IEnumerable<ApiDescriptor> properties, object instance)
             {
@@ -135,7 +181,7 @@ namespace DotVVM.Framework.Configuration
             }
         }
 
-        class ApiDescriptor
+        public class ApiDescriptor
         {
             public string Name { get; }
             public PropertyInfo PropInfo { get; }
@@ -152,7 +198,7 @@ namespace DotVVM.Framework.Configuration
             }
         }
 
-        class ApiExtensionParameter : BindingExtensionParameter
+        public class ApiExtensionParameter : BindingExtensionParameter
         {
             public ApiExtensionParameter(string identifier, ApiGroupDescriptor descriptor) : base(identifier, new ResolvedTypeDescriptor(descriptor.Type), inherit: true)
             {
@@ -162,12 +208,14 @@ namespace DotVVM.Framework.Configuration
             public ApiGroupDescriptor ApiDescriptor { get; }
 
             public override JsExpression GetJsTranslation(JsExpression dataContext) =>
+                this.ApiDescriptor.IsSingleClient ?
+                this.ApiDescriptor.Properties.Single().JsExpression.Clone() :
                 new JsObjectExpression(
                     ApiDescriptor.Properties.Select(p => new JsObjectProperty(p.Name, p.JsExpression.Clone()))
                 );
 
             public override Expression GetServerEquivalent(Expression controlParameter) =>
-                Expression.Constant(ApiDescriptor.Instance, ApiDescriptor.Type);
+                Expression.Constant(null, ApiDescriptor.Type);
         }
     }
 }

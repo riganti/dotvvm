@@ -13,7 +13,7 @@ namespace DotVVM.Framework.Controls
     public abstract class DotvvmBindableObject
     {
 
-        private static readonly ConcurrentDictionary<Type, IReadOnlyList<DotvvmProperty>> declaredProperties = new ConcurrentDictionary<Type, IReadOnlyList<DotvvmProperty>>();
+        private static readonly ConcurrentDictionary<Type, DotvvmProperty[]> declaredProperties = new ConcurrentDictionary<Type, DotvvmProperty[]>();
 
 
         protected internal Dictionary<DotvvmProperty, object> properties;
@@ -46,14 +46,17 @@ namespace DotVVM.Framework.Controls
         /// Gets the parent control.
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.Exclude)]
-        public DotvvmControl Parent { get; set; }
+        public DotvvmBindableObject Parent { get; set; }
+
+        // WORKAROUND: Roslyn is unable to cache the delegate itself
+        private static Func<Type, DotvvmProperty[]> _dotvvmProperty_ResolveProperties = DotvvmProperty.ResolveProperties;
 
         /// <summary>
         /// Gets all properties declared on this class or on any of its base classes.
         /// </summary>
-        protected IReadOnlyList<DotvvmProperty> GetDeclaredProperties()
+        protected DotvvmProperty[] GetDeclaredProperties()
         {
-            return declaredProperties.GetOrAdd(GetType(), DotvvmProperty.ResolveProperties);
+            return declaredProperties.GetOrAdd(GetType(), _dotvvmProperty_ResolveProperties);
         }
 
         /// <summary>
@@ -69,7 +72,7 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets a data context for the control and its children. All value and command bindings are evaluated in context of this value.
         /// </summary>
         [BindingCompilationRequirements(
-                required: new[] { typeof(Binding.Properties.SimplePathExpressionBindingProperty) })]
+                optional: new[] { typeof(Binding.Properties.SimplePathExpressionBindingProperty) })]
         public object DataContext
         {
             get { return (object)GetValue(DataContextProperty); }
@@ -213,28 +216,26 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets the closest control binding target.
         /// </summary>
-        public DotvvmBindableObject GetClosestControlBindingTarget()
-        {
-            return GetClosestControlBindingTarget(out int numberOfDataContextChanges);
-        }
+        public DotvvmBindableObject GetClosestControlBindingTarget() =>
+            GetClosestControlBindingTarget(out int numberOfDataContextChanges);
 
         /// <summary>
         /// Gets the closest control binding target and returns number of DataContext changes since the target.
         /// </summary>
         public DotvvmBindableObject GetClosestControlBindingTarget(out int numberOfDataContextChanges) =>
-            GetClosestWithPropertyValue(out numberOfDataContextChanges, control => (bool)control.GetValue(Internal.IsControlBindingTargetProperty));
+            Parent.GetClosestWithPropertyValue(out numberOfDataContextChanges, (control, _) => (bool)control.GetValue(Internal.IsControlBindingTargetProperty));
 
         /// <summary>
         /// Gets the closest control binding target and returns number of DataContext changes since the target.
         /// </summary>
         public DotvvmBindableObject GetClosestControlValidationTarget(out int numberOfDataContextChanges) =>
-            GetClosestWithPropertyValue(out numberOfDataContextChanges, c => c.IsPropertySet(Validation.TargetProperty, false), includeDataContextChangeOnMatchedControl: false);
+            GetClosestWithPropertyValue(out numberOfDataContextChanges, (c, _) => c.IsPropertySet(Validation.TargetProperty, false), includeDataContextChangeOnMatchedControl: false);
 
 
         /// <summary>
         /// Gets the closest control with specified property value and returns number of DataContext changes since the target.
         /// </summary>
-        public DotvvmBindableObject GetClosestWithPropertyValue(out int numberOfDataContextChanges, Func<DotvvmBindableObject, bool> filterFunction, bool includeDataContextChangeOnMatchedControl = true)
+        public DotvvmBindableObject GetClosestWithPropertyValue(out int numberOfDataContextChanges, Func<DotvvmBindableObject, DotvvmProperty, bool> filterFunction, bool includeDataContextChangeOnMatchedControl = true, DotvvmProperty delegateValue = null)
         {
             var current = this;
             numberOfDataContextChanges = 0;
@@ -249,7 +250,7 @@ namespace DotVVM.Framework.Controls
                         isMatched = true;
                     }
                 }
-                if (filterFunction(current))
+                if (filterFunction(current, delegateValue))
                 {
                     if (isMatched && !includeDataContextChangeOnMatchedControl)
                     {
@@ -291,9 +292,9 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets all ancestors of this control starting with the parent.
         /// </summary>
-        public IEnumerable<DotvvmControl> GetAllAncestors(bool incudingThis = false)
+        public IEnumerable<DotvvmBindableObject> GetAllAncestors(bool incudingThis = false)
         {
-            var ancestor = incudingThis ? (DotvvmControl)this : Parent;
+            var ancestor = incudingThis ? this : Parent;
             while (ancestor != null)
             {
                 yield return ancestor;

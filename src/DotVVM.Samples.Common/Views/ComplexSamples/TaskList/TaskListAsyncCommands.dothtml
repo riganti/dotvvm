@@ -9,6 +9,9 @@
             color: maroon;
             text-decoration: line-through;
         }
+        .alt-row {
+            background-color: #FFFFBB;
+        }
     </style>
     <dot:RequiredResource Name="globalize:cs-CZ" />
 </head>
@@ -28,7 +31,7 @@
 
         <table class="table">
             <dot:Repeater DataSource="{value: Tasks}" WrapperTagName="tbody">
-                <tr class="{value: IsCompleted ? ' completed' : '' }">
+                <tr Class-completed="{value: IsCompleted}" Class-alt-row="{value: _collection.IsEven}">
                     <td>{{value: Title}}</td>
                     <td>
                         <dot:LinkButton Text="done"
@@ -39,10 +42,9 @@
             </dot:Repeater>
         </table>
 
-		<dot:Button Click="{command: SaveDataAsync()}" Text="Save to db" />
+        <dot:Button Click="{command: SaveDataAsync()}" Text="Save to db" />
     </div>
-	
 
-	<%-- server-side comment not rendered in html --%>
+    <%-- server-side comment not rendered in html --%>
 </body>
 </html>
