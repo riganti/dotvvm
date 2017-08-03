@@ -344,16 +344,16 @@ namespace DotVVM.Framework.Hosting
                     await resultTask;
                 }
             }
+            catch (DotvvmInterruptRequestExecutionException ex)
+            {
+                throw new DotvvmInterruptRequestExecutionException("The request execution was interrupted in the command!", ex);
+            }
+            catch (TargetInvocationException ex)
+            {
+                context.CommandException = ex.InnerException;
+            }
             catch (Exception ex)
             {
-                if (ex is TargetInvocationException)
-                {
-                    ex = ex.InnerException;
-                }
-                if (ex is DotvvmInterruptRequestExecutionException)
-                {
-                    throw new DotvvmInterruptRequestExecutionException("The request execution was interrupted in the command!", ex);
-                }
                 context.CommandException = ex;
             }
 
