@@ -195,7 +195,7 @@ namespace DotVVM.Framework.Controls
                     if (!lifecycleEventUpdatingDisabled && currentParent.Children.lastLifeCycleEvent > updatedLastEvent) updatedLastEvent = currentParent.Children.lastLifeCycleEvent;
                     // but don't update it, when the ancestor is invoking this event
                     if (!lifecycleEventUpdatingDisabled && currentParent.Children.isInvokingEvent) lifecycleEventUpdatingDisabled = true;
-                    currentParent = currentParent.Parent;
+                    currentParent = GetClosestDotvvmControlAncestor(currentParent);
                 }
                 if (!lifecycleEventUpdatingDisabled && currentParent != null && currentParent.Children.lastLifeCycleEvent > updatedLastEvent) updatedLastEvent = currentParent.Children.lastLifeCycleEvent;
             }
@@ -206,7 +206,7 @@ namespace DotVVM.Framework.Controls
                 var currentParent = parent;
                 while (!currentParent.Children.isInvokingEvent && currentParent.Children.lastLifeCycleEvent > updatedLastEvent && currentParent.Parent != null)
                 {
-                    currentParent = currentParent.Parent;
+                    currentParent = GetClosestDotvvmControlAncestor(currentParent);
                 }
                 currentParent.Children.InvokeMissedPageLifeCycleEvents(updatedLastEvent, true);
             }
@@ -219,6 +219,24 @@ namespace DotVVM.Framework.Controls
             {
                 item.SetValue(Internal.UniqueIDProperty, parent.GetValue(Internal.UniqueIDProperty) + "a" + Count);
             }
+        }
+
+        private DotvvmControl GetClosestDotvvmControlAncestor(DotvvmControl control)
+        {
+            var currentParent = control.Parent;
+            while(!(parent is DotvvmControl))
+            {
+                if(currentParent.Parent != null)
+                {
+                    currentParent = currentParent.Parent;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+
+            return (DotvvmControl)currentParent;
         }
 
         /// <summary>
