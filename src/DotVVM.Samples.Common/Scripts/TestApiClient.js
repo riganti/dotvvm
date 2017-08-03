@@ -26,6 +26,70 @@ var TestApiClient;
         /**
          * @return Success operation
          */
+        Client.prototype._api_HttpPostNoParams_post = function () {
+            var _this = this;
+            var url_ = this.baseUrl + "/api/HttpPostNoParams";
+            url_ = url_.replace(/[?&]$/, "");
+            var options_ = {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            };
+            return this.http.fetch(url_, options_).then(function (_response) {
+                return _this.process_api_HttpPostNoParams_post(_response);
+            });
+        };
+        Client.prototype.process_api_HttpPostNoParams_post = function (response) {
+            var status = response.status;
+            if (status === 200) {
+                return response.text().then(function (_responseText) {
+                    return;
+                });
+            }
+            else if (status !== 200 && status !== 204) {
+                return response.text().then(function (_responseText) {
+                    return throwException("An unexpected server error occurred.", status, _responseText);
+                });
+            }
+            return Promise.resolve(null);
+        };
+        /**
+         * @return Success operation
+         */
+        Client.prototype._api_HttpPost_post = function (form) {
+            var _this = this;
+            var url_ = this.baseUrl + "/api/HttpPost";
+            url_ = url_.replace(/[?&]$/, "");
+            var content_ = JSON.stringify(form);
+            var options_ = {
+                body: content_,
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            };
+            return this.http.fetch(url_, options_).then(function (_response) {
+                return _this.process_api_HttpPost_post(_response);
+            });
+        };
+        Client.prototype.process_api_HttpPost_post = function (response) {
+            var status = response.status;
+            if (status === 200) {
+                return response.text().then(function (_responseText) {
+                    return;
+                });
+            }
+            else if (status !== 200 && status !== 204) {
+                return response.text().then(function (_responseText) {
+                    return throwException("An unexpected server error occurred.", status, _responseText);
+                });
+            }
+            return Promise.resolve(null);
+        };
+        /**
+         * @return Success operation
+         */
         Client.prototype._api_HttpTriggerCSharp1_get = function () {
             var _this = this;
             var url_ = this.baseUrl + "/api/HttpTriggerCSharp1";
@@ -59,40 +123,38 @@ var TestApiClient;
             }
             return Promise.resolve(null);
         };
-        /**
-         * @return Success operation
-         */
-        Client.prototype._api_HttpTriggerCSharp1_post = function () {
-            var _this = this;
-            var url_ = this.baseUrl + "/api/HttpTriggerCSharp1";
-            url_ = url_.replace(/[?&]$/, "");
-            var options_ = {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            };
-            return this.http.fetch(url_, options_).then(function (_response) {
-                return _this.process_api_HttpTriggerCSharp1_post(_response);
-            });
-        };
-        Client.prototype.process_api_HttpTriggerCSharp1_post = function (response) {
-            var status = response.status;
-            if (status === 200) {
-                return response.text().then(function (_responseText) {
-                    return;
-                });
-            }
-            else if (status !== 200 && status !== 204) {
-                return response.text().then(function (_responseText) {
-                    return throwException("An unexpected server error occurred.", status, _responseText);
-                });
-            }
-            return Promise.resolve(null);
-        };
         return Client;
     }());
     TestApiClient.Client = Client;
+    var Form = (function () {
+        function Form(data) {
+            if (data) {
+                for (var property in data) {
+                    if (data.hasOwnProperty(property))
+                        this[property] = data[property];
+                }
+            }
+        }
+        Form.prototype.init = function (data) {
+            if (data) {
+                this.name = data["Name"] !== undefined ? data["Name"] : null;
+                this.number = data["Number"] !== undefined ? data["Number"] : null;
+            }
+        };
+        Form.fromJS = function (data) {
+            var result = new Form();
+            result.init(data);
+            return result;
+        };
+        Form.prototype.toJSON = function (data) {
+            data = typeof data === 'object' ? data : {};
+            data["Name"] = this.name !== undefined ? this.name : null;
+            data["Number"] = this.number !== undefined ? this.number : null;
+            return data;
+        };
+        return Form;
+    }());
+    TestApiClient.Form = Form;
     var Anonymous = (function () {
         function Anonymous(data) {
             if (data) {
@@ -142,3 +204,8 @@ var TestApiClient;
             throw new SwaggerException(message, status, response, null);
     }
 })(TestApiClient || (TestApiClient = {}));
+
+function js1()
+{
+    alert("Hello from js1");
+}

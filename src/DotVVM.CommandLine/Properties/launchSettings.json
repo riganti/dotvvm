@@ -2,8 +2,8 @@
   "profiles": {
     "DotVVM.CommandLine": {
       "commandName": "Project",
-      "commandLineArgs": "api create swagger.json TestApiClient TestApiClient.cs TestApiClient.ts",
-      "workingDirectory": "C:\\Users\\pkost\\Documents\\dotvvm-master\\dotvvm"
+      "commandLineArgs": "api create swagger.json WebApiClient WebApiClient.cs WebApiClient.ts",
+      "workingDirectory": "C:\\Users\\pkost\\Documents\\dotvvm-master\\dotvvm\\src\\DotVVM.Samples.Common"
     }
   }
 }

@@ -1,0 +1,32 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Api.WebApiViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <dot:Repeater DataSource="{value: _webApi.ValuesClient.GetAll()}">
+        <ItemTemplate>
+            {{value: _this.Value}}<br />
+        </ItemTemplate>
+    </dot:Repeater>
+
+    <dot:ComboBox DataSource="{value: _webApi.CountriesClient.GetCountries()}"
+                  SelectedValue="{value:  Region}"
+                  ItemValueBinding="{value: Region}" ItemTextBinding="{value: Name}" 
+                  SelectionChanged="{command: SelectedCountryChanged()}"
+                  EmptyItemText="Select country..." />
+    <br />
+
+    <%--{{staticCommand:  SelectedCountry = _webApi.CountriesClient.GetCountry(5)}}--%>
+
+    {{value: SelectedCountry.Name}}
+
+    {{value: RegName}}
+</body>
+</html>
+
+

@@ -11,6 +11,61 @@
     "http"
   ],
   "paths": {
+    "/api/HttpPostNoParams": {
+      "post": {
+        "operationId": "/api/HttpPostNoParams/post",
+        "produces": [],
+        "consumes": [],
+        "parameters": [],
+        "description": "Replace with Operation Object #http://swagger.io/specification/#operationObject",
+        "responses": {
+          "200": {
+            "description": "Success operation"
+          }
+        },
+        "security": [
+          {
+            "apikeyQuery": []
+          }
+        ]
+      }
+    },
+    "/api/HttpPost": {
+      "post": {
+        "operationId": "/api/HttpPost/post",
+        "produces": [],
+        "consumes": [],
+        "parameters": [
+          {
+            "name": "Form",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "Name": {
+                  "type": "string"
+                },
+                "Number": {
+                  "type": "number",
+                  "format": "int"
+                }
+              }
+            }
+          }
+        ],
+        "description": "Replace with Operation Object #http://swagger.io/specification/#operationObject",
+        "responses": {
+          "200": {
+            "description": "Success operation"
+          }
+        },
+        "security": [
+          {
+            "apikeyQuery": []
+          }
+        ]
+      }
+    },
     "/api/HttpTriggerCSharp1": {
       "get": {
         "operationId": "/api/HttpTriggerCSharp1/get",
@@ -26,30 +81,13 @@
               "properties": {
                 "Id": {
                   "type": "number",
-                  "format": "integer"
+                  "format": "int"
                 },
                 "Name": {
                   "type": "string"
                 }
               }
             }
-          }
-        },
-        "security": [
-          {
-            "apikeyQuery": []
-          }
-        ]
-      },
-      "post": {
-        "operationId": "/api/HttpTriggerCSharp1/post",
-        "produces": [],
-        "consumes": [],
-        "parameters": [],
-        "description": "Replace with Operation Object #http://swagger.io/specification/#operationObject",
-        "responses": {
-          "200": {
-            "description": "Success operation"
           }
         },
         "security": [

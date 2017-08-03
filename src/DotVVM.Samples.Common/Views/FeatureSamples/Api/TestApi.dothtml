@@ -4,6 +4,7 @@
 
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
+    <script src="../../../Scripts/TestApiClient.js"></script>
     <meta charset="utf-8" />
     <title></title>
 </head>
@@ -12,6 +13,8 @@
         {{value: Api.RefreshOnChange(_test._api_HttpTriggerCSharp1_get(), Text).Name}}
     </p>
     <dot:Button Click="{command: ChangeText()}"/>
+    <dot:Button Text="Post form" Click="{staticCommand: _test._api_HttpPost_post(Form)}" />
+    <dot:Button Text="Post empty" Click="{staticCommand: _test._api_HttpPostNoParams_post()}" />
     {{value: Text}}
 </body>
 </html>

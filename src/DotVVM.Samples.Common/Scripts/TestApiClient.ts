@@ -21,6 +21,75 @@ namespace TestApiClient {
         /**
          * @return Success operation
          */
+        _api_HttpPostNoParams_post(): Promise<void> {
+            let url_ = this.baseUrl + "/api/HttpPostNoParams";
+            url_ = url_.replace(/[?&]$/, "");
+    
+            let options_ = <RequestInit>{
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json", 
+                }
+            };
+    
+            return this.http.fetch(url_, options_).then((_response: Response) => {
+                return this.process_api_HttpPostNoParams_post(_response);
+            });
+        }
+    
+        protected process_api_HttpPostNoParams_post(response: Response): Promise<void> {
+            const status = response.status;
+            if (status === 200) {
+                return response.text().then((_responseText) => {
+                return;
+                });
+            } else if (status !== 200 && status !== 204) {
+                return response.text().then((_responseText) => {
+                return throwException("An unexpected server error occurred.", status, _responseText);
+                });
+            }
+            return Promise.resolve<void>(<any>null);
+        }
+    
+        /**
+         * @return Success operation
+         */
+        _api_HttpPost_post(form: Form): Promise<void> {
+            let url_ = this.baseUrl + "/api/HttpPost";
+            url_ = url_.replace(/[?&]$/, "");
+    
+            const content_ = JSON.stringify(form);
+    
+            let options_ = <RequestInit>{
+                body: content_,
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json", 
+                }
+            };
+    
+            return this.http.fetch(url_, options_).then((_response: Response) => {
+                return this.process_api_HttpPost_post(_response);
+            });
+        }
+    
+        protected process_api_HttpPost_post(response: Response): Promise<void> {
+            const status = response.status;
+            if (status === 200) {
+                return response.text().then((_responseText) => {
+                return;
+                });
+            } else if (status !== 200 && status !== 204) {
+                return response.text().then((_responseText) => {
+                return throwException("An unexpected server error occurred.", status, _responseText);
+                });
+            }
+            return Promise.resolve<void>(<any>null);
+        }
+    
+        /**
+         * @return Success operation
+         */
         _api_HttpTriggerCSharp1_get(): Promise<Anonymous> {
             let url_ = this.baseUrl + "/api/HttpTriggerCSharp1";
             url_ = url_.replace(/[?&]$/, "");
@@ -54,39 +123,45 @@ namespace TestApiClient {
             }
             return Promise.resolve<Anonymous>(<any>null);
         }
+    }
     
-        /**
-         * @return Success operation
-         */
-        _api_HttpTriggerCSharp1_post(): Promise<void> {
-            let url_ = this.baseUrl + "/api/HttpTriggerCSharp1";
-            url_ = url_.replace(/[?&]$/, "");
+    export class Form implements IForm {
+        name?: string;
+        number?: number;
     
-            let options_ = <RequestInit>{
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json", 
+        constructor(data?: IForm) {
+            if (data) {
+                for (var property in data) {
+                    if (data.hasOwnProperty(property))
+                        (<any>this)[property] = (<any>data)[property];
                 }
-            };
-    
-            return this.http.fetch(url_, options_).then((_response: Response) => {
-                return this.process_api_HttpTriggerCSharp1_post(_response);
-            });
-        }
-    
-        protected process_api_HttpTriggerCSharp1_post(response: Response): Promise<void> {
-            const status = response.status;
-            if (status === 200) {
-                return response.text().then((_responseText) => {
-                return;
-                });
-            } else if (status !== 200 && status !== 204) {
-                return response.text().then((_responseText) => {
-                return throwException("An unexpected server error occurred.", status, _responseText);
-                });
             }
-            return Promise.resolve<void>(<any>null);
         }
+    
+        init(data?: any) {
+            if (data) {
+                this.name = data["Name"] !== undefined ? data["Name"] : <any>null;
+                this.number = data["Number"] !== undefined ? data["Number"] : <any>null;
+            }
+        }
+    
+        static fromJS(data: any): Form {
+            let result = new Form();
+            result.init(data);
+            return result;
+        }
+    
+        toJSON(data?: any) {
+            data = typeof data === 'object' ? data : {};
+            data["Name"] = this.name !== undefined ? this.name : <any>null;
+            data["Number"] = this.number !== undefined ? this.number : <any>null;
+            return data; 
+        }
+    }
+    
+    export interface IForm {
+        name?: string;
+        number?: number;
     }
     
     export class Anonymous implements IAnonymous {
