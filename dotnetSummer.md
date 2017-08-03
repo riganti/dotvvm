@@ -5,7 +5,7 @@ Welcome to .NET Summer Hackfest with DotVVM, and thanks for participating.
 DotVVM is an ASP.NET framework that lets you build line-of-business applications easily. DotVVM brings full MVVM experience and it uses KnockoutJS on the client side. It handles the client-server communication, validation, localization, date & time formatting on the client side, SPAs and much more. You can find more info about the project at [dotvvm.com](https://dotvvm.com/) or on [GitHub](https://github.com/riganti/dotvvm).
 
 ### Goals for the Session
-The main goal of the session is to hide from the hot sun, learn something new and have some fun in front of your screen. Like in any open source project, there is a ton of things to do in DotVVM, from coding smaller features, addressing flaws to engineering new complex areas of functionality. Whether you like designing compilers, tweaking runtime performance, metaprogramming user interface or messing with unmanaged memory, there is something something for you. :)
+The main goal of the session is to hide from the hot sun, learn something new and have some fun in front of your screen. Like in any open source project, there is a ton of things to do in DotVVM, from coding smaller features, addressing flaws to engineering new complex areas of functionality. Whether you like designing compilers, tweaking runtime performance, metaprogramming user interface or messing with unmanaged memory, there is something for you. :)
 
 ### How to Contribute
 
