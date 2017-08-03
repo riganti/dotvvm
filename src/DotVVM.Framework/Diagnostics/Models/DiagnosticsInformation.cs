@@ -5,10 +5,10 @@ using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Diagnostics.Models
 {
-    public class DiagnosticsData
+    public class DiagnosticsInformation
     {
-        public HttpRequestDiagnostics RequestDiagnostics { get; set; }
-        public HttpResponseDiagnostics ResponseDiagnostics { get; set; }
+        public RequestDiagnostics RequestDiagnostics { get; set; }
+        public ResponseDiagnostics ResponseDiagnostics { get; set; }
         public long TotalDuration { get; set; }
     }
 }

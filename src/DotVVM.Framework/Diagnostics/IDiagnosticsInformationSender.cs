@@ -4,9 +4,9 @@ using DotVVM.Framework.Diagnostics.Models;
 namespace DotVVM.Framework.Diagnostics
 {
 
-    public interface IDiagnosticsDataSender
+    public interface IDiagnosticsInformationSender
     {
-        Task SendDataAsync(DiagnosticsData data);
+        Task SendDataAsync(DiagnosticsInformation information);
     }
 
 }
