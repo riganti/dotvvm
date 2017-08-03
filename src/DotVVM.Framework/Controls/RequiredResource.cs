@@ -26,14 +26,10 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty NameProperty = 
             DotvvmProperty.Register<string, RequiredResource>(c => c.Name);
         
-
-        /// <summary>
-        /// Called right before the rendering shall occur.
-        /// </summary>
-        internal override void OnPreRenderComplete(IDotvvmRequestContext context)
+        internal protected override void OnPreRender(IDotvvmRequestContext context)
         {
             context.ResourceManager.AddRequiredResource(Name);
-            base.OnPreRenderComplete(context);
+            base.OnPreRender(context);
         }
     }
 }
