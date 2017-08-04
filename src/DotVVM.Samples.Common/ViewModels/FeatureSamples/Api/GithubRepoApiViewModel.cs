@@ -11,6 +11,8 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.Api
         public string UserName { get; set; } = "riganti";
         public string Repo { get; set; } = "dotvvm";
 
+        public string CurrentIssueText { get; set; } = "";
+
         public GithubApiClient.Issue NewIssue { get; set; } = new GithubApiClient.Issue();
     }
 }

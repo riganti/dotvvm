@@ -20,18 +20,27 @@
             <EmptyDataTemplate>No issues</EmptyDataTemplate>
             <dot:GridViewTextColumn ValueBinding="{value: _this.Title}" HeaderText="Title" />
             <dot:GridViewTextColumn ValueBinding="{value: User.Login}" HeaderText="User" />
+            <dot:GridViewTemplateColumn HeaderText="get text">
+                <dot:LinkButton Click="{staticCommand: _root.CurrentIssueText = _github.Repos.GetIssues(_root.UserName, _root.Repo, Number).Body}">get text</dot:LinkButton>
+            </dot:GridViewTemplateColumn>
             <dot:GridViewTemplateColumn HeaderText="...">
                 <a href="{value: "https://github.com/" + _root.UserName + "/" + _root.Repo + "/issues/" + Number}" >github.com</a>
             </dot:GridViewTemplateColumn>
         </dot:GridView>
     </p>
 
+    <div>
+        {{value: CurrentIssueText}}
+    </div>
+
     <div DataContext="{value: NewIssue}" Visible="{value: _root.UserName != null && _root.Repo != null}">
         <h2>New Issue </h2>
         <dot:TextBox Text="{value: Title}" />
         <dot:TextBox Type="MultiLine" Text="{value: Body}" />
-        {{value: Api.RefreshOnChange(_github.Repos.GetWatchers(_root.UserName, _root.Repo).Count, _root.Repo) == 0}}
-        <dot:Button Click="{staticCommand: _github.Repos.PostIssues(_root.UserName, _root.Repo, _this)}" Enabled="{value: Api.RefreshOnChange(_github.Repos.GetWatchers(_root.UserName, _root.Repo).Count, _root.Repo) == 0}"> Submit issue </dot:Button>
+        {{value: Api.RefreshOnChange(_github.Repos.GetWatchers(_root.UserName, _root.Repo), _root.Repo).Count == 0}}
+        <dot:Button Click="{staticCommand: _github.Repos.PostIssues(_root.UserName, _root.Repo, _this)}" Enabled="{value: Api.RefreshOnChange(_github.Repos.GetWatchers(_root.UserName, _root.Repo), _root.Repo).Count == 0}"> Submit issue </dot:Button>
     </div>
+
+    <dot:Button Text="Put star" Click="{staticCommand: _github.User.PutStarred(UserName, Repo)}" />
 </body>
 </html>
