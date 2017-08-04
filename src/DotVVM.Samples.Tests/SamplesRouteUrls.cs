@@ -2,8 +2,8 @@
 
 namespace Dotvvm.Samples.Tests{
     public class SamplesRouteUrls{
-        
-            public static string Default => "Default";
+
+        public static string Default => "Default";
 
             public static string ComplexSamples_Auth_Login => "ComplexSamples/Auth/Login";
 
@@ -330,6 +330,10 @@ namespace Dotvvm.Samples.Tests{
             public static string FeatureSamples_Serialization_Serialization => "FeatureSamples/Serialization/Serialization";
 
             public static string FeatureSamples_ServerComments_ServerComments => "FeatureSamples/ServerComments/ServerComments";
+
+            public static string FeatureSamples_ServerSideStyles_ServerSideStyles => "FeatureSamples/ServerSideStyles/ServerSideStyles";
+
+            public static string FeatureSamples_ServerSideStyles_ServerSideStyles_DotvvmProperties => "FeatureSamples/ServerSideStyles/ServerSideStyles_DotvvmProperties";
 
             public static string FeatureSamples_StaticCommand_StaticCommand => "FeatureSamples/StaticCommand/StaticCommand";
 

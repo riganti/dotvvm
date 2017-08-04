@@ -40,6 +40,8 @@
     <None Remove="Views\FeatureSamples\MarkupControl\HierarchyControlPage.dothtml" />
     <None Remove="Views\FeatureSamples\MarkupControl\MultiControlHierarchy.dothtml" />
     <None Remove="Views\FeatureSamples\ParameterBinding\ParameterBinding.dothtml" />
+    <None Remove="Views\FeatureSamples\ServerSideStyles\ServerSideStyles.dothtml" />
+    <None Remove="Views\FeatureSamples\ServerSideStyles\ServerSideStyles_DotvvmProperties.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_ComboBoxSelectionChanged.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_ComboBoxSelectionChanged_Objects.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModelProtection\ComplexViewModelProtection.dothtml" />
@@ -78,6 +80,8 @@
     <Content Include="Views\FeatureSamples\MarkupControl\HierarchyControlPage.dothtml" />
     <Content Include="Views\FeatureSamples\MarkupControl\MultiControlHierarchy.dothtml" />
     <Content Include="Views\FeatureSamples\ParameterBinding\ParameterBinding.dothtml" />
+    <Content Include="Views\FeatureSamples\ServerSideStyles\ServerSideStyles.dothtml" />
+    <Content Include="Views\FeatureSamples\ServerSideStyles\ServerSideStyles_DotvvmProperties.dothtml" />
     <Content Include="Views\FeatureSamples\StaticCommand\StaticCommand_ComboBoxSelectionChanged.dothtml" />
     <Content Include="Views\FeatureSamples\StaticCommand\StaticCommand_ComboBoxSelectionChanged_Objects.dothtml" />
     <Content Include="Views\FeatureSamples\ViewModelProtection\ComplexViewModelProtection.dothtml" />
