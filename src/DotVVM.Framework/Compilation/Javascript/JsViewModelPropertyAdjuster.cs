@@ -31,9 +31,11 @@ namespace DotVVM.Framework.Compilation.Javascript
                     throw new NotImplementedException();
 
                 var propertyType = propAnnotation.MemberInfo.GetResultType();
+                var containsObservables = true;
                 if (propAnnotation.SerializationMap == null && target?.Annotation<ViewModelInfoAnnotation>() is ViewModelInfoAnnotation targetAnnotation)
                 {
                     propAnnotation.SerializationMap = targetAnnotation.SerializationMap.Properties.FirstOrDefault(p => p.PropertyInfo == propAnnotation.MemberInfo);
+                    containsObservables = targetAnnotation.ContainsObservables;
                 }
                 if (propAnnotation.SerializationMap is ViewModelPropertyMap propertyMap)
                 {
@@ -46,8 +48,8 @@ namespace DotVVM.Framework.Compilation.Javascript
                 else if (propAnnotation.MemberInfo is FieldInfo)
                     throw new NotSupportedException($"Can not translate field '{propAnnotation.MemberInfo}' to Javascript");
 
-                node.AddAnnotation(ResultIsObservableAnnotation.Instance);
-                node.AddAnnotation(new ViewModelInfoAnnotation(propertyType));
+                if (containsObservables) node.AddAnnotation(ResultIsObservableAnnotation.Instance);
+                node.AddAnnotation(new ViewModelInfoAnnotation(propertyType, containsObservables: containsObservables));
                 node.AddAnnotation(MayBeNullAnnotation.Instance);
             }
 

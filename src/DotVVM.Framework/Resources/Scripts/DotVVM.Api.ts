@@ -1,7 +1,7 @@
-﻿/// <reference path="typings/knockout/knockout.d.ts" />
+/// <reference path="typings/knockout/knockout.d.ts" />
 /// <reference path="DotVVM.ts" />
 
-type ApiComputed<T> = KnockoutObservable<T | null> & { refreshValue: () => void; }
+type ApiComputed<T> = KnockoutObservable<T | null> & { refreshValue: (throwOnError?: boolean) => PromiseLike<any> | undefined }
 interface DotVVM {
     invokeApiFn<T>(callback: () => PromiseLike<T>): ApiComputed<T>;
     apiRefreshOn<T>(value: KnockoutObservable<T>, refreshOn: KnockoutObservable<any>) : KnockoutObservable<T>;
@@ -50,32 +50,43 @@ function basicAuthenticatedFetch(input: RequestInfo, init: RequestInit) {
     DotVVM.prototype.invokeApiFn = function <T>(callback: () => PromiseLike<T>, refreshTriggers: (KnockoutObservable<any> | string)[] = [], notifyTriggers: string[] = [], commandId = callback.toString()) {
         let cachedValue = cachedValues[commandId] || (cachedValues[commandId] = ko.observable<any>(null));
 
-        const load = () => {
+        const load : () => { type: 'error', error: any } | { type: 'result', result: PromiseLike<any> } = () => {
             try {
-                var result = window["Promise"].resolve(ko.ignoreDependencies(callback));
-                result.then((val) => {
+                var result : PromiseLike<any> = window["Promise"].resolve(ko.ignoreDependencies(callback));
+                return { type: 'result', result: result.then((val) => {
                     if (val) {
                         cachedValue(ko.unwrap(dotvvm.serialization.deserialize(val, cachedValue)));
                         cachedValue.notifySubscribers();
                     }
                     for (var t of notifyTriggers)
                         dotvvm.eventHub.notify(t);
-                }, console.warn);
+                    return val;
+                }, console.warn) };
             }
             catch (e) {
                 console.warn(e);
+                return { type: 'error', error: e };
             }
         };
 
         const cmp = <ApiComputed<T>><any>ko.pureComputed(() => cachedValue());
 
-        cmp.refreshValue = () => {
-            if (cachedValue["isLoading"]) return;
+        cmp.refreshValue = (throwOnError) => {
+            if (cachedValue["isLoading"] && !throwOnError) return;
             cachedValue["isLoading"] = true;
-            setTimeout(() => {
+            let promise = load();
+            cachedValue["promise"] = promise;
+            if (promise.type == 'error')
+            {
                 cachedValue["isLoading"] = false;
-                load();
-            }, 10);
+                if (throwOnError) throw promise.error;
+                else return;
+            }
+            else
+            {
+                promise.result.then(p => cachedValue["isLoading"] = false, p => cachedValue["isLoading"] = false);
+                return promise.result;
+            }
         };
         if (!cachedValue.peek()) cmp.refreshValue();
         ko.computed(() => refreshTriggers.map(f => typeof f == "string" ? dotvvm.eventHub.get(f)() : f())).subscribe(p => cmp.refreshValue());

@@ -1,15 +1,19 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
@@ -27,7 +31,19 @@ namespace DotVVM.Framework.Compilation.Binding
             var currentContextVariable = new JsTemporaryVariableParameter(new JsIdentifierExpression("ko").Member("contextFor").Invoke(new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter)));
             var resultPromiseVariable = new JsTemporaryVariableParameter(new JsNewExpression("DotvvmPromise"));
             var senderVariable = new JsTemporaryVariableParameter(new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter));
-            var visitor = new ExtractExpressionVisitor(ex => ex.NodeType == ExpressionType.Call && ex is MethodCallExpression methodCall && javascriptTranslator.TryTranslateMethodCall(methodCall.Object, methodCall.Arguments.ToArray(), methodCall.Method, dataContext) == null);
+            var visitor = new ExtractExpressionVisitor(ex => {
+                if (ex.NodeType == ExpressionType.Call && ex is MethodCallExpression methodCall)
+                {
+                    if (javascriptTranslator.TryTranslateMethodCall(methodCall.Object, methodCall.Arguments.ToArray(), methodCall.Method, dataContext) is JsExpression jsTranslation)
+                    {
+                        if (jsTranslation.Annotation<ResultIsPromiseAnnotation>() is ResultIsPromiseAnnotation promiseAnnotation)
+                            return (p => new BindingParameterAnnotation(extensionParameter: new JavascriptTranslationVisitor.FakeExtensionParameter(_ => new JsIdentifierExpression(p.Name).WithAnnotations(promiseAnnotation.ResultAnnotations), p.Name, new ResolvedTypeDescriptor(p.Type))));
+                        else return null;
+                    }
+                    return p => null;
+                }
+                return null;
+            });
             var rootCallback = visitor.Visit(expression);
             var js = SouldCompileCallback(rootCallback) ? new JsSymbolicParameter(resultPromiseVariable).Member("resolve").Invoke(javascriptTranslator.CompileToJavascript(rootCallback, dataContext)) : null;
             foreach (var param in visitor.ParameterOrder.Reverse<ParameterExpression>())
@@ -54,6 +70,16 @@ namespace DotVVM.Framework.Compilation.Binding
 
         protected virtual JsExpression CompileMethodCall(MethodCallExpression methodExpression, DataContextStack dataContext, JsExpression callbackFunction = null)
         {
+            var jsTranslation = javascriptTranslator.TryTranslateMethodCall(methodExpression.Object, methodExpression.Arguments.ToArray(), methodExpression.Method, dataContext)
+                ?.ApplyAction(javascriptTranslator.AdjustViewModelProperties);
+            if (jsTranslation != null)
+            {
+                if (!(jsTranslation.Annotation<ResultIsPromiseAnnotation>() is ResultIsPromiseAnnotation promiseAnnotation))
+                    throw new Exception($"Expected javascript translation that returns a promise");
+                var expr = promiseAnnotation.GetPromiseFromExpression?.Invoke(jsTranslation) ?? jsTranslation;
+                return expr.Member("then").Invoke(callbackFunction);
+            }
+
             if (!methodExpression.Method.IsDefined(typeof(AllowStaticCommandAttribute)))
                 throw new Exception($"Method '{methodExpression.Method.DeclaringType.Name}.{methodExpression.Method.Name}' used in static command has to be marked with [AllowStaticCommand] attribute.");
 

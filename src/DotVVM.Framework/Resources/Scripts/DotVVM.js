@@ -2253,30 +2253,41 @@ function basicAuthenticatedFetch(input, init) {
         var load = function () {
             try {
                 var result = window["Promise"].resolve(ko.ignoreDependencies(callback));
-                result.then(function (val) {
-                    if (val) {
-                        cachedValue(ko.unwrap(dotvvm.serialization.deserialize(val, cachedValue)));
-                        cachedValue.notifySubscribers();
-                    }
-                    for (var _i = 0, notifyTriggers_1 = notifyTriggers; _i < notifyTriggers_1.length; _i++) {
-                        var t = notifyTriggers_1[_i];
-                        dotvvm.eventHub.notify(t);
-                    }
-                }, console.warn);
+                return { type: 'result', result: result.then(function (val) {
+                        if (val) {
+                            cachedValue(ko.unwrap(dotvvm.serialization.deserialize(val, cachedValue)));
+                            cachedValue.notifySubscribers();
+                        }
+                        for (var _i = 0, notifyTriggers_1 = notifyTriggers; _i < notifyTriggers_1.length; _i++) {
+                            var t = notifyTriggers_1[_i];
+                            dotvvm.eventHub.notify(t);
+                        }
+                        return val;
+                    }, console.warn) };
             }
             catch (e) {
                 console.warn(e);
+                return { type: 'error', error: e };
             }
         };
         var cmp = ko.pureComputed(function () { return cachedValue(); });
-        cmp.refreshValue = function () {
-            if (cachedValue["isLoading"])
+        cmp.refreshValue = function (throwOnError) {
+            if (cachedValue["isLoading"] && !throwOnError)
                 return;
             cachedValue["isLoading"] = true;
-            setTimeout(function () {
+            var promise = load();
+            cachedValue["promise"] = promise;
+            if (promise.type == 'error') {
                 cachedValue["isLoading"] = false;
-                load();
-            }, 10);
+                if (throwOnError)
+                    throw promise.error;
+                else
+                    return;
+            }
+            else {
+                promise.result.then(function (p) { return cachedValue["isLoading"] = false; }, function (p) { return cachedValue["isLoading"] = false; });
+                return promise.result;
+            }
         };
         if (!cachedValue.peek())
             cmp.refreshValue();
