@@ -140,7 +140,10 @@ namespace DotVVM.Compiler
                     // only export configuration
                     result = ExportConfiguration(options);
                 }
-                Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
+                Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented, new JsonSerializerSettings
+                {
+                    TypeNameHandling = TypeNameHandling.Auto
+                }));
 
                 Console.WriteLine();
                 return true;
