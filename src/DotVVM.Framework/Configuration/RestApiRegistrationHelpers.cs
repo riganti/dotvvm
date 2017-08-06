@@ -53,6 +53,18 @@ namespace DotVVM.Framework.Configuration
             }
         }
 
+        private static JsExpression[] SerializeComplexParameters(JsExpression[] expr)
+        {
+            return expr.Select(p =>
+                p.Annotation<ViewModelInfoAnnotation>() is ViewModelInfoAnnotation vmInfo && ViewModelJsonConverter.IsComplexType(vmInfo.Type) ?
+                Serialize(p) :
+                p
+            ).ToArray();
+        }
+
+        private static JsExpression Serialize(JsExpression expr) =>
+            new JsIdentifierExpression("dotvvm").Member("serialization").Member("serialize").Invoke(expr.WithAnnotation(ShouldBeObservableAnnotation.Instance));
+
         private static JsExpression[] ReplaceDefaultWithUndefined(IEnumerable<JsExpression> arguments, ParameterInfo[] parameters)
         {
             var replaced = arguments.Zip(parameters, (a, p) => a is JsLiteral literal && literal.Value == p.DefaultValue ? new JsIdentifierExpression("undefined") : a).ToArray();
@@ -78,12 +90,12 @@ namespace DotVVM.Framework.Configuration
 
                     if (registerJS)
                     {
-                        var isRead = method.Name.Equals("get", StringComparison.OrdinalIgnoreCase);
+                        var isRead = method.Name.StartsWith("get", StringComparison.OrdinalIgnoreCase);
 
                         config.Markup.JavascriptTranslator.MethodCollection.AddMethodTranslator(method, new GenericMethodCompiler(
                             a => new JsIdentifierExpression("dotvvm").Member("invokeApiFn").Invoke(
                                 new JsFunctionExpression(new JsIdentifier[0], new JsBlockStatement(
-                                    new JsReturnStatement(identifier.Clone().Member(KnockoutHelper.ConvertToCamelCase(method.Name)).Invoke(ReplaceDefaultWithUndefined(a.Skip(1), method.GetParameters())))
+                                    new JsReturnStatement(identifier.Clone().Member(KnockoutHelper.ConvertToCamelCase(method.Name)).Invoke(ReplaceDefaultWithUndefined(a.Skip(1), method.GetParameters()).Apply(SerializeComplexParameters)))
                                 )),
                                 new JsArrayExpression(isRead ?
                                     new JsIdentifierExpression("dotvvm").Member("eventHub").Member("get").Invoke(new JsLiteral(identifier.FormatScript())) :

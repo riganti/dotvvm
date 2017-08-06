@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using DotVVM.Framework.ViewModel;
@@ -13,7 +14,9 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.Api
 
         public string CurrentIssueText { get; set; } = "";
 
-        public GithubApiClient.Issue NewIssue { get; set; } = new GithubApiClient.Issue();
+        public GithubApiClient.Issue NewIssue { get; set; } = new GithubApiClient.Issue {
+            Labels = new ObservableCollection<string>()
+        };
     }
 }
 

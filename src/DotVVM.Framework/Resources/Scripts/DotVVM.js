@@ -2232,6 +2232,10 @@ function basicAuthenticatedFetch(input, init) {
         if (init.headers['Authorization'] == null)
             init.headers["Authorization"] = 'Basic ' + btoa(auth);
     }
+    if (init == null)
+        init = {};
+    if (!init.cache)
+        init.cache = "no-cache";
     return window.fetch(input, init).then(function (response) {
         if (response.status == 401 && auth == null) {
             if (sessionStorage.getItem("someAuth") == null)
@@ -2272,11 +2276,12 @@ function basicAuthenticatedFetch(input, init) {
         };
         var cmp = ko.pureComputed(function () { return cachedValue(); });
         cmp.refreshValue = function (throwOnError) {
-            if (cachedValue["isLoading"] && !throwOnError)
-                return;
-            cachedValue["isLoading"] = true;
-            var promise = load();
-            cachedValue["promise"] = promise;
+            var promise = cachedValue["promise"];
+            if (!cachedValue["isLoading"]) {
+                cachedValue["isLoading"] = true;
+                promise = load();
+                cachedValue["promise"] = promise;
+            }
             if (promise.type == 'error') {
                 cachedValue["isLoading"] = false;
                 if (throwOnError)

@@ -2,6 +2,7 @@
 /// <reference path="DotVVM.ts" />
 
 type ApiComputed<T> = KnockoutObservable<T | null> & { refreshValue: (throwOnError?: boolean) => PromiseLike<any> | undefined }
+type Result<T> = { type: 'error', error: any } | { type: 'result', result: T }
 interface DotVVM {
     invokeApiFn<T>(callback: () => PromiseLike<T>): ApiComputed<T>;
     apiRefreshOn<T>(value: KnockoutObservable<T>, refreshOn: KnockoutObservable<any>) : KnockoutObservable<T>;
@@ -34,6 +35,8 @@ function basicAuthenticatedFetch(input: RequestInfo, init: RequestInit) {
         if (init.headers == null) init.headers = {};
         if (init.headers['Authorization'] == null) init.headers["Authorization"] = 'Basic ' + btoa(auth);
     }
+    if (init == null) init = {}
+    if (!init.cache) init.cache = "no-cache";
     return window.fetch(input, init).then(response => {
         if (response.status == 401 && auth == null) {
             if (sessionStorage.getItem("someAuth") == null) requestAuth();
@@ -50,7 +53,7 @@ function basicAuthenticatedFetch(input: RequestInfo, init: RequestInit) {
     DotVVM.prototype.invokeApiFn = function <T>(callback: () => PromiseLike<T>, refreshTriggers: (KnockoutObservable<any> | string)[] = [], notifyTriggers: string[] = [], commandId = callback.toString()) {
         let cachedValue = cachedValues[commandId] || (cachedValues[commandId] = ko.observable<any>(null));
 
-        const load : () => { type: 'error', error: any } | { type: 'result', result: PromiseLike<any> } = () => {
+        const load : () => Result<PromiseLike<any>> = () => {
             try {
                 var result : PromiseLike<any> = window["Promise"].resolve(ko.ignoreDependencies(callback));
                 return { type: 'result', result: result.then((val) => {
@@ -72,10 +75,13 @@ function basicAuthenticatedFetch(input: RequestInfo, init: RequestInit) {
         const cmp = <ApiComputed<T>><any>ko.pureComputed(() => cachedValue());
 
         cmp.refreshValue = (throwOnError) => {
-            if (cachedValue["isLoading"] && !throwOnError) return;
-            cachedValue["isLoading"] = true;
-            let promise = load();
-            cachedValue["promise"] = promise;
+            let promise: Result<PromiseLike<any>> = <any>cachedValue["promise"];
+            if (!cachedValue["isLoading"])
+            {
+                cachedValue["isLoading"] = true;
+                promise = load();
+                cachedValue["promise"] = promise;
+            }
             if (promise.type == 'error')
             {
                 cachedValue["isLoading"] = false;
@@ -93,7 +99,11 @@ function basicAuthenticatedFetch(input: RequestInfo, init: RequestInit) {
         return cmp;
     }
     DotVVM.prototype.apiRefreshOn = function <T>(value: KnockoutObservable<T> & { refreshValue? : () => void }, refreshOn: KnockoutObservable<any>) {
-        refreshOn.subscribe(() => value.refreshValue && value.refreshValue())
+        if (typeof value.refreshValue != "function") console.error(`The object is not refreshable`);
+        refreshOn.subscribe(() => {
+            if (typeof value.refreshValue != "function") console.error(`The object is not refreshable`);
+            value.refreshValue && value.refreshValue();
+        })
         return value;
     }
     DotVVM.prototype.api = {}

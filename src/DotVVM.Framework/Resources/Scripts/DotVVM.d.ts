@@ -356,6 +356,13 @@ declare class DotvvmEvaluator {
 declare type ApiComputed<T> = KnockoutObservable<T | null> & {
     refreshValue: (throwOnError?: boolean) => PromiseLike<any> | undefined;
 };
+declare type Result<T> = {
+    type: 'error';
+    error: any;
+} | {
+    type: 'result';
+    result: T;
+};
 interface DotVVM {
     invokeApiFn<T>(callback: () => PromiseLike<T>): ApiComputed<T>;
     apiRefreshOn<T>(value: KnockoutObservable<T>, refreshOn: KnockoutObservable<any>): KnockoutObservable<T>;
