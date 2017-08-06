@@ -37,6 +37,17 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
         }
 
         [TestMethod]
+        public void ParameterBinding_ParameterExists_Inherited()
+        {
+            context.Parameters["route1"] = "test";
+
+            var viewModel = new TestViewModelRouteStringInherited();
+            binder.BindParameters(context, viewModel);
+
+            Assert.AreEqual("test", viewModel.Route1);
+        }
+
+        [TestMethod]
         public void ParameterBinding_ParameterExists_IntToStringConversion()
         {
             context.Parameters["route1"] = 15;
@@ -171,5 +182,9 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
             Three = 3
         }
 
+        public class TestViewModelRouteStringInherited : TestViewModelRouteString
+        {
+            
+        }
     }
 }
