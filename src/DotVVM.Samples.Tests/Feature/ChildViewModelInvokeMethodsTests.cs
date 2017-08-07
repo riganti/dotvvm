@@ -9,7 +9,7 @@ namespace DotVVM.Samples.Tests.Feature
     public class ChildViewModelInvokeMethodsTests : SeleniumTest
     {
         [TestMethod]
-        public void Feature_ChildViewModelInvokeMethodsTests()
+        public void Feature_ChildViewModelInvokeMethods_ChildViewModelInvokeMethods()
         {
             RunInAllBrowsers(browser =>
             {

@@ -14,6 +14,9 @@ namespace DotVVM.Samples.Tests.Control
     {
 
         [TestMethod]
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_Default))]
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageA))]
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageB))]
         public void Control_SpaContentPlaceHolder_SpaContentPlaceHolder()
         {
             RunInAllBrowsers(browser =>
@@ -93,6 +96,9 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [TestMethod]
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_Default))]
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageA))]
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageB))]
         public void Control_SpaContentPlaceHolder_SpaContentPlaceHolder_EnteredFromPageB()
         {
             RunInAllBrowsers(browser =>
@@ -172,7 +178,10 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [TestMethod]
-        public void Control_SpaContentPlaceHolder_SpaContentPlaceHolder_PrefixRouteName_EnteredFromPageB()
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PrefixRouteName_Default))]
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PrefixRouteName_PageA))]
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PrefixRouteName_PageB))]
+        public void Control_SpaContentPlaceHolder_PrefixRouteName_EnteredFromPageB()
         {
             RunInAllBrowsers(browser =>
             {

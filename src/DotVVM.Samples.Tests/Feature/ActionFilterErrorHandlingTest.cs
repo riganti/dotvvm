@@ -13,7 +13,8 @@ namespace DotVVM.Samples.Tests.Feature
     public class ActionFilterErrorHandlingTest : SeleniumTest
     {
         [TestMethod]
-        public void Feature_ActionFilterErrorHandling_CommandException()
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ActionFilterErrorHandling_ActionFilterErrorHandling))]
+        public void Feature_ActionFilterErrorHandling_ActionFilterErrorHandling_CommandException()
         {
             RunInAllBrowsers(browser =>
             {
@@ -31,7 +32,8 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [TestMethod]
-        public void Feature_ActionFilterErrorHandling_PageException()
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ActionFilterErrorHandling_ActionFilterPageErrorHandling))]
+        public void Feature_ActionFilterErrorHandling_ActionFilterErrorHandling_PageException()
         {
             RunInAllBrowsers(browser =>
             {
@@ -43,7 +45,7 @@ namespace DotVVM.Samples.Tests.Feature
 
 
         [TestMethod]
-        public void Feature_ActionFilterErrorHandling_Redirects()
+        public void Feature_ActionFilterErrorHandling_ActionFilterRedirect()
         {
             RunInAllBrowsers(browser =>
             {

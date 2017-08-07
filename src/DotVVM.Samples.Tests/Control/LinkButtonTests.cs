@@ -14,7 +14,7 @@ namespace DotVVM.Samples.Tests.Control
     public class LinkButtonTests : SeleniumTest
     {
         [TestMethod]
-        public void Control_LinkButton()
+        public void Control_LinkButton_LinkButton()
         {
             RunInAllBrowsers(browser =>
             {
@@ -40,6 +40,23 @@ namespace DotVVM.Samples.Tests.Control
                 browser.Click("#EnabledLinkButton");
                 browser.Wait();
                 browser.Last("span").CheckIfInnerTextEquals("1");
+            });
+        }
+
+        [TestMethod]
+        public void Control_LinkButton_LinkButtonOnClick()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_LinkButton_LinkButtonOnclick);
+                var onclickResult = browser.First("span.result1").Check();
+                var clickResult = browser.First("span.result2").Check();
+                clickResult.InnerText(s => s.Equals(""));
+                onclickResult.InnerText(s => s.Equals(""));
+
+                browser.Click("#LinkButton");
+                clickResult.InnerText(s => s.Equals("Changed from command binding"));
+                onclickResult.InnerText(s => s.Contains("Changed from onclick"));
             });
         }
     }

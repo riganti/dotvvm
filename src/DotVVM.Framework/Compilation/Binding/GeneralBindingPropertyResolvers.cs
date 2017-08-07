@@ -27,13 +27,13 @@ namespace DotVVM.Framework.Compilation.Binding
     {
         private readonly DotvvmConfiguration configuration;
         private readonly IBindingExpressionBuilder bindingParser;
-        private readonly IViewModelSerializationMapper vmMapper;
+        private readonly JavascriptTranslator javascriptTranslator;
 
-        public BindingPropertyResolvers(IBindingExpressionBuilder bindingParser, IViewModelSerializationMapper vmMapper, DotvvmConfiguration configuration)
+        public BindingPropertyResolvers(IBindingExpressionBuilder bindingParser, JavascriptTranslator javascriptTranslator, DotvvmConfiguration configuration)
         {
             this.configuration = configuration;
             this.bindingParser = bindingParser;
-            this.vmMapper = vmMapper;
+            this.javascriptTranslator = javascriptTranslator;
         }
 
         public ActionFiltersBindingProperty GetActionFilters(ParsedExpressionBindingProperty parsedExpression)
@@ -86,11 +86,14 @@ namespace DotVVM.Framework.Compilation.Binding
             DataContextStack dataContext)
         {
             return new KnockoutJsExpressionBindingProperty(
-                   JavascriptTranslator.CompileToJavascript(expression.Expression, dataContext, vmMapper).ApplyAction(a => a.Freeze()));
+                   javascriptTranslator.CompileToJavascript(expression.Expression, dataContext).ApplyAction(a => a.Freeze()));
         }
 
         public SimplePathExpressionBindingProperty FormatSimplePath(KnockoutJsExpressionBindingProperty expression)
         {
+            // if contains api parameter, can't use this as a path
+            if (expression.Expression.DescendantNodes().Any(n => n.TryGetAnnotation(out ViewModelInfoAnnotation vmInfo) && vmInfo.ExtensionParameter is RestApiRegistrationHelpers.ApiExtensionParameter apiParameter))
+                throw new Exception($"Can't get a path expression for command binding from binding that is using rest api.");
             return new SimplePathExpressionBindingProperty(expression.Expression.FormatParametrizedScript());
         }
 
@@ -106,6 +109,12 @@ namespace DotVVM.Framework.Compilation.Binding
             if (nullChecks) JavascriptNullCheckAdder.AddNullChecks(expr);
             expr = new JsParenthesizedExpression((JsExpression)JsTemporaryVariableResolver.ResolveVariables(expr.Expression.Detach()));
             return (StartsWithStatementLikeExpression(expr.Expression) ? expr : expr.Expression).FormatParametrizedScript(niceMode);
+        }
+
+        public RequiredRuntimeResourcesBindingProperty GetRequiredResources(KnockoutJsExpressionBindingProperty js)
+        {
+            var resources = js.Expression.DescendantNodesAndSelf().Select(n => n.Annotation<RequiredRuntimeResourcesBindingProperty>()).Where(n => n != null).SelectMany(n => n.Resources).ToImmutableArray();
+            return resources.Length == 0 ? RequiredRuntimeResourcesBindingProperty.Empty : new RequiredRuntimeResourcesBindingProperty(resources);
         }
 
         private static bool StartsWithStatementLikeExpression(JsExpression expression)
@@ -263,7 +272,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public StaticCommandJavascriptProperty CompileStaticCommand(DataContextStack dataContext, ParsedExpressionBindingProperty expression)
         {
-            return new StaticCommandJavascriptProperty(FormatJavascript(new StaticCommandBindingCompiler(vmMapper).CompileToJavascript(dataContext, expression.Expression), niceMode: configuration.Debug));
+            return new StaticCommandJavascriptProperty(FormatJavascript(new StaticCommandBindingCompiler(javascriptTranslator).CompileToJavascript(dataContext, expression.Expression), niceMode: configuration.Debug));
         }
 
         public LocationInfoBindingProperty GetLocationInfo(ResolvedBinding resolvedBinding)

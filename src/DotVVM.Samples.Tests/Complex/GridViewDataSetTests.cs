@@ -9,7 +9,7 @@ namespace DotVVM.Samples.Tests.Complex
     public class GridViewDataSetTests : SeleniumTest
     {
         [TestMethod]
-        public void Complex_GridViewDataSet()
+        public void Complex_GridViewDataSet_GridViewDataSet()
         {
             RunInAllBrowsers(browser =>
             {
@@ -19,7 +19,7 @@ namespace DotVVM.Samples.Tests.Complex
         }
 
         [TestMethod]
-        public void Complex_GridViewDataSetDelegate()
+        public void Complex_GridViewDataSet_GridViewDataSetDelegate()
         {
             RunInAllBrowsers(browser =>
             {

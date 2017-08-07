@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Framework.Controls
 {
@@ -20,35 +21,36 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public string SortExpression { get; set; }
 
-
-
         /// <summary>
         /// Applies the sorting settings to the IQueryable object.
         /// </summary>
         public virtual IQueryable<T> ApplyToQueryable<T>(IQueryable<T> queryable)
         {
-            if (!string.IsNullOrEmpty(SortExpression))
+            var parameterExpression = Expression.Parameter(typeof(T), "p");
+            Expression sortByExpression = parameterExpression;
+            foreach (var prop in (SortExpression ?? "").Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries))
             {
-                var type = typeof(T);
-                var property = type.GetTypeInfo().GetProperty(SortExpression);
+                var property = sortByExpression.Type.GetTypeInfo().GetProperty(prop);
                 if (property == null)
-                {
-                    throw new Exception($"Could not sort by property '{SortExpression}', since it does not exists.");
-                }
-                var parameterExpression = Expression.Parameter(type, "p");
-                var lambdaExpression = Expression.Lambda(Expression.MakeMemberAccess(parameterExpression, property), parameterExpression);
+                    throw new Exception($"Could not sort by property '{prop}', since it does not exists.");
+                if (property.GetCustomAttribute<BindAttribute>() is BindAttribute bind && bind.Direction == Direction.None)
+                    throw new Exception($"Can not sort by an property '{prop}' that has [Bind(Direction.None)]");
+                if (property.GetCustomAttribute<ProtectAttribute>() is ProtectAttribute protect && protect.Settings == ProtectMode.EncryptData)
+                    throw new Exception($"Can not sort by an property '{prop}' that is encrypted");
+
+                sortByExpression = Expression.Property(sortByExpression, property);
+            }
+            if (sortByExpression == parameterExpression) // no sorting
+                return queryable;
+            else
+            {
+                var lambdaExpression = Expression.Lambda(sortByExpression, parameterExpression);
                 var methodCallExpression = Expression.Call(typeof(Queryable), GetSortingMethodName(),
-                    new Type[2]
-                    {
-                        type,
-                        property.PropertyType
-                    },
+                    new Type[] { parameterExpression.Type, sortByExpression.Type },
                     queryable.Expression,
                     Expression.Quote(lambdaExpression));
-
                 return queryable.Provider.CreateQuery<T>(methodCallExpression);
             }
-            return queryable;
         }
 
 

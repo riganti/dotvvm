@@ -26,7 +26,7 @@ namespace DotVVM.Framework.Binding
 
         public override IEnumerable<BindingExtensionParameter> GetExtensionParameters(ITypeDescriptor dataContext)
         {
-            return base.GetExtensionParameters(dataContext).Concat(new[] { new CurrentCollectionIndexExtensionParameter() });
+            return base.GetExtensionParameters(dataContext).Concat(new BindingExtensionParameter[] { new CurrentCollectionIndexExtensionParameter(), new BindingCollectionInfoExtensionParameter("_collection") });
         }
     }
 }

@@ -14,7 +14,7 @@ namespace DotVVM.Samples.Tests.Control
     {
 
         [TestMethod]
-        public void Control_HtmlLiteral()
+        public void Control_HtmlLiteral_HtmlLiteral()
         {
             RunInAllBrowsers(browser =>
             {

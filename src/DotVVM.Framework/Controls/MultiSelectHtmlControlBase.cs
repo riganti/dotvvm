@@ -24,10 +24,11 @@ namespace DotVVM.Framework.Controls
             RenderMultipleAttribute(writer);
             RenderEnabledProperty(writer);
             RenderOptionsProperties(writer);
-            RenderChangedEvent(writer);
             RenderSelectedValueProperty(writer);
 
             base.AddAttributesToRender(writer, context);
+
+            RenderChangedEvent(writer);
         }
 
         protected virtual void RenderMultipleAttribute(IHtmlWriter writer)

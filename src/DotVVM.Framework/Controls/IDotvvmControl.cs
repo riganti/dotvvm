@@ -11,8 +11,8 @@ namespace DotVVM.Framework.Controls
         DotvvmControlCollection Children { get; }
         ClientIDMode ClientIDMode { get; set; }
         string ID { get; set; }
-        DotvvmControl Parent { get; set; }
-        IEnumerable<DotvvmControl> GetAllAncestors(bool incudingThis = false);
+        DotvvmBindableObject Parent { get; set; }
+        IEnumerable<DotvvmBindableObject> GetAllAncestors(bool incudingThis = false);
 
         IEnumerable<DotvvmControl> GetAllDescendants(Func<DotvvmControl, bool> enumerateChildrenCondition = null);
 

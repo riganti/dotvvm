@@ -13,7 +13,7 @@ namespace DotVVM.Samples.Tests.Feature
     public class GenericTypesTests : SeleniumTest
     {
         [TestMethod]
-        public void GenericTypes_TypedInResourceBinding()
+        public void Feature_GenericTypes_InResourceBinding()
         {
             RunInAllBrowsers(browser =>
             {
@@ -38,7 +38,7 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [TestMethod]
-        public void GenericTypes_InstanceCommand_StaticCommand()
+        public void Feature_GenericTypes_InCommandBinding()
         {
             RunInAllBrowsers(browser =>
             {

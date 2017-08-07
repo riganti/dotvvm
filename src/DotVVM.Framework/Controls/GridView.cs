@@ -30,6 +30,9 @@ namespace DotVVM.Framework.Controls
 
             Columns = new List<GridViewColumn>();
             RowDecorators = new List<Decorator>();
+
+            if (GetType() == typeof(GridView))
+                LifecycleRequirements &= ~(ControlLifecycleRequirements.InvokeMissingInit | ControlLifecycleRequirements.InvokeMissingLoad);
         }
 
 

@@ -201,3 +201,5 @@ FakesAssemblies/
 /.idea
 /src/.idea
 
+
+/src/DotVVM.Samples.Common/Scripts/GithubApiClient.js

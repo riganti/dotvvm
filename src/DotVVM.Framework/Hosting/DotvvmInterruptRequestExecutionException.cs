@@ -22,6 +22,7 @@ namespace DotVVM.Framework.Hosting
 
         [DebuggerHidden]
         public DotvvmInterruptRequestExecutionException(InterruptReason interruptReason, string customData = null)
+            : base($"Request interrupted: {interruptReason} ({customData})")
         {
             InterruptReason = interruptReason;
             CustomData = customData;

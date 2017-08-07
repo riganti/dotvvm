@@ -46,7 +46,7 @@ namespace DotVVM.Framework.Controls
         /// Gets the parent control.
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.Exclude)]
-        public DotvvmControl Parent { get; set; }
+        public DotvvmBindableObject Parent { get; set; }
 
         // WORKAROUND: Roslyn is unable to cache the delegate itself
         private static Func<Type, DotvvmProperty[]> _dotvvmProperty_ResolveProperties = DotvvmProperty.ResolveProperties;
@@ -72,7 +72,7 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets a data context for the control and its children. All value and command bindings are evaluated in context of this value.
         /// </summary>
         [BindingCompilationRequirements(
-                required: new[] { typeof(Binding.Properties.SimplePathExpressionBindingProperty) })]
+                optional: new[] { typeof(Binding.Properties.SimplePathExpressionBindingProperty) })]
         public object DataContext
         {
             get { return (object)GetValue(DataContextProperty); }
@@ -216,16 +216,14 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets the closest control binding target.
         /// </summary>
-        public DotvvmBindableObject GetClosestControlBindingTarget()
-        {
-            return GetClosestControlBindingTarget(out int numberOfDataContextChanges);
-        }
+        public DotvvmBindableObject GetClosestControlBindingTarget() =>
+            GetClosestControlBindingTarget(out int numberOfDataContextChanges);
 
         /// <summary>
         /// Gets the closest control binding target and returns number of DataContext changes since the target.
         /// </summary>
         public DotvvmBindableObject GetClosestControlBindingTarget(out int numberOfDataContextChanges) =>
-            GetClosestWithPropertyValue(out numberOfDataContextChanges, (control, _) => (bool)control.GetValue(Internal.IsControlBindingTargetProperty));
+            Parent.GetClosestWithPropertyValue(out numberOfDataContextChanges, (control, _) => (bool)control.GetValue(Internal.IsControlBindingTargetProperty));
 
         /// <summary>
         /// Gets the closest control binding target and returns number of DataContext changes since the target.
@@ -294,9 +292,9 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets all ancestors of this control starting with the parent.
         /// </summary>
-        public IEnumerable<DotvvmControl> GetAllAncestors(bool incudingThis = false)
+        public IEnumerable<DotvvmBindableObject> GetAllAncestors(bool incudingThis = false)
         {
-            var ancestor = incudingThis ? (DotvvmControl)this : Parent;
+            var ancestor = incudingThis ? this : Parent;
             while (ancestor != null)
             {
                 yield return ancestor;

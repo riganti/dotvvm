@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DotVVM.Framework.Tests.Runtime
@@ -89,7 +90,7 @@ namespace DotVVM.Framework.Tests.Runtime
                     {
                         InitAction = (control2, context2) =>
                         {
-                            control2.Parent.Children.First().Children.Add(new ControlLifeCycleMock()
+                            control2.Parent.CastTo<DotvvmControl>().Children.First().Children.Add(new ControlLifeCycleMock()
                             {
                                 InitAction = (control3, context3) =>
                                 {
@@ -189,6 +190,33 @@ namespace DotVVM.Framework.Tests.Runtime
             verifyAction("root_a_b_c", LifeCycleEventType.PreRender, false);
             verifyAction("root_a_b_c_d", LifeCycleEventType.PreRender, true);
             verifyAction("root_a_b_c_d", LifeCycleEventType.PreRender, false);
+        }
+
+        [TestMethod]
+        public void ControlCollection_AddingToOptimizedControl()
+        {
+            var eventLog = new List<ControlLifeCycleEvent>();
+            var root = new ControlLifeCycleMock(eventLog, "root")
+            {
+                InitAction = (control, context) =>
+                {
+                    control.Children.Add(new ControlLifeCycleMock(eventLog, "root_a")
+                    {
+                        LifecycleRequirements = ControlLifecycleRequirements.None,
+                    });
+                },
+            };
+
+            DotvvmControlCollection.InvokePageLifeCycleEventRecursive(root, LifeCycleEventType.PreRender);
+
+            var root_New = new ControlLifeCycleMock(eventLog, "root_New");
+            root.Children.Add(root_New);
+
+            var root_a_New = new ControlLifeCycleMock(eventLog, "root_a_New");
+            root.Children.First().Children.Add(root_a_New);
+
+            Assert.IsTrue(eventLog.Count(e => e.Control == root_a_New) == eventLog.Count(e => e.Control == root_New),
+                "Control added to root has not the same number of event as control added to the optimized one.");
         }
     }
 }

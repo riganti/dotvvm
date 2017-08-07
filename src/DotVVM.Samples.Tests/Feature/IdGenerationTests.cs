@@ -14,7 +14,7 @@ namespace DotVVM.Samples.Tests.Feature
     public class IdGenerationTests : SeleniumTest
     {
         [TestMethod]
-        public void Feature_IdGeneration()
+        public void Feature_IdGeneration_IdGeneration()
         {
             RunInAllBrowsers(browser =>
             {

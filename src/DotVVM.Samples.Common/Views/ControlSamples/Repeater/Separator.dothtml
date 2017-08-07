@@ -1,0 +1,49 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.Repeater.SeparatorViewModel, DotVVM.Samples.Common
+@masterPage Views/ControlSamples/Repeater/SeparatorMaster.dotmaster
+
+<dot:Content ContentPlaceHolderID="MainContent">
+    <h1>A server rendered and a client rendered Repeater with a SeparatorTemplate</h1>
+    <div>
+        <dot:Repeater DataSource="{value: Cards}"
+                      RenderSettings.Mode="Server"
+                      data-ui="server-repeater">
+            <ItemTemplate>
+                <div data-ui="item">
+                    <div>
+                        <span>Greetings from </span>
+                        <span>{{value: From}}</span>
+                    </div>
+                    <div>
+                        <span>{{value: "-" + Sender}}</span>
+                    </div>
+                </div>
+            </ItemTemplate>
+            <SeparatorTemplate>
+                <div class="separator"
+                     data-ui="separator"></div>
+            </SeparatorTemplate>
+        </dot:Repeater>
+    </div>
+    <br />
+    <div>
+        <dot:Repeater DataSource="{value: Cards}"
+                      RenderSettings.Mode="Client"
+                      data-ui="client-repeater">
+            <ItemTemplate>
+                <div data-ui="item">
+                    <div>
+                        <span>Greetings from </span>
+                        <span>{{value: From}}</span>
+                    </div>
+                    <div>
+                        <span>{{value: "-" + Sender}}</span>
+                    </div>
+                </div>
+            </ItemTemplate>
+            <SeparatorTemplate>
+                <div class="separator"
+                     data-ui="separator"></div>
+            </SeparatorTemplate>
+        </dot:Repeater>
+    </div>
+</dot:Content>

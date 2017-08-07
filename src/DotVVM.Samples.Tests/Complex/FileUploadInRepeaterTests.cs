@@ -12,7 +12,7 @@ namespace DotVVM.Samples.Tests.Complex
     public class FileUploadInRepeaterTests : SeleniumTest
     {
         [TestMethod]
-        public void Complex_FileUploadInRepeater()
+        public void Complex_FileUploadInRepeater_FileUploadInRepeater()
         {
             RunInAllBrowsers(browser =>
             {

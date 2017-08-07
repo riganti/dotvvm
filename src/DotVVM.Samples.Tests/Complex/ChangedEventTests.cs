@@ -14,7 +14,7 @@ namespace DotVVM.Samples.Tests.Complex
     public class ChangedEventTests : SeleniumTest
     {
         [TestMethod]
-        public void Complex_ChangedEvent()
+        public void Complex_ChangedEvent_ChangedEvent()
         {
             RunInAllBrowsers(browser =>
             {

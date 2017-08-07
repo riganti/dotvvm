@@ -14,7 +14,7 @@ namespace DotVVM.Samples.Tests.Feature
     public class DateTimeSerializationTests : SeleniumTest
     {
         [TestMethod]
-        public void Feature_DateTimeSerialization()
+        public void Feature_DateTimeSerialization_DateTimeSerialization()
         {
             var culture = new CultureInfo("cs-CZ");
             CultureInfo.CurrentCulture = new CultureInfo("en");
@@ -22,6 +22,7 @@ namespace DotVVM.Samples.Tests.Feature
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_DateTimeSerialization_DateTimeSerialization);
+                browser.WaitFor(() => browser.FindElements("input[type=text]").ThrowIfSequenceEmpty(), 5000);
 
                 // verify the first date
                 browser.ElementAt("input[type=text]", 0).Clear().SendKeys("18.2.1988");

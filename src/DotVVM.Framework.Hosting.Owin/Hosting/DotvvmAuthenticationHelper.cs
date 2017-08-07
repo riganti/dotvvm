@@ -1,4 +1,5 @@
 using System.Net;
+using DotVVM.Framework.Hosting;
 using Microsoft.Owin;
 
 namespace DotVVM.Framework.Hosting
@@ -12,7 +13,7 @@ namespace DotVVM.Framework.Hosting
         {
             if (context.Response.StatusCode == (int)HttpStatusCode.Unauthorized)
             {
-                DotvvmRequestContext.SetRedirectResponse(DotvvmMiddleware.ConvertHttpContext(context), redirectUri, (int)HttpStatusCode.Redirect, true);
+                DotvvmRequestContextExtensions.SetRedirectResponse(DotvvmRequestContext.GetCurrent(DotvvmMiddleware.ConvertHttpContext(context)), redirectUri, (int)HttpStatusCode.Redirect, true);
             }
         }
     }

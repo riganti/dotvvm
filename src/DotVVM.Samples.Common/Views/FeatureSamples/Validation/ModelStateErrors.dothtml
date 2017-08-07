@@ -8,17 +8,19 @@
     <title></title>
 </head>
 <body>
-    <%--TODO UI test--%>
-    <dot:ValidationSummary IncludeErrorsFromChildren="true" />
     <p>
-        Nested VM: <dot:Validator ShowErrorMessageText Value="{value:  Nested1.MyProperty}" />
+        <dot:ValidationSummary class="vmErrors" IncludeErrorsFromChildren="true" />
     </p>
     <p>
+        Nested VM:
+        <dot:Validator class="vm1Error" ShowErrorMessageText Value="{value:  Nested1.MyProperty}" />
+    </p>
+    <p class=".vm2Errors">
         Nested collection:
         <dot:Repeater DataSource="{value: Nested2}" WrapperTagName="ul">
             <li>
                 {{value: Property123}}
-                <dot:Validator ShowErrorMessageText Value="{value: Property123}" />
+                <dot:Validator class="vm2Error" ShowErrorMessageText Value="{value: Property123}" />
             </li>
         </dot:Repeater>
     </p>

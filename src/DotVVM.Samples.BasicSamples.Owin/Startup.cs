@@ -9,6 +9,7 @@ using Microsoft.Owin;
 using Microsoft.Owin.Security.Cookies;
 using Owin;
 using DotVVM.Framework.Configuration;
+using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
 
 [assembly: OwinStartup(typeof(Startup))]
 
@@ -50,8 +51,11 @@ namespace DotVVM.Samples.BasicSamples
                     )
                 }
             );
-
-            var config = app.UseDotVVM<DotvvmStartup>(GetApplicationPath(), options: b => { b.AddDefaultTempStorages("Temp"); });
+            var config = app.UseDotVVM<DotvvmStartup>(GetApplicationPath(), options: b =>
+            {
+                b.AddDefaultTempStorages("Temp");
+                b.Services.AddScoped<ViewModelScopedDependency>();
+            });
             config.RouteTable.Add("AuthorizedPresenter", "ComplexSamples/Auth/AuthorizedPresenter", null, null, () => new AuthorizedPresenter());
 
             app.UseStaticFiles();

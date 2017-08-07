@@ -14,7 +14,7 @@ namespace DotVVM.Samples.Tests.Feature
     public class SerializationTests : SeleniumTest
     {
         [TestMethod]
-        public void Feature_Serialization()
+        public void Feature_Serialization_Serialization()
         {
             RunInAllBrowsers(browser =>
             {

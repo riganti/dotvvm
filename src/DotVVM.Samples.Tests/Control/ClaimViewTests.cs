@@ -9,7 +9,7 @@ namespace DotVVM.Samples.Tests.Control
     public class ClaimViewTests : SeleniumTest
     {
         [TestMethod]
-        public void ClaimViewTest()
+        public void Control_ClaimView_ClaimViewTest()
         {
             RunInAllBrowsers(browser =>
             {

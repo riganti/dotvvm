@@ -17,6 +17,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         IAbstractDirective BuildDirective(DothtmlDirectiveNode node);
 
         IAbstractImportDirective BuildImportDirective(DothtmlDirectiveNode node, BindingParserNode aliasSyntax, BindingParserNode nameSyntax);
+        IAbstractServiceInjectDirective BuildServiceInjectDirective(DothtmlDirectiveNode node, SimpleNameBindingParserNode nameSyntax, BindingParserNode typeSyntax);
 
         IAbstractViewModelDirective BuildViewModelDirective(DothtmlDirectiveNode directive, BindingParserNode nameSyntax);
 

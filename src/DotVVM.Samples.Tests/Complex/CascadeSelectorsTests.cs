@@ -13,19 +13,19 @@ namespace DotVVM.Samples.Tests.Complex
     public class CascadeSelectorsTests : SeleniumTest
     {
         [TestMethod]
-        public void Complex_CascadeSelectorsServerRender()
-        {
-            Complex_CascadeSelectorsBase(SamplesRouteUrls.ComplexSamples_CascadeSelectors_CascadeSelectorsServerRender);
-        }
-
-        [TestMethod]
-        public void Complex_CascadeSelectors()
+        public void Complex_CascadeSelectors_CascadeSelectors()
         {
             Complex_CascadeSelectorsBase(SamplesRouteUrls.ComplexSamples_CascadeSelectors_CascadeSelectors);
         }
 
         [TestMethod]
-        public void Complex_TripleComboBoxes()
+        public void Complex_CascadeSelectors_CascadeSelectorsServerRender()
+        {
+            Complex_CascadeSelectorsBase(SamplesRouteUrls.ComplexSamples_CascadeSelectors_CascadeSelectorsServerRender);
+        }
+
+        [TestMethod]
+        public void Complex_CascadeSelectors_TripleComboBoxes()
         {
             RunInAllBrowsers(browser =>
             {

@@ -14,7 +14,7 @@ namespace DotVVM.Samples.Tests.Feature
     public class FormattingTests : SeleniumTest
     {
         [TestMethod]
-        public void Feature_Formatting()
+        public void Feature_Formatting_Formatting()
         {
             RunInAllBrowsers(browser =>
             {

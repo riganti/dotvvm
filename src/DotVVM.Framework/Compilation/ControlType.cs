@@ -8,8 +8,6 @@ namespace DotVVM.Framework.Compilation
     {
         public Type Type { get; private set; }
 
-        public Type ControlBuilderType { get; private set; }
-
         public string VirtualPath { get; private set; }
 
         public Type DataContextRequirement { get; private set; }
@@ -22,10 +20,9 @@ namespace DotVVM.Framework.Compilation
         /// <summary>
         /// Initializes a new instance of the <see cref="ControlType"/> class.
         /// </summary>
-        public ControlType(Type type, Type controlBuilderType = null, string virtualPath = null, Type dataContextRequirement = null)
+        public ControlType(Type type, string virtualPath = null, Type dataContextRequirement = null)
         {
             Type = type;
-            ControlBuilderType = controlBuilderType;
             VirtualPath = virtualPath;
             DataContextRequirement = dataContextRequirement;
         }
@@ -50,14 +47,14 @@ namespace DotVVM.Framework.Compilation
 
         protected bool Equals(ControlType other)
         {
-            return Equals(Type, other.Type) && Equals(ControlBuilderType, other.ControlBuilderType);
+            return Equals(Type, other.Type) && VirtualPath == other.VirtualPath;
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                return ((Type != null ? Type.GetHashCode() : 0) * 397) ^ (ControlBuilderType != null ? ControlBuilderType.GetHashCode() : 0);
+                return ((Type != null ? Type.GetHashCode() : 53515466) * 397) ^ (VirtualPath != null ? VirtualPath.GetHashCode() : 145132);
             }
         }
     }

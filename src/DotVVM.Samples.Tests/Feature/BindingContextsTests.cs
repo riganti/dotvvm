@@ -14,7 +14,7 @@ namespace DotVVM.Samples.Tests.Feature
     public class BindingContextsTests : SeleniumTest
     {
         [TestMethod]
-        public void Feature_BindingContextsTest()
+        public void Feature_BindingContexts_BindingContext()
         {
             RunInAllBrowsers(browser =>
             {

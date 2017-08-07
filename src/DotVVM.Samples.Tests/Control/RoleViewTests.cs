@@ -14,7 +14,7 @@ namespace DotVVM.Samples.Tests.Control
     {
 
         [TestMethod]
-        public void RoleViewTest()
+        public void Control_RoleView_RoleViewTest()
         {
             RunInAllBrowsers(browser =>
             {

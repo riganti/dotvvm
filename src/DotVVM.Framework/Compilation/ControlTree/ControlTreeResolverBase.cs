@@ -61,6 +61,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var wrapperType = ResolveWrapperType(directives, fileName);
             var viewModelType = ResolveViewModelType(directives, root, fileName);
             var namespaceImports = ResolveNamespaceImports(directives, root);
+            var injectedServices = ResolveInjectDirectives(directives);
 
             // We need to call BuildControlMetadata instead of ResolveControl. The control builder for the control doesn't have to be compiled yet so the 
             // metadata would be incomplete and ResolveControl caches them internally. BuildControlMetadata just builds the metadata and the control is
@@ -70,7 +71,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var dataContextTypeStack = CreateDataContextTypeStack(viewModelType, null, namespaceImports, new BindingExtensionParameter[] {
                 new CurrentMarkupControlExtensionParameter(wrapperType),
                 new BindingPageInfoExtensionParameter()
-            });
+            }.Concat(injectedServices).ToArray());
 
             var view = treeBuilder.BuildTreeRoot(this, viewMetadata, root, dataContextTypeStack, directives);
             view.FileName = fileName;
@@ -83,7 +84,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Resolves the content of the root node.
         /// </summary>
-        private void ResolveRootContent(DothtmlRootNode root, IAbstractTreeRoot view, IControlResolverMetadata viewMetadata)
+        protected virtual void ResolveRootContent(DothtmlRootNode root, IAbstractTreeRoot view, IControlResolverMetadata viewMetadata)
         {
             foreach (var node in root.Content)
             {
@@ -129,6 +130,12 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
             return new ReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>>(directives);
         }
+
+        protected virtual ImmutableList<InjectedServiceExtensionParameter> ResolveInjectDirectives(IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives) => 
+            directives.Values.SelectMany(d => d).OfType<IAbstractServiceInjectDirective>()
+            .Select(d => new InjectedServiceExtensionParameter(d.NameSyntax.Name, d.Type))
+            .ToImmutableList();
+
 
         protected virtual ImmutableList<NamespaceImport> ResolveNamespaceImports(IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives, DothtmlRootNode root)
             => ResolveNamespaceImportsCore(directives).ToImmutableList();
@@ -347,6 +354,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
             {
                 return ProcessBaseTypeDirective(directiveNode);
             }
+            else if (string.Equals(ParserConstants.ServiceInjectDirective, directiveNode.Name, StringComparison.OrdinalIgnoreCase))
+            {
+                return ProcessServiceInjectDirective(directiveNode);
+            }
 
             return treeBuilder.BuildDirective(directiveNode);
         }
@@ -376,26 +387,29 @@ namespace DotVVM.Framework.Compilation.ControlTree
             return valueSyntaxRoot;
         }
 
-        protected virtual IAbstractDirective ProcessImportDirective(DothtmlDirectiveNode directiveNode)
+        protected BindingParserNode ParseImportDirectiveValue(DothtmlDirectiveNode directiveNode)
         {
             var tokenizer = new BindingTokenizer();
             tokenizer.Tokenize(directiveNode.ValueNode.Text);
             var parser = new BindingParser() {
                 Tokens = tokenizer.Tokens
             };
-            var valueSyntaxRoot = parser.ReadDirectiveValue();
+            var result = parser.ReadDirectiveValue();
 
             if (!parser.OnEnd())
-            {
                 directiveNode.AddError($"Unexpected token: {parser.Peek()?.Text}.");
-            }
+            
+            return result;
+        }
+
+        protected virtual IAbstractDirective ProcessImportDirective(DothtmlDirectiveNode directiveNode)
+        {
+            var valueSyntaxRoot = ParseImportDirectiveValue(directiveNode);
 
             BindingParserNode alias = null;
             BindingParserNode name = null;
-            if (valueSyntaxRoot is BinaryOperatorBindingParserNode)
+            if (valueSyntaxRoot is BinaryOperatorBindingParserNode assigment)
             {
-                var assigment = valueSyntaxRoot.CastTo<BinaryOperatorBindingParserNode>();
-
                 alias = assigment.FirstExpression;
                 name = assigment.SecondExpression;
             }
@@ -405,6 +419,28 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
 
             return treeBuilder.BuildImportDirective(directiveNode, alias, name);
+        }
+
+        protected virtual IAbstractDirective ProcessServiceInjectDirective(DothtmlDirectiveNode directiveNode)
+        {
+            var valueSyntaxRoot = ParseImportDirectiveValue(directiveNode);
+
+            if (valueSyntaxRoot is BinaryOperatorBindingParserNode assigment)
+            {
+                var name = assigment.FirstExpression as SimpleNameBindingParserNode;
+                if (name == null)
+                {
+                    directiveNode.AddError($"Identifier expected on the left side of the assigment.");
+                    name = new SimpleNameBindingParserNode(new BindingToken{ Text = "service" });
+                }
+                var type = assigment.SecondExpression;
+                return treeBuilder.BuildServiceInjectDirective(directiveNode, name, type);
+            }
+            else
+            {
+                directiveNode.AddError($"Assignment operation expected - the correct form is `@{ParserConstants.ServiceInjectDirective} myStringService = ISomeService<string>`");
+                return treeBuilder.BuildServiceInjectDirective(directiveNode, new SimpleNameBindingParserNode(new BindingToken { Text = "service" }), valueSyntaxRoot);
+            }
         }
 
         static HashSet<string> treatBindingAsHardCodedValue = new HashSet<string> { "resource" };

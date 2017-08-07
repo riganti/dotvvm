@@ -15,6 +15,7 @@ using DotVVM.Framework.Runtime;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Binding.Properties;
 using System.Linq;
+using DotVVM.Framework.DependencyInjection;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -308,6 +309,50 @@ test <dot:Literal><a /></dot:Literal>";
             Assert.AreEqual(FlaggyEnum.A | FlaggyEnum.B | FlaggyEnum.C, page.GetThisAndAllDescendants().OfType<TestCodeControl>().First().Flags);
         }
 
+        [TestMethod]
+        public void DefaultViewCompiler_CustomDependencyInjection()
+        {
+            var markup = @"
+@viewModel System.Object
+<ff:TestCustomDependencyInjectionControl />";
+            var page = CompileMarkup(markup);
+            Assert.IsTrue(page.GetThisAndAllDescendants().OfType<TestCustomDependencyInjectionControl>().First().IsCorrectlyCreated);
+        }
+
+        [TestMethod]
+
+        public void ComboBox_ControlUsageValidation()
+        {
+            // CheckedItems must be a collection of CheckedValues
+            var markup = @"
+@viewModel System.String
+<dot:ComboBox CheckedValue='{value: Length}' CheckedItems='{value: _this}' />";
+            Assert.ThrowsException<DotvvmCompilationException>(() => CompileMarkup(markup));
+        }
+
+        [TestMethod]
+        public void RadioButton_ControlUsageValidation()
+        {
+            // CheckedValue and CheckedItem must be the same type
+            var markup = @"
+@viewModel System.String
+<dot:RadioButton CheckedValue='{value: _this}' CheckedItem='{value: Length}' />";
+            Assert.ThrowsException<DotvvmCompilationException>(() => CompileMarkup(markup));
+        }
+
+        public void DefaultViewCompiler_ViewDependencyInjection()
+        {
+            var markup = @"
+@viewModel System.Object
+@service config=DotVVM.Framework.Configuration.DotvvmConfiguration
+{{resource: config.ApplicationPhysicalPath}}{{resource: config.DefaultCulture}}";
+            var page = CompileMarkup(markup);
+            var literals = page.GetAllDescendants().OfType<Literal>().ToArray();
+            Assert.AreEqual(2, literals.Length);
+            Assert.AreEqual(context.Configuration.ApplicationPhysicalPath, literals[0].Text);
+            Assert.AreEqual(context.Configuration.DefaultCulture, literals[1].Text);
+        }
+
         private DotvvmControl CompileMarkup(string markup, Dictionary<string, string> markupFiles = null, bool compileTwice = false, [CallerMemberName]string fileName = null)
         {
             if (markupFiles == null)
@@ -320,6 +365,9 @@ test <dot:Literal><a /></dot:Literal>";
             context.Configuration = DotvvmConfiguration.CreateDefault(services =>
             {
                 services.AddSingleton<IMarkupFileLoader>(new FakeMarkupFileLoader(markupFiles));
+                services.AddSingleton<Func<IServiceProvider, Type, DotvvmControl>>((s, t) =>
+                    t == typeof(TestCustomDependencyInjectionControl) ? new TestCustomDependencyInjectionControl("") { IsCorrectlyCreated = true } :
+                    throw new Exception());
             });
             context.Configuration.ApplicationPhysicalPath = Path.GetTempPath();
 
@@ -331,13 +379,14 @@ test <dot:Literal><a /></dot:Literal>";
             context.Configuration.Markup.AddAssembly(typeof(DefaultViewCompilerTests).GetTypeInfo().Assembly.GetName().Name);
 
             var controlBuilderFactory = context.Configuration.ServiceLocator.GetService<IControlBuilderFactory>();
-            var controlBuilder = controlBuilderFactory.GetControlBuilder(fileName + ".dothtml");
+            var (_, controlBuilder) = controlBuilderFactory.GetControlBuilder(fileName + ".dothtml");
 
-            var result = controlBuilder.BuildControl(controlBuilderFactory);
+            var result = controlBuilder.Value.BuildControl(controlBuilderFactory, context.Services);
             if (compileTwice)
             {
-                result = controlBuilder.BuildControl(controlBuilderFactory);
+                result = controlBuilder.Value.BuildControl(controlBuilderFactory, context.Services);
             }
+            result.SetValue(Internal.RequestContextProperty, context);
             return result;
         }
 
@@ -353,6 +402,16 @@ test <dot:Literal><a /></dot:Literal>";
 
     }
 
+    public class TestDIControl : DotvvmControl
+    {
+        public readonly DotvvmConfiguration config;
+
+        public TestDIControl(DotvvmConfiguration configuration)
+        {
+            this.config = configuration;
+        }
+    }
+
     [Flags]
     public enum FlaggyEnum { A, B, C, D}
 
@@ -366,6 +425,14 @@ test <dot:Literal><a /></dot:Literal>";
 
         public static readonly DotvvmProperty FlagsProperty =
             DotvvmProperty.Register<FlaggyEnum, TestCodeControl>(nameof(Flags));
+    }
+
+    [RequireDependencyInjection]
+    public class TestCustomDependencyInjectionControl: DotvvmControl
+    {
+        public bool IsCorrectlyCreated { get; set; } = false;
+
+        public TestCustomDependencyInjectionControl(string something) { }
     }
 
     public class FakeMarkupFileLoader : IMarkupFileLoader

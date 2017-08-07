@@ -1,0 +1,22 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.ValidationSummary.IncludeErrorsFromTargetViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>ValidationTarget test case</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .has-error {
+            background-color: darkred;
+        }
+    </style>
+</head>
+<body>
+    <dot:ContentPlaceHolder ID="MainContent" />
+</body>
+</html>

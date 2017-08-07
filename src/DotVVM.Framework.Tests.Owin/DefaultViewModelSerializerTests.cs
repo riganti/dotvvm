@@ -58,9 +58,7 @@ namespace DotVVM.Framework.Tests.Runtime
             {
                 Configuration = configuration,
                 HttpContext = contextMock.Object,
-                ResourceManager = new ResourceManager(configuration),
                 Presenter = configuration.RouteTable.GetDefaultPresenter(),
-                ViewModelSerializer = serializer
             };
         }
 

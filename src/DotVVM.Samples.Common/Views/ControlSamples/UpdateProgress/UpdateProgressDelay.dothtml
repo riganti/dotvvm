@@ -1,0 +1,22 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.UpdateProgress.UpdateProgressDelayViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+<h1>UpdateProgress control with delay</h1>
+<dot:Button class="long-test" Text="Perform Long Test" Click="{command: LongTest()}" />
+<dot:Button class="short-test" Text="Perform Short Test" Click="{command: ShortTest()}" />
+
+<dot:UpdateProgress Delay="2000" class="update-progress">
+    Loading...
+</dot:UpdateProgress>
+
+</body>
+</html>
+

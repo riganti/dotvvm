@@ -9,7 +9,7 @@ namespace DotVVM.Samples.Tests.Control
     public class EnvironmentViewTests : SeleniumTest
     {
         [TestMethod]
-        public void EnvironmentViewTest()
+        public void Control_EnvironmentView_EnvironmentViewTest()
         {
             RunInAllBrowsers(browser =>
             {

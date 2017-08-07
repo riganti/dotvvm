@@ -14,7 +14,7 @@ namespace DotVVM.Samples.Tests.Control
     {
 
         [TestMethod]
-        public void Control_RadioButton()
+        public void Control_RadioButton_RadioButton()
         {
             RunInAllBrowsers(browser =>
             {

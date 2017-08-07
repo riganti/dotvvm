@@ -1,4 +1,5 @@
 using System;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.TextBox
 {

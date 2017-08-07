@@ -1,18 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using DotVVM.Framework.Binding;
-using DotVVM.Framework.Hosting;
-using DotVVM.Framework.Runtime;
-using System.Collections;
-using System.Diagnostics;
-using DotVVM.Framework.Compilation.Javascript;
-using DotVVM.Framework.Utils;
 using DotVVM.Framework.Binding.Expressions;
-using DotVVM.Framework.Compilation.Styles;
-using DotVVM.Framework.Compilation.ControlTree.Resolved;
-using System.Linq.Expressions;
-using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Hosting;
+using System.Linq;
 
 namespace DotVVM.Framework.Controls
 {
@@ -23,22 +13,15 @@ namespace DotVVM.Framework.Controls
     public class Repeater : ItemsControl
     {
         private EmptyData emptyDataContainer;
-        private int numberOfRows;
 
-        /// <summary>
-        /// Gets or sets the template for each Repeater item.
-        /// </summary>
-        [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement, Required = true)]
-        [ControlPropertyBindingDataContextChange("DataSource")]
-        [CollectionElementDataContextChange(1)]
-        public ITemplate ItemTemplate
+        public Repeater()
         {
-            get { return (ITemplate)GetValue(ItemTemplateProperty); }
-            set { SetValue(ItemTemplateProperty, value); }
+            SetValue(Internal.IsNamingContainerProperty, true);
+            if (GetType() == typeof(Repeater))
+            {
+                LifecycleRequirements &= ~(ControlLifecycleRequirements.InvokeMissingInit | ControlLifecycleRequirements.InvokeMissingLoad);
+            }
         }
-        public static readonly DotvvmProperty ItemTemplateProperty =
-            DotvvmProperty.Register<ITemplate, Repeater>(t => t.ItemTemplate, null);
-
 
         /// <summary>
         /// Gets or sets the template which will be displayed when the DataSource is empty.
@@ -49,21 +32,24 @@ namespace DotVVM.Framework.Controls
             get { return (ITemplate)GetValue(EmptyDataTemplateProperty); }
             set { SetValue(EmptyDataTemplateProperty, value); }
         }
+
         public static readonly DotvvmProperty EmptyDataTemplateProperty =
             DotvvmProperty.Register<ITemplate, Repeater>(t => t.EmptyDataTemplate, null);
 
-
         /// <summary>
-        /// Gets or sets the name of the tag that wraps the Repeater.
+        /// Gets or sets the template for each Repeater item.
         /// </summary>
-        [MarkupOptions(AllowBinding = false)]
-        public string WrapperTagName
+        [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement, Required = true)]
+        [ControlPropertyBindingDataContextChange(nameof(DataSource))]
+        [CollectionElementDataContextChange(1)]
+        public ITemplate ItemTemplate
         {
-            get { return (string)GetValue(WrapperTagNameProperty); }
-            set { SetValue(WrapperTagNameProperty, value); }
+            get { return (ITemplate)GetValue(ItemTemplateProperty); }
+            set { SetValue(ItemTemplateProperty, value); }
         }
-        public static readonly DotvvmProperty WrapperTagNameProperty =
-            DotvvmProperty.Register<string, Repeater>(t => t.WrapperTagName, "div");
+
+        public static readonly DotvvmProperty ItemTemplateProperty =
+            DotvvmProperty.Register<ITemplate, Repeater>(t => t.ItemTemplate, null);
 
         /// <summary>
         /// Gets or sets whether the control should render a wrapper element.
@@ -74,86 +60,55 @@ namespace DotVVM.Framework.Controls
             get { return (bool)GetValue(RenderWrapperTagProperty); }
             set { SetValue(RenderWrapperTagProperty, value); }
         }
+
         public static readonly DotvvmProperty RenderWrapperTagProperty =
             DotvvmProperty.Register<bool, Repeater>(t => t.RenderWrapperTag, true);
 
-
-        public Repeater()
+        /// <summary>
+        /// Gets or sets the template containing the elements that separate items.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
+        public ITemplate SeparatorTemplate
         {
-            SetValue(Internal.IsNamingContainerProperty, true);
+            get { return (ITemplate)GetValue(SeparatorTemplateProperty); }
+            set { SetValue(SeparatorTemplateProperty, value); }
         }
+
+        public static readonly DotvvmProperty SeparatorTemplateProperty =
+            DotvvmProperty.Register<ITemplate, Repeater>(t => t.SeparatorTemplate, null);
+
+        /// <summary>
+        /// Gets or sets the name of the tag that wraps the Repeater.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
+        public string WrapperTagName
+        {
+            get { return (string)GetValue(WrapperTagNameProperty); }
+            set { SetValue(WrapperTagNameProperty, value); }
+        }
+
+        public static readonly DotvvmProperty WrapperTagNameProperty =
+            DotvvmProperty.Register<string, Repeater>(t => t.WrapperTagName, "div");
+
+        protected override bool RendersHtmlTag => RenderWrapperTag;
 
         /// <summary>
         /// Occurs after the viewmodel is applied to the page and before the commands are executed.
         /// </summary>
-        protected internal override void OnLoad(Hosting.IDotvvmRequestContext context)
+        protected internal override void OnLoad(IDotvvmRequestContext context)
         {
-            DataBind(context);
+            SetChildren(context);
             base.OnLoad(context);
         }
 
         /// <summary>
         /// Occurs after the page commands are executed.
         /// </summary>
-        protected internal override void OnPreRender(Hosting.IDotvvmRequestContext context)
+        protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
-            DataBind(context);     // TODO: we should handle observable collection operations to persist controlstate of controls inside the Repeater
+            SetChildren(context);     // TODO: we should handle observable collection operations to persist controlstate of controls inside the Repeater
             base.OnPreRender(context);
         }
-
-
-        /// <summary>
-        /// Performs the data-binding and builds the controls inside the <see cref="Repeater"/>.
-        /// </summary>
-        private void DataBind(IDotvvmRequestContext context)
-        {
-            Children.Clear();
-            emptyDataContainer = null;
-
-            var dataSourceBinding = GetDataSourceBinding();
-            var index = 0;
-            var dataSource = DataSource;
-            if (dataSource != null)
-            {
-                var itemBinding = GetItemBinding();
-                var bindingService = context.Configuration.ServiceLocator.GetService<BindingCompilationService>();
-                foreach (var item in GetIEnumerableFromDataSource())
-                {
-                    var placeholder = new DataItemContainer { DataItemIndex = index };
-                    ItemTemplate.BuildContent(context, placeholder);
-                    placeholder.SetBinding(DataContextProperty, ValueBindingExpression.CreateBinding(
-                        bindingService.WithoutInitialization(),
-                        j => item,
-                        itemBinding.KnockoutExpression.AssignParameters(p =>
-                            p == JavascriptTranslator.CurrentIndexParameter ? new CodeParameterAssignment(index.ToString(), OperatorPrecedence.Max) :
-                            default(CodeParameterAssignment))));
-                    placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[" + index + "]");
-                    placeholder.ID = index.ToString();
-                    Children.Add(placeholder);
-                    index++;
-                }
-                numberOfRows = index;
-            }
-            else
-            {
-                numberOfRows = 0;
-            }
-
-            // add empty item
-            if (EmptyDataTemplate != null)
-            {
-                emptyDataContainer = new EmptyData();
-                emptyDataContainer.SetValue(EmptyData.RenderWrapperTagProperty, GetValueRaw(RenderWrapperTagProperty));
-                emptyDataContainer.SetValue(EmptyData.WrapperTagNameProperty, GetValueRaw(WrapperTagNameProperty));
-                emptyDataContainer.SetBinding(DataSourceProperty, dataSourceBinding);
-                EmptyDataTemplate.BuildContent(context, emptyDataContainer);
-                Children.Add(emptyDataContainer);
-            }
-        }
-
-
-    protected override bool RendersHtmlTag => RenderWrapperTag;
-
 
         protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
@@ -161,15 +116,16 @@ namespace DotVVM.Framework.Controls
 
             if (!RenderOnServer)
             {
-                var javascriptDataSourceExpression = GetForeachDataBindExpression().GetKnockoutBindingExpression(this);
 
                 if (RenderWrapperTag)
                 {
-                    writer.AddKnockoutForeachDataBind(javascriptDataSourceExpression);
+                    //writer.AddKnockoutForeachDataBind(javascriptDataSourceExpression);
+
+                    writer.AddKnockoutDataBind("foreach", GetForeachKnockoutBindingGroup());
                 }
                 else
                 {
-                    writer.WriteKnockoutForeachComment(javascriptDataSourceExpression);
+                    writer.WriteKnockoutDataBindComment("foreach", GetForeachKnockoutBindingGroup().ToString());
                 }
             }
 
@@ -179,19 +135,16 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
+        private KnockoutBindingGroup GetForeachKnockoutBindingGroup()
         {
-            if (RenderWrapperTag)
+            var javascriptDataSourceExpression = GetForeachDataBindExpression().GetKnockoutBindingExpression(this);
+            var group = new KnockoutBindingGroup();
+            group.Add("data", javascriptDataSourceExpression);
+            if (SeparatorTemplate != null)
             {
-                base.RenderEndTag(writer, context);
+                group.Add("separatorTemplate", GetValueRaw(Internal.UniqueIDProperty) + "_separator", true);
             }
-
-            if (!RenderOnServer && !RenderWrapperTag)
-            {
-                writer.WriteKnockoutDataBindEndComment();
-            }
-
-            emptyDataContainer?.Render(writer, context);
+            return group;
         }
 
         /// <summary>
@@ -210,15 +163,125 @@ namespace DotVVM.Framework.Controls
             else
             {
                 // render on client
-                var placeholder = new DataItemContainer() { DataContext = null };
-                placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
-                //placeholder.SetBinding(DataContextProperty, GetValueBinding(DataSourceProperty).CastTo<ValueBindingExpression>().MakeKoContextIndexer());
-                placeholder.SetValue(Internal.ClientIDFragmentProperty, GetValueRaw(Internal.CurrentIndexBindingProperty));
-                ItemTemplate.BuildContent(context, placeholder);
-                Children.Add(placeholder);
+                var itemContainer = GetItem(context);
+                Children.Add(itemContainer);
+                itemContainer.Render(writer, context);
 
-                placeholder.Render(writer, context);
             }
+        }
+
+        protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
+        {
+            if (RenderWrapperTag)
+            {
+                base.RenderEndTag(writer, context);
+            }
+
+            if (!RenderOnServer && !RenderWrapperTag)
+            {
+                writer.WriteKnockoutDataBindEndComment();
+            }
+
+            if (!RenderOnServer && SeparatorTemplate != null)
+            {
+                writer.AddAttribute("type", "text/html");
+                writer.AddAttribute("id", GetValueRaw(Internal.UniqueIDProperty) + "_separator");
+                var unique = GetValueRaw(Internal.UniqueIDProperty);
+                var id = GetValueRaw(Internal.ClientIDFragmentProperty);
+                writer.RenderBeginTag("script");
+                GetSeparator(context).Render(writer, context);
+                writer.RenderEndTag();
+            }
+
+            emptyDataContainer?.Render(writer, context);
+        }
+
+        private DotvvmControl GetEmptyItem(IDotvvmRequestContext context)
+        {
+            if (emptyDataContainer == null)
+            {
+                var dataSourceBinding = GetDataSourceBinding();
+                emptyDataContainer = new EmptyData();
+                emptyDataContainer.SetValue(EmptyData.RenderWrapperTagProperty, GetValueRaw(RenderWrapperTagProperty));
+                emptyDataContainer.SetValue(EmptyData.WrapperTagNameProperty, GetValueRaw(WrapperTagNameProperty));
+                emptyDataContainer.SetBinding(DataSourceProperty, dataSourceBinding);
+                EmptyDataTemplate.BuildContent(context, emptyDataContainer);
+            }
+            return emptyDataContainer;
+        }
+
+        private DotvvmControl GetItem(IDotvvmRequestContext context, object item = null, int index = -1, IValueBinding itemBinding = null)
+        {
+            var container = new DataItemContainer();
+            if (item == null && index == -1)
+            {
+                SetUpClientItem(container);
+            }
+            else
+            {
+                SetUpServerItem(context, item, index, itemBinding, container);
+            }
+
+            ItemTemplate.BuildContent(context, container);
+            return container;
+        }
+
+        private DotvvmControl GetSeparator(IDotvvmRequestContext context)
+        {
+            var placeholder = new PlaceHolder();
+            SeparatorTemplate.BuildContent(context, placeholder);
+            return placeholder;
+        }
+
+        /// <summary>
+        /// Performs the data-binding and builds the controls inside the <see cref="Repeater"/>.
+        /// </summary>
+        private void SetChildren(IDotvvmRequestContext context)
+        {
+            Children.Clear();
+            emptyDataContainer = null;
+
+            if (DataSource != null)
+            {
+                var itemBinding = GetItemBinding();
+                var index = 0;
+                foreach (var item in GetIEnumerableFromDataSource())
+                {
+                    if (SeparatorTemplate != null && index > 0)
+                    {
+                        Children.Add(GetSeparator(context));
+                    }
+                    Children.Add(GetItem(context, item, index, itemBinding));
+                    index++;
+                }
+            }
+
+            if (EmptyDataTemplate != null)
+            {
+                Children.Add(GetEmptyItem(context));
+            }
+        }
+
+        private void SetUpClientItem(DataItemContainer container)
+        {
+            container.DataContext = null;
+            container.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
+            container.SetValue(Internal.ClientIDFragmentProperty, GetValueRaw(Internal.CurrentIndexBindingProperty));
+        }
+
+        private void SetUpServerItem(IDotvvmRequestContext context, object item, int index, IValueBinding itemBinding, DataItemContainer container)
+        {
+            container.DataItemIndex = index;
+            var bindingService = context.Configuration.ServiceLocator.GetService<BindingCompilationService>();
+            container.SetBinding(DataContextProperty, ValueBindingExpression.CreateBinding(
+                bindingService.WithoutInitialization(),
+                j => item,
+                itemBinding.KnockoutExpression.AssignParameters(p =>
+                    p == JavascriptTranslator.CurrentIndexParameter ? new CodeParameterAssignment(index.ToString(), OperatorPrecedence.Max) :
+                    default(CodeParameterAssignment))));
+            container.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[" + index + "]");
+            container.ID = index.ToString();
+
         }
     }
 }

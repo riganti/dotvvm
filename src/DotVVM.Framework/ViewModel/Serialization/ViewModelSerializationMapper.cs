@@ -56,6 +56,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     Populate = ViewModelJsonConverter.IsComplexType(property.PropertyType) && !ViewModelJsonConverter.IsEnumerable(property.PropertyType) && property.GetMethod != null
                 };
 
+                foreach (ISerializationInfoAttribute attr in property.GetCustomAttributes().OfType<ISerializationInfoAttribute>())
+                {
+                    attr.SetOptions(propertyMap);
+                }
+
                 var bindAttribute = property.GetCustomAttribute<BindAttribute>();
                 if (bindAttribute != null)
                 {

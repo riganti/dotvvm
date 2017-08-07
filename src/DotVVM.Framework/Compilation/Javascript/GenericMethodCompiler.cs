@@ -6,32 +6,27 @@ using DotVVM.Framework.Compilation.Javascript.Ast;
 
 namespace DotVVM.Framework.Compilation.Javascript
 {
-    public class GenericMethodCompiler : IJsMethodTranslator
+    public class GenericMethodCompiler : IJavascriptMethodTranslator
     {
-        public Func<JsExpression[], MethodInfo, JsExpression> MethodBuilder { get; set; }
-        public Func<MethodInfo, Expression, Expression[], bool> CanTranslateDelegate { get; set; }
+        public Func<HalfTranslatedExpression, HalfTranslatedExpression[], MethodInfo, JsExpression> TryTranslateDelegate;
 
-        public JsExpression TranslateCall(JsExpression context, JsExpression[] arguments, MethodInfo method)
-        {
-            return MethodBuilder(new[] { context }.Concat(arguments).ToArray(), method);
-        }
-
-        public bool CanTranslateCall(MethodInfo method, Expression context, Expression[] arguments)
-        {
-            return CanTranslateDelegate == null ? true : CanTranslateDelegate(method, context, arguments);
-        }
+        public JsExpression TryTranslateCall(HalfTranslatedExpression context, HalfTranslatedExpression[] arguments, MethodInfo method) =>
+            TryTranslateDelegate(context, arguments, method);
 
         public GenericMethodCompiler(Func<JsExpression[], JsExpression> builder, Func<MethodInfo, Expression, Expression[], bool> check = null)
         {
-            MethodBuilder = (a, b) => builder(a);
-            CanTranslateDelegate = check;
+            TryTranslateDelegate =
+                (t, arg, m) => check?.Invoke(m, t.OriginalExpression, arg.Select(a => a.OriginalExpression).ToArray()) == false
+                ? null
+                : builder(new [] { t.JsExpression() }.Concat(arg.Select(a => a.JsExpression())).ToArray());
         }
 
         public GenericMethodCompiler(Func<JsExpression[], MethodInfo, JsExpression> builder, Func<MethodInfo, Expression, Expression[], bool> check = null)
         {
-            MethodBuilder = builder;
-            CanTranslateDelegate = check;
+            TryTranslateDelegate =
+                (t, arg, m) => check?.Invoke(m, t.OriginalExpression, arg.Select(a => a.OriginalExpression).ToArray()) == false
+                ? null
+                : builder(new [] { t.JsExpression() }.Concat(arg.Select(a => a.JsExpression())).ToArray(), m);
         }
-
     }
 }

@@ -17,8 +17,10 @@ using DotVVM.Framework.Security;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
+using DotVVM.Framework.Runtime.Tracing;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -29,13 +31,14 @@ namespace DotVVM.Framework.Hosting
         /// Initializes a new instance of the <see cref="DotvvmPresenter" /> class.
         /// </summary>
         public DotvvmPresenter(DotvvmConfiguration configuration, IDotvvmViewBuilder viewBuilder, IViewModelLoader viewModelLoader, IViewModelSerializer viewModelSerializer,
-            IOutputRenderer outputRender, ICsrfProtector csrfProtector)
+            IOutputRenderer outputRender, ICsrfProtector csrfProtector, IStopwatch stopwatch, IViewModelParameterBinder viewModelParameterBinder)
         {
             DotvvmViewBuilder = viewBuilder;
             ViewModelLoader = viewModelLoader;
             ViewModelSerializer = viewModelSerializer;
             OutputRenderer = outputRender;
             CsrfProtector = csrfProtector;
+            ViewModelParameterBinder = viewModelParameterBinder;
             ApplicationPath = configuration.ApplicationPhysicalPath;
         }
 
@@ -48,6 +51,10 @@ namespace DotVVM.Framework.Hosting
         public IOutputRenderer OutputRenderer { get; }
 
         public ICsrfProtector CsrfProtector { get; }
+
+        public IViewModelParameterBinder ViewModelParameterBinder { get; }
+
+        public IStopwatch Stopwatch { get; }
 
         public string ApplicationPath { get; }
 
@@ -74,12 +81,14 @@ namespace DotVVM.Framework.Hosting
             }
         }
 
+
         /// <summary>
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
         public async Task ProcessRequestCore(IDotvvmRequestContext context)
         {
+            var requestTracer = context.Services.GetRequiredService<AggregateRequestTracer>();
             if (context.HttpContext.Request.Method != "GET" && context.HttpContext.Request.Method != "POST")
             {
                 // unknown HTTP method
@@ -89,6 +98,7 @@ namespace DotVVM.Framework.Hosting
             if (context.HttpContext.Request.Headers["X-PostbackType"] == "StaticCommand")
             {
                 await ProcessStaticCommandRequest(context);
+                await requestTracer.TraceEvent(RequestTracingConstants.StaticCommandExecuted, context);
                 return;
             }
             var isPostBack = context.IsPostBack = DetermineIsPostBack(context.HttpContext);
@@ -97,6 +107,7 @@ namespace DotVVM.Framework.Hosting
             var page = DotvvmViewBuilder.BuildView(context);
             page.SetValue(Internal.RequestContextProperty, context);
             context.View = page;
+            await requestTracer.TraceEvent(RequestTracingConstants.ViewInitialized, context);
 
             // locate and create the view model
             context.ViewModel = ViewModelLoader.InitializeViewModel(context, page);
@@ -109,7 +120,6 @@ namespace DotVVM.Framework.Hosting
             {
                 await f.OnPageLoadingAsync(context);
             }
-
             try
             {
                 // run the preinit phase in the page
@@ -120,6 +130,17 @@ namespace DotVVM.Framework.Hosting
                 foreach (var filter in viewModelFilters)
                 {
                     await filter.OnViewModelCreatedAsync(context);
+                }
+                await requestTracer.TraceEvent(RequestTracingConstants.ViewModelCreated, context);
+
+                // perform parameter binding
+                if (context.ViewModel is DotvvmViewModelBase dotvvmViewModelBase)
+                {
+                    dotvvmViewModelBase.ExecuteOnViewModelRecursive(v => ViewModelParameterBinder.BindParameters(context, v));
+                }
+                else
+                {
+                    ViewModelParameterBinder.BindParameters(context, context.ViewModel);
                 }
 
                 // init the view model lifecycle
@@ -132,6 +153,7 @@ namespace DotVVM.Framework.Hosting
 
                 // run the init phase in the page
                 DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Init);
+                await requestTracer.TraceEvent(RequestTracingConstants.InitCompleted, context);
 
                 if (!isPostBack)
                 {
@@ -143,6 +165,7 @@ namespace DotVVM.Framework.Hosting
 
                     // run the load phase in the page
                     DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Load);
+                    await requestTracer.TraceEvent(RequestTracingConstants.LoadCompleted, context);
                 }
                 else
                 {
@@ -159,6 +182,7 @@ namespace DotVVM.Framework.Hosting
                     {
                         await filter.OnViewModelDeserializedAsync(context);
                     }
+                    await requestTracer.TraceEvent(RequestTracingConstants.ViewModelDeserialized, context);
 
                     // validate CSRF token 
                     CsrfProtector.VerifyToken(context, context.CsrfToken);
@@ -167,9 +191,10 @@ namespace DotVVM.Framework.Hosting
                     {
                         await ((IDotvvmViewModel)context.ViewModel).Load();
                     }
-                    
+
                     // run the load phase in the page
                     DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Load);
+                    await requestTracer.TraceEvent(RequestTracingConstants.LoadCompleted, context);
 
                     // invoke the postback command
                     var actionInfo = ViewModelSerializer.ResolveCommand(context, page);
@@ -183,6 +208,7 @@ namespace DotVVM.Framework.Hosting
                             methodFilters = methodFilters.Concat(filters.Filters.OfType<ICommandActionFilter>());
 
                         await ExecuteCommand(actionInfo, context, methodFilters);
+                        await requestTracer.TraceEvent(RequestTracingConstants.CommandExecuted, context);
                     }
                 }
 
@@ -196,6 +222,7 @@ namespace DotVVM.Framework.Hosting
 
                 // run the prerender complete phase in the page
                 DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreRenderComplete);
+                await requestTracer.TraceEvent(RequestTracingConstants.PreRenderCompleted, context);
 
                 // generate CSRF token if required
                 if (string.IsNullOrEmpty(context.CsrfToken))
@@ -208,6 +235,7 @@ namespace DotVVM.Framework.Hosting
                 {
                     await filter.OnViewModelSerializingAsync(context);
                 }
+                await requestTracer.TraceEvent(RequestTracingConstants.ViewModelSerialized, context);
 
                 // render the output
                 ViewModelSerializer.BuildViewModel(context);
@@ -219,16 +247,16 @@ namespace DotVVM.Framework.Hosting
                 else
                 {
                     // postback or SPA content
-                    OutputRenderer.RenderPostbackUpdatedControls(context, page);
-                    ViewModelSerializer.AddPostBackUpdatedControls(context);
+                    var postBackUpdates = OutputRenderer.RenderPostbackUpdatedControls(context, page);
+                    ViewModelSerializer.AddPostBackUpdatedControls(context, postBackUpdates);
                     await OutputRenderer.WriteViewModelResponse(context, page);
                 }
+                await requestTracer.TraceEvent(RequestTracingConstants.OutputRendered, context);
 
                 if (context.ViewModel != null)
                 {
                     ViewModelLoader.DisposeViewModel(context.ViewModel);
                 }
-
                 foreach (var f in requestFilters) await f.OnPageLoadedAsync(context);
             }
             catch (DotvvmInterruptRequestExecutionException) { throw; }
@@ -245,6 +273,7 @@ namespace DotVVM.Framework.Hosting
                         context.InterruptRequest();
                     }
                 }
+
                 throw;
             }
         }
@@ -276,7 +305,8 @@ namespace DotVVM.Framework.Hosting
                 arguments.Skip(methodInfo.IsStatic ? 0 : 1)
                     .Zip(methodInfo.GetParameters(), (arg, parameter) => arg.ToObject(parameter.ParameterType))
                     .ToArray();
-            var actionInfo = new ActionInfo {
+            var actionInfo = new ActionInfo
+            {
                 IsControlCommand = false,
                 Action = () => methodInfo.Invoke(target, methodArguments)
             };

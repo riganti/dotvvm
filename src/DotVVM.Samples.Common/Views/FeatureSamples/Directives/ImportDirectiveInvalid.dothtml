@@ -15,7 +15,10 @@
     <title></title>
 </head>
 <body>
+    <div ID="failed">
+        FAILED
 
+    </div>
 </body>
 </html>
 

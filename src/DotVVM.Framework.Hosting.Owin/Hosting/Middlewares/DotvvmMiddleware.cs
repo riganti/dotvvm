@@ -6,6 +6,7 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting.Middlewares;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.ViewModel.Serialization;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Owin;
 
 namespace DotVVM.Framework.Hosting
@@ -38,22 +39,29 @@ namespace DotVVM.Framework.Hosting
             {
                 VisualStudioHelper.DumpConfiguration(Configuration, Configuration.ApplicationPhysicalPath);
             }
-            // create the context
-            var dotvvmContext = CreateDotvvmContext(context);
-            context.Set(HostingConstants.DotvvmRequestContextOwinKey, dotvvmContext);
-            dotvvmContext.ChangeCurrentCulture(Configuration.DefaultCulture);
-
-            try
+            
+            using (var scope = Configuration.ServiceLocator.GetServiceProvider().GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
-                foreach (var middleware in middlewares)
-                {
-                    if (await middleware.Handle(dotvvmContext)) return;
-                }
-            }
-            catch (DotvvmInterruptRequestExecutionException) { return; }
+                // create the context
+                var dotvvmContext = CreateDotvvmContext(context, scope);
+                context.Set(HostingConstants.DotvvmRequestContextOwinKey, dotvvmContext);
+                dotvvmContext.ChangeCurrentCulture(Configuration.DefaultCulture);
 
-            // we cannot handle the request, pass it to another component
-            await Next.Invoke(context);
+                try
+                {
+                    foreach (var middleware in middlewares)
+                    {
+                        if (await middleware.Handle(dotvvmContext)) return;
+                    }
+                }
+                catch (DotvvmInterruptRequestExecutionException)
+                {
+                    return;
+                }
+
+                // we cannot handle the request, pass it to another component
+                await Next.Invoke(context);
+            }
         }
 
         public static IHttpContext ConvertHttpContext(IOwinContext context)
@@ -83,13 +91,12 @@ namespace DotVVM.Framework.Hosting
             return httpContext;
         }
 
-        protected DotvvmRequestContext CreateDotvvmContext(IOwinContext context)
+        protected DotvvmRequestContext CreateDotvvmContext(IOwinContext context, IServiceScope scope)
         {
             return new DotvvmRequestContext {
+                Services = scope.ServiceProvider,
                 HttpContext = ConvertHttpContext(context),
                 Configuration = Configuration,
-                ResourceManager = new ResourceManager(Configuration),
-                ViewModelSerializer = Configuration.ServiceLocator.GetService<IViewModelSerializer>()
             };
         }
 

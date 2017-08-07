@@ -14,7 +14,7 @@ namespace DotVVM.Samples.Tests.Feature
     {
 
         [TestMethod]
-        public void CdnUnavailableResourceLoad()
+        public void Feature_Resources_CdnUnavailableResourceLoad()
         {
             RunInAllBrowsers(browser =>
             {
@@ -29,7 +29,7 @@ namespace DotVVM.Samples.Tests.Feature
 
 
         [TestMethod]
-        public void CdnScriptPriority()
+        public void Feature_Resources_CdnScriptPriority()
         {
             RunInAllBrowsers(browser =>
             {
@@ -42,5 +42,21 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
+        [TestMethod]
+        public void Feature_Resources_OnlineNonameResourceLoad()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Resources_OnlineNonameResourceLoad);
+
+                //click buton
+                browser.First("input[type=button]").Click();
+
+                //check that alert showed
+                browser.WaitFor(browser.HasAlert, 5000, "An alert was expected to open!");
+                browser.CheckIfAlertTextEquals("resource loaded");
+                browser.ConfirmAlert();
+            });
+        }
     }
 }

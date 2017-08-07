@@ -1,13 +1,22 @@
-﻿using System;
+﻿using DotVVM.Framework.ViewModel;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using DotVVM.Framework.ViewModel;
 
-namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.ValidationSummary
+namespace DotVVM.Samples.Common.ViewModels.ControlSamples.ValidationSummary
 {
     public class RecursiveValidationSummaryViewModel
     {
+        public RecursiveValidationSummaryViewModel()
+        {
+            Child1 = new RecursiveValidationSummaryViewModelChild()
+            {
+                Child = new RecursiveValidationSummaryViewModelChild()
+            };
+            Child2 = new RecursiveValidationSummaryViewModelChild()
+            {
+                Child = new RecursiveValidationSummaryViewModelChild()
+            };
+        }
 
         public RecursiveValidationSummaryViewModelChild Child1 { get; set; }
 
@@ -23,17 +32,6 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.ValidationSummar
         [Bind(Direction.ServerToClient)]
         public bool Validated { get; set; }
 
-
-        public RecursiveValidationSummaryViewModel()
-        {
-            Child1 = new RecursiveValidationSummaryViewModelChild() {
-                Child = new RecursiveValidationSummaryViewModelChild()
-            };
-            Child2 = new RecursiveValidationSummaryViewModelChild() {
-                Child = new RecursiveValidationSummaryViewModelChild()
-            };
-        }
-
         public void Validate()
         {
             Validated = true;
@@ -42,11 +40,9 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.ValidationSummar
 
     public class RecursiveValidationSummaryViewModelChild
     {
+        public RecursiveValidationSummaryViewModelChild Child { get; set; }
 
         [Required]
         public string Text { get; set; }
-
-        public RecursiveValidationSummaryViewModelChild Child { get; set; }
-
     }
 }

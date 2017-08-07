@@ -14,14 +14,14 @@ namespace DotVVM.Samples.Tests.Control
     public class CheckBoxTests : SeleniumTest
     {
         [TestMethod]
-        public void Control_CheckBox()
+        public void Control_CheckBox_CheckBox()
         {
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_CheckBox_CheckBox);
 
                 var boxes = browser.FindElements("fieldset");
-                
+
                 // single check box
                 boxes.ElementAt(0).First("input[type=checkbox]").Click();
                 boxes.ElementAt(0).First("input[type=button]").Click();
@@ -60,7 +60,7 @@ namespace DotVVM.Samples.Tests.Control
                 browser.Wait();
 
                 boxes.ElementAt(2).Last("span.result")
-                   .CheckIfInnerTextEquals("2");
+                    .CheckIfInnerTextEquals("2");
                 boxes.ElementAt(2).First("input[type=checkbox]")
                     .CheckIfIsNotChecked();
 
@@ -78,6 +78,72 @@ namespace DotVVM.Samples.Tests.Control
                 boxes.ElementAt(5).First("input[type=checkbox]").Click();
                 boxes.ElementAt(5).First("span.result")
                     .CheckIfInnerTextEquals("true");
+            });
+        }
+
+        [TestMethod]
+        public void Control_CheckBox_InRepeater()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_CheckBox_InRepeater);
+
+                var repeater = browser.Single("div[data-ui='repeater']");
+                var checkBoxes = browser.FindElements("label[data-ui='checkBox']");
+
+                var checkBox = checkBoxes.ElementAt(0).Single("input");
+                checkBox.Click();
+                checkBox.CheckIfIsChecked();
+                browser.Single("span[data-ui='selectedColors']")
+                .CheckIfInnerText(s => s.Contains("orange"));
+
+                checkBox = checkBoxes.ElementAt(1).Single("input");
+                checkBox.Click();
+                checkBox.CheckIfIsChecked();
+                browser.Single("span[data-ui='selectedColors']")
+                .CheckIfInnerText(s => s.Contains("orange") && s.Contains("red"));
+
+                checkBox = checkBoxes.ElementAt(2).Single("input");
+                checkBox.Click();
+                checkBox.CheckIfIsChecked();
+                browser.Single("span[data-ui='selectedColors']")
+                .CheckIfInnerText(s => s.Contains("orange") && s.Contains("red") && s.Contains("black"));
+
+                checkBoxes = browser.FindElements("label[data-ui='checkBox']");
+
+                browser.First("[data-ui='set-server-values']").Click();
+                checkBoxes.ElementAt(0).Single("input").CheckIfIsChecked();
+                checkBoxes.ElementAt(2).Single("input").CheckIfIsChecked();
+                browser.Single("span[data-ui='selectedColors']")
+                .CheckIfInnerText(s => s.Contains("orange") && s.Contains("black"));
+            });
+        }
+
+        //[TestMethod]
+        //public void Control_CheckBox_NullCollection()
+        //{
+        //    RunInAllBrowsers(browser =>
+        //    {
+        //        browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_CheckBox_CheckedItemsNull);
+        //    });
+        //}
+
+        [TestMethod]
+        public void Control_CheckBox_Indeterminate()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_CheckBox_Indeterminate);
+
+                var checkBox = browser.First("input[type=checkbox]");
+                var reset = browser.First("input[type=button]");
+                var value = browser.First("span.value");
+
+                value.CheckIfTextEquals("Indeterminate");
+                checkBox.Click();
+                value.CheckIfTextEquals("Other");
+                reset.Click();
+                value.CheckIfTextEquals("Indeterminate");
             });
         }
     }

@@ -14,7 +14,7 @@ namespace DotVVM.Samples.Tests.Feature
     public class JavascriptEventsTests : SeleniumTest
     {
         [TestMethod]
-        public void Feature_JavascriptEvents()
+        public void Feature_JavascriptEvents_JavascriptEvents()
         {
             RunInAllBrowsers(browser =>
             {
