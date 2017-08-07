@@ -17,8 +17,21 @@ namespace DotVVM.Framework.Diagnostics
         protected override string RenderPage(IDotvvmRequestContext context, DotvvmView view)
         {
             var html = base.RenderPage(context, view);
-            ContentLength = GetCompressedSize(html);
+            if (context.Configuration.Debug)
+            {
+                ContentLength = GetCompressedSize(html);
+            }
             return html;
+        }
+
+        public override Task WriteViewModelResponse(IDotvvmRequestContext context, DotvvmView view)
+        {
+            var viewModelJson = context.GetSerializedViewModel();
+            if (context.Configuration.Debug)
+            {
+                ContentLength = viewModelJson.Length;
+            }
+            return base.WriteViewModelResponse(context, view);
         }
 
         private long GetCompressedSize(string text)
@@ -33,13 +46,5 @@ namespace DotVVM.Framework.Diagnostics
                 return memoryStream.Length;
             }
         }
-
-        public override Task WriteViewModelResponse(IDotvvmRequestContext context, DotvvmView view)
-        {
-            var viewModelJson = context.GetSerializedViewModel();
-            ContentLength = viewModelJson.Length;
-            return base.WriteViewModelResponse(context, view);
-        }
-
     }
 }
