@@ -6,16 +6,17 @@ using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Diagnostics
 {
-    internal class DotvvmDiagnosticsConfiguration
+
+    public class DotvvmDiagnosticsConfiguration
     {
         public DotvvmDiagnosticsConfiguration()
         {
             LoadConfiguration();
         }
 
-        private DiagnosticsServerConfiguration configuration = null;
+        private DiagnosticsServerConfiguration configuration;
 
-        internal string DiagnosticsServerHostname
+        public string DiagnosticsServerHostname
         {
             get
             {
@@ -25,9 +26,17 @@ namespace DotVVM.Framework.Diagnostics
             }
         }
 
-        public bool IsLoaded => configuration != null;
+        public int? DiagnosticsServerPort
+        {
+            get
+            {
+                if (configuration == null)
+                    LoadConfiguration();
+                return configuration?.Port;
+            }
+        }
 
-        public void LoadConfiguration()
+        private void LoadConfiguration()
         {
             try
             {
@@ -39,16 +48,5 @@ namespace DotVVM.Framework.Diagnostics
                 // ignored
             }
         }
-
-        internal int? DiagnosticsServerPort
-        {
-            get
-            {
-                if (configuration == null)
-                    LoadConfiguration();
-                return configuration?.Port;
-            }
-        }
-
     }
 }

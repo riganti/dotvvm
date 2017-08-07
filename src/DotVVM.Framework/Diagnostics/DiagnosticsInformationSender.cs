@@ -10,16 +10,16 @@ using Newtonsoft.Json;
 namespace DotVVM.Framework.Diagnostics
 {
 
-    internal class DiagnosticsInformationSender : IDiagnosticsInformationSender
+    public class DiagnosticsInformationSender : IDiagnosticsInformationSender
     {
         private DotvvmDiagnosticsConfiguration configuration;
 
-        internal DiagnosticsInformationSender(DotvvmDiagnosticsConfiguration configuration)
+        public DiagnosticsInformationSender(DotvvmDiagnosticsConfiguration configuration)
         {
             this.configuration = configuration;
         }
 
-        public async Task SendDataAsync(DiagnosticsInformation information)
+        public async Task SendInformationAsync(DiagnosticsInformation information)
         {
             var hostname = configuration.DiagnosticsServerHostname;
             var port = configuration.DiagnosticsServerPort;

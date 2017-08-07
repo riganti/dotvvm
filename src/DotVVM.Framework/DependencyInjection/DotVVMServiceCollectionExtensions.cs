@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using DotVVM.Framework.Binding;
@@ -10,9 +9,11 @@ using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Diagnostics;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Runtime;
+using DotVVM.Framework.Runtime.Tracing;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.ViewModel.Validation;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -59,8 +60,9 @@ namespace Microsoft.Extensions.DependencyInjection
             //    var requiredResourceControl = s.GetRequiredService<IControlResolver>().ResolveControl(new ResolvedTypeDescriptor(typeof(RequiredResource)));
             //    return () => new BindingRequiredResourceVisitor((ControlResolverMetadata)requiredResourceControl);
             //});
-
             services.AddSingleton(s => configuration ?? (configuration = DotvvmConfiguration.CreateDefault(s)));
+            
+            services.AddDiagnosticServices();
 
             services.Configure<BindingCompilationOptions>(o => {
                  o.TransformerClasses.Add(ActivatorUtilities.CreateInstance<BindingPropertyResolvers>(configuration.ServiceLocator.GetServiceProvider()));
@@ -68,5 +70,38 @@ namespace Microsoft.Extensions.DependencyInjection
 
             return services;
         }
+
+        internal static IServiceCollection AddDiagnosticServices(this IServiceCollection services)
+        {
+            services.TryAddSingleton<DotvvmDiagnosticsConfiguration>();
+            services.TryAddScoped<IRequestTracer>(s =>
+            {
+                var config = s.GetService<DotvvmConfiguration>();
+                if (config.Debug)
+                {
+                    var sender = s.GetService<IDiagnosticsInformationSender>();
+                    return new DiagnosticsRequestTracer(sender);
+                }
+                else
+                {
+                    return new NullRequestTracer();
+                }
+            });
+            services.TryAddSingleton<IOutputRenderer>(s =>
+            {
+                var config = s.GetService<DotvvmConfiguration>();
+                if (config.Debug)
+                {
+                    return new DiagnosticsRenderer();
+                }
+                else
+                {
+                    return new DefaultOutputRenderer();
+                }
+            });
+            services.TryAddSingleton<IDiagnosticsInformationSender, DiagnosticsInformationSender>();
+            return services;
+        }
     }
+
 }

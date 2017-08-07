@@ -6,7 +6,7 @@ namespace DotVVM.Framework.Diagnostics
 
     public interface IDiagnosticsInformationSender
     {
-        Task SendDataAsync(DiagnosticsInformation information);
+        Task SendInformationAsync(DiagnosticsInformation information);
     }
 
 }

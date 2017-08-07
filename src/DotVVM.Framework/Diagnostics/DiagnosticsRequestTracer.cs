@@ -13,12 +13,11 @@ namespace DotVVM.Framework.Diagnostics
     public class DiagnosticsRequestTracer : IRequestTracer
     {
         private readonly Stopwatch stopwatch = new Stopwatch();
-        private readonly DiagnosticsInformationSender informationSender;
+        private readonly IDiagnosticsInformationSender informationSender;
 
-        public DiagnosticsRequestTracer()
+        internal DiagnosticsRequestTracer(IDiagnosticsInformationSender sender)
         {
-            var configuration = new DotvvmDiagnosticsConfiguration();
-            informationSender = new DiagnosticsInformationSender(configuration);
+            this.informationSender = sender;
         }
 
         public Task TraceEvent(string eventName, IDotvvmRequestContext context)
@@ -35,7 +34,7 @@ namespace DotVVM.Framework.Diagnostics
         {
             stopwatch.Stop();
             var diagnosticsData = BuildDiagnosticsData(context);
-            return informationSender.SendDataAsync(diagnosticsData);
+            return informationSender.SendInformationAsync(diagnosticsData);
         }
 
         public Task EndRequest(IDotvvmRequestContext context, Exception exception)
@@ -44,7 +43,7 @@ namespace DotVVM.Framework.Diagnostics
             var diagnosticsData = BuildDiagnosticsData(context);
             diagnosticsData.ResponseDiagnostics.StatusCode = 500;
             diagnosticsData.ResponseDiagnostics.ExceptionStackTrace = exception.ToString();
-            return informationSender.SendDataAsync(diagnosticsData);
+            return informationSender.SendInformationAsync(diagnosticsData);
         }
 
         private DiagnosticsInformation BuildDiagnosticsData(IDotvvmRequestContext request)
