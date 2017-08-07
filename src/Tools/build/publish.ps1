@@ -47,11 +47,13 @@ function SetVersion() {
 		$file = [System.Text.RegularExpressions.Regex]::Replace($file, "\<PackageVersion\>([^<]+)\</PackageVersion\>", "<PackageVersion>" + $version + "</PackageVersion>")
 		[System.IO.File]::WriteAllText($filePath, $file, [System.Text.Encoding]::UTF8)
 		
-		$filePath = ".\$($package.Directory)\Properties\AssemblyInfo.cs"
-		$file = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::UTF8)
-		$file = [System.Text.RegularExpressions.Regex]::Replace($file, "\[assembly: AssemblyVersion\(""([^""]+)""\)\]", "[assembly: AssemblyVersion(""" + $versionWithoutPre + """)]")
-		$file = [System.Text.RegularExpressions.Regex]::Replace($file, "\[assembly: AssemblyFileVersion\(""([^""]+)""\)]", "[assembly: AssemblyFileVersion(""" + $versionWithoutPre + """)]")
-		[System.IO.File]::WriteAllText($filePath, $file, [System.Text.Encoding]::UTF8)
+        $filePath = ".\$($package.Directory)\Properties\AssemblyInfo.cs"
+        if(Test-Path $filePath) {
+            $file = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::UTF8)
+            $file = [System.Text.RegularExpressions.Regex]::Replace($file, "\[assembly: AssemblyVersion\(""([^""]+)""\)\]", "[assembly: AssemblyVersion(""" + $versionWithoutPre + """)]")
+            $file = [System.Text.RegularExpressions.Regex]::Replace($file, "\[assembly: AssemblyFileVersion\(""([^""]+)""\)]", "[assembly: AssemblyFileVersion(""" + $versionWithoutPre + """)]")
+            [System.IO.File]::WriteAllText($filePath, $file, [System.Text.Encoding]::UTF8)
+        }
 	}  
 }
 

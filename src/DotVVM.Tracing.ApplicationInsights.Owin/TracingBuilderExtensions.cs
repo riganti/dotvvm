@@ -24,7 +24,7 @@ namespace DotVVM.Tracing.ApplicationInsights.Owin
     {
         public void Configure(DotvvmConfiguration config)
         {
-            config.Markup.AddCodeControls("dot", typeof(ApplicationInsightJavascript));
+            config.Markup.AddCodeControls("dot", typeof(ApplicationInsightsJavascript));
         }
     }
 }

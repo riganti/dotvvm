@@ -20,6 +20,6 @@ namespace DotVVM.Framework.Runtime
         Task RenderHtmlResponse(IHttpContext context, string html);
 
         Task RenderPlainTextResponse(IHttpContext context, string text);
-        void RenderPostbackUpdatedControls(IDotvvmRequestContext context, DotvvmView page);
+        IEnumerable<(string name, string html)> RenderPostbackUpdatedControls(IDotvvmRequestContext context, DotvvmView page);
     }
 }

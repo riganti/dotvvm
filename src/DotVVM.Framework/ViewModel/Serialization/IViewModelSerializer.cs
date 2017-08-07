@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime.Filters;
@@ -18,6 +19,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         ActionInfo ResolveCommand(IDotvvmRequestContext context, DotvvmView view);
 
-        void AddPostBackUpdatedControls(IDotvvmRequestContext context);
+        void AddPostBackUpdatedControls(IDotvvmRequestContext context, IEnumerable<(string name, string html)> postbackUpdatedControls);
     }
 }

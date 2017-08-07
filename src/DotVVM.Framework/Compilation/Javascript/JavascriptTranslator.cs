@@ -36,6 +36,11 @@ namespace DotVVM.Framework.Compilation.Javascript
             return new JavascriptTranslationVisitor(dataContext, DefaultMethodTranslator).TryTranslateMethodCall(method, context, arguments);
         }
 
+        public void AdjustViewModelProperties(JsNode expr)
+        {
+            expr.AcceptVisitor(new JsViewModelPropertyAdjuster(mapper));
+        }
+
         public JsExpression CompileToJavascript(Expression binding, DataContextStack dataContext)
         {
             var translator = new JavascriptTranslationVisitor(dataContext, DefaultMethodTranslator);
@@ -119,12 +124,14 @@ namespace DotVVM.Framework.Compilation.Javascript
         public BindingExtensionParameter ExtensionParameter { get; set; }
 
         public ViewModelSerializationMap SerializationMap { get; set; }
+        public bool ContainsObservables { get; set; }
 
-        public ViewModelInfoAnnotation(Type type, bool isControl = false, BindingExtensionParameter extensionParameter = null)
+        public ViewModelInfoAnnotation(Type type, bool isControl = false, BindingExtensionParameter extensionParameter = null, bool containsObservables = true)
         {
             this.Type = type;
             this.IsControl = isControl;
             this.ExtensionParameter = extensionParameter;
+            this.ContainsObservables = containsObservables;
         }
     }
 

@@ -1,10 +1,14 @@
+using System.Linq;
 using System.Reflection;
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Controls;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
+using DotVVM.Samples.BasicSamples.Controls;
 using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Redirect;
 using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Serialization;
 
@@ -17,6 +21,7 @@ namespace DotVVM.Samples.BasicSamples
             config.DefaultCulture = "en-US";
 
             AddControls(config);
+            AddStyles(config);
 
             AddRoutes(config);
 
@@ -34,7 +39,7 @@ namespace DotVVM.Samples.BasicSamples
                     map.Property(nameof(SerializationViewModel.Value2)).Bind(Direction.ClientToServer);
                     map.Property(nameof(SerializationViewModel.IgnoredProperty)).Ignore();
                 });
-
+            // new GithubApiClient.GithubApiClient().Repos.GetIssues()
             config.RegisterApiGroup(typeof(ApiClientWrapper), "http://localhost:5000/", "Scripts/ApiClient.js");
             config.RegisterApiGroup(typeof(GithubApiClient.GithubApiClient), "https://api.github.com/", "Scripts/GithubApiClient.js", "_github", customFetchFunction: "basicAuthenticatedFetch");
         }
@@ -71,6 +76,21 @@ namespace DotVVM.Samples.BasicSamples
 
         }
 
+        public static void AddStyles(DotvvmConfiguration config)
+        {
+            config.Styles.Register<Controls.ServerSideStylesControl>()
+                .SetAttribute("value", "Text changed")
+                .SetDotvvmProperty(Controls.ServerSideStylesControl.CustomProperty, "Custom property changed", false)
+                .SetAttribute("class", "Class changed", true);
+            config.Styles.Register("customTagName")
+                .SetAttribute("noAppend", "Attribute changed")
+                .SetAttribute("append", "Attribute changed", true);
+            config.Styles.Register<Controls.ServerSideStylesControl>(c => c.HasProperty(Controls.ServerSideStylesControl.CustomProperty), false)
+                .SetAttribute("derivedAttr", "Derived attribute");
+            config.Styles.Register<Controls.ServerSideStylesControl>(c => c.HasProperty(Controls.ServerSideStylesControl.AddedProperty))
+                .SetAttribute("addedAttr", "Added attribute");
+        }
+
         private static void AddRoutes(DotvvmConfiguration config)
         {
             config.RouteTable.Add("Default", "", "Views/Default.dothtml");
@@ -87,6 +107,8 @@ namespace DotVVM.Samples.BasicSamples
 
         private static void AddControls(DotvvmConfiguration config)
         {
+            config.Markup.AddCodeControls("cc", typeof(Controls.ServerSideStylesControl));
+            config.Markup.AddCodeControls("cc", typeof(Controls.DerivedControl));
             config.Markup.AddCodeControls("PropertyUpdate", typeof(Controls.ServerRenderedLabel));
             config.Markup.AddCodeControls("cc", typeof(Controls.PromptButton));
             config.Markup.AddMarkupControl("IdGeneration", "Control", "Views/FeatureSamples/IdGeneration/IdGeneration_control.dotcontrol");

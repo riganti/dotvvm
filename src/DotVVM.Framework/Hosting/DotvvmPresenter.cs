@@ -20,6 +20,7 @@ using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.Runtime.Tracing;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -87,6 +88,7 @@ namespace DotVVM.Framework.Hosting
         /// <returns></returns>
         public async Task ProcessRequestCore(IDotvvmRequestContext context)
         {
+            var requestTracer = context.Services.GetRequiredService<AggregateRequestTracer>();
             if (context.HttpContext.Request.Method != "GET" && context.HttpContext.Request.Method != "POST")
             {
                 // unknown HTTP method
@@ -96,7 +98,7 @@ namespace DotVVM.Framework.Hosting
             if (context.HttpContext.Request.Headers["X-PostbackType"] == "StaticCommand")
             {
                 await ProcessStaticCommandRequest(context);
-                await context.RequestTracers.TracingEvent(RequestTracingConstants.StaticCommandExecuted, context);
+                await requestTracer.TraceEvent(RequestTracingConstants.StaticCommandExecuted, context);
                 return;
             }
             var isPostBack = context.IsPostBack = DetermineIsPostBack(context.HttpContext);
@@ -105,7 +107,7 @@ namespace DotVVM.Framework.Hosting
             var page = DotvvmViewBuilder.BuildView(context);
             page.SetValue(Internal.RequestContextProperty, context);
             context.View = page;
-            await context.RequestTracers.TracingEvent(RequestTracingConstants.ViewInitialized, context);
+            await requestTracer.TraceEvent(RequestTracingConstants.ViewInitialized, context);
 
             // locate and create the view model
             context.ViewModel = ViewModelLoader.InitializeViewModel(context, page);
@@ -129,7 +131,7 @@ namespace DotVVM.Framework.Hosting
                 {
                     await filter.OnViewModelCreatedAsync(context);
                 }
-                await context.RequestTracers.TracingEvent(RequestTracingConstants.ViewModelCreated, context);
+                await requestTracer.TraceEvent(RequestTracingConstants.ViewModelCreated, context);
 
                 // perform parameter binding
                 if (context.ViewModel is DotvvmViewModelBase dotvvmViewModelBase)
@@ -151,7 +153,7 @@ namespace DotVVM.Framework.Hosting
 
                 // run the init phase in the page
                 DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Init);
-                await context.RequestTracers.TracingEvent(RequestTracingConstants.InitCompleted, context);
+                await requestTracer.TraceEvent(RequestTracingConstants.InitCompleted, context);
 
                 if (!isPostBack)
                 {
@@ -163,7 +165,7 @@ namespace DotVVM.Framework.Hosting
 
                     // run the load phase in the page
                     DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Load);
-                    await context.RequestTracers.TracingEvent(RequestTracingConstants.LoadCompleted, context);
+                    await requestTracer.TraceEvent(RequestTracingConstants.LoadCompleted, context);
                 }
                 else
                 {
@@ -180,7 +182,7 @@ namespace DotVVM.Framework.Hosting
                     {
                         await filter.OnViewModelDeserializedAsync(context);
                     }
-                    await context.RequestTracers.TracingEvent(RequestTracingConstants.ViewModelDeserialized, context);
+                    await requestTracer.TraceEvent(RequestTracingConstants.ViewModelDeserialized, context);
 
                     // validate CSRF token 
                     CsrfProtector.VerifyToken(context, context.CsrfToken);
@@ -192,7 +194,7 @@ namespace DotVVM.Framework.Hosting
 
                     // run the load phase in the page
                     DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Load);
-                    await context.RequestTracers.TracingEvent(RequestTracingConstants.LoadCompleted, context);
+                    await requestTracer.TraceEvent(RequestTracingConstants.LoadCompleted, context);
 
                     // invoke the postback command
                     var actionInfo = ViewModelSerializer.ResolveCommand(context, page);
@@ -206,7 +208,7 @@ namespace DotVVM.Framework.Hosting
                             methodFilters = methodFilters.Concat(filters.Filters.OfType<ICommandActionFilter>());
 
                         await ExecuteCommand(actionInfo, context, methodFilters);
-                        await context.RequestTracers.TracingEvent(RequestTracingConstants.CommandExecuted, context);
+                        await requestTracer.TraceEvent(RequestTracingConstants.CommandExecuted, context);
                     }
                 }
 
@@ -220,7 +222,7 @@ namespace DotVVM.Framework.Hosting
 
                 // run the prerender complete phase in the page
                 DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreRenderComplete);
-                await context.RequestTracers.TracingEvent(RequestTracingConstants.PreRenderCompleted, context);
+                await requestTracer.TraceEvent(RequestTracingConstants.PreRenderCompleted, context);
 
                 // generate CSRF token if required
                 if (string.IsNullOrEmpty(context.CsrfToken))
@@ -233,7 +235,7 @@ namespace DotVVM.Framework.Hosting
                 {
                     await filter.OnViewModelSerializingAsync(context);
                 }
-                await context.RequestTracers.TracingEvent(RequestTracingConstants.ViewModelSerialized, context);
+                await requestTracer.TraceEvent(RequestTracingConstants.ViewModelSerialized, context);
 
                 // render the output
                 ViewModelSerializer.BuildViewModel(context);
@@ -245,11 +247,11 @@ namespace DotVVM.Framework.Hosting
                 else
                 {
                     // postback or SPA content
-                    OutputRenderer.RenderPostbackUpdatedControls(context, page);
-                    ViewModelSerializer.AddPostBackUpdatedControls(context);
+                    var postBackUpdates = OutputRenderer.RenderPostbackUpdatedControls(context, page);
+                    ViewModelSerializer.AddPostBackUpdatedControls(context, postBackUpdates);
                     await OutputRenderer.WriteViewModelResponse(context, page);
                 }
-                await context.RequestTracers.TracingEvent(RequestTracingConstants.OutputRendered, context);
+                await requestTracer.TraceEvent(RequestTracingConstants.OutputRendered, context);
 
                 if (context.ViewModel != null)
                 {

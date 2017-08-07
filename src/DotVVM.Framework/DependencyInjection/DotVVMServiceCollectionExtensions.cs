@@ -56,10 +56,14 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IResourceHashService, DefaultResourceHashService>();
             services.TryAddSingleton<IStopwatch, DefaultStopwatch>();
             services.TryAddSingleton<JavascriptTranslator, JavascriptTranslator>();
-            //services.TryAddSingleton<Func<BindingRequiredResourceVisitor>>(s => {
-            //    var requiredResourceControl = s.GetRequiredService<IControlResolver>().ResolveControl(new ResolvedTypeDescriptor(typeof(RequiredResource)));
-            //    return () => new BindingRequiredResourceVisitor((ControlResolverMetadata)requiredResourceControl);
-            //});
+
+            services.TryAddScoped<AggregateRequestTracer, AggregateRequestTracer>();
+            services.TryAddScoped<ResourceManager, ResourceManager>();
+            services.TryAddSingleton<Func<BindingRequiredResourceVisitor>>(s => {
+               var requiredResourceControl = s.GetRequiredService<IControlResolver>().ResolveControl(new ResolvedTypeDescriptor(typeof(RequiredResource)));
+               return () => new BindingRequiredResourceVisitor((ControlResolverMetadata)requiredResourceControl);
+            });
+
             services.AddSingleton(s => configuration ?? (configuration = DotvvmConfiguration.CreateDefault(s)));
             
             services.AddDiagnosticServices();

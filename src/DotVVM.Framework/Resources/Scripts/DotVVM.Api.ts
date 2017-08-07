@@ -1,7 +1,8 @@
-﻿/// <reference path="typings/knockout/knockout.d.ts" />
+/// <reference path="typings/knockout/knockout.d.ts" />
 /// <reference path="DotVVM.ts" />
 
-type ApiComputed<T> = KnockoutObservable<T | null> & { refreshValue: () => void; }
+type ApiComputed<T> = KnockoutObservable<T | null> & { refreshValue: (throwOnError?: boolean) => PromiseLike<any> | undefined }
+type Result<T> = { type: 'error', error: any } | { type: 'result', result: T }
 interface DotVVM {
     invokeApiFn<T>(callback: () => PromiseLike<T>): ApiComputed<T>;
     apiRefreshOn<T>(value: KnockoutObservable<T>, refreshOn: KnockoutObservable<any>) : KnockoutObservable<T>;
@@ -34,6 +35,8 @@ function basicAuthenticatedFetch(input: RequestInfo, init: RequestInit) {
         if (init.headers == null) init.headers = {};
         if (init.headers['Authorization'] == null) init.headers["Authorization"] = 'Basic ' + btoa(auth);
     }
+    if (init == null) init = {}
+    if (!init.cache) init.cache = "no-cache";
     return window.fetch(input, init).then(response => {
         if (response.status == 401 && auth == null) {
             if (sessionStorage.getItem("someAuth") == null) requestAuth();
@@ -50,39 +53,57 @@ function basicAuthenticatedFetch(input: RequestInfo, init: RequestInit) {
     DotVVM.prototype.invokeApiFn = function <T>(callback: () => PromiseLike<T>, refreshTriggers: (KnockoutObservable<any> | string)[] = [], notifyTriggers: string[] = [], commandId = callback.toString()) {
         let cachedValue = cachedValues[commandId] || (cachedValues[commandId] = ko.observable<any>(null));
 
-        const load = () => {
+        const load : () => Result<PromiseLike<any>> = () => {
             try {
-                var result = window["Promise"].resolve(ko.ignoreDependencies(callback));
-                result.then((val) => {
+                var result : PromiseLike<any> = window["Promise"].resolve(ko.ignoreDependencies(callback));
+                return { type: 'result', result: result.then((val) => {
                     if (val) {
-                        dotvvm.serialization.deserialize(val, cachedValue);
+                        cachedValue(ko.unwrap(dotvvm.serialization.deserialize(val, cachedValue)));
                         cachedValue.notifySubscribers();
                     }
                     for (var t of notifyTriggers)
                         dotvvm.eventHub.notify(t);
-                }, console.warn);
+                    return val;
+                }, console.warn) };
             }
             catch (e) {
                 console.warn(e);
+                return { type: 'error', error: e };
             }
         };
 
         const cmp = <ApiComputed<T>><any>ko.pureComputed(() => cachedValue());
 
-        cmp.refreshValue = () => {
-            if (cachedValue["isLoading"]) return;
-            cachedValue["isLoading"] = true;
-            setTimeout(() => {
+        cmp.refreshValue = (throwOnError) => {
+            let promise: Result<PromiseLike<any>> = <any>cachedValue["promise"];
+            if (!cachedValue["isLoading"])
+            {
+                cachedValue["isLoading"] = true;
+                promise = load();
+                cachedValue["promise"] = promise;
+            }
+            if (promise.type == 'error')
+            {
                 cachedValue["isLoading"] = false;
-                load();
-            }, 10);
+                if (throwOnError) throw promise.error;
+                else return;
+            }
+            else
+            {
+                promise.result.then(p => cachedValue["isLoading"] = false, p => cachedValue["isLoading"] = false);
+                return promise.result;
+            }
         };
         if (!cachedValue.peek()) cmp.refreshValue();
         ko.computed(() => refreshTriggers.map(f => typeof f == "string" ? dotvvm.eventHub.get(f)() : f())).subscribe(p => cmp.refreshValue());
         return cmp;
     }
     DotVVM.prototype.apiRefreshOn = function <T>(value: KnockoutObservable<T> & { refreshValue? : () => void }, refreshOn: KnockoutObservable<any>) {
-        refreshOn.subscribe(() => value.refreshValue && value.refreshValue())
+        if (typeof value.refreshValue != "function") console.error(`The object is not refreshable`);
+        refreshOn.subscribe(() => {
+            if (typeof value.refreshValue != "function") console.error(`The object is not refreshable`);
+            value.refreshValue && value.refreshValue();
+        })
         return value;
     }
     DotVVM.prototype.api = {}

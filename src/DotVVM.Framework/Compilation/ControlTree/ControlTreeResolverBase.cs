@@ -471,7 +471,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 if (attribute.ValueNode == null)
                 {
                     // implicitly set boolean property
-                    if (property.PropertyType.IsEqualTo(new ResolvedTypeDescriptor(typeof(bool))))
+                    if (property.PropertyType.IsEqualTo(new ResolvedTypeDescriptor(typeof(bool))) || property.PropertyType.IsEqualTo(new ResolvedTypeDescriptor(typeof(bool?))))
                     {
                         string error;
                         if (!treeBuilder.AddProperty(control, treeBuilder.BuildPropertyValue(property, true, attribute), out error)) attribute.AddError(error);

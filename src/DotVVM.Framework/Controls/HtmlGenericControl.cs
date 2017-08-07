@@ -5,6 +5,7 @@ using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Hosting;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace DotVVM.Framework.Controls
 {
@@ -19,6 +20,10 @@ namespace DotVVM.Framework.Controls
         public HtmlGenericControl()
         {
             Attributes = new Dictionary<string, object>();
+            if (GetType() == typeof(HtmlGenericControl))
+            {
+                LifecycleRequirements = ControlLifecycleRequirements.None;
+            }
         }
 
         /// <summary>

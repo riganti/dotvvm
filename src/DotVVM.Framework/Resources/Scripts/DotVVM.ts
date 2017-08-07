@@ -1067,7 +1067,7 @@ class DotVVM {
 
         ko.bindingHandlers["dotvvm-CheckState"] = {
             init(element, valueAccessor, allBindings) {
-                ko.getBindingHandler("checked")!.init(element, valueAccessor, allBindings);
+                ko.getBindingHandler("checked").init!(element, valueAccessor, allBindings);
             },
             update(element, valueAccessor, allBindings) {
                 let value = ko.unwrap(valueAccessor());

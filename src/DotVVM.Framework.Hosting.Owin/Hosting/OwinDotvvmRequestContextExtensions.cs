@@ -4,7 +4,7 @@ using Microsoft.Owin.Security;
 
 namespace DotVVM.Framework.Hosting
 {
-    public static class DotvvmRequestContextExtensions
+    public static class OwinDotvvmRequestContextExtensions
     {
         /// <summary>
         /// Returns the underlying OWIN environment context.

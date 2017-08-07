@@ -44,6 +44,7 @@ namespace DotVVM.Framework.Hosting
             {
                 // create the context
                 var dotvvmContext = CreateDotvvmContext(context, scope);
+                context.RequestServices.GetService<DotvvmRequestContextStorage>().Context = dotvvmContext;
                 context.Set(HostingConstants.DotvvmRequestContextOwinKey, dotvvmContext);
                 dotvvmContext.ChangeCurrentCulture(Configuration.DefaultCulture);
 
@@ -97,8 +98,6 @@ namespace DotVVM.Framework.Hosting
                 Services = scope.ServiceProvider,
                 HttpContext = ConvertHttpContext(context),
                 Configuration = Configuration,
-                ResourceManager = new ResourceManager(Configuration),
-                ViewModelSerializer = Configuration.ServiceLocator.GetService<IViewModelSerializer>()
             };
         }
 

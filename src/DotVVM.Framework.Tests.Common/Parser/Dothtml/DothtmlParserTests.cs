@@ -200,7 +200,7 @@ this is a content";
 
             Assert.AreEqual(1, result.Content.Count);
             Assert.IsInstanceOfType(result.Content[0], typeof(DothtmlLiteralNode));
-            Assert.AreEqual("this is a content", ((DothtmlLiteralNode)result.Content[0]).Value.Trim());
+            Assert.AreEqual("\nthis is a content", ((DothtmlLiteralNode)result.Content[0]).Value);
         }
 
         [TestMethod]
@@ -208,7 +208,8 @@ this is a content";
         {
             var markup = @"@viewmodel MyNamespace.TestViewModel, MyAssembly   
 
-<!DOCTYPE html> test";
+<!DOCTYPE html>
+test";
             var result = ParseMarkup(markup);
 
             Assert.AreEqual(1, result.Directives.Count);
@@ -217,7 +218,7 @@ this is a content";
 
             Assert.AreEqual(1, result.Content.Count);
             Assert.IsInstanceOfType(result.Content[0], typeof(DothtmlLiteralNode));
-            Assert.AreEqual("<!DOCTYPE html> test", ((DothtmlLiteralNode)result.Content[0]).Value.Trim());
+            Assert.AreEqual("\n<!DOCTYPE html>\ntest", ((DothtmlLiteralNode)result.Content[0]).Value);
         }
 
 
@@ -390,7 +391,7 @@ this is a content";
         [TestMethod]
         public void DothtmlParser_Valid_CommentBeforeDirective()
         {
-            var markup = "<!-- my comment --> @viewModel TestDirective\r\nTest";
+            var markup = "<!-- my comment --> @viewModel TestDirective\nTest";
             var root = ParseMarkup(markup);
             var nodes = root.Content;
 
@@ -413,7 +414,7 @@ this is a content";
         [TestMethod]
         public void DothtmlParser_Valid_CommentInsideDirectives()
         {
-            var markup = "@masterPage hello\r\n<!-- my comment --> @viewModel TestDirective\r\nTest";
+            var markup = "@masterPage hello\n<!-- my comment --> @viewModel TestDirective\nTest";
             var root = ParseMarkup(markup);
             var nodes = root.Content;
 
@@ -449,11 +450,11 @@ this is a content";
         [TestMethod]
         public void DothtmlParser_HierarchyBuildingVisitor_Element_InvalidTag()
         {
-            var markup = "<!-- my comment --> @viewModel TestDirective\r\n<div><div><ul><li>item</li><ul><a href='lol'>link</a></div></div>";
+            var markup = "<!-- my comment --> @viewModel TestDirective\n<div><div><ul><li>item</li><ul><a href='lol'>link</a></div></div>";
             var root = ParseMarkup(markup);
 
             var visitor = new HierarchyBuildingVisitor {
-                CursorPosition = 62
+                CursorPosition = 61
             };
 
             root.Accept(visitor);
@@ -478,12 +479,12 @@ this is a content";
         [TestMethod]
         public void DothtmlParser_HierarchyBuildingVisitor_Element_UnclosedTagContent()
         {
-            var markup = "<!-- my comment --> @viewModel TestDirective\r\n<div><div><ul><li>\r\n\t\t\t\t<a href='lol'></a></li></ul>\r\n</div></div>";
+            var markup = "<!-- my comment --> @viewModel TestDirective\n<div><div><ul><li>\n\t\t\t\t<a href='lol'></a></li></ul>\n</div></div>";
             var root = ParseMarkup(markup);
 
             var visitor = new HierarchyBuildingVisitor
             {
-                CursorPosition = 83
+                CursorPosition = 81
             };
 
             root.Accept(visitor);
@@ -514,12 +515,12 @@ this is a content";
         [TestMethod]
         public void DothtmlParser_HierarchyBuildingVisitor_Element_Valid()
         {
-            var markup = "<!-- my comment --> @viewModel TestDirective\r\n<div><div><ul><li>item</li></ul><a href='lol'>link</a></div></div>";
+            var markup = "<!-- my comment --> @viewModel TestDirective\n<div><div><ul><li>item</li></ul><a href='lol'>link</a></div></div>";
             var root = ParseMarkup(markup);
 
             var visitor = new HierarchyBuildingVisitor
             {
-                CursorPosition = 62
+                CursorPosition = 61
             };
 
             root.Accept(visitor);
@@ -544,7 +545,7 @@ this is a content";
         [TestMethod]
         public void DothtmlParser_HierarchyBuildingVisitor_Attribute_TextValue()
         {
-            var markup = "<!-- my comment --> @viewModel TestDirective\r\n<div><div><ul><li>item</li></ul><a href='lol'>link</a></div></div>";
+            var markup = "<!-- my comment --> @viewModel TestDirective\n<div><div><ul><li>item</li></ul><a href='lol'>link</a></div></div>";
             var root = ParseMarkup(markup);
 
             var visitor = new HierarchyBuildingVisitor
@@ -576,7 +577,7 @@ this is a content";
         [TestMethod]
         public void DothtmlParser_HierarchyBuildingVisitor_Attribute_BindingValue()
         {
-            var markup = "<!-- my comment --> @viewModel TestDirective\r\n<div><div><ul><li>item</li></ul><a href='{value: lol}'>link</a></div></div>";
+            var markup = "<!-- my comment --> @viewModel TestDirective\n<div><div><ul><li>item</li></ul><a href='{value: lol}'>link</a></div></div>";
             var root = ParseMarkup(markup);
 
             var visitor = new HierarchyBuildingVisitor
@@ -677,7 +678,7 @@ this is a content";
         public static DothtmlRootNode ParseMarkup(string markup)
         {
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(markup);
+            tokenizer.Tokenize(markup.Replace("\r\n", "\n"));
             var parser = new DothtmlParser();
             var node = parser.Parse(tokenizer.Tokens);
             return node;

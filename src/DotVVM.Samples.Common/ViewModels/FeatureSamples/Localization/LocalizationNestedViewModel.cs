@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Localization
 {
