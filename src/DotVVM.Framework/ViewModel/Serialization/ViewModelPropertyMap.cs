@@ -43,5 +43,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
         {
             return TransferToServer && TransferToClient;
         }
+
+        public override string ToString()
+        {
+            return $"{nameof(ViewModelPropertyMap)}: {Type.Name} {Name}";
+        }
     }
 }

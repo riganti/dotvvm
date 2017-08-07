@@ -61,13 +61,6 @@
             Change through JS
         </dot:Button><br />
 
-        <span>NoneMessage: </span>
-        <span data-ui="noneMessage">{{value: NoneMessage.Text}}</span><br />
-        <dot:Button data-ui="change-noneMessage"
-                    Click="{staticCommand: NoneMessage.Text = ChangedText}">
-            Change through JS
-        </dot:Button><br />
-
         <span>ServerToClientFirstRequestMessage: </span>
         <span data-ui="serverToClientFirstRequestMessage">{{value: ServerToClientFirstRequestMessage.Text}}</span><br />
         <dot:Button data-ui="change-serverToClientFirstRequestMessage"

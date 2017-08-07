@@ -31,10 +31,6 @@ namespace DotVVM.Samples.Tests.Feature
             CheckMessage("ifInPostbackPathMessage", OriginalText, ChangedText, OriginalText);
 
         [TestMethod]
-        public void Feature_ViewModelProtection_ComplexViewModelProtection_NoneMessage() => 
-            CheckMessage("noneMessage", "", "", "");
-
-        [TestMethod]
         public void Feature_ViewModelProtection_ComplexViewModelProtection_ServerToClientFirstRequestMessage() => 
             CheckMessage("serverToClientFirstRequestMessage", OriginalText, ChangedText, ChangedText);
 

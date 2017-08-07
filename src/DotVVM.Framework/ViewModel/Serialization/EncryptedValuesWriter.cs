@@ -11,7 +11,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         JsonSerializer serializer;
         Stack<int> propertyIndices = new Stack<int>();
         int virtualNests = 0;
-        int propertyIndex = -1;
+        int lastPropertyIndex = -1;
 
         public EncryptedValuesWriter(JsonWriter jsonWriter)
         {
@@ -19,30 +19,44 @@ namespace DotVVM.Framework.ViewModel.Serialization
             serializer = new JsonSerializer();
         }
 
-        public void Nest()
+        public void Nest() => Nest(lastPropertyIndex + 1);
+
+        /// <summary>
+        /// Indicates that serializer should nest to a inner object.
+        /// Adds a new property to current object, and pushes the state to the stack.
+        /// </summary>
+        public void Nest(int property)
         {
-            propertyIndices.Push(propertyIndex);
-            propertyIndex = -1;
+            propertyIndices.Push(property);
+            lastPropertyIndex = -1;
             virtualNests++;
         }
 
+        /// <summary>
+        /// Indicates that object has ended.
+        /// Pops state from the stack.
+        /// </summary>
         public void End()
         {
-            if (virtualNests > 0) virtualNests--;
-            else writer.WriteEndObject();
-            propertyIndex = propertyIndices.Pop();
+            if (virtualNests > 0)
+            {
+                virtualNests--;
+            }
+            else
+            {
+                writer.WriteEndObject();
+            }
+            lastPropertyIndex = propertyIndices.Pop();
         }
 
+        /// <summary>
+        /// Ensure that the subtree is empty (did not contain any protected value) and clear it.
+        /// </summary>
         public void ClearEmptyNest()
         {
-            if (virtualNests <= 0) throw new NotSupportedException("There is no nest to be cleared.");
+            if (virtualNests <= 0) throw new NotSupportedException("There is no empty (virtual) nest to be cleared.");
             virtualNests--;
-            propertyIndex = propertyIndices.Pop();
-        }
-
-        public void IncrementIndex()
-        {
-            propertyIndex++;
+            lastPropertyIndex = propertyIndices.Pop();
         }
 
         private void WritePropertyName(int index)
@@ -52,11 +66,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         private void EnsureObjectStarted()
         {
-            if(virtualNests > 0)
+            if (virtualNests > 0)
             {
                 foreach (var p in propertyIndices.Take(virtualNests).Reverse())
                 {
-                    WritePropertyName(p); // the property was not writter, -1 to write it
+                    WritePropertyName(p); // the property was not written, -1 to write it
                     writer.WriteStartObject();
                 }
                 virtualNests = 0;
@@ -65,10 +79,14 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         public bool IsVirtualNest() => virtualNests > 0;
 
-        public void Value(object value)
+        /// <summary>
+        /// Write a value to the object.
+        /// </summary>
+        public void WriteValue(int propertyIndex, object value)
         {
             EnsureObjectStarted();
             WritePropertyName(propertyIndex);
+            lastPropertyIndex = propertyIndex;
             serializer.Serialize(writer, value);
         }
     }
