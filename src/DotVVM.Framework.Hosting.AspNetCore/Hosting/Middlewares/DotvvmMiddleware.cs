@@ -8,6 +8,7 @@ using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -43,6 +44,7 @@ namespace DotVVM.Framework.Hosting
             }
             // create the context
             var dotvvmContext = CreateDotvvmContext(context);
+            context.RequestServices.GetService<DotvvmRequestContextStorage>().Context = dotvvmContext;
             context.Items[HostingConstants.DotvvmRequestContextOwinKey] = dotvvmContext;
 
             var requestCultureFeature = context.Features.Get<IRequestCultureFeature>();
