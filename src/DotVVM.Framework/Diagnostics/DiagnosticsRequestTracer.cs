@@ -15,7 +15,7 @@ namespace DotVVM.Framework.Diagnostics
         private readonly Stopwatch stopwatch = new Stopwatch();
         private readonly IDiagnosticsInformationSender informationSender;
 
-        internal DiagnosticsRequestTracer(IDiagnosticsInformationSender sender)
+        public DiagnosticsRequestTracer(IDiagnosticsInformationSender sender)
         {
             this.informationSender = sender;
         }
@@ -60,12 +60,29 @@ namespace DotVVM.Framework.Diagnostics
         {
             return new RequestDiagnostics
             {
+                RequestType = RequestTypeFromContext(request),
                 Method = request.HttpContext.Request.Method,
                 Url = request.HttpContext.Request.Path.Value,
                 Headers = request.HttpContext.Request.Headers.Select(HttpHeaderItem.FromKeyValuePair)
                     .ToList(),
                 ViewModelJson = request.ReceivedViewModelJson?.GetValue("viewModel")?.ToString()
             };
+        }
+
+        private RequestType RequestTypeFromContext(IDotvvmRequestContext context)
+        {
+            if (context.ReceivedViewModelJson == null && context.ViewModelJson != null)
+            {
+                return RequestType.Get;
+            }
+            else if (context.ReceivedViewModelJson != null)
+            {
+                return RequestType.Command;
+            }
+            else
+            {
+                return RequestType.StaticCommand;
+            }
         }
 
         private ResponseDiagnostics BuildResponseDiagnostics(IDotvvmRequestContext request)
