@@ -34,6 +34,7 @@ namespace DotVVM.Framework.Diagnostics
         {
             stopwatch.Stop();
             var diagnosticsData = BuildDiagnosticsData(context);
+            stopwatch.Reset();
             return informationSender.SendInformationAsync(diagnosticsData);
         }
 
@@ -43,6 +44,7 @@ namespace DotVVM.Framework.Diagnostics
             var diagnosticsData = BuildDiagnosticsData(context);
             diagnosticsData.ResponseDiagnostics.StatusCode = 500;
             diagnosticsData.ResponseDiagnostics.ExceptionStackTrace = exception.ToString();
+            stopwatch.Reset();
             return informationSender.SendInformationAsync(diagnosticsData);
         }
 

@@ -74,7 +74,10 @@ namespace Microsoft.Extensions.DependencyInjection
         internal static IServiceCollection AddDiagnosticServices(this IServiceCollection services)
         {
             services.TryAddSingleton<DotvvmDiagnosticsConfiguration>();
-            services.AddSingleton<IRequestTracer>(s =>
+            services.TryAddSingleton<IDiagnosticsInformationSender, DiagnosticsInformationSender>();
+
+            services.AddScoped<IOutputRenderer, DiagnosticsRenderer>();
+            services.AddScoped<IRequestTracer>(s =>
             {
                 var config = s.GetService<DotvvmConfiguration>();
                 if (config.Debug)
@@ -87,8 +90,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     return new NullRequestTracer();
                 }
             });
-            services.AddScoped<IOutputRenderer, DiagnosticsRenderer>();
-            services.TryAddSingleton<IDiagnosticsInformationSender, DiagnosticsInformationSender>();
+            
             return services;
         }
     }
