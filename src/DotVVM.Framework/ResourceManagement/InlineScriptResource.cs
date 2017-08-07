@@ -18,7 +18,16 @@ namespace DotVVM.Framework.ResourceManagement
         /// <summary>
         /// Gets or sets the javascript code that will be embedded in the page.
         /// </summary>
-        public string Code { get; set; }
+        private string _code;
+        public string Code
+        {
+            get => _code;
+            set
+            {
+                if (value?.Contains("</script>") == true) throw new Exception($"Inline script can't contain `</script>`.");
+                _code = value;
+            }
+        }
 
         /// <summary>
         /// Renders the resource in the specified <see cref="IHtmlWriter" />.
