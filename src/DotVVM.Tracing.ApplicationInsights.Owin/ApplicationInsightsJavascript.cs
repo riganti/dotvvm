@@ -11,7 +11,7 @@ namespace DotVVM.Tracing.ApplicationInsights.Owin
     /// <summary>
     /// This class helps to inject Application Insights JavaScript snippet into dothtml.
     /// </summary>
-    public class ApplicationInsightJavascript : DotvvmControl
+    public class ApplicationInsightsJavascript : DotvvmControl
     {
         /// <summary>JavaScript snippet.</summary>
         private static readonly string Snippet = Resources.JavaScriptSnippet;
@@ -36,12 +36,12 @@ namespace DotVVM.Tracing.ApplicationInsights.Owin
             set { SetValue(EnableAuthSnippetProperty, value); }
         }
         public static readonly DotvvmProperty EnableAuthSnippetProperty
-            = DotvvmProperty.Register<bool, ApplicationInsightJavascript>(c => c.EnableAuthSnippet, false);
+            = DotvvmProperty.Register<bool, ApplicationInsightsJavascript>(c => c.EnableAuthSnippet, false);
 
         /// <summary>
-        /// Initializes a new instance of the ApplicationInsightJavascript class.
+        /// Initializes a new instance of the ApplicationInsightsJavascript class.
         /// </summary>
-        public ApplicationInsightJavascript()
+        public ApplicationInsightsJavascript()
         {
             telemetryConfiguration = TelemetryConfiguration.Active;
             encoder = JavaScriptEncoder.Default;

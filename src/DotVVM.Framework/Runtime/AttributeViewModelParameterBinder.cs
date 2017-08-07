@@ -57,7 +57,8 @@ namespace DotVVM.Framework.Runtime
         /// </summary>
         private Dictionary<PropertyInfo, ParameterBindingAttribute> FindPropertiesWithParameterBinding(Type type)
         {
-            return type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            return type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                .Select(TryFindWritableSetter)
                 .Where(p => p.CanWrite)
                 .Select(p => new
                 {
@@ -66,6 +67,17 @@ namespace DotVVM.Framework.Runtime
                 })
                 .Where(p => p.Attribute != null)
                 .ToDictionary(p => p.Property, p => p.Attribute);
+        }
+
+        private PropertyInfo TryFindWritableSetter(PropertyInfo propertyInfo)
+        {
+            // when the property is declared in the base class and has private set, we need to find the property on the base class to see the SetMethod
+            if (propertyInfo.CanWrite)
+            {
+                return propertyInfo;
+            }
+
+            return propertyInfo.DeclaringType.GetProperty(propertyInfo.Name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
         }
 
         /// <summary>

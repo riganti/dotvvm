@@ -35,7 +35,7 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
 
             Assert.AreEqual("test", viewModel.Route1);
         }
-
+        
         [TestMethod]
         public void ParameterBinding_ParameterExists_IntToStringConversion()
         {
@@ -118,6 +118,22 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
         }
 
 
+        [TestMethod]
+        public void ParameterBinding_MultipleParameters_Inherited()
+        {
+            context.Parameters["A"] = "24";
+            context.Parameters["B"] = "True";
+            context.Parameters["C"] = "abc";
+
+            var viewModel = new TestViewModelMultipleParametersInherited();
+            binder.BindParameters(context, viewModel);
+
+            Assert.AreEqual(24, viewModel.A);
+            Assert.AreEqual(true, viewModel.B);
+            Assert.AreEqual("abc", viewModel.C);
+        }
+
+
         public class TestViewModelRouteString
         {
 
@@ -171,5 +187,9 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
             Three = 3
         }
 
+        public class TestViewModelMultipleParametersInherited : TestViewModelMultipleParameters
+        {
+            
+        }
     }
 }
