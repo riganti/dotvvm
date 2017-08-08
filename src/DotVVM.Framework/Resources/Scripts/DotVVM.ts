@@ -1,4 +1,4 @@
-﻿/// <reference path="typings/knockout/knockout.d.ts" />
+/// <reference path="typings/knockout/knockout.d.ts" />
 /// <reference path="typings/knockout/knockout.dotvvm.d.ts" />
 /// <reference path="typings/knockout.mapper/knockout.mapper.d.ts" />
 /// <reference path="typings/globalize/globalize.d.ts" />
@@ -38,7 +38,7 @@ class DotVVM {
     private fakeRedirectAnchor: HTMLAnchorElement;
     private resourceSigns: { [name: string]: boolean } = {}
     private isViewModelUpdating: boolean = true;
-    
+
     // warning this property is referenced in ModelState.cs and KnockoutHelper.cs
     public viewModelObservables: {
         [name: string]: KnockoutObservable<IDotvvmViewModelInfo>;
@@ -47,7 +47,46 @@ class DotVVM {
     public viewModels: IDotvvmViewModels = {};
     public culture: string;
     public serialization = new DotvvmSerialization();
-    public postBackHandlers = new DotvvmPostBackHandlers();
+    public postBackHandlers: { [name: string]: ((options: any) => DotvvmPostBackHandler) } = {
+        confirm: (options: any) => new ConfirmPostBackHandler(<string>options.message)
+    }
+
+    public postbackHandlers2: { [name: string]: ((options: any) => DotvvmPostbackHandler2) } = {
+        confirm: (options: any) => new ConfirmPostBackHandler2(options.message)
+    }
+
+    private isPostBackRunningHandler : DotvvmPostbackHandler2 = {
+        execute : <T>(callback: () => Promise<T>, sender: HTMLElement) => {
+            this.isPostbackRunning(true)
+            let promise = callback()
+            promise.then(() => this.isPostbackRunning(false), () => this.isPostbackRunning(false))
+            return promise
+        }
+    }
+
+    private windowsSetTimeoutHandler : DotvvmPostbackHandler2 = {
+        execute : <T>(callback: () => Promise<T>, sender: HTMLElement) => {
+            return new Promise((resolve, reject) => window.setTimeout(resolve, 0))
+                .then(() => callback())
+        }
+    }
+
+    public globalPostbackHandlers : (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[] = [this.isPostBackRunningHandler]
+ 
+    private convertOldHandler(handler: DotvvmPostBackHandler) : DotvvmPostbackHandler2 {
+        return {
+            execute<T>(callback: () => Promise<T>, sender: HTMLElement) {
+                return new Promise((resolve, reject) => {
+                    const timeout = setTimeout(() => reject({ type: handler, handler: handler, message: "The postback handler can't indicate that the postback was rejected and the timeout has passed." }), 10000)
+                    handler.execute(() => {
+                        clearTimeout(timeout)
+                        callback().then(resolve, reject)
+                    }, sender)
+                })
+            }
+        }
+    }
+
     public events = new DotvvmEvents();
     public globalize = new DotvvmGlobalize();
     public evaluator = new DotvvmEvaluator();
@@ -195,9 +234,9 @@ class DotVVM {
             console.warn(`StaticCommand postback failed: ${xhr.status} - ${xhr.statusText}`, xhr);
             errorCallback(xhr);
         },
-        xhr => {
-            xhr.setRequestHeader("X-PostbackType", "StaticCommand");
-        });
+            xhr => {
+                xhr.setRequestHeader("X-PostbackType", "StaticCommand");
+            });
     }
 
     private processPassedId(id: any, context: any): string {
@@ -206,172 +245,192 @@ class DotVVM {
         throw new Error("invalid argument");
     }
 
-    public applyPostbackHandlers<T>(callback: () => IDotvvmPromise<T>, sender: HTMLElement, handlers?: IDotvvmPostBackHandlerConfiguration[], context = ko.contextFor(sender)) {
+    protected getPostbackHandler(name: string) {
+        const handler = this.postbackHandlers2[name]
+        if (handler) {
+            return handler
+        } else {
+            const handler = this.postBackHandlers[name]
+            if (!handler) throw new Error(`Could not find postback handler of name '${name}'`)
+            return (options) => this.convertOldHandler(handler(options))
+        }
+    }
+
+    private isPostbackHandler(obj: any) : obj is DotvvmPostbackHandler2 {
+        return obj && typeof obj.execute == "function"
+    }
+
+    public findPostbackHandlers(knockoutContext, config: (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[]) {
+        const createHandler = (name, options) => options.enabled === false ? null : this.getPostbackHandler(name)(options);
+        return <DotvvmPostbackHandler2[]>config.map(h =>
+                    typeof h == 'string' ? createHandler(h, {}) :
+                    this.isPostbackHandler(h) ? h :
+                    createHandler(h.name, this.evaluator.evaluateOnViewModel(knockoutContext, "(" + h.options.toString() + ")()")))
+               .filter(h => h != null)
+    }
+
+    public applyPostbackHandlers<T>(callback: () => Promise<T>, sender: HTMLElement, handlers?: (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[], context = ko.contextFor(sender)) {
         if (handlers == null || handlers.length === 0) {
             return callback();
         } else {
-            const promise = new DotvvmPromise<T>();
-            handlers
-                .map(h => <[string, any]>[h.name, this.evaluator.evaluateOnViewModel(context, "(" + h.options.toString() + ")()")])
-                .filter(h => h[1].enabled)
-                .reduceRight((prev, val, index) => (() => {
-                    this.postBackHandlers[val[0]](val[1]).execute(prev, sender);
-                    // TODO: process promise from handler?
-                    // return promise chained from the real postBack's so that postback handler can react to the postback
-                    return promise;
-                }),
-                () => {
-                    promise.chainFrom(callback());
-                }
-                )
+            return new Promise((resolve, reject) => {
+                this.findPostbackHandlers(context, handlers)
+                .reduceRight(
+                    (prev, val, index) => () => 
+                        val.execute<T>(prev, sender),
+                    () => {
+                        const r = callback()
+                        r.then(resolve, reject)
+                        return r
+                    })
                 ();
-            return promise;
+            });
         }
     }
 
-    public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, useWindowSetTimeout: boolean, validationTargetPath?: any, context?: any, handlers?: IDotvvmPostBackHandlerConfiguration[], commandArgs?: any[]): IDotvvmPromise<DotvvmAfterPostBackEventArgs> {
-        if (this.isPostBackProhibited(sender)) return new DotvvmPromise<DotvvmAfterPostBackEventArgs>().reject("rejected");
+    public postbackCore(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, context: any, validationTargetPath?: any, commandArgs?: any[]) {
+        
+        return new Promise((resolve, reject) => {
+            const error = (viewModel, xhr: XMLHttpRequest) => {
+                // execute error handlers
+                var errArgs = new DotvvmErrorEventArgs(viewModel, xhr);
+                reject(errArgs);
+                this.events.error.trigger(errArgs);
+                if (!errArgs.handled) {
+                    alert("unhandled error during postback");
+                }
+            }
 
-        var promise = new DotvvmPromise<DotvvmAfterPostBackEventArgs>();
-        this.isPostbackRunning(true);
-        promise.done(() => this.isPostbackRunning(false));
-        promise.fail(() => this.isPostbackRunning(false));
-        if (useWindowSetTimeout) {
-            window.setTimeout(() => promise.chainFrom(this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath, context, handlers)), 0);
-            return promise;
-        }
+            var viewModel = this.viewModels[viewModelName].viewModel;
+            
+            // prevent double postbacks
+            var currentPostBackCounter = this.backUpPostBackConter();
 
-        context = context || ko.contextFor(sender);
-
-        // apply postback handlers
-        if (handlers && handlers.length > 0) {
-            return this.applyPostbackHandlers(
-                () => this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath, context),
-                sender,
-                handlers,
-                context
-            )
-        }
-
-        var viewModel = this.viewModels[viewModelName].viewModel;
-
-        // prevent double postbacks
-        var currentPostBackCounter = this.backUpPostBackConter();
-
-        // trigger beforePostback event
-        var beforePostbackArgs = new DotvvmBeforePostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, currentPostBackCounter);
-        this.events.beforePostback.trigger(beforePostbackArgs);
-        if (beforePostbackArgs.cancel) {
-            // trigger afterPostback event
-            var afterPostBackArgsCanceled = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, null, currentPostBackCounter);
-            afterPostBackArgsCanceled.wasInterrupted = true;
-            this.events.afterPostback.trigger(afterPostBackArgsCanceled);
-            return promise.reject("canceled");
-        }
-
-        // perform the postback
-        this.updateDynamicPathFragments(context, path);
-        var data = {
-            viewModel: this.serialization.serialize(viewModel, { pathMatcher(val) { return context && val == context.$data } }),
-            currentPath: path,
-            command: command,
-            controlUniqueId: this.processPassedId(controlUniqueId, context),
-            validationTargetPath: validationTargetPath || null,
-            renderedResources: this.viewModels[viewModelName].renderedResources,
-            commandArgs: commandArgs
-        };
-        this.postJSON(<string>this.viewModels[viewModelName].url, "POST", ko.toJSON(data), result => {
-            // if another postback has already been passed, don't do anything
-            if (!this.isPostBackStillActive(currentPostBackCounter)) {
+            // trigger beforePostback event
+            var beforePostbackArgs = new DotvvmBeforePostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, currentPostBackCounter);
+            this.events.beforePostback.trigger(beforePostbackArgs);
+            if (beforePostbackArgs.cancel) {
+                // trigger afterPostback event
                 var afterPostBackArgsCanceled = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, null, currentPostBackCounter);
                 afterPostBackArgsCanceled.wasInterrupted = true;
                 this.events.afterPostback.trigger(afterPostBackArgsCanceled);
-                promise.reject("postback collision");
-                return;
+                return reject("canceled");
             }
-            try {
-                var resultObject,
-                    locationHeader = result.getResponseHeader("Location");
 
-                if (locationHeader != null && locationHeader.length > 0) {
-                    resultObject = { action: "redirect", url: locationHeader };
-                } else {
-                    resultObject = JSON.parse(result.responseText);
+            // perform the postback
+            this.updateDynamicPathFragments(context, path);
+            var data = {
+                viewModel: this.serialization.serialize(viewModel, { pathMatcher(val) { return context && val == context.$data } }),
+                currentPath: path,
+                command: command,
+                controlUniqueId: this.processPassedId(controlUniqueId, context),
+                validationTargetPath: validationTargetPath || null,
+                renderedResources: this.viewModels[viewModelName].renderedResources,
+                commandArgs: commandArgs
+            };
+            this.postJSON(<string>this.viewModels[viewModelName].url, "POST", ko.toJSON(data), result => {
+                // if another postback has already been passed, don't do anything
+                if (!this.isPostBackStillActive(currentPostBackCounter)) {
+                    var afterPostBackArgsCanceled = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, null, currentPostBackCounter);
+                    afterPostBackArgsCanceled.wasInterrupted = true;
+                    this.events.afterPostback.trigger(afterPostBackArgsCanceled);
+                    reject("postback collision");
+                    return;
                 }
-                if (!resultObject.viewModel && resultObject.viewModelDiff) {
-                    // TODO: patch (~deserialize) it to ko.observable viewModel
-                    resultObject.viewModel = this.patch(data.viewModel, resultObject.viewModelDiff);
-                }
+                try {
+                    var resultObject,
+                        locationHeader = result.getResponseHeader("Location");
 
-                this.loadResourceList(resultObject.resources, () => {
-                    var isSuccess = false;
-                    if (resultObject.action === "successfulCommand") {
-                        try {
-                            this.isViewModelUpdating = true;
+                    if (locationHeader != null && locationHeader.length > 0) {
+                        resultObject = { action: "redirect", url: locationHeader };
+                    } else {
+                        resultObject = JSON.parse(result.responseText);
+                    }
+                    if (!resultObject.viewModel && resultObject.viewModelDiff) {
+                        // TODO: patch (~deserialize) it to ko.observable viewModel
+                        resultObject.viewModel = this.patch(data.viewModel, resultObject.viewModelDiff);
+                    }
 
-                            // remove updated controls
-                            var updatedControls = this.cleanUpdatedControls(resultObject);
+                    this.loadResourceList(resultObject.resources, () => {
+                        var isSuccess = false;
+                        if (resultObject.action === "successfulCommand") {
+                            try {
+                                this.isViewModelUpdating = true;
 
-                            // update the viewmodel
-                            if (resultObject.viewModel) {
-                                ko.delaySync.pause();
-                                this.serialization.deserialize(resultObject.viewModel, this.viewModels[viewModelName].viewModel);
-                                ko.delaySync.resume();
+                                // remove updated controls
+                                var updatedControls = this.cleanUpdatedControls(resultObject);
+
+                                // update the viewmodel
+                                if (resultObject.viewModel) {
+                                    ko.delaySync.pause();
+                                    this.serialization.deserialize(resultObject.viewModel, this.viewModels[viewModelName].viewModel);
+                                    ko.delaySync.resume();
+                                }
+                                isSuccess = true;
+
+                                // remove updated controls which were previously hidden
+                                this.cleanUpdatedControls(resultObject, updatedControls);
+
+                                // add updated controls
+                                this.restoreUpdatedControls(resultObject, updatedControls, true);
                             }
-                            isSuccess = true;
-
-                            // remove updated controls which were previously hidden
-                            this.cleanUpdatedControls(resultObject, updatedControls);
-
-                            // add updated controls
-                            this.restoreUpdatedControls(resultObject, updatedControls, true);
+                            finally {
+                                this.isViewModelUpdating = false;
+                            }
+                        } else if (resultObject.action === "redirect") {
+                            // redirect
+                            this.handleRedirect(resultObject, viewModelName);
+                            return;
                         }
-                        finally {
-                            this.isViewModelUpdating = false;
-                        }
-                    } else if (resultObject.action === "redirect") {
-                        // redirect
-                        this.handleRedirect(resultObject, viewModelName);
-                        return;
-                    }
 
-                    var idFragment = resultObject.resultIdFragment;
-                    if (idFragment) {
-                        if (this.getSpaPlaceHolder() || location.hash == "#" + idFragment) {
-                            var element = document.getElementById(idFragment);
-                            if (element && "function" == typeof element.scrollIntoView) element.scrollIntoView(true);
+                        var idFragment = resultObject.resultIdFragment;
+                        if (idFragment) {
+                            if (this.getSpaPlaceHolder() || location.hash == "#" + idFragment) {
+                                var element = document.getElementById(idFragment);
+                                if (element && "function" == typeof element.scrollIntoView) element.scrollIntoView(true);
+                            }
+                            else location.hash = idFragment;
                         }
-                        else location.hash = idFragment;
-                    }
 
-                    // trigger afterPostback event
-                    var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, resultObject, currentPostBackCounter);
-                    promise.resolve(afterPostBackArgs);
-                    this.events.afterPostback.trigger(afterPostBackArgs);
-                    if (!isSuccess && !afterPostBackArgs.isHandled) {
-                        this.error(viewModel, result, promise);
-                    }
-                });
-            }
-            catch (error) {
-                this.error(viewModel, result, promise);
-            }
-        }, xhr => {
-            // if another postback has already been passed, don't do anything
-            if (!this.isPostBackStillActive(currentPostBackCounter)) return;
-            this.error(viewModel, xhr, promise);
+                        // trigger afterPostback event
+                        var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, resultObject, currentPostBackCounter);
+                        resolve(afterPostBackArgs);
+                        this.events.afterPostback.trigger(afterPostBackArgs);
+                        if (!isSuccess && !afterPostBackArgs.isHandled) {
+                            error(viewModel, result);
+                        }
+                    });
+                }
+                catch (error) {
+                    error(viewModel, result);
+                }
+            }, xhr => {
+                // if another postback has already been passed, don't do anything
+                if (!this.isPostBackStillActive(currentPostBackCounter)) return;
+                error(viewModel, xhr);
+            });
         });
-        return promise;
     }
 
-    private error(viewModel, xhr: XMLHttpRequest, promise?: DotvvmPromise<any>) {
-        // execute error handlers
-        var errArgs = new DotvvmErrorEventArgs(viewModel, xhr);
-        if (promise) promise.reject(errArgs);
-        this.events.error.trigger(errArgs);
-        if (!errArgs.handled) {
-            alert("unhandled error during postback");
+
+
+    public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, useWindowSetTimeout: boolean, validationTargetPath?: any, context?: any, handlers?: (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[], commandArgs?: any[]): Promise<DotvvmAfterPostBackEventArgs> {
+        if (this.isPostBackProhibited(sender)) return new Promise<DotvvmAfterPostBackEventArgs>((resolve, reject) => reject("rejected"));
+
+        context = context || ko.contextFor(sender);
+
+        let preHandlers = this.globalPostbackHandlers.concat([]);
+        if (useWindowSetTimeout) {
+            preHandlers.push(this.windowsSetTimeoutHandler)
         }
+
+        handlers = preHandlers.concat(handlers || []);
+
+        var promise = this.applyPostbackHandlers(() => {
+            return this.postbackCore(viewModelName, sender, path, command, controlUniqueId, context, validationTargetPath, commandArgs)
+        }, sender, handlers, context);
+
+        return promise;
     }
 
     private loadResourceList(resources: IRenderedResourceList, callback: () => void) {
@@ -407,7 +466,7 @@ class DotVVM {
         var waitForScriptLoaded = false;
         if (el.tagName.toLowerCase() == "script") {
             // create the script element
-            var script = <HTMLScriptElement> document.createElement("script");
+            var script = <HTMLScriptElement>document.createElement("script");
             if (el.src) {
                 script.src = el.src;
                 waitForScriptLoaded = true;
@@ -422,7 +481,7 @@ class DotVVM {
         }
         else if (el.tagName.toLowerCase() == "link") {
             // create link
-            var link =<HTMLLinkElement> document.createElement("link");
+            var link = <HTMLLinkElement>document.createElement("link");
             if (el.href) {
                 link.href = el.href;
             }
@@ -476,7 +535,7 @@ class DotVVM {
             document.location.href = fullUrl;
             return;
         }
-        
+
         // send the request
         var spaPlaceHolderUniqueId = spaPlaceHolder.attributes["data-dotvvm-spacontentplaceholder"].value;
         this.getJSON(fullUrl, "GET", spaPlaceHolderUniqueId, result => {
@@ -573,7 +632,7 @@ class DotVVM {
         else {
             var fakeAnchor = this.fakeRedirectAnchor;
             if (!fakeAnchor) {
-                fakeAnchor =<HTMLAnchorElement> document.createElement("a");
+                fakeAnchor = <HTMLAnchorElement>document.createElement("a");
                 fakeAnchor.style.display = "none";
                 fakeAnchor.setAttribute("data-dotvvm-fake-id", "dotvvm_fake_redirect_anchor_87D7145D_8EA8_47BA_9941_82B75EE88CDB");
                 document.body.appendChild(fakeAnchor);
@@ -651,7 +710,7 @@ class DotVVM {
             context = context.$parentContext;
         }
     }
-    
+
     private postJSON(url: string, method: string, postData: any, success: (request: XMLHttpRequest) => void, error: (response: XMLHttpRequest) => void, preprocessRequest = (xhr: XMLHttpRequest) => { }) {
         var xhr = this.getXHR();
         xhr.open(method, url, true);
@@ -687,7 +746,7 @@ class DotVVM {
     }
 
     public getXHR(): XMLHttpRequest {
-        return XMLHttpRequest ? new XMLHttpRequest() : <XMLHttpRequest>new ActiveXObject("Microsoft.XMLHTTP");
+        return XMLHttpRequest ? new XMLHttpRequest() : <XMLHttpRequest>new (window["ActiveXObject"])("Microsoft.XMLHTTP");
     }
 
     private cleanUpdatedControls(resultObject: any, updatedControls: any = {}) {
@@ -850,19 +909,19 @@ class DotVVM {
         };
         ko.bindingHandlers['dotvvm-checkbox-updateAfterPostback'] = {
             init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
-             dotvvm.events.afterPostback.subscribe((e) => {
-                 var bindings = allBindingsAccessor();
-                 if (bindings["dotvvm-checked-pointer"]) {
-                     var checked = bindings[bindings["dotvvm-checked-pointer"]];
-                     if (ko.isObservable(checked)) {
-                         if (checked.valueHasMutated) {
-                             checked.valueHasMutated();
-                         } else {
-                             checked.notifySubscribers();
-                         }
-                     }
-                 }
-             });
+                dotvvm.events.afterPostback.subscribe((e) => {
+                    var bindings = allBindingsAccessor();
+                    if (bindings["dotvvm-checked-pointer"]) {
+                        var checked = bindings[bindings["dotvvm-checked-pointer"]];
+                        if (ko.isObservable(checked)) {
+                            if (checked.valueHasMutated) {
+                                checked.valueHasMutated();
+                            } else {
+                                checked.notifySubscribers();
+                            }
+                        }
+                    }
+                });
             }
         };
         ko.bindingHandlers['dotvvm-checked-pointer'] = {
@@ -1051,8 +1110,7 @@ class DotVVM {
             },
             update(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
                 var value = valueAccessor();
-                if (typeof (value) === "function")
-                {
+                if (typeof (value) === "function") {
                     value = value();
                 }
 

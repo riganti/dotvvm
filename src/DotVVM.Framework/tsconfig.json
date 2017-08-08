@@ -7,7 +7,8 @@
     "target": "es5",
     "outFile": "Resources/Scripts/DotVVM.js",
     "declaration": true,
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "lib": ["dom", "es2015.promise", "es5"]
   },
   "files": [
     "Resources/Scripts/DotVVM.DomUtils.ts",
@@ -15,7 +16,6 @@
     "Resources/Scripts/DotVVM.FileUpload.ts",
     "Resources/Scripts/DotVVM.Globalize.ts",
     "Resources/Scripts/DotVVM.PostBackHandlers.ts",
-    "Resources/Scripts/DotVVM.Promise.ts",
     "Resources/Scripts/DotVVM.Serialization.ts",
     "Resources/Scripts/DotVVM.Validation.ts",
     "Resources/Scripts/DotVVM.ts",

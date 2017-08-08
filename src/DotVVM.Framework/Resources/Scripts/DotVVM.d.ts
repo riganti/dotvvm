@@ -113,42 +113,30 @@ declare class DotvvmGlobalize {
     bindingDateToString(value: KnockoutObservable<string | Date> | string | Date, format?: string): string | KnockoutComputed<string>;
     bindingNumberToString(value: KnockoutObservable<string | number> | string | number, format?: string): string | KnockoutComputed<string>;
 }
+declare type DotvvmPostbackHandler2 = {
+    execute<T>(callback: () => Promise<T>, sender: HTMLElement): Promise<T>;
+};
+declare type PostbackRejectionReason = {
+    type: "handler";
+    handler: DotvvmPostbackHandler2 | DotvvmPostBackHandler;
+    message?: string;
+};
 declare class DotvvmPostBackHandler {
-    execute(callback: () => void, sender: HTMLElement): void;
+    execute<T>(callback: () => void, sender: HTMLElement): void;
 }
 declare class ConfirmPostBackHandler extends DotvvmPostBackHandler {
     message: string;
     constructor(message: string);
     execute(callback: () => void, sender: HTMLElement): void;
 }
-declare class DotvvmPostBackHandlers {
-    confirm: (options: any) => ConfirmPostBackHandler;
+declare class ConfirmPostBackHandler2 implements DotvvmPostbackHandler2 {
+    message: string;
+    constructor(message: string);
+    execute<T>(callback: () => Promise<T>, sender: HTMLElement): Promise<T>;
 }
 interface IDotvvmPostBackHandlerConfiguration {
     name: string;
     options: () => any;
-}
-declare enum DotvvmPromiseState {
-    Pending = 0,
-    Done = 1,
-    Failed = 2,
-}
-interface IDotvvmPromise<TArg> {
-    state: DotvvmPromiseState;
-    done(callback: (arg: TArg) => void): any;
-    fail(callback: (error: any) => void): any;
-}
-declare class DotvvmPromise<TArg> implements IDotvvmPromise<TArg> {
-    private callbacks;
-    private errorCallbacks;
-    state: DotvvmPromiseState;
-    private argument;
-    private error;
-    done(callback: (arg: TArg) => void, forceAsync?: boolean): void;
-    fail(callback: (error) => void, forceAsync?: boolean): this;
-    resolve(arg: TArg): this;
-    reject(error: any): this;
-    chainFrom(promise: IDotvvmPromise<TArg>): this;
 }
 interface ISerializationOptions {
     serializeAll?: boolean;
@@ -201,7 +189,16 @@ declare class DotVVM {
     viewModels: IDotvvmViewModels;
     culture: string;
     serialization: DotvvmSerialization;
-    postBackHandlers: DotvvmPostBackHandlers;
+    postBackHandlers: {
+        [name: string]: ((options: any) => DotvvmPostBackHandler);
+    };
+    postbackHandlers2: {
+        [name: string]: ((options: any) => DotvvmPostbackHandler2);
+    };
+    private isPostBackRunningHandler;
+    private windowsSetTimeoutHandler;
+    globalPostbackHandlers: (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[];
+    private convertOldHandler(handler);
     events: DotvvmEvents;
     globalize: DotvvmGlobalize;
     evaluator: DotvvmEvaluator;
@@ -218,9 +215,12 @@ declare class DotVVM {
     private isPostBackStillActive(currentPostBackCounter);
     staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback?: (_: any) => void, errorCallback?: (xhr: XMLHttpRequest, error?: any) => void): void;
     private processPassedId(id, context);
-    applyPostbackHandlers<T>(callback: () => IDotvvmPromise<T>, sender: HTMLElement, handlers?: IDotvvmPostBackHandlerConfiguration[], context?: any): IDotvvmPromise<T>;
-    postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, useWindowSetTimeout: boolean, validationTargetPath?: any, context?: any, handlers?: IDotvvmPostBackHandlerConfiguration[], commandArgs?: any[]): IDotvvmPromise<DotvvmAfterPostBackEventArgs>;
-    private error(viewModel, xhr, promise?);
+    protected getPostbackHandler(name: string): (options: any) => DotvvmPostbackHandler2;
+    private isPostbackHandler(obj);
+    findPostbackHandlers(knockoutContext: any, config: (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[]): DotvvmPostbackHandler2[];
+    applyPostbackHandlers<T>(callback: () => Promise<T>, sender: HTMLElement, handlers?: (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[], context?: any): Promise<{}>;
+    postbackCore(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, context: any, validationTargetPath?: any, commandArgs?: any[]): Promise<{}>;
+    postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, useWindowSetTimeout: boolean, validationTargetPath?: any, context?: any, handlers?: (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[], commandArgs?: any[]): Promise<DotvvmAfterPostBackEventArgs>;
     private loadResourceList(resources, callback);
     private loadResourceElements(elements, offset, callback);
     private getSpaPlaceHolder();
