@@ -123,6 +123,10 @@
       <Project>{60cccc83-ba9f-4df0-a759-5e46c3d4dab0}</Project>
       <Name>DotVVM.Samples.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\EmbeddedResourceControls\EmbeddedResourceControls.csproj">
+      <Project>{d14467c8-9337-4fdf-b13e-d948b851f026}</Project>
+      <Name>EmbeddedResourceControls</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

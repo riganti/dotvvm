@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "projectName": "DotVVM.Samples.Common",
+  "rootNamespace": "DotVVM.Samples.Common",
+  "uiTestProjectPath": null,
+  "uiTestProjectRootNamespace": null,
+  "apiClients": [
+    {
+      "swaggerFile": "http://ipfs.io/ipfs/Qmb8Tu3nocE6f9HNE9SobpBCht2VRvCx3eTUHp9XyooVWK",
+      "csharpClient": "./GithubApiClient.cs",
+      "typescriptClient": "./Scripts/GithubApiClient.ts",
+      "namespace": "GithubApiClient",
+      "compileTypescript": true,
+      "generateWrapperClass": true,
+      "isSingleClient": false
+    }
+  ]
+}

@@ -8,6 +8,7 @@ using System.Reflection;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.HelperNamespace;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
@@ -79,7 +80,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         private Expression ReplaceVariables(Expression node, IReadOnlyList<ParameterExpression> variables, object[] args)
         {
             return ExpressionUtils.Replace(Expression.Lambda(node, variables), args.Zip(variables, (o, a) => Expression.Parameter(a.Type, a.Name).AddParameterAnnotation(
-                new BindingParameterAnnotation(extensionParameter: new FakeExtensionParameter(_ => new JsSymbolicParameter(o)))
+                new BindingParameterAnnotation(extensionParameter: new FakeExtensionParameter(_ => new JsSymbolicParameter(o), a.Name, new ResolvedTypeDescriptor(a.Type)))
             )).ToArray());
         }
 
@@ -93,7 +94,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             foreach (var symArg in body.DescendantNodesAndSelf().OfType<JsSymbolicParameter>())
             {
                 var aIndex = Array.IndexOf(args, symArg.Symbol);
-                if (aIndex >= 0) symArg.ReplaceWith(new JsIdentifierExpression(argsNames[aIndex]).WithAnnotation(ResultMayBeObservableAnnotation.Instance));
+                if (aIndex >= 0) symArg.ReplaceWith(new JsIdentifierExpression(argsNames[aIndex]).WithAnnotations(symArg.Annotations).WithAnnotation(ResultMayBeObservableAnnotation.Instance, append: false));
                 aIndex = Array.IndexOf(additionalVariables, symArg.Symbol);
                 if (aIndex >= 0) symArg.ReplaceWith(new JsIdentifierExpression(additionalVarNames[aIndex]));
             }
@@ -198,7 +199,8 @@ namespace DotVVM.Framework.Compilation.Javascript
 
             if (annotation.ExtensionParameter != null)
             {
-                return annotation.ExtensionParameter.GetJsTranslation(getDataContext(getContextSteps(annotation.DataContext)));
+                return annotation.ExtensionParameter.GetJsTranslation(getDataContext(getContextSteps(annotation.DataContext)))
+                    .WithAnnotation(new ViewModelInfoAnnotation(annotation.ExtensionParameter.ParameterType.Apply(ResolvedTypeDescriptor.ToSystemType), extensionParameter: annotation.ExtensionParameter), append: false);
             }
             else
             {
@@ -348,7 +350,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 arguments.Select(a => new HalfTranslatedExpression(a, Translate)).ToArray(),
                 methodInfo);
 
-        class FakeExtensionParameter: BindingExtensionParameter
+        public class FakeExtensionParameter: BindingExtensionParameter
         {
             private readonly Func<JsExpression, JsExpression> getJsTranslation;
 
@@ -364,13 +366,14 @@ namespace DotVVM.Framework.Compilation.Javascript
 
     public class HalfTranslatedExpression
     {
+        private static readonly Lazy<JsExpression> nullLazy = new Lazy<JsExpression>(() => null);
         private readonly Lazy<JsExpression> lazyJsExpression;
         public JsExpression JsExpression() => lazyJsExpression.Value;
         public Expression OriginalExpression { get; }
         public HalfTranslatedExpression(Expression expr, Func<Expression, JsExpression> translateMethod)
         {
             this.OriginalExpression = expr;
-            this.lazyJsExpression = new Lazy<JsExpression>(() => translateMethod(expr));
+            this.lazyJsExpression = expr == null ? nullLazy : new Lazy<JsExpression>(() => translateMethod(expr));
         }
     }
 }

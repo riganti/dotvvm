@@ -1,10 +1,14 @@
+using System.Linq;
 using System.Reflection;
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Controls;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
+using DotVVM.Samples.BasicSamples.Controls;
 using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Redirect;
 using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Serialization;
 
@@ -17,6 +21,7 @@ namespace DotVVM.Samples.BasicSamples
             config.DefaultCulture = "en-US";
 
             AddControls(config);
+            AddStyles(config);
 
             AddRoutes(config);
 
@@ -34,9 +39,9 @@ namespace DotVVM.Samples.BasicSamples
                     map.Property(nameof(SerializationViewModel.Value2)).Bind(Direction.ClientToServer);
                     map.Property(nameof(SerializationViewModel.IgnoredProperty)).Ignore();
                 });
-
+            // new GithubApiClient.GithubApiClient().Repos.GetIssues()
             config.RegisterApiGroup(typeof(ApiClientWrapper), "http://localhost:5000/", "Scripts/ApiClient.js");
-            config.RegisterApiGroup(typeof(GithubClientWrapper), "https://api.github.com/", "Scripts/GithubApiClient.js", "_github", customFetchFunction: "basicAuthenticatedFetch");
+            config.RegisterApiGroup(typeof(GithubApiClient.GithubApiClient), "https://api.github.com/", "Scripts/GithubApiClient.js", "_github", customFetchFunction: "basicAuthenticatedFetch");
         }
 
         private static void RegisterResources(DotvvmConfiguration config)
@@ -71,21 +76,40 @@ namespace DotVVM.Samples.BasicSamples
 
         }
 
+        public static void AddStyles(DotvvmConfiguration config)
+        {
+            config.Styles.Register<Controls.ServerSideStylesControl>()
+                .SetAttribute("value", "Text changed")
+                .SetDotvvmProperty(Controls.ServerSideStylesControl.CustomProperty, "Custom property changed", false)
+                .SetAttribute("class", "Class changed", true);
+            config.Styles.Register("customTagName")
+                .SetAttribute("noAppend", "Attribute changed")
+                .SetAttribute("append", "Attribute changed", true);
+            config.Styles.Register<Controls.ServerSideStylesControl>(c => c.HasProperty(Controls.ServerSideStylesControl.CustomProperty), false)
+                .SetAttribute("derivedAttr", "Derived attribute");
+            config.Styles.Register<Controls.ServerSideStylesControl>(c => c.HasProperty(Controls.ServerSideStylesControl.AddedProperty))
+                .SetAttribute("addedAttr", "Added attribute");
+        }
+
         private static void AddRoutes(DotvvmConfiguration config)
         {
             config.RouteTable.Add("Default", "", "Views/Default.dothtml");
             config.RouteTable.Add("ComplexSamples_SPARedirect_home", "ComplexSamples/SPARedirect", "Views/ComplexSamples/SPARedirect/home.dothtml");
-            config.RouteTable.Add("ControlSamples_SpaContentPlaceHolder_PageA", "ControlSamples/SpaContentPlaceHolder/PageA/{Id}", "Views/ControlSamples/SpaContentPlaceHolder/PageA.dothtml");
-            config.RouteTable.Add("ControlSamples_SpaContentPlaceHolder_PrefixRouteName_PageA", "ControlSamples/SpaContentPlaceHolder_PrefixRouteName/PageA/{Id}", "Views/ControlSamples/SpaContentPlaceHolder_PrefixRouteName/PageA.dothtml");
+            config.RouteTable.Add("ControlSamples_SpaContentPlaceHolder_PageA", "ControlSamples/SpaContentPlaceHolder/PageA/{Id}", "Views/ControlSamples/SpaContentPlaceHolder/PageA.dothtml", new { Id = 0 });
+            config.RouteTable.Add("ControlSamples_SpaContentPlaceHolder_PrefixRouteName_PageA", "ControlSamples/SpaContentPlaceHolder_PrefixRouteName/PageA/{Id}", "Views/ControlSamples/SpaContentPlaceHolder_PrefixRouteName/PageA.dothtml", new { Id = 0 });
+            config.RouteTable.Add("FeatureSamples_ParameterBinding_ParameterBinding", "FeatureSamples/ParameterBinding/ParameterBinding/{A}", "Views/FeatureSamples/ParameterBinding/ParameterBinding.dothtml", new { A = 123 });
             config.RouteTable.AutoDiscoverRoutes(new DefaultRouteStrategy(config));
-            config.RouteTable.Add("RepeaterRouteLink-PageDetail", "ControlSamples/Repeater/RouteLink/{Id}", "Views/ControlSamples/Repeater/RouteLink.dothtml");
-            config.RouteTable.Add("RepeaterRouteLinkUrlSuffix-PageDetail", "ControlSamples/Repeater/RouteLinkUrlSuffix/{Id}", "Views/ControlSamples/Repeater/RouteLink.dothtml");
+            config.RouteTable.Add("RepeaterRouteLink-PageDetail", "ControlSamples/Repeater/RouteLink/{Id}", "Views/ControlSamples/Repeater/RouteLink.dothtml", new { Id = 0 });
+            config.RouteTable.Add("RepeaterRouteLinkUrlSuffix-PageDetail", "ControlSamples/Repeater/RouteLinkUrlSuffix/{Id}", "Views/ControlSamples/Repeater/RouteLink.dothtml", new { Id = 0 });
             config.RouteTable.Add("FeatureSamples_Redirect_RedirectFromPresenter", "FeatureSamples/Redirect/RedirectFromPresenter", null, null, () => new RedirectingPresenter());
-            config.RouteTable.Add("FeatureSamples_Validation_ClientSideValidationDisabling2", "FeatureSamples/Validation/ClientSideValidationDisabling/{ClientSideValidationEnabled}", "Views/FeatureSamples/Validation/ClientSideValidationDisabling.dothtml");
+            config.RouteTable.Add("FeatureSamples_Validation_ClientSideValidationDisabling2", "FeatureSamples/Validation/ClientSideValidationDisabling/{ClientSideValidationEnabled}", "Views/FeatureSamples/Validation/ClientSideValidationDisabling.dothtml", new { ClientSideValidationEnabled = false });
+            config.RouteTable.Add("FeatureSamples_EmbeddedResourceControls_EmbeddedResourceView", "FeatureSamples/EmbeddedResourceControls/EmbeddedResourceView", "embedded://EmbeddedResourceControls/EmbeddedResourceView.dothtml");
         }
 
         private static void AddControls(DotvvmConfiguration config)
         {
+            config.Markup.AddCodeControls("cc", typeof(Controls.ServerSideStylesControl));
+            config.Markup.AddCodeControls("cc", typeof(Controls.DerivedControl));
             config.Markup.AddCodeControls("PropertyUpdate", typeof(Controls.ServerRenderedLabel));
             config.Markup.AddCodeControls("cc", typeof(Controls.PromptButton));
             config.Markup.AddMarkupControl("IdGeneration", "Control", "Views/FeatureSamples/IdGeneration/IdGeneration_control.dotcontrol");
@@ -94,6 +118,7 @@ namespace DotVVM.Samples.BasicSamples
             config.Markup.AddMarkupControl("sample", "Localization_Control", "Views/FeatureSamples/Localization/Localization_Control.dotcontrol");
             config.Markup.AddMarkupControl("sample", "ControlCommandBinding", "Views/FeatureSamples/MarkupControl/ControlCommandBinding.dotcontrol");
             config.Markup.AddMarkupControl("sample", "ControlValueBindingWithCommand", "Views/FeatureSamples/MarkupControl/ControlValueBindingWithCommand.dotcontrol");
+            config.Markup.AddMarkupControl("sample", "EmbeddedResourceControls_Button", "embedded://EmbeddedResourceControls/Button.dotcontrol");
 
             config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/ComplexSamples/ServerRendering/"));
             config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/FeatureSamples/MarkupControl/"));

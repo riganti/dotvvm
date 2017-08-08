@@ -14,6 +14,8 @@ using DotVVM.Framework.Compilation.Javascript;
 using System.Threading.Tasks;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.Utils;
+using System.Diagnostics;
+using DotVVM.Framework.Binding.Properties;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -50,6 +52,28 @@ namespace DotVVM.Framework.Configuration
                     RegisterApiDtoProperties(t, config);
             }
         }
+
+        private static JsExpression[] SerializeComplexParameters(JsExpression[] expr)
+        {
+            return expr.Select(p =>
+                p.Annotation<ViewModelInfoAnnotation>() is ViewModelInfoAnnotation vmInfo && ViewModelJsonConverter.IsComplexType(vmInfo.Type) ?
+                Serialize(p) :
+                p
+            ).ToArray();
+        }
+
+        private static JsExpression Serialize(JsExpression expr) =>
+            new JsIdentifierExpression("dotvvm").Member("serialization").Member("serialize").Invoke(expr.WithAnnotation(ShouldBeObservableAnnotation.Instance));
+
+        private static JsExpression[] ReplaceDefaultWithUndefined(IEnumerable<JsExpression> arguments, ParameterInfo[] parameters)
+        {
+            var replaced = arguments.Zip(parameters, (a, p) => a is JsLiteral literal && literal.Value == p.DefaultValue ? new JsIdentifierExpression("undefined") : a).ToArray();
+            int trimCount = 0;
+            while (trimCount < replaced.Length && replaced[replaced.Length - trimCount - 1] is JsIdentifierExpression identifier && identifier.Identifier == "undefined")
+                trimCount++;
+            return replaced.Take(replaced.Length - trimCount).ToArray();
+        }
+
         private static void RegisterJsTranslation(JsExpression identifier, Type apiClient, DotvvmConfiguration config)
         {
             lock (locker)
@@ -66,12 +90,12 @@ namespace DotVVM.Framework.Configuration
 
                     if (registerJS)
                     {
-                        var isRead = method.Name.Equals("get", StringComparison.OrdinalIgnoreCase);
+                        var isRead = method.Name.StartsWith("get", StringComparison.OrdinalIgnoreCase);
 
                         config.Markup.JavascriptTranslator.MethodCollection.AddMethodTranslator(method, new GenericMethodCompiler(
                             a => new JsIdentifierExpression("dotvvm").Member("invokeApiFn").Invoke(
                                 new JsFunctionExpression(new JsIdentifier[0], new JsBlockStatement(
-                                    new JsReturnStatement(identifier.Clone().Member(KnockoutHelper.ConvertToCamelCase(method.Name)).Invoke(a.Skip(1).ToArray()))
+                                    new JsReturnStatement(identifier.Clone().Member(KnockoutHelper.ConvertToCamelCase(method.Name)).Invoke(ReplaceDefaultWithUndefined(a.Skip(1), method.GetParameters()).Apply(SerializeComplexParameters)))
                                 )),
                                 new JsArrayExpression(isRead ?
                                     new JsIdentifierExpression("dotvvm").Member("eventHub").Member("get").Invoke(new JsLiteral(identifier.FormatScript())) :
@@ -79,7 +103,13 @@ namespace DotVVM.Framework.Configuration
                                 new JsArrayExpression(!isRead ?
                                     new JsLiteral(identifier.FormatScript()) :
                                     null)
-                            ).WithAnnotation(ResultIsObservableAnnotation.Instance).WithAnnotation(MayBeNullAnnotation.Instance)
+                            ).WithAnnotation(ResultIsObservableAnnotation.Instance)
+                             .WithAnnotation(MayBeNullAnnotation.Instance)
+                             .WithAnnotation(new ViewModelInfoAnnotation(method.ReturnType))
+                             .WithAnnotation(new ResultIsPromiseAnnotation(
+                                 e => e.WithAnnotation(ShouldBeObservableAnnotation.Instance).Member("refreshValue").Invoke(new JsLiteral(true)),
+                                 new ViewModelInfoAnnotation(method.ReturnType, containsObservables: false)
+                             ))
                         ));
                     }
                 }
@@ -148,10 +178,13 @@ namespace DotVVM.Framework.Configuration
             configuration.Markup.DefaultExtensionParameters.Add(new ApiExtensionParameter(identifier, descriptor));
 
             foreach (var prop in descriptor.Properties)
+            {
+                prop.JsExpression.AddAnnotation(new RequiredRuntimeResourcesBindingProperty(ImmutableArray.Create("apiInit" + identifier)));
                 RegisterJsTranslation(prop.JsExpression, prop.Type, configuration);
+            }
         }
 
-        class ApiGroupDescriptor
+        public class ApiGroupDescriptor
         {
             public object Instance { get; }
             public ImmutableArray<ApiDescriptor> Properties { get; }
@@ -166,7 +199,7 @@ namespace DotVVM.Framework.Configuration
             }
         }
 
-        class ApiDescriptor
+        public class ApiDescriptor
         {
             public string Name { get; }
             public PropertyInfo PropInfo { get; }
@@ -183,7 +216,7 @@ namespace DotVVM.Framework.Configuration
             }
         }
 
-        class ApiExtensionParameter : BindingExtensionParameter
+        public class ApiExtensionParameter : BindingExtensionParameter
         {
             public ApiExtensionParameter(string identifier, ApiGroupDescriptor descriptor) : base(identifier, new ResolvedTypeDescriptor(descriptor.Type), inherit: true)
             {
@@ -200,7 +233,7 @@ namespace DotVVM.Framework.Configuration
                 );
 
             public override Expression GetServerEquivalent(Expression controlParameter) =>
-                Expression.Constant(ApiDescriptor.Instance, ApiDescriptor.Type);
+                Expression.Constant(null, ApiDescriptor.Type);
         }
     }
 }

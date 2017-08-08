@@ -18,7 +18,7 @@ namespace DotVVM.Tracing.ApplicationInsights.AspNetCore
             options.AddApplicationInsightsTracingInternal();
 
             options.Services.TryAddSingleton<JavaScriptSnippet>();
-            options.Services.TryAddTransient<IConfigureOptions<DotvvmConfiguration>, ApplicationInsightSetup>();
+            options.Services.AddTransient<IConfigureOptions<DotvvmConfiguration>, ApplicationInsightSetup>();
 
             return options;
         }
@@ -28,7 +28,7 @@ namespace DotVVM.Tracing.ApplicationInsights.AspNetCore
     {
         public void Configure(DotvvmConfiguration config)
         {
-            config.Markup.AddCodeControls("dot", typeof(ApplicationInsightJavascript));
+            config.Markup.AddCodeControls("dot", typeof(ApplicationInsightsJavascript));
         }
     }
 }

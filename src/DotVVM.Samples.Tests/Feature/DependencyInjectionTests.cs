@@ -10,8 +10,9 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class DependencyInjectionTests : SeleniumTest
+    public class DependencyInjectionTests : SeleniumTestBase
     {
+
         [TestMethod]
         public void Feature_DependencyInjection_ViewModelScopedService()
         {
@@ -19,13 +20,13 @@ namespace DotVVM.Samples.Tests.Feature
             {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_DependencyInjection_ViewModelScopedService);
 
-                var initialValue = Convert.ToInt32(browser.Single("[data-ui='id-span']").GetText());
-                var button = browser.Single("[data-ui='postback-button']");
                 for (int i = 0; i < 5; i++)
                 {
-                    button.Click();
-                    var value = Convert.ToInt32(browser.Single("[data-ui='id-span']").GetText());
-                    Assert.IsTrue(value > initialValue);
+                    var value = browser.First(".result").GetInnerText();
+                    browser.First("input[type=button]").Click().Wait();
+                    var value2 = browser.First(".result").GetInnerText();
+
+                    Assert.AreNotEqual(value, value2);
                 }
             });
         }

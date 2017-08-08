@@ -25,6 +25,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<ICookieManager, ChunkingCookieManager>();
             services.TryAddSingleton<IViewModelProtector, DefaultViewModelProtector>();
             services.TryAddSingleton<IEnvironmentNameProvider, DotvvmEnvironmentNameProvider>();
+            services.TryAddScoped<DotvvmRequestContextStorage>(_ => new DotvvmRequestContextStorage());
+            services.TryAddScoped<IDotvvmRequestContext>(s => s.GetRequiredService<DotvvmRequestContextStorage>().Context);
 
             if (options != null)
             {

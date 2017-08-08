@@ -37,6 +37,19 @@ namespace DotVVM.Framework.Controls
 
 
         /// <summary>
+        /// Gets or sets whether the errors from the <see cref="Validation.TargetProperty"/> object will be displayed too.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
+        public bool IncludeErrorsFromTarget
+        {
+            get { return (bool) GetValue(IncludeErrorsFromTargetProperty); }
+            set { SetValue(IncludeErrorsFromTargetProperty, value); }
+        }
+        public static readonly DotvvmProperty IncludeErrorsFromTargetProperty
+            = DotvvmProperty.Register<bool, ValidationSummary>(c => c.IncludeErrorsFromTarget, false);
+
+
+        /// <summary>
         /// Adds all attributes that should be added to the control begin tag.
         /// </summary>
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
@@ -44,7 +57,8 @@ namespace DotVVM.Framework.Controls
             var expression = KnockoutHelper.GetValidationTargetExpression(this);
             if (expression != null)
             {
-                writer.AddKnockoutDataBind("foreach", "dotvvm.validation.getValidationErrors(" + expression + ", " + IncludeErrorsFromChildren.ToString().ToLower() + ")");
+                writer.AddKnockoutDataBind("foreach", $"dotvvm.validation.getValidationErrors({expression}, " +
+                    $"{IncludeErrorsFromChildren.ToString().ToLower()}, {IncludeErrorsFromTarget.ToString().ToLower()})");
             }
 
             base.AddAttributesToRender(writer, context);

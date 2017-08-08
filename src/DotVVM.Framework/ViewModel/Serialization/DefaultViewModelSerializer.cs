@@ -91,8 +91,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
             // create result object
             var result = new JObject();
             result["viewModel"] = writer.Token;
-            result["url"] = context.HttpContext.Request.Url.PathAndQuery;
-            result["virtualDirectory"] = context.HttpContext.Request.PathBase.Value?.Trim('/') ?? "";
+            result["url"] = context.HttpContext?.Request?.Url?.PathAndQuery;
+            result["virtualDirectory"] = context.HttpContext?.Request?.PathBase?.Value?.Trim('/') ?? "";
             if (context.ResultIdFragment != null)
             {
                 result["resultIdFragment"] = context.ResultIdFragment;
@@ -231,14 +231,14 @@ namespace DotVVM.Framework.ViewModel.Serialization
             else viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper);
 
             // get validation path
-            context.ModelState.ValidationTargetPath = data["validationTargetPath"].Value<string>();
+            context.ModelState.ValidationTargetPath = data["validationTargetPath"]?.Value<string>();
 
             // populate the ViewModel
             var serializer = CreateJsonSerializer();
             serializer.Converters.Add(viewModelConverter);
             try
             {
-                viewModelConverter.Populate(viewModelToken, serializer, context.ViewModel);
+                viewModelConverter.Populate(viewModelToken.CreateReader(), serializer, context.ViewModel);
             }
             catch (Exception ex)
             {
@@ -252,7 +252,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public ActionInfo ResolveCommand(IDotvvmRequestContext context, DotvvmView view)
         {
             // get properties
-            var data = context.ReceivedViewModelJson;
+            var data = context.ReceivedViewModelJson ?? throw new NotSupportedException("Could not find ReceivedViewModelJson in request context.");
             var path = data["currentPath"].Values<string>().ToArray();
             var command = data["command"].Value<string>();
             var controlUniqueId = data["controlUniqueId"]?.Value<string>();
@@ -269,7 +269,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 {
                     throw new Exception(string.Format("The control with ID '{0}' was not found!", controlUniqueId));
                 }
-                // TODO(exyi) parameters from 
                 return commandResolver.GetFunction(target, view, context, path, command, args);
             }
             else
@@ -281,12 +280,12 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Adds the post back updated controls.
         /// </summary>
-        public void AddPostBackUpdatedControls(IDotvvmRequestContext context)
+        public void AddPostBackUpdatedControls(IDotvvmRequestContext context, IEnumerable<(string name, string html)> postBackUpdatedControls)
         {
             var result = new JObject();
-            foreach (var control in context.PostBackUpdatedControls)
+            foreach (var (controlId, html) in postBackUpdatedControls)
             {
-                result[control.Key] = JValue.CreateString(control.Value);
+                result[controlId] = JValue.CreateString(html);
             }
             context.ViewModelJson["updatedControls"] = result;
         }

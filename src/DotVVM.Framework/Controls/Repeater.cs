@@ -17,6 +17,10 @@ namespace DotVVM.Framework.Controls
         public Repeater()
         {
             SetValue(Internal.IsNamingContainerProperty, true);
+            if (GetType() == typeof(Repeater))
+            {
+                LifecycleRequirements &= ~(ControlLifecycleRequirements.InvokeMissingInit | ControlLifecycleRequirements.InvokeMissingLoad);
+            }
         }
 
         /// <summary>
@@ -116,7 +120,7 @@ namespace DotVVM.Framework.Controls
                 if (RenderWrapperTag)
                 {
                     //writer.AddKnockoutForeachDataBind(javascriptDataSourceExpression);
-                    
+
                     writer.AddKnockoutDataBind("foreach", GetForeachKnockoutBindingGroup());
                 }
                 else

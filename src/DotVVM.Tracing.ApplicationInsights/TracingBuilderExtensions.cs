@@ -20,7 +20,7 @@ namespace DotVVM.Tracing.ApplicationInsights
             builder.Build();
 
             options.Services.TryAddSingleton<TelemetryClient>();         
-            options.Services.TryAddTransient<IRequestTracer, ApplicationInsightsTracer>();
+            options.Services.AddTransient<IRequestTracer, ApplicationInsightsTracer>();
 
             return options;
         }

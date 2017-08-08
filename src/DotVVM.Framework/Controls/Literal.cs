@@ -74,6 +74,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public Literal() : base("span")
         {
+            if (GetType() == typeof(Literal)) LifecycleRequirements = ControlLifecycleRequirements.PreRender;
         }
 
         /// <summary>
@@ -83,6 +84,7 @@ namespace DotVVM.Framework.Controls
         {
             Text = text;
             RenderSpanElement = false;
+            if (GetType() == typeof(Literal)) LifecycleRequirements = ControlLifecycleRequirements.None;
         }
 
         public static bool NeedsFormatting(IValueBinding binding) => binding != null && (binding.ResultType == typeof(DateTime) || ReflectionUtils.IsNumericType(binding.ResultType));

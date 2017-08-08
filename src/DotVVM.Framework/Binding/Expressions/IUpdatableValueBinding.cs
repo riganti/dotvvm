@@ -6,4 +6,9 @@ namespace DotVVM.Framework.Binding.Expressions
     {
         CompiledBindingExpression.BindingUpdateDelegate UpdateDelegate { get; }
     }
+
+    public interface IUpdatableValueBinding<in T>: IBinding
+    {
+        CompiledBindingExpression.BindingUpdateDelegate<T> UpdateDelegate { get; }
+    }
 }

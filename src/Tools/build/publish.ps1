@@ -47,11 +47,13 @@ function SetVersion() {
 		$file = [System.Text.RegularExpressions.Regex]::Replace($file, "\<PackageVersion\>([^<]+)\</PackageVersion\>", "<PackageVersion>" + $version + "</PackageVersion>")
 		[System.IO.File]::WriteAllText($filePath, $file, [System.Text.Encoding]::UTF8)
 		
-		$filePath = ".\$($package.Directory)\Properties\AssemblyInfo.cs"
-		$file = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::UTF8)
-		$file = [System.Text.RegularExpressions.Regex]::Replace($file, "\[assembly: AssemblyVersion\(""([^""]+)""\)\]", "[assembly: AssemblyVersion(""" + $versionWithoutPre + """)]")
-		$file = [System.Text.RegularExpressions.Regex]::Replace($file, "\[assembly: AssemblyFileVersion\(""([^""]+)""\)]", "[assembly: AssemblyFileVersion(""" + $versionWithoutPre + """)]")
-		[System.IO.File]::WriteAllText($filePath, $file, [System.Text.Encoding]::UTF8)
+        $filePath = ".\$($package.Directory)\Properties\AssemblyInfo.cs"
+        if(Test-Path $filePath) {
+            $file = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::UTF8)
+            $file = [System.Text.RegularExpressions.Regex]::Replace($file, "\[assembly: AssemblyVersion\(""([^""]+)""\)\]", "[assembly: AssemblyVersion(""" + $versionWithoutPre + """)]")
+            $file = [System.Text.RegularExpressions.Regex]::Replace($file, "\[assembly: AssemblyFileVersion\(""([^""]+)""\)]", "[assembly: AssemblyFileVersion(""" + $versionWithoutPre + """)]")
+            [System.IO.File]::WriteAllText($filePath, $file, [System.Text.Encoding]::UTF8)
+        }
 	}  
 }
 
@@ -101,7 +103,12 @@ $packages = @(
 	[pscustomobject]@{ Package = "DotVVM.Owin"; Directory = "DotVVM.Framework.Hosting.Owin" },
 	[pscustomobject]@{ Package = "DotVVM.AspNetCore"; Directory = "DotVVM.Framework.Hosting.AspNetCore" },
 	[pscustomobject]@{ Package = "DotVVM.CommandLine"; Directory = "DotVVM.CommandLine" },
-	[pscustomobject]@{ Package = "DotVVM.Compiler.Light"; Directory = "DotVVM.Compiler.Light" }
+	[pscustomobject]@{ Package = "DotVVM.Compiler.Light"; Directory = "DotVVM.Compiler.Light" },
+	[pscustomobject]@{ Package = "DotVVM.Tracing.ApplicationInsights"; Directory = "DotVVM.Tracing.ApplicationInsights" },
+	[pscustomobject]@{ Package = "DotVVM.Tracing.ApplicationInsights.Owin"; Directory = "DotVVM.Tracing.ApplicationInsights.Owin" },
+	[pscustomobject]@{ Package = "DotVVM.Tracing.ApplicationInsights.AspNetCore"; Directory = "DotVVM.Tracing.ApplicationInsights.AspNetCore" },
+	[pscustomobject]@{ Package = "DotVVM.Tracing.MiniProfiler.Owin"; Directory = "DotVVM.Tracing.MiniProfiler.Owin" },
+	[pscustomobject]@{ Package = "DotVVM.Tracing.MiniProfiler.AspNetCore"; Directory = "DotVVM.Tracing.MiniProfiler.AspNetCore" }
 )
 
 function PublishTemplates() {

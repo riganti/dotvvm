@@ -17,4 +17,13 @@ namespace DotVVM.Framework.Binding.Expressions
             };
         }
     }
+
+    public class ControlPropertyBindingExpression<T> : ControlPropertyBindingExpression, IValueBinding<T>, IUpdatableValueBinding<T>
+    {
+        public ControlPropertyBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties) { }
+
+        public new CompiledBindingExpression.BindingDelegate<T> BindingDelegate => base.BindingDelegate.ToGeneric<T>();
+
+        public new CompiledBindingExpression.BindingUpdateDelegate<T> UpdateDelegate => base.UpdateDelegate.ToGeneric<T>();
+    }
 }

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http.Authentication;
 
 namespace DotVVM.Framework.Hosting
 {
-    public static class DotvvmRequestContextExtensions
+    public static class AspNetCoreDotvvmRequestContextExtensions
     {
         /// <summary>
         /// Returns the underlying ASP.NET Core context.

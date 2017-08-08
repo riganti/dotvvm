@@ -385,6 +385,13 @@ namespace DotVVM.Framework.Tests.Binding
             var result = ExecuteBinding("true ? 'Utc' : 'Local'", new object[] { }, null, null, typeof(DateTimeKind));
             Assert.AreEqual(DateTimeKind.Utc, result);
         }
+
+        [TestMethod]
+        public void BindingCompiler_ImplicitConversion_ConditionalLongAndInt()
+        {
+            var result = ExecuteBinding("_this != null ? _this.LongProperty : 0", new [] { new TestViewModel { LongProperty = 5 } });
+            Assert.AreEqual(5L, result);
+        }
     }
     class TestViewModel
     {
@@ -396,6 +403,8 @@ namespace DotVVM.Framework.Tests.Binding
         public DateTime? DateFrom { get; set; }
         public DateTime? DateTo { get; set; }
         public object Time { get; set; } = TimeSpan.FromSeconds(5);
+
+        public long LongProperty { get; set; }
 
         public string SetStringProp(string a, int b)
         {

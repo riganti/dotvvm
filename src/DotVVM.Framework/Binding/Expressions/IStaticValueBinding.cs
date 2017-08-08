@@ -8,4 +8,9 @@ namespace DotVVM.Framework.Binding.Expressions
         CompiledBindingExpression.BindingDelegate BindingDelegate { get; }
         Type ResultType { get; }
     }
+
+    public interface IStaticValueBinding<out T>: IStaticValueBinding
+    {
+        CompiledBindingExpression.BindingDelegate<T> BindingDelegate { get; }
+    }
 }

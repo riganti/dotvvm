@@ -93,6 +93,9 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public SimplePathExpressionBindingProperty FormatSimplePath(KnockoutJsExpressionBindingProperty expression)
         {
+            // if contains api parameter, can't use this as a path
+            if (expression.Expression.DescendantNodes().Any(n => n.TryGetAnnotation(out ViewModelInfoAnnotation vmInfo) && vmInfo.ExtensionParameter is RestApiRegistrationHelpers.ApiExtensionParameter apiParameter))
+                throw new Exception($"Can't get a path expression for command binding from binding that is using rest api.");
             return new SimplePathExpressionBindingProperty(expression.Expression.FormatParametrizedScript());
         }
 
@@ -108,6 +111,12 @@ namespace DotVVM.Framework.Compilation.Binding
             if (nullChecks) JavascriptNullCheckAdder.AddNullChecks(expr);
             expr = new JsParenthesizedExpression((JsExpression)JsTemporaryVariableResolver.ResolveVariables(expr.Expression.Detach()));
             return (StartsWithStatementLikeExpression(expr.Expression) ? expr : expr.Expression).FormatParametrizedScript(niceMode);
+        }
+
+        public RequiredRuntimeResourcesBindingProperty GetRequiredResources(KnockoutJsExpressionBindingProperty js)
+        {
+            var resources = js.Expression.DescendantNodesAndSelf().Select(n => n.Annotation<RequiredRuntimeResourcesBindingProperty>()).Where(n => n != null).SelectMany(n => n.Resources).ToImmutableArray();
+            return resources.Length == 0 ? RequiredRuntimeResourcesBindingProperty.Empty : new RequiredRuntimeResourcesBindingProperty(resources);
         }
 
         private static bool StartsWithStatementLikeExpression(JsExpression expression)
@@ -128,7 +137,7 @@ namespace DotVVM.Framework.Compilation.Binding
             var prop = property?.DotvvmProperty;
             if (prop == null) return new ExpectedTypeBindingProperty(typeof(object));
 
-            return new ExpectedTypeBindingProperty(prop.IsBindingProperty ? typeof(object) : prop.PropertyType);
+            return new ExpectedTypeBindingProperty(prop.IsBindingProperty ? (prop.PropertyType.GenericTypeArguments.SingleOrDefault() ?? typeof(object)) : prop.PropertyType);
         }
 
         public BindingResolverCollection GetAdditionalResolversFromProperty(AssignedPropertyBindingProperty property = null, DataContextStack stack = null)

@@ -15,6 +15,32 @@ using DotVVM.Framework.Compilation.Javascript;
 
 namespace DotVVM.Framework.Controls
 {
+    [Flags]
+    public enum ControlLifecycleRequirements : short
+    {
+        None = 0,
+        RealtimePreInit = 1 << 0,
+        RealtimeInit = 1 << 1,
+        RealtimeLoad = 1 << 2,
+        RealtimePreRender = 1 << 3,
+        RealtimePreRenderComplete = 1 << 4,
+        InvokeMissingPreInit = 1 << 5,
+        InvokeMissingInit = 1 << 6,
+        InvokeMissingLoad = 1 << 7,
+        InvokeMissingPreRender = 1 << 8,
+        InvokeMissingPreRenderComplete = 1 << 9,
+
+        OnlyRealtime = RealtimePreInit | RealtimeInit | RealtimeLoad | RealtimePreRender | RealtimePreRenderComplete,
+        OnlyMissing = InvokeMissingPreInit | InvokeMissingInit | InvokeMissingLoad | InvokeMissingPreRender | InvokeMissingPreRenderComplete,
+        All = OnlyRealtime | OnlyMissing,
+
+        PreInit = RealtimePreInit | InvokeMissingPreInit,
+        Init = RealtimeInit | InvokeMissingInit,
+        Load = RealtimeLoad | InvokeMissingLoad,
+        PreRender = RealtimePreRender | InvokeMissingPreRender,
+        PreRenderComplete = RealtimePreRenderComplete | InvokeMissingPreRenderComplete,
+    }
+
     /// <summary>
     /// Represents a base class for all DotVVM controls.
     /// </summary>
@@ -26,6 +52,9 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.Exclude)]
         public DotvvmControlCollection Children { get; private set; }
+
+        // automaticaly assign requirements
+        internal ControlLifecycleRequirements LifecycleRequirements = ControlLifecycleRequirements.Init | ControlLifecycleRequirements.Load | ControlLifecycleRequirements.PreRender;
 
         /// <summary>
         /// Gets or sets the unique control ID.
@@ -68,6 +97,22 @@ namespace DotVVM.Framework.Controls
 
         public static readonly DotvvmProperty ClientIDModeProperty =
             DotvvmProperty.Register<ClientIDMode, DotvvmControl>(c => c.ClientIDMode, ClientIDMode.Static, isValueInherited: true);
+
+        /// <summary>
+        /// Gets or sets whether the control is included in the DOM of the page.
+        /// </summary>
+        /// <remarks>
+        /// Essentially wraps Knockout's 'if' binding.
+        /// </remarks>
+        [MarkupOptions(AllowHardCodedValue = false)]
+        public bool IncludeInPage
+        {
+            get { return (bool)GetValue(IncludeInPageProperty); }
+            set { SetValue(IncludeInPageProperty, value); }
+        }
+
+        public static readonly DotvvmProperty IncludeInPageProperty =
+            DotvvmProperty.Register<bool, DotvvmControl>(t => t.IncludeInPage, true);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmControl"/> class.
@@ -185,10 +230,21 @@ namespace DotVVM.Framework.Controls
             {
                 writer.WriteKnockoutWithComment(GetValueBinding(DataContextProperty).GetKnockoutBindingExpression(Parent));
             }
+
+            // if the IncludeInPage has binding, render the "if" binding
+            if (HasBinding(IncludeInPageProperty))
+            {
+                writer.WriteKnockoutDataBindComment("if", this, IncludeInPageProperty);
+            }
         }
 
         private void RenderEndWithDataBindAttribute(IHtmlWriter writer)
         {
+            if (HasBinding(IncludeInPageProperty))
+            {
+                writer.WriteKnockoutDataBindEndComment();
+            }
+
             if (HasBinding(DataContextProperty))
             {
                 writer.WriteKnockoutDataBindEndComment();

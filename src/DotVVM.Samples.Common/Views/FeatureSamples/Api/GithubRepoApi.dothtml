@@ -6,24 +6,41 @@
 <head>
     <meta charset="utf-8" />
     <title></title>
-    <dot:RequiredResource Name="apiInit_github" />
 </head>
 <body>
 
     <p>
         <dot:TextBox Text="{value: UserName}" placeholder="user name" />
-        <dot:ComboBox SelectedValue="{value: Repo}" DataSource="{value: Api.RefreshOnChange(_github.Root.Repos12(UserName, null, null, null, null, null, null, null), UserName)}" ItemValueBinding="{value: Name}" ItemTextBinding="{value: Name}" />
+        <dot:ComboBox SelectedValue="{value: Repo}" DataSource="{value: Api.RefreshOnChange(_github.Users.GetRepos(UserName), UserName)}" ItemValueBinding="{value: Name}" ItemTextBinding="{value: Name}" />
     </p>
+
     <p>
         Open Issues:
-        <dot:GridView DataSource="{value: _page.EvaluatingOnServer ? null : Api.RefreshOnChange(_github.Root.Issues2(UserName, Repo, 'All', 'Open', '', 'Updated', 'Desc', '1950-01-01T00:00:00Z', null, null, null, null, null, null), Repo + UserName)}">
+        <dot:GridView DataSource="{value: Api.RefreshOnChange(_github.Repos.GetIssuesAll(UserName, Repo, 'All', 'Open', '', 'Updated', 'Desc', '1950-01-01T00:00:00Z'), Repo + UserName)}">
             <EmptyDataTemplate>No issues</EmptyDataTemplate>
             <dot:GridViewTextColumn ValueBinding="{value: _this.Title}" HeaderText="Title" />
             <dot:GridViewTextColumn ValueBinding="{value: User.Login}" HeaderText="User" />
+            <dot:GridViewTemplateColumn HeaderText="get text">
+                <dot:LinkButton Click="{staticCommand: _root.CurrentIssueText = _github.Repos.GetIssues(_root.UserName, _root.Repo, Number).Body}">get text</dot:LinkButton>
+            </dot:GridViewTemplateColumn>
             <dot:GridViewTemplateColumn HeaderText="...">
                 <a href="{value: "https://github.com/" + _root.UserName + "/" + _root.Repo + "/issues/" + Number}" >github.com</a>
             </dot:GridViewTemplateColumn>
         </dot:GridView>
     </p>
+
+    <div>
+        {{value: CurrentIssueText}}
+    </div>
+
+    <div DataContext="{value: NewIssue}" Visible="{value: _root.UserName != null && _root.Repo != null}">
+        <h2>New Issue </h2>
+        <dot:TextBox Text="{value: Title}" />
+        <dot:TextBox Type="MultiLine" Text="{value: Body}" />
+        <span Visible="{value: Api.RefreshOnChange(_github.Repos.GetWatchers(_root.UserName, _root.Repo), _root.Repo).Count > 0}"> You can only push issues to repos that have 0 watchers. </span>
+        <dot:Button Click="{staticCommand: _github.Repos.PostIssues(_root.UserName, _root.Repo, _this)}" Enabled="{value: Api.RefreshOnChange(_github.Repos.GetWatchers(_root.UserName, _root.Repo), _root.Repo).Count == 0}"> Submit issue </dot:Button>
+    </div>
+
+    <dot:Button Text="Put star" Click="{staticCommand: _github.User.PutStarred(UserName, Repo)}" />
 </body>
 </html>

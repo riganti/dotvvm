@@ -130,4 +130,13 @@ namespace DotVVM.Framework.Binding.Expressions
 
         #endregion
     }
+
+    public class ValueBindingExpression<T> : ValueBindingExpression, IValueBinding<T>, IUpdatableValueBinding<T>
+    {
+        public new CompiledBindingExpression.BindingDelegate<T> BindingDelegate => base.BindingDelegate.ToGeneric<T>();
+
+        public new CompiledBindingExpression.BindingUpdateDelegate<T> UpdateDelegate => base.UpdateDelegate.ToGeneric<T>();
+
+        public ValueBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties) { }
+    }
 }

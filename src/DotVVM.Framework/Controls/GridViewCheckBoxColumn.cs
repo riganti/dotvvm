@@ -25,14 +25,14 @@ namespace DotVVM.Framework.Controls
         public override void CreateControls(IDotvvmRequestContext context, DotvvmControl container)
         {
             var checkBox = new CheckBox { Enabled = false };
-            checkBox.SetBinding(CheckableControlBase.CheckedProperty, GetValueBinding(ValueBindingProperty));
+            checkBox.SetBinding(CheckBox.CheckedProperty, GetValueBinding(ValueBindingProperty));
             container.Children.Add(checkBox);
         }
 
         public override void CreateEditControls(IDotvvmRequestContext context, DotvvmControl container)
         {
             var checkBox = new CheckBox { Enabled = true };
-            checkBox.SetBinding(CheckableControlBase.CheckedProperty, GetValueBinding(ValueBindingProperty));
+            checkBox.SetBinding(CheckBox.CheckedProperty, GetValueBinding(ValueBindingProperty));
             container.Children.Add(checkBox);
         }
     }

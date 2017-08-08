@@ -1,0 +1,15 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.EmbeddedResourceControls.EmbeddedResourceControlsViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <dot:Button Text="{value: Text}" Click="{command: ChangeText()}" />
+</body>
+</html>
+
+

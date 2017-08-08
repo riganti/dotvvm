@@ -255,10 +255,25 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 
     public static class AnnotatableUtils
     {
-        public static T WithAnnotation<T>(this T node, object annotation)
-            where T : IAnnotatable
+        public static T WithAnnotation<T>(this T node, object annotation, bool append = true)
+            where T : class, IAnnotatable
         {
-            if (annotation != null) node.AddAnnotation(annotation);
+            if (annotation != null && (append || !node.HasAnnotation<T>())) node.AddAnnotation(annotation);
+            return node;
+        }
+
+        public static TNode WithoutAnnotation<TAnnotation, TNode>(this TNode node)
+            where TNode : IAnnotatable
+            where TAnnotation : class
+        {
+            node.RemoveAnnotations<TAnnotation>();
+            return node;
+        }
+
+        public static T WithAnnotations<T>(this T node, IEnumerable<object> annotations)
+            where T : class, IAnnotatable
+        {
+            foreach (var annotation in annotations) if (annotation != null) node.AddAnnotation(annotation);
             return node;
         }
 

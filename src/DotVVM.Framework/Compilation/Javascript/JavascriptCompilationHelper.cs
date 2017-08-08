@@ -39,7 +39,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
 
         public static bool IsRootResultExpression(this JsNode node) =>
-            SatisfyResultCondition(node, n => !(n.Parent is JsExpression));
+            SatisfyResultCondition(node, n => n.Parent == null || n.Parent is JsExpressionStatement);
         public static bool SatisfyResultCondition(this JsNode node, Func<JsNode, bool> predicate) =>
             predicate(node) ||
             (node.Parent is JsParenthesizedExpression ||

@@ -35,5 +35,18 @@ namespace DotVVM.Framework.ViewModel.Serialization
         }
 
         public JsonConverter JsonConverter { get; set; }
+
+        /// <summary>
+        /// Gets whether the property is transfered both ways.
+        /// </summary>
+        public bool IsFullyTransfered()
+        {
+            return TransferToServer && TransferToClient;
+        }
+
+        public override string ToString()
+        {
+            return $"{nameof(ViewModelPropertyMap)}: {Type.Name} {Name}";
+        }
     }
 }
