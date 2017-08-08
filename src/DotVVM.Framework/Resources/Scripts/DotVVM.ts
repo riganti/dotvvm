@@ -35,6 +35,7 @@ interface IDotvvmViewModels {
 
 class DotVVM {
     private postBackCounter = 0;
+    private lastStartedPostack = 0;
     private fakeRedirectAnchor: HTMLAnchorElement;
     private resourceSigns: { [name: string]: boolean } = {}
     private isViewModelUpdating: boolean = true;
@@ -55,8 +56,40 @@ class DotVVM {
         confirm: (options: any) => new ConfirmPostBackHandler2(options.message)
     }
 
+    private beforePostbackEventPostbackHandler : DotvvmPostbackHandler2 = {
+        execute: <T>(callback: () => Promise<T>, options: PostbackOptions) => {
+
+            // trigger beforePostback event
+            var beforePostbackArgs = new DotvvmBeforePostBackEventArgs(options.sender!, options.viewModel, options.viewModelName!, options.validationTargetPath!, options.postbackId);
+            this.events.beforePostback.trigger(beforePostbackArgs);
+            if (beforePostbackArgs.cancel) {
+                return Promise.reject({type: "event"});
+            }
+            return callback();
+        }
+    }
+
+    private afterPostbackEventpostbackHandler : DotvvmPostbackHandler2 = {
+        execute: <T>(callback: () => Promise<T>, options: PostbackOptions) => {
+            const promise = callback();
+            promise.then(result => result,
+                (error: PostbackRejectionReason) => {
+                if (error.type == "handler" || error.type == "event") {
+                    // trigger afterPostback event
+                    var afterPostBackArgsCanceled = new DotvvmAfterPostBackEventArgs(options.sender!, options.viewModel, options.viewModelName!, options.validationTargetPath, null, options.postbackId);
+                    afterPostBackArgsCanceled.wasInterrupted = true;
+                    this.events.afterPostback.trigger(afterPostBackArgsCanceled);
+                } else {
+                    this.events.error.trigger(error.error);
+                }
+            });
+            
+            return promise;
+        }
+    }
+
     private isPostBackRunningHandler : DotvvmPostbackHandler2 = {
-        execute : <T>(callback: () => Promise<T>, sender: HTMLElement) => {
+        execute : <T>(callback: () => Promise<T>, options: PostbackOptions) => {
             this.isPostbackRunning(true)
             let promise = callback()
             promise.then(() => this.isPostbackRunning(false), () => this.isPostbackRunning(false))
@@ -65,23 +98,34 @@ class DotVVM {
     }
 
     private windowsSetTimeoutHandler : DotvvmPostbackHandler2 = {
-        execute : <T>(callback: () => Promise<T>, sender: HTMLElement) => {
+        execute : <T>(callback: () => Promise<T>, options: PostbackOptions) => {
             return new Promise((resolve, reject) => window.setTimeout(resolve, 0))
                 .then(() => callback())
         }
     }
 
-    public globalPostbackHandlers : (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[] = [this.isPostBackRunningHandler]
+    private defaultConcurrencyPostbackHandler: DotvvmPostbackHandler2 = {
+        execute: <T>(callback: () => Promise<T>, options: PostbackOptions) => {
+            return callback().then(result => {
+                if (this.lastStartedPostack == options.postbackId)
+                    return result
+                else return () => Promise.reject(null)
+            })
+        }
+    }
+
+    public globalPostbackHandlers : (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[] = [this.isPostBackRunningHandler, this.afterPostbackEventpostbackHandler]
+    public globalLaterPostbackHandlers : (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[] = [this.beforePostbackEventPostbackHandler]
  
     private convertOldHandler(handler: DotvvmPostBackHandler) : DotvvmPostbackHandler2 {
         return {
-            execute<T>(callback: () => Promise<T>, sender: HTMLElement) {
+            execute<T>(callback: () => Promise<T>, options: PostbackOptions) {
                 return new Promise((resolve, reject) => {
                     const timeout = setTimeout(() => reject({ type: handler, handler: handler, message: "The postback handler can't indicate that the postback was rejected and the timeout has passed." }), 10000)
                     handler.execute(() => {
                         clearTimeout(timeout)
                         callback().then(resolve, reject)
-                    }, sender)
+                    }, options.sender!)
                 })
             }
         }
@@ -234,9 +278,9 @@ class DotVVM {
             console.warn(`StaticCommand postback failed: ${xhr.status} - ${xhr.statusText}`, xhr);
             errorCallback(xhr);
         },
-            xhr => {
-                xhr.setRequestHeader("X-PostbackType", "StaticCommand");
-            });
+        xhr => {
+            xhr.setRequestHeader("X-PostbackType", "StaticCommand");
+        });
     }
 
     private processPassedId(id: any, context: any): string {
@@ -269,17 +313,18 @@ class DotVVM {
                .filter(h => h != null)
     }
 
-    public applyPostbackHandlers<T>(callback: () => Promise<T>, sender: HTMLElement, handlers?: (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[], context = ko.contextFor(sender)) {
+    public applyPostbackHandlers<T>(callback: (options: PostbackOptions) => Promise<T>, sender: HTMLElement, handlers?: (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[], args : any[] = [], validationPath?: any, context = ko.contextFor(sender), viewModel = context.$root, viewModelName?: string) : Promise<T> {
+        const options = new PostbackOptions(this.backUpPostBackConter(), sender, args, viewModel, viewModelName, validationPath);
         if (handlers == null || handlers.length === 0) {
-            return callback();
+            return callback(options);
         } else {
             return new Promise((resolve, reject) => {
                 this.findPostbackHandlers(context, handlers)
                 .reduceRight(
                     (prev, val, index) => () => 
-                        val.execute<T>(prev, sender),
+                        val.execute<T>(prev, options),
                     () => {
-                        const r = callback()
+                        const r = callback(options)
                         r.then(resolve, reject)
                         return r
                     })
@@ -288,35 +333,11 @@ class DotVVM {
         }
     }
 
-    public postbackCore(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, context: any, validationTargetPath?: any, commandArgs?: any[]) {
-        
-        return new Promise((resolve, reject) => {
-            const error = (viewModel, xhr: XMLHttpRequest) => {
-                // execute error handlers
-                var errArgs = new DotvvmErrorEventArgs(viewModel, xhr);
-                reject(errArgs);
-                this.events.error.trigger(errArgs);
-                if (!errArgs.handled) {
-                    alert("unhandled error during postback");
-                }
-            }
-
+    public postbackCore(viewModelName: string, options: PostbackOptions, path: string[], command: string, controlUniqueId: string, context: any, validationTargetPath?: any, commandArgs?: any[]) {
+        return new Promise<() => Promise<DotvvmAfterPostBackEventArgs>>((resolve, reject) => {
             var viewModel = this.viewModels[viewModelName].viewModel;
-            
-            // prevent double postbacks
-            var currentPostBackCounter = this.backUpPostBackConter();
 
-            // trigger beforePostback event
-            var beforePostbackArgs = new DotvvmBeforePostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, currentPostBackCounter);
-            this.events.beforePostback.trigger(beforePostbackArgs);
-            if (beforePostbackArgs.cancel) {
-                // trigger afterPostback event
-                var afterPostBackArgsCanceled = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, null, currentPostBackCounter);
-                afterPostBackArgsCanceled.wasInterrupted = true;
-                this.events.afterPostback.trigger(afterPostBackArgsCanceled);
-                return reject("canceled");
-            }
-
+            this.lastStartedPostack = options.postbackId
             // perform the postback
             this.updateDynamicPathFragments(context, path);
             var data = {
@@ -329,23 +350,13 @@ class DotVVM {
                 commandArgs: commandArgs
             };
             this.postJSON(<string>this.viewModels[viewModelName].url, "POST", ko.toJSON(data), result => {
-                // if another postback has already been passed, don't do anything
-                if (!this.isPostBackStillActive(currentPostBackCounter)) {
-                    var afterPostBackArgsCanceled = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, null, currentPostBackCounter);
-                    afterPostBackArgsCanceled.wasInterrupted = true;
-                    this.events.afterPostback.trigger(afterPostBackArgsCanceled);
-                    reject("postback collision");
-                    return;
-                }
-                try {
-                    var resultObject,
-                        locationHeader = result.getResponseHeader("Location");
+                resolve(() => new Promise((resolve, reject) => {
+                    const locationHeader = result.getResponseHeader("Location");
 
-                    if (locationHeader != null && locationHeader.length > 0) {
-                        resultObject = { action: "redirect", url: locationHeader };
-                    } else {
-                        resultObject = JSON.parse(result.responseText);
-                    }
+                    const resultObject = locationHeader != null && locationHeader.length > 0 ?
+                                         { action: "redirect", url: locationHeader } :
+                                         JSON.parse(result.responseText);
+
                     if (!resultObject.viewModel && resultObject.viewModelDiff) {
                         // TODO: patch (~deserialize) it to ko.observable viewModel
                         resultObject.viewModel = this.patch(data.viewModel, resultObject.viewModelDiff);
@@ -379,8 +390,8 @@ class DotVVM {
                             }
                         } else if (resultObject.action === "redirect") {
                             // redirect
-                            this.handleRedirect(resultObject, viewModelName);
-                            return;
+                            this.handleRedirect(resultObject, viewModelName)
+                            return resolve()
                         }
 
                         var idFragment = resultObject.resultIdFragment;
@@ -393,21 +404,16 @@ class DotVVM {
                         }
 
                         // trigger afterPostback event
-                        var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, resultObject, currentPostBackCounter);
-                        resolve(afterPostBackArgs);
-                        this.events.afterPostback.trigger(afterPostBackArgs);
-                        if (!isSuccess && !afterPostBackArgs.isHandled) {
-                            error(viewModel, result);
+                        if (!isSuccess) {
+                            reject(new DotvvmErrorEventArgs(viewModel, result))
+                        } else {
+                            var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(options.sender, viewModel, viewModelName, validationTargetPath, resultObject, options.postbackId)
+                            resolve(afterPostBackArgs)
                         }
                     });
-                }
-                catch (error) {
-                    error(viewModel, result);
-                }
+                }));
             }, xhr => {
-                // if another postback has already been passed, don't do anything
-                if (!this.isPostBackStillActive(currentPostBackCounter)) return;
-                error(viewModel, xhr);
+                reject({ type: 'network', error: new DotvvmErrorEventArgs(viewModel, xhr) });
             });
         });
     }
@@ -419,18 +425,23 @@ class DotVVM {
 
         context = context || ko.contextFor(sender);
 
-        let preHandlers = this.globalPostbackHandlers.concat([]);
+        let preHandlers = Array.prototype.concat.call([this.defaultConcurrencyPostbackHandler], this.globalPostbackHandlers)
         if (useWindowSetTimeout) {
             preHandlers.push(this.windowsSetTimeoutHandler)
         }
 
-        handlers = preHandlers.concat(handlers || []);
+        handlers = preHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers);
 
-        var promise = this.applyPostbackHandlers(() => {
-            return this.postbackCore(viewModelName, sender, path, command, controlUniqueId, context, validationTargetPath, commandArgs)
-        }, sender, handlers, context);
+        const promise = this.applyPostbackHandlers(options => {
+            return this.postbackCore(viewModelName, options, path, command, controlUniqueId, context, validationTargetPath, commandArgs)
+        }, sender, handlers, commandArgs, validationTargetPath, context, this.viewModels[viewModelName], viewModelName);
 
-        return promise;
+        const result = promise.then(
+                r => r().then(r => r, error => ({ type: "commit", error: error })),
+                error => error
+            )
+        result.then(r => this.events.afterPostback.trigger(r))
+        return result;
     }
 
     private loadResourceList(resources: IRenderedResourceList, callback: () => void) {

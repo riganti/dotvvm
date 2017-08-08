@@ -334,11 +334,23 @@ var ConfirmPostBackHandler = (function (_super) {
     };
     return ConfirmPostBackHandler;
 }(DotvvmPostBackHandler));
+var PostbackOptions = (function () {
+    function PostbackOptions(postbackId, sender, args, viewModel, viewModelName, validationTargetPath) {
+        if (args === void 0) { args = []; }
+        this.postbackId = postbackId;
+        this.sender = sender;
+        this.args = args;
+        this.viewModel = viewModel;
+        this.viewModelName = viewModelName;
+        this.validationTargetPath = validationTargetPath;
+    }
+    return PostbackOptions;
+}());
 var ConfirmPostBackHandler2 = (function () {
     function ConfirmPostBackHandler2(message) {
         this.message = message;
     }
-    ConfirmPostBackHandler2.prototype.execute = function (callback, sender) {
+    ConfirmPostBackHandler2.prototype.execute = function (callback, options) {
         var _this = this;
         return new Promise(function (resolve, reject) {
             if (confirm(_this.message)) {
@@ -657,6 +669,7 @@ var DotVVM = (function () {
     function DotVVM() {
         var _this = this;
         this.postBackCounter = 0;
+        this.lastStartedPostack = 0;
         this.resourceSigns = {};
         this.isViewModelUpdating = true;
         // warning this property is referenced in ModelState.cs and KnockoutHelper.cs
@@ -670,8 +683,36 @@ var DotVVM = (function () {
         this.postbackHandlers2 = {
             confirm: function (options) { return new ConfirmPostBackHandler2(options.message); }
         };
+        this.beforePostbackEventPostbackHandler = {
+            execute: function (callback, options) {
+                // trigger beforePostback event
+                var beforePostbackArgs = new DotvvmBeforePostBackEventArgs(options.sender, options.viewModel, options.viewModelName, options.validationTargetPath, options.postbackId);
+                _this.events.beforePostback.trigger(beforePostbackArgs);
+                if (beforePostbackArgs.cancel) {
+                    return Promise.reject({ type: "event" });
+                }
+                return callback();
+            }
+        };
+        this.afterPostbackEventpostbackHandler = {
+            execute: function (callback, options) {
+                var promise = callback();
+                promise.then(function (result) { return result; }, function (error) {
+                    if (error.type == "handler" || error.type == "event") {
+                        // trigger afterPostback event
+                        var afterPostBackArgsCanceled = new DotvvmAfterPostBackEventArgs(options.sender, options.viewModel, options.viewModelName, options.validationTargetPath, null, options.postbackId);
+                        afterPostBackArgsCanceled.wasInterrupted = true;
+                        _this.events.afterPostback.trigger(afterPostBackArgsCanceled);
+                    }
+                    else {
+                        _this.events.error.trigger(error.error);
+                    }
+                });
+                return promise;
+            }
+        };
         this.isPostBackRunningHandler = {
-            execute: function (callback, sender) {
+            execute: function (callback, options) {
                 _this.isPostbackRunning(true);
                 var promise = callback();
                 promise.then(function () { return _this.isPostbackRunning(false); }, function () { return _this.isPostbackRunning(false); });
@@ -679,12 +720,23 @@ var DotVVM = (function () {
             }
         };
         this.windowsSetTimeoutHandler = {
-            execute: function (callback, sender) {
+            execute: function (callback, options) {
                 return new Promise(function (resolve, reject) { return window.setTimeout(resolve, 0); })
                     .then(function () { return callback(); });
             }
         };
-        this.globalPostbackHandlers = [this.isPostBackRunningHandler];
+        this.defaultConcurrencyPostbackHandler = {
+            execute: function (callback, options) {
+                return callback().then(function (result) {
+                    if (_this.lastStartedPostack == options.postbackId)
+                        return result;
+                    else
+                        return function () { return Promise.reject(null); };
+                });
+            }
+        };
+        this.globalPostbackHandlers = [this.isPostBackRunningHandler, this.afterPostbackEventpostbackHandler];
+        this.globalLaterPostbackHandlers = [this.beforePostbackEventPostbackHandler];
         this.events = new DotvvmEvents();
         this.globalize = new DotvvmGlobalize();
         this.evaluator = new DotvvmEvaluator();
@@ -695,13 +747,13 @@ var DotVVM = (function () {
     }
     DotVVM.prototype.convertOldHandler = function (handler) {
         return {
-            execute: function (callback, sender) {
+            execute: function (callback, options) {
                 return new Promise(function (resolve, reject) {
                     var timeout = setTimeout(function () { return reject({ type: handler, handler: handler, message: "The postback handler can't indicate that the postback was rejected and the timeout has passed." }); }, 10000);
                     handler.execute(function () {
                         clearTimeout(timeout);
                         callback().then(resolve, reject);
-                    }, sender);
+                    }, options.sender);
                 });
             }
         };
@@ -874,50 +926,33 @@ var DotVVM = (function () {
         })
             .filter(function (h) { return h != null; });
     };
-    DotVVM.prototype.applyPostbackHandlers = function (callback, sender, handlers, context) {
+    DotVVM.prototype.applyPostbackHandlers = function (callback, sender, handlers, args, validationPath, context, viewModel, viewModelName) {
         var _this = this;
+        if (args === void 0) { args = []; }
         if (context === void 0) { context = ko.contextFor(sender); }
+        if (viewModel === void 0) { viewModel = context.$root; }
+        var options = new PostbackOptions(this.backUpPostBackConter(), sender, args, viewModel, viewModelName, validationPath);
         if (handlers == null || handlers.length === 0) {
-            return callback();
+            return callback(options);
         }
         else {
             return new Promise(function (resolve, reject) {
                 _this.findPostbackHandlers(context, handlers)
                     .reduceRight(function (prev, val, index) { return function () {
-                    return val.execute(prev, sender);
+                    return val.execute(prev, options);
                 }; }, function () {
-                    var r = callback();
+                    var r = callback(options);
                     r.then(resolve, reject);
                     return r;
                 })();
             });
         }
     };
-    DotVVM.prototype.postbackCore = function (viewModelName, sender, path, command, controlUniqueId, context, validationTargetPath, commandArgs) {
+    DotVVM.prototype.postbackCore = function (viewModelName, options, path, command, controlUniqueId, context, validationTargetPath, commandArgs) {
         var _this = this;
         return new Promise(function (resolve, reject) {
-            var error = function (viewModel, xhr) {
-                // execute error handlers
-                var errArgs = new DotvvmErrorEventArgs(viewModel, xhr);
-                reject(errArgs);
-                _this.events.error.trigger(errArgs);
-                if (!errArgs.handled) {
-                    alert("unhandled error during postback");
-                }
-            };
             var viewModel = _this.viewModels[viewModelName].viewModel;
-            // prevent double postbacks
-            var currentPostBackCounter = _this.backUpPostBackConter();
-            // trigger beforePostback event
-            var beforePostbackArgs = new DotvvmBeforePostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, currentPostBackCounter);
-            _this.events.beforePostback.trigger(beforePostbackArgs);
-            if (beforePostbackArgs.cancel) {
-                // trigger afterPostback event
-                var afterPostBackArgsCanceled = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, null, currentPostBackCounter);
-                afterPostBackArgsCanceled.wasInterrupted = true;
-                _this.events.afterPostback.trigger(afterPostBackArgsCanceled);
-                return reject("canceled");
-            }
+            _this.lastStartedPostack = options.postbackId;
             // perform the postback
             _this.updateDynamicPathFragments(context, path);
             var data = {
@@ -930,22 +965,11 @@ var DotVVM = (function () {
                 commandArgs: commandArgs
             };
             _this.postJSON(_this.viewModels[viewModelName].url, "POST", ko.toJSON(data), function (result) {
-                // if another postback has already been passed, don't do anything
-                if (!_this.isPostBackStillActive(currentPostBackCounter)) {
-                    var afterPostBackArgsCanceled = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, null, currentPostBackCounter);
-                    afterPostBackArgsCanceled.wasInterrupted = true;
-                    _this.events.afterPostback.trigger(afterPostBackArgsCanceled);
-                    reject("postback collision");
-                    return;
-                }
-                try {
-                    var resultObject, locationHeader = result.getResponseHeader("Location");
-                    if (locationHeader != null && locationHeader.length > 0) {
-                        resultObject = { action: "redirect", url: locationHeader };
-                    }
-                    else {
-                        resultObject = JSON.parse(result.responseText);
-                    }
+                resolve(function () { return new Promise(function (resolve, reject) {
+                    var locationHeader = result.getResponseHeader("Location");
+                    var resultObject = locationHeader != null && locationHeader.length > 0 ?
+                        { action: "redirect", url: locationHeader } :
+                        JSON.parse(result.responseText);
                     if (!resultObject.viewModel && resultObject.viewModelDiff) {
                         // TODO: patch (~deserialize) it to ko.observable viewModel
                         resultObject.viewModel = _this.patch(data.viewModel, resultObject.viewModelDiff);
@@ -976,7 +1000,7 @@ var DotVVM = (function () {
                         else if (resultObject.action === "redirect") {
                             // redirect
                             _this.handleRedirect(resultObject, viewModelName);
-                            return;
+                            return resolve();
                         }
                         var idFragment = resultObject.resultIdFragment;
                         if (idFragment) {
@@ -989,22 +1013,17 @@ var DotVVM = (function () {
                                 location.hash = idFragment;
                         }
                         // trigger afterPostback event
-                        var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, resultObject, currentPostBackCounter);
-                        resolve(afterPostBackArgs);
-                        _this.events.afterPostback.trigger(afterPostBackArgs);
-                        if (!isSuccess && !afterPostBackArgs.isHandled) {
-                            error(viewModel, result);
+                        if (!isSuccess) {
+                            reject(new DotvvmErrorEventArgs(viewModel, result));
+                        }
+                        else {
+                            var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(options.sender, viewModel, viewModelName, validationTargetPath, resultObject, options.postbackId);
+                            resolve(afterPostBackArgs);
                         }
                     });
-                }
-                catch (error) {
-                    error(viewModel, result);
-                }
+                }); });
             }, function (xhr) {
-                // if another postback has already been passed, don't do anything
-                if (!_this.isPostBackStillActive(currentPostBackCounter))
-                    return;
-                error(viewModel, xhr);
+                reject({ type: 'network', error: new DotvvmErrorEventArgs(viewModel, xhr) });
             });
         });
     };
@@ -1013,15 +1032,17 @@ var DotVVM = (function () {
         if (this.isPostBackProhibited(sender))
             return new Promise(function (resolve, reject) { return reject("rejected"); });
         context = context || ko.contextFor(sender);
-        var preHandlers = this.globalPostbackHandlers.concat([]);
+        var preHandlers = Array.prototype.concat.call([this.defaultConcurrencyPostbackHandler], this.globalPostbackHandlers);
         if (useWindowSetTimeout) {
             preHandlers.push(this.windowsSetTimeoutHandler);
         }
-        handlers = preHandlers.concat(handlers || []);
-        var promise = this.applyPostbackHandlers(function () {
-            return _this.postbackCore(viewModelName, sender, path, command, controlUniqueId, context, validationTargetPath, commandArgs);
-        }, sender, handlers, context);
-        return promise;
+        handlers = preHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers);
+        var promise = this.applyPostbackHandlers(function (options) {
+            return _this.postbackCore(viewModelName, options, path, command, controlUniqueId, context, validationTargetPath, commandArgs);
+        }, sender, handlers, commandArgs, validationTargetPath, context, this.viewModels[viewModelName], viewModelName);
+        var result = promise.then(function (r) { return r().then(function (r) { return r; }, function (error) { return ({ type: "commit", error: error }); }); }, function (error) { return error; });
+        result.then(function (r) { return _this.events.afterPostback.trigger(r); });
+        return result;
     };
     DotVVM.prototype.loadResourceList = function (resources, callback) {
         var html = "";

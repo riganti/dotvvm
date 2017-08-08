@@ -1,9 +1,12 @@
 type DotvvmPostbackHandler2 = {
-    execute<T>(callback: () => Promise<T>, sender: HTMLElement): Promise<T>
+    execute<T>(callback: () => Promise<T>, options: PostbackOptions): Promise<T>
 }
 
 type PostbackRejectionReason =
     | { type: "handler", handler: DotvvmPostbackHandler2 | DotvvmPostBackHandler, message?: string }
+    | { type: 'network', error: DotvvmErrorEventArgs }
+    | { type: 'commit', error: DotvvmErrorEventArgs }
+    | { type: 'event' }
 
 class DotvvmPostBackHandler {
     public execute<T>(callback: () => void, sender: HTMLElement): void {
@@ -22,9 +25,13 @@ class ConfirmPostBackHandler extends DotvvmPostBackHandler {
     }
 }
 
+class PostbackOptions {
+    constructor(public readonly postbackId: number, public readonly sender?: HTMLElement, public readonly args : any[] = [], public readonly viewModel?: any, public readonly viewModelName?: string, public readonly validationTargetPath?: any) {}
+}
+
 class ConfirmPostBackHandler2 implements DotvvmPostbackHandler2 {
     constructor(public message: string) { }
-    execute<T>(callback: () => Promise<T>, sender: HTMLElement): Promise<T> {
+    execute<T>(callback: () => Promise<T>, options: PostbackOptions): Promise<T> {
         return new Promise<T>((resolve, reject) => {
             if (confirm(this.message)) {
                 callback().then(resolve, reject)

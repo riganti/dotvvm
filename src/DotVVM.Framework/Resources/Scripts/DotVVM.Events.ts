@@ -65,7 +65,7 @@ class DotvvmBeforePostBackEventArgs extends DotvvmEventArgs {
 class DotvvmAfterPostBackEventArgs extends DotvvmEventArgs {
     public isHandled: boolean = false;
     public wasInterrupted: boolean = false;
-    constructor(public sender: HTMLElement, public viewModel: any, public viewModelName: string, public validationTargetPath: any, public serverResponseObject: any, public postbackClientId: number) {
+    constructor(public sender: HTMLElement | undefined, public viewModel: any, public viewModelName: string, public validationTargetPath: any, public serverResponseObject: any, public postbackClientId: number) {
         super(viewModel);
     }
 }
