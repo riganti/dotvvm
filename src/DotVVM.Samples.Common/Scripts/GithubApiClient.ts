@@ -22,7 +22,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getEmojis(accept: string): Promise<Emojis> {
+        getEmojis(accept?: string): Promise<Emojis> {
             let url_ = this.baseUrl + "/emojis";
             url_ = url_.replace(/[?&]$/, "");
     
@@ -64,7 +64,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getEvents(accept: string): Promise<Events> {
+        getEvents(accept?: string): Promise<Events> {
             let url_ = this.baseUrl + "/events";
             url_ = url_.replace(/[?&]$/, "");
     
@@ -106,7 +106,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getFeeds(accept: string): Promise<Feeds> {
+        getFeeds(accept?: string): Promise<Feeds> {
             let url_ = this.baseUrl + "/feeds";
             url_ = url_.replace(/[?&]$/, "");
     
@@ -150,7 +150,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getGistsAll(since: string, accept: string): Promise<Anonymous[]> {
+        getGistsAll(since?: string, accept?: string): Promise<Anonymous[]> {
             let url_ = this.baseUrl + "/gists?";
             if (since !== undefined)
                 url_ += "since=" + encodeURIComponent("" + since) + "&"; 
@@ -198,7 +198,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Created
          */
-        postGists(accept: string, body: PostGist): Promise<Gist> {
+        postGists(body: PostGist, accept?: string): Promise<Gist> {
             let url_ = this.baseUrl + "/gists";
             url_ = url_.replace(/[?&]$/, "");
     
@@ -244,7 +244,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return No content.
          */
-        deleteGists(id: number, accept: string): Promise<void> {
+        deleteGists(id: number, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/gists/{id}";
             if (id === undefined || id === null)
                 throw new Error("The parameter 'id' must be defined.");
@@ -287,7 +287,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getGists(id: number, accept: string): Promise<Gist> {
+        getGists(id: number, accept?: string): Promise<Gist> {
             let url_ = this.baseUrl + "/gists/{id}";
             if (id === undefined || id === null)
                 throw new Error("The parameter 'id' must be defined.");
@@ -333,7 +333,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        patchGists(id: number, accept: string, body: PatchGist): Promise<Gist> {
+        patchGists(id: number, body: PatchGist, accept?: string): Promise<Gist> {
             let url_ = this.baseUrl + "/gists/{id}";
             if (id === undefined || id === null)
                 throw new Error("The parameter 'id' must be defined.");
@@ -386,7 +386,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getIssues(filter: Filter, state: State, labels: string, sort: Sort, direction: Direction, since: string, accept: string): Promise<Anonymous2[]> {
+        getIssues(filter: Filter, state: State, labels: string, sort: Sort, direction: Direction, since?: string, accept?: string): Promise<Anonymous2[]> {
             let url_ = this.baseUrl + "/issues?";
             if (filter === undefined || filter === null)
                 throw new Error("The parameter 'filter' must be defined and cannot be null.");
@@ -454,7 +454,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        postMarkdown(accept: string, body: Markdown): Promise<void> {
+        postMarkdown(body: Markdown, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/markdown";
             url_ = url_.replace(/[?&]$/, "");
     
@@ -496,7 +496,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getMeta(accept: string): Promise<Meta> {
+        getMeta(accept?: string): Promise<Meta> {
             let url_ = this.baseUrl + "/meta";
             url_ = url_.replace(/[?&]$/, "");
     
@@ -543,7 +543,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getNotifications(all: boolean, participating: boolean, since: string, accept: string): Promise<Notifications> {
+        getNotifications(all?: boolean, participating?: boolean, since?: string, accept?: string): Promise<Notifications> {
             let url_ = this.baseUrl + "/notifications?";
             if (all !== undefined)
                 url_ += "all=" + encodeURIComponent("" + all) + "&"; 
@@ -591,7 +591,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Marked as read.
          */
-        putNotifications(accept: string, body: NotificationMarkRead): Promise<void> {
+        putNotifications(body: NotificationMarkRead, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/notifications";
             url_ = url_.replace(/[?&]$/, "");
     
@@ -634,7 +634,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getOrgs(org: string, accept: string): Promise<Organization> {
+        getOrgs(org: string, accept?: string): Promise<Organization> {
             let url_ = this.baseUrl + "/orgs/{org}";
             if (org === undefined || org === null)
                 throw new Error("The parameter 'org' must be defined.");
@@ -680,7 +680,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        patchOrgs(org: string, accept: string, body: PatchOrg): Promise<Organization> {
+        patchOrgs(org: string, body: PatchOrg, accept?: string): Promise<Organization> {
             let url_ = this.baseUrl + "/orgs/{org}";
             if (org === undefined || org === null)
                 throw new Error("The parameter 'org' must be defined.");
@@ -728,7 +728,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getRateLimit(accept: string): Promise<Rate_limit> {
+        getRateLimit(accept?: string): Promise<Rate_limit> {
             let url_ = this.baseUrl + "/rate_limit";
             url_ = url_.replace(/[?&]$/, "");
     
@@ -772,7 +772,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Item removed.
          */
-        deleteRepos(owner: string, repo: string, accept: string): Promise<void> {
+        deleteRepos(owner: string, repo: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -819,7 +819,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getRepos(owner: string, repo: string, accept: string): Promise<Repo> {
+        getRepos(owner: string, repo: string, accept?: string): Promise<Repo> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -869,7 +869,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        patchRepos(owner: string, repo: string, accept: string, body: RepoEdit): Promise<Repo> {
+        patchRepos(owner: string, repo: string, body: RepoEdit, accept?: string): Promise<Repo> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -922,7 +922,7 @@ namespace GithubApiClient {
          * @path Valid Git reference, defaults to 'master'.
          * @accept Is used to set specified media type.
          */
-        getRepos2(owner: string, repo: string, archive_format: Archive_format, path: string, accept: string): Promise<void> {
+        getRepos2(owner: string, repo: string, archive_format: Archive_format, path: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/{archive_format}/{path}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -975,7 +975,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getRepositories(since: string, accept: string): Promise<Anonymous3[]> {
+        getRepositories(since?: string, accept?: string): Promise<Anonymous3[]> {
             let url_ = this.baseUrl + "/repositories?";
             if (since !== undefined)
                 url_ += "since=" + encodeURIComponent("" + since) + "&"; 
@@ -1024,7 +1024,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return No content.
          */
-        deleteTeams(teamId: number, accept: string): Promise<void> {
+        deleteTeams(teamId: number, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/teams/{teamId}";
             if (teamId === undefined || teamId === null)
                 throw new Error("The parameter 'teamId' must be defined.");
@@ -1067,7 +1067,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getTeams(teamId: number, accept: string): Promise<Team> {
+        getTeams(teamId: number, accept?: string): Promise<Team> {
             let url_ = this.baseUrl + "/teams/{teamId}";
             if (teamId === undefined || teamId === null)
                 throw new Error("The parameter 'teamId' must be defined.");
@@ -1113,7 +1113,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        patchTeams(teamId: number, accept: string, body: EditTeam): Promise<Team> {
+        patchTeams(teamId: number, body: EditTeam, accept?: string): Promise<Team> {
             let url_ = this.baseUrl + "/teams/{teamId}";
             if (teamId === undefined || teamId === null)
                 throw new Error("The parameter 'teamId' must be defined.");
@@ -1161,7 +1161,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getUser(accept: string): Promise<User> {
+        getUser(accept?: string): Promise<User> {
             let url_ = this.baseUrl + "/user";
             url_ = url_.replace(/[?&]$/, "");
     
@@ -1203,7 +1203,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        patchUser(accept: string, body: UserUpdate): Promise<User> {
+        patchUser(body: UserUpdate, accept?: string): Promise<User> {
             let url_ = this.baseUrl + "/user";
             url_ = url_.replace(/[?&]$/, "");
     
@@ -1249,7 +1249,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getUsersAll(since: number, accept: string): Promise<Anonymous4[]> {
+        getUsersAll(since?: number, accept?: string): Promise<Anonymous4[]> {
             let url_ = this.baseUrl + "/users?";
             if (since !== undefined)
                 url_ += "since=" + encodeURIComponent("" + since) + "&"; 
@@ -1298,7 +1298,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getUsersAll2(username: string, accept: string): Promise<Anonymous4[]> {
+        getUsersAll2(username: string, accept?: string): Promise<Anonymous4[]> {
             let url_ = this.baseUrl + "/users/{username}";
             if (username === undefined || username === null)
                 throw new Error("The parameter 'username' must be defined.");
@@ -1360,7 +1360,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getPublic(since: string, accept: string): Promise<Anonymous[]> {
+        getPublic(since?: string, accept?: string): Promise<Anonymous[]> {
             let url_ = this.baseUrl + "/gists/public?";
             if (since !== undefined)
                 url_ += "since=" + encodeURIComponent("" + since) + "&"; 
@@ -1410,7 +1410,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getStarred(since: string, accept: string): Promise<Anonymous[]> {
+        getStarred(since?: string, accept?: string): Promise<Anonymous[]> {
             let url_ = this.baseUrl + "/gists/starred?";
             if (since !== undefined)
                 url_ += "since=" + encodeURIComponent("" + since) + "&"; 
@@ -1459,7 +1459,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getCommentsAll(id: number, accept: string): Promise<Anonymous5[]> {
+        getCommentsAll(id: number, accept?: string): Promise<Anonymous5[]> {
             let url_ = this.baseUrl + "/gists/{id}/comments";
             if (id === undefined || id === null)
                 throw new Error("The parameter 'id' must be defined.");
@@ -1509,7 +1509,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Created
          */
-        postComments(id: number, accept: string, body: CommentBody): Promise<Comment> {
+        postComments(id: number, body: CommentBody, accept?: string): Promise<Comment> {
             let url_ = this.baseUrl + "/gists/{id}/comments";
             if (id === undefined || id === null)
                 throw new Error("The parameter 'id' must be defined.");
@@ -1559,7 +1559,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return No content.
          */
-        deleteComments(id: number, commentId: number, accept: string): Promise<void> {
+        deleteComments(id: number, commentId: number, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/gists/{id}/comments/{commentId}";
             if (id === undefined || id === null)
                 throw new Error("The parameter 'id' must be defined.");
@@ -1606,7 +1606,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getComments(id: number, commentId: number, accept: string): Promise<Comment> {
+        getComments(id: number, commentId: number, accept?: string): Promise<Comment> {
             let url_ = this.baseUrl + "/gists/{id}/comments/{commentId}";
             if (id === undefined || id === null)
                 throw new Error("The parameter 'id' must be defined.");
@@ -1656,7 +1656,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        patchComments(id: number, commentId: number, accept: string, body: Comment): Promise<Comment> {
+        patchComments(id: number, commentId: number, body: Comment, accept?: string): Promise<Comment> {
             let url_ = this.baseUrl + "/gists/{id}/comments/{commentId}";
             if (id === undefined || id === null)
                 throw new Error("The parameter 'id' must be defined.");
@@ -1708,7 +1708,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Exists.
          */
-        postForks(id: number, accept: string): Promise<void> {
+        postForks(id: number, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/gists/{id}/forks";
             if (id === undefined || id === null)
                 throw new Error("The parameter 'id' must be defined.");
@@ -1755,7 +1755,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Item removed.
          */
-        deleteStar(id: number, accept: string): Promise<void> {
+        deleteStar(id: number, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/gists/{id}/star";
             if (id === undefined || id === null)
                 throw new Error("The parameter 'id' must be defined.");
@@ -1798,7 +1798,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Exists.
          */
-        getStar(id: number, accept: string): Promise<void> {
+        getStar(id: number, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/gists/{id}/star";
             if (id === undefined || id === null)
                 throw new Error("The parameter 'id' must be defined.");
@@ -1845,7 +1845,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Starred.
          */
-        putStar(id: number, accept: string): Promise<void> {
+        putStar(id: number, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/gists/{id}/star";
             if (id === undefined || id === null)
                 throw new Error("The parameter 'id' must be defined.");
@@ -1898,7 +1898,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getTemplatesAll(accept: string): Promise<any[]> {
+        getTemplatesAll(accept?: string): Promise<any[]> {
             let url_ = this.baseUrl + "/gitignore/templates";
             url_ = url_.replace(/[?&]$/, "");
     
@@ -1944,7 +1944,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getTemplates(language: string, accept: string): Promise<GitignoreLang> {
+        getTemplates(language: string, accept?: string): Promise<GitignoreLang> {
             let url_ = this.baseUrl + "/gitignore/templates/{language}";
             if (language === undefined || language === null)
                 throw new Error("The parameter 'language' must be defined.");
@@ -2002,7 +2002,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        issuesGetSearch(keyword: string, state: State2, owner: string, repository: string, accept: string): Promise<SearchIssuesByKeyword> {
+        issuesGetSearch(keyword: string, state: State2, owner: string, repository: string, accept?: string): Promise<SearchIssuesByKeyword> {
             let url_ = this.baseUrl + "/legacy/issues/search/{owner}/{repository}/{state}/{keyword}";
             if (keyword === undefined || keyword === null)
                 throw new Error("The parameter 'keyword' must be defined.");
@@ -2061,7 +2061,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        reposGetSearch(keyword: string, order: Order, language: string, start_page: string, sort: Sort2, accept: string): Promise<SearchRepositoriesByKeyword> {
+        reposGetSearch(keyword: string, order?: Order, language?: string, start_page?: string, sort?: Sort2, accept?: string): Promise<SearchRepositoriesByKeyword> {
             let url_ = this.baseUrl + "/legacy/repos/search/{keyword}?";
             if (keyword === undefined || keyword === null)
                 throw new Error("The parameter 'keyword' must be defined.");
@@ -2115,7 +2115,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        userGetEmail(email: string, accept: string): Promise<SearchUserByEmail> {
+        userGetEmail(email: string, accept?: string): Promise<SearchUserByEmail> {
             let url_ = this.baseUrl + "/legacy/user/email/{email}";
             if (email === undefined || email === null)
                 throw new Error("The parameter 'email' must be defined.");
@@ -2164,7 +2164,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        userGetSearch(keyword: string, order: Order2, start_page: string, sort: Sort3, accept: string): Promise<SearchUsersByKeyword> {
+        userGetSearch(keyword: string, order?: Order2, start_page?: string, sort?: Sort3, accept?: string): Promise<SearchUsersByKeyword> {
             let url_ = this.baseUrl + "/legacy/user/search/{keyword}?";
             if (keyword === undefined || keyword === null)
                 throw new Error("The parameter 'keyword' must be defined.");
@@ -2226,7 +2226,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        postRaw(accept: string): Promise<void> {
+        postRaw(accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/markdown/raw";
             url_ = url_.replace(/[?&]$/, "");
     
@@ -2278,7 +2278,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getEvents(owner: string, repo: string, accept: string): Promise<Events> {
+        getEvents(owner: string, repo: string, accept?: string): Promise<Events> {
             let url_ = this.baseUrl + "/networks/{owner}/{repo}/events";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -2338,7 +2338,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getThreads(id: number, accept: string): Promise<Notifications> {
+        getThreads(id: number, accept?: string): Promise<Notifications> {
             let url_ = this.baseUrl + "/notifications/threads/{id}";
             if (id === undefined || id === null)
                 throw new Error("The parameter 'id' must be defined.");
@@ -2384,7 +2384,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Thread marked as read.
          */
-        patchThreads(id: number, accept: string): Promise<void> {
+        patchThreads(id: number, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/notifications/threads/{id}";
             if (id === undefined || id === null)
                 throw new Error("The parameter 'id' must be defined.");
@@ -2427,7 +2427,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return No Content
          */
-        threadsDeleteSubscription(id: number, accept: string): Promise<void> {
+        threadsDeleteSubscription(id: number, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/notifications/threads/{id}/subscription";
             if (id === undefined || id === null)
                 throw new Error("The parameter 'id' must be defined.");
@@ -2470,7 +2470,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        threadsGetSubscription(id: number, accept: string): Promise<Subscription> {
+        threadsGetSubscription(id: number, accept?: string): Promise<Subscription> {
             let url_ = this.baseUrl + "/notifications/threads/{id}/subscription";
             if (id === undefined || id === null)
                 throw new Error("The parameter 'id' must be defined.");
@@ -2516,7 +2516,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        threadsPutSubscription(id: number, accept: string, body: PutSubscription): Promise<Subscription> {
+        threadsPutSubscription(id: number, body: PutSubscription, accept?: string): Promise<Subscription> {
             let url_ = this.baseUrl + "/notifications/threads/{id}/subscription";
             if (id === undefined || id === null)
                 throw new Error("The parameter 'id' must be defined.");
@@ -2576,7 +2576,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getEvents(org: string, accept: string): Promise<Events> {
+        getEvents(org: string, accept?: string): Promise<Events> {
             let url_ = this.baseUrl + "/orgs/{org}/events";
             if (org === undefined || org === null)
                 throw new Error("The parameter 'org' must be defined.");
@@ -2627,7 +2627,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getIssues(org: string, filter: Filter2, state: State3, labels: string, sort: Sort4, direction: Direction2, since: string, accept: string): Promise<Anonymous2[]> {
+        getIssues(org: string, filter: Filter2, state: State3, labels: string, sort: Sort4, direction: Direction2, since?: string, accept?: string): Promise<Anonymous2[]> {
             let url_ = this.baseUrl + "/orgs/{org}/issues?";
             if (org === undefined || org === null)
                 throw new Error("The parameter 'org' must be defined.");
@@ -2699,7 +2699,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getMembersAll(org: string, accept: string): Promise<Anonymous4[]> {
+        getMembersAll(org: string, accept?: string): Promise<Anonymous4[]> {
             let url_ = this.baseUrl + "/orgs/{org}/members";
             if (org === undefined || org === null)
                 throw new Error("The parameter 'org' must be defined.");
@@ -2754,7 +2754,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return No content.
          */
-        deleteMembers(org: string, username: string, accept: string): Promise<void> {
+        deleteMembers(org: string, username: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/orgs/{org}/members/{username}";
             if (org === undefined || org === null)
                 throw new Error("The parameter 'org' must be defined.");
@@ -2801,7 +2801,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return No content. Response if requester is an organization member and user is a member
          */
-        getMembers(org: string, username: string, accept: string): Promise<void> {
+        getMembers(org: string, username: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/orgs/{org}/members/{username}";
             if (org === undefined || org === null)
                 throw new Error("The parameter 'org' must be defined.");
@@ -2855,7 +2855,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getPublicMembersAll(org: string, accept: string): Promise<Anonymous4[]> {
+        getPublicMembersAll(org: string, accept?: string): Promise<Anonymous4[]> {
             let url_ = this.baseUrl + "/orgs/{org}/public_members";
             if (org === undefined || org === null)
                 throw new Error("The parameter 'org' must be defined.");
@@ -2906,7 +2906,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Concealed.
          */
-        deletePublicMembers(org: string, username: string, accept: string): Promise<void> {
+        deletePublicMembers(org: string, username: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/orgs/{org}/public_members/{username}";
             if (org === undefined || org === null)
                 throw new Error("The parameter 'org' must be defined.");
@@ -2953,7 +2953,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return User is a public member.
          */
-        getPublicMembers(org: string, username: string, accept: string): Promise<void> {
+        getPublicMembers(org: string, username: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/orgs/{org}/public_members/{username}";
             if (org === undefined || org === null)
                 throw new Error("The parameter 'org' must be defined.");
@@ -3004,7 +3004,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Publicized.
          */
-        putPublicMembers(org: string, username: string, accept: string): Promise<void> {
+        putPublicMembers(org: string, username: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/orgs/{org}/public_members/{username}";
             if (org === undefined || org === null)
                 throw new Error("The parameter 'org' must be defined.");
@@ -3050,7 +3050,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getRepos(org: string, type: Type, accept: string): Promise<Anonymous6[]> {
+        getRepos(org: string, type?: Type, accept?: string): Promise<Anonymous6[]> {
             let url_ = this.baseUrl + "/orgs/{org}/repos?";
             if (org === undefined || org === null)
                 throw new Error("The parameter 'org' must be defined.");
@@ -3102,7 +3102,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Created
          */
-        postRepos(org: string, accept: string, body: PostRepo): Promise<Anonymous6[]> {
+        postRepos(org: string, body: PostRepo, accept?: string): Promise<Anonymous6[]> {
             let url_ = this.baseUrl + "/orgs/{org}/repos";
             if (org === undefined || org === null)
                 throw new Error("The parameter 'org' must be defined.");
@@ -3155,7 +3155,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getTeams(org: string, accept: string): Promise<Anonymous7[]> {
+        getTeams(org: string, accept?: string): Promise<Anonymous7[]> {
             let url_ = this.baseUrl + "/orgs/{org}/teams";
             if (org === undefined || org === null)
                 throw new Error("The parameter 'org' must be defined.");
@@ -3205,7 +3205,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Created
          */
-        postTeams(org: string, accept: string, body: OrgTeamsPost): Promise<Team> {
+        postTeams(org: string, body: OrgTeamsPost, accept?: string): Promise<Team> {
             let url_ = this.baseUrl + "/orgs/{org}/teams";
             if (org === undefined || org === null)
                 throw new Error("The parameter 'org' must be defined.");
@@ -3266,7 +3266,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getAssigneesAll(owner: string, repo: string, accept: string): Promise<Anonymous8[]> {
+        getAssigneesAll(owner: string, repo: string, accept?: string): Promise<Anonymous8[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/assignees";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -3321,7 +3321,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return User is an assignee.
          */
-        getAssignees(owner: string, repo: string, assignee: string, accept: string): Promise<void> {
+        getAssignees(owner: string, repo: string, assignee: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/assignees/{assignee}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -3375,7 +3375,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getBranchesAll(owner: string, repo: string, accept: string): Promise<Anonymous9[]> {
+        getBranchesAll(owner: string, repo: string, accept?: string): Promise<Anonymous9[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/branches";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -3430,7 +3430,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getBranches(owner: string, repo: string, branch: string, accept: string): Promise<Branch> {
+        getBranches(owner: string, repo: string, branch: string, accept?: string): Promise<Branch> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/branches/{branch}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -3483,7 +3483,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getCollaboratorsAll(owner: string, repo: string, accept: string): Promise<Anonymous4[]> {
+        getCollaboratorsAll(owner: string, repo: string, accept?: string): Promise<Anonymous4[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/collaborators";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -3538,7 +3538,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Collaborator removed.
          */
-        deleteCollaborators(owner: string, repo: string, user: string, accept: string): Promise<void> {
+        deleteCollaborators(owner: string, repo: string, user: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/collaborators/{user}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -3589,7 +3589,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return User is a collaborator.
          */
-        getCollaborators(owner: string, repo: string, user: string, accept: string): Promise<void> {
+        getCollaborators(owner: string, repo: string, user: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/collaborators/{user}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -3644,7 +3644,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Collaborator added.
          */
-        putCollaborators(owner: string, repo: string, user: string, accept: string): Promise<void> {
+        putCollaborators(owner: string, repo: string, user: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/collaborators/{user}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -3694,7 +3694,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getCommentsAll(owner: string, repo: string, accept: string): Promise<Anonymous10[]> {
+        getCommentsAll(owner: string, repo: string, accept?: string): Promise<Anonymous10[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/comments";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -3749,7 +3749,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return No content.
          */
-        deleteComments(owner: string, repo: string, commentId: number, accept: string): Promise<void> {
+        deleteComments(owner: string, repo: string, commentId: number, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/comments/{commentId}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -3800,7 +3800,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getComments(owner: string, repo: string, commentId: number, accept: string): Promise<CommitComments> {
+        getComments(owner: string, repo: string, commentId: number, accept?: string): Promise<CommitComments> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/comments/{commentId}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -3854,7 +3854,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        patchComments(owner: string, repo: string, commentId: number, accept: string, body: CommentBody): Promise<CommitComments> {
+        patchComments(owner: string, repo: string, commentId: number, body: CommentBody, accept?: string): Promise<CommitComments> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/comments/{commentId}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -3916,7 +3916,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getCommitsAll(owner: string, repo: string, since: string, sha: string, path: string, author: string, until: string, accept: string): Promise<Anonymous11[]> {
+        getCommitsAll(owner: string, repo: string, since?: string, sha?: string, path?: string, author?: string, until?: string, accept?: string): Promise<Anonymous11[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/commits?";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -3980,7 +3980,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        commitsGetStatus(owner: string, repo: string, ref: string, accept: string): Promise<Anonymous12[]> {
+        commitsGetStatus(owner: string, repo: string, ref: string, accept?: string): Promise<Anonymous12[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/commits/{ref}/status";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -4038,7 +4038,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getCommits(owner: string, repo: string, shaCode: string, accept: string): Promise<Commit> {
+        getCommits(owner: string, repo: string, shaCode: string, accept?: string): Promise<Commit> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/commits/{shaCode}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -4092,7 +4092,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        commitsGetComments(owner: string, repo: string, shaCode: string, accept: string): Promise<Anonymous10[]> {
+        commitsGetComments(owner: string, repo: string, shaCode: string, accept?: string): Promise<Anonymous10[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/commits/{shaCode}/comments";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -4150,7 +4150,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Created
          */
-        commitsPostComments(owner: string, repo: string, shaCode: string, accept: string, body: CommitBody): Promise<CommitComments> {
+        commitsPostComments(owner: string, repo: string, shaCode: string, body: CommitBody, accept?: string): Promise<CommitComments> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/commits/{shaCode}/comments";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -4206,7 +4206,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getCompare(owner: string, repo: string, baseId: string, headId: string, accept: string): Promise<CompareCommits> {
+        getCompare(owner: string, repo: string, baseId: string, headId: string, accept?: string): Promise<CompareCommits> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/compare/{baseId}...{headId}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -4262,7 +4262,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        deleteContents(owner: string, repo: string, path: string, accept: string, body: DeleteFileBody): Promise<DeleteFile> {
+        deleteContents(owner: string, repo: string, path: string, body: DeleteFileBody, accept?: string): Promise<DeleteFile> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/contents/{path}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -4320,7 +4320,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getContents(owner: string, repo: string, pathPath: string, pathQuery: string, ref: string, accept: string): Promise<ContentsPath> {
+        getContents(owner: string, repo: string, pathPath: string, pathQuery?: string, ref?: string, accept?: string): Promise<ContentsPath> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/contents/{path}?";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -4377,7 +4377,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        putContents(owner: string, repo: string, path: string, accept: string, body: CreateFileBody): Promise<CreateFile> {
+        putContents(owner: string, repo: string, path: string, body: CreateFileBody, accept?: string): Promise<CreateFile> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/contents/{path}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -4434,7 +4434,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getContributors(owner: string, repo: string, anon: string, accept: string): Promise<Anonymous13[]> {
+        getContributors(owner: string, repo: string, anon: string, accept?: string): Promise<Anonymous13[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/contributors?";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -4492,7 +4492,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getDeployments(owner: string, repo: string, accept: string): Promise<Anonymous14[]> {
+        getDeployments(owner: string, repo: string, accept?: string): Promise<Anonymous14[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/deployments";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -4546,7 +4546,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Created
          */
-        postDeployments(owner: string, repo: string, accept: string, body: Deployment): Promise<DeploymentResp> {
+        postDeployments(owner: string, repo: string, body: Deployment, accept?: string): Promise<DeploymentResp> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/deployments";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -4600,7 +4600,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        deploymentsGetStatuses(owner: string, repo: string, id: number, accept: string): Promise<Anonymous15[]> {
+        deploymentsGetStatuses(owner: string, repo: string, id: number, accept?: string): Promise<Anonymous15[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/deployments/{id}/statuses";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -4658,7 +4658,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return ok
          */
-        deploymentsPostStatuses(owner: string, repo: string, id: number, accept: string, body: DeploymentStatusesCreate): Promise<void> {
+        deploymentsPostStatuses(owner: string, repo: string, id: number, body: DeploymentStatusesCreate, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/deployments/{id}/statuses";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -4711,7 +4711,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getDownloads(owner: string, repo: string, accept: string): Promise<Downloads> {
+        getDownloads(owner: string, repo: string, accept?: string): Promise<Downloads> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/downloads";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -4762,7 +4762,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return No content.
          */
-        deleteDownloads(owner: string, repo: string, downloadId: number, accept: string): Promise<void> {
+        deleteDownloads(owner: string, repo: string, downloadId: number, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/downloads/{downloadId}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -4813,7 +4813,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getDownloads2(owner: string, repo: string, downloadId: number, accept: string): Promise<Downloads> {
+        getDownloads2(owner: string, repo: string, downloadId: number, accept?: string): Promise<Downloads> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/downloads/{downloadId}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -4866,7 +4866,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getEvents(owner: string, repo: string, accept: string): Promise<Events> {
+        getEvents(owner: string, repo: string, accept?: string): Promise<Events> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/events";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -4916,7 +4916,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getForks(owner: string, repo: string, sort: Sort5, accept: string): Promise<Anonymous16[]> {
+        getForks(owner: string, repo: string, sort?: Sort5, accept?: string): Promise<Anonymous16[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/forks?";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -4972,7 +4972,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Created
          */
-        postForks(owner: string, repo: string, accept: string, body: ForkBody): Promise<Fork> {
+        postForks(owner: string, repo: string, body: ForkBody, accept?: string): Promise<Fork> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/forks";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -5025,7 +5025,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Created
          */
-        gitPostBlobs(owner: string, repo: string, accept: string, body: Blob): Promise<Blobs> {
+        gitPostBlobs(owner: string, repo: string, body: Blob, accept?: string): Promise<Blobs> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/git/blobs";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -5079,7 +5079,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        gitGetBlobs(owner: string, repo: string, shaCode: string, accept: string): Promise<Blob> {
+        gitGetBlobs(owner: string, repo: string, shaCode: string, accept?: string): Promise<Blob> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/git/blobs/{shaCode}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -5132,7 +5132,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Created
          */
-        gitPostCommits(owner: string, repo: string, accept: string, body: RepoCommitBody): Promise<GitCommit> {
+        gitPostCommits(owner: string, repo: string, body: RepoCommitBody, accept?: string): Promise<GitCommit> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/git/commits";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -5186,7 +5186,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        gitGetCommits(owner: string, repo: string, shaCode: string, accept: string): Promise<RepoCommit> {
+        gitGetCommits(owner: string, repo: string, shaCode: string, accept?: string): Promise<RepoCommit> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/git/commits/{shaCode}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -5239,7 +5239,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        gitGetRefsAll(owner: string, repo: string, accept: string): Promise<Anonymous17[]> {
+        gitGetRefsAll(owner: string, repo: string, accept?: string): Promise<Anonymous17[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/git/refs";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -5293,7 +5293,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Created
          */
-        gitPostRefs(owner: string, repo: string, accept: string, body: RefsBody): Promise<HeadBranch> {
+        gitPostRefs(owner: string, repo: string, body: RefsBody, accept?: string): Promise<HeadBranch> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/git/refs";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -5346,7 +5346,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return No Content
          */
-        gitDeleteRefs(owner: string, repo: string, ref: string, accept: string): Promise<void> {
+        gitDeleteRefs(owner: string, repo: string, ref: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/git/refs/{ref}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -5396,7 +5396,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        gitGetRefs(owner: string, repo: string, ref: string, accept: string): Promise<HeadBranch> {
+        gitGetRefs(owner: string, repo: string, ref: string, accept?: string): Promise<HeadBranch> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/git/refs/{ref}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -5449,7 +5449,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        gitPatchRefs(owner: string, repo: string, ref: string, accept: string, body: GitRefPatch): Promise<HeadBranch> {
+        gitPatchRefs(owner: string, repo: string, ref: string, body: GitRefPatch, accept?: string): Promise<HeadBranch> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/git/refs/{ref}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -5505,7 +5505,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Created
          */
-        gitPostTags(owner: string, repo: string, accept: string, body: Tag): Promise<Tags> {
+        gitPostTags(owner: string, repo: string, body: Tag, accept?: string): Promise<Tags> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/git/tags";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -5558,7 +5558,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        gitGetTags(owner: string, repo: string, shaCode: string, accept: string): Promise<Tag> {
+        gitGetTags(owner: string, repo: string, shaCode: string, accept?: string): Promise<Tag> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/git/tags/{shaCode}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -5611,7 +5611,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Created
          */
-        gitPostTrees(owner: string, repo: string, accept: string, body: Tree): Promise<Trees> {
+        gitPostTrees(owner: string, repo: string, body: Tree, accept?: string): Promise<Trees> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/git/trees";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -5666,7 +5666,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        gitGetTrees(owner: string, repo: string, shaCode: string, recursive: number, accept: string): Promise<Tree> {
+        gitGetTrees(owner: string, repo: string, shaCode: string, recursive?: number, accept?: string): Promise<Tree> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/git/trees/{shaCode}?";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -5721,7 +5721,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getHooksAll(owner: string, repo: string, accept: string): Promise<Anonymous18[]> {
+        getHooksAll(owner: string, repo: string, accept?: string): Promise<Anonymous18[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/hooks";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -5775,7 +5775,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Created
          */
-        postHooks(owner: string, repo: string, accept: string, body: HookBody): Promise<Anonymous18[]> {
+        postHooks(owner: string, repo: string, body: HookBody, accept?: string): Promise<Anonymous18[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/hooks";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -5833,7 +5833,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return No content.
          */
-        deleteHooks(owner: string, repo: string, hookId: number, accept: string): Promise<void> {
+        deleteHooks(owner: string, repo: string, hookId: number, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/hooks/{hookId}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -5884,7 +5884,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getHooksAll2(owner: string, repo: string, hookId: number, accept: string): Promise<Anonymous18[]> {
+        getHooksAll2(owner: string, repo: string, hookId: number, accept?: string): Promise<Anonymous18[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/hooks/{hookId}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -5942,7 +5942,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        patchHooks(owner: string, repo: string, hookId: number, accept: string, body: HookBody): Promise<Anonymous18[]> {
+        patchHooks(owner: string, repo: string, hookId: number, body: HookBody, accept?: string): Promise<Anonymous18[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/hooks/{hookId}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -6003,7 +6003,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Hook is triggered.
          */
-        hooksPostTests(owner: string, repo: string, hookId: number, accept: string): Promise<void> {
+        hooksPostTests(owner: string, repo: string, hookId: number, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/hooks/{hookId}/tests";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -6058,7 +6058,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getIssuesAll(owner: string, repo: string, filter: Filter3, state: State4, labels: string, sort: Sort6, direction: Direction3, since: string, accept: string): Promise<Anonymous2[]> {
+        getIssuesAll(owner: string, repo: string, filter: Filter3, state: State4, labels: string, sort: Sort6, direction: Direction3, since?: string, accept?: string): Promise<Anonymous2[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/issues?";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -6134,7 +6134,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Created
          */
-        postIssues(owner: string, repo: string, accept: string, body: Issue): Promise<Issue> {
+        postIssues(owner: string, repo: string, body: Issue, accept?: string): Promise<Issue> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/issues";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -6190,7 +6190,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        issuesGetCommentsAll(owner: string, repo: string, direction: string, sort: Sort7, since: string, accept: string): Promise<Anonymous19[]> {
+        issuesGetCommentsAll(owner: string, repo: string, direction?: string, sort?: Sort7, since?: string, accept?: string): Promise<Anonymous19[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/issues/comments?";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -6251,7 +6251,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return No content.
          */
-        issuesDeleteComments(owner: string, repo: string, commentId: number, accept: string): Promise<void> {
+        issuesDeleteComments(owner: string, repo: string, commentId: number, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/issues/comments/{commentId}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -6302,7 +6302,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        issuesGetComments(owner: string, repo: string, commentId: number, accept: string): Promise<IssuesComment> {
+        issuesGetComments(owner: string, repo: string, commentId: number, accept?: string): Promise<IssuesComment> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/issues/comments/{commentId}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -6356,7 +6356,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        issuesPatchComments(owner: string, repo: string, commentId: number, accept: string, body: CommentBody): Promise<IssuesComment> {
+        issuesPatchComments(owner: string, repo: string, commentId: number, body: CommentBody, accept?: string): Promise<IssuesComment> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/issues/comments/{commentId}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -6412,7 +6412,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        issuesGetEvents(owner: string, repo: string, accept: string): Promise<Events> {
+        issuesGetEvents(owner: string, repo: string, accept?: string): Promise<Events> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/issues/events";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -6463,7 +6463,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        issuesGetEvents2(owner: string, repo: string, eventId: number, accept: string): Promise<Event> {
+        issuesGetEvents2(owner: string, repo: string, eventId: number, accept?: string): Promise<Event> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/issues/events/{eventId}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -6517,7 +6517,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getIssues(owner: string, repo: string, number: number, accept: string): Promise<Issue> {
+        getIssues(owner: string, repo: string, number: number, accept?: string): Promise<Issue> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/issues/{number}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -6571,7 +6571,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        patchIssues(owner: string, repo: string, number: number, accept: string, body: Issue): Promise<Issue> {
+        patchIssues(owner: string, repo: string, number: number, body: Issue, accept?: string): Promise<Issue> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/issues/{number}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -6628,7 +6628,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        issuesGetCommentsAll2(owner: string, repo: string, number: number, accept: string): Promise<Anonymous19[]> {
+        issuesGetCommentsAll2(owner: string, repo: string, number: number, accept?: string): Promise<Anonymous19[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/issues/{number}/comments";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -6686,7 +6686,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Created
          */
-        issuesPostComments(owner: string, repo: string, number: number, accept: string, body: CommentBody): Promise<IssuesComment> {
+        issuesPostComments(owner: string, repo: string, number: number, body: CommentBody, accept?: string): Promise<IssuesComment> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/issues/{number}/comments";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -6743,7 +6743,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        issuesGetEvents3(owner: string, repo: string, number: number, accept: string): Promise<Events> {
+        issuesGetEvents3(owner: string, repo: string, number: number, accept?: string): Promise<Events> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/issues/{number}/events";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -6797,7 +6797,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return No content.
          */
-        issuesDeleteLabels(owner: string, repo: string, number: number, accept: string): Promise<void> {
+        issuesDeleteLabels(owner: string, repo: string, number: number, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/issues/{number}/labels";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -6848,7 +6848,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        issuesGetLabels(owner: string, repo: string, number: number, accept: string): Promise<Anonymous20[]> {
+        issuesGetLabels(owner: string, repo: string, number: number, accept?: string): Promise<Anonymous20[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/issues/{number}/labels";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -6906,7 +6906,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Created
          */
-        issuesPostLabels(owner: string, repo: string, number: number, accept: string, body: string[]): Promise<Label> {
+        issuesPostLabels(owner: string, repo: string, number: number, body: string[], accept?: string): Promise<Label> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/issues/{number}/labels";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -6963,7 +6963,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Created
          */
-        issuesPutLabels(owner: string, repo: string, number: number, accept: string, body: string[]): Promise<Label> {
+        issuesPutLabels(owner: string, repo: string, number: number, body: string[], accept?: string): Promise<Label> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/issues/{number}/labels";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -7021,7 +7021,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Item removed.
          */
-        issuesDeleteLabels2(owner: string, repo: string, number: number, name: string, accept: string): Promise<void> {
+        issuesDeleteLabels2(owner: string, repo: string, number: number, name: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/issues/{number}/labels/{name}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -7074,7 +7074,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getKeysAll(owner: string, repo: string, accept: string): Promise<Anonymous21[]> {
+        getKeysAll(owner: string, repo: string, accept?: string): Promise<Anonymous21[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/keys";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -7128,7 +7128,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Created
          */
-        postKeys(owner: string, repo: string, accept: string, body: UserKeysPost): Promise<UserKeysKeyId> {
+        postKeys(owner: string, repo: string, body: UserKeysPost, accept?: string): Promise<UserKeysKeyId> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/keys";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -7182,7 +7182,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return No content.
          */
-        deleteKeys(owner: string, repo: string, keyId: number, accept: string): Promise<void> {
+        deleteKeys(owner: string, repo: string, keyId: number, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/keys/{keyId}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -7233,7 +7233,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getKeys(owner: string, repo: string, keyId: number, accept: string): Promise<UserKeysKeyId> {
+        getKeys(owner: string, repo: string, keyId: number, accept?: string): Promise<UserKeysKeyId> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/keys/{keyId}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -7286,7 +7286,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getLabelsAll(owner: string, repo: string, accept: string): Promise<Anonymous20[]> {
+        getLabelsAll(owner: string, repo: string, accept?: string): Promise<Anonymous20[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/labels";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -7340,7 +7340,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Created
          */
-        postLabels(owner: string, repo: string, accept: string, body: string[]): Promise<Label> {
+        postLabels(owner: string, repo: string, body: string[], accept?: string): Promise<Label> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/labels";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -7394,7 +7394,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return No content.
          */
-        deleteLabels(owner: string, repo: string, name: string, accept: string): Promise<void> {
+        deleteLabels(owner: string, repo: string, name: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/labels/{name}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -7445,7 +7445,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getLabels(owner: string, repo: string, name: string, accept: string): Promise<Label> {
+        getLabels(owner: string, repo: string, name: string, accept?: string): Promise<Label> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/labels/{name}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -7499,7 +7499,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        patchLabels(owner: string, repo: string, name: string, accept: string, body: string[]): Promise<Label> {
+        patchLabels(owner: string, repo: string, name: string, body: string[], accept?: string): Promise<Label> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/labels/{name}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -7555,7 +7555,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getLanguages(owner: string, repo: string, accept: string): Promise<{ [key: string] : number; }> {
+        getLanguages(owner: string, repo: string, accept?: string): Promise<{ [key: string] : number; }> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/languages";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -7611,7 +7611,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Successful Response (The resulting merge commit)
          */
-        postMerges(owner: string, repo: string, accept: string, body: MergesBody): Promise<MergesSuccessful> {
+        postMerges(owner: string, repo: string, body: MergesBody, accept?: string): Promise<MergesSuccessful> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/merges";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -7684,7 +7684,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getMilestones(owner: string, repo: string, state: State5, direction: string, sort: Sort8, accept: string): Promise<Milestone> {
+        getMilestones(owner: string, repo: string, state?: State5, direction?: string, sort?: Sort8, accept?: string): Promise<Milestone> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/milestones?";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -7740,7 +7740,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Created
          */
-        postMilestones(owner: string, repo: string, accept: string, body: MilestoneUpdate): Promise<Milestone> {
+        postMilestones(owner: string, repo: string, body: MilestoneUpdate, accept?: string): Promise<Milestone> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/milestones";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -7794,7 +7794,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return No content.
          */
-        deleteMilestones(owner: string, repo: string, number: number, accept: string): Promise<void> {
+        deleteMilestones(owner: string, repo: string, number: number, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/milestones/{number}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -7845,7 +7845,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getMilestones2(owner: string, repo: string, number: number, accept: string): Promise<Milestone> {
+        getMilestones2(owner: string, repo: string, number: number, accept?: string): Promise<Milestone> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/milestones/{number}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -7899,7 +7899,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        patchMilestones(owner: string, repo: string, number: number, accept: string, body: MilestoneUpdate): Promise<Milestone> {
+        patchMilestones(owner: string, repo: string, number: number, body: MilestoneUpdate, accept?: string): Promise<Milestone> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/milestones/{number}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -7956,7 +7956,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        milestonesGetLabels(owner: string, repo: string, number: number, accept: string): Promise<Anonymous20[]> {
+        milestonesGetLabels(owner: string, repo: string, number: number, accept?: string): Promise<Anonymous20[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/milestones/{number}/labels";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -8018,7 +8018,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getNotifications(owner: string, repo: string, all: boolean, participating: boolean, since: string, accept: string): Promise<Notifications> {
+        getNotifications(owner: string, repo: string, all?: boolean, participating?: boolean, since?: string, accept?: string): Promise<Notifications> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/notifications?";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -8074,7 +8074,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Marked as read.
          */
-        putNotifications(owner: string, repo: string, accept: string, body: NotificationMarkRead): Promise<void> {
+        putNotifications(owner: string, repo: string, body: NotificationMarkRead, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/notifications";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -8128,7 +8128,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getPullsAll(owner: string, repo: string, state: State6, head: string, base: string, accept: string): Promise<Anonymous22[]> {
+        getPullsAll(owner: string, repo: string, state?: State6, head?: string, base?: string, accept?: string): Promise<Anonymous22[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/pulls?";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -8188,7 +8188,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Created
          */
-        postPulls(owner: string, repo: string, accept: string, body: PullsPost): Promise<Anonymous22[]> {
+        postPulls(owner: string, repo: string, body: PullsPost, accept?: string): Promise<Anonymous22[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/pulls";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -8248,7 +8248,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        pullsGetCommentsAll(owner: string, repo: string, direction: string, sort: Sort9, since: string, accept: string): Promise<Anonymous19[]> {
+        pullsGetCommentsAll(owner: string, repo: string, direction?: string, sort?: Sort9, since?: string, accept?: string): Promise<Anonymous19[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/pulls/comments?";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -8309,7 +8309,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return No content.
          */
-        pullsDeleteComments(owner: string, repo: string, commentId: number, accept: string): Promise<void> {
+        pullsDeleteComments(owner: string, repo: string, commentId: number, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/pulls/comments/{commentId}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -8360,7 +8360,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        pullsGetComments(owner: string, repo: string, commentId: number, accept: string): Promise<PullsComment> {
+        pullsGetComments(owner: string, repo: string, commentId: number, accept?: string): Promise<PullsComment> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/pulls/comments/{commentId}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -8414,7 +8414,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        pullsPatchComments(owner: string, repo: string, commentId: number, accept: string, body: CommentBody): Promise<PullsComment> {
+        pullsPatchComments(owner: string, repo: string, commentId: number, body: CommentBody, accept?: string): Promise<PullsComment> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/pulls/comments/{commentId}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -8471,7 +8471,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getPulls(owner: string, repo: string, number: number, accept: string): Promise<PullRequest> {
+        getPulls(owner: string, repo: string, number: number, accept?: string): Promise<PullRequest> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/pulls/{number}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -8525,7 +8525,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        patchPulls(owner: string, repo: string, number: number, accept: string, body: PullUpdate): Promise<Repo> {
+        patchPulls(owner: string, repo: string, number: number, body: PullUpdate, accept?: string): Promise<Repo> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/pulls/{number}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -8582,7 +8582,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        pullsGetComments2(owner: string, repo: string, number: number, accept: string): Promise<PullsComment> {
+        pullsGetComments2(owner: string, repo: string, number: number, accept?: string): Promise<PullsComment> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/pulls/{number}/comments";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -8636,7 +8636,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Created
          */
-        pullsPostComments(owner: string, repo: string, number: number, accept: string, body: PullsCommentPost): Promise<PullsComment> {
+        pullsPostComments(owner: string, repo: string, number: number, body: PullsCommentPost, accept?: string): Promise<PullsComment> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/pulls/{number}/comments";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -8693,7 +8693,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        pullsGetCommits(owner: string, repo: string, number: number, accept: string): Promise<Anonymous11[]> {
+        pullsGetCommits(owner: string, repo: string, number: number, accept?: string): Promise<Anonymous11[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/pulls/{number}/commits";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -8751,7 +8751,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        pullsGetFiles(owner: string, repo: string, number: number, accept: string): Promise<Anonymous22[]> {
+        pullsGetFiles(owner: string, repo: string, number: number, accept?: string): Promise<Anonymous22[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/pulls/{number}/files";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -8809,7 +8809,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Pull request has been merged.
          */
-        pullsGetMerge(owner: string, repo: string, number: number, accept: string): Promise<void> {
+        pullsGetMerge(owner: string, repo: string, number: number, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/pulls/{number}/merge";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -8864,7 +8864,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Response if merge was successful.
          */
-        pullsPutMerge(owner: string, repo: string, number: number, accept: string, body: MergePullBody): Promise<Merge> {
+        pullsPutMerge(owner: string, repo: string, number: number, body: MergePullBody, accept?: string): Promise<Merge> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/pulls/{number}/merge";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -8928,7 +8928,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getReadme(owner: string, repo: string, ref: string, accept: string): Promise<ContentsPath> {
+        getReadme(owner: string, repo: string, ref?: string, accept?: string): Promise<ContentsPath> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/readme?";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -8980,7 +8980,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getReleasesAll(owner: string, repo: string, accept: string): Promise<Anonymous23[]> {
+        getReleasesAll(owner: string, repo: string, accept?: string): Promise<Anonymous23[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/releases";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -9034,7 +9034,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Created
          */
-        postReleases(owner: string, repo: string, accept: string, body: ReleaseCreate): Promise<Release> {
+        postReleases(owner: string, repo: string, body: ReleaseCreate, accept?: string): Promise<Release> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/releases";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -9087,7 +9087,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return No Content
          */
-        releasesDeleteAssets(owner: string, repo: string, id: string, accept: string): Promise<void> {
+        releasesDeleteAssets(owner: string, repo: string, id: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/releases/assets/{id}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -9137,7 +9137,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        releasesGetAssets(owner: string, repo: string, id: string, accept: string): Promise<Asset> {
+        releasesGetAssets(owner: string, repo: string, id: string, accept?: string): Promise<Asset> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/releases/assets/{id}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -9190,7 +9190,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        releasesPatchAssets(owner: string, repo: string, id: string, accept: string, body: AssetPatch): Promise<Asset> {
+        releasesPatchAssets(owner: string, repo: string, id: string, body: AssetPatch, accept?: string): Promise<Asset> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/releases/assets/{id}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -9246,7 +9246,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return No Content
          */
-        deleteReleases(owner: string, repo: string, id: string, accept: string): Promise<void> {
+        deleteReleases(owner: string, repo: string, id: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/releases/{id}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -9296,7 +9296,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getReleases(owner: string, repo: string, id: string, accept: string): Promise<Release> {
+        getReleases(owner: string, repo: string, id: string, accept?: string): Promise<Release> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/releases/{id}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -9349,7 +9349,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        patchReleases(owner: string, repo: string, id: string, accept: string, body: ReleaseCreate): Promise<Release> {
+        patchReleases(owner: string, repo: string, id: string, body: ReleaseCreate, accept?: string): Promise<Release> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/releases/{id}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -9405,7 +9405,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        releasesGetAssetsAll(owner: string, repo: string, id: string, accept: string): Promise<Anonymous24[]> {
+        releasesGetAssetsAll(owner: string, repo: string, id: string, accept?: string): Promise<Anonymous24[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/releases/{id}/assets";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -9462,7 +9462,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getStargazers(owner: string, repo: string, accept: string): Promise<Anonymous4[]> {
+        getStargazers(owner: string, repo: string, accept?: string): Promise<Anonymous4[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/stargazers";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -9516,7 +9516,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        statsGetCodeFrequency(owner: string, repo: string, accept: string): Promise<number[]> {
+        statsGetCodeFrequency(owner: string, repo: string, accept?: string): Promise<number[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/stats/code_frequency";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -9570,7 +9570,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        statsGetCommitActivity(owner: string, repo: string, accept: string): Promise<Anonymous25[]> {
+        statsGetCommitActivity(owner: string, repo: string, accept?: string): Promise<Anonymous25[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/stats/commit_activity";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -9624,7 +9624,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        statsGetContributors(owner: string, repo: string, accept: string): Promise<Anonymous26[]> {
+        statsGetContributors(owner: string, repo: string, accept?: string): Promise<Anonymous26[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/stats/contributors";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -9678,7 +9678,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        statsGetParticipation(owner: string, repo: string, accept: string): Promise<ParticipationStats> {
+        statsGetParticipation(owner: string, repo: string, accept?: string): Promise<ParticipationStats> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/stats/participation";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -9728,7 +9728,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        statsGetPunchCard(owner: string, repo: string, accept: string): Promise<number[]> {
+        statsGetPunchCard(owner: string, repo: string, accept?: string): Promise<number[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/stats/punch_card";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -9783,7 +9783,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getStatuses(owner: string, repo: string, ref: string, accept: string): Promise<Anonymous27[]> {
+        getStatuses(owner: string, repo: string, ref: string, accept?: string): Promise<Anonymous27[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/statuses/{ref}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -9841,7 +9841,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Created
          */
-        postStatuses(owner: string, repo: string, ref: string, accept: string, body: HeadBranch): Promise<Anonymous27[]> {
+        postStatuses(owner: string, repo: string, ref: string, body: HeadBranch, accept?: string): Promise<Anonymous27[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/statuses/{ref}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -9901,7 +9901,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getSubscribers(owner: string, repo: string, accept: string): Promise<Anonymous4[]> {
+        getSubscribers(owner: string, repo: string, accept?: string): Promise<Anonymous4[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/subscribers";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -9955,7 +9955,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return No content.
          */
-        deleteSubscription(owner: string, repo: string, accept: string): Promise<void> {
+        deleteSubscription(owner: string, repo: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/subscription";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -10002,7 +10002,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getSubscription(owner: string, repo: string, accept: string): Promise<Subscribition> {
+        getSubscription(owner: string, repo: string, accept?: string): Promise<Subscribition> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/subscription";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -10052,7 +10052,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        putSubscription(owner: string, repo: string, accept: string, body: SubscribitionBody): Promise<Subscribition> {
+        putSubscription(owner: string, repo: string, body: SubscribitionBody, accept?: string): Promise<Subscribition> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/subscription";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -10105,7 +10105,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getTags(owner: string, repo: string, accept: string): Promise<Tags> {
+        getTags(owner: string, repo: string, accept?: string): Promise<Tags> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/tags";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -10155,7 +10155,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getTeams(owner: string, repo: string, accept: string): Promise<Anonymous7[]> {
+        getTeams(owner: string, repo: string, accept?: string): Promise<Anonymous7[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/teams";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -10209,7 +10209,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getWatchers(owner: string, repo: string, accept: string): Promise<Anonymous4[]> {
+        getWatchers(owner: string, repo: string, accept?: string): Promise<Anonymous4[]> {
             let url_ = this.baseUrl + "/repos/{owner}/{repo}/watchers";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -10269,7 +10269,6 @@ namespace GithubApiClient {
         }
     
         /**
-         * @order The sort field. if sort param is provided. Can be either asc or desc.
          * @q The search terms. This can be any combination of the supported code
     search parameters:
     'Search In' Qualifies which fields are searched. With this qualifier
@@ -10283,20 +10282,21 @@ namespace GithubApiClient {
     'Path' Specifies the path that the resulting file must be at.
     'Extension' Matches files with a certain extension.
     'Users' or 'Repositories' Limits searches to a specific user or repository.
+         * @order The sort field. if sort param is provided. Can be either asc or desc.
          * @sort Can only be 'indexed', which indicates how recently a file has been indexed
     by the GitHub search infrastructure. If not provided, results are sorted
     by best match.
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getCode(order: Order3, q: string, sort: Sort10, accept: string): Promise<SearchCode> {
+        getCode(q: string, order?: Order3, sort?: Sort10, accept?: string): Promise<SearchCode> {
             let url_ = this.baseUrl + "/search/code?";
-            if (order !== undefined)
-                url_ += "order=" + encodeURIComponent("" + order) + "&"; 
             if (q === undefined || q === null)
                 throw new Error("The parameter 'q' must be defined and cannot be null.");
             else
                 url_ += "q=" + encodeURIComponent("" + q) + "&"; 
+            if (order !== undefined)
+                url_ += "order=" + encodeURIComponent("" + order) + "&"; 
             if (sort !== undefined)
                 url_ += "sort=" + encodeURIComponent("" + sort) + "&"; 
             url_ = url_.replace(/[?&]$/, "");
@@ -10336,20 +10336,20 @@ namespace GithubApiClient {
         }
     
         /**
-         * @order The sort field. if sort param is provided. Can be either asc or desc.
          * @q The q search term can also contain any combination of the supported issue search qualifiers:
+         * @order The sort field. if sort param is provided. Can be either asc or desc.
          * @sort The sort field. Can be comments, created, or updated. Default: results are sorted by best match.
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getIssues(order: Order4, q: string, sort: Sort11, accept: string): Promise<SearchIssues> {
+        getIssues(q: string, order?: Order4, sort?: Sort11, accept?: string): Promise<SearchIssues> {
             let url_ = this.baseUrl + "/search/issues?";
-            if (order !== undefined)
-                url_ += "order=" + encodeURIComponent("" + order) + "&"; 
             if (q === undefined || q === null)
                 throw new Error("The parameter 'q' must be defined and cannot be null.");
             else
                 url_ += "q=" + encodeURIComponent("" + q) + "&"; 
+            if (order !== undefined)
+                url_ += "order=" + encodeURIComponent("" + order) + "&"; 
             if (sort !== undefined)
                 url_ += "sort=" + encodeURIComponent("" + sort) + "&"; 
             url_ = url_.replace(/[?&]$/, "");
@@ -10389,7 +10389,6 @@ namespace GithubApiClient {
         }
     
         /**
-         * @order The sort field. if sort param is provided. Can be either asc or desc.
          * @q The search terms. This can be any combination of the supported repository
     search parameters:
     'Search In' Qualifies which fields are searched. With this qualifier you
@@ -10403,18 +10402,19 @@ namespace GithubApiClient {
     'Users or Repositories' Limits searches to a specific user or repository.
     'Languages' Searches repositories based on the language they are written in.
     'Stars' Searches repositories based on the number of stars.
+         * @order The sort field. if sort param is provided. Can be either asc or desc.
          * @sort If not provided, results are sorted by best match.
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getRepositories(order: Order5, q: string, sort: Sort12, accept: string): Promise<SearchRepositories> {
+        getRepositories(q: string, order?: Order5, sort?: Sort12, accept?: string): Promise<SearchRepositories> {
             let url_ = this.baseUrl + "/search/repositories?";
-            if (order !== undefined)
-                url_ += "order=" + encodeURIComponent("" + order) + "&"; 
             if (q === undefined || q === null)
                 throw new Error("The parameter 'q' must be defined and cannot be null.");
             else
                 url_ += "q=" + encodeURIComponent("" + q) + "&"; 
+            if (order !== undefined)
+                url_ += "order=" + encodeURIComponent("" + order) + "&"; 
             if (sort !== undefined)
                 url_ += "sort=" + encodeURIComponent("" + sort) + "&"; 
             url_ = url_.replace(/[?&]$/, "");
@@ -10454,7 +10454,6 @@ namespace GithubApiClient {
         }
     
         /**
-         * @order The sort field. if sort param is provided. Can be either asc or desc.
          * @q The search terms. This can be any combination of the supported user
     search parameters:
     'Search In' Qualifies which fields are searched. With this qualifier you
@@ -10467,18 +10466,19 @@ namespace GithubApiClient {
     language.
     'Created' Filter users based on when they joined.
     'Followers' Filter users based on the number of followers they have.
+         * @order The sort field. if sort param is provided. Can be either asc or desc.
          * @sort If not provided, results are sorted by best match.
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getUsers(order: Order6, q: string, sort: Sort13, accept: string): Promise<SearchUsers> {
+        getUsers(q: string, order?: Order6, sort?: Sort13, accept?: string): Promise<SearchUsers> {
             let url_ = this.baseUrl + "/search/users?";
-            if (order !== undefined)
-                url_ += "order=" + encodeURIComponent("" + order) + "&"; 
             if (q === undefined || q === null)
                 throw new Error("The parameter 'q' must be defined and cannot be null.");
             else
                 url_ += "q=" + encodeURIComponent("" + q) + "&"; 
+            if (order !== undefined)
+                url_ += "order=" + encodeURIComponent("" + order) + "&"; 
             if (sort !== undefined)
                 url_ += "sort=" + encodeURIComponent("" + sort) + "&"; 
             url_ = url_.replace(/[?&]$/, "");
@@ -10533,7 +10533,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getMembersAll(teamId: number, accept: string): Promise<Anonymous4[]> {
+        getMembersAll(teamId: number, accept?: string): Promise<Anonymous4[]> {
             let url_ = this.baseUrl + "/teams/{teamId}/members";
             if (teamId === undefined || teamId === null)
                 throw new Error("The parameter 'teamId' must be defined.");
@@ -10584,7 +10584,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Team member removed.
          */
-        deleteMembers(teamId: number, username: string, accept: string): Promise<void> {
+        deleteMembers(teamId: number, username: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/teams/{teamId}/members/{username}";
             if (teamId === undefined || teamId === null)
                 throw new Error("The parameter 'teamId' must be defined.");
@@ -10631,7 +10631,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return User is a member.
          */
-        getMembers(teamId: number, username: string, accept: string): Promise<void> {
+        getMembers(teamId: number, username: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/teams/{teamId}/members/{username}";
             if (teamId === undefined || teamId === null)
                 throw new Error("The parameter 'teamId' must be defined.");
@@ -10682,7 +10682,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Team member added.
          */
-        putMembers(teamId: number, username: string, accept: string): Promise<void> {
+        putMembers(teamId: number, username: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/teams/{teamId}/members/{username}";
             if (teamId === undefined || teamId === null)
                 throw new Error("The parameter 'teamId' must be defined.");
@@ -10736,7 +10736,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Team member removed.
          */
-        deleteMemberships(teamId: number, username: string, accept: string): Promise<void> {
+        deleteMemberships(teamId: number, username: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/teams/{teamId}/memberships/{username}";
             if (teamId === undefined || teamId === null)
                 throw new Error("The parameter 'teamId' must be defined.");
@@ -10783,7 +10783,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return User is a member.
          */
-        getMemberships(teamId: number, username: string, accept: string): Promise<TeamMembership> {
+        getMemberships(teamId: number, username: string, accept?: string): Promise<TeamMembership> {
             let url_ = this.baseUrl + "/teams/{teamId}/memberships/{username}";
             if (teamId === undefined || teamId === null)
                 throw new Error("The parameter 'teamId' must be defined.");
@@ -10837,7 +10837,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Team member added.
          */
-        putMemberships(teamId: number, username: string, accept: string): Promise<TeamMembership> {
+        putMemberships(teamId: number, username: string, accept?: string): Promise<TeamMembership> {
             let url_ = this.baseUrl + "/teams/{teamId}/memberships/{username}";
             if (teamId === undefined || teamId === null)
                 throw new Error("The parameter 'teamId' must be defined.");
@@ -10893,7 +10893,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getReposAll(teamId: number, accept: string): Promise<Anonymous28[]> {
+        getReposAll(teamId: number, accept?: string): Promise<Anonymous28[]> {
             let url_ = this.baseUrl + "/teams/{teamId}/repos";
             if (teamId === undefined || teamId === null)
                 throw new Error("The parameter 'teamId' must be defined.");
@@ -10944,7 +10944,7 @@ namespace GithubApiClient {
          * @repo Name of a repository.
          * @accept Is used to set specified media type.
          */
-        putRepos(teamId: number, org: string, repo: string, accept: string): Promise<void> {
+        putRepos(teamId: number, org: string, repo: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/teams/{teamId}/repos/{org}/{repo}";
             if (teamId === undefined || teamId === null)
                 throw new Error("The parameter 'teamId' must be defined.");
@@ -10991,7 +10991,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return No content.
          */
-        deleteRepos(teamId: number, owner: string, repo: string, accept: string): Promise<void> {
+        deleteRepos(teamId: number, owner: string, repo: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/teams/{teamId}/repos/{owner}/{repo}";
             if (teamId === undefined || teamId === null)
                 throw new Error("The parameter 'teamId' must be defined.");
@@ -11041,7 +11041,7 @@ namespace GithubApiClient {
          * @repo Name of a repository.
          * @accept Is used to set specified media type.
          */
-        getRepos(teamId: number, owner: string, repo: string, accept: string): Promise<void> {
+        getRepos(teamId: number, owner: string, repo: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/teams/{teamId}/repos/{owner}/{repo}";
             if (teamId === undefined || teamId === null)
                 throw new Error("The parameter 'teamId' must be defined.");
@@ -11096,7 +11096,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return No content.
          */
-        deleteEmails(accept: string, body: string[]): Promise<void> {
+        deleteEmails(body: string[], accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/user/emails";
             url_ = url_.replace(/[?&]$/, "");
     
@@ -11138,7 +11138,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getEmails(accept: string): Promise<string[]> {
+        getEmails(accept?: string): Promise<string[]> {
             let url_ = this.baseUrl + "/user/emails";
             url_ = url_.replace(/[?&]$/, "");
     
@@ -11183,7 +11183,7 @@ namespace GithubApiClient {
         /**
          * @accept Is used to set specified media type.
          */
-        postEmails(accept: string, body: string[]): Promise<void> {
+        postEmails(body: string[], accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/user/emails";
             url_ = url_.replace(/[?&]$/, "");
     
@@ -11221,7 +11221,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getFollowers(accept: string): Promise<Anonymous4[]> {
+        getFollowers(accept?: string): Promise<Anonymous4[]> {
             let url_ = this.baseUrl + "/user/followers";
             url_ = url_.replace(/[?&]$/, "");
     
@@ -11267,7 +11267,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getFollowingAll(accept: string): Promise<Anonymous4[]> {
+        getFollowingAll(accept?: string): Promise<Anonymous4[]> {
             let url_ = this.baseUrl + "/user/following";
             url_ = url_.replace(/[?&]$/, "");
     
@@ -11314,7 +11314,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return User unfollowed.
          */
-        deleteFollowing(username: string, accept: string): Promise<void> {
+        deleteFollowing(username: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/user/following/{username}";
             if (username === undefined || username === null)
                 throw new Error("The parameter 'username' must be defined.");
@@ -11357,7 +11357,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Response if you are following this user.
          */
-        getFollowing(username: string, accept: string): Promise<void> {
+        getFollowing(username: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/user/following/{username}";
             if (username === undefined || username === null)
                 throw new Error("The parameter 'username' must be defined.");
@@ -11404,7 +11404,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return You are now following the user.
          */
-        putFollowing(username: string, accept: string): Promise<void> {
+        putFollowing(username: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/user/following/{username}";
             if (username === undefined || username === null)
                 throw new Error("The parameter 'username' must be defined.");
@@ -11451,7 +11451,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getIssues(filter: Filter4, state: State7, labels: string, sort: Sort14, direction: Direction4, since: string, accept: string): Promise<Anonymous2[]> {
+        getIssues(filter: Filter4, state: State7, labels: string, sort: Sort14, direction: Direction4, since?: string, accept?: string): Promise<Anonymous2[]> {
             let url_ = this.baseUrl + "/user/issues?";
             if (filter === undefined || filter === null)
                 throw new Error("The parameter 'filter' must be defined and cannot be null.");
@@ -11519,7 +11519,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getKeysAll(accept: string): Promise<any[]> {
+        getKeysAll(accept?: string): Promise<any[]> {
             let url_ = this.baseUrl + "/user/keys";
             url_ = url_.replace(/[?&]$/, "");
     
@@ -11565,7 +11565,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Created
          */
-        postKeys(accept: string, body: UserKeysPost): Promise<UserKeysKeyId> {
+        postKeys(body: UserKeysPost, accept?: string): Promise<UserKeysKeyId> {
             let url_ = this.baseUrl + "/user/keys";
             url_ = url_.replace(/[?&]$/, "");
     
@@ -11611,7 +11611,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return No content.
          */
-        deleteKeys(keyId: number, accept: string): Promise<void> {
+        deleteKeys(keyId: number, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/user/keys/{keyId}";
             if (keyId === undefined || keyId === null)
                 throw new Error("The parameter 'keyId' must be defined.");
@@ -11654,7 +11654,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getKeys(keyId: number, accept: string): Promise<UserKeysKeyId> {
+        getKeys(keyId: number, accept?: string): Promise<UserKeysKeyId> {
             let url_ = this.baseUrl + "/user/keys/{keyId}";
             if (keyId === undefined || keyId === null)
                 throw new Error("The parameter 'keyId' must be defined.");
@@ -11699,7 +11699,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getOrgs(accept: string): Promise<any[]> {
+        getOrgs(accept?: string): Promise<any[]> {
             let url_ = this.baseUrl + "/user/orgs";
             url_ = url_.replace(/[?&]$/, "");
     
@@ -11745,7 +11745,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getRepos(type: Type2, accept: string): Promise<Anonymous6[]> {
+        getRepos(type?: Type2, accept?: string): Promise<Anonymous6[]> {
             let url_ = this.baseUrl + "/user/repos?";
             if (type !== undefined)
                 url_ += "type=" + encodeURIComponent("" + type) + "&"; 
@@ -11793,7 +11793,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Created
          */
-        postRepos(accept: string, body: PostRepo): Promise<Anonymous6[]> {
+        postRepos(body: PostRepo, accept?: string): Promise<Anonymous6[]> {
             let url_ = this.baseUrl + "/user/repos";
             url_ = url_.replace(/[?&]$/, "");
     
@@ -11843,7 +11843,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getStarredAll(direction: string, sort: Sort15, accept: string): Promise<any[]> {
+        getStarredAll(direction?: string, sort?: Sort15, accept?: string): Promise<any[]> {
             let url_ = this.baseUrl + "/user/starred?";
             if (direction !== undefined)
                 url_ += "direction=" + encodeURIComponent("" + direction) + "&"; 
@@ -11895,7 +11895,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Unstarred.
          */
-        deleteStarred(owner: string, repo: string, accept: string): Promise<void> {
+        deleteStarred(owner: string, repo: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/user/starred/{owner}/{repo}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -11942,7 +11942,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return This repository is starred by you.
          */
-        getStarred(owner: string, repo: string, accept: string): Promise<void> {
+        getStarred(owner: string, repo: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/user/starred/{owner}/{repo}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -11993,7 +11993,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Repository starred.
          */
-        putStarred(owner: string, repo: string, accept: string): Promise<void> {
+        putStarred(owner: string, repo: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/user/starred/{owner}/{repo}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -12038,7 +12038,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getSubscriptionsAll(accept: string): Promise<Anonymous29[]> {
+        getSubscriptionsAll(accept?: string): Promise<Anonymous29[]> {
             let url_ = this.baseUrl + "/user/subscriptions";
             url_ = url_.replace(/[?&]$/, "");
     
@@ -12086,7 +12086,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Unwatched.
          */
-        deleteSubscriptions(owner: string, repo: string, accept: string): Promise<void> {
+        deleteSubscriptions(owner: string, repo: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/user/subscriptions/{owner}/{repo}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -12133,7 +12133,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Repository is watched by you.
          */
-        getSubscriptions(owner: string, repo: string, accept: string): Promise<void> {
+        getSubscriptions(owner: string, repo: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/user/subscriptions/{owner}/{repo}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -12184,7 +12184,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Repository is watched.
          */
-        putSubscriptions(owner: string, repo: string, accept: string): Promise<void> {
+        putSubscriptions(owner: string, repo: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/user/subscriptions/{owner}/{repo}";
             if (owner === undefined || owner === null)
                 throw new Error("The parameter 'owner' must be defined.");
@@ -12229,7 +12229,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getTeams(accept: string): Promise<Anonymous30[]> {
+        getTeams(accept?: string): Promise<Anonymous30[]> {
             let url_ = this.baseUrl + "/user/teams";
             url_ = url_.replace(/[?&]$/, "");
     
@@ -12286,7 +12286,7 @@ namespace GithubApiClient {
          * @username Name of user.
          * @accept Is used to set specified media type.
          */
-        getEvents(username: string, accept: string): Promise<void> {
+        getEvents(username: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/users/{username}/events";
             if (username === undefined || username === null)
                 throw new Error("The parameter 'username' must be defined.");
@@ -12324,7 +12324,7 @@ namespace GithubApiClient {
          * @username Name of user.
          * @accept Is used to set specified media type.
          */
-        eventsGetOrgs(username: string, org: string, accept: string): Promise<void> {
+        eventsGetOrgs(username: string, org: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/users/{username}/events/orgs/{org}";
             if (username === undefined || username === null)
                 throw new Error("The parameter 'username' must be defined.");
@@ -12366,7 +12366,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getFollowers(username: string, accept: string): Promise<Anonymous4[]> {
+        getFollowers(username: string, accept?: string): Promise<Anonymous4[]> {
             let url_ = this.baseUrl + "/users/{username}/followers";
             if (username === undefined || username === null)
                 throw new Error("The parameter 'username' must be defined.");
@@ -12417,7 +12417,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return Response if user follows target user.
          */
-        getFollowing(username: string, targetUser: string, accept: string): Promise<void> {
+        getFollowing(username: string, targetUser: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/users/{username}/following/{targetUser}";
             if (username === undefined || username === null)
                 throw new Error("The parameter 'username' must be defined.");
@@ -12469,7 +12469,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getGists(username: string, since: string, accept: string): Promise<Anonymous[]> {
+        getGists(username: string, since?: string, accept?: string): Promise<Anonymous[]> {
             let url_ = this.baseUrl + "/users/{username}/gists?";
             if (username === undefined || username === null)
                 throw new Error("The parameter 'username' must be defined.");
@@ -12521,7 +12521,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getKeys(username: string, accept: string): Promise<any[]> {
+        getKeys(username: string, accept?: string): Promise<any[]> {
             let url_ = this.baseUrl + "/users/{username}/keys";
             if (username === undefined || username === null)
                 throw new Error("The parameter 'username' must be defined.");
@@ -12571,7 +12571,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getOrgs(username: string, accept: string): Promise<any[]> {
+        getOrgs(username: string, accept?: string): Promise<any[]> {
             let url_ = this.baseUrl + "/users/{username}/orgs";
             if (username === undefined || username === null)
                 throw new Error("The parameter 'username' must be defined.");
@@ -12620,7 +12620,7 @@ namespace GithubApiClient {
          * @username Name of user.
          * @accept Is used to set specified media type.
          */
-        getReceivedEvents(username: string, accept: string): Promise<void> {
+        getReceivedEvents(username: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/users/{username}/received_events";
             if (username === undefined || username === null)
                 throw new Error("The parameter 'username' must be defined.");
@@ -12658,7 +12658,7 @@ namespace GithubApiClient {
          * @username Name of user.
          * @accept Is used to set specified media type.
          */
-        receivedEventsGetPublic(username: string, accept: string): Promise<void> {
+        receivedEventsGetPublic(username: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/users/{username}/received_events/public";
             if (username === undefined || username === null)
                 throw new Error("The parameter 'username' must be defined.");
@@ -12697,7 +12697,7 @@ namespace GithubApiClient {
          * @accept Is used to set specified media type.
          * @return OK
          */
-        getRepos(username: string, type: Type3, accept: string): Promise<Anonymous6[]> {
+        getRepos(username: string, type?: Type3, accept?: string): Promise<Anonymous6[]> {
             let url_ = this.baseUrl + "/users/{username}/repos?";
             if (username === undefined || username === null)
                 throw new Error("The parameter 'username' must be defined.");
@@ -12748,7 +12748,7 @@ namespace GithubApiClient {
          * @username Name of user.
          * @accept Is used to set specified media type.
          */
-        getStarred(username: string, accept: string): Promise<void> {
+        getStarred(username: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/users/{username}/starred";
             if (username === undefined || username === null)
                 throw new Error("The parameter 'username' must be defined.");
@@ -12786,7 +12786,7 @@ namespace GithubApiClient {
          * @username Name of user.
          * @accept Is used to set specified media type.
          */
-        getSubscriptions(username: string, accept: string): Promise<void> {
+        getSubscriptions(username: string, accept?: string): Promise<void> {
             let url_ = this.baseUrl + "/users/{username}/subscriptions";
             if (username === undefined || username === null)
                 throw new Error("The parameter 'username' must be defined.");

@@ -14,7 +14,7 @@ namespace DotVVM.Framework.Runtime
 {
     public class DefaultOutputRenderer : IOutputRenderer
     {
-        protected string RenderPage(IDotvvmRequestContext context, DotvvmView view)
+        protected virtual string RenderPage(IDotvvmRequestContext context, DotvvmView view)
         {
             // embed resource links
             EmbedResourceLinks(view);
@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Runtime
             }
         }
 
-        public async Task WriteHtmlResponse(IDotvvmRequestContext context, DotvvmView view)
+        public virtual async Task WriteHtmlResponse(IDotvvmRequestContext context, DotvvmView view)
         {
             // return the response
             context.HttpContext.Response.ContentType = "text/html; charset=utf-8";
@@ -38,7 +38,7 @@ namespace DotVVM.Framework.Runtime
             await context.HttpContext.Response.WriteAsync(html);
         }
 
-        public IEnumerable<(string name, string html)> RenderPostbackUpdatedControls(IDotvvmRequestContext context, DotvvmView page)
+        public virtual IEnumerable<(string name, string html)> RenderPostbackUpdatedControls(IDotvvmRequestContext context, DotvvmView page)
         {
             var stack = new Stack<DotvvmControl>();
             stack.Push(page);
@@ -75,7 +75,7 @@ namespace DotVVM.Framework.Runtime
         }
 
 
-        public async Task WriteViewModelResponse(IDotvvmRequestContext context, DotvvmView view)
+        public virtual async Task WriteViewModelResponse(IDotvvmRequestContext context, DotvvmView view)
         {
             // return the response
             context.HttpContext.Response.ContentType = "application/json; charset=utf-8";
@@ -84,7 +84,7 @@ namespace DotVVM.Framework.Runtime
             await context.HttpContext.Response.WriteAsync(serializedViewModel);
         }
 
-        public async Task RenderPlainJsonResponse(IHttpContext context, object data)
+        public virtual async Task RenderPlainJsonResponse(IHttpContext context, object data)
         {
             context.Response.StatusCode = (int)HttpStatusCode.OK;
             context.Response.ContentType = "application/json; charset=utf-8";
@@ -92,7 +92,7 @@ namespace DotVVM.Framework.Runtime
             await context.Response.WriteAsync(JsonConvert.SerializeObject(data));
         }
 
-        public async Task RenderHtmlResponse(IHttpContext context, string html)
+        public virtual async Task RenderHtmlResponse(IHttpContext context, string html)
         {
             context.Response.StatusCode = (int)HttpStatusCode.OK;
             context.Response.ContentType = "text/html; charset=utf-8";
@@ -100,7 +100,7 @@ namespace DotVVM.Framework.Runtime
             await context.Response.WriteAsync(html);
         }
 
-        public async Task RenderPlainTextResponse(IHttpContext context, string text)
+        public virtual async Task RenderPlainTextResponse(IHttpContext context, string text)
         {
             context.Response.StatusCode = (int)HttpStatusCode.OK;
             context.Response.ContentType = "text/plain; charset=utf-8";

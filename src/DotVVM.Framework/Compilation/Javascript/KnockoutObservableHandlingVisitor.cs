@@ -27,6 +27,11 @@ namespace DotVVM.Framework.Compilation.Javascript
                     node.ReplaceWith(_ => KoUnwrap(expression, expression, !node.HasAnnotation<ResultIsObservableAnnotation>()));
                     node.RemoveAnnotations<MayBeNullAnnotation>();
                 }
+                else
+                {
+                    // may be null means that the value in the observable may be null. Which is not unwrapped, so the annotation is removed.
+                    node.RemoveAnnotations<MayBeNullAnnotation>();
+                }
             }
             base.DefaultVisit(node);
         }

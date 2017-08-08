@@ -2,8 +2,8 @@
 
 namespace Dotvvm.Samples.Tests{
     public class SamplesRouteUrls{
-        
-            public static string Default => "Default";
+
+        public static string Default => "Default";
 
             public static string ComplexSamples_Auth_Login => "ComplexSamples/Auth/Login";
 
@@ -269,6 +269,10 @@ namespace Dotvvm.Samples.Tests{
 
             public static string FeatureSamples_DoublePostBackPrevention_DoublePostBackPrevention => "FeatureSamples/DoublePostBackPrevention/DoublePostBackPrevention";
 
+            public static string FeatureSamples_EmbeddedResourceControls_EmbeddedResourceControls => "FeatureSamples/EmbeddedResourceControls/EmbeddedResourceControls";
+
+            public static string FeatureSamples_EmbeddedResourceControls_EmbeddedResourceView => "FeatureSamples/EmbeddedResourceControls/EmbeddedResourceView";
+
             public static string FeatureSamples_Formatting_Formatting => "FeatureSamples/Formatting/Formatting";
 
             public static string FeatureSamples_GenericTypes_InCommandBinding => "FeatureSamples/GenericTypes/InCommandBinding";
@@ -330,6 +334,10 @@ namespace Dotvvm.Samples.Tests{
             public static string FeatureSamples_Serialization_Serialization => "FeatureSamples/Serialization/Serialization";
 
             public static string FeatureSamples_ServerComments_ServerComments => "FeatureSamples/ServerComments/ServerComments";
+
+            public static string FeatureSamples_ServerSideStyles_ServerSideStyles => "FeatureSamples/ServerSideStyles/ServerSideStyles";
+
+            public static string FeatureSamples_ServerSideStyles_ServerSideStyles_DotvvmProperties => "FeatureSamples/ServerSideStyles/ServerSideStyles_DotvvmProperties";
 
             public static string FeatureSamples_StaticCommand_StaticCommand => "FeatureSamples/StaticCommand/StaticCommand";
 

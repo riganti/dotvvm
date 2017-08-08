@@ -8,7 +8,7 @@ namespace DotVVM.Tracing.ApplicationInsights.AspNetCore
     /// <summary>
     /// This class helps to inject Application Insights JavaScript snippet into dothtml.
     /// </summary>
-    public class ApplicationInsightJavascript : DotvvmControl
+    public class ApplicationInsightsJavascript : DotvvmControl
     {
         protected override void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
         {

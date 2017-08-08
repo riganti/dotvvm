@@ -262,6 +262,14 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             return node;
         }
 
+        public static TNode WithoutAnnotation<TAnnotation, TNode>(this TNode node)
+            where TNode : IAnnotatable
+            where TAnnotation : class
+        {
+            node.RemoveAnnotations<TAnnotation>();
+            return node;
+        }
+
         public static T WithAnnotations<T>(this T node, IEnumerable<object> annotations)
             where T : class, IAnnotatable
         {

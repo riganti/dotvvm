@@ -350,7 +350,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 arguments.Select(a => new HalfTranslatedExpression(a, Translate)).ToArray(),
                 methodInfo);
 
-        class FakeExtensionParameter: BindingExtensionParameter
+        public class FakeExtensionParameter: BindingExtensionParameter
         {
             private readonly Func<JsExpression, JsExpression> getJsTranslation;
 

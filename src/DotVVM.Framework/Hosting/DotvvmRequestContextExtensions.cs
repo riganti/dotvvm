@@ -10,6 +10,7 @@ using System.Diagnostics;
 using DotVVM.Framework.Hosting.Middlewares;
 using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.Extensions.DependencyInjection;
+using System.Threading;
 
 namespace DotVVM.Framework.Hosting
 {

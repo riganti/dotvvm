@@ -110,7 +110,8 @@ namespace DotVVM.CommandLine.Commands.Logic
             var settings = new SwaggerToTypeScriptClientGeneratorSettings()
             {
                 Template = TypeScriptTemplate.Fetch,
-                OperationNameGenerator = new CustomNameGenerator()
+                OperationNameGenerator = new CustomNameGenerator(),
+                GenerateOptionalParameters = true
             };
             settings.TypeScriptGeneratorSettings.PropertyNameGenerator = new MyPropertyNameGenerator(c => ConversionUtilities.ConvertToLowerCamelCase(c, true));
             settings.TypeScriptGeneratorSettings.NullValue = TypeScriptNullValue.Null;

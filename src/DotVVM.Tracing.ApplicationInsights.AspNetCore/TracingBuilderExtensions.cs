@@ -28,7 +28,7 @@ namespace DotVVM.Tracing.ApplicationInsights.AspNetCore
     {
         public void Configure(DotvvmConfiguration config)
         {
-            config.Markup.AddCodeControls("dot", typeof(ApplicationInsightJavascript));
+            config.Markup.AddCodeControls("dot", typeof(ApplicationInsightsJavascript));
         }
     }
 }
