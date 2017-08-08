@@ -86,7 +86,26 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Prepares DataContext hierarchy argument and executes update delegate.
         /// </summary>
+        public static void ExecUpdateDelegate<T>(this CompiledBindingExpression.BindingUpdateDelegate<T> func, DotvvmBindableObject contextControl, T value)
+        {
+            var dataContexts = GetDataContexts(contextControl);
+            //var control = contextControl.GetClosestControlBindingTarget();
+            func(dataContexts.ToArray(), contextControl, value);
+        }
+
+        /// <summary>
+        /// Prepares DataContext hierarchy argument and executes update delegate.
+        /// </summary>
         public static object ExecDelegate(this CompiledBindingExpression.BindingDelegate func, DotvvmBindableObject contextControl)
+        {
+            var dataContexts = GetDataContexts(contextControl);
+            return func(dataContexts.ToArray(), contextControl);
+        }
+
+        /// <summary>
+        /// Prepares DataContext hierarchy argument and executes update delegate.
+        /// </summary>
+        public static T ExecDelegate<T>(this CompiledBindingExpression.BindingDelegate<T> func, DotvvmBindableObject contextControl)
         {
             var dataContexts = GetDataContexts(contextControl);
             return func(dataContexts.ToArray(), contextControl);
@@ -124,9 +143,30 @@ namespace DotVVM.Framework.Binding
         }
 
         /// <summary>
+        /// Finds expected DataContext target in control.Ancestors() and evaluates the `binding.BindingDelegate`.
+        /// </summary>
+        public static T Evaluate<T>(this IStaticValueBinding<T> binding, DotvvmBindableObject control)
+        {
+            return ExecDelegate(
+                binding.BindingDelegate,
+                FindDataContextTarget(binding, control).target);
+        }
+
+        /// <summary>
         /// Writes the value to binding - binded viewModel property is updated. May throw an exception when binding does not support assignment.
         /// </summary>
         public static void UpdateSource(this IUpdatableValueBinding binding, object value, DotvvmBindableObject control)
+        {
+            ExecUpdateDelegate(
+                binding.UpdateDelegate,
+                FindDataContextTarget(binding, control).target,
+                value);
+        }
+
+        /// <summary>
+        /// Writes the value to binding - binded viewModel property is updated. May throw an exception when binding does not support assignment.
+        /// </summary>
+        public static void UpdateSource<T>(this IUpdatableValueBinding<T> binding, T value, DotvvmBindableObject control)
         {
             ExecUpdateDelegate(
                 binding.UpdateDelegate,
@@ -140,6 +180,16 @@ namespace DotVVM.Framework.Binding
         public static Delegate GetCommandDelegate(this ICommandBinding binding, DotvvmBindableObject control)
         {
             return (Delegate)ExecDelegate(
+                binding.BindingDelegate,
+                FindDataContextTarget(binding, control).target);
+        }
+
+        /// <summary>
+        /// Finds expected DataContext and gets the delegate from command binding.
+        /// </summary>
+        public static T GetCommandDelegate<T>(this ICommandBinding<T> binding, DotvvmBindableObject control)
+        {
+            return ExecDelegate(
                 binding.BindingDelegate,
                 FindDataContextTarget(binding, control).target);
         }
@@ -240,6 +290,9 @@ namespace DotVVM.Framework.Binding
                 return base.VisitParameter(node);
             }
         }
+
+        public static CompiledBindingExpression.BindingDelegate<T> ToGeneric<T>(this CompiledBindingExpression.BindingDelegate d) => (a, b) => (T)d(a, b);
+        public static CompiledBindingExpression.BindingUpdateDelegate<T> ToGeneric<T>(this CompiledBindingExpression.BindingUpdateDelegate d) => (a, b, c) => d(a, b, c);
     }
 
 

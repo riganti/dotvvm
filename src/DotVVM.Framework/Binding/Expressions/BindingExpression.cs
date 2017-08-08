@@ -11,7 +11,7 @@ using DotVVM.Framework.Runtime.Filters;
 namespace DotVVM.Framework.Binding.Expressions
 {
     [BindingCompilationRequirements(optional: new[] { typeof(BindingResolverCollection) })]
-    public abstract class BindingExpression : IBinding, IMutableBinding
+    public abstract class BindingExpression : IBinding, IMutableBinding, ICloneableBinding
     {
         struct PropValue
         {
@@ -82,6 +82,7 @@ namespace DotVVM.Framework.Binding.Expressions
             }
         }
 
+
         public override string ToString()
         {
             var value = this.GetProperty<ParsedExpressionBindingProperty>(ErrorHandlingMode.ReturnNull)?.Expression?.ToString() ??
@@ -89,6 +90,13 @@ namespace DotVVM.Framework.Binding.Expressions
                 this.GetProperty<KnockoutJsExpressionBindingProperty>(ErrorHandlingMode.ReturnNull)?.Expression?.ToString() ??
                 this.GetProperty<KnockoutExpressionBindingProperty>(ErrorHandlingMode.ReturnNull)?.Code?.ToString(o => new Compilation.Javascript.CodeParameterAssignment($"${o.GetHashCode()}", Compilation.Javascript.OperatorPrecedence.Max));
             return $"{{{GetType().Name}: {value}}}";
+        }
+
+        IEnumerable<object> ICloneableBinding.GetAllComputedProperties()
+        {
+            return properties.Values
+                .Where(p => p.Error == null)
+                .Select(p => p.Value);
         }
     }
 }

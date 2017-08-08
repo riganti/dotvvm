@@ -160,4 +160,10 @@ namespace DotVVM.Framework.Binding.Expressions
             : base(service, new object[] { command, new IdBindingProperty(id), new CommandJavascriptBindingProperty(CreateJsPostbackInvocation(id)) })
         { }
     }
+
+    public class CommandBindingExpression<T> : CommandBindingExpression, ICommandBinding<T>
+    {
+        public new CompiledBindingExpression.BindingDelegate<T> BindingDelegate => base.BindingDelegate.ToGeneric<T>();
+        public CommandBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties) { }
+    }
 }

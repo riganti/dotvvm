@@ -135,7 +135,7 @@ namespace DotVVM.Framework.Compilation.Binding
             var prop = property?.DotvvmProperty;
             if (prop == null) return new ExpectedTypeBindingProperty(typeof(object));
 
-            return new ExpectedTypeBindingProperty(prop.IsBindingProperty ? typeof(object) : prop.PropertyType);
+            return new ExpectedTypeBindingProperty(prop.IsBindingProperty ? (prop.PropertyType.GenericTypeArguments.SingleOrDefault() ?? typeof(object)) : prop.PropertyType);
         }
 
         public BindingResolverCollection GetAdditionalResolversFromProperty(AssignedPropertyBindingProperty property = null, DataContextStack stack = null)
