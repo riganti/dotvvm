@@ -698,6 +698,7 @@ namespace DotVVM.Framework.Compilation
 
         private TypeSyntax ParseTypeName(Type type)
         {
+            UseType(type);
             if(type == typeof(void))
             {
                 return SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.VoidKeyword));
