@@ -107,25 +107,28 @@ namespace DotVVM.Framework.Compilation.Javascript
             //AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Count), lengthMethod, new[] { typeof(IEnumerable) });
 
             AddMethodTranslator(typeof(Api), nameof(Api.RefreshOnChange),
-                new GenericMethodCompiler(a => a[2] is JsIdentifierExpression || a[2] is JsMemberAccessExpression member && member.Target is JsSymbolicParameter && !member.Target.HasAnnotation<ResultIsObservableAnnotation>() ?
+                new GenericMethodCompiler(a => (a[2] is JsIdentifierExpression || a[2] is JsMemberAccessExpression member && member.Target is JsSymbolicParameter && !member.Target.HasAnnotation<ResultIsObservableAnnotation>() ?
                     new JsIdentifierExpression("dotvvm").Member("apiRefreshOn").Invoke(
                         a[1].WithAnnotation(ShouldBeObservableAnnotation.Instance),
-                        a[2].WithAnnotation(ShouldBeObservableAnnotation.Instance))
-                        .WithAnnotation(a[1].Annotation<ResultIsObservableAnnotation>())
-                        .WithAnnotation(a[1].Annotation<MayBeNullAnnotation>()) :
+                        a[2].WithAnnotation(ShouldBeObservableAnnotation.Instance)) :
                     new JsIdentifierExpression("dotvvm").Member("apiRefreshOn").Invoke(
                         a[1].WithAnnotation(ShouldBeObservableAnnotation.Instance),
                         new JsIdentifierExpression("ko").Member("pureComputed").Invoke(new JsFunctionExpression(
                             parameters: Enumerable.Empty<JsIdentifier>(),
-                            bodyBlock: new JsBlockStatement(new JsReturnStatement(a[2])))))
+                            bodyBlock: new JsBlockStatement(new JsReturnStatement(a[2]))))))
                         .WithAnnotation(a[1].Annotation<ResultIsObservableAnnotation>())
+                        .WithAnnotation(a[1].Annotation<ViewModelInfoAnnotation>())
                         .WithAnnotation(a[1].Annotation<MayBeNullAnnotation>())
                 ));
             AddMethodTranslator(typeof(Api), nameof(Api.RefreshOnEvent),
                 new GenericMethodCompiler(a =>
                     new JsIdentifierExpression("dotvvm").Member("apiRefreshOn").Invoke(
                         a[1].WithAnnotation(ShouldBeObservableAnnotation.Instance),
-                        new JsIdentifierExpression("dotvvm").Member("eventHub").Member("get").Invoke(a[2]))));
+                        new JsIdentifierExpression("dotvvm").Member("eventHub").Member("get").Invoke(a[2]))
+                    .WithAnnotation(a[1].Annotation<ResultIsObservableAnnotation>())
+                    .WithAnnotation(a[1].Annotation<ViewModelInfoAnnotation>())
+                    .WithAnnotation(a[1].Annotation<MayBeNullAnnotation>())
+                ));
             BindingPageInfo.RegisterJavascriptTranslations(this);
             BindingCollectionInfo.RegisterJavascriptTranslations(this);
 

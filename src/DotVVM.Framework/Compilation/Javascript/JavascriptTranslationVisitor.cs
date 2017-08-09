@@ -348,7 +348,8 @@ namespace DotVVM.Framework.Compilation.Javascript
             Translator.TryTranslateCall(
                 new HalfTranslatedExpression(target, Translate),
                 arguments.Select(a => new HalfTranslatedExpression(a, Translate)).ToArray(),
-                methodInfo);
+                methodInfo)
+                ?.WithAnnotation(new ViewModelInfoAnnotation(methodInfo.ReturnType), append: false);
 
         public class FakeExtensionParameter: BindingExtensionParameter
         {
