@@ -56,6 +56,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IResourceHashService, DefaultResourceHashService>();
             services.TryAddSingleton<IStopwatch, DefaultStopwatch>();
             services.TryAddSingleton<JavascriptTranslator, JavascriptTranslator>();
+            services.TryAddSingleton<IHttpRedirectService, DefaultHttpRedirectService>();
 
             services.TryAddScoped<AggregateRequestTracer, AggregateRequestTracer>();
             services.TryAddScoped<ResourceManager, ResourceManager>();
