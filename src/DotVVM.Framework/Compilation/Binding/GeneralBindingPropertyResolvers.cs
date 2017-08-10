@@ -111,12 +111,6 @@ namespace DotVVM.Framework.Compilation.Binding
             return (StartsWithStatementLikeExpression(expr.Expression) ? expr : expr.Expression).FormatParametrizedScript(niceMode);
         }
 
-        public RequiredRuntimeResourcesBindingProperty GetRequiredResources(KnockoutJsExpressionBindingProperty js)
-        {
-            var resources = js.Expression.DescendantNodesAndSelf().Select(n => n.Annotation<RequiredRuntimeResourcesBindingProperty>()).Where(n => n != null).SelectMany(n => n.Resources).ToImmutableArray();
-            return resources.Length == 0 ? RequiredRuntimeResourcesBindingProperty.Empty : new RequiredRuntimeResourcesBindingProperty(resources);
-        }
-
         private static bool StartsWithStatementLikeExpression(JsExpression expression)
         {
             if (expression is JsFunctionExpression || expression is JsObjectExpression) return true;
@@ -156,7 +150,8 @@ namespace DotVVM.Framework.Compilation.Binding
             if (prop == null) return new BindingCompilationRequirementsAttribute();
 
             return
-                (prop.PropertyInfo?.GetCustomAttributes<BindingCompilationRequirementsAttribute>() ?? Enumerable.Empty<BindingCompilationRequirementsAttribute>())
+                new [] { new BindingCompilationRequirementsAttribute() }
+                .Concat(prop.PropertyInfo?.GetCustomAttributes<BindingCompilationRequirementsAttribute>() ?? Enumerable.Empty<BindingCompilationRequirementsAttribute>())
                 .Aggregate((a, b) => a.ApplySecond(b));
         }
 
@@ -277,12 +272,11 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public LocationInfoBindingProperty GetLocationInfo(ResolvedBinding resolvedBinding)
         {
-            if (resolvedBinding.Parent == null) throw new Exception();
             return new LocationInfoBindingProperty(
-                resolvedBinding.TreeRoot.FileName,
+                resolvedBinding.TreeRoot?.FileName,
                 resolvedBinding.DothtmlNode?.Tokens?.Select(t => (t.StartPosition, t.EndPosition)).ToArray(),
                 resolvedBinding.DothtmlNode?.Tokens?.FirstOrDefault()?.LineNumber ?? -1,
-                resolvedBinding.TreeRoot.GetAncestors().OfType<ResolvedControl>().FirstOrDefault()?.Metadata?.Type);
+                resolvedBinding.GetAncestors().OfType<ResolvedControl>().FirstOrDefault()?.Metadata?.Type);
         }
 
         public SelectorItemBindingProperty GetItemLambda(ParsedExpressionBindingProperty expression, DataContextStack dataContext, IValueBinding binding)
