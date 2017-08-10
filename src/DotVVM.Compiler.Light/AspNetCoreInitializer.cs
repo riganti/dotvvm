@@ -9,6 +9,7 @@ using DotVVM.Framework.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyModel;
 using Microsoft.Extensions.DependencyModel.Resolution;
+using Microsoft.Extensions.Options;
 
 namespace DotVVM.Compiler.Light
 {
@@ -36,6 +37,11 @@ namespace DotVVM.Compiler.Light
                     return AssemblyLoadContext.Default.LoadFromAssemblyPath(assembly.AssemblyData.AssemblyFullPath);
                 }
             };
+
+            var dotvvmStartups = webSiteAssembly.GetLoadableTypes()
+                .Where(t => typeof(IDotvvmStartup).IsAssignableFrom(t) && t.GetConstructor(Type.EmptyTypes) != null).ToArray();
+            if (dotvvmStartups.Length > 1) throw new Exception($"Found more than one implementation of IDotvvmStartup ({string.Join(", ", dotvvmStartups.Select(s => s.Name)) }).");
+            var startup = dotvvmStartups.SingleOrDefault()?.Apply(Activator.CreateInstance).CastTo<IDotvvmStartup>();
             
             var configureServices =
                 webSiteAssembly.GetLoadableTypes()
@@ -50,11 +56,6 @@ namespace DotVVM.Compiler.Light
             var config = DotvvmConfiguration.CreateDefault(
                 services =>
                 {
-                    if (viewStaticCompilerCompiler != null)
-                    {
-                        services.AddSingleton<ViewStaticCompilerCompiler>(viewStaticCompilerCompiler);
-                        services.AddSingleton<IControlResolver, OfflineCompilationControlResolver>();
-                    }
                     registerServices?.Invoke(services);
                     foreach(var cs in configureServices)
                         cs.Invoke(cs.IsStatic ? null : Activator.CreateInstance(cs.DeclaringType), new object[] { services });
