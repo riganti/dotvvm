@@ -43,7 +43,7 @@ namespace DotVVM.Compiler
             if (Options.BindingClassName == null) Options.BindingClassName = Options.BindingsAssemblyName + "." + "CompiledBindings";
         }
 
-        private DotvvmConfiguration GetCachedConfiguration(Assembly assembly, string webSitePath, Action<DotvvmConfiguration, IServiceCollection> registerServices)
+        private DotvvmConfiguration GetCachedConfiguration(Assembly assembly, string webSitePath, Action<IServiceCollection> registerServices)
         {
             return cachedConfig.GetOrAdd($"{assembly.GetName().Name}|{webSitePath}",
                 key => OwinInitializer.InitDotVVM(assembly, webSitePath, this, registerServices));
@@ -65,12 +65,11 @@ namespace DotVVM.Compiler
 
             var wsa = assemblyDictionary.GetOrAdd(Options.WebSiteAssembly, _ => Assembly.LoadFile(Options.WebSiteAssembly));
             configuration = GetCachedConfiguration(wsa, Options.WebSitePath,
-                 (config, services) =>
+                 (services) =>
                  {
                      if (Options.FullCompile)
                      {
-                         bindingCompiler = new AssemblyBindingCompiler(Options.BindingsAssemblyName, Options.BindingClassName, Path.Combine(Options.OutputPath, Options.BindingsAssemblyName + ".dll"), config);
-                         services.AddSingleton<IBindingCompiler>(bindingCompiler);
+                         services.AddSingleton<IBindingCompiler>(s => bindingCompiler = new AssemblyBindingCompiler(Options.BindingsAssemblyName, Options.BindingClassName, Path.Combine(Options.OutputPath, Options.BindingsAssemblyName + ".dll"), s.GetRequiredService<DotvvmConfiguration>()));
                      }
                  });
 

@@ -33,7 +33,19 @@ namespace Microsoft.AspNetCore.Builder
             return config;
         }
 
-        internal static DotvvmConfiguration UseDotVVM(this IApplicationBuilder app, string applicationRootPath, bool? useErrorPages)
+        /// <summary>
+        /// Adds DotVVM to the <see cref="IApplicationBuilder" /> request execution pipeline.
+        /// </summary>
+        /// <param name="app">The <see cref="IApplicationBuilder" /> instance.</param>
+        /// <param name="applicationRootPath">
+        /// The path to application's root directory. It is used to resolve paths to views, etc.
+        /// The default value is equal to <see cref="IHostingEnvironment.ContentRootPath" />.
+        /// </param>
+        /// <param name="useErrorPages">
+        /// A value indicating whether to show detailed error page if an exception occurs. It is enabled by default
+        /// if <see cref="HostingEnvironmentExtensions.IsDevelopment" /> returns <c>true</c>.
+        /// </param>
+        public static DotvvmConfiguration UseDotVVM(this IApplicationBuilder app, string applicationRootPath, bool? useErrorPages)
         {
             var env = app.ApplicationServices.GetRequiredService<IHostingEnvironment>();
             var config = app.ApplicationServices.GetRequiredService<DotvvmConfiguration>();
