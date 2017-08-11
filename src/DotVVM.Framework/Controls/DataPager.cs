@@ -134,7 +134,7 @@ namespace DotVVM.Framework.Controls
             set { SetValue(EnabledProperty, value); }
         }
         public static readonly DotvvmProperty EnabledProperty =
-            CustomDefaultProperty.Register<bool, DataPager>(nameof(Enabled),
+            DotvvmPropertyWithFallback.Register<bool, DataPager>(nameof(Enabled),
                 FormControls.EnabledProperty, defaultPropertyInherit: true);
 
 

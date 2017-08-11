@@ -59,7 +59,7 @@ namespace DotVVM.Framework.Controls
         }
 
         public static readonly DotvvmProperty EnabledProperty =
-            CustomDefaultProperty.Register<bool, CheckableControlBase>(nameof(Enabled),
+            DotvvmPropertyWithFallback.Register<bool, CheckableControlBase>(nameof(Enabled),
                 FormControls.EnabledProperty, defaultPropertyInherit: true);
 
         /// <summary>

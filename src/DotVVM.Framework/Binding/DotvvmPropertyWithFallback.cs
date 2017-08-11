@@ -8,7 +8,7 @@ namespace DotVVM.Framework.Binding
     /// <summary>
     /// A DotvvmProperty that defaults to another DotvvmProperty's value
     /// </summary>
-    public class CustomDefaultProperty : DotvvmProperty
+    public class DotvvmPropertyWithFallback : DotvvmProperty
     {
         /// <summary>
         /// Gets the property whose value this property will default to if it is not set
@@ -62,10 +62,10 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Registers the specified DotVVM property.
         /// </summary>
-        public static CustomDefaultProperty Register<TPropertyType, TDeclaringType>(string propertyName, DotvvmProperty defaultProperty, bool defaultPropertyInherit, bool isValueInherited = false)
+        public static DotvvmPropertyWithFallback Register<TPropertyType, TDeclaringType>(string propertyName, DotvvmProperty defaultProperty, bool defaultPropertyInherit, bool isValueInherited = false)
         {
-            var property = new CustomDefaultProperty() { DefaultProperty = defaultProperty, DefaultPropertyInherit = defaultPropertyInherit };
-            return DotvvmProperty.Register<TPropertyType, TDeclaringType>(propertyName, isValueInherited: isValueInherited, property: property) as CustomDefaultProperty;
+            var property = new DotvvmPropertyWithFallback() { DefaultProperty = defaultProperty, DefaultPropertyInherit = defaultPropertyInherit };
+            return DotvvmProperty.Register<TPropertyType, TDeclaringType>(propertyName, isValueInherited: isValueInherited, property: property) as DotvvmPropertyWithFallback;
         }
     }
 }

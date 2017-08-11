@@ -47,7 +47,7 @@ namespace DotVVM.Framework.Controls
             set {  SetValue(EnabledProperty, value); }
         }
         public static readonly DotvvmProperty EnabledProperty =
-            CustomDefaultProperty.Register<bool, ButtonBase>(nameof(Enabled),
+            DotvvmPropertyWithFallback.Register<bool, ButtonBase>(nameof(Enabled),
                 FormControls.EnabledProperty, defaultPropertyInherit: true);
 
 
