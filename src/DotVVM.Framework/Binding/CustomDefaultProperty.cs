@@ -5,6 +5,9 @@ using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Binding
 {
+    /// <summary>
+    /// A DotvvmProperty that defaults to another DotvvmProperty's value
+    /// </summary>
     public class CustomDefaultProperty : DotvvmProperty
     {
         /// <summary>

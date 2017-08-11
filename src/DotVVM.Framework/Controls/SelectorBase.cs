@@ -24,8 +24,8 @@ namespace DotVVM.Framework.Controls
             get { return (bool)GetValue(EnabledProperty); }
             set { SetValue(EnabledProperty, value); }
         }
-        public static readonly DotvvmProperty EnabledProperty = 
-            CustomDefaultProperty.Register<bool, SelectorBase>("Enabled", 
+        public static readonly DotvvmProperty EnabledProperty =
+            CustomDefaultProperty.Register<bool, SelectorBase>(nameof(Enabled),
                 FormControls.EnabledProperty, defaultPropertyInherit: true);
         
 
