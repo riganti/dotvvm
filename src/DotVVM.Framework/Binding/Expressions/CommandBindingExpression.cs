@@ -23,8 +23,8 @@ namespace DotVVM.Framework.Binding.Expressions
     public delegate Task Command();
 
     [BindingCompilationRequirements(
-        required: new[] { typeof(CompiledBindingExpression.BindingDelegate), typeof(CommandJavascriptBindingProperty), typeof(IdBindingProperty) },
-        optional: new[] { typeof(ActionFiltersBindingProperty) }
+        required: new[] { typeof(CompiledBindingExpression.BindingDelegate) },
+        optional: new[] { typeof(ActionFiltersBindingProperty), typeof(IdBindingProperty), typeof(CommandJavascriptBindingProperty) }
         )]
     [Options]
     public class CommandBindingExpression : BindingExpression, ICommandBinding

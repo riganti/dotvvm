@@ -169,6 +169,13 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             var sb = new StringBuilder();
 
+            if (resolvedBinding?.TreeRoot != null && dataContext != null)
+            {
+                var bindingIndex = bindingCounts.GetOrCreateValue(resolvedBinding.TreeRoot).AddOrUpdate(dataContext, 0, (_, i) => i + 1);
+                sb.Append(bindingIndex);
+                sb.Append(" || ");
+            }
+
             // don't append expression when original string is present, so it does not have to be always exactly same
             if (originalString != null)
                 sb.Append(originalString.Code);
@@ -200,13 +207,6 @@ namespace DotVVM.Framework.Compilation.Binding
             }
             sb.Append(" || ");
             sb.Append(assignedProperty?.DotvvmProperty?.FullName);
-
-            if (resolvedBinding?.TreeRoot != null)
-            {
-                var bindingIndex = bindingCounts.GetOrCreateValue(resolvedBinding.TreeRoot).AddOrUpdate(dataContext, 0, (_, i) => i + 1);
-                sb.Append(" || ");
-                sb.Append(bindingIndex);
-            }
 
             using (var sha = System.Security.Cryptography.SHA256.Create())
             {
