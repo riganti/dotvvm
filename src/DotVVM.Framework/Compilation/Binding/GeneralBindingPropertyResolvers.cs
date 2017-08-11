@@ -234,11 +234,15 @@ namespace DotVVM.Framework.Compilation.Binding
                     new ParsedExpressionBindingProperty(
                         Expression.Property(expression.Expression, ifc.GetProperty(nameof(ICollection.Count)))
                     )));
-
             else if (expression.Expression.Type.Implements(typeof(IBaseGridViewDataSet), out var igridviewdataset))
                 return new DataSourceLengthBinding(binding.DeriveBinding(
                     new ParsedExpressionBindingProperty(
                         Expression.Property(Expression.Property(expression.Expression, igridviewdataset.GetProperty(nameof(IBaseGridViewDataSet.Items))), typeof(ICollection).GetProperty(nameof(ICollection.Count)))
+                    )));
+            else if (expression.Expression.Type == typeof(string))
+                return new DataSourceLengthBinding(binding.DeriveBinding(
+                    new ParsedExpressionBindingProperty(
+                        Expression.Property(expression.Expression, nameof(String.Length))
                     )));
             else throw new NotSupportedException($"Can not find collection length from binding '{expression.Expression}'.");
         }
