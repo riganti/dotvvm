@@ -244,6 +244,11 @@ namespace DotVVM.Framework.Compilation.Binding
                     new ParsedExpressionBindingProperty(
                         Expression.Property(expression.Expression, nameof(String.Length))
                     )));
+            else if (expression.Expression.Type.Implements(typeof(IEnumerable<>)))
+                return new DataSourceLengthBinding(binding.DeriveBinding(
+                    new ParsedExpressionBindingProperty(
+                        Expression.Call(typeof(Enumerable), "Count", new [] { ReflectionUtils.GetEnumerableType(expression.Expression.Type) },expression.Expression)
+                    )));
             else throw new NotSupportedException($"Can not find collection length from binding '{expression.Expression}'.");
         }
 
