@@ -224,7 +224,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
 
         public JsLiteral TranslateConstant(ConstantExpression expression) =>
-            new JsLiteral(expression.Value);
+            new JsLiteral(expression.Value).WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
 
         public JsExpression TranslateMethodCall(MethodCallExpression expression)
         {

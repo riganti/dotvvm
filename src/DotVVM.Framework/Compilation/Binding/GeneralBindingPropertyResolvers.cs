@@ -158,7 +158,6 @@ namespace DotVVM.Framework.Compilation.Binding
         public CompiledBindingExpression.BindingDelegate Compile(Expression<CompiledBindingExpression.BindingDelegate> expr) => expr.Compile();
         public CompiledBindingExpression.BindingUpdateDelegate Compile(Expression<CompiledBindingExpression.BindingUpdateDelegate> expr) => expr.Compile();
 
-
         private ConditionalWeakTable<ResolvedTreeRoot, ConcurrentDictionary<DataContextStack, int>> bindingCounts = new ConditionalWeakTable<ResolvedTreeRoot, ConcurrentDictionary<DataContextStack, int>>();
         public IdBindingProperty CreateBindingId(
             OriginalStringBindingProperty originalString = null,
@@ -274,10 +273,11 @@ namespace DotVVM.Framework.Compilation.Binding
             else throw new NotSupportedException($"Can not access current element on binding '{expression.Expression}' of type '{expression.Expression.Type}'.");
         }
 
-        public StaticCommandJavascriptProperty CompileStaticCommand(DataContextStack dataContext, ParsedExpressionBindingProperty expression)
-        {
-            return new StaticCommandJavascriptProperty(FormatJavascript(new StaticCommandBindingCompiler(javascriptTranslator).CompileToJavascript(dataContext, expression.Expression), niceMode: configuration.Debug));
-        }
+        public StaticCommandJsAstProperty CompileStaticCommand(DataContextStack dataContext, ParsedExpressionBindingProperty expression) =>
+            new StaticCommandJsAstProperty(new StaticCommandBindingCompiler(javascriptTranslator).CompileToJavascript(dataContext, expression.Expression));
+
+        public StaticCommandJavascriptProperty FormatStaticCommand(StaticCommandJsAstProperty code) =>
+            new StaticCommandJavascriptProperty(FormatJavascript(code.Expression, niceMode: configuration.Debug));
 
         public LocationInfoBindingProperty GetLocationInfo(ResolvedBinding resolvedBinding)
         {

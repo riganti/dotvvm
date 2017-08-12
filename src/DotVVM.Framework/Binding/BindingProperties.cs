@@ -107,6 +107,18 @@ namespace DotVVM.Framework.Binding.Properties
     }
 
     /// <summary>
+    /// Contains JS code, that will invoke the static command. May contain symbolic parameters from `JavascriptTranslator` and `CommandBindingExpression`
+    /// </summary>
+    public sealed class StaticCommandJsAstProperty
+    {
+        public readonly JsExpression Expression;
+        public StaticCommandJsAstProperty(JsExpression expression)
+        {
+            this.Expression = expression;
+        }
+    }
+
+    /// <summary>
     /// Contains <see cref="System.Linq.Expressions.Expression"/> instance that represents code as it was written in markup with minimal processing.
     /// </summary>
     public sealed class ParsedExpressionBindingProperty
