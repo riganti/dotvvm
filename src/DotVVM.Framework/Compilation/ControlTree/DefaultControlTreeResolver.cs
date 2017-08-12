@@ -28,7 +28,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             this.bindingExpressionBuilder = expressionBuilder;
         }
 
-        protected override void ResolveRootContent(DothtmlRootNode root, IAbstractTreeRoot view, IControlResolverMetadata viewMetadata)
+        protected override void ResolveRootContent(DothtmlRootNode root, IAbstractContentNode view, IControlResolverMetadata viewMetadata)
         {
             ((ResolvedTreeRoot)view).ResolveContentAction = () => base.ResolveRootContent(root, view, viewMetadata);
         }

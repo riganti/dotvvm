@@ -1,4 +1,4 @@
-﻿using DotVVM.Framework.Controls;
+using DotVVM.Framework.Controls;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -70,6 +70,7 @@ namespace DotVVM.Framework.Binding
                 if (bindingContext.Equals(a.GetValue(Internal.DataContextTypeProperty, inherit: false)))
                     return (changes, a);
             }
+
             throw new NotSupportedException($"Could not find DataContextSpace of binding '{binding}'.");
         }
 

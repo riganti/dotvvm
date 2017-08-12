@@ -84,8 +84,23 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Resolves the content of the root node.
         /// </summary>
-        protected virtual void ResolveRootContent(DothtmlRootNode root, IAbstractTreeRoot view, IControlResolverMetadata viewMetadata)
+        protected virtual void ResolveRootContent(DothtmlRootNode root, IAbstractContentNode view, IControlResolverMetadata viewMetadata)
         {
+            // WORKAROUND:
+            // if there is a control in root of a MarkupControl that has DataContext assigned, it will not find the data context space, because the space of DataContext property does not include the control itself and the space of MarkupControl also does not include the MarkupControl. And because the MarkupControl is a direct parent of the DataContext-bound control there is no space in between. 
+
+            if (viewMetadata.Type.IsAssignableTo(new ResolvedTypeDescriptor(typeof(DotvvmMarkupControl))))
+            {
+                var placeHolder = this.treeBuilder.BuildControl(
+                    this.controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(PlaceHolder))),
+                    view.DothtmlNode,
+                    view.DataContextTypeStack
+                );
+                this.treeBuilder.AddChildControl(view, placeHolder);
+                view = placeHolder;
+                viewMetadata = placeHolder.Metadata;
+            }
+
             foreach (var node in root.Content)
             {
                 var child = ProcessNode(view, node, viewMetadata, view.DataContextTypeStack);
