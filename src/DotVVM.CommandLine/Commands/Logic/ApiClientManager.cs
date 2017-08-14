@@ -10,6 +10,7 @@ using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 using NJsonSchema;
 using NJsonSchema.CodeGeneration;
+using NJsonSchema.CodeGeneration.CSharp;
 using NJsonSchema.CodeGeneration.TypeScript;
 using NSwag;
 using NSwag.CodeGeneration;
@@ -60,7 +61,9 @@ namespace DotVVM.CommandLine.Commands.Logic
                 OperationNameGenerator = nameGenerator,
                 GenerateOptionalParameters = true,
             };
+            settings.CSharpGeneratorSettings.ClassStyle = CSharpClassStyle.Poco;
             settings.CSharpGeneratorSettings.Namespace = definition.Namespace;
+            settings.CSharpGeneratorSettings.ArrayType = "System.Collections.Generic.List";
             settings.CSharpGeneratorSettings.PropertyNameGenerator =
                 new MyPropertyNameGenerator(c => ConversionUtilities.ConvertToUpperCamelCase(c, true));
 

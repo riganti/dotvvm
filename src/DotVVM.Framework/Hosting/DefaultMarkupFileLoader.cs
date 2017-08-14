@@ -8,16 +8,6 @@ namespace DotVVM.Framework.Hosting
 {
     public class DefaultMarkupFileLoader : IMarkupFileLoader
     {
-
-
-        /// <summary>
-        /// Gets the markup file virtual path from the current request URL.
-        /// </summary>
-        public string GetMarkupFileVirtualPath(IDotvvmRequestContext context)
-        {
-            return context.Route.VirtualPath;
-        }
-
         /// <summary>
         /// Gets the markup file for the specified virtual path.
         /// </summary>
@@ -25,14 +15,35 @@ namespace DotVVM.Framework.Hosting
         {
             // check that we are not outside application directory
             var fullPath = Path.Combine(configuration.ApplicationPhysicalPath, virtualPath);
-            fullPath = Path.GetFullPath(fullPath);
-            if (!fullPath.Replace('\\', '/').StartsWith(configuration.ApplicationPhysicalPath.Replace('\\', '/'), StringComparison.CurrentCultureIgnoreCase))
+            try
             {
-                throw new Exception("The view cannot be located outside the website directory!");     // TODO: exception handling
+                fullPath = Path.GetFullPath(fullPath);
+            }
+            catch(NotSupportedException)
+            {
+                return null;
             }
 
-            // load the file
-            return new MarkupFile(virtualPath, fullPath);
+            if (!fullPath.Replace('\\', '/').StartsWith(configuration.ApplicationPhysicalPath.Replace('\\', '/'), StringComparison.CurrentCultureIgnoreCase))
+            {
+                return null;
+            }
+
+            if (File.Exists(fullPath))
+            {
+                // load the file
+                return new MarkupFile(virtualPath, fullPath);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Gets the markup file virtual path from the current request URL.
+        /// </summary>
+        public string GetMarkupFileVirtualPath(IDotvvmRequestContext context)
+        {
+            return context.Route.VirtualPath;
         }
     }
 }

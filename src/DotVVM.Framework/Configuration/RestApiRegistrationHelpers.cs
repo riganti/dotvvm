@@ -16,6 +16,7 @@ using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.Utils;
 using System.Diagnostics;
 using DotVVM.Framework.Binding.Properties;
+using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -223,6 +224,7 @@ namespace DotVVM.Framework.Configuration
                 this.ApiDescriptor = descriptor;
             }
 
+            [JsonIgnore]
             public ApiGroupDescriptor ApiDescriptor { get; }
 
             public override JsExpression GetJsTranslation(JsExpression dataContext) =>

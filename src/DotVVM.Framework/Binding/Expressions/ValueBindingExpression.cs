@@ -11,6 +11,7 @@ using DotVVM.Framework.Utils;
 using System.Linq;
 using System.Linq.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
+using System.Collections.Immutable;
 
 namespace DotVVM.Framework.Binding.Expressions
 {
@@ -44,7 +45,10 @@ namespace DotVVM.Framework.Binding.Expressions
         public class OptionsAttribute : BindingCompilationOptionsAttribute
         {
             public override IEnumerable<Delegate> GetResolvers() => new Delegate[] {
-
+                new Func<KnockoutJsExpressionBindingProperty, RequiredRuntimeResourcesBindingProperty>(js => {
+                    var resources = js.Expression.DescendantNodesAndSelf().Select(n => n.Annotation<RequiredRuntimeResourcesBindingProperty>()).Where(n => n != null).SelectMany(n => n.Resources).ToImmutableArray();
+                    return resources.Length == 0 ? RequiredRuntimeResourcesBindingProperty.Empty : new RequiredRuntimeResourcesBindingProperty(resources);
+                })
             };
         }
 
@@ -129,5 +133,14 @@ namespace DotVVM.Framework.Binding.Expressions
         }
 
         #endregion
+    }
+
+    public class ValueBindingExpression<T> : ValueBindingExpression, IValueBinding<T>, IUpdatableValueBinding<T>
+    {
+        public new CompiledBindingExpression.BindingDelegate<T> BindingDelegate => base.BindingDelegate.ToGeneric<T>();
+
+        public new CompiledBindingExpression.BindingUpdateDelegate<T> UpdateDelegate => base.UpdateDelegate.ToGeneric<T>();
+
+        public ValueBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties) { }
     }
 }

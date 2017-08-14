@@ -34,7 +34,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             if (expr is JsBinaryExpression binary && (binary.Operator == BinaryOperatorType.ConditionalAnd || binary.Operator == BinaryOperatorType.ConditionalOr))
                 return IsComplexType(binary.Left) && IsComplexType(binary.Right);
             if (expr is JsConditionalExpression conditional) return IsComplexType(conditional.TrueExpression) && IsComplexType(conditional.FalseExpression);
-            if (expr is JsLiteral literal) return literal.Value == null || ViewModelJsonConverter.IsComplexType(literal.Value.GetType());
+            if (expr is JsLiteral literal) return literal.Value != null && ViewModelJsonConverter.IsComplexType(literal.Value.GetType());
             return false;
         }
 

@@ -1,4 +1,4 @@
-﻿/// <reference path="typings/knockout/knockout.d.ts" />
+/// <reference path="typings/knockout/knockout.d.ts" />
 /// <reference path="typings/knockout/knockout.dotvvm.d.ts" />
 /// <reference path="typings/knockout.mapper/knockout.mapper.d.ts" />
 /// <reference path="typings/globalize/globalize.d.ts" />
@@ -345,7 +345,7 @@ class DotVVM {
                     }
 
                     // trigger afterPostback event
-                    var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, resultObject, currentPostBackCounter);
+                    var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, resultObject, currentPostBackCounter, resultObject.commandResult);
                     promise.resolve(afterPostBackArgs);
                     this.events.afterPostback.trigger(afterPostBackArgs);
                     if (!isSuccess && !afterPostBackArgs.isHandled) {

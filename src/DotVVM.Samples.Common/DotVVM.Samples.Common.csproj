@@ -96,6 +96,7 @@
   <ItemGroup>
     <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj" />
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
+    <ProjectReference Include="..\EmbeddedResourceControls\EmbeddedResourceControls.csproj" />
   </ItemGroup>
   <PropertyGroup Label="Configuration">
     <OutputPath>bin\Debug</OutputPath>

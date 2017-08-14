@@ -111,12 +111,6 @@ namespace DotVVM.Framework.Compilation.Binding
             return (StartsWithStatementLikeExpression(expr.Expression) ? expr : expr.Expression).FormatParametrizedScript(niceMode);
         }
 
-        public RequiredRuntimeResourcesBindingProperty GetRequiredResources(KnockoutJsExpressionBindingProperty js)
-        {
-            var resources = js.Expression.DescendantNodesAndSelf().Select(n => n.Annotation<RequiredRuntimeResourcesBindingProperty>()).Where(n => n != null).SelectMany(n => n.Resources).ToImmutableArray();
-            return resources.Length == 0 ? RequiredRuntimeResourcesBindingProperty.Empty : new RequiredRuntimeResourcesBindingProperty(resources);
-        }
-
         private static bool StartsWithStatementLikeExpression(JsExpression expression)
         {
             if (expression is JsFunctionExpression || expression is JsObjectExpression) return true;
@@ -135,7 +129,7 @@ namespace DotVVM.Framework.Compilation.Binding
             var prop = property?.DotvvmProperty;
             if (prop == null) return new ExpectedTypeBindingProperty(typeof(object));
 
-            return new ExpectedTypeBindingProperty(prop.IsBindingProperty ? typeof(object) : prop.PropertyType);
+            return new ExpectedTypeBindingProperty(prop.IsBindingProperty ? (prop.PropertyType.GenericTypeArguments.SingleOrDefault() ?? typeof(object)) : prop.PropertyType);
         }
 
         public BindingResolverCollection GetAdditionalResolversFromProperty(AssignedPropertyBindingProperty property = null, DataContextStack stack = null)
@@ -156,13 +150,13 @@ namespace DotVVM.Framework.Compilation.Binding
             if (prop == null) return new BindingCompilationRequirementsAttribute();
 
             return
-                (prop.PropertyInfo?.GetCustomAttributes<BindingCompilationRequirementsAttribute>() ?? Enumerable.Empty<BindingCompilationRequirementsAttribute>())
+                new [] { new BindingCompilationRequirementsAttribute() }
+                .Concat(prop.PropertyInfo?.GetCustomAttributes<BindingCompilationRequirementsAttribute>() ?? Enumerable.Empty<BindingCompilationRequirementsAttribute>())
                 .Aggregate((a, b) => a.ApplySecond(b));
         }
 
         public CompiledBindingExpression.BindingDelegate Compile(Expression<CompiledBindingExpression.BindingDelegate> expr) => expr.Compile();
         public CompiledBindingExpression.BindingUpdateDelegate Compile(Expression<CompiledBindingExpression.BindingUpdateDelegate> expr) => expr.Compile();
-
 
         private ConditionalWeakTable<ResolvedTreeRoot, ConcurrentDictionary<DataContextStack, int>> bindingCounts = new ConditionalWeakTable<ResolvedTreeRoot, ConcurrentDictionary<DataContextStack, int>>();
         public IdBindingProperty CreateBindingId(
@@ -173,6 +167,13 @@ namespace DotVVM.Framework.Compilation.Binding
             AssignedPropertyBindingProperty assignedProperty = null)
         {
             var sb = new StringBuilder();
+
+            if (resolvedBinding?.TreeRoot != null && dataContext != null)
+            {
+                var bindingIndex = bindingCounts.GetOrCreateValue(resolvedBinding.TreeRoot).AddOrUpdate(dataContext, 0, (_, i) => i + 1);
+                sb.Append(bindingIndex);
+                sb.Append(" || ");
+            }
 
             // don't append expression when original string is present, so it does not have to be always exactly same
             if (originalString != null)
@@ -206,13 +207,6 @@ namespace DotVVM.Framework.Compilation.Binding
             sb.Append(" || ");
             sb.Append(assignedProperty?.DotvvmProperty?.FullName);
 
-            if (resolvedBinding?.TreeRoot != null)
-            {
-                var bindingIndex = bindingCounts.GetOrCreateValue(resolvedBinding.TreeRoot).AddOrUpdate(dataContext, 0, (_, i) => i + 1);
-                sb.Append(" || ");
-                sb.Append(bindingIndex);
-            }
-
             using (var sha = System.Security.Cryptography.SHA256.Create())
             {
                 var hash = sha.ComputeHash(Encoding.Unicode.GetBytes(sb.ToString()));
@@ -239,11 +233,20 @@ namespace DotVVM.Framework.Compilation.Binding
                     new ParsedExpressionBindingProperty(
                         Expression.Property(expression.Expression, ifc.GetProperty(nameof(ICollection.Count)))
                     )));
-
             else if (expression.Expression.Type.Implements(typeof(IBaseGridViewDataSet), out var igridviewdataset))
                 return new DataSourceLengthBinding(binding.DeriveBinding(
                     new ParsedExpressionBindingProperty(
                         Expression.Property(Expression.Property(expression.Expression, igridviewdataset.GetProperty(nameof(IBaseGridViewDataSet.Items))), typeof(ICollection).GetProperty(nameof(ICollection.Count)))
+                    )));
+            else if (expression.Expression.Type == typeof(string))
+                return new DataSourceLengthBinding(binding.DeriveBinding(
+                    new ParsedExpressionBindingProperty(
+                        Expression.Property(expression.Expression, nameof(String.Length))
+                    )));
+            else if (expression.Expression.Type.Implements(typeof(IEnumerable<>)))
+                return new DataSourceLengthBinding(binding.DeriveBinding(
+                    new ParsedExpressionBindingProperty(
+                        Expression.Call(typeof(Enumerable), "Count", new [] { ReflectionUtils.GetEnumerableType(expression.Expression.Type) },expression.Expression)
                     )));
             else throw new NotSupportedException($"Can not find collection length from binding '{expression.Expression}'.");
         }
@@ -270,19 +273,19 @@ namespace DotVVM.Framework.Compilation.Binding
             else throw new NotSupportedException($"Can not access current element on binding '{expression.Expression}' of type '{expression.Expression.Type}'.");
         }
 
-        public StaticCommandJavascriptProperty CompileStaticCommand(DataContextStack dataContext, ParsedExpressionBindingProperty expression)
-        {
-            return new StaticCommandJavascriptProperty(FormatJavascript(new StaticCommandBindingCompiler(javascriptTranslator).CompileToJavascript(dataContext, expression.Expression), niceMode: configuration.Debug));
-        }
+        public StaticCommandJsAstProperty CompileStaticCommand(DataContextStack dataContext, ParsedExpressionBindingProperty expression) =>
+            new StaticCommandJsAstProperty(new StaticCommandBindingCompiler(javascriptTranslator).CompileToJavascript(dataContext, expression.Expression));
+
+        public StaticCommandJavascriptProperty FormatStaticCommand(StaticCommandJsAstProperty code) =>
+            new StaticCommandJavascriptProperty(FormatJavascript(code.Expression, niceMode: configuration.Debug));
 
         public LocationInfoBindingProperty GetLocationInfo(ResolvedBinding resolvedBinding)
         {
-            if (resolvedBinding.Parent == null) throw new Exception();
             return new LocationInfoBindingProperty(
-                resolvedBinding.TreeRoot.FileName,
+                resolvedBinding.TreeRoot?.FileName,
                 resolvedBinding.DothtmlNode?.Tokens?.Select(t => (t.StartPosition, t.EndPosition)).ToArray(),
                 resolvedBinding.DothtmlNode?.Tokens?.FirstOrDefault()?.LineNumber ?? -1,
-                resolvedBinding.TreeRoot.GetAncestors().OfType<ResolvedControl>().FirstOrDefault()?.Metadata?.Type);
+                resolvedBinding.GetAncestors().OfType<ResolvedControl>().FirstOrDefault()?.Metadata?.Type);
         }
 
         public SelectorItemBindingProperty GetItemLambda(ParsedExpressionBindingProperty expression, DataContextStack dataContext, IValueBinding binding)

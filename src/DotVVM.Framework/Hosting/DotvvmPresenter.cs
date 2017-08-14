@@ -154,6 +154,7 @@ namespace DotVVM.Framework.Hosting
                 // run the init phase in the page
                 DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Init);
                 await requestTracer.TraceEvent(RequestTracingConstants.InitCompleted, context);
+                object commandResult = null;
 
                 if (!isPostBack)
                 {
@@ -199,17 +200,14 @@ namespace DotVVM.Framework.Hosting
                     // invoke the postback command
                     var actionInfo = ViewModelSerializer.ResolveCommand(context, page);
 
-                    if (actionInfo != null)
-                    {
-                        // get filters
-                        var methodFilters = context.Configuration.Runtime.GlobalFilters.OfType<ICommandActionFilter>()
-                            .Concat(ActionFilterHelper.GetActionFilters<ICommandActionFilter>(context.ViewModel.GetType().GetTypeInfo()));
-                        if (actionInfo.Binding.GetProperty<ActionFiltersBindingProperty>(ErrorHandlingMode.ReturnNull) is ActionFiltersBindingProperty filters)
-                            methodFilters = methodFilters.Concat(filters.Filters.OfType<ICommandActionFilter>());
+                    // get filters
+                    var methodFilters = context.Configuration.Runtime.GlobalFilters.OfType<ICommandActionFilter>()
+                        .Concat(ActionFilterHelper.GetActionFilters<ICommandActionFilter>(context.ViewModel.GetType().GetTypeInfo()));
+                    if (actionInfo.Binding.GetProperty<ActionFiltersBindingProperty>(ErrorHandlingMode.ReturnNull) is ActionFiltersBindingProperty filters)
+                        methodFilters = methodFilters.Concat(filters.Filters.OfType<ICommandActionFilter>());
 
-                        await ExecuteCommand(actionInfo, context, methodFilters);
-                        await requestTracer.TraceEvent(RequestTracingConstants.CommandExecuted, context);
-                    }
+                    commandResult = await ExecuteCommand(actionInfo, context, methodFilters);
+                    await requestTracer.TraceEvent(RequestTracingConstants.CommandExecuted, context);
                 }
 
                 if (context.ViewModel is IDotvvmViewModel)
@@ -239,6 +237,7 @@ namespace DotVVM.Framework.Hosting
 
                 // render the output
                 ViewModelSerializer.BuildViewModel(context);
+                if (commandResult != null) context.ViewModelJson["commandResult"] = JToken.FromObject(commandResult);
                 if (!context.IsInPartialRenderingMode)
                 {
                     // standard get

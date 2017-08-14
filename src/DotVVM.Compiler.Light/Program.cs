@@ -108,7 +108,7 @@ namespace DotVVM.Compiler.Light
         private static CompilationResult ExportConfiguration(CompilerOptions options)
         {
             var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(options.WebSiteAssembly);
-            var config = AspNetCoreInitializer.InitDotVVM(assembly, options.WebSitePath, (s, p) => { });
+            var config = AspNetCoreInitializer.InitDotVVM(assembly, options.WebSitePath, (s) => { });
             return new CompilationResult()
             {
                 Configuration = config

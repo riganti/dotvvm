@@ -20,19 +20,16 @@
             <span>{{value: _this}}</span>
             <br/>
             <span>_collection.Index: </span>
-            <span>{{value: _collection.Index}}</span>
+            <span class="collection-index">{{value: _collection.Index}}</span>
             <br/>
             <span>_collection.IsFirst: </span>
-            <span>{{value: _collection.IsFirst}}</span>
-            <br/>
-            <span>_collection.IsLast: </span>
-            <span>{{value: _collection.IsLast}}</span>
+            <span class="collection-is-first">{{value: _collection.IsFirst}}</span>
             <br/>
             <span>_collection.IsOdd: </span>
-            <span>{{value: _collection.IsOdd}}</span>
+            <span class="collection-is-odd">{{value: _collection.IsOdd}}</span>
             <br/>
             <span>_collection.IsEven: </span>
-            <span>{{value: _collection.IsEven}}</span>
+            <span class="collection-is-even">{{value: _collection.IsEven}}</span>
         </div>
     </dot:Repeater>
 </body>
