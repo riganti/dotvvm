@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using DotVVM.Framework.Configuration;
-using DotVVM.Framework.Diagnostics;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Hosting.Middlewares;
 using DotVVM.Framework.Runtime.Tracing;
