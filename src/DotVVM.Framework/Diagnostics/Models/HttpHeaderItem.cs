@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Diagnostics.Models
             return new HttpHeaderItem
             {
                 Key = pair.Key,
-                Value = pair.Value[0]
+                Value = string.Join("; ", pair.Value)
             };
         }
     }
