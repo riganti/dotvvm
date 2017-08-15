@@ -301,5 +301,14 @@ namespace DotVVM.Framework.Compilation.Binding
                    e), argument)
             ));
         }
+
+        public ThisBindingProperty GetThisBinding(IBinding binding, DataContextStack stack)
+        {
+            var thisBinding = binding.DeriveBinding(
+                new ParsedExpressionBindingProperty(Expression.Parameter(stack.DataContextType, "_this").AddParameterAnnotation(new BindingParameterAnnotation(stack)))
+            );
+
+            return new ThisBindingProperty(thisBinding);
+        }
     }
 }
