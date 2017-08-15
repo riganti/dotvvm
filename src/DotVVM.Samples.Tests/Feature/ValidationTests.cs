@@ -383,10 +383,10 @@ namespace DotVVM.Samples.Tests.Feature
                 targetNullBtn.Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(0);
 
+                // The invalid Email won't be reported because emails are checked only on the server
                 targetSomeBtn.Click();
-                browser.FindElements("li").ThrowIfDifferentCountThan(2);
-                browser.ElementAt("li", 0).CheckIfInnerTextEquals("The Email field is not a valid e-mail address.");
-                browser.ElementAt("li", 1).CheckIfInnerTextEquals("The Required field is required.");
+                browser.FindElements("li").ThrowIfDifferentCountThan(1);
+                browser.ElementAt("li", 0).CheckIfInnerTextEquals("The Required field is required.");
 
                 //test valid Email and empty Required
                 browser.ElementAt("input[type=text]", 0).Clear();
@@ -416,6 +416,7 @@ namespace DotVVM.Samples.Tests.Feature
                 targetNullBtn.Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(0);
 
+                // The invalid email will be reported this time because now the check makes it to the server
                 targetSomeBtn.Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
                 browser.ElementAt("li", 0).CheckIfInnerTextEquals("The Email field is not a valid e-mail address.");
