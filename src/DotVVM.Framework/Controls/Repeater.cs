@@ -272,16 +272,9 @@ namespace DotVVM.Framework.Controls
         private void SetUpServerItem(IDotvvmRequestContext context, object item, int index, IValueBinding itemBinding, DataItemContainer container)
         {
             container.DataItemIndex = index;
-            var bindingService = context.Configuration.ServiceLocator.GetService<BindingCompilationService>();
-            container.SetBinding(DataContextProperty, ValueBindingExpression.CreateBinding(
-                bindingService.WithoutInitialization(),
-                j => item,
-                itemBinding.KnockoutExpression.AssignParameters(p =>
-                    p == JavascriptTranslator.CurrentIndexParameter ? new CodeParameterAssignment(index.ToString(), OperatorPrecedence.Max) :
-                    default(CodeParameterAssignment))));
+            container.SetDataContextForItem(itemBinding, index, item);
             container.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[" + index + "]");
             container.ID = index.ToString();
-
         }
     }
 }

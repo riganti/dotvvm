@@ -195,12 +195,7 @@ namespace DotVVM.Framework.Controls
                 {
                     // create row
                     var placeholder = new DataItemContainer { DataItemIndex = index };
-                    placeholder.SetBinding(DataContextProperty, ValueBindingExpression.CreateBinding(
-                        bindingService.WithoutInitialization(),
-                        j => item,
-                        itemBinding.KnockoutExpression.AssignParameters(p =>
-                            p == JavascriptTranslator.CurrentIndexParameter ? new CodeParameterAssignment(index.ToString(), OperatorPrecedence.Max) :
-                            default(CodeParameterAssignment))));
+                    placeholder.SetDataContextForItem(itemBinding, index, item);
                     placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[" + index + "]");
                     placeholder.ID = index.ToString();
                     Children.Add(placeholder);

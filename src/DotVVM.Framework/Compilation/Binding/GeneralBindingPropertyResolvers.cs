@@ -310,5 +310,14 @@ namespace DotVVM.Framework.Compilation.Binding
 
             return new ThisBindingProperty(thisBinding);
         }
+
+        public CollectionElementDataContextBindingProperty GetCollectionElementDataContext(DataContextStack dataContext)
+        {
+            return new CollectionElementDataContextBindingProperty(DataContextStack.Create(
+                ReflectionUtils.GetEnumerableType(dataContext.DataContextType),
+                parent: dataContext,
+                extensionParameters: new CollectionElementDataContextChangeAttribute(0).GetExtensionParameters(new ResolvedTypeDescriptor(dataContext.DataContextType)).ToArray()
+            ));
+        }
     }
 }
