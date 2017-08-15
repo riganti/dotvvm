@@ -17,7 +17,7 @@ namespace DotVVM.Framework.Diagnostics
         private readonly IDiagnosticsInformationSender informationSender;
         private IList<EventTiming> events = new List<EventTiming>();
 
-        private long LastEventLog => events.LastOrDefault()?.Duration ?? 0;
+        private long ElapsedMillisSinceLastLog => events.Sum(e => e.Duration);
 
         public DiagnosticsRequestTracer(IDiagnosticsInformationSender sender)
         {
@@ -38,7 +38,7 @@ namespace DotVVM.Framework.Diagnostics
         {
             return new EventTiming
             {
-                Duration = stopwatch.ElapsedMilliseconds - LastEventLog,
+                Duration = stopwatch.ElapsedMilliseconds - ElapsedMillisSinceLastLog,
                 EventName = eventName
             };
         }
@@ -64,7 +64,7 @@ namespace DotVVM.Framework.Diagnostics
         private void Reset()
         {
             stopwatch.Reset();
-            events.Clear();
+            events = new List<EventTiming>();
         }
 
         private DiagnosticsInformation BuildDiagnosticsData(IDotvvmRequestContext request)
