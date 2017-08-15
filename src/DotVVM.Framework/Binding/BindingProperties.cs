@@ -283,4 +283,13 @@ namespace DotVVM.Framework.Binding.Properties
         }
         public static readonly RequiredRuntimeResourcesBindingProperty Empty = new RequiredRuntimeResourcesBindingProperty(ImmutableArray<string>.Empty);
     }
+
+    public sealed class ThisBindingProperty
+    {
+        public readonly IBinding binding;
+        public ThisBindingProperty(IBinding binding)
+        {
+            this.binding = binding;
+        }
+    }
 }

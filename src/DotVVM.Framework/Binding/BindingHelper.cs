@@ -212,7 +212,7 @@ namespace DotVVM.Framework.Binding
         public static ParametrizedCode GetParametrizedCommandJavascript(this ICommandBinding binding, DotvvmBindableObject control) =>
             JavascriptTranslator.AdjustKnockoutScriptContext(binding.CommandJavascript,
                 dataContextLevel: FindDataContextTarget(binding, control).stepsUp);
-        
+
         /// <summary>
         /// Creates new `TBinding` with the original DataContextStack, LocationInfo, AdditionalResolvers and BindingCompilationService. 
         /// </summary>
@@ -252,6 +252,12 @@ namespace DotVVM.Framework.Binding
         {
             var cache = new ConcurrentDictionary<TParam, TResult>();
             return f => cache.GetOrAdd(f, func);
+        }
+
+        public static IValueBinding GetThisBinding(this DotvvmBindableObject obj)
+        {
+            var dataContext = obj.GetValueBinding(DotvvmBindableObject.DataContextProperty);
+            return (IValueBinding)dataContext.GetProperty<ThisBindingProperty>().binding;
         }
 
         private static readonly ConditionalWeakTable<Expression, BindingParameterAnnotation> _expressionAnnotations =

@@ -311,7 +311,7 @@ namespace DotVVM.Framework.Controls
             foreach (var column in Columns)
             {
                 var cell = new HtmlGenericControl("td");
-                cell.SetValue(Internal.DataContextTypeProperty, cell.GetValueRaw(Internal.DataContextTypeProperty));
+                cell.SetValue(Internal.DataContextTypeProperty, column.GetValueRaw(Internal.DataContextTypeProperty));
                 SetCellAttributes(column, cell, false);
                 row.Children.Add(cell);
 
@@ -376,7 +376,7 @@ namespace DotVVM.Framework.Controls
             foreach (var column in Columns)
             {
                 var cell = new HtmlGenericControl("td");
-                cell.SetValue(Internal.DataContextTypeProperty, cell.GetValueRaw(Internal.DataContextTypeProperty));
+                cell.SetValue(Internal.DataContextTypeProperty, column.GetValueRaw(Internal.DataContextTypeProperty));
                 row.Children.Add(cell);
                 SetCellAttributes(column, cell, false);
                 if (isInEditMode && column.IsEditable)
