@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,6 +15,9 @@ namespace DotVVM.Framework.Diagnostics
     {
         private readonly Stopwatch stopwatch = new Stopwatch();
         private readonly IDiagnosticsInformationSender informationSender;
+        private IList<EventTiming> events = new List<EventTiming>();
+
+        private long LastEventLog => events.LastOrDefault()?.Duration ?? 0;
 
         public DiagnosticsRequestTracer(IDiagnosticsInformationSender sender)
         {
@@ -26,15 +30,24 @@ namespace DotVVM.Framework.Diagnostics
             {
                 stopwatch.Start();
             }
-
+            events.Add(CreateEventTiming(eventName));
             return TaskUtils.GetCompletedTask();
+        }
+
+        private EventTiming CreateEventTiming(string eventName)
+        {
+            return new EventTiming
+            {
+                Duration = stopwatch.ElapsedMilliseconds - LastEventLog,
+                EventName = eventName
+            };
         }
 
         public Task EndRequest(IDotvvmRequestContext context)
         {
             stopwatch.Stop();
             var diagnosticsData = BuildDiagnosticsData(context);
-            stopwatch.Reset();
+            Reset();
             return informationSender.SendInformationAsync(diagnosticsData);
         }
 
@@ -44,8 +57,14 @@ namespace DotVVM.Framework.Diagnostics
             var diagnosticsData = BuildDiagnosticsData(context);
             diagnosticsData.ResponseDiagnostics.StatusCode = 500;
             diagnosticsData.ResponseDiagnostics.ExceptionStackTrace = exception.ToString();
-            stopwatch.Reset();
+            Reset();
             return informationSender.SendInformationAsync(diagnosticsData);
+        }
+
+        private void Reset()
+        {
+            stopwatch.Reset();
+            events.Clear();
         }
 
         private DiagnosticsInformation BuildDiagnosticsData(IDotvvmRequestContext request)
@@ -54,6 +73,7 @@ namespace DotVVM.Framework.Diagnostics
             {
                 RequestDiagnostics = BuildRequestDiagnostics(request),
                 ResponseDiagnostics = BuildResponseDiagnostics(request),
+                EventTimings = events,
                 TotalDuration = stopwatch.ElapsedMilliseconds
             };
         }
