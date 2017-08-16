@@ -292,4 +292,13 @@ namespace DotVVM.Framework.Binding.Properties
             this.binding = binding;
         }
     }
+
+    public sealed class CollectionElementDataContextBindingProperty
+    {
+        public readonly DataContextStack DataContext;
+        public CollectionElementDataContextBindingProperty(DataContextStack dataContext)
+        {
+            this.DataContext = dataContext;
+        }
+    }
 }
