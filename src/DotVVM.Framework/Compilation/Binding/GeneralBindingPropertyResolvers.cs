@@ -27,12 +27,14 @@ namespace DotVVM.Framework.Compilation.Binding
     {
         private readonly DotvvmConfiguration configuration;
         private readonly IBindingExpressionBuilder bindingParser;
+        private readonly StaticCommandBindingCompiler staticCommandBindingCompiler;
         private readonly JavascriptTranslator javascriptTranslator;
 
-        public BindingPropertyResolvers(IBindingExpressionBuilder bindingParser, JavascriptTranslator javascriptTranslator, DotvvmConfiguration configuration)
+        public BindingPropertyResolvers(IBindingExpressionBuilder bindingParser, StaticCommandBindingCompiler staticCommandBindingCompiler, JavascriptTranslator javascriptTranslator, DotvvmConfiguration configuration)
         {
             this.configuration = configuration;
             this.bindingParser = bindingParser;
+            this.staticCommandBindingCompiler = staticCommandBindingCompiler;
             this.javascriptTranslator = javascriptTranslator;
         }
 
@@ -159,6 +161,7 @@ namespace DotVVM.Framework.Compilation.Binding
         public CompiledBindingExpression.BindingUpdateDelegate Compile(Expression<CompiledBindingExpression.BindingUpdateDelegate> expr) => expr.Compile();
 
         private ConditionalWeakTable<ResolvedTreeRoot, ConcurrentDictionary<DataContextStack, int>> bindingCounts = new ConditionalWeakTable<ResolvedTreeRoot, ConcurrentDictionary<DataContextStack, int>>();
+
         public IdBindingProperty CreateBindingId(
             OriginalStringBindingProperty originalString = null,
             ParsedExpressionBindingProperty expression = null,
@@ -273,8 +276,13 @@ namespace DotVVM.Framework.Compilation.Binding
             else throw new NotSupportedException($"Can not access current element on binding '{expression.Expression}' of type '{expression.Expression.Type}'.");
         }
 
+        public StaticCommandJavascriptProperty CompileStaticCommand(DataContextStack dataContext, ParsedExpressionBindingProperty expression)
+        {
+            return new StaticCommandJavascriptProperty(FormatJavascript(this.staticCommandBindingCompiler.CompileToJavascript(dataContext, expression.Expression), niceMode: configuration.Debug));
+        }
+
         public StaticCommandJsAstProperty CompileStaticCommand(DataContextStack dataContext, ParsedExpressionBindingProperty expression) =>
-            new StaticCommandJsAstProperty(new StaticCommandBindingCompiler(javascriptTranslator).CompileToJavascript(dataContext, expression.Expression));
+            new StaticCommandJsAstProperty(this.staticCommandBindingCompiler.CompileToJavascript(dataContext, expression.Expression));
 
         public StaticCommandJavascriptProperty FormatStaticCommand(StaticCommandJsAstProperty code) =>
             new StaticCommandJavascriptProperty(FormatJavascript(code.Expression, niceMode: configuration.Debug));

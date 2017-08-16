@@ -55,6 +55,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<ILocalResourceUrlManager, LocalResourceUrlManager>();
             services.TryAddSingleton<IResourceHashService, DefaultResourceHashService>();
             services.TryAddSingleton<IStopwatch, DefaultStopwatch>();
+            services.TryAddSingleton<StaticCommandBindingCompiler, StaticCommandBindingCompiler>();
             services.TryAddSingleton<JavascriptTranslator, JavascriptTranslator>();
             services.TryAddSingleton<IHttpRedirectService, DefaultHttpRedirectService>();
 

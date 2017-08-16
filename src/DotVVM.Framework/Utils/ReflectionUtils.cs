@@ -74,6 +74,15 @@ namespace DotVVM.Framework.Utils
             }
         }
 
+        ///<summary> Gets all members from the type, including inherited classes, implemented interfaces and interfaces inherited by the interface </summary>
+        public static IEnumerable<MemberInfo> GetAllMembers(this Type type, BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)
+        {
+            if (type.GetTypeInfo().IsInterface)
+                return type.GetMembers(flags).Concat(type.GetInterfaces().SelectMany(t => t.GetMembers(flags)));
+            else
+                return type.GetMembers(flags);
+        }
+
 
         /// <summary>
         /// Gets filesystem path of assembly CodeBase

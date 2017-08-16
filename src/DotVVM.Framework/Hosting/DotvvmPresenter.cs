@@ -4,11 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime;
@@ -17,6 +19,7 @@ using DotVVM.Framework.Security;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
+using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Runtime.Tracing;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -277,6 +280,18 @@ namespace DotVVM.Framework.Hosting
             }
         }
 
+        private object ExecuteStaticCommandPlan(StaticCommandInvocationPlan plan, Queue<JToken> arguments, IDotvvmRequestContext context)
+        {
+            var methodArgs = plan.Arguments.Select((a, index) => 
+                a.Type == StaticCommandParameterType.Argument ? arguments.Dequeue().ToObject((Type)a.Arg) :
+                a.Type == StaticCommandParameterType.Constant || a.Type == StaticCommandParameterType.DefaultValue ? a.Arg :
+                a.Type == StaticCommandParameterType.Inject ? context.Services.GetRequiredService((Type)a.Arg) :
+                a.Type == StaticCommandParameterType.Invocation ? ExecuteStaticCommandPlan((StaticCommandInvocationPlan)a.Arg, arguments, context) :
+                throw new NotSupportedException("" + a.Type)
+            ).ToArray();
+            return plan.Method.Invoke(plan.Method.IsStatic ? null : methodArgs.First(), plan.Method.IsStatic ? methodArgs : methodArgs.Skip(1).ToArray());
+        }
+
         public async Task ProcessStaticCommandRequest(IDotvvmRequestContext context)
         {
             JObject postData;
@@ -290,27 +305,19 @@ namespace DotVVM.Framework.Hosting
 
             var command = postData["command"].Value<string>();
             var arguments = postData["args"] as JArray;
-            var lastDot = command.LastIndexOf('.');
-            var typeName = command.Remove(lastDot);
-            var methodName = command.Substring(lastDot + 1);
-            var methodInfo = Type.GetType(typeName).GetMethod(methodName);
+            var executionPlan =
+                StaticCommandBindingCompiler.DecryptJson(Convert.FromBase64String(command), context.Services.GetService<IViewModelProtector>())
+                .Apply(StaticCommandBindingCompiler.DeserializePlan);
 
-            if (!methodInfo.IsDefined(typeof(AllowStaticCommandAttribute)))
-            {
-                throw new DotvvmHttpException($"This method cannot be called from the static command. If you need to call this method, add the '{nameof(AllowStaticCommandAttribute)}' to the method.");
-            }
-            var target = methodInfo.IsStatic ? null : arguments[0].ToObject(methodInfo.DeclaringType);
-            var methodArguments =
-                arguments.Skip(methodInfo.IsStatic ? 0 : 1)
-                    .Zip(methodInfo.GetParameters(), (arg, parameter) => arg.ToObject(parameter.ParameterType))
-                    .ToArray();
             var actionInfo = new ActionInfo
             {
                 IsControlCommand = false,
-                Action = () => methodInfo.Invoke(target, methodArguments)
+                Action = () => {
+                    return ExecuteStaticCommandPlan(executionPlan, new Queue<JToken>(arguments), context);
+                }
             };
             var filters = context.Configuration.Runtime.GlobalFilters.OfType<ICommandActionFilter>()
-                .Concat(ActionFilterHelper.GetActionFilters<ICommandActionFilter>(methodInfo))
+                .Concat(executionPlan.GetAllMethods().SelectMany(m => ActionFilterHelper.GetActionFilters<ICommandActionFilter>(m)))
                 .ToArray();
 
             var result = await ExecuteCommand(actionInfo, context, filters);

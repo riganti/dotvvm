@@ -4,6 +4,7 @@ using System.IO;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
 using DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth;
+using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
@@ -36,6 +37,8 @@ namespace DotVVM.Samples.BasicSamples
             services.Configure<BindingCompilationOptions>(o => {
                 o.TransformerClasses.Add(new BindingTestResolvers());
             });
+
+            services.AddSingleton<IGreetingComputationService, HelloGreetingComputationService>();
 
             services.AddScoped<ViewModelScopedDependency>();
         }

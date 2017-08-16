@@ -55,6 +55,7 @@ namespace DotVVM.Samples.BasicSamples
             {
                 b.AddDefaultTempStorages("Temp");
                 b.Services.AddScoped<ViewModelScopedDependency>();
+                b.Services.AddSingleton<IGreetingComputationService, HelloGreetingComputationService>();
             });
             config.RouteTable.Add("AuthorizedPresenter", "ComplexSamples/Auth/AuthorizedPresenter", null, null, () => new AuthorizedPresenter());
 

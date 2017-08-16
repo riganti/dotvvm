@@ -5,8 +5,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.HelperNamespace;
+using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Controls;
@@ -160,6 +162,8 @@ namespace DotVVM.Framework.Compilation.Javascript
                     args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingNumberToString").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])
                 ));
             }
+
+            AddPropertyGetterTranslator(typeof(Task<>), "Result", new GenericMethodCompiler(args => args[0]));
 
         }
 
