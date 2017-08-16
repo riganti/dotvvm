@@ -195,12 +195,7 @@ namespace DotVVM.Framework.Controls
                 {
                     // create row
                     var placeholder = new DataItemContainer { DataItemIndex = index };
-                    placeholder.SetBinding(DataContextProperty, ValueBindingExpression.CreateBinding(
-                        bindingService.WithoutInitialization(),
-                        j => item,
-                        itemBinding.KnockoutExpression.AssignParameters(p =>
-                            p == JavascriptTranslator.CurrentIndexParameter ? new CodeParameterAssignment(index.ToString(), OperatorPrecedence.Max) :
-                            default(CodeParameterAssignment))));
+                    placeholder.SetDataContextForItem(itemBinding, index, item);
                     placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[" + index + "]");
                     placeholder.ID = index.ToString();
                     Children.Add(placeholder);
@@ -311,7 +306,7 @@ namespace DotVVM.Framework.Controls
             foreach (var column in Columns)
             {
                 var cell = new HtmlGenericControl("td");
-                cell.SetValue(Internal.DataContextTypeProperty, cell.GetValueRaw(Internal.DataContextTypeProperty));
+                cell.SetValue(Internal.DataContextTypeProperty, column.GetValueRaw(Internal.DataContextTypeProperty));
                 SetCellAttributes(column, cell, false);
                 row.Children.Add(cell);
 
@@ -376,7 +371,7 @@ namespace DotVVM.Framework.Controls
             foreach (var column in Columns)
             {
                 var cell = new HtmlGenericControl("td");
-                cell.SetValue(Internal.DataContextTypeProperty, cell.GetValueRaw(Internal.DataContextTypeProperty));
+                cell.SetValue(Internal.DataContextTypeProperty, column.GetValueRaw(Internal.DataContextTypeProperty));
                 row.Children.Add(cell);
                 SetCellAttributes(column, cell, false);
                 if (isInEditMode && column.IsEditable)

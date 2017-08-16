@@ -145,11 +145,6 @@ namespace DotVVM.Framework.Binding
             if (throwException && reporter.Errors.Any())
                 throw new AggregateException($"Could not initialize binding '{binding.GetType()}', requirements {string.Join(", ", reporter.Errors.Select(e => e.req))} was not met",
                     reporter.Errors.Select(e => e.error));
-            foreach (var req in bindingRequirements.Optional)
-            {
-                if (binding.GetProperty(req, ErrorHandlingMode.ReturnException) is Exception error)
-                    reporter.Errors.Push((req, error, DiagnosticSeverity.Info));
-            }
         }
 
         public static Delegate[] GetDelegates(IEnumerable<object> objects) => (

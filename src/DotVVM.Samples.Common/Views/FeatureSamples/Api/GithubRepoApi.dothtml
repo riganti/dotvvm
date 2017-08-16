@@ -1,4 +1,4 @@
-﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Api.GithubRepoApiViewModel, DotVVM.Samples.Common
+@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Api.GithubRepoApiViewModel, DotVVM.Samples.Common
 
 <!DOCTYPE html>
 
@@ -22,6 +22,9 @@
             <dot:GridViewTextColumn ValueBinding="{value: User.Login}" HeaderText="User" />
             <dot:GridViewTemplateColumn HeaderText="get text">
                 <dot:LinkButton Click="{staticCommand: _root.CurrentIssueText = _github.Repos.GetIssues(_root.UserName, _root.Repo, Number).Body}">get text</dot:LinkButton>
+            </dot:GridViewTemplateColumn>
+            <dot:GridViewTemplateColumn HeaderText="copy to new">
+                <dot:LinkButton Click="{staticCommand: _root.NewIssue = _github.Repos.GetIssues(_root.UserName, _root.Repo, Number)}">copy to new</dot:LinkButton>
             </dot:GridViewTemplateColumn>
             <dot:GridViewTemplateColumn HeaderText="...">
                 <a href="{value: "https://github.com/" + _root.UserName + "/" + _root.Repo + "/issues/" + Number}" >github.com</a>

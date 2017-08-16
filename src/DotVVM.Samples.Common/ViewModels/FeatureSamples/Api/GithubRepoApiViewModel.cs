@@ -15,7 +15,7 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.Api
         public string CurrentIssueText { get; set; } = "";
 
         public GithubApiClient.Issue NewIssue { get; set; } = new GithubApiClient.Issue {
-            Labels = new ObservableCollection<string>()
+            Labels = new List<string>()
         };
     }
 }

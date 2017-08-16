@@ -57,6 +57,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IStopwatch, DefaultStopwatch>();
             services.TryAddSingleton<StaticCommandBindingCompiler, StaticCommandBindingCompiler>();
             services.TryAddSingleton<JavascriptTranslator, JavascriptTranslator>();
+            services.TryAddSingleton<IHttpRedirectService, DefaultHttpRedirectService>();
 
             services.TryAddScoped<AggregateRequestTracer, AggregateRequestTracer>();
             services.TryAddScoped<ResourceManager, ResourceManager>();

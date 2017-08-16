@@ -1,4 +1,4 @@
-﻿using DotVVM.Framework.Controls;
+using DotVVM.Framework.Controls;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -70,6 +70,7 @@ namespace DotVVM.Framework.Binding
                 if (bindingContext.Equals(a.GetValue(Internal.DataContextTypeProperty, inherit: false)))
                     return (changes, a);
             }
+
             throw new NotSupportedException($"Could not find DataContextSpace of binding '{binding}'.");
         }
 
@@ -211,7 +212,7 @@ namespace DotVVM.Framework.Binding
         public static ParametrizedCode GetParametrizedCommandJavascript(this ICommandBinding binding, DotvvmBindableObject control) =>
             JavascriptTranslator.AdjustKnockoutScriptContext(binding.CommandJavascript,
                 dataContextLevel: FindDataContextTarget(binding, control).stepsUp);
-        
+
         /// <summary>
         /// Creates new `TBinding` with the original DataContextStack, LocationInfo, AdditionalResolvers and BindingCompilationService. 
         /// </summary>
@@ -253,6 +254,12 @@ namespace DotVVM.Framework.Binding
             return f => cache.GetOrAdd(f, func);
         }
 
+        public static IValueBinding GetThisBinding(this DotvvmBindableObject obj)
+        {
+            var dataContext = obj.GetValueBinding(DotvvmBindableObject.DataContextProperty);
+            return (IValueBinding)dataContext.GetProperty<ThisBindingProperty>().binding;
+        }
+
         private static readonly ConditionalWeakTable<Expression, BindingParameterAnnotation> _expressionAnnotations =
             new ConditionalWeakTable<Expression, BindingParameterAnnotation>();
         public static TExpression AddParameterAnnotation<TExpression>(this TExpression expr, BindingParameterAnnotation annotation)
@@ -264,6 +271,19 @@ namespace DotVVM.Framework.Binding
 
         public static BindingParameterAnnotation GetParameterAnnotation(this Expression expr) =>
             _expressionAnnotations.TryGetValue(expr, out var annotation) ? annotation : null;
+
+        public static void SetDataContextTypeFromDataSource(this DotvvmBindableObject obj, IValueBinding dataSourceBinding) =>
+            obj.SetDataContextType(dataSourceBinding.GetProperty<CollectionElementDataContextBindingProperty>().DataContext);
+
+        public static void SetDataContextForItem(this DotvvmBindableObject obj, IValueBinding itemBinding, int index, object currentItem)
+        {
+            obj.SetBinding(DotvvmBindableObject.DataContextProperty, ValueBindingExpression.CreateBinding(
+                itemBinding.GetProperty<BindingCompilationService>().WithoutInitialization(),
+                j => currentItem,
+                itemBinding.KnockoutExpression.AssignParameters(p =>
+                    p == JavascriptTranslator.CurrentIndexParameter ? new CodeParameterAssignment(index.ToString(), OperatorPrecedence.Max) :
+                    default(CodeParameterAssignment))));
+        }
 
         /// <summary>
         /// Annotates `_this`, `_parent`, `_root` parameters with BindingParameterAnnotation indicating their DataContext

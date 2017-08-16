@@ -1,0 +1,115 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.FormControlsEnabled.FormControlsEnabled, DotVVM.Samples.Common
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />    
+    <title>Hello from DotVVM!</title>
+</head>
+<body ClientIDMode="Static">
+    <h1>FormControls.Enabled</h1>
+
+    <dot:Button ID="toggle" Text="Toggle FormControls.Enabled" Click="{command: Switch()}"/>
+    Currently {{value: Enabled}}.
+    LinkButtons pressed: <span id="linkbuttons-pressed">{{value: LinkButtonsPressed}}</span>
+
+    <fieldset FormControls.Enabled="{value: Enabled}">
+        <dot:Button ID="b1-default" Text="Button" />
+        <dot:Button ID="b1-enabled" Text="Button Enabled" Enabled="{value: true}" />
+        <dot:Button ID="b1-disabled" Text="Button Disabled" Enabled="{value: false}"  />
+        <br />
+        <dot:CheckBox ID="c1-default" Checked="{value: false}" />
+        <dot:CheckBox ID="c1-enabled" Checked="{value: false}" Enabled="{value: true}" />
+        <dot:CheckBox ID="c1-disabled" Checked="{value: false}" Enabled="{value: false}" />
+        <br />
+        <dot:ComboBox ID="cb1-default" DataSource="{value: Items}" SelectedValue="{value: SelectedItem}" />
+        <dot:ComboBox ID="cb1-enabled" Enabled="{value: true}" DataSource="{value: Items}" SelectedValue="{value: SelectedItem}" />
+        <dot:ComboBox ID="cb1-disabled" Enabled="{value: false}" DataSource="{value: Items}" SelectedValue="{value: SelectedItem}" />
+        <br />
+        <dot:LinkButton ID="linkb1-default" Click="{command: LinkButtonPressed()}" Text="LinkButton"/>
+        <dot:LinkButton ID="linkb1-enabled" Click="{command: LinkButtonPressed()}" Enabled="{value: true}" Text="LinkButton Enabled"/>
+        <dot:LinkButton ID="linkb1-disabled" Click="{command: LinkButtonPressed()}" Enabled="{value: false}" Text="LinkButton Disabled"/>
+        <br />
+        <dot:ListBox ID="lb1-default" DataSource="{value: Items}" SelectedValue="{value: SelectedItem}" />
+        <dot:ListBox ID="lb1-enabled" Enabled="{value: true}" DataSource="{value: Items}" SelectedValue="{value: SelectedItem}" />
+        <dot:ListBox ID="lb1-disabled" Enabled="{value: false}" DataSource="{value: Items}" SelectedValue="{value: SelectedItem}" />
+        <br />
+        <dot:RadioButton ID="rb1-default" CheckedValue="{value: false}" />
+        <dot:RadioButton ID="rb1-enabled" CheckedValue="{value: false}" Enabled="{value: true}" />
+        <dot:RadioButton ID="rb1-disabled" CheckedValue="{value: false}" Enabled="{value: false}" />
+        <br />
+        <dot:TextBox ID="tb1-default" Text="Test" />
+        <dot:TextBox ID="tb1-enabled" Enabled="{value: true}" Text="Test" />
+        <dot:TextBox ID="tb1-disabled" Enabled="{value: false}" Text="Test" />
+
+        <h2>DataContext</h2>
+        <fieldset DataContext="{value: Child}">
+            <dot:Button ID="b2-default" Text="Button" />
+            <dot:Button ID="b2-enabled" Text="Button Enabled" Enabled="{value: true}" />
+            <dot:Button ID="b2-disabled" Text="Button Disabled" Enabled="{value: false}"/>
+            <br />
+            <dot:CheckBox ID="c2-default" Checked="{value: false}" />
+            <dot:CheckBox ID="c2-enabled" Checked="{value: false}" Enabled="{value: true}" />
+            <dot:CheckBox ID="c2-disabled" Checked="{value: false}" Enabled="{value: false}" />
+            <br />
+            <dot:ComboBox ID="cb2-default" DataSource="{value: _root.Items}" SelectedValue="{value: _root.SelectedItem}" />
+            <dot:ComboBox ID="cb2-enabled" Enabled="{value: true}" DataSource="{value: _root.Items}" SelectedValue="{value: _root.SelectedItem}" />
+            <dot:ComboBox ID="cb2-disabled" Enabled="{value: false}" DataSource="{value: _root.Items}" SelectedValue="{value: _root.SelectedItem}" />
+            <br />
+            <dot:LinkButton ID="linkb2-default" Click="{command: _root.LinkButtonPressed()}" Text="LinkButton"/>
+            <dot:LinkButton ID="linkb2-enabled" Click="{command: _root.LinkButtonPressed()}" Enabled="{value: true}" Text="LinkButton Enabled"/>
+            <dot:LinkButton ID="linkb2-disabled" Click="{command: _root.LinkButtonPressed()}" Enabled="{value: false}" Text="LinkButton Disabled"/>
+            <br />
+            <dot:ListBox ID="lb2-default" DataSource="{value: _root.Items}" SelectedValue="{value: _root.SelectedItem}" />
+            <dot:ListBox ID="lb2-enabled" Enabled="{value: true}" DataSource="{value: _root.Items}" SelectedValue="{value: _root.SelectedItem}" />
+            <dot:ListBox ID="lb2-disabled" Enabled="{value: false}" DataSource="{value: _root.Items}" SelectedValue="{value: _root.SelectedItem}" />
+            <br />
+            <dot:RadioButton ID="rb2-default" CheckedValue="{value: false}" />
+            <dot:RadioButton ID="rb2-enabled" CheckedValue="{value: false}" Enabled="{value: true}" />
+            <dot:RadioButton ID="rb2-disabled" CheckedValue="{value: false}" Enabled="{value: false}" />
+            <br />
+            <dot:TextBox ID="tb2-default" Text="Test" />
+            <dot:TextBox ID="tb2-enabled" Enabled="{value: true}" Text="Test" />
+            <dot:TextBox ID="tb2-disabled" Enabled="{value: false}" Text="Test" />
+        </fieldset>
+
+        <h2>Repeater</h2>
+        <dot:Repeater ID="repeater" DataSource="{value: FormsEnabled}">
+            <ItemTemplate>
+                <fieldset FormControls.Enabled="{value: _this}">
+                    Enabled: {{value: _this}}
+                    <br />
+                    <dot:Button ID="b-default" Text="Button" />
+                    <dot:Button ID="b-enabled" Text="Button Enabled" Enabled="{value: true}" />
+                    <dot:Button ID="b-disabled" Text="Button Disabled" Enabled="{value: false}"/>
+                    <br />
+                    <dot:CheckBox ID="c-default" Checked="{value: false}" />
+                    <dot:CheckBox ID="c-enabled" Checked="{value: false}" Enabled="true" />
+                    <dot:CheckBox ID="c-disabled" Checked="{value: false}" Enabled="false" />
+                    <br />
+                    <dot:ComboBox ID="cb-default" DataSource="{value: _root.Items}" SelectedValue="{value: _root.SelectedItem}" />
+                    <dot:ComboBox ID="cb-enabled" Enabled="{value: true}" DataSource="{value: _root.Items}" SelectedValue="{value: _root.SelectedItem}" />
+                    <dot:ComboBox ID="cb-disabled" Enabled="{value: false}" DataSource="{value: _root.Items}" SelectedValue="{value: _root.SelectedItem}" />
+                    <br />
+                    <dot:LinkButton ID="linkb-default" Click="{command: _root.LinkButtonPressed()}" Text="LinkButton"/>
+                    <dot:LinkButton ID="linkb-enabled" Click="{command: _root.LinkButtonPressed()}" Enabled="{value: true}" Text="LinkButton Enabled"/>
+                    <dot:LinkButton ID="linkb-disabled" Click="{command: _root.LinkButtonPressed()}" Enabled="{value: false}" Text="LinkButton Disabled"/>
+                    <br />
+                    <dot:ListBox ID="lb-default" DataSource="{value: _root.Items}" SelectedValue="{value: _root.SelectedItem}" />
+                    <dot:ListBox ID="lb-enabled" Enabled="{value: true}" DataSource="{value: _root.Items}" SelectedValue="{value: _root.SelectedItem}" />
+                    <dot:ListBox ID="lb-disabled" Enabled="{value: false}" DataSource="{value: _root.Items}" SelectedValue="{value: _root.SelectedItem}" />
+                    <br />
+                    <dot:RadioButton ID="rb-default" CheckedValue="{value: false}" />
+                    <dot:RadioButton ID="rb-enabled" CheckedValue="{value: false}" Enabled="{value: true}" />
+                    <dot:RadioButton ID="rb-disabled" CheckedValue="{value: false}" Enabled="{value: false}" />
+                    <br />
+                    <dot:TextBox ID="tb-default" Text="Test" />
+                    <dot:TextBox ID="tb-enabled" Enabled="{value: true}" Text="Test" />
+                    <dot:TextBox ID="tb-disabled" Enabled="{value: false}" Text="Test" />
+                </fieldset>
+            </ItemTemplate>
+        </dot:Repeater>
+    </fieldset>
+
+</body>
+</html>

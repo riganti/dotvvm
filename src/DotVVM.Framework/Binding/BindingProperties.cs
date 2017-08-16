@@ -107,6 +107,18 @@ namespace DotVVM.Framework.Binding.Properties
     }
 
     /// <summary>
+    /// Contains JS code, that will invoke the static command. May contain symbolic parameters from `JavascriptTranslator` and `CommandBindingExpression`
+    /// </summary>
+    public sealed class StaticCommandJsAstProperty
+    {
+        public readonly JsExpression Expression;
+        public StaticCommandJsAstProperty(JsExpression expression)
+        {
+            this.Expression = expression;
+        }
+    }
+
+    /// <summary>
     /// Contains <see cref="System.Linq.Expressions.Expression"/> instance that represents code as it was written in markup with minimal processing.
     /// </summary>
     public sealed class ParsedExpressionBindingProperty
@@ -270,5 +282,23 @@ namespace DotVVM.Framework.Binding.Properties
             this.Resources = resources;
         }
         public static readonly RequiredRuntimeResourcesBindingProperty Empty = new RequiredRuntimeResourcesBindingProperty(ImmutableArray<string>.Empty);
+    }
+
+    public sealed class ThisBindingProperty
+    {
+        public readonly IBinding binding;
+        public ThisBindingProperty(IBinding binding)
+        {
+            this.binding = binding;
+        }
+    }
+
+    public sealed class CollectionElementDataContextBindingProperty
+    {
+        public readonly DataContextStack DataContext;
+        public CollectionElementDataContextBindingProperty(DataContextStack dataContext)
+        {
+            this.DataContext = dataContext;
+        }
     }
 }

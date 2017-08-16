@@ -164,7 +164,7 @@ namespace DotVVM.Compiler
         private static CompilationResult ExportConfiguration(CompilerOptions options)
         {
             var assembly = Assembly.LoadFile(options.WebSiteAssembly);
-            var config = OwinInitializer.InitDotVVM(assembly, options.WebSitePath, null, (s, p) => { });
+            var config = OwinInitializer.InitDotVVM(assembly, options.WebSitePath, null, (s) => { });
             return new CompilationResult()
             {
                 Configuration = config
