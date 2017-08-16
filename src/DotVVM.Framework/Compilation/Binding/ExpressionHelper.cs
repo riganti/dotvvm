@@ -33,9 +33,10 @@ namespace DotVVM.Framework.Compilation.Binding
             if (!isGeneric && !onlyMemberTypes && typeof(DotvvmBindableObject).IsAssignableFrom(target.Type) &&
                 GetDotvvmPropertyMember(target, name) is Expression result) return result;
 
-            var members = type.GetMembers(BindingFlags.Public | (isStatic ? BindingFlags.Static : BindingFlags.Instance))
+            var members = type.GetAllMembers(BindingFlags.Public | (isStatic ? BindingFlags.Static : BindingFlags.Instance))
                 .Where(m => ((isGeneric && m is TypeInfo) ? genericName : name) == m.Name )
                 .ToArray();
+            
             if (members.Length == 0)
             {
                 if (throwExceptions) throw new Exception($"Could not find { (isStatic ? "static" : "instance") } member { name } on type { type.FullName }.");
@@ -110,7 +111,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
         private static MethodRecognitionResult FindValidMethodOveloads(Type type, string name, BindingFlags flags, Type[] typeArguments, Expression[] arguments, IDictionary<string, Expression> namedArgs)
         {
-            var methods = FindValidMethodOveloads(type.GetMethods(flags).Where(m => m.Name == name), typeArguments, arguments, namedArgs);
+            var methods = FindValidMethodOveloads(type.GetAllMembers(flags).OfType<MethodInfo>().Where(m => m.Name == name), typeArguments, arguments, namedArgs);
             var method = methods.FirstOrDefault();
             if (method == null) throw new InvalidOperationException($"Could not find overload of method '{name}'.");
             return method;

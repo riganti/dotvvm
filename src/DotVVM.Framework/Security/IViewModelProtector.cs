@@ -11,8 +11,10 @@ namespace DotVVM.Framework.Security
     {
 
         string Protect(string serializedData, IDotvvmRequestContext context);
+        byte[] Protect(byte[] plaintextData, params string[] purposes);
 
         string Unprotect(string protectedData, IDotvvmRequestContext context);
+        byte[] Unprotect(byte[] protectedData, params string[] purposes);
 
     }
 }
