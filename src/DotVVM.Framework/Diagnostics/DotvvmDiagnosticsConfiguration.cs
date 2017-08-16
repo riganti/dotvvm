@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Diagnostics
 
         private DiagnosticsServerConfiguration configuration;
 
-        public string DiagnosticsServerHostname => configuration.HostName;
+        public string DiagnosticsServerHostname => configuration?.HostName;
 
         public int? DiagnosticsServerPort => configuration?.Port;
 
