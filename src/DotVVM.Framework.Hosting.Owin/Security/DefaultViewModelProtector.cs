@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Text;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
@@ -38,6 +39,11 @@ namespace DotVVM.Framework.Security
             return Convert.ToBase64String(protectedData);
         }
 
+        public byte[] Protect(byte[] data, params string[] purposes) =>
+            this.protectionProvider
+            .Create(ConcatPurposes(PRIMARY_PURPOSE, purposes))
+            .Protect(data);
+
         public string Unprotect(string protectedData, IDotvvmRequestContext context)
         {
             if (protectedData == null) throw new ArgumentNullException(nameof(protectedData));
@@ -53,6 +59,23 @@ namespace DotVVM.Framework.Security
             var dataToUnprotect = Convert.FromBase64String(protectedData);
             var unprotectedData = protector.Unprotect(dataToUnprotect);
             return Encoding.UTF8.GetString(unprotectedData);
+        }
+
+        public byte[] Unprotect(byte[] protectedData, params string[] purposes) =>
+            this.protectionProvider
+            .Create(ConcatPurposes(PRIMARY_PURPOSE, purposes))
+            .Unprotect(protectedData);
+
+        private string[] ConcatPurposes(string firstPurpose, string[] purposes)
+        {
+            string[] allPurposes = new string[purposes.Length + 1];
+            allPurposes[0] = firstPurpose;
+            for (int i = 0; i < purposes.Length; i++)
+            {
+                allPurposes[i + 1] = purposes[i];
+            }
+
+            return allPurposes;
         }
 
     }
