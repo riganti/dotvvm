@@ -342,7 +342,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
 
         public JsExpression TranslateViewModelProperty(JsExpression context, MemberInfo propInfo, string name = null) =>
-            new JsMemberAccessExpression(context, name ?? propInfo.Name).WithAnnotation(new VMPropertyInfoAnnotation { MemberInfo = propInfo });
+            new JsMemberAccessExpression(context, name ?? propInfo.Name).WithAnnotation(new VMPropertyInfoAnnotation { MemberInfo = propInfo }).WithAnnotation(new ViewModelInfoAnnotation(propInfo.GetResultType()));
 
         public JsExpression TryTranslateMethodCall(MethodInfo methodInfo, Expression target, IEnumerable<Expression> arguments) =>
             Translator.TryTranslateCall(

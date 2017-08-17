@@ -42,6 +42,7 @@ namespace DotVVM.Samples.BasicSamples
             // new GithubApiClient.GithubApiClient().Repos.GetIssues()
             config.RegisterApiGroup(typeof(ApiClientWrapper), "http://localhost:5000/", "Scripts/ApiClient.js");
             config.RegisterApiGroup(typeof(GithubApiClient.GithubApiClient), "https://api.github.com/", "Scripts/GithubApiClient.js", "_github", customFetchFunction: "basicAuthenticatedFetch");
+            config.RegisterApiClient(typeof(AzureFunctionsApi.Client), "https://dotvvmazurefunctionstest.azurewebsites.net/", "Scripts/AzureFunctionsApiClient.js", "_azureFuncApi");
         }
 
         private static void RegisterResources(DotvvmConfiguration config)
