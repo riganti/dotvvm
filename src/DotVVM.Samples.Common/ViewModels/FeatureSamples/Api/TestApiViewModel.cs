@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using AzureFunctionsApi;
 using DotVVM.Framework.ViewModel;
-using TestApiClient;
 
 
 namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.Api
