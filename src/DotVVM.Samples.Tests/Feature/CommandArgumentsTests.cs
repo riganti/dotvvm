@@ -29,6 +29,7 @@ namespace DotVVM.Samples.Tests.Feature
                 alert.SendKeys(Value);
                 alert.Accept();
 
+                browser.Wait();
                 text.CheckIfTextEquals(Value);
             });
         }
