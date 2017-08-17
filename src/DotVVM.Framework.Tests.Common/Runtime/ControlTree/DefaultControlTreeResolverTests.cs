@@ -33,7 +33,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         [TestInitialize()]
         public void TestInit()
         {
-            configuration = DotvvmConfiguration.CreateDefault();
+            configuration = DotvvmTestHelper.CreateConfiguration();
             configuration.Markup.AddCodeControls("cc", typeof(ClassWithInnerElementProperty));
             controlTreeResolver = configuration.ServiceLocator.GetService<IControlTreeResolver>();
         }
@@ -582,7 +582,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         private ResolvedBinding[] GetLiteralBindings(ResolvedContentNode node) =>
             (from c in node.Content.SelectRecursively(c => c.Content)
             where c.Metadata.Type == typeof(Literal)
-            let text = c.Properties.GetValueOrDefault(Literal.TextProperty)
+            let text = FunctionalExtensions.GetValueOrDefault(c.Properties, Literal.TextProperty)
             where text is ResolvedPropertyBinding
             select ((ResolvedPropertyBinding)text).Binding).ToArray();
 

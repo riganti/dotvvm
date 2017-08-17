@@ -25,6 +25,8 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <PreserveCompilationContext>true</PreserveCompilationContext>
+    
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="..\DotVVM.Compiler\bin\$(Configuration)\DotVVM.Compiler.exe">

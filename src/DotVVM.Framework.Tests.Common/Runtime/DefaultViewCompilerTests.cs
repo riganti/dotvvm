@@ -214,7 +214,7 @@ test <dot:Literal><a /></dot:Literal>";
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
             Assert.IsInstanceOfType(page.Children[0], typeof(TestControl));
 
-            var literal = page.Children[0].Children[0];
+            var literal = page.Children[0].Children[0].Children[0];
             Assert.IsInstanceOfType(literal, typeof(Literal));
             Assert.AreEqual("aaa", ((Literal)literal).Text);
         }
@@ -362,7 +362,7 @@ test <dot:Literal><a /></dot:Literal>";
             markupFiles[fileName + ".dothtml"] = markup;
 
             context = new DotvvmRequestContext();
-            context.Configuration = DotvvmConfiguration.CreateDefault(services =>
+            context.Configuration = DotvvmTestHelper.CreateConfiguration(services =>
             {
                 services.AddSingleton<IMarkupFileLoader>(new FakeMarkupFileLoader(markupFiles));
                 services.AddSingleton<Func<IServiceProvider, Type, DotvvmControl>>((s, t) =>

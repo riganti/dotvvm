@@ -34,7 +34,7 @@ namespace DotVVM.Framework.Tests.Binding
             }
             var parser = new BindingExpressionBuilder();
             var expressionTree = TypeConversion.ImplicitConversion(parser.Parse(expression, context, BindingParserOptions.Create<ValueBindingExpression>()), expectedType, true, true);
-            var configuration = DotvvmConfiguration.CreateDefault();
+            var configuration = DotvvmTestHelper.CreateConfiguration();
             var jsExpression = new JsParenthesizedExpression(configuration.ServiceLocator.GetService<JavascriptTranslator>().CompileToJavascript(expressionTree, context));
             jsExpression.AcceptVisitor(new KnockoutObservableHandlingVisitor(true));
             JsTemporaryVariableResolver.ResolveVariables(jsExpression);
@@ -51,7 +51,7 @@ namespace DotVVM.Framework.Tests.Binding
                 context = DataContextStack.Create(contexts[i], context);
             }
             var expressionTree = expr(BindingExpressionBuilder.GetParameters(context).ToDictionary(e => e.Name, e => (Expression)e));
-            var configuration = DotvvmConfiguration.CreateDefault();
+            var configuration = DotvvmTestHelper.CreateConfiguration();
             var jsExpression = new JsParenthesizedExpression(configuration.ServiceLocator.GetService<JavascriptTranslator>().CompileToJavascript(expressionTree, context));
             jsExpression.AcceptVisitor(new KnockoutObservableHandlingVisitor(true));
             JsTemporaryVariableResolver.ResolveVariables(jsExpression);

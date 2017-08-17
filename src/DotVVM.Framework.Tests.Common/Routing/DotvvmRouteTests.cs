@@ -10,7 +10,7 @@ namespace DotVVM.Framework.Tests.Routing
     [TestClass]
     public class DotvvmRouteTests
     {
-        DotvvmConfiguration configuration = DotvvmConfiguration.CreateDefault();
+        DotvvmConfiguration configuration = DotvvmTestHelper.CreateConfiguration();
 
         [TestMethod]
         public void DotvvmRoute_IsMatch_RouteMustNotStartWithSlash()

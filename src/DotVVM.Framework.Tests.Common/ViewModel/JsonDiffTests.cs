@@ -59,7 +59,7 @@ namespace DotVVM.Framework.Tests.ViewModel
 
         private JObject CreateDiff(Action<DotvvmConfiguration> fn)
         {
-            var config = DotvvmConfiguration.CreateDefault();
+            var config = DotvvmTestHelper.CreateConfiguration();
             var json0 = JObject.FromObject(config, serializer);
             fn(config);
             var json1 = JObject.FromObject(config, serializer);
@@ -76,6 +76,6 @@ namespace DotVVM.Framework.Tests.ViewModel
             return json.ToObject<DotvvmConfiguration>(serializer);
         }
 
-        private DotvvmConfiguration ApplyPatches(params JObject[] patches) => ApplyPatches(DotvvmConfiguration.CreateDefault(), patches);
+        private DotvvmConfiguration ApplyPatches(params JObject[] patches) => ApplyPatches(DotvvmTestHelper.CreateConfiguration(), patches);
     }
 }
