@@ -276,10 +276,6 @@ namespace DotVVM.Framework.Compilation.Binding
             else throw new NotSupportedException($"Can not access current element on binding '{expression.Expression}' of type '{expression.Expression.Type}'.");
         }
 
-        public StaticCommandJavascriptProperty CompileStaticCommand(DataContextStack dataContext, ParsedExpressionBindingProperty expression)
-        {
-            return new StaticCommandJavascriptProperty(FormatJavascript(this.staticCommandBindingCompiler.CompileToJavascript(dataContext, expression.Expression), niceMode: configuration.Debug));
-        }
 
         public StaticCommandJsAstProperty CompileStaticCommand(DataContextStack dataContext, ParsedExpressionBindingProperty expression) =>
             new StaticCommandJsAstProperty(this.staticCommandBindingCompiler.CompileToJavascript(dataContext, expression.Expression));
