@@ -10,6 +10,7 @@ using Microsoft.Owin.Security.Cookies;
 using Owin;
 using DotVVM.Framework.Configuration;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
+using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand;
 
 [assembly: OwinStartup(typeof(Startup))]
 
