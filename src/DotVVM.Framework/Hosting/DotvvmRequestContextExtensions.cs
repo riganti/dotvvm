@@ -7,6 +7,8 @@ using System.Net;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Storage;
 using System.Diagnostics;
+using System.Reflection;
+using System.Text.RegularExpressions;
 using DotVVM.Framework.Hosting.Middlewares;
 using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.Extensions.DependencyInjection;
@@ -83,12 +85,35 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Returns the redirect response and interrupts the execution of current request.
         /// </summary>
-        public static void RedirectToRoute(this IDotvvmRequestContext context, string routeName, object newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true, string urlSuffix = null)
+        public static void RedirectToRoute(this IDotvvmRequestContext context, string routeName, object newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true, string urlSuffix = null, object queryStringParameters = null)
         {
             var route = context.Configuration.RouteTable[routeName];
-            var url = route.BuildUrl(context.Parameters, newRouteValues) + urlSuffix;
+            var url = route.BuildUrl(context.Parameters, newRouteValues) + BuildUrlSuffix(urlSuffix ?? "", queryStringParameters);
 
             context.RedirectToUrl(url, replaceInHistory, allowSpaRedirect);
+        }
+
+        private static string BuildUrlSuffix(string urlSuffix, object queryStringParameters)
+        {
+            var hashIndex = urlSuffix.IndexOf('#');
+            var resultSuffix = hashIndex < 0 ? urlSuffix : urlSuffix.Substring(0, hashIndex);
+            if (queryStringParameters is IEnumerable<KeyValuePair<string, string>>)
+            {
+                foreach (KeyValuePair<string, string> item in (IEnumerable<KeyValuePair<string, string>>)queryStringParameters)
+                {
+                    resultSuffix = resultSuffix + (urlSuffix.LastIndexOf('?') < 0 ? "?" : "&") + Regex.Escape(item.Key) +
+                                "=" + Regex.Escape(item.Value);
+                }
+            }
+            else if (queryStringParameters != null)
+            {
+                foreach (var prop in queryStringParameters.GetType().GetProperties())
+                {
+                    resultSuffix = resultSuffix + (urlSuffix.LastIndexOf('?') < 0 ? "?" : "&") + Regex.Escape(prop.Name) +
+                                "=" + prop.GetValue(queryStringParameters);
+                }
+            }
+            return resultSuffix + (hashIndex < 0 ? "" : urlSuffix.Substring(hashIndex));
         }
 
         /// <summary>

@@ -7,6 +7,8 @@
     <div class="container">
         <h1>Redirect test</h1>
         <p><dot:Button Text="Test redirect" Click="{command: RedirectTest()}" /></p>
+        <p><dot:Button Text="Test RedirectToRoute object queryString" Click="{command: RedirectObjectQueryString()}" /></p>
+        <p><dot:Button Text="Test RedirectToRoute dictionary queryString" Click="{command: RedirectDictionaryQueryString()}" /></p>
     </div>
 
 </body>
