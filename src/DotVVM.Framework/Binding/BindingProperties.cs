@@ -301,4 +301,22 @@ namespace DotVVM.Framework.Binding.Properties
             this.DataContext = dataContext;
         }
     }
+
+    public sealed class IsMoreThanZeroBindingProperty
+    {
+        public readonly IBinding Binding;
+        public IsMoreThanZeroBindingProperty(IBinding binding)
+        {
+            this.Binding = binding;
+        }
+    }
+
+    public sealed class NegatedBindingExpression
+    {
+        public readonly IBinding Binding;
+        public NegatedBindingExpression(IBinding binding)
+        {
+            this.Binding = binding;
+        }
+    }
 }

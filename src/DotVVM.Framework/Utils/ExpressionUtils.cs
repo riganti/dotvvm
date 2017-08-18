@@ -72,6 +72,9 @@ namespace DotVVM.Framework.Utils
             return Expression.Block(expr, Expression.Constant(null));
         }
 
+        public static BinaryExpression UpdateType(this BinaryExpression expr, ExpressionType type) =>
+            Expression.MakeBinary(type, expr.Left, expr.Right);
+
         public static Expression Indexer(Expression instance, Expression index)
         {
             return Expression.Property(instance,

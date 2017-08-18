@@ -39,7 +39,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                 string line;
                 while ((line = sr.ReadLine()) != null)
                 {
-                    this.Write(WebUtility.HtmlEncode(line));
+                    this.WriteText(line);
                     this.Write("<br />");
                 }
             }
@@ -48,7 +48,10 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         public void ObjectBrowser(object obj)
         {
             var jobject = JObject.FromObject(obj, new JsonSerializer() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
-            ObjectBrowser(jobject);
+            if (jobject.Descendants().Count() > 0)
+                this.WriteText("The object is too large.");
+            else
+                ObjectBrowser(jobject);
         }
 
         public void ObjectBrowser(JArray arr)
@@ -72,7 +75,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                 }
                 else
                 {
-                    this.Write(p.ToString());
+                    this.WriteText(p.ToString());
                 }
             }
 

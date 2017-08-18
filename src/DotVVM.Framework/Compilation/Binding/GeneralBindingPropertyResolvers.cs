@@ -218,6 +218,21 @@ namespace DotVVM.Framework.Compilation.Binding
             }
         }
 
+        public NegatedBindingExpression NegateBinding(ParsedExpressionBindingProperty e, IBinding binding)
+        {
+            return new NegatedBindingExpression(binding.DeriveBinding(
+                new ParsedExpressionBindingProperty(
+                    // Not, Equals and NotEquals are safe to optimize for both .NET and Javascript (if that the negated value was already a boolean)
+                    // but comparison operators are not safe to optimize as `null > 0` and `null <= 0` are both true on .NET (not JS, so it's possible to optimze this in the JsAST)
+                    // On the other hand it would not be possible to optimize Not(Not(...)) in the JsAST, because you can't be so sure about the type of the expression
+                    e.Expression.NodeType == ExpressionType.Not ? e.Expression.CastTo<UnaryExpression>().Operand :
+                    e.Expression.NodeType == ExpressionType.Equal ? e.Expression.CastTo<BinaryExpression>().UpdateType(ExpressionType.NotEqual) :
+                    e.Expression.NodeType == ExpressionType.NotEqual ? e.Expression.CastTo<BinaryExpression>().UpdateType(ExpressionType.Equal) :
+                    (Expression)Expression.Not(e.Expression)
+                )
+            ));
+        }
+
         public DataSourceAccessBinding GetDataSourceAccess(ParsedExpressionBindingProperty expression, IBinding binding)
         {
             if (typeof(IBaseGridViewDataSet).IsAssignableFrom(expression.Expression.Type))
@@ -315,12 +330,19 @@ namespace DotVVM.Framework.Compilation.Binding
             return new ThisBindingProperty(thisBinding);
         }
 
-        public CollectionElementDataContextBindingProperty GetCollectionElementDataContext(DataContextStack dataContext)
+        public CollectionElementDataContextBindingProperty GetCollectionElementDataContext(DataContextStack dataContext, ResultTypeBindingProperty resultType)
         {
             return new CollectionElementDataContextBindingProperty(DataContextStack.Create(
-                ReflectionUtils.GetEnumerableType(dataContext.DataContextType),
+                ReflectionUtils.GetEnumerableType(resultType.Type),
                 parent: dataContext,
                 extensionParameters: new CollectionElementDataContextChangeAttribute(0).GetExtensionParameters(new ResolvedTypeDescriptor(dataContext.DataContextType)).ToArray()
+            ));
+        }
+
+        public IsMoreThanZeroBindingProperty IsMoreThanZero(ParsedExpressionBindingProperty expr, IBinding binding)
+        {
+            return new IsMoreThanZeroBindingProperty(binding.DeriveBinding(
+                new ParsedExpressionBindingProperty(Expression.GreaterThan(expr.Expression, Expression.Constant(0)))
             ));
         }
     }
