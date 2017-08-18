@@ -204,6 +204,7 @@ namespace DotVVM.Framework.Controls
                 emptyDataContainer = new EmptyData();
                 emptyDataContainer.SetValue(EmptyData.RenderWrapperTagProperty, GetValueRaw(RenderWrapperTagProperty));
                 emptyDataContainer.SetValue(EmptyData.WrapperTagNameProperty, GetValueRaw(WrapperTagNameProperty));
+                emptyDataContainer.SetValue(EmptyData.VisibleProperty, GetValueRaw(VisibleProperty));
                 emptyDataContainer.SetBinding(DataSourceProperty, dataSourceBinding);
                 EmptyDataTemplate.BuildContent(context, emptyDataContainer);
             }

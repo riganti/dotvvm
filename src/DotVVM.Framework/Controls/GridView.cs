@@ -214,6 +214,7 @@ namespace DotVVM.Framework.Controls
             if (EmptyDataTemplate != null)
             {
                 emptyDataContainer = new EmptyData();
+                emptyDataContainer.SetValue(EmptyData.VisibleProperty, GetValueRaw(VisibleProperty));
                 emptyDataContainer.SetBinding(DataSourceProperty, dataSourceBinding);
                 EmptyDataTemplate.BuildContent(context, emptyDataContainer);
                 Children.Add(emptyDataContainer);

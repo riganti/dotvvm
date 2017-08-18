@@ -47,38 +47,22 @@ namespace DotVVM.Framework.Controls
         {
         }
 
-        protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
-        {
-            if (!RenderOnServer)
-            {
-                if (RenderWrapperTag)
-                    writer.AddKnockoutDataBind("visible", "!" + GetBinding(DataSourceProperty).GetProperty<DataSourceLengthBinding>().Binding.CastTo<IValueBinding>().GetKnockoutBindingExpression(this));
-                else
-                    writer.WriteKnockoutDataBindComment("visible", "!" + GetBinding(DataSourceProperty).GetProperty<DataSourceLengthBinding>().Binding.CastTo<IValueBinding>().GetKnockoutBindingExpression(this));
-
-                if (DataSource != null && RenderWrapperTag && GetIEnumerableFromDataSource().OfType<object>().Any())
-                {
-                    writer.AddStyleAttribute("display", "none");
-                }
-            }
-
-            base.AddAttributesToRender(writer, context);
-        }
-
-        protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
-        {
-            if (!RenderWrapperTag && !RenderOnServer)
-                writer.WriteKnockoutDataBindEndComment();
-
-            base.RenderEndTag(writer, context);
-        }
-
         protected override void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             TagName = WrapperTagName;
             // if RenderOnServer && DataSource is not empty then don't render anything
             if (!RenderOnServer || GetIEnumerableFromDataSource()?.GetEnumerator()?.MoveNext() != true)
             {
+                if (!RenderOnServer)
+                {
+                    var visibleBinding = GetBinding(DataSourceProperty)
+                        .GetProperty<DataSourceLengthBinding>().Binding
+                        .GetProperty<IsMoreThanZeroBindingProperty>().Binding
+                        .GetProperty<NegatedBindingExpression>().Binding
+                        .CastTo<IValueBinding>();
+                    this.AndAssignProperty(IncludeInPageProperty, visibleBinding);
+                }
+
                 base.RenderControl(writer, context);
             }
         }
