@@ -58,6 +58,43 @@ namespace AzureFunctionsApi {
         /**
          * @return Success operation
          */
+        _api_HttpGetCountry_get(): Promise<Country> {
+            let url_ = this.baseUrl + "/api/HttpGetCountry";
+            url_ = url_.replace(/[?&]$/, "");
+    
+            let options_ = <RequestInit>{
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json", 
+                    "Accept": "application/json"
+                }
+            };
+    
+            return this.http.fetch(url_, options_).then((_response: Response) => {
+                return this.process_api_HttpGetCountry_get(_response);
+            });
+        }
+    
+        protected process_api_HttpGetCountry_get(response: Response): Promise<Country> {
+            const status = response.status;
+            if (status === 200) {
+                return response.text().then((_responseText) => {
+                let result200: Country = null;
+                let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 ? Country.fromJS(resultData200) : new Country();
+                return result200;
+                });
+            } else if (status !== 200 && status !== 204) {
+                return response.text().then((_responseText) => {
+                return throwException("An unexpected server error occurred.", status, _responseText);
+                });
+            }
+            return Promise.resolve<Country>(<any>null);
+        }
+    
+        /**
+         * @return Success operation
+         */
         _api_HttpPost_post(data: DataModel): Promise<DataModel> {
             let url_ = this.baseUrl + "/api/HttpPost";
             url_ = url_.replace(/[?&]$/, "");
@@ -113,7 +150,7 @@ namespace AzureFunctionsApi {
     
         init(data?: any) {
             if (data) {
-                this.text = data["text"] !== undefined ? data["Text"] : <any>null;
+                this.text = data["Text"] !== undefined ? data["Text"] : <any>null;
                 this.number = data["Number"] !== undefined ? data["Number"] : <any>null;
                 this.date = data["Date"] ? new Date(data["Date"].toString()) : <any>null;
                 this.bool = data["Bool"] !== undefined ? data["Bool"] : <any>null;
@@ -141,6 +178,92 @@ namespace AzureFunctionsApi {
         number: number;
         date: Date;
         bool: boolean;
+    }
+    
+    export class Country implements ICountry {
+        name?: string;
+        regions?: Region[];
+    
+        constructor(data?: ICountry) {
+            if (data) {
+                for (var property in data) {
+                    if (data.hasOwnProperty(property))
+                        (<any>this)[property] = (<any>data)[property];
+                }
+            }
+        }
+    
+        init(data?: any) {
+            if (data) {
+                this.name = data["Name"] !== undefined ? data["Name"] : <any>null;
+                if (data["Regions"] && data["Regions"].constructor === Array) {
+                    this.regions = [];
+                    for (let item of data["Regions"])
+                        this.regions.push(Region.fromJS(item));
+                }
+            }
+        }
+    
+        static fromJS(data: any): Country {
+            let result = new Country();
+            result.init(data);
+            return result;
+        }
+    
+        toJSON(data?: any) {
+            data = typeof data === 'object' ? data : {};
+            data["Name"] = this.name !== undefined ? this.name : <any>null;
+            if (this.regions && this.regions.constructor === Array) {
+                data["Regions"] = [];
+                for (let item of this.regions)
+                    data["Regions"].push(item.toJSON());
+            }
+            return data; 
+        }
+    }
+    
+    export interface ICountry {
+        name?: string;
+        regions?: Region[];
+    }
+    
+    export class Region implements IRegion {
+        id?: number;
+        name?: string;
+    
+        constructor(data?: IRegion) {
+            if (data) {
+                for (var property in data) {
+                    if (data.hasOwnProperty(property))
+                        (<any>this)[property] = (<any>data)[property];
+                }
+            }
+        }
+    
+        init(data?: any) {
+            if (data) {
+                this.id = data["Id"] !== undefined ? data["Id"] : <any>null;
+                this.name = data["Name"] !== undefined ? data["Name"] : <any>null;
+            }
+        }
+    
+        static fromJS(data: any): Region {
+            let result = new Region();
+            result.init(data);
+            return result;
+        }
+    
+        toJSON(data?: any) {
+            data = typeof data === 'object' ? data : {};
+            data["Id"] = this.id !== undefined ? this.id : <any>null;
+            data["Name"] = this.name !== undefined ? this.name : <any>null;
+            return data; 
+        }
+    }
+    
+    export interface IRegion {
+        id?: number;
+        name?: string;
     }
     
     export class SwaggerException extends Error {

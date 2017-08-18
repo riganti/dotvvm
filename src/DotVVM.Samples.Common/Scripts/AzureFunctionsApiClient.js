@@ -62,6 +62,42 @@ var AzureFunctionsApi;
         /**
          * @return Success operation
          */
+        Client.prototype._api_HttpGetCountry_get = function () {
+            var _this = this;
+            var url_ = this.baseUrl + "/api/HttpGetCountry";
+            url_ = url_.replace(/[?&]$/, "");
+            var options_ = {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                }
+            };
+            return this.http.fetch(url_, options_).then(function (_response) {
+                return _this.process_api_HttpGetCountry_get(_response);
+            });
+        };
+        Client.prototype.process_api_HttpGetCountry_get = function (response) {
+            var _this = this;
+            var status = response.status;
+            if (status === 200) {
+                return response.text().then(function (_responseText) {
+                    var result200 = null;
+                    var resultData200 = _responseText === "" ? null : JSON.parse(_responseText, _this.jsonParseReviver);
+                    result200 = resultData200 ? Country.fromJS(resultData200) : new Country();
+                    return result200;
+                });
+            }
+            else if (status !== 200 && status !== 204) {
+                return response.text().then(function (_responseText) {
+                    return throwException("An unexpected server error occurred.", status, _responseText);
+                });
+            }
+            return Promise.resolve(null);
+        };
+        /**
+         * @return Success operation
+         */
         Client.prototype._api_HttpPost_post = function (data) {
             var _this = this;
             var url_ = this.baseUrl + "/api/HttpPost";
@@ -133,6 +169,76 @@ var AzureFunctionsApi;
         return DataModel;
     }());
     AzureFunctionsApi.DataModel = DataModel;
+    var Country = (function () {
+        function Country(data) {
+            if (data) {
+                for (var property in data) {
+                    if (data.hasOwnProperty(property))
+                        this[property] = data[property];
+                }
+            }
+        }
+        Country.prototype.init = function (data) {
+            if (data) {
+                this.name = data["Name"] !== undefined ? data["Name"] : null;
+                if (data["Regions"] && data["Regions"].constructor === Array) {
+                    this.regions = [];
+                    for (var _i = 0, _a = data["Regions"]; _i < _a.length; _i++) {
+                        var item = _a[_i];
+                        this.regions.push(Region.fromJS(item));
+                    }
+                }
+            }
+        };
+        Country.fromJS = function (data) {
+            var result = new Country();
+            result.init(data);
+            return result;
+        };
+        Country.prototype.toJSON = function (data) {
+            data = typeof data === 'object' ? data : {};
+            data["Name"] = this.name !== undefined ? this.name : null;
+            if (this.regions && this.regions.constructor === Array) {
+                data["Regions"] = [];
+                for (var _i = 0, _a = this.regions; _i < _a.length; _i++) {
+                    var item = _a[_i];
+                    data["Regions"].push(item.toJSON());
+                }
+            }
+            return data;
+        };
+        return Country;
+    }());
+    AzureFunctionsApi.Country = Country;
+    var Region = (function () {
+        function Region(data) {
+            if (data) {
+                for (var property in data) {
+                    if (data.hasOwnProperty(property))
+                        this[property] = data[property];
+                }
+            }
+        }
+        Region.prototype.init = function (data) {
+            if (data) {
+                this.id = data["Id"] !== undefined ? data["Id"] : null;
+                this.name = data["Name"] !== undefined ? data["Name"] : null;
+            }
+        };
+        Region.fromJS = function (data) {
+            var result = new Region();
+            result.init(data);
+            return result;
+        };
+        Region.prototype.toJSON = function (data) {
+            data = typeof data === 'object' ? data : {};
+            data["Id"] = this.id !== undefined ? this.id : null;
+            data["Name"] = this.name !== undefined ? this.name : null;
+            return data;
+        };
+        return Region;
+    }());
+    AzureFunctionsApi.Region = Region;
     var SwaggerException = (function (_super) {
         __extends(SwaggerException, _super);
         function SwaggerException(message, status, response, result) {
