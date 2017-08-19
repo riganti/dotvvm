@@ -30,8 +30,10 @@ namespace DotVVM.Framework.Configuration
         private static HashSet<(DotvvmConfiguration, Type)> apiDtosProcessed = new HashSet<(DotvvmConfiguration, Type)>();
         private static HashSet<Type> apiClientProcessed = new HashSet<Type>();
         private static object locker = new object();
-        private static void RegisterApiDtoProperties(Type obj, DotvvmConfiguration config)
+        private static void RegisterApiDtoProperties(Type obj, DotvvmConfiguration config, Assembly currentAssembly = null)
         {
+            currentAssembly = currentAssembly ?? obj.GetTypeInfo().Assembly;
+            bool isSameAssembly(Type type) => type.GetTypeInfo().Assembly == currentAssembly || type.GetGenericArguments().Any(isSameAssembly);
             lock (locker)
             {
                 if (!apiDtosProcessed.Add((config, obj))) return;
@@ -43,14 +45,20 @@ namespace DotVVM.Framework.Configuration
 
                     config.ServiceLocator.GetService<IViewModelSerializationMapper>().Map(obj, m => {
                         foreach (var prop in m.Properties)
+                        {
                             prop.Name = KnockoutHelper.ConvertToCamelCase(prop.Name);
+                            if (isSameAssembly(prop.Type))
+                                RegisterApiDtoProperties(prop.Type, config, currentAssembly);
+                        }
                     });
                 }
 
-                if (typeof(System.Collections.IEnumerable).IsAssignableFrom(obj) && ReflectionUtils.GetEnumerableType(obj) is Type element)
-                    RegisterApiDtoProperties(element, config);
+                if (typeof(System.Collections.IEnumerable).IsAssignableFrom(obj) && ReflectionUtils.GetEnumerableType(obj) is Type element && isSameAssembly(element))
+                    RegisterApiDtoProperties(element, config, currentAssembly);
+
                 foreach (var t in obj.GenericTypeArguments)
-                    RegisterApiDtoProperties(t, config);
+                    if (isSameAssembly(t))
+                        RegisterApiDtoProperties(t, config, currentAssembly);
             }
         }
 
