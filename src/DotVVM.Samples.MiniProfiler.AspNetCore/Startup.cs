@@ -35,14 +35,14 @@ namespace DotVVM.Samples.MiniProfiler.AspNetCore
         {
             loggerFactory.AddConsole();
 
-            app.UseMiniProfiler(new MiniProfilerOptions
+            app.UseMiniProfiler(options => 
             {
                 // Path to use for profiler URLs
-                RouteBasePath = "~/profiler",
+                options.RouteBasePath = "~/profiler";
 
                 // (Optional) Control storage
                 // (default is 30 minutes in MemoryCacheStorage)
-                Storage = new MemoryCacheStorage(cache, TimeSpan.FromMinutes(60)),
+                options.Storage = new MemoryCacheStorage(cache, TimeSpan.FromMinutes(60));
             });
 
             // use DotVVM
