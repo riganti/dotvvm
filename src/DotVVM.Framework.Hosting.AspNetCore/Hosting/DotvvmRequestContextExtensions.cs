@@ -21,12 +21,5 @@ namespace DotVVM.Framework.Hosting
 
             return concreteContext.OriginalContext;
         }
-
-        /// <summary>
-        /// Gets the Authentication functionality available on the current request.
-        /// </summary>
-        /// <param name="context">The request context.</param>
-        public static AuthenticationManager GetAuthentication(this IDotvvmRequestContext context)
-            => context.GetAspNetCoreContext().Authentication;
     }
 }

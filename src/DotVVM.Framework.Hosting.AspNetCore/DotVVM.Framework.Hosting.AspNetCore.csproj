@@ -1,7 +1,7 @@
 ﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <VersionPrefix>1.1.5</VersionPrefix>
-    <TargetFrameworks>netstandard1.6;net451</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
@@ -40,12 +40,12 @@
     <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="1.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="1.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="1.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="1.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Localization" Version="1.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Localization" Version="1.0.0" />
+	  <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Localization" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Localization" Version="2.0.0" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
   </ItemGroup>

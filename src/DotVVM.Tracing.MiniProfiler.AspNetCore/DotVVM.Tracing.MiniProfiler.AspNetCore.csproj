@@ -3,7 +3,7 @@
   <PropertyGroup>
 	<AssemblyTitle>DotVVM.Tracing.MiniProfiler.AspNetCore</AssemblyTitle>
     <VersionPrefix>1.1.5</VersionPrefix>
-    <TargetFrameworks>netstandard1.6;net451</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
@@ -21,7 +21,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MiniProfiler.AspNetCore" Version="4.0.0-alpha6-79" />
+    <PackageReference Include="MiniProfiler.AspNetCore" Version="4.0.0-alpha7-142" />
   </ItemGroup>
 
   <ItemGroup>
