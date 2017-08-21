@@ -9,7 +9,7 @@ namespace DotVVM.Framework.ResourceManagement
 {
     public class ReflectionAssemblyJsonConverter : JsonConverter
     {
-        public override bool CanConvert(Type objectType) => objectType == typeof(Assembly);
+        public override bool CanConvert(Type objectType) => typeof(Assembly).IsAssignableFrom(objectType);
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {

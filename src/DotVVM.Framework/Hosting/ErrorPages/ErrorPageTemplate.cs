@@ -8,6 +8,7 @@ using System.Net;
 using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using DotVVM.Framework.ResourceManagement;
 
 namespace DotVVM.Framework.Hosting.ErrorPages
 {
@@ -47,66 +48,85 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 
         public void ObjectBrowser(object obj)
         {
-            var jobject = JObject.FromObject(obj, new JsonSerializer() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+            var jobject = JObject.FromObject(obj, new JsonSerializer()
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                Converters = {
+                    new ReflectionAssemblyJsonConverter()
+                }
+            });
             ObjectBrowser(jobject);
         }
 
         public void ObjectBrowser(JArray arr)
         {
-            this.Write(@"
+            if (arr.Count == 0)
+            {
+                this.WriteText(arr.ToString());
+            }
+            else
+            {
+                this.Write(@"
         <div class='object-browser code'>
             <label>
             <input type='checkbox' class='collapse' />
-            <span class='collapse-off'>&gt; { ... } </span>
+            <span class='collapse-off'>&gt; [ ... ] </span>
             <span class='collapse-on'>[
                 <div class='object-arr'> ");
-            foreach (var p in arr)
-            {
-                if (p is JObject)
+                foreach (var p in arr)
                 {
-                    ObjectBrowser((JObject)p);
+                    if (p is JObject)
+                    {
+                        ObjectBrowser((JObject)p);
+                    }
+                    else if (p is JArray)
+                    {
+                        ObjectBrowser((JArray)p);
+                    }
+                    else
+                    {
+                        this.Write(p.ToString());
+                    }
                 }
-                else if (p is JArray)
-                {
-                    ObjectBrowser((JArray)p);
-                }
-                else
-                {
-                    this.Write(p.ToString());
-                }
+                this.Write(@"</div>]</span></div>");
             }
-
-            this.Write(@"</div>]</span></div>");
         }
 
         public void ObjectBrowser(JObject obj)
         {
-            this.Write(@"<div class='object-browser code'>
+            if (obj.Count == 0)
+            {
+                this.WriteText(obj.ToString());
+            }
+            else
+            {
+                this.Write(@"<div class='object-browser code'>
             <label>
             <input type='checkbox' class='collapse' />
             <span class='collapse-off'>&gt; { ... } </span>
             <span class='collapse-on'>{
                 <div class='object-obj'>");
-            foreach (var p in obj)
-            {
-                Write("<div class='prop'><span class='propname'>");
-                this.WriteText(p.Key);
-                Write("</span>:");
-                if (p.Value is JObject)
+                foreach (var p in obj)
                 {
-                    ObjectBrowser((JObject)p.Value);
+                    Write("<div class='prop'><span class='propname'>");
+                    this.WriteText(p.Key);
+                    Write("</span>:");
+                    if (p.Value is JObject)
+                    {
+                        ObjectBrowser((JObject)p.Value);
+                    }
+                    else if (p.Value is JArray)
+                    {
+                        ObjectBrowser((JArray)p.Value);
+                    }
+                    else
+                    {
+                        this.WriteText(p.Value.ToString(Formatting.None));
+                    }
+                    this.Write("</div>");
                 }
-                else if (p.Value is JArray)
-                {
-                    ObjectBrowser((JArray)p.Value);
-                }
-                else
-                {
-                    this.WriteText(p.Value.ToString());
-                }
-                this.Write("</div>");
+                this.Write("</div>}</span></div>");
             }
-            this.Write("</div>}</span></div>");
         }
 
 
