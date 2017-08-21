@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -79,11 +80,11 @@ namespace DotVVM.Framework.Runtime.Filters
 
                 foreach (var scheme in policy.AuthenticationSchemes)
                 {
-                    var result = await coreContext.Authentication.AuthenticateAsync(scheme);
+                    var result = await coreContext.AuthenticateAsync(scheme);
 
-                    if (result != null)
+                    if (result.Succeeded && result.Principal != null)
                     {
-                        principal = MergeUserPrincipal(principal, result);
+                        principal = MergeUserPrincipal(principal, result.Principal);
                     }
                 }
 
@@ -102,9 +103,16 @@ namespace DotVVM.Framework.Runtime.Filters
 
             var authService = coreContext.RequestServices.GetRequiredService<IAuthorizationService>();
 
-            if (!await authService.AuthorizeAsync(coreContext.User, context, policy))
+            if (!(await authService.AuthorizeAsync(coreContext.User, context, policy)).Succeeded)
             {
-                await HandleUnauthorizedRequest(coreContext, policy);
+                if (coreContext.User.Identity.IsAuthenticated)
+                {
+                    await HandleUnauthorizedRequest(coreContext, policy);
+                }
+                else
+                {
+                    await HandleUnauthenticatedRequest(coreContext, policy);
+                }
             }
         }
 
@@ -157,18 +165,35 @@ namespace DotVVM.Framework.Runtime.Filters
         private bool IsAnonymousAllowed(object viewModel)
             => viewModel != null && isAnonymousAllowedCache.GetOrAdd(viewModel.GetType(), t => t.GetTypeInfo().GetCustomAttributes().OfType<IAllowAnonymous>().Any());
 
+        private async Task HandleUnauthenticatedRequest(HttpContext context, AuthorizationPolicy policy)
+        {
+            if (policy.AuthenticationSchemes != null && policy.AuthenticationSchemes.Count > 0)
+            {
+                foreach (var scheme in policy.AuthenticationSchemes)
+                {
+                    await context.ChallengeAsync(scheme);
+                }
+            }
+            else
+            {
+                await context.ChallengeAsync();
+            }
+
+            throw new DotvvmInterruptRequestExecutionException("User unauthenticated");
+        }
+
         private async Task HandleUnauthorizedRequest(HttpContext context, AuthorizationPolicy policy)
         {
             if (policy.AuthenticationSchemes != null && policy.AuthenticationSchemes.Count > 0)
             {
                 foreach (var scheme in policy.AuthenticationSchemes)
                 {
-                    await context.Authentication.ChallengeAsync(scheme);
+                    await context.ForbidAsync(scheme);
                 }
             }
             else
             {
-                await context.Authentication.ChallengeAsync();
+                await context.ForbidAsync();
             }
 
             throw new DotvvmInterruptRequestExecutionException("User unauthorized");
@@ -198,7 +223,7 @@ namespace DotVVM.Framework.Runtime.Filters
             return new Microsoft.AspNetCore.Authorization.AuthorizeAttribute {
                 Policy = authorizeDatum.Policy,
                 Roles = authorizeDatum.Roles,
-                ActiveAuthenticationSchemes = authorizeDatum.ActiveAuthenticationSchemes
+                AuthenticationSchemes = authorizeDatum.AuthenticationSchemes
             };
         }
     }

@@ -121,7 +121,8 @@ namespace DotVVM.Framework.Compilation
                     Assembly.Load(new AssemblyName("System.Runtime")),
                     Assembly.Load(new AssemblyName("System.Collections.Concurrent")),
                     Assembly.Load(new AssemblyName("System.Collections")),
-                    Assembly.Load(new AssemblyName("System.ValueTuple"))
+                    Assembly.Load(new AssemblyName("System.ValueTuple")),
+                    Assembly.Load(new AssemblyName("netstandard")),
 #else
                     typeof(System.Collections.Generic.List<>).Assembly
 #endif
