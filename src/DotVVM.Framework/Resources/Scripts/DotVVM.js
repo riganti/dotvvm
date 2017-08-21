@@ -630,6 +630,9 @@ var DotvvmSerialization = (function () {
         if (nullable && (value == null || value == "")) {
             return true;
         }
+        if (!nullable && (value === null || typeof value === "undefined")) {
+            return false;
+        }
         var intmatch = /(u?)int(\d*)/.exec(type);
         if (intmatch) {
             if (!/^-?\d*$/.test(value))
@@ -647,7 +650,7 @@ var DotvvmSerialization = (function () {
         }
         if (type === "number" || type === "single" || type === "double" || type === "decimal") {
             // should check if the value is numeric or number in a string
-            return +value === value || (!isNaN(+value) && typeof value == "string");
+            return +value === value || (!isNaN(+value) && typeof value === "string");
         }
         return true;
     };
@@ -2302,7 +2305,13 @@ function basicAuthenticatedFetch(input, init) {
         return cmp;
     };
     DotVVM.prototype.apiRefreshOn = function (value, refreshOn) {
-        refreshOn.subscribe(function () { return value.refreshValue && value.refreshValue(); });
+        if (typeof value.refreshValue != "function")
+            console.error("The object is not refreshable");
+        refreshOn.subscribe(function () {
+            if (typeof value.refreshValue != "function")
+                console.error("The object is not refreshable");
+            value.refreshValue && value.refreshValue();
+        });
         return value;
     };
     DotVVM.prototype.api = {};

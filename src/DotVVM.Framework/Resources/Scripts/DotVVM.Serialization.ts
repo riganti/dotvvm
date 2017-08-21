@@ -236,6 +236,9 @@ class DotvvmSerialization {
         if (nullable && (value == null || value == "")) {
             return true;
         }
+        if (!nullable && (value === null || typeof value === "undefined")) {
+            return false;
+        }
 
         var intmatch = /(u?)int(\d*)/.exec(type);
         if (intmatch) {
@@ -254,7 +257,7 @@ class DotvvmSerialization {
         }
         if (type === "number" || type === "single" || type === "double" || type === "decimal") {
             // should check if the value is numeric or number in a string
-            return +value === value || (!isNaN(+value) && typeof value == "string");
+            return +value === value || (!isNaN(+value) && typeof value === "string");
         }
         return true;
     }
