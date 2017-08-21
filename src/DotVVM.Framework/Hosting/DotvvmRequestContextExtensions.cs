@@ -85,34 +85,41 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Returns the redirect response and interrupts the execution of current request.
         /// </summary>
-        public static void RedirectToRoute(this IDotvvmRequestContext context, string routeName, object newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true, string urlSuffix = null, object queryStringParameters = null)
+        public static void RedirectToRoute(this IDotvvmRequestContext context, string routeName, object newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true, string urlSuffix = null, object query = null)
         {
             var route = context.Configuration.RouteTable[routeName];
-            var url = route.BuildUrl(context.Parameters, newRouteValues) + BuildUrlSuffix(urlSuffix ?? "", queryStringParameters);
+            var url = route.BuildUrl(context.Parameters, newRouteValues) + BuildUrlSuffix(urlSuffix ?? "", query);
 
             context.RedirectToUrl(url, replaceInHistory, allowSpaRedirect);
         }
 
-        private static string BuildUrlSuffix(string urlSuffix, object queryStringParameters)
+        private static string BuildUrlSuffix(string urlSuffix, object query)
         {
             var hashIndex = urlSuffix.IndexOf('#');
             var resultSuffix = hashIndex < 0 ? urlSuffix : urlSuffix.Substring(0, hashIndex);
-            if (queryStringParameters is IEnumerable<KeyValuePair<string, string>>)
+
+            switch (query)
             {
-                foreach (KeyValuePair<string, string> item in (IEnumerable<KeyValuePair<string, string>>)queryStringParameters)
-                {
-                    resultSuffix = resultSuffix + (urlSuffix.LastIndexOf('?') < 0 ? "?" : "&") + Regex.Escape(item.Key) +
-                                "=" + Regex.Escape(item.Value);
-                }
+                case null:
+                    break;
+                case IEnumerable<KeyValuePair<string, string>> keyValueCollection:
+                    foreach (var item in keyValueCollection)
+                    {
+                        resultSuffix = resultSuffix + (urlSuffix.LastIndexOf('?') < 0 ? "?" : "&") +
+                                       Uri.EscapeDataString(item.Key) +
+                                       "=" + Uri.EscapeDataString(item.Value);
+                    }
+                    break;
+                default:
+                    foreach (var prop in query.GetType().GetProperties())
+                    {
+                        resultSuffix = resultSuffix + (urlSuffix.LastIndexOf('?') < 0 ? "?" : "&") +
+                                       Uri.EscapeDataString(prop.Name) +
+                                       "=" + Uri.EscapeDataString(prop.GetValue(query).ToString());
+                    }
+                    break;
             }
-            else if (queryStringParameters != null)
-            {
-                foreach (var prop in queryStringParameters.GetType().GetProperties())
-                {
-                    resultSuffix = resultSuffix + (urlSuffix.LastIndexOf('?') < 0 ? "?" : "&") + Regex.Escape(prop.Name) +
-                                "=" + prop.GetValue(queryStringParameters);
-                }
-            }
+
             return resultSuffix + (hashIndex < 0 ? "" : urlSuffix.Substring(hashIndex));
         }
 

@@ -27,13 +27,13 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Redirect
 
         public void RedirectObjectQueryString()
         {
-            Context.RedirectToRoute("FeatureSamples_Redirect_Redirect", urlSuffix: "?param=temp#test", queryStringParameters:new {time = DateTime.Now.Ticks});
+            Context.RedirectToRoute("FeatureSamples_Redirect_Redirect", urlSuffix: "?param=temp#test", query: new {time = DateTime.Now.Ticks});
 
             throw new Exception("This exception should not occur because Redirect interrupts the request execution!");
         }
         public void RedirectDictionaryQueryString()
         {
-            Context.RedirectToRoute("FeatureSamples_Redirect_Redirect", urlSuffix: "#test", queryStringParameters: new Dictionary<string,string>{{"time", DateTime.Now.Ticks.ToString()}});
+            Context.RedirectToRoute("FeatureSamples_Redirect_Redirect", urlSuffix: "#test", query: new Dictionary<string,string>{{"time", DateTime.Now.Ticks.ToString()}});
 
             throw new Exception("This exception should not occur because Redirect interrupts the request execution!");
         }
