@@ -6,6 +6,7 @@ using DotVVM.Framework.ViewModel;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
+using Microsoft.AspNetCore.Authentication;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.RoleView
 {
@@ -23,13 +24,13 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.RoleView
                 .Concat(DesiredRoles.Select(r => new Claim(ClaimTypes.Role, r))),
                 "ApplicationCookie");
 
-            await Context.GetAuthentication().SignInAsync("Scheme3", new ClaimsPrincipal(identity));
+            await Context.GetAspNetCoreContext().SignInAsync("Scheme3", new ClaimsPrincipal(identity));
             Context.RedirectToRoute(Context.Route.RouteName);
         }
 
         public async Task SignOut()
         {
-            await Context.GetAuthentication().SignOutAsync("Scheme3");
+            await Context.GetAspNetCoreContext().SignOutAsync("Scheme3");
             Context.RedirectToRoute(Context.Route.RouteName);
         }
 

@@ -9,6 +9,7 @@ using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
+using IDotvvmMiddleware = DotVVM.Framework.Hosting.Middlewares.IMiddleware;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -18,7 +19,7 @@ namespace DotVVM.Framework.Hosting
     public class DotvvmMiddleware : DotvvmMiddlewareBase
     {
         public readonly DotvvmConfiguration Configuration;
-        private readonly IList<IMiddleware> middlewares;
+        private readonly IList<IDotvvmMiddleware> middlewares;
         private readonly RequestDelegate next;
 
         private int configurationSaved;
@@ -26,7 +27,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmMiddleware" /> class.
         /// </summary>
-        public DotvvmMiddleware(RequestDelegate next, DotvvmConfiguration configuration, IList<IMiddleware> middlewares)
+        public DotvvmMiddleware(RequestDelegate next, DotvvmConfiguration configuration, IList<IDotvvmMiddleware> middlewares)
         {
             this.next = next;
             Configuration = configuration;
