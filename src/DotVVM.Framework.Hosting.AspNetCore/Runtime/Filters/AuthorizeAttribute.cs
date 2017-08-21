@@ -105,7 +105,14 @@ namespace DotVVM.Framework.Runtime.Filters
 
             if (!(await authService.AuthorizeAsync(coreContext.User, context, policy)).Succeeded)
             {
-                await HandleUnauthorizedRequest(coreContext, policy);
+                if (coreContext.User.Identity.IsAuthenticated)
+                {
+                    await HandleUnauthorizedRequest(coreContext, policy);
+                }
+                else
+                {
+                    await HandleUnauthenticatedRequest(coreContext, policy);
+                }
             }
         }
 
@@ -158,7 +165,7 @@ namespace DotVVM.Framework.Runtime.Filters
         private bool IsAnonymousAllowed(object viewModel)
             => viewModel != null && isAnonymousAllowedCache.GetOrAdd(viewModel.GetType(), t => t.GetTypeInfo().GetCustomAttributes().OfType<IAllowAnonymous>().Any());
 
-        private async Task HandleUnauthorizedRequest(HttpContext context, AuthorizationPolicy policy)
+        private async Task HandleUnauthenticatedRequest(HttpContext context, AuthorizationPolicy policy)
         {
             if (policy.AuthenticationSchemes != null && policy.AuthenticationSchemes.Count > 0)
             {
@@ -170,6 +177,23 @@ namespace DotVVM.Framework.Runtime.Filters
             else
             {
                 await context.ChallengeAsync();
+            }
+
+            throw new DotvvmInterruptRequestExecutionException("User unauthenticated");
+        }
+
+        private async Task HandleUnauthorizedRequest(HttpContext context, AuthorizationPolicy policy)
+        {
+            if (policy.AuthenticationSchemes != null && policy.AuthenticationSchemes.Count > 0)
+            {
+                foreach (var scheme in policy.AuthenticationSchemes)
+                {
+                    await context.ForbidAsync(scheme);
+                }
+            }
+            else
+            {
+                await context.ForbidAsync();
             }
 
             throw new DotvvmInterruptRequestExecutionException("User unauthorized");
