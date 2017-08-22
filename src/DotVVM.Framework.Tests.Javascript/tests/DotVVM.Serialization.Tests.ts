@@ -44,6 +44,31 @@ describe("DotVVM.Serialization - deserialize", () => {
         expect(new Date(obj.a()).getTime()).toBe(new Date(2015, 7, 1, 13, 56, 42).getTime());
     });
 
+    it("Deserialize Date scalar", () => {
+        var obj = dotvvm.serialization.deserialize(new Date(Date.UTC(2015, 7, 1, 13, 56, 42)));
+        expect(ko.isObservable(obj)).toBeFalsy();
+        expect(typeof obj).toBe("string");
+        expect(obj).toBe("2015-08-01T13:56:42.0000000");
+    });
+
+    it("Deserialize object with Date (it should set the options.isDate)", () => {
+        var obj = dotvvm.serialization.deserialize({ a: new Date(Date.UTC(2015, 7, 1, 13, 56, 42)), a$options: {} });
+        expect(ko.isObservable(obj)).toBeFalsy();
+        expect(ko.isObservable(obj.a)).toBeTruthy();
+        expect(typeof obj.a()).toBe("string");
+        expect(obj.a()).toBe("2015-08-01T13:56:42.0000000");
+        expect(obj.a$options.isDate).toBeTruthy();
+    });
+
+    it("Deserialize object with Date (it should create the options.isDate)", () => {
+        var obj = dotvvm.serialization.deserialize({ a: new Date(Date.UTC(2015, 7, 1, 13, 56, 42)) });
+        expect(ko.isObservable(obj)).toBeFalsy();
+        expect(ko.isObservable(obj.a)).toBeTruthy();
+        expect(typeof obj.a()).toBe("string");
+        expect(obj.a()).toBe("2015-08-01T13:56:42.0000000");
+        expect(obj.a$options.isDate).toBeTruthy();
+    });
+
     it("Deserialize object with array", () => {
         var obj = dotvvm.serialization.deserialize({ a: ["aaa", "bbb", "ccc"] });
         expect(ko.isObservable(obj)).toBeFalsy();
@@ -277,7 +302,7 @@ describe("DotVVM.Serialization - serialize", () => {
         var obj = ko.observable(true);
         expect(dotvvm.serialization.serialize(obj)).toBe(true);
     });
-
+    
     it("Deserialize null value", () => {
         var obj = ko.observable(null);
         expect(dotvvm.serialization.serialize(obj)).toBe(null);
@@ -304,7 +329,20 @@ describe("DotVVM.Serialization - serialize", () => {
             a: ko.observable(new Date(Date.UTC(2015, 7, 1, 13, 56, 42))),
             "a$options": { isDate: true }
         });
+        expect(typeof obj.a).toBe("string");
         expect(new Date(obj.a).getTime()).toBe(new Date(2015, 7, 1, 13, 56, 42).getTime());
+        expect(obj["a$options"]).toBeUndefined();
+    });
+
+    it("Serialize object with Date property for REST API", () => {
+        var obj = dotvvm.serialization.serialize({
+            a: ko.observable(new Date(Date.UTC(2015, 7, 1, 13, 56, 42))),
+            "a$options": { isDate: true }
+        }, {
+            restApiTarget: true
+        });
+        expect(obj.a instanceof Date).toBeTruthy();
+        expect(obj.a.getTime()).toBe(new Date(Date.UTC(2015, 7, 1, 13, 56, 42)).getTime());
         expect(obj["a$options"]).toBeUndefined();
     });
 

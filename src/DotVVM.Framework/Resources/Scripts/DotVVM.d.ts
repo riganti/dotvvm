@@ -158,6 +158,7 @@ interface ISerializationOptions {
     pathMatcher?: (vm: any) => boolean;
     path?: string[];
     pathOnly?: boolean;
+    restApiTarget?: boolean;
 }
 declare class DotvvmSerialization {
     deserialize(viewModel: any, target?: any, deserializeAll?: boolean): any;
