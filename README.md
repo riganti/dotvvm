@@ -18,8 +18,8 @@ It also offers a free extension for Visual Studio 2015 with IntelliSense and oth
 
 <br />
 
-How It Works?
--------------
+How It Works
+------------
 
 The **Views** in DotVVM use HTML syntax with __controls__ and __data-bindings__.
 
