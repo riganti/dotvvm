@@ -241,6 +241,7 @@ declare class DotVVM {
     private restoreUpdatedControls(resultObject, updatedControls, applyBindingsOnEachControl);
     unwrapArrayExtension(array: any): any;
     buildRouteUrl(routePath: string, params: any): string;
+    buildUrlSuffix(urlSuffix: string, query: any): string;
     private isPostBackProhibited(element);
     private addKnockoutBindingHandlers();
 }
