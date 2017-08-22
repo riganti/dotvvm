@@ -21,6 +21,116 @@ namespace AzureFunctionsApi {
         /**
          * @return Success operation
          */
+        _api_AddTableEntity_post(data: CreateFormModel): Promise<void> {
+            let url_ = this.baseUrl + "/api/AddTableEntity";
+            url_ = url_.replace(/[?&]$/, "");
+    
+            const content_ = JSON.stringify(data);
+    
+            let options_ = <RequestInit>{
+                body: content_,
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json", 
+                }
+            };
+    
+            return this.http.fetch(url_, options_).then((_response: Response) => {
+                return this.process_api_AddTableEntity_post(_response);
+            });
+        }
+    
+        protected process_api_AddTableEntity_post(response: Response): Promise<void> {
+            const status = response.status;
+            if (status === 204) {
+                return response.text().then((_responseText) => {
+                return;
+                });
+            } else if (status !== 200 && status !== 204) {
+                return response.text().then((_responseText) => {
+                return throwException("An unexpected server error occurred.", status, _responseText);
+                });
+            }
+            return Promise.resolve<void>(<any>null);
+        }
+    
+        /**
+         * @return Success operation
+         */
+        _api_DeleteEntities_delete(): Promise<void> {
+            let url_ = this.baseUrl + "/api/DeleteEntities";
+            url_ = url_.replace(/[?&]$/, "");
+    
+            let options_ = <RequestInit>{
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json", 
+                }
+            };
+    
+            return this.http.fetch(url_, options_).then((_response: Response) => {
+                return this.process_api_DeleteEntities_delete(_response);
+            });
+        }
+    
+        protected process_api_DeleteEntities_delete(response: Response): Promise<void> {
+            const status = response.status;
+            if (status === 204) {
+                return response.text().then((_responseText) => {
+                return;
+                });
+            } else if (status !== 200 && status !== 204) {
+                return response.text().then((_responseText) => {
+                return throwException("An unexpected server error occurred.", status, _responseText);
+                });
+            }
+            return Promise.resolve<void>(<any>null);
+        }
+    
+        /**
+         * @return Success operation
+         */
+        _api_GetTable_get(): Promise<FormModel[]> {
+            let url_ = this.baseUrl + "/api/GetTable";
+            url_ = url_.replace(/[?&]$/, "");
+    
+            let options_ = <RequestInit>{
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json", 
+                    "Accept": "application/json"
+                }
+            };
+    
+            return this.http.fetch(url_, options_).then((_response: Response) => {
+                return this.process_api_GetTable_get(_response);
+            });
+        }
+    
+        protected process_api_GetTable_get(response: Response): Promise<FormModel[]> {
+            const status = response.status;
+            if (status === 200) {
+                return response.text().then((_responseText) => {
+                let result200: FormModel[] = null;
+                let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                if (resultData200 && resultData200.constructor === Array) {
+                    result200 = [];
+                    for (let item of resultData200)
+                        result200.push(FormModel.fromJS(item));
+                }
+                return result200;
+                });
+            } else if (status !== 200 && status !== 204) {
+                return response.text().then((_responseText) => {
+                return throwException("An unexpected server error occurred.", status, _responseText);
+                });
+            }
+            return Promise.resolve<FormModel[]>(<any>null);
+        }
+    
+        /**
+         * @return Success operation
+         */
         _api_HttpGet_get(): Promise<DataModel> {
             let url_ = this.baseUrl + "/api/HttpGet";
             url_ = url_.replace(/[?&]$/, "");
@@ -131,6 +241,148 @@ namespace AzureFunctionsApi {
             }
             return Promise.resolve<DataModel>(<any>null);
         }
+    
+        /**
+         * @return Success operation
+         */
+        _api_UpdateTableEntity_post(data: FormModel): Promise<void> {
+            let url_ = this.baseUrl + "/api/UpdateTableEntity";
+            url_ = url_.replace(/[?&]$/, "");
+    
+            const content_ = JSON.stringify(data);
+    
+            let options_ = <RequestInit>{
+                body: content_,
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json", 
+                }
+            };
+    
+            return this.http.fetch(url_, options_).then((_response: Response) => {
+                return this.process_api_UpdateTableEntity_post(_response);
+            });
+        }
+    
+        protected process_api_UpdateTableEntity_post(response: Response): Promise<void> {
+            const status = response.status;
+            if (status === 200) {
+                return response.text().then((_responseText) => {
+                return;
+                });
+            } else if (status !== 200 && status !== 204) {
+                return response.text().then((_responseText) => {
+                return throwException("An unexpected server error occurred.", status, _responseText);
+                });
+            }
+            return Promise.resolve<void>(<any>null);
+        }
+    }
+    
+    export class CreateFormModel implements ICreateFormModel {
+        text: string;
+        number: number;
+        date: Date;
+        toDelete: boolean;
+    
+        constructor(data?: ICreateFormModel) {
+            if (data) {
+                for (var property in data) {
+                    if (data.hasOwnProperty(property))
+                        (<any>this)[property] = (<any>data)[property];
+                }
+            }
+        }
+    
+        init(data?: any) {
+            if (data) {
+                this.text = data["Text"] !== undefined ? data["Text"] : <any>null;
+                this.number = data["Number"] !== undefined ? data["Number"] : <any>null;
+                this.date = data["Date"] ? new Date(data["Date"].toString()) : <any>null;
+                this.toDelete = data["ToDelete"] !== undefined ? data["ToDelete"] : <any>null;
+            }
+        }
+    
+        static fromJS(data: any): CreateFormModel {
+            let result = new CreateFormModel();
+            result.init(data);
+            return result;
+        }
+    
+        toJSON(data?: any) {
+            data = typeof data === 'object' ? data : {};
+            data["Text"] = this.text !== undefined ? this.text : <any>null;
+            data["Number"] = this.number !== undefined ? this.number : <any>null;
+            data["Date"] = this.date ? this.date.toISOString() : <any>null;
+            data["ToDelete"] = this.toDelete !== undefined ? this.toDelete : <any>null;
+            return data; 
+        }
+    }
+    
+    export interface ICreateFormModel {
+        text: string;
+        number: number;
+        date: Date;
+        toDelete: boolean;
+    }
+    
+    export class FormModel implements IFormModel {
+        partitionsKey?: string;
+        rowKey?: string;
+        timestamp?: Date;
+        text: string;
+        number: number;
+        date: Date;
+        toDelete: boolean;
+    
+        constructor(data?: IFormModel) {
+            if (data) {
+                for (var property in data) {
+                    if (data.hasOwnProperty(property))
+                        (<any>this)[property] = (<any>data)[property];
+                }
+            }
+        }
+    
+        init(data?: any) {
+            if (data) {
+                this.partitionsKey = data["PartitionsKey"] !== undefined ? data["PartitionsKey"] : <any>null;
+                this.rowKey = data["RowKey"] !== undefined ? data["RowKey"] : <any>null;
+                this.timestamp = data["Timestamp"] ? new Date(data["Timestamp"].toString()) : <any>null;
+                this.text = data["Text"] !== undefined ? data["Text"] : <any>null;
+                this.number = data["Number"] !== undefined ? data["Number"] : <any>null;
+                this.date = data["Date"] ? new Date(data["Date"].toString()) : <any>null;
+                this.toDelete = data["ToDelete"] !== undefined ? data["ToDelete"] : <any>null;
+            }
+        }
+    
+        static fromJS(data: any): FormModel {
+            let result = new FormModel();
+            result.init(data);
+            return result;
+        }
+    
+        toJSON(data?: any) {
+            data = typeof data === 'object' ? data : {};
+            data["PartitionsKey"] = this.partitionsKey !== undefined ? this.partitionsKey : <any>null;
+            data["RowKey"] = this.rowKey !== undefined ? this.rowKey : <any>null;
+            data["Timestamp"] = this.timestamp ? this.timestamp.toISOString() : <any>null;
+            data["Text"] = this.text !== undefined ? this.text : <any>null;
+            data["Number"] = this.number !== undefined ? this.number : <any>null;
+            data["Date"] = this.date ? this.date.toISOString() : <any>null;
+            data["ToDelete"] = this.toDelete !== undefined ? this.toDelete : <any>null;
+            return data; 
+        }
+    }
+    
+    export interface IFormModel {
+        partitionsKey?: string;
+        rowKey?: string;
+        timestamp?: Date;
+        text: string;
+        number: number;
+        date: Date;
+        toDelete: boolean;
     }
     
     export class DataModel implements IDataModel {

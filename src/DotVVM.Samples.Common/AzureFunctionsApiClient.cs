@@ -37,6 +37,208 @@ namespace AzureFunctionsApi
     
         /// <returns>Success operation</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public void _api_AddTableEntity_post(CreateFormModel data)
+        {
+            System.Threading.Tasks.Task.Run(async () => await _api_AddTableEntity_postAsync(data, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+        }
+    
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>Success operation</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public async System.Threading.Tasks.Task _api_AddTableEntity_postAsync(CreateFormModel data, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        {
+            var urlBuilder_ = new System.Text.StringBuilder();
+            urlBuilder_.Append(BaseUrl).Append("/api/AddTableEntity");
+    
+            var client_ = new System.Net.Http.HttpClient();
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    var content_ = new System.Net.Http.StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(data, _settings.Value));
+                    content_.Headers.ContentType.MediaType = "application/json";
+                    request_.Content = content_;
+                    request_.Method = new System.Net.Http.HttpMethod("POST");
+    
+                    PrepareRequest(client_, request_, urlBuilder_);
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+                    PrepareRequest(client_, request_, url_);
+    
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    try
+                    {
+                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
+                        foreach (var item_ in response_.Content.Headers)
+                            headers_[item_.Key] = item_.Value;
+    
+                        ProcessResponse(client_, response_);
+    
+                        var status_ = ((int)response_.StatusCode).ToString();
+                        if (status_ == "204") 
+                        {
+                            return;
+                        }
+                        else
+                        if (status_ != "200" && status_ != "204")
+                        {
+                            var responseData_ = await response_.Content.ReadAsStringAsync().ConfigureAwait(false); 
+                            throw new SwaggerException("The HTTP status code of the response was not expected (" + (int)response_.StatusCode + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (response_ != null)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (client_ != null)
+                    client_.Dispose();
+            }
+        }
+    
+        /// <returns>Success operation</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public void _api_DeleteEntities_delete()
+        {
+            System.Threading.Tasks.Task.Run(async () => await _api_DeleteEntities_deleteAsync(System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+        }
+    
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>Success operation</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public async System.Threading.Tasks.Task _api_DeleteEntities_deleteAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        {
+            var urlBuilder_ = new System.Text.StringBuilder();
+            urlBuilder_.Append(BaseUrl).Append("/api/DeleteEntities");
+    
+            var client_ = new System.Net.Http.HttpClient();
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("DELETE");
+    
+                    PrepareRequest(client_, request_, urlBuilder_);
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+                    PrepareRequest(client_, request_, url_);
+    
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    try
+                    {
+                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
+                        foreach (var item_ in response_.Content.Headers)
+                            headers_[item_.Key] = item_.Value;
+    
+                        ProcessResponse(client_, response_);
+    
+                        var status_ = ((int)response_.StatusCode).ToString();
+                        if (status_ == "204") 
+                        {
+                            return;
+                        }
+                        else
+                        if (status_ != "200" && status_ != "204")
+                        {
+                            var responseData_ = await response_.Content.ReadAsStringAsync().ConfigureAwait(false); 
+                            throw new SwaggerException("The HTTP status code of the response was not expected (" + (int)response_.StatusCode + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (response_ != null)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (client_ != null)
+                    client_.Dispose();
+            }
+        }
+    
+        /// <returns>Success operation</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public System.Collections.Generic.List<FormModel> _api_GetTable_get()
+        {
+            return System.Threading.Tasks.Task.Run(async () => await _api_GetTable_getAsync(System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+        }
+    
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>Success operation</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public async System.Threading.Tasks.Task<System.Collections.Generic.List<FormModel>> _api_GetTable_getAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        {
+            var urlBuilder_ = new System.Text.StringBuilder();
+            urlBuilder_.Append(BaseUrl).Append("/api/GetTable");
+    
+            var client_ = new System.Net.Http.HttpClient();
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+    
+                    PrepareRequest(client_, request_, urlBuilder_);
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+                    PrepareRequest(client_, request_, url_);
+    
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    try
+                    {
+                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
+                        foreach (var item_ in response_.Content.Headers)
+                            headers_[item_.Key] = item_.Value;
+    
+                        ProcessResponse(client_, response_);
+    
+                        var status_ = ((int)response_.StatusCode).ToString();
+                        if (status_ == "200") 
+                        {
+                            var responseData_ = await response_.Content.ReadAsStringAsync().ConfigureAwait(false); 
+                            var result_ = default(System.Collections.Generic.List<FormModel>); 
+                            try
+                            {
+                                result_ = Newtonsoft.Json.JsonConvert.DeserializeObject<System.Collections.Generic.List<FormModel>>(responseData_, _settings.Value);
+                                return result_; 
+                            } 
+                            catch (System.Exception exception) 
+                            {
+                                throw new SwaggerException("Could not deserialize the response body.", status_, responseData_, headers_, exception);
+                            }
+                        }
+                        else
+                        if (status_ != "200" && status_ != "204")
+                        {
+                            var responseData_ = await response_.Content.ReadAsStringAsync().ConfigureAwait(false); 
+                            throw new SwaggerException("The HTTP status code of the response was not expected (" + (int)response_.StatusCode + ").", status_, responseData_, headers_, null);
+                        }
+            
+                        return default(System.Collections.Generic.List<FormModel>);
+                    }
+                    finally
+                    {
+                        if (response_ != null)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (client_ != null)
+                    client_.Dispose();
+            }
+        }
+    
+        /// <returns>Success operation</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public DataModel _api_HttpGet_get()
         {
             return System.Threading.Tasks.Task.Run(async () => await _api_HttpGet_getAsync(System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
@@ -263,10 +465,140 @@ namespace AzureFunctionsApi
             }
         }
     
+        /// <returns>Success operation</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public void _api_UpdateTableEntity_post(FormModel data)
+        {
+            System.Threading.Tasks.Task.Run(async () => await _api_UpdateTableEntity_postAsync(data, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+        }
+    
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>Success operation</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public async System.Threading.Tasks.Task _api_UpdateTableEntity_postAsync(FormModel data, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        {
+            var urlBuilder_ = new System.Text.StringBuilder();
+            urlBuilder_.Append(BaseUrl).Append("/api/UpdateTableEntity");
+    
+            var client_ = new System.Net.Http.HttpClient();
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    var content_ = new System.Net.Http.StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(data, _settings.Value));
+                    content_.Headers.ContentType.MediaType = "application/json";
+                    request_.Content = content_;
+                    request_.Method = new System.Net.Http.HttpMethod("POST");
+    
+                    PrepareRequest(client_, request_, urlBuilder_);
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+                    PrepareRequest(client_, request_, url_);
+    
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    try
+                    {
+                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
+                        foreach (var item_ in response_.Content.Headers)
+                            headers_[item_.Key] = item_.Value;
+    
+                        ProcessResponse(client_, response_);
+    
+                        var status_ = ((int)response_.StatusCode).ToString();
+                        if (status_ == "200") 
+                        {
+                            return;
+                        }
+                        else
+                        if (status_ != "200" && status_ != "204")
+                        {
+                            var responseData_ = await response_.Content.ReadAsStringAsync().ConfigureAwait(false); 
+                            throw new SwaggerException("The HTTP status code of the response was not expected (" + (int)response_.StatusCode + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (response_ != null)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (client_ != null)
+                    client_.Dispose();
+            }
+        }
+    
     }
     
     
 
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.4.2.0")]
+    public partial class CreateFormModel 
+    {
+        [Newtonsoft.Json.JsonProperty("Text", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public string Text { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("Number", Required = Newtonsoft.Json.Required.Always)]
+        public int Number { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("Date", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public System.DateTime Date { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("ToDelete", Required = Newtonsoft.Json.Required.Always)]
+        public bool ToDelete { get; set; }
+    
+        public string ToJson() 
+        {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
+        }
+        
+        public static CreateFormModel FromJson(string data)
+        {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<CreateFormModel>(data);
+        }
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.4.2.0")]
+    public partial class FormModel 
+    {
+        [Newtonsoft.Json.JsonProperty("PartitionsKey", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string PartitionsKey { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("RowKey", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string RowKey { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("Timestamp", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.DateTime? Timestamp { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("Text", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public string Text { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("Number", Required = Newtonsoft.Json.Required.Always)]
+        public int Number { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("Date", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required]
+        public System.DateTime Date { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("ToDelete", Required = Newtonsoft.Json.Required.Always)]
+        public bool ToDelete { get; set; }
+    
+        public string ToJson() 
+        {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
+        }
+        
+        public static FormModel FromJson(string data)
+        {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<FormModel>(data);
+        }
+    }
+    
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.4.2.0")]
     public partial class DataModel 
     {

@@ -26,6 +26,112 @@ var AzureFunctionsApi;
         /**
          * @return Success operation
          */
+        Client.prototype._api_AddTableEntity_post = function (data) {
+            var _this = this;
+            var url_ = this.baseUrl + "/api/AddTableEntity";
+            url_ = url_.replace(/[?&]$/, "");
+            var content_ = JSON.stringify(data);
+            var options_ = {
+                body: content_,
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            };
+            return this.http.fetch(url_, options_).then(function (_response) {
+                return _this.process_api_AddTableEntity_post(_response);
+            });
+        };
+        Client.prototype.process_api_AddTableEntity_post = function (response) {
+            var status = response.status;
+            if (status === 204) {
+                return response.text().then(function (_responseText) {
+                    return;
+                });
+            }
+            else if (status !== 200 && status !== 204) {
+                return response.text().then(function (_responseText) {
+                    return throwException("An unexpected server error occurred.", status, _responseText);
+                });
+            }
+            return Promise.resolve(null);
+        };
+        /**
+         * @return Success operation
+         */
+        Client.prototype._api_DeleteEntities_delete = function () {
+            var _this = this;
+            var url_ = this.baseUrl + "/api/DeleteEntities";
+            url_ = url_.replace(/[?&]$/, "");
+            var options_ = {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            };
+            return this.http.fetch(url_, options_).then(function (_response) {
+                return _this.process_api_DeleteEntities_delete(_response);
+            });
+        };
+        Client.prototype.process_api_DeleteEntities_delete = function (response) {
+            var status = response.status;
+            if (status === 204) {
+                return response.text().then(function (_responseText) {
+                    return;
+                });
+            }
+            else if (status !== 200 && status !== 204) {
+                return response.text().then(function (_responseText) {
+                    return throwException("An unexpected server error occurred.", status, _responseText);
+                });
+            }
+            return Promise.resolve(null);
+        };
+        /**
+         * @return Success operation
+         */
+        Client.prototype._api_GetTable_get = function () {
+            var _this = this;
+            var url_ = this.baseUrl + "/api/GetTable";
+            url_ = url_.replace(/[?&]$/, "");
+            var options_ = {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                }
+            };
+            return this.http.fetch(url_, options_).then(function (_response) {
+                return _this.process_api_GetTable_get(_response);
+            });
+        };
+        Client.prototype.process_api_GetTable_get = function (response) {
+            var _this = this;
+            var status = response.status;
+            if (status === 200) {
+                return response.text().then(function (_responseText) {
+                    var result200 = null;
+                    var resultData200 = _responseText === "" ? null : JSON.parse(_responseText, _this.jsonParseReviver);
+                    if (resultData200 && resultData200.constructor === Array) {
+                        result200 = [];
+                        for (var _i = 0, resultData200_1 = resultData200; _i < resultData200_1.length; _i++) {
+                            var item = resultData200_1[_i];
+                            result200.push(FormModel.fromJS(item));
+                        }
+                    }
+                    return result200;
+                });
+            }
+            else if (status !== 200 && status !== 204) {
+                return response.text().then(function (_responseText) {
+                    return throwException("An unexpected server error occurred.", status, _responseText);
+                });
+            }
+            return Promise.resolve(null);
+        };
+        /**
+         * @return Success operation
+         */
         Client.prototype._api_HttpGet_get = function () {
             var _this = this;
             var url_ = this.baseUrl + "/api/HttpGet";
@@ -133,9 +239,114 @@ var AzureFunctionsApi;
             }
             return Promise.resolve(null);
         };
+        /**
+         * @return Success operation
+         */
+        Client.prototype._api_UpdateTableEntity_post = function (data) {
+            var _this = this;
+            var url_ = this.baseUrl + "/api/UpdateTableEntity";
+            url_ = url_.replace(/[?&]$/, "");
+            var content_ = JSON.stringify(data);
+            var options_ = {
+                body: content_,
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            };
+            return this.http.fetch(url_, options_).then(function (_response) {
+                return _this.process_api_UpdateTableEntity_post(_response);
+            });
+        };
+        Client.prototype.process_api_UpdateTableEntity_post = function (response) {
+            var status = response.status;
+            if (status === 200) {
+                return response.text().then(function (_responseText) {
+                    return;
+                });
+            }
+            else if (status !== 200 && status !== 204) {
+                return response.text().then(function (_responseText) {
+                    return throwException("An unexpected server error occurred.", status, _responseText);
+                });
+            }
+            return Promise.resolve(null);
+        };
         return Client;
     }());
     AzureFunctionsApi.Client = Client;
+    var CreateFormModel = (function () {
+        function CreateFormModel(data) {
+            if (data) {
+                for (var property in data) {
+                    if (data.hasOwnProperty(property))
+                        this[property] = data[property];
+                }
+            }
+        }
+        CreateFormModel.prototype.init = function (data) {
+            if (data) {
+                this.text = data["Text"] !== undefined ? data["Text"] : null;
+                this.number = data["Number"] !== undefined ? data["Number"] : null;
+                this.date = data["Date"] ? new Date(data["Date"].toString()) : null;
+                this.toDelete = data["ToDelete"] !== undefined ? data["ToDelete"] : null;
+            }
+        };
+        CreateFormModel.fromJS = function (data) {
+            var result = new CreateFormModel();
+            result.init(data);
+            return result;
+        };
+        CreateFormModel.prototype.toJSON = function (data) {
+            data = typeof data === 'object' ? data : {};
+            data["Text"] = this.text !== undefined ? this.text : null;
+            data["Number"] = this.number !== undefined ? this.number : null;
+            data["Date"] = this.date ? this.date.toISOString() : null;
+            data["ToDelete"] = this.toDelete !== undefined ? this.toDelete : null;
+            return data;
+        };
+        return CreateFormModel;
+    }());
+    AzureFunctionsApi.CreateFormModel = CreateFormModel;
+    var FormModel = (function () {
+        function FormModel(data) {
+            if (data) {
+                for (var property in data) {
+                    if (data.hasOwnProperty(property))
+                        this[property] = data[property];
+                }
+            }
+        }
+        FormModel.prototype.init = function (data) {
+            if (data) {
+                this.partitionsKey = data["PartitionsKey"] !== undefined ? data["PartitionsKey"] : null;
+                this.rowKey = data["RowKey"] !== undefined ? data["RowKey"] : null;
+                this.timestamp = data["Timestamp"] ? new Date(data["Timestamp"].toString()) : null;
+                this.text = data["Text"] !== undefined ? data["Text"] : null;
+                this.number = data["Number"] !== undefined ? data["Number"] : null;
+                this.date = data["Date"] ? new Date(data["Date"].toString()) : null;
+                this.toDelete = data["ToDelete"] !== undefined ? data["ToDelete"] : null;
+            }
+        };
+        FormModel.fromJS = function (data) {
+            var result = new FormModel();
+            result.init(data);
+            return result;
+        };
+        FormModel.prototype.toJSON = function (data) {
+            data = typeof data === 'object' ? data : {};
+            data["PartitionsKey"] = this.partitionsKey !== undefined ? this.partitionsKey : null;
+            data["RowKey"] = this.rowKey !== undefined ? this.rowKey : null;
+            data["Timestamp"] = this.timestamp ? this.timestamp.toISOString() : null;
+            data["Text"] = this.text !== undefined ? this.text : null;
+            data["Number"] = this.number !== undefined ? this.number : null;
+            data["Date"] = this.date ? this.date.toISOString() : null;
+            data["ToDelete"] = this.toDelete !== undefined ? this.toDelete : null;
+            return data;
+        };
+        return FormModel;
+    }());
+    AzureFunctionsApi.FormModel = FormModel;
     var DataModel = (function () {
         function DataModel(data) {
             if (data) {
