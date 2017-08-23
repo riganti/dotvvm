@@ -30,7 +30,7 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
             }
 
             checkBox.Text = property.DisplayName;
-            checkBox.SetBinding(CheckableControlBase.CheckedProperty, context.CreateValueBinding(property.PropertyInfo.Name));
+            checkBox.SetBinding(CheckableControlBase.CheckedValueProperty, context.CreateValueBinding(property.PropertyInfo.Name));
 
             if (checkBox.IsPropertySet(DynamicEntity.EnabledProperty))
             {
