@@ -77,7 +77,7 @@ namespace DotVVM.Framework.Controls.DynamicData
         /// </summary>
         public static DynamicDataConfiguration AddDynamicDataConfiguration(this DotvvmConfiguration config)
         {
-            config.Markup.AddCodeControl("dd", typeof(DynamicDataExtensions).Namespace, typeof(DynamicDataExtensions).GetTypeInfo().Assembly.GetName().Name);
+            config.Markup.AddCodeControls("dd", typeof(DynamicDataExtensions).Namespace, typeof(DynamicDataExtensions).GetTypeInfo().Assembly.GetName().Name);
             return config.ServiceLocator.GetService<DynamicDataConfiguration>();
         }
         
