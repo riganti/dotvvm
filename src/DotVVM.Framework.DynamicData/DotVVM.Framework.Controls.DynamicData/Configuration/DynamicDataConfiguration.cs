@@ -11,10 +11,6 @@ namespace DotVVM.Framework.Controls.DynamicData.Configuration
 {
     public class DynamicDataConfiguration
     {
-        /// <summary>
-        /// Gets or sets a prefix that is used to register dynamic data controls.
-        /// </summary>
-        public string ControlsPrefix { get; set; } = "dd";
 
         public List<IFormEditorProvider> FormEditorProviders { get; private set; } = new List<IFormEditorProvider>();
 
