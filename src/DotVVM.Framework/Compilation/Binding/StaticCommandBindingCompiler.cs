@@ -8,7 +8,6 @@ using System.Reflection;
 using System.Text;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
-using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Javascript;
@@ -22,7 +21,6 @@ using DotVVM.Framework.ViewModel.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
 using Newtonsoft.Json.Linq;
-using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.Binding
 {

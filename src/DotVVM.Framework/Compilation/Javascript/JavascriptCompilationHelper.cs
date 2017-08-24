@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.ViewModel.Serialization;
 using Newtonsoft.Json;
@@ -27,16 +27,30 @@ namespace DotVVM.Framework.Compilation.Javascript
                 default(CodeParameterAssignment));
         }
 
-        public static bool IsComplexType(this JsExpression expr)
+        public static ViewModelInfoAnnotation GetResultType(this JsExpression expr)
         {
-            if (expr.TryGetAnnotation<ViewModelInfoAnnotation>(out var vmInfo)) return ViewModelJsonConverter.IsComplexType(vmInfo.Type);
-            if (expr is JsAssignmentExpression assignment && assignment.Operator == null) return IsComplexType(assignment.Right);
-            if (expr is JsBinaryExpression binary && (binary.Operator == BinaryOperatorType.ConditionalAnd || binary.Operator == BinaryOperatorType.ConditionalOr))
-                return IsComplexType(binary.Left) && IsComplexType(binary.Right);
-            if (expr is JsConditionalExpression conditional) return IsComplexType(conditional.TrueExpression) && IsComplexType(conditional.FalseExpression);
-            if (expr is JsLiteral literal) return literal.Value != null && ViewModelJsonConverter.IsComplexType(literal.Value.GetType());
-            return false;
+            ViewModelInfoAnnotation combine2(ViewModelInfoAnnotation a, ViewModelInfoAnnotation b)
+            {
+                if (a == null ||  b == null) return a ?? b;
+                else if (a.Type.Equals(b.Type)) return b;
+                else return null;
+            }
+            if (expr.TryGetAnnotation<ViewModelInfoAnnotation>(out var vmInfo)) return vmInfo;
+            else if (expr is JsAssignmentExpression assignment && assignment.Operator == null) return GetResultType(assignment.Right);
+            else if (expr is JsBinaryExpression binary && (binary.Operator == BinaryOperatorType.ConditionalAnd || binary.Operator == BinaryOperatorType.ConditionalOr))
+                return combine2(
+                    GetResultType(binary.Left),
+                    GetResultType(binary.Right));
+            else if (expr is JsConditionalExpression conditional)
+                return combine2(
+                    GetResultType(conditional.TrueExpression),
+                    GetResultType(conditional.FalseExpression));
+            else if (expr is JsLiteral literal) return literal.Value != null ? new ViewModelInfoAnnotation(literal.Value.GetType(), containsObservables: false) : null;
+            else return null;
         }
+
+        public static bool IsComplexType(this JsExpression expr) =>
+            GetResultType(expr) is ViewModelInfoAnnotation vmInfo && ViewModelJsonConverter.IsComplexType(vmInfo.Type);
 
         public static bool IsRootResultExpression(this JsNode node) =>
             SatisfyResultCondition(node, n => n.Parent == null || n.Parent is JsExpressionStatement);

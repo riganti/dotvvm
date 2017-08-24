@@ -106,7 +106,7 @@ namespace DotVVM.Framework.Controls
         protected virtual void RenderCheckedProperty(IHtmlWriter writer)
         {
             var checkedBinding = GetValueBinding(CheckedProperty);
-            writer.AddKnockoutDataBind("dotvvm-CheckState", checkedBinding);
+            writer.AddKnockoutDataBind("dotvvm-CheckState", checkedBinding, this);
             writer.AddKnockoutDataBind("checkedValue", "true");
 
             // Boolean mode can have prerendered `checked` attribute

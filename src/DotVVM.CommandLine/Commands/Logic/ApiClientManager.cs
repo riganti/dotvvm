@@ -48,7 +48,7 @@ namespace DotVVM.CommandLine.Commands.Logic
             GenerateTS(document, definition);
 
             Console.WriteLine($"Api clients generated. To register in dotvvm put following to your DotvvmStartup: ");
-            Console.WriteLine($"config.RegisterApi{(isSingleClient ? "Client" : "Group")}(typeof({definition.Namespace}.{(definition.GenerateWrapperClass || isSingleClient ? typeName : " ... your client wrapper class ...")}), \"{ document.BasePath ?? "... you api endpoint ..." }\", \"{(definition.CompileTypescript ? Path.ChangeExtension(definition.TypescriptClient, "js") : "... path to your compiled javascript")}\");");
+            Console.WriteLine($"config.RegisterApi{(isSingleClient ? "Client" : "Group")}(typeof({definition.Namespace}.{(definition.GenerateWrapperClass || isSingleClient ? typeName : " ... your client wrapper class ...")}), \"{ document.BasePath ?? "... your api endpoint ..." }\", \"{(definition.CompileTypescript ? Path.ChangeExtension(definition.TypescriptClient, "js") : "... path to your compiled javascript")}\");");
         }
 
 

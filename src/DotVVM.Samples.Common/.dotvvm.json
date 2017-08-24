@@ -13,6 +13,15 @@
       "compileTypescript": true,
       "generateWrapperClass": true,
       "isSingleClient": false
+    },
+    {
+      "swaggerFile": "/home/exyi/Downloads/WebApi.swagger.json",
+      "csharpClient": "./TestWebApiClient.cs",
+      "typescriptClient": "./Scripts/TestWebApiClient.ts",
+      "namespace": "TestWebApiClient",
+      "compileTypescript": true,
+      "generateWrapperClass": true,
+      "isSingleClient": false
     }
   ]
 }

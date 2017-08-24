@@ -112,7 +112,6 @@ class DotvvmSerialization {
                         extenderOptions[extenderInfo.name] = extenderInfo.parameter;                        
                         result[prop].extend(extenderOptions);
                     }
-                        
                 }
             }
         }
@@ -148,7 +147,7 @@ class DotvvmSerialization {
 
         if (opt.pathOnly && opt.path && opt.path.length === 0) opt.pathOnly = false;
 
-        if (typeof (viewModel) === "undefined" || viewModel == null) {
+        if (viewModel == null) {
             return null;
         }
 
@@ -157,7 +156,7 @@ class DotvvmSerialization {
         }
 
         if (ko.isObservable(viewModel)) {
-            return this.serialize(ko.unwrap(viewModel), opt);
+            return this.serialize(viewModel(), opt);
         }
 
         if (typeof (viewModel) === "function") {
@@ -317,7 +316,13 @@ class DotvvmSerialization {
         return value;
     }
 
-    public serializeDate(date: Date, convertToUtc: boolean = true): string {
+    public serializeDate(date: string | Date, convertToUtc: boolean = true): string {
+        if (typeof date == "string") {
+            // just print in the console if it's invalid
+            if (dotvvm.globalize.parseDotvvmDate(date) != null)
+                console.error(new Error(`Date ${date} is invalid.`))
+            return date
+        }
         var date2 = new Date(date.getTime());
         if (convertToUtc) {
             date2.setMinutes(date.getMinutes() + date.getTimezoneOffset());

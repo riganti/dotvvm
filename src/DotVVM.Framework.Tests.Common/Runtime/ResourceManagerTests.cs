@@ -63,7 +63,7 @@ namespace DotVVM.Framework.Tests.Runtime
             config1.Resources.Register("rs1", new ScriptResource(new FileResourceLocation("file.js")));
             config1.Resources.Register("rs2", new StylesheetResource(new UrlResourceLocation("http://c.c/")));
             config1.Resources.Register("rs3", new StylesheetResource(new EmbeddedResourceLocation(typeof(DotvvmConfiguration).GetTypeInfo().Assembly, "DotVVM.Framework.Resources.Scripts.jquery-2.1.1.min.js", "../file.js")));
-            config1.Resources.Register("rs4", new InlineScriptResource(ResourceRenderPosition.Head) { Code = "CODE" });
+            config1.Resources.Register("rs4", new InlineScriptResource("CODE", ResourceRenderPosition.Head));
             config1.Resources.Register("rs5", new NullResource());
             config1.Resources.Register("rs6", new ScriptResource(
                 new UrlResourceLocation("http://d.d/"))

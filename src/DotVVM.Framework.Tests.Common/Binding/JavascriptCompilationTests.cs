@@ -1,4 +1,4 @@
-﻿using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -25,16 +25,18 @@ namespace DotVVM.Framework.Tests.Binding
         public string CompileBinding(string expression, params Type[] contexts) => CompileBinding(expression, contexts, expectedType: typeof(object));
         public string CompileBinding(string expression, Type[] contexts, Type expectedType)
         {
+            var configuration = DotvvmTestHelper.CreateConfiguration();
+            configuration.RegisterApiClient(typeof(TestApiClient), "http://server/api", "./apiscript.js", "_api");
+
             var context = DataContextStack.Create(contexts.FirstOrDefault() ?? typeof(object), extensionParameters: new BindingExtensionParameter[]{
-                new BindingPageInfoExtensionParameter()
-                });
+                new BindingPageInfoExtensionParameter(),
+                }.Concat(configuration.Markup.DefaultExtensionParameters).ToArray());
             for (int i = 1; i < contexts.Length; i++)
             {
                 context = DataContextStack.Create(contexts[i], context);
             }
             var parser = new BindingExpressionBuilder();
             var expressionTree = TypeConversion.ImplicitConversion(parser.Parse(expression, context, BindingParserOptions.Create<ValueBindingExpression>()), expectedType, true, true);
-            var configuration = DotvvmTestHelper.CreateConfiguration();
             var jsExpression = new JsParenthesizedExpression(configuration.ServiceLocator.GetService<JavascriptTranslator>().CompileToJavascript(expressionTree, context));
             jsExpression.AcceptVisitor(new KnockoutObservableHandlingVisitor(true));
             JsTemporaryVariableResolver.ResolveVariables(jsExpression);
@@ -170,5 +172,39 @@ namespace DotVVM.Framework.Tests.Binding
             );
             Assert.AreEqual("function(local){local=6+$data;return local;}()", result);
         }
+
+        [TestMethod]
+        public void JavascriptCompilation_Api_GetFunction()
+        {
+            var result = CompileBinding("_api.GetString()");
+            Assert.AreEqual("dotvvm.invokeApiFn(function(){return dotvvm.api._api.getString();},[dotvvm.eventHub.get(\"dotvvm.api._api\")],[])", result);
+            var assignment = CompileBinding("StringProp = _api.GetString()", typeof(TestViewModel));
+            Assert.AreEqual("StringProp(dotvvm.invokeApiFn(function(){return dotvvm.api._api.getString();},[dotvvm.eventHub.get(\"dotvvm.api._api\")],[])()).StringProp()", assignment);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_Api_GetDate()
+        {
+            var result = CompileBinding("_api.GetCurrentTime('test')");
+            Assert.AreEqual("dotvvm.invokeApiFn(function(){return dotvvm.api._api.getCurrentTime(\"test\");},[dotvvm.eventHub.get(\"dotvvm.api._api\")],[])", result);
+            var assignment = CompileBinding("DateFrom = _api.GetCurrentTime('test')", typeof(TestViewModel));
+            Assert.AreEqual("DateFrom(dotvvm.serialization.serializeDate(dotvvm.invokeApiFn(function(){return dotvvm.api._api.getCurrentTime(\"test\");},[dotvvm.eventHub.get(\"dotvvm.api._api\")],[])())).DateFrom()", assignment);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_Api_DateParameter()
+        {
+            var result = CompileBinding("_api.PostDateToString(DateFrom.Value)", typeof(TestViewModel));
+            Assert.AreEqual("dotvvm.invokeApiFn(function(){return dotvvm.api._api.postDateToString(dotvvm.globalize.parseDotvvmDate(DateFrom()));},[],[\"dotvvm.api._api\"])", result);
+        }
+
+    }
+
+
+    public class TestApiClient
+    {
+        public string GetString() => "";
+        public string PostDateToString(DateTime date) => date.ToShortDateString();
+        public DateTime GetCurrentTime(string name) => DateTime.UtcNow;
     }
 }

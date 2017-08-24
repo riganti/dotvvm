@@ -63,7 +63,18 @@ namespace swag.ViewModels
             //File.WriteAllText(TSPath, generator.GenerateFile());
         }
 
+        public async Task GenerateSwagger()
+        {
+            var settings = new WebApiToSwaggerGeneratorSettings();
+            var generator = new WebApiToSwaggerGenerator(settings);
 
+            var controllers = typeof(GeneratorViewModel)
+                .GetTypeInfo()
+                .Assembly.GetTypes()
+                .Where(t => typeof(Controller).IsAssignableFrom(t));
+            var d = await generator.GenerateForControllersAsync(controllers);
+            Context.ReturnFile(Encoding.UTF8.GetBytes(d.ToJson()), "WebApi.swagger.json", "text/json");
+        }
 
         private async Task<SwaggerDocument> GetSwaggerDocument()
         {
@@ -76,11 +87,8 @@ namespace swag.ViewModels
                     editEnumType(t);
             }
 
-            var d = await SwaggerDocument.FromFileAsync("c:/users/exyi/Downloads/github-swagger.json");
-            this.PopulateOperationIds(d);
-            foreach (var t in d.Definitions.Values)
-                editEnumType(t);
-            return d;
+            // var d = await SwaggerDocument.FromFileAsync("c:/users/exyi/Downloads/github-swagger.json");
+           
 
 
             var settings = new WebApiToSwaggerGeneratorSettings();
@@ -90,7 +98,12 @@ namespace swag.ViewModels
                 .GetTypeInfo()
                 .Assembly.GetTypes()
                 .Where(t => typeof(Controller).IsAssignableFrom(t));
-            return await generator.GenerateForControllersAsync(controllers);
+            var d = await generator.GenerateForControllersAsync(controllers);
+
+            this.PopulateOperationIds(d);
+            foreach (var t in d.Definitions.Values)
+                editEnumType(t);
+            return d;
         }
 
         private void PopulateOperationIds(SwaggerDocument d)
