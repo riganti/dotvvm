@@ -35,7 +35,7 @@ namespace DotVVM.Framework.Hosting.AspNetCore.Hosting
         public async Task ForbidAsync(string authenticationScheme) => await Context.ForbidAsync(authenticationScheme);
 
         public async Task<ClaimsPrincipal> AuthenticateAsync(string authenticationScheme) =>
-            await Task.FromResult(Context.AuthenticateAsync(authenticationScheme).Result.Principal);
+            (await Context.AuthenticateAsync(authenticationScheme)).Principal;
 
         public async Task ChallengeAsync() => await Context.ChallengeAsync();
 
