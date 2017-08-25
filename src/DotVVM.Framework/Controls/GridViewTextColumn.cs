@@ -31,13 +31,13 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the command that will be triggered when the control text is changed.
         /// </summary>
-        public Command Changed
+        public ICommandBinding ChangedBinding
         {
-            get { return (Command)GetValue(ChangedProperty); }
-            set { SetValue(ChangedProperty, value); }
+            get { return (ICommandBinding)GetValue(ChangedBindingProperty); }
+            set { SetValue(ChangedBindingProperty, value); }
         }
-        public static readonly DotvvmProperty ChangedProperty =
-            DotvvmProperty.Register<Command, GridViewTextColumn>(t => t.Changed, null);
+        public static readonly DotvvmProperty ChangedBindingProperty =
+            DotvvmProperty.Register<ICommandBinding, GridViewTextColumn>(t => t.ChangedBinding, null);
 
         /// <summary>
         /// Gets or sets the type of value being formatted - Number or DateTime.
@@ -93,7 +93,7 @@ namespace DotVVM.Framework.Controls
             textBox.FormatString = FormatString;
             textBox.ValueType = ValueType;
             textBox.SetBinding(TextBox.TextProperty, ValueBinding);
-            textBox.SetBinding(TextBox.ChangedProperty, GetBinding(ChangedProperty));
+            textBox.SetBinding(TextBox.ChangedProperty, ChangedBinding);
 
             container.Children.Add(textBox);
         }
