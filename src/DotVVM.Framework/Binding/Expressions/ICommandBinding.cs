@@ -10,4 +10,9 @@ namespace DotVVM.Framework.Binding.Expressions
         CompiledBindingExpression.BindingDelegate BindingDelegate { get; }
         ImmutableArray<IActionFilter> ActionFilters { get; }
     }
+
+    public interface ICommandBinding<out T>: ICommandBinding
+    {
+        CompiledBindingExpression.BindingDelegate<T> BindingDelegate { get; }
+    }
 }

@@ -10,6 +10,7 @@ using Microsoft.Owin.Security.Cookies;
 using Owin;
 using DotVVM.Framework.Configuration;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
+using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand;
 
 [assembly: OwinStartup(typeof(Startup))]
 
@@ -55,6 +56,7 @@ namespace DotVVM.Samples.BasicSamples
             {
                 b.AddDefaultTempStorages("Temp");
                 b.Services.AddScoped<ViewModelScopedDependency>();
+                b.Services.AddSingleton<IGreetingComputationService, HelloGreetingComputationService>();
             });
             config.RouteTable.Add("AuthorizedPresenter", "ComplexSamples/Auth/AuthorizedPresenter", null, null, () => new AuthorizedPresenter());
 

@@ -269,7 +269,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 {
                     throw new Exception(string.Format("The control with ID '{0}' was not found!", controlUniqueId));
                 }
-                // TODO(exyi) parameters from 
                 return commandResolver.GetFunction(target, view, context, path, command, args);
             }
             else

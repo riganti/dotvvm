@@ -24,7 +24,9 @@ namespace DotVVM.Framework.Controls
         }
 
         public static readonly DotvvmProperty EnabledProperty =
-            DotvvmProperty.Register<bool, TextBox>(t => t.Enabled, true);
+            DotvvmPropertyWithFallback.Register<bool, TextBox>(nameof(Enabled),
+                FormControls.EnabledProperty, defaultPropertyInherit: true);
+
 
         /// <summary>
         /// Gets or sets a format of presentation of value to client.

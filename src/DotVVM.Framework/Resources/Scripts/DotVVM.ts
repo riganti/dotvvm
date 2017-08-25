@@ -109,7 +109,7 @@ class DotVVM {
             return callback().then(result => {
                 if (this.lastStartedPostack == options.postbackId)
                     return result
-                else return () => Promise.reject(null)
+                else return <any>(() => Promise.reject(null))
             })
         }
     }
@@ -120,7 +120,7 @@ class DotVVM {
     private convertOldHandler(handler: DotvvmPostBackHandler) : DotvvmPostbackHandler2 {
         return {
             execute<T>(callback: () => Promise<T>, options: PostbackOptions) {
-                return new Promise((resolve, reject) => {
+                return new Promise<T>((resolve, reject) => {
                     const timeout = setTimeout(() => reject({ type: handler, handler: handler, message: "The postback handler can't indicate that the postback was rejected and the timeout has passed." }), 10000)
                     handler.execute(() => {
                         clearTimeout(timeout)
@@ -407,7 +407,7 @@ class DotVVM {
                         if (!isSuccess) {
                             reject(new DotvvmErrorEventArgs(viewModel, result))
                         } else {
-                            var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(options.sender, viewModel, viewModelName, validationTargetPath, resultObject, options.postbackId)
+                            var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(options.sender, viewModel, viewModelName, validationTargetPath, resultObject, options.postbackId, resultObject.comandResult)
                             resolve(afterPostBackArgs)
                         }
                     });

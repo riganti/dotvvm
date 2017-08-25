@@ -17,6 +17,8 @@ namespace DotVVM.Framework.Binding.Expressions
         public Dictionary<string, object> Extensions { get; set; }
 
         public delegate object BindingDelegate(object[] dataContextHierarchy, DotvvmBindableObject rootControl);
+        public delegate T BindingDelegate<out T>(object[] dataContextHierarchy, DotvvmBindableObject rootControl);
         public delegate void BindingUpdateDelegate(object[] dataContextHierarchy, DotvvmBindableObject rootControl, object value);
+        public delegate void BindingUpdateDelegate<in T>(object[] dataContextHierarchy, DotvvmBindableObject rootControl, T value);
     }
 }

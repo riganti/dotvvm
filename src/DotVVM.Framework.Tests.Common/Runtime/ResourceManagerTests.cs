@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Tests.Runtime
         [TestMethod]
         public void ResourceManager_SimpleTest()
         {
-            var configuration = DotvvmConfiguration.CreateDefault();
+            var configuration = DotvvmTestHelper.CreateConfiguration();
             var manager = new ResourceManager(configuration);
 
             manager.AddRequiredResource(ResourceConstants.JQueryResourceName);
@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Tests.Runtime
         [TestMethod]
         public void ResourceManager_DependentResources()
         {
-            var configuration = DotvvmConfiguration.CreateDefault();
+            var configuration = DotvvmTestHelper.CreateConfiguration();
             var manager = new ResourceManager(configuration);
 
             manager.AddRequiredResource(ResourceConstants.DotvvmResourceName);
@@ -45,7 +45,7 @@ namespace DotVVM.Framework.Tests.Runtime
         [TestMethod]
         public void ResourceManager_DependentResources_Css()
         {
-            var configuration = DotvvmConfiguration.CreateDefault();
+            var configuration = DotvvmTestHelper.CreateConfiguration();
             var manager = new ResourceManager(configuration);
 
             manager.AddRequiredResource(ResourceConstants.DotvvmFileUploadCssResourceName);
@@ -59,11 +59,11 @@ namespace DotVVM.Framework.Tests.Runtime
         [TestMethod]
         public void ResourceManager_ConfigurationDeserialization()
         {
-            var config1 = DotvvmConfiguration.CreateDefault();
+            var config1 = DotvvmTestHelper.CreateConfiguration();
             config1.Resources.Register("rs1", new ScriptResource(new FileResourceLocation("file.js")));
             config1.Resources.Register("rs2", new StylesheetResource(new UrlResourceLocation("http://c.c/")));
             config1.Resources.Register("rs3", new StylesheetResource(new EmbeddedResourceLocation(typeof(DotvvmConfiguration).GetTypeInfo().Assembly, "DotVVM.Framework.Resources.Scripts.jquery-2.1.1.min.js", "../file.js")));
-            config1.Resources.Register("rs4", new InlineScriptResource(ResourceRenderPosition.Head) { Code = "CODE" });
+            config1.Resources.Register("rs4", new InlineScriptResource("CODE", ResourceRenderPosition.Head));
             config1.Resources.Register("rs5", new NullResource());
             config1.Resources.Register("rs6", new ScriptResource(
                 new UrlResourceLocation("http://d.d/"))
@@ -106,7 +106,7 @@ namespace DotVVM.Framework.Tests.Runtime
         'stylesheets': {{ 'newResource': {{ 'url': 'test' }} }}
     }}
 }}", ResourceConstants.JQueryResourceName);
-            var configuration = DotvvmConfiguration.CreateDefault();
+            var configuration = DotvvmTestHelper.CreateConfiguration();
             JsonConvert.PopulateObject(json.Replace("'", "\""), configuration);
 
             Assert.IsTrue(configuration.Resources.FindResource(ResourceConstants.JQueryResourceName) is ScriptResource);

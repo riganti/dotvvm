@@ -224,7 +224,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
 
         public JsLiteral TranslateConstant(ConstantExpression expression) =>
-            new JsLiteral(expression.Value);
+            new JsLiteral(expression.Value).WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
 
         public JsExpression TranslateMethodCall(MethodCallExpression expression)
         {
@@ -342,13 +342,14 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
 
         public JsExpression TranslateViewModelProperty(JsExpression context, MemberInfo propInfo, string name = null) =>
-            new JsMemberAccessExpression(context, name ?? propInfo.Name).WithAnnotation(new VMPropertyInfoAnnotation { MemberInfo = propInfo });
+            new JsMemberAccessExpression(context, name ?? propInfo.Name).WithAnnotation(new VMPropertyInfoAnnotation { MemberInfo = propInfo }).WithAnnotation(new ViewModelInfoAnnotation(propInfo.GetResultType()));
 
         public JsExpression TryTranslateMethodCall(MethodInfo methodInfo, Expression target, IEnumerable<Expression> arguments) =>
             Translator.TryTranslateCall(
                 new HalfTranslatedExpression(target, Translate),
                 arguments.Select(a => new HalfTranslatedExpression(a, Translate)).ToArray(),
-                methodInfo);
+                methodInfo)
+                ?.WithAnnotation(new ViewModelInfoAnnotation(methodInfo.ReturnType), append: false);
 
         public class FakeExtensionParameter: BindingExtensionParameter
         {

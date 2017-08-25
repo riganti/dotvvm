@@ -11,8 +11,7 @@
     <dot:Button Text="Postback" Click="{command: DoPostback()}" />
     <dot:Repeater DataSource="{value: FirstList}">
         <ItemTemplate>
-            <dot:ComboBox SelectedValue="{value: SelectedValue}" ItemTextBinding="{value: Text}" ItemValueBinding="{value: Value}" DataSource="{value: _parent.SecondList}">
-            </dot:ComboBox>
+            <dot:ComboBox DataSource="{value: _parent.SecondList}" SelectedValue="{value: SelectedValue}" ItemTextBinding="{value: Text}" ItemValueBinding="{value: Value}" />
 
             Selected: <span class="result">{{value: SelectedValue}}</span>
         </ItemTemplate>

@@ -32,8 +32,8 @@ namespace DotVVM.Framework.Tests.ViewModel
         public void JsonDiff_Configuration_AddingResources()
         {
             var config = ApplyPatches(
-                CreateDiff(c => c.Resources.Register("resource-1", new InlineScriptResource { Code = "alert()" })),
-                CreateDiff(c => c.Resources.Register("resource-2", new InlineScriptResource { Code = "console.log()" })),
+                CreateDiff(c => c.Resources.Register("resource-1", new InlineScriptResource("alert()"))),
+                CreateDiff(c => c.Resources.Register("resource-2", new InlineScriptResource("console.log()"))),
                 CreateDiff(c => c.Resources.Register("resource-3", new ScriptResource(new UrlResourceLocation("http://i.dont.know/which.js")) { Dependencies = new[] { "dotvvm" } }))
                 );
             Assert.IsInstanceOfType(config.Resources.FindResource("resource-1"), typeof(InlineScriptResource));
@@ -59,7 +59,7 @@ namespace DotVVM.Framework.Tests.ViewModel
 
         private JObject CreateDiff(Action<DotvvmConfiguration> fn)
         {
-            var config = DotvvmConfiguration.CreateDefault();
+            var config = DotvvmTestHelper.CreateConfiguration();
             var json0 = JObject.FromObject(config, serializer);
             fn(config);
             var json1 = JObject.FromObject(config, serializer);
@@ -76,6 +76,6 @@ namespace DotVVM.Framework.Tests.ViewModel
             return json.ToObject<DotvvmConfiguration>(serializer);
         }
 
-        private DotvvmConfiguration ApplyPatches(params JObject[] patches) => ApplyPatches(DotvvmConfiguration.CreateDefault(), patches);
+        private DotvvmConfiguration ApplyPatches(params JObject[] patches) => ApplyPatches(DotvvmTestHelper.CreateConfiguration(), patches);
     }
 }

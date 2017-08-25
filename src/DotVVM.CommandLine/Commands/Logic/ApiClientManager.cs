@@ -10,6 +10,7 @@ using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 using NJsonSchema;
 using NJsonSchema.CodeGeneration;
+using NJsonSchema.CodeGeneration.CSharp;
 using NJsonSchema.CodeGeneration.TypeScript;
 using NSwag;
 using NSwag.CodeGeneration;
@@ -47,7 +48,7 @@ namespace DotVVM.CommandLine.Commands.Logic
             GenerateTS(document, definition);
 
             Console.WriteLine($"Api clients generated. To register in dotvvm put following to your DotvvmStartup: ");
-            Console.WriteLine($"config.RegisterApi{(isSingleClient ? "Client" : "Group")}(typeof({definition.Namespace}.{(definition.GenerateWrapperClass || isSingleClient ? typeName : " ... your client wrapper class ...")}), \"{ document.BasePath ?? "... you api endpoint ..." }\", \"{(definition.CompileTypescript ? Path.ChangeExtension(definition.TypescriptClient, "js") : "... path to your compiled javascript")}\");");
+            Console.WriteLine($"config.RegisterApi{(isSingleClient ? "Client" : "Group")}(typeof({definition.Namespace}.{(definition.GenerateWrapperClass || isSingleClient ? typeName : " ... your client wrapper class ...")}), \"{ document.BasePath ?? "... your api endpoint ..." }\", \"{(definition.CompileTypescript ? Path.ChangeExtension(definition.TypescriptClient, "js") : "... path to your compiled javascript")}\");");
         }
 
 
@@ -60,7 +61,9 @@ namespace DotVVM.CommandLine.Commands.Logic
                 OperationNameGenerator = nameGenerator,
                 GenerateOptionalParameters = true,
             };
+            settings.CSharpGeneratorSettings.ClassStyle = CSharpClassStyle.Poco;
             settings.CSharpGeneratorSettings.Namespace = definition.Namespace;
+            settings.CSharpGeneratorSettings.ArrayType = "System.Collections.Generic.List";
             settings.CSharpGeneratorSettings.PropertyNameGenerator =
                 new MyPropertyNameGenerator(c => ConversionUtilities.ConvertToUpperCamelCase(c, true));
 

@@ -23,6 +23,7 @@
         </p>
 
         <dot:Button Text="Generate" Click="{command: GenerateCSharp()}" />
+        <dot:Button Text="Generate Swagger.json" Click="{command: GenerateSwagger()}" />
     </fieldset>
     
     <fieldset style="width: 40%; display: inline-block">

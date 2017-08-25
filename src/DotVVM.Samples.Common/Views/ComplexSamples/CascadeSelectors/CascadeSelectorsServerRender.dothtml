@@ -13,7 +13,7 @@
 				<dot:Button class="btn btn-block" Text="Select city" Click="{command: SelectedCityChanged()}" />
 			</div>
 			<div class="col-md-6" Visible="{value: HotelsInCity != null}">
-				<dot:ListBox class="form-control" DataSource="{value: HotelsInCity}" SelectedValue="{value: SelectedHotelId}" ItemValueBinding="{value: Id}" ItemValueBinding="{value: Name}" />
+				<dot:ListBox class="form-control" DataSource="{value: HotelsInCity}" SelectedValue="{value: SelectedHotelId}" ItemValueBinding="{value: Id}" ItemTextBinding="{value: Name}" />
 				<dot:Button class="btn btn-block" Text="Select hotel" Click="{command: SelectedHotelChanged()}" />
 			</div>
 		</div>

@@ -63,6 +63,10 @@ namespace DotVVM.CommandLine
                     throw new InvalidCommandUsageException("Unknown command!");
                 }
             }
+            catch (InvalidCommandUsageException ex)
+            {
+                Console.WriteLine("Invalid Command Usage: " + ex);
+            }
             catch (Exception ex)
             {
                 Console.WriteLine("ERROR: " + ex.Message);

@@ -4,7 +4,7 @@ namespace DotVVM.CommandLine.Commands
 {
     public class InvalidCommandUsageException : Exception
     {
-        public InvalidCommandUsageException(string message)
+        public InvalidCommandUsageException(string message): base(message)
         {
         }
     }

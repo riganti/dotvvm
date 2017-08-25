@@ -25,14 +25,14 @@ namespace DotVVM.Framework.Tests.Runtime
         [TestInitialize]
         public void INIT()
         {
-            this.configuration = DotvvmConfiguration.CreateDefault();
+            this.configuration = DotvvmTestHelper.CreateConfiguration();
             this.bindingService = configuration.ServiceLocator.GetService<BindingCompilationService>();
         }
 
 
         private static TestDotvvmRequestContext CreateContext(object viewModel, DotvvmConfiguration configuration = null)
         {
-            configuration = configuration ?? DotvvmConfiguration.CreateDefault();
+            configuration = configuration ?? DotvvmTestHelper.CreateConfiguration();
             return new TestDotvvmRequestContext() {
                 Configuration = configuration,
                 ResourceManager = new ResourceManagement.ResourceManager(configuration),

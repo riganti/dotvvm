@@ -12,6 +12,8 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.EmptyDataTemplat
 
         public List<Customer> Empty => new List<Customer>();
 
+        public bool Visible { get; set; } = true;
+
         public List<Customer> NonEmpty => new List<Customer>()
         {
             new Customer() { FirstName = "Tomas" }

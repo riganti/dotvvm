@@ -269,7 +269,13 @@ namespace Dotvvm.Samples.Tests{
 
             public static string FeatureSamples_DoublePostBackPrevention_DoublePostBackPrevention => "FeatureSamples/DoublePostBackPrevention/DoublePostBackPrevention";
 
+            public static string FeatureSamples_EmbeddedResourceControls_EmbeddedResourceControls => "FeatureSamples/EmbeddedResourceControls/EmbeddedResourceControls";
+
+            public static string FeatureSamples_EmbeddedResourceControls_EmbeddedResourceView => "FeatureSamples/EmbeddedResourceControls/EmbeddedResourceView";
+
             public static string FeatureSamples_Formatting_Formatting => "FeatureSamples/Formatting/Formatting";
+
+            public static string FeatureSamples_FormControlsEnabled_FormControlsEnabled => "FeatureSamples/FormControlsEnabled/FormControlsEnabled";
 
             public static string FeatureSamples_GenericTypes_InCommandBinding => "FeatureSamples/GenericTypes/InCommandBinding";
 

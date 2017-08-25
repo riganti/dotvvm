@@ -157,9 +157,15 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public void VisitMemberAccessExpression(JsMemberAccessExpression memberAccessExpression)
         {
-            memberAccessExpression.Target.AcceptVisitor(this);
-            Emit(".");
-            memberAccessExpression.MemberNameToken.AcceptVisitor(this);
+            if (!memberAccessExpression.MemberNameToken.IsValidName())
+                new JsIndexerExpression(memberAccessExpression.Target, new JsLiteral(memberAccessExpression.MemberNameToken))
+                .AcceptVisitor(this);
+            else
+            {
+                memberAccessExpression.Target.AcceptVisitor(this);
+                Emit(".");
+                memberAccessExpression.MemberNameToken.AcceptVisitor(this);
+            }
         }
 
         public void VisitIdentifierExpression(JsIdentifierExpression identifierExpression)
@@ -331,7 +337,9 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public void VisitObjectProperty(JsObjectProperty objectProperty)
         {
-            objectProperty.Identifier.AcceptVisitor(this);
+            if (objectProperty.Identifier.IsValidName())
+                objectProperty.Identifier.AcceptVisitor(this);
+            else new JsLiteral(objectProperty.Identifier.Name).AcceptVisitor(this);
             Emit(":");
             OptionalSpace();
             objectProperty.Expression.AcceptVisitor(this);

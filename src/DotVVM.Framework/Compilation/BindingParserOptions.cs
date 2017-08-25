@@ -54,6 +54,11 @@ namespace DotVVM.Framework.Compilation
 
         public static BindingParserOptions Create<TBinding>(string scopeParameter = "_this", IEnumerable<NamespaceImport> importNs = null, ImmutableList<BindingExtensionParameter> extParameters = null)
             => new BindingParserOptions(typeof(TBinding), scopeParameter, 
+                importNamespaces: importNs?.ToImmutableList(),
+                extParameters: extParameters);
+
+        public static BindingParserOptions Create(Type bindingType, string scopeParameter = "_this", IEnumerable<NamespaceImport> importNs = null, ImmutableList<BindingExtensionParameter> extParameters = null)
+            => new BindingParserOptions(bindingType, scopeParameter,
                 importNamespaces: importNs?.ToImmutableList(), 
                 extParameters: extParameters);
 

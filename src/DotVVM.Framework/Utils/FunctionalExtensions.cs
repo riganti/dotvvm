@@ -30,6 +30,9 @@ namespace DotVVM.Framework.Utils
         public static TResult Apply<TTarget, TResult>(this TTarget target, Func<TTarget, TResult> outerFunction)
             => outerFunction(target);
 
+        public static T Assert<T>(this T target, Func<T, bool> predicate, string message = "A check has failed")
+            => predicate(target) ? target : throw new Exception(message);
+
         public static TOut CastTo<TOut>(this object original)
             where TOut : class
             => (TOut)original;

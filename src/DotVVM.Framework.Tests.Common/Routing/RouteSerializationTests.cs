@@ -17,7 +17,7 @@ namespace DotVVM.Framework.Tests.Common.Routing
         [TestMethod]
         public void RouteTable_Deserialization()
         {
-            var config1 = DotvvmConfiguration.CreateDefault();
+            var config1 = DotvvmTestHelper.CreateConfiguration();
             config1.RouteTable.Add("route1", "url1", "file1.dothtml", new { a = "ccc" });
             config1.RouteTable.Add("route2", "url2/{int:posint}", "file1.dothtml", new { a = "ccc" });
 

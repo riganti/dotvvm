@@ -5,6 +5,7 @@
     pathMatcher?: (vm: any) => boolean;
     path?: string[];
     pathOnly?: boolean;
+    restApiTarget?: boolean;    // convert string dates to Date objects
 }
 
 class DotvvmSerialization {
@@ -18,7 +19,7 @@ class DotvvmSerialization {
             return viewModel;
         }
         if (viewModel instanceof Date) {
-            return viewModel;
+            return dotvvm.serialization.serializeDate(viewModel);
         }
 
         // handle arrays
@@ -80,7 +81,12 @@ class DotvvmSerialization {
 
                 // deserialize value
                 var deserialized = ko.isObservable(value) ? value : this.deserialize(value, result[prop], deserializeAll);
-                
+                if (value instanceof Date) {
+                    // if we get Date value from API, it was converted to string, but we should note that it was date to convert it back
+                    result[prop + "$options"] = result[prop + "$options"] || {};
+                    result[prop + "$options"].isDate = true;
+                }
+
                 // update the property
                 if (ko.isObservable(deserialized)) {
                     if (ko.isObservable(result[prop])) {
@@ -106,7 +112,6 @@ class DotvvmSerialization {
                         extenderOptions[extenderInfo.name] = extenderInfo.parameter;                        
                         result[prop].extend(extenderOptions);
                     }
-                        
                 }
             }
         }
@@ -114,7 +119,14 @@ class DotvvmSerialization {
         // copy the property options metadata
         for (var prop in viewModel) {
             if (viewModel.hasOwnProperty(prop) && /\$options$/.test(prop)) {
-                result[prop] = viewModel[prop];
+
+                result[prop] = result[prop] || { };
+                for (var optProp in viewModel[prop]) {
+                    if (viewModel[prop].hasOwnProperty(optProp)) {
+                        result[prop][optProp] = viewModel[prop][optProp];
+                    }
+                }
+                
                 var originalName = prop.substring(0, prop.length - "$options".length);
                 if (typeof result[originalName] === "undefined") {
                     result[originalName] = ko.observable();
@@ -135,7 +147,7 @@ class DotvvmSerialization {
 
         if (opt.pathOnly && opt.path && opt.path.length === 0) opt.pathOnly = false;
 
-        if (typeof (viewModel) === "undefined" || viewModel == null) {
+        if (viewModel == null) {
             return null;
         }
 
@@ -144,7 +156,7 @@ class DotvvmSerialization {
         }
 
         if (ko.isObservable(viewModel)) {
-            return this.serialize(ko.unwrap(viewModel), opt);
+            return this.serialize(viewModel(), opt);
         }
 
         if (typeof (viewModel) === "function") {
@@ -169,7 +181,11 @@ class DotvvmSerialization {
         }
 
         if (viewModel instanceof Date) {
-            return this.serializeDate(viewModel);
+            if (opt.restApiTarget) {
+                return viewModel;
+            } else {
+                return this.serializeDate(viewModel);
+            }
         }
 
         var pathProp = opt.path && opt.path.pop();
@@ -184,7 +200,7 @@ class DotvvmSerialization {
                 var value = viewModel[prop];
 
                 if (opt.ignoreSpecialProperties && prop[0] === "$") continue;
-                if (!opt.serializeAll && (/\$options$/.test(prop) || prop == "$validationErrors")) {
+                if (!opt.serializeAll && (/\$options$/.test(prop) || prop === "$validationErrors")) {
                     continue;
                 }
                 if (typeof (value) === "undefined") {
@@ -211,7 +227,7 @@ class DotvvmSerialization {
                             result[prop] = this.serialize(value, opt);
                         }
                         else {
-                            result[prop] = this.serialize(value, { ignoreSpecialProperties: opt.ignoreSpecialProperties, serializeAll: opt.serializeAll, path: path, pathOnly: true })
+                            result[prop] = this.serialize(value, { ignoreSpecialProperties: opt.ignoreSpecialProperties, serializeAll: opt.serializeAll, path: path, pathOnly: true });
                         }
                     }
                 }
@@ -236,6 +252,9 @@ class DotvvmSerialization {
         if (nullable && (value == null || value == "")) {
             return true;
         }
+        if (!nullable && (value === null || typeof value === "undefined")) {
+            return false;
+        }
 
         var intmatch = /(u?)int(\d*)/.exec(type);
         if (intmatch) {
@@ -254,7 +273,7 @@ class DotvvmSerialization {
         }
         if (type === "number" || type === "single" || type === "double" || type === "decimal") {
             // should check if the value is numeric or number in a string
-            return +value === value || (!isNaN(+value) && typeof value == "string");
+            return +value === value || (!isNaN(+value) && typeof value === "string");
         }
         return true;
     }
@@ -297,7 +316,13 @@ class DotvvmSerialization {
         return value;
     }
 
-    public serializeDate(date: Date, convertToUtc: boolean = true): string {
+    public serializeDate(date: string | Date, convertToUtc: boolean = true): string {
+        if (typeof date == "string") {
+            // just print in the console if it's invalid
+            if (dotvvm.globalize.parseDotvvmDate(date) != null)
+                console.error(new Error(`Date ${date} is invalid.`))
+            return date
+        }
         var date2 = new Date(date.getTime());
         if (convertToUtc) {
             date2.setMinutes(date.getMinutes() + date.getTimezoneOffset());

@@ -53,9 +53,10 @@ declare class DotvvmAfterPostBackEventArgs extends DotvvmEventArgs {
     validationTargetPath: any;
     serverResponseObject: any;
     postbackClientId: number;
+    commandResult: any;
     isHandled: boolean;
     wasInterrupted: boolean;
-    constructor(sender: HTMLElement | undefined, viewModel: any, viewModelName: string, validationTargetPath: any, serverResponseObject: any, postbackClientId: number);
+    constructor(sender: HTMLElement | undefined, viewModel: any, viewModelName: string, validationTargetPath: any, serverResponseObject: any, postbackClientId: number, commandResult?: any);
 }
 declare class DotvvmSpaNavigatingEventArgs extends DotvvmEventArgs {
     viewModel: any;
@@ -162,6 +163,7 @@ interface ISerializationOptions {
     pathMatcher?: (vm: any) => boolean;
     path?: string[];
     pathOnly?: boolean;
+    restApiTarget?: boolean;
 }
 declare class DotvvmSerialization {
     deserialize(viewModel: any, target?: any, deserializeAll?: boolean): any;
@@ -172,7 +174,7 @@ declare class DotvvmSerialization {
     flatSerialize(viewModel: any): any;
     getPureObject(viewModel: any): {};
     private pad(value, digits);
-    serializeDate(date: Date, convertToUtc?: boolean): string;
+    serializeDate(date: string | Date, convertToUtc?: boolean): string;
 }
 interface Document {
     getElementByDotvvmId(id: string): HTMLElement;

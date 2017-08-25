@@ -108,7 +108,8 @@ var DotvvmBeforePostBackEventArgs = (function (_super) {
 }(DotvvmEventArgs));
 var DotvvmAfterPostBackEventArgs = (function (_super) {
     __extends(DotvvmAfterPostBackEventArgs, _super);
-    function DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, serverResponseObject, postbackClientId) {
+    function DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, serverResponseObject, postbackClientId, commandResult) {
+        if (commandResult === void 0) { commandResult = null; }
         var _this = _super.call(this, viewModel) || this;
         _this.sender = sender;
         _this.viewModel = viewModel;
@@ -116,6 +117,7 @@ var DotvvmAfterPostBackEventArgs = (function (_super) {
         _this.validationTargetPath = validationTargetPath;
         _this.serverResponseObject = serverResponseObject;
         _this.postbackClientId = postbackClientId;
+        _this.commandResult = commandResult;
         _this.isHandled = false;
         _this.wasInterrupted = false;
         return _this;
@@ -375,7 +377,7 @@ var DotvvmSerialization = (function () {
             return viewModel;
         }
         if (viewModel instanceof Date) {
-            return viewModel;
+            return dotvvm.serialization.serializeDate(viewModel);
         }
         // handle arrays
         if (viewModel instanceof Array) {
@@ -434,6 +436,11 @@ var DotvvmSerialization = (function () {
                 }
                 // deserialize value
                 var deserialized = ko.isObservable(value) ? value : this.deserialize(value, result[prop], deserializeAll);
+                if (value instanceof Date) {
+                    // if we get Date value from API, it was converted to string, but we should note that it was date to convert it back
+                    result[prop + "$options"] = result[prop + "$options"] || {};
+                    result[prop + "$options"].isDate = true;
+                }
                 // update the property
                 if (ko.isObservable(deserialized)) {
                     if (ko.isObservable(result[prop])) {
@@ -467,7 +474,12 @@ var DotvvmSerialization = (function () {
         // copy the property options metadata
         for (var prop in viewModel) {
             if (viewModel.hasOwnProperty(prop) && /\$options$/.test(prop)) {
-                result[prop] = viewModel[prop];
+                result[prop] = result[prop] || {};
+                for (var optProp in viewModel[prop]) {
+                    if (viewModel[prop].hasOwnProperty(optProp)) {
+                        result[prop][optProp] = viewModel[prop][optProp];
+                    }
+                }
                 var originalName = prop.substring(0, prop.length - "$options".length);
                 if (typeof result[originalName] === "undefined") {
                     result[originalName] = ko.observable();
@@ -486,14 +498,14 @@ var DotvvmSerialization = (function () {
         opt = ko.utils.extend({}, opt);
         if (opt.pathOnly && opt.path && opt.path.length === 0)
             opt.pathOnly = false;
-        if (typeof (viewModel) === "undefined" || viewModel == null) {
+        if (viewModel == null) {
             return null;
         }
         if (typeof (viewModel) === "string" || typeof (viewModel) === "number" || typeof (viewModel) === "boolean") {
             return viewModel;
         }
         if (ko.isObservable(viewModel)) {
-            return this.serialize(ko.unwrap(viewModel), opt);
+            return this.serialize(viewModel(), opt);
         }
         if (typeof (viewModel) === "function") {
             return null;
@@ -515,7 +527,12 @@ var DotvvmSerialization = (function () {
             }
         }
         if (viewModel instanceof Date) {
-            return this.serializeDate(viewModel);
+            if (opt.restApiTarget) {
+                return viewModel;
+            }
+            else {
+                return this.serializeDate(viewModel);
+            }
         }
         var pathProp = opt.path && opt.path.pop();
         var result = {};
@@ -527,7 +544,7 @@ var DotvvmSerialization = (function () {
                 var value = viewModel[prop];
                 if (opt.ignoreSpecialProperties && prop[0] === "$")
                     continue;
-                if (!opt.serializeAll && (/\$options$/.test(prop) || prop == "$validationErrors")) {
+                if (!opt.serializeAll && (/\$options$/.test(prop) || prop === "$validationErrors")) {
                     continue;
                 }
                 if (typeof (value) === "undefined") {
@@ -578,6 +595,9 @@ var DotvvmSerialization = (function () {
         if (nullable && (value == null || value == "")) {
             return true;
         }
+        if (!nullable && (value === null || typeof value === "undefined")) {
+            return false;
+        }
         var intmatch = /(u?)int(\d*)/.exec(type);
         if (intmatch) {
             if (!/^-?\d*$/.test(value))
@@ -595,7 +615,7 @@ var DotvvmSerialization = (function () {
         }
         if (type === "number" || type === "single" || type === "double" || type === "decimal") {
             // should check if the value is numeric or number in a string
-            return +value === value || (!isNaN(+value) && typeof value == "string");
+            return +value === value || (!isNaN(+value) && typeof value === "string");
         }
         return true;
     };
@@ -640,6 +660,12 @@ var DotvvmSerialization = (function () {
     };
     DotvvmSerialization.prototype.serializeDate = function (date, convertToUtc) {
         if (convertToUtc === void 0) { convertToUtc = true; }
+        if (typeof date == "string") {
+            // just print in the console if it's invalid
+            if (dotvvm.globalize.parseDotvvmDate(date) != null)
+                console.error(new Error("Date " + date + " is invalid."));
+            return date;
+        }
         var date2 = new Date(date.getTime());
         if (convertToUtc) {
             date2.setMinutes(date.getMinutes() + date.getTimezoneOffset());
@@ -731,7 +757,7 @@ var DotVVM = (function () {
                     if (_this.lastStartedPostack == options.postbackId)
                         return result;
                     else
-                        return function () { return Promise.reject(null); };
+                        return (function () { return Promise.reject(null); });
                 });
             }
         };
@@ -1017,7 +1043,7 @@ var DotVVM = (function () {
                             reject(new DotvvmErrorEventArgs(viewModel, result));
                         }
                         else {
-                            var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(options.sender, viewModel, viewModelName, validationTargetPath, resultObject, options.postbackId);
+                            var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(options.sender, viewModel, viewModelName, validationTargetPath, resultObject, options.postbackId, resultObject.comandResult);
                             resolve(afterPostBackArgs);
                         }
                     });

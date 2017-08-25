@@ -4,6 +4,7 @@ using System.IO;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
 using DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth;
+using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
@@ -24,9 +25,33 @@ namespace DotVVM.Samples.BasicSamples
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddLocalization(o => o.ResourcesPath = "Resources");
+            services.AddAuthentication("Scheme1")
+                .AddCookie("Scheme1", o => {
+                    o.LoginPath = new PathString("/ComplexSamples/Auth/Login");
+                    o.Events = new CookieAuthenticationEvents {
+                        OnRedirectToReturnUrl = c => DotvvmAuthenticationHelper.ApplyRedirectResponse(c.HttpContext, c.RedirectUri),
+                        OnRedirectToAccessDenied = c => DotvvmAuthenticationHelper.ApplyStatusCodeResponse(c.HttpContext, 403),
+                        OnRedirectToLogin = c => DotvvmAuthenticationHelper.ApplyRedirectResponse(c.HttpContext, c.RedirectUri),
+                        OnRedirectToLogout = c => DotvvmAuthenticationHelper.ApplyRedirectResponse(c.HttpContext, c.RedirectUri)
+                    };
+                });
 
-            services.AddAuthentication();
+            services.AddAuthentication("Scheme2")
+                .AddCookie("Scheme2", o => {
+                    o.LoginPath = new PathString("/ComplexSamples/SPARedirect/login");
+                    o.Events = new CookieAuthenticationEvents {
+                        OnRedirectToReturnUrl = c => DotvvmAuthenticationHelper.ApplyRedirectResponse(c.HttpContext, c.RedirectUri),
+                        OnRedirectToAccessDenied = c => DotvvmAuthenticationHelper.ApplyStatusCodeResponse(c.HttpContext, 403),
+                        OnRedirectToLogin = c => DotvvmAuthenticationHelper.ApplyRedirectResponse(c.HttpContext, c.RedirectUri),
+                        OnRedirectToLogout = c => DotvvmAuthenticationHelper.ApplyRedirectResponse(c.HttpContext, c.RedirectUri)
+                    };
+                });
+
+            services.AddAuthentication("Scheme3")
+                .AddCookie("Scheme3");
+
+
+            services.AddLocalization(o => o.ResourcesPath = "Resources");
 
             services.AddDotVVM(options =>
             {
@@ -37,6 +62,8 @@ namespace DotVVM.Samples.BasicSamples
                 o.TransformerClasses.Add(new BindingTestResolvers());
             });
 
+            services.AddSingleton<IGreetingComputationService, HelloGreetingComputationService>();
+
             services.AddScoped<ViewModelScopedDependency>();
         }
 
@@ -46,32 +73,7 @@ namespace DotVVM.Samples.BasicSamples
                 new CultureInfo("en-US"),
                 new CultureInfo("cs-CZ")
             };
-
-            app.UseCookieAuthentication(new CookieAuthenticationOptions {
-                LoginPath = new PathString("/ComplexSamples/Auth/Login"),
-                AuthenticationScheme = "Scheme1",
-                Events = new CookieAuthenticationEvents {
-                    OnRedirectToReturnUrl = c => DotvvmAuthenticationHelper.ApplyRedirectResponse(c.HttpContext, c.RedirectUri),
-                    OnRedirectToAccessDenied = c => DotvvmAuthenticationHelper.ApplyStatusCodeResponse(c.HttpContext, 403),
-                    OnRedirectToLogin = c => DotvvmAuthenticationHelper.ApplyRedirectResponse(c.HttpContext, c.RedirectUri),
-                    OnRedirectToLogout = c => DotvvmAuthenticationHelper.ApplyRedirectResponse(c.HttpContext, c.RedirectUri)
-                }
-            });
-
-            app.UseCookieAuthentication(new CookieAuthenticationOptions {
-                LoginPath = new PathString("/ComplexSamples/SPARedirect/login"),
-                AuthenticationScheme = "Scheme2",
-                Events = new CookieAuthenticationEvents {
-                    OnRedirectToReturnUrl = c => DotvvmAuthenticationHelper.ApplyRedirectResponse(c.HttpContext, c.RedirectUri),
-                    OnRedirectToAccessDenied = c => DotvvmAuthenticationHelper.ApplyStatusCodeResponse(c.HttpContext, 403),
-                    OnRedirectToLogin = c => DotvvmAuthenticationHelper.ApplyRedirectResponse(c.HttpContext, c.RedirectUri),
-                    OnRedirectToLogout = c => DotvvmAuthenticationHelper.ApplyRedirectResponse(c.HttpContext, c.RedirectUri)
-                }
-            });
-
-            app.UseCookieAuthentication(new CookieAuthenticationOptions {
-                AuthenticationScheme = "Scheme3"
-            });
+            app.UseAuthentication();
 
             app.UseRequestLocalization(new RequestLocalizationOptions {
                 DefaultRequestCulture = new RequestCulture("en-US"),

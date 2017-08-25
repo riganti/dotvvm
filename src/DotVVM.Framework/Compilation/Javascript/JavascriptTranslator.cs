@@ -117,7 +117,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
     }
 
-    public class ViewModelInfoAnnotation
+    public class ViewModelInfoAnnotation : IEquatable<ViewModelInfoAnnotation>
     {
         public Type Type { get; set; }
         public bool IsControl { get; set; }
@@ -125,6 +125,14 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public ViewModelSerializationMap SerializationMap { get; set; }
         public bool ContainsObservables { get; set; }
+
+        public bool Equals(ViewModelInfoAnnotation other) =>
+            Type == other.Type &&
+            IsControl == other.IsControl &&
+            ExtensionParameter == other.ExtensionParameter &&
+            ContainsObservables == other.ContainsObservables;
+        
+        public override bool Equals(object obj) => obj is ViewModelInfoAnnotation obj2 && this.Equals(obj2);
 
         public ViewModelInfoAnnotation(Type type, bool isControl = false, BindingExtensionParameter extensionParameter = null, bool containsObservables = true)
         {

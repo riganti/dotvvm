@@ -8,7 +8,8 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.Api
 {
 	public class GetCollectionViewModel : DotvvmViewModelBase
 	{
-        public int SelectedCompanyId { get; set; }
+        public int SelectedCompanyId { get; set; } = -1;
+        public int EditedOrderId { get; set; } = -1;
     }
 }
 

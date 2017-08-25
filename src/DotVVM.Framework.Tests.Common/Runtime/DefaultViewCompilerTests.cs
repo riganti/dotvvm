@@ -214,7 +214,7 @@ test <dot:Literal><a /></dot:Literal>";
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
             Assert.IsInstanceOfType(page.Children[0], typeof(TestControl));
 
-            var literal = page.Children[0].Children[0];
+            var literal = page.Children[0].Children[0].Children[0];
             Assert.IsInstanceOfType(literal, typeof(Literal));
             Assert.AreEqual("aaa", ((Literal)literal).Text);
         }
@@ -340,6 +340,7 @@ test <dot:Literal><a /></dot:Literal>";
             Assert.ThrowsException<DotvvmCompilationException>(() => CompileMarkup(markup));
         }
 
+        [TestMethod]
         public void DefaultViewCompiler_ViewDependencyInjection()
         {
             var markup = @"
@@ -353,6 +354,22 @@ test <dot:Literal><a /></dot:Literal>";
             Assert.AreEqual(context.Configuration.DefaultCulture, literals[1].Text);
         }
 
+        [TestMethod]
+        public void DefaultViewCompiler_CodeGeneration_PostbackHandlerResourceRegistration()
+        {
+            var markup = @"
+
+@viewModel System.Object
+<dot:Button Click='{command: 0}'>
+    <Postback.Handlers>
+        <ff:PostbackHandlerWithRequiredResource />
+    </Postback.Handlers>
+</dot:Button>
+";
+            var page = CompileMarkup(markup);
+            Assert.IsTrue(context.ResourceManager.RequiredResources.Contains("testscript"));
+        }
+
         private DotvvmControl CompileMarkup(string markup, Dictionary<string, string> markupFiles = null, bool compileTwice = false, [CallerMemberName]string fileName = null)
         {
             if (markupFiles == null)
@@ -362,13 +379,14 @@ test <dot:Literal><a /></dot:Literal>";
             markupFiles[fileName + ".dothtml"] = markup;
 
             context = new DotvvmRequestContext();
-            context.Configuration = DotvvmConfiguration.CreateDefault(services =>
+            context.Configuration = DotvvmTestHelper.CreateConfiguration(services =>
             {
                 services.AddSingleton<IMarkupFileLoader>(new FakeMarkupFileLoader(markupFiles));
                 services.AddSingleton<Func<IServiceProvider, Type, DotvvmControl>>((s, t) =>
                     t == typeof(TestCustomDependencyInjectionControl) ? new TestCustomDependencyInjectionControl("") { IsCorrectlyCreated = true } :
                     throw new Exception());
             });
+            context.Services = context.Configuration.ServiceLocator.GetServiceProvider().GetRequiredService<IServiceScopeFactory>().CreateScope().ServiceProvider;
             context.Configuration.ApplicationPhysicalPath = Path.GetTempPath();
 
             context.Configuration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test1", Src = "test1.dothtml" });
@@ -390,6 +408,21 @@ test <dot:Literal><a /></dot:Literal>";
             return result;
         }
 
+    }
+
+    public class PostbackHandlerWithRequiredResource : PostBackHandler
+    {
+        public PostbackHandlerWithRequiredResource(ResourceManagement.ResourceManager resources)
+        {
+            resources.AddStartupScript("testscript", "do_some_stuff()");
+        }
+
+        protected internal override string ClientHandlerName => "something";
+
+        protected internal override Dictionary<string, string> GetHandlerOptionClientExpressions()
+        {
+            return new Dictionary<string, string>();
+        }
     }
 
     public class ViewCompilerTestViewModel

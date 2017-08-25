@@ -31,5 +31,19 @@ namespace DotVVM.Samples.Tests.Feature
                 }
             });
         }
+
+        [TestMethod]
+        public void Feature_BindingContexts_CollectionContext()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_BindingContexts_CollectionContext);
+                browser.Wait(1000);
+
+                var elements = browser.FindElements(By.ClassName("collection-index"));
+                elements.ThrowIfSequenceEmpty();
+                elements.ForEach(e => e.CheckIfInnerTextEquals(elements.IndexOf(e).ToString()));
+            });
+        }
     }
 }

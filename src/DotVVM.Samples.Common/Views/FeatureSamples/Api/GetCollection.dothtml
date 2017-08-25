@@ -1,4 +1,4 @@
-﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Api.GetCollectionViewModel, DotVVM.Samples.Common
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Api.GetCollectionViewModel
 
 <!DOCTYPE html>
 
@@ -9,7 +9,7 @@
     <dot:RequiredResource Name="apiInit_api" />
 </head>
 <body>
-    <dot:Repeater DataSource="{value: _api.Companies.Get()}" RenderSettings.Mode="Server">
+    <dot:Repeater DataSource="{value: _api.Companies.Get()}">
         <p>
             {{value: Id}}: 
             {{value: Name}}
@@ -22,10 +22,17 @@
     <hr />
     <div style="margin-left: 30px">
 
-        <dot:Repeater DataSource="{value: Api.RefreshOnChange(_api.Orders.Get(SelectedCompanyId, 0, 20), SelectedCompanyId)}">
-            <p>
+        <dot:Repeater DataSource="{value: SelectedCompanyId == -1 ? null : Api.RefreshOnChange(_api.Orders.Get(SelectedCompanyId, 0, 20), SelectedCompanyId)}">
+            <p Visible="{value: _root.EditedOrderId == Id}">
+                OrderId: {{value: Id}} <br />
+                Date: <dot:TextBox Text="{value: Date.ToString('yyyy-MM-dd')}" Type="date" /> <br /> 
+                <dot:Button Click="{staticCommand: _api.Orders.Put(Id, _this)}" Text="Apply" />
+                <dot:Button Click="{staticCommand: _root.EditedOrderId = -1}" Text="Exit" />
+            </p>
+            <p Visible="{value: _root.EditedOrderId != Id}">
                 OrderId: {{value: Id}}, Date: {{value: Date}}, 
                 <dot:Button Click="{staticCommand: _api.Orders.Delete(Id)}" Text="Delete" />
+                <dot:Button Click="{staticCommand: _root.EditedOrderId = Id}" Text="Edit" />
             </p>
         </dot:Repeater>
     </div>

@@ -41,7 +41,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IViewModelParameterBinder, AttributeViewModelParameterBinder>();
             services.TryAddSingleton<IOutputRenderer, DefaultOutputRenderer>();
             services.TryAddSingleton<IDotvvmPresenter, DotvvmPresenter>();
-            services.TryAddSingleton<IMarkupFileLoader, DefaultMarkupFileLoader>();
+            services.TryAddSingleton<IMarkupFileLoader, AggregateMarkupFileLoader>();
             services.TryAddSingleton<IControlBuilderFactory, DefaultControlBuilderFactory>();
             services.TryAddSingleton<IControlResolver, DefaultControlResolver>();
             services.TryAddSingleton<IControlTreeResolver, DefaultControlTreeResolver>();
@@ -55,7 +55,9 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<ILocalResourceUrlManager, LocalResourceUrlManager>();
             services.TryAddSingleton<IResourceHashService, DefaultResourceHashService>();
             services.TryAddSingleton<IStopwatch, DefaultStopwatch>();
+            services.TryAddSingleton<StaticCommandBindingCompiler, StaticCommandBindingCompiler>();
             services.TryAddSingleton<JavascriptTranslator, JavascriptTranslator>();
+            services.TryAddSingleton<IHttpRedirectService, DefaultHttpRedirectService>();
 
             services.TryAddScoped<AggregateRequestTracer, AggregateRequestTracer>();
             services.TryAddScoped<ResourceManager, ResourceManager>();

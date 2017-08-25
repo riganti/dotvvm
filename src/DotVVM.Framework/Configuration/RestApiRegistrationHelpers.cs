@@ -16,6 +16,8 @@ using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.Utils;
 using System.Diagnostics;
 using DotVVM.Framework.Binding.Properties;
+using Newtonsoft.Json;
+using System.Runtime.CompilerServices;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -27,10 +29,12 @@ namespace DotVVM.Framework.Configuration
         }
 
         private static HashSet<(DotvvmConfiguration, Type)> apiDtosProcessed = new HashSet<(DotvvmConfiguration, Type)>();
-        private static HashSet<Type> apiClientProcessed = new HashSet<Type>();
+        private static ConditionalWeakTable<DotvvmConfiguration, HashSet<Type>> apiClientProcessed = new ConditionalWeakTable<DotvvmConfiguration, HashSet<Type>>();
         private static object locker = new object();
-        private static void RegisterApiDtoProperties(Type obj, DotvvmConfiguration config)
+        private static void RegisterApiDtoProperties(Type obj, DotvvmConfiguration config, Assembly currentAssembly = null)
         {
+            currentAssembly = currentAssembly ?? obj.GetTypeInfo().Assembly;
+            bool isSameAssembly(Type type) => type.GetTypeInfo().Assembly == currentAssembly || type.GetGenericArguments().Any(isSameAssembly);
             lock (locker)
             {
                 if (!apiDtosProcessed.Add((config, obj))) return;
@@ -42,28 +46,39 @@ namespace DotVVM.Framework.Configuration
 
                     config.ServiceLocator.GetService<IViewModelSerializationMapper>().Map(obj, m => {
                         foreach (var prop in m.Properties)
+                        {
                             prop.Name = KnockoutHelper.ConvertToCamelCase(prop.Name);
+                            if (isSameAssembly(prop.Type))
+                                RegisterApiDtoProperties(prop.Type, config, currentAssembly);
+                        }
                     });
                 }
 
-                if (typeof(System.Collections.IEnumerable).IsAssignableFrom(obj) && ReflectionUtils.GetEnumerableType(obj) is Type element)
-                    RegisterApiDtoProperties(element, config);
+                if (typeof(System.Collections.IEnumerable).IsAssignableFrom(obj) && ReflectionUtils.GetEnumerableType(obj) is Type element && isSameAssembly(element))
+                    RegisterApiDtoProperties(element, config, currentAssembly);
+
                 foreach (var t in obj.GenericTypeArguments)
-                    RegisterApiDtoProperties(t, config);
+                    if (isSameAssembly(t))
+                        RegisterApiDtoProperties(t, config, currentAssembly);
             }
         }
 
         private static JsExpression[] SerializeComplexParameters(JsExpression[] expr)
         {
             return expr.Select(p =>
-                p.Annotation<ViewModelInfoAnnotation>() is ViewModelInfoAnnotation vmInfo && ViewModelJsonConverter.IsComplexType(vmInfo.Type) ?
-                Serialize(p) :
+                p.Annotation<ViewModelInfoAnnotation>() is ViewModelInfoAnnotation vmInfo ? (
+                    ViewModelJsonConverter.IsComplexType(vmInfo.Type) ? Serialize(p) :
+                    vmInfo.Type == typeof(DateTime) || vmInfo.Type == typeof(DateTime?) ? SerializeDate(p) :
+                    p) :
                 p
             ).ToArray();
         }
 
         private static JsExpression Serialize(JsExpression expr) =>
             new JsIdentifierExpression("dotvvm").Member("serialization").Member("serialize").Invoke(expr.WithAnnotation(ShouldBeObservableAnnotation.Instance));
+        
+        private static JsExpression SerializeDate(JsExpression expr) =>
+            new JsIdentifierExpression("dotvvm").Member("globalize").Member("parseDotvvmDate").Invoke(expr);
 
         private static JsExpression[] ReplaceDefaultWithUndefined(IEnumerable<JsExpression> arguments, ParameterInfo[] parameters)
         {
@@ -78,15 +93,15 @@ namespace DotVVM.Framework.Configuration
         {
             lock (locker)
             {
-                var registerJS = apiClientProcessed.Add(apiClient);
+                var registerJS = apiClientProcessed.GetOrCreateValue(config).Add(apiClient);
 
                 foreach (var method in apiClient.GetMethods())
                 {
                     if (typeof(Task).IsAssignableFrom(method.ReturnType) || method.IsSpecialName) continue;
 
-                    RegisterApiDtoProperties(method.ReturnType, config);
+                    RegisterApiDtoProperties(method.ReturnType, config, method.DeclaringType.GetTypeInfo().Assembly);
                     foreach (var p in method.GetParameters())
-                        RegisterApiDtoProperties(p.ParameterType, config);
+                        RegisterApiDtoProperties(p.ParameterType, config, method.DeclaringType.GetTypeInfo().Assembly);
 
                     if (registerJS)
                     {
@@ -223,6 +238,7 @@ namespace DotVVM.Framework.Configuration
                 this.ApiDescriptor = descriptor;
             }
 
+            [JsonIgnore]
             public ApiGroupDescriptor ApiDescriptor { get; }
 
             public override JsExpression GetJsTranslation(JsExpression dataContext) =>

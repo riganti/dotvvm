@@ -1,0 +1,52 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Api.AzureFunctionsApiViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <p>
+        Data from GET:
+        <br />
+        Text: {{value: Data.Text}}
+        <br />
+        Number: {{value: Data.Number}}
+        <br />
+        Date: {{value: Data.Date}}
+        <br />
+        Bool: {{value: Data.Bool}}
+    </p>
+    <p>
+        Data from Post:
+        <br />
+        Text: {{value: PostResult.Text}}
+        <br />
+        Number: {{value: PostResult.Number}}
+        <br />
+        Date: {{value: PostResult.Date}}
+        <br />
+        Bool: {{value: PostResult.Bool}}
+    </p>
+
+    <dot:Button Text="Get data" Click="{staticCommand: Data = _azureFuncApi._api_HttpGet_get()}" />
+    <dot:Button Text="Post data" Click="{staticCommand: PostResult = _azureFuncApi._api_HttpPost_post(Data)}" />
+    <br />
+
+    <h3>Countries</h3>
+    <p>
+        Country name: {{value: Country.Name}}
+        <dot:GridView DataSource="{value: Country.Regions}">
+            <EmptyDataTemplate>No regions</EmptyDataTemplate>
+            <dot:GridViewTextColumn ValueBinding="{value: Id}" HeaderText="ID" />
+            <dot:GridViewTextColumn ValueBinding="{value: Name}" HeaderText="Name" />
+        </dot:GridView>
+    </p>
+    <dot:Button Text="Get country" Click="{staticCommand: Country = _azureFuncApi._api_HttpGetCountry_get()}" />
+</body>
+</html>
+
+
+

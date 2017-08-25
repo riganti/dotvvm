@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
             {
                 Context = new TestDotvvmRequestContext
                 {
-                    Configuration = DotvvmConfiguration.CreateDefault(),
+                    Configuration = DotvvmTestHelper.CreateConfiguration(),
                     ModelState = new ModelState()
                 }
             };

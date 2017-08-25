@@ -15,7 +15,7 @@ namespace DotVVM.Framework.Tests.ViewModel
     [TestClass]
     public class ViewModelValidatorTests
     {
-        private IViewModelValidator CreateValidator() => DotvvmConfiguration.CreateDefault().ServiceLocator.GetService<IViewModelValidator>();
+        private IViewModelValidator CreateValidator() => DotvvmTestHelper.CreateConfiguration().ServiceLocator.GetService<IViewModelValidator>();
 
         [TestMethod]
         public void ViewModelValidator_SimpleObject()

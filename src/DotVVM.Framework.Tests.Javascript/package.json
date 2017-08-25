@@ -5,8 +5,9 @@
 	"devDependencies": {
 		"karma": "^0.12.22",
 		"karma-chrome-launcher": "^0.2.1",
-		"karma-teamcity-reporter": "^0.2.1",
-    "karma-jasmine": "^0.3.6",
-    "jasmine-core": "2.4.1"
+		"karma-tfs-reporter": "^1.0.1",
+		"karma-jasmine-html-reporter": "^0.2.2",
+    	"karma-jasmine": "^0.3.6",
+    	"jasmine-core": "2.4.1"
 	}
 }

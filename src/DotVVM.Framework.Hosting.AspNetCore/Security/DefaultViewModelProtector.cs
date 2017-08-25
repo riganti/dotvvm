@@ -38,6 +38,11 @@ namespace DotVVM.Framework.Security
             return Convert.ToBase64String(protectedData);
         }
 
+        public byte[] Protect(byte[] data, params string[] purposes) =>
+            this.protectionProvider
+            .CreateProtector(PRIMARY_PURPOSE, purposes)
+            .Protect(data);
+
         public string Unprotect(string protectedData, IDotvvmRequestContext context)
         {
             if (protectedData == null) throw new ArgumentNullException(nameof(protectedData));
@@ -55,5 +60,9 @@ namespace DotVVM.Framework.Security
             return Encoding.UTF8.GetString(unprotectedData);
         }
 
+        public byte[] Unprotect(byte[] protectedData, params string[] purposes) =>
+            this.protectionProvider
+            .CreateProtector(PRIMARY_PURPOSE, purposes)
+            .Unprotect(protectedData);
     }
 }

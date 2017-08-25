@@ -31,4 +31,11 @@ namespace DotVVM.Framework.Binding.Expressions
             };
         }
     }
+
+    public class ResourceBindingExpression<T> : ResourceBindingExpression, IStaticValueBinding<T>
+    {
+        public ResourceBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties) { }
+
+        public new CompiledBindingExpression.BindingDelegate<T> BindingDelegate => base.BindingDelegate.ToGeneric<T>();
+    }
 }
