@@ -768,7 +768,7 @@ class DotVVM {
             if (query.hasOwnProperty(property)) {
                 if (!property) continue;
                 var queryParamValue = ko.unwrap(query[property]);
-                if (!queryParamValue) continue;
+                if (queryParamValue != null) continue;
                 resultSuffix = resultSuffix.concat(resultSuffix.indexOf("?") !== -1
                     ? `&${property}=${queryParamValue}`
                     : `?${property}=${queryParamValue}`);
