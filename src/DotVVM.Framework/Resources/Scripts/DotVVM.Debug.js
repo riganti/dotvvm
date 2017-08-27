@@ -72,16 +72,6 @@
         e.handled = true;
     });
 
-    function setDebugMapProperty(obj) {
-        Object.defineProperty(obj, "$debugMap", {
-            enumerable: false,
-            configurable: true,
-            get: function() {
-                return dotvvm.serialization.serialize(obj)
-            }
-        });
-    }
-
     function displayPostbackAbortedWarning(message) {
         notificationWindow.text(message);
         notificationWindow.show(200);
@@ -96,9 +86,5 @@
                 displayPostbackAbortedWarning("Postback aborted because validation failed.");
             } else displayPostbackAbortedWarning("Postback interrupted");
         }
-        setDebugMapProperty(dotvvm.viewModels[e.viewModelName]);
-    });
-    dotvvm.events.init.subscribe(function() {
-        setDebugMapProperty(dotvvm.viewModels["root"])
     });
 })(jQuery);

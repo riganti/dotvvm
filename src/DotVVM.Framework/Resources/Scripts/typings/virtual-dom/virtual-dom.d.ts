@@ -6,18 +6,19 @@
 declare namespace virtualDom {
   export var h: H;
   
-  export function diff(a: VNode, b: VNode): VPatches;
-  export function patch(rootNode: HTMLElement, patches: VPatches): HTMLElement;
+  export function diff(a: VTree, b: VTree): VPatches;
+  export function patch(rootNode: Node, patches: VPatches): HTMLElement;
   export function create(vnode: VNode, opts: CreateOptions): HTMLElement;
+  export function create(vnode: VTree, opts: CreateOptions): Node;
   
   export type VTree = VNode | VText | Widget | Thunk
   
   export class VNode {
     constructor(tagName: string);
     constructor(tagName: string, properties: Props);
-    constructor(tagName: string, properties: Props, children: (VNode | VText | string)[]);
-    constructor(tagName: string, properties: Props, children: (VNode | VText | string)[], key: any);
-    constructor(tagName: string, properties: Props, children: (VNode | VText | string)[], key: any, namespace: string);
+    constructor(tagName: string, properties: Props, children: (VTree | string)[]);
+    constructor(tagName: string, properties: Props, children: (VTree | string)[], key: any);
+    constructor(tagName: string, properties: Props, children: (VTree | string)[], key: any, namespace: string);
     
     tagName: string;
     properties: Props;
@@ -57,7 +58,7 @@ declare namespace virtualDom {
    */
   export interface Widget {
     init(): Element;
-    update(previousWidget: Widget, previousDomNode: Element): any;
+    update(previousWidget: this, previousDomNode: Element): Element | undefined;
     destroy(domNode: Element): any;
     
     /** Must be "Widget" */

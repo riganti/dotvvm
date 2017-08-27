@@ -1,6 +1,3 @@
-/// <reference path="typings/knockout/knockout.d.ts" />
-/// <reference path="typings/knockout/knockout.dotvvm.d.ts" />
-/// <reference path="typings/knockout.mapper/knockout.mapper.d.ts" />
 /// <reference path="typings/globalize/globalize.d.ts" />
 
 interface Document {
@@ -29,9 +26,19 @@ interface IDotvvmViewModelInfo {
     virtualDirectory?: string;
 }
 
+
 interface IDotvvmViewModels {
     [name: string]: IDotvvmViewModelInfo
 }
+
+
+type IDotvvmStateRoot<T> = {
+    readonly viewModel: T;
+    readonly renderedResources: string[];
+    readonly url: string
+    readonly virtualDirectory: string
+}
+
 
 class DotVVM {
     private postBackCounter = 0;
@@ -39,13 +46,30 @@ class DotVVM {
     private fakeRedirectAnchor: HTMLAnchorElement;
     private resourceSigns: { [name: string]: boolean } = {}
     private isViewModelUpdating: boolean = true;
+    public receivedViewModel: IDotvvmViewModelInfo = {}
 
     // warning this property is referenced in ModelState.cs and KnockoutHelper.cs
-    public viewModelObservables: {
-        [name: string]: KnockoutObservable<IDotvvmViewModelInfo>;
-    } = {};
     public isSpaReady = ko.observable(false);
-    public viewModels: IDotvvmViewModels = {};
+    private _viewModels;
+    
+    public get viewModels() : IDotvvmViewModels {
+        return this._viewModels || (this._viewModels = {
+            root: {
+                viewModel: ko.dataFor(document.body.firstElementChild)
+            }
+        })
+    }
+
+    private _viewModelObservables;
+    public get viewModelObservables() : { [name: string]: KnockoutObservable<IDotvvmViewModelInfo>; } {
+        return this._viewModelObservables || (this._viewModelObservables = {
+            root: {
+                viewModel: ko.contextFor(document.body.firstElementChild).$rawData
+            }
+        })
+    }
+
+    public rootRenderer: Renderer<any>
     public culture: string;
     public serialization = new DotvvmSerialization();
     public postBackHandlers: { [name: string]: ((options: any) => DotvvmPostBackHandler) } = {
@@ -145,7 +169,8 @@ class DotVVM {
         this.addKnockoutBindingHandlers();
 
         // load the viewmodel
-        var thisViewModel = this.viewModels[viewModelName] = JSON.parse((<HTMLInputElement>document.getElementById("__dot_viewmodel_" + viewModelName)).value);
+        const thisViewModel = this.receivedViewModel = JSON.parse((<HTMLInputElement>document.getElementById("__dot_viewmodel_" + viewModelName)).value);
+        if (typeof thisViewModel != "object" || thisViewModel.viewModel == null) throw new Error("Received viewmodel is invalid");
         if (thisViewModel.resources) {
             for (var r in thisViewModel.resources) {
                 this.resourceSigns[r] = true;
@@ -154,16 +179,30 @@ class DotVVM {
         if (thisViewModel.renderedResources) {
             thisViewModel.renderedResources.forEach(r => this.resourceSigns[r] = true);
         }
-        var idFragment = thisViewModel.resultIdFragment;
-        var viewModel = thisViewModel.viewModel = this.serialization.deserialize(this.viewModels[viewModelName].viewModel, {}, true);
+        const idFragment = thisViewModel.resultIdFragment;
+        const viewModel = thisViewModel.viewModel;
 
         // initialize services
         this.culture = culture;
         this.validation = new DotvvmValidation(this);
 
         // wrap it in the observable
-        this.viewModelObservables[viewModelName] = ko.observable(viewModel);
-        ko.applyBindings(this.viewModelObservables[viewModelName], document.documentElement);
+        // this.viewModelObservables[viewModelName] = ko.observable(viewModel);
+        // ko.applyBindings(this.viewModelObservables[viewModelName], document.documentElement);
+
+        var elements : Element [] = []
+        for (var e of createArray(document.body.children))
+        {
+            if (e.tagName.toLowerCase() == "script") {
+                break;
+            } else {
+                elements.push(e)
+            }
+        }
+
+        var renderer = RendererInitializer.initFromNode(elements, viewModel)
+        renderer.dispatchUpdate()
+        this.rootRenderer = renderer;
 
         // trigger the init event
         this.events.init.trigger(new DotvvmEventArgs(viewModel));
@@ -230,15 +269,7 @@ class DotVVM {
     }
 
     private persistViewModel(viewModelName: string) {
-        var viewModel = this.viewModels[viewModelName];
-        var persistedViewModel = {};
-        for (var p in viewModel) {
-            if (viewModel.hasOwnProperty(p)) {
-                persistedViewModel[p] = viewModel[p];
-            }
-        }
-        persistedViewModel["viewModel"] = this.serialization.serialize(persistedViewModel["viewModel"], { serializeAll: true });
-        (<HTMLInputElement>document.getElementById("__dot_viewmodel_" + viewModelName)).value = JSON.stringify(persistedViewModel);
+        (<HTMLInputElement>document.getElementById("__dot_viewmodel_" + viewModelName)).value = JSON.stringify({viewModel: this.rootRenderer.state, ...this.receivedViewModel});
     }
 
     private backUpPostBackConter(): number {
@@ -261,10 +292,10 @@ class DotVVM {
         var data = this.serialization.serialize({
             "args": args,
             "command": command,
-            "$csrfToken": this.viewModels[viewModelName].viewModel.$csrfToken
+            "$csrfToken": this.rootRenderer.state.$csrfToken
         });
 
-        this.postJSON(<string>this.viewModels[viewModelName].url, "POST", ko.toJSON(data), response => {
+        this.postJSON(<string>this.receivedViewModel.url, "POST", ko.toJSON(data), response => {
             if (!this.isPostBackStillActive(currentPostBackCounter)) return;
             try {
                 this.isViewModelUpdating = true;
@@ -335,21 +366,21 @@ class DotVVM {
 
     public postbackCore(viewModelName: string, options: PostbackOptions, path: string[], command: string, controlUniqueId: string, context: any, validationTargetPath?: any, commandArgs?: any[]) {
         return new Promise<() => Promise<DotvvmAfterPostBackEventArgs>>((resolve, reject) => {
-            var viewModel = this.viewModels[viewModelName].viewModel;
+            var state = this.rootRenderer.state;
 
             this.lastStartedPostack = options.postbackId
             // perform the postback
             this.updateDynamicPathFragments(context, path);
             var data = {
-                viewModel: this.serialization.serialize(viewModel, { pathMatcher(val) { return context && val == context.$data } }),
+                viewModel: this.serialization.serialize(state, { pathMatcher(val) { return context && val == context.$data } }),
                 currentPath: path,
                 command: command,
                 controlUniqueId: this.processPassedId(controlUniqueId, context),
                 validationTargetPath: validationTargetPath || null,
-                renderedResources: this.viewModels[viewModelName].renderedResources,
+                renderedResources: this.receivedViewModel.renderedResources,
                 commandArgs: commandArgs
             };
-            this.postJSON(<string>this.viewModels[viewModelName].url, "POST", ko.toJSON(data), result => {
+            this.postJSON(<string>this.receivedViewModel.url, "POST", ko.toJSON(data), result => {
                 resolve(() => new Promise((resolve, reject) => {
                     const locationHeader = result.getResponseHeader("Location");
 
@@ -357,10 +388,7 @@ class DotVVM {
                                          { action: "redirect", url: locationHeader } :
                                          JSON.parse(result.responseText);
 
-                    if (!resultObject.viewModel && resultObject.viewModelDiff) {
-                        // TODO: patch (~deserialize) it to ko.observable viewModel
-                        resultObject.viewModel = this.patch(data.viewModel, resultObject.viewModelDiff);
-                    }
+                    
 
                     this.loadResourceList(resultObject.resources, () => {
                         var isSuccess = false;
@@ -371,11 +399,14 @@ class DotVVM {
                                 // remove updated controls
                                 var updatedControls = this.cleanUpdatedControls(resultObject);
 
+                                if (!resultObject.viewModel && resultObject.viewModelDiff) {
+                                    // TODO: patch (~deserialize) it to ko.observable viewModel
+                                    resultObject.viewModel = this.patch(this.rootRenderer.state, resultObject.viewModelDiff);
+                                }
+
                                 // update the viewmodel
                                 if (resultObject.viewModel) {
-                                    ko.delaySync.pause();
-                                    this.serialization.deserialize(resultObject.viewModel, this.viewModels[viewModelName].viewModel);
-                                    ko.delaySync.resume();
+                                    this.rootRenderer.setState(resultObject.viewModel)
                                 }
                                 isSuccess = true;
 
@@ -405,15 +436,15 @@ class DotVVM {
 
                         // trigger afterPostback event
                         if (!isSuccess) {
-                            reject(new DotvvmErrorEventArgs(viewModel, result))
+                            reject(new DotvvmErrorEventArgs(state, result))
                         } else {
-                            var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(options.sender, viewModel, viewModelName, validationTargetPath, resultObject, options.postbackId, resultObject.comandResult)
+                            var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(options.sender, state, viewModelName, validationTargetPath, resultObject, options.postbackId, resultObject.comandResult)
                             resolve(afterPostBackArgs)
                         }
                     });
                 }));
             }, xhr => {
-                reject({ type: 'network', error: new DotvvmErrorEventArgs(viewModel, xhr) });
+                reject({ type: 'network', error: new DotvvmErrorEventArgs(state, xhr) });
             });
         });
     }
@@ -571,9 +602,7 @@ class DotVVM {
                             }
                         }
 
-                        ko.delaySync.pause();
-                        this.serialization.deserialize(resultObject.viewModel, this.viewModels[viewModelName].viewModel);
-                        ko.delaySync.resume();
+                        this.rootRenderer.setState(resultObject.viewModel)
                         isSuccess = true;
 
                         // add updated controls

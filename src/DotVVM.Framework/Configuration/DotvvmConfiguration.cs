@@ -217,7 +217,12 @@ namespace DotVVM.Framework.Configuration
                         "window.jQuery",
                         new EmbeddedResourceLocation(typeof(DotvvmConfiguration).GetTypeInfo().Assembly, "DotVVM.Framework.Resources.Scripts.jquery-2.1.1.min.js"))
                 });
-            configuration.Resources.Register(ResourceConstants.KnockoutJSResourceName,
+            configuration.Resources.Register("virtual-dom",
+                new ScriptResource(new EmbeddedResourceLocation(
+                    typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
+                    "DotVVM.Framework.Resources.Scripts.virtual-dom.js")));
+
+            configuration.Resources.Register("knockout",
                 new ScriptResource(new EmbeddedResourceLocation(
                     typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
                     "DotVVM.Framework.Resources.Scripts.knockout-latest.js")));
@@ -227,12 +232,10 @@ namespace DotVVM.Framework.Configuration
                     typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
                     "DotVVM.Framework.Resources.Scripts.DotVVM.js"))
                 {
-                    Dependencies = new[] { ResourceConstants.KnockoutJSResourceName }
+                    Dependencies = new[] { "virtual-dom", "knockout" }
                 });
             configuration.Resources.Register(ResourceConstants.DotvvmResourceName,
-                new InlineScriptResource()
-                {
-                    Code = @"if (window.dotvvm) { throw 'DotVVM is already loaded!'; } window.dotvvm = new DotVVM();",
+                new InlineScriptResource(@"if (window.dotvvm) { throw 'DotVVM is already loaded!'; } window.dotvvm = new DotVVM();") {
                     Dependencies = new[] { ResourceConstants.DotvvmResourceName + ".internal" }
                 });
 

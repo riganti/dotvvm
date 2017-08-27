@@ -50,6 +50,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\Scripts\DotVVM.Debug.js" />
     <EmbeddedResource Include="Resources\Scripts\knockout-latest.js" />
+    <EmbeddedResource Include="Resources\Scripts\virtual-dom.js" />
     <None Include="Resources\Scripts\DotVVM.DomUtils.ts" />
     <None Include="Resources\Scripts\DotVVM.Evaluator.ts" />
     <None Include="Resources\Scripts\DotVVM.Events.ts" />

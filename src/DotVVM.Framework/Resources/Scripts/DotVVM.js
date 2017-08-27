@@ -1,3 +1,11 @@
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -8,6 +16,677 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+/// <reference path="typings/virtual-dom/virtual-dom.d.ts" />
+var ko_createBindingContext = (function () {
+    var c;
+    for (var i in ko) {
+        if (ko[i].prototype && typeof (ko[i].prototype['createChildContext']) == "function")
+            c = i;
+    }
+    var context = ko[c];
+    return function (dataItemOrAccessor, parentContext, dataItemAlias, extendCallback, options) {
+        return new context(dataItemOrAccessor, parentContext, dataItemAlias, extendCallback, options);
+    };
+})();
+(function () {
+    var origFn = ko.contextFor;
+    var fnCore = function (element) {
+        var context2 = element["@dotvvm-data-context"];
+        if (context2) {
+            // var observable = ko.observable(context2)
+            // element["@dotvvm-data-context-refresh"] = c => observable(c)
+            return KnockoutBindingWidget.createKnockoutContext(context2);
+        }
+        if (element.parentElement)
+            return contextFor(element.parentElement);
+    };
+    var contextFor = ko.contextFor = function (element) {
+        return fnCore(element) || origFn(element);
+        // const koContext = origFn(element)
+        // if (koContext) return koContext;
+    };
+    ko.dataFor = function (node) {
+        var context = contextFor(node);
+        return context ? context['$data'] : undefined;
+    };
+    ko.originalContextFor = origFn;
+})();
+var KnockoutBindingWidget = (function () {
+    function KnockoutBindingWidget(dataContext, node, nodeChildren, dataBind, koComments) {
+        this.dataContext = dataContext;
+        this.node = node;
+        this.nodeChildren = nodeChildren;
+        this.dataBind = dataBind;
+        this.koComments = koComments;
+        // type KnockoutVirtualElement = { start: number; end: number; dataBind: string } 
+        this.type = "Widget";
+        this.elementId = Math.floor(Math.random() * 1000000).toString();
+        this.contentMapping = null;
+        this.lastState = ko.observable(dataContext);
+        this.koComments.sort(function (a, b) { return a.start - b.start; });
+        for (var i = 1; i < this.koComments.length; i++) {
+            if (koComments[i - 1].end > koComments[i].start)
+                throw new Error("Knockout comments can't overlap.");
+        }
+    }
+    KnockoutBindingWidget.prototype.getFakeContent = function () {
+        var comments = this.koComments;
+        var content = [];
+        for (var i = 0, ci = 0; i < (this.nodeChildren || this.node.children).length; i++) {
+            if (comments[ci] && comments[ci].start == i) {
+                content.push(document.createComment("ko " + comments[ci].dataBind));
+            }
+            content.push(virtualDom.create(new virtualDom.VNode("span", { dataset: { index: i.toString(), commentIndex: ci.toString(), fakeContentFor: this.elementId } }), {}));
+            if (comments[ci] && comments[ci].end <= i) {
+                if (comments[ci].end != i)
+                    throw new Error();
+                content.push(document.createComment("/ko"));
+                ci++;
+            }
+        }
+        return content;
+    };
+    KnockoutBindingWidget.prototype.init = function () {
+        var _this = this;
+        var element = virtualDom.create(this.node, {});
+        if (this.nodeChildren != null)
+            for (var _i = 0, _a = this.getFakeContent(); _i < _a.length; _i++) {
+                var c = _a[_i];
+                element.appendChild(c);
+            }
+        var rootKoContext = KnockoutBindingWidget.createKnockoutContext(this.lastState);
+        var contentIsApplied = false;
+        if (this.dataBind != null) {
+            // apply data-bind of the top element
+            element.setAttribute("data-bind", this.dataBind);
+            var bindingResult = ko.applyBindingAccessorsToNode(element, function (a, b) {
+                if (a != rootKoContext)
+                    throw new Error("Something is wrong.");
+                _this.lastState();
+                var bindingAccessor = ko.bindingProvider.instance.getBindingAccessors(element, rootKoContext);
+                // const result = {}
+                // for (const key in bindingAccessor) {
+                //     if (bindingAccessor.hasOwnProperty(key)) {
+                //         const element = bindingAccessor[key];
+                //         result[key] = ko.pureComputed(() => {
+                //             if (rootKoContext["_subscribable"])
+                //                 rootKoContext["_subscribable"]()
+                //             return ko.unwrap(element)
+                //         })
+                //     }
+                // }
+                // return result
+                return bindingAccessor;
+            }, rootKoContext);
+            contentIsApplied = !bindingResult["shouldBindDescendants"];
+        }
+        if (!contentIsApplied) {
+            // apply knockout comments
+            for (var _b = 0, _c = createArray(element.childNodes); _b < _c.length; _b++) {
+                var e = _c[_b];
+                if (e.nodeType == Node.COMMENT_NODE && ko.bindingProvider.instance.nodeHasBindings(e)) {
+                    ko.applyBindingsToNode(e, null, rootKoContext);
+                }
+            }
+        }
+        if (this.nodeChildren != null) {
+            this.contentMapping = [];
+            // replace fake elements with real nodes
+            this.replaceTmpSpans(createArray(element.getElementsByTagName("span")), element);
+            this.setupDomWatcher(element);
+        }
+        return element;
+    };
+    KnockoutBindingWidget.prototype.setupDomWatcher = function (element) {
+        var _this = this;
+        if (!this.domWatcher)
+            this.domWatcher = new MutationObserver(function (c) {
+                for (var _i = 0, c_1 = c; _i < c_1.length; _i++) {
+                    var rec = c_1[_i];
+                    _this.replaceTmpSpans(createArray(rec.addedNodes), element);
+                    // TODO removed nodes
+                    for (var _a = 0, _b = createArray(rec.removedNodes); _a < _b.length; _a++) {
+                        var rm = _b[_a];
+                        if (rm["__bound_element"] && rm["__bound_element"].parentElement) {
+                            rm["__bound_element"].remove();
+                        }
+                    }
+                }
+            });
+        this.domWatcher.observe(element, { childList: true, subtree: true, attributes: true, characterData: true });
+    };
+    KnockoutBindingWidget.prototype.copyKnockoutInternalDataProperty = function (from, to) {
+        var name = KnockoutBindingWidget.knockoutInternalDataPropertyName || (function () {
+            for (var n in from) {
+                if (n.indexOf("__ko__") == 0) {
+                    return KnockoutBindingWidget.knockoutInternalDataPropertyName = n;
+                }
+            }
+            return null;
+        })();
+        if (name && from[name]) {
+            to[name] = from[name];
+        }
+    };
+    KnockoutBindingWidget.prototype.isElementRooted = function (element, root) {
+        while (element.parentNode != null) {
+            if (element.parentNode == root)
+                return true;
+            element = element.parentNode;
+        }
+        return false;
+    };
+    KnockoutBindingWidget.prototype.replaceTmpSpans = function (nodes, rootElement) {
+        var _this = this;
+        var _loop_1 = function () {
+            var e = n;
+            if (n.nodeType == Node.ELEMENT_NODE && e.getAttribute("data-fake-content-for") == this_1.elementId && this_1.isElementRooted(e, rootElement) && !e["__bound_element"]) {
+                var index_1 = parseInt(e.getAttribute("data-index"));
+                var commentIndex = parseInt(e.getAttribute("data-comment-index"));
+                var context = (function () {
+                    var koContext = ko.originalContextFor(e);
+                    return koContext ? KnockoutBindingWidget.getBetterContext(koContext) : _this.dataContext;
+                })();
+                var vdomNode_1 = this_1.nodeChildren[index_1](context);
+                var element_1 = virtualDom.create(vdomNode_1, {});
+                // this.copyKnockoutInternalDataProperty(e, element);
+                var subscribable = null;
+                if (context != this_1.dataContext) {
+                    element_1["@dotvvm-data-context"] = subscribable = ko.pureComputed(function () {
+                        _this.lastState();
+                        var koContext = ko.originalContextFor(e);
+                        if (koContext && ko.isObservable(koContext["_subscribable"]))
+                            koContext["_subscribable"]();
+                        return koContext ? KnockoutBindingWidget.getBetterContext(koContext) : _this.dataContext;
+                    });
+                }
+                else {
+                    element_1["@dotvvm-data-context-issame"] = true;
+                }
+                e["__bound_element"] = element_1;
+                e.parentElement.insertBefore(element_1, e);
+                // this.contentMapping!.push({ element, index, lastDom: vdomNode })
+                if (subscribable) {
+                    var subscription = subscribable.subscribe(function (c) {
+                        var vdom2 = _this.nodeChildren[index_1](c);
+                        var diff = virtualDom.diff(vdomNode_1, vdom2);
+                        vdomNode_1 = vdom2;
+                        virtualDom.patch(element_1, diff);
+                    });
+                }
+            }
+        };
+        var this_1 = this;
+        for (var _i = 0, nodes_1 = nodes; _i < nodes_1.length; _i++) {
+            var n = nodes_1[_i];
+            _loop_1();
+        }
+    };
+    KnockoutBindingWidget.prototype.update = function (previousWidget, previousDomNode) {
+        var _this = this;
+        if (previousWidget.dataBind != this.dataBind ||
+            previousWidget.koComments.length != previousWidget.koComments.length ||
+            !previousWidget.koComments.every(function (e, i) { return _this.koComments[i].dataBind == e.dataBind && _this.koComments[i].start == e.start && _this.koComments[i].end == e.end; })) {
+            // data binding has changed, rerender the widget
+            return this.init();
+        }
+        if (!!previousWidget.nodeChildren != !!previousWidget.nodeChildren)
+            throw new Error("");
+        this.elementId = previousWidget.elementId;
+        this.lastState = previousWidget.lastState;
+        this.contentMapping = previousWidget.contentMapping;
+        if (previousWidget.domWatcher)
+            previousWidget.domWatcher.disconnect();
+        if (this.nodeChildren != null) {
+            this.contentMapping = this.contentMapping || [];
+            // replace fake elements with real nodes
+            this.setupDomWatcher(previousDomNode);
+            // TODO: for some reason the MutationObserver does not react to changes when the element is also observed by other oberver
+            this.replaceTmpSpans(createArray(previousDomNode.getElementsByTagName("span")), previousDomNode);
+        }
+        previousWidget.lastState(this.dataContext);
+    };
+    KnockoutBindingWidget.prototype.destroy = function (domNode) {
+        this.domWatcher.disconnect();
+    };
+    KnockoutBindingWidget.getBetterContext = function (dataContext) {
+        if (dataContext["$betterContext"] && dataContext["$createdForSelf"] === dataContext)
+            return ko.unwrap(dataContext["$betterContext"]);
+        var parent = dataContext.$parentContext != null ? KnockoutBindingWidget.getBetterContext(dataContext.$parentContext) : undefined;
+        var data = (dataContext["$createdForSelf"] === dataContext && ko.unwrap(dataContext["$unwrapped"])) || ko.unwrap(dataContext.$data["__upwrapped_data"]) || dotvvm.serialization.serialize(dataContext.$data);
+        var extensions = undefined;
+        for (var prop in dataContext) {
+            if (dataContext.hasOwnProperty(prop) && prop != "$data" && prop != "$parent" && prop != "$parents" && prop != "$root" && prop != "ko" && prop != "$rawData" && prop != "_subscribable") {
+                extensions = extensions || {};
+                extensions[prop] = dataContext[prop];
+            }
+        }
+        return {
+            dataContext: data,
+            parentContext: parent,
+            update: function (updater) {
+                if (typeof dataContext.$data["__update_function"] == "function") {
+                    console.log("Updating ", dataContext.$data);
+                    dataContext.$data["__update_function"](updater);
+                }
+                else {
+                    // deserialize the change to the knockout context
+                    console.warn("Deserializing chnages to knockout context");
+                    dotvvm.serialization.deserialize(updater(dotvvm.serialization.serialize(dataContext.$data)), dataContext.$data);
+                }
+            },
+            "@extensions": extensions
+        };
+    };
+    KnockoutBindingWidget.createKnockoutContext = function (dataContext) {
+        var dataComputed = ko.pureComputed(function () { return KnockoutBindingWidget.wrapInObservables(ko.pureComputed(function () { return dataContext().dataContext; }), dataContext().update); });
+        var result = dataContext.peek().parentContext ?
+            KnockoutBindingWidget.createKnockoutContext(ko.pureComputed(function () { return dataContext().parentContext || { dataContext: null, update: function (u) { console.warn("Ou, updating non existent viewModel"); } }; }))
+                .createChildContext(dataComputed) :
+            ko_createBindingContext(dataComputed);
+        result["$unwraped"] = ko.pureComputed(function () { return dataContext().dataContext; });
+        result["$betterContext"] = ko.pureComputed(function () { return dataContext(); });
+        result["$createdForSelf"] = result;
+        var extensions = dataContext.peek()["@extensions"];
+        if (extensions != null) {
+            for (var ext in extensions) {
+                if (extensions.hasOwnProperty(ext)) {
+                    result[ext] = extensions[ext];
+                }
+            }
+        }
+        return result;
+    };
+    KnockoutBindingWidget.wrapInObservables = function (objOrObservable, update) {
+        if (update === void 0) { update = null; }
+        var obj = ko.unwrap(objOrObservable);
+        var createComputed = function (indexer, updateProperty) {
+            if (obj[indexer] instanceof Array) {
+                return KnockoutBindingWidget.wrapInObservables(ko.isObservable(objOrObservable) ? ko.pureComputed(function () { return objOrObservable()[indexer]; }) : obj[indexer], update == null ? null : function (u) { return update(function (vm) { return updateProperty(vm, u); }); });
+            }
+            else {
+                // knockout does not like when the object gets replaced by a new one, so we will just update this one every time...
+                var cache_1 = undefined;
+                return ko.pureComputed({
+                    read: function () {
+                        // when the cache contains non-object it's either empty or contain primitive (and immutable) value
+                        return cache_1 != null && typeof cache_1 == "object" ? cache_1 :
+                            (cache_1 = KnockoutBindingWidget.wrapInObservables(ko.isObservable(objOrObservable) ? ko.pureComputed(function () { return objOrObservable()[indexer]; }) : obj[indexer], update == null ? null : function (u) { return update(function (vm) { return updateProperty(vm, u); }); }));
+                    },
+                    write: update == null ? undefined :
+                        function (val) { return update(function (vm) { return updateProperty(vm, function (_) { return ko.unwrap(val); }); }); }
+                });
+            }
+        };
+        var arrayUpdate = function (index) { return function (vm, prop) { var r = vm.slice(0); r[index] = prop(r[index]); return r; }; };
+        var objUpdate = function (propName) { return function (vm, prop) {
+            return (__assign({}, vm, (_a = {}, _a[propName] = prop(vm[propName]), _a)));
+            var _a;
+        }; };
+        if (typeof obj != "object" || obj == null)
+            return obj;
+        if (obj instanceof Array) {
+            var result = [];
+            result["__upwrapped_data"] = objOrObservable;
+            if (update)
+                result["__update_function"] = update;
+            for (var index = 0; index < obj.length; index++) {
+                result.push(createComputed(index, arrayUpdate(index)));
+            }
+            return ko.observableArray(result);
+        }
+        else {
+            var result = {};
+            result["__upwrapped_data"] = objOrObservable;
+            if (update)
+                result["__update_function"] = update;
+            for (var key in obj) {
+                if (obj.hasOwnProperty(key)) {
+                    result[key] = createComputed(key, objUpdate(key));
+                }
+            }
+            return result;
+        }
+    };
+    KnockoutBindingWidget.createDecorator = function (element) {
+        var dataBindAttribute = element.getAttribute("data-bind");
+        var hasCommentChild = createArray(element.childNodes).some(function (n) { return n.nodeType == Node.COMMENT_NODE && ko.bindingProvider.instance.nodeHasBindings(n); });
+        var commentNodesHaveTextProperty = document && document.createComment("test").text === "<!--test-->";
+        var startCommentRegex = commentNodesHaveTextProperty ? /^<!--\s*ko(?:\s+([\s\S]+))?\s*-->$/ : /^\s*ko(?:\s+([\s\S]+))?\s*$/;
+        var getKoCommentValue = function (node) {
+            var regexMatch = (commentNodesHaveTextProperty ? node.text : node.nodeValue).match(startCommentRegex);
+            return regexMatch ? regexMatch[1] : null;
+        };
+        if (dataBindAttribute || hasCommentChild) {
+            var kk_1 = [];
+            var elementIndex = 0;
+            var skipToEndComment = [];
+            var startComments = [];
+            for (var _i = 0, _a = createArray(element.childNodes); _i < _a.length; _i++) {
+                var n = _a[_i];
+                if (n.nodeType == Node.COMMENT_NODE && ko.bindingProvider.instance.nodeHasBindings(n)) {
+                    skipToEndComment.push(ko.virtualElements.childNodes(n).length);
+                    startComments.push(kk_1.push({
+                        start: elementIndex,
+                        end: -1,
+                        dataBind: getKoCommentValue(n)
+                    }) - 1);
+                }
+                if (skipToEndComment.length > 0)
+                    if (skipToEndComment[skipToEndComment.length - 1]-- <= 0) {
+                        skipToEndComment.pop();
+                        var dd = kk_1[startComments.pop()];
+                        dd.end = elementIndex;
+                    }
+                elementIndex++;
+            }
+            if (skipToEndComment.length > 0)
+                if (skipToEndComment[skipToEndComment.length - 1]-- <= 0) {
+                    skipToEndComment.pop();
+                    var dd = kk_1[startComments.pop()];
+                    dd.end = elementIndex;
+                }
+            return function (node) {
+                var content = null;
+                if (node.type == "ast") {
+                    content = node.content.map(function (e) { return RendererInitializer.createRenderFunction(e); });
+                }
+                else
+                    throw new Error();
+                return {
+                    type: "decorator", fn: RendererInitializer.astFunc(1000000, [], function (dataContext, elements) { return function (node) {
+                        var a = node;
+                        if (a.type != "VirtualNode")
+                            throw new Error();
+                        var wrapperElement = content == null ? a : new virtualDom.VNode(a.tagName, a.properties, [], a.key, a.namespace);
+                        return new KnockoutBindingWidget(dataContext, wrapperElement, content != null ? content.map(function (e) { return function (dc) { return e(dc); }; }) : null, dataBindAttribute, kk_1);
+                    }; })
+                };
+            };
+        }
+        return undefined;
+    };
+    return KnockoutBindingWidget;
+}());
+KnockoutBindingWidget.knockoutInternalDataPropertyName = null;
+var TwoWayBinding = (function () {
+    function TwoWayBinding(update, value) {
+        this.update = update;
+        this.value = value;
+    }
+    return TwoWayBinding;
+}());
+var createArray = function (a) { return Array.prototype.slice.call(a); };
+var HtmlElementPatcher = (function () {
+    function HtmlElementPatcher(element, initialDom) {
+        this.element = element;
+        this.previousDom = initialDom;
+    }
+    HtmlElementPatcher.prototype.applyDom = function (dom) {
+        if (this.previousDom == null) {
+            var newElement = virtualDom.create(dom, {});
+            this.element.parentElement.replaceChild(newElement, this.element);
+            this.element = newElement;
+        }
+        else {
+            var diff = virtualDom.diff(this.previousDom, dom);
+            virtualDom.patch(this.element, diff);
+        }
+        this.previousDom = dom;
+    };
+    return HtmlElementPatcher;
+}());
+var Renderer = (function () {
+    function Renderer(initialState, renderFunctions, vdomDispatcher) {
+        this.renderFunctions = renderFunctions;
+        this.vdomDispatcher = vdomDispatcher;
+        this.startTime = null;
+        this.setState(initialState);
+    }
+    Object.defineProperty(Renderer.prototype, "state", {
+        get: function () {
+            return this._state;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Renderer.prototype, "isDirty", {
+        get: function () {
+            return this._isDirty;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Renderer.prototype.dispatchUpdate = function () {
+        if (!this._isDirty) {
+            this._isDirty = true;
+            window.requestAnimationFrame(this.rerender.bind(this));
+        }
+    };
+    Renderer.prototype.rerender = function (time) {
+        var _this = this;
+        if (this.startTime === null)
+            this.startTime = time;
+        this._isDirty = false;
+        var vdom = this.renderFunctions.map(function (f) { return f({
+            update: _this.update.bind(_this),
+            dataContext: _this._state
+        }); });
+        console.log("Dispatching new VDOM");
+        this.vdomDispatcher(vdom);
+    };
+    Renderer.prototype.setState = function (newState) {
+        if (newState == null)
+            throw new Error("State can't be null or undefined.");
+        this.dispatchUpdate();
+        return this._state = newState;
+    };
+    Renderer.prototype.update = function (updater) {
+        return this.setState(updater(this._state));
+    };
+    return Renderer;
+}());
+var RendererInitializer;
+(function (RendererInitializer) {
+    RendererInitializer.astConstant = function (val) { return ({ type: "constant", constant: val }); };
+    RendererInitializer.astFunc = function (dataContextDepth, elements, func) { return ({ type: "func", dataContextDepth: dataContextDepth, elements: elements, func: func }); };
+    // export const bindConstantOrFunction = <T, U>(source: ConstantOrFunction<T>, map: (val: T) => ConstantOrFunction<U>, maxDataContextDepth = 1000000) : ConstantOrFunction<U> => {
+    //     if (source.type == "constant") return map(source.constant);
+    //     else return { type: "func", dataContextDepth: Math.max(source.dataContextDepth, maxDataContextDepth), elements }
+    // }
+    RendererInitializer.mapConstantOrFunction = function (source, map, myElements) {
+        if (source.type == "constant")
+            return RendererInitializer.astFunc(0, myElements, function (a, e) { return map(source.constant, e); });
+        else
+            return { type: "func", dataContextDepth: source.dataContextDepth, elements: myElements.concat(source.elements), func: function (a, b) { return map(source.func(a, myElements.length == 0 ? b : b.slice(myElements.length)), b); } };
+    };
+    var createAttrAst = function (node) {
+        return {
+            type: "attr",
+            attr: {
+                name: RendererInitializer.astConstant(node.name),
+                value: RendererInitializer.astConstant(node.value)
+            }
+        };
+    };
+    var applyPropsToElement = function (el, props) {
+        if (el.type != "ast")
+            throw new Error();
+        var attributes = props.filter(function (a) { return a.type == "attr"; }).map(function (a) { return a.attr; }).concat(el.attributes);
+        el = __assign({}, el, { attributes: attributes });
+        for (var _i = 0, props_1 = props; _i < props_1.length; _i++) {
+            var decorator = props_1[_i];
+            if (decorator.type == "decorator") {
+                el = RendererInitializer.mapConstantOrFunction(decorator.fn, function (v, e) { return v(e[0]); }, [el]);
+            }
+        }
+        return el;
+    };
+    var createElementAst = function (node) {
+        var name = node.tagName.toLowerCase();
+        var attributes = createArray(node.attributes).map(createAttrAst);
+        var children = createArray(node.childNodes).map(function (e) { return createRenderAst(e); });
+        var result = {
+            type: "ast",
+            name: RendererInitializer.astConstant(name),
+            content: children,
+            attributes: []
+        };
+        var knockoutDecorator = KnockoutBindingWidget.createDecorator(node);
+        if (knockoutDecorator != null)
+            attributes = [knockoutDecorator(result)].concat(attributes);
+        return applyPropsToElement(result, attributes);
+    };
+    var createRenderAst = function (node) {
+        if (node.nodeType == node.ELEMENT_NODE) {
+            return createElementAst(node);
+        }
+        else if (node.nodeType == node.TEXT_NODE) {
+            return { type: "text", content: RendererInitializer.astConstant(node.data) };
+        }
+        else {
+            return { type: "text", content: RendererInitializer.astConstant("") };
+        }
+    };
+    var optimizeConstants = function (ast) {
+        var optimizeFunction = function (fn) {
+            if (fn.type == "constant")
+                return fn;
+            else {
+                var fn2 = { elements: fn.elements.map(optimizeConstants), type: fn.type, dataContextDepth: fn.dataContextDepth, func: fn.func };
+                if (fn2.dataContextDepth == 0 && fn2.elements.every(function (e) { return e.type == "constant"; })) {
+                    return RendererInitializer.astConstant(fn2.func(undefined, fn2.elements.map(function (e) { return e["constant"]; })));
+                }
+                else
+                    return fn2;
+            }
+        };
+        if (ast.type == "constant")
+            return ast;
+        else if (ast.type == "func") {
+            return optimizeFunction(ast);
+        }
+        else if (ast.type == "text") {
+            var text = optimizeFunction(ast.content);
+            if (text.type == "constant") {
+                return RendererInitializer.astConstant(new virtualDom.VText(text.constant));
+            }
+            else {
+                return { type: "text", content: text };
+            }
+        }
+        else {
+            var ast2 = {
+                type: ast.type,
+                attributes: ast.attributes.map(function (a) { return ({ name: optimizeFunction(a.name), value: optimizeFunction(a.value) }); }),
+                content: ast.content.map(optimizeConstants),
+                name: optimizeFunction(ast.name)
+            };
+            if (ast2.name.type == "constant" && ast2.content.every(function (e) { return e.type == "constant"; }) && ast2.attributes.every(function (a) { return a.name.type == "constant" && a.value.type == "constant"; })) {
+                var attributes = { attributes: {} };
+                for (var _i = 0, _a = ast2.attributes; _i < _a.length; _i++) {
+                    var attr = _a[_i];
+                    var name_1 = attr.name["constant"], value = attr.value["constant"];
+                    if (typeof value == "object" && (name_1 == "style" || name_1 == "dataset"))
+                        attributes[name_1] = value;
+                    else if (name_1 == "value" || name_1 == "defaultValue")
+                        attributes[name_1] = value;
+                    else
+                        attributes.attributes[name_1] = value;
+                }
+                return RendererInitializer.astConstant(new virtualDom.VNode(ast2.name.constant, attributes, ast2.content.map(function (t) { return t["constant"]; })));
+            }
+            else {
+                return ast2;
+            }
+        }
+    };
+    RendererInitializer.createRenderFunction = function (ast) {
+        var evalFunction = function (fn, opt) {
+            if (fn.type == "constant")
+                return fn.constant;
+            else {
+                var elements = fn.elements.map(function (el) { return evalElement(opt, el); });
+                return fn.func(opt, elements);
+            }
+        };
+        var evalElement = function (dataContext, ast, options) {
+            if (ast.type == "text") {
+                return new virtualDom.VText(evalFunction(ast.content, dataContext));
+            }
+            else if (ast.type == "constant") {
+                return ast.constant;
+            }
+            else if (ast.type == "func") {
+                return evalFunction(ast, dataContext);
+            }
+            else {
+                var dcAttr = ast.attributes.filter(function (e) { return e.name.type == "constant" && e.name.constant == "data-context"; })[0];
+                if (dcAttr) {
+                    var value_1 = evalFunction(dcAttr.value, dataContext);
+                    dataContext =
+                        ko.isObservable(value_1) ? { update: function (u) { return value_1(u(value_1())); }, dataContext: value_1() } :
+                            value_1 instanceof TwoWayBinding ? { update: value_1.update, dataContext: value_1.value } :
+                                { update: function (_) { throw new Error("Update is not supported"); }, dataContext: value_1 };
+                }
+                var attributes = { attributes: {} };
+                for (var _i = 0, _a = ast.attributes; _i < _a.length; _i++) {
+                    var attr = _a[_i];
+                    var name_2 = evalFunction(attr.name, dataContext), value = evalFunction(attr.value, dataContext);
+                    if (typeof value == "object" && (name_2 == "style" || name_2 == "dataset"))
+                        attributes[name_2] = value;
+                    else if (name_2 == "value" || name_2 == "defaultValue")
+                        attributes[name_2] = value;
+                    else if (name_2 == "data-context") { }
+                    else
+                        attributes.attributes[name_2] = value;
+                }
+                if (dcAttr || options && options.isRoot)
+                    attributes["data-context-hook"] = new DataContextSetHook(dataContext);
+                var element = new virtualDom.VNode(evalFunction(ast.name, dataContext), attributes, ast.content.map(function (t) { return evalElement(dataContext, t); }));
+                if (dcAttr)
+                    dataContext = dataContext.parentContext;
+                return element;
+            }
+        };
+        ast = optimizeConstants(ast);
+        return function (opt) {
+            return evalElement(opt, ast, { isRoot: true });
+        };
+    };
+    var DataContextSetHook = (function () {
+        function DataContextSetHook(dataContext) {
+            this.dataContext = dataContext;
+        }
+        DataContextSetHook.prototype.hook = function (node, propertyName, previousValue) {
+            var currentValue = node["@dotvvm-data-context"];
+            if (ko.isWriteableObservable(currentValue))
+                node["@dotvvm-data-context"](this.dataContext);
+            else if (ko.isObservable(currentValue)) {
+                if (currentValue() != this.dataContext)
+                    console.error('Node ', node, ' contains a unwritable datacontext observable that does not corresponds with the hooked one', currentValue(), this.dataContext);
+            }
+            else if (currentValue)
+                throw new Error('Node contains a @dotvvm-data-context prop that is not an observable.');
+            else
+                node["@dotvvm-data-context"] = ko.observable(this.dataContext);
+        };
+        DataContextSetHook.prototype.unhoook = function (node, propertyName, nextValue) {
+        };
+        return DataContextSetHook;
+    }());
+    function initFromNode(elements, viewModel) {
+        var functions = elements.map(function (element) {
+            var ast = createRenderAst(element);
+            return RendererInitializer.createRenderFunction(ast);
+        });
+        var vdomDispatchers = elements.map(function (e, index) {
+            return new HtmlElementPatcher(e, null);
+        });
+        return new Renderer(viewModel, functions, function (d) { return d.map(function (a, i) { return vdomDispatchers[i].applyDom(a); }); });
+    }
+    RendererInitializer.initFromNode = initFromNode;
+})(RendererInitializer || (RendererInitializer = {}));
 var DotvvmDomUtils = (function () {
     function DotvvmDomUtils() {
     }
@@ -684,9 +1363,6 @@ var DotvvmSerialization = (function () {
     };
     return DotvvmSerialization;
 }());
-/// <reference path="typings/knockout/knockout.d.ts" />
-/// <reference path="typings/knockout/knockout.dotvvm.d.ts" />
-/// <reference path="typings/knockout.mapper/knockout.mapper.d.ts" />
 /// <reference path="typings/globalize/globalize.d.ts" />
 document.getElementByDotvvmId = function (id) {
     return document.querySelector("[data-dotvvm-id='" + id + "']");
@@ -698,10 +1374,9 @@ var DotVVM = (function () {
         this.lastStartedPostack = 0;
         this.resourceSigns = {};
         this.isViewModelUpdating = true;
+        this.receivedViewModel = {};
         // warning this property is referenced in ModelState.cs and KnockoutHelper.cs
-        this.viewModelObservables = {};
         this.isSpaReady = ko.observable(false);
-        this.viewModels = {};
         this.serialization = new DotvvmSerialization();
         this.postBackHandlers = {
             confirm: function (options) { return new ConfirmPostBackHandler(options.message); }
@@ -771,6 +1446,28 @@ var DotVVM = (function () {
         this.extensions = {};
         this.isPostbackRunning = ko.observable(false);
     }
+    Object.defineProperty(DotVVM.prototype, "viewModels", {
+        get: function () {
+            return this._viewModels || (this._viewModels = {
+                root: {
+                    viewModel: ko.dataFor(document.body.firstElementChild)
+                }
+            });
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DotVVM.prototype, "viewModelObservables", {
+        get: function () {
+            return this._viewModelObservables || (this._viewModelObservables = {
+                root: {
+                    viewModel: ko.contextFor(document.body.firstElementChild).$rawData
+                }
+            });
+        },
+        enumerable: true,
+        configurable: true
+    });
     DotVVM.prototype.convertOldHandler = function (handler) {
         return {
             execute: function (callback, options) {
@@ -788,7 +1485,9 @@ var DotVVM = (function () {
         var _this = this;
         this.addKnockoutBindingHandlers();
         // load the viewmodel
-        var thisViewModel = this.viewModels[viewModelName] = JSON.parse(document.getElementById("__dot_viewmodel_" + viewModelName).value);
+        var thisViewModel = this.receivedViewModel = JSON.parse(document.getElementById("__dot_viewmodel_" + viewModelName).value);
+        if (typeof thisViewModel != "object" || thisViewModel.viewModel == null)
+            throw new Error("Received viewmodel is invalid");
         if (thisViewModel.resources) {
             for (var r in thisViewModel.resources) {
                 this.resourceSigns[r] = true;
@@ -798,13 +1497,26 @@ var DotVVM = (function () {
             thisViewModel.renderedResources.forEach(function (r) { return _this.resourceSigns[r] = true; });
         }
         var idFragment = thisViewModel.resultIdFragment;
-        var viewModel = thisViewModel.viewModel = this.serialization.deserialize(this.viewModels[viewModelName].viewModel, {}, true);
+        var viewModel = thisViewModel.viewModel;
         // initialize services
         this.culture = culture;
         this.validation = new DotvvmValidation(this);
         // wrap it in the observable
-        this.viewModelObservables[viewModelName] = ko.observable(viewModel);
-        ko.applyBindings(this.viewModelObservables[viewModelName], document.documentElement);
+        // this.viewModelObservables[viewModelName] = ko.observable(viewModel);
+        // ko.applyBindings(this.viewModelObservables[viewModelName], document.documentElement);
+        var elements = [];
+        for (var _i = 0, _a = createArray(document.body.children); _i < _a.length; _i++) {
+            var e = _a[_i];
+            if (e.tagName.toLowerCase() == "script") {
+                break;
+            }
+            else {
+                elements.push(e);
+            }
+        }
+        var renderer = RendererInitializer.initFromNode(elements, viewModel);
+        renderer.dispatchUpdate();
+        this.rootRenderer = renderer;
         // trigger the init event
         this.events.init.trigger(new DotvvmEventArgs(viewModel));
         // handle SPA requests
@@ -868,15 +1580,7 @@ var DotVVM = (function () {
         };
     };
     DotVVM.prototype.persistViewModel = function (viewModelName) {
-        var viewModel = this.viewModels[viewModelName];
-        var persistedViewModel = {};
-        for (var p in viewModel) {
-            if (viewModel.hasOwnProperty(p)) {
-                persistedViewModel[p] = viewModel[p];
-            }
-        }
-        persistedViewModel["viewModel"] = this.serialization.serialize(persistedViewModel["viewModel"], { serializeAll: true });
-        document.getElementById("__dot_viewmodel_" + viewModelName).value = JSON.stringify(persistedViewModel);
+        document.getElementById("__dot_viewmodel_" + viewModelName).value = JSON.stringify(__assign({ viewModel: this.rootRenderer.state }, this.receivedViewModel));
     };
     DotVVM.prototype.backUpPostBackConter = function () {
         this.postBackCounter++;
@@ -897,9 +1601,9 @@ var DotVVM = (function () {
         var data = this.serialization.serialize({
             "args": args,
             "command": command,
-            "$csrfToken": this.viewModels[viewModelName].viewModel.$csrfToken
+            "$csrfToken": this.rootRenderer.state.$csrfToken
         });
-        this.postJSON(this.viewModels[viewModelName].url, "POST", ko.toJSON(data), function (response) {
+        this.postJSON(this.receivedViewModel.url, "POST", ko.toJSON(data), function (response) {
             if (!_this.isPostBackStillActive(currentPostBackCounter))
                 return;
             try {
@@ -977,29 +1681,25 @@ var DotVVM = (function () {
     DotVVM.prototype.postbackCore = function (viewModelName, options, path, command, controlUniqueId, context, validationTargetPath, commandArgs) {
         var _this = this;
         return new Promise(function (resolve, reject) {
-            var viewModel = _this.viewModels[viewModelName].viewModel;
+            var state = _this.rootRenderer.state;
             _this.lastStartedPostack = options.postbackId;
             // perform the postback
             _this.updateDynamicPathFragments(context, path);
             var data = {
-                viewModel: _this.serialization.serialize(viewModel, { pathMatcher: function (val) { return context && val == context.$data; } }),
+                viewModel: _this.serialization.serialize(state, { pathMatcher: function (val) { return context && val == context.$data; } }),
                 currentPath: path,
                 command: command,
                 controlUniqueId: _this.processPassedId(controlUniqueId, context),
                 validationTargetPath: validationTargetPath || null,
-                renderedResources: _this.viewModels[viewModelName].renderedResources,
+                renderedResources: _this.receivedViewModel.renderedResources,
                 commandArgs: commandArgs
             };
-            _this.postJSON(_this.viewModels[viewModelName].url, "POST", ko.toJSON(data), function (result) {
+            _this.postJSON(_this.receivedViewModel.url, "POST", ko.toJSON(data), function (result) {
                 resolve(function () { return new Promise(function (resolve, reject) {
                     var locationHeader = result.getResponseHeader("Location");
                     var resultObject = locationHeader != null && locationHeader.length > 0 ?
                         { action: "redirect", url: locationHeader } :
                         JSON.parse(result.responseText);
-                    if (!resultObject.viewModel && resultObject.viewModelDiff) {
-                        // TODO: patch (~deserialize) it to ko.observable viewModel
-                        resultObject.viewModel = _this.patch(data.viewModel, resultObject.viewModelDiff);
-                    }
                     _this.loadResourceList(resultObject.resources, function () {
                         var isSuccess = false;
                         if (resultObject.action === "successfulCommand") {
@@ -1007,11 +1707,13 @@ var DotVVM = (function () {
                                 _this.isViewModelUpdating = true;
                                 // remove updated controls
                                 var updatedControls = _this.cleanUpdatedControls(resultObject);
+                                if (!resultObject.viewModel && resultObject.viewModelDiff) {
+                                    // TODO: patch (~deserialize) it to ko.observable viewModel
+                                    resultObject.viewModel = _this.patch(_this.rootRenderer.state, resultObject.viewModelDiff);
+                                }
                                 // update the viewmodel
                                 if (resultObject.viewModel) {
-                                    ko.delaySync.pause();
-                                    _this.serialization.deserialize(resultObject.viewModel, _this.viewModels[viewModelName].viewModel);
-                                    ko.delaySync.resume();
+                                    _this.rootRenderer.setState(resultObject.viewModel);
                                 }
                                 isSuccess = true;
                                 // remove updated controls which were previously hidden
@@ -1040,16 +1742,16 @@ var DotVVM = (function () {
                         }
                         // trigger afterPostback event
                         if (!isSuccess) {
-                            reject(new DotvvmErrorEventArgs(viewModel, result));
+                            reject(new DotvvmErrorEventArgs(state, result));
                         }
                         else {
-                            var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(options.sender, viewModel, viewModelName, validationTargetPath, resultObject, options.postbackId, resultObject.comandResult);
+                            var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(options.sender, state, viewModelName, validationTargetPath, resultObject, options.postbackId, resultObject.comandResult);
                             resolve(afterPostBackArgs);
                         }
                     });
                 }); });
             }, function (xhr) {
-                reject({ type: 'network', error: new DotvvmErrorEventArgs(viewModel, xhr) });
+                reject({ type: 'network', error: new DotvvmErrorEventArgs(state, xhr) });
             });
         });
     };
@@ -1188,9 +1890,7 @@ var DotVVM = (function () {
                                 _this.viewModels[viewModelName][p] = resultObject[p];
                             }
                         }
-                        ko.delaySync.pause();
-                        _this.serialization.deserialize(resultObject.viewModel, _this.viewModels[viewModelName].viewModel);
-                        ko.delaySync.resume();
+                        _this.rootRenderer.setState(resultObject.viewModel);
                         isSuccess = true;
                         // add updated controls
                         _this.viewModelObservables[viewModelName](_this.viewModels[viewModelName].viewModel);
@@ -2045,8 +2745,8 @@ var DotvvmValidation = (function () {
             if (value) {
                 if (Array.isArray(value)) {
                     // handle collections
-                    for (var _i = 0, value_1 = value; _i < value_1.length; _i++) {
-                        var item = value_1[_i];
+                    for (var _i = 0, value_2 = value; _i < value_2.length; _i++) {
+                        var item = value_2[_i];
                         this.validateViewModel(item);
                     }
                 }

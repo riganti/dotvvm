@@ -1,7 +1,122 @@
-/// <reference path="typings/knockout/knockout.d.ts" />
-/// <reference path="typings/knockout/knockout.dotvvm.d.ts" />
-/// <reference path="typings/knockout.mapper/knockout.mapper.d.ts" />
+/// <reference path="typings/virtual-dom/virtual-dom.d.ts" />
 /// <reference path="typings/globalize/globalize.d.ts" />
+/// <reference path="typings/knockout/knockout.d.ts" />
+declare const ko_createBindingContext: (dataItemOrAccessor: any, parentContext?: any, dataItemAlias?: any, extendCallback?: any, options?: any) => KnockoutBindingContext;
+interface KnockoutStatic {
+    originalContextFor: (node: Element) => KnockoutBindingContext;
+}
+declare class KnockoutBindingWidget implements virtualDom.Widget {
+    readonly dataContext: RenderContext<any>;
+    readonly node: virtualDom.VNode;
+    readonly nodeChildren: ((context: RenderContext<any>) => virtualDom.VTree)[] | null;
+    readonly dataBind: string | null;
+    readonly koComments: {
+        start: number;
+        end: number;
+        dataBind: string;
+    }[];
+    readonly type: string;
+    elementId: string;
+    contentMapping: {
+        element: Node;
+        index: number;
+        lastDom: virtualDom.VTree;
+    }[] | null;
+    lastState: KnockoutObservable<RenderContext<any>>;
+    domWatcher: MutationObserver;
+    constructor(dataContext: RenderContext<any>, node: virtualDom.VNode, nodeChildren: ((context: RenderContext<any>) => virtualDom.VTree)[] | null, dataBind: string | null, koComments: {
+        start: number;
+        end: number;
+        dataBind: string;
+    }[]);
+    getFakeContent(): Node[];
+    init(): Element;
+    private setupDomWatcher(element);
+    private static knockoutInternalDataPropertyName;
+    private copyKnockoutInternalDataProperty(from, to);
+    private isElementRooted(element, root);
+    private replaceTmpSpans(nodes, rootElement);
+    update(previousWidget: this, previousDomNode: Element): Element | undefined;
+    destroy(domNode: Element): void;
+    static getBetterContext(dataContext: KnockoutBindingContext): RenderContext<any>;
+    static createKnockoutContext(dataContext: KnockoutObservable<RenderContext<any>>): KnockoutBindingContext;
+    static wrapInObservables(objOrObservable: any, update?: ((updater: StateUpdate<any>) => void) | null): any;
+    static createDecorator(element: Element): ((element: RendererInitializer.RenderNodeAst) => RendererInitializer.AssignedPropDescriptor) | undefined;
+}
+declare type StateUpdate<TViewModel> = (initial: TViewModel) => TViewModel;
+declare type RenderContext<TViewModel> = {
+    update: (updater: StateUpdate<TViewModel>) => void;
+    dataContext: TViewModel;
+    parentContext?: RenderContext<any>;
+    "@extensions"?: {
+        [name: string]: any;
+    };
+};
+declare type RenderFunction<TViewModel> = (context: RenderContext<TViewModel>) => virtualDom.VTree;
+declare class TwoWayBinding<T> {
+    readonly update: (updater: StateUpdate<T>) => void;
+    readonly value: T;
+    constructor(update: (updater: StateUpdate<T>) => void, value: T);
+}
+declare const createArray: <T>(a: {
+    [i: number]: T;
+}) => T[];
+declare class HtmlElementPatcher {
+    element: HTMLElement;
+    private previousDom;
+    constructor(element: HTMLElement, initialDom: virtualDom.VNode | null);
+    applyDom(dom: virtualDom.VNode): void;
+}
+declare class Renderer<TViewModel> {
+    readonly renderFunctions: RenderFunction<TViewModel>[];
+    readonly vdomDispatcher: (dom: virtualDom.VNode[]) => void;
+    private _state;
+    readonly state: TViewModel;
+    private _isDirty;
+    readonly isDirty: boolean;
+    constructor(initialState: TViewModel, renderFunctions: RenderFunction<TViewModel>[], vdomDispatcher: (dom: virtualDom.VNode[]) => void);
+    dispatchUpdate(): void;
+    private startTime;
+    private rerender(time);
+    setState(newState: TViewModel): TViewModel;
+    update(updater: StateUpdate<TViewModel>): TViewModel;
+}
+declare namespace RendererInitializer {
+    type ConstantOrFunction<T> = {
+        readonly type: "constant";
+        readonly constant: T;
+    } | {
+        readonly type: "func";
+        readonly dataContextDepth: number;
+        readonly elements: RenderNodeAst[];
+        readonly func: (dataContext: RenderContext<any>, elements: virtualDom.VTree[]) => T;
+    };
+    interface AttrDescriptor {
+        name: ConstantOrFunction<string>;
+        value: ConstantOrFunction<any>;
+    }
+    type AssignedPropDescriptor = {
+        readonly type: "attr";
+        readonly attr: AttrDescriptor;
+    } | {
+        readonly type: "decorator";
+        readonly fn: ConstantOrFunction<(node: virtualDom.VTree) => virtualDom.VTree>;
+    };
+    type RenderNodeAst = ConstantOrFunction<virtualDom.VTree> | {
+        readonly type: "ast";
+        readonly name: ConstantOrFunction<string>;
+        readonly attributes: AttrDescriptor[];
+        readonly content: RenderNodeAst[];
+    } | {
+        readonly type: "text";
+        readonly content: ConstantOrFunction<string>;
+    };
+    const astConstant: <T>(val: T) => ConstantOrFunction<T>;
+    const astFunc: <T>(dataContextDepth: number, elements: RenderNodeAst[], func: (dataContext: RenderContext<any>, elements: virtualDom.VTree[]) => T) => ConstantOrFunction<T>;
+    const mapConstantOrFunction: <T, U>(source: ConstantOrFunction<T>, map: (val: T, myElements: virtualDom.VTree[]) => U, myElements: RenderNodeAst[]) => ConstantOrFunction<U>;
+    const createRenderFunction: <TViewModel>(ast: RenderNodeAst) => RenderFunction<TViewModel>;
+    function initFromNode<TViewModel>(elements: Element[], viewModel: TViewModel): Renderer<TViewModel>;
+}
 declare class DotvvmDomUtils {
     onDocumentReady(callback: () => void): void;
     attachEvent(target: any, name: string, callback: (ev: PointerEvent) => any, useCapture?: boolean): void;
@@ -196,17 +311,27 @@ interface IDotvvmViewModelInfo {
 interface IDotvvmViewModels {
     [name: string]: IDotvvmViewModelInfo;
 }
+declare type IDotvvmStateRoot<T> = {
+    readonly viewModel: T;
+    readonly renderedResources: string[];
+    readonly url: string;
+    readonly virtualDirectory: string;
+};
 declare class DotVVM {
     private postBackCounter;
     private lastStartedPostack;
     private fakeRedirectAnchor;
     private resourceSigns;
     private isViewModelUpdating;
-    viewModelObservables: {
+    receivedViewModel: IDotvvmViewModelInfo;
+    isSpaReady: KnockoutObservable<boolean>;
+    private _viewModels;
+    readonly viewModels: IDotvvmViewModels;
+    private _viewModelObservables;
+    readonly viewModelObservables: {
         [name: string]: KnockoutObservable<IDotvvmViewModelInfo>;
     };
-    isSpaReady: KnockoutObservable<boolean>;
-    viewModels: IDotvvmViewModels;
+    rootRenderer: Renderer<any>;
     culture: string;
     serialization: DotvvmSerialization;
     postBackHandlers: {

@@ -20,6 +20,7 @@
             <legend>Add Task</legend>
 
             <p>Title: <dot:TextBox Text="{value: NewTaskTitle}" /></p>
+            {{value: NewTaskTitle}}
             <p><dot:Button Text="Create" Click="{command: AddTask()}" /></p>
         </fieldset>
         <p>&nbsp;</p>
