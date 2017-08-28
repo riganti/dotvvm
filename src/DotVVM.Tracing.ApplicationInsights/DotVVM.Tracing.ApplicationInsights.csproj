@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyTitle>DotVVM.Tracing.ApplicationInsights</AssemblyTitle>
-    <VersionPrefix>1.1.6-beta</VersionPrefix>
+    <VersionPrefix>1.1.6-beta2</VersionPrefix>
     <TargetFrameworks>netstandard2.0;net451</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -9,7 +9,7 @@
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>DotVVM.Tracing.ApplicationInsights</PackageId>
-    <PackageVersion>1.1.6-beta</PackageVersion>
+    <PackageVersion>1.1.6-beta2</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>Common infrastructure for Application Insights Tracing module for DotVVM</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
