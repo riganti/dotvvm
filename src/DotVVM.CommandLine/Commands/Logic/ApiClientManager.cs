@@ -47,12 +47,12 @@ namespace DotVVM.CommandLine.Commands.Logic
             var (isSingleClient, typeName) = GenerateCSharp(document, definition);
             GenerateTS(document, definition);
 
-            Console.WriteLine($"Api clients generated. To register in dotvvm put following to your DotvvmStartup: ");
+            Console.WriteLine($"API clients generated. Place the following code snippet to your DotvvmStartup.cs: ");
             Console.WriteLine($"config.RegisterApi{(isSingleClient ? "Client" : "Group")}(typeof({definition.Namespace}.{(definition.GenerateWrapperClass || isSingleClient ? typeName : " ... your client wrapper class ...")}), \"{ document.BasePath ?? "... your api endpoint ..." }\", \"{(definition.CompileTypescript ? Path.ChangeExtension(definition.TypescriptClient, "js") : "... path to your compiled javascript")}\");");
         }
 
 
-        public static (bool isSinlgeClient, string typeName) GenerateCSharp(SwaggerDocument document, ApiClientDefinition definition)
+        public static (bool isSingleClient, string typeName) GenerateCSharp(SwaggerDocument document, ApiClientDefinition definition)
         {
             var nameGenerator = new CustomNameGenerator();
             var settings = new SwaggerToCSharpClientGeneratorSettings()
@@ -71,15 +71,15 @@ namespace DotVVM.CommandLine.Commands.Logic
             var generator = new SwaggerToCSharpClientGenerator(document, settings);
             var csharp = generator.GenerateFile();
 
-            var newClient = InjectWrapperClass(csharp, Path.GetFileNameWithoutExtension(definition.CSharpClient), document, settings.OperationNameGenerator, out var isSinlgeClient, out var wrapperTypeName);
-            definition.IsSingleClient = isSinlgeClient;
+            var newClient = InjectWrapperClass(csharp, Path.GetFileNameWithoutExtension(definition.CSharpClient), document, settings.OperationNameGenerator, out var isSingleClient, out var wrapperTypeName);
+            definition.IsSingleClient = isSingleClient;
 
             if (definition.GenerateWrapperClass)
                 csharp = newClient;
 
             File.WriteAllText(definition.CSharpClient, csharp);
 
-            return (isSinlgeClient, wrapperTypeName);
+            return (isSingleClient, wrapperTypeName);
         }
 
         private static string InjectWrapperClass(string csharpCode, string className, SwaggerDocument document, IOperationNameGenerator nameGenerator, out bool isSinlgeClient, out string clientName)
@@ -114,7 +114,9 @@ namespace DotVVM.CommandLine.Commands.Logic
             {
                 Template = TypeScriptTemplate.Fetch,
                 OperationNameGenerator = new CustomNameGenerator(),
-                GenerateOptionalParameters = true
+                GenerateOptionalParameters = true,
+                UseTransformOptionsMethod = true,
+                ClientBaseClass = "ClientBase"
             };
             settings.TypeScriptGeneratorSettings.PropertyNameGenerator = new MyPropertyNameGenerator(c => ConversionUtilities.ConvertToLowerCamelCase(c, true));
             settings.TypeScriptGeneratorSettings.NullValue = TypeScriptNullValue.Null;
@@ -122,11 +124,29 @@ namespace DotVVM.CommandLine.Commands.Logic
 
             var generator = new SwaggerToTypeScriptClientGenerator(document, settings);
             var ts = generator.GenerateFile();
-            ts = "namespace " + definition.Namespace + " {\n    " + ConversionUtilities.Tab(ts, 1).TrimEnd('\n') + "\n}\n";
+            var baseClass = CreateBaseClass(definition);
+            ts = WrapInNamespace(definition, ts, baseClass);
             File.WriteAllText(definition.TypescriptClient, ts);
 
             if (definition.CompileTypescript)
+            {
                 Process.Start("tsc", definition.TypescriptClient).WaitForExit();
+            }
+        }
+
+        private static string CreateBaseClass(ApiClientDefinition definition)
+        {
+            return $@"class ClientBase {{
+    public transformOptions(options: RequestInit) {{
+        options.credentials = ""{definition.FetchOptions.Credentials}"";
+        return Promise.resolve(options);
+    }}
+}}";
+        }
+
+        private static string WrapInNamespace(ApiClientDefinition definition, string typescript, string baseClass)
+        {
+            return "namespace " + definition.Namespace + " {\n    " + ConversionUtilities.Tab(baseClass, 1).TrimEnd('\n') + "\n    " + ConversionUtilities.Tab(typescript, 1).TrimEnd('\n') + "\n}\n";
         }
 
 

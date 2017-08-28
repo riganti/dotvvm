@@ -548,14 +548,14 @@ var DotvvmSerialization = (function () {
         opt = ko.utils.extend({}, opt);
         if (opt.pathOnly && opt.path && opt.path.length === 0)
             opt.pathOnly = false;
-        if (typeof (viewModel) === "undefined" || viewModel == null) {
+        if (viewModel == null) {
             return null;
         }
         if (typeof (viewModel) === "string" || typeof (viewModel) === "number" || typeof (viewModel) === "boolean") {
             return viewModel;
         }
         if (ko.isObservable(viewModel)) {
-            return this.serialize(ko.unwrap(viewModel), opt);
+            return this.serialize(viewModel(), opt);
         }
         if (typeof (viewModel) === "function") {
             return null;
@@ -710,6 +710,12 @@ var DotvvmSerialization = (function () {
     };
     DotvvmSerialization.prototype.serializeDate = function (date, convertToUtc) {
         if (convertToUtc === void 0) { convertToUtc = true; }
+        if (typeof date == "string") {
+            // just print in the console if it's invalid
+            if (dotvvm.globalize.parseDotvvmDate(date) != null)
+                console.error(new Error("Date " + date + " is invalid."));
+            return date;
+        }
         var date2 = new Date(date.getTime());
         if (convertToUtc) {
             date2.setMinutes(date.getMinutes() + date.getTimezoneOffset());
@@ -2257,7 +2263,7 @@ function basicAuthenticatedFetch(input, init) {
     if (!init.cache)
         init.cache = "no-cache";
     return window.fetch(input, init).then(function (response) {
-        if (response.status == 401 && auth == null) {
+        if (response.status === 401 && auth == null) {
             if (sessionStorage.getItem("someAuth") == null)
                 requestAuth();
             return basicAuthenticatedFetch(input, init);
