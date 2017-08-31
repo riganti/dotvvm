@@ -36,6 +36,7 @@ declare class KnockoutBindingWidget implements virtualDom.Widget {
     private copyKnockoutInternalDataProperty(from, to);
     private isElementRooted(element, root);
     private replaceTmpSpans(nodes, rootElement);
+    private removeRemovedNodes(rootElement);
     update(previousWidget: this, previousDomNode: Element): Element | undefined;
     destroy(domNode: Element): void;
     static getBetterContext(dataContext: KnockoutBindingContext): RenderContext<any>;

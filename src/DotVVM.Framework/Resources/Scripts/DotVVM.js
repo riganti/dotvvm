@@ -205,7 +205,7 @@ var KnockoutBindingWidget = (function () {
                 }
                 e["__bound_element"] = element_1;
                 e.parentElement.insertBefore(element_1, e);
-                // this.contentMapping!.push({ element, index, lastDom: vdomNode })
+                this_1.contentMapping.push({ element: e, index: index_1, lastDom: vdomNode_1 });
                 if (subscribable) {
                     var subscription = subscribable.subscribe(function (c) {
                         var vdom2 = _this.nodeChildren[index_1](c);
@@ -221,6 +221,15 @@ var KnockoutBindingWidget = (function () {
             var n = nodes_1[_i];
             _loop_1();
         }
+    };
+    KnockoutBindingWidget.prototype.removeRemovedNodes = function (rootElement) {
+        if (this.contentMapping)
+            for (var _i = 0, _a = this.contentMapping; _i < _a.length; _i++) {
+                var x = _a[_i];
+                if (!this.isElementRooted(x.element, rootElement) && x.element["__bound_element"]) {
+                    x.element["__bound_element"].remove();
+                }
+            }
     };
     KnockoutBindingWidget.prototype.update = function (previousWidget, previousDomNode) {
         var _this = this;
@@ -242,6 +251,7 @@ var KnockoutBindingWidget = (function () {
             // replace fake elements with real nodes
             this.setupDomWatcher(previousDomNode);
             // TODO: for some reason the MutationObserver does not react to changes when the element is also observed by other oberver
+            this.removeRemovedNodes(previousDomNode);
             this.replaceTmpSpans(createArray(previousDomNode.getElementsByTagName("span")), previousDomNode);
         }
         previousWidget.lastState(this.dataContext);
@@ -302,7 +312,7 @@ var KnockoutBindingWidget = (function () {
         var obj = ko.unwrap(objOrObservable);
         var createComputed = function (indexer, updateProperty) {
             if (obj[indexer] instanceof Array) {
-                return KnockoutBindingWidget.wrapInObservables(ko.isObservable(objOrObservable) ? ko.pureComputed(function () { return objOrObservable()[indexer]; }) : obj[indexer], update == null ? null : function (u) { return update(function (vm) { return updateProperty(vm, u); }); });
+                return KnockoutBindingWidget.wrapInObservables(ko.isObservable(objOrObservable) ? ko.pureComputed(function () { return (objOrObservable() || [])[indexer]; }) : obj[indexer], update == null ? null : function (u) { return update(function (vm) { return updateProperty(vm, u); }); });
             }
             else {
                 // knockout does not like when the object gets replaced by a new one, so we will just update this one every time...
@@ -311,7 +321,7 @@ var KnockoutBindingWidget = (function () {
                     read: function () {
                         // when the cache contains non-object it's either empty or contain primitive (and immutable) value
                         return cache_1 != null && typeof cache_1 == "object" ? cache_1 :
-                            (cache_1 = KnockoutBindingWidget.wrapInObservables(ko.isObservable(objOrObservable) ? ko.pureComputed(function () { return objOrObservable()[indexer]; }) : obj[indexer], update == null ? null : function (u) { return update(function (vm) { return updateProperty(vm, u); }); }));
+                            (cache_1 = KnockoutBindingWidget.wrapInObservables(ko.isObservable(objOrObservable) ? ko.pureComputed(function () { return (objOrObservable() || {})[indexer]; }) : obj[indexer], update == null ? null : function (u) { return update(function (vm) { return updateProperty(vm, u); }); }));
                     },
                     write: update == null ? undefined :
                         function (val) { return update(function (vm) { return updateProperty(vm, function (_) { return ko.unwrap(val); }); }); }
@@ -333,7 +343,43 @@ var KnockoutBindingWidget = (function () {
             for (var index = 0; index < obj.length; index++) {
                 result.push(createComputed(index, arrayUpdate(index)));
             }
-            return ko.observableArray(result);
+            var rr_1 = ko.observableArray(result);
+            var isUpdating_1 = false;
+            rr_1.subscribe(function (newVal) {
+                if (isUpdating_1 || newVal && newVal["__unwrapped_data"] == objOrObservable)
+                    return;
+                if (update) {
+                    if (newVal && newVal["__unwrapped_data"])
+                        update(function (f) { return ko.unwrap(newVal["__unwrapped_data"]); });
+                    else
+                        update(function (f) { return dotvvm.serialization.deserialize(newVal); });
+                }
+                else
+                    throw new Error("Array mutation is not supported.");
+            });
+            if (ko.isObservable(objOrObservable)) {
+                objOrObservable.subscribe(function (newVal) {
+                    try {
+                        isUpdating_1 = true;
+                        if (!newVal)
+                            rr_1(newVal);
+                        else {
+                            var result_1 = [];
+                            result_1["__upwrapped_data"] = objOrObservable;
+                            if (update)
+                                result_1["__update_function"] = update;
+                            for (var index = 0; index < newVal.length; index++) {
+                                result_1.push(createComputed(index, arrayUpdate(index)));
+                            }
+                            rr_1(result_1);
+                        }
+                    }
+                    finally {
+                        isUpdating_1 = false;
+                    }
+                });
+            }
+            return rr_1;
         }
         else {
             var result = {};

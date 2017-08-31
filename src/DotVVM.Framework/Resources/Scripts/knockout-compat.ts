@@ -203,7 +203,7 @@ class KnockoutBindingWidget implements virtualDom.Widget {
                 }
                 e["__bound_element"] = element;
                 e.parentElement!.insertBefore(element, e)
-                // this.contentMapping!.push({ element, index, lastDom: vdomNode })
+                this.contentMapping!.push({ element: e, index, lastDom: vdomNode })
 
                 if (subscribable) {
                     const subscription = subscribable.subscribe(c => {
@@ -213,6 +213,14 @@ class KnockoutBindingWidget implements virtualDom.Widget {
                         virtualDom.patch(element, diff)
                     });
                 }
+            }
+        }
+    }
+
+    private removeRemovedNodes(rootElement: Element) {
+        if (this.contentMapping) for (const x of this.contentMapping) {
+            if (!this.isElementRooted(x.element, rootElement) && x.element["__bound_element"]) {
+                (x.element["__bound_element"] as Element).remove();
             }
         }
     }
@@ -234,6 +242,7 @@ class KnockoutBindingWidget implements virtualDom.Widget {
             // replace fake elements with real nodes
             this.setupDomWatcher(previousDomNode);
             // TODO: for some reason the MutationObserver does not react to changes when the element is also observed by other oberver
+            this.removeRemovedNodes(previousDomNode);
             this.replaceTmpSpans(createArray(previousDomNode.getElementsByTagName("span")), previousDomNode);
         }
         previousWidget.lastState(this.dataContext);
@@ -300,7 +309,7 @@ class KnockoutBindingWidget implements virtualDom.Widget {
         const createComputed = (indexer: string | number, updateProperty: (vm: any, property: StateUpdate<any>) => any) => {
             if (obj[indexer] instanceof Array) {
                 return KnockoutBindingWidget.wrapInObservables(
-                    ko.isObservable(objOrObservable) ? ko.pureComputed(() => objOrObservable()[indexer]) : obj[indexer],
+                    ko.isObservable(objOrObservable) ? ko.pureComputed(() => (objOrObservable() || [])[indexer]) : obj[indexer],
                     update == null ? null : u => update(vm => updateProperty(vm, u)))
             } else {
                 // knockout does not like when the object gets replaced by a new one, so we will just update this one every time...
@@ -310,7 +319,7 @@ class KnockoutBindingWidget implements virtualDom.Widget {
                         // when the cache contains non-object it's either empty or contain primitive (and immutable) value
                         cache != null && typeof cache == "object" ? cache :
                         (cache = KnockoutBindingWidget.wrapInObservables(
-                            ko.isObservable(objOrObservable) ? ko.pureComputed(() => objOrObservable()[indexer]) : obj[indexer],
+                            ko.isObservable(objOrObservable) ? ko.pureComputed(() => (objOrObservable() || {})[indexer]) : obj[indexer],
                             update == null ? null : u => update(vm => updateProperty(vm, u)))),
                     write:
                         update == null ? undefined :
@@ -332,7 +341,37 @@ class KnockoutBindingWidget implements virtualDom.Widget {
             for (var index = 0; index < obj.length; index++) {
                 result.push(createComputed(index, arrayUpdate(index)));
             }
-            return ko.observableArray(result)
+            const rr = ko.observableArray(result)
+            let isUpdating = false;
+            rr.subscribe((newVal) => {
+                if (isUpdating || newVal && newVal["__unwrapped_data"] == objOrObservable) return;
+                if (update) {
+                    if (newVal && newVal["__unwrapped_data"]) update(f => ko.unwrap(newVal["__unwrapped_data"]))
+                    else update(f => dotvvm.serialization.deserialize(newVal))
+                }
+                else throw new Error("Array mutation is not supported.");
+            })
+            if (ko.isObservable(objOrObservable)) {
+                objOrObservable.subscribe((newVal) => {
+                    try {
+                        isUpdating = true;
+                        if (!newVal) rr(newVal);
+                        else {
+                            const result: any[] = []
+                            result["__upwrapped_data"] = objOrObservable
+                            if (update) result["__update_function"] = update
+                            for (var index = 0; index < newVal.length; index++) {
+                                result.push(createComputed(index, arrayUpdate(index)));
+                            }
+                            rr(result);
+                        }
+                    }
+                    finally {
+                        isUpdating = false;
+                    }
+                })
+            }
+            return rr
         } else {
             const result: any = {}
             result["__upwrapped_data"] = objOrObservable

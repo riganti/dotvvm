@@ -54,7 +54,6 @@
         </dot:GridView>
         <dot:DataPager DataSet="{value: CustomersDataSet}" class="pagination" />
 
-
     </div>
 </body>
 </html>
