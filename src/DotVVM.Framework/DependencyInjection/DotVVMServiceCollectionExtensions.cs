@@ -10,6 +10,7 @@ using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Diagnostics;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Runtime;
@@ -67,6 +68,8 @@ namespace Microsoft.Extensions.DependencyInjection
             });
 
             services.AddSingleton(s => configuration ?? (configuration = DotvvmConfiguration.CreateDefault(s)));
+            
+            services.AddDiagnosticServices();
 
             services.Configure<BindingCompilationOptions>(o => {
                  o.TransformerClasses.Add(ActivatorUtilities.CreateInstance<BindingPropertyResolvers>(configuration.ServiceLocator.GetServiceProvider()));
@@ -74,5 +77,29 @@ namespace Microsoft.Extensions.DependencyInjection
 
             return services;
         }
+
+        internal static IServiceCollection AddDiagnosticServices(this IServiceCollection services)
+        {
+            services.TryAddSingleton<DotvvmDiagnosticsConfiguration>();
+            services.TryAddSingleton<IDiagnosticsInformationSender, DiagnosticsInformationSender>();
+
+            services.AddScoped<IOutputRenderer, DiagnosticsRenderer>();
+            services.AddScoped<IRequestTracer>(s =>
+            {
+                var config = s.GetService<DotvvmConfiguration>();
+                if (config.Debug)
+                {
+                    var sender = s.GetService<IDiagnosticsInformationSender>();
+                    return new DiagnosticsRequestTracer(sender);
+                }
+                else
+                {
+                    return new NullRequestTracer();
+                }
+            });
+            
+            return services;
+        }
     }
+
 }
