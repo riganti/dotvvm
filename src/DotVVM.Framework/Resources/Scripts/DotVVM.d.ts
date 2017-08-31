@@ -71,6 +71,7 @@ declare class HtmlElementPatcher {
 declare class Renderer<TViewModel> {
     readonly renderFunctions: RenderFunction<TViewModel>[];
     readonly vdomDispatcher: (dom: virtualDom.VNode[]) => void;
+    readonly renderedStateObservable: any;
     private _state;
     readonly state: TViewModel;
     private _isDirty;

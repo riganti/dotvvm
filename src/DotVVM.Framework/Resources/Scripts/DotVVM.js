@@ -38,7 +38,7 @@ var ko_createBindingContext = (function () {
             return KnockoutBindingWidget.createKnockoutContext(context2);
         }
         if (element.parentElement)
-            return contextFor(element.parentElement);
+            return fnCore(element.parentElement);
     };
     var contextFor = ko.contextFor = function (element) {
         return fnCore(element) || origFn(element);
@@ -305,6 +305,8 @@ var KnockoutBindingWidget = (function () {
                 }
             }
         }
+        if (!ko.isObservable(result.$rawData))
+            throw new Error("$rawData is not an observable");
         return result;
     };
     KnockoutBindingWidget.wrapInObservables = function (objOrObservable, update) {
@@ -488,6 +490,7 @@ var Renderer = (function () {
         this.vdomDispatcher = vdomDispatcher;
         this.startTime = null;
         this.setState(initialState);
+        this.renderedStateObservable = ko.observable(initialState);
     }
     Object.defineProperty(Renderer.prototype, "state", {
         get: function () {
@@ -514,6 +517,7 @@ var Renderer = (function () {
         if (this.startTime === null)
             this.startTime = time;
         this._isDirty = false;
+        this.renderedStateObservable(this._state);
         var vdom = this.renderFunctions.map(function (f) { return f({
             update: _this.update.bind(_this),
             dataContext: _this._state
@@ -1496,7 +1500,7 @@ var DotVVM = (function () {
         get: function () {
             return this._viewModels || (this._viewModels = {
                 root: {
-                    viewModel: ko.dataFor(document.body.firstElementChild)
+                    viewModel: KnockoutBindingWidget.createKnockoutContext(this.rootRenderer.renderedStateObservable).$data
                 }
             });
         },
@@ -1507,7 +1511,7 @@ var DotVVM = (function () {
         get: function () {
             return this._viewModelObservables || (this._viewModelObservables = {
                 root: {
-                    viewModel: ko.contextFor(document.body.firstElementChild).$rawData
+                    viewModel: KnockoutBindingWidget.createKnockoutContext(this.rootRenderer.renderedStateObservable).$rawData
                 }
             });
         },

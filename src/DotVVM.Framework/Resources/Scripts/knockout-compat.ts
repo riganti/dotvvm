@@ -20,7 +20,7 @@ const ko_createBindingContext = (() => {
             return KnockoutBindingWidget.createKnockoutContext(context2);
         }
 
-        if (element.parentElement) return contextFor(element.parentElement)
+        if (element.parentElement) return fnCore(element.parentElement)
     }
     const contextFor = ko.contextFor = (element: Element) => {
         return fnCore(element) || origFn(element);
@@ -300,6 +300,8 @@ class KnockoutBindingWidget implements virtualDom.Widget {
                 }
             }
         }
+        if (!ko.isObservable(result.$rawData))
+            throw new Error("$rawData is not an observable");
         return result
     }
 

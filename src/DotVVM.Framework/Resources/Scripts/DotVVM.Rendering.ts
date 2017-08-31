@@ -41,6 +41,7 @@ class HtmlElementPatcher {
     }
 }
 class Renderer<TViewModel> {
+    public readonly renderedStateObservable;
     private _state: TViewModel
     public get state() {
         return this._state
@@ -55,6 +56,7 @@ class Renderer<TViewModel> {
         public readonly renderFunctions: RenderFunction<TViewModel>[],
         public readonly vdomDispatcher: (dom: virtualDom.VNode[]) => void) {
         this.setState(initialState)
+        this.renderedStateObservable = ko.observable(initialState)
     }
 
     public dispatchUpdate() {
@@ -68,6 +70,7 @@ class Renderer<TViewModel> {
     private rerender(time: number) {
         if (this.startTime === null) this.startTime = time
         this._isDirty = false
+        this.renderedStateObservable(this._state);
         var vdom = this.renderFunctions.map(f => f({
             update: this.update.bind(this),
             dataContext: this._state
