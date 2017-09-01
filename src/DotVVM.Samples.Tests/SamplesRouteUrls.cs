@@ -149,6 +149,8 @@ namespace Dotvvm.Samples.Tests{
 
             public static string ControlSamples_Repeater_RouteLink => "ControlSamples/Repeater/RouteLink";
 
+            public static string ControlSamples_Repeater_RouteLinkQuery => "ControlSamples/Repeater/RouteLinkQuery";
+
             public static string ControlSamples_Repeater_RouteLinkUrlSuffix => "ControlSamples/Repeater/RouteLinkUrlSuffix";
 
             public static string ControlSamples_Repeater_Separator => "ControlSamples/Repeater/Separator";
