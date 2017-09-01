@@ -392,6 +392,23 @@ namespace DotVVM.Framework.Tests.Binding
             var result = ExecuteBinding("_this != null ? _this.LongProperty : 0", new [] { new TestViewModel { LongProperty = 5 } });
             Assert.AreEqual(5L, result);
         }
+
+        [TestMethod]
+        public void BindingCompiler_SimpleBlockExpression()
+        {
+            var result = ExecuteBinding("SetStringProp2(StringProp + 'kk'); StringProp = StringProp2 + 'll'", new [] { new TestViewModel { StringProp = "a" } });
+            Assert.AreEqual("akkll", result);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_MultiBlockExpression()
+        {
+            TestViewModel vm = new TestViewModel { StringProp = "a" };
+            var result = ExecuteBinding("StringProp = StringProp + 'll'; SetStringProp2(StringProp + 'kk'); StringProp = 'nn'; StringProp2 + '|' + StringProp", new [] { vm });
+            Assert.AreEqual("nn", vm.StringProp);
+            Assert.AreEqual("allkk", vm.StringProp2);
+            Assert.AreEqual("allkk|nn", result);
+        }
     }
     class TestViewModel
     {
@@ -434,6 +451,11 @@ namespace DotVVM.Framework.Tests.Binding
         {
             BoolMethodExecuted = true;
             return false;
+        }
+
+        public void SetStringProp2(string value)
+        {
+            this.StringProp2 = value;
         }
     }
 
