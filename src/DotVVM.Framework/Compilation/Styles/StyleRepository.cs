@@ -21,6 +21,13 @@ namespace DotVVM.Framework.Compilation.Styles
             return new StyleMatcher(Styles, configuration);
         }
 
+        /// <summary>
+        /// Registers a server-side style for <typeparamref name="T"/> that is applied upon compilation.
+        /// </summary>
+        /// <typeparam name="T">All objects of this type will have the style applied to them unless <paramref name="matcher"/> is specified.</typeparam>
+        /// <param name="matcher">If this function returns true, the style will be applied, otherwise not.</param>
+        /// <param name="allowDerived">Also allow classes that are derived from <typeparamref name="T"/>.</param>
+        /// <returns>A <see cref="StyleBuilder{T}"/> that can be used to style the control.</returns>
         public StyleBuilder<T> Register<T>(Func<StyleMatchContext, bool> matcher = null, bool allowDerived = true)
             where T : DotvvmBindableObject
         {
@@ -29,6 +36,12 @@ namespace DotVVM.Framework.Compilation.Styles
             return styleBuilder;
         }
 
+        /// <summary>
+        /// Registers a server-side style for a HTML tag that is applied upon compilation.
+        /// </summary>
+        /// <param name="tagName">The HTML tag the style is applied to.</param>
+        /// <param name="matcher">If this function returns true, the style will be applied, otherwise not.</param>
+        /// <returns>A <see cref="StyleBuilder{T}"/> that can be used to style the control.</returns>
         public StyleBuilder<HtmlGenericControl> Register(string tagName, Func<StyleMatchContext, bool> matcher = null)
         {
             if (matcher != null)
