@@ -22,16 +22,23 @@ namespace DotVVM.Framework.Compilation.Styles
         }
 
         public StyleBuilder<T> Register<T>(Func<StyleMatchContext, bool> matcher = null, bool allowDerived = true)
-            where T: DotvvmBindableObject
+            where T : DotvvmBindableObject
         {
             var styleBuilder = new StyleBuilder<T>(matcher, allowDerived);
             Styles.Add(styleBuilder.GetStyle());
             return styleBuilder;
         }
 
-        public StyleBuilder<HtmlGenericControl> Register(string tagName)
+        public StyleBuilder<HtmlGenericControl> Register(string tagName, Func<StyleMatchContext, bool> matcher = null)
         {
-            return Register<HtmlGenericControl>(m => (string)m.Control.ConstructorParameters[0] == tagName, false);
+            if (matcher != null)
+            {
+                return Register<HtmlGenericControl>(m => (string)m.Control.ConstructorParameters[0] == tagName && matcher(m), false);
+            }
+            else
+            {
+                return Register<HtmlGenericControl>(m => (string)m.Control.ConstructorParameters[0] == tagName, false);
+            }
         }
     }
 }
