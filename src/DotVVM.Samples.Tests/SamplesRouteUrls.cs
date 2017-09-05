@@ -343,6 +343,10 @@ namespace Dotvvm.Samples.Tests{
 
             public static string FeatureSamples_ServerSideStyles_ServerSideStyles_DotvvmProperties => "FeatureSamples/ServerSideStyles/ServerSideStyles_DotvvmProperties";
 
+            public static string FeatureSamples_ServerSideStyles_DirectoryStyle_ServerSideStyles => "FeatureSamples/ServerSideStyles/DirectoryStyle/ServerSideStyles";
+
+            public static string FeatureSamples_ServerSideStyles_NoDirectoryStyle_ServerSideStyles => "FeatureSamples/ServerSideStyles/NoDirectoryStyle/ServerSideStyles";
+
             public static string FeatureSamples_StaticCommand_StaticCommand => "FeatureSamples/StaticCommand/StaticCommand";
 
             public static string FeatureSamples_StaticCommand_StaticCommand_ComboBoxSelectionChanged => "FeatureSamples/StaticCommand/StaticCommand_ComboBoxSelectionChanged";

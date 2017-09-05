@@ -13,7 +13,7 @@ namespace DotVVM.Samples.Tests.Feature
     public class ServerSideStylesTests : SeleniumTest
     {
         [TestMethod]
-        public void Feature_ServerSideStyles_DotvvmContolNoAttributes()
+        public void Feature_ServerSideStyles_DotvvmControlNoAttributes()
         {
             RunInAllBrowsers(browser =>
             {
@@ -24,7 +24,7 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [TestMethod]
-        public void Feature_ServerSideStyles_DotvvmContolWithAttributes()
+        public void Feature_ServerSideStyles_DotvvmControlWithAttributes()
         {
             RunInAllBrowsers(browser =>
             {
@@ -35,7 +35,7 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [TestMethod]
-        public void Feature_ServerSideStyles_HtmlContolNoAttributes()
+        public void Feature_ServerSideStyles_HtmlControlNoAttributes()
         {
             RunInAllBrowsers(browser =>
             {
@@ -89,6 +89,20 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.First("input[id=dotvvmControlWithAttr]").CheckIfHasAttribute("addedAttr");
                 browser.First("input[id=dotvvmControlNoAttr]").CheckIfHasNotAttribute("addedAttr");
                 browser.First("input[id=derivedControl]").CheckIfHasAttribute("addedAttr");
+            });
+        }
+
+        [TestMethod]
+        public void Feature_ServerSideStyles_Directory()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ServerSideStyles_DirectoryStyle_ServerSideStyles);
+                browser.First("input[id=dotvvmControl]").CheckAttribute("directory", "matching");
+                browser.First("customtagname[id=htmlControl]").CheckAttribute("directory", "matching");
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ServerSideStyles_NoDirectoryStyle_ServerSideStyles);
+                browser.First("input[id=dotvvmControl]").CheckIfHasNotAttribute("directory");
+                browser.First("customtagname[id=htmlControl]").CheckIfHasNotAttribute("directory");
             });
         }
     }

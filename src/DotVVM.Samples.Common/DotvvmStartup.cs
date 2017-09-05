@@ -83,6 +83,10 @@ namespace DotVVM.Samples.BasicSamples
                 .SetAttribute("value", "Text changed")
                 .SetDotvvmProperty(Controls.ServerSideStylesControl.CustomProperty, "Custom property changed", false)
                 .SetAttribute("class", "Class changed", true);
+            config.Styles.Register<Controls.ServerSideStylesControl>(c => c.HasViewInDirectory("Views/FeatureSamples/ServerSideStyles/DirectoryStyle/"))
+                .SetAttribute("directory", "matching");
+            config.Styles.Register("customTagName", c => c.HasViewInDirectory("Views/FeatureSamples/ServerSideStyles/DirectoryStyle/"))
+                .SetAttribute("directory", "matching");
             config.Styles.Register("customTagName")
                 .SetAttribute("noAppend", "Attribute changed")
                 .SetAttribute("append", "Attribute changed", true);
