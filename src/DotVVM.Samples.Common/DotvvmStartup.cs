@@ -11,6 +11,7 @@ using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Samples.BasicSamples.Controls;
 using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Redirect;
 using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Serialization;
+using DotVVM.Samples.Common.ViewModels.FeatureSamples.ServerSideStyles;
 
 namespace DotVVM.Samples.BasicSamples
 {
@@ -79,14 +80,23 @@ namespace DotVVM.Samples.BasicSamples
 
         public static void AddStyles(DotvvmConfiguration config)
         {
-            config.Styles.Register<Controls.ServerSideStylesControl>()
-                .SetAttribute("value", "Text changed")
-                .SetDotvvmProperty(Controls.ServerSideStylesControl.CustomProperty, "Custom property changed", false)
-                .SetAttribute("class", "Class changed", true);
+            // HasViewInDirectory samples
             config.Styles.Register<Controls.ServerSideStylesControl>(c => c.HasViewInDirectory("Views/FeatureSamples/ServerSideStyles/DirectoryStyle/"))
                 .SetAttribute("directory", "matching");
             config.Styles.Register("customTagName", c => c.HasViewInDirectory("Views/FeatureSamples/ServerSideStyles/DirectoryStyle/"))
                 .SetAttribute("directory", "matching");
+
+            // HasDataContext and HasRootDataContext samples
+            config.Styles.Register("customDataContextTag", c => c.HasRootDataContext<ServerSideStylesMatchingViewModel>()).
+                SetAttribute("rootDataContextCheck", "matching");
+            config.Styles.Register("customDataContextTag", c => c.HasDataContext<ServerSideStylesMatchingViewModel.TestingObject>()).
+                SetAttribute("dataContextCheck", "matching");
+
+            // All style samples
+            config.Styles.Register<Controls.ServerSideStylesControl>()
+                .SetAttribute("value", "Text changed")
+                .SetDotvvmProperty(Controls.ServerSideStylesControl.CustomProperty, "Custom property changed", false)
+                .SetAttribute("class", "Class changed", true);
             config.Styles.Register("customTagName")
                 .SetAttribute("noAppend", "Attribute changed")
                 .SetAttribute("append", "Attribute changed", true);

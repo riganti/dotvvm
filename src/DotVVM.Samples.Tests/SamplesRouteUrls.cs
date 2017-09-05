@@ -343,6 +343,8 @@ namespace Dotvvm.Samples.Tests{
 
             public static string FeatureSamples_ServerSideStyles_ServerSideStyles_DotvvmProperties => "FeatureSamples/ServerSideStyles/ServerSideStyles_DotvvmProperties";
 
+            public static string FeatureSamples_ServerSideStyles_ServerSideStyles_MatchingViewModel => "FeatureSamples/ServerSideStyles/ServerSideStyles_MatchingViewModel";
+
             public static string FeatureSamples_ServerSideStyles_DirectoryStyle_ServerSideStyles => "FeatureSamples/ServerSideStyles/DirectoryStyle/ServerSideStyles";
 
             public static string FeatureSamples_ServerSideStyles_NoDirectoryStyle_ServerSideStyles => "FeatureSamples/ServerSideStyles/NoDirectoryStyle/ServerSideStyles";

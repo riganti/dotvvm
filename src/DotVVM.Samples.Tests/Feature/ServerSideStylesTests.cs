@@ -105,5 +105,21 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.First("customtagname[id=htmlControl]").CheckIfHasNotAttribute("directory");
             });
         }
+
+        [TestMethod]
+        public void Feature_ServerSideStyles_DataContexts()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles_MatchingViewModel);
+                browser.First("customDataContextTag[id=matchingDataContextAndRoot]").CheckAttribute("dataContextCheck", "matching");
+                browser.First("customDataContextTag[id=matchingDataContextAndRoot]").CheckAttribute("rootDataContextCheck", "matching");
+                browser.First("customDataContextTag[id=matchingRoot]").CheckAttribute("rootDataContextCheck", "matching");
+                browser.First("customDataContextTag[id=matchingRoot]").CheckIfHasNotAttribute("dataContextCheck");
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles);
+                browser.First("customDataContextTag[id=nonMatchingDataContextAndRoot]").CheckIfHasNotAttribute("rootDataContextCheck");
+                browser.First("customDataContextTag[id=nonMatchingDataContextAndRoot]").CheckIfHasNotAttribute("dataContextCheck");
+            });
+        }
     }
 }
