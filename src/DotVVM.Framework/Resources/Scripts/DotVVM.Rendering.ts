@@ -151,7 +151,7 @@ namespace RendererInitializer {
             content: children,
             attributes: []
         }
-        const knockoutDecorator = KnockoutBindingWidget.createDecorator(node)
+        const knockoutDecorator = DotvvmKnockoutCompat.createDecorator(node)
         if (knockoutDecorator != null) attributes = [knockoutDecorator(result)].concat(attributes);
         return applyPropsToElement(result, attributes)
     }
@@ -166,11 +166,11 @@ namespace RendererInitializer {
         }
     }
 
-    const optimizeConstants = (ast: RenderNodeAst): RenderNodeAst => {
+    const optimizeConstants = (ast: RenderNodeAst, allowFirstLevel = true): RenderNodeAst => {
         const optimizeFunction = <T>(fn: ConstantOrFunction<T>): ConstantOrFunction<T> => {
             if (fn.type == "constant") return fn;
             else { //if (fn.type == "func") {
-                const fn2 = { elements: fn.elements.map(optimizeConstants), type: fn.type, dataContextDepth: fn.dataContextDepth, func: fn.func }
+                const fn2 = { elements: fn.elements.map(a => optimizeConstants(a)), type: fn.type, dataContextDepth: fn.dataContextDepth, func: fn.func }
                 if (fn2.dataContextDepth == 0 && fn2.elements.every(e => e.type == "constant")) {
                     return astConstant(fn2.func(<any>undefined, fn2.elements.map(e => e["constant"])))
                 }
@@ -192,10 +192,10 @@ namespace RendererInitializer {
             const ast2 = {
                 type: ast.type,
                 attributes: ast.attributes.map(a => ({ name: optimizeFunction(a.name), value: optimizeFunction(a.value) })),
-                content: ast.content.map(optimizeConstants),
+                content: ast.content.map(a => optimizeConstants(a)),
                 name: optimizeFunction(ast.name)
             }
-            if (ast2.name.type == "constant" && ast2.content.every(e => e.type == "constant") && ast2.attributes.every(a => a.name.type == "constant" && a.value.type == "constant")) {
+            if (allowFirstLevel && ast2.name.type == "constant" && ast2.content.every(e => e.type == "constant") && ast2.attributes.every(a => a.name.type == "constant" && a.value.type == "constant")) {
                 const attributes = { attributes: {} }
                 for (var attr of ast2.attributes) {
                     const name: string = attr.name["constant"],
@@ -245,9 +245,9 @@ namespace RendererInitializer {
 
                 const attributes = { attributes: {} }
                 for (var attr of ast.attributes) {
-                    const name: string = evalFunction(attr.name, dataContext),
-                        value: string = evalFunction(attr.value, dataContext)
-                    if (typeof value == "object" && (name == "style" || name == "dataset"))
+                    const name = evalFunction(attr.name, dataContext)
+                    const value = evalFunction(attr.value, dataContext)
+                    if (typeof value == "object" && (name == "style" || name == "dataset" || 'hook' in value))
                         attributes[name] = value
                     else if (name == "value" || name == "defaultValue")
                         attributes[name] = value
@@ -267,7 +267,7 @@ namespace RendererInitializer {
             }
         };
 
-        ast = optimizeConstants(ast)
+        ast = optimizeConstants(ast, false)
 
         return (opt) => {
             return evalElement(opt, ast, {isRoot: true})

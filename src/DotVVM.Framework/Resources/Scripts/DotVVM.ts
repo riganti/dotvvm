@@ -55,7 +55,7 @@ class DotVVM {
     public get viewModels() : IDotvvmViewModels {
         return this._viewModels || (this._viewModels = {
             root: {
-                viewModel: KnockoutBindingWidget.createKnockoutContext(this.rootRenderer.renderedStateObservable).$data
+                viewModel: DotvvmKnockoutCompat.createKnockoutContext(this.rootRenderer.renderedStateObservable).$data
             }
         })
     }
@@ -64,7 +64,7 @@ class DotVVM {
     public get viewModelObservables() : { [name: string]: KnockoutObservable<IDotvvmViewModelInfo>; } {
         return this._viewModelObservables || (this._viewModelObservables = {
             root: {
-                viewModel: KnockoutBindingWidget.createKnockoutContext(this.rootRenderer.renderedStateObservable).$rawData
+                viewModel: DotvvmKnockoutCompat.createKnockoutContext(this.rootRenderer.renderedStateObservable).$rawData
             }
         })
     }

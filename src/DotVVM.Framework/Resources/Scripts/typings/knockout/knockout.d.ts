@@ -534,7 +534,7 @@ interface KnockoutStatic {
     expressionRewriting: {
         bindingRewriteValidators: any[];
         twoWayBindings: any;
-        parseObjectLiteral: (objectLiteralString: string) => any[];
+        parseObjectLiteral: (objectLiteralString: string) => { key: string; value: string }[];
 
         /**
         Internal, private KO utility for updating model properties from within bindings

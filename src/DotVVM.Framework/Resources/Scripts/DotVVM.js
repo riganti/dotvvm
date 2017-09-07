@@ -17,281 +17,47 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 /// <reference path="typings/virtual-dom/virtual-dom.d.ts" />
-var ko_createBindingContext = (function () {
-    var c;
-    for (var i in ko) {
-        if (ko[i].prototype && typeof (ko[i].prototype['createChildContext']) == "function")
-            c = i;
-    }
-    var context = ko[c];
-    return function (dataItemOrAccessor, parentContext, dataItemAlias, extendCallback, options) {
-        return new context(dataItemOrAccessor, parentContext, dataItemAlias, extendCallback, options);
-    };
-})();
-(function () {
-    var origFn = ko.contextFor;
-    var fnCore = function (element) {
-        var context2 = element["@dotvvm-data-context"];
-        if (context2) {
-            // var observable = ko.observable(context2)
-            // element["@dotvvm-data-context-refresh"] = c => observable(c)
-            return KnockoutBindingWidget.createKnockoutContext(context2);
+var DotvvmKnockoutCompat;
+(function (DotvvmKnockoutCompat) {
+    var ko_createBindingContext = (function () {
+        var c;
+        for (var i in ko) {
+            if (ko[i].prototype && typeof (ko[i].prototype['createChildContext']) == "function")
+                c = i;
         }
-        if (element.parentElement)
-            return fnCore(element.parentElement);
-    };
-    var contextFor = ko.contextFor = function (element) {
-        return fnCore(element) || origFn(element);
-        // const koContext = origFn(element)
-        // if (koContext) return koContext;
-    };
-    ko.dataFor = function (node) {
-        var context = contextFor(node);
-        return context ? context['$data'] : undefined;
-    };
-    ko.originalContextFor = origFn;
-})();
-var KnockoutBindingWidget = (function () {
-    function KnockoutBindingWidget(dataContext, node, nodeChildren, dataBind, koComments) {
-        this.dataContext = dataContext;
-        this.node = node;
-        this.nodeChildren = nodeChildren;
-        this.dataBind = dataBind;
-        this.koComments = koComments;
-        // type KnockoutVirtualElement = { start: number; end: number; dataBind: string } 
-        this.type = "Widget";
-        this.elementId = Math.floor(Math.random() * 1000000).toString();
-        this.contentMapping = null;
-        this.lastState = ko.observable(dataContext);
-        this.koComments.sort(function (a, b) { return a.start - b.start; });
-        for (var i = 1; i < this.koComments.length; i++) {
-            if (koComments[i - 1].end > koComments[i].start)
-                throw new Error("Knockout comments can't overlap.");
-        }
-    }
-    KnockoutBindingWidget.prototype.getFakeContent = function () {
-        var comments = this.koComments;
-        var content = [];
-        for (var i = 0, ci = 0; i < (this.nodeChildren || this.node.children).length; i++) {
-            if (comments[ci] && comments[ci].start == i) {
-                content.push(document.createComment("ko " + comments[ci].dataBind));
-            }
-            content.push(virtualDom.create(new virtualDom.VNode("span", { dataset: { index: i.toString(), commentIndex: ci.toString(), fakeContentFor: this.elementId } }), {}));
-            if (comments[ci] && comments[ci].end <= i) {
-                if (comments[ci].end != i)
-                    throw new Error();
-                content.push(document.createComment("/ko"));
-                ci++;
-            }
-        }
-        return content;
-    };
-    KnockoutBindingWidget.prototype.init = function () {
-        var _this = this;
-        var element = virtualDom.create(this.node, {});
-        if (this.nodeChildren != null)
-            for (var _i = 0, _a = this.getFakeContent(); _i < _a.length; _i++) {
-                var c = _a[_i];
-                element.appendChild(c);
-            }
-        var rootKoContext = KnockoutBindingWidget.createKnockoutContext(this.lastState);
-        var contentIsApplied = false;
-        if (this.dataBind != null) {
-            // apply data-bind of the top element
-            element.setAttribute("data-bind", this.dataBind);
-            var bindingResult = ko.applyBindingAccessorsToNode(element, function (a, b) {
-                if (a != rootKoContext)
-                    throw new Error("Something is wrong.");
-                _this.lastState();
-                var bindingAccessor = ko.bindingProvider.instance.getBindingAccessors(element, rootKoContext);
-                // const result = {}
-                // for (const key in bindingAccessor) {
-                //     if (bindingAccessor.hasOwnProperty(key)) {
-                //         const element = bindingAccessor[key];
-                //         result[key] = ko.pureComputed(() => {
-                //             if (rootKoContext["_subscribable"])
-                //                 rootKoContext["_subscribable"]()
-                //             return ko.unwrap(element)
-                //         })
-                //     }
-                // }
-                // return result
-                return bindingAccessor;
-            }, rootKoContext);
-            contentIsApplied = !bindingResult["shouldBindDescendants"];
-        }
-        if (!contentIsApplied) {
-            // apply knockout comments
-            for (var _b = 0, _c = createArray(element.childNodes); _b < _c.length; _b++) {
-                var e = _c[_b];
-                if (e.nodeType == Node.COMMENT_NODE && ko.bindingProvider.instance.nodeHasBindings(e)) {
-                    ko.applyBindingsToNode(e, null, rootKoContext);
-                }
-            }
-        }
-        if (this.nodeChildren != null) {
-            this.contentMapping = [];
-            // replace fake elements with real nodes
-            this.replaceTmpSpans(createArray(element.getElementsByTagName("span")), element);
-            this.setupDomWatcher(element);
-        }
-        return element;
-    };
-    KnockoutBindingWidget.prototype.setupDomWatcher = function (element) {
-        var _this = this;
-        if (!this.domWatcher)
-            this.domWatcher = new MutationObserver(function (c) {
-                for (var _i = 0, c_1 = c; _i < c_1.length; _i++) {
-                    var rec = c_1[_i];
-                    _this.replaceTmpSpans(createArray(rec.addedNodes), element);
-                    // TODO removed nodes
-                    for (var _a = 0, _b = createArray(rec.removedNodes); _a < _b.length; _a++) {
-                        var rm = _b[_a];
-                        if (rm["__bound_element"] && rm["__bound_element"].parentElement) {
-                            rm["__bound_element"].remove();
-                        }
-                    }
-                }
-            });
-        this.domWatcher.observe(element, { childList: true, subtree: true, attributes: true, characterData: true });
-    };
-    KnockoutBindingWidget.prototype.copyKnockoutInternalDataProperty = function (from, to) {
-        var name = KnockoutBindingWidget.knockoutInternalDataPropertyName || (function () {
-            for (var n in from) {
-                if (n.indexOf("__ko__") == 0) {
-                    return KnockoutBindingWidget.knockoutInternalDataPropertyName = n;
-                }
-            }
-            return null;
-        })();
-        if (name && from[name]) {
-            to[name] = from[name];
-        }
-    };
-    KnockoutBindingWidget.prototype.isElementRooted = function (element, root) {
-        while (element.parentNode != null) {
-            if (element.parentNode == root)
-                return true;
-            element = element.parentNode;
-        }
-        return false;
-    };
-    KnockoutBindingWidget.prototype.replaceTmpSpans = function (nodes, rootElement) {
-        var _this = this;
-        var _loop_1 = function () {
-            var e = n;
-            if (n.nodeType == Node.ELEMENT_NODE && e.getAttribute("data-fake-content-for") == this_1.elementId && this_1.isElementRooted(e, rootElement) && !e["__bound_element"]) {
-                var index_1 = parseInt(e.getAttribute("data-index"));
-                var commentIndex = parseInt(e.getAttribute("data-comment-index"));
-                var context = (function () {
-                    var koContext = ko.originalContextFor(e);
-                    return koContext ? KnockoutBindingWidget.getBetterContext(koContext) : _this.dataContext;
-                })();
-                var vdomNode_1 = this_1.nodeChildren[index_1](context);
-                var element_1 = virtualDom.create(vdomNode_1, {});
-                // this.copyKnockoutInternalDataProperty(e, element);
-                var subscribable = null;
-                if (context != this_1.dataContext) {
-                    element_1["@dotvvm-data-context"] = subscribable = ko.pureComputed(function () {
-                        _this.lastState();
-                        var koContext = ko.originalContextFor(e);
-                        if (koContext && ko.isObservable(koContext["_subscribable"]))
-                            koContext["_subscribable"]();
-                        return koContext ? KnockoutBindingWidget.getBetterContext(koContext) : _this.dataContext;
-                    });
-                }
-                else {
-                    element_1["@dotvvm-data-context-issame"] = true;
-                }
-                e["__bound_element"] = element_1;
-                e.parentElement.insertBefore(element_1, e);
-                this_1.contentMapping.push({ element: e, index: index_1, lastDom: vdomNode_1 });
-                if (subscribable) {
-                    var subscription = subscribable.subscribe(function (c) {
-                        var vdom2 = _this.nodeChildren[index_1](c);
-                        var diff = virtualDom.diff(vdomNode_1, vdom2);
-                        vdomNode_1 = vdom2;
-                        virtualDom.patch(element_1, diff);
-                    });
-                }
-            }
+        var context = ko[c];
+        return function (dataItemOrAccessor, parentContext, dataItemAlias, extendCallback, options) {
+            return new context(dataItemOrAccessor, parentContext, dataItemAlias, extendCallback, options);
         };
-        var this_1 = this;
-        for (var _i = 0, nodes_1 = nodes; _i < nodes_1.length; _i++) {
-            var n = nodes_1[_i];
-            _loop_1();
-        }
-    };
-    KnockoutBindingWidget.prototype.removeRemovedNodes = function (rootElement) {
-        if (this.contentMapping)
-            for (var _i = 0, _a = this.contentMapping; _i < _a.length; _i++) {
-                var x = _a[_i];
-                if (!this.isElementRooted(x.element, rootElement) && x.element["__bound_element"]) {
-                    x.element["__bound_element"].remove();
-                }
+    })();
+    (function () {
+        var origFn = ko.contextFor;
+        var fnCore = function (element) {
+            var context2 = element["@dotvvm-data-context"];
+            if (context2) {
+                // var observable = ko.observable(context2)
+                // element["@dotvvm-data-context-refresh"] = c => observable(c)
+                return createKnockoutContext(context2);
             }
-    };
-    KnockoutBindingWidget.prototype.update = function (previousWidget, previousDomNode) {
-        var _this = this;
-        if (previousWidget.dataBind != this.dataBind ||
-            previousWidget.koComments.length != previousWidget.koComments.length ||
-            !previousWidget.koComments.every(function (e, i) { return _this.koComments[i].dataBind == e.dataBind && _this.koComments[i].start == e.start && _this.koComments[i].end == e.end; })) {
-            // data binding has changed, rerender the widget
-            return this.init();
-        }
-        if (!!previousWidget.nodeChildren != !!previousWidget.nodeChildren)
-            throw new Error("");
-        this.elementId = previousWidget.elementId;
-        this.lastState = previousWidget.lastState;
-        this.contentMapping = previousWidget.contentMapping;
-        if (previousWidget.domWatcher)
-            previousWidget.domWatcher.disconnect();
-        if (this.nodeChildren != null) {
-            this.contentMapping = this.contentMapping || [];
-            // replace fake elements with real nodes
-            this.setupDomWatcher(previousDomNode);
-            // TODO: for some reason the MutationObserver does not react to changes when the element is also observed by other oberver
-            this.removeRemovedNodes(previousDomNode);
-            this.replaceTmpSpans(createArray(previousDomNode.getElementsByTagName("span")), previousDomNode);
-        }
-        previousWidget.lastState(this.dataContext);
-    };
-    KnockoutBindingWidget.prototype.destroy = function (domNode) {
-        this.domWatcher.disconnect();
-    };
-    KnockoutBindingWidget.getBetterContext = function (dataContext) {
-        if (dataContext["$betterContext"] && dataContext["$createdForSelf"] === dataContext)
-            return ko.unwrap(dataContext["$betterContext"]);
-        var parent = dataContext.$parentContext != null ? KnockoutBindingWidget.getBetterContext(dataContext.$parentContext) : undefined;
-        var data = (dataContext["$createdForSelf"] === dataContext && ko.unwrap(dataContext["$unwrapped"])) || ko.unwrap(dataContext.$data["__upwrapped_data"]) || dotvvm.serialization.serialize(dataContext.$data);
-        var extensions = undefined;
-        for (var prop in dataContext) {
-            if (dataContext.hasOwnProperty(prop) && prop != "$data" && prop != "$parent" && prop != "$parents" && prop != "$root" && prop != "ko" && prop != "$rawData" && prop != "_subscribable") {
-                extensions = extensions || {};
-                extensions[prop] = dataContext[prop];
-            }
-        }
-        return {
-            dataContext: data,
-            parentContext: parent,
-            update: function (updater) {
-                if (typeof dataContext.$data["__update_function"] == "function") {
-                    console.log("Updating ", dataContext.$data);
-                    dataContext.$data["__update_function"](updater);
-                }
-                else {
-                    // deserialize the change to the knockout context
-                    console.warn("Deserializing chnages to knockout context");
-                    dotvvm.serialization.deserialize(updater(dotvvm.serialization.serialize(dataContext.$data)), dataContext.$data);
-                }
-            },
-            "@extensions": extensions
+            if (element.parentElement)
+                return fnCore(element.parentElement);
         };
-    };
-    KnockoutBindingWidget.createKnockoutContext = function (dataContext) {
-        var dataComputed = ko.pureComputed(function () { return KnockoutBindingWidget.wrapInObservables(ko.pureComputed(function () { return dataContext().dataContext; }), dataContext().update); });
+        var contextFor = ko.contextFor = function (element) {
+            return fnCore(element) || origFn(element);
+            // const koContext = origFn(element)
+            // if (koContext) return koContext;
+        };
+        ko.dataFor = function (node) {
+            var context = contextFor(node);
+            return context ? context['$data'] : undefined;
+        };
+        ko.originalContextFor = origFn;
+    })();
+    DotvvmKnockoutCompat.nonControllingBindingHandlers = { visible: true, text: true, html: true, css: true, style: true, attr: true, enabled: true, textInput: true, disabled: true, value: true, options: true, selectedOptions: true, uniqueName: true, checked: true, hasFocus: true, submit: true, event: true, click: true, dotvvmValidation: true, "dotvvm-CheckState": true, "dotvvm-textbox-select-all-on-focus": true, "dotvvm-textbox-text": true, "dotvvm-table-columnvisible": true, "dotvvm-UpdateProgress-Visible": true, "dotvvm-checkbox-updateAfterPostback": true, "dotvvmEnable": true };
+    function createKnockoutContext(dataContext) {
+        var dataComputed = ko.pureComputed(function () { return wrapInObservables(ko.pureComputed(function () { return dataContext().dataContext; }), dataContext().update); });
         var result = dataContext.peek().parentContext ?
-            KnockoutBindingWidget.createKnockoutContext(ko.pureComputed(function () { return dataContext().parentContext || { dataContext: null, update: function (u) { console.warn("Ou, updating non existent viewModel"); } }; }))
+            createKnockoutContext(ko.pureComputed(function () { return dataContext().parentContext || { dataContext: null, update: function (u) { console.warn("Ou, updating non existent viewModel"); } }; }))
                 .createChildContext(dataComputed) :
             ko_createBindingContext(dataComputed);
         result["$unwraped"] = ko.pureComputed(function () { return dataContext().dataContext; });
@@ -308,13 +74,14 @@ var KnockoutBindingWidget = (function () {
         if (!ko.isObservable(result.$rawData))
             throw new Error("$rawData is not an observable");
         return result;
-    };
-    KnockoutBindingWidget.wrapInObservables = function (objOrObservable, update) {
+    }
+    DotvvmKnockoutCompat.createKnockoutContext = createKnockoutContext;
+    function wrapInObservables(objOrObservable, update) {
         if (update === void 0) { update = null; }
         var obj = ko.unwrap(objOrObservable);
         var createComputed = function (indexer, updateProperty) {
             if (obj[indexer] instanceof Array) {
-                return KnockoutBindingWidget.wrapInObservables(ko.isObservable(objOrObservable) ? ko.pureComputed(function () { return (objOrObservable() || [])[indexer]; }) : obj[indexer], update == null ? null : function (u) { return update(function (vm) { return updateProperty(vm, u); }); });
+                return wrapInObservables(ko.isObservable(objOrObservable) ? ko.pureComputed(function () { return (objOrObservable() || [])[indexer]; }) : obj[indexer], update == null ? null : function (u) { return update(function (vm) { return updateProperty(vm, u); }); });
             }
             else {
                 // knockout does not like when the object gets replaced by a new one, so we will just update this one every time...
@@ -323,7 +90,7 @@ var KnockoutBindingWidget = (function () {
                     read: function () {
                         // when the cache contains non-object it's either empty or contain primitive (and immutable) value
                         return cache_1 != null && typeof cache_1 == "object" ? cache_1 :
-                            (cache_1 = KnockoutBindingWidget.wrapInObservables(ko.isObservable(objOrObservable) ? ko.pureComputed(function () { return (objOrObservable() || {})[indexer]; }) : obj[indexer], update == null ? null : function (u) { return update(function (vm) { return updateProperty(vm, u); }); }));
+                            (cache_1 = wrapInObservables(ko.isObservable(objOrObservable) ? ko.pureComputed(function () { return (objOrObservable() || {})[indexer]; }) : obj[indexer], update == null ? null : function (u) { return update(function (vm) { return updateProperty(vm, u); }); }));
                     },
                     write: update == null ? undefined :
                         function (val) { return update(function (vm) { return updateProperty(vm, function (_) { return ko.unwrap(val); }); }); }
@@ -395,8 +162,277 @@ var KnockoutBindingWidget = (function () {
             }
             return result;
         }
-    };
-    KnockoutBindingWidget.createDecorator = function (element) {
+    }
+    DotvvmKnockoutCompat.wrapInObservables = wrapInObservables;
+    var KnockoutBindingHook = (function () {
+        function KnockoutBindingHook(dataContext) {
+            this.dataContext = dataContext;
+            this.lastState = null;
+        }
+        KnockoutBindingHook.prototype.hook = function (node, propertyName, previousValue) {
+            if (this.lastState != null)
+                throw new Error("Can not hook more than one time");
+            if (previousValue) {
+                if (previousValue.lastState == null)
+                    throw new Error("");
+                this.lastState = previousValue.lastState;
+                previousValue.lastState = null;
+                this.lastState(this.dataContext);
+            }
+            else {
+                var lastState = this.lastState = ko.observable(this.dataContext);
+                var context = createKnockoutContext(lastState);
+                ko.applyBindingsToNode(node, null, context);
+            }
+        };
+        KnockoutBindingHook.prototype.unhoook = function (node, propertyName, nextValue) {
+            // Knockout should dispose automatically when the node is dropped
+        };
+        return KnockoutBindingHook;
+    }());
+    DotvvmKnockoutCompat.KnockoutBindingHook = KnockoutBindingHook;
+    var KnockoutBindingWidget = (function () {
+        function KnockoutBindingWidget(dataContext, node, nodeChildren, dataBind, koComments) {
+            this.dataContext = dataContext;
+            this.node = node;
+            this.nodeChildren = nodeChildren;
+            this.dataBind = dataBind;
+            this.koComments = koComments;
+            // type KnockoutVirtualElement = { start: number; end: number; dataBind: string } 
+            this.type = "Widget";
+            this.elementId = Math.floor(Math.random() * 1000000).toString();
+            this.contentMapping = null;
+            this.lastState = ko.observable(dataContext);
+            this.koComments.sort(function (a, b) { return a.start - b.start; });
+            for (var i = 1; i < this.koComments.length; i++) {
+                if (koComments[i - 1].end > koComments[i].start)
+                    throw new Error("Knockout comments can't overlap.");
+            }
+        }
+        KnockoutBindingWidget.prototype.getFakeContent = function () {
+            var comments = this.koComments;
+            var content = [];
+            for (var i = 0, ci = 0; i < (this.nodeChildren || this.node.children).length; i++) {
+                if (comments[ci] && comments[ci].start == i) {
+                    content.push(document.createComment("ko " + comments[ci].dataBind));
+                }
+                content.push(virtualDom.create(new virtualDom.VNode("span", { dataset: { index: i.toString(), commentIndex: ci.toString(), fakeContentFor: this.elementId } }), {}));
+                if (comments[ci] && comments[ci].end <= i) {
+                    if (comments[ci].end != i)
+                        throw new Error();
+                    content.push(document.createComment("/ko"));
+                    ci++;
+                }
+            }
+            return content;
+        };
+        KnockoutBindingWidget.prototype.init = function () {
+            var _this = this;
+            var element = virtualDom.create(this.node, {});
+            if (this.nodeChildren != null)
+                for (var _i = 0, _a = this.getFakeContent(); _i < _a.length; _i++) {
+                    var c = _a[_i];
+                    element.appendChild(c);
+                }
+            var rootKoContext = createKnockoutContext(this.lastState);
+            var contentIsApplied = false;
+            if (this.dataBind != null) {
+                // apply data-bind of the top element
+                element.setAttribute("data-bind", this.dataBind);
+                var bindingResult = ko.applyBindingAccessorsToNode(element, function (a, b) {
+                    if (a != rootKoContext)
+                        throw new Error("Something is wrong.");
+                    _this.lastState();
+                    var bindingAccessor = ko.bindingProvider.instance.getBindingAccessors(element, rootKoContext);
+                    // const result = {}
+                    // for (const key in bindingAccessor) {
+                    //     if (bindingAccessor.hasOwnProperty(key)) {
+                    //         const element = bindingAccessor[key];
+                    //         result[key] = ko.pureComputed(() => {
+                    //             if (rootKoContext["_subscribable"])
+                    //                 rootKoContext["_subscribable"]()
+                    //             return ko.unwrap(element)
+                    //         })
+                    //     }
+                    // }
+                    // return result
+                    return bindingAccessor;
+                }, rootKoContext);
+                contentIsApplied = !bindingResult["shouldBindDescendants"];
+            }
+            if (!contentIsApplied) {
+                // apply knockout comments
+                for (var _b = 0, _c = createArray(element.childNodes); _b < _c.length; _b++) {
+                    var e = _c[_b];
+                    if (e.nodeType == Node.COMMENT_NODE && ko.bindingProvider.instance.nodeHasBindings(e)) {
+                        ko.applyBindingsToNode(e, null, rootKoContext);
+                    }
+                }
+            }
+            if (this.nodeChildren != null) {
+                this.contentMapping = [];
+                // replace fake elements with real nodes
+                this.replaceTmpSpans(createArray(element.getElementsByTagName("span")), element);
+                this.setupDomWatcher(element);
+            }
+            return element;
+        };
+        KnockoutBindingWidget.prototype.setupDomWatcher = function (element) {
+            var _this = this;
+            if (!this.domWatcher)
+                this.domWatcher = new MutationObserver(function (c) {
+                    for (var _i = 0, c_1 = c; _i < c_1.length; _i++) {
+                        var rec = c_1[_i];
+                        _this.replaceTmpSpans(createArray(rec.addedNodes), element);
+                        // TODO removed nodes
+                        for (var _a = 0, _b = createArray(rec.removedNodes); _a < _b.length; _a++) {
+                            var rm = _b[_a];
+                            if (rm["__bound_element"] && rm["__bound_element"].parentElement) {
+                                rm["__bound_element"].remove();
+                            }
+                        }
+                    }
+                });
+            this.domWatcher.observe(element, { childList: true, subtree: true, attributes: true, characterData: true });
+        };
+        KnockoutBindingWidget.prototype.copyKnockoutInternalDataProperty = function (from, to) {
+            var name = KnockoutBindingWidget.knockoutInternalDataPropertyName || (function () {
+                for (var n in from) {
+                    if (n.indexOf("__ko__") == 0) {
+                        return KnockoutBindingWidget.knockoutInternalDataPropertyName = n;
+                    }
+                }
+                return null;
+            })();
+            if (name && from[name]) {
+                to[name] = from[name];
+            }
+        };
+        KnockoutBindingWidget.prototype.isElementRooted = function (element, root) {
+            while (element.parentNode != null) {
+                if (element.parentNode == root)
+                    return true;
+                element = element.parentNode;
+            }
+            return false;
+        };
+        KnockoutBindingWidget.prototype.replaceTmpSpans = function (nodes, rootElement) {
+            var _this = this;
+            var _loop_1 = function () {
+                var e = n;
+                if (n.nodeType == Node.ELEMENT_NODE && e.getAttribute("data-fake-content-for") == this_1.elementId && this_1.isElementRooted(e, rootElement) && !e["__bound_element"]) {
+                    var index_1 = parseInt(e.getAttribute("data-index"));
+                    var commentIndex = parseInt(e.getAttribute("data-comment-index"));
+                    var context = (function () {
+                        var koContext = ko.originalContextFor(e);
+                        return koContext ? KnockoutBindingWidget.getBetterContext(koContext) : _this.dataContext;
+                    })();
+                    var vdomNode_1 = this_1.nodeChildren[index_1](context);
+                    var element_1 = virtualDom.create(vdomNode_1, {});
+                    // this.copyKnockoutInternalDataProperty(e, element);
+                    var subscribable = null;
+                    if (context != this_1.dataContext) {
+                        element_1["@dotvvm-data-context"] = subscribable = ko.pureComputed(function () {
+                            _this.lastState();
+                            var koContext = ko.originalContextFor(e);
+                            if (koContext && ko.isObservable(koContext["_subscribable"]))
+                                koContext["_subscribable"]();
+                            return koContext ? KnockoutBindingWidget.getBetterContext(koContext) : _this.dataContext;
+                        });
+                    }
+                    else {
+                        element_1["@dotvvm-data-context-issame"] = true;
+                    }
+                    e["__bound_element"] = element_1;
+                    e.parentElement.insertBefore(element_1, e);
+                    this_1.contentMapping.push({ element: e, index: index_1, lastDom: vdomNode_1 });
+                    if (subscribable) {
+                        var subscription = subscribable.subscribe(function (c) {
+                            var vdom2 = _this.nodeChildren[index_1](c);
+                            var diff = virtualDom.diff(vdomNode_1, vdom2);
+                            vdomNode_1 = vdom2;
+                            virtualDom.patch(element_1, diff);
+                        });
+                    }
+                }
+            };
+            var this_1 = this;
+            for (var _i = 0, nodes_1 = nodes; _i < nodes_1.length; _i++) {
+                var n = nodes_1[_i];
+                _loop_1();
+            }
+        };
+        KnockoutBindingWidget.prototype.removeRemovedNodes = function (rootElement) {
+            if (this.contentMapping)
+                for (var _i = 0, _a = this.contentMapping; _i < _a.length; _i++) {
+                    var x = _a[_i];
+                    if (!this.isElementRooted(x.element, rootElement) && x.element["__bound_element"]) {
+                        x.element["__bound_element"].remove();
+                    }
+                }
+        };
+        KnockoutBindingWidget.prototype.update = function (previousWidget, previousDomNode) {
+            var _this = this;
+            if (previousWidget.dataBind != this.dataBind ||
+                previousWidget.koComments.length != previousWidget.koComments.length ||
+                !previousWidget.koComments.every(function (e, i) { return _this.koComments[i].dataBind == e.dataBind && _this.koComments[i].start == e.start && _this.koComments[i].end == e.end; })) {
+                // data binding has changed, rerender the widget
+                return this.init();
+            }
+            if (!!previousWidget.nodeChildren != !!previousWidget.nodeChildren)
+                throw new Error("");
+            this.elementId = previousWidget.elementId;
+            this.lastState = previousWidget.lastState;
+            this.contentMapping = previousWidget.contentMapping;
+            if (previousWidget.domWatcher)
+                previousWidget.domWatcher.disconnect();
+            if (this.nodeChildren != null) {
+                this.contentMapping = this.contentMapping || [];
+                // replace fake elements with real nodes
+                this.setupDomWatcher(previousDomNode);
+                // TODO: for some reason the MutationObserver does not react to changes when the element is also observed by other oberver
+                this.removeRemovedNodes(previousDomNode);
+                this.replaceTmpSpans(createArray(previousDomNode.getElementsByTagName("span")), previousDomNode);
+            }
+            previousWidget.lastState(this.dataContext);
+        };
+        KnockoutBindingWidget.prototype.destroy = function (domNode) {
+            this.domWatcher.disconnect();
+        };
+        KnockoutBindingWidget.getBetterContext = function (dataContext) {
+            if (dataContext["$betterContext"] && dataContext["$createdForSelf"] === dataContext)
+                return ko.unwrap(dataContext["$betterContext"]);
+            var parent = dataContext.$parentContext != null ? KnockoutBindingWidget.getBetterContext(dataContext.$parentContext) : undefined;
+            var data = (dataContext["$createdForSelf"] === dataContext && ko.unwrap(dataContext["$unwrapped"])) || ko.unwrap(dataContext.$data["__upwrapped_data"]) || dotvvm.serialization.serialize(dataContext.$data);
+            var extensions = undefined;
+            for (var prop in dataContext) {
+                if (dataContext.hasOwnProperty(prop) && prop != "$data" && prop != "$parent" && prop != "$parents" && prop != "$root" && prop != "ko" && prop != "$rawData" && prop != "_subscribable") {
+                    extensions = extensions || {};
+                    extensions[prop] = dataContext[prop];
+                }
+            }
+            return {
+                dataContext: data,
+                parentContext: parent,
+                update: function (updater) {
+                    if (typeof dataContext.$data["__update_function"] == "function") {
+                        console.log("Updating ", dataContext.$data);
+                        dataContext.$data["__update_function"](updater);
+                    }
+                    else {
+                        // deserialize the change to the knockout context
+                        console.warn("Deserializing chnages to knockout context");
+                        dotvvm.serialization.deserialize(updater(dotvvm.serialization.serialize(dataContext.$data)), dataContext.$data);
+                    }
+                },
+                "@extensions": extensions
+            };
+        };
+        return KnockoutBindingWidget;
+    }());
+    KnockoutBindingWidget.knockoutInternalDataPropertyName = null;
+    DotvvmKnockoutCompat.KnockoutBindingWidget = KnockoutBindingWidget;
+    function createDecorator(element) {
         var dataBindAttribute = element.getAttribute("data-bind");
         var hasCommentChild = createArray(element.childNodes).some(function (n) { return n.nodeType == Node.COMMENT_NODE && ko.bindingProvider.instance.nodeHasBindings(n); });
         var commentNodesHaveTextProperty = document && document.createComment("test").text === "<!--test-->";
@@ -405,6 +441,23 @@ var KnockoutBindingWidget = (function () {
             var regexMatch = (commentNodesHaveTextProperty ? node.text : node.nodeValue).match(startCommentRegex);
             return regexMatch ? regexMatch[1] : null;
         };
+        if (dataBindAttribute && !hasCommentChild) {
+            var binding = ko.expressionRewriting.parseObjectLiteral(dataBindAttribute);
+            if (binding.every(function (b) { return DotvvmKnockoutCompat.nonControllingBindingHandlers[b.key]; })) {
+                // add a simple hook, the complex widget is not needed
+                return function (node) {
+                    return {
+                        type: "attr",
+                        attr: {
+                            name: RendererInitializer.astConstant("knockout-data-bind-hook"),
+                            value: RendererInitializer.astFunc(1000000, [], function (dataContext) {
+                                return new KnockoutBindingHook(dataContext);
+                            })
+                        }
+                    };
+                };
+            }
+        }
         if (dataBindAttribute || hasCommentChild) {
             var kk_1 = [];
             var elementIndex = 0;
@@ -453,10 +506,9 @@ var KnockoutBindingWidget = (function () {
             };
         }
         return undefined;
-    };
-    return KnockoutBindingWidget;
-}());
-KnockoutBindingWidget.knockoutInternalDataPropertyName = null;
+    }
+    DotvvmKnockoutCompat.createDecorator = createDecorator;
+})(DotvvmKnockoutCompat || (DotvvmKnockoutCompat = {}));
 var TwoWayBinding = (function () {
     function TwoWayBinding(update, value) {
         this.update = update;
@@ -582,7 +634,7 @@ var RendererInitializer;
             content: children,
             attributes: []
         };
-        var knockoutDecorator = KnockoutBindingWidget.createDecorator(node);
+        var knockoutDecorator = DotvvmKnockoutCompat.createDecorator(node);
         if (knockoutDecorator != null)
             attributes = [knockoutDecorator(result)].concat(attributes);
         return applyPropsToElement(result, attributes);
@@ -598,12 +650,13 @@ var RendererInitializer;
             return { type: "text", content: RendererInitializer.astConstant("") };
         }
     };
-    var optimizeConstants = function (ast) {
+    var optimizeConstants = function (ast, allowFirstLevel) {
+        if (allowFirstLevel === void 0) { allowFirstLevel = true; }
         var optimizeFunction = function (fn) {
             if (fn.type == "constant")
                 return fn;
             else {
-                var fn2 = { elements: fn.elements.map(optimizeConstants), type: fn.type, dataContextDepth: fn.dataContextDepth, func: fn.func };
+                var fn2 = { elements: fn.elements.map(function (a) { return optimizeConstants(a); }), type: fn.type, dataContextDepth: fn.dataContextDepth, func: fn.func };
                 if (fn2.dataContextDepth == 0 && fn2.elements.every(function (e) { return e.type == "constant"; })) {
                     return RendererInitializer.astConstant(fn2.func(undefined, fn2.elements.map(function (e) { return e["constant"]; })));
                 }
@@ -629,10 +682,10 @@ var RendererInitializer;
             var ast2 = {
                 type: ast.type,
                 attributes: ast.attributes.map(function (a) { return ({ name: optimizeFunction(a.name), value: optimizeFunction(a.value) }); }),
-                content: ast.content.map(optimizeConstants),
+                content: ast.content.map(function (a) { return optimizeConstants(a); }),
                 name: optimizeFunction(ast.name)
             };
-            if (ast2.name.type == "constant" && ast2.content.every(function (e) { return e.type == "constant"; }) && ast2.attributes.every(function (a) { return a.name.type == "constant" && a.value.type == "constant"; })) {
+            if (allowFirstLevel && ast2.name.type == "constant" && ast2.content.every(function (e) { return e.type == "constant"; }) && ast2.attributes.every(function (a) { return a.name.type == "constant" && a.value.type == "constant"; })) {
                 var attributes = { attributes: {} };
                 for (var _i = 0, _a = ast2.attributes; _i < _a.length; _i++) {
                     var attr = _a[_i];
@@ -682,8 +735,9 @@ var RendererInitializer;
                 var attributes = { attributes: {} };
                 for (var _i = 0, _a = ast.attributes; _i < _a.length; _i++) {
                     var attr = _a[_i];
-                    var name_2 = evalFunction(attr.name, dataContext), value = evalFunction(attr.value, dataContext);
-                    if (typeof value == "object" && (name_2 == "style" || name_2 == "dataset"))
+                    var name_2 = evalFunction(attr.name, dataContext);
+                    var value = evalFunction(attr.value, dataContext);
+                    if (typeof value == "object" && (name_2 == "style" || name_2 == "dataset" || 'hook' in value))
                         attributes[name_2] = value;
                     else if (name_2 == "value" || name_2 == "defaultValue")
                         attributes[name_2] = value;
@@ -699,7 +753,7 @@ var RendererInitializer;
                 return element;
             }
         };
-        ast = optimizeConstants(ast);
+        ast = optimizeConstants(ast, false);
         return function (opt) {
             return evalElement(opt, ast, { isRoot: true });
         };
@@ -1500,7 +1554,7 @@ var DotVVM = (function () {
         get: function () {
             return this._viewModels || (this._viewModels = {
                 root: {
-                    viewModel: KnockoutBindingWidget.createKnockoutContext(this.rootRenderer.renderedStateObservable).$data
+                    viewModel: DotvvmKnockoutCompat.createKnockoutContext(this.rootRenderer.renderedStateObservable).$data
                 }
             });
         },
@@ -1511,7 +1565,7 @@ var DotVVM = (function () {
         get: function () {
             return this._viewModelObservables || (this._viewModelObservables = {
                 root: {
-                    viewModel: KnockoutBindingWidget.createKnockoutContext(this.rootRenderer.renderedStateObservable).$rawData
+                    viewModel: DotvvmKnockoutCompat.createKnockoutContext(this.rootRenderer.renderedStateObservable).$rawData
                 }
             });
         },
@@ -2189,6 +2243,30 @@ var DotVVM = (function () {
                 return "";
             return ko.unwrap(params[paramName.toLowerCase()]) || "";
         });
+    };
+    DotVVM.prototype.buildUrlSuffix = function (urlSuffix, query) {
+        var resultSuffix, hashSuffix;
+        if (urlSuffix.indexOf("#") !== -1) {
+            resultSuffix = urlSuffix.substring(0, urlSuffix.indexOf("#"));
+            hashSuffix = urlSuffix.substring(urlSuffix.indexOf("#"));
+        }
+        else {
+            resultSuffix = urlSuffix;
+            hashSuffix = "";
+        }
+        for (var property in query) {
+            if (query.hasOwnProperty(property)) {
+                if (!property)
+                    continue;
+                var queryParamValue = ko.unwrap(query[property]);
+                if (queryParamValue != null)
+                    continue;
+                resultSuffix = resultSuffix.concat(resultSuffix.indexOf("?") !== -1
+                    ? "&" + property + "=" + queryParamValue
+                    : "?" + property + "=" + queryParamValue);
+            }
+        }
+        return resultSuffix.concat(hashSuffix);
     };
     DotVVM.prototype.isPostBackProhibited = function (element) {
         if (element && element.tagName && element.tagName.toLowerCase() === "a" && element.getAttribute("disabled")) {

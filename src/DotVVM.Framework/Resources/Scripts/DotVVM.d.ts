@@ -1,48 +1,59 @@
 /// <reference path="typings/virtual-dom/virtual-dom.d.ts" />
 /// <reference path="typings/globalize/globalize.d.ts" />
 /// <reference path="typings/knockout/knockout.d.ts" />
-declare const ko_createBindingContext: (dataItemOrAccessor: any, parentContext?: any, dataItemAlias?: any, extendCallback?: any, options?: any) => KnockoutBindingContext;
 interface KnockoutStatic {
     originalContextFor: (node: Element) => KnockoutBindingContext;
 }
-declare class KnockoutBindingWidget implements virtualDom.Widget {
-    readonly dataContext: RenderContext<any>;
-    readonly node: virtualDom.VNode;
-    readonly nodeChildren: ((context: RenderContext<any>) => virtualDom.VTree)[] | null;
-    readonly dataBind: string | null;
-    readonly koComments: {
-        start: number;
-        end: number;
-        dataBind: string;
-    }[];
-    readonly type: string;
-    elementId: string;
-    contentMapping: {
-        element: Node;
-        index: number;
-        lastDom: virtualDom.VTree;
-    }[] | null;
-    lastState: KnockoutObservable<RenderContext<any>>;
-    domWatcher: MutationObserver;
-    constructor(dataContext: RenderContext<any>, node: virtualDom.VNode, nodeChildren: ((context: RenderContext<any>) => virtualDom.VTree)[] | null, dataBind: string | null, koComments: {
-        start: number;
-        end: number;
-        dataBind: string;
-    }[]);
-    getFakeContent(): Node[];
-    init(): Element;
-    private setupDomWatcher(element);
-    private static knockoutInternalDataPropertyName;
-    private copyKnockoutInternalDataProperty(from, to);
-    private isElementRooted(element, root);
-    private replaceTmpSpans(nodes, rootElement);
-    private removeRemovedNodes(rootElement);
-    update(previousWidget: this, previousDomNode: Element): Element | undefined;
-    destroy(domNode: Element): void;
-    static getBetterContext(dataContext: KnockoutBindingContext): RenderContext<any>;
-    static createKnockoutContext(dataContext: KnockoutObservable<RenderContext<any>>): KnockoutBindingContext;
-    static wrapInObservables(objOrObservable: any, update?: ((updater: StateUpdate<any>) => void) | null): any;
-    static createDecorator(element: Element): ((element: RendererInitializer.RenderNodeAst) => RendererInitializer.AssignedPropDescriptor) | undefined;
+declare namespace DotvvmKnockoutCompat {
+    const nonControllingBindingHandlers: {
+        [bindingName: string]: boolean;
+    };
+    function createKnockoutContext(dataContext: KnockoutObservable<RenderContext<any>>): KnockoutBindingContext;
+    function wrapInObservables(objOrObservable: any, update?: ((updater: StateUpdate<any>) => void) | null): any;
+    class KnockoutBindingHook implements virtualDom.VHook {
+        readonly dataContext: RenderContext<any>;
+        constructor(dataContext: RenderContext<any>);
+        private lastState;
+        hook(node: Element, propertyName: string, previousValue: this): void;
+        unhoook(node: Element, propertyName: string, nextValue: any): any;
+    }
+    class KnockoutBindingWidget implements virtualDom.Widget {
+        readonly dataContext: RenderContext<any>;
+        readonly node: virtualDom.VNode;
+        readonly nodeChildren: ((context: RenderContext<any>) => virtualDom.VTree)[] | null;
+        readonly dataBind: string | null;
+        readonly koComments: {
+            start: number;
+            end: number;
+            dataBind: string;
+        }[];
+        readonly type: string;
+        elementId: string;
+        contentMapping: {
+            element: Node;
+            index: number;
+            lastDom: virtualDom.VTree;
+        }[] | null;
+        lastState: KnockoutObservable<RenderContext<any>>;
+        domWatcher: MutationObserver;
+        constructor(dataContext: RenderContext<any>, node: virtualDom.VNode, nodeChildren: ((context: RenderContext<any>) => virtualDom.VTree)[] | null, dataBind: string | null, koComments: {
+            start: number;
+            end: number;
+            dataBind: string;
+        }[]);
+        getFakeContent(): Node[];
+        init(): Element;
+        private setupDomWatcher(element);
+        private static knockoutInternalDataPropertyName;
+        private copyKnockoutInternalDataProperty(from, to);
+        private isElementRooted(element, root);
+        private replaceTmpSpans(nodes, rootElement);
+        private removeRemovedNodes(rootElement);
+        update(previousWidget: this, previousDomNode: Element): Element | undefined;
+        destroy(domNode: Element): void;
+        static getBetterContext(dataContext: KnockoutBindingContext): RenderContext<any>;
+    }
+    function createDecorator(element: Element): ((element: RendererInitializer.RenderNodeAst) => RendererInitializer.AssignedPropDescriptor) | undefined;
 }
 declare type StateUpdate<TViewModel> = (initial: TViewModel) => TViewModel;
 declare type RenderContext<TViewModel> = {
