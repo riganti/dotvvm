@@ -68,15 +68,25 @@ namespace DotVVM.Framework.Compilation
 
         protected string EmitCreateControl(Type type, object[] arguments)
         {
-            // if matching ctor exists, invoke it directly
+            // if marked with [RequireDependencyInjection] attribute, invoke injected factory
             if (type.GetTypeInfo().GetCustomAttribute(typeof(DependencyInjection.RequireDependencyInjectionAttribute)) is DependencyInjection.RequireDependencyInjectionAttribute requireDiAttr)
                 return emitter.EmitCustomInjectionFactoryInvocation(requireDiAttr.FactoryType, type);
-            else if (type.GetConstructors().Any(ctor =>
-                ctor.GetParameters().Length == (arguments?.Length ?? 0) &&
+            // if matching ctor exists, invoke it directly
+            else if (type.GetConstructors().FirstOrDefault(ctor =>
+                ctor.GetParameters().Count(p => !p.HasDefaultValue) <= (arguments?.Length ?? 0) &&
+                ctor.GetParameters().Length >= (arguments?.Length ?? 0) &&
                 ctor.GetParameters().Zip(arguments ?? Enumerable.Empty<object>(),
                         (p, a) => TypeConversion.ImplicitConversion(Expression.Constant(a), p.ParameterType))
-                    .All(a => a != null)))
-                return emitter.EmitCreateObject(type, arguments);
+                    .All(a => a != null)) is ConstructorInfo constructor)
+            {
+                var optionalArguments =
+                    constructor.GetParameters().Skip(arguments?.Length ?? 0)
+                    .Select(a =>
+                        a.ParameterType == typeof(bool) && a.Name == "allowImplicitLifecycleRequirements" ? false :
+                        a.DefaultValue
+                    );
+                return emitter.EmitCreateObject(type, arguments == null ? optionalArguments.ToArray() : arguments.Concat(optionalArguments).ToArray());
+            }
             // othervise invoke DI factory
             else
                 return emitter.EmitInjectionFactoryInvocation(
@@ -103,7 +113,11 @@ namespace DotVVM.Framework.Compilation
 
         private void SetProperty(string controlName, DotvvmProperty property, ExpressionSyntax value)
         {
-            emitter.EmitSetDotvvmProperty(controlName, property, value);
+            // set special properties as fields
+            if (property == LifecycleRequirementsAssigningVisitor.CompileTimeLifecycleRequirementsProperty)
+                emitter.EmitSetProperty(controlName, nameof(DotvvmControl.LifecycleRequirements), value);
+
+            else emitter.EmitSetDotvvmProperty(controlName, property, value);
         }
 
         private void SetPropertyValue(string controlName, DotvvmProperty property, object value)
@@ -117,7 +131,7 @@ namespace DotVVM.Framework.Compilation
 
         public override void VisitPropertyBinding(ResolvedPropertyBinding propertyBinding)
         {
-            emitter.EmitSetDotvvmProperty(controlName, propertyBinding.Property, ProcessBinding(propertyBinding.Binding));
+            SetProperty(controlName, propertyBinding.Property, ProcessBinding(propertyBinding.Binding));
             base.VisitPropertyBinding(propertyBinding);
         }
 

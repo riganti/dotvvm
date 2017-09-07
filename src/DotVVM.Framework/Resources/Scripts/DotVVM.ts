@@ -854,6 +854,28 @@ class DotVVM {
         });
     }
 
+    public buildUrlSuffix(urlSuffix: string, query: any): string {
+        var resultSuffix, hashSuffix;
+        if (urlSuffix.indexOf("#") !== -1) {
+            resultSuffix = urlSuffix.substring(0, urlSuffix.indexOf("#"));
+            hashSuffix = urlSuffix.substring(urlSuffix.indexOf("#"));
+        } else {
+            resultSuffix = urlSuffix;
+            hashSuffix = "";
+        }
+        for (var property in query) {
+            if (query.hasOwnProperty(property)) {
+                if (!property) continue;
+                var queryParamValue = ko.unwrap(query[property]);
+                if (queryParamValue != null) continue;
+                resultSuffix = resultSuffix.concat(resultSuffix.indexOf("?") !== -1
+                    ? `&${property}=${queryParamValue}`
+                    : `?${property}=${queryParamValue}`);
+            }
+        }
+        return resultSuffix.concat(hashSuffix);
+    }
+
     private isPostBackProhibited(element: HTMLElement) {
         if (element && element.tagName && element.tagName.toLowerCase() === "a" && element.getAttribute("disabled")) {
             return true;

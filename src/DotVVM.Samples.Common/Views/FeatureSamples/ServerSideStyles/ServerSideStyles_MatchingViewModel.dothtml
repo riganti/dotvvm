@@ -1,4 +1,4 @@
-﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.ServerSideStyles.ServerSideStylesViewModel, DotVVM.Samples.Common
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.ServerSideStyles.ServerSideStylesMatchingViewModel, DotVVM.Samples.Common
 
 <!DOCTYPE html>
 
@@ -29,12 +29,22 @@
     </div>
 
     <div DataContext="{value: Object}">
-        <customDataContextTag id="nonMatchingDataContextAndRoot">
-            This control should not match RootDataContext and DataContext
-            rules and should not have dataContextCheck and rootDataContextCheck
-            attributes.
+        <customDataContextTag id="matchingDataContextAndRoot">
+            This control should match both DataContext and RootDataContext
+            rules and should have attributes dataContextCheck and 
+            rootDataContextCheck set to "matching".
         </customDataContextTag>
     </div>
+
+    <div>
+        <customDataContextTag id="matchingRoot">
+            This control should only match RootDataContext rules. Should have
+            the attribute rootDataContextCheck set to "matching" and should not 
+            have a rootDataContextCheck attribute.
+        </customDataContextTag>
+    </div>
+
+
 </body>
 </html>
 

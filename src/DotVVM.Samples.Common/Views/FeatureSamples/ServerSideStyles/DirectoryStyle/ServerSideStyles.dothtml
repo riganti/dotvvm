@@ -1,0 +1,19 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.ServerSideStyles.ServerSideStylesViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <div>
+        <customTagName id="htmlControl">
+            This control should have a directory="matching" attribute on it.
+        </customTagName>
+        <cc:ServerSideStylesControl id="dotvvmControl" />
+    </div>
+</body>
+</html>
+

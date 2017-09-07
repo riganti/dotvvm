@@ -11,7 +11,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.SPARedirect
     {
         public async Task SignOut()
         {
-            await Context.GetAspNetCoreContext().SignOutAsync("Scheme2");
+            await Context.GetAuthentication().SignOutAsync("Scheme2");
 
             Context.RedirectToRoute("ComplexSamples_SPARedirect_home", allowSpaRedirect: false);
         }

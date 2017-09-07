@@ -2,8 +2,8 @@
   "profiles": {
     "DotVVM.CommandLine": {
       "commandName": "Project",
-      "commandLineArgs": "ap NewPage4",
-      "workingDirectory": "d:\\Temp\\dotnetnew"
+      "commandLineArgs": "api regen",
+      "workingDirectory": "d:\\Work\\DotvvmSamples\\WeeklyPlanner\\WeeklyPlanner\\WeeklyPlanner"
     }
   }
 }

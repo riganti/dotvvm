@@ -3029,7 +3029,7 @@ function basicAuthenticatedFetch(input, init) {
     if (!init.cache)
         init.cache = "no-cache";
     return window.fetch(input, init).then(function (response) {
-        if (response.status == 401 && auth == null) {
+        if (response.status === 401 && auth == null) {
             if (sessionStorage.getItem("someAuth") == null)
                 requestAuth();
             return basicAuthenticatedFetch(input, init);

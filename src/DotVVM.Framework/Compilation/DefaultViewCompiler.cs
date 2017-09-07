@@ -85,6 +85,8 @@ namespace DotVVM.Framework.Compilation
                     throw new DotvvmCompilationException(controlUsageError.ErrorMessage, controlUsageError.Nodes.SelectMany(n => n.Tokens));
                 }
 
+                new LifecycleRequirementsAssigningVisitor().ApplyAction(resolvedView.Accept);
+
                 var emitter = new DefaultViewCompilerCodeEmitter();
                 var compilingVisitor = new ViewCompilingVisitor(emitter, configuration.ServiceLocator.GetService<IBindingCompiler>(), className);
 
