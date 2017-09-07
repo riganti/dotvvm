@@ -351,7 +351,7 @@ namespace DotVVM.Framework.Compilation
                         SyntaxFactory.MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
                             ParseTypeName(type),
-                            SyntaxFactory.IdentifierName(v.ToString())
+                            SyntaxFactory.IdentifierName(v.Trim())
                         )
                    ).ToArray();
                 ExpressionSyntax expr = flags[0];

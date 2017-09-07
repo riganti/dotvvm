@@ -72,19 +72,19 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Initializes a new instance of the <see cref="Literal"/> class.
         /// </summary>
-        public Literal() : base("span")
+        public Literal(bool allowImplicitLifecycleRequirements = true) : base("span")
         {
-            if (GetType() == typeof(Literal)) LifecycleRequirements = ControlLifecycleRequirements.PreRender;
+            if (allowImplicitLifecycleRequirements && GetType() == typeof(Literal)) LifecycleRequirements = ControlLifecycleRequirements.PreRender;
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Literal"/> class.
         /// </summary>
-        public Literal(string text) : base("span")
+        public Literal(string text, bool allowImplicitLifecycleRequirements = true) : base("span", false)
         {
             Text = text;
             RenderSpanElement = false;
-            if (GetType() == typeof(Literal)) LifecycleRequirements = ControlLifecycleRequirements.None;
+            if (allowImplicitLifecycleRequirements && GetType() == typeof(Literal)) LifecycleRequirements = ControlLifecycleRequirements.None;
         }
 
         public static bool NeedsFormatting(IValueBinding binding) => binding != null && (binding.ResultType == typeof(DateTime) || ReflectionUtils.IsNumericType(binding.ResultType));

@@ -193,6 +193,9 @@ namespace DotVVM.Compiler
                 throw new DotvvmCompilationException(controlUsageError.ErrorMessage, controlUsageError.Nodes.SelectMany(n => n.Tokens));
             }
 
+            new LifecycleRequirementsAssigningVisitor().ApplyAction(resolvedView.Accept);
+
+
             DefaultViewCompilerCodeEmitter emitter = null;
             string fullClassName = null;
             if (Options.FullCompile)
