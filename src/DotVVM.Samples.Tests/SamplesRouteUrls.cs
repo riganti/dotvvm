@@ -149,6 +149,8 @@ namespace Dotvvm.Samples.Tests{
 
             public static string ControlSamples_Repeater_RouteLink => "ControlSamples/Repeater/RouteLink";
 
+            public static string ControlSamples_Repeater_RouteLinkQuery => "ControlSamples/Repeater/RouteLinkQuery";
+
             public static string ControlSamples_Repeater_RouteLinkUrlSuffix => "ControlSamples/Repeater/RouteLinkUrlSuffix";
 
             public static string ControlSamples_Repeater_Separator => "ControlSamples/Repeater/Separator";
@@ -340,6 +342,12 @@ namespace Dotvvm.Samples.Tests{
             public static string FeatureSamples_ServerSideStyles_ServerSideStyles => "FeatureSamples/ServerSideStyles/ServerSideStyles";
 
             public static string FeatureSamples_ServerSideStyles_ServerSideStyles_DotvvmProperties => "FeatureSamples/ServerSideStyles/ServerSideStyles_DotvvmProperties";
+
+            public static string FeatureSamples_ServerSideStyles_ServerSideStyles_MatchingViewModel => "FeatureSamples/ServerSideStyles/ServerSideStyles_MatchingViewModel";
+
+            public static string FeatureSamples_ServerSideStyles_DirectoryStyle_ServerSideStyles => "FeatureSamples/ServerSideStyles/DirectoryStyle/ServerSideStyles";
+
+            public static string FeatureSamples_ServerSideStyles_NoDirectoryStyle_ServerSideStyles => "FeatureSamples/ServerSideStyles/NoDirectoryStyle/ServerSideStyles";
 
             public static string FeatureSamples_StaticCommand_StaticCommand => "FeatureSamples/StaticCommand/StaticCommand";
 

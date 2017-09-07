@@ -1440,6 +1440,30 @@ var DotVVM = (function () {
             return ko.unwrap(params[paramName.toLowerCase()]) || "";
         });
     };
+    DotVVM.prototype.buildUrlSuffix = function (urlSuffix, query) {
+        var resultSuffix, hashSuffix;
+        if (urlSuffix.indexOf("#") !== -1) {
+            resultSuffix = urlSuffix.substring(0, urlSuffix.indexOf("#"));
+            hashSuffix = urlSuffix.substring(urlSuffix.indexOf("#"));
+        }
+        else {
+            resultSuffix = urlSuffix;
+            hashSuffix = "";
+        }
+        for (var property in query) {
+            if (query.hasOwnProperty(property)) {
+                if (!property)
+                    continue;
+                var queryParamValue = ko.unwrap(query[property]);
+                if (queryParamValue != null)
+                    continue;
+                resultSuffix = resultSuffix.concat(resultSuffix.indexOf("?") !== -1
+                    ? "&" + property + "=" + queryParamValue
+                    : "?" + property + "=" + queryParamValue);
+            }
+        }
+        return resultSuffix.concat(hashSuffix);
+    };
     DotVVM.prototype.isPostBackProhibited = function (element) {
         if (element && element.tagName && element.tagName.toLowerCase() === "a" && element.getAttribute("disabled")) {
             return true;
@@ -2279,7 +2303,7 @@ function basicAuthenticatedFetch(input, init) {
     if (!init.cache)
         init.cache = "no-cache";
     return window.fetch(input, init).then(function (response) {
-        if (response.status == 401 && auth == null) {
+        if (response.status === 401 && auth == null) {
             if (sessionStorage.getItem("someAuth") == null)
                 requestAuth();
             return basicAuthenticatedFetch(input, init);

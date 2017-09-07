@@ -16,6 +16,7 @@ namespace DotVVM.Framework.Controls
     {
 
         private const string RouteParameterPrefix = "Param-";
+        private const string RouteQueryPrefix = "Query-";
 
 
         public static void WriteRouteLinkHrefAttribute(string routeName, HtmlGenericControl control, DotvvmProperty urlSuffixProperty, IHtmlWriter writer, IDotvvmRequestContext context)
@@ -34,7 +35,8 @@ namespace DotVVM.Framework.Controls
 
         public static string EvaluateRouteUrl(string routeName, HtmlGenericControl control, DotvvmProperty urlSuffixProperty, IDotvvmRequestContext context)
         {
-            var coreUrl = GenerateRouteUrlCore(routeName, control, context) + (control.GetValue(urlSuffixProperty) as string ?? "");
+            var urlSuffix = GenerateUrlSuffixCore(control.GetValue(urlSuffixProperty) as string, control);
+            var coreUrl = GenerateRouteUrlCore(routeName, control, context) + urlSuffix;
 
             if ((bool)control.GetValue(Internal.IsSpaPageProperty))
             {
@@ -62,6 +64,21 @@ namespace DotVVM.Framework.Controls
             return route.BuildUrl(parameters);
         }
 
+        private static string GenerateUrlSuffixCore(string urlSuffix, HtmlGenericControl control)
+        {
+            var parameters = ComposeNewQueryParameters(control);
+
+            // evaluate bindings on server
+            foreach (var param in parameters.Where(p => p.Value is IStaticValueBinding).ToList())
+            {
+                EnsureValidBindingType(param.Value as BindingExpression);
+                parameters[param.Key] = ((ValueBindingExpression)param.Value).Evaluate(control);
+            }
+
+            // generate the URL suffix
+            return UrlHelper.BuildUrlSuffix(urlSuffix, parameters);
+        }
+
         private static RouteBase GetRoute(IDotvvmRequestContext context, string routeName)
         {
             return context.Configuration.RouteTable[routeName];
@@ -84,15 +101,26 @@ namespace DotVVM.Framework.Controls
 
         private static string GetUrlSuffixExpression(HtmlGenericControl control, DotvvmProperty urlSuffixProperty)
         {
+            var query = ComposeNewQueryParameters(control);
+            string urlSuffixBase;
+
             var urlSuffixBinding = control.GetValueBinding(urlSuffixProperty);
             if (urlSuffixBinding != null)
             {
-                return "(" + urlSuffixBinding.GetKnockoutBindingExpression(control) + ")";
+                urlSuffixBase =  "(" + urlSuffixBinding.GetKnockoutBindingExpression(control) + ")";
             }
             else
             {
-                return JsonConvert.SerializeObject(control.GetValue(urlSuffixProperty) as string ?? "");
-            }
+                urlSuffixBase = JsonConvert.SerializeObject(control.GetValue(urlSuffixProperty) as string ?? "");
+            } 
+            // generate the function call
+            var sb = new StringBuilder();
+            sb.Append("dotvvm.buildUrlSuffix(");
+            sb.Append(urlSuffixBase);
+            sb.Append(", {");
+            sb.Append(string.Join(", ", query.Select(p => TranslateRouteParameter(control, p, true))));
+            sb.Append("})");
+            return sb.ToString();
         }
 
         private static string GenerateRouteLinkCore(string routeName, HtmlGenericControl control, IDotvvmRequestContext context)
@@ -110,7 +138,7 @@ namespace DotVVM.Framework.Controls
             return sb.ToString();
         }
 
-        private static string TranslateRouteParameter(HtmlGenericControl control, KeyValuePair<string, object> param)
+        private static string TranslateRouteParameter(HtmlGenericControl control, KeyValuePair<string, object> param, bool caseSensitive = false)
         {
             string expression = "";
             if (param.Value is IBinding)
@@ -124,7 +152,7 @@ namespace DotVVM.Framework.Controls
             {
                 expression = JsonConvert.SerializeObject(param.Value, DefaultViewModelSerializer.CreateDefaultSettings());
             }
-            return JsonConvert.SerializeObject(param.Key.ToLower()) + ": " + expression;
+            return JsonConvert.SerializeObject(caseSensitive ? param.Key : param.Key.ToLower()) + ": " + expression;
         }
 
         private static void EnsureValidBindingType(IBinding binding)
@@ -133,6 +161,26 @@ namespace DotVVM.Framework.Controls
             {
                 throw new Exception("Only value bindings are supported in <dot:RouteLink Param-xxx='' /> attributes!");
             }
+        }
+
+        private static Dictionary<string, object> ComposeNewQueryParameters(HtmlGenericControl control)
+        {
+            var query = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var attr in GetRouteQueryParameters(control))
+            {
+                var parameterName = attr.Key.Substring(RouteQueryPrefix.Length);
+                query[parameterName] = attr.Value;
+
+                // remove the attribute because we don't want to be rendered
+                control.Attributes.Remove(attr.Key);
+            }
+            return query;
+        }
+
+        private static List<KeyValuePair<string, object>> GetRouteQueryParameters(HtmlGenericControl control)
+        {
+            return control.Attributes.Where(a => a.Key.StartsWith(RouteQueryPrefix, StringComparison.OrdinalIgnoreCase)).ToList();
         }
 
         private static Dictionary<string, object> ComposeNewRouteParameters(HtmlGenericControl control, IDotvvmRequestContext context, RouteBase route)

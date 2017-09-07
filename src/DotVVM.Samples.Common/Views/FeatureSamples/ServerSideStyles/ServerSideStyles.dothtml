@@ -28,6 +28,13 @@
         </customTagName>
     </div>
 
+    <div DataContext="{value: Object}">
+        <customDataContextTag id="nonMatchingDataContextAndRoot">
+            This control should not match RootDataContext and DataContext
+            rules and should not have dataContextCheck and rootDataContextCheck
+            attributes.
+        </customDataContextTag>
+    </div>
 </body>
 </html>
 

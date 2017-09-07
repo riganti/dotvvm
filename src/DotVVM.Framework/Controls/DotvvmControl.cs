@@ -54,7 +54,7 @@ namespace DotVVM.Framework.Controls
         public DotvvmControlCollection Children { get; private set; }
 
         // automaticaly assign requirements
-        internal ControlLifecycleRequirements LifecycleRequirements = ControlLifecycleRequirements.Init | ControlLifecycleRequirements.Load | ControlLifecycleRequirements.PreRender;
+        public ControlLifecycleRequirements LifecycleRequirements = ControlLifecycleRequirements.Init | ControlLifecycleRequirements.Load | ControlLifecycleRequirements.PreRender;
 
         /// <summary>
         /// Gets or sets the unique control ID.

@@ -17,10 +17,10 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Initializes a new instance of the <see cref="HtmlGenericControl"/> class.
         /// </summary>
-        public HtmlGenericControl()
+        public HtmlGenericControl(bool allowImplicitLifecycleRequirements = true)
         {
             Attributes = new Dictionary<string, object>();
-            if (GetType() == typeof(HtmlGenericControl))
+            if (allowImplicitLifecycleRequirements && GetType() == typeof(HtmlGenericControl))
             {
                 LifecycleRequirements = ControlLifecycleRequirements.None;
             }
@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Initializes a new instance of the <see cref="HtmlGenericControl"/> class.
         /// </summary>
-        public HtmlGenericControl(string tagName) : this()
+        public HtmlGenericControl(string tagName, bool allowImplicitLifecycleRequirements = true) : this(allowImplicitLifecycleRequirements)
         {
             TagName = tagName;
 

@@ -226,6 +226,35 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [TestMethod]
+        public void Control_Repeater_RouteLinkQuery()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_RouteLinkQuery);
+
+                // verify link urls
+                var url = browser.CurrentUrl;
+                browser.ElementAt("a", 0).CheckAttribute("href", url + "?Static=query&Id=1");
+                browser.ElementAt("a", 1).CheckAttribute("href", url + "?Static=query&Id=2");
+                browser.ElementAt("a", 2).CheckAttribute("href", url + "?Static=query&Id=3");
+                browser.ElementAt("a", 3).CheckAttribute("href", url + "?Static=query&Id=1");
+                browser.ElementAt("a", 4).CheckAttribute("href", url + "?Static=query&Id=2");
+                browser.ElementAt("a", 5).CheckAttribute("href", url + "?Static=query&Id=3");
+                browser.ElementAt("a", 6).CheckAttribute("href", url + "?first=param&Static=query&Id=1#test");
+                browser.ElementAt("a", 7).CheckAttribute("href", url + "?first=param&Static=query&Id=2#test");
+                browser.ElementAt("a", 8).CheckAttribute("href", url + "?first=param&Static=query&Id=3#test");
+                browser.ElementAt("a", 9).CheckAttribute("href", url + "?first=param&Static=query&Id=1#test");
+                browser.ElementAt("a", 10).CheckAttribute("href", url + "?first=param&Static=query&Id=2#test");
+                browser.ElementAt("a", 11).CheckAttribute("href", url + "?first=param&Static=query&Id=3#test");
+
+                for (int i = 0; i < 12; i++)
+                {
+                    browser.ElementAt("a", i).CheckIfInnerText(s => !string.IsNullOrWhiteSpace(s), "Not rendered Name");
+                }
+            });
+        }
+
+        [TestMethod]
         public void Control_Repeater_Separator()
         {
             RunInAllBrowsers(browser =>
