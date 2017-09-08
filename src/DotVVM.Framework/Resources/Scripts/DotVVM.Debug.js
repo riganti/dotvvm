@@ -35,7 +35,9 @@
 	notificationWindow.style.padding =  "20px"
 
     notificationWindow.addEventListener("click", function() {
-        notificationWindow.style.display = "none";
+        setTimeout(function () {
+                notificationWindow.style.display = "none";
+        }, 200);
     });
 
     var closeDebugWindow = debugWindow.querySelector("#closeDebugWindow")
