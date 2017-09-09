@@ -44,34 +44,53 @@
         return dotvvm_Globalize.parseDate(value, format, dotvvm.culture, previousValue);
     }
 
-    public bindingDateToString(value: KnockoutObservable<string | Date> | string | Date, format: string = "G") {
-        const unwrapedVal = ko.unwrap(value)
-        const date = typeof unwrapedVal == "string" ? this.parseDotvvmDate(unwrapedVal) : unwrapedVal;
-        if (date == null) return "";
+    public bindingDateToString(value: KnockoutObservable<string | Date | null> | string | Date | null, format: string = "G") {
+        const unwrapedVal = ko.isObservable(value) ? value.peek() : value;
+        const getDate = (v = unwrapedVal) => typeof v == "string" ? this.parseDotvvmDate(v) : v;
         if (ko.isWriteableObservable(value)) {
-            const setter = typeof unwrapedVal == "string" ? v => value(dotvvm.serialization.serializeDate(v, false)) : value
+            const setter = typeof unwrapedVal == "string" ? v => value(v && dotvvm.serialization.serializeDate(v, false)) : value
+            let lastInvalidValue: KnockoutObservable<string | null> = value["lastInvalidDate"] = (<any>value["lastInvalidDate"] || ko.observable(null))
             return ko.pureComputed({
-                read: () => dotvvm_Globalize.format(date, format, dotvvm.culture),
-                write: val => setter(dotvvm_Globalize.parseDate(val, format, dotvvm.culture))
+                read: () => {
+                    const date = getDate(value())
+                    const fallbackValue = lastInvalidValue()
+                    return (date && dotvvm_Globalize.format(date, format, dotvvm.culture)) || fallbackValue;
+                },
+                write: val => {
+                    const parsed = val && dotvvm_Globalize.parseDate(val, format, dotvvm.culture)
+                    lastInvalidValue(parsed == null ? val : null)
+                    setter(parsed)
+                }
             });
         }
         else {
+            const date = getDate()
+            if (date == null) return "";
             return dotvvm_Globalize.format(date, format, dotvvm.culture);
         }
     }
 
     public bindingNumberToString(value: KnockoutObservable<string | number> | string | number, format: string = "G") {
-        const unwrapedVal = ko.unwrap(value)
-        const num = typeof unwrapedVal == "string" ? this.parseNumber(unwrapedVal) : unwrapedVal;
-        if (num == null) return "";
+        const unwrapedVal = ko.isObservable(value) ? value.peek() : value;
+        const getNum = (v = unwrapedVal) => typeof unwrapedVal == "string" ? this.parseNumber(unwrapedVal) : unwrapedVal;
         if (ko.isWriteableObservable(value)) {
+            let lastInvalidValue: KnockoutObservable<string | null> = value["lastInvalidDate"] = (<any>value["lastInvalidDate"] || ko.observable(null))
             return ko.pureComputed({
-                read: () => dotvvm_Globalize.format(num, format, dotvvm.culture),
-                write: val => value(dotvvm_Globalize.parseFloat(val, 10, dotvvm.culture))
+                read: () => {
+                    const num = getNum(value())
+                    const fallbackValue = lastInvalidValue()
+                    return (num && dotvvm_Globalize.format(num, format, dotvvm.culture)) || fallbackValue;
+                },
+                write: val => {
+                    const parsed = val && dotvvm_Globalize.parseFloat(val, 10, dotvvm.culture)
+                    lastInvalidValue(parsed == null ? val : null)
+                    value(parsed)
+                }
             });
         }
         else {
-            return dotvvm_Globalize.format(num, format, dotvvm.culture);
+            if (isNaN(getNum())) return "";
+            return dotvvm_Globalize.format(getNum(), format, dotvvm.culture);
         }
     }
 

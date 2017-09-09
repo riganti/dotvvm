@@ -110,9 +110,9 @@ declare class DotvvmGlobalize {
     formatString(format: string, value: any): string;
     parseDotvvmDate(value: string): Date | null;
     parseNumber(value: string): number;
-    parseDate(value: string, format: string, previousValue?: Date): Date;
-    bindingDateToString(value: KnockoutObservable<string | Date> | string | Date, format?: string): string | KnockoutComputed<string>;
-    bindingNumberToString(value: KnockoutObservable<string | number> | string | number, format?: string): string | KnockoutComputed<string>;
+    parseDate(value: string, format: string, previousValue?: Date): Date | null;
+    bindingDateToString(value: KnockoutObservable<string | Date | null> | string | Date | null, format?: string): string | KnockoutComputed<string | null>;
+    bindingNumberToString(value: KnockoutObservable<string | number> | string | number, format?: string): string | KnockoutComputed<string | null>;
 }
 declare class DotvvmPostBackHandler {
     execute(callback: () => void, sender: HTMLElement): void;

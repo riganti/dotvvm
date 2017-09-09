@@ -281,36 +281,63 @@ var DotvvmGlobalize = (function () {
         return dotvvm_Globalize.parseDate(value, format, dotvvm.culture, previousValue);
     };
     DotvvmGlobalize.prototype.bindingDateToString = function (value, format) {
+        var _this = this;
         if (format === void 0) { format = "G"; }
-        var unwrapedVal = ko.unwrap(value);
-        var date = typeof unwrapedVal == "string" ? this.parseDotvvmDate(unwrapedVal) : unwrapedVal;
-        if (date == null)
-            return "";
+        var unwrapedVal = ko.isObservable(value) ? value.peek() : value;
+        var getDate = function (v) {
+            if (v === void 0) { v = unwrapedVal; }
+            return typeof v == "string" ? _this.parseDotvvmDate(v) : v;
+        };
         if (ko.isWriteableObservable(value)) {
-            var setter_1 = typeof unwrapedVal == "string" ? function (v) { return value(dotvvm.serialization.serializeDate(v, false)); } : value;
+            var setter_1 = typeof unwrapedVal == "string" ? function (v) { return value(v && dotvvm.serialization.serializeDate(v, false)); } : value;
+            var lastInvalidValue_1 = value["lastInvalidDate"] = (value["lastInvalidDate"] || ko.observable(null));
             return ko.pureComputed({
-                read: function () { return dotvvm_Globalize.format(date, format, dotvvm.culture); },
-                write: function (val) { return setter_1(dotvvm_Globalize.parseDate(val, format, dotvvm.culture)); }
+                read: function () {
+                    var date = getDate(value());
+                    var fallbackValue = lastInvalidValue_1();
+                    return (date && dotvvm_Globalize.format(date, format, dotvvm.culture)) || fallbackValue;
+                },
+                write: function (val) {
+                    var parsed = val && dotvvm_Globalize.parseDate(val, format, dotvvm.culture);
+                    lastInvalidValue_1(parsed == null ? val : null);
+                    setter_1(parsed);
+                }
             });
         }
         else {
+            var date = getDate();
+            if (date == null)
+                return "";
             return dotvvm_Globalize.format(date, format, dotvvm.culture);
         }
     };
     DotvvmGlobalize.prototype.bindingNumberToString = function (value, format) {
+        var _this = this;
         if (format === void 0) { format = "G"; }
-        var unwrapedVal = ko.unwrap(value);
-        var num = typeof unwrapedVal == "string" ? this.parseNumber(unwrapedVal) : unwrapedVal;
-        if (num == null)
-            return "";
+        var unwrapedVal = ko.isObservable(value) ? value.peek() : value;
+        var getNum = function (v) {
+            if (v === void 0) { v = unwrapedVal; }
+            return typeof unwrapedVal == "string" ? _this.parseNumber(unwrapedVal) : unwrapedVal;
+        };
         if (ko.isWriteableObservable(value)) {
+            var lastInvalidValue_2 = value["lastInvalidDate"] = (value["lastInvalidDate"] || ko.observable(null));
             return ko.pureComputed({
-                read: function () { return dotvvm_Globalize.format(num, format, dotvvm.culture); },
-                write: function (val) { return value(dotvvm_Globalize.parseFloat(val, 10, dotvvm.culture)); }
+                read: function () {
+                    var num = getNum(value());
+                    var fallbackValue = lastInvalidValue_2();
+                    return (num && dotvvm_Globalize.format(num, format, dotvvm.culture)) || fallbackValue;
+                },
+                write: function (val) {
+                    var parsed = val && dotvvm_Globalize.parseFloat(val, 10, dotvvm.culture);
+                    lastInvalidValue_2(parsed == null ? val : null);
+                    value(parsed);
+                }
             });
         }
         else {
-            return dotvvm_Globalize.format(num, format, dotvvm.culture);
+            if (isNaN(getNum()))
+                return "";
+            return dotvvm_Globalize.format(getNum(), format, dotvvm.culture);
         }
     };
     return DotvvmGlobalize;
