@@ -49,7 +49,7 @@
         const date = typeof unwrapedVal == "string" ? this.parseDotvvmDate(unwrapedVal) : unwrapedVal;
         if (date == null) return "";
         if (ko.isWriteableObservable(value)) {
-            const setter = typeof unwrapedVal == "string" ? v => value(dotvvm.serialization.serializeDate(v)) : value
+            const setter = typeof unwrapedVal == "string" ? v => value(dotvvm.serialization.serializeDate(v, false)) : value
             return ko.pureComputed({
                 read: () => dotvvm_Globalize.format(date, format, dotvvm.culture),
                 write: val => setter(dotvvm_Globalize.parseDate(val, format, dotvvm.culture))

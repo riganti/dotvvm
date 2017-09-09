@@ -287,7 +287,7 @@ var DotvvmGlobalize = (function () {
         if (date == null)
             return "";
         if (ko.isWriteableObservable(value)) {
-            var setter_1 = typeof unwrapedVal == "string" ? function (v) { return value(dotvvm.serialization.serializeDate(v)); } : value;
+            var setter_1 = typeof unwrapedVal == "string" ? function (v) { return value(dotvvm.serialization.serializeDate(v, false)); } : value;
             return ko.pureComputed({
                 read: function () { return dotvvm_Globalize.format(date, format, dotvvm.culture); },
                 write: function (val) { return setter_1(dotvvm_Globalize.parseDate(val, format, dotvvm.culture)); }
@@ -1423,6 +1423,30 @@ var DotVVM = (function () {
                 return "";
             return ko.unwrap(params[paramName.toLowerCase()]) || "";
         });
+    };
+    DotVVM.prototype.buildUrlSuffix = function (urlSuffix, query) {
+        var resultSuffix, hashSuffix;
+        if (urlSuffix.indexOf("#") !== -1) {
+            resultSuffix = urlSuffix.substring(0, urlSuffix.indexOf("#"));
+            hashSuffix = urlSuffix.substring(urlSuffix.indexOf("#"));
+        }
+        else {
+            resultSuffix = urlSuffix;
+            hashSuffix = "";
+        }
+        for (var property in query) {
+            if (query.hasOwnProperty(property)) {
+                if (!property)
+                    continue;
+                var queryParamValue = ko.unwrap(query[property]);
+                if (queryParamValue != null)
+                    continue;
+                resultSuffix = resultSuffix.concat(resultSuffix.indexOf("?") !== -1
+                    ? "&" + property + "=" + queryParamValue
+                    : "?" + property + "=" + queryParamValue);
+            }
+        }
+        return resultSuffix.concat(hashSuffix);
     };
     DotVVM.prototype.isPostBackProhibited = function (element) {
         if (element && element.tagName && element.tagName.toLowerCase() === "a" && element.getAttribute("disabled")) {
