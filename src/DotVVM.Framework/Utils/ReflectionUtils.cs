@@ -262,6 +262,7 @@ namespace DotVVM.Framework.Utils
             return NumericTypes.Contains(type);
         }
 
+
         public static bool IsDynamicOrObject(this Type type)
         {
             return type.GetInterfaces().Contains(typeof(IDynamicMetaObjectProvider)) ||
@@ -316,6 +317,8 @@ namespace DotVVM.Framework.Utils
             return type.GetTypeInfo().IsValueType && Nullable.GetUnderlyingType(type) == null && type != typeof(void) ? typeof(Nullable<>).MakeGenericType(type) : type;
         }
 
+        public static Type UnwrapNullable(this Type type) =>
+            Nullable.GetUnderlyingType(type) ?? type;
 
         public static T GetCustomAttribute<T>(this ICustomAttributeProvider attributeProvider, bool inherit = true) =>
             (T)attributeProvider.GetCustomAttributes(typeof(T), inherit).FirstOrDefault();

@@ -3,6 +3,7 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
 using System;
+using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Controls
 {
@@ -96,14 +97,22 @@ namespace DotVVM.Framework.Controls
         /// By default, the viewmodel is updated after the control loses its focus.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
-        public bool UpdateTextAfterKeydown
-        {
-            get { return (bool)GetValue(UpdateTextAfterKeydownProperty); }
-            set { SetValue(UpdateTextAfterKeydownProperty, value); }
-        }
-
+        [Obsolete("Use `UpdateTextOnInput` instead.")]
         public static readonly DotvvmProperty UpdateTextAfterKeydownProperty =
-            DotvvmProperty.Register<bool, TextBox>(c => c.UpdateTextAfterKeydown, false);
+            DotvvmProperty.Register<bool, TextBox>("UpdateTextAfterKeydown", false);
+        
+        /// <summary>
+        /// Gets or sets whether the viewmodel property will be updated immediately after change. 
+        /// By default, the viewmodel is updated after the control loses its focus.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
+        public bool UpdateTextOnInput
+        {
+            get { return (bool)GetValue(UpdateTextOnInputProperty); }
+            set { SetValue(UpdateTextOnInputProperty, value); }
+        }
+        public static readonly DotvvmProperty UpdateTextOnInputProperty =
+            DotvvmPropertyWithFallback.Register<bool, TextBox>(nameof(UpdateTextOnInputProperty), UpdateTextAfterKeydownProperty, defaultPropertyInherit: false, isValueInherited: true);
 
         /// <summary>
         /// Gets or sets the type of value being formatted - Number or DateTime.
@@ -175,37 +184,30 @@ namespace DotVVM.Framework.Controls
 
         private void AddFormatBindingToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            // if format is set then use different value binding  which supports the format
-            writer.AddKnockoutDataBind("dotvvm-textbox-text", this, TextProperty, () =>
-            {
-                if (Type != TextBoxType.MultiLine)
-                {
-                    writer.AddAttribute("value", Text);
-                }
-            }, UpdateTextAfterKeydown ? "afterkeydown" : null, renderEvenInServerRenderingMode: true);
             var binding = GetValueBinding(TextProperty);
-            var formatString = FormatString;
-            if (string.IsNullOrEmpty(formatString))
+            if (binding != null)
             {
-                if (Type == TextBoxType.Date)
-                    formatString = "yyyy-MM-dd";
-                else
-                    formatString = "G";
+                var formatString = FormatString;
+                if (string.IsNullOrEmpty(formatString))
+                {
+                    if (Type == TextBoxType.Date)
+                        formatString = "yyyy-MM-dd";
+                    else
+                        formatString = "G";
+                }
+                var formatFunction =
+                    ValueType == FormatValueType.DateTime ? "dotvvm.globalize.bindingDateToString" :
+                    ValueType == FormatValueType.Number ? "dotvvm.globalize.bindingNumberToString" :
+                    binding?.ResultType?.UnwrapNullable() == typeof(DateTime) ? "dotvvm.globalize.bindingDateToString" :
+                    binding?.ResultType?.UnwrapNullable().IsNumericType() == true ? "dotvvm.globalize.bindingNumberToString" :
+                    null;
+                var expr = binding.GetKnockoutBindingExpression(this);
+                if (formatFunction != null) expr = $"{formatFunction}({expr}, {JsonConvert.ToString(formatString)})";
+                else if (FormatString != "G") throw new NotSupportedException($"Could not apply format string to binding '{binding}' of type '{binding?.ResultType}'");
+                AddTextInputDataBind(writer, expr);
             }
-
-            writer.AddAttribute("data-dotvvm-format", formatString);
-            if (ValueType != FormatValueType.Text)
-            {
-                writer.AddAttribute("data-dotvvm-value-type", ValueType.ToString().ToLowerInvariant());
-            }
-            else if (binding?.ResultType == typeof(DateTime))
-            {
-                writer.AddAttribute("data-dotvvm-value-type", "datetime");
-            }
-            else if (ReflectionUtils.IsNumericType(binding?.ResultType))
-            {
-                writer.AddAttribute("data-dotvvm-value-type", "number");
-            }
+            else if (Type != TextBoxType.MultiLine)
+                writer.AddAttribute("value", Text);
         }
 
         private void AddChangedPropertyToRender(IHtmlWriter writer, IDotvvmRequestContext context)
@@ -257,16 +259,17 @@ namespace DotVVM.Framework.Controls
             throw new NotSupportedException($"TextBox Type '{ Type }' not supported");
         }
 
+        private void AddTextInputDataBind(IHtmlWriter writer, string expression)
+        {
+            writer.AddKnockoutDataBind(UpdateTextOnInput ? "textInput" : "value", expression);
+        }
+
         private void AddValueBindingToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            // use standard value binding
-            writer.AddKnockoutDataBind("value", this, TextProperty, () =>
-            {
-                if (Type != TextBoxType.MultiLine)
-                {
-                    writer.AddAttribute("value", Text);
-                }
-            }, UpdateTextAfterKeydown ? "afterkeydown" : null, renderEvenInServerRenderingMode: true);
+            if (this.GetValueBinding(TextProperty) is IValueBinding binding)
+                AddTextInputDataBind(writer, binding.GetKnockoutBindingExpression(this));
+            else if (Type != TextBoxType.MultiLine)
+                writer.AddAttribute("value", Text);
         }
     }
 }
