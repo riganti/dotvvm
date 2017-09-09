@@ -245,11 +245,14 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Returns Javascript expression that represents the property value (even if the property contains hardcoded value)
         /// </summary>
-        public static string GetKnockoutBindingExpression(this DotvvmBindableObject obj, DotvvmProperty property)
+        public static string GetKnockoutBindingExpression(this DotvvmBindableObject obj, DotvvmProperty property, bool nullWhenDefault = false)
         {
             var binding = obj.GetValueBinding(property);
             if (binding != null) return binding.GetKnockoutBindingExpression(obj);
-            return JsonConvert.SerializeObject(obj.GetValue(property), DefaultViewModelSerializer.CreateDefaultSettings());
+            var value = obj.GetValue(property);
+            if (nullWhenDefault && (value == property.DefaultValue || value != null && value.Equals(property.DefaultValue)))
+                return null;
+            return JsonConvert.SerializeObject(value, DefaultViewModelSerializer.CreateDefaultSettings());
         }
 
         /// <summary>

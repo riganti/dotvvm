@@ -76,7 +76,7 @@ declare const createArray: <T>(a: {
 declare class HtmlElementPatcher {
     element: HTMLElement;
     private previousDom;
-    constructor(element: HTMLElement, initialDom: virtualDom.VNode | null);
+    constructor(element: HTMLElement, initialDom: virtualDom.VTree | null);
     applyDom(dom: virtualDom.VNode): void;
 }
 declare class Renderer<TViewModel> {
@@ -87,8 +87,10 @@ declare class Renderer<TViewModel> {
     readonly state: TViewModel;
     private _isDirty;
     readonly isDirty: boolean;
+    private currentFrameNumber;
     constructor(initialState: TViewModel, renderFunctions: RenderFunction<TViewModel>[], vdomDispatcher: (dom: virtualDom.VNode[]) => void);
     dispatchUpdate(): void;
+    doUpdateNow(): void;
     private startTime;
     private rerender(time);
     setState(newState: TViewModel): TViewModel;

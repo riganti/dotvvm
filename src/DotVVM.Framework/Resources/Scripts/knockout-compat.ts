@@ -411,11 +411,16 @@ export class KnockoutBindingWidget implements virtualDom.Widget {
     }
 }
 
+const commentNodesHaveTextProperty = document && document.createComment("test").text === "<!--test-->";
+const startCommentRegex = commentNodesHaveTextProperty ? /^<!--\s*ko(?:\s+([\s\S]+))?\s*-->$/ : /^\s*ko(?:\s+([\s\S]+))?\s*$/;
 export function createDecorator(element: Element): ((element: RendererInitializer.RenderNodeAst) => RendererInitializer.AssignedPropDescriptor) | undefined {
     const dataBindAttribute = element.getAttribute("data-bind")
-    const hasCommentChild = createArray(element.childNodes).some(n => n.nodeType == Node.COMMENT_NODE && ko.bindingProvider.instance.nodeHasBindings(n))
-    const commentNodesHaveTextProperty = document && document.createComment("test").text === "<!--test-->";
-    const startCommentRegex = commentNodesHaveTextProperty ? /^<!--\s*ko(?:\s+([\s\S]+))?\s*-->$/ : /^\s*ko(?:\s+([\s\S]+))?\s*$/;
+    let hasCommentChild = false;
+    for (let index = 0; index < element.childNodes.length; index++) {
+        const n = element.childNodes[index];
+        if (hasCommentChild = n.nodeType == Node.COMMENT_NODE && ko.bindingProvider.instance.nodeHasBindings(n))
+            break;
+    }
     const getKoCommentValue = (node) => {
         var regexMatch = (commentNodesHaveTextProperty ? node.text : node.nodeValue).match(startCommentRegex);
         return regexMatch ? regexMatch[1] : null;
@@ -444,7 +449,8 @@ export function createDecorator(element: Element): ((element: RendererInitialize
         let elementIndex = 0;
         let skipToEndComment: number[] = [];
         let startComments: number[] = []
-        for (const n of createArray(element.childNodes)) {
+        for (let index = 0; index < element.childNodes.length; index++) {
+            const n = element.childNodes[index]
             if (n.nodeType == Node.COMMENT_NODE && ko.bindingProvider.instance.nodeHasBindings(n)) {
                 skipToEndComment.push(ko.virtualElements.childNodes(n).length)
                 startComments.push(kk.push({
@@ -461,6 +467,8 @@ export function createDecorator(element: Element): ((element: RendererInitialize
                     dd.end = elementIndex
                 }
 
+            if (n.nodeType == Node.COMMENT_NODE)
+                n.parentElement!.replaceChild(document.createTextNode(""), n);
             elementIndex++;
         }
         if (skipToEndComment.length > 0)

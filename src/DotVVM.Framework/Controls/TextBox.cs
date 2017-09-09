@@ -225,10 +225,8 @@ namespace DotVVM.Framework.Controls
         private void AddSelectAllOnFocusPropertyToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             const string KoBindingName = "dotvvm-textbox-select-all-on-focus";
-            writer.AddKnockoutDataBind(KoBindingName, this, SelectAllOnFocusProperty, () =>
-            {
-                writer.AddKnockoutDataBind(KoBindingName, this.GetKnockoutBindingExpression(SelectAllOnFocusProperty));
-            }, renderEvenInServerRenderingMode: true);
+            this.GetKnockoutBindingExpression(SelectAllOnFocusProperty, nullWhenDefault: true)
+                ?.ApplyAction(a => writer.AddKnockoutDataBind(KoBindingName, a));
         }
 
         private void AddTypeAttributeToRender(IHtmlWriter writer)

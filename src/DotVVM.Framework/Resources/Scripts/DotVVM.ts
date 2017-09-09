@@ -201,7 +201,7 @@ class DotVVM {
         }
 
         var renderer = RendererInitializer.initFromNode(elements, viewModel)
-        renderer.dispatchUpdate()
+        renderer.doUpdateNow()
         this.rootRenderer = renderer;
 
         // trigger the init event

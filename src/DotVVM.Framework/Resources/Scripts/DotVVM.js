@@ -432,11 +432,16 @@ var DotvvmKnockoutCompat;
     }());
     KnockoutBindingWidget.knockoutInternalDataPropertyName = null;
     DotvvmKnockoutCompat.KnockoutBindingWidget = KnockoutBindingWidget;
+    var commentNodesHaveTextProperty = document && document.createComment("test").text === "<!--test-->";
+    var startCommentRegex = commentNodesHaveTextProperty ? /^<!--\s*ko(?:\s+([\s\S]+))?\s*-->$/ : /^\s*ko(?:\s+([\s\S]+))?\s*$/;
     function createDecorator(element) {
         var dataBindAttribute = element.getAttribute("data-bind");
-        var hasCommentChild = createArray(element.childNodes).some(function (n) { return n.nodeType == Node.COMMENT_NODE && ko.bindingProvider.instance.nodeHasBindings(n); });
-        var commentNodesHaveTextProperty = document && document.createComment("test").text === "<!--test-->";
-        var startCommentRegex = commentNodesHaveTextProperty ? /^<!--\s*ko(?:\s+([\s\S]+))?\s*-->$/ : /^\s*ko(?:\s+([\s\S]+))?\s*$/;
+        var hasCommentChild = false;
+        for (var index = 0; index < element.childNodes.length; index++) {
+            var n = element.childNodes[index];
+            if (hasCommentChild = n.nodeType == Node.COMMENT_NODE && ko.bindingProvider.instance.nodeHasBindings(n))
+                break;
+        }
         var getKoCommentValue = function (node) {
             var regexMatch = (commentNodesHaveTextProperty ? node.text : node.nodeValue).match(startCommentRegex);
             return regexMatch ? regexMatch[1] : null;
@@ -463,8 +468,8 @@ var DotvvmKnockoutCompat;
             var elementIndex = 0;
             var skipToEndComment = [];
             var startComments = [];
-            for (var _i = 0, _a = createArray(element.childNodes); _i < _a.length; _i++) {
-                var n = _a[_i];
+            for (var index = 0; index < element.childNodes.length; index++) {
+                var n = element.childNodes[index];
                 if (n.nodeType == Node.COMMENT_NODE && ko.bindingProvider.instance.nodeHasBindings(n)) {
                     skipToEndComment.push(ko.virtualElements.childNodes(n).length);
                     startComments.push(kk_1.push({
@@ -479,6 +484,8 @@ var DotvvmKnockoutCompat;
                         var dd = kk_1[startComments.pop()];
                         dd.end = elementIndex;
                     }
+                if (n.nodeType == Node.COMMENT_NODE)
+                    n.parentElement.replaceChild(document.createTextNode(""), n);
                 elementIndex++;
             }
             if (skipToEndComment.length > 0)
@@ -530,7 +537,7 @@ var HtmlElementPatcher = (function () {
         }
         else {
             var diff = virtualDom.diff(this.previousDom, dom);
-            virtualDom.patch(this.element, diff);
+            this.element = virtualDom.patch(this.element, diff);
         }
         this.previousDom = dom;
     };
@@ -540,6 +547,7 @@ var Renderer = (function () {
     function Renderer(initialState, renderFunctions, vdomDispatcher) {
         this.renderFunctions = renderFunctions;
         this.vdomDispatcher = vdomDispatcher;
+        this.currentFrameNumber = 0;
         this.startTime = null;
         this.setState(initialState);
         this.renderedStateObservable = ko.observable(initialState);
@@ -561,21 +569,28 @@ var Renderer = (function () {
     Renderer.prototype.dispatchUpdate = function () {
         if (!this._isDirty) {
             this._isDirty = true;
-            window.requestAnimationFrame(this.rerender.bind(this));
+            this.currentFrameNumber = window.requestAnimationFrame(this.rerender.bind(this));
         }
+    };
+    Renderer.prototype.doUpdateNow = function () {
+        if (this.currentFrameNumber !== null)
+            window.cancelAnimationFrame(this.currentFrameNumber);
+        this.rerender(performance.now());
     };
     Renderer.prototype.rerender = function (time) {
         var _this = this;
         if (this.startTime === null)
             this.startTime = time;
+        var realStart = performance.now();
         this._isDirty = false;
         this.renderedStateObservable(this._state);
         var vdom = this.renderFunctions.map(function (f) { return f({
             update: _this.update.bind(_this),
             dataContext: _this._state
         }); });
-        console.log("Dispatching new VDOM");
+        console.log("Dispatching new VDOM, t = ", performance.now() - time, "; t_cpu = ", performance.now() - realStart);
         this.vdomDispatcher(vdom);
+        console.log("VDOM dispatched, t = ", performance.now() - time, "; t_cpu = ", performance.now() - realStart);
     };
     Renderer.prototype.setState = function (newState) {
         if (newState == null)
@@ -612,12 +627,24 @@ var RendererInitializer;
         };
     };
     var applyPropsToElement = function (el, props) {
+        if (props.length == 0)
+            return el;
         if (el.type != "ast")
             throw new Error();
-        var attributes = props.filter(function (a) { return a.type == "attr"; }).map(function (a) { return a.attr; }).concat(el.attributes);
-        el = __assign({}, el, { attributes: attributes });
+        var attributes = [];
         for (var _i = 0, props_1 = props; _i < props_1.length; _i++) {
-            var decorator = props_1[_i];
+            var p = props_1[_i];
+            if (p.type == "attr") {
+                attributes.push(p.attr);
+            }
+        }
+        for (var _a = 0, _b = el.attributes; _a < _b.length; _a++) {
+            var a = _b[_a];
+            attributes.push(a);
+        }
+        el = __assign({}, el, { attributes: attributes });
+        for (var _c = 0, props_2 = props; _c < props_2.length; _c++) {
+            var decorator = props_2[_c];
             if (decorator.type == "decorator") {
                 el = RendererInitializer.mapConstantOrFunction(decorator.fn, function (v, e) { return v(e[0]); }, [el]);
             }
@@ -626,29 +653,74 @@ var RendererInitializer;
     };
     var createElementAst = function (node) {
         var name = node.tagName.toLowerCase();
-        var attributes = createArray(node.attributes).map(createAttrAst);
-        var children = createArray(node.childNodes).map(function (e) { return createRenderAst(e); });
+        var attributes = [];
+        var realAttributes = {};
+        var knockoutDecorator = DotvvmKnockoutCompat.createDecorator(node);
+        if (knockoutDecorator != null)
+            attributes.push(null); // this is replaced when result is created
+        for (var i = 0; i < node.attributes.length; i++) {
+            attributes.push(createAttrAst(node.attributes[i]));
+            realAttributes[node.attributes[i].name] = node.attributes[i].value;
+        }
+        var children = [];
+        var realChildren = [];
+        for (var i = 0; i < node.childNodes.length; i++) {
+            var c = createRenderAst(node.childNodes[i]);
+            if (c != null) {
+                children.push(c[0]);
+                realChildren.push(c[1]);
+            }
+        }
         var result = {
             type: "ast",
             name: RendererInitializer.astConstant(name),
             content: children,
             attributes: []
         };
-        var knockoutDecorator = DotvvmKnockoutCompat.createDecorator(node);
         if (knockoutDecorator != null)
-            attributes = [knockoutDecorator(result)].concat(attributes);
-        return applyPropsToElement(result, attributes);
+            attributes[0] = knockoutDecorator(result);
+        return [
+            applyPropsToElement(result, attributes),
+            new virtualDom.VNode(name, { attributes: realAttributes }, realChildren)
+        ];
     };
     var createRenderAst = function (node) {
         if (node.nodeType == node.ELEMENT_NODE) {
             return createElementAst(node);
         }
         else if (node.nodeType == node.TEXT_NODE) {
-            return { type: "text", content: RendererInitializer.astConstant(node.data) };
+            var text = node.data;
+            return [
+                { type: "text", content: RendererInitializer.astConstant(text) },
+                new virtualDom.VText(text)
+            ];
+        }
+        else if (node.nodeType == node.COMMENT_NODE) {
+            node.parentElement.removeChild(node);
+            return null;
         }
         else {
-            return { type: "text", content: RendererInitializer.astConstant("") };
+            throw new Error();
         }
+    };
+    var immutableMap = function (array, fn) {
+        var result = null;
+        for (var i = 0; i < array.length; i++) {
+            var rr = fn(array[i]);
+            if (result === null) {
+                if (rr === array[i]) {
+                    // ignore
+                }
+                else {
+                    result = array.slice();
+                    result[i] = rr;
+                }
+            }
+            else {
+                result[i] = rr;
+            }
+        }
+        return result || array;
     };
     var optimizeConstants = function (ast, allowFirstLevel) {
         if (allowFirstLevel === void 0) { allowFirstLevel = true; }
@@ -656,13 +728,22 @@ var RendererInitializer;
             if (fn.type == "constant")
                 return fn;
             else {
-                var fn2 = { elements: fn.elements.map(function (a) { return optimizeConstants(a); }), type: fn.type, dataContextDepth: fn.dataContextDepth, func: fn.func };
+                var elements2 = immutableMap(fn.elements, function (a) { return optimizeConstants(a); });
+                var fn2 = elements2 === fn.elements ? fn : { elements: elements2, type: fn.type, dataContextDepth: fn.dataContextDepth, func: fn.func };
                 if (fn2.dataContextDepth == 0 && fn2.elements.every(function (e) { return e.type == "constant"; })) {
                     return RendererInitializer.astConstant(fn2.func(undefined, fn2.elements.map(function (e) { return e["constant"]; })));
                 }
                 else
                     return fn2;
             }
+        };
+        var optimizeAttr = function (attr) {
+            var name = optimizeFunction(attr.name);
+            var value = optimizeFunction(attr.value);
+            if (name == attr.name && value == attr.value)
+                return attr;
+            else
+                return { name: name, value: value };
         };
         if (ast.type == "constant")
             return ast;
@@ -681,8 +762,8 @@ var RendererInitializer;
         else {
             var ast2 = {
                 type: ast.type,
-                attributes: ast.attributes.map(function (a) { return ({ name: optimizeFunction(a.name), value: optimizeFunction(a.value) }); }),
-                content: ast.content.map(function (a) { return optimizeConstants(a); }),
+                attributes: immutableMap(ast.attributes, optimizeAttr),
+                content: immutableMap(ast.content, function (a) { return optimizeConstants(a); }),
                 name: optimizeFunction(ast.name)
             };
             if (allowFirstLevel && ast2.name.type == "constant" && ast2.content.every(function (e) { return e.type == "constant"; }) && ast2.attributes.every(function (a) { return a.name.type == "constant" && a.value.type == "constant"; })) {
@@ -782,12 +863,12 @@ var RendererInitializer;
     function initFromNode(elements, viewModel) {
         var functions = elements.map(function (element) {
             var ast = createRenderAst(element);
-            return RendererInitializer.createRenderFunction(ast);
+            return { fn: RendererInitializer.createRenderFunction(ast[0]), initialDom: ast[1] };
         });
         var vdomDispatchers = elements.map(function (e, index) {
-            return new HtmlElementPatcher(e, null);
+            return new HtmlElementPatcher(e, functions[index].initialDom);
         });
-        return new Renderer(viewModel, functions, function (d) { return d.map(function (a, i) { return vdomDispatchers[i].applyDom(a); }); });
+        return new Renderer(viewModel, functions.map(function (f) { return f.fn; }), function (d) { return d.map(function (a, i) { return vdomDispatchers[i].applyDom(a); }); });
     }
     RendererInitializer.initFromNode = initFromNode;
 })(RendererInitializer || (RendererInitializer = {}));
@@ -1619,7 +1700,7 @@ var DotVVM = (function () {
             }
         }
         var renderer = RendererInitializer.initFromNode(elements, viewModel);
-        renderer.dispatchUpdate();
+        renderer.doUpdateNow();
         this.rootRenderer = renderer;
         // trigger the init event
         this.events.init.trigger(new DotvvmEventArgs(viewModel));

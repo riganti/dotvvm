@@ -31,10 +31,8 @@ namespace DotVVM.Framework.Controls
         {
             if (!RenderOnServer)
             {
-                if (IsPropertySet(EmptyItemTextProperty))
-                {
-                    writer.AddKnockoutDataBind("optionsCaption", this.GetKnockoutBindingExpression(EmptyItemTextProperty));
-                }
+                this.GetKnockoutBindingExpression(EmptyItemTextProperty, nullWhenDefault: true)
+                    ?.ApplyAction(a => writer.AddKnockoutDataBind("optionsCaption", a));
             }
 
             base.AddAttributesToRender(writer, context);

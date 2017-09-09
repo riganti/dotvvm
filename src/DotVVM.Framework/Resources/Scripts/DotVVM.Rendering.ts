@@ -13,16 +13,16 @@ class TwoWayBinding<T> {
     constructor(
         public readonly update: (updater: StateUpdate<T>) => void,
         public readonly value: T
-    ) {}
+    ) { }
 }
 
 const createArray = <T>(a: { [i: number]: T }): T[] => Array.prototype.slice.call(a)
 
 class HtmlElementPatcher {
-    private previousDom: virtualDom.VNode | null
+    private previousDom: virtualDom.VTree | null
     constructor(
         public element: HTMLElement,
-        initialDom: virtualDom.VNode | null) {
+        initialDom: virtualDom.VTree | null) {
         this.previousDom = initialDom;
     }
     public applyDom(dom: virtualDom.VNode) {
@@ -35,7 +35,7 @@ class HtmlElementPatcher {
             this.element = newElement
         } else {
             var diff = virtualDom.diff(this.previousDom, dom);
-            virtualDom.patch(this.element, diff);
+            this.element = virtualDom.patch(this.element, diff);
         }
         this.previousDom = dom;
     }
@@ -50,6 +50,7 @@ class Renderer<TViewModel> {
     public get isDirty() {
         return this._isDirty
     }
+    private currentFrameNumber : number | null = 0;
 
     constructor(
         initialState: TViewModel,
@@ -62,21 +63,29 @@ class Renderer<TViewModel> {
     public dispatchUpdate() {
         if (!this._isDirty) {
             this._isDirty = true;
-            window.requestAnimationFrame(this.rerender.bind(this))
+            this.currentFrameNumber = window.requestAnimationFrame(this.rerender.bind(this))
         }
+    }
+
+    public doUpdateNow() {
+        if (this.currentFrameNumber !== null)
+            window.cancelAnimationFrame(this.currentFrameNumber);
+        this.rerender(performance.now());
     }
 
     private startTime: number | null = null
     private rerender(time: number) {
         if (this.startTime === null) this.startTime = time
+        const realStart = performance.now()
         this._isDirty = false
         this.renderedStateObservable(this._state);
         var vdom = this.renderFunctions.map(f => f({
             update: this.update.bind(this),
             dataContext: this._state
         }))
-        console.log("Dispatching new VDOM")
+        console.log("Dispatching new VDOM, t = ", performance.now() - time, "; t_cpu = ", performance.now() - realStart)
         this.vdomDispatcher(<virtualDom.VNode[]>vdom)
+        console.log("VDOM dispatched, t = ", performance.now() - time, "; t_cpu = ", performance.now() - realStart)
     }
 
     public setState(newState: TViewModel) {
@@ -111,7 +120,7 @@ namespace RendererInitializer {
     //     if (source.type == "constant") return map(source.constant);
     //     else return { type: "func", dataContextDepth: Math.max(source.dataContextDepth, maxDataContextDepth), elements }
     // }
-    export const mapConstantOrFunction = <T, U>(source: ConstantOrFunction<T>, map: (val: T, myElements: virtualDom.VTree[]) => U, myElements: RenderNodeAst[]) : ConstantOrFunction<U> => {
+    export const mapConstantOrFunction = <T, U>(source: ConstantOrFunction<T>, map: (val: T, myElements: virtualDom.VTree[]) => U, myElements: RenderNodeAst[]): ConstantOrFunction<U> => {
         if (source.type == "constant") return astFunc(0, myElements, (a, e) => map(source.constant, e));
         else return { type: "func", dataContextDepth: source.dataContextDepth, elements: myElements.concat(source.elements), func: (a, b) => map(source.func(a, myElements.length == 0 ? b : b.slice(myElements.length)), b) }
     }
@@ -127,9 +136,15 @@ namespace RendererInitializer {
     }
 
     const applyPropsToElement = (el: RenderNodeAst, props: AssignedPropDescriptor[]): RenderNodeAst => {
+        if (props.length == 0) return el;
         if (el.type != "ast") throw new Error()
 
-        const attributes = props.filter(a => a.type == "attr").map(a => (a as { attr: AttrDescriptor }).attr).concat(el.attributes)
+        let attributes: AttrDescriptor[] = []
+        for (const p of props) if (p.type == "attr") {
+            attributes.push(p.attr)
+        }
+        for (const a of el.attributes)
+            attributes.push(a)
 
         el = { ...el, attributes: attributes }
 
@@ -141,41 +156,93 @@ namespace RendererInitializer {
     }
 
 
-    const createElementAst = (node: Element): RenderNodeAst => {
+    const createElementAst = (node: Element): [RenderNodeAst, virtualDom.VNode] => {
         const name = node.tagName.toLowerCase()
-        let attributes = createArray(node.attributes).map(createAttrAst)
-        const children = createArray(node.childNodes).map(e => createRenderAst(e))
+        const attributes: AssignedPropDescriptor[] = []
+        const realAttributes: virtualDom.Props = {}
+
+        const knockoutDecorator = DotvvmKnockoutCompat.createDecorator(node)
+        if (knockoutDecorator != null) attributes.push(null!); // this is replaced when result is created
+
+        for (let i = 0; i < node.attributes.length; i++) {
+            attributes.push(createAttrAst(node.attributes[i]))
+            realAttributes[node.attributes[i].name] = node.attributes[i].value;
+        }
+        const children: RenderNodeAst[] = []
+        const realChildren: virtualDom.VTree[] = []
+        for (let i = 0; i < node.childNodes.length; i++) {
+            const c = createRenderAst(node.childNodes[i])
+            if (c != null) {
+                children.push(c[0])
+                realChildren.push(c[1])
+            }
+        }
         const result: RenderNodeAst = {
             type: "ast",
             name: astConstant(name),
             content: children,
             attributes: []
         }
-        const knockoutDecorator = DotvvmKnockoutCompat.createDecorator(node)
-        if (knockoutDecorator != null) attributes = [knockoutDecorator(result)].concat(attributes);
-        return applyPropsToElement(result, attributes)
+        if (knockoutDecorator != null) attributes[0] = knockoutDecorator(result);
+        return [
+            applyPropsToElement(result, attributes),
+            new virtualDom.VNode(name, { attributes: realAttributes }, realChildren)
+        ]
     }
 
-    const createRenderAst = (node: Node): RenderNodeAst => {
+    const createRenderAst = (node: Node): [RenderNodeAst, virtualDom.VTree] | null => {
         if (node.nodeType == node.ELEMENT_NODE) {
             return createElementAst(<Element>node)
         } else if (node.nodeType == node.TEXT_NODE) {
-            return { type: "text", content: astConstant((<CharacterData>node).data) }
+            const text = (<CharacterData>node).data
+            return [
+                { type: "text", content: astConstant(text) },
+                new virtualDom.VText(text)
+            ]
+        } else if (node.nodeType == node.COMMENT_NODE) {
+            node.parentElement!.removeChild(node)
+            return null;
         } else {
-            return { type: "text", content: astConstant("") }
+            throw new Error();
         }
+    }
+
+    const immutableMap = <T>(array: T[], fn: (val: T) => T) => {
+        let result : T[] | null = null
+        for (let i = 0; i < array.length; i++) {
+            const rr = fn(array[i])
+            if (result === null) {
+                if (rr === array[i]) {
+                    // ignore
+                } else {
+                    result = array.slice()
+                    result[i] = rr
+                }
+            } else {
+                result[i] = rr
+            }
+        }
+        return result || array;
     }
 
     const optimizeConstants = (ast: RenderNodeAst, allowFirstLevel = true): RenderNodeAst => {
         const optimizeFunction = <T>(fn: ConstantOrFunction<T>): ConstantOrFunction<T> => {
             if (fn.type == "constant") return fn;
             else { //if (fn.type == "func") {
-                const fn2 = { elements: fn.elements.map(a => optimizeConstants(a)), type: fn.type, dataContextDepth: fn.dataContextDepth, func: fn.func }
+                const elements2 = immutableMap(fn.elements, a => optimizeConstants(a));
+                const fn2 = elements2 === fn.elements ? fn : { elements: elements2, type: fn.type, dataContextDepth: fn.dataContextDepth, func: fn.func }
                 if (fn2.dataContextDepth == 0 && fn2.elements.every(e => e.type == "constant")) {
                     return astConstant(fn2.func(<any>undefined, fn2.elements.map(e => e["constant"])))
                 }
                 else return fn2;
             }
+        }
+
+        const optimizeAttr = (attr: AttrDescriptor) => {
+            const name = optimizeFunction(attr.name)
+            const value = optimizeFunction(attr.value)
+            if (name == attr.name && value == attr.value) return attr;
+            else return { name, value }
         }
 
         if (ast.type == "constant") return ast
@@ -191,8 +258,8 @@ namespace RendererInitializer {
         } else {
             const ast2 = {
                 type: ast.type,
-                attributes: ast.attributes.map(a => ({ name: optimizeFunction(a.name), value: optimizeFunction(a.value) })),
-                content: ast.content.map(a => optimizeConstants(a)),
+                attributes: immutableMap(ast.attributes, optimizeAttr),
+                content: immutableMap(ast.content, a => optimizeConstants(a)),
                 name: optimizeFunction(ast.name)
             }
             if (allowFirstLevel && ast2.name.type == "constant" && ast2.content.every(e => e.type == "constant") && ast2.attributes.every(a => a.name.type == "constant" && a.value.type == "constant")) {
@@ -239,8 +306,8 @@ namespace RendererInitializer {
                     const value = evalFunction(dcAttr.value, dataContext)
                     dataContext =
                         ko.isObservable(value) ? { update: (u) => value(u(value())), dataContext: value() } :
-                        value instanceof TwoWayBinding ? { update: value.update, dataContext: value.value } :
-                        { update: _ => { throw new Error("Update is not supported") }, dataContext: value };
+                            value instanceof TwoWayBinding ? { update: value.update, dataContext: value.value } :
+                                { update: _ => { throw new Error("Update is not supported") }, dataContext: value };
                 }
 
                 const attributes = { attributes: {} }
@@ -270,12 +337,12 @@ namespace RendererInitializer {
         ast = optimizeConstants(ast, false)
 
         return (opt) => {
-            return evalElement(opt, ast, {isRoot: true})
+            return evalElement(opt, ast, { isRoot: true })
         }
     }
 
     class DataContextSetHook implements virtualDom.VHook {
-        constructor(public readonly dataContext: RenderContext<any>) {}
+        constructor(public readonly dataContext: RenderContext<any>) { }
         hook(node: Element, propertyName: string, previousValue: any): any {
             const currentValue = node["@dotvvm-data-context"]
             if (ko.isWriteableObservable(currentValue))
@@ -296,18 +363,18 @@ namespace RendererInitializer {
     export function initFromNode<TViewModel>(elements: Element[], viewModel: TViewModel): Renderer<TViewModel> {
         const functions = elements.map(element => {
             const ast = createRenderAst(element)
-            return createRenderFunction(ast)
+            return { fn: createRenderFunction(ast![0]), initialDom: ast![1] }
         })
 
 
 
         const vdomDispatchers = elements.map((e, index) => {
-            return new HtmlElementPatcher(<HTMLElement>e, null)
+            return new HtmlElementPatcher(<HTMLElement>e, functions[index].initialDom)
         });
 
         return new Renderer<TViewModel>(
             viewModel,
-            functions,
+            functions.map(f => f.fn),
             d => d.map((a, i) => vdomDispatchers[i].applyDom(a))
         )
     }
