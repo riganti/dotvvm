@@ -112,7 +112,7 @@ namespace DotVVM.Framework.Controls
             set { SetValue(UpdateTextOnInputProperty, value); }
         }
         public static readonly DotvvmProperty UpdateTextOnInputProperty =
-            DotvvmPropertyWithFallback.Register<bool, TextBox>(nameof(UpdateTextOnInputProperty), UpdateTextAfterKeydownProperty, defaultPropertyInherit: false, isValueInherited: true);
+            DotvvmPropertyWithFallback.Register<bool, TextBox>(nameof(UpdateTextOnInput), UpdateTextAfterKeydownProperty, defaultPropertyInherit: false, isValueInherited: true);
 
         /// <summary>
         /// Gets or sets the type of value being formatted - Number or DateTime.
