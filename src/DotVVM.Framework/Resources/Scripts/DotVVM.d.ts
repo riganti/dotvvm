@@ -82,7 +82,8 @@ declare class HtmlElementPatcher {
 declare class Renderer<TViewModel> {
     readonly renderFunctions: RenderFunction<TViewModel>[];
     readonly vdomDispatcher: (dom: virtualDom.VNode[]) => void;
-    readonly renderedStateObservable: any;
+    readonly renderedStateObservable: KnockoutObservable<TViewModel>;
+    readonly rootDataContextObservable: KnockoutComputed<RenderContext<TViewModel>>;
     private _state;
     readonly state: TViewModel;
     private _isDirty;
@@ -93,8 +94,8 @@ declare class Renderer<TViewModel> {
     doUpdateNow(): void;
     private startTime;
     private rerender(time);
-    setState(newState: TViewModel): TViewModel;
-    update(updater: StateUpdate<TViewModel>): TViewModel;
+    setState(newState: TViewModel): TViewModel | undefined;
+    update(updater: StateUpdate<TViewModel>): TViewModel | undefined;
 }
 declare namespace RendererInitializer {
     type ConstantOrFunction<T> = {
@@ -129,6 +130,7 @@ declare namespace RendererInitializer {
     const astConstant: <T>(val: T) => ConstantOrFunction<T>;
     const astFunc: <T>(dataContextDepth: number, elements: RenderNodeAst[], func: (dataContext: RenderContext<any>, elements: virtualDom.VTree[]) => T) => ConstantOrFunction<T>;
     const mapConstantOrFunction: <T, U>(source: ConstantOrFunction<T>, map: (val: T, myElements: virtualDom.VTree[]) => U, myElements: RenderNodeAst[]) => ConstantOrFunction<U>;
+    const immutableMap: <T>(array: T[], fn: (val: T, index: number) => T) => T[];
     const createRenderFunction: <TViewModel>(ast: RenderNodeAst) => RenderFunction<TViewModel>;
     function initFromNode<TViewModel>(elements: Element[], viewModel: TViewModel): Renderer<TViewModel>;
 }
@@ -425,8 +427,8 @@ declare class DotvvmValidationElementMetadata {
     elementValidationState: boolean;
 }
 declare class DotvvmValidatorBase {
-    isValid(context: DotvvmValidationContext, property: KnockoutObservable<any>): boolean;
-    isEmpty(value: string): boolean;
+    isValid(context: DotvvmValidationContext, property: any): boolean;
+    isEmpty(value: any): boolean;
     getValidationMetadata(property: KnockoutObservable<any>): DotvvmValidationObservableMetadata;
 }
 declare class DotvvmRequiredValidator extends DotvvmValidatorBase {
@@ -447,18 +449,19 @@ declare class DotvvmRangeValidator extends DotvvmValidatorBase {
 declare class DotvvmNotNullValidator extends DotvvmValidatorBase {
     isValid(context: DotvvmValidationContext): boolean;
 }
+interface ValidationResult {
+    [property: string]: ValidationResult | ValidationError[];
+}
 declare type KnockoutValidatedObservable<T> = KnockoutObservable<T> & {
     validationErrors?: KnockoutObservableArray<ValidationError>;
 };
 declare class ValidationError {
-    validatedObservable: KnockoutValidatedObservable<any>;
+    validator: ((value: any) => boolean | string | null) | null;
     errorMessage: string;
-    constructor(validatedObservable: KnockoutValidatedObservable<any>, errorMessage: string);
+    constructor(validator: ((value: any) => boolean | string | null) | null, errorMessage: string);
     static getOrCreate(validatedObservable: KnockoutValidatedObservable<any> & {
         wrappedProperty?: any;
     }): KnockoutObservableArray<ValidationError>;
-    static isValid(validatedObservable: KnockoutValidatedObservable<any>): boolean;
-    clear(validation: DotvvmValidation): void;
 }
 interface IDotvvmViewModelInfo {
     validationRules?: {
@@ -486,17 +489,21 @@ declare class DotvvmValidation {
     };
     elementUpdateFunctions: DotvvmValidationElementUpdateFunctions;
     constructor(dotvvm: DotVVM);
+    validObjectResult: ValidationResult;
     /**
      * Validates the specified view model
     */
-    validateViewModel(viewModel: any): void;
-    validateProperty(viewModel: any, property: KnockoutObservable<any>, value: any, rulesForProperty: IDotvvmPropertyValidationRuleInfo[]): void;
+    validateViewModel(viewModel: object & {
+        $type?: string;
+    }): ValidationResult;
+    validateArray(array: any[]): ValidationResult;
+    validateProperty(viewModel: any, value: any, rulesForProperty: IDotvvmPropertyValidationRuleInfo[]): ValidationError[] | null;
     mergeValidationRules(args: DotvvmAfterPostBackEventArgs): void;
+    applyValidationErrors<T>(object: T, errors: ValidationResult): T;
     /**
-      * Clears validation errors from the passed viewModel, from its children
-      * and from the DotvvmValidation.errors array
+      * Clears validation errors from the passed viewModel including its children
     */
-    clearValidationErrors(validatedObservable: KnockoutValidatedObservable<any>): void;
+    clearValidationErrors<T>(validatedObject: T): T;
     /**
      * Gets validation errors from the passed object and its children.
      * @param target Object that is supposed to contain the errors or properties with the errors
@@ -509,7 +516,7 @@ declare class DotvvmValidation {
      * Adds validation errors from the server to the appropriate arrays
      */
     showValidationErrorsFromServer(args: DotvvmAfterPostBackEventArgs): void;
-    private addValidationError(validatedProperty, error);
+    private addErrorToProperty(target, propertyPath, error);
 }
 declare var dotvvm: DotVVM;
 declare class DotvvmEvaluator {

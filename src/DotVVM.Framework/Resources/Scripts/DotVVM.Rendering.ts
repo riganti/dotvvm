@@ -41,7 +41,8 @@ class HtmlElementPatcher {
     }
 }
 class Renderer<TViewModel> {
-    public readonly renderedStateObservable;
+    public readonly renderedStateObservable: KnockoutObservable<TViewModel>;
+    public readonly rootDataContextObservable: KnockoutComputed<RenderContext<TViewModel>>;
     private _state: TViewModel
     public get state() {
         return this._state
@@ -58,6 +59,10 @@ class Renderer<TViewModel> {
         public readonly vdomDispatcher: (dom: virtualDom.VNode[]) => void) {
         this.setState(initialState)
         this.renderedStateObservable = ko.observable(initialState)
+        this.rootDataContextObservable = ko.computed(() => ({
+            dataContext: this.renderedStateObservable(),
+            update: this.update.bind(this)
+        }))
     }
 
     public dispatchUpdate() {
@@ -90,6 +95,7 @@ class Renderer<TViewModel> {
 
     public setState(newState: TViewModel) {
         if (newState == null) throw new Error("State can't be null or undefined.")
+        if (newState == this._state) return
         this.dispatchUpdate();
         return this._state = newState
     }
@@ -207,10 +213,10 @@ namespace RendererInitializer {
         }
     }
 
-    const immutableMap = <T>(array: T[], fn: (val: T) => T) => {
+    export const immutableMap = <T>(array: T[], fn: (val: T, index: number) => T) => {
         let result : T[] | null = null
         for (let i = 0; i < array.length; i++) {
-            const rr = fn(array[i])
+            const rr = fn(array[i], i)
             if (result === null) {
                 if (rr === array[i]) {
                     // ignore

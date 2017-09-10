@@ -55,7 +55,8 @@ class DotVVM {
     public get viewModels() : IDotvvmViewModels {
         return this._viewModels || (this._viewModels = {
             root: {
-                viewModel: DotvvmKnockoutCompat.createKnockoutContext(this.rootRenderer.renderedStateObservable).$data
+                viewModel: DotvvmKnockoutCompat.createKnockoutContext(this.rootRenderer.rootDataContextObservable).$data,
+                validationRules: this.receivedViewModel.validationRules
             }
         })
     }
@@ -64,7 +65,7 @@ class DotVVM {
     public get viewModelObservables() : { [name: string]: KnockoutObservable<IDotvvmViewModelInfo>; } {
         return this._viewModelObservables || (this._viewModelObservables = {
             root: {
-                viewModel: DotvvmKnockoutCompat.createKnockoutContext(this.rootRenderer.renderedStateObservable).$rawData
+                viewModel: DotvvmKnockoutCompat.createKnockoutContext(this.rootRenderer.rootDataContextObservable).$rawData
             }
         })
     }
@@ -212,9 +213,8 @@ class DotVVM {
             }
         }
 
-        var renderer = RendererInitializer.initFromNode(elements, viewModel)
+        var renderer = this.rootRenderer = RendererInitializer.initFromNode(elements, viewModel)
         renderer.doUpdateNow()
-        this.rootRenderer = renderer;
 
         // trigger the init event
         this.events.init.trigger(new DotvvmEventArgs(viewModel));
@@ -922,8 +922,8 @@ class DotVVM {
             init: (element, valueAccessor, allBindings, viewModel, bindingContext) => {
                 if (!bindingContext) throw new Error();
                 var value = valueAccessor();
-                for (var prop in value) {
-                    value[prop] = createWrapperComputed(function () { return valueAccessor()[this.prop]; }.bind({ prop: prop }), `'${prop}' at '${valueAccessor.toString()}'`);
+                for (const prop in value) {
+                    value[prop] = createWrapperComputed(function () { return valueAccessor()[prop]; }, `'${prop}' at '${valueAccessor.toString()}'`);
                 }
                 var innerBindingContext = bindingContext.extend({ $control: value });
                 element.innerBindingContext = innerBindingContext;
@@ -940,13 +940,13 @@ class DotVVM {
                 if (!bindingContext) throw new Error();
                 var value = valueAccessor();
                 var extendBy = {};
-                for (var prop in value) {
+                for (const prop in value) {
                     var propPath = prop.split('.');
                     var obj = extendBy;
                     for (var i = 0; i < propPath.length - 1; i) {
                         obj = extendBy[propPath[i]] || (extendBy[propPath[i]] = {});
                     }
-                    obj[propPath[propPath.length - 1]] = createWrapperComputed(function () { return valueAccessor()[this.prop] }.bind({ prop: prop }), `'${prop}' at '${valueAccessor.toString()}'`);
+                    obj[propPath[propPath.length - 1]] = createWrapperComputed(function () { return valueAccessor()[prop] }, `'${prop}' at '${valueAccessor.toString()}'`);
                 }
                 var innerBindingContext = bindingContext.extend(extendBy);
                 element.innerBindingContext = innerBindingContext;
