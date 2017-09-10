@@ -99,7 +99,7 @@ export function wrapInObservables(objOrObservable: any, update: ((updater: State
 
     if (obj instanceof Array) {
         const result: any[] = []
-        result["__upwrapped_data"] = objOrObservable
+        result["__unwrapped_data"] = objOrObservable
         if (update) result["__update_function"] = update
         for (var index = 0; index < obj.length; index++) {
             result.push(createComputed(index, arrayUpdate(index)));
@@ -121,7 +121,7 @@ export function wrapInObservables(objOrObservable: any, update: ((updater: State
                     if (!newVal) rr(newVal);
                     else {
                         const result: any[] = []
-                        result["__upwrapped_data"] = objOrObservable
+                        result["__unwrapped_data"] = objOrObservable
                         if (update) result["__update_function"] = update
                         for (var index = 0; index < newVal.length; index++) {
                             result.push(createComputed(index, arrayUpdate(index)));
@@ -137,7 +137,7 @@ export function wrapInObservables(objOrObservable: any, update: ((updater: State
         return rr
     } else {
         const result: any = {}
-        result["__upwrapped_data"] = objOrObservable
+        result["__unwrapped_data"] = objOrObservable
         if (update) result["__update_function"] = update
         for (var key in obj) {
             if (obj.hasOwnProperty(key)) {
@@ -218,8 +218,9 @@ export class KnockoutBindingWidget implements virtualDom.Widget {
         if (this.nodeChildren != null) for (const c of this.getFakeContent())
             element.appendChild(c);
 
-        const rootKoContext = createKnockoutContext(this.lastState);
-        let contentIsApplied = false;
+        const rootKoContext = createKnockoutContext(this.lastState)
+        rootKoContext["__created_for_element"] = element
+        let contentIsApplied = false
         if (this.dataBind != null) {
             // apply data-bind of the top element
             element.setAttribute("data-bind", this.dataBind);
@@ -330,6 +331,7 @@ export class KnockoutBindingWidget implements virtualDom.Widget {
                     })
                 } else {
                     element["@dotvvm-data-context-issame"] = true
+                    subscribable = this.lastState
                 }
                 e["__bound_element"] = element;
                 e.parentElement!.insertBefore(element, e)
@@ -337,6 +339,11 @@ export class KnockoutBindingWidget implements virtualDom.Widget {
 
                 if (subscribable) {
                     const subscription = subscribable.subscribe(c => {
+                        if (!this.isElementRooted(e, rootElement)) {
+                            (element as Element).remove()
+                            subscription.dispose()
+                            return
+                        }
                         const vdom2 = this.nodeChildren![index](c)
                         const diff = virtualDom.diff(vdomNode, vdom2)
                         vdomNode = vdom2
@@ -350,7 +357,7 @@ export class KnockoutBindingWidget implements virtualDom.Widget {
     private removeRemovedNodes(rootElement: Element) {
         if (this.contentMapping) for (const x of this.contentMapping) {
             if (!this.isElementRooted(x.element, rootElement) && x.element["__bound_element"]) {
-                (x.element["__bound_element"] as Element).remove();
+                (x.element["__bound_element"] as Element).remove()
             }
         }
     }
@@ -385,7 +392,7 @@ export class KnockoutBindingWidget implements virtualDom.Widget {
         if (dataContext["$betterContext"] && dataContext["$createdForSelf"] === dataContext)
             return ko.unwrap(dataContext["$betterContext"])
         const parent = dataContext.$parentContext != null ? KnockoutBindingWidget.getBetterContext(dataContext.$parentContext) : undefined;
-        const data = (dataContext["$createdForSelf"] === dataContext && ko.unwrap(dataContext["$unwrapped"])) || ko.unwrap(dataContext.$data["__upwrapped_data"]) || dotvvm.serialization.serialize(dataContext.$data)
+        const data = (dataContext["$createdForSelf"] === dataContext && ko.unwrap(dataContext["$unwrapped"])) || ko.unwrap(dataContext.$data["__unwrapped_data"]) || dotvvm.serialization.serialize(dataContext.$data)
         let extensions: undefined | { [name: string]: any } = undefined
         for (const prop in dataContext) {
             if (dataContext.hasOwnProperty(prop) && prop != "$data" && prop != "$parent" && prop != "$parents" && prop != "$root" && prop != "ko" && prop != "$rawData" && prop != "_subscribable") {

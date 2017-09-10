@@ -366,8 +366,6 @@ namespace RendererInitializer {
             return { fn: createRenderFunction(ast![0]), initialDom: ast![1] }
         })
 
-
-
         const vdomDispatchers = elements.map((e, index) => {
             return new HtmlElementPatcher(<HTMLElement>e, functions[index].initialDom)
         });

@@ -106,7 +106,7 @@ var DotvvmKnockoutCompat;
             return obj;
         if (obj instanceof Array) {
             var result = [];
-            result["__upwrapped_data"] = objOrObservable;
+            result["__unwrapped_data"] = objOrObservable;
             if (update)
                 result["__update_function"] = update;
             for (var index = 0; index < obj.length; index++) {
@@ -134,7 +134,7 @@ var DotvvmKnockoutCompat;
                             rr_1(newVal);
                         else {
                             var result_1 = [];
-                            result_1["__upwrapped_data"] = objOrObservable;
+                            result_1["__unwrapped_data"] = objOrObservable;
                             if (update)
                                 result_1["__update_function"] = update;
                             for (var index = 0; index < newVal.length; index++) {
@@ -152,7 +152,7 @@ var DotvvmKnockoutCompat;
         }
         else {
             var result = {};
-            result["__upwrapped_data"] = objOrObservable;
+            result["__unwrapped_data"] = objOrObservable;
             if (update)
                 result["__update_function"] = update;
             for (var key in obj) {
@@ -235,6 +235,7 @@ var DotvvmKnockoutCompat;
                     element.appendChild(c);
                 }
             var rootKoContext = createKnockoutContext(this.lastState);
+            rootKoContext["__created_for_element"] = element;
             var contentIsApplied = false;
             if (this.dataBind != null) {
                 // apply data-bind of the top element
@@ -342,12 +343,18 @@ var DotvvmKnockoutCompat;
                     }
                     else {
                         element_1["@dotvvm-data-context-issame"] = true;
+                        subscribable = this_1.lastState;
                     }
                     e["__bound_element"] = element_1;
                     e.parentElement.insertBefore(element_1, e);
                     this_1.contentMapping.push({ element: e, index: index_1, lastDom: vdomNode_1 });
                     if (subscribable) {
-                        var subscription = subscribable.subscribe(function (c) {
+                        var subscription_1 = subscribable.subscribe(function (c) {
+                            if (!_this.isElementRooted(e, rootElement)) {
+                                element_1.remove();
+                                subscription_1.dispose();
+                                return;
+                            }
                             var vdom2 = _this.nodeChildren[index_1](c);
                             var diff = virtualDom.diff(vdomNode_1, vdom2);
                             vdomNode_1 = vdom2;
@@ -403,7 +410,7 @@ var DotvvmKnockoutCompat;
             if (dataContext["$betterContext"] && dataContext["$createdForSelf"] === dataContext)
                 return ko.unwrap(dataContext["$betterContext"]);
             var parent = dataContext.$parentContext != null ? KnockoutBindingWidget.getBetterContext(dataContext.$parentContext) : undefined;
-            var data = (dataContext["$createdForSelf"] === dataContext && ko.unwrap(dataContext["$unwrapped"])) || ko.unwrap(dataContext.$data["__upwrapped_data"]) || dotvvm.serialization.serialize(dataContext.$data);
+            var data = (dataContext["$createdForSelf"] === dataContext && ko.unwrap(dataContext["$unwrapped"])) || ko.unwrap(dataContext.$data["__unwrapped_data"]) || dotvvm.serialization.serialize(dataContext.$data);
             var extensions = undefined;
             for (var prop in dataContext) {
                 if (dataContext.hasOwnProperty(prop) && prop != "$data" && prop != "$parent" && prop != "$parents" && prop != "$root" && prop != "ko" && prop != "$rawData" && prop != "_subscribable") {
@@ -1689,6 +1696,17 @@ var DotVVM = (function () {
         // wrap it in the observable
         // this.viewModelObservables[viewModelName] = ko.observable(viewModel);
         // ko.applyBindings(this.viewModelObservables[viewModelName], document.documentElement);
+        if (createArray(document.body.childNodes).some(function (n) { return n.nodeType == Node.COMMENT_NODE && ko.bindingProvider.instance.nodeHasBindings(n); })) {
+            var c = document.body.firstChild;
+            var wrapperElement = document.createElement("div");
+            document.body.replaceChild(wrapperElement, c);
+            while (c != null) {
+                if (c.nodeType == Node.ELEMENT_NODE && c.tagName.toLowerCase() == "script")
+                    break;
+                wrapperElement.appendChild(c);
+                c = wrapperElement.nextSibling;
+            }
+        }
         var elements = [];
         for (var _i = 0, _a = createArray(document.body.children); _i < _a.length; _i++) {
             var e = _a[_i];

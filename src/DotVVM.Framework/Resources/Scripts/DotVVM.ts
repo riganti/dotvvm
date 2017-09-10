@@ -190,6 +190,18 @@ class DotVVM {
         // this.viewModelObservables[viewModelName] = ko.observable(viewModel);
         // ko.applyBindings(this.viewModelObservables[viewModelName], document.documentElement);
 
+        if (createArray(document.body.childNodes).some(n => n.nodeType == Node.COMMENT_NODE && ko.bindingProvider.instance.nodeHasBindings(n))) {
+            let c = document.body.firstChild
+            const wrapperElement = document.createElement("div")
+            document.body.replaceChild(wrapperElement, c!)
+            while (c != null) {
+                if (c.nodeType == Node.ELEMENT_NODE && (<Element>c).tagName.toLowerCase() == "script")
+                    break;
+                wrapperElement.appendChild(c);
+                c = wrapperElement.nextSibling
+            }
+        }
+
         var elements : Element [] = []
         for (var e of createArray(document.body.children))
         {
