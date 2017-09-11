@@ -163,7 +163,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 ));
             }
 
-            AddPropertyGetterTranslator(typeof(Task<>), "Result", new GenericMethodCompiler(args => args[0]));
+            AddPropertyGetterTranslator(typeof(Task<>), "Result", new GenericMethodCompiler(args => FunctionalExtensions.ApplyAction(args[0], a => a.RemoveAnnotations(typeof(ViewModelInfoAnnotation)))));
 
         }
 

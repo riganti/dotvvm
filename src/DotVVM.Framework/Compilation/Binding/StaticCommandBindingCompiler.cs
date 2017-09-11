@@ -67,10 +67,20 @@ namespace DotVVM.Framework.Compilation.Binding
                 else if (sp.Symbol == JavascriptTranslator.KnockoutViewModelParameter) sp.ReplaceWith(new JsSymbolicParameter(currentContextVariable).Member("$data"));
                 else if (sp.Symbol == CommandBindingExpression.SenderElementParameter) sp.Symbol = senderVariable;
             }
-            return new JsNewExpression(new JsIdentifierExpression("Promise"), new JsFunctionExpression(
-                new [] { new JsIdentifier("resolve") },
-                new JsBlockStatement(new JsExpressionStatement(js))
-            )); 
+
+            if (js is JsInvocationExpression invocation && invocation.Target is JsIdentifierExpression identifier && identifier.Identifier == "resolve")
+            {
+                // optimize `new Promise(function (resolve) { resolve(x) })` to `Promise.resolve(x)`
+                identifier.ReplaceWith(new JsIdentifierExpression("Promise").Member("resolve"));
+                return js;
+            }
+            else
+            {
+                return new JsNewExpression(new JsIdentifierExpression("Promise"), new JsFunctionExpression(
+                    new [] { new JsIdentifier("resolve") },
+                    new JsBlockStatement(new JsExpressionStatement(js))
+                ));
+            }
         }
 
         protected virtual bool SouldCompileCallback(Expression c)

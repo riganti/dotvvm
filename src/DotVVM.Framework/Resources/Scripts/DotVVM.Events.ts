@@ -45,45 +45,46 @@ class DotvvmEvent<T extends DotvvmEventArgs> {
     }
 }
 
-class DotvvmEventArgs {
-    constructor(public viewModel: any) {
-    }
+interface PostbackEventArgs extends DotvvmEventArgs {
+    postbackClientId: number
+    viewModelName: string
+    sender?: Element
+    xhr?: XMLHttpRequest
+    serverResponseObject?: any
 }
-class DotvvmErrorEventArgs extends DotvvmEventArgs {
+
+interface DotvvmEventArgs {
+    viewModel: any
+}
+class DotvvmErrorEventArgs implements PostbackEventArgs {
     public handled = false;
-    constructor(public viewModel: any, public xhr: XMLHttpRequest, public isSpaNavigationError: boolean = false) {
-        super(viewModel);
+    constructor(public sender: Element | undefined, public viewModel: any, public viewModelName: any, public xhr: XMLHttpRequest, public postbackClientId, public serverResponseObject: any = undefined, public isSpaNavigationError: boolean = false) {
     }
 }
-class DotvvmBeforePostBackEventArgs extends DotvvmEventArgs {
+class DotvvmBeforePostBackEventArgs implements PostbackEventArgs {
     public cancel: boolean = false;
     public clientValidationFailed: boolean = false;
     constructor(public sender: HTMLElement, public viewModel: any, public viewModelName: string, public validationTargetPath: any, public postbackClientId: number) {
-        super(viewModel);
     }
 }
-class DotvvmAfterPostBackEventArgs extends DotvvmEventArgs {
+class DotvvmAfterPostBackEventArgs implements PostbackEventArgs {
     public isHandled: boolean = false;
     public wasInterrupted: boolean = false;
     constructor(public sender: HTMLElement | undefined, public viewModel: any, public viewModelName: string, public validationTargetPath: any, public serverResponseObject: any, public postbackClientId: number, public commandResult: any = null) {
-        super(viewModel);
     }
 }
-class DotvvmSpaNavigatingEventArgs extends DotvvmEventArgs {
+class DotvvmSpaNavigatingEventArgs implements DotvvmEventArgs {
     public cancel: boolean = false;
     constructor(public viewModel: any, public viewModelName: string, public newUrl: string) {
-        super(viewModel);
     }
 }
-class DotvvmSpaNavigatedEventArgs extends DotvvmEventArgs {
+class DotvvmSpaNavigatedEventArgs implements DotvvmEventArgs {
     public isHandled: boolean = false;
     constructor(public viewModel: any, public viewModelName: string, public serverResponseObject: any) {
-        super(viewModel);
     }
 }
-class DotvvmRedirectEventArgs extends DotvvmEventArgs {
+class DotvvmRedirectEventArgs implements DotvvmEventArgs {
     public isHandled: boolean = false;
     constructor(public viewModel: any, public viewModelName: string, public url: string, public replace: boolean) {
-        super(viewModel);
     }
 }
