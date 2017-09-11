@@ -155,10 +155,17 @@ var DotvvmKnockoutCompat;
             result["__unwrapped_data"] = objOrObservable;
             if (update)
                 result["__update_function"] = update;
-            for (var key in obj) {
+            var _loop_1 = function () {
                 if (obj.hasOwnProperty(key)) {
                     result[key] = createComputed(key, objUpdate(key));
+                    if (true || obj[key + "$validation"]) {
+                        var validation_1 = createComputed(key + "$validation", objUpdate(key + "$validation"));
+                        result[key].validationErrors = ko.pureComputed(function () { return validation_1() && ko.unwrap(validation_1().errors) || []; });
+                    }
                 }
+            };
+            for (var key in obj) {
+                _loop_1();
             }
             return result;
         }
@@ -319,7 +326,7 @@ var DotvvmKnockoutCompat;
         };
         KnockoutBindingWidget.prototype.replaceTmpSpans = function (nodes, rootElement) {
             var _this = this;
-            var _loop_1 = function () {
+            var _loop_2 = function () {
                 var e = n;
                 if (n.nodeType == Node.ELEMENT_NODE && e.getAttribute("data-fake-content-for") == this_1.elementId && this_1.isElementRooted(e, rootElement) && !e["__bound_element"]) {
                     var index_1 = parseInt(e.getAttribute("data-index"));
@@ -366,7 +373,7 @@ var DotvvmKnockoutCompat;
             var this_1 = this;
             for (var _i = 0, nodes_1 = nodes; _i < nodes_1.length; _i++) {
                 var n = nodes_1[_i];
-                _loop_1();
+                _loop_2();
             }
         };
         KnockoutBindingWidget.prototype.removeRemovedNodes = function (rootElement) {
@@ -2380,11 +2387,11 @@ var DotVVM = (function () {
                 if (!bindingContext)
                     throw new Error();
                 var value = valueAccessor();
-                var _loop_2 = function (prop) {
+                var _loop_3 = function (prop) {
                     value[prop] = createWrapperComputed(function () { return valueAccessor()[prop]; }, "'" + prop + "' at '" + valueAccessor.toString() + "'");
                 };
                 for (var prop in value) {
-                    _loop_2(prop);
+                    _loop_3(prop);
                 }
                 var innerBindingContext = bindingContext.extend({ $control: value });
                 element.innerBindingContext = innerBindingContext;
@@ -2401,7 +2408,7 @@ var DotVVM = (function () {
                     throw new Error();
                 var value = valueAccessor();
                 var extendBy = {};
-                var _loop_3 = function (prop) {
+                var _loop_4 = function (prop) {
                     propPath = prop.split('.');
                     obj = extendBy;
                     for (var i = 0; i < propPath.length - 1; i) {
@@ -2411,7 +2418,7 @@ var DotVVM = (function () {
                 };
                 var propPath, obj;
                 for (var prop in value) {
-                    _loop_3(prop);
+                    _loop_4(prop);
                 }
                 var innerBindingContext = bindingContext.extend(extendBy);
                 element.innerBindingContext = innerBindingContext;
@@ -2808,7 +2815,7 @@ var ValidationError = (function () {
                 validatedObservable = wrapped;
         }
         if (!validatedObservable.validationErrors) {
-            validatedObservable.validationErrors = ko.observableArray();
+            return ko.observableArray([]);
         }
         return validatedObservable.validationErrors;
     };
@@ -2880,12 +2887,12 @@ var DotvvmValidation = (function () {
                 if (!unwrappedTarget)
                     throw new Error();
                 // validate the object
-                var validation_1 = _this.validateViewModel(unwrappedTarget);
-                if (validation_1 != _this.validObjectResult) {
-                    console.log("Validation failed: postback aborted; errors: ", validation_1);
+                var validation_2 = _this.validateViewModel(unwrappedTarget);
+                if (validation_2 != _this.validObjectResult) {
+                    console.log("Validation failed: postback aborted; errors: ", validation_2);
                     args.cancel = true;
                     args.clientValidationFailed = true;
-                    targetUpdate(function (vm) { return _this.applyValidationErrors(vm, validation_1); });
+                    targetUpdate(function (vm) { return _this.applyValidationErrors(vm, validation_2); });
                 }
             }
             _this.events.validationErrorsChanged.trigger(args);
@@ -2939,7 +2946,7 @@ var DotvvmValidation = (function () {
             return this.validObjectResult;
         var rulesForType = dotvvm.viewModels['root'].validationRules[type] || {};
         var validationResult = null;
-        var _loop_4 = function (property) {
+        var _loop_5 = function (property) {
             if (!viewModel.hasOwnProperty(property) || property.indexOf("$") === 0)
                 return "continue";
             var value = viewModel[property];
@@ -2986,7 +2993,7 @@ var DotvvmValidation = (function () {
         var this_2 = this, error;
         // validate all properties
         for (var property in viewModel) {
-            _loop_4(property);
+            _loop_5(property);
         }
         return validationResult || this.validObjectResult;
     };
@@ -3116,6 +3123,9 @@ var DotvvmValidation = (function () {
      */
     DotvvmValidation.prototype.getValidationErrors = function (validationTargetObservable, includeErrorsFromGrandChildren, includeErrorsFromTarget, includeErrorsFromChildren) {
         if (includeErrorsFromChildren === void 0) { includeErrorsFromChildren = true; }
+        // WORKAROUND: sometimes, this it called with `dotvvm.viewModelObservables` in parameter...
+        if (validationTargetObservable == dotvvm.viewModelObservables['root'])
+            validationTargetObservable = validationTargetObservable.viewModel;
         // Check the passed viewModel
         if (!validationTargetObservable)
             return [];
@@ -3125,7 +3135,7 @@ var DotvvmValidation = (function () {
             // TODO: not supported
         }
         if (includeErrorsFromChildren) {
-            var validationTarget = ko.unwrap(validationTargetObservable);
+            var validationTarget = ko.unwrap(validationTargetObservable["__unwrapped_data"]) || ko.unwrap(validationTargetObservable);
             if (Array.isArray(validationTarget)) {
                 for (var _i = 0, validationTarget_1 = validationTarget; _i < validationTarget_1.length; _i++) {
                     var item = validationTarget_1[_i];
@@ -3138,9 +3148,9 @@ var DotvvmValidation = (function () {
                     if (!validationTarget.hasOwnProperty(propertyName) || propertyName.indexOf("$") === 0)
                         continue;
                     var property = validationTarget[propertyName];
-                    var val = validationTarget[propertyName + "$validation"];
+                    var val = ko.unwrap(validationTarget[propertyName + "$validation"]);
                     if (val && val.errors) {
-                        errors = errors.concat(val.errors);
+                        errors = errors.concat(dotvvm.serialization.serialize(val.errors));
                     }
                     if (includeErrorsFromGrandChildren) {
                         errors = errors.concat(this.getValidationErrors(property, true, false, true));

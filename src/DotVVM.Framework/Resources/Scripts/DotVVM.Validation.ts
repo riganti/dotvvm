@@ -106,13 +106,14 @@ class ValidationError {
     constructor(public validator: ((value: any) => boolean | string | null) | null, public errorMessage: string) {
     }
 
-    public static getOrCreate(validatedObservable: KnockoutValidatedObservable<any> & {wrappedProperty?: any}): KnockoutObservableArray<ValidationError> {
+    public static getOrCreate(validatedObservable: KnockoutValidatedObservable<any> & {wrappedProperty?: any}): KnockoutObservable<ValidationError[]> {
         if (validatedObservable.wrappedProperty) {
             var wrapped = validatedObservable.wrappedProperty();
             if (ko.isObservable(wrapped)) validatedObservable = wrapped;
         }
+
         if (!validatedObservable.validationErrors) {
-            validatedObservable.validationErrors = ko.observableArray<ValidationError>();
+            return ko.observableArray<ValidationError>([]);
         }
         return validatedObservable.validationErrors;
     }
@@ -436,6 +437,8 @@ class DotvvmValidation {
      * @returns By default returns only errors from the viewModel's immediate children
      */
     public getValidationErrors(validationTargetObservable: KnockoutValidatedObservable<any>, includeErrorsFromGrandChildren, includeErrorsFromTarget, includeErrorsFromChildren = true): ValidationError[] {
+        // WORKAROUND: sometimes, this it called with `dotvvm.viewModelObservables` in parameter...
+        if (validationTargetObservable == dotvvm.viewModelObservables['root']) validationTargetObservable = <any>validationTargetObservable.viewModel
         // Check the passed viewModel
         if (!validationTargetObservable) return [];
 
@@ -447,7 +450,7 @@ class DotvvmValidation {
         }
 
         if (includeErrorsFromChildren) {
-            const validationTarget = ko.unwrap(validationTargetObservable);
+            const validationTarget = ko.unwrap(validationTargetObservable["__unwrapped_data"]) || ko.unwrap(validationTargetObservable);
             if (Array.isArray(validationTarget)) {
                 for (var item of validationTarget) {
                     // This is correct because in the next children and further all children are grandchildren
@@ -462,9 +465,9 @@ class DotvvmValidation {
                 for (const propertyName in validationTarget) {
                     if (!validationTarget.hasOwnProperty(propertyName) || propertyName.indexOf("$") === 0) continue;
                     const property = validationTarget[propertyName];
-                    const val = validationTarget[propertyName + "$validation"]
+                    const val = ko.unwrap(validationTarget[propertyName + "$validation"])
                     if (val && val.errors) {
-                        errors = errors.concat(val.errors)
+                        errors = errors.concat(dotvvm.serialization.serialize(val.errors))
                     } 
                     if (includeErrorsFromGrandChildren) {
                         errors = errors.concat(this.getValidationErrors(
@@ -476,6 +479,7 @@ class DotvvmValidation {
                 }
             }
         }
+
         return errors;
     }
 

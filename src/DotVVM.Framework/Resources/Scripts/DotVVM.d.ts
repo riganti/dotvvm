@@ -473,7 +473,7 @@ declare class ValidationError {
     constructor(validator: ((value: any) => boolean | string | null) | null, errorMessage: string);
     static getOrCreate(validatedObservable: KnockoutValidatedObservable<any> & {
         wrappedProperty?: any;
-    }): KnockoutObservableArray<ValidationError>;
+    }): KnockoutObservable<ValidationError[]>;
 }
 interface IDotvvmViewModelInfo {
     validationRules?: {

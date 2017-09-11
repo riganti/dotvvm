@@ -142,6 +142,10 @@ export function wrapInObservables(objOrObservable: any, update: ((updater: State
         for (var key in obj) {
             if (obj.hasOwnProperty(key)) {
                 result[key] = createComputed(key, objUpdate(key))
+                if (true || obj[key + "$validation"]) {
+                    const validation = createComputed(key + "$validation", objUpdate(key + "$validation"))
+                    result[key].validationErrors = ko.pureComputed(() => validation() && ko.unwrap(validation().errors) || [])
+                }
             }
         }
         return result
