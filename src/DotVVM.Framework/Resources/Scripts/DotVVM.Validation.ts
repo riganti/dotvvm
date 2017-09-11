@@ -350,17 +350,12 @@ class DotvvmValidation {
     // merge validation rules
     public mergeValidationRules(args: DotvvmAfterPostBackEventArgs) {
         if (args.serverResponseObject.validationRules) {
-            // TODO
-            throw new Error("Not implemented");
-            // var existingRules = dotvvm.viewModels[args.viewModelName].validationRules;
-            // if (typeof existingRules === "undefined") {
-            //     dotvvm.viewModels[args.viewModelName].validationRules = {};
-            //     existingRules = dotvvm.viewModels[args.viewModelName].validationRules;
-            // }
-            // for (var type in args.serverResponseObject) {
-            //     if (!args.serverResponseObject.hasOwnProperty(type)) continue;
-            //     existingRules![type] = args.serverResponseObject[type];
-            // }
+            const existingRules = dotvvm.viewModels[args.viewModelName].validationRules ||
+                (dotvvm.viewModels[args.viewModelName].validationRules = {})
+            for (const type in args.serverResponseObject) {
+                if (!args.serverResponseObject.hasOwnProperty(type)) continue;
+                existingRules![type] = args.serverResponseObject[type];
+            }
         }
     }
 
@@ -534,10 +529,10 @@ class DotvvmValidation {
             return [match![0], propertyPath.substr(0, match!.index)]
         })();
         if (objectPath.lastIndexOf('.') == objectPath.length - 1)
-            objectPath.substr(0, objectPath.length - 1);
+            objectPath = objectPath.substr(0, objectPath.length - 1);
 
         if (!prop) throw new Error();
-        const object = dotvvm.evaluator.evaluateOnViewModel(target, objectPath)
+        const object = objectPath ? ko.unwrap(dotvvm.evaluator.evaluateOnViewModel(ko.unwrap(target), objectPath)) : ko.unwrap(target)
         const targetUpdate: (updater: StateUpdate<any>) => void = ko.unwrap(object["__update_function"])
 
         targetUpdate(vm => {

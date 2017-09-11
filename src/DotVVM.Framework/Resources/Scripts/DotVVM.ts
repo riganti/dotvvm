@@ -116,7 +116,7 @@ class DotVVM {
                 if (this.lastStartedPostack == options.postbackId)
                     return result
                 else return <any>(() => Promise.reject(null))
-            })
+            }, s => s)
         }
     }
 
@@ -396,8 +396,7 @@ class DotVVM {
                                 // remove updated controls
                                 var updatedControls = this.cleanUpdatedControls(resultObject);
 
-                                if (!resultObject.viewModel && resultObject.viewModelDiff) {
-                                    // TODO: patch (~deserialize) it to ko.observable viewModel
+                                if (resultObject.viewModelDiff) {
                                     resultObject.viewModel = this.patch(this.rootRenderer.state, resultObject.viewModelDiff);
                                 }
 
@@ -464,7 +463,7 @@ class DotVVM {
             return this.postbackCore(viewModelName, options, path, command, controlUniqueId, context, validationTargetPath, commandArgs)
         }, options, preparedHandlers);
 
-        const result = promise.then(
+	const result = promise.then<DotvvmAfterPostBackEventArgs>(
                 r => r().then(r => r, error => Promise.reject({ type: "commit", args: error })),
                 Promise.reject
             )
@@ -731,23 +730,21 @@ class DotVVM {
         return url1 + this.addLeadingSlash(url2);
     }
 
-    public patch(source: any, patch: any): any {
+    public patch(source: any, patch: any) {
         if (source instanceof Array && patch instanceof Array) {
             return patch.map((val, i) =>
                 this.patch(source[i], val));
         }
         else if (source instanceof Array || patch instanceof Array)
             return patch;
-        else if (typeof source == "object" && typeof patch == "object") {
-            for (var p in patch) {
-                if (patch[p] == null) source[p] = null;
-                else if (source[p] == null) source[p] = patch[p];
-                else source[p] = this.patch(source[p], patch[p]);
+        else if (typeof source == "object" && typeof patch == "object" && source != null && patch != null) {
+            const result = { ... source }
+            for (const p in patch) {
+                result[p] = this.patch(source[p], patch[p]);
             }
+            return result;
         }
         else return patch;
-
-        return source;
     }
 
     private updateDynamicPathFragments(context: any, path: string[]): void {

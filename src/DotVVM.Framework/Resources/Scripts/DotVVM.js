@@ -1596,7 +1596,7 @@ var DotVVM = (function () {
                         return result;
                     else
                         return (function () { return Promise.reject(null); });
-                });
+                }, function (s) { return s; });
             }
         };
         this.globalPostbackHandlers = [this.isPostBackRunningHandler];
@@ -1883,8 +1883,7 @@ var DotVVM = (function () {
                                 _this.isViewModelUpdating = true;
                                 // remove updated controls
                                 var updatedControls = _this.cleanUpdatedControls(resultObject);
-                                if (!resultObject.viewModel && resultObject.viewModelDiff) {
-                                    // TODO: patch (~deserialize) it to ko.observable viewModel
+                                if (resultObject.viewModelDiff) {
                                     resultObject.viewModel = _this.patch(_this.rootRenderer.state, resultObject.viewModelDiff);
                                 }
                                 // update the viewmodel
@@ -1918,11 +1917,7 @@ var DotVVM = (function () {
                         }
                         // trigger afterPostback event
                         if (!isSuccess) {
-<<<<<<< HEAD
-                            reject(new DotvvmErrorEventArgs(state, result));
-=======
-                            reject(new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, result, options.postbackId, resultObject));
->>>>>>> js-postback-refactoring
+                            reject(new DotvvmErrorEventArgs(options.sender, state, viewModelName, result, options.postbackId, resultObject));
                         }
                         else {
                             var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(options.sender, state, viewModelName, validationTargetPath, resultObject, options.postbackId, resultObject.comandResult);
@@ -1931,11 +1926,7 @@ var DotVVM = (function () {
                     });
                 }); });
             }, function (xhr) {
-<<<<<<< HEAD
-                reject({ type: 'network', error: new DotvvmErrorEventArgs(state, xhr) });
-=======
-                reject({ type: 'network', options: options, error: new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, xhr, options.postbackId) });
->>>>>>> js-postback-refactoring
+                reject({ type: 'network', options: options, error: new DotvvmErrorEventArgs(options.sender, state, viewModelName, xhr, options.postbackId) });
             });
         });
     };
@@ -2205,19 +2196,15 @@ var DotVVM = (function () {
         }
         else if (source instanceof Array || patch instanceof Array)
             return patch;
-        else if (typeof source == "object" && typeof patch == "object") {
+        else if (typeof source == "object" && typeof patch == "object" && source != null && patch != null) {
+            var result = __assign({}, source);
             for (var p in patch) {
-                if (patch[p] == null)
-                    source[p] = null;
-                else if (source[p] == null)
-                    source[p] = patch[p];
-                else
-                    source[p] = this.patch(source[p], patch[p]);
+                result[p] = this.patch(source[p], patch[p]);
             }
+            return result;
         }
         else
             return patch;
-        return source;
     };
     DotVVM.prototype.updateDynamicPathFragments = function (context, path) {
         for (var i = path.length - 1; i >= 0; i--) {
@@ -3035,17 +3022,13 @@ var DotvvmValidation = (function () {
     // merge validation rules
     DotvvmValidation.prototype.mergeValidationRules = function (args) {
         if (args.serverResponseObject.validationRules) {
-            // TODO
-            throw new Error("Not implemented");
-            // var existingRules = dotvvm.viewModels[args.viewModelName].validationRules;
-            // if (typeof existingRules === "undefined") {
-            //     dotvvm.viewModels[args.viewModelName].validationRules = {};
-            //     existingRules = dotvvm.viewModels[args.viewModelName].validationRules;
-            // }
-            // for (var type in args.serverResponseObject) {
-            //     if (!args.serverResponseObject.hasOwnProperty(type)) continue;
-            //     existingRules![type] = args.serverResponseObject[type];
-            // }
+            var existingRules = dotvvm.viewModels[args.viewModelName].validationRules ||
+                (dotvvm.viewModels[args.viewModelName].validationRules = {});
+            for (var type in args.serverResponseObject) {
+                if (!args.serverResponseObject.hasOwnProperty(type))
+                    continue;
+                existingRules[type] = args.serverResponseObject[type];
+            }
         }
     };
     DotvvmValidation.prototype.applyValidationErrors = function (object, errors) {
@@ -3214,10 +3197,10 @@ var DotvvmValidation = (function () {
             return [match[0], propertyPath.substr(0, match.index)];
         })(), prop = _a[0], objectPath = _a[1];
         if (objectPath.lastIndexOf('.') == objectPath.length - 1)
-            objectPath.substr(0, objectPath.length - 1);
+            objectPath = objectPath.substr(0, objectPath.length - 1);
         if (!prop)
             throw new Error();
-        var object = dotvvm.evaluator.evaluateOnViewModel(target, objectPath);
+        var object = objectPath ? ko.unwrap(dotvvm.evaluator.evaluateOnViewModel(ko.unwrap(target), objectPath)) : ko.unwrap(target);
         var targetUpdate = ko.unwrap(object["__update_function"]);
         targetUpdate(function (vm) {
             var validationProp = prop + "$validation";
