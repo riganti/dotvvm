@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
@@ -14,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace DotVVM.Framework.Runtime.Filters
 {
     /// <summary>
-    /// Recognizes <see cref="Microsoft.AspNetCore.Authorization.AuthorizeAttribute" /> filters and applies a specific <see cref="AuthorizationPolicy" />.
+    /// Specifies that the class or method requires the specified authorization.
     /// </summary>
     public class AuthorizeAttribute : ActionFilterAttribute
     {
@@ -28,7 +27,8 @@ namespace DotVVM.Framework.Runtime.Filters
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Microsoft.AspNetCore.Authorization.AuthorizeAttribute" /> class with the specified policy.
+        /// Initializes a new instance of the <see cref="Microsoft.AspNetCore.Authorization.AuthorizeAttribute" /> class with the
+        /// specified policy.
         /// </summary>
         /// <param name="policy">The name of the policy to require for authorization.</param>
         public AuthorizeAttribute(string policy)
@@ -49,8 +49,7 @@ namespace DotVVM.Framework.Runtime.Filters
         /// <summary>
         /// Gets or sets a comma delimited list of schemes from which user information is constructed.
         /// </summary>
-        public string ActiveAuthenticationSchemes { get; set; }
-        
+        public string AuthenticationSchemes { get; set; }
 
         /// <inheritdoc />
         protected override Task OnViewModelCreatedAsync(IDotvvmRequestContext context)
@@ -140,7 +139,7 @@ namespace DotVVM.Framework.Runtime.Filters
                 policyBuilder.RequireRole(trimmedRolesSplit);
                 useDefaultPolicy = false;
             }
-            var authTypesSplit = ActiveAuthenticationSchemes?.Split(',');
+            var authTypesSplit = AuthenticationSchemes?.Split(',');
             if (authTypesSplit != null && authTypesSplit.Any())
             {
                 foreach (var authType in authTypesSplit)

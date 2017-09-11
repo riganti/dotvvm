@@ -100,7 +100,6 @@
     <Reference Include="System.Net.Http" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj" />
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
     <ProjectReference Include="..\EmbeddedResourceControls\EmbeddedResourceControls.csproj" />
   </ItemGroup>

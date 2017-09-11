@@ -4,7 +4,7 @@ using DotVVM.Framework.Runtime.Filters;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth
 {
-    [Authorize(ActiveAuthenticationSchemes = "Scheme1")]
+    [Authorize(AuthenticationSchemes = "Scheme1")]
     public class AuthorizedPresenter : IDotvvmPresenter
     {
         public async Task ProcessRequest(IDotvvmRequestContext context)

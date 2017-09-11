@@ -34,7 +34,7 @@ namespace DotVVM.Framework.Controls
 
         protected virtual IQueryable<T> ApplyOptionsToQueryable(IQueryable<T> queryable)
         {
-            if (SortingOptions != null)
+            if (SortingOptions?.SortExpression != null)
             {
                 queryable = SortingOptions.ApplyToQueryable(queryable);
             }
