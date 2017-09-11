@@ -63,28 +63,9 @@ class DotVVM {
             var beforePostbackArgs = new DotvvmBeforePostBackEventArgs(options.sender!, options.viewModel, options.viewModelName!, options.validationTargetPath!, options.postbackId);
             this.events.beforePostback.trigger(beforePostbackArgs);
             if (beforePostbackArgs.cancel) {
-                return Promise.reject({type: "event"});
+                return Promise.reject({type: "event", options: options});
             }
             return callback();
-        }
-    }
-
-    private afterPostbackEventpostbackHandler : DotvvmPostbackHandler2 = {
-        execute: <T>(callback: () => Promise<T>, options: PostbackOptions) => {
-            const promise = callback();
-            promise.then(result => result,
-                (error: PostbackRejectionReason) => {
-                if (error.type == "handler" || error.type == "event") {
-                    // trigger afterPostback event
-                    var afterPostBackArgsCanceled = new DotvvmAfterPostBackEventArgs(options.sender!, options.viewModel, options.viewModelName!, options.validationTargetPath, null, options.postbackId);
-                    afterPostBackArgsCanceled.wasInterrupted = true;
-                    this.events.afterPostback.trigger(afterPostBackArgsCanceled);
-                } else {
-                    this.events.error.trigger(error.error);
-                }
-            });
-            
-            return promise;
         }
     }
 
@@ -114,14 +95,14 @@ class DotVVM {
         }
     }
 
-    public globalPostbackHandlers : (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[] = [this.isPostBackRunningHandler, this.afterPostbackEventpostbackHandler]
+    public globalPostbackHandlers : (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[] = [this.isPostBackRunningHandler]
     public globalLaterPostbackHandlers : (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[] = [this.beforePostbackEventPostbackHandler]
  
     private convertOldHandler(handler: DotvvmPostBackHandler) : DotvvmPostbackHandler2 {
         return {
             execute<T>(callback: () => Promise<T>, options: PostbackOptions) {
                 return new Promise<T>((resolve, reject) => {
-                    const timeout = setTimeout(() => reject({ type: handler, handler: handler, message: "The postback handler can't indicate that the postback was rejected and the timeout has passed." }), 10000)
+                    const timeout = setTimeout(() => reject({ type: "handler", options: options, handler: handler, message: "The postback handler can't indicate that the postback was rejected and the timeout has passed." }), 10000)
                     handler.execute(() => {
                         clearTimeout(timeout)
                         callback().then(resolve, reject)
@@ -166,7 +147,7 @@ class DotVVM {
         ko.applyBindings(this.viewModelObservables[viewModelName], document.documentElement);
 
         // trigger the init event
-        this.events.init.trigger(new DotvvmEventArgs(viewModel));
+        this.events.init.trigger({viewModel});
 
         // handle SPA requests
         const spaPlaceHolder = this.getSpaPlaceHolder();
@@ -313,13 +294,12 @@ class DotVVM {
                .filter(h => h != null)
     }
 
-    public applyPostbackHandlers<T>(callback: (options: PostbackOptions) => Promise<T>, sender: HTMLElement, handlers?: (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[], args : any[] = [], validationPath?: any, context = ko.contextFor(sender), viewModel = context.$root, viewModelName?: string) : Promise<T> {
-        const options = new PostbackOptions(this.backUpPostBackConter(), sender, args, viewModel, viewModelName, validationPath);
+    private applyPostbackHandlersCore<T>(callback: (options: PostbackOptions) => Promise<T>, options: PostbackOptions, handlers?: DotvvmPostbackHandler2[]) : Promise<T> {
         if (handlers == null || handlers.length === 0) {
             return callback(options);
         } else {
             return new Promise((resolve, reject) => {
-                this.findPostbackHandlers(context, handlers)
+                handlers
                 .reduceRight(
                     (prev, val, index) => () => 
                         val.execute<T>(prev, options),
@@ -331,6 +311,11 @@ class DotVVM {
                 ();
             });
         }
+    }
+
+    public applyPostbackHandlers<T>(callback: (options: PostbackOptions) => Promise<T>, sender: HTMLElement, handlers?: (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[], args : any[] = [], validationPath?: any, context = ko.contextFor(sender), viewModel = context.$root, viewModelName?: string) : Promise<T> {
+        const options = new PostbackOptions(this.backUpPostBackConter(), sender, args, viewModel, viewModelName, validationPath)
+        return this.applyPostbackHandlersCore(callback, options, this.findPostbackHandlers(context, handlers || []))
     }
 
     public postbackCore(viewModelName: string, options: PostbackOptions, path: string[], command: string, controlUniqueId: string, context: any, validationTargetPath?: any, commandArgs?: any[]) {
@@ -405,7 +390,7 @@ class DotVVM {
 
                         // trigger afterPostback event
                         if (!isSuccess) {
-                            reject(new DotvvmErrorEventArgs(viewModel, result))
+                            reject(new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, result, options.postbackId, resultObject))
                         } else {
                             var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(options.sender, viewModel, viewModelName, validationTargetPath, resultObject, options.postbackId, resultObject.comandResult)
                             resolve(afterPostBackArgs)
@@ -413,7 +398,7 @@ class DotVVM {
                     });
                 }));
             }, xhr => {
-                reject({ type: 'network', error: new DotvvmErrorEventArgs(viewModel, xhr) });
+                reject({ type: 'network', options: options, error: new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, xhr, options.postbackId) });
             });
         });
     }
@@ -430,17 +415,28 @@ class DotVVM {
             preHandlers.push(this.windowsSetTimeoutHandler)
         }
 
-        handlers = preHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers);
-
-        const promise = this.applyPostbackHandlers(options => {
+        const preparedHandlers = this.findPostbackHandlers(context, preHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers));
+        const options = new PostbackOptions(this.backUpPostBackConter(), sender, commandArgs, context.$data, viewModelName, validationTargetPath)
+        const promise = this.applyPostbackHandlersCore(options => {
             return this.postbackCore(viewModelName, options, path, command, controlUniqueId, context, validationTargetPath, commandArgs)
-        }, sender, handlers, commandArgs, validationTargetPath, context, this.viewModels[viewModelName], viewModelName);
+        }, options, preparedHandlers);
 
         const result = promise.then(
-                r => r().then(r => r, error => ({ type: "commit", error: error })),
-                error => error
+                r => r().then(r => r, error => Promise.reject({ type: "commit", args: error })),
+                Promise.reject
             )
-        result.then(r => this.events.afterPostback.trigger(r))
+        result.then(
+            r => this.events.afterPostback.trigger(r),
+            (error: PostbackRejectionReason) => {
+            var afterPostBackArgsCanceled = new DotvvmAfterPostBackEventArgs(sender, options.viewModel, viewModelName, validationTargetPath, error.type == "commit" ? error.args.serverResponseObject : null, options.postbackId);
+            if (error.type == "handler" || error.type == "event") {
+                // trigger afterPostback event
+                afterPostBackArgsCanceled.wasInterrupted = true;
+            } else if (error.type == "network") {
+                 this.events.error.trigger(error.args);
+            }
+            this.events.afterPostback.trigger(afterPostBackArgsCanceled);
+        });
         return result;
     }
 
@@ -602,7 +598,7 @@ class DotVVM {
             if (!this.isPostBackStillActive(currentPostBackCounter)) return;
 
             // execute error handlers
-            var errArgs = new DotvvmErrorEventArgs(viewModel, xhr, true);
+            var errArgs = new DotvvmErrorEventArgs(undefined, viewModel, viewModelName, xhr, -1, undefined, true);
             this.events.error.trigger(errArgs);
             if (!errArgs.handled) {
                 alert(xhr.responseText);

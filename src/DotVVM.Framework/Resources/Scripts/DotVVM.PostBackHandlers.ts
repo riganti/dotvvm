@@ -4,9 +4,10 @@ type DotvvmPostbackHandler2 = {
 
 type PostbackRejectionReason =
     | { type: "handler", handler: DotvvmPostbackHandler2 | DotvvmPostBackHandler, message?: string }
-    | { type: 'network', error: DotvvmErrorEventArgs }
-    | { type: 'commit', error: DotvvmErrorEventArgs }
+    | { type: 'network', args: DotvvmErrorEventArgs }
+    | { type: 'commit', args: DotvvmErrorEventArgs }
     | { type: 'event' }
+    & { options?: PostbackOptions }
 
 class DotvvmPostBackHandler {
     public execute<T>(callback: () => void, sender: HTMLElement): void {
