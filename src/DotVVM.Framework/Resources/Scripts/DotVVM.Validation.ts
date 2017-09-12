@@ -413,7 +413,7 @@ class DotvvmValidation {
         // Do the same for every subordinate property
         for (var propertyName in validatedObject) {
             if (!validatedObject.hasOwnProperty(propertyName) || propertyName.indexOf("$") === 0) continue;
-            if (propertyName.lastIndexOf("$validation") == propertyName.length - "$validation".length) {
+            if (propertyName.substr(-11, 11) == "$validation") {
                 // remove ..$validation fields
                 if (result == null) result = {...<any>validatedObject}
                 delete result[propertyName]
