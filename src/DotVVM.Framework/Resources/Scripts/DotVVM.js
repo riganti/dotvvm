@@ -1009,7 +1009,7 @@ var DotVVM = (function () {
                             reject(new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, result, options.postbackId, resultObject));
                         }
                         else {
-                            var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(options.sender, viewModel, viewModelName, validationTargetPath, resultObject, options.postbackId, resultObject.comandResult);
+                            var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(options.sender, viewModel, viewModelName, validationTargetPath, resultObject, options.postbackId, resultObject.commandResult);
                             resolve(afterPostBackArgs);
                         }
                     });
