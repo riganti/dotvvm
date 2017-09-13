@@ -751,7 +751,8 @@ class DotVVM {
     public buildRouteUrl(routePath: string, params: any): string {
         return routePath.replace(/\{([^\}]+?)\??(:(.+?))?\}/g, (s, paramName, hsjdhsj, type) => {
             if (!paramName) return "";
-            return ko.unwrap(params[paramName.toLowerCase()]) || "";
+            const x = ko.unwrap(params[paramName.toLowerCase()])
+            return x == null ? "" : x;
         });
     }
 
