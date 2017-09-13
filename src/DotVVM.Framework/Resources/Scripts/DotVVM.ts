@@ -345,7 +345,7 @@ class DotVVM {
                     }
 
                     // trigger afterPostback event
-                    var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, resultObject, currentPostBackCounter, resultObject.commandResult);
+                    var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, resultObject, currentPostBackCounter, resultObject.commandResult, result);
                     promise.resolve(afterPostBackArgs);
                     this.events.afterPostback.trigger(afterPostBackArgs);
                     if (!isSuccess && !afterPostBackArgs.isHandled) {
