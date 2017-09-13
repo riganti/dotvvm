@@ -8,7 +8,7 @@ namespace DotVVM.Tracing.MiniProfiler.AspNetCore
     public class MiniProfilerWidget : DotvvmControl
     {
         /// <summary>
-        /// The UI position to render the profiler in (defaults to <see cref="StackExchange.Profiling.MiniProfiler.Settings.PopupRenderPosition"/>).
+        /// The UI position to render the profiler in (defaults to <see cref="MiniProfilerBaseOptions.PopupRenderPosition"/>).
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
         public RenderPosition? Position
@@ -20,7 +20,7 @@ namespace DotVVM.Tracing.MiniProfiler.AspNetCore
             = DotvvmProperty.Register<RenderPosition?, MiniProfilerWidget>(c => c.Position, null);
 
         /// <summary>
-        /// Whether to show trivial timings column initially or not (defaults to <see cref="StackExchange.Profiling.MiniProfiler.Settings.PopupShowTrivial"/>).
+        /// Whether to show trivial timings column initially or not (defaults to <see cref="MiniProfilerBaseOptions.PopupShowTrivial"/>).
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
         public bool? ShowTrivial
@@ -32,7 +32,7 @@ namespace DotVVM.Tracing.MiniProfiler.AspNetCore
             = DotvvmProperty.Register<bool?, MiniProfilerWidget>(c => c.ShowTrivial, null);
 
         /// <summary>
-        /// Whether to show time with children column initially or not (defaults to <see cref="StackExchange.Profiling.MiniProfiler.Settings.PopupShowTimeWithChildren"/>).
+        /// Whether to show time with children column initially or not (defaults to <see cref="MiniProfilerBaseOptions.PopupShowTimeWithChildren"/>).
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
         public bool? ShowTimeWithChildren
@@ -44,7 +44,7 @@ namespace DotVVM.Tracing.MiniProfiler.AspNetCore
             = DotvvmProperty.Register<bool?, MiniProfilerWidget>(c => c.ShowTimeWithChildren, null);
 
         /// <summary>
-        /// The maximum number of profilers to show (before the oldest is removed - defaults to <see cref="StackExchange.Profiling.MiniProfiler.Settings.PopupMaxTracesToShow"/>).
+        /// The maximum number of profilers to show (before the oldest is removed - defaults to <see cref="MiniProfilerBaseOptions.PopupMaxTracesToShow"/>).
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
         public int? MaxTraces
@@ -56,7 +56,7 @@ namespace DotVVM.Tracing.MiniProfiler.AspNetCore
             = DotvvmProperty.Register<int?, MiniProfilerWidget>(c => c.MaxTraces, null);
 
         /// <summary>
-        /// Whether to show the controls (defaults to <see cref="StackExchange.Profiling.MiniProfiler.Settings.ShowControls"/>).
+        /// Whether to show the controls (defaults to <see cref="MiniProfilerBaseOptions.ShowControls"/>).
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
         public bool? ShowControls
@@ -68,7 +68,7 @@ namespace DotVVM.Tracing.MiniProfiler.AspNetCore
             = DotvvmProperty.Register<bool?, MiniProfilerWidget>(c => c.ShowControls, null);
 
         /// <summary>
-        /// Whether to start hidden (defaults to <see cref="StackExchange.Profiling.MiniProfiler.Settings.PopupStartHidden"/>).
+        /// Whether to start hidden (defaults to <see cref="MiniProfilerBaseOptions.PopupStartHidden"/>).
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
         public bool? StartHidden
@@ -78,6 +78,23 @@ namespace DotVVM.Tracing.MiniProfiler.AspNetCore
         }
         public static readonly DotvvmProperty StartHiddenProperty
             = DotvvmProperty.Register<bool?, MiniProfilerWidget>(c => c.StartHidden, null);
+
+        protected override void OnPreRender(IDotvvmRequestContext context)
+        {
+            context.ResourceManager.AddStartupScript("DotVVM-MiniProfiler-Integration", 
+                @"dotvvm.events.afterPostback.subscribe(
+                    function(arg) { 
+                        if(arg.xhr && arg.xhr.getResponseHeader) { 
+                            var jsonIds = arg.xhr.getResponseHeader('X-MiniProfiler-Ids'); 
+                            if (jsonIds) {
+                                var ids = JSON.parse(jsonIds);
+                                MiniProfiler.fetchResults(ids);
+                            }
+                        }
+                    })", "dotvvm");
+
+            base.OnPreRender(context);
+        }
 
         protected override void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
         {
