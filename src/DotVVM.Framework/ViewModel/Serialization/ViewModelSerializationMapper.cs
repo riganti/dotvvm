@@ -73,7 +73,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 {
                     propertyMap.ViewModelProtection = viewModelProtectionAttribute.Settings;
                 }
-
+                
                 propertyMap.ClientExtenders =
                     property.GetCustomAttributes<ClientExtenderAttribute>()
                     .OrderBy(c => c.Order)
@@ -82,6 +82,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
                 var validationAttributes = validationMetadataProvider.GetAttributesForProperty(property);
                 propertyMap.ValidationRules = validationRuleTranslator.TranslateValidationRules(property, validationAttributes).ToList();
+                
+                propertyMap.ValidateSettings();
 
                 yield return propertyMap;
             }

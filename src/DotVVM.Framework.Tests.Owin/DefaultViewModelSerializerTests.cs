@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Principal;
+using DotVVM.Framework.Compilation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls.Infrastructure;
@@ -221,9 +222,33 @@ namespace DotVVM.Framework.Tests.Runtime
 			Assert.AreEqual(oldViewModel.Property4[1].PropertyB, newViewModel.Property4[1].PropertyB);
 		}
 
+	    [TestMethod]
+	    public void DefaultViewModelSerializer_SignReadonlyProperty()
+	    {
+	        var oldViewModel = new ViewModelWithInvalidProtectionSettings();
+	        context.ViewModel = oldViewModel;
 
+	        Assert.ThrowsException<DotvvmCompilationException>(() =>
+	        {
+	            try
+	            {
+	                serializer.BuildViewModel(context);
+	                context.GetSerializedViewModel();
+	            }
+	            catch (Exception ex)
+	            {
+	                throw ex.InnerException;
+	            }
+	        });
+	    }
 
-		public class TestViewModel3
+	    public class ViewModelWithInvalidProtectionSettings
+	    {
+            [Protect(ProtectMode.SignData)]
+	        public int ReadOnlyProperty => 1;
+	    }
+
+        public class TestViewModel3
 		{
 			public string Property1 { get; set; }
 
