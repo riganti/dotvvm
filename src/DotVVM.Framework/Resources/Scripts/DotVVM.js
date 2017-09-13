@@ -108,7 +108,7 @@ var DotvvmBeforePostBackEventArgs = (function (_super) {
 }(DotvvmEventArgs));
 var DotvvmAfterPostBackEventArgs = (function (_super) {
     __extends(DotvvmAfterPostBackEventArgs, _super);
-    function DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, serverResponseObject, postbackClientId, commandResult) {
+    function DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, serverResponseObject, postbackClientId, commandResult, xhr) {
         if (commandResult === void 0) { commandResult = null; }
         var _this = _super.call(this, viewModel) || this;
         _this.sender = sender;
@@ -118,6 +118,7 @@ var DotvvmAfterPostBackEventArgs = (function (_super) {
         _this.serverResponseObject = serverResponseObject;
         _this.postbackClientId = postbackClientId;
         _this.commandResult = commandResult;
+        _this.xhr = xhr;
         _this.isHandled = false;
         _this.wasInterrupted = false;
         return _this;
@@ -1421,7 +1422,8 @@ var DotVVM = (function () {
         return routePath.replace(/\{([^\}]+?)\??(:(.+?))?\}/g, function (s, paramName, hsjdhsj, type) {
             if (!paramName)
                 return "";
-            return ko.unwrap(params[paramName.toLowerCase()]) || "";
+            var x = ko.unwrap(params[paramName.toLowerCase()]);
+            return x == null ? "" : x;
         });
     };
     DotVVM.prototype.buildUrlSuffix = function (urlSuffix, query) {
