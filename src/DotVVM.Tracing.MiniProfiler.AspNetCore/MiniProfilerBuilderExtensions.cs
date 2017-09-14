@@ -17,24 +17,22 @@ namespace DotVVM.Tracing.MiniProfiler.AspNetCore
         public static IDotvvmOptions AddMiniProfilerEventTracing(this IDotvvmOptions options)
         {
             options.Services.AddTransient<IRequestTracer, MiniProfilerTracer>();
-            options.Services.AddTransient<IConfigureOptions<DotvvmConfiguration>, MiniProfilerSetup>();
+
+            options.Services.Configure((MiniProfilerOptions opt) =>
+            {
+                opt.IgnoredPaths.Add("/dotvvmResource/");
+            });
+
+            options.Services.Configure((DotvvmConfiguration conf) =>
+            {
+                conf.Markup.AddCodeControls("dot", typeof(MiniProfilerWidget));
+                conf.Runtime.GlobalFilters.Add(new MiniProfilerActionFilter());
+            });
 
             return options;
         }
     }
 
-    internal class MiniProfilerSetup : IConfigureOptions<DotvvmConfiguration>
-    {
-        public void Configure(DotvvmConfiguration config)
-        {
-            config.Markup.AddCodeControls("dot", typeof(MiniProfilerWidget));
-            config.Runtime.GlobalFilters.Add(new MiniProfilerActionFilter());
 
-            var currentProfiler = StackExchange.Profiling.MiniProfiler.Settings.ProfilerProvider
-                ?? new DefaultProfilerProvider();
-
-            StackExchange.Profiling.MiniProfiler.Settings.ProfilerProvider = new DotVVMProfilerProvider(currentProfiler);
-        }
-    }
 
 }

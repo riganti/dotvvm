@@ -5,8 +5,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Caching.Memory;
 using DotVVM.Tracing.MiniProfiler.AspNetCore;
 using StackExchange.Profiling;
-using StackExchange.Profiling.Storage;
-using System;
 
 namespace DotVVM.Samples.MiniProfiler.AspNetCore
 {
@@ -28,6 +26,11 @@ namespace DotVVM.Samples.MiniProfiler.AspNetCore
             });
 
             services.AddMemoryCache();
+
+            services.AddMiniProfiler(options =>
+            {
+                options.RouteBasePath = "/profiler";
+            }).AddEntityFramework();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -35,15 +38,7 @@ namespace DotVVM.Samples.MiniProfiler.AspNetCore
         {
             loggerFactory.AddConsole();
 
-            app.UseMiniProfiler(options => 
-            {
-                // Path to use for profiler URLs
-                options.RouteBasePath = "~/profiler";
-
-                // (Optional) Control storage
-                // (default is 30 minutes in MemoryCacheStorage)
-                options.Storage = new MemoryCacheStorage(cache, TimeSpan.FromMinutes(60));
-            });
+            app.UseMiniProfiler();
 
             // use DotVVM
             var dotvvmConfiguration = app.UseDotVVM<DotvvmStartup>(env.ContentRootPath);
