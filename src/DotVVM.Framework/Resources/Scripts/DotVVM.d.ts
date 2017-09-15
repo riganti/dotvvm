@@ -522,6 +522,7 @@ declare class DotvvmValidation {
         validationErrorsChanged: DotvvmEvent<DotvvmEventArgs>;
     };
     elementUpdateFunctions: DotvvmValidationElementUpdateFunctions;
+    private unwrapValidationTarget(validationTarget);
     constructor(dotvvm: DotVVM);
     validObjectResult: ValidationResult;
     /**

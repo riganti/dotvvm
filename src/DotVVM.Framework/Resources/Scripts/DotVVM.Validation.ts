@@ -184,24 +184,31 @@ class DotvvmValidation {
         }
     }
 
+    private unwrapValidationTarget(validationTarget) : { unwrappedTarget?: any, targetUpdate?: (updater: StateUpdate<any>) => void } {
+        if (validationTarget == null) return {};
+        // TODO: replace this hack with a knockout-less variant
+        // It will just reuire a change to dotvvm server to send obsevable-less validation targets
+        if (!validationTarget["__unwrapped_data"] && validationTarget.viewModel) validationTarget = validationTarget.viewModel
+        if (!validationTarget["__unwrapped_data"]) validationTarget = ko.unwrap(validationTarget)
+        if (validationTarget == null) return {};
+        const unwrappedTarget = ko.unwrap(validationTarget["__unwrapped_data"])
+        const targetUpdate: (updater: StateUpdate<any>) => void = ko.unwrap(validationTarget["__update_function"])
+        return {unwrappedTarget, targetUpdate}
+    }
+
     constructor(dotvvm: DotVVM) {
         // perform the validation before postback
         dotvvm.events.beforePostback.subscribe(args => {
             if (args.validationTargetPath) {
                 // clear previous errors
                 dotvvm.rootRenderer.update(this.clearValidationErrors.bind(this))
-                
+
                 // resolve target
                 var context = ko.contextFor(args.sender);
                 var validationTarget = dotvvm.evaluator.evaluateOnViewModel(context, args.validationTargetPath)
-
-                // TODO: replace this hack with a knockout-less variant
-                // It will just reuire a change to dotvvm server to send obsevable-less validation targets
-                if (!validationTarget["__unwrapped_data"] && validationTarget.viewModel) validationTarget = ko.unwrap(validationTarget.viewModel)
-                const unwrappedTarget = ko.unwrap(validationTarget["__unwrapped_data"])
-                const targetUpdate: (updater: StateUpdate<any>) => void = ko.unwrap(validationTarget["__update_function"])
-
-                if (!unwrappedTarget) throw new Error();
+                const { unwrappedTarget, targetUpdate } = this.unwrapValidationTarget(validationTarget)
+                if (unwrappedTarget == null || targetUpdate == null) return;
+                if (!unwrappedTarget || typeof unwrappedTarget != "object") throw new Error();
                 // validate the object
                 const validation = this.validateViewModel(unwrappedTarget);
 
@@ -256,7 +263,7 @@ class DotvvmValidation {
     }
 
     public validObjectResult : ValidationResult = {}
-    /** 
+    /**
      * Validates the specified view model
     */
     public validateViewModel(viewModel: object & { $type?: string }): ValidationResult {
@@ -350,12 +357,12 @@ class DotvvmValidation {
 
     // merge validation rules
     public mergeValidationRules(args: DotvvmAfterPostBackEventArgs) {
-        if (args.serverResponseObject.validationRules) {
-            const existingRules = dotvvm.viewModels[args.viewModelName].validationRules ||
-                (dotvvm.viewModels[args.viewModelName].validationRules = {})
-            for (const type in args.serverResponseObject) {
-                if (!args.serverResponseObject.hasOwnProperty(type)) continue;
-                existingRules![type] = args.serverResponseObject[type];
+        const newRules = args.serverResponseObject.validationRules;
+        if (newRules) {
+            const existingRules = dotvvm.receivedViewModel.validationRules ||
+                (dotvvm.receivedViewModel.validationRules = {})
+            for (const type in newRules) if (hasOwnProperty(newRules, type)) {
+                existingRules![type] = newRules[type];
             }
         }
     }
@@ -450,7 +457,9 @@ class DotvvmValidation {
         }
 
         if (includeErrorsFromChildren) {
-            const validationTarget = ko.unwrap(validationTargetObservable["__unwrapped_data"]) || ko.unwrap(validationTargetObservable);
+            let validationTarget = ko.unwrap(validationTargetObservable)
+            if (validationTarget && validationTarget["__unwrapped_data"]) validationTarget = ko.unwrap(validationTarget["__unwrapped_data"])
+            if (typeof validationTarget != "object" || validationTarget == null) return errors;
             if (Array.isArray(validationTarget)) {
                 for (var item of validationTarget) {
                     // This is correct because in the next children and further all children are grandchildren
@@ -468,7 +477,7 @@ class DotvvmValidation {
                     const val = ko.unwrap(validationTarget[propertyName + "$validation"])
                     if (val && val.errors) {
                         errors = errors.concat(dotvvm.serialization.serialize(val.errors))
-                    } 
+                    }
                     if (includeErrorsFromGrandChildren) {
                         errors = errors.concat(this.getValidationErrors(
                             property,
@@ -488,17 +497,14 @@ class DotvvmValidation {
      */
     public showValidationErrorsFromServer(args: DotvvmAfterPostBackEventArgs) {
         dotvvm.rootRenderer.update(this.clearValidationErrors.bind(this))
-        
+
         // resolve target
         const context = ko.contextFor(args.sender);
         let validationTarget = dotvvm.evaluator.evaluateOnViewModel(context, args.validationTargetPath)
         if (!validationTarget) return;
 
-        // TODO: replace this hack with a knockout-less variant
-        // It will just reuire a change to dotvvm server to send obsevable-less validation targets
-        if (!validationTarget["__unwrapped_data"] && validationTarget.viewModel) validationTarget = ko.unwrap(validationTarget.viewModel)
-        const unwrappedTarget = ko.unwrap(validationTarget["__unwrapped_data"])
-        const targetUpdate: (updater: StateUpdate<any>) => void = ko.unwrap(validationTarget["__update_function"])
+        const { unwrappedTarget, targetUpdate } = this.unwrapValidationTarget(validationTarget)
+        if (unwrappedTarget == null || targetUpdate == null) return;
 
         if (!unwrappedTarget) throw new Error();
 
@@ -507,21 +513,8 @@ class DotvvmValidation {
         for (var i = 0; i < modelState.length; i++) {
             // find the property
             var propertyPath = modelState[i].propertyPath;
+            // TODO: add a new way of reporting property path and remove this hackery
             this.addErrorToProperty(validationTarget, propertyPath, modelState[i].errorMessage)
-            // var property;
-            // if (propertyPath) {
-            //     if (ko.isObservable(validationTarget)) {
-            //         validationTarget = ko.unwrap(validationTarget);
-            //     }
-            //     property = dotvvm.evaluator.evaluateOnViewModel(validationTarget, propertyPath);
-            // }
-            // else {
-            //     property = validationTarget
-            // }
-
-            // // add the error to appropriate collections
-            // var error = new ValidationError(property, modelState[i].errorMessage);
-            // this.addValidationError(property, error);
         }
     }
 
@@ -536,10 +529,9 @@ class DotvvmValidation {
             objectPath = objectPath.substr(0, objectPath.length - 1);
 
         if (!prop) throw new Error();
-        const object = objectPath ? ko.unwrap(dotvvm.evaluator.evaluateOnViewModel(ko.unwrap(target), objectPath)) : ko.unwrap(target)
-        const targetUpdate: (updater: StateUpdate<any>) => void = ko.unwrap(object["__update_function"])
+        const {targetUpdate} = this.unwrapValidationTarget(target)
 
-        targetUpdate(vm => {
+        targetUpdate!(vm => {
             const validationProp = prop + "$validation"
             const newErrors = [new ValidationError(null, error)]
             if (validationProp in vm) {
