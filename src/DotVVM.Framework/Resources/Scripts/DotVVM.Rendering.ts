@@ -6,6 +6,7 @@ type RenderContext<TViewModel> = {
     update: (updater: StateUpdate<TViewModel>) => void
     dataContext: TViewModel
     parentContext?: RenderContext<any>
+    replacableControls?: { [id: string] : RenderFunction<any> }
     "@extensions"?: { [name: string]: any }
 }
 type RenderFunction<TViewModel> = (context: RenderContext<TViewModel>) => virtualDom.VTree;
@@ -17,6 +18,7 @@ class TwoWayBinding<T> {
 }
 
 const createArray = <T>(a: { [i: number]: T }): T[] => Array.prototype.slice.call(a)
+const hasOwnProperty = (obj, prop: string) => Object.prototype.hasOwnProperty.call(obj, prop)
 
 class HtmlElementPatcher {
     private previousDom: virtualDom.VTree | null
@@ -56,7 +58,8 @@ class Renderer<TViewModel> {
     constructor(
         initialState: TViewModel,
         public readonly renderFunctions: RenderFunction<TViewModel>[],
-        public readonly vdomDispatcher: (dom: virtualDom.VNode[]) => void) {
+        public readonly vdomDispatcher: (dom: virtualDom.VNode[]) => void,
+        public readonly updatableControls: { [id: string]: RenderFunction<any> } = {}) {
         this.setState(initialState)
         this.renderedStateObservable = ko.observable(initialState)
         this.rootDataContextObservable = ko.computed(() => ({
@@ -86,7 +89,8 @@ class Renderer<TViewModel> {
         this.renderedStateObservable(this._state);
         var vdom = this.renderFunctions.map(f => f({
             update: this.update.bind(this),
-            dataContext: this._state
+            dataContext: this._state,
+            replacableControls: this.updatableControls
         }))
         console.log("Dispatching new VDOM, t = ", performance.now() - time, "; t_cpu = ", performance.now() - realStart)
         this.vdomDispatcher(<virtualDom.VNode[]>vdom)
@@ -103,17 +107,25 @@ class Renderer<TViewModel> {
     public update(updater: StateUpdate<TViewModel>) {
         return this.setState(updater(this._state))
     }
+
+    public updateControls(controls: {[id: string]: RenderFunction<any>}, newState?: TViewModel){
+        if (newState != null) this._state = newState;
+        for (const c in controls) if (hasOwnProperty(controls, c)) {
+            this.updatableControls[c] = controls[c]
+        }
+        this.dispatchUpdate();
+    }
 }
 
 
 namespace RendererInitializer {
     export type ConstantOrFunction<T> =
         | { readonly type: "constant"; readonly constant: T }
-        | { readonly type: "func"; readonly dataContextDepth: number; readonly elements: RenderNodeAst[]; readonly func: (dataContext: RenderContext<any>, elements: virtualDom.VTree[]) => T }
+        | { readonly type: "func"; readonly dataContextDepth: number; readonly elements: RenderNodeAst[]; readonly func: (dataContext: RenderContext<any>, elements: RenderFunction<any>[]) => T }
     export interface AttrDescriptor { name: ConstantOrFunction<string>; value: ConstantOrFunction<any> }
     export type AssignedPropDescriptor =
         | { readonly type: "attr", readonly attr: AttrDescriptor }
-        | { readonly type: "decorator", readonly fn: ConstantOrFunction<(node: virtualDom.VTree) => virtualDom.VTree> }
+        | { readonly type: "decorator", readonly fn: ConstantOrFunction<(node: RenderFunction<any>) => virtualDom.VTree> }
     export type RenderNodeAst =
         | ConstantOrFunction<virtualDom.VTree>
         | { readonly type: "ast"; readonly name: ConstantOrFunction<string>; readonly attributes: AttrDescriptor[]; readonly content: RenderNodeAst[] }
@@ -121,14 +133,30 @@ namespace RendererInitializer {
 
 
     export const astConstant = <T>(val: T): ConstantOrFunction<T> => ({ type: "constant", constant: val })
-    export const astFunc = <T>(dataContextDepth: number, elements: RenderNodeAst[], func: (dataContext: RenderContext<any>, elements: virtualDom.VTree[]) => T): ConstantOrFunction<T> => ({ type: "func", dataContextDepth: dataContextDepth, elements: elements, func: func })
+    export const astFunc = <T>(dataContextDepth: number, elements: RenderNodeAst[], func: (dataContext: RenderContext<any>, elements: RenderFunction<any>[]) => T): ConstantOrFunction<T> => ({ type: "func", dataContextDepth: dataContextDepth, elements: elements, func: func })
     // export const bindConstantOrFunction = <T, U>(source: ConstantOrFunction<T>, map: (val: T) => ConstantOrFunction<U>, maxDataContextDepth = 1000000) : ConstantOrFunction<U> => {
     //     if (source.type == "constant") return map(source.constant);
     //     else return { type: "func", dataContextDepth: Math.max(source.dataContextDepth, maxDataContextDepth), elements }
     // }
-    export const mapConstantOrFunction = <T, U>(source: ConstantOrFunction<T>, map: (val: T, myElements: virtualDom.VTree[]) => U, myElements: RenderNodeAst[]): ConstantOrFunction<U> => {
+    export const mapConstantOrFunction = <T, U>(source: ConstantOrFunction<T>, map: (val: T, myElements: RenderFunction<any>[]) => U, myElements: RenderNodeAst[]): ConstantOrFunction<U> => {
         if (source.type == "constant") return astFunc(0, myElements, (a, e) => map(source.constant, e));
         else return { type: "func", dataContextDepth: source.dataContextDepth, elements: myElements.concat(source.elements), func: (a, b) => map(source.func(a, myElements.length == 0 ? b : b.slice(myElements.length)), b) }
+    }
+
+   const getReplacedElement = (context: RenderContext<any>, name: string) : RenderFunction<any> | undefined =>
+        (context.replacableControls && context.replacableControls[name]) || (context.parentContext && getReplacedElement(context.parentContext, name))
+
+    export const getUpdatableControlDecorator = (id: string) : AssignedPropDescriptor => {
+        return {
+            type: "decorator",
+            fn: astFunc(1000000, [], (dataContext, _) => (defaultContent: RenderFunction<any>) => {
+                return (getReplacedElement(dataContext, id) || defaultContent)(dataContext)
+            })
+        }
+    }
+
+    export var specialAttributes : { [name: string]: ((value: string) => AssignedPropDescriptor) | undefined } = {
+        'data-dotvvm-id': getUpdatableControlDecorator
     }
 
     const createAttrAst = (node: Attr): AssignedPropDescriptor => {
@@ -161,8 +189,7 @@ namespace RendererInitializer {
         return el
     }
 
-
-    const createElementAst = (node: Element): [RenderNodeAst, virtualDom.VNode] => {
+    export const createElementAst = (node: Element, customSpecialAttributes = specialAttributes): [RenderNodeAst, virtualDom.VNode] => {
         const name = node.tagName.toLowerCase()
         const attributes: AssignedPropDescriptor[] = []
         const realAttributes: virtualDom.Props = {}
@@ -171,6 +198,10 @@ namespace RendererInitializer {
         if (knockoutDecorator != null) attributes.push(null!); // this is replaced when result is created
 
         for (let i = 0; i < node.attributes.length; i++) {
+            const sAttr = customSpecialAttributes[node.attributes[i].name]
+            if (sAttr)
+                attributes.push(sAttr(node.attributes[i].value))
+
             attributes.push(createAttrAst(node.attributes[i]))
             realAttributes[node.attributes[i].name] = node.attributes[i].value;
         }
@@ -196,7 +227,7 @@ namespace RendererInitializer {
         ]
     }
 
-    const createRenderAst = (node: Node): [RenderNodeAst, virtualDom.VTree] | null => {
+    export const createRenderAst = (node: Node): [RenderNodeAst, virtualDom.VTree] | null => {
         if (node.nodeType == node.ELEMENT_NODE) {
             return createElementAst(<Element>node)
         } else if (node.nodeType == node.TEXT_NODE) {
@@ -291,21 +322,23 @@ namespace RendererInitializer {
         }
     }
 
-    export const createRenderFunction = <TViewModel>(ast: RenderNodeAst): RenderFunction<TViewModel> => {
-        const evalFunction = <T>(fn: ConstantOrFunction<T>, opt: RenderContext<any>): T => {
+    export type RenderFunctionOptions = { isRoot?: true }
+
+    export const createRenderFunction = <TViewModel>(ast: RenderNodeAst, options: RenderFunctionOptions = { isRoot: true }): RenderFunction<TViewModel> => {
+        const evalFunction = <T>(fn: ConstantOrFunction<T>, opt: RenderContext<any>, elementOptions?: RenderFunctionOptions): T => {
             if (fn.type == "constant") return fn.constant;
             else {// if (fn.type == "func") {
-                const elements = fn.elements.map(el => evalElement(opt, el))
+                const elements = fn.elements.map(el => (dataContext: RenderContext<any>) => evalElement(dataContext, el, elementOptions))
                 return fn.func(opt, elements)
             }
         }
-        const evalElement = (dataContext: RenderContext<any>, ast: RenderNodeAst, options?: { isRoot?: true }): virtualDom.VTree => {
+        const evalElement = (dataContext: RenderContext<any>, ast: RenderNodeAst, options?: RenderFunctionOptions): virtualDom.VTree => {
             if (ast.type == "text") {
                 return new virtualDom.VText(evalFunction(ast.content, dataContext))
             } else if (ast.type == "constant") {
                 return ast.constant;
             } else if (ast.type == "func") {
-                return evalFunction(ast, dataContext)
+                return evalFunction(ast, dataContext, options)
             } else {//} if (ast.type == "ast") {
                 const dcAttr = ast.attributes.filter(e => e.name.type == "constant" && e.name.constant == "data-context")[0]
                 if (dcAttr) {
@@ -343,7 +376,7 @@ namespace RendererInitializer {
         ast = optimizeConstants(ast, false)
 
         return (opt) => {
-            return evalElement(opt, ast, { isRoot: true })
+            return evalElement(opt, ast, options)
         }
     }
 

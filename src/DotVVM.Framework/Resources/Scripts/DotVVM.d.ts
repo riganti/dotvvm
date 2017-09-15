@@ -60,6 +60,9 @@ declare type RenderContext<TViewModel> = {
     update: (updater: StateUpdate<TViewModel>) => void;
     dataContext: TViewModel;
     parentContext?: RenderContext<any>;
+    replacableControls?: {
+        [id: string]: RenderFunction<any>;
+    };
     "@extensions"?: {
         [name: string]: any;
     };
@@ -73,6 +76,7 @@ declare class TwoWayBinding<T> {
 declare const createArray: <T>(a: {
     [i: number]: T;
 }) => T[];
+declare const hasOwnProperty: (obj: any, prop: string) => any;
 declare class HtmlElementPatcher {
     element: HTMLElement;
     private previousDom;
@@ -82,6 +86,9 @@ declare class HtmlElementPatcher {
 declare class Renderer<TViewModel> {
     readonly renderFunctions: RenderFunction<TViewModel>[];
     readonly vdomDispatcher: (dom: virtualDom.VNode[]) => void;
+    readonly updatableControls: {
+        [id: string]: RenderFunction<any>;
+    };
     readonly renderedStateObservable: KnockoutObservable<TViewModel>;
     readonly rootDataContextObservable: KnockoutComputed<RenderContext<TViewModel>>;
     private _state;
@@ -89,13 +96,18 @@ declare class Renderer<TViewModel> {
     private _isDirty;
     readonly isDirty: boolean;
     private currentFrameNumber;
-    constructor(initialState: TViewModel, renderFunctions: RenderFunction<TViewModel>[], vdomDispatcher: (dom: virtualDom.VNode[]) => void);
+    constructor(initialState: TViewModel, renderFunctions: RenderFunction<TViewModel>[], vdomDispatcher: (dom: virtualDom.VNode[]) => void, updatableControls?: {
+        [id: string]: RenderFunction<any>;
+    });
     dispatchUpdate(): void;
     doUpdateNow(): void;
     private startTime;
     private rerender(time);
     setState(newState: TViewModel): TViewModel | undefined;
     update(updater: StateUpdate<TViewModel>): TViewModel | undefined;
+    updateControls(controls: {
+        [id: string]: RenderFunction<any>;
+    }, newState?: TViewModel): void;
 }
 declare namespace RendererInitializer {
     type ConstantOrFunction<T> = {
@@ -105,7 +117,7 @@ declare namespace RendererInitializer {
         readonly type: "func";
         readonly dataContextDepth: number;
         readonly elements: RenderNodeAst[];
-        readonly func: (dataContext: RenderContext<any>, elements: virtualDom.VTree[]) => T;
+        readonly func: (dataContext: RenderContext<any>, elements: RenderFunction<any>[]) => T;
     };
     interface AttrDescriptor {
         name: ConstantOrFunction<string>;
@@ -116,7 +128,7 @@ declare namespace RendererInitializer {
         readonly attr: AttrDescriptor;
     } | {
         readonly type: "decorator";
-        readonly fn: ConstantOrFunction<(node: virtualDom.VTree) => virtualDom.VTree>;
+        readonly fn: ConstantOrFunction<(node: RenderFunction<any>) => virtualDom.VTree>;
     };
     type RenderNodeAst = ConstantOrFunction<virtualDom.VTree> | {
         readonly type: "ast";
@@ -128,10 +140,21 @@ declare namespace RendererInitializer {
         readonly content: ConstantOrFunction<string>;
     };
     const astConstant: <T>(val: T) => ConstantOrFunction<T>;
-    const astFunc: <T>(dataContextDepth: number, elements: RenderNodeAst[], func: (dataContext: RenderContext<any>, elements: virtualDom.VTree[]) => T) => ConstantOrFunction<T>;
-    const mapConstantOrFunction: <T, U>(source: ConstantOrFunction<T>, map: (val: T, myElements: virtualDom.VTree[]) => U, myElements: RenderNodeAst[]) => ConstantOrFunction<U>;
+    const astFunc: <T>(dataContextDepth: number, elements: RenderNodeAst[], func: (dataContext: RenderContext<any>, elements: RenderFunction<any>[]) => T) => ConstantOrFunction<T>;
+    const mapConstantOrFunction: <T, U>(source: ConstantOrFunction<T>, map: (val: T, myElements: RenderFunction<any>[]) => U, myElements: RenderNodeAst[]) => ConstantOrFunction<U>;
+    const getUpdatableControlDecorator: (id: string) => AssignedPropDescriptor;
+    var specialAttributes: {
+        [name: string]: ((value: string) => AssignedPropDescriptor) | undefined;
+    };
+    const createElementAst: (node: Element, customSpecialAttributes?: {
+        [name: string]: ((value: string) => AssignedPropDescriptor) | undefined;
+    }) => [RenderNodeAst, virtualDom.VNode];
+    const createRenderAst: (node: Node) => [RenderNodeAst, virtualDom.VTree] | null;
     const immutableMap: <T>(array: T[], fn: (val: T, index: number) => T) => T[];
-    const createRenderFunction: <TViewModel>(ast: RenderNodeAst) => RenderFunction<TViewModel>;
+    type RenderFunctionOptions = {
+        isRoot?: true;
+    };
+    const createRenderFunction: <TViewModel>(ast: RenderNodeAst, options?: RenderFunctionOptions) => RenderFunction<TViewModel>;
     function initFromNode<TViewModel>(elements: Element[], viewModel: TViewModel): Renderer<TViewModel>;
 }
 declare class DotvvmDomUtils {
@@ -414,8 +437,7 @@ declare class DotVVM {
     private postJSON(url, method, postData, success, error, preprocessRequest?);
     private getJSON(url, method, spaPlaceHolderUniqueId, success, error);
     getXHR(): XMLHttpRequest;
-    private cleanUpdatedControls(resultObject, updatedControls?);
-    private restoreUpdatedControls(resultObject, updatedControls, applyBindingsOnEachControl);
+    private createUpdatedControlRenderers(resultObject);
     unwrapArrayExtension(array: any): any;
     buildRouteUrl(routePath: string, params: any): string;
     buildUrlSuffix(urlSuffix: string, query: any): string;

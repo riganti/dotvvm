@@ -51,7 +51,7 @@ class DotVVM {
     // warning this property is referenced in ModelState.cs and KnockoutHelper.cs
     public isSpaReady = ko.observable(false);
     private _viewModels;
-    
+
     public get viewModels() : IDotvvmViewModels {
         return this._viewModels || (this._viewModels = {
             root: {
@@ -122,7 +122,7 @@ class DotVVM {
 
     public globalPostbackHandlers : (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[] = [this.isPostBackRunningHandler]
     public globalLaterPostbackHandlers : (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[] = [this.beforePostbackEventPostbackHandler]
- 
+
     private convertOldHandler(handler: DotvvmPostBackHandler) : DotvvmPostbackHandler2 {
         return {
             execute<T>(callback: () => Promise<T>, options: PostbackOptions) {
@@ -344,7 +344,7 @@ class DotVVM {
             return new Promise((resolve, reject) => {
                 handlers
                 .reduceRight(
-                    (prev, val, index) => () => 
+                    (prev, val, index) => () =>
                         val.execute<T>(prev, options),
                     () => {
                         const r = callback(options)
@@ -385,40 +385,23 @@ class DotVVM {
                                          { action: "redirect", url: locationHeader } :
                                          JSON.parse(result.responseText);
 
-                    
-
                     this.loadResourceList(resultObject.resources, () => {
                         var isSuccess = false;
                         if (resultObject.action === "successfulCommand") {
-                            try {
-                                this.isViewModelUpdating = true;
+                            const viewModel = resultObject.viewModelDiff ?
+                                                this.patch(this.rootRenderer.state, resultObject.viewModelDiff) :
+                                                resultObject.viewModel;
 
-                                // remove updated controls
-                                var updatedControls = this.cleanUpdatedControls(resultObject);
-
-                                if (resultObject.viewModelDiff) {
-                                    resultObject.viewModel = this.patch(this.rootRenderer.state, resultObject.viewModelDiff);
-                                }
-
-                                // update the viewmodel
-                                if (resultObject.viewModel) {
-                                    this.rootRenderer.setState(resultObject.viewModel)
-                                }
-                                isSuccess = true;
-
-                                // remove updated controls which were previously hidden
-                                this.cleanUpdatedControls(resultObject, updatedControls);
-
-                                // add updated controls
-                                this.restoreUpdatedControls(resultObject, updatedControls, true);
+                            // update the viewmodel
+                            if (resultObject.viewModel) {
                             }
-                            finally {
-                                this.isViewModelUpdating = false;
-                            }
+                            isSuccess = true;
+                            const updatedControls = this.createUpdatedControlRenderers(resultObject)
+                            this.rootRenderer.updateControls(updatedControls, viewModel)
                         } else if (resultObject.action === "redirect") {
                             // redirect
                             this.handleRedirect(resultObject, viewModelName)
-                            return resolve()
+                            isSuccess = true;
                         }
 
                         var idFragment = resultObject.resultIdFragment;
@@ -593,34 +576,20 @@ class DotVVM {
 
             var resultObject = JSON.parse(result.responseText);
             this.loadResourceList(resultObject.resources, () => {
-                var isSuccess = false;
+                let isSuccess = false;
                 if (resultObject.action === "successfulCommand" || !resultObject.action) {
-                    try {
-                        this.isViewModelUpdating = true;
-
-                        // remove updated controls
-                        var updatedControls = this.cleanUpdatedControls(resultObject);
-
-                        // update the viewmodel
-                        this.viewModels[viewModelName] = {};
-                        for (var p in resultObject) {
-                            if (resultObject.hasOwnProperty(p)) {
-                                this.viewModels[viewModelName][p] = resultObject[p];
-                            }
+                    // update the viewmodel
+                    if (!this.receivedViewModel) this.receivedViewModel = {}
+                    for (const p in resultObject) {
+                        if (resultObject.hasOwnProperty(p)) {
+                            this.receivedViewModel[p] = resultObject[p];
                         }
-
-                        this.rootRenderer.setState(resultObject.viewModel)
-                        isSuccess = true;
-
-                        // add updated controls
-                        this.viewModelObservables[viewModelName](this.viewModels[viewModelName].viewModel);
-                        this.restoreUpdatedControls(resultObject, updatedControls, true);
-
-                        this.isSpaReady(true);
                     }
-                    finally {
-                        this.isViewModelUpdating = false;
-                    }
+
+                    const updatedControls = this.createUpdatedControlRenderers(resultObject)
+                    this.rootRenderer.updateControls(updatedControls, resultObject.viewModel)
+                    isSuccess = true;
+                    this.isSpaReady(true);
                 } else if (resultObject.action === "redirect") {
                     this.handleRedirect(resultObject, viewModelName, true);
                     return;
@@ -794,59 +763,22 @@ class DotVVM {
         return XMLHttpRequest ? new XMLHttpRequest() : <XMLHttpRequest>new (window["ActiveXObject"])("Microsoft.XMLHTTP");
     }
 
-    private cleanUpdatedControls(resultObject: any, updatedControls: any = {}) {
-        for (var id in resultObject.updatedControls) {
-            if (resultObject.updatedControls.hasOwnProperty(id)) {
-                var control = document.getElementByDotvvmId(id);
-                if (control) {
-                    var dataContext = ko.contextFor(control);
-                    var nextSibling = control.nextSibling;
-                    var parent = control.parentNode;
-                    ko.removeNode(control);
-                    updatedControls[id] = { control: control, nextSibling: nextSibling, parent: parent, dataContext: dataContext };
-                }
+    private createUpdatedControlRenderers(resultObject: any) {
+        const result: {[id: string]: RenderFunction<any>} = {}
+        for (const id in resultObject.updatedControls) {
+            if (hasOwnProperty(resultObject.updatedControls, id)) {
+                const wrapperTag = document.createElement("template")
+                wrapperTag.innerHTML = resultObject.updatedControls[id]
+                // const doc = domParser.parseFromString(resultObject.updatedControls[id], "text/xml"); // Use xml because html is strange (can't parse tbody element in root...) and dotvvm always generates valid XML ;)
+                const element = wrapperTag.content.firstElementChild!;
+                // if (element.firstElementChild && element.firstElementChild.tagName == "parsererror") throw new Error("Could not process updated controls: \n" + element.firstElementChild.innerHTML);
+                if (element.id == null) throw new Error("Postback.Update control always has to render id attribute.");
+                wrapperTag.content.removeChild(element)
+                const [vdomAst, initialVdom] = RendererInitializer.createElementAst(element, {...RendererInitializer.specialAttributes, 'data-dotvvm-id': undefined})!
+                result[id] = RendererInitializer.createRenderFunction<any>(vdomAst, {})
             }
         }
-        return updatedControls;
-    }
-
-    private restoreUpdatedControls(resultObject: any, updatedControls: any, applyBindingsOnEachControl: boolean) {
-        for (var id in resultObject.updatedControls) {
-            if (resultObject.updatedControls.hasOwnProperty(id)) {
-                var updatedControl = updatedControls[id];
-                if (updatedControl) {
-                    var wrapper = document.createElement(updatedControls[id].parent.tagName || "div");
-                    wrapper.innerHTML = resultObject.updatedControls[id];
-                    if (wrapper.childElementCount > 1) throw new Error("Postback.Update control can not render more than one element");
-                    var element = wrapper.firstElementChild;
-                    if (element.id == null) throw new Error("Postback.Update control always has to render id attribute.");
-                    if (element.id !== updatedControls[id].control.id) console.log(`Postback.Update control changed id from '${updatedControls[id].control.id}' to '${element.id}'`);
-                    wrapper.removeChild(element);
-                    if (updatedControl.nextSibling) {
-                        updatedControl.parent.insertBefore(element, updatedControl.nextSibling);
-                    } else {
-                        updatedControl.parent.appendChild(element);
-                    }
-                }
-            }
-        }
-
-        if (applyBindingsOnEachControl) {
-            window.setTimeout(() => {
-                try {
-                    this.isViewModelUpdating = true;
-                    for (var id in resultObject.updatedControls) {
-                        var updatedControl = document.getElementByDotvvmId(id);
-                        if (updatedControl) {
-                            ko.applyBindings(updatedControls[id].dataContext, updatedControl);
-                        }
-                    }
-                }
-                finally {
-                    this.isViewModelUpdating = false;
-                }
-            }, 0);
-        }
+        return result;
     }
 
     public unwrapArrayExtension(array: any): any {
@@ -1089,7 +1021,7 @@ class DotVVM {
             init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
                 var obs = valueAccessor();
 
-                //generate metadata func 
+                //generate metadata func
                 var elmMetadata = new DotvvmValidationElementMetadata();
                 elmMetadata.dataType = (element.attributes["data-dotvvm-value-type"] || { value: "" }).value;
                 elmMetadata.format = (element.attributes["data-dotvvm-format"] || { value: "" }).value;

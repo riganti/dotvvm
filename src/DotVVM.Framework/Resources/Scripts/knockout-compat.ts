@@ -78,7 +78,7 @@ export function wrapInObservables(objOrObservable: any, update: ((updater: State
             // knockout does not like when the object gets replaced by a new one, so we will just update this one every time...
             let cache : any = undefined
             return ko.pureComputed({
-                read: () => 
+                read: () =>
                     // when the cache contains non-object it's either empty or contain primitive (and immutable) value
                     cache != null && typeof cache == "object" ? cache :
                     (cache = wrapInObservables(
@@ -174,7 +174,7 @@ export class KnockoutBindingHook implements virtualDom.VHook {
 }
 
 export class KnockoutBindingWidget implements virtualDom.Widget {
-    // type KnockoutVirtualElement = { start: number; end: number; dataBind: string } 
+    // type KnockoutVirtualElement = { start: number; end: number; dataBind: string }
 
     readonly type: string = "Widget"
     elementId = Math.floor(Math.random() * 1000000).toString()
@@ -368,10 +368,11 @@ export class KnockoutBindingWidget implements virtualDom.Widget {
 
     update(previousWidget: this, previousDomNode: Element): Element | undefined {
         if (previousWidget.dataBind != this.dataBind ||
-            previousWidget.koComments.length != previousWidget.koComments.length ||
+            previousWidget.koComments.length != this.koComments.length ||
             !previousWidget.koComments.every((e, i) => this.koComments[i].dataBind == e.dataBind && this.koComments[i].start == e.start && this.koComments[i].end == e.end)) {
             // data binding has changed, rerender the widget
-            return this.init();
+            const newElement = this.init();
+            return newElement
         }
         if (!!previousWidget.nodeChildren != !!previousWidget.nodeChildren) throw new Error("");
         this.elementId = previousWidget.elementId;
@@ -496,8 +497,8 @@ export function createDecorator(element: Element): ((element: RendererInitialize
             }
             else throw new Error();
             return {
-                type: "decorator", fn: RendererInitializer.astFunc(1000000, [], (dataContext, elements) => (node: virtualDom.VTree) => {
-                    const a = node as virtualDom.VNode
+                type: "decorator", fn: RendererInitializer.astFunc(1000000, [], (dataContext, elements) => (node: RenderFunction<any>) => {
+                    const a = node(dataContext) as virtualDom.VNode
                     if (a.type != "VirtualNode") throw new Error();
                     const wrapperElement = content == null ? a : new virtualDom.VNode(a.tagName, a.properties, [], a.key, a.namespace)
                     return new KnockoutBindingWidget(

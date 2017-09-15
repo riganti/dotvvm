@@ -205,7 +205,7 @@ var DotvvmKnockoutCompat;
             this.nodeChildren = nodeChildren;
             this.dataBind = dataBind;
             this.koComments = koComments;
-            // type KnockoutVirtualElement = { start: number; end: number; dataBind: string } 
+            // type KnockoutVirtualElement = { start: number; end: number; dataBind: string }
             this.type = "Widget";
             this.elementId = Math.floor(Math.random() * 1000000).toString();
             this.contentMapping = null;
@@ -388,10 +388,11 @@ var DotvvmKnockoutCompat;
         KnockoutBindingWidget.prototype.update = function (previousWidget, previousDomNode) {
             var _this = this;
             if (previousWidget.dataBind != this.dataBind ||
-                previousWidget.koComments.length != previousWidget.koComments.length ||
+                previousWidget.koComments.length != this.koComments.length ||
                 !previousWidget.koComments.every(function (e, i) { return _this.koComments[i].dataBind == e.dataBind && _this.koComments[i].start == e.start && _this.koComments[i].end == e.end; })) {
                 // data binding has changed, rerender the widget
-                return this.init();
+                var newElement = this.init();
+                return newElement;
             }
             if (!!previousWidget.nodeChildren != !!previousWidget.nodeChildren)
                 throw new Error("");
@@ -517,7 +518,7 @@ var DotvvmKnockoutCompat;
                     throw new Error();
                 return {
                     type: "decorator", fn: RendererInitializer.astFunc(1000000, [], function (dataContext, elements) { return function (node) {
-                        var a = node;
+                        var a = node(dataContext);
                         if (a.type != "VirtualNode")
                             throw new Error();
                         var wrapperElement = content == null ? a : new virtualDom.VNode(a.tagName, a.properties, [], a.key, a.namespace);
@@ -538,6 +539,7 @@ var TwoWayBinding = (function () {
     return TwoWayBinding;
 }());
 var createArray = function (a) { return Array.prototype.slice.call(a); };
+var hasOwnProperty = function (obj, prop) { return Object.prototype.hasOwnProperty.call(obj, prop); };
 var HtmlElementPatcher = (function () {
     function HtmlElementPatcher(element, initialDom) {
         this.element = element;
@@ -558,10 +560,12 @@ var HtmlElementPatcher = (function () {
     return HtmlElementPatcher;
 }());
 var Renderer = (function () {
-    function Renderer(initialState, renderFunctions, vdomDispatcher) {
+    function Renderer(initialState, renderFunctions, vdomDispatcher, updatableControls) {
+        if (updatableControls === void 0) { updatableControls = {}; }
         var _this = this;
         this.renderFunctions = renderFunctions;
         this.vdomDispatcher = vdomDispatcher;
+        this.updatableControls = updatableControls;
         this.currentFrameNumber = 0;
         this.startTime = null;
         this.setState(initialState);
@@ -605,7 +609,8 @@ var Renderer = (function () {
         this.renderedStateObservable(this._state);
         var vdom = this.renderFunctions.map(function (f) { return f({
             update: _this.update.bind(_this),
-            dataContext: _this._state
+            dataContext: _this._state,
+            replacableControls: _this.updatableControls
         }); });
         console.log("Dispatching new VDOM, t = ", performance.now() - time, "; t_cpu = ", performance.now() - realStart);
         this.vdomDispatcher(vdom);
@@ -622,6 +627,15 @@ var Renderer = (function () {
     Renderer.prototype.update = function (updater) {
         return this.setState(updater(this._state));
     };
+    Renderer.prototype.updateControls = function (controls, newState) {
+        if (newState != null)
+            this._state = newState;
+        for (var c in controls)
+            if (hasOwnProperty(controls, c)) {
+                this.updatableControls[c] = controls[c];
+            }
+        this.dispatchUpdate();
+    };
     return Renderer;
 }());
 var RendererInitializer;
@@ -637,6 +651,20 @@ var RendererInitializer;
             return RendererInitializer.astFunc(0, myElements, function (a, e) { return map(source.constant, e); });
         else
             return { type: "func", dataContextDepth: source.dataContextDepth, elements: myElements.concat(source.elements), func: function (a, b) { return map(source.func(a, myElements.length == 0 ? b : b.slice(myElements.length)), b); } };
+    };
+    var getReplacedElement = function (context, name) {
+        return (context.replacableControls && context.replacableControls[name]) || (context.parentContext && getReplacedElement(context.parentContext, name));
+    };
+    RendererInitializer.getUpdatableControlDecorator = function (id) {
+        return {
+            type: "decorator",
+            fn: RendererInitializer.astFunc(1000000, [], function (dataContext, _) { return function (defaultContent) {
+                return (getReplacedElement(dataContext, id) || defaultContent)(dataContext);
+            }; })
+        };
+    };
+    RendererInitializer.specialAttributes = {
+        'data-dotvvm-id': RendererInitializer.getUpdatableControlDecorator
     };
     var createAttrAst = function (node) {
         return {
@@ -672,7 +700,8 @@ var RendererInitializer;
         }
         return el;
     };
-    var createElementAst = function (node) {
+    RendererInitializer.createElementAst = function (node, customSpecialAttributes) {
+        if (customSpecialAttributes === void 0) { customSpecialAttributes = RendererInitializer.specialAttributes; }
         var name = node.tagName.toLowerCase();
         var attributes = [];
         var realAttributes = {};
@@ -680,13 +709,16 @@ var RendererInitializer;
         if (knockoutDecorator != null)
             attributes.push(null); // this is replaced when result is created
         for (var i = 0; i < node.attributes.length; i++) {
+            var sAttr = customSpecialAttributes[node.attributes[i].name];
+            if (sAttr)
+                attributes.push(sAttr(node.attributes[i].value));
             attributes.push(createAttrAst(node.attributes[i]));
             realAttributes[node.attributes[i].name] = node.attributes[i].value;
         }
         var children = [];
         var realChildren = [];
         for (var i = 0; i < node.childNodes.length; i++) {
-            var c = createRenderAst(node.childNodes[i]);
+            var c = RendererInitializer.createRenderAst(node.childNodes[i]);
             if (c != null) {
                 children.push(c[0]);
                 realChildren.push(c[1]);
@@ -705,9 +737,9 @@ var RendererInitializer;
             new virtualDom.VNode(name, { attributes: realAttributes }, realChildren)
         ];
     };
-    var createRenderAst = function (node) {
+    RendererInitializer.createRenderAst = function (node) {
         if (node.nodeType == node.ELEMENT_NODE) {
-            return createElementAst(node);
+            return RendererInitializer.createElementAst(node);
         }
         else if (node.nodeType == node.TEXT_NODE) {
             var text = node.data;
@@ -806,12 +838,13 @@ var RendererInitializer;
             }
         }
     };
-    RendererInitializer.createRenderFunction = function (ast) {
-        var evalFunction = function (fn, opt) {
+    RendererInitializer.createRenderFunction = function (ast, options) {
+        if (options === void 0) { options = { isRoot: true }; }
+        var evalFunction = function (fn, opt, elementOptions) {
             if (fn.type == "constant")
                 return fn.constant;
             else {
-                var elements = fn.elements.map(function (el) { return evalElement(opt, el); });
+                var elements = fn.elements.map(function (el) { return function (dataContext) { return evalElement(dataContext, el, elementOptions); }; });
                 return fn.func(opt, elements);
             }
         };
@@ -823,7 +856,7 @@ var RendererInitializer;
                 return ast.constant;
             }
             else if (ast.type == "func") {
-                return evalFunction(ast, dataContext);
+                return evalFunction(ast, dataContext, options);
             }
             else {
                 var dcAttr = ast.attributes.filter(function (e) { return e.name.type == "constant" && e.name.constant == "data-context"; })[0];
@@ -857,7 +890,7 @@ var RendererInitializer;
         };
         ast = optimizeConstants(ast, false);
         return function (opt) {
-            return evalElement(opt, ast, { isRoot: true });
+            return evalElement(opt, ast, options);
         };
     };
     var DataContextSetHook = (function () {
@@ -883,7 +916,7 @@ var RendererInitializer;
     }());
     function initFromNode(elements, viewModel) {
         var functions = elements.map(function (element) {
-            var ast = createRenderAst(element);
+            var ast = RendererInitializer.createRenderAst(element);
             return { fn: RendererInitializer.createRenderFunction(ast[0]), initialDom: ast[1] };
         });
         var vdomDispatchers = elements.map(function (e, index) {
@@ -1886,31 +1919,20 @@ var DotVVM = (function () {
                     _this.loadResourceList(resultObject.resources, function () {
                         var isSuccess = false;
                         if (resultObject.action === "successfulCommand") {
-                            try {
-                                _this.isViewModelUpdating = true;
-                                // remove updated controls
-                                var updatedControls = _this.cleanUpdatedControls(resultObject);
-                                if (resultObject.viewModelDiff) {
-                                    resultObject.viewModel = _this.patch(_this.rootRenderer.state, resultObject.viewModelDiff);
-                                }
-                                // update the viewmodel
-                                if (resultObject.viewModel) {
-                                    _this.rootRenderer.setState(resultObject.viewModel);
-                                }
-                                isSuccess = true;
-                                // remove updated controls which were previously hidden
-                                _this.cleanUpdatedControls(resultObject, updatedControls);
-                                // add updated controls
-                                _this.restoreUpdatedControls(resultObject, updatedControls, true);
+                            var viewModel = resultObject.viewModelDiff ?
+                                _this.patch(_this.rootRenderer.state, resultObject.viewModelDiff) :
+                                resultObject.viewModel;
+                            // update the viewmodel
+                            if (resultObject.viewModel) {
                             }
-                            finally {
-                                _this.isViewModelUpdating = false;
-                            }
+                            isSuccess = true;
+                            var updatedControls = _this.createUpdatedControlRenderers(resultObject);
+                            _this.rootRenderer.updateControls(updatedControls, viewModel);
                         }
                         else if (resultObject.action === "redirect") {
                             // redirect
                             _this.handleRedirect(resultObject, viewModelName);
-                            return resolve();
+                            isSuccess = true;
                         }
                         var idFragment = resultObject.resultIdFragment;
                         if (idFragment) {
@@ -2072,27 +2094,18 @@ var DotVVM = (function () {
             _this.loadResourceList(resultObject.resources, function () {
                 var isSuccess = false;
                 if (resultObject.action === "successfulCommand" || !resultObject.action) {
-                    try {
-                        _this.isViewModelUpdating = true;
-                        // remove updated controls
-                        var updatedControls = _this.cleanUpdatedControls(resultObject);
-                        // update the viewmodel
-                        _this.viewModels[viewModelName] = {};
-                        for (var p in resultObject) {
-                            if (resultObject.hasOwnProperty(p)) {
-                                _this.viewModels[viewModelName][p] = resultObject[p];
-                            }
+                    // update the viewmodel
+                    if (!_this.receivedViewModel)
+                        _this.receivedViewModel = {};
+                    for (var p in resultObject) {
+                        if (resultObject.hasOwnProperty(p)) {
+                            _this.receivedViewModel[p] = resultObject[p];
                         }
-                        _this.rootRenderer.setState(resultObject.viewModel);
-                        isSuccess = true;
-                        // add updated controls
-                        _this.viewModelObservables[viewModelName](_this.viewModels[viewModelName].viewModel);
-                        _this.restoreUpdatedControls(resultObject, updatedControls, true);
-                        _this.isSpaReady(true);
                     }
-                    finally {
-                        _this.isViewModelUpdating = false;
-                    }
+                    var updatedControls = _this.createUpdatedControlRenderers(resultObject);
+                    _this.rootRenderer.updateControls(updatedControls, resultObject.viewModel);
+                    isSuccess = true;
+                    _this.isSpaReady(true);
                 }
                 else if (resultObject.action === "redirect") {
                     _this.handleRedirect(resultObject, viewModelName, true);
@@ -2261,63 +2274,23 @@ var DotVVM = (function () {
     DotVVM.prototype.getXHR = function () {
         return XMLHttpRequest ? new XMLHttpRequest() : new (window["ActiveXObject"])("Microsoft.XMLHTTP");
     };
-    DotVVM.prototype.cleanUpdatedControls = function (resultObject, updatedControls) {
-        if (updatedControls === void 0) { updatedControls = {}; }
+    DotVVM.prototype.createUpdatedControlRenderers = function (resultObject) {
+        var result = {};
         for (var id in resultObject.updatedControls) {
-            if (resultObject.updatedControls.hasOwnProperty(id)) {
-                var control = document.getElementByDotvvmId(id);
-                if (control) {
-                    var dataContext = ko.contextFor(control);
-                    var nextSibling = control.nextSibling;
-                    var parent = control.parentNode;
-                    ko.removeNode(control);
-                    updatedControls[id] = { control: control, nextSibling: nextSibling, parent: parent, dataContext: dataContext };
-                }
+            if (hasOwnProperty(resultObject.updatedControls, id)) {
+                var wrapperTag = document.createElement("template");
+                wrapperTag.innerHTML = resultObject.updatedControls[id];
+                // const doc = domParser.parseFromString(resultObject.updatedControls[id], "text/xml"); // Use xml because html is strange (can't parse tbody element in root...) and dotvvm always generates valid XML ;)
+                var element = wrapperTag.content.firstElementChild;
+                // if (element.firstElementChild && element.firstElementChild.tagName == "parsererror") throw new Error("Could not process updated controls: \n" + element.firstElementChild.innerHTML);
+                if (element.id == null)
+                    throw new Error("Postback.Update control always has to render id attribute.");
+                wrapperTag.content.removeChild(element);
+                var _a = RendererInitializer.createElementAst(element, __assign({}, RendererInitializer.specialAttributes, { 'data-dotvvm-id': undefined })), vdomAst = _a[0], initialVdom = _a[1];
+                result[id] = RendererInitializer.createRenderFunction(vdomAst, {});
             }
         }
-        return updatedControls;
-    };
-    DotVVM.prototype.restoreUpdatedControls = function (resultObject, updatedControls, applyBindingsOnEachControl) {
-        var _this = this;
-        for (var id in resultObject.updatedControls) {
-            if (resultObject.updatedControls.hasOwnProperty(id)) {
-                var updatedControl = updatedControls[id];
-                if (updatedControl) {
-                    var wrapper = document.createElement(updatedControls[id].parent.tagName || "div");
-                    wrapper.innerHTML = resultObject.updatedControls[id];
-                    if (wrapper.childElementCount > 1)
-                        throw new Error("Postback.Update control can not render more than one element");
-                    var element = wrapper.firstElementChild;
-                    if (element.id == null)
-                        throw new Error("Postback.Update control always has to render id attribute.");
-                    if (element.id !== updatedControls[id].control.id)
-                        console.log("Postback.Update control changed id from '" + updatedControls[id].control.id + "' to '" + element.id + "'");
-                    wrapper.removeChild(element);
-                    if (updatedControl.nextSibling) {
-                        updatedControl.parent.insertBefore(element, updatedControl.nextSibling);
-                    }
-                    else {
-                        updatedControl.parent.appendChild(element);
-                    }
-                }
-            }
-        }
-        if (applyBindingsOnEachControl) {
-            window.setTimeout(function () {
-                try {
-                    _this.isViewModelUpdating = true;
-                    for (var id in resultObject.updatedControls) {
-                        var updatedControl = document.getElementByDotvvmId(id);
-                        if (updatedControl) {
-                            ko.applyBindings(updatedControls[id].dataContext, updatedControl);
-                        }
-                    }
-                }
-                finally {
-                    _this.isViewModelUpdating = false;
-                }
-            }, 0);
-        }
+        return result;
     };
     DotVVM.prototype.unwrapArrayExtension = function (array) {
         return ko.unwrap(ko.unwrap(array));
@@ -2565,7 +2538,7 @@ var DotVVM = (function () {
         ko.bindingHandlers['dotvvm-textbox-text'] = {
             init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
                 var obs = valueAccessor();
-                //generate metadata func 
+                //generate metadata func
                 var elmMetadata = new DotvvmValidationElementMetadata();
                 elmMetadata.dataType = (element.attributes["data-dotvvm-value-type"] || { value: "" }).value;
                 elmMetadata.format = (element.attributes["data-dotvvm-format"] || { value: "" }).value;
