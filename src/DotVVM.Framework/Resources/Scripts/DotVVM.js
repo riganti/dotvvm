@@ -3060,7 +3060,7 @@ var DotvvmValidation = (function () {
                     }
                 }
                 else {
-                    result[validationProp] = this.applyValidationErrors(object[validationProp], err);
+                    result[prop] = this.applyValidationErrors(object[prop], err);
                 }
             }
             return __assign({}, object, result);

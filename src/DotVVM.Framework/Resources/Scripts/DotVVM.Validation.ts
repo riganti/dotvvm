@@ -399,7 +399,7 @@ class DotvvmValidation {
                         result[validationProp] = { errors: err }
                     }
                 } else {
-                    result[validationProp] = this.applyValidationErrors(object[validationProp], err)
+                    result[prop] = this.applyValidationErrors(object[prop], err)
                 }
             }
             return { ...<any>object, ...result }
