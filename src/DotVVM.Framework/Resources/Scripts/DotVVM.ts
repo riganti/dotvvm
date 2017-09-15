@@ -95,9 +95,23 @@ class DotVVM {
         }
     }
 
-    public globalPostbackHandlers : (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[] = [this.isPostBackRunningHandler]
-    public globalLaterPostbackHandlers : (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[] = [this.beforePostbackEventPostbackHandler]
- 
+    private postbackHandlersStartedEventHandler: DotvvmPostbackHandler2 = {
+        execute: <T>(callback: () => Promise<T>, options: PostbackOptions) => {
+            dotvvm.events.postbackHandlersStarted.trigger(options);
+            return callback()
+        }
+    }
+
+    private postbackHandlersCompletedEventHandler: DotvvmPostbackHandler2 = {
+        execute: <T>(callback: () => Promise<T>, options: PostbackOptions) => {
+            dotvvm.events.postbackHandlersCompleted.trigger(options);
+            return callback()
+        }
+    }
+
+    public globalPostbackHandlers : (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[] = [this.isPostBackRunningHandler, this.postbackHandlersStartedEventHandler]
+    public globalLaterPostbackHandlers : (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[] = [this.postbackHandlersCompletedEventHandler, this.beforePostbackEventPostbackHandler]
+
     private convertOldHandler(handler: DotvvmPostBackHandler) : DotvvmPostbackHandler2 {
         return {
             execute<T>(callback: () => Promise<T>, options: PostbackOptions) {
@@ -301,7 +315,7 @@ class DotVVM {
             return new Promise((resolve, reject) => {
                 handlers
                 .reduceRight(
-                    (prev, val, index) => () => 
+                    (prev, val, index) => () =>
                         val.execute<T>(prev, options),
                     () => {
                         const r = callback(options)
@@ -335,7 +349,9 @@ class DotVVM {
                 commandArgs: commandArgs
             };
             this.postJSON(<string>this.viewModels[viewModelName].url, "POST", ko.toJSON(data), result => {
+                dotvvm.events.postbackResponseReceived.trigger({})
                 resolve(() => new Promise((resolve, reject) => {
+                    dotvvm.events.postbackCommitInvoked.trigger({})
                     const locationHeader = result.getResponseHeader("Location");
 
                     const resultObject = locationHeader != null && locationHeader.length > 0 ?
@@ -373,6 +389,7 @@ class DotVVM {
                             finally {
                                 this.isViewModelUpdating = false;
                             }
+                            dotvvm.events.postbackViewModelUpdated.trigger({})
                         } else if (resultObject.action === "redirect") {
                             // redirect
                             this.handleRedirect(resultObject, viewModelName)
@@ -426,16 +443,17 @@ class DotVVM {
                 Promise.reject
             )
         result.then(
-            r => this.events.afterPostback.trigger(r),
+            r => r && this.events.afterPostback.trigger(r),
             (error: PostbackRejectionReason) => {
             var afterPostBackArgsCanceled = new DotvvmAfterPostBackEventArgs(sender, options.viewModel, viewModelName, validationTargetPath, error.type == "commit" ? error.args.serverResponseObject : null, options.postbackId);
             if (error.type == "handler" || error.type == "event") {
                 // trigger afterPostback event
-                afterPostBackArgsCanceled.wasInterrupted = true;
+                afterPostBackArgsCanceled.wasInterrupted = true
+                this.events.postbackRejected.trigger({})
             } else if (error.type == "network") {
-                 this.events.error.trigger(error.args);
+                 this.events.error.trigger(error.args)
             }
-            this.events.afterPostback.trigger(afterPostBackArgsCanceled);
+            this.events.afterPostback.trigger(afterPostBackArgsCanceled)
         });
         return result;
     }
@@ -1051,7 +1069,7 @@ class DotVVM {
             init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
                 var obs = valueAccessor();
 
-                //generate metadata func 
+                //generate metadata func
                 var elmMetadata = new DotvvmValidationElementMetadata();
                 elmMetadata.dataType = (element.attributes["data-dotvvm-value-type"] || { value: "" }).value;
                 elmMetadata.format = (element.attributes["data-dotvvm-format"] || { value: "" }).value;

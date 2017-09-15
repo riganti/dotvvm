@@ -14,10 +14,16 @@ declare class DotvvmEvents {
     spaNavigating: DotvvmEvent<DotvvmSpaNavigatingEventArgs>;
     spaNavigated: DotvvmEvent<DotvvmSpaNavigatedEventArgs>;
     redirect: DotvvmEvent<DotvvmRedirectEventArgs>;
+    postbackHandlersStarted: DotvvmEvent<{}>;
+    postbackHandlersCompleted: DotvvmEvent<{}>;
+    postbackResponseReceived: DotvvmEvent<{}>;
+    postbackCommitInvoked: DotvvmEvent<{}>;
+    postbackViewModelUpdated: DotvvmEvent<{}>;
+    postbackRejected: DotvvmEvent<{}>;
 }
-declare class DotvvmEvent<T extends DotvvmEventArgs> {
-    name: string;
-    private triggerMissedEventsOnSubscribe;
+declare class DotvvmEvent<T> {
+    readonly name: string;
+    private readonly triggerMissedEventsOnSubscribe;
     private handlers;
     private history;
     constructor(name: string, triggerMissedEventsOnSubscribe?: boolean);
@@ -231,6 +237,8 @@ declare class DotVVM {
     private isPostBackRunningHandler;
     private windowsSetTimeoutHandler;
     private defaultConcurrencyPostbackHandler;
+    private postbackHandlersStartedEventHandler;
+    private postbackHandlersCompletedEventHandler;
     globalPostbackHandlers: (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[];
     globalLaterPostbackHandlers: (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[];
     private convertOldHandler(handler);

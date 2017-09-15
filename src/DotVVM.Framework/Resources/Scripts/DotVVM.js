@@ -35,10 +35,16 @@ var DotvvmEvents = (function () {
         this.spaNavigating = new DotvvmEvent("dotvvm.events.spaNavigating");
         this.spaNavigated = new DotvvmEvent("dotvvm.events.spaNavigated");
         this.redirect = new DotvvmEvent("dotvvm.events.redirect");
+        this.postbackHandlersStarted = new DotvvmEvent("dotvvm.events.postbackHandlersStarted");
+        this.postbackHandlersCompleted = new DotvvmEvent("dotvvm.events.postbackHandlersCompleted");
+        this.postbackResponseReceived = new DotvvmEvent("dotvvm.events.postbackResponseReceived");
+        this.postbackCommitInvoked = new DotvvmEvent("dotvvm.events.postbackCommitInvoked");
+        this.postbackViewModelUpdated = new DotvvmEvent("dotvvm.events.postbackViewModelUpdated");
+        this.postbackRejected = new DotvvmEvent("dotvvm.events.postbackRejected");
     }
     return DotvvmEvents;
 }());
-// DotvvmEvent is used because CustomEvent is not browser compatible and does not support 
+// DotvvmEvent is used because CustomEvent is not browser compatible and does not support
 // calling missed events for handler that subscribed too late.
 var DotvvmEvent = (function () {
     function DotvvmEvent(name, triggerMissedEventsOnSubscribe) {
@@ -725,8 +731,20 @@ var DotVVM = (function () {
                 });
             }
         };
-        this.globalPostbackHandlers = [this.isPostBackRunningHandler];
-        this.globalLaterPostbackHandlers = [this.beforePostbackEventPostbackHandler];
+        this.postbackHandlersStartedEventHandler = {
+            execute: function (callback, options) {
+                dotvvm.events.postbackHandlersStarted.trigger(options);
+                return callback();
+            }
+        };
+        this.postbackHandlersCompletedEventHandler = {
+            execute: function (callback, options) {
+                dotvvm.events.postbackHandlersCompleted.trigger(options);
+                return callback();
+            }
+        };
+        this.globalPostbackHandlers = [this.isPostBackRunningHandler, this.postbackHandlersStartedEventHandler];
+        this.globalLaterPostbackHandlers = [this.postbackHandlersCompletedEventHandler, this.beforePostbackEventPostbackHandler];
         this.events = new DotvvmEvents();
         this.globalize = new DotvvmGlobalize();
         this.evaluator = new DotvvmEvaluator();
@@ -957,7 +975,9 @@ var DotVVM = (function () {
                 commandArgs: commandArgs
             };
             _this.postJSON(_this.viewModels[viewModelName].url, "POST", ko.toJSON(data), function (result) {
+                dotvvm.events.postbackResponseReceived.trigger({});
                 resolve(function () { return new Promise(function (resolve, reject) {
+                    dotvvm.events.postbackCommitInvoked.trigger({});
                     var locationHeader = result.getResponseHeader("Location");
                     var resultObject = locationHeader != null && locationHeader.length > 0 ?
                         { action: "redirect", url: locationHeader } :
@@ -988,6 +1008,7 @@ var DotVVM = (function () {
                             finally {
                                 _this.isViewModelUpdating = false;
                             }
+                            dotvvm.events.postbackViewModelUpdated.trigger({});
                         }
                         else if (resultObject.action === "redirect") {
                             // redirect
@@ -1034,11 +1055,12 @@ var DotVVM = (function () {
             return _this.postbackCore(viewModelName, options, path, command, controlUniqueId, context, validationTargetPath, commandArgs);
         }, options, preparedHandlers);
         var result = promise.then(function (r) { return r().then(function (r) { return r; }, function (error) { return Promise.reject({ type: "commit", args: error }); }); }, Promise.reject);
-        result.then(function (r) { return _this.events.afterPostback.trigger(r); }, function (error) {
+        result.then(function (r) { return r && _this.events.afterPostback.trigger(r); }, function (error) {
             var afterPostBackArgsCanceled = new DotvvmAfterPostBackEventArgs(sender, options.viewModel, viewModelName, validationTargetPath, error.type == "commit" ? error.args.serverResponseObject : null, options.postbackId);
             if (error.type == "handler" || error.type == "event") {
                 // trigger afterPostback event
                 afterPostBackArgsCanceled.wasInterrupted = true;
+                _this.events.postbackRejected.trigger({});
             }
             else if (error.type == "network") {
                 _this.events.error.trigger(error.args);
@@ -1646,7 +1668,7 @@ var DotVVM = (function () {
         ko.bindingHandlers['dotvvm-textbox-text'] = {
             init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
                 var obs = valueAccessor();
-                //generate metadata func 
+                //generate metadata func
                 var elmMetadata = new DotvvmValidationElementMetadata();
                 elmMetadata.dataType = (element.attributes["data-dotvvm-value-type"] || { value: "" }).value;
                 elmMetadata.format = (element.attributes["data-dotvvm-format"] || { value: "" }).value;

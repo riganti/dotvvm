@@ -249,7 +249,7 @@ class DotvvmValidation {
         };
     }
 
-    /** 
+    /**
      * Validates the specified view model
     */
     public validateViewModel(viewModel: any) {

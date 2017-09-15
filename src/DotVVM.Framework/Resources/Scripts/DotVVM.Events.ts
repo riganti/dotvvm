@@ -6,15 +6,21 @@
     public spaNavigating = new DotvvmEvent<DotvvmSpaNavigatingEventArgs>("dotvvm.events.spaNavigating");
     public spaNavigated = new DotvvmEvent<DotvvmSpaNavigatedEventArgs>("dotvvm.events.spaNavigated");
     public redirect = new DotvvmEvent<DotvvmRedirectEventArgs>("dotvvm.events.redirect");
+    public postbackHandlersStarted = new DotvvmEvent<{}>("dotvvm.events.postbackHandlersStarted")
+    public postbackHandlersCompleted = new DotvvmEvent<{}>("dotvvm.events.postbackHandlersCompleted")
+    public postbackResponseReceived = new DotvvmEvent<{}>("dotvvm.events.postbackResponseReceived")
+    public postbackCommitInvoked = new DotvvmEvent<{}>("dotvvm.events.postbackCommitInvoked")
+    public postbackViewModelUpdated = new DotvvmEvent<{}>("dotvvm.events.postbackViewModelUpdated")
+    public postbackRejected = new DotvvmEvent<{}>("dotvvm.events.postbackRejected")
 }
 
-// DotvvmEvent is used because CustomEvent is not browser compatible and does not support 
+// DotvvmEvent is used because CustomEvent is not browser compatible and does not support
 // calling missed events for handler that subscribed too late.
-class DotvvmEvent<T extends DotvvmEventArgs> {
+class DotvvmEvent<T> {
     private handlers : ((f:T) => void)[] = [];
     private history : T[] = [];
 
-    constructor(public name: string, private triggerMissedEventsOnSubscribe: boolean = false) {
+    constructor(public readonly name: string, private readonly triggerMissedEventsOnSubscribe: boolean = false) {
     }
 
     public subscribe(handler: (data: T) => void) {
