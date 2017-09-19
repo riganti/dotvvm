@@ -12,6 +12,7 @@ namespace DotVVM.Framework.Tests.Binding
     public class IntegrityCheckTests
     {
         private const string _integrityHash = "sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=";
+        private const string _jqueryUri = "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js";
 
         private string RenderResource(DotvvmConfiguration configuration, ScriptResource jquery)
         {
@@ -37,7 +38,7 @@ namespace DotVVM.Framework.Tests.Binding
             //Arrange
             var configuration = DotvvmTestHelper.CreateConfiguration();
 
-            configuration.Resources.Register(ResourceConstants.JQueryResourceName, new ScriptResource { Location = new UrlResourceLocation("https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"), RenderPosition = ResourceRenderPosition.Head, VerifyResourceIntegrity = false });
+            configuration.Resources.Register(ResourceConstants.JQueryResourceName, new ScriptResource { Location = new UrlResourceLocation(_jqueryUri), VerifyResourceIntegrity = false });
 
             var jquery = configuration.Resources.FindResource(ResourceConstants.JQueryResourceName) as ScriptResource;
 
@@ -56,7 +57,7 @@ namespace DotVVM.Framework.Tests.Binding
             //Arrange
             var configuration = DotvvmTestHelper.CreateConfiguration();
 
-            configuration.Resources.Register(ResourceConstants.JQueryResourceName, new ScriptResource { Location = new UrlResourceLocation("https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"), RenderPosition = ResourceRenderPosition.Head, VerifyResourceIntegrity = false, IntegrityHash = _integrityHash });
+            configuration.Resources.Register(ResourceConstants.JQueryResourceName, new ScriptResource { Location = new UrlResourceLocation(_jqueryUri), VerifyResourceIntegrity = false, IntegrityHash = _integrityHash });
 
             var jquery = configuration.Resources.FindResource(ResourceConstants.JQueryResourceName) as ScriptResource;
 
@@ -74,7 +75,7 @@ namespace DotVVM.Framework.Tests.Binding
             //Arrange
             var configuration = DotvvmTestHelper.CreateConfiguration();
 
-            configuration.Resources.Register(ResourceConstants.JQueryResourceName, new ScriptResource { Location = new UrlResourceLocation("https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"), RenderPosition = ResourceRenderPosition.Head, VerifyResourceIntegrity = true, IntegrityHash = "123" });
+            configuration.Resources.Register(ResourceConstants.JQueryResourceName, new ScriptResource { Location = new UrlResourceLocation(_jqueryUri), VerifyResourceIntegrity = true, IntegrityHash = "123" });
 
             var jquery = configuration.Resources.FindResource(ResourceConstants.JQueryResourceName) as ScriptResource;
 
@@ -92,7 +93,7 @@ namespace DotVVM.Framework.Tests.Binding
             //Arrange
             var configuration = DotvvmTestHelper.CreateConfiguration();
 
-            configuration.Resources.Register(ResourceConstants.JQueryResourceName, new ScriptResource { Location = new UrlResourceLocation("https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"), RenderPosition = ResourceRenderPosition.Head, VerifyResourceIntegrity = true, IntegrityHash = _integrityHash });
+            configuration.Resources.Register(ResourceConstants.JQueryResourceName, new ScriptResource { Location = new UrlResourceLocation(_jqueryUri), VerifyResourceIntegrity = true, IntegrityHash = _integrityHash });
 
             var jquery = configuration.Resources.FindResource(ResourceConstants.JQueryResourceName) as ScriptResource;
 
