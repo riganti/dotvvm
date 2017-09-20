@@ -110,7 +110,10 @@ namespace DotVVM.Framework.Hosting
             // get action filters
             var viewModelFilters = ActionFilterHelper.GetActionFilters<IViewModelActionFilter>(context.ViewModel.GetType().GetTypeInfo());
             viewModelFilters.AddRange(context.Configuration.Runtime.GlobalFilters.OfType<IViewModelActionFilter>());
+
             var requestFilters = ActionFilterHelper.GetActionFilters<IPageActionFilter>(context.ViewModel.GetType().GetTypeInfo());
+            requestFilters.AddRange(context.Configuration.Runtime.GlobalFilters.OfType<IPageActionFilter>());
+
             foreach (var f in requestFilters)
             {
                 await f.OnPageLoadingAsync(context);
