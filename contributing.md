@@ -6,7 +6,7 @@ First, start by choosing what you'd like to do - you can have a look at [issues 
 
 ### Which are the things I can work on?
 
-* [up-for-grabs issues](https://github.com/riganti/dotvvm/issues?q=is%3Aopen+is%3Aissue+label%3Aup-for-grabs+sort%3Areactions-%2B1-desc) - There is sometimes a brief description how it could be implemented, but feel free to ask if anything is not clear, we will be happy to help.
+* [up-for-grabs issues](https://github.com/riganti/dotvvm/issues?utf8=%E2%9C%93&q=is%3Aopen%20is%3Aissue%20label%3A%22up%20for%20grabs%22%20sort%3Areactions-%2B1-desc%20) - There is sometimes a brief description how it could be implemented, but feel free to ask if anything is not clear, we will be happy to help.
 * If you'd like to implement your own feature, we recommend to describe it first in an issue, so we can discuss it and help you with implementation. Sometimes the feature might be already implemented, but it just has a different name.
 * We have a [dotvvm-contrib](https://github.com/riganti/dotvvm-contrib) repository which contains several community-created controls. We'd love to see more of them. There is a brief contributing guide in the repo.
 * Tooling - we already have quite powerful [Visual Studio Extension](https://marketplace.visualstudio.com/items?itemName=TomasHerceg.DotVVMforVisualStudio-17892), but there is no support for other popular editors like **Visual Studio Code**. Actually, there is a one-evening experiment https://github.com/riganti/dotvvm-extension-vscode, so you can start from it. If you'd have any questions, I'd recommend you to mention @Mylan719, the author of our Visual Studio Extension.
