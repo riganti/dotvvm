@@ -186,8 +186,7 @@ test";
         [TestMethod]
         public void DothtmlTokenizer_DirectiveParsing_Invalid_AtSymbol_DirectiveName_NewLine_Content()
         {
-            var input = @"@viewmodel
-test";
+            var input = "@viewmodel\ntest";
 
             // parse
             var tokenizer = new DothtmlTokenizer();
@@ -218,8 +217,7 @@ test";
         [TestMethod]
         public void DothtmlTokenizer_DirectiveParsing_Invalid_AtSymbol_DirectiveName_Space_NewLine_Content()
         {
-            var input = @"@viewmodel  
-test";
+            var input = "@viewmodel  \ntest";
 
             // parse
             var tokenizer = new DothtmlTokenizer();
@@ -250,8 +248,7 @@ test";
         [TestMethod]
         public void DothtmlTokenizer_DirectiveParsing_Invalid_AtSymbol_Space_NewLine_Content()
         {
-            var input = @"@  
-test";
+            var input = "@  \ntest";
 
             // parse
             var tokenizer = new DothtmlTokenizer();
