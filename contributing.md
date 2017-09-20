@@ -2,7 +2,7 @@
 
 Like in any open source project, there is a ton of things to do in DotVVM, from coding smaller features, addressing flaws to engineering new complex areas of functionality. Whether you like designing compilers, tweaking runtime performance, metaprogramming user interface or messing with unmanaged memory, there is something for you. :)
 
-First, start by choosing what you'd like to do - you can have a look at [issues up-for-grabs label](https://github.com/riganti/dotvvm/issues?q=is%3Aopen+is%3Aissue+label%3Aup-for-grabs+sort%3Areactions-%2B1-desc). We have also prepared other possibilities for you to have a look at listed below. Then fork the repo, clone it locally and your are ready to develop. Finally, create a pull request to the master branch, make sure that you have merged the latest changes and that the PR has a readable diff (please avoid reformatting documents, refactoring stuff, changing CRLF to LF or tabs to spaces etc.).
+First, start by choosing what you'd like to do - you can have a look at [issues up-for-grabs label](https://github.com/riganti/dotvvm/issues?utf8=%E2%9C%93&q=is%3Aopen%20is%3Aissue%20label%3A%22up%20for%20grabs%22%20sort%3Areactions-%2B1-desc%20). We have also prepared other possibilities for you to have a look at listed below. Then fork the repo, clone it locally and your are ready to develop. Finally, create a pull request to the master branch, make sure that you have merged the latest changes and that the PR has a readable diff (please avoid reformatting documents, refactoring stuff, changing CRLF to LF or tabs to spaces etc.).
 
 ### Which are the things I can work on?
 
