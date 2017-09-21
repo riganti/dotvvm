@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <AssemblyTitle>DotVVM.Tracing.ApplicationInsights.AspNetCore</AssemblyTitle>
-    <VersionPrefix>1.1.6.1</VersionPrefix>
+    <VersionPrefix>1.1.6.3</VersionPrefix>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -10,7 +10,7 @@
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>DotVVM.Tracing.ApplicationInsights.AspNetCore</PackageId>
-    <PackageVersion>1.1.6.1</PackageVersion>
+    <PackageVersion>1.1.6.3</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>Application Insights Tracing module for ASP.NET Core DotVVM</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
