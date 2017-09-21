@@ -88,6 +88,10 @@ namespace DotVVM.Framework.Configuration
                     new HtmlTagAttributePair { TagName = "script", AttributeName = "src" },
                     new HtmlAttributeTransformConfiguration() { Type = typeof(TranslateVirtualPathHtmlAttributeTransformer) }
                 },
+                {
+                    new HtmlTagAttributePair { TagName = "meta", AttributeName = "content" },
+                    new HtmlAttributeTransformConfiguration() { Type = typeof(TranslateVirtualPathHtmlAttributeTransformer) }
+                },
             };
         }
 
