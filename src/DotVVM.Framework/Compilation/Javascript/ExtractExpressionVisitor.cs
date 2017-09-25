@@ -26,7 +26,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             var annotator = Predicate(node);
             if (annotator != null)
             {
-                var par = node.Type == typeof(void) ? Expression.Parameter(typeof(object), ""): Expression.Parameter(node.Type, "r_" + Replaced.Count);
+                var par = Expression.Parameter(node.Type == typeof(void) ? typeof(object) : node.Type, "r_" + Replaced.Count);
                 annotator(par)?.Apply(par.AddParameterAnnotation);
                 Replaced.Add(par, node);
                 ParameterOrder.Add(par);
