@@ -197,7 +197,6 @@ namespace DotVVM.Framework.Tests.Binding
             var result = CompileBinding("_api.PostDateToString(DateFrom.Value)", typeof(TestViewModel));
             Assert.AreEqual("dotvvm.invokeApiFn(function(){return dotvvm.api._api.postDateToString(dotvvm.globalize.parseDotvvmDate(DateFrom()));},[],[\"dotvvm.api._api\"])", result);
         }
-
     }
 
 

@@ -87,23 +87,15 @@ namespace DotVVM.Framework.Controls
         }
         public static string GenerateClientPostBackScript(string propertyName, ICommandBinding expression, DotvvmBindableObject control, PostbackScriptOptions options)
         {
-            var target = (DotvvmControl)control.GetClosestControlBindingTarget();
+            return GenerateClientPostbackScript(propertyName, control, expression.GetParametrizedCommandJavascript(control), options);
+        }
+
+        public static string GenerateClientPostbackScript(string propertyName, DotvvmBindableObject control, ParametrizedCode code, PostbackScriptOptions options)
+        {
+            var target = control.GetClosestControlBindingTarget() as DotvvmControl;
             var uniqueControlId = target?.GetDotvvmUniqueId();
-
-            // return the script
-            string returnStatement;
-            if (options.ReturnValue == false)
-            {
-                returnStatement = ";event.stopPropagation();return false;";
-            }
-            else
-            {
-                returnStatement = "";
-            }
-
-            string generatedPostbackHanlders = null;
-
-            var call = expression.GetParametrizedCommandJavascript(control).ToString(p =>
+            string generatedPostbackHanlders = options.AllowPostbackHandlers ? null : "[]";
+            var call = code.ToString(p =>
                 p == CommandBindingExpression.ViewModelNameParameter ? new CodeParameterAssignment("'root'", OperatorPrecedence.Max) :
                 p == CommandBindingExpression.SenderElementParameter ? options.ElementAccessor :
                 p == CommandBindingExpression.CurrentPathParameter ? new CodeParameterAssignment(
@@ -120,8 +112,10 @@ namespace DotVVM.Framework.Controls
             );
             if (generatedPostbackHanlders == null)
                 call = $"dotvvm.applyPostbackHandlers(function(){{return {call}}}.bind(this),{options.ElementAccessor.Code.ToString(e => default(CodeParameterAssignment))},{GetPostBackHandlersScript(control, propertyName)})";
-            if (options.IsOnChange)
-                call = "if(!dotvvm.isViewModelUpdating){" + call + "}";
+
+            var returnStatement = options.ReturnValue == false ?
+                                     ";event.stopPropagation();return false;" :
+                                     "";
             return call + returnStatement;
         }
 
