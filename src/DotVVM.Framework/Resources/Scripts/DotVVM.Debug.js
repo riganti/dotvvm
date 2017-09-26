@@ -1,56 +1,64 @@
-(function($) {
-    var debugWindow = $(document.body)
-        .append("<div id='debugWindow'><h1></h1><button type='button' id='closeDebugWindow'>Close</button><iframe /><div id='debugFooter'></div></div>")
-        .find("#debugWindow");
+(function() {
+    var div = "<div id='debugWindow'><h1></h1><button type='button' id='closeDebugWindow'>Close</button><iframe /><div id='debugFooter'></div></div>";
+    var parser = new DOMParser();
+    var debugDiv = parser.parseFromString(div, "text/xml" );
+	
+    document.body.appendChild(debugDiv);
 
-    debugWindow.css({
-        display: "none",
-        flexFlow: "column",
-        zIndex: 2147483647,
-        position: "fixed",
-        width: "100%",
-        height: "100%",
-        backgroundColor: "white",
-        top: 0,
-        left: 0
+    var debugWindow = document.body.querySelector("#debugWindow")
+
+    debugWindow.style.display = 'none';	
+    debugWindow.style.flexFlow = "column";
+    debugWindow.style.zIndex = 2147483647;
+    debugWindow.style.position = "fixed";
+    debugWindow.style.width = "100%";
+    debugWindow.style.height = "100%";
+    debugWindow.style.backgroundColor = "white";
+    debugWindow.style.top = 0;
+    debugWindow.style.left = 0;
+
+    var debugNotification = parser.parseFromString("<div id='debugNotification'></div>", "text/xml");
+
+    document.body.appendChild(debugNotification);
+
+    var notificationWindow = document.body.querySelector("#debugNotification")
+
+    notificationWindow.style.display = "none";
+    notificationWindow.style.zIndex = 2147483647,
+    notificationWindow.style.position = "fixed",
+    notificationWindow.style.top = "0px",
+    notificationWindow.style.right = "0px",
+    notificationWindow.style.backgroundColor = "darkred",
+    notificationWindow.style.color = "white",
+    notificationWindow.style.fontSize = "1.0em",
+    notificationWindow.style.width = "400px",
+    notificationWindow.style.padding =  "20px"
+
+    notificationWindow.addEventListener("click", function() {
+        setTimeout(function () {
+                notificationWindow.style.display = "none";
+        }, 200);
     });
 
-    var notificationWindow = $(document.body)
-        .append("<div id='debugNotification'></div>")
-        .find("#debugNotification");
-
-    notificationWindow.css({
-        display: "none",
-        zIndex: 2147483647,
-        position: "fixed",
-        top: "0px",
-        right: "0px",
-        backgroundColor: "darkred",
-        color: "white",
-        fontSize: "1.0em",
-        width: "400px",
-        padding: "20px"
-    }).click(function() {
-        notificationWindow.hide(200)
+    var closeDebugWindow = debugWindow.querySelector("#closeDebugWindow");
+    closeDebugWindow.addEventListener("click", function() {        
+        debugWindow.style.display = "none";
     });
 
-    debugWindow.find("#closeDebugWindow")
-        .click(function() {
-            debugWindow.css({ display: "none" })
-        })
-        .css({
-            position: "absolute",
-            top: 0,
-            right: 0
-        });
-    debugWindow.find("#debugFooter")
-        .css({ flex: "0 1 auto" });
-    debugWindow.find("h1")
-        .css({ flex: "0 1 auto" });
-    debugWindow.find("iframe").css({
-        flex: "1 1 auto",
-        width: "100%"
-    });
+    closeDebugWindow.style.position: "absolute";
+    closeDebugWindow.style.top = 0;
+    closeDebugWindow.style.right = 0;
+
+    var debugFooter = debugWindow.querySelector("#debugFooter");
+    debugWindow.querySelector("#debugFooter").style.flex = "0 1 auto";
+
+    var h1 = debugWindow.querySelector("h1");
+    h1.style.flex = "0 1 auto";
+
+    var iframe = debugWindow.querySelector("iframe");
+
+    iframe.style.flex "1 1 auto";
+    iframe.style.width "100%";
 
     dotvvm.evaluator.tryEval = function(func) {
         try {
@@ -66,9 +74,11 @@
         console.log("XmlHttpRequest: ", e.xhr);
         console.log("ViewModel: ", e.viewModel);
         if (e.handled) return;
-        debugWindow.find("h1").text("DotVVM Debugger: Error " + (e.xhr.status ? e.xhr.status + ": " + e.xhr.statusText + "" : "XmlHttpRequest failed, maybe internet connection is lost or url is malformed"));
-        debugWindow.find("iframe").contents().find('html').html(e.xhr.responseText);
-        debugWindow.css({ display: "flex" });
+        debugWindow.querySelector("h1").textContent = "DotVVM Debugger: Error " + (e.xhr.status ? e.xhr.status + ": " + e.xhr.statusText + "" : "XmlHttpRequest failed, maybe internet connection is lost or url is malformed");        
+        var iframe = debugWindow.querySelector("iframe");		
+        var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;		
+		iframeDocument.querySelector('html').innerHTML = e.xhr.responseText;
+        debugWindow.style.display = "flex";
         e.handled = true;
     });
 
@@ -83,10 +93,15 @@
     }
 
     function displayPostbackAbortedWarning(message) {
-        notificationWindow.text(message);
-        notificationWindow.show(200);
+        notificationWindow.textContent = message;
+        setTimeout(function () {
+            notificationWindow.style.display = "block";
+        }, 200);
+
         setTimeout(function() {
-            notificationWindow.hide(1000);
+            setTimeout(function () {
+                notificationWindow.style.display = "none";
+            }, 1000);
         }, 10000)
     }
 
@@ -101,4 +116,4 @@
     dotvvm.events.init.subscribe(function() {
         setDebugMapProperty(dotvvm.viewModels["root"])
     });
-})(jQuery);
+})();
