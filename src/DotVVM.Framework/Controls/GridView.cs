@@ -23,7 +23,7 @@ namespace DotVVM.Framework.Controls
         private EmptyData emptyDataContainer;
         private int numberOfRows;
         private HtmlGenericControl head;
-        
+
         public GridView() : base("table")
         {
             SetValue(Internal.IsNamingContainerProperty, true);
