@@ -210,13 +210,6 @@ namespace DotVVM.Framework.Configuration
 
         private static void RegisterResources(DotvvmConfiguration configuration)
         {
-            configuration.Resources.Register(ResourceConstants.JQueryResourceName,
-                new ScriptResource(new UrlResourceLocation("https://code.jquery.com/jquery-2.1.1.min.js"))
-                {
-                    LocationFallback = new ResourceLocationFallback(
-                        "window.jQuery",
-                        new EmbeddedResourceLocation(typeof(DotvvmConfiguration).GetTypeInfo().Assembly, "DotVVM.Framework.Resources.Scripts.jquery-2.1.1.min.js"))
-                });
             configuration.Resources.Register(ResourceConstants.KnockoutJSResourceName,
                 new ScriptResource(new EmbeddedResourceLocation(
                     typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
