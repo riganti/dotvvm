@@ -33,6 +33,11 @@ interface IDotvvmViewModels {
     [name: string]: IDotvvmViewModelInfo
 }
 
+interface IDotvvmPostbackHandlerCollection {
+    [name: string]: ((options: any) => DotvvmPostbackHandler2);
+    confirm: (options: { message?: string }) => ConfirmPostBackHandler2;
+}
+
 class DotVVM {
     private postBackCounter = 0;
     private lastStartedPostack = 0;
@@ -52,7 +57,7 @@ class DotVVM {
         confirm: (options: any) => new ConfirmPostBackHandler(<string>options.message)
     }
 
-    public postbackHandlers2: { [name: string]: ((options: any) => DotvvmPostbackHandler2) } = {
+    public postbackHandlers2: IDotvvmPostbackHandlerCollection = {
         confirm: (options: any) => new ConfirmPostBackHandler2(options.message)
     }
 
@@ -70,6 +75,8 @@ class DotVVM {
     }
 
     private isPostBackRunningHandler : DotvvmPostbackHandler2 = {
+        name: "setIsPostbackRunning",
+        before: ["eventInvoke-postbackHandlersStarted"],
         execute : <T>(callback: () => Promise<T>, options: PostbackOptions) => {
             this.isPostbackRunning(true)
             let promise = callback()
@@ -79,6 +86,8 @@ class DotVVM {
     }
 
     private windowsSetTimeoutHandler : DotvvmPostbackHandler2 = {
+        name: "setTimeout",
+        before: ["eventInvoke-postbackHandlersStarted", "setIsPostbackRunning"],
         execute : <T>(callback: () => Promise<T>, options: PostbackOptions) => {
             return new Promise((resolve, reject) => window.setTimeout(resolve, 0))
                 .then(() => callback())
@@ -86,6 +95,7 @@ class DotVVM {
     }
 
     private defaultConcurrencyPostbackHandler: DotvvmPostbackHandler2 = {
+        name: "concurrency-default",
         execute: <T>(callback: () => Promise<T>, options: PostbackOptions) => {
             return callback().then(result => {
                 if (this.lastStartedPostack == options.postbackId)
@@ -96,6 +106,7 @@ class DotVVM {
     }
 
     private postbackHandlersStartedEventHandler: DotvvmPostbackHandler2 = {
+        name: "eventInvoke-postbackHandlersStarted",
         execute: <T>(callback: () => Promise<T>, options: PostbackOptions) => {
             dotvvm.events.postbackHandlersStarted.trigger(options);
             return callback()
@@ -103,6 +114,8 @@ class DotVVM {
     }
 
     private postbackHandlersCompletedEventHandler: DotvvmPostbackHandler2 = {
+        name: "eventInvoke-postbackHandlersCompleted",
+        after: ["eventInvoke-postbackHandlersStarted"],
         execute: <T>(callback: () => Promise<T>, options: PostbackOptions) => {
             dotvvm.events.postbackHandlersCompleted.trigger(options);
             return callback()
@@ -308,12 +321,55 @@ class DotVVM {
                .filter(h => h != null)
     }
 
+    private sortHandlers(handlers: DotvvmPostbackHandler2[]): DotvvmPostbackHandler2[] {
+        const getHandler = (() => {
+            const handlerMap: { [name: string]: DotvvmPostbackHandler2 } = {};
+            for (const h of handlers) if (h.name != null) {
+                handlerMap[h.name] = h;
+            }
+            return (s : string | DotvvmPostbackHandler2) => typeof s == "string" ? handlerMap[s] : s;
+        })();
+        const dependencies = handlers.map((handler, i) => (handler["@sort_index"] = i, ({ handler, deps: (handler.after || []).map(getHandler) })));
+        for (const h of handlers) {
+            if (h.before) for(const before of h.before.map(getHandler)) {
+                const index = before["@sort_index"] as number;
+                dependencies[index].deps.push(h);
+            }
+        }
+
+        const result : DotvvmPostbackHandler2[] = [];
+        const doneBitmap = new Uint8Array(dependencies.length);
+        const addToResult = (index: number) => {
+            switch (doneBitmap[index]) {
+                case 0: break;
+                case 1: throw new Error("Cyclic PostbackHandler dependency found.");
+                case 2: return; // it's already in the list
+                default: throw new Error("");
+            }
+            if (doneBitmap[index] == 1) return;
+            doneBitmap[index] = 1;
+
+            const {handler, deps} = dependencies[index];
+            for (const d of deps) {
+                addToResult(d["@sort_index"]);
+            }
+
+            doneBitmap[index] = 2;
+            result.push(handler);
+        }
+        for (let i = 0; i < dependencies.length; i++) {
+            addToResult(i);
+        }
+        return result;
+    }
+
     private applyPostbackHandlersCore<T>(callback: (options: PostbackOptions) => Promise<T>, options: PostbackOptions, handlers?: DotvvmPostbackHandler2[]) : Promise<T> {
         if (handlers == null || handlers.length === 0) {
             return callback(options);
         } else {
+            const sortedHandlers = this.sortHandlers(handlers);
             return new Promise((resolve, reject) => {
-                handlers
+                sortedHandlers
                 .reduceRight(
                     (prev, val, index) => () =>
                         val.execute<T>(prev, options),

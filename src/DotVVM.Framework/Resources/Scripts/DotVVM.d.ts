@@ -132,6 +132,9 @@ declare class DotvvmGlobalize {
 }
 declare type DotvvmPostbackHandler2 = {
     execute<T>(callback: () => Promise<T>, options: PostbackOptions): Promise<T>;
+    name?: string;
+    after?: (string | DotvvmPostbackHandler2)[];
+    before?: (string | DotvvmPostbackHandler2)[];
 };
 declare type PostbackRejectionReason = {
     type: "handler";
@@ -214,6 +217,12 @@ interface IDotvvmViewModelInfo {
 interface IDotvvmViewModels {
     [name: string]: IDotvvmViewModelInfo;
 }
+interface IDotvvmPostbackHandlerCollection {
+    [name: string]: ((options: any) => DotvvmPostbackHandler2);
+    confirm: (options: {
+        message?: string;
+    }) => ConfirmPostBackHandler2;
+}
 declare class DotVVM {
     private postBackCounter;
     private lastStartedPostack;
@@ -230,9 +239,7 @@ declare class DotVVM {
     postBackHandlers: {
         [name: string]: ((options: any) => DotvvmPostBackHandler);
     };
-    postbackHandlers2: {
-        [name: string]: ((options: any) => DotvvmPostbackHandler2);
-    };
+    postbackHandlers2: IDotvvmPostbackHandlerCollection;
     private beforePostbackEventPostbackHandler;
     private isPostBackRunningHandler;
     private windowsSetTimeoutHandler;
@@ -261,6 +268,7 @@ declare class DotVVM {
     protected getPostbackHandler(name: string): (options: any) => DotvvmPostbackHandler2;
     private isPostbackHandler(obj);
     findPostbackHandlers(knockoutContext: any, config: (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[]): DotvvmPostbackHandler2[];
+    private sortHandlers(handlers);
     private applyPostbackHandlersCore<T>(callback, options, handlers?);
     applyPostbackHandlers<T>(callback: (options: PostbackOptions) => Promise<T>, sender: HTMLElement, handlers?: (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[], args?: any[], validationPath?: any, context?: any, viewModel?: any, viewModelName?: string): Promise<T>;
     postbackCore(viewModelName: string, options: PostbackOptions, path: string[], command: string, controlUniqueId: string, context: any, validationTargetPath?: any, commandArgs?: any[]): Promise<() => Promise<DotvvmAfterPostBackEventArgs>>;

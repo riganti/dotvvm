@@ -708,6 +708,8 @@ var DotVVM = (function () {
             }
         };
         this.isPostBackRunningHandler = {
+            name: "setIsPostbackRunning",
+            before: ["eventInvoke-postbackHandlersStarted"],
             execute: function (callback, options) {
                 _this.isPostbackRunning(true);
                 var promise = callback();
@@ -716,12 +718,15 @@ var DotVVM = (function () {
             }
         };
         this.windowsSetTimeoutHandler = {
+            name: "setTimeout",
+            before: ["eventInvoke-postbackHandlersStarted", "setIsPostbackRunning"],
             execute: function (callback, options) {
                 return new Promise(function (resolve, reject) { return window.setTimeout(resolve, 0); })
                     .then(function () { return callback(); });
             }
         };
         this.defaultConcurrencyPostbackHandler = {
+            name: "concurrency-default",
             execute: function (callback, options) {
                 return callback().then(function (result) {
                     if (_this.lastStartedPostack == options.postbackId)
@@ -732,12 +737,15 @@ var DotVVM = (function () {
             }
         };
         this.postbackHandlersStartedEventHandler = {
+            name: "eventInvoke-postbackHandlersStarted",
             execute: function (callback, options) {
                 dotvvm.events.postbackHandlersStarted.trigger(options);
                 return callback();
             }
         };
         this.postbackHandlersCompletedEventHandler = {
+            name: "eventInvoke-postbackHandlersCompleted",
+            after: ["eventInvoke-postbackHandlersStarted"],
             execute: function (callback, options) {
                 dotvvm.events.postbackHandlersCompleted.trigger(options);
                 return callback();
@@ -934,13 +942,60 @@ var DotVVM = (function () {
         })
             .filter(function (h) { return h != null; });
     };
+    DotVVM.prototype.sortHandlers = function (handlers) {
+        var getHandler = (function () {
+            var handlerMap = {};
+            for (var _i = 0, handlers_1 = handlers; _i < handlers_1.length; _i++) {
+                var h = handlers_1[_i];
+                if (h.name != null) {
+                    handlerMap[h.name] = h;
+                }
+            }
+            return function (s) { return typeof s == "string" ? handlerMap[s] : s; };
+        })();
+        var dependencies = handlers.map(function (handler, i) { return (handler["@sort_index"] = i, ({ handler: handler, deps: (handler.after || []).map(getHandler) })); });
+        for (var _i = 0, handlers_2 = handlers; _i < handlers_2.length; _i++) {
+            var h = handlers_2[_i];
+            if (h.before)
+                for (var _a = 0, _b = h.before.map(getHandler); _a < _b.length; _a++) {
+                    var before = _b[_a];
+                    var index = before["@sort_index"];
+                    dependencies[index].deps.push(h);
+                }
+        }
+        var result = [];
+        var doneBitmap = new Uint8Array(dependencies.length);
+        var addToResult = function (index) {
+            switch (doneBitmap[index]) {
+                case 0: break;
+                case 1: throw new Error("Cyclic PostbackHandler dependency found.");
+                case 2: return; // it's already in the list
+                default: throw new Error("");
+            }
+            if (doneBitmap[index] == 1)
+                return;
+            doneBitmap[index] = 1;
+            var _a = dependencies[index], handler = _a.handler, deps = _a.deps;
+            for (var _i = 0, deps_1 = deps; _i < deps_1.length; _i++) {
+                var d = deps_1[_i];
+                addToResult(d["@sort_index"]);
+            }
+            doneBitmap[index] = 2;
+            result.push(handler);
+        };
+        for (var i = 0; i < dependencies.length; i++) {
+            addToResult(i);
+        }
+        return result;
+    };
     DotVVM.prototype.applyPostbackHandlersCore = function (callback, options, handlers) {
         if (handlers == null || handlers.length === 0) {
             return callback(options);
         }
         else {
+            var sortedHandlers_1 = this.sortHandlers(handlers);
             return new Promise(function (resolve, reject) {
-                handlers
+                sortedHandlers_1
                     .reduceRight(function (prev, val, index) { return function () {
                     return val.execute(prev, options);
                 }; }, function () {
