@@ -115,6 +115,19 @@ namespace DotVVM.Framework.Compilation.Javascript
                                o == CurrentIndexParameter ? CodeParameterAssignment.FromIdentifier("$index()") :
                                throw new Exception());
         }
+
+        /// <summary>
+        /// Get's Javascript code that can be executed inside knockout data-bind attribute.
+        /// </summary>
+        public static string FormatKnockoutScript(ParametrizedCode expression, ParametrizedCode contextVariable, ParametrizedCode dataVariable = null)
+        {
+            if (dataVariable == null) dataVariable = new ParametrizedCode.Builder { contextVariable, ".$data" }.Build(OperatorPrecedence.Max);
+            return expression
+                .ToString(o => o == KnockoutContextParameter ? new CodeParameterAssignment(contextVariable) :
+                               o == KnockoutViewModelParameter ? dataVariable :
+                               o == CurrentIndexParameter ? new ParametrizedCode.Builder { contextVariable, ".$index()" }.Build(OperatorPrecedence.Max) :
+                               throw new Exception());
+        }
     }
 
     public class ViewModelInfoAnnotation : IEquatable<ViewModelInfoAnnotation>

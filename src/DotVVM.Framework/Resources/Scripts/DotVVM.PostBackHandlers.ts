@@ -46,7 +46,14 @@ class ConfirmPostBackHandler2 implements DotvvmPostbackHandler2 {
     }
 }
 
-interface IDotvvmPostBackHandlerConfiguration {
+type DotvvmPostBackHandlerConfiguration = {
     name: string;
-    options: () => any;
+    options: (context: KnockoutBindingContext) => any;
 }
+
+type ClientFriendlyPostbackHandlerConfiguration =
+    | string // just a name
+    | DotvvmPostbackHandler2 // the handler itself
+    | DotvvmPostBackHandlerConfiguration // the verbose configuration
+    | [string, object] // compressed configuration - [name, handler options]
+    | [string, (context: KnockoutBindingContext, data: any) => any] // compressed configuration with binding support - [name, context => handler options]

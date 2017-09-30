@@ -16,7 +16,7 @@ interface IRenderedResourceList {
 }
 
 interface IDotvvmPostbackScriptFunction {
-    (pageArea: string, sender: HTMLElement, pathFragments: string[], controlId: string, useWindowSetTimeout: boolean, validationTarget: string, context: any, handlers: IDotvvmPostBackHandlerConfiguration[]): void
+    (pageArea: string, sender: HTMLElement, pathFragments: string[], controlId: string, useWindowSetTimeout: boolean, validationTarget: string, context: any, handlers: DotvvmPostBackHandlerConfiguration[]): void
 }
 
 interface IDotvvmExtensions {
@@ -122,8 +122,8 @@ class DotVVM {
         }
     }
 
-    public globalPostbackHandlers : (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[] = [this.isPostBackRunningHandler, this.postbackHandlersStartedEventHandler]
-    public globalLaterPostbackHandlers : (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[] = [this.postbackHandlersCompletedEventHandler, this.beforePostbackEventPostbackHandler]
+    public globalPostbackHandlers : (DotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[] = [this.isPostBackRunningHandler, this.postbackHandlersStartedEventHandler]
+    public globalLaterPostbackHandlers : (DotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[] = [this.postbackHandlersCompletedEventHandler, this.beforePostbackEventPostbackHandler]
 
     private convertOldHandler(handler: DotvvmPostBackHandler) : DotvvmPostbackHandler2 {
         return {
@@ -312,12 +312,16 @@ class DotVVM {
         return obj && typeof obj.execute == "function"
     }
 
-    public findPostbackHandlers(knockoutContext, config: (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[]) {
+    public findPostbackHandlers(knockoutContext, config: ClientFriendlyPostbackHandlerConfiguration[]) {
         const createHandler = (name, options) => options.enabled === false ? null : this.getPostbackHandler(name)(options);
         return <DotvvmPostbackHandler2[]>config.map(h =>
                     typeof h == 'string' ? createHandler(h, {}) :
                     this.isPostbackHandler(h) ? h :
-                    createHandler(h.name, this.evaluator.evaluateOnViewModel(knockoutContext, "(" + h.options.toString() + ")()")))
+                    h instanceof Array ? (() => {
+                        const [name, opt] = h;
+                        return createHandler(name, typeof opt == "function" ? opt(knockoutContext, knockoutContext.$data) : opt);
+                    })() :
+                    createHandler(h.name, h.options && h.options(knockoutContext)))
                .filter(h => h != null)
     }
 
@@ -383,7 +387,7 @@ class DotVVM {
         }
     }
 
-    public applyPostbackHandlers<T>(callback: (options: PostbackOptions) => Promise<T>, sender: HTMLElement, handlers?: (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[], args : any[] = [], validationPath?: any, context = ko.contextFor(sender), viewModel = context.$root, viewModelName?: string) : Promise<T> {
+    public applyPostbackHandlers<T>(callback: (options: PostbackOptions) => Promise<T>, sender: HTMLElement, handlers?: ClientFriendlyPostbackHandlerConfiguration[], args : any[] = [], validationPath?: any, context = ko.contextFor(sender), viewModel = context.$root, viewModelName?: string) : Promise<T> {
         const options = new PostbackOptions(this.backUpPostBackConter(), sender, args, viewModel, viewModelName, validationPath)
         return this.applyPostbackHandlersCore(callback, options, this.findPostbackHandlers(context, handlers || []))
     }
@@ -478,7 +482,7 @@ class DotVVM {
 
 
 
-    public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, useWindowSetTimeout: boolean, validationTargetPath?: any, context?: any, handlers?: (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[], commandArgs?: any[]): Promise<DotvvmAfterPostBackEventArgs> {
+    public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, useWindowSetTimeout: boolean, validationTargetPath?: any, context?: any, handlers?: ClientFriendlyPostbackHandlerConfiguration[], commandArgs?: any[]): Promise<DotvvmAfterPostBackEventArgs> {
         if (this.isPostBackProhibited(sender)) return new Promise<DotvvmAfterPostBackEventArgs>((resolve, reject) => reject("rejected"));
 
         context = context || ko.contextFor(sender);

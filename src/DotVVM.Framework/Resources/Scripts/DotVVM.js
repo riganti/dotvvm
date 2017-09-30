@@ -938,7 +938,11 @@ var DotVVM = (function () {
         return config.map(function (h) {
             return typeof h == 'string' ? createHandler(h, {}) :
                 _this.isPostbackHandler(h) ? h :
-                    createHandler(h.name, _this.evaluator.evaluateOnViewModel(knockoutContext, "(" + h.options.toString() + ")()"));
+                    h instanceof Array ? (function () {
+                        var name = h[0], opt = h[1];
+                        return createHandler(name, typeof opt == "function" ? opt(knockoutContext, knockoutContext.$data) : opt);
+                    })() :
+                        createHandler(h.name, h.options && h.options(knockoutContext));
         })
             .filter(function (h) { return h != null; });
     };

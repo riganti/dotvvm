@@ -173,10 +173,11 @@ declare class ConfirmPostBackHandler2 implements DotvvmPostbackHandler2 {
     constructor(message: string);
     execute<T>(callback: () => Promise<T>, options: PostbackOptions): Promise<T>;
 }
-interface IDotvvmPostBackHandlerConfiguration {
+declare type DotvvmPostBackHandlerConfiguration = {
     name: string;
-    options: () => any;
-}
+    options: (context: KnockoutBindingContext) => any;
+};
+declare type ClientFriendlyPostbackHandlerConfiguration = string | DotvvmPostbackHandler2 | DotvvmPostBackHandlerConfiguration | [string, object] | [string, (context: KnockoutBindingContext, data: any) => any];
 interface ISerializationOptions {
     serializeAll?: boolean;
     oneLevel?: boolean;
@@ -204,7 +205,7 @@ interface IRenderedResourceList {
     [name: string]: string;
 }
 interface IDotvvmPostbackScriptFunction {
-    (pageArea: string, sender: HTMLElement, pathFragments: string[], controlId: string, useWindowSetTimeout: boolean, validationTarget: string, context: any, handlers: IDotvvmPostBackHandlerConfiguration[]): void;
+    (pageArea: string, sender: HTMLElement, pathFragments: string[], controlId: string, useWindowSetTimeout: boolean, validationTarget: string, context: any, handlers: DotvvmPostBackHandlerConfiguration[]): void;
 }
 interface IDotvvmExtensions {
 }
@@ -246,8 +247,8 @@ declare class DotVVM {
     private defaultConcurrencyPostbackHandler;
     private postbackHandlersStartedEventHandler;
     private postbackHandlersCompletedEventHandler;
-    globalPostbackHandlers: (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[];
-    globalLaterPostbackHandlers: (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[];
+    globalPostbackHandlers: (DotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[];
+    globalLaterPostbackHandlers: (DotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[];
     private convertOldHandler(handler);
     events: DotvvmEvents;
     globalize: DotvvmGlobalize;
@@ -267,12 +268,12 @@ declare class DotVVM {
     private processPassedId(id, context);
     protected getPostbackHandler(name: string): (options: any) => DotvvmPostbackHandler2;
     private isPostbackHandler(obj);
-    findPostbackHandlers(knockoutContext: any, config: (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[]): DotvvmPostbackHandler2[];
+    findPostbackHandlers(knockoutContext: any, config: ClientFriendlyPostbackHandlerConfiguration[]): DotvvmPostbackHandler2[];
     private sortHandlers(handlers);
     private applyPostbackHandlersCore<T>(callback, options, handlers?);
-    applyPostbackHandlers<T>(callback: (options: PostbackOptions) => Promise<T>, sender: HTMLElement, handlers?: (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[], args?: any[], validationPath?: any, context?: any, viewModel?: any, viewModelName?: string): Promise<T>;
+    applyPostbackHandlers<T>(callback: (options: PostbackOptions) => Promise<T>, sender: HTMLElement, handlers?: ClientFriendlyPostbackHandlerConfiguration[], args?: any[], validationPath?: any, context?: any, viewModel?: any, viewModelName?: string): Promise<T>;
     postbackCore(viewModelName: string, options: PostbackOptions, path: string[], command: string, controlUniqueId: string, context: any, validationTargetPath?: any, commandArgs?: any[]): Promise<() => Promise<DotvvmAfterPostBackEventArgs>>;
-    postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, useWindowSetTimeout: boolean, validationTargetPath?: any, context?: any, handlers?: (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[], commandArgs?: any[]): Promise<DotvvmAfterPostBackEventArgs>;
+    postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, useWindowSetTimeout: boolean, validationTargetPath?: any, context?: any, handlers?: ClientFriendlyPostbackHandlerConfiguration[], commandArgs?: any[]): Promise<DotvvmAfterPostBackEventArgs>;
     private loadResourceList(resources, callback);
     private loadResourceElements(elements, offset, callback);
     private getSpaPlaceHolder();

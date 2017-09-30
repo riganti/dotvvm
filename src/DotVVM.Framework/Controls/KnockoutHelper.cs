@@ -10,6 +10,7 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.ViewModel.Serialization;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls
 {
@@ -131,37 +132,50 @@ namespace DotVVM.Framework.Controls
         private static string GetPostBackHandlersScript(DotvvmBindableObject control, string eventName)
         {
             var handlers = (List<PostBackHandler>)control.GetValue(PostBack.HandlersProperty);
-            if (handlers == null) return "null";
+            if (handlers == null || handlers.Count == 0) return "null";
 
-            var effectiveHandlers = handlers.Where(h => string.IsNullOrEmpty(h.EventName) || h.EventName == eventName);
             var sb = new StringBuilder();
             sb.Append("[");
-            foreach (var handler in effectiveHandlers)
+            foreach (var handler in handlers)
             {
+                if (!string.IsNullOrEmpty(handler.EventName) && handler.EventName != eventName) continue;
+
+                var options = handler.GetHandlerOptions();
+                var name = handler.ClientHandlerName;
+
+                if (handler.GetValueBinding(PostBackHandler.EnabledProperty) is IValueBinding binding) options.Add("enabled", binding);
+                else if (!handler.Enabled) continue;
+
                 if (sb.Length > 1)
-                {
                     sb.Append(",");
-                }
-                sb.Append("{name:'");
-                sb.Append(handler.ClientHandlerName);
-                sb.Append("',options:function(){return {");
 
-                var isFirst = true;
-                var options = handler.GetHandlerOptionClientExpressions();
-                options.Add("enabled", handler.TranslateValueOrBinding(PostBackHandler.EnabledProperty));
-                foreach (var option in options)
+                if (options.Count == 0)
                 {
-                    if (!isFirst)
-                    {
-                        sb.Append(',');
-                    }
-                    isFirst = false;
-
-                    sb.Append(option.Key);
-                    sb.Append(":");
-                    sb.Append(option.Value);
+                    sb.Append(JsonConvert.ToString(name));
                 }
-                sb.Append("};}}");
+                else
+                {
+                    JsExpression optionsExpr = new JsObjectExpression(
+                        options.Where(o => o.Value != null).Select(o => new JsObjectProperty(o.Key, o.Value is IValueBinding b ?
+                            (JsExpression)new JsIdentifierExpression(
+                                JavascriptTranslator.FormatKnockoutScript(b.GetParametrizedKnockoutExpression(handler, unwrapped: true), new ParametrizedCode("c"), new ParametrizedCode("d"))) :
+                            new JsLiteral(o.Value)))
+                    );
+                    if (options.Any(o => o.Value is IValueBinding))
+                        optionsExpr = new JsFunctionExpression(
+                            new [] { new JsIdentifier("c"), new JsIdentifier("d") },
+                            new JsBlockStatement(new JsReturnStatement(optionsExpr))
+                        );
+
+                    optionsExpr.FixParenthesis();
+                    var script = new JsFormattingVisitor().ApplyAction(optionsExpr.AcceptVisitor).GetParameterlessResult();
+
+                    sb.Append("[");
+                    sb.Append(JsonConvert.ToString(name));
+                    sb.Append(",");
+                    sb.Append(script);
+                    sb.Append("]");
+                }
             }
             sb.Append("]");
             return sb.ToString();
