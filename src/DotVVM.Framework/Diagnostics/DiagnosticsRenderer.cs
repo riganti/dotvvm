@@ -7,19 +7,18 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Diagnostics
 {
     class DiagnosticsRenderer : DefaultOutputRenderer
     {
-        public long ContentLength { get; private set; }
-
         protected override string RenderPage(IDotvvmRequestContext context, DotvvmView view)
         {
             var html = base.RenderPage(context, view);
-            if (context.Configuration.Debug)
+            if (context.Configuration.Debug && context.Services.GetService<DiagnosticsRequestTracer>() is DiagnosticsRequestTracer tracer)
             {
-                ContentLength = GetCompressedSize(html);
+                tracer.LogResponseSize(GetCompressedSize(html), Encoding.UTF8.GetByteCount(html));
             }
             return html;
         }
@@ -27,9 +26,9 @@ namespace DotVVM.Framework.Diagnostics
         public override Task WriteViewModelResponse(IDotvvmRequestContext context, DotvvmView view)
         {
             var viewModelJson = context.GetSerializedViewModel();
-            if (context.Configuration.Debug)
+            if (context.Configuration.Debug && context.Services.GetService<DiagnosticsRequestTracer>() is DiagnosticsRequestTracer tracer)
             {
-                ContentLength = viewModelJson.Length;
+                tracer.LogResponseSize(GetCompressedSize(viewModelJson), Encoding.UTF8.GetByteCount(viewModelJson));
             }
             return base.WriteViewModelResponse(context, view);
         }

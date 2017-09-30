@@ -12,6 +12,7 @@ namespace DotVVM.Framework.Diagnostics.Models
         public string ViewModelJson { get; set; }
         public string ViewModelDiff { get; set; }
         public long ResponseSize { get; set; }
+        public long CompressedResponseSize { get; set; }
         public string ExceptionStackTrace { get; set; }
     }
 }
