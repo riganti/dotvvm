@@ -102,7 +102,7 @@ namespace DotVVM.Framework.Controls
                 returnStatement = "";
             }
 
-            string generatedPostbackHanlders = null;
+            string generatedPostbackHandlers = null;
 
             var call = expression.GetParametrizedCommandJavascript(control).ToString(p =>
                 p == CommandBindingExpression.ViewModelNameParameter ? new CodeParameterAssignment("'root'", OperatorPrecedence.Max) :
@@ -116,10 +116,10 @@ namespace DotVVM.Framework.Controls
                 p == CommandBindingExpression.ValidationPathParameter ? CodeParameterAssignment.FromExpression(new JsLiteral(GetValidationTargetExpression(control))) :
                 p == CommandBindingExpression.OptionalKnockoutContextParameter ? options.KoContext ?? new CodeParameterAssignment("null", OperatorPrecedence.Max) :
                 p == CommandBindingExpression.CommandArgumentsParameter ? options.CommandArgs ?? new CodeParameterAssignment("undefined", OperatorPrecedence.Max) :
-                p == CommandBindingExpression.PostbackHandlersParameter ? new CodeParameterAssignment(generatedPostbackHanlders ?? (generatedPostbackHanlders = GetPostBackHandlersScript(control, propertyName)), OperatorPrecedence.Max) :
+                p == CommandBindingExpression.PostbackHandlersParameter ? new CodeParameterAssignment(generatedPostbackHandlers ?? (generatedPostbackHandlers = GetPostBackHandlersScript(control, propertyName)), OperatorPrecedence.Max) :
                 default(CodeParameterAssignment)
             );
-            if (generatedPostbackHanlders == null)
+            if (generatedPostbackHandlers == null)
                 call = $"dotvvm.applyPostbackHandlers(function(){{return {call}}}.bind(this),{options.ElementAccessor.Code.ToString(e => default(CodeParameterAssignment))},{GetPostBackHandlersScript(control, propertyName)})";
             if (options.IsOnChange)
                 call = "if(!dotvvm.isViewModelUpdating){" + call + "}";

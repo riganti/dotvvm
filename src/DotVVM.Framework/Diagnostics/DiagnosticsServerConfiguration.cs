@@ -14,6 +14,6 @@ namespace DotVVM.Framework.Diagnostics
 
         public string HostName { get; set; }
         public int Port { get; set; }
-        
+
     }
 }
