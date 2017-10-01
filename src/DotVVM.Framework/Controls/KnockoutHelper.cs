@@ -101,26 +101,38 @@ namespace DotVVM.Framework.Controls
             {
                 returnStatement = "";
             }
+            string getHandlerScript()
+            {
+                // turn validation off for static commands
+                var validationPath = expression is StaticCommandBindingExpression ? null : GetValidationTargetExpression(control);
+                return GetPostBackHandlersScript(control, propertyName,
+                    // validation handler
+                    validationPath == null ? null :
+                    validationPath == RootValidationTargetExpression ? "\"validate-root\"" :
+                    validationPath == "$data" ? "\"validate-this\"" :
+                    $"[\"validate\", {{path:{JsonConvert.ToString(validationPath)}}}]",
 
+                    // use window.setTimeout
+                    options.UseWindowSetTimeout ? "\"timeout\"" : null
+                );
+            }
             string generatedPostbackHandlers = null;
 
             var call = expression.GetParametrizedCommandJavascript(control).ToString(p =>
-                p == CommandBindingExpression.ViewModelNameParameter ? new CodeParameterAssignment("'root'", OperatorPrecedence.Max) :
+                p == CommandBindingExpression.ViewModelNameParameter ? new CodeParameterAssignment("\"root\"", OperatorPrecedence.Max) :
                 p == CommandBindingExpression.SenderElementParameter ? options.ElementAccessor :
                 p == CommandBindingExpression.CurrentPathParameter ? new CodeParameterAssignment(
                     "[" + String.Join(", ", GetContextPath(control).Reverse().Select(JavascriptCompilationHelper.CompileConstant)) + "]",
                     OperatorPrecedence.Max) :
                 p == CommandBindingExpression.ControlUniqueIdParameter ? new CodeParameterAssignment(
-                    (uniqueControlId is IValueBinding ? "{ expr: " + JsonConvert.ToString(((IValueBinding)uniqueControlId).GetKnockoutBindingExpression(control), '\'', StringEscapeHandling.Default) + "}" : "'" + (string)uniqueControlId + "'"), OperatorPrecedence.Max) :
-                p == CommandBindingExpression.UseObjectSetTimeoutParameter ? new CodeParameterAssignment(options.UseWindowSetTimeout ? "true" : "false", OperatorPrecedence.Max) :
-                p == CommandBindingExpression.ValidationPathParameter ? CodeParameterAssignment.FromExpression(new JsLiteral(GetValidationTargetExpression(control))) :
+                    (uniqueControlId is IValueBinding ? "{ expr: " + JsonConvert.ToString(((IValueBinding)uniqueControlId).GetKnockoutBindingExpression(control)) + "}" : '"' + (string)uniqueControlId + '"'), OperatorPrecedence.Max) :
                 p == CommandBindingExpression.OptionalKnockoutContextParameter ? options.KoContext ?? new CodeParameterAssignment("null", OperatorPrecedence.Max) :
                 p == CommandBindingExpression.CommandArgumentsParameter ? options.CommandArgs ?? new CodeParameterAssignment("undefined", OperatorPrecedence.Max) :
-                p == CommandBindingExpression.PostbackHandlersParameter ? new CodeParameterAssignment(generatedPostbackHandlers ?? (generatedPostbackHandlers = GetPostBackHandlersScript(control, propertyName)), OperatorPrecedence.Max) :
+                p == CommandBindingExpression.PostbackHandlersParameter ? new CodeParameterAssignment(generatedPostbackHandlers ?? (generatedPostbackHandlers = getHandlerScript()), OperatorPrecedence.Max) :
                 default(CodeParameterAssignment)
             );
             if (generatedPostbackHandlers == null)
-                call = $"dotvvm.applyPostbackHandlers(function(){{return {call}}}.bind(this),{options.ElementAccessor.Code.ToString(e => default(CodeParameterAssignment))},{GetPostBackHandlersScript(control, propertyName)})";
+                call = $"dotvvm.applyPostbackHandlers(function(){{return {call}}}.bind(this),{options.ElementAccessor.Code.ToString(e => default(CodeParameterAssignment))},{getHandlerScript()})";
             if (options.IsOnChange)
                 call = "if(!dotvvm.isViewModelUpdating){" + call + "}";
             return call + returnStatement;
@@ -129,14 +141,14 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Generates a list of postback update handlers.
         /// </summary>
-        private static string GetPostBackHandlersScript(DotvvmBindableObject control, string eventName)
+        private static string GetPostBackHandlersScript(DotvvmBindableObject control, string eventName, params string[] moreHandlers)
         {
             var handlers = (List<PostBackHandler>)control.GetValue(PostBack.HandlersProperty);
-            if (handlers == null || handlers.Count == 0) return "null";
+            if ((handlers == null || handlers.Count == 0) && (moreHandlers == null || moreHandlers.Length == 0)) return "[]";
 
             var sb = new StringBuilder();
-            sb.Append("[");
-            foreach (var handler in handlers)
+            sb.Append('[');
+            if (handlers != null) foreach (var handler in handlers)
             {
                 if (!string.IsNullOrEmpty(handler.EventName) && handler.EventName != eventName) continue;
 
@@ -147,7 +159,7 @@ namespace DotVVM.Framework.Controls
                 else if (!handler.Enabled) continue;
 
                 if (sb.Length > 1)
-                    sb.Append(",");
+                    sb.Append(',');
 
                 if (options.Count == 0)
                 {
@@ -177,7 +189,12 @@ namespace DotVVM.Framework.Controls
                     sb.Append("]");
                 }
             }
-            sb.Append("]");
+            if (moreHandlers != null) foreach (var h in moreHandlers) if (h != null) {
+                if (sb.Length > 1)
+                    sb.Append(',');
+                sb.Append(h);
+            }
+            sb.Append(']');
             return sb.ToString();
         }
 
@@ -194,6 +211,8 @@ namespace DotVVM.Framework.Controls
             }
         }
 
+        private const string RootValidationTargetExpression = "dotvvm.viewModelObservables['root']";
+
         /// <summary>
         /// Gets the validation target expression.
         /// </summary>
@@ -208,7 +227,7 @@ namespace DotVVM.Framework.Controls
             var validationTargetControl = control.GetClosestControlValidationTarget(out var _);
             if (validationTargetControl == null)
             {
-                return "dotvvm.viewModelObservables['root']";
+                return RootValidationTargetExpression;
             }
 
             // reparent the expression to work in current DataContext

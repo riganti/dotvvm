@@ -70,13 +70,17 @@ class DotvvmErrorEventArgs implements PostbackEventArgs {
 class DotvvmBeforePostBackEventArgs implements PostbackEventArgs {
     public cancel: boolean = false;
     public clientValidationFailed: boolean = false;
-    constructor(public sender: HTMLElement, public viewModel: any, public viewModelName: string, public validationTargetPath: any, public postbackClientId: number) {
+    constructor(public sender: HTMLElement, public viewModel: any, public viewModelName: string, public postbackClientId: number) {
     }
 }
 class DotvvmAfterPostBackEventArgs implements PostbackEventArgs {
     public isHandled: boolean = false;
     public wasInterrupted: boolean = false;
-    constructor(public sender: HTMLElement | undefined, public viewModel: any, public viewModelName: string, public validationTargetPath: any, public serverResponseObject: any, public postbackClientId: number, public commandResult: any = null) {
+    public get postbackClientId() { return this.postbackOptions.postbackId }
+    public get viewModelName() { return this.postbackOptions.viewModelName! }
+    public get viewModel() { return this.postbackOptions.viewModel! }
+    public get sender() { return this.postbackOptions.sender }
+    constructor(public postbackOptions: PostbackOptions, public serverResponseObject: any, public commandResult: any = null) {
     }
 }
 class DotvvmSpaNavigatingEventArgs implements DotvvmEventArgs {

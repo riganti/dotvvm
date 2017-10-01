@@ -29,8 +29,14 @@ class ConfirmPostBackHandler extends DotvvmPostBackHandler {
     }
 }
 
+interface AdditionalPostbackData {
+    [key: string]: any
+    validationTargetPath?: string
+}
+
 class PostbackOptions {
-    constructor(public readonly postbackId: number, public readonly sender?: HTMLElement, public readonly args : any[] = [], public readonly viewModel?: any, public readonly viewModelName?: string, public readonly validationTargetPath?: any) {}
+    public readonly additionalPostbackData: AdditionalPostbackData = {};
+    constructor(public readonly postbackId: number, public readonly sender?: HTMLElement, public readonly args : any[] = [], public readonly viewModel?: any, public readonly viewModelName?: string) {}
 }
 
 class ConfirmPostBackHandler2 implements DotvvmPostbackHandler2 {

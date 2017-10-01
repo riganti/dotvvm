@@ -125,8 +125,6 @@ namespace DotVVM.Framework.Binding.Expressions
         public static object CurrentPathParameter = new object();
         public static object CommandIdParameter = new object();
         public static object ControlUniqueIdParameter = new object();
-        public static object UseObjectSetTimeoutParameter = new object();
-        public static object ValidationPathParameter = new object();
         public static object OptionalKnockoutContextParameter = new object();
         public static object PostbackHandlersParameter = new object();
         public static object CommandArgumentsParameter = new object();
@@ -137,8 +135,6 @@ namespace DotVVM.Framework.Binding.Expressions
                 new JsSymbolicParameter(CurrentPathParameter),
                 new JsSymbolicParameter(CommandIdParameter),
                 new JsSymbolicParameter(ControlUniqueIdParameter),
-                new JsSymbolicParameter(UseObjectSetTimeoutParameter),
-                new JsSymbolicParameter(ValidationPathParameter),
                 new JsSymbolicParameter(OptionalKnockoutContextParameter),
                 new JsSymbolicParameter(PostbackHandlersParameter),
                 new JsSymbolicParameter(CommandArgumentsParameter)
