@@ -1,18 +1,15 @@
-﻿using DotVVM.Framework.Binding.Expressions;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
+using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using DotVVM.Framework.Binding;
-using DotVVM.Framework.Compilation.Javascript;
-using System.Collections;
-using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Hosting;
 using Moq;
 
@@ -24,13 +21,14 @@ namespace DotVVM.Framework.Tests.Runtime
         private DotvvmConfiguration configuration;
         private BindingCompilationService bindingService;
 
+        private static string _path = Path.GetTempFileName();
+
         [TestInitialize]
         public void INIT()
         {
             this.configuration = DotvvmTestHelper.CreateConfiguration();
             this.bindingService = configuration.ServiceLocator.GetService<BindingCompilationService>();
         }
-
 
         private static TestDotvvmRequestContext CreateContext(object viewModel, DotvvmConfiguration configuration = null)
         {
@@ -54,6 +52,28 @@ namespace DotVVM.Framework.Tests.Runtime
             {
                 var html = new HtmlWriter(text, context);
                 view.Render(html, context);
+                return text.ToString();
+            }
+        }
+
+        private static string InvokeLifecycleAndRender(IResource resource, TestDotvvmRequestContext context)
+        {
+            context.Configuration.ApplicationPhysicalPath = Path.GetTempPath();
+
+            var httpContext = new Mock<IHttpContext>();
+            var httpRequest = new Mock<IHttpRequest>();
+            var pathString = new Mock<IPathString>();
+
+            pathString.Setup(a => a.Value).Returns(() => Path.GetTempPath());
+            httpRequest.Setup(a => a.PathBase).Returns(() => pathString.Object);
+            httpContext.Setup(a => a.Request).Returns(() => httpRequest.Object);
+
+            context.HttpContext = httpContext.Object;
+
+            using (var text = new StringWriter())
+            {
+                var html = new HtmlWriter(text, context);
+                resource.Render(html, context, resource is ScriptResource ? "script" : "link");
                 return text.ToString();
             }
         }
@@ -139,32 +159,6 @@ namespace DotVVM.Framework.Tests.Runtime
         }
 
         [TestMethod]
-        public void HtmlGenericControl_MetaTag_RenderContentAttribute()
-        {
-            var context = CreateContext(new object());
-            var mockHttpContext = new Mock<IHttpContext>();
-            var mockHttpRequest = new Mock<IHttpRequest>();
-            var mockPathBase = new Mock<IPathString>();
-
-            mockPathBase.Setup(p => p.Value).Returns("home");
-            mockHttpRequest.Setup(p => p.PathBase).Returns(mockPathBase.Object);
-            mockHttpContext.Setup(p => p.Request).Returns(mockHttpRequest.Object);
-            context.HttpContext = mockHttpContext.Object;
-
-            var clientHtml = InvokeLifecycleAndRender(new HtmlGenericControl("meta") 
-            {
-                Attributes =
-                {
-                    { "content", "~/test" }
-                }
-            }, context);
-
-            Assert.IsTrue(clientHtml.Contains("<meta"));
-            Assert.IsTrue(clientHtml.Contains("/home/test"));
-            Assert.IsTrue(!clientHtml.Contains("~"));
-        }
-
-        [TestMethod]
         public void MarkupControl_WrapperTagDirective()
         {
             var viewModel = new string[] { };
@@ -185,6 +179,39 @@ namespace DotVVM.Framework.Tests.Runtime
             Assert.IsTrue(clientHtml.Contains("<elem2"));
             Assert.IsTrue(!clientHtml.Contains("<div"));
             Assert.IsTrue(clientHtml.Contains("<elem3"));
+        }
+        
+        [TestMethod]
+        public void ScriptResource_AddDeferAttribute()
+        {
+			var viewModel = new object();
+            var file = new ScriptResource(new FileResourceLocation(_path)) { Defer = true };
+
+            var clientHtml = InvokeLifecycleAndRender(file, CreateContext(viewModel));
+
+            Assert.IsTrue(clientHtml.EndsWith("defer></script>"));
+        }
+        
+        [TestMethod]
+        public void ScriptResource_AddAsyncAttribute()
+        {
+			var viewModel = new object();
+            var file = new ScriptResource(new FileResourceLocation(_path)) { Async = true };
+
+            var clientHtml = InvokeLifecycleAndRender(file, CreateContext(viewModel));
+
+            Assert.IsTrue(clientHtml.EndsWith("async></script>"));
+        }
+
+        [TestMethod]
+        public void ScriptResource_AddAsyncAndDeferAttribute()
+        {
+			var viewModel = new object();
+            var file = new ScriptResource(new FileResourceLocation(_path)) { Async = true, Defer = true };
+
+            var clientHtml = InvokeLifecycleAndRender(file, CreateContext(viewModel));
+
+            Assert.IsTrue(clientHtml.EndsWith("async defer></script>"));
         }
     }
 }

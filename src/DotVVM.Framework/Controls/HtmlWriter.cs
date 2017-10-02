@@ -94,6 +94,16 @@ namespace DotVVM.Framework.Controls
             // set the value
             attributes[name] = value;
         }
+		
+		/// <summary>
+        /// Adds the specified boolean attribute to the next HTML element that is being rendered. Boolean attributes such as 'async' and 'defer' have no value. They are true when present and false otherwise
+        /// </summary>
+        /// <param name="name">The name of the HTML attribute.</param>
+        public void AddBooleanAttribute(string name)
+        {
+            // set the value
+            attributes.Add(name, null);
+		}
 
         /// <summary>
         /// Adds the style attribute.

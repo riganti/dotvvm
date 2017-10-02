@@ -18,6 +18,12 @@ namespace DotVVM.Framework.Controls
         /// <param name="appendSeparator">The separator that will be used when <paramref name="append"/> is true and when the attribute already has a value.</param>
         void AddAttribute(string name, string value, bool append = false, string appendSeparator = null);
 
+		/// <summary>
+        /// Adds the specified boolean attribute to the next HTML element that is being rendered. Boolean attributes such as 'async' and 'defer' have no value. They are true when present and false otherwise
+        /// </summary>
+        /// <param name="name">The name of the HTML attribute.</param>
+		void AddBooleanAttribute(string name);
+		
         /// <summary>
         /// Adds the style attribute.
         /// </summary>
