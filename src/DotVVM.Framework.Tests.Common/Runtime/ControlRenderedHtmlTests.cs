@@ -159,6 +159,32 @@ namespace DotVVM.Framework.Tests.Runtime
         }
 
         [TestMethod]
+        public void HtmlGenericControl_MetaTag_RenderContentAttribute()
+        {
+            var context = CreateContext(new object());
+            var mockHttpContext = new Mock<IHttpContext>();
+            var mockHttpRequest = new Mock<IHttpRequest>();
+            var mockPathBase = new Mock<IPathString>();
+
+            mockPathBase.Setup(p => p.Value).Returns("home");
+            mockHttpRequest.Setup(p => p.PathBase).Returns(mockPathBase.Object);
+            mockHttpContext.Setup(p => p.Request).Returns(mockHttpRequest.Object);
+            context.HttpContext = mockHttpContext.Object;
+
+            var clientHtml = InvokeLifecycleAndRender(new HtmlGenericControl("meta")
+            {
+                Attributes =
+                {
+                    { "content", "~/test" }
+                }
+            }, context);
+
+            Assert.IsTrue(clientHtml.Contains("<meta"));
+            Assert.IsTrue(clientHtml.Contains("/home/test"));
+            Assert.IsTrue(!clientHtml.Contains("~"));
+        }
+
+        [TestMethod]
         public void MarkupControl_WrapperTagDirective()
         {
             var viewModel = new string[] { };
