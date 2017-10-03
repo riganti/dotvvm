@@ -392,6 +392,14 @@ namespace DotVVM.Framework.Tests.Binding
             var result = ExecuteBinding("_this != null ? _this.LongProperty : 0", new [] { new TestViewModel { LongProperty = 5 } });
             Assert.AreEqual(5L, result);
         }
+
+        [TestMethod]
+        public void BindingCompiler_ComparisonOperators()
+        {
+            var result = ExecuteBinding("LongProperty < TestViewModel2.MyProperty && LongProperty > TestViewModel2.MyProperty", new [] { new TestViewModel { TestViewModel2 = new TestViewModel2() } });
+            Assert.AreEqual(false, result);
+
+        }
     }
     class TestViewModel
     {

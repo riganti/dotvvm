@@ -50,5 +50,8 @@ namespace DotVVM.Framework.Utils
                     yield return ce;
             }
         }
+
+        public static string StringJoin(this IEnumerable<string> enumerable, string separator) =>
+            string.Join(separator, enumerable);
     }
 }

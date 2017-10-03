@@ -102,16 +102,20 @@ class DotVVM {
         }
     }
 
-    private isPostBackRunningHandler : DotvvmPostbackHandler = {
-        name: "setIsPostbackRunning",
-        before: ["eventInvoke-postbackHandlersStarted"],
-        execute : <T>(callback: () => Promise<T>, options: PostbackOptions) => {
-            this.isPostbackRunning(true)
-            let promise = callback()
-            promise.then(() => this.isPostbackRunning(false), () => this.isPostbackRunning(false))
-            return promise
-        }
-    }
+    private isPostBackRunningHandler : DotvvmPostbackHandler = (() => {
+        let postbackCount = 0;
+        return {
+            name: "setIsPostbackRunning",
+            before: ["eventInvoke-postbackHandlersStarted"],
+            execute : <T>(callback: () => Promise<T>, options: PostbackOptions) => {
+                this.isPostbackRunning(true)
+                postbackCount++
+                let promise = callback()
+                promise.then(() => this.isPostbackRunning(!!--postbackCount), () => this.isPostbackRunning(!!--postbackCount))
+                return promise
+            }
+        };
+    })();
 
     private createWindowSetTimeoutHandler(time: number) : DotvvmPostbackHandler {
         return {
@@ -158,16 +162,6 @@ class DotVVM {
     public getPostbackQueue(name = "default") {
         if (!this.postbackQueues[name]) this.postbackQueues[name] = { queue: [], noRunning: 0 }
         return this.postbackQueues[name];
-    }
-
-    private createQueueConcurrenyPostbackHandler(q: string = "default"): DotvvmPostbackHandler {
-        return {
-            name: "concurrency-queue",
-            before: ["setIsPostackRunning"],
-            execute<T>(callback: () => Promise<T>, options: PostbackOptions) {
-                return callback();
-            }
-        };
     }
 
     private postbackHandlersStartedEventHandler: DotvvmPostbackHandler = {
@@ -294,8 +288,7 @@ class DotVVM {
     }
 
     private backUpPostBackConter(): number {
-        this.postBackCounter++;
-        return this.postBackCounter;
+        return ++this.postBackCounter;
     }
 
     private isPostBackStillActive(currentPostBackCounter: number): boolean {
@@ -305,23 +298,21 @@ class DotVVM {
     public staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback = _ => { }, errorCallback = (xhr: XMLHttpRequest, error?) => { }) {
         if (this.isPostBackProhibited(sender)) return;
 
-        // TODO: events for static command postback
-
-        // prevent double postbacks
-        var currentPostBackCounter = this.backUpPostBackConter();
-
         var data = this.serialization.serialize({
             "args": args,
             "command": command,
             "$csrfToken": this.viewModels[viewModelName].viewModel.$csrfToken
         });
+        dotvvm.events.staticCommandMethodInvoking.trigger(data);
 
         this.postJSON(<string>this.viewModels[viewModelName].url, "POST", ko.toJSON(data), response => {
-            if (!this.isPostBackStillActive(currentPostBackCounter)) return;
             try {
                 this.isViewModelUpdating = true;
-                callback(JSON.parse(response.responseText));
+                const result = JSON.parse(response.responseText);
+                dotvvm.events.staticCommandMethodInvoked.trigger({...data, result});
+                callback(result);
             } catch (error) {
+                dotvvm.events.staticCommandMethodFailed.trigger({...data, xhr: response, error: error})
                 errorCallback(response, error);
             } finally {
                 this.isViewModelUpdating = false;
@@ -329,6 +320,7 @@ class DotVVM {
         }, (xhr) => {
             console.warn(`StaticCommand postback failed: ${xhr.status} - ${xhr.statusText}`, xhr);
             errorCallback(xhr);
+            dotvvm.events.staticCommandMethodFailed.trigger({...data, xhr})
         },
         xhr => {
             xhr.setRequestHeader("X-PostbackType", "StaticCommand");
@@ -410,22 +402,23 @@ class DotVVM {
     }
 
     private applyPostbackHandlersCore(callback: (options: PostbackOptions) => Promise<PostbackCommitFunction | undefined>, options: PostbackOptions, handlers?: DotvvmPostbackHandler[]) : Promise<PostbackCommitFunction> {
+        const processResult = t => typeof t == "function" ? t : (() => Promise.resolve(new DotvvmAfterPostBackEventArgs(options, null, t)))
         if (handlers == null || handlers.length === 0) {
-            return callback(options).then(t => t || (() => Promise.resolve(new DotvvmAfterPostBackEventArgs(options, null))), Promise.reject);
+            return callback(options).then(processResult, Promise.reject);
         } else {
             const sortedHandlers = this.sortHandlers(handlers);
             return sortedHandlers
                 .reduceRight(
                     (prev, val, index) => () =>
                         val.execute(prev, options),
-                    () => callback(options).then(t => t || <PostbackCommitFunction>(() => Promise.resolve(new DotvvmAfterPostBackEventArgs(options, null))), Promise.reject)
+                    () => callback(options).then(processResult, Promise.reject)
                 )();
         }
     }
 
     public applyPostbackHandlers(callback: (options: PostbackOptions) => Promise<PostbackCommitFunction | undefined>, sender: HTMLElement, handlers?: ClientFriendlyPostbackHandlerConfiguration[], args : any[] = [], context = ko.contextFor(sender), viewModel = context.$root, viewModelName?: string) : Promise<DotvvmAfterPostBackEventArgs> {
         const options = new PostbackOptions(this.backUpPostBackConter(), sender, args, viewModel, viewModelName)
-        return this.applyPostbackHandlersCore(callback, options, this.findPostbackHandlers(context, handlers || []))
+        return this.applyPostbackHandlersCore(callback, options, this.findPostbackHandlers(context, this.globalPostbackHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers)))
                .then(r => r(), Promise.reject);
     }
 
@@ -507,7 +500,7 @@ class DotVVM {
                         if (!isSuccess) {
                             reject(new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, result, options.postbackId, resultObject))
                         } else {
-                            var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(options, resultObject, resultObject.commandResult)
+                            var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(options, resultObject, resultObject.commandResult, result)
                             resolve(afterPostBackArgs)
                         }
                     });
@@ -525,11 +518,9 @@ class DotVVM {
 
         context = context || ko.contextFor(sender);
 
-        const preHandlers = this.globalPostbackHandlers;
-
-        const preparedHandlers = this.findPostbackHandlers(context, preHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers));
+        const preparedHandlers = this.findPostbackHandlers(context, this.globalPostbackHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers));
         if (preparedHandlers.filter(h => h.name && h.name.indexOf("concurrency-") == 0).length == 0) {
-            // add a default concurrency handler if none is specified
+            // add a default concurrency handler if none is specthis.globalPostbackHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers)ified
             preparedHandlers.push(this.defaultConcurrencyPostbackHandler);
         }
         const options = new PostbackOptions(this.backUpPostBackConter(), sender, commandArgs, context.$data, viewModelName)
@@ -934,7 +925,8 @@ class DotVVM {
     public buildRouteUrl(routePath: string, params: any): string {
         return routePath.replace(/\{([^\}]+?)\??(:(.+?))?\}/g, (s, paramName, hsjdhsj, type) => {
             if (!paramName) return "";
-            return ko.unwrap(params[paramName.toLowerCase()]) || "";
+            const x = ko.unwrap(params[paramName.toLowerCase()])
+            return x == null ? "" : x;
         });
     }
 
@@ -1104,32 +1096,17 @@ class DotVVM {
                     element.style.display = "none";
                 }
 
-                dotvvm.events.beforePostback.subscribe(e => {
-                    if (running) {
-                        interrupt();
-                    }
-                    show();
-                });
-                dotvvm.events.spaNavigating.subscribe(e => {
-                    if (running) {
-                        interrupt();
-                    }
-                    show();
-                });
-                dotvvm.events.afterPostback.subscribe(e => {
-                    if (!e.wasInterrupted) {
+                dotvvm.isPostbackRunning.subscribe(e => {
+                    if (e) {
+                        if (running) {
+                            interrupt();
+                        }
+                        show();
+                    } else {
                         hide();
                     }
                 });
-                dotvvm.events.redirect.subscribe(e => {
-                    hide();
-                });
-                dotvvm.events.spaNavigated.subscribe(e => {
-                    hide();
-                });
-                dotvvm.events.error.subscribe(e => {
-                    hide();
-                });
+
             }
         };
         ko.bindingHandlers['dotvvm-table-columnvisible'] = {
@@ -1255,10 +1232,7 @@ class DotVVM {
                 };
             },
             update(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
-                var value = valueAccessor();
-                if (typeof (value) === "function") {
-                    value = value();
-                }
+                const value = ko.unwrap(valueAccessor());
 
                 if (value === true) {
                     element.addEventListener("focus", element.$selectAllOnFocusHandler);

@@ -9,7 +9,7 @@ namespace DotVVM.Framework.Diagnostics
     public class DiagnosticsServerConfiguration
     {
         [JsonIgnore]
-        public static string DiagnosticsFilePath => Path.Combine(Environment.GetEnvironmentVariable("TEMP"), "DotVVM/diagnosticsConfiguration.json");
+        public static string DiagnosticsFilePath => Environment.GetEnvironmentVariable("TEMP") is string tmpPath ? Path.Combine(tmpPath, "DotVVM/diagnosticsConfiguration.json") : null;
 
 
         public string HostName { get; set; }

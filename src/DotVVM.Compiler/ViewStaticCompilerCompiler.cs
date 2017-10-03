@@ -18,6 +18,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Collections.Immutable;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Compiler
 {

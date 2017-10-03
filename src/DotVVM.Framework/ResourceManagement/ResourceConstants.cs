@@ -9,7 +9,6 @@ namespace DotVVM.Framework.ResourceManagement
     public class ResourceConstants
     {
 
-        public const string JQueryResourceName = "jquery";
         public const string KnockoutJSResourceName = "knockout";
         public const string DotvvmResourceName = "dotvvm";
         public const string DotvvmDebugResourceName = "dotvvm.debug";

@@ -12,6 +12,10 @@
     public postbackCommitInvoked = new DotvvmEvent<{}>("dotvvm.events.postbackCommitInvoked")
     public postbackViewModelUpdated = new DotvvmEvent<{}>("dotvvm.events.postbackViewModelUpdated")
     public postbackRejected = new DotvvmEvent<{}>("dotvvm.events.postbackRejected")
+
+    public staticCommandMethodInvoking = new DotvvmEvent<{args: any[], command: string}>("dotvvm.events.staticCommandMethodInvoking")
+    public staticCommandMethodInvoked = new DotvvmEvent<{args: any[], command: string, result: any}>("dotvvm.events.staticCommandMethodInvoked")
+    public staticCommandMethodFailed = new DotvvmEvent<{args: any[], command: string, xhr: XMLHttpRequest, error?: any}>("dotvvm.events.staticCommandMethodInvoked")
 }
 
 // DotvvmEvent is used because CustomEvent is not browser compatible and does not support
@@ -80,7 +84,7 @@ class DotvvmAfterPostBackEventArgs implements PostbackEventArgs {
     public get viewModelName() { return this.postbackOptions.viewModelName! }
     public get viewModel() { return this.postbackOptions.viewModel! }
     public get sender() { return this.postbackOptions.sender }
-    constructor(public postbackOptions: PostbackOptions, public serverResponseObject: any, public commandResult: any = null) {
+    constructor(public postbackOptions: PostbackOptions, public serverResponseObject: any, public commandResult: any = null, public xhr?: XMLHttpRequest) {
     }
 }
 class DotvvmSpaNavigatingEventArgs implements DotvvmEventArgs {

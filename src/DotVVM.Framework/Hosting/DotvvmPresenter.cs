@@ -23,7 +23,6 @@ using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Runtime.Tracing;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -34,7 +33,7 @@ namespace DotVVM.Framework.Hosting
         /// Initializes a new instance of the <see cref="DotvvmPresenter" /> class.
         /// </summary>
         public DotvvmPresenter(DotvvmConfiguration configuration, IDotvvmViewBuilder viewBuilder, IViewModelLoader viewModelLoader, IViewModelSerializer viewModelSerializer,
-            IOutputRenderer outputRender, ICsrfProtector csrfProtector, IStopwatch stopwatch, IViewModelParameterBinder viewModelParameterBinder)
+            IOutputRenderer outputRender, ICsrfProtector csrfProtector, IViewModelParameterBinder viewModelParameterBinder)
         {
             DotvvmViewBuilder = viewBuilder;
             ViewModelLoader = viewModelLoader;
@@ -56,8 +55,6 @@ namespace DotVVM.Framework.Hosting
         public ICsrfProtector CsrfProtector { get; }
 
         public IViewModelParameterBinder ViewModelParameterBinder { get; }
-
-        public IStopwatch Stopwatch { get; }
 
         public string ApplicationPath { get; }
 

@@ -29,9 +29,12 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="services">The <see cref="IServiceCollection" /> to add services to.</param>
         /// <param name="configuration">The DotVVM configuration to use. A default one will be used if the value is <c>null</c>.</param>
-        public static IServiceCollection RegisterDotVVMServices(IServiceCollection services, DotvvmConfiguration configuration = null)
+        public static IServiceCollection RegisterDotVVMServices(IServiceCollection services, DotvvmConfiguration configuration = null, bool allowDebugServices = true)
         {
             services.AddOptions();
+
+            if (allowDebugServices) services.AddDiagnosticServices();
+
             services.TryAddSingleton<IDotvvmViewBuilder, DefaultDotvvmViewBuilder>();
             services.TryAddSingleton<IViewModelSerializer, DefaultViewModelSerializer>();
             services.TryAddSingleton<IViewModelLoader, DefaultViewModelLoader>();
@@ -55,7 +58,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IControlUsageValidator, DefaultControlUsageValidator>();
             services.TryAddSingleton<ILocalResourceUrlManager, LocalResourceUrlManager>();
             services.TryAddSingleton<IResourceHashService, DefaultResourceHashService>();
-            services.TryAddSingleton<IStopwatch, DefaultStopwatch>();
             services.TryAddSingleton<StaticCommandBindingCompiler, StaticCommandBindingCompiler>();
             services.TryAddSingleton<JavascriptTranslator, JavascriptTranslator>();
             services.TryAddSingleton<IHttpRedirectService, DefaultHttpRedirectService>();
@@ -67,9 +69,7 @@ namespace Microsoft.Extensions.DependencyInjection
                return () => new BindingRequiredResourceVisitor((ControlResolverMetadata)requiredResourceControl);
             });
 
-            services.AddSingleton(s => configuration ?? (configuration = DotvvmConfiguration.CreateDefault(s)));
-            
-            services.AddDiagnosticServices();
+            services.TryAddSingleton(s => configuration ?? (configuration = DotvvmConfiguration.CreateDefault(s)));
 
             services.Configure<BindingCompilationOptions>(o => {
                  o.TransformerClasses.Add(ActivatorUtilities.CreateInstance<BindingPropertyResolvers>(configuration.ServiceLocator.GetServiceProvider()));
@@ -83,21 +83,15 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<DotvvmDiagnosticsConfiguration>();
             services.TryAddSingleton<IDiagnosticsInformationSender, DiagnosticsInformationSender>();
 
-            services.AddScoped<IOutputRenderer, DiagnosticsRenderer>();
-            services.AddScoped<IRequestTracer>(s =>
-            {
-                var config = s.GetService<DotvvmConfiguration>();
-                if (config.Debug)
-                {
-                    var sender = s.GetService<IDiagnosticsInformationSender>();
-                    return new DiagnosticsRequestTracer(sender);
-                }
-                else
-                {
-                    return new NullRequestTracer();
-                }
+            services.TryAddSingleton<IOutputRenderer, DiagnosticsRenderer>();
+            services.AddScoped<DiagnosticsRequestTracer>(s => {
+                return new DiagnosticsRequestTracer(s.GetRequiredService<IDiagnosticsInformationSender>());
             });
-            
+            services.AddScoped<IRequestTracer>(s => {
+                var config = s.GetRequiredService<DotvvmConfiguration>();
+                return (config.Debug ? (IRequestTracer)s.GetService<DiagnosticsRequestTracer>() : null) ?? new NullRequestTracer();
+            });
+
             return services;
         }
     }

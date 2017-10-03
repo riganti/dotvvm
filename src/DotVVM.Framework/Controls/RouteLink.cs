@@ -1,5 +1,6 @@
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 
@@ -55,6 +56,14 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty TextProperty =
             DotvvmProperty.Register<string, RouteLink>(c => c.Text, "");
 
+        public VirtualPropertyGroupDictionary<object> Params => new VirtualPropertyGroupDictionary<object>(this, ParamsGroupDescriptor);
+        public static DotvvmPropertyGroup ParamsGroupDescriptor =
+            DotvvmPropertyGroup.Register<object, RouteLink>("Param-", "Params");
+
+        public VirtualPropertyGroupDictionary<object> QueryParameters => new VirtualPropertyGroupDictionary<object>(this, QueryParametersGroupDescriptor);
+        public static DotvvmPropertyGroup QueryParametersGroupDescriptor =
+            DotvvmPropertyGroup.Register<object, RouteLink>("Query-", "QueryParameters");
+
 
         public RouteLink() : base("a")
         {
@@ -65,7 +74,7 @@ namespace DotVVM.Framework.Controls
 
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            RouteLinkHelpers.WriteRouteLinkHrefAttribute(RouteName, this, UrlSuffixProperty, writer, context);
+            RouteLinkHelpers.WriteRouteLinkHrefAttribute(this, writer, context);
            
             writer.AddKnockoutDataBind("text", this, TextProperty, () =>
             {

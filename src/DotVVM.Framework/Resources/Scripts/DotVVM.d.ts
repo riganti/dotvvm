@@ -20,6 +20,21 @@ declare class DotvvmEvents {
     postbackCommitInvoked: DotvvmEvent<{}>;
     postbackViewModelUpdated: DotvvmEvent<{}>;
     postbackRejected: DotvvmEvent<{}>;
+    staticCommandMethodInvoking: DotvvmEvent<{
+        args: any[];
+        command: string;
+    }>;
+    staticCommandMethodInvoked: DotvvmEvent<{
+        args: any[];
+        command: string;
+        result: any;
+    }>;
+    staticCommandMethodFailed: DotvvmEvent<{
+        args: any[];
+        command: string;
+        xhr: XMLHttpRequest;
+        error?: any;
+    }>;
 }
 declare class DotvvmEvent<T> {
     readonly name: string;
@@ -65,13 +80,14 @@ declare class DotvvmAfterPostBackEventArgs implements PostbackEventArgs {
     postbackOptions: PostbackOptions;
     serverResponseObject: any;
     commandResult: any;
+    xhr: XMLHttpRequest;
     isHandled: boolean;
     wasInterrupted: boolean;
     readonly postbackClientId: number;
     readonly viewModelName: string;
     readonly viewModel: any;
     readonly sender: HTMLElement | undefined;
-    constructor(postbackOptions: PostbackOptions, serverResponseObject: any, commandResult?: any);
+    constructor(postbackOptions: PostbackOptions, serverResponseObject: any, commandResult?: any, xhr?: XMLHttpRequest);
 }
 declare class DotvvmSpaNavigatingEventArgs implements DotvvmEventArgs {
     viewModel: any;
@@ -245,7 +261,6 @@ declare class DotVVM {
         queue: (() => void)[];
         noRunning: number;
     };
-    private createQueueConcurrenyPostbackHandler(q?);
     private postbackHandlersStartedEventHandler;
     private postbackHandlersCompletedEventHandler;
     globalPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[];

@@ -63,7 +63,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var namespaceImports = ResolveNamespaceImports(directives, root);
             var injectedServices = ResolveInjectDirectives(directives);
 
-            // We need to call BuildControlMetadata instead of ResolveControl. The control builder for the control doesn't have to be compiled yet so the 
+            // We need to call BuildControlMetadata instead of ResolveControl. The control builder for the control doesn't have to be compiled yet so the
             // metadata would be incomplete and ResolveControl caches them internally. BuildControlMetadata just builds the metadata and the control is
             // actually resolved when the control builder is ready and the metadata are complete.
             var viewMetadata = controlResolver.BuildControlMetadata(CreateControlType(wrapperType, fileName));
@@ -87,7 +87,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         protected virtual void ResolveRootContent(DothtmlRootNode root, IAbstractContentNode view, IControlResolverMetadata viewMetadata)
         {
             // WORKAROUND:
-            // if there is a control in root of a MarkupControl that has DataContext assigned, it will not find the data context space, because the space of DataContext property does not include the control itself and the space of MarkupControl also does not include the MarkupControl. And because the MarkupControl is a direct parent of the DataContext-bound control there is no space in between. 
+            // if there is a control in root of a MarkupControl that has DataContext assigned, it will not find the data context space, because the space of DataContext property does not include the control itself and the space of MarkupControl also does not include the MarkupControl. And because the MarkupControl is a direct parent of the DataContext-bound control there is no space in between.
 
             if (viewMetadata.Type.IsAssignableTo(new ResolvedTypeDescriptor(typeof(DotvvmMarkupControl))))
             {
@@ -146,7 +146,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             return new ReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>>(directives);
         }
 
-        protected virtual ImmutableList<InjectedServiceExtensionParameter> ResolveInjectDirectives(IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives) => 
+        protected virtual ImmutableList<InjectedServiceExtensionParameter> ResolveInjectDirectives(IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives) =>
             directives.Values.SelectMany(d => d).OfType<IAbstractServiceInjectDirective>()
             .Select(d => new InjectedServiceExtensionParameter(d.NameSyntax.Name, d.Type))
             .ToImmutableList();
@@ -413,7 +413,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
             if (!parser.OnEnd())
                 directiveNode.AddError($"Unexpected token: {parser.Peek()?.Text}.");
-            
+
             return result;
         }
 
@@ -627,7 +627,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var dataContext = control.DataContextTypeStack;
             dataContext = GetDataContextChange(dataContext, control, property);
 
-            // the element is a property 
+            // the element is a property
             if (IsTemplateProperty(property))
             {
                 // template

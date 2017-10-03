@@ -57,16 +57,13 @@ namespace DotVVM.Framework.Runtime
         /// </summary>
         private Dictionary<PropertyInfo, ParameterBindingAttribute> FindPropertiesWithParameterBinding(Type type)
         {
-            return type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                .Select(TryFindWritableSetter)
-                .Where(p => p.CanWrite)
-                .Select(p => new
-                {
-                    Property = p,
-                    Attribute = p.GetCustomAttribute<ParameterBindingAttribute>()
-                })
-                .Where(p => p.Attribute != null)
-                .ToDictionary(p => p.Property, p => p.Attribute);
+            return (from prop in type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                    let attribute = prop.GetCustomAttribute<ParameterBindingAttribute>()
+                    where attribute != null
+                    let writableProp = TryFindWritableSetter(prop)
+                    where writableProp.CanWrite
+                    select new {writableProp, attribute})
+                    .ToDictionary(p => p.writableProp, p => p.attribute);
         }
 
         private PropertyInfo TryFindWritableSetter(PropertyInfo propertyInfo)
@@ -77,7 +74,10 @@ namespace DotVVM.Framework.Runtime
                 return propertyInfo;
             }
 
-            return propertyInfo.DeclaringType.GetProperty(propertyInfo.Name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            // WORKAROUND: When the type contains non-overriden property with the same name as it's parent (using a `new` modifier) the `GetProperty` method throws an AmbiguousMatchException, so we have to find the property using a collection query
+            return propertyInfo.DeclaringType
+                .GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                .Single(p => p.Name == propertyInfo.Name && p.DeclaringType == propertyInfo.DeclaringType);
         }
 
         /// <summary>

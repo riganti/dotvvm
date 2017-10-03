@@ -2,11 +2,10 @@
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime.Filters;
 using DotVVM.Framework.ViewModel;
-using Microsoft.AspNetCore.Authentication;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.SPARedirect
 {
-    [Authorize(ActiveAuthenticationSchemes = "Scheme2")]
+    [Authorize(AuthenticationSchemes = "Scheme2")]
     public class HomeViewModel : DotvvmViewModelBase
     {
         public async Task SignOut()

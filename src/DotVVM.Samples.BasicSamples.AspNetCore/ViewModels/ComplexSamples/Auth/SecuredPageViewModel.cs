@@ -3,7 +3,7 @@ using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth
 {
-    [Authorize(ActiveAuthenticationSchemes = "Scheme1")]
+    [Authorize(AuthenticationSchemes = "Scheme1")]
     public class SecuredPageViewModel : DotvvmViewModelBase
     {
         private static string Message = "server: Hello!";
@@ -17,7 +17,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth
 
         public string LastMessage { get; set; }
 
-        [Authorize(Roles = "admin", ActiveAuthenticationSchemes = "Scheme1")]
+        [Authorize(Roles = "admin", AuthenticationSchemes = "Scheme1")]
         public void ReplaceMessage()
         {
             Message = LastMessage = string.Format("{0}: {1}",
