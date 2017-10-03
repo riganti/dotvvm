@@ -84,7 +84,7 @@ namespace DotVVM.Framework.Diagnostics
             {
                 RequestType = RequestTypeFromContext(request),
                 Method = request.HttpContext.Request.Method,
-                Url = request.HttpContext.Request.Path.Value,
+                Url = request.HttpContext.Request.Url.AbsolutePath,
                 Headers = request.HttpContext.Request.Headers.Select(HttpHeaderItem.FromKeyValuePair)
                     .ToList(),
                 ViewModelJson = request.ReceivedViewModelJson?.GetValue("viewModel")?.ToString()

@@ -41,9 +41,9 @@ namespace DotVVM.Framework.Hosting.Middlewares
         public static RouteBase FindMatchingRoute(IEnumerable<RouteBase> routes, IDotvvmRequestContext context, out IDictionary<string, object> parameters)
         {
             string url;
-            if (!TryParseGooglebotHashbangEscapedFragment(context.HttpContext.Request.QueryString, out url))
+            if (!TryParseGooglebotHashbangEscapedFragment(context.HttpContext.Request.Url.Query, out url))
             {
-                url = context.HttpContext.Request.Path.Value;
+                url = context.HttpContext.Request.Url.AbsolutePath;
             }
             url = url.Trim('/');
 
