@@ -22,6 +22,8 @@ namespace DotVVM.Framework.ResourceManagement
         public ResourceLocationFallback LocationFallback { get; set; }
         public string MimeType { get; private set; }
         public bool VerifyResourceIntegrity { get; set; }
+		public bool Async { get; set; }
+		public bool Defer { get; set; }
 
         public LinkResourceBase(ResourceRenderPosition renderPosition, string mimeType, IResourceLocation location) : base(renderPosition)
         {
@@ -32,6 +34,22 @@ namespace DotVVM.Framework.ResourceManagement
         {
             this.MimeType = mimeType;
         }
+		
+		protected void AddAsyncAttribute(IHtmlWriter writer)
+        {
+            if (Async)
+            {
+                writer.AddBooleanAttribute("async");
+            }
+        }
+
+        protected void AddDeferAttribute(IHtmlWriter writer)
+        {
+            if (Defer)
+            {
+                writer.AddBooleanAttribute("defer");
+            }
+		}
 
         public IEnumerable<IResourceLocation> GetLocations()
         {
