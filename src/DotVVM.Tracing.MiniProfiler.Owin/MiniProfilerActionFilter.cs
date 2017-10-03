@@ -8,7 +8,7 @@ namespace DotVVM.Tracing.MiniProfiler.Owin
     {
         protected override Task OnPageLoadedAsync(IDotvvmRequestContext context)
         {
-            var name = $"{context.HttpContext.Request.Method} {context.HttpContext.Request.Path.Value}";
+            var name = $"{context.HttpContext.Request.Method} {context.HttpContext.Request.Url.AbsolutePath}";
             AddMiniProfilerName(context, name);
 
             return base.OnPageLoadedAsync(context);
@@ -16,7 +16,7 @@ namespace DotVVM.Tracing.MiniProfiler.Owin
 
         protected override Task OnCommandExecutingAsync(IDotvvmRequestContext context, ActionInfo actionInfo)
         {
-            var name = $"POSTBACK {context.HttpContext.Request.Path.Value}";
+            var name = $"POSTBACK {context.HttpContext.Request.Url.AbsolutePath}";
             AddMiniProfilerName(context, name);
 
             return base.OnCommandExecutingAsync(context, actionInfo);
