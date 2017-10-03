@@ -113,7 +113,9 @@ namespace DotVVM.Framework.Controls
                     $"[\"validate\", {{path:{JsonConvert.ToString(validationPath)}}}]",
 
                     // use window.setTimeout
-                    options.UseWindowSetTimeout ? "\"timeout\"" : null
+                    options.UseWindowSetTimeout ? "\"timeout\"" : null,
+
+                    GenerateConcurrencyModeHandler(control)
                 );
             }
             string generatedPostbackHandlers = null;
@@ -166,29 +168,16 @@ namespace DotVVM.Framework.Controls
                     sb.Append(JsonConvert.ToString(name));
                 }
                 else
-                {
-                    JsExpression optionsExpr = new JsObjectExpression(
-                        options.Where(o => o.Value != null).Select(o => new JsObjectProperty(o.Key, o.Value is IValueBinding b ?
-                            (JsExpression)new JsIdentifierExpression(
-                                JavascriptTranslator.FormatKnockoutScript(b.GetParametrizedKnockoutExpression(handler, unwrapped: true), new ParametrizedCode("c"), new ParametrizedCode("d"))) :
-                            new JsLiteral(o.Value)))
-                    );
-                    if (options.Any(o => o.Value is IValueBinding))
-                        optionsExpr = new JsFunctionExpression(
-                            new [] { new JsIdentifier("c"), new JsIdentifier("d") },
-                            new JsBlockStatement(new JsReturnStatement(optionsExpr))
-                        );
+                    {
+                        string script = GenerateHandlerOptions(handler, options);
 
-                    optionsExpr.FixParenthesis();
-                    var script = new JsFormattingVisitor().ApplyAction(optionsExpr.AcceptVisitor).GetParameterlessResult();
-
-                    sb.Append("[");
-                    sb.Append(JsonConvert.ToString(name));
-                    sb.Append(",");
-                    sb.Append(script);
-                    sb.Append("]");
+                        sb.Append("[");
+                        sb.Append(JsonConvert.ToString(name));
+                        sb.Append(",");
+                        sb.Append(script);
+                        sb.Append("]");
+                    }
                 }
-            }
             if (moreHandlers != null) foreach (var h in moreHandlers) if (h != null) {
                 if (sb.Length > 1)
                     sb.Append(',');
@@ -196,6 +185,35 @@ namespace DotVVM.Framework.Controls
             }
             sb.Append(']');
             return sb.ToString();
+        }
+
+        private static string GenerateHandlerOptions(DotvvmBindableObject handler, Dictionary<string, object> options)
+        {
+            JsExpression optionsExpr = new JsObjectExpression(
+                options.Where(o => o.Value != null).Select(o => new JsObjectProperty(o.Key, o.Value is IValueBinding b ?
+                    (JsExpression)new JsIdentifierExpression(
+                        JavascriptTranslator.FormatKnockoutScript(b.GetParametrizedKnockoutExpression(handler, unwrapped: true), new ParametrizedCode("c"), new ParametrizedCode("d"))) :
+                    new JsLiteral(o.Value)))
+            );
+            if (options.Any(o => o.Value is IValueBinding))
+                optionsExpr = new JsFunctionExpression(
+                    new[] { new JsIdentifier("c"), new JsIdentifier("d") },
+                    new JsBlockStatement(new JsReturnStatement(optionsExpr))
+                );
+
+            optionsExpr.FixParenthesis();
+            var script = new JsFormattingVisitor().ApplyAction(optionsExpr.AcceptVisitor).GetParameterlessResult();
+            return script;
+        }
+
+        static string GenerateConcurrencyModeHandler(DotvvmBindableObject obj)
+        {
+            var mode = (obj.GetValue(PostBack.ConcurrencyProperty) as PostbackConcurrencyMode?) ?? PostbackConcurrencyMode.None;
+            var queueName = obj.GetValueRaw(PostBack.ConcurrencyQueueProperty) ?? "default";
+            if (mode == PostbackConcurrencyMode.None && "default".Equals(queueName)) return null;
+            var handlerName = $"concurrency-{mode.ToString().ToLower()}";
+            if ("default".Equals(queueName)) return JsonConvert.ToString(handlerName);
+            return $"[{JsonConvert.ToString(handlerName)},{GenerateHandlerOptions(obj, new Dictionary<string, object> { ["q"] = queueName })}]";
         }
 
         public static IEnumerable<string> GetContextPath(DotvvmBindableObject control)

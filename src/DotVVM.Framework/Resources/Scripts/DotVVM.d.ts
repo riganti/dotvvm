@@ -130,11 +130,12 @@ declare class DotvvmGlobalize {
     bindingNumberToString(value: KnockoutObservable<string | number> | string | number, format?: string): string | KnockoutComputed<string>;
 }
 declare type DotvvmPostbackHandler2 = {
-    execute<T>(callback: () => Promise<T>, options: PostbackOptions): Promise<T>;
+    execute(callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions): Promise<PostbackCommitFunction>;
     name?: string;
     after?: (string | DotvvmPostbackHandler2)[];
     before?: (string | DotvvmPostbackHandler2)[];
 };
+declare type PostbackCommitFunction = () => Promise<DotvvmAfterPostBackEventArgs>;
 declare type PostbackRejectionReason = {
     type: "handler";
     handler: DotvvmPostbackHandler2 | DotvvmPostBackHandler;
@@ -248,11 +249,18 @@ declare class DotVVM {
     private isPostBackRunningHandler;
     private createWindowSetTimeoutHandler(time);
     private windowSetTimeoutHandler;
+    private commonConcurrencyHandler;
     private defaultConcurrencyPostbackHandler;
+    private postbackQueues;
+    getPostbackQueue(name?: string): {
+        queue: (() => void)[];
+        noRunning: number;
+    };
+    private createQueueConcurrenyPostbackHandler(q?);
     private postbackHandlersStartedEventHandler;
     private postbackHandlersCompletedEventHandler;
-    globalPostbackHandlers: (DotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[];
-    globalLaterPostbackHandlers: (DotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[];
+    globalPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[];
+    globalLaterPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[];
     private convertOldHandler(handler);
     events: DotvvmEvents;
     globalize: DotvvmGlobalize;
@@ -273,8 +281,8 @@ declare class DotVVM {
     private isPostbackHandler(obj);
     findPostbackHandlers(knockoutContext: any, config: ClientFriendlyPostbackHandlerConfiguration[]): DotvvmPostbackHandler2[];
     private sortHandlers(handlers);
-    private applyPostbackHandlersCore<T>(callback, options, handlers?);
-    applyPostbackHandlers<T>(callback: (options: PostbackOptions) => Promise<T>, sender: HTMLElement, handlers?: ClientFriendlyPostbackHandlerConfiguration[], args?: any[], context?: any, viewModel?: any, viewModelName?: string): Promise<T>;
+    private applyPostbackHandlersCore(callback, options, handlers?);
+    applyPostbackHandlers(callback: (options: PostbackOptions) => Promise<PostbackCommitFunction | undefined>, sender: HTMLElement, handlers?: ClientFriendlyPostbackHandlerConfiguration[], args?: any[], context?: any, viewModel?: any, viewModelName?: string): Promise<DotvvmAfterPostBackEventArgs>;
     postbackCore(options: PostbackOptions, path: string[], command: string, controlUniqueId: string, context: any, commandArgs?: any[]): Promise<() => Promise<DotvvmAfterPostBackEventArgs>>;
     postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, context?: any, handlers?: ClientFriendlyPostbackHandlerConfiguration[], commandArgs?: any[]): Promise<DotvvmAfterPostBackEventArgs>;
     private loadResourceList(resources, callback);

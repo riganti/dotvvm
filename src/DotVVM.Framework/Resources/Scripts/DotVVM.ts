@@ -59,7 +59,37 @@ class DotVVM {
 
     public postbackHandlers2: IDotvvmPostbackHandlerCollection = {
         confirm: (options: any) => new ConfirmPostBackHandler2(options.message),
-        timeout: (options: any) => options.time ? this.createWindowSetTimeoutHandler(options.time) : this.windowSetTimeoutHandler
+        timeout: (options: any) => options.time ? this.createWindowSetTimeoutHandler(options.time) : this.windowSetTimeoutHandler,
+        "concurrency-none": (o: any) => ({
+            name: "concurrency-none",
+            before: ["setIsPostackRunning"],
+            execute: (callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions) => {
+                return this.commonConcurrencyHandler(callback(), options, o.q || "default")
+            }
+        }),
+        "concurrency-deny": (o: any) => ({
+            name: "concurrency-deny",
+            before: ["setIsPostackRunning"],
+            execute(callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions) {
+                var queue = o.q || "default";
+                if (dotvvm.getPostbackQueue(queue).noRunning > 0)
+                    return Promise.reject({ type: "handler", handler: this, message: "An postback is already running"});
+                return dotvvm.commonConcurrencyHandler(callback(), options, queue);
+            }
+        }),
+        "concurrency-queue": (o: any) => ({
+            name: "concurrency-queue",
+            before: ["setIsPostackRunning"],
+            execute(callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions) {
+                var queue = o.q || "default";
+                if (dotvvm.getPostbackQueue(queue).noRunning > 0) {
+                    return new Promise<PostbackCommitFunction>(resolve => {
+                        dotvvm.getPostbackQueue(queue).queue.push(() => resolve(callback()));
+                    })
+                }
+                return dotvvm.commonConcurrencyHandler(callback(), options, queue);
+            }
+        })
     }
 
     private beforePostbackEventPostbackHandler : DotvvmPostbackHandler2 = {
@@ -98,15 +128,49 @@ class DotVVM {
     }
     private windowSetTimeoutHandler : DotvvmPostbackHandler2 = this.createWindowSetTimeoutHandler(0);
 
-    private defaultConcurrencyPostbackHandler: DotvvmPostbackHandler2 = {
-        name: "concurrency-default",
-        execute: <T>(callback: () => Promise<T>, options: PostbackOptions) => {
-            return callback().then(result => {
-                if (this.lastStartedPostack == options.postbackId)
-                    return result
-                else return <any>(() => Promise.reject(null))
-            })
+    private commonConcurrencyHandler = <T>(promise: Promise<PostbackCommitFunction>, options: PostbackOptions, queueName: string) : Promise<PostbackCommitFunction> => {
+        const queue = this.getPostbackQueue(queueName)
+        queue.noRunning++
+
+        const dispatchNext = () => {
+            queue.noRunning--;
+            if (queue.queue.length > 0) {
+                const callback = queue.queue.shift()
+                window.setTimeout(callback, 0)
+            }
         }
+
+        return promise.then(result => {
+            var p = this.lastStartedPostack == options.postbackId ?
+                    result :
+                    () => Promise.reject(null);
+            return () => {
+                const pr = p()
+                pr.then(dispatchNext, dispatchNext)
+                return pr
+            };
+        }, error => {
+            dispatchNext()
+            return Promise.reject(error)
+        });
+    }
+
+    private defaultConcurrencyPostbackHandler: DotvvmPostbackHandler2 = this.postbackHandlers2["concurrency-none"]({})
+
+    private postbackQueues : { [name: string]: { queue: (() => void)[], noRunning: number } } = {}
+    public getPostbackQueue(name = "default") {
+        if (!this.postbackQueues[name]) this.postbackQueues[name] = { queue: [], noRunning: 0 }
+        return this.postbackQueues[name];
+    }
+
+    private createQueueConcurrenyPostbackHandler(q: string = "default"): DotvvmPostbackHandler2 {
+        return {
+            name: "concurrency-queue",
+            before: ["setIsPostackRunning"],
+            execute<T>(callback: () => Promise<T>, options: PostbackOptions) {
+                return callback();
+            }
+        };
     }
 
     private postbackHandlersStartedEventHandler: DotvvmPostbackHandler2 = {
@@ -126,8 +190,8 @@ class DotVVM {
         }
     }
 
-    public globalPostbackHandlers : (DotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[] = [this.isPostBackRunningHandler, this.postbackHandlersStartedEventHandler]
-    public globalLaterPostbackHandlers : (DotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[] = [this.postbackHandlersCompletedEventHandler, this.beforePostbackEventPostbackHandler]
+    public globalPostbackHandlers : (ClientFriendlyPostbackHandlerConfiguration)[] = [this.isPostBackRunningHandler, this.postbackHandlersStartedEventHandler]
+    public globalLaterPostbackHandlers : (ClientFriendlyPostbackHandlerConfiguration)[] = [this.postbackHandlersCompletedEventHandler, this.beforePostbackEventPostbackHandler]
 
     private convertOldHandler(handler: DotvvmPostBackHandler) : DotvvmPostbackHandler2 {
         return {
@@ -332,7 +396,7 @@ class DotVVM {
         })();
         const dependencies = handlers.map((handler, i) => (handler["@sort_index"] = i, ({ handler, deps: (handler.after || []).map(getHandler) })));
         for (const h of handlers) {
-            if (h.before) for(const before of h.before.map(getHandler)) {
+            if (h.before) for(const before of h.before.map(getHandler)) if (before) {
                 const index = before["@sort_index"] as number;
                 dependencies[index].deps.push(h);
             }
@@ -364,29 +428,24 @@ class DotVVM {
         return result;
     }
 
-    private applyPostbackHandlersCore<T>(callback: (options: PostbackOptions) => Promise<T>, options: PostbackOptions, handlers?: DotvvmPostbackHandler2[]) : Promise<T> {
+    private applyPostbackHandlersCore(callback: (options: PostbackOptions) => Promise<PostbackCommitFunction | undefined>, options: PostbackOptions, handlers?: DotvvmPostbackHandler2[]) : Promise<PostbackCommitFunction> {
         if (handlers == null || handlers.length === 0) {
-            return callback(options);
+            return callback(options).then(t => t || (() => Promise.resolve(new DotvvmAfterPostBackEventArgs(options, null))), Promise.reject);
         } else {
             const sortedHandlers = this.sortHandlers(handlers);
-            return new Promise((resolve, reject) => {
-                sortedHandlers
+            return sortedHandlers
                 .reduceRight(
                     (prev, val, index) => () =>
-                        val.execute<T>(prev, options),
-                    () => {
-                        const r = callback(options)
-                        r.then(resolve, reject)
-                        return r
-                    })
-                ();
-            });
+                        val.execute(prev, options),
+                    () => callback(options).then(t => t || <PostbackCommitFunction>(() => Promise.resolve(new DotvvmAfterPostBackEventArgs(options, null))), Promise.reject)
+                )();
         }
     }
 
-    public applyPostbackHandlers<T>(callback: (options: PostbackOptions) => Promise<T>, sender: HTMLElement, handlers?: ClientFriendlyPostbackHandlerConfiguration[], args : any[] = [], context = ko.contextFor(sender), viewModel = context.$root, viewModelName?: string) : Promise<T> {
+    public applyPostbackHandlers(callback: (options: PostbackOptions) => Promise<PostbackCommitFunction | undefined>, sender: HTMLElement, handlers?: ClientFriendlyPostbackHandlerConfiguration[], args : any[] = [], context = ko.contextFor(sender), viewModel = context.$root, viewModelName?: string) : Promise<DotvvmAfterPostBackEventArgs> {
         const options = new PostbackOptions(this.backUpPostBackConter(), sender, args, viewModel, viewModelName)
         return this.applyPostbackHandlersCore(callback, options, this.findPostbackHandlers(context, handlers || []))
+               .then(r => r(), Promise.reject);
     }
 
     public postbackCore(options: PostbackOptions, path: string[], command: string, controlUniqueId: string, context: any, commandArgs?: any[]) {
@@ -485,9 +544,13 @@ class DotVVM {
 
         context = context || ko.contextFor(sender);
 
-        let preHandlers = Array.prototype.concat.call([this.defaultConcurrencyPostbackHandler], this.globalPostbackHandlers)
+        const preHandlers = this.globalPostbackHandlers;
 
         const preparedHandlers = this.findPostbackHandlers(context, preHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers));
+        if (preparedHandlers.filter(h => h.name && h.name.indexOf("concurrency-") == 0).length == 0) {
+            // add a default concurrency handler if none is specified
+            preparedHandlers.push(this.defaultConcurrencyPostbackHandler);
+        }
         const options = new PostbackOptions(this.backUpPostBackConter(), sender, commandArgs, context.$data, viewModelName)
         const promise = this.applyPostbackHandlersCore(options => {
             return this.postbackCore(options, path, command, controlUniqueId, context, commandArgs)

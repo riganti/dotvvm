@@ -710,7 +710,37 @@ var DotVVM = (function () {
         };
         this.postbackHandlers2 = {
             confirm: function (options) { return new ConfirmPostBackHandler2(options.message); },
-            timeout: function (options) { return options.time ? _this.createWindowSetTimeoutHandler(options.time) : _this.windowSetTimeoutHandler; }
+            timeout: function (options) { return options.time ? _this.createWindowSetTimeoutHandler(options.time) : _this.windowSetTimeoutHandler; },
+            "concurrency-none": function (o) { return ({
+                name: "concurrency-none",
+                before: ["setIsPostackRunning"],
+                execute: function (callback, options) {
+                    return _this.commonConcurrencyHandler(callback(), options, o.q || "default");
+                }
+            }); },
+            "concurrency-deny": function (o) { return ({
+                name: "concurrency-deny",
+                before: ["setIsPostackRunning"],
+                execute: function (callback, options) {
+                    var queue = o.q || "default";
+                    if (dotvvm.getPostbackQueue(queue).noRunning > 0)
+                        return Promise.reject({ type: "handler", handler: this, message: "An postback is already running" });
+                    return dotvvm.commonConcurrencyHandler(callback(), options, queue);
+                }
+            }); },
+            "concurrency-queue": function (o) { return ({
+                name: "concurrency-queue",
+                before: ["setIsPostackRunning"],
+                execute: function (callback, options) {
+                    var queue = o.q || "default";
+                    if (dotvvm.getPostbackQueue(queue).noRunning > 0) {
+                        return new Promise(function (resolve) {
+                            dotvvm.getPostbackQueue(queue).queue.push(function () { return resolve(callback()); });
+                        });
+                    }
+                    return dotvvm.commonConcurrencyHandler(callback(), options, queue);
+                }
+            }); }
         };
         this.beforePostbackEventPostbackHandler = {
             execute: function (callback, options) {
@@ -734,17 +764,32 @@ var DotVVM = (function () {
             }
         };
         this.windowSetTimeoutHandler = this.createWindowSetTimeoutHandler(0);
-        this.defaultConcurrencyPostbackHandler = {
-            name: "concurrency-default",
-            execute: function (callback, options) {
-                return callback().then(function (result) {
-                    if (_this.lastStartedPostack == options.postbackId)
-                        return result;
-                    else
-                        return (function () { return Promise.reject(null); });
-                });
-            }
+        this.commonConcurrencyHandler = function (promise, options, queueName) {
+            var queue = _this.getPostbackQueue(queueName);
+            queue.noRunning++;
+            var dispatchNext = function () {
+                queue.noRunning--;
+                if (queue.queue.length > 0) {
+                    var callback = queue.queue.shift();
+                    window.setTimeout(callback, 0);
+                }
+            };
+            return promise.then(function (result) {
+                var p = _this.lastStartedPostack == options.postbackId ?
+                    result :
+                    function () { return Promise.reject(null); };
+                return function () {
+                    var pr = p();
+                    pr.then(dispatchNext, dispatchNext);
+                    return pr;
+                };
+            }, function (error) {
+                dispatchNext();
+                return Promise.reject(error);
+            });
         };
+        this.defaultConcurrencyPostbackHandler = this.postbackHandlers2["concurrency-none"]({});
+        this.postbackQueues = {};
         this.postbackHandlersStartedEventHandler = {
             name: "eventInvoke-postbackHandlersStarted",
             execute: function (callback, options) {
@@ -777,6 +822,22 @@ var DotVVM = (function () {
             execute: function (callback, options) {
                 return new Promise(function (resolve, reject) { return window.setTimeout(resolve, time); })
                     .then(function () { return callback(); });
+            }
+        };
+    };
+    DotVVM.prototype.getPostbackQueue = function (name) {
+        if (name === void 0) { name = "default"; }
+        if (!this.postbackQueues[name])
+            this.postbackQueues[name] = { queue: [], noRunning: 0 };
+        return this.postbackQueues[name];
+    };
+    DotVVM.prototype.createQueueConcurrenyPostbackHandler = function (q) {
+        if (q === void 0) { q = "default"; }
+        return {
+            name: "concurrency-queue",
+            before: ["setIsPostackRunning"],
+            execute: function (callback, options) {
+                return callback();
             }
         };
     };
@@ -975,8 +1036,10 @@ var DotVVM = (function () {
             if (h.before)
                 for (var _a = 0, _b = h.before.map(getHandler); _a < _b.length; _a++) {
                     var before = _b[_a];
-                    var index = before["@sort_index"];
-                    dependencies[index].deps.push(h);
+                    if (before) {
+                        var index = before["@sort_index"];
+                        dependencies[index].deps.push(h);
+                    }
                 }
         }
         var result = [];
@@ -1006,20 +1069,14 @@ var DotVVM = (function () {
     };
     DotVVM.prototype.applyPostbackHandlersCore = function (callback, options, handlers) {
         if (handlers == null || handlers.length === 0) {
-            return callback(options);
+            return callback(options).then(function (t) { return t || (function () { return Promise.resolve(new DotvvmAfterPostBackEventArgs(options, null)); }); }, Promise.reject);
         }
         else {
-            var sortedHandlers_1 = this.sortHandlers(handlers);
-            return new Promise(function (resolve, reject) {
-                sortedHandlers_1
-                    .reduceRight(function (prev, val, index) { return function () {
-                    return val.execute(prev, options);
-                }; }, function () {
-                    var r = callback(options);
-                    r.then(resolve, reject);
-                    return r;
-                })();
-            });
+            var sortedHandlers = this.sortHandlers(handlers);
+            return sortedHandlers
+                .reduceRight(function (prev, val, index) { return function () {
+                return val.execute(prev, options);
+            }; }, function () { return callback(options).then(function (t) { return t || (function () { return Promise.resolve(new DotvvmAfterPostBackEventArgs(options, null)); }); }, Promise.reject); })();
         }
     };
     DotVVM.prototype.applyPostbackHandlers = function (callback, sender, handlers, args, context, viewModel, viewModelName) {
@@ -1027,7 +1084,8 @@ var DotVVM = (function () {
         if (context === void 0) { context = ko.contextFor(sender); }
         if (viewModel === void 0) { viewModel = context.$root; }
         var options = new PostbackOptions(this.backUpPostBackConter(), sender, args, viewModel, viewModelName);
-        return this.applyPostbackHandlersCore(callback, options, this.findPostbackHandlers(context, handlers || []));
+        return this.applyPostbackHandlersCore(callback, options, this.findPostbackHandlers(context, handlers || []))
+            .then(function (r) { return r(); }, Promise.reject);
     };
     DotVVM.prototype.postbackCore = function (options, path, command, controlUniqueId, context, commandArgs) {
         var _this = this;
@@ -1117,8 +1175,12 @@ var DotVVM = (function () {
         if (this.isPostBackProhibited(sender))
             return new Promise(function (resolve, reject) { return reject("rejected"); });
         context = context || ko.contextFor(sender);
-        var preHandlers = Array.prototype.concat.call([this.defaultConcurrencyPostbackHandler], this.globalPostbackHandlers);
+        var preHandlers = this.globalPostbackHandlers;
         var preparedHandlers = this.findPostbackHandlers(context, preHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers));
+        if (preparedHandlers.filter(function (h) { return h.name && h.name.indexOf("concurrency-") == 0; }).length == 0) {
+            // add a default concurrency handler if none is specified
+            preparedHandlers.push(this.defaultConcurrencyPostbackHandler);
+        }
         var options = new PostbackOptions(this.backUpPostBackConter(), sender, commandArgs, context.$data, viewModelName);
         var promise = this.applyPostbackHandlersCore(function (options) {
             return _this.postbackCore(options, path, command, controlUniqueId, context, commandArgs);

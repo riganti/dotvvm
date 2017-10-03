@@ -1,9 +1,11 @@
 type DotvvmPostbackHandler2 = {
-    execute<T>(callback: () => Promise<T>, options: PostbackOptions): Promise<T>
+    execute(callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions): Promise<PostbackCommitFunction>
     name?: string
     after?: (string | DotvvmPostbackHandler2)[]
     before?: (string | DotvvmPostbackHandler2)[]
 }
+
+type PostbackCommitFunction = () => Promise<DotvvmAfterPostBackEventArgs>
 
 type PostbackRejectionReason =
     | { type: "handler", handler: DotvvmPostbackHandler2 | DotvvmPostBackHandler, message?: string }
