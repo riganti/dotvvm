@@ -317,27 +317,6 @@ var DotvvmGlobalize = (function () {
     };
     return DotvvmGlobalize;
 }());
-var DotvvmPostBackHandler = (function () {
-    function DotvvmPostBackHandler() {
-    }
-    DotvvmPostBackHandler.prototype.execute = function (callback, sender) {
-    };
-    return DotvvmPostBackHandler;
-}());
-var ConfirmPostBackHandler = (function (_super) {
-    __extends(ConfirmPostBackHandler, _super);
-    function ConfirmPostBackHandler(message) {
-        var _this = _super.call(this) || this;
-        _this.message = message;
-        return _this;
-    }
-    ConfirmPostBackHandler.prototype.execute = function (callback, sender) {
-        if (confirm(this.message)) {
-            callback();
-        }
-    };
-    return ConfirmPostBackHandler;
-}(DotvvmPostBackHandler));
 var PostbackOptions = (function () {
     function PostbackOptions(postbackId, sender, args, viewModel, viewModelName) {
         if (args === void 0) { args = []; }
@@ -350,11 +329,11 @@ var PostbackOptions = (function () {
     }
     return PostbackOptions;
 }());
-var ConfirmPostBackHandler2 = (function () {
-    function ConfirmPostBackHandler2(message) {
+var ConfirmPostBackHandler = (function () {
+    function ConfirmPostBackHandler(message) {
         this.message = message;
     }
-    ConfirmPostBackHandler2.prototype.execute = function (callback, options) {
+    ConfirmPostBackHandler.prototype.execute = function (callback, options) {
         var _this = this;
         return new Promise(function (resolve, reject) {
             if (confirm(_this.message)) {
@@ -365,7 +344,7 @@ var ConfirmPostBackHandler2 = (function () {
             }
         });
     };
-    return ConfirmPostBackHandler2;
+    return ConfirmPostBackHandler;
 }());
 var DotvvmSerialization = (function () {
     function DotvvmSerialization() {
@@ -705,11 +684,8 @@ var DotVVM = (function () {
         this.isSpaReady = ko.observable(false);
         this.viewModels = {};
         this.serialization = new DotvvmSerialization();
-        this.postBackHandlers = {
-            confirm: function (options) { return new ConfirmPostBackHandler(options.message); }
-        };
-        this.postbackHandlers2 = {
-            confirm: function (options) { return new ConfirmPostBackHandler2(options.message); },
+        this.postbackHandlers = {
+            confirm: function (options) { return new ConfirmPostBackHandler(options.message); },
             timeout: function (options) { return options.time ? _this.createWindowSetTimeoutHandler(options.time) : _this.windowSetTimeoutHandler; },
             "concurrency-none": function (o) { return ({
                 name: "concurrency-none",
@@ -788,7 +764,7 @@ var DotVVM = (function () {
                 return Promise.reject(error);
             });
         };
-        this.defaultConcurrencyPostbackHandler = this.postbackHandlers2["concurrency-none"]({});
+        this.defaultConcurrencyPostbackHandler = this.postbackHandlers["concurrency-none"]({});
         this.postbackQueues = {};
         this.postbackHandlersStartedEventHandler = {
             name: "eventInvoke-postbackHandlersStarted",
@@ -838,19 +814,6 @@ var DotVVM = (function () {
             before: ["setIsPostackRunning"],
             execute: function (callback, options) {
                 return callback();
-            }
-        };
-    };
-    DotVVM.prototype.convertOldHandler = function (handler) {
-        return {
-            execute: function (callback, options) {
-                return new Promise(function (resolve, reject) {
-                    var timeout = setTimeout(function () { return reject({ type: "handler", options: options, handler: handler, message: "The postback handler can't indicate that the postback was rejected and the timeout has passed." }); }, 10000);
-                    handler.execute(function () {
-                        clearTimeout(timeout);
-                        callback().then(resolve, reject);
-                    }, options.sender);
-                });
             }
         };
     };
@@ -990,16 +953,12 @@ var DotVVM = (function () {
         throw new Error("invalid argument");
     };
     DotVVM.prototype.getPostbackHandler = function (name) {
-        var _this = this;
-        var handler = this.postbackHandlers2[name];
+        var handler = this.postbackHandlers[name];
         if (handler) {
             return handler;
         }
         else {
-            var handler_1 = this.postBackHandlers[name];
-            if (!handler_1)
-                throw new Error("Could not find postback handler of name '" + name + "'");
-            return function (options) { return _this.convertOldHandler(handler_1(options)); };
+            throw new Error("Could not find postback handler of name '" + name + "'");
         }
     };
     DotVVM.prototype.isPostbackHandler = function (obj) {
@@ -2130,9 +2089,9 @@ var DotvvmValidation = (function () {
                 return callback();
             }
         }); };
-        dotvvm.postbackHandlers2["validate"] = function (opt) { return createValidationHandler(opt.path); };
-        dotvvm.postbackHandlers2["validate-root"] = function () { return createValidationHandler("dotvvm.viewModelObservables['root']"); };
-        dotvvm.postbackHandlers2["validate-this"] = function () { return createValidationHandler("$data"); };
+        dotvvm.postbackHandlers["validate"] = function (opt) { return createValidationHandler(opt.path); };
+        dotvvm.postbackHandlers["validate-root"] = function () { return createValidationHandler("dotvvm.viewModelObservables['root']"); };
+        dotvvm.postbackHandlers["validate-this"] = function () { return createValidationHandler("$data"); };
         dotvvm.events.afterPostback.subscribe(function (args) {
             if (!args.wasInterrupted && args.serverResponseObject) {
                 if (args.serverResponseObject.action === "successfulCommand") {

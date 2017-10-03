@@ -210,9 +210,9 @@ class DotvvmValidation {
                 return callback()
             }
         })
-        dotvvm.postbackHandlers2["validate"] = (opt) => createValidationHandler(opt.path);
-        dotvvm.postbackHandlers2["validate-root"] = () => createValidationHandler("dotvvm.viewModelObservables['root']");
-        dotvvm.postbackHandlers2["validate-this"] = () => createValidationHandler("$data");
+        dotvvm.postbackHandlers["validate"] = (opt) => createValidationHandler(opt.path);
+        dotvvm.postbackHandlers["validate-root"] = () => createValidationHandler("dotvvm.viewModelObservables['root']");
+        dotvvm.postbackHandlers["validate-this"] = () => createValidationHandler("$data");
 
         dotvvm.events.afterPostback.subscribe(args => {
             if (!args.wasInterrupted && args.serverResponseObject) {
