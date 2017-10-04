@@ -34,6 +34,12 @@ namespace DotVVM.Framework.Controls
             }
         }
 
+        [Obsolete("Use the AddKnockoutDataBind(this IHtmlWriter writer, string name, IValueBinding valueBinding, DotvvmControl control) or AddKnockoutDataBind(this IHtmlWriter writer, string name, string expression) overload")]
+        public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, IValueBinding valueBinding)
+        {
+            writer.AddKnockoutDataBind(name, valueBinding.GetKnockoutBindingExpression());
+        }
+
         public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, IValueBinding valueBinding, DotvvmBindableObject control)
         {
             writer.AddKnockoutDataBind(name, valueBinding.GetKnockoutBindingExpression(control));

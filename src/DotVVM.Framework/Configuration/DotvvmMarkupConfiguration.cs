@@ -131,5 +131,13 @@ namespace DotVVM.Framework.Configuration
             Controls.Add(new DotvvmControlConfiguration { TagPrefix = tagPrefix, Namespace = exampleControl.Namespace, Assembly = exampleControl.GetTypeInfo().Assembly.FullName });
             AddAssembly(exampleControl.GetTypeInfo().Assembly.FullName);
         }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Obsolete("Use AddCodeControls instead.")]
+        public void AddCodeControl(string tagPrefix, string namespaceName, string assembly) => AddCodeControls(tagPrefix, namespaceName, assembly);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Obsolete("Use AddCodeControls instead.")]
+        public void AddCodeControl(string tagPrefix, Type exampleControl) => AddCodeControls(tagPrefix, exampleControl);
     }
 }

@@ -292,6 +292,11 @@ namespace DotVVM.Framework.Controls
             }
         }
 
+        [Obsolete("Use FindControlInContainer instead. Or FindControlByClientId if you want to be limited only to this container.")]
+        public DotvvmControl FindControl(string id, bool throwIfNotFound = false) => FindControlInContainer(id, throwIfNotFound);
+        [Obsolete("Use FindControlInContainer instead. Or FindControlByClientId if you want to be limited only to this container.")]
+        public T FindControl<T>(string id, bool throwIfNotFound = false) where T : DotvvmControl => FindControlInContainer<T>(id, throwIfNotFound);
+
         /// <summary>
         /// Finds the control by its ID coded in markup. Does not recurse into naming containers.
         /// </summary>
@@ -392,7 +397,12 @@ namespace DotVVM.Framework.Controls
         /// Occurs after the viewmodel tree is complete.
         /// </summary>
         internal virtual void OnPreInit(IDotvvmRequestContext context)
-        { }
+        {
+            foreach (var property in GetDeclaredProperties())
+            {
+                property.OnControlInitialized(this);
+            }
+        }
 
         /// <summary>
         /// Called right before the rendering shall occur.

@@ -105,9 +105,24 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty UpdateTextAfterKeydownProperty =
             DotvvmProperty.Register<bool, TextBox>(c => c.UpdateTextAfterKeydown, false);
 
+        /// <summary>
+        /// Gets or sets the type of value being formatted - Number or DateTime.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
+        [Obsolete("ValueType property is no longer required, it is automatically inferred from compile-time type of Text binding")]
+        public FormatValueType ValueType
+        {
+            get { return (FormatValueType)GetValue(ValueTypeProperty); }
+            set { SetValue(ValueTypeProperty, value); }
+        }
+
+        public static readonly DotvvmProperty ValueTypeProperty =
+            DotvvmProperty.Register<FormatValueType, TextBox>(t => t.ValueType);
+
         protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
             isFormattingRequired = !string.IsNullOrEmpty(FormatString) ||
+                ValueType != FormatValueType.Text ||
                 Literal.NeedsFormatting(GetValueBinding(TextProperty));
             if (isFormattingRequired)
             {
@@ -179,7 +194,11 @@ namespace DotVVM.Framework.Controls
             }
 
             writer.AddAttribute("data-dotvvm-format", formatString);
-            if (binding?.ResultType == typeof(DateTime))
+            if (ValueType != FormatValueType.Text)
+            {
+                writer.AddAttribute("data-dotvvm-value-type", ValueType.ToString().ToLowerInvariant());
+            }
+            else if (binding?.ResultType == typeof(DateTime))
             {
                 writer.AddAttribute("data-dotvvm-value-type", "datetime");
             }

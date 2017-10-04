@@ -9,6 +9,12 @@ namespace DotVVM.Framework.Storage
         /// <summary>
         /// Stores the file and returns its unique ID.
         /// </summary>
+        [Obsolete("Don't bother with implementing this one, it is not used anymore")]
+        Task<Guid> StoreFile(byte[] bytes, ReturnedFileMetadata metadata);
+
+        /// <summary>
+        /// Stores the file and returns its unique ID.
+        /// </summary>
         Task<Guid> StoreFile(Stream stream, ReturnedFileMetadata metadata);
 
         /// <summary>

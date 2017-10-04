@@ -22,4 +22,16 @@ namespace DotVVM.Framework.ResourceManagement
             return context.TranslateVirtualPath(Url);
         }
     }
+
+    /// <summary>
+    /// Compatibility alias for UrlResourceLocation.
+    /// Represents a resource located at remote server identified by a url.
+    /// </summary> 
+    [Obsolete("Use UrlResourceLocation instead.")]
+    public class RemoteResourceLocation : UrlResourceLocation
+    {
+        public RemoteResourceLocation(string url) : base(url)
+        {
+        }
+    }
 }

@@ -42,6 +42,19 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<string, Literal>(c => c.FormatString, "");
 
         /// <summary>
+        /// Gets or sets the type of value being formatted - Number or DateTime.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
+        [Obsolete("ValueType property is no longer required, it is automatically inferred from compile-time type of Text binding")]
+        public FormatValueType ValueType
+        {
+            get { return (FormatValueType)GetValue(ValueTypeProperty); }
+            set { SetValue(ValueTypeProperty, value); }
+        }
+        public static readonly DotvvmProperty ValueTypeProperty =
+            DotvvmProperty.Register<FormatValueType, Literal>(t => t.ValueType);
+
+        /// <summary>
         /// Gets or sets whether the literal should render the wrapper span HTML element.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
@@ -78,7 +91,7 @@ namespace DotVVM.Framework.Controls
 
         protected override bool RendersHtmlTag => RenderSpanElement;
 
-        public bool IsFormattingRequired => !string.IsNullOrEmpty(FormatString) || NeedsFormatting(GetValueBinding(TextProperty));
+        public bool IsFormattingRequired => !string.IsNullOrEmpty(FormatString) || ValueType != FormatValueType.Text || NeedsFormatting(GetValueBinding(TextProperty));
 
         protected internal override void OnPreRender(Hosting.IDotvvmRequestContext context)
         {
