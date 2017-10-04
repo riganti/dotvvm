@@ -19,9 +19,6 @@ namespace DotVVM.Framework.Binding
     {
         public static T GetProperty<T>(this IBinding binding, ErrorHandlingMode errorMode = ErrorHandlingMode.ThrowException) => (T)binding.GetProperty(typeof(T), errorMode);
 
-        [Obsolete]
-        public static string GetKnockoutBindingExpression(this IValueBinding binding) =>
-            JavascriptTranslator.FormatKnockoutScript(binding.KnockoutExpression);
         /// <summary>
         /// Gets the javascript translation of the binding adjusted to the `currentControl`s DataContext
         /// </summary>

@@ -48,24 +48,6 @@ namespace DotVVM.Framework.Hosting
         }
 
         /// <summary>
-        /// Gets the current UI culture of this HTTP request.
-        /// </summary>
-        [Obsolete("This just returns CultureInfo.CurrentUICulture")]
-        public static CultureInfo GetCurrentUICulture(this IDotvvmRequestContext context)
-        {
-            return CultureInfo.CurrentUICulture;
-        }
-
-        /// <summary>
-        /// Gets the current culture of this HTTP request.
-        /// </summary>
-        [Obsolete("This just returns CultureInfo.CurrentCulture")]
-        public static CultureInfo GetCurrentCulture(this IDotvvmRequestContext context)
-        {
-            return CultureInfo.CurrentCulture;
-        }
-
-        /// <summary>
         /// Interrupts the execution of the current request.
         /// </summary>
         [DebuggerHidden]
