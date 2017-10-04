@@ -43,6 +43,13 @@ namespace DotVVM.Framework.Controls
         internal override void OnPreInit(IDotvvmRequestContext context)
         {
             string wrapperTagName;
+
+            if (Directives.ContainsKey(ParserConstants.WrapperTagNameDirective) &&
+                Directives.ContainsKey(ParserConstants.NoWrapperTagNameDirective))
+            {
+                throw new DotvvmControlException(this, $"Control cannot have {ParserConstants.WrapperTagNameDirective} and {ParserConstants.NoWrapperTagNameDirective} at the same time");
+            }
+
             if (Directives.TryGetValue(ParserConstants.WrapperTagNameDirective, out wrapperTagName))
             {
                 rendersWrapperTag = true;
