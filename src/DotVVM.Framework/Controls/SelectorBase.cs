@@ -26,32 +26,7 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty EnabledProperty =
             DotvvmPropertyWithFallback.Register<bool, SelectorBase>(nameof(Enabled),
-                FormControls.EnabledProperty, defaultPropertyInherit: true);
-        
-
-        /// <summary>
-        /// Gets or sets the name of property in the DataSource collection that will be displayed in the control.
-        /// </summary>
-        [Obsolete("Use ItemTextBinding property instead")]
-        public string DisplayMember
-        {
-            get { return (string)GetValue(DisplayMemberProperty); }
-            set { SetValue(DisplayMemberProperty, value); }
-        }
-        public static readonly DotvvmProperty DisplayMemberProperty =
-            DotvvmProperty.Register<string, SelectorBase>(t => t.DisplayMember, "");
-
-        /// <summary>
-        /// Gets or sets the name of property in the DataSource collection that will be passed to the SelectedValue property when the item is selected.
-        /// </summary>
-        [Obsolete("Use ItemValueBinding property instead")]
-        public string ValueMember
-        {
-            get { return (string)GetValue(ValueMemberProperty); }
-            set { SetValue(ValueMemberProperty, value); }
-        }
-        public static readonly DotvvmProperty ValueMemberProperty =
-            DotvvmProperty.Register<string, SelectorBase>(t => t.ValueMember, "");
+                FormControls.EnabledProperty, defaultPropertyInherit: true);       
         
         /// <summary>
         /// The expression of DataSource item that will be displayed in the control.

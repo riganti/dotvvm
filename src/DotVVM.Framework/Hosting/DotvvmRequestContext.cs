@@ -104,9 +104,6 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public bool IsInPartialRenderingMode => DotvvmPresenter.DeterminePartialRendering(HttpContext);
 
-        [Obsolete("Get the IViewModelSerializer from IServiceProvider")]
-        public IViewModelSerializer ViewModelSerializer => Services.GetRequiredService<IViewModelSerializer>();
-
         private IServiceProvider _services;
         public IServiceProvider Services
         {

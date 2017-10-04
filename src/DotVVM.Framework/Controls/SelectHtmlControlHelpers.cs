@@ -25,18 +25,10 @@ namespace DotVVM.Framework.Controls
             {
                 writer.AddKnockoutDataBind("optionsText", selector.ItemTextBinding.GetProperty<SelectorItemBindingProperty>().Expression, selector);
             }
-            else if (!String.IsNullOrEmpty(selector.DisplayMember))
-            {
-                writer.AddKnockoutDataBind("optionsText", "function (i) { return ko.unwrap(i)[" + KnockoutHelper.MakeStringLiteral(selector.DisplayMember) + "]; }");
-            }
 
             if (selector.ItemValueBinding != null)
             {
                 writer.AddKnockoutDataBind("optionsValue", selector.ItemValueBinding.GetProperty<SelectorItemBindingProperty>().Expression, selector);
-            }
-            else if (!String.IsNullOrEmpty(selector.ValueMember))
-            {
-                writer.AddKnockoutDataBind("optionsValue", "function (i) { return ko.unwrap(i)[" + KnockoutHelper.MakeStringLiteral(selector.ValueMember) + "]; }");
             }
         }
 
