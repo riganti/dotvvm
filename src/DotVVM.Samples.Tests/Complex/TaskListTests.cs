@@ -11,7 +11,7 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Complex
 {
     [TestClass]
-    public class TaskListTests : SeleniumTest
+    public class TaskListTests : AppSeleniumTest
     {
         [TestMethod]
         public void Complex_TaskList_TaskListAsyncCommands()

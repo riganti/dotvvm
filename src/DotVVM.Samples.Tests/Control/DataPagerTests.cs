@@ -5,7 +5,7 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class DataPagerTests : SeleniumTest
+    public class DataPagerTests : AppSeleniumTest
     {
         [TestMethod]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_DataPager_DataPager))]

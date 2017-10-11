@@ -7,7 +7,7 @@ using System.Globalization;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class TextBoxTests : SeleniumTest
+    public class TextBoxTests : AppSeleniumTest
     {
         [TestMethod]
         public void Control_TextBox_FormatDoubleProperty()

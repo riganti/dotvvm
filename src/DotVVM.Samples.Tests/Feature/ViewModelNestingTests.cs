@@ -5,7 +5,7 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class ViewModelNestingTests : SeleniumTest
+    public class ViewModelNestingTests : AppSeleniumTest
     {
         [TestMethod]
         public void Feature_ViewModelNesting_NestedViewModel()

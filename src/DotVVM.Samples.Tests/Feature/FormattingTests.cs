@@ -11,7 +11,7 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class FormattingTests : SeleniumTest
+    public class FormattingTests : AppSeleniumTest
     {
         [TestMethod]
         public void Feature_Formatting_Formatting()

@@ -11,7 +11,7 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Feature
 {   
     [TestClass]
-    public class BindingPageInfoTests : SeleniumTest
+    public class BindingPageInfoTests : AppSeleniumTest
     {
         [TestMethod]
         public void Feature_BindingPageInfo_BindingPageInfo()

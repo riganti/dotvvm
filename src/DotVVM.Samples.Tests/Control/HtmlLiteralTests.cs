@@ -10,7 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class HtmlLiteralTests : SeleniumTest
+    public class HtmlLiteralTests : AppSeleniumTest
     {
 
         [TestMethod]

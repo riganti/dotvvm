@@ -6,7 +6,7 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Complex
 {
     [TestClass]
-    public class GridViewDataSetTests : SeleniumTest
+    public class GridViewDataSetTests : AppSeleniumTest
     {
         [TestMethod]
         public void Complex_GridViewDataSet_GridViewDataSet()

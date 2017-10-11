@@ -11,7 +11,7 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class MasterPageTests : SeleniumTest
+    public class MasterPageTests : AppSeleniumTest
     {
         [TestMethod]
         [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_NestedMasterPages_Content))]

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class RenderSettingsModeServerTest : SeleniumTest
+    public class RenderSettingsModeServerTest : AppSeleniumTest
     {
         [TestMethod]
         public void Feature_RenderSettingsModeServer_RenderSettingModeServerProperty()

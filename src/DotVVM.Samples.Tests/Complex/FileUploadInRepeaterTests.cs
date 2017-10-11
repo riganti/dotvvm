@@ -9,53 +9,58 @@ using Riganti.Utils.Testing.Selenium.DotVVM;
 namespace DotVVM.Samples.Tests.Complex
 {
     [TestClass]
-    public class FileUploadInRepeaterTests : SeleniumTest
+    public class FileUploadInRepeaterTests : AppSeleniumTest
     {
         [TestMethod]
         public void Complex_FileUploadInRepeater_FileUploadInRepeater()
         {
-            RunInAllBrowsers(browser =>
-            {
-                browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_FileUploadInRepeater_FileUploadInRepeater);
-                browser.Wait(1000);
+            //TODO Rewrite FileUpload in selenium api
+            throw new NotImplementedException();
+            //RunInAllBrowsers(browser =>
+            //{
+            //    browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_FileUploadInRepeater_FileUploadInRepeater);
+            //    browser.Wait(1000);
 
-                // generate temp file
-                var tempPath = Path.GetTempFileName();
-                File.WriteAllBytes(tempPath, Enumerable.Range(0, 255).Select(i => (byte)i).ToArray());
+            //    // generate temp file
+            //    var tempPath = Path.GetTempFileName();
+            //    File.WriteAllBytes(tempPath, Enumerable.Range(0, 255).Select(i => (byte)i).ToArray());
 
-                // upload file in the first part
-                browser.ElementAt(".files-count", 0).CheckIfInnerTextEquals("0");
-                browser.ElementAt(".dotvvm-upload-button a", 0).UploadFile(tempPath);
+            //    // upload file in the first part
+            //    browser.ElementAt(".files-count", 0).CheckIfInnerTextEquals("0");
+            //    browser.ElementAt(".dotvvm-upload-button a", 0).UploadFile(tempPath);
 
-                browser.WaitFor(() => browser.ElementAt(".files-count", 0).GetInnerText() == "1", 10000, "FileCount is not updated to '1'.");
-                browser.ElementAt(".files-count", 1).CheckIfInnerTextEquals("0");
-                browser.ElementAt(".files-count", 2).CheckIfInnerTextEquals("0");
+            //    browser.WaitFor(() => browser.ElementAt(".files-count", 0).GetInnerText() == "1", 10000, "FileCount is not updated to '1'.");
+            //    browser.ElementAt(".files-count", 1).CheckIfInnerTextEquals("0");
+            //    browser.ElementAt(".files-count", 2).CheckIfInnerTextEquals("0");
 
-                // upload file in the third part
-                browser.ElementAt(".dotvvm-upload-button a", 2).UploadFile(tempPath);
-                browser.Wait(6000);
+            //    // upload file in the third part
 
-                browser.ElementAt(".files-count", 0).CheckIfInnerTextEquals("1");
-                browser.ElementAt(".files-count", 1).CheckIfInnerTextEquals("0");
-                browser.ElementAt(".files-count", 2).CheckIfInnerTextEquals("1");
+            //    var e = new ElementWrapper(null, null);
+            //    e.UploadFile(tempPath);
+            //    browser.ElementAt(".dotvvm-upload-button a", 2).UploadFile(tempPath);
+            //    browser.Wait(6000);
 
-                // upload file in the first part
-                browser.ElementAt(".dotvvm-upload-button a", 0).UploadFile(tempPath);
-                browser.Wait(6000);
-                browser.ElementAt(".files-count", 0).CheckIfInnerTextEquals("2");
-                browser.ElementAt(".files-count", 1).CheckIfInnerTextEquals("0");
-                browser.ElementAt(".files-count", 2).CheckIfInnerTextEquals("1");
+            //    browser.ElementAt(".files-count", 0).CheckIfInnerTextEquals("1");
+            //    browser.ElementAt(".files-count", 1).CheckIfInnerTextEquals("0");
+            //    browser.ElementAt(".files-count", 2).CheckIfInnerTextEquals("1");
 
-                // try to delete temp file
-                try
-                {
-                    File.Delete(tempPath);
-                }
-                catch(Exception ex)
-                {
-                    Log(ex);
-                }
-            });
+            //    // upload file in the first part
+            //    browser.ElementAt(".dotvvm-upload-button a", 0).UploadFile(tempPath);
+            //    browser.Wait(6000);
+            //    browser.ElementAt(".files-count", 0).CheckIfInnerTextEquals("2");
+            //    browser.ElementAt(".files-count", 1).CheckIfInnerTextEquals("0");
+            //    browser.ElementAt(".files-count", 2).CheckIfInnerTextEquals("1");
+
+            //    // try to delete temp file
+            //    try
+            //    {
+            //        File.Delete(tempPath);
+            //    }
+            //    catch(Exception ex)
+            //    {
+            //        Log(ex);
+            //    }
+            //});
         }
     }
 }

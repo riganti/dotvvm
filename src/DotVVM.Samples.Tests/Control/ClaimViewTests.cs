@@ -6,7 +6,7 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class ClaimViewTests : SeleniumTest
+    public class ClaimViewTests : AppSeleniumTest
     {
         [TestMethod]
         public void Control_ClaimView_ClaimViewTest()

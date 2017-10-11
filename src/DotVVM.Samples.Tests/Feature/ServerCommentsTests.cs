@@ -5,7 +5,7 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class ServerCommentsTests : SeleniumTest
+    public class ServerCommentsTests : AppSeleniumTest
     {
         [TestMethod]
         public void Feature_ServerComments_ServerComments()

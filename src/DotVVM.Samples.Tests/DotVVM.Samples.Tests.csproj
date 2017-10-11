@@ -43,15 +43,19 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
     <PackageReference Include="Microsoft.Owin.Security" Version="3.0.1" />
     <PackageReference Include="Moq" Version="4.6.38-alpha" />
     <PackageReference Include="MSTest.TestFramework" Version="1.1.18" />
-    <PackageReference Include="Riganti.Utils.Testing.Selenium.Core" Version="1.0.4" />
+    <PackageReference Include="Riganti.Utils.Testing.Selenium.Coordinator.Client" Version="2.0.0-alpha1" />
+    <PackageReference Include="Riganti.Utils.Testing.Selenium.Core" Version="2.0.0-alpha1" />
+    <PackageReference Include="Riganti.Utils.Testing.Selenium.Core.Abstractions" Version="2.0.0-alpha1" />
     <PackageReference Include="Riganti.Utils.Testing.Selenium.DotVVM" Version="1.0.4" />
-    <PackageReference Include="Riganti.Utils.Testing.Selenium.MSTest2Integration" Version="1.0.4" />
-    <PackageReference Include="Selenium.Support" Version="3.4.0" />
-    <PackageReference Include="Selenium.WebDriver" Version="3.4.0" />
+    <PackageReference Include="Riganti.Utils.Testing.Selenium.FluentApi" Version="2.0.0-alpha1" />
+    <PackageReference Include="Riganti.Utils.Testing.Selenium.MSTest2Integration" Version="2.0.0-alpha1" />
+    <PackageReference Include="Riganti.Utils.Testing.Selenium.Validators" Version="2.0.0-alpha1" />
+    <PackageReference Include="Selenium.Support" Version="3.6.0" />
+    <PackageReference Include="Selenium.WebDriver" Version="3.6.0" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
     <Reference Include="System" />

@@ -10,7 +10,7 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class ServerSideStylesTests : SeleniumTest
+    public class ServerSideStylesTests : AppSeleniumTest
     {
         [TestMethod]
         public void Feature_ServerSideStyles_DotvvmControlNoAttributes()

@@ -11,7 +11,7 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class RedirectTests : SeleniumTest
+    public class RedirectTests : AppSeleniumTest
     {
         [TestMethod]
         public void Feature_Redirect_Redirect()

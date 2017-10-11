@@ -10,7 +10,7 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class ParameterBindingTests : SeleniumTestBase
+    public class ParameterBindingTests : AppSeleniumTest
     {
 
         [TestMethod]
