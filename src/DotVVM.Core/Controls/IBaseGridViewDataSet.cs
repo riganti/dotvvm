@@ -10,7 +10,6 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     public interface IBaseGridViewDataSet
     {
-        
         /// <summary>
         /// Gets or sets the items for the current page.
         /// </summary>
