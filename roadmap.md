@@ -1,6 +1,7 @@
 ## DotVVM Roadmap
 
 Current stable version: **1.1**
+
 Next planned version:   **2.0**
 
 <br />
