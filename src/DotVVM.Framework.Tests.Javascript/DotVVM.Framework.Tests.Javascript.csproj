@@ -18,14 +18,13 @@
     <Content Include="karma.ci.js" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="jasmine.TypeScript.DefinitelyTyped" Version="1.4.1" />
+    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="2.5.3" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="Scripts\typings\jasmine\jasmine.d.ts" />
     <TypeScriptCompile Include="tests\DotVVM.Serialization.Tests.ts" />
     <TypeScriptCompile Include="tests\Globalize.Tests.ts" />
   </ItemGroup>
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
