@@ -21,10 +21,10 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
-    <PackageReference Include="MSTest.TestAdapter" Version="1.1.13" />
-    <PackageReference Include="MSTest.TestFramework" Version="1.1.13" />
+    <PackageReference Include="MSTest.TestAdapter" Version="1.2.0" />
+    <PackageReference Include="MSTest.TestFramework" Version="1.2.0" />
     <PackageReference Include="Microsoft.Owin.Security" Version="3.0.1" />
-    <PackageReference Include="Moq" Version="4.6.38-alpha" />
+    <PackageReference Include="Moq" Version="4.7.142" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
     <Reference Include="System" />
