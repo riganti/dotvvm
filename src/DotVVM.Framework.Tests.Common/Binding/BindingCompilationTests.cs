@@ -242,6 +242,13 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void BindingCompiler_Valid_CollectionCount()
+        {
+            var viewModel = new TestViewModel2() { Collection = new List<Something>() { new Something { Value = true } } };
+            Assert.AreEqual(ExecuteBinding("Collection.Count > 0", viewModel), true);
+        }
+
+        [TestMethod]
         public void BindingCompiler_Valid_AndAlso()
         {
             var viewModel = new TestViewModel() { };
