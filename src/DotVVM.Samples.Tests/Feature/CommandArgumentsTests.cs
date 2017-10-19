@@ -10,7 +10,7 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class CommandArgumentsTests : SeleniumTest
+    public class CommandArgumentsTests : AppSeleniumTest
     {
         [TestMethod]
         public void Feature_CommandArguments_CommandArguments()

@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class LocalizationTests : SeleniumTest
+    public class LocalizationTests : AppSeleniumTest
     {
         [TestMethod]
         public void Feature_Localization_Localization()
@@ -63,9 +63,9 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Localization_Localization_Control_Page);
 
                 Assert.AreEqual("Localized label for checkbox inside control", 
-                    browser.Browser.FindElement(By.XPath("//div[@data-ui='localization-control-bare']/label/span")).Text);
+                    browser.Driver.FindElement(By.XPath("//div[@data-ui='localization-control-bare']/label/span")).Text);
                 Assert.AreEqual("Localized literal inside control", 
-                    browser.Browser.FindElement(By.XPath("//div[@data-ui='localization-control-bare']/span")).Text);
+                    browser.Driver.FindElement(By.XPath("//div[@data-ui='localization-control-bare']/span")).Text);
 
             });
         }
@@ -79,9 +79,9 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Localization_Localization_Control_Page);
 
                 Assert.AreEqual("Localized label for checkbox inside control",
-                    browser.Browser.FindElement(By.XPath("//div[@data-ui='localization-control-import']/label/span")).Text);
+                    browser.Driver.FindElement(By.XPath("//div[@data-ui='localization-control-import']/label/span")).Text);
                 Assert.AreEqual("Localized literal inside control", 
-                    browser.Browser.FindElement(By.XPath("//div[@data-ui='localization-control-import']/span")).Text);
+                    browser.Driver.FindElement(By.XPath("//div[@data-ui='localization-control-import']/span")).Text);
 
             });
         }

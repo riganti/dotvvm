@@ -6,7 +6,7 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class ChildViewModelInvokeMethodsTests : SeleniumTest
+    public class ChildViewModelInvokeMethodsTests : AppSeleniumTest
     {
         [TestMethod]
         public void Feature_ChildViewModelInvokeMethods_ChildViewModelInvokeMethods()

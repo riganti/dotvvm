@@ -10,7 +10,7 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class FormControlsEnabledTests : SeleniumTest
+    public class FormControlsEnabledTests : AppSeleniumTest
     {
         [TestMethod]
         public void Feature_FormControlsEnabled_FormControlsEnabled()

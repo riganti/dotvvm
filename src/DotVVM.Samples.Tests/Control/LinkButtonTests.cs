@@ -11,7 +11,7 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class LinkButtonTests : SeleniumTest
+    public class LinkButtonTests : AppSeleniumTest
     {
         [TestMethod]
         public void Control_LinkButton_LinkButton()
@@ -46,18 +46,20 @@ namespace DotVVM.Samples.Tests.Control
         [TestMethod]
         public void Control_LinkButton_LinkButtonOnClick()
         {
-            RunInAllBrowsers(browser =>
-            {
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_LinkButton_LinkButtonOnclick);
-                var onclickResult = browser.First("span.result1").Check();
-                var clickResult = browser.First("span.result2").Check();
-                clickResult.InnerText(s => s.Equals(""));
-                onclickResult.InnerText(s => s.Equals(""));
+            //TODO Rewrite CheckElementWrapper in selenium api
+            throw new NotImplementedException();
+            //RunInAllBrowsers(browser =>
+            //{
+            //    browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_LinkButton_LinkButtonOnclick);
+            //    var onclickResult = browser.First("span.result1").Check();
+            //    var clickResult = browser.First("span.result2").Check();
+            //    clickResult.InnerText(s => s.Equals(""));
+            //    onclickResult.InnerText(s => s.Equals(""));
 
-                browser.Click("#LinkButton");
-                clickResult.InnerText(s => s.Equals("Changed from command binding"));
-                onclickResult.InnerText(s => s.Contains("Changed from onclick"));
-            });
+            //    browser.Click("#LinkButton");
+            //    clickResult.InnerText(s => s.Equals("Changed from command binding"));
+            //    onclickResult.InnerText(s => s.Contains("Changed from onclick"));
+            //});
         }
     }
 }

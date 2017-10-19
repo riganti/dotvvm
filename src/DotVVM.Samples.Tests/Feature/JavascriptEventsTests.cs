@@ -11,7 +11,7 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class JavascriptEventsTests : SeleniumTest
+    public class JavascriptEventsTests : AppSeleniumTest
     {
         [TestMethod]
         public void Feature_JavascriptEvents_JavascriptEvents()

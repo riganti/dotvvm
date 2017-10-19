@@ -11,7 +11,7 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class ValidationTests : SeleniumTest
+    public class ValidationTests : AppSeleniumTest
     {
         [TestMethod]
         public void Feature_Validation_ClientSideValidationDisabling()

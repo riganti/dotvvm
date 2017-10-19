@@ -13,7 +13,7 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class PostBackTests : SeleniumTest
+    public class PostBackTests : AppSeleniumTest
     {
         [TestMethod]
         public void Feature_PostBack_PostbackUpdate()

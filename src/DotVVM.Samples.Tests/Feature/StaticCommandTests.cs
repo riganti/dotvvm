@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class StaticCommandTests : SeleniumTest
+    public class StaticCommandTests : AppSeleniumTest
     {
         [TestMethod]
         public void Feature_StaticCommand_StaticCommand()

@@ -10,7 +10,7 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class BindingNamespacesTests : SeleniumTest
+    public class BindingNamespacesTests : AppSeleniumTest
     {
         [TestMethod]
         public void Feature_BindingNamespaces_BindingUsingNamespace()

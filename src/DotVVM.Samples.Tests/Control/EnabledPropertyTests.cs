@@ -11,7 +11,7 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class EnabledPropertyTests : SeleniumTest
+    public class EnabledPropertyTests : AppSeleniumTest
     {
         [TestMethod]
         public void Control_EnabledProperty_EnabledProperty()

@@ -11,7 +11,7 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class DoublePostBackPreventionTests : SeleniumTest
+    public class DoublePostBackPreventionTests : AppSeleniumTest
     {
         [TestMethod]
         public void Feature_DoublePostBackPrevention_DoublePostBackPrevention()

@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class ReturnedFileTests : SeleniumTest
+    public class ReturnedFileTests : AppSeleniumTest
     {
 
         [TestMethod]

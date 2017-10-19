@@ -5,7 +5,7 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class RepeaterTests : SeleniumTest
+    public class RepeaterTests : AppSeleniumTest
     {
         [TestMethod]
         public void Control_Repeater_DataSourceNull()
