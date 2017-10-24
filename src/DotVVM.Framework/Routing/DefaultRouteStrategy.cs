@@ -13,9 +13,9 @@ namespace DotVVM.Framework.Routing
     public class DefaultRouteStrategy : IRoutingStrategy
     {
 
-        private readonly DotvvmConfiguration configuration;
-        private readonly string applicationPhysicalPath;
-        private readonly DirectoryInfo viewsFolderDirectoryInfo;
+        protected readonly DotvvmConfiguration configuration;
+        protected readonly string applicationPhysicalPath;
+        protected readonly DirectoryInfo viewsFolderDirectoryInfo;
 
 
         public DefaultRouteStrategy(DotvvmConfiguration configuration, string viewsFolder = "Views")
