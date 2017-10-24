@@ -172,11 +172,21 @@ namespace DotVVM.Framework.Controls
                 CallGridViewDataSetRefreshRequest(refreshableDataSet);
             }
 
-            var sortCommand = 
-                dataSource is ISortableGridViewDataSet sortableGridViewDataSet ?
-                sortableGridViewDataSet.SetSortExpression :
-                SortChanged;
-           
+            var sortCommand =
+                dataSource is ISortableGridViewDataSet sortableSet && sortableSet.SortingOptions is ISortingOptions sortOptions ?
+                    expr => {
+                        if (sortOptions.SortExpression == expr)
+                            sortOptions.SortDescending ^= true;
+                        else {
+                            sortOptions.SortExpression = expr;
+                            sortOptions.SortDescending = false;
+                        }
+                        return (sortableSet as IPageableGridViewDataSet)?.GoToFirstPageAsync() ?? TaskUtils.GetCompletedTask();
+                    } :
+                SortChanged != null ?
+                    expr => { SortChanged(expr); return TaskUtils.GetCompletedTask(); } :
+                (Func<string, Task>)null;
+
             // WORKAROUND: DataSource is null => don't throw exception
             if (sortCommand == null && dataSource == null)
             {
@@ -221,7 +231,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void CreateHeaderRow(IDotvvmRequestContext context, Action<string> sortCommand)
+        private void CreateHeaderRow(IDotvvmRequestContext context, Func<string, Task> sortCommand)
         {
             head = new HtmlGenericControl("thead");
             Children.Add(head);

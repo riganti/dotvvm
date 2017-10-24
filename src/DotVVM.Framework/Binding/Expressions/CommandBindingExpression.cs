@@ -152,6 +152,10 @@ namespace DotVVM.Framework.Binding.Expressions
             : this(service, (h, o) => (Action)(() => command(h)), id)
         { }
 
+        public CommandBindingExpression(BindingCompilationService service, Func<object[], Task> command, string id)
+            : this(service, (h, o) => (Command)(() => command(h)), id)
+        { }
+
         public CommandBindingExpression(BindingCompilationService service, Delegate command, string id)
             : this(service, (h, o) => command, id)
         { }
