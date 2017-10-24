@@ -14,7 +14,7 @@ namespace DotVVM.Samples.Tests.CompletenessChecker
     class Program
     {
 
-        // thsi utility compares the UI tests and Selenium tests and reports samples which do not have tests
+        // this utility compares the UI tests and Selenium tests and reports samples which do not have tests
         static void Main(string[] args)
         {
             // get a list of tests
@@ -28,7 +28,7 @@ namespace DotVVM.Samples.Tests.CompletenessChecker
                 .SelectMany(m => new[] { m.Name }.Concat(m.GetCustomAttributes<SampleReferenceAttribute>().Select(a => FixSampleName(a.SampleName))))
                 .Distinct()
                 .ToList();
-            
+
             // get a list of samples from the web app
             var allSamples = typeof(SamplesRouteUrls).GetProperties(BindingFlags.Public | BindingFlags.Static)
                 .Where(p => p.Name != "Default")
@@ -71,7 +71,7 @@ namespace DotVVM.Samples.Tests.CompletenessChecker
             {
                 parts[0] = "Error";
             }
-            
+
             return string.Join("_", parts);
         }
     }
