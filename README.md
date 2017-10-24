@@ -22,10 +22,10 @@ First, install the `DotVVM.DynamicData` NuGet package in your project.
 Install-Package DotVVM.DynamicData -pre
 ```
 
-To use Dynamic Data, add the following line to the `DotvvmStartup.cs` file.
+To use Dynamic Data, add the following line to the `Startup.cs` file.
 
 ```
-// ASP.NET Core (ConfigureServices)
+// ASP.NET Core (place this snippet in the ConfigureServices method)
 services.AddDotVVM(options => 
 {
     var dynamicDataConfig = new DynamicDataConfiguration();
@@ -34,7 +34,7 @@ services.AddDotVVM(options =>
 });
 
 // OWIN
-app.UseDotVVM(..., options => 
+app.UseDotVVM<DotvvmStartup>(applicationPhysicalPath, options: options =>
 {
     var dynamicDataConfig = new DynamicDataConfiguration();
     // set up config
