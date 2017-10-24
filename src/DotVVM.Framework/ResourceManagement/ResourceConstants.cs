@@ -14,6 +14,7 @@ namespace DotVVM.Framework.ResourceManagement
         public const string DotvvmDebugResourceName = "dotvvm.debug";
         public const string GlobalizeResourceName = "globalize";
         public const string GlobalizeCultureResourceName = "globalize:{0}";
+        public const string JQueryResourceName = "jquery";
 
         public const string DotvvmFileUploadCssResourceName = "dotvvm.fileUpload-css";
     }
