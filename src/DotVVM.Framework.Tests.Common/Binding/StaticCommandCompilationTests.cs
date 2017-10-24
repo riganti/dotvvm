@@ -86,11 +86,28 @@ namespace DotVVM.Framework.Tests.Binding
             var result = CompileBinding("StringProp = StaticCommands.GetLength(StringProp).ToString(); StringProp = StaticCommands.GetLength(StringProp).ToString()", typeof(TestViewModel));
             Assert.AreEqual("(function(a,c,d,b){return (dotvvm.staticCommandPostback('root',a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuU3RhdGljQ29tbWFuZHMsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMuQ29tbW9uIiwiR2V0TGVuZ3RoIiwiQUE9PSJd\",[c.$data.StringProp()],function(r_0){(b=c.$data.StringProp(dotvvm.globalize.bindingNumberToString(r_0)()).StringProp(),dotvvm.staticCommandPostback('root',a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuU3RhdGljQ29tbWFuZHMsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMuQ29tbW9uIiwiR2V0TGVuZ3RoIiwiQUE9PSJd\",[c.$data.StringProp()],function(r_1){d.resolve((b,c.$data.StringProp(dotvvm.globalize.bindingNumberToString(r_1)()).StringProp()));}));}),d);}(this,ko.contextFor(this),new DotvvmPromise()))", result);
         }
+
+        [TestMethod]
+        public void StaticCommandCompilation_DateTimeResultAssignment()
+        {
+            var result = CompileBinding("DateFrom = StaticCommands.GetDate()", typeof(TestViewModel));
+            Assert.AreEqual("(function(a,b,c){return (dotvvm.staticCommandPostback('root',a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuU3RhdGljQ29tbWFuZHMsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMuQ29tbW9uIiwiR2V0RGF0ZSIsIiJd\",[],function(r_0){c.resolve(b.$data.DateFrom(dotvvm.serialization.serializeDate(r_0)).DateFrom());}),c);}(this,ko.contextFor(this),new DotvvmPromise()))", result);
+        }
+
+        [TestMethod]
+        public void StaticCommandCompilation_DateTimeAssignment()
+        {
+            var result = CompileBinding("DateFrom = DateTo", typeof(TestViewModel));
+            Assert.AreEqual("(function(a,b){return (b.resolve(a.$data.DateFrom(dotvvm.serialization.serializeDate(a.$data.DateTo())).DateFrom()),b);}(ko.contextFor(this),new DotvvmPromise()))", result);
+        }
     }
 
     public static class StaticCommands
     {
         [AllowStaticCommand]
         public static int GetLength(string str) => str.Length;
+
+        [AllowStaticCommand]
+        public static DateTime GetDate() => DateTime.UtcNow;
     }
 }

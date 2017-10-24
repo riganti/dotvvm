@@ -316,8 +316,10 @@ class DotvvmSerialization {
         return value;
     }
 
-    public serializeDate(date: string | Date, convertToUtc: boolean = true): string {
-        if (typeof date == "string") {
+    public serializeDate(date: string | Date | null, convertToUtc: boolean = true): string | null {
+        if (date == null) {
+            return null;
+        } else if (typeof date == "string") {
             // just print in the console if it's invalid
             if (dotvvm.globalize.parseDotvvmDate(date) != null)
                 console.error(new Error(`Date ${date} is invalid.`))

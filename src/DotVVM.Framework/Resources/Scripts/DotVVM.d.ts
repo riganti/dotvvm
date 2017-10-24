@@ -169,7 +169,7 @@ declare class DotvvmSerialization {
     flatSerialize(viewModel: any): any;
     getPureObject(viewModel: any): {};
     private pad(value, digits);
-    serializeDate(date: Date, convertToUtc?: boolean): string;
+    serializeDate(date: string | Date, convertToUtc?: boolean): string;
 }
 interface Document {
     getElementByDotvvmId(id: string): HTMLElement;
