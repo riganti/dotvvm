@@ -9,27 +9,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App.config" />
-    <None Include="App.ANC_Chrome.config">
-      <DependentUpon>App.config</DependentUpon>
-    </None>
-    <None Include="App.ANC_Firefox.config">
-      <DependentUpon>App.config</DependentUpon>
-    </None>
-    <None Include="App.ANC_InternetExplorer.config">
-      <DependentUpon>App.config</DependentUpon>
-    </None>
-    <None Include="App.Owin_Chrome.config">
-      <DependentUpon>App.config</DependentUpon>
-    </None>
-    <None Include="App.Owin_Firefox.config">
-      <DependentUpon>App.config</DependentUpon>
-    </None>
-    <None Include="App.Owin_InternetExplorer.config">
-      <DependentUpon>App.config</DependentUpon>
-    </None>
-    <None Include="App.Release.config">
-      <DependentUpon>App.config</DependentUpon>
-    </None>
   </ItemGroup>
     <ItemGroup>
     <None Update="SamplesRouteUrls.tt">
@@ -50,6 +29,7 @@
     <PackageReference Include="Microsoft.Owin.Security" Version="3.0.1" />
     <PackageReference Include="Moq" Version="4.6.38-alpha" />
     <PackageReference Include="MSTest.TestFramework" Version="1.2.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="1.2.0" />
     <PackageReference Include="Riganti.Utils.Testing.Selenium.Coordinator.Client" Version="2.0.0-alpha6" />
     <PackageReference Include="Riganti.Utils.Testing.Selenium.Core" Version="2.0.0-alpha6" />
     <PackageReference Include="Riganti.Utils.Testing.Selenium.Core.Abstractions" Version="2.0.0-alpha6" />
