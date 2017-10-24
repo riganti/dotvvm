@@ -25,7 +25,21 @@ Install-Package DotVVM.DynamicData -pre
 To use Dynamic Data, add the following line to the `DotvvmStartup.cs` file.
 
 ```
-var dynamicDataConfig = config.AddDynamicDataConfiguration();
+// ASP.NET Core (ConfigureServices)
+services.AddDotVVM(options => 
+{
+    var dynamicDataConfig = new DynamicDataConfiguration();
+    // set up config
+    options.AddDynamicData(dynamicDataConfig);
+});
+
+// OWIN
+app.UseDotVVM(..., options => 
+{
+    var dynamicDataConfig = new DynamicDataConfiguration();
+    // set up config
+    options.AddDynamicData(dynamicDataConfig);
+});
 ```
 
 This will allow to provide UI metadata using the standard .NET Data Annotations attributes.
@@ -38,7 +52,7 @@ public class EmployeeDTO
 
 	
 	
-	// first group of fields
+    // first group of fields
 	
     [Required]
     [EmailAddress]
@@ -58,7 +72,7 @@ public class EmployeeDTO
     public DateTime BirthDate { get; set; }
     
 	
-	// second group of fields
+    // second group of fields
 	
     [Display(Name = "E-mail", Order = 11, GroupName = "Contact Info")]
     public string PersonalEmail { get; set; }
@@ -223,6 +237,7 @@ Here is a brief list of features that are already done, and features that are pl
 * Resource lookup for validation error messages and property display names
 * HTML table layout for Forms
 * TextBox and CheckBox editors
+* ComboBox editor with support of conventions
 
 ### In Progress
 
@@ -236,6 +251,6 @@ Here is a brief list of features that are already done, and features that are pl
 * `UIHint` attribute support
 * Auto-generating filters on top of the GridView
 * Entity Relationship support
-* ComboBox and other Collection editors
+* Collection editors
 * Page templates
 
