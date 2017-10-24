@@ -178,6 +178,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Navigates to the first page.
         /// </summary>
+        [Obsolete("Use await GoToFirstPageAsync")]
         public void GoToFirstPage() => GoToFirstPageAsync().Wait();
 
         /// <summary>
@@ -192,6 +193,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Navigates to the last page.
         /// </summary>
+        [Obsolete("Use await GoToLastPageAsync")]
         public void GoToLastPage() => GoToLastPageAsync().Wait();
 
         /// <summary>
@@ -206,6 +208,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Navigates to the next page (if possible).
         /// </summary>
+        [Obsolete("Use await GoToNextPageAsync")]
         public void GoToNextPage() => GoToNextPageAsync().Wait();
 
         /// <summary>
@@ -224,6 +227,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Navigates to the specific page.
         /// </summary>
+        [Obsolete("Use await GoToPageAsync")]
         public void GoToPage(int index) => GoToPageAsync(index).Wait();
 
         /// <summary>
@@ -238,6 +242,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Navigates to the previous page (if possible).
         /// </summary>
+        [Obsolete("Use await GoToPreviousPageAsync")]
         public void GoToPreviousPage() => GoToPreviousPageAsync().Wait();
 
         /// <summary>
@@ -267,6 +272,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Requests to refresh the GridViewDataSet.
         /// </summary>
+        [Obsolete("Use RequestRefreshAsync")]
         public void RequestRefresh(bool forceRefresh = false) => RequestRefreshAsync(forceRefresh).Wait();
 
         /// <summary>
@@ -284,19 +290,19 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Sets the sort expression. If the specified expression is already active, switches the sort direction.
         /// </summary>
+        [Obsolete("This method has strange side-effects, assign the expression yourself and reaload the dataset")]
         public virtual void SetSortExpression(string expression)
         {
             if (SortingOptions.SortExpression == expression)
             {
                 SortingOptions.SortDescending = !SortingOptions.SortDescending;
-                GoToFirstPage();
             }
             else
             {
                 SortingOptions.SortExpression = expression;
                 SortingOptions.SortDescending = false;
-                GoToFirstPage();
             }
+            GoToFirstPage();
         }
 
         /// <summary>

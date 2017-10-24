@@ -3,6 +3,7 @@ using DotVVM.Framework.Hosting;
 using System;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
+using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Controls
 {
@@ -113,7 +114,7 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty WidthProperty
             = DotvvmProperty.Register<string, GridViewColumn>(c => c.Width, null);
-        
+
         [PopDataContextManipulationAttribute]
         [MarkupOptions(AllowHardCodedValue = false)]
         public bool Visible
@@ -129,7 +130,7 @@ namespace DotVVM.Framework.Controls
 
         public abstract void CreateEditControls(IDotvvmRequestContext context, DotvvmControl container);
 
-        public virtual void CreateHeaderControls(IDotvvmRequestContext context, GridView gridView, Action<string> sortCommand, HtmlGenericControl cell, IGridViewDataSet gridViewDataSet)
+        public virtual void CreateHeaderControls(IDotvvmRequestContext context, GridView gridView, Func<string, Task> sortCommand, HtmlGenericControl cell, IGridViewDataSet gridViewDataSet)
         {
             if (HeaderTemplate != null)
             {
