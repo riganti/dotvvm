@@ -10,7 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class RadioButtonTests : SeleniumTest
+    public class RadioButtonTests : AppSeleniumTest
     {
 
         [TestMethod]

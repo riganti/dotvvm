@@ -1,17 +1,18 @@
 ﻿using Dotvvm.Samples.Tests;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Riganti.Utils.Testing.Selenium.Core;
-using Riganti.Utils.Testing.Selenium.Core.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Riganti.Utils.Testing.Selenium.Core.Abstractions;
+using Riganti.Utils.Testing.Selenium.Core.Abstractions.Exceptions;
 
 namespace DotVVM.Samples.Tests.Complex
 {
     [TestClass]
-    public class RedirectAndUrlTests : SeleniumTest
+    public class RedirectAndUrlTests : AppSeleniumTest
     {
         [TestMethod]
         [SampleReference(nameof(SamplesRouteUrls.ComplexSamples_RedirectAndUrl_ScrollingPage))]
@@ -109,7 +110,7 @@ namespace DotVVM.Samples.Tests.Complex
 
 public static class ElementWrapperIsInViewExtensions
 {
-    public static ElementWrapper ScrollTo(this ElementWrapper element)
+    public static IElementWrapper ScrollTo(this IElementWrapper element)
     {
         var javascript = @"
             function findPosition(element) {
@@ -129,7 +130,7 @@ public static class ElementWrapperIsInViewExtensions
         return element;
     }
 
-    public static void CheckIfIsElementInView(this ElementWrapper element)
+    public static void CheckIfIsElementInView(this IElementWrapper element)
     {
         if (!IsElementInView(element))
         {
@@ -137,7 +138,7 @@ public static class ElementWrapperIsInViewExtensions
         }
     }
 
-    public static void CheckIfIsElementNotInView(this ElementWrapper element)
+    public static void CheckIfIsElementNotInView(this IElementWrapper element)
     {
         if (IsElementInView(element))
         {
@@ -145,7 +146,7 @@ public static class ElementWrapperIsInViewExtensions
         }
     }
 
-    public static bool IsElementInView( this ElementWrapper element)
+    public static bool IsElementInView( this IElementWrapper element)
     {
         var executor = element.BrowserWrapper.GetJavaScriptExecutor();
 

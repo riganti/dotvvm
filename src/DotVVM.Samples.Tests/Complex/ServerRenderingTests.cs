@@ -1,18 +1,18 @@
 ﻿using Dotvvm.Samples.Tests;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Riganti.Utils.Testing.Selenium.Core;
-using Riganti.Utils.Testing.Selenium.Core.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OpenQA.Selenium;
+using Riganti.Utils.Testing.Selenium.Core.Abstractions.Exceptions;
 
 namespace DotVVM.Samples.Tests.Complex
 {
     [TestClass]
-    public class ServerRenderingTests : SeleniumTest
+    public class ServerRenderingTests : AppSeleniumTest
     {
         [TestMethod]
         public void Complex_ServerRendering_ControlUsageSample()

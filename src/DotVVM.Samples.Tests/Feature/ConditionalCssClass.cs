@@ -10,7 +10,7 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class ConditionalCssClass : SeleniumTest
+    public class ConditionalCssClass : AppSeleniumTest
     {
         [TestMethod]
         public void Feature_ConditionalCssClasses_ConditionalCssClasses()

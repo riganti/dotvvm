@@ -10,7 +10,7 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class ClientExtendersTests : SeleniumTest
+    public class ClientExtendersTests : AppSeleniumTest
     {
         [TestMethod]
         public void Feature_ClientExtenders_PasswordStrength()

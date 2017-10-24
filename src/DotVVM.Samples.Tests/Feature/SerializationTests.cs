@@ -11,7 +11,7 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class SerializationTests : SeleniumTest
+    public class SerializationTests : AppSeleniumTest
     {
         [TestMethod]
         public void Feature_Serialization_Serialization()

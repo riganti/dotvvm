@@ -242,6 +242,13 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void BindingCompiler_Valid_CollectionCount()
+        {
+            var viewModel = new TestViewModel2() { Collection = new List<Something>() { new Something { Value = true } } };
+            Assert.AreEqual(ExecuteBinding("Collection.Count > 0", viewModel), true);
+        }
+
+        [TestMethod]
         public void BindingCompiler_Valid_AndAlso()
         {
             var viewModel = new TestViewModel() { };
@@ -408,6 +415,13 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual("nn", vm.StringProp);
             Assert.AreEqual("allkk", vm.StringProp2);
             Assert.AreEqual("allkk|nn", result);
+	}
+
+        public void BindingCompiler_ComparisonOperators()
+        {
+            var result = ExecuteBinding("LongProperty < TestViewModel2.MyProperty && LongProperty > TestViewModel2.MyProperty", new [] { new TestViewModel { TestViewModel2 = new TestViewModel2() } });
+            Assert.AreEqual(false, result);
+
         }
     }
     class TestViewModel

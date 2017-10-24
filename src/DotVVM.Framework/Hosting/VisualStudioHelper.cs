@@ -9,7 +9,7 @@ namespace DotVVM.Framework.Hosting
     {
         public static void DumpConfiguration(DotvvmConfiguration config, string directory)
         {
-            if (config.Debug || Process.GetCurrentProcess().ProcessName == "iisexpress")
+            if (config.Debug || Debugger.IsAttached || Process.GetCurrentProcess().ProcessName == "iisexpress")
             {
                 try
                 {

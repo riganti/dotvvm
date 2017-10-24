@@ -11,7 +11,7 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Complex
 {
     [TestClass]
-    public class ChangedEventTests : SeleniumTest
+    public class ChangedEventTests : AppSeleniumTest
     {
         [TestMethod]
         public void Complex_ChangedEvent_ChangedEvent()
@@ -24,30 +24,30 @@ namespace DotVVM.Samples.Tests.Complex
 
                 // first textbox with update mode on key press
                 var textBox1 = browser.First("input[type=text]");
-                new Actions(browser.Browser).Click(textBox1.WebElement).Perform();
+                new Actions(browser.Driver).Click(textBox1.WebElement).Perform();
                 browser.Wait();
-                new Actions(browser.Browser).SendKeys("test").Perform();
+                new Actions(browser.Driver).SendKeys("test").Perform();
 
                 browser.Wait();
                 browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("0");
                 browser.First("*[data-id='first-textbox']").CheckIfInnerTextEquals("Valuetest");
 
-                new Actions(browser.Browser).SendKeys(Keys.Enter).SendKeys(Keys.Tab).Perform();
+                new Actions(browser.Driver).SendKeys(Keys.Enter).SendKeys(Keys.Tab).Perform();
                 browser.First("*[data-id='first-textbox']").CheckIfInnerTextEquals("Valuetest");
                 browser.Wait();
                 browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("1");
 
                 // second textbox
                 var textBox2 = browser.ElementAt("input[type=text]", 1);
-                new Actions(browser.Browser).Click(textBox2.WebElement).Perform();
+                new Actions(browser.Driver).Click(textBox2.WebElement).Perform();
                 browser.Wait();
-                new Actions(browser.Browser).SendKeys("test").Perform();
+                new Actions(browser.Driver).SendKeys("test").Perform();
 
                 browser.Wait();
                 browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("1");
                 browser.First("*[data-id='second-textbox']").CheckIfInnerTextEquals("Value");
 
-                new Actions(browser.Browser).SendKeys(Keys.Enter).SendKeys(Keys.Tab).Perform();
+                new Actions(browser.Driver).SendKeys(Keys.Enter).SendKeys(Keys.Tab).Perform();
                 browser.First("*[data-id='second-textbox']").CheckIfInnerTextEquals("Valuetest");
                 browser.Wait();
                 browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("2");

@@ -152,6 +152,14 @@ namespace DotVVM.Framework.Binding
             }
         }
 
+        public void CopyTo(IDictionary<string, TValue> dictionary)
+        {
+            foreach (var item in this)
+            {
+                dictionary[item.Key] = item.Value;
+            }
+        }
+
         public bool Remove(KeyValuePair<string, TValue> item)
         {
             if (Contains(item)) return Remove(item.Key);
@@ -166,10 +174,26 @@ namespace DotVVM.Framework.Binding
                 var pg = p as GroupedDotvvmProperty;
                 if (pg != null && pg.PropertyGroup == group)
                 {
-                    yield return new KeyValuePair<string, TValue>(pg.Name, (TValue)control.GetValue(p));
+                    yield return new KeyValuePair<string, TValue>(pg.GroupMemberName, (TValue)control.GetValue(p));
                 }
             }
         }
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        public IEnumerable<KeyValuePair<string, object>> RawValues
+        {
+            get
+            {
+                if (control.properties == null) yield break;
+                foreach (var p in control.properties.Keys)
+                {
+                    var pg = p as GroupedDotvvmProperty;
+                    if (pg != null && pg.PropertyGroup == group)
+                    {
+                        yield return new KeyValuePair<string, object>(pg.GroupMemberName, control.GetValueRaw(p));
+                    }
+                }
+            }
+        }
     }
 }

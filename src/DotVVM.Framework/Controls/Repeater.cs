@@ -14,10 +14,10 @@ namespace DotVVM.Framework.Controls
     {
         private EmptyData emptyDataContainer;
 
-        public Repeater()
+        public Repeater(bool allowImplicitLifecycleRequirements = true)
         {
             SetValue(Internal.IsNamingContainerProperty, true);
-            if (GetType() == typeof(Repeater))
+            if (allowImplicitLifecycleRequirements && GetType() == typeof(Repeater))
             {
                 LifecycleRequirements &= ~(ControlLifecycleRequirements.InvokeMissingInit | ControlLifecycleRequirements.InvokeMissingLoad);
             }

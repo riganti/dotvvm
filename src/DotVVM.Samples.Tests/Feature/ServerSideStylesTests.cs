@@ -10,10 +10,10 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class ServerSideStylesTests : SeleniumTest
+    public class ServerSideStylesTests : AppSeleniumTest
     {
         [TestMethod]
-        public void Feature_ServerSideStyles_DotvvmContolNoAttributes()
+        public void Feature_ServerSideStyles_DotvvmControlNoAttributes()
         {
             RunInAllBrowsers(browser =>
             {
@@ -24,7 +24,7 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [TestMethod]
-        public void Feature_ServerSideStyles_DotvvmContolWithAttributes()
+        public void Feature_ServerSideStyles_DotvvmControlWithAttributes()
         {
             RunInAllBrowsers(browser =>
             {
@@ -35,7 +35,7 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [TestMethod]
-        public void Feature_ServerSideStyles_HtmlContolNoAttributes()
+        public void Feature_ServerSideStyles_HtmlControlNoAttributes()
         {
             RunInAllBrowsers(browser =>
             {
@@ -89,6 +89,36 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.First("input[id=dotvvmControlWithAttr]").CheckIfHasAttribute("addedAttr");
                 browser.First("input[id=dotvvmControlNoAttr]").CheckIfHasNotAttribute("addedAttr");
                 browser.First("input[id=derivedControl]").CheckIfHasAttribute("addedAttr");
+            });
+        }
+
+        [TestMethod]
+        public void Feature_ServerSideStyles_Directory()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ServerSideStyles_DirectoryStyle_ServerSideStyles);
+                browser.First("input[id=dotvvmControl]").CheckAttribute("directory", "matching");
+                browser.First("customtagname[id=htmlControl]").CheckAttribute("directory", "matching");
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ServerSideStyles_NoDirectoryStyle_ServerSideStyles);
+                browser.First("input[id=dotvvmControl]").CheckIfHasNotAttribute("directory");
+                browser.First("customtagname[id=htmlControl]").CheckIfHasNotAttribute("directory");
+            });
+        }
+
+        [TestMethod]
+        public void Feature_ServerSideStyles_DataContexts()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles_MatchingViewModel);
+                browser.First("customDataContextTag[id=matchingDataContextAndRoot]").CheckAttribute("dataContextCheck", "matching");
+                browser.First("customDataContextTag[id=matchingDataContextAndRoot]").CheckAttribute("rootDataContextCheck", "matching");
+                browser.First("customDataContextTag[id=matchingRoot]").CheckAttribute("rootDataContextCheck", "matching");
+                browser.First("customDataContextTag[id=matchingRoot]").CheckIfHasNotAttribute("dataContextCheck");
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles);
+                browser.First("customDataContextTag[id=nonMatchingDataContextAndRoot]").CheckIfHasNotAttribute("rootDataContextCheck");
+                browser.First("customDataContextTag[id=nonMatchingDataContextAndRoot]").CheckIfHasNotAttribute("dataContextCheck");
             });
         }
     }

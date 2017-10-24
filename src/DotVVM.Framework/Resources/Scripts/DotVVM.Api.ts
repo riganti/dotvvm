@@ -38,7 +38,7 @@ function basicAuthenticatedFetch(input: RequestInfo, init: RequestInit) {
     if (init == null) init = {}
     if (!init.cache) init.cache = "no-cache";
     return window.fetch(input, init).then(response => {
-        if (response.status == 401 && auth == null) {
+        if (response.status === 401 && auth == null) {
             if (sessionStorage.getItem("someAuth") == null) requestAuth();
             return basicAuthenticatedFetch(input, init);
         } else {

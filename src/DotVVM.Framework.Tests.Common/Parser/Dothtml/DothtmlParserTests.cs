@@ -674,6 +674,27 @@ test";
             Assert.AreEqual(1, pNode.NodeWarnings.Count(), "There should have been a warning about implicitly closing p element.");
             Assert.AreEqual(true, pNode.NodeWarnings.Any(w=> w.Contains("implicitly closed")));
         }
+        [TestMethod]
+        public void DothtmlParser_AngleCharsInsideBinding()
+        {
+            var markup = "<div class-active='{value: Activity > 3 && Activity < 100}' />";
+            var root = ParseMarkup(markup);
+
+            var binding = root.EnumerateNodes().OfType<DothtmlBindingNode>().Single();
+
+            Assert.AreEqual("Activity > 3 && Activity < 100", binding.Value);
+        }
+
+        [TestMethod]
+        public void DothtmlParser_HtmlCommentInsideBinding()
+        {
+            var markup = "<div class-active='{value: \"<!-- comment -->\"}' />";
+            var root = ParseMarkup(markup);
+
+            var binding = root.EnumerateNodes().OfType<DothtmlBindingNode>().Single();
+
+            Assert.AreEqual("\"<!-- comment -->\"", binding.Value);
+        }
 
         public static DothtmlRootNode ParseMarkup(string markup)
         {

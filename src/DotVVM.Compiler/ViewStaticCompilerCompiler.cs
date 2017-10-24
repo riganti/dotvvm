@@ -18,6 +18,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Collections.Immutable;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Compiler
 {
@@ -192,6 +193,9 @@ namespace DotVVM.Compiler
                 var controlUsageError = validationVisitor.Errors.First();
                 throw new DotvvmCompilationException(controlUsageError.ErrorMessage, controlUsageError.Nodes.SelectMany(n => n.Tokens));
             }
+
+            new LifecycleRequirementsAssigningVisitor().ApplyAction(resolvedView.Accept);
+
 
             DefaultViewCompilerCodeEmitter emitter = null;
             string fullClassName = null;

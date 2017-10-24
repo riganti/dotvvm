@@ -6,12 +6,12 @@ using System.Text;
 using System.Threading.Tasks;
 using Dotvvm.Samples.Tests;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core.Exceptions;
+using Riganti.Utils.Testing.Selenium.Core.Abstractions.Exceptions;
 
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class UpdateProgressTests : SeleniumTest
+    public class UpdateProgressTests : AppSeleniumTest
     {
 
         [TestMethod]

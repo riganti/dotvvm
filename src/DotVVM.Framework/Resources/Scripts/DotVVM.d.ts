@@ -54,9 +54,10 @@ declare class DotvvmAfterPostBackEventArgs extends DotvvmEventArgs {
     serverResponseObject: any;
     postbackClientId: number;
     commandResult: any;
+    xhr: XMLHttpRequest;
     isHandled: boolean;
     wasInterrupted: boolean;
-    constructor(sender: HTMLElement, viewModel: any, viewModelName: string, validationTargetPath: any, serverResponseObject: any, postbackClientId: number, commandResult?: any);
+    constructor(sender: HTMLElement, viewModel: any, viewModelName: string, validationTargetPath: any, serverResponseObject: any, postbackClientId: number, commandResult?: any, xhr?: XMLHttpRequest);
 }
 declare class DotvvmSpaNavigatingEventArgs extends DotvvmEventArgs {
     viewModel: any;
@@ -169,7 +170,7 @@ declare class DotvvmSerialization {
     flatSerialize(viewModel: any): any;
     getPureObject(viewModel: any): {};
     private pad(value, digits);
-    serializeDate(date: string | Date, convertToUtc?: boolean): string;
+    serializeDate(date: string | Date | null, convertToUtc?: boolean): string | null;
 }
 interface Document {
     getElementByDotvvmId(id: string): HTMLElement;
@@ -242,6 +243,7 @@ declare class DotVVM {
     private restoreUpdatedControls(resultObject, updatedControls, applyBindingsOnEachControl);
     unwrapArrayExtension(array: any): any;
     buildRouteUrl(routePath: string, params: any): string;
+    buildUrlSuffix(urlSuffix: string, query: any): string;
     private isPostBackProhibited(element);
     private addKnockoutBindingHandlers();
 }

@@ -32,7 +32,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth
 
         public async Task Login()
         {
-            var auth = Context.GetAspNetCoreContext();
+            var auth = Context.GetAuthentication();
             await auth.SignOutAsync("Scheme1");
 
             var id = new ClaimsIdentity(new[] {

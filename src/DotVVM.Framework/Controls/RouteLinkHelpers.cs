@@ -9,32 +9,30 @@ using DotVVM.Framework.Routing;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ViewModel.Serialization;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls
 {
     public static class RouteLinkHelpers
     {
-
-        private const string RouteParameterPrefix = "Param-";
-
-
-        public static void WriteRouteLinkHrefAttribute(string routeName, HtmlGenericControl control, DotvvmProperty urlSuffixProperty, IHtmlWriter writer, IDotvvmRequestContext context)
+        public static void WriteRouteLinkHrefAttribute(RouteLink control, IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (!control.RenderOnServer)
             {
                 var group = new KnockoutBindingGroup();
-                group.Add("href", GenerateKnockoutHrefExpression(routeName, control, urlSuffixProperty, context));
+                group.Add("href", GenerateKnockoutHrefExpression(control.RouteName, control, context));
                 writer.AddKnockoutDataBind("attr", group);
             }
             else
             {
-                writer.AddAttribute("href", EvaluateRouteUrl(routeName, control, urlSuffixProperty, context));
+                writer.AddAttribute("href", EvaluateRouteUrl(control.RouteName, control, context));
             }
         }
 
-        public static string EvaluateRouteUrl(string routeName, HtmlGenericControl control, DotvvmProperty urlSuffixProperty, IDotvvmRequestContext context)
+        public static string EvaluateRouteUrl(string routeName, RouteLink control, IDotvvmRequestContext context)
         {
-            var coreUrl = GenerateRouteUrlCore(routeName, control, context) + (control.GetValue(urlSuffixProperty) as string ?? "");
+            var urlSuffix = GenerateUrlSuffixCore(control.GetValue(RouteLink.UrlSuffixProperty) as string, control);
+            var coreUrl = GenerateRouteUrlCore(routeName, control, context) + urlSuffix;
 
             if ((bool)control.GetValue(Internal.IsSpaPageProperty))
             {
@@ -46,7 +44,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private static string GenerateRouteUrlCore(string routeName, HtmlGenericControl control, IDotvvmRequestContext context)
+        private static string GenerateRouteUrlCore(string routeName, RouteLink control, IDotvvmRequestContext context)
         {
             var route = GetRoute(context, routeName);
             var parameters = ComposeNewRouteParameters(control, context, route);
@@ -62,55 +60,62 @@ namespace DotVVM.Framework.Controls
             return route.BuildUrl(parameters);
         }
 
+        private static string GenerateUrlSuffixCore(string urlSuffix, RouteLink control)
+        {
+            // generate the URL suffix
+            return UrlHelper.BuildUrlSuffix(urlSuffix, control.QueryParameters);
+        }
+
         private static RouteBase GetRoute(IDotvvmRequestContext context, string routeName)
         {
             return context.Configuration.RouteTable[routeName];
         }
 
-        public static string GenerateKnockoutHrefExpression(string routeName, HtmlGenericControl control, DotvvmProperty urlSuffixProperty, IDotvvmRequestContext context)
+        public static string GenerateKnockoutHrefExpression(string routeName, RouteLink control, IDotvvmRequestContext context)
         {
             var link = GenerateRouteLinkCore(routeName, control, context);
 
-            var urlSuffix = GetUrlSuffixExpression(control, urlSuffixProperty);
+            var urlSuffix = GetUrlSuffixExpression(control);
             if ((bool)control.GetValue(Internal.IsSpaPageProperty))
             {
-                return $"'#!/' + {link} + {urlSuffix}";
+                return $"'#!/' + {link}{(urlSuffix == null ? "" : " + " + urlSuffix)}";
             }
             else
             {
-                return $"'{context.TranslateVirtualPath("~/")}' + {link} + {urlSuffix}";
+                return $"'{context.TranslateVirtualPath("~/")}' + {link}{(urlSuffix == null ? "" : " + " + urlSuffix)}";
             }
         }
 
-        private static string GetUrlSuffixExpression(HtmlGenericControl control, DotvvmProperty urlSuffixProperty)
+        private static string GetUrlSuffixExpression(RouteLink control)
         {
-            var urlSuffixBinding = control.GetValueBinding(urlSuffixProperty);
-            if (urlSuffixBinding != null)
-            {
-                return "(" + urlSuffixBinding.GetKnockoutBindingExpression(control) + ")";
-            }
-            else
-            {
-                return JsonConvert.SerializeObject(control.GetValue(urlSuffixProperty) as string ?? "");
-            }
+            var urlSuffixBase =
+                control.GetValueBinding(RouteLink.UrlSuffixProperty)
+                ?.Apply(binding => binding.GetKnockoutBindingExpression(control))
+                ?? JsonConvert.SerializeObject(control.UrlSuffix ?? "");
+            var queryParams =
+                control.QueryParameters.RawValues.Select(p => TranslateRouteParameter(control, p, true)).StringJoin(",");
+
+            // generate the function call
+            return
+                queryParams.Length > 0 ? $"dotvvm.buildUrlSuffix({urlSuffixBase}, {{{queryParams}}})" :
+                urlSuffixBase != "\"\"" ? urlSuffixBase :
+                null;
         }
 
-        private static string GenerateRouteLinkCore(string routeName, HtmlGenericControl control, IDotvvmRequestContext context)
+        private static string GenerateRouteLinkCore(string routeName, RouteLink control, IDotvvmRequestContext context)
         {
             var route = GetRoute(context, routeName);
             var parameters = ComposeNewRouteParameters(control, context, route);
 
+            var parametersExpression = parameters.Select(p => TranslateRouteParameter(control, p)).StringJoin(",");
             // generate the function call
-            var sb = new StringBuilder();
-            sb.Append("dotvvm.buildRouteUrl(");
-            sb.Append(JsonConvert.SerializeObject(route.Url));
-            sb.Append(", {");
-            sb.Append(string.Join(", ", parameters.Select(p => TranslateRouteParameter(control, p))));
-            sb.Append("})");
-            return sb.ToString();
+
+            return
+                parametersExpression.Length > 0 ? $"dotvvm.buildRouteUrl({JsonConvert.ToString(route.Url)}, {{{parametersExpression}}})" :
+                JsonConvert.ToString(route.Url);
         }
 
-        private static string TranslateRouteParameter(HtmlGenericControl control, KeyValuePair<string, object> param)
+        private static string TranslateRouteParameter(DotvvmBindableObject control, KeyValuePair<string, object> param, bool caseSensitive = false)
         {
             string expression = "";
             if (param.Value is IBinding)
@@ -124,7 +129,7 @@ namespace DotVVM.Framework.Controls
             {
                 expression = JsonConvert.SerializeObject(param.Value, DefaultViewModelSerializer.CreateDefaultSettings());
             }
-            return JsonConvert.SerializeObject(param.Key.ToLower()) + ": " + expression;
+            return JsonConvert.SerializeObject(caseSensitive ? param.Key : param.Key.ToLower()) + ": " + expression;
         }
 
         private static void EnsureValidBindingType(IBinding binding)
@@ -135,27 +140,18 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private static Dictionary<string, object> ComposeNewRouteParameters(HtmlGenericControl control, IDotvvmRequestContext context, RouteBase route)
+        private static Dictionary<string, object> ComposeNewRouteParameters(RouteLink control, IDotvvmRequestContext context, RouteBase route)
         {
             var parameters = new Dictionary<string, object>(route.DefaultValues, StringComparer.OrdinalIgnoreCase);
             foreach (var param in context.Parameters)
             {
                 parameters[param.Key] = param.Value;
             }
-            foreach (var attr in GetRouteParameters(control))
+            foreach (var item in control.Params.RawValues)
             {
-                var parameterName = attr.Key.Substring(RouteParameterPrefix.Length);
-                parameters[parameterName] = attr.Value;
-
-                // remove the attribute because we don't want to be rendered
-                control.Attributes.Remove(attr.Key);
+                parameters[item.Key] = item.Value;
             }
             return parameters;
-        }
-
-        private static List<KeyValuePair<string, object>> GetRouteParameters(HtmlGenericControl control)
-        {
-            return control.Attributes.Where(a => a.Key.StartsWith(RouteParameterPrefix, StringComparison.OrdinalIgnoreCase)).ToList();
         }
     }
 }

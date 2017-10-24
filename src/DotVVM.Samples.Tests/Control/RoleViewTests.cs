@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class RoleViewTests : SeleniumTest
+    public class RoleViewTests : AppSeleniumTest
     {
 
         [TestMethod]

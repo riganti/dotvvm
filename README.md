@@ -13,8 +13,9 @@ DotVVM = HTML + C#
 
 **DotVVM** brings full **MVVM** experience and it uses **KnockoutJS** on the client side. It handles the client-server communication, validation, localization, date & time formatting on the client side, SPAs and much more. 
 
-It is open source, it supports both OWIN and ASP.NET Core and it runs on .NET Framework, .NET Core and Mono.
-It also offers a free extension for Visual Studio 2015 with IntelliSense and other useful features which make the development really easy and productive.  
+It is open source, it supports both OWIN and ASP.NET Core and it runs on **.NET Framework**, **.NET Core** and **Mono**.
+
+It also offers a [free extension for Visual Studio 2015 and 2017](https://www.dotvvm.com/install) with IntelliSense and other useful features which make the development really easy and productive.  
 
 <br />
 
@@ -79,7 +80,7 @@ Need More? We have Commercial Controls!
 ---------------------------------------
 
 * [Bootstrap for DotVVM](https://www.dotvvm.com/landing/bootstrap-for-dotvvm) - more than 40 controls that make using Bootstrap easier and your code much cleaner
-* [DotVVM Business Pack](https://www.dotvvm.com/landing/business-pack) (BETA RELEASED) - Enterprise ready controls for Line of business web apps
+* [DotVVM Business Pack](https://www.dotvvm.com/landing/business-pack) - Enterprise ready controls for Line of business web apps
 
 <br />
 
@@ -101,3 +102,4 @@ More Info
 * [Twitter @dotvvm](https://twitter.com/dotvvm)
 * [Gitter Chat](https://gitter.im/riganti/dotvvm)
 * [Samples](https://github.com/search?q=topic%3Adotvvm-sample+org%3Ariganti&type=Repositories)
+* [Roadmap](https://github.com/riganti/dotvvm/blob/master/roadmap.md)

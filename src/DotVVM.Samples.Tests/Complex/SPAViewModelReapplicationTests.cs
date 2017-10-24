@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace DotVVM.Samples.Tests.Complex
 {
     [TestClass]
-    public class SPAViewModelReapplicationTests : SeleniumTest
+    public class SPAViewModelReapplicationTests : AppSeleniumTest
     {
         [TestMethod]
         [SampleReference(nameof(SamplesRouteUrls.ComplexSamples_SPAViewModelReapplication_pageA))]

@@ -3,11 +3,12 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Riganti.Utils.Testing.Selenium.Core;
 using System;
 using System.Collections.Generic;
+using Riganti.Utils.Testing.Selenium.Core.Abstractions;
 
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class ViewModelProtectionTests : SeleniumTest
+    public class ViewModelProtectionTests : AppSeleniumTest
     {
         public const string ChangedText = "The quick brown fox jumps over the lazy dog";
         public const string OriginalText = "Lorem Ipsum Dolor Sit Amet";
@@ -112,7 +113,7 @@ namespace DotVVM.Samples.Tests.Feature
 
         private void CheckRadioButtonsState(BrowserWrapper browser, RadioButtonValues selectedColor)
         {
-            var radios = new List<ElementWrapper>();
+            var radios = new List<IElementWrapper>();
             radios.Add(browser.Single("radio-red", this.SelectByDataUi));
             radios.Add(browser.Single("radio-green", this.SelectByDataUi));
             radios.Add(browser.Single("radio-blue", this.SelectByDataUi));

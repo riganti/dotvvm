@@ -11,7 +11,7 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Complex
 {
     [TestClass]
-    public class InvoiceCalculatorTests : SeleniumTest
+    public class InvoiceCalculatorTests : AppSeleniumTest
     {
         [TestMethod]
         public void Complex_InvoiceCalculator_InvoiceCalculator()

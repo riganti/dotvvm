@@ -10,7 +10,7 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class ContentPlaceHolderTests : SeleniumTest
+    public class ContentPlaceHolderTests : AppSeleniumTest
     {
         [TestMethod]
         public void Control_ContentPlaceHolder_ContentPlaceHolderPage()

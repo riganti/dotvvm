@@ -345,7 +345,7 @@ class DotVVM {
                     }
 
                     // trigger afterPostback event
-                    var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, resultObject, currentPostBackCounter, resultObject.commandResult);
+                    var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, resultObject, currentPostBackCounter, resultObject.commandResult, result);
                     promise.resolve(afterPostBackArgs);
                     this.events.afterPostback.trigger(afterPostBackArgs);
                     if (!isSuccess && !afterPostBackArgs.isHandled) {
@@ -751,8 +751,31 @@ class DotVVM {
     public buildRouteUrl(routePath: string, params: any): string {
         return routePath.replace(/\{([^\}]+?)\??(:(.+?))?\}/g, (s, paramName, hsjdhsj, type) => {
             if (!paramName) return "";
-            return ko.unwrap(params[paramName.toLowerCase()]) || "";
+            const x = ko.unwrap(params[paramName.toLowerCase()])
+            return x == null ? "" : x;
         });
+    }
+
+    public buildUrlSuffix(urlSuffix: string, query: any): string {
+        var resultSuffix, hashSuffix;
+        if (urlSuffix.indexOf("#") !== -1) {
+            resultSuffix = urlSuffix.substring(0, urlSuffix.indexOf("#"));
+            hashSuffix = urlSuffix.substring(urlSuffix.indexOf("#"));
+        } else {
+            resultSuffix = urlSuffix;
+            hashSuffix = "";
+        }
+        for (var property in query) {
+            if (query.hasOwnProperty(property)) {
+                if (!property) continue;
+                var queryParamValue = ko.unwrap(query[property]);
+                if (queryParamValue != null) continue;
+                resultSuffix = resultSuffix.concat(resultSuffix.indexOf("?") !== -1
+                    ? `&${property}=${queryParamValue}`
+                    : `?${property}=${queryParamValue}`);
+            }
+        }
+        return resultSuffix.concat(hashSuffix);
     }
 
     private isPostBackProhibited(element: HTMLElement) {

@@ -5,7 +5,7 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class DirectivesTests : SeleniumTest
+    public class DirectivesTests : AppSeleniumTest
     {
         [TestMethod]
         public void Feature_Directives_ViewModelMissingAssembly()

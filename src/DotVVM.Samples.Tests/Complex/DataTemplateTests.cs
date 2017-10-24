@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace DotVVM.Samples.Tests.Complex
 {
     [TestClass]
-    public class DataTemplateTests : SeleniumTest
+    public class DataTemplateTests : AppSeleniumTest
     {
         [TestMethod]
         public void Complex_EmptyDataTemplate_RepeaterGridView()

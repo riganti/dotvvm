@@ -7,10 +7,13 @@ using System.Net;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Storage;
 using System.Diagnostics;
+using System.Reflection;
+using System.Text.RegularExpressions;
 using DotVVM.Framework.Hosting.Middlewares;
 using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading;
+using DotVVM.Framework.Routing;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -83,10 +86,10 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Returns the redirect response and interrupts the execution of current request.
         /// </summary>
-        public static void RedirectToRoute(this IDotvvmRequestContext context, string routeName, object newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true, string urlSuffix = null)
+        public static void RedirectToRoute(this IDotvvmRequestContext context, string routeName, object newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true, string urlSuffix = null, object query = null)
         {
             var route = context.Configuration.RouteTable[routeName];
-            var url = route.BuildUrl(context.Parameters, newRouteValues) + urlSuffix;
+            var url = route.BuildUrl(context.Parameters, newRouteValues) + UrlHelper.BuildUrlSuffix(urlSuffix, query);
 
             context.RedirectToUrl(url, replaceInHistory, allowSpaRedirect);
         }

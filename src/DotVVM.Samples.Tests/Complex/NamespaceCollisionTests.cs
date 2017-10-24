@@ -10,7 +10,7 @@ using Riganti.Utils.Testing.Selenium.Core;
 namespace DotVVM.Samples.Tests.Complex
 {
     [TestClass]
-    public class NamespaceCollisionTests : SeleniumTest
+    public class NamespaceCollisionTests : AppSeleniumTest
     {
         [TestMethod]
         public void Complex_NamespaceCollision_NamespaceCollision()

@@ -108,7 +108,7 @@ var DotvvmBeforePostBackEventArgs = (function (_super) {
 }(DotvvmEventArgs));
 var DotvvmAfterPostBackEventArgs = (function (_super) {
     __extends(DotvvmAfterPostBackEventArgs, _super);
-    function DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, serverResponseObject, postbackClientId, commandResult) {
+    function DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, serverResponseObject, postbackClientId, commandResult, xhr) {
         if (commandResult === void 0) { commandResult = null; }
         var _this = _super.call(this, viewModel) || this;
         _this.sender = sender;
@@ -118,6 +118,7 @@ var DotvvmAfterPostBackEventArgs = (function (_super) {
         _this.serverResponseObject = serverResponseObject;
         _this.postbackClientId = postbackClientId;
         _this.commandResult = commandResult;
+        _this.xhr = xhr;
         _this.isHandled = false;
         _this.wasInterrupted = false;
         return _this;
@@ -710,7 +711,10 @@ var DotvvmSerialization = (function () {
     };
     DotvvmSerialization.prototype.serializeDate = function (date, convertToUtc) {
         if (convertToUtc === void 0) { convertToUtc = true; }
-        if (typeof date == "string") {
+        if (date == null) {
+            return null;
+        }
+        else if (typeof date == "string") {
             // just print in the console if it's invalid
             if (dotvvm.globalize.parseDotvvmDate(date) != null)
                 console.error(new Error("Date " + date + " is invalid."));
@@ -1025,7 +1029,7 @@ var DotVVM = (function () {
                             location.hash = idFragment;
                     }
                     // trigger afterPostback event
-                    var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, resultObject, currentPostBackCounter, resultObject.commandResult);
+                    var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, resultObject, currentPostBackCounter, resultObject.commandResult, result);
                     promise.resolve(afterPostBackArgs);
                     _this.events.afterPostback.trigger(afterPostBackArgs);
                     if (!isSuccess && !afterPostBackArgs.isHandled) {
@@ -1421,8 +1425,33 @@ var DotVVM = (function () {
         return routePath.replace(/\{([^\}]+?)\??(:(.+?))?\}/g, function (s, paramName, hsjdhsj, type) {
             if (!paramName)
                 return "";
-            return ko.unwrap(params[paramName.toLowerCase()]) || "";
+            var x = ko.unwrap(params[paramName.toLowerCase()]);
+            return x == null ? "" : x;
         });
+    };
+    DotVVM.prototype.buildUrlSuffix = function (urlSuffix, query) {
+        var resultSuffix, hashSuffix;
+        if (urlSuffix.indexOf("#") !== -1) {
+            resultSuffix = urlSuffix.substring(0, urlSuffix.indexOf("#"));
+            hashSuffix = urlSuffix.substring(urlSuffix.indexOf("#"));
+        }
+        else {
+            resultSuffix = urlSuffix;
+            hashSuffix = "";
+        }
+        for (var property in query) {
+            if (query.hasOwnProperty(property)) {
+                if (!property)
+                    continue;
+                var queryParamValue = ko.unwrap(query[property]);
+                if (queryParamValue != null)
+                    continue;
+                resultSuffix = resultSuffix.concat(resultSuffix.indexOf("?") !== -1
+                    ? "&" + property + "=" + queryParamValue
+                    : "?" + property + "=" + queryParamValue);
+            }
+        }
+        return resultSuffix.concat(hashSuffix);
     };
     DotVVM.prototype.isPostBackProhibited = function (element) {
         if (element && element.tagName && element.tagName.toLowerCase() === "a" && element.getAttribute("disabled")) {
@@ -2263,7 +2292,7 @@ function basicAuthenticatedFetch(input, init) {
     if (!init.cache)
         init.cache = "no-cache";
     return window.fetch(input, init).then(function (response) {
-        if (response.status == 401 && auth == null) {
+        if (response.status === 401 && auth == null) {
             if (sessionStorage.getItem("someAuth") == null)
                 requestAuth();
             return basicAuthenticatedFetch(input, init);

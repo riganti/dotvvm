@@ -42,9 +42,7 @@ namespace DotVVM.Framework.Tests.Runtime
 
             var requestMock = new Mock<IHttpRequest>();
             requestMock.SetupGet(m => m.Url).Returns(new Uri("http://localhost:8628/Sample1"));
-            requestMock.SetupGet(m => m.Path).Returns(new DotvvmHttpPathString(new PathString("/Sample1")));
             requestMock.SetupGet(m => m.PathBase).Returns(new DotvvmHttpPathString(new PathString("")));
-			requestMock.SetupGet(m => m.Scheme).Returns("http");
             requestMock.SetupGet(m => m.Method).Returns("GET");
             requestMock.SetupGet(m => m.Headers).Returns(new DotvvmHeaderCollection(new HeaderDictionary(new Dictionary<string, string[]>())));
 

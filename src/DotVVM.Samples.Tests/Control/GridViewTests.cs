@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class GridViewTests : SeleniumTest
+    public class GridViewTests : AppSeleniumTest
     {
 
 
@@ -53,7 +53,7 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditingValidation);
-                browser.Browser.Manage().Window.Maximize();
+                browser.Driver.Manage().Window.Maximize();
 
                 //Get rows
                 var rows = browser.First("table tbody");

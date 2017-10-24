@@ -210,13 +210,6 @@ namespace DotVVM.Framework.Configuration
 
         private static void RegisterResources(DotvvmConfiguration configuration)
         {
-            configuration.Resources.Register(ResourceConstants.JQueryResourceName,
-                new ScriptResource(new UrlResourceLocation("https://code.jquery.com/jquery-2.1.1.min.js"))
-                {
-                    LocationFallback = new ResourceLocationFallback(
-                        "window.jQuery",
-                        new EmbeddedResourceLocation(typeof(DotvvmConfiguration).GetTypeInfo().Assembly, "DotVVM.Framework.Resources.Scripts.jquery-2.1.1.min.js"))
-                });
             configuration.Resources.Register(ResourceConstants.KnockoutJSResourceName,
                 new ScriptResource(new EmbeddedResourceLocation(
                     typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
@@ -230,9 +223,7 @@ namespace DotVVM.Framework.Configuration
                     Dependencies = new[] { ResourceConstants.KnockoutJSResourceName }
                 });
             configuration.Resources.Register(ResourceConstants.DotvvmResourceName,
-                new InlineScriptResource()
-                {
-                    Code = @"if (window.dotvvm) { throw 'DotVVM is already loaded!'; } window.dotvvm = new DotVVM();",
+                new InlineScriptResource(@"if (window.dotvvm) { throw 'DotVVM is already loaded!'; } window.dotvvm = new DotVVM();") {
                     Dependencies = new[] { ResourceConstants.DotvvmResourceName + ".internal" }
                 });
 
@@ -241,7 +232,7 @@ namespace DotVVM.Framework.Configuration
                     typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
                     "DotVVM.Framework.Resources.Scripts.DotVVM.Debug.js"))
                 {
-                    Dependencies = new[] { ResourceConstants.DotvvmResourceName, ResourceConstants.JQueryResourceName }
+                    Dependencies = new[] { ResourceConstants.DotvvmResourceName }
                 });
 
             configuration.Resources.Register(ResourceConstants.DotvvmFileUploadCssResourceName,

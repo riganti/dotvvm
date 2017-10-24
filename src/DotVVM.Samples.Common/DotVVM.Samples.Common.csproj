@@ -40,8 +40,11 @@
     <None Remove="Views\FeatureSamples\MarkupControl\HierarchyControlPage.dothtml" />
     <None Remove="Views\FeatureSamples\MarkupControl\MultiControlHierarchy.dothtml" />
     <None Remove="Views\FeatureSamples\ParameterBinding\ParameterBinding.dothtml" />
+    <None Remove="Views\FeatureSamples\ServerSideStyles\DirectoryStyle\ServerSideStyles.dothtml" />
+    <None Remove="Views\FeatureSamples\ServerSideStyles\NoDirectoryStyle\ServerSideStyles.dothtml" />
     <None Remove="Views\FeatureSamples\ServerSideStyles\ServerSideStyles.dothtml" />
     <None Remove="Views\FeatureSamples\ServerSideStyles\ServerSideStyles_DotvvmProperties.dothtml" />
+    <None Remove="Views\FeatureSamples\ServerSideStyles\ServerSideStyles_MatchingViewModel.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_ComboBoxSelectionChanged.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_ComboBoxSelectionChanged_Objects.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModelProtection\ComplexViewModelProtection.dothtml" />
@@ -80,6 +83,9 @@
     <Content Include="Views\FeatureSamples\MarkupControl\HierarchyControlPage.dothtml" />
     <Content Include="Views\FeatureSamples\MarkupControl\MultiControlHierarchy.dothtml" />
     <Content Include="Views\FeatureSamples\ParameterBinding\ParameterBinding.dothtml" />
+    <Content Include="Views\FeatureSamples\ServerSideStyles\DirectoryStyle\ServerSideStyles.dothtml" />
+    <Content Include="Views\FeatureSamples\ServerSideStyles\NoDirectoryStyle\ServerSideStyles.dothtml" />
+    <Content Include="Views\FeatureSamples\ServerSideStyles\ServerSideStyles_MatchingViewModel.dothtml" />
     <Content Include="Views\FeatureSamples\ServerSideStyles\ServerSideStyles.dothtml" />
     <Content Include="Views\FeatureSamples\ServerSideStyles\ServerSideStyles_DotvvmProperties.dothtml" />
     <Content Include="Views\FeatureSamples\StaticCommand\StaticCommand_ComboBoxSelectionChanged.dothtml" />
@@ -94,7 +100,6 @@
     <Reference Include="System.Net.Http" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj" />
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
     <ProjectReference Include="..\EmbeddedResourceControls\EmbeddedResourceControls.csproj" />
   </ItemGroup>
