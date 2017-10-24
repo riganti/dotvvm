@@ -35,7 +35,7 @@ namespace DotVVM.Framework.Tests.Routing
         public void DotvvmRoute_IsMatch_EmptyRouteMatchesEmptyUrl()
         {
             var route = new DotvvmRoute("", null, null, null, configuration);
-            
+
             IDictionary<string, object> parameters;
             var result = route.IsMatch("", out parameters);
 
@@ -77,7 +77,7 @@ namespace DotVVM.Framework.Tests.Routing
             Assert.AreEqual("15", parameters["Id"]);
             Assert.AreEqual("Test-title", parameters["Title"]);
         }
-        
+
         [TestMethod]
         public void DotvvmRoute_IsMatch_UrlTwoParametersOneSpecifiedOneDefault()
         {
@@ -91,7 +91,7 @@ namespace DotVVM.Framework.Tests.Routing
             Assert.AreEqual("15", parameters["Id"]);
             Assert.AreEqual("test", parameters["Title"]);
         }
-        
+
 
         [TestMethod]
         public void DotvvmRoute_IsMatch_UrlTwoParametersBothRequired_NoMatchWhenOneSpecified()
@@ -246,7 +246,7 @@ namespace DotVVM.Framework.Tests.Routing
             Assert.AreEqual("~/Article/Test/aaa/suffix", result);
         }
 
-        
+
         [TestMethod]
         public void DotvvmRoute_BuildUrl_CombineParameters_OneOptional()
         {
@@ -266,6 +266,29 @@ namespace DotVVM.Framework.Tests.Routing
             var result = route.BuildUrl(new { });
 
             Assert.AreEqual("~/", result);
+        }
+
+        [TestMethod]
+        public void DotvvmRoute_BuildUrl_OptionlaParameter()
+        {
+            var route = new DotvvmRoute("myPage/{Id?}/edit", null, null, null, configuration);
+
+            var result = route.BuildUrl(new { });
+            var result2 = route.BuildUrl(new Dictionary<string, object>{ ["Id"] = null });
+
+            Assert.AreEqual("~/myPage/edit", result);
+            Assert.AreEqual("~/myPage/edit", result2);
+        }
+
+        [TestMethod]
+        public void DotvvmRoute_BuildUrl_NullInParameter()
+        {
+            var route = new DotvvmRoute("myPage/{Id}/edit", null, null, null, configuration);
+
+            var ex = Assert.ThrowsException<Exception>(() => {
+                route.BuildUrl(new Dictionary<string, object>{ ["Id"] = null });
+            });
+            Assert.IsInstanceOfType(ex.InnerException, typeof(ArgumentNullException));
         }
 
         [TestMethod]
@@ -293,7 +316,7 @@ namespace DotVVM.Framework.Tests.Routing
 
 
         [TestMethod]
- 
+
         public void DotvvmRoute_BuildUrl_Invalid_UnclosedParameterConstraint()
         {
             Assert.ThrowsException<ArgumentException>(() =>
