@@ -1,26 +1,29 @@
 // Type definitions for Knockout v3.4.0
 // Project: http://knockoutjs.com
-// Definitions by: Boris Yankov <https://github.com/borisyankov/>, Igor Oleinikov <https://github.com/Igorbek/>, Clément Bourgeois <https://github.com/moonpyk/>, Matt Brooks <https://github.com/EnableSoftware>
+// Definitions by: Boris Yankov <https://github.com/borisyankov/>
+//                 Igor Oleinikov <https://github.com/Igorbek/>
+//                 Clément Bourgeois <https://github.com/moonpyk/>
+//                 Matt Brooks <https://github.com/EnableSoftware>
+//                 Benjamin Eckardt <https://github.com/BenjaminEckardt>
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 
 
-interface KnockoutSubscribableFunctions<T> {
-    [key: string]: KnockoutBindingHandler;
+interface KnockoutExtensionFunctions {
+    [key: string]: any;
+}
 
+interface KnockoutSubscribableFunctions<T> extends KnockoutExtensionFunctions {
     notifySubscribers(valueToWrite?: T, event?: string): void;
 }
 
-interface KnockoutComputedFunctions<T> {
-    [key: string]: KnockoutBindingHandler;
+interface KnockoutComputedFunctions<T> extends KnockoutExtensionFunctions {
 }
 
-interface KnockoutObservableFunctions<T> {
-    [key: string]: KnockoutBindingHandler;
-
+interface KnockoutObservableFunctions<T> extends KnockoutExtensionFunctions {
     equalityComparer(a: any, b: any): boolean;
 }
 
-interface KnockoutObservableArrayFunctions<T> {
+interface KnockoutObservableArrayFunctions<T> extends KnockoutExtensionFunctions {
     // General Array functions
     indexOf(searchElement: T, fromIndex?: number): number;
     slice(start: number, end?: number): T[];
@@ -35,8 +38,6 @@ interface KnockoutObservableArrayFunctions<T> {
     sort(compareFunction: (left: T, right: T) => number): KnockoutObservableArray<T>;
 
     // Ko specific
-    [key: string]: KnockoutBindingHandler;
-
     replace(oldItem: T, newItem: T): void;
 
     remove(item: T): T[];
@@ -89,7 +90,7 @@ interface KnockoutComputed<T> extends KnockoutObservable<T>, KnockoutComputedFun
 interface KnockoutObservableArrayStatic {
     fn: KnockoutObservableArrayFunctions<any>;
 
-    <T>(value?: T[]): KnockoutObservableArray<T>;
+    <T>(value?: T[] | null): KnockoutObservableArray<T>;
 }
 
 interface KnockoutObservableArray<T> extends KnockoutObservable<T[]>, KnockoutObservableArrayFunctions<T> {
@@ -104,12 +105,12 @@ interface KnockoutObservableArray<T> extends KnockoutObservable<T[]>, KnockoutOb
 interface KnockoutObservableStatic {
     fn: KnockoutObservableFunctions<any>;
 
-    <T>(value?: T): KnockoutObservable<T>;
+    <T>(value?: T | null): KnockoutObservable<T>;
 }
 
 interface KnockoutObservable<T> extends KnockoutSubscribable<T>, KnockoutObservableFunctions<T> {
     (): T;
-    (value: T): void;
+    (value: T | null): void;
 
     peek(): T;
     valueHasMutated?: { (): void; };
@@ -150,10 +151,11 @@ interface KnockoutAllBindingsAccessor {
 
 interface KnockoutBindingHandler {
     after?: Array<string>;
-    init?: (element: any, valueAccessor: () => any, allBindingsAccessor?: KnockoutAllBindingsAccessor, viewModel?: any, bindingContext?: KnockoutBindingContext) => void | { controlsDescendantBindings: boolean; };
-    update?: (element: any, valueAccessor: () => any, allBindingsAccessor?: KnockoutAllBindingsAccessor, viewModel?: any, bindingContext?: KnockoutBindingContext) => void;
+    init?: (element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) => void | { controlsDescendantBindings: boolean; };
+    update?: (element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) => void;
     options?: any;
     preprocess?: (value: string, name: string, addBindingCallback?: (name: string, value: string) => void) => string;
+    [s: string]: any;
 }
 
 interface KnockoutBindingHandlers {
@@ -235,13 +237,13 @@ interface KnockoutUtils {
     //////////////////////////////////
 
     domData: {
-        get(node: Element, key: string): any;
+        get(node: Node, key: string): any;
 
-        set(node: Element, key: string, value: any): void;
+        set(node: Node, key: string, value: any): void;
 
-        getAll(node: Element, createIfNotFound: boolean): any;
+        getAll(node: Node, createIfNotFound: boolean): any;
 
-        clear(node: Element): boolean;
+        clear(node: Node): boolean;
     };
 
     //////////////////////////////////
@@ -249,11 +251,11 @@ interface KnockoutUtils {
     //////////////////////////////////
 
     domNodeDisposal: {
-        addDisposeCallback(node: Element, callback: Function): void;
+        addDisposeCallback(node: Node, callback: Function): void;
 
-        removeDisposeCallback(node: Element, callback: Function): void;
+        removeDisposeCallback(node: Node, callback: Function): void;
 
-        cleanNode(node: Node): Element;
+        cleanNode(node: Node): Node;
 
         removeNode(node: Node): void;
     };
@@ -332,7 +334,7 @@ interface KnockoutUtils {
 }
 
 interface KnockoutArrayChange<T> {
-    status: "added" | "deleted";
+    status: "added" | "deleted" | "retained";
     value: T;
     index: number;
     moved?: number;
@@ -359,12 +361,12 @@ interface KnockoutTemplateSources {
 
     domElement: {
         prototype: KnockoutTemplateSourcesDomElement
-        new (element: Element): KnockoutTemplateSourcesDomElement
+        new(element: Element): KnockoutTemplateSourcesDomElement
     };
 
     anonymousTemplate: {
         prototype: KnockoutTemplateAnonymous;
-        new (element: Element): KnockoutTemplateAnonymous;
+        new(element: Element): KnockoutTemplateAnonymous;
     };
 }
 
@@ -442,8 +444,8 @@ interface KnockoutStatic {
     isWriteableObservable(instance: any): instance is KnockoutObservable<any>;
     isComputed(instance: any): instance is KnockoutComputed<any>;
     dataFor(node: any): any;
-    removeNode(node: Element): void;
-    cleanNode(node: Element): Element;
+    removeNode(node: Node): void;
+    cleanNode(node: Node): Node;
     renderTemplate(template: Function, viewModel: any, options?: any, target?: any, renderMode?: any): any;
     renderTemplate(template: string, viewModel: any, options?: any, target?: any, renderMode?: any): any;
     unwrap<T>(value: KnockoutObservable<T> | T): T;
@@ -464,7 +466,7 @@ interface KnockoutStatic {
 
         prototype: KnockoutTemplateEngine;
 
-        new (): KnockoutTemplateEngine;
+        new(): KnockoutTemplateEngine;
     };
 
     //////////////////////////////////
@@ -489,7 +491,7 @@ interface KnockoutStatic {
 
         prototype: KnockoutNativeTemplateEngine;
 
-        new (): KnockoutNativeTemplateEngine;
+        new(): KnockoutNativeTemplateEngine;
 
         instance: KnockoutNativeTemplateEngine;
     };
@@ -513,7 +515,7 @@ interface KnockoutStatic {
     // templating.js
     //////////////////////////////////
 
-    setTemplateEngine(templateEngine: KnockoutNativeTemplateEngine): void;
+    setTemplateEngine(templateEngine: KnockoutNativeTemplateEngine | undefined): void;
 
     renderTemplate(template: Function, dataOrBindingContext: KnockoutBindingContext, options: Object, targetNodeOrNodeArray: Node, renderMode: string): any;
     renderTemplate(template: any, dataOrBindingContext: KnockoutBindingContext, options: Object, targetNodeOrNodeArray: Node, renderMode: string): any;
@@ -528,6 +530,8 @@ interface KnockoutStatic {
     renderTemplateForEach(template: any, arrayOrObservableArray: any[], options: Object, targetNode: Node, parentBindingContext: KnockoutBindingContext): any;
     renderTemplateForEach(template: Function, arrayOrObservableArray: KnockoutObservable<any>, options: Object, targetNode: Node, parentBindingContext: KnockoutBindingContext): any;
     renderTemplateForEach(template: any, arrayOrObservableArray: KnockoutObservable<any>, options: Object, targetNode: Node, parentBindingContext: KnockoutBindingContext): any;
+
+    ignoreDependencies<T>(callback: () => T): T;
 
     expressionRewriting: {
         bindingRewriteValidators: any[];
@@ -545,7 +549,7 @@ interface KnockoutStatic {
         value:               The value to be written
         checkIfDifferent:    If true, and if the property being written is a writable observable, the value will only be written if
                              it is !== existing value on that writable observable
-                             
+
         Note that if you need to write to the viewModel without an observable property,
         you need to set ko.expressionRewriting.twoWayBindings[key] = true; *before* the binding evaluation.
         */
@@ -556,7 +560,7 @@ interface KnockoutStatic {
 
     bindingProvider: {
         instance: KnockoutBindingProvider;
-        new (): KnockoutBindingProvider;
+        new(): KnockoutBindingProvider;
     }
 
     /////////////////////////////////
@@ -567,7 +571,7 @@ interface KnockoutStatic {
 
         readValue(element: HTMLElement): any;
 
-        writeValue(element: HTMLElement, value: any): void;
+        writeValue(element: HTMLElement, value: any, allowUnset?: boolean): void;
     };
 
     components: KnockoutComponents;
@@ -587,6 +591,12 @@ interface KnockoutStatic {
     /////////////////////////////////
 
     tasks: KnockoutTasks;
+
+    /////////////////////////////////
+    // utils.js
+    /////////////////////////////////
+
+    onError?: (error: Error) => void;
 }
 
 interface KnockoutBindingProvider {
@@ -650,9 +660,9 @@ declare namespace KnockoutComponentTypes {
     }
 
     interface Loader {
-        getConfig?(componentName: string, callback: (result: ComponentConfig) => void): void;
-        loadComponent?(componentName: string, config: ComponentConfig, callback: (result: Definition) => void): void;
-        loadTemplate?(componentName: string, templateConfig: any, callback: (result: Node[]) => void): void;
+        getConfig?(componentName: string, callback: (result: ComponentConfig | null) => void): void;
+        loadComponent?(componentName: string, config: ComponentConfig, callback: (result: Definition | null) => void): void;
+        loadTemplate?(componentName: string, templateConfig: any, callback: (result: Node[] | null) => void): void;
         loadViewModel?(componentName: string, viewModelConfig: any, callback: (result: any) => void): void;
         suppressLoaderExceptions?: boolean;
     }
