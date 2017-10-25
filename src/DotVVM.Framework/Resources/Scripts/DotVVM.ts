@@ -1,6 +1,5 @@
 /// <reference path="typings/knockout/knockout.d.ts" />
 /// <reference path="typings/knockout/knockout.dotvvm.d.ts" />
-/// <reference path="typings/knockout.mapper/knockout.mapper.d.ts" />
 /// <reference path="typings/globalize/globalize.d.ts" />
 /// <reference path="dotvvm.domutils.ts" />
 /// <reference path="dotvvm.evaluator.ts" />

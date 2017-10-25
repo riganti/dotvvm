@@ -65,7 +65,6 @@
     <EmbeddedResource Include="Resources\Scripts\jquery-2.1.1.min.js" />
     <None Include="Resources\Scripts\typings\globalize\globalize.d.ts" />
     <None Include="Resources\Scripts\typings\jquery\jquery.d.ts" />
-    <None Include="Resources\Scripts\typings\knockout.mapper\knockout.mapper.d.ts" />
     <None Include="Resources\Scripts\typings\knockout\knockout.d.ts" />
   </ItemGroup>
   <ItemGroup>
