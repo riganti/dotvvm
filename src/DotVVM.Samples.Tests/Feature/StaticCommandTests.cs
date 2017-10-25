@@ -32,6 +32,22 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [TestMethod]
+        public void Feature_StaticCommand_NullBinding()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_StaticCommand_StaticCommand_NullBinding);
+                browser.Wait();
+
+                browser.First("#show-selected").CheckIfIsNotDisplayed();
+                browser.First("#listObject > input:nth-child(2)").Click();
+                browser.First("#show-selected").CheckIfIsDisplayed();
+                browser.First("#show-selected").CheckIfInnerTextEquals("Hello 2");
+
+            });
+        }
+
+        [TestMethod]
         public void Feature_StaticCommand_ComboBoxSelectionChanged()
         {
             RunInAllBrowsers(browser =>
