@@ -12,12 +12,21 @@ class DotvvmSerialization {
     public deserialize(viewModel: any, target?: any, deserializeAll: boolean = false) {
 
         if (typeof (viewModel) == "undefined" || viewModel == null) {
+            if (ko.isObservable(target)) {
+                target(viewModel);
+            }
             return viewModel;
         }
         if (typeof (viewModel) == "string" || typeof (viewModel) == "number" || typeof (viewModel) == "boolean") {
+            if (ko.isObservable(target)) {
+                target(viewModel);
+            }
             return viewModel;
         }
         if (viewModel instanceof Date) {
+            if (ko.isObservable(target)) {
+                target(viewModel);
+            }
             return viewModel;
         }
 
@@ -62,7 +71,12 @@ class DotvvmSerialization {
         }
         var result = ko.unwrap(target);
         if (result == null) {
-            target = result = {};
+            result = {};
+			if (ko.isObservable(target)) {
+				target(result);
+			} else {
+				target = result;
+			}
         }
         for (var prop in viewModel) {
             if (viewModel.hasOwnProperty(prop) && !/\$options$/.test(prop)) {
