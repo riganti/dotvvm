@@ -33,7 +33,9 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var path = new[] { ValueBindingExpression.CreateBinding<object>(bindingService, vm => ((Test1)vm[0]).A[0], (DataContextStack)null) };
             var commandId = "someCommand";
-            var command = new CommandBindingExpression(bindingService, vm => ((TestA)vm[0]).Test(((TestA)vm[0]).StringToPass, ((dynamic)vm[1]).NumberToPass), commandId);
+            var command = new CommandBindingExpression(bindingService, vm => {
+                ((TestA)vm[0]).Test(((TestA)vm[0]).StringToPass, ((dynamic)vm[1]).NumberToPass);
+            }, commandId);
 
             var testObject = new Test1 {
                 A = new[]
