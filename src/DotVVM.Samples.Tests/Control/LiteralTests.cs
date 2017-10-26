@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Dotvvm.Samples.Tests;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DotVVM.Samples.Tests.Control

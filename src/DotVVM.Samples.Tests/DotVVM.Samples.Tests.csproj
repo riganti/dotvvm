@@ -2,7 +2,6 @@
   <PropertyGroup>
     <OutputType>library</OutputType>
     <TargetFramework>net461</TargetFramework>
-    <RuntimeIdentifiers>win7-x86;win7-x64</RuntimeIdentifiers>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="**\*.resx" />
@@ -11,10 +10,6 @@
     <Content Include="App.config" />
   </ItemGroup>
     <ItemGroup>
-    <None Update="SamplesRouteUrls.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>SamplesRouteUrls.cs</LastGenOutput>
-    </None>
     <None Update="SamplesRouteUrls.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -30,13 +25,13 @@
     <PackageReference Include="Moq" Version="4.6.38-alpha" />
     <PackageReference Include="MSTest.TestFramework" Version="1.2.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.2.0" />
-    <PackageReference Include="Riganti.Utils.Testing.Selenium.Coordinator.Client" Version="2.0.0-alpha6" />
-    <PackageReference Include="Riganti.Utils.Testing.Selenium.Core" Version="2.0.0-alpha6" />
-    <PackageReference Include="Riganti.Utils.Testing.Selenium.Core.Abstractions" Version="2.0.0-alpha6" />
+    <PackageReference Include="Riganti.Utils.Testing.Selenium.Coordinator.Client" Version="2.0.0-alpha7" />
+    <PackageReference Include="Riganti.Utils.Testing.Selenium.Core" Version="2.0.0-alpha7" />
+    <PackageReference Include="Riganti.Utils.Testing.Selenium.Core.Abstractions" Version="2.0.0-alpha7" />
     <PackageReference Include="Riganti.Utils.Testing.Selenium.DotVVM" Version="1.0.4" />
-    <PackageReference Include="Riganti.Utils.Testing.Selenium.FluentApi" Version="2.0.0-alpha6" />
-    <PackageReference Include="Riganti.Utils.Testing.Selenium.MSTest2Integration" Version="2.0.0-alpha6" />
-    <PackageReference Include="Riganti.Utils.Testing.Selenium.Validators" Version="2.0.0-alpha6" />
+    <PackageReference Include="Riganti.Utils.Testing.Selenium.FluentApi" Version="2.0.0-alpha7" />
+    <PackageReference Include="Riganti.Utils.Testing.Selenium.MSTest2Integration" Version="2.0.0-alpha7" />
+    <PackageReference Include="Riganti.Utils.Testing.Selenium.Validators" Version="2.0.0-alpha7" />
     <PackageReference Include="Selenium.Support" Version="3.6.0" />
     <PackageReference Include="Selenium.WebDriver" Version="3.6.0" />
   </ItemGroup>
@@ -46,14 +41,10 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
   <ItemGroup>
-    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
-    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
+    <ProjectReference Include="..\DotVVM.Testing.Abstractions\DotVVM.Testing.Abstractions.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="SamplesRouteUrls.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>SamplesRouteUrls.tt</DependentUpon>
-    </Compile>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
 </Project>

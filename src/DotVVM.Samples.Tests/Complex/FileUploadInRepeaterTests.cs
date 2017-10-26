@@ -1,5 +1,5 @@
 ﻿using System;
-using Dotvvm.Samples.Tests;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Riganti.Utils.Testing.Selenium.Core;
 using System.IO;

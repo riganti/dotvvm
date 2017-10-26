@@ -8,7 +8,8 @@ using System.Linq;
 using System.Runtime.Remoting.Messaging;
 using System.Text.RegularExpressions;
 using System.Threading;
-using Dotvvm.Samples.Tests;
+using DotVVM.Testing.Abstractions;
+
 
 namespace DotVVM.Samples.Tests.Feature
 {

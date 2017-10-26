@@ -1,10 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using Dotvvm.Samples.Tests;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Riganti.Utils.Testing.Selenium.Core;
 using Riganti.Utils.Testing.Selenium.DotVVM;
+using DotVVM.Testing.Abstractions;
 
 namespace DotVVM.Samples.Tests.Control
 {

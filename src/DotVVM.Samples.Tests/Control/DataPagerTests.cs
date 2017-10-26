@@ -1,4 +1,5 @@
-﻿using Dotvvm.Samples.Tests;
+﻿
+using DotVVM.Testing.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Riganti.Utils.Testing.Selenium.Core;
 
