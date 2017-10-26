@@ -412,10 +412,11 @@ var DotvvmSerialization = /** @class */ (function () {
             target = {};
         }
         var result = ko.unwrap(target);
+        var updateTarget = false;
         if (result == null) {
             result = {};
             if (ko.isObservable(target)) {
-                target(result);
+                updateTarget = true;
             }
             else {
                 target = result;
@@ -444,7 +445,7 @@ var DotvvmSerialization = /** @class */ (function () {
                         }
                     }
                     else {
-                        result[prop] = deserialized;
+                        result[prop] = ko.observable(ko.unwrap(deserialized)); // don't reuse the same observable from the source
                     }
                 }
                 else {
@@ -475,6 +476,9 @@ var DotvvmSerialization = /** @class */ (function () {
                     result[originalName] = ko.observable();
                 }
             }
+        }
+        if (updateTarget) {
+            target(result);
         }
         return target;
     };
@@ -580,6 +584,9 @@ var DotvvmSerialization = /** @class */ (function () {
         if (nullable && (value == null || value == "")) {
             return true;
         }
+        if (!nullable && (value === null || typeof value === "undefined")) {
+            return false;
+        }
         var intmatch = /(u?)int(\d*)/.exec(type);
         if (intmatch) {
             if (!/^-?\d*$/.test(value))
@@ -597,7 +604,7 @@ var DotvvmSerialization = /** @class */ (function () {
         }
         if (type === "number" || type === "single" || type === "double" || type === "decimal") {
             // should check if the value is numeric or number in a string
-            return +value === value || (!isNaN(+value) && typeof value == "string");
+            return +value === value || (!isNaN(+value) && typeof value === "string");
         }
         return true;
     };

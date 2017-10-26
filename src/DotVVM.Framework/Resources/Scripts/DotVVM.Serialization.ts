@@ -70,10 +70,11 @@ class DotvvmSerialization {
             target = {};
         }
         var result = ko.unwrap(target);
+        var updateTarget = false;
         if (result == null) {
             result = {};
 			if (ko.isObservable(target)) {
-				target(result);
+			    updateTarget = true;
 			} else {
 				target = result;
 			}
@@ -102,7 +103,7 @@ class DotvvmSerialization {
                             result[prop](deserialized());
                         }
                     } else {
-                        result[prop] = deserialized;
+                        result[prop] = ko.observable(ko.unwrap(deserialized));      // don't reuse the same observable from the source
                     }
                 } else {
                     if (ko.isObservable(result[prop])) {
@@ -136,6 +137,9 @@ class DotvvmSerialization {
             }
         }
 
+        if (updateTarget) {
+            target(result);
+        }
         return target;
     }
 
@@ -250,6 +254,9 @@ class DotvvmSerialization {
         if (nullable && (value == null || value == "")) {
             return true;
         }
+        if (!nullable && (value === null || typeof value === "undefined")) {
+            return false;
+        }
 
         var intmatch = /(u?)int(\d*)/.exec(type);
         if (intmatch) {
@@ -268,7 +275,7 @@ class DotvvmSerialization {
         }
         if (type === "number" || type === "single" || type === "double" || type === "decimal") {
             // should check if the value is numeric or number in a string
-            return +value === value || (!isNaN(+value) && typeof value == "string");
+            return +value === value || (!isNaN(+value) && typeof value === "string");
         }
         return true;
     }

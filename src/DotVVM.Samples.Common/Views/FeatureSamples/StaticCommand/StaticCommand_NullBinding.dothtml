@@ -13,12 +13,12 @@
         
         <dot:Repeater ID="listObject" DataSource="{value: ListComplexObject}">
             <ItemTemplate>
-                <dot:Button Text="{value: Greeting}" Click="{staticCommand: _parent.SelectedComplex = _this}" />
+                <dot:Button Text="{value: _this != null ? _this.Greeting : "null"}" Click="{staticCommand: _parent.SelectedComplex = _this}" />
             </ItemTemplate>
         </dot:Repeater>
 
         <p>
-        <span ID="show-selected" Visible="{value: SelectedComplex != null}" InnerText="{value: SelectedComplex.Greeting}></span>
+        <span ID="show-selected" Visible="{value: SelectedComplex != null}" InnerText="{value: SelectedComplex.Greeting}"></span>
         </p>
     </div>
 

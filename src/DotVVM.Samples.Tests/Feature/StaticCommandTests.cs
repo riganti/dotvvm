@@ -39,11 +39,27 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_StaticCommand_StaticCommand_NullBinding);
                 browser.Wait();
 
-                browser.First("#show-selected").CheckIfIsNotDisplayed();
-                browser.First("#listObject > input:nth-child(2)").Click();
-                browser.First("#show-selected").CheckIfIsDisplayed();
-                browser.First("#show-selected").CheckIfInnerTextEquals("Hello 2");
+                browser.First("#show-selected")
+                    .CheckIfIsNotDisplayed();
 
+                browser.First("#listObject > input:nth-child(2)").Click();
+                browser.First("#show-selected")
+                    .CheckIfIsDisplayed()
+                    .CheckIfInnerTextEquals("Hello 2");
+
+                browser.First("#listObject > input:nth-child(3)").Click();
+                browser.First("#show-selected")
+                    .CheckIfIsDisplayed()
+                    .CheckIfInnerTextEquals("Hello 3");
+
+                browser.First("#listObject > input:nth-child(4)").Click();
+                browser.First("#show-selected")
+                    .CheckIfIsNotDisplayed();
+
+                browser.First("#listObject > input:nth-child(1)").Click();
+                browser.First("#show-selected")
+                    .CheckIfIsDisplayed()
+                    .CheckIfInnerTextEquals("Hello 1");
             });
         }
 

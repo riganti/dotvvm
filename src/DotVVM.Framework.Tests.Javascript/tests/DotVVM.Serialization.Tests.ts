@@ -41,7 +41,7 @@ describe("DotVVM.Serialization - deserialize", () => {
         expect(ko.isObservable(obj)).toBeFalsy();
         expect(ko.isObservable(obj.a)).toBeTruthy();
         expect(typeof obj.a()).toBe("string");
-        expect(new Date(obj.a()).getTime()).toBe(Date.UTC(2015, 7, 1, 13, 56, 42));
+        expect(new Date(obj.a()).getTime()).toBe(new Date(2015, 7, 1, 13, 56, 42).getTime());
     });
 
     it("Deserialize object with array", () => {
@@ -220,38 +220,45 @@ describe("DotVVM.Serialization - deserialize", () => {
 });
 
 describe("Dotvvm.Deserialization - value type validation", () => {
-    var supportedTypes = ["int64", "int32", "int16", "int8", "uint64", "uint32", "uint16", "uint8", "decimal", "double", "single"]
+    var supportedTypes = [
+        "int64", "int32", "int16", "int8", "uint64", "uint32", "uint16", "uint8", "decimal", "double", "single"
+    ];
 
-    it("null is invalid", () => {
-        for (var type in supportedTypes) {
-            expect(dotvvm.serialization.validateType(null, type)).toBe(false);
-        }
-    })
+    it("null is invalid",
+        () => {
+            for (var type in supportedTypes) {
+                expect(dotvvm.serialization.validateType(null, supportedTypes[type])).toBe(false);
+            }
+        });
 
-    it("undefined is invalid", () => {
-        for (var type in supportedTypes) {
-            expect(dotvvm.serialization.validateType(undefined, type)).toBe(false);
-        }
-    })
+    it("undefined is invalid",
+        () => {
+            for (var type in supportedTypes) {
+                expect(dotvvm.serialization.validateType(undefined, supportedTypes[type])).toBe(false);
+            }
+        });
 
-    it("null is valid for nullable", () => {
-        for (var type in supportedTypes) {
-            expect(dotvvm.serialization.validateType(null, type + "?")).toBe(true);
-        }
-    })
+    it("null is valid for nullable",
+        () => {
+            for (var type in supportedTypes) {
+                expect(dotvvm.serialization.validateType(null, supportedTypes[type] + "?")).toBe(true);
+            }
+        });
 
-    it("undefined is valid for nullable", () => {
-        for (var type in supportedTypes) {
-            expect(dotvvm.serialization.validateType(undefined, type + "?")).toBe(true);
-        }
-    })
+    it("undefined is valid for nullable",
+        () => {
+            for (var type in supportedTypes) {
+                expect(dotvvm.serialization.validateType(undefined, supportedTypes[type] + "?")).toBe(true);
+            }
+        });
 
-    it ("string is invalid", () => {
-        for (var type in supportedTypes) {
-            expect(dotvvm.serialization.validateType("string123", type)).toBe(false);
-        }
-    })
-})
+    it("string is invalid",
+        () => {
+            for (var type in supportedTypes) {
+                expect(dotvvm.serialization.validateType("string123", supportedTypes[type])).toBe(false);
+            }
+        });
+});
 
 
 describe("DotVVM.Serialization - serialize", () => {
@@ -297,7 +304,7 @@ describe("DotVVM.Serialization - serialize", () => {
             a: ko.observable(new Date(Date.UTC(2015, 7, 1, 13, 56, 42))),
             "a$options": { isDate: true }
         });
-        expect(new Date(obj.a).getTime()).toBe(Date.UTC(2015, 7, 1, 13, 56, 42));
+        expect(new Date(obj.a).getTime()).toBe(new Date(2015, 7, 1, 13, 56, 42).getTime());
         expect(obj["a$options"]).toBeUndefined();
     });
 
@@ -350,6 +357,53 @@ describe("DotVVM.Serialization - serialize", () => {
             a: ko.observable(undefined)
           }, { serializeAll: true });
 
-        expect(obj.a).toBe(undefined);
+        expect(obj.a).toBe(null);
     });
+
+    it("Deserialize - null replaced with object",
+        () => {
+            var viewModel = {
+                selected: ko.observable(null),
+                items: ko.observable([
+                    ko.observable({
+                        id: ko.observable(1)
+                    }),
+                    ko.observable({
+                        id: ko.observable(2)
+                    }),
+                    ko.observable({
+                        id: ko.observable(3)
+                    })
+                ])
+            };
+
+            dotvvm.serialization.deserialize(viewModel.items()[0](), viewModel.selected);
+            expect(viewModel.selected().id()).toBe(1);
+            expect(viewModel.selected()).not.toBe(viewModel.items()[0]());
+            expect(viewModel.selected().id).not.toBe(viewModel.items()[0]().id);
+        });
+
+    it("Deserialize - null replaced with object and then with another object",
+        () => {
+            var viewModel = {
+                selected: ko.observable(null),
+                items: ko.observable([
+                    ko.observable({
+                        id: ko.observable(1)
+                    }),
+                    ko.observable({
+                        id: ko.observable(2)
+                    }),
+                    ko.observable({
+                        id: ko.observable(3)
+                    })
+                ])
+            };
+
+            dotvvm.serialization.deserialize(viewModel.items()[0](), viewModel.selected);
+            dotvvm.serialization.deserialize(viewModel.items()[1](), viewModel.selected);
+            expect(viewModel.selected().id()).toBe(2);
+            expect(viewModel.items()[0]().id()).toBe(1);
+            expect(viewModel.items()[1]().id()).toBe(2);
+        });
 });

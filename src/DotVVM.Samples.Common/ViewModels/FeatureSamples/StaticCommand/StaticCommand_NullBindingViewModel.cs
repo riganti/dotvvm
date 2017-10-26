@@ -18,6 +18,7 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand
             new ComplexObject() { Greeting = "Hello 1" },
             new ComplexObject() { Greeting = "Hello 2" },
             new ComplexObject() { Greeting = "Hello 3" },
+            null
         };
 
         public ComplexObject SelectedComplex { get; set; }
