@@ -103,7 +103,8 @@ class DotvvmSerialization {
                             result[prop](deserialized());
                         }
                     } else {
-                        result[prop] = ko.observable(ko.unwrap(deserialized));      // don't reuse the same observable from the source
+                        const unwrapped = ko.unwrap(deserialized);
+                        result[prop] = Array.isArray(unwrapped) ? ko.observableArray(unwrapped) : ko.observable(unwrapped);      // don't reuse the same observable from the source
                     }
                 } else {
                     if (ko.isObservable(result[prop])) {
