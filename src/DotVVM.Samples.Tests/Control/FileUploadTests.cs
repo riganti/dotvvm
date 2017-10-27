@@ -11,7 +11,7 @@ namespace DotVVM.Samples.Tests.Control
     public class FileUploadTests : SeleniumTestBase
     {
         [TestMethod]
-        [Timeout(120000)]
+        [Timeout(60000)]
         public void Control_FileUpload()
         {
             RunInAllBrowsers(browser =>
@@ -57,7 +57,7 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [TestMethod]
-        [Timeout(120000)]
+        [Timeout(60000)]
         public void Control_FileUpload_IsFileAllowed()
         {
             RunInAllBrowsers(browser =>
@@ -82,7 +82,7 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [TestMethod]
-        [Timeout(120000)]
+        [Timeout(60000)]
         public void Control_FileUpload_IsFileNotAllowed()
         {
             RunInAllBrowsers(browser =>
@@ -107,7 +107,7 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [TestMethod]
-        [Timeout(120000)]
+        [Timeout(60000)]
         public void Control_FileUpload_FileTooLarge()
         {
             RunInAllBrowsers(browser =>
@@ -132,7 +132,7 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [TestMethod]
-        [Timeout(120000)]
+        [Timeout(60000)]
         public void Control_FileUpload_FileSize()
         {
             RunInAllBrowsers(browser =>
