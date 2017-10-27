@@ -172,8 +172,7 @@ namespace DotVVM.Framework.Routing
             {
                 urlBuilders.Add(v =>
                 {
-                    object r;
-                    if (v.TryGetValue(name, out r))
+                    if (v.TryGetValue(name, out var r) && r != null)
                     {
                         return prefix + r.ToString();
                     }
@@ -185,7 +184,7 @@ namespace DotVVM.Framework.Routing
             }
             else
             {
-                urlBuilders.Add(v => prefix + v[name].ToString());
+                urlBuilders.Add(v => prefix + (v[name]?.ToString() ?? throw new ArgumentNullException($"Could not build route, parameter '{name}' is null")));
             }
 
             // add a parameter
