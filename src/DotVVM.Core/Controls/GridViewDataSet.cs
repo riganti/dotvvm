@@ -178,7 +178,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Navigates to the first page.
         /// </summary>
-        public void GoToFirstPage() => GoToFirstPageAsync().Wait();
+        public void GoToFirstPage() => Task.Run(GoToFirstPageAsync).Wait();
 
         /// <summary>
         /// Navigates to the first page.
@@ -192,7 +192,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Navigates to the last page.
         /// </summary>
-        public void GoToLastPage() => GoToLastPageAsync().Wait();
+        public void GoToLastPage() => Task.Run(GoToLastPageAsync).Wait();
 
         /// <summary>
         /// Navigates to the last page.
@@ -206,7 +206,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Navigates to the next page (if possible).
         /// </summary>
-        public void GoToNextPage() => GoToNextPageAsync().Wait();
+        public void GoToNextPage() => Task.Run(GoToNextPageAsync).Wait();
 
         /// <summary>
         /// Navigates to the next page (if possible).
@@ -224,7 +224,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Navigates to the specific page.
         /// </summary>
-        public void GoToPage(int index) => GoToPageAsync(index).Wait();
+        public void GoToPage(int index) => Task.Run(() => GoToPageAsync(index)).Wait();
 
         /// <summary>
         /// Navigates to the specific page.
@@ -238,7 +238,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Navigates to the previous page (if possible).
         /// </summary>
-        public void GoToPreviousPage() => GoToPreviousPageAsync().Wait();
+        public void GoToPreviousPage() => Task.Run(GoToPreviousPageAsync).Wait();
 
         /// <summary>
         /// Navigates to the previous page (if possible).
@@ -267,7 +267,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Requests to refresh the GridViewDataSet.
         /// </summary>
-        public void RequestRefresh(bool forceRefresh = false) => RequestRefreshAsync(forceRefresh).Wait();
+        public void RequestRefresh(bool forceRefresh = false) => Task.Run(() => RequestRefreshAsync(forceRefresh)).Wait();
 
         /// <summary>
         /// Requests to refresh the GridViewDataSet.
@@ -327,6 +327,7 @@ namespace DotVVM.Framework.Controls
         protected virtual async Task NotifyRefreshRequired()
         {
             var data = await LoadData();
+
             if (data != null)
             {
                 FillDataSet(data);
@@ -338,24 +339,24 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private Task<GridViewDataSetLoadedData<T>> LoadData()
+        private async Task<GridViewDataSetLoadedData<T>> LoadData()
         {
             if (OnLoadingData != null && OnLoadingDataAsync != null)
             {
                 throw new InvalidOperationException($"The {nameof(OnLoadingData)} and {nameof(OnLoadingDataAsync)} properties may not be set both at once.");
             }
-            else if (OnLoadingData != null)
+
+            if (OnLoadingData != null)
             {
-                return Task.FromResult(OnLoadingData(CreateGridViewDataSetLoadOptions()));
+                return OnLoadingData(CreateGridViewDataSetLoadOptions());
             }
-            else if (OnLoadingDataAsync != null)
+
+            if (OnLoadingDataAsync != null)
             {
-                return Task.FromResult(Task.Run(() => OnLoadingDataAsync(CreateGridViewDataSetLoadOptions())).Result);
+                return await OnLoadingDataAsync(CreateGridViewDataSetLoadOptions());
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
     }
 
