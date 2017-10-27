@@ -339,7 +339,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private async Task<GridViewDataSetLoadedData<T>> LoadData()
+        private Task<GridViewDataSetLoadedData<T>> LoadData()
         {
             if (OnLoadingData != null && OnLoadingDataAsync != null)
             {
@@ -348,15 +348,15 @@ namespace DotVVM.Framework.Controls
 
             if (OnLoadingData != null)
             {
-                return OnLoadingData(CreateGridViewDataSetLoadOptions());
+                return Task.FromResult(OnLoadingData(CreateGridViewDataSetLoadOptions()));
             }
 
             if (OnLoadingDataAsync != null)
             {
-                return await OnLoadingDataAsync(CreateGridViewDataSetLoadOptions());
+                return OnLoadingDataAsync(CreateGridViewDataSetLoadOptions());
             }
 
-            return null;
+            return Task.FromResult<GridViewDataSetLoadedData<T>>(null);
         }
     }
 
