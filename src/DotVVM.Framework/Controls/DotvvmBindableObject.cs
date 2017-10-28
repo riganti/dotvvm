@@ -189,30 +189,6 @@ namespace DotVVM.Framework.Controls
             SetValueRaw(property, binding);
         }
 
-
-        /// <summary>
-        /// Gets the hierarchy of all DataContext bindings from the root to current control.
-        /// </summary>
-        [Obsolete]
-        internal IEnumerable<IValueBinding> GetDataContextHierarchy()
-        {
-            var bindings = new List<IValueBinding>();
-            DotvvmBindableObject current = this;
-            do
-            {
-                var binding = current.GetValueBinding(DataContextProperty, false);
-                if (binding != null)
-                {
-                    bindings.Add(binding);
-                }
-                current = current.Parent;
-            }
-            while (current != null);
-
-            bindings.Reverse();
-            return bindings;
-        }
-
         /// <summary>
         /// Gets the closest control binding target.
         /// </summary>
