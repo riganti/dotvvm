@@ -37,7 +37,7 @@ namespace DotVVM.Framework.Tests.Runtime
             configuration = configuration ?? DotvvmTestHelper.CreateConfiguration();
             return new TestDotvvmRequestContext() {
                 Configuration = configuration,
-                ResourceManager = new ResourceManagement.ResourceManager(configuration),
+                ResourceManager = new ResourceManagement.ResourceManager(configuration.Resources),
                 ViewModel = viewModel
             };
         }

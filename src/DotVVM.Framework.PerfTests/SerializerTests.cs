@@ -46,7 +46,7 @@ namespace DotVVM.Framework.PerfTests
             {
                 ViewModel = viewModel,
                 CsrfToken = "",
-                ResourceManager = new ResourceManagement.ResourceManager(configuration),
+                ResourceManager = new ResourceManagement.ResourceManager(configuration.Resources),
                 Configuration = configuration,
                 ModelState = new ModelState()
             };

@@ -42,7 +42,7 @@ namespace DotVVM.Compiler.Light
                 .Where(t => typeof(IDotvvmStartup).IsAssignableFrom(t) && t.GetConstructor(Type.EmptyTypes) != null).ToArray();
             if (dotvvmStartups.Length > 1) throw new Exception($"Found more than one implementation of IDotvvmStartup ({string.Join(", ", dotvvmStartups.Select(s => s.Name)) }).");
             var startup = dotvvmStartups.SingleOrDefault()?.Apply(Activator.CreateInstance).CastTo<IDotvvmStartup>();
-            
+
             var configureServices =
                 webSiteAssembly.GetLoadableTypes()
                 .Where(t => t.Name == "Startup")
@@ -66,12 +66,14 @@ namespace DotVVM.Compiler.Light
             startup.Configure(config, webSitePath);
             config.CompiledViewsAssemblies = null;
 
-            var configurers = config.ServiceLocator.GetServiceProvider().GetServices<IConfigureOptions<DotvvmConfiguration>>().ToArray();
-            if (startup == null && configurers.Length == 0) throw new Exception($"Could not find any IConfigureOptions<DotvvmConfiguration> nor a IDotvvmStartup implementation.");
-            foreach (var configurer in configurers)
-            {
-                configurer.Configure(config);
-            }
+            // It should be handled by the DotvvmConfiguration.CreateDefault:
+
+            // var configurers = config.ServiceLocator.GetServiceProvider().GetServices<IConfigureOptions<DotvvmConfiguration>>().ToArray();
+            // if (startup == null && configurers.Length == 0) throw new Exception($"Could not find any IConfigureOptions<DotvvmConfiguration> nor a IDotvvmStartup implementation.");
+            // foreach (var configurer in configurers)
+            // {
+            //     configurer.Configure(config);
+            // }
 
             return config;
         }

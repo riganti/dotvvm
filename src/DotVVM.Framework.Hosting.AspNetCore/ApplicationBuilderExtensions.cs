@@ -65,12 +65,6 @@ namespace Microsoft.AspNetCore.Builder
                 new DotvvmRoutingMiddleware()
             });
 
-            var configurators = config.ServiceLocator.GetServiceProvider().GetServices<IConfigureOptions<DotvvmConfiguration>>();
-            foreach (var configurator in configurators)
-            {
-                configurator.Configure(config);
-            }
-
             return config;
         }
     }

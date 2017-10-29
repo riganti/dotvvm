@@ -28,9 +28,8 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Adds essential DotVVM services to the specified <see cref="IServiceCollection" />.
         /// </summary>
         /// <param name="services">The <see cref="IServiceCollection" /> to add services to.</param>
-        /// <param name="configuration">The DotVVM configuration to use. A default one will be used if the value is <c>null</c>.</param>
         /// <param name="allowDebugServices">If the vs-diagnostics services should be registered</param>
-        public static IServiceCollection RegisterDotVVMServices(IServiceCollection services, DotvvmConfiguration configuration = null, bool allowDebugServices = true)
+        public static IServiceCollection RegisterDotVVMServices(IServiceCollection services, bool allowDebugServices = true)
         {
             services.AddOptions();
 
@@ -70,10 +69,16 @@ namespace Microsoft.Extensions.DependencyInjection
                return () => new BindingRequiredResourceVisitor((ControlResolverMetadata)requiredResourceControl);
             });
 
-            services.TryAddSingleton(s => configuration ?? (configuration = DotvvmConfiguration.CreateDefault(s)));
+            services.TryAddSingleton(s => DotvvmConfiguration.CreateDefault(s));
+            services.TryAddSingleton(s => s.GetRequiredService<DotvvmConfiguration>().Markup);
+            services.TryAddSingleton(s => s.GetRequiredService<DotvvmConfiguration>().Resources);
+            services.TryAddSingleton(s => s.GetRequiredService<DotvvmConfiguration>().RouteTable);
+            services.TryAddSingleton(s => s.GetRequiredService<DotvvmConfiguration>().Runtime);
+            services.TryAddSingleton(s => s.GetRequiredService<DotvvmConfiguration>().Security);
+            services.TryAddSingleton(s => s.GetRequiredService<DotvvmConfiguration>().Styles);
 
-            services.Configure<BindingCompilationOptions>(o => {
-                 o.TransformerClasses.Add(ActivatorUtilities.CreateInstance<BindingPropertyResolvers>(configuration.ServiceLocator.GetServiceProvider()));
+            services.ConfigureWithServices<BindingCompilationOptions>((o, s) => {
+                 o.TransformerClasses.Add(ActivatorUtilities.CreateInstance<BindingPropertyResolvers>(s));
             });
 
             return services;
@@ -95,6 +100,23 @@ namespace Microsoft.Extensions.DependencyInjection
 
             return services;
         }
-    }
 
+        public static void ConfigureWithServices<TObject, TService>(this IServiceCollection services, Action<TObject, TService> configure)
+            where TObject: class
+        {
+            services.AddSingleton<IConfigureOptions<TObject>>(s => new ConfigureNamedOptions<TObject>(Options.Options.DefaultName, o => configure(o, s.GetRequiredService<TService>())));
+        }
+
+        public static void ConfigureWithServices<TObject, TService1, TService2>(this IServiceCollection services, Action<TObject, TService1, TService2> configure)
+            where TObject: class
+        {
+            services.AddSingleton<IConfigureOptions<TObject>>(s => new ConfigureNamedOptions<TObject>(Options.Options.DefaultName, o => configure(o, s.GetRequiredService<TService1>(), s.GetRequiredService<TService2>())));
+        }
+
+        public static void ConfigureWithServices<TObject>(this IServiceCollection services, Action<TObject, IServiceProvider> configure)
+            where TObject: class
+        {
+            services.AddSingleton<IConfigureOptions<TObject>>(s => new ConfigureNamedOptions<TObject>(Options.Options.DefaultName, o => configure(o, s)));
+        }
+    }
 }
