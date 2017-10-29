@@ -114,7 +114,7 @@ namespace DotVVM.Framework.Routing
             {
                 throw new InvalidOperationException($"The route with name '{routeName}' has already been registered!");
             }
-            // internal assign routename 
+            // internal assign routename
             route.RouteName = routeName;
 
             group?.AddToParentRouteTable?.Invoke(routeName, route);

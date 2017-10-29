@@ -116,13 +116,16 @@ namespace DotVVM.Framework.Controls
             set { SetValue(ValueTypeProperty, value); }
         }
 
+        [Obsolete("ValueType property is no longer required, it is automatically inferred from compile-time type of Text binding")]
         public static readonly DotvvmProperty ValueTypeProperty =
             DotvvmProperty.Register<FormatValueType, TextBox>(t => t.ValueType);
 
         protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
             isFormattingRequired = !string.IsNullOrEmpty(FormatString) ||
+                #pragma warning disable
                 ValueType != FormatValueType.Text ||
+                #pragma warning restore
                 Literal.NeedsFormatting(GetValueBinding(TextProperty));
             if (isFormattingRequired)
             {
@@ -194,10 +197,13 @@ namespace DotVVM.Framework.Controls
             }
 
             writer.AddAttribute("data-dotvvm-format", formatString);
+
+            #pragma warning disable
             if (ValueType != FormatValueType.Text)
             {
                 writer.AddAttribute("data-dotvvm-value-type", ValueType.ToString().ToLowerInvariant());
             }
+            #pragma warning restore
             else if (binding?.ResultType == typeof(DateTime))
             {
                 writer.AddAttribute("data-dotvvm-value-type", "datetime");

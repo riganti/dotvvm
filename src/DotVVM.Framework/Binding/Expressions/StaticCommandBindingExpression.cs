@@ -39,6 +39,6 @@ namespace DotVVM.Framework.Binding.Expressions
     public class StaticCommandBindingExpression<T>: StaticCommandBindingExpression, ICommandBinding<T>
     {
         public StaticCommandBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties) { }
-        public BindingDelegate<T> BindingDelegate => base.BindingDelegate.ToGeneric<T>();
+        public new BindingDelegate<T> BindingDelegate => base.BindingDelegate.ToGeneric<T>();
     }
 }

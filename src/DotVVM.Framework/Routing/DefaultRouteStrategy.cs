@@ -14,13 +14,17 @@ namespace DotVVM.Framework.Routing
     {
 
         protected readonly DotvvmConfiguration configuration;
+
+        protected readonly string pattern;
+
         protected readonly string applicationPhysicalPath;
         protected readonly DirectoryInfo viewsFolderDirectoryInfo;
 
 
-        public DefaultRouteStrategy(DotvvmConfiguration configuration, string viewsFolder = "Views")
+        public DefaultRouteStrategy(DotvvmConfiguration configuration, string viewsFolder = "Views", string pattern = "*.dothtml")
         {
             this.configuration = configuration;
+            this.pattern = pattern;
             this.applicationPhysicalPath = Path.GetFullPath(configuration.ApplicationPhysicalPath);
 
             var directory = Path.Combine(applicationPhysicalPath, viewsFolder);
@@ -33,7 +37,7 @@ namespace DotVVM.Framework.Routing
             var existingRouteNames = new HashSet<string>(configuration.RouteTable.Select(r => r.RouteName), StringComparer.OrdinalIgnoreCase);
 
             return DiscoverMarkupFiles()
-                .Select(BuildRoute)
+                .SelectMany(BuildRoutes)
                 .Where(r => !existingRouteNames.Contains(r.RouteName));
         }
 
@@ -48,7 +52,7 @@ namespace DotVVM.Framework.Routing
             }
 
             return viewsFolderDirectoryInfo
-                .GetFiles("*.dothtml", SearchOption.AllDirectories)
+                .GetFiles(pattern, SearchOption.AllDirectories)
                 .Select(file => new RouteStrategyMarkupFileInfo()
                 {
                     AbsolutePath = file.FullName,
@@ -56,6 +60,11 @@ namespace DotVVM.Framework.Routing
                     ViewsFolderRelativePath = file.FullName.Substring(viewsFolderDirectoryInfo.FullName.Length).Replace('\\', '/').TrimStart('/')
                 });
         }
+
+        /// <summary>
+        /// Builds a set of routes for the specified markup file.
+        /// </summary>
+        protected virtual IEnumerable<RouteBase> BuildRoutes(RouteStrategyMarkupFileInfo file) => new [] { this.BuildRoute(file) };
 
         /// <summary>
         /// Builds a route for the specified markup file.
@@ -92,6 +101,37 @@ namespace DotVVM.Framework.Routing
         protected virtual Func<IDotvvmPresenter> GetRoutePresenterFactory(RouteStrategyMarkupFileInfo file)
         {
             return configuration.RouteTable.GetDefaultPresenter;
+        }
+    }
+
+    public class CustomListRoutingStrategy: DefaultRouteStrategy
+    {
+        private readonly Func<string, IEnumerable<string>> getRouteList;
+        public CustomListRoutingStrategy(DotvvmConfiguration configuration, Func<string, IEnumerable<string>> getRouteList = null, string viewsFolder = "Views", string pattern = "*.dothtml") : base(configuration, viewsFolder, pattern)
+        {
+            this.getRouteList = getRouteList ?? GetRoutesForFile;
+        }
+
+        private static HashSet<string> defaultFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Index", "Default" };
+
+        private static IEnumerable<string> GetRoutesForFile(string fileName)
+        {
+            var slashIndex = fileName.LastIndexOf('/');
+            var pureName = Path.GetFileNameWithoutExtension(slashIndex < 0 ? fileName : fileName.Substring(slashIndex + 1));
+            var directory = slashIndex < 0 ? "" : fileName.Remove(slashIndex);
+
+            if (!char.IsLetterOrDigit(pureName[0])) yield break;
+
+            if (defaultFiles.Contains(pureName)) yield return directory;
+
+            if (!string.IsNullOrEmpty(directory)) yield return directory + "/" + pureName;
+            else yield return pureName;
+        }
+
+        protected override IEnumerable<RouteBase> BuildRoutes(RouteStrategyMarkupFileInfo file)
+        {
+            return getRouteList(file.AppRelativePath)
+                   .Select(url => new DotvvmRoute(url, file.AppRelativePath, GetRouteDefaultParameters(file), GetRoutePresenterFactory(file), this.configuration) { RouteName = url });
         }
     }
 }

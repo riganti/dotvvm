@@ -20,9 +20,6 @@ namespace DotVVM.Framework.Compilation.Javascript
             var eulerPath = new List<(JsNode node, bool isFirst)>();
             walkNode(eulerPath, node);
 
-            JsNode lca(JsNode a, JsNode b) =>
-                a.Ancestors.First(b.Ancestors.Contains);
-
             var allVariables = new Dictionary<JsTemporaryVariableParameter, (int from, int to)>();
             var usedNames = new HashSet<string>();
             foreach (var n in node.DescendantNodesAndSelf())

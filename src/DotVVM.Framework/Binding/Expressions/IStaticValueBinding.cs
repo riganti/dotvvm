@@ -11,6 +11,6 @@ namespace DotVVM.Framework.Binding.Expressions
 
     public interface IStaticValueBinding<out T>: IStaticValueBinding
     {
-        BindingDelegate<T> BindingDelegate { get; }
+        new BindingDelegate<T> BindingDelegate { get; }
     }
 }

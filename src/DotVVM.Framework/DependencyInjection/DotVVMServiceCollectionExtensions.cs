@@ -29,6 +29,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="services">The <see cref="IServiceCollection" /> to add services to.</param>
         /// <param name="configuration">The DotVVM configuration to use. A default one will be used if the value is <c>null</c>.</param>
+        /// <param name="allowDebugServices">If the vs-diagnostics services should be registered</param>
         public static IServiceCollection RegisterDotVVMServices(IServiceCollection services, DotvvmConfiguration configuration = null, bool allowDebugServices = true)
         {
             services.AddOptions();

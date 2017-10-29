@@ -36,7 +36,7 @@ namespace DotVVM.Framework.Diagnostics
                             await stream.FlushAsync();
                         }
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
                         // ignored
                     }

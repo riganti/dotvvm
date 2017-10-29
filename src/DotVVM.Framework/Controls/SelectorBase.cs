@@ -27,7 +27,7 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty EnabledProperty =
             DotvvmPropertyWithFallback.Register<bool, SelectorBase>(nameof(Enabled),
                 FormControls.EnabledProperty, defaultPropertyInherit: true);
-        
+
 
         /// <summary>
         /// Gets or sets the name of property in the DataSource collection that will be displayed in the control.
@@ -38,6 +38,7 @@ namespace DotVVM.Framework.Controls
             get { return (string)GetValue(DisplayMemberProperty); }
             set { SetValue(DisplayMemberProperty, value); }
         }
+        [Obsolete("Use ItemTextBinding property instead")]
         public static readonly DotvvmProperty DisplayMemberProperty =
             DotvvmProperty.Register<string, SelectorBase>(t => t.DisplayMember, "");
 
@@ -50,9 +51,10 @@ namespace DotVVM.Framework.Controls
             get { return (string)GetValue(ValueMemberProperty); }
             set { SetValue(ValueMemberProperty, value); }
         }
+        [Obsolete("Use ItemValueBinding property instead")]
         public static readonly DotvvmProperty ValueMemberProperty =
             DotvvmProperty.Register<string, SelectorBase>(t => t.ValueMember, "");
-        
+
         /// <summary>
         /// The expression of DataSource item that will be displayed in the control.
         /// </summary>
@@ -66,7 +68,7 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty ItemTextBindingProperty =
             DotvvmProperty.Register<IValueBinding, SelectorBase>(nameof(ItemTextBinding));
-        
+
         /// <summary>
         /// The expression of DataSource item that will be passed to the SelectedValue property when the item is selected.
         /// </summary>
@@ -80,7 +82,7 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty ItemValueBindingProperty =
             DotvvmProperty.Register<IValueBinding, SelectorBase>(nameof(ItemValueBinding));
-        
+
         /// <summary>
         /// Gets or sets the command that will be triggered when the selection is changed.
         /// </summary>

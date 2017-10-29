@@ -13,6 +13,6 @@ namespace DotVVM.Framework.Binding.Expressions
 
     public interface ICommandBinding<out T>: ICommandBinding
     {
-        BindingDelegate<T> BindingDelegate { get; }
+        new BindingDelegate<T> BindingDelegate { get; }
     }
 }

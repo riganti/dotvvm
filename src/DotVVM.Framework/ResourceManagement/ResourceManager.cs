@@ -107,7 +107,7 @@ namespace DotVVM.Framework.ResourceManagement
         /// </summary>
         public void AddStartupScript(string name, string javascriptCode, params string[] dependentResourceNames)
         {
-            AddRequiredResourceCore(name, new InlineScriptResource() { Code = javascriptCode, Dependencies = dependentResourceNames });
+            AddRequiredResourceCore(name, new InlineScriptResource(javascriptCode) { Dependencies = dependentResourceNames });
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace DotVVM.Framework.ResourceManagement
         /// </summary>
         public void AddStartupScript(string javascriptCode, params string[] dependentResourceNames)
         {
-            AddRequiredResourceCore(new InlineScriptResource() { Code = javascriptCode, Dependencies = dependentResourceNames });
+            AddRequiredResourceCore(new InlineScriptResource(javascriptCode) { Dependencies = dependentResourceNames });
         }
 
         /// <summary>
