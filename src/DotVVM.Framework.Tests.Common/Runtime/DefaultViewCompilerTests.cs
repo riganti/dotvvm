@@ -418,7 +418,7 @@ test <dot:Literal><a /></dot:Literal>";
                     t == typeof(TestCustomDependencyInjectionControl) ? new TestCustomDependencyInjectionControl("") { IsCorrectlyCreated = true } :
                     throw new Exception());
             });
-            context.Services = context.Configuration.ServiceLocator.GetServiceProvider().GetRequiredService<IServiceScopeFactory>().CreateScope().ServiceProvider;
+            context.Services = context.Services.GetRequiredService<IServiceScopeFactory>().CreateScope().ServiceProvider;
             context.Configuration.ApplicationPhysicalPath = Path.GetTempPath();
 
             context.Configuration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test1", Src = "test1.dothtml" });
@@ -428,7 +428,7 @@ test <dot:Literal><a /></dot:Literal>";
             context.Configuration.Markup.AddCodeControls("ff", typeof(TestControl));
             context.Configuration.Markup.AddAssembly(typeof(DefaultViewCompilerTests).GetTypeInfo().Assembly.GetName().Name);
 
-            var controlBuilderFactory = context.Configuration.ServiceLocator.GetService<IControlBuilderFactory>();
+            var controlBuilderFactory = context.Services.GetRequiredService<IControlBuilderFactory>();
             var (_, controlBuilder) = controlBuilderFactory.GetControlBuilder(fileName + ".dothtml");
 
             var result = controlBuilder.Value.BuildControl(controlBuilderFactory, context.Services);

@@ -121,7 +121,7 @@ namespace DotVVM.Framework.Configuration
         internal DotvvmConfiguration()
         {
             DefaultCulture = CultureInfo.CurrentCulture.Name;
-            Markup = new DotvvmMarkupConfiguration(new Lazy<JavascriptTranslatorConfiguration>(() => ServiceLocator.GetService<IOptions<JavascriptTranslatorConfiguration>>().Value));
+            Markup = new DotvvmMarkupConfiguration(new Lazy<JavascriptTranslatorConfiguration>(() => ServiceProvider.GetRequiredService<IOptions<JavascriptTranslatorConfiguration>>().Value));
             RouteTable = new DotvvmRouteTable(this);
             Resources = new DotvvmResourceRepository();
             Security = new DotvvmSecurityConfiguration();

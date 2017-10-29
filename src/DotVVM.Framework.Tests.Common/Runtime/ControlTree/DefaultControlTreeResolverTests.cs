@@ -21,6 +21,7 @@ using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Compilation;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Tests.Runtime.ControlTree
 {
@@ -35,7 +36,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         {
             configuration = DotvvmTestHelper.CreateConfiguration();
             configuration.Markup.AddCodeControls("cc", typeof(ClassWithInnerElementProperty));
-            controlTreeResolver = configuration.ServiceLocator.GetService<IControlTreeResolver>();
+            controlTreeResolver = configuration.ServiceProvider.GetRequiredService<IControlTreeResolver>();
         }
 
         [TestMethod]
@@ -674,7 +675,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
                 .CastTo<ResolvedTreeRoot>()
                 .ApplyAction(new DataContextPropertyAssigningVisitor().VisitView)
                 .ApplyAction(new StylingVisitor(configuration).VisitView)
-                .ApplyAction(new ControlUsageValidationVisitor(configuration).VisitView);
+                .ApplyAction(ActivatorUtilities.CreateInstance<ControlUsageValidationVisitor>(configuration.ServiceProvider).VisitView);
         }
 
     }

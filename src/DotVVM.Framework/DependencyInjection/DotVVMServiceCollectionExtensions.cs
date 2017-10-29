@@ -7,6 +7,7 @@ using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
@@ -50,6 +51,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IControlResolver, DefaultControlResolver>();
             services.TryAddSingleton<IControlTreeResolver, DefaultControlTreeResolver>();
             services.TryAddSingleton<IAbstractTreeBuilder, ResolvedTreeBuilder>();
+            services.TryAddSingleton<Func<ControlUsageValidationVisitor>>(s => () => ActivatorUtilities.CreateInstance<ControlUsageValidationVisitor>(s));
             services.TryAddSingleton<IViewCompiler, DefaultViewCompiler>();
             services.TryAddSingleton<IBindingCompiler, BindingCompiler>();
             services.TryAddSingleton<IBindingExpressionBuilder, BindingExpressionBuilder>();
@@ -64,11 +66,6 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.TryAddScoped<AggregateRequestTracer, AggregateRequestTracer>();
             services.TryAddScoped<ResourceManager, ResourceManager>();
-            services.TryAddSingleton<Func<BindingRequiredResourceVisitor>>(s => {
-               var requiredResourceControl = s.GetRequiredService<IControlResolver>().ResolveControl(new ResolvedTypeDescriptor(typeof(RequiredResource)));
-               return () => new BindingRequiredResourceVisitor((ControlResolverMetadata)requiredResourceControl);
-            });
-
             services.TryAddSingleton(s => DotvvmConfiguration.CreateDefault(s));
             services.TryAddSingleton(s => s.GetRequiredService<DotvvmConfiguration>().Markup);
             services.TryAddSingleton(s => s.GetRequiredService<DotvvmConfiguration>().Resources);
@@ -79,6 +76,14 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.ConfigureWithServices<BindingCompilationOptions>((o, s) => {
                  o.TransformerClasses.Add(ActivatorUtilities.CreateInstance<BindingPropertyResolvers>(s));
+            });
+
+            services.ConfigureWithServices<ViewCompilerConfiguration>((o, s) => {
+                var requiredResourceControl = s.GetRequiredService<IControlResolver>().ResolveControl(new ResolvedTypeDescriptor(typeof(RequiredResource)));
+                o.TreeVisitors.Add(() => new BindingRequiredResourceVisitor((ControlResolverMetadata)requiredResourceControl));
+                o.TreeVisitors.Add(() => ActivatorUtilities.CreateInstance<StylingVisitor>(s));
+                o.TreeVisitors.Add(() => ActivatorUtilities.CreateInstance<DataContextPropertyAssigningVisitor>(s));
+                o.TreeVisitors.Add(() => new LifecycleRequirementsAssigningVisitor());
             });
 
             return services;
