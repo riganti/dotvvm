@@ -106,7 +106,6 @@ namespace DotVVM.Framework.Binding
                 new BindingResolverCollection(t.GetTypeInfo().GetCustomAttributes<BindingCompilationOptionsAttribute>(true)
                 .SelectMany(o => o.GetResolvers())));
         }
-        
 
         ConcurrentDictionary<Type, BindingCompilationRequirementsAttribute> defaultRequirementCache = new ConcurrentDictionary<Type, BindingCompilationRequirementsAttribute>();
         protected BindingCompilationRequirementsAttribute GetDefaultRequirements(Type bindingType)
@@ -142,10 +141,8 @@ namespace DotVVM.Framework.Binding
                 if (binding.GetProperty(req, ErrorHandlingMode.ReturnException) is Exception error)
                     reporter.Errors.Push((req, error, DiagnosticSeverity.Error));
             }
-            var badRequirements = reporter.Errors.Select(e => e.req).Distinct().ToArray();
-            if (throwException && reporter.Errors.Any())
-                throw new AggregateException($"Could not initialize binding '{binding}', requirement{(badRequirements.Length > 1 ? "s" : "")} {string.Join<Type>(", ", badRequirements)} {(badRequirements.Length > 1 ? "were" : "was")} not met",
-                    reporter.Errors.Select(e => e.error));
+            if (throwException && reporter.HasErrors)
+                throw new AggregateException(reporter.GetErrorMessage(binding), reporter.Exceptions);
         }
 
         public static Delegate[] GetDelegates(IEnumerable<object> objects) => (

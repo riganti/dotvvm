@@ -226,7 +226,14 @@ namespace DotVVM.Framework.Binding.Properties
     /// </summary>
     public sealed class BindingErrorReporterProperty
     {
-        public ConcurrentStack<(Type req, Exception error, DiagnosticSeverity)> Errors = new ConcurrentStack<(Type req, Exception error, DiagnosticSeverity)>();
+        public ConcurrentStack<(Type req, Exception error, DiagnosticSeverity severity)> Errors = new ConcurrentStack<(Type req, Exception error, DiagnosticSeverity)>();
+        public bool HasErrors => Errors.Any(e => e.severity == Microsoft.CodeAnalysis.DiagnosticSeverity.Error);
+        public string GetErrorMessage(IBinding binding)
+        {
+            var badRequirements = Errors.Where(e => e.severity == Microsoft.CodeAnalysis.DiagnosticSeverity.Error).Select(e => e.req).Distinct().ToArray();
+            return $"Could not initialize binding '{binding}', requirement{(badRequirements.Length > 1 ? "s" : "")} {string.Join<Type>(", ", badRequirements)} {(badRequirements.Length > 1 ? "were" : "was")} not met";
+        }
+        public IEnumerable<Exception> Exceptions => Errors.Select(e => e.error);
     }
 
     /// <summary>
