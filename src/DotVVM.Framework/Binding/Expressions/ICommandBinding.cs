@@ -7,12 +7,12 @@ namespace DotVVM.Framework.Binding.Expressions
     public interface ICommandBinding : IBinding
     {
         ParametrizedCode CommandJavascript { get; }
-        CompiledBindingExpression.BindingDelegate BindingDelegate { get; }
+        BindingDelegate BindingDelegate { get; }
         ImmutableArray<IActionFilter> ActionFilters { get; }
     }
 
     public interface ICommandBinding<out T>: ICommandBinding
     {
-        CompiledBindingExpression.BindingDelegate<T> BindingDelegate { get; }
+        BindingDelegate<T> BindingDelegate { get; }
     }
 }

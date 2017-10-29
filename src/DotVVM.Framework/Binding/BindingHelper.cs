@@ -77,7 +77,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Prepares DataContext hierarchy argument and executes update delegate.
         /// </summary>
-        public static void ExecUpdateDelegate(this CompiledBindingExpression.BindingUpdateDelegate func, DotvvmBindableObject contextControl, object value)
+        public static void ExecUpdateDelegate(this BindingUpdateDelegate func, DotvvmBindableObject contextControl, object value)
         {
             var dataContexts = GetDataContexts(contextControl);
             //var control = contextControl.GetClosestControlBindingTarget();
@@ -87,7 +87,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Prepares DataContext hierarchy argument and executes update delegate.
         /// </summary>
-        public static void ExecUpdateDelegate<T>(this CompiledBindingExpression.BindingUpdateDelegate<T> func, DotvvmBindableObject contextControl, T value)
+        public static void ExecUpdateDelegate<T>(this BindingUpdateDelegate<T> func, DotvvmBindableObject contextControl, T value)
         {
             var dataContexts = GetDataContexts(contextControl);
             //var control = contextControl.GetClosestControlBindingTarget();
@@ -97,7 +97,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Prepares DataContext hierarchy argument and executes update delegate.
         /// </summary>
-        public static object ExecDelegate(this CompiledBindingExpression.BindingDelegate func, DotvvmBindableObject contextControl)
+        public static object ExecDelegate(this BindingDelegate func, DotvvmBindableObject contextControl)
         {
             var dataContexts = GetDataContexts(contextControl);
             return func(dataContexts.ToArray(), contextControl);
@@ -106,7 +106,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Prepares DataContext hierarchy argument and executes update delegate.
         /// </summary>
-        public static T ExecDelegate<T>(this CompiledBindingExpression.BindingDelegate<T> func, DotvvmBindableObject contextControl)
+        public static T ExecDelegate<T>(this BindingDelegate<T> func, DotvvmBindableObject contextControl)
         {
             var dataContexts = GetDataContexts(contextControl);
             return func(dataContexts.ToArray(), contextControl);
@@ -311,8 +311,8 @@ namespace DotVVM.Framework.Binding
             }
         }
 
-        public static CompiledBindingExpression.BindingDelegate<T> ToGeneric<T>(this CompiledBindingExpression.BindingDelegate d) => (a, b) => (T)d(a, b);
-        public static CompiledBindingExpression.BindingUpdateDelegate<T> ToGeneric<T>(this CompiledBindingExpression.BindingUpdateDelegate d) => (a, b, c) => d(a, b, c);
+        public static BindingDelegate<T> ToGeneric<T>(this BindingDelegate d) => (a, b) => (T)d(a, b);
+        public static BindingUpdateDelegate<T> ToGeneric<T>(this BindingUpdateDelegate d) => (a, b, c) => d(a, b, c);
     }
 
 

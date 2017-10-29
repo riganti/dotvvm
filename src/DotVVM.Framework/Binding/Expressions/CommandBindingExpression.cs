@@ -23,7 +23,7 @@ namespace DotVVM.Framework.Binding.Expressions
     public delegate Task Command();
 
     [BindingCompilationRequirements(
-        required: new[] { typeof(CompiledBindingExpression.BindingDelegate) },
+        required: new[] { typeof(BindingDelegate) },
         optional: new[] { typeof(ActionFiltersBindingProperty), typeof(IdBindingProperty), typeof(CommandJavascriptBindingProperty) }
         )]
     [Options]
@@ -41,7 +41,7 @@ namespace DotVVM.Framework.Binding.Expressions
 
         public string BindingId => this.GetProperty<IdBindingProperty>().Id;
 
-        public CompiledBindingExpression.BindingDelegate BindingDelegate => this.GetProperty<CompiledBindingExpression.BindingDelegate>();
+        public BindingDelegate BindingDelegate => this.GetProperty<BindingDelegate>();
 
         public class OptionsAttribute : BindingCompilationOptionsAttribute
         {
@@ -160,14 +160,14 @@ namespace DotVVM.Framework.Binding.Expressions
             : this(service, (h, o) => command, id)
         { }
 
-        public CommandBindingExpression(BindingCompilationService service, CompiledBindingExpression.BindingDelegate command, string id)
+        public CommandBindingExpression(BindingCompilationService service, BindingDelegate command, string id)
             : base(service, new object[] { command, new IdBindingProperty(id), new CommandJavascriptBindingProperty(CreateJsPostbackInvocation(id)) })
         { }
     }
 
     public class CommandBindingExpression<T> : CommandBindingExpression, ICommandBinding<T>
     {
-        public new CompiledBindingExpression.BindingDelegate<T> BindingDelegate => base.BindingDelegate.ToGeneric<T>();
+        public new BindingDelegate<T> BindingDelegate => base.BindingDelegate.ToGeneric<T>();
         public CommandBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties) { }
     }
 }

@@ -26,7 +26,7 @@ namespace DotVVM.Framework.Tests.Binding
             using (var text = new StringWriter())
             {
                 var html = new HtmlWriter(text, context);
-                jquery.RenderLink(jquery.Location, html, context, ResourceConstants.JQueryResourceName);
+                jquery.RenderLink(jquery.Location, html, context, "jquery");
 
                 return text.GetStringBuilder().ToString();
             }
@@ -38,9 +38,9 @@ namespace DotVVM.Framework.Tests.Binding
             //Arrange
             var configuration = DotvvmTestHelper.CreateConfiguration();
 
-            configuration.Resources.Register(ResourceConstants.JQueryResourceName, new ScriptResource { Location = new UrlResourceLocation(_jqueryUri), VerifyResourceIntegrity = false });
+            configuration.Resources.Register("jquery", new ScriptResource { Location = new UrlResourceLocation(_jqueryUri), VerifyResourceIntegrity = false });
 
-            var jquery = configuration.Resources.FindResource(ResourceConstants.JQueryResourceName) as ScriptResource;
+            var jquery = configuration.Resources.FindResource("jquery") as ScriptResource;
 
             //Act
             string scriptTag = RenderResource(configuration, jquery);
@@ -57,9 +57,9 @@ namespace DotVVM.Framework.Tests.Binding
             //Arrange
             var configuration = DotvvmTestHelper.CreateConfiguration();
 
-            configuration.Resources.Register(ResourceConstants.JQueryResourceName, new ScriptResource { Location = new UrlResourceLocation(_jqueryUri), VerifyResourceIntegrity = false, IntegrityHash = _integrityHash });
+            configuration.Resources.Register("jquery", new ScriptResource { Location = new UrlResourceLocation(_jqueryUri), VerifyResourceIntegrity = false, IntegrityHash = _integrityHash });
 
-            var jquery = configuration.Resources.FindResource(ResourceConstants.JQueryResourceName) as ScriptResource;
+            var jquery = configuration.Resources.FindResource("jquery") as ScriptResource;
 
             //Act
             string scriptTag = RenderResource(configuration, jquery);
@@ -75,9 +75,9 @@ namespace DotVVM.Framework.Tests.Binding
             //Arrange
             var configuration = DotvvmTestHelper.CreateConfiguration();
 
-            configuration.Resources.Register(ResourceConstants.JQueryResourceName, new ScriptResource { Location = new UrlResourceLocation(_jqueryUri), VerifyResourceIntegrity = true, IntegrityHash = "123" });
+            configuration.Resources.Register("jquery", new ScriptResource { Location = new UrlResourceLocation(_jqueryUri), VerifyResourceIntegrity = true, IntegrityHash = "123" });
 
-            var jquery = configuration.Resources.FindResource(ResourceConstants.JQueryResourceName) as ScriptResource;
+            var jquery = configuration.Resources.FindResource("jquery") as ScriptResource;
 
             //Act
             string scriptTag = RenderResource(configuration, jquery);
@@ -93,9 +93,9 @@ namespace DotVVM.Framework.Tests.Binding
             //Arrange
             var configuration = DotvvmTestHelper.CreateConfiguration();
 
-            configuration.Resources.Register(ResourceConstants.JQueryResourceName, new ScriptResource { Location = new UrlResourceLocation(_jqueryUri), VerifyResourceIntegrity = true, IntegrityHash = _integrityHash });
+            configuration.Resources.Register("jquery", new ScriptResource { Location = new UrlResourceLocation(_jqueryUri), VerifyResourceIntegrity = true, IntegrityHash = _integrityHash });
 
-            var jquery = configuration.Resources.FindResource(ResourceConstants.JQueryResourceName) as ScriptResource;
+            var jquery = configuration.Resources.FindResource("jquery") as ScriptResource;
 
             //Act
             string scriptTag = RenderResource(configuration, jquery);
