@@ -142,8 +142,9 @@ namespace DotVVM.Framework.Binding
                 if (binding.GetProperty(req, ErrorHandlingMode.ReturnException) is Exception error)
                     reporter.Errors.Push((req, error, DiagnosticSeverity.Error));
             }
+            var badRequirements = reporter.Errors.Select(e => e.req).Distinct().ToArray();
             if (throwException && reporter.Errors.Any())
-                throw new AggregateException($"Could not initialize binding '{binding.GetType()}', requirements {string.Join(", ", reporter.Errors.Select(e => e.req))} was not met",
+                throw new AggregateException($"Could not initialize binding '{binding}', requirement{(badRequirements.Length > 1 ? "s" : "")} {string.Join<Type>(", ", badRequirements)} {(badRequirements.Length > 1 ? "were" : "was")} not met",
                     reporter.Errors.Select(e => e.error));
         }
 
