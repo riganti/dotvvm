@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using DotVVM.Testing.Abstractions;
+using Riganti.Utils.Testing.Selenium.Core;
 using Xunit;
 using Xunit.Abstractions;
-using Assert = Riganti.Utils.Testing.Selenium.Core.Assert;
 
 namespace DotVVM.Samples.Tests.New
 {
@@ -19,10 +19,10 @@ namespace DotVVM.Samples.Tests.New
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Button_Button);
                 var resultCheck = browser.First("span.result");
-                Assert.InnerText(resultCheck, s => s.Equals("0"), "Text has to be '0'");
+                AssertUI.InnerText(resultCheck, s => s.Equals("0"), "Text has to be '0'");
 
                 browser.First("input[type=button]").Click();
-                Assert.InnerText(resultCheck, s => s.Equals("1"), "Text has to be '1'");
+                AssertUI.InnerText(resultCheck, s => s.Equals("1"), "Text has to be '1'");
             });
         }
         [Fact]
@@ -32,7 +32,7 @@ namespace DotVVM.Samples.Tests.New
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Button_InputTypeButton_TextContentInside);
 
-                Assert.CheckAttribute(browser.First("input[type=button]"),"value", s => s.Equals("This is text"));
+                AssertUI.Attribute(browser.First("input[type=button]"),"value", s => s.Equals("This is text"));
             });
         }
 
@@ -43,7 +43,7 @@ namespace DotVVM.Samples.Tests.New
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Button_InputTypeButton_HtmlContentInside);
 
-                Assert.InnerText(browser.First("p.summary"),
+                AssertUI.InnerText(browser.First("p.summary"),
                       t =>
                           t.Trim().Contains("DotVVM.Framework.Controls.DotvvmControlException") &&
                           t.Trim().Contains("The <dot:Button> control cannot have inner HTML connect unless the 'ButtonTagName' property is set to 'button'!")
@@ -58,16 +58,16 @@ namespace DotVVM.Samples.Tests.New
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Button_ButtonTagName);
 
-                Assert.TagName(browser.First("#ButtonTextProperty"), s => s.Equals("button"));
-                Assert.TagName(browser.First("#ButtonTextBinding"), s => s.Equals("button"));
-                Assert.TagName(browser.First("#InputTextProperty"), s => s.Equals("input"));
-                Assert.TagName(browser.First("#InputTextBinding"), s => s.Equals("input"));
-                Assert.TagName(browser.First("#ButtonInnerText"), s => s.Equals("button"));
+                AssertUI.TagName(browser.First("#ButtonTextProperty"), s => s.Equals("button"));
+                AssertUI.TagName(browser.First("#ButtonTextBinding"), s => s.Equals("button"));
+                AssertUI.TagName(browser.First("#InputTextProperty"), s => s.Equals("input"));
+                AssertUI.TagName(browser.First("#InputTextBinding"), s => s.Equals("input"));
+                AssertUI.TagName(browser.First("#ButtonInnerText"), s => s.Equals("button"));
 
-                Assert.TagName(browser.First("#ButtonTextPropertyUpperCase"), s => s.Equals("button"));
-                Assert.TagName(browser.First("#ButtonTextBindingUpperCase"), s => s.Equals("button"));
-                Assert.TagName(browser.First("#InputTextPropertyUpperCase"), s => s.Equals("input"));
-                Assert.TagName(browser.First("#ButtonInnerTextUpperCase"), s => s.Equals("button"));
+                AssertUI.TagName(browser.First("#ButtonTextPropertyUpperCase"), s => s.Equals("button"));
+                AssertUI.TagName(browser.First("#ButtonTextBindingUpperCase"), s => s.Equals("button"));
+                AssertUI.TagName(browser.First("#InputTextPropertyUpperCase"), s => s.Equals("input"));
+                AssertUI.TagName(browser.First("#ButtonInnerTextUpperCase"), s => s.Equals("button"));
             });
         }
 
@@ -81,12 +81,12 @@ namespace DotVVM.Samples.Tests.New
                 var onclickResult = browser.First("span.result1");
                 var clickResult = browser.First("span.result2");
 
-                Assert.InnerText(clickResult, s => s.Equals(""));
-                Assert.InnerText(onclickResult, s => s.Equals(""));
+                AssertUI.InnerText(clickResult, s => s.Equals(""));
+                AssertUI.InnerText(onclickResult, s => s.Equals(""));
 
                 browser.First("input[type=button]").Click();
-                Assert.InnerText(clickResult, s => s.Equals("Changed from command binding"));
-                Assert.InnerText(onclickResult, s => s.Contains("Changed from onclick"));
+                AssertUI.InnerText(clickResult, s => s.Equals("Changed from command binding"));
+                AssertUI.InnerText(onclickResult, s => s.Contains("Changed from onclick"));
             });
         }
 

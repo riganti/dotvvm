@@ -9,13 +9,13 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0-preview-20170810-02" />
     <PackageReference Include="xunit" Version="2.3.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.0" />
-    <PackageReference Include="Riganti.Utils.Testing.Selenium.Coordinator.Client" Version="2.0.0-alpha6" />
-    <PackageReference Include="Riganti.Utils.Testing.Selenium.Core" Version="2.0.0-alpha6" />
-    <PackageReference Include="Riganti.Utils.Testing.Selenium.Core.Abstractions" Version="2.0.0-alpha6" />
-    <PackageReference Include="Riganti.Utils.Testing.Selenium.DotVVM" Version="1.0.4" />
-    <PackageReference Include="Riganti.Utils.Testing.Selenium.AssertApi" Version="2.0.0-alpha6" />
-    <PackageReference Include="Riganti.Utils.Testing.Selenium.xUnitIntegration" Version="2.0.0-alpha6" />
-    <PackageReference Include="Riganti.Utils.Testing.Selenium.Validators" Version="2.0.0-alpha6" />
+    <PackageReference Include="Riganti.Utils.Testing.Selenium.Coordinator.Client" Version="2.0.0-alpha9" />
+    <PackageReference Include="Riganti.Utils.Testing.Selenium.Core" Version="2.0.0-alpha9" />
+    <PackageReference Include="Riganti.Utils.Testing.Selenium.Core.Abstractions" Version="2.0.0-alpha9" />
+    <PackageReference Include="Riganti.Utils.Testing.Selenium.DotVVM" Version="2.0.0-alpha9" />
+    <PackageReference Include="Riganti.Utils.Testing.Selenium.AssertApi" Version="2.0.0-alpha9" />
+    <PackageReference Include="Riganti.Utils.Testing.Selenium.xUnitIntegration" Version="2.0.0-alpha9" />
+    <PackageReference Include="Riganti.Utils.Testing.Selenium.Validators" Version="2.0.0-alpha9" />
   </ItemGroup>
 
   <ItemGroup>
