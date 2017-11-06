@@ -40,13 +40,13 @@ namespace DotVVM.Framework.PerfTests
             this.configuration = DotvvmConfiguration.CreateDefault(s => {
                 s.AddSingleton<IViewModelProtector, FakeProtector>();
             });
-            this.serializer = configuration.ServiceLocator.GetService<IViewModelSerializer>() as DefaultViewModelSerializer;
+            this.serializer = configuration.ServiceProvider.GetRequiredService<IViewModelSerializer>() as DefaultViewModelSerializer;
             this.viewModel = CreateViewModel();
             this.request = new TestDotvvmRequestContext()
             {
                 ViewModel = viewModel,
                 CsrfToken = "",
-                ResourceManager = new ResourceManagement.ResourceManager(configuration),
+                ResourceManager = new ResourceManagement.ResourceManager(configuration.Resources),
                 Configuration = configuration,
                 ModelState = new ModelState()
             };

@@ -16,6 +16,7 @@ using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.Configuration;
 using System.Linq.Expressions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -37,7 +38,7 @@ namespace DotVVM.Framework.Tests.Binding
             }
             var parser = new BindingExpressionBuilder();
             var expressionTree = TypeConversion.ImplicitConversion(parser.Parse(expression, context, BindingParserOptions.Create<ValueBindingExpression>()), expectedType, true, true);
-            var jsExpression = new JsParenthesizedExpression(configuration.ServiceLocator.GetService<JavascriptTranslator>().CompileToJavascript(expressionTree, context));
+            var jsExpression = new JsParenthesizedExpression(configuration.ServiceProvider.GetRequiredService<JavascriptTranslator>().CompileToJavascript(expressionTree, context));
             jsExpression.AcceptVisitor(new KnockoutObservableHandlingVisitor(true));
             JsTemporaryVariableResolver.ResolveVariables(jsExpression);
             return JavascriptTranslator.FormatKnockoutScript(jsExpression.Expression);
@@ -54,7 +55,7 @@ namespace DotVVM.Framework.Tests.Binding
             }
             var expressionTree = expr(BindingExpressionBuilder.GetParameters(context).ToDictionary(e => e.Name, e => (Expression)e));
             var configuration = DotvvmTestHelper.CreateConfiguration();
-            var jsExpression = new JsParenthesizedExpression(configuration.ServiceLocator.GetService<JavascriptTranslator>().CompileToJavascript(expressionTree, context));
+            var jsExpression = new JsParenthesizedExpression(configuration.ServiceProvider.GetRequiredService<JavascriptTranslator>().CompileToJavascript(expressionTree, context));
             jsExpression.AcceptVisitor(new KnockoutObservableHandlingVisitor(true));
             JsTemporaryVariableResolver.ResolveVariables(jsExpression);
             return JavascriptTranslator.FormatKnockoutScript(jsExpression.Expression);

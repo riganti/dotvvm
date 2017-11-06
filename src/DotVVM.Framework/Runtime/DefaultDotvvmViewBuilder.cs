@@ -15,12 +15,14 @@ namespace DotVVM.Framework.Runtime
     public class DefaultDotvvmViewBuilder : IDotvvmViewBuilder
     {
 
-        protected IMarkupFileLoader markupFileLoader;
+        protected readonly IMarkupFileLoader markupFileLoader;
 
-        protected IControlBuilderFactory controlBuilderFactory;
+        protected readonly IControlBuilderFactory controlBuilderFactory;
+        protected readonly DotvvmMarkupConfiguration markupConfiguration;
 
-        public DefaultDotvvmViewBuilder(IMarkupFileLoader markupFileLoader, IControlBuilderFactory builderFactory)
+        public DefaultDotvvmViewBuilder(IMarkupFileLoader markupFileLoader, IControlBuilderFactory builderFactory, DotvvmMarkupConfiguration markupConfiguration)
         {
+            this.markupConfiguration = markupConfiguration;
             this.markupFileLoader = markupFileLoader;
             this.controlBuilderFactory = builderFactory;
         }
@@ -38,7 +40,7 @@ namespace DotVVM.Framework.Runtime
             var (_, pageBuilder) = controlBuilderFactory.GetControlBuilder(markup);
             var contentPage = pageBuilder.Value.BuildControl(controlBuilderFactory, context.Services) as DotvvmView;
 
-            FillsDefaultDirectives(contentPage, context.Configuration);
+            FillsDefaultDirectives(contentPage);
 
             // check for master page and perform composition recursively
             while (IsNestedInMasterPage(contentPage))
@@ -47,7 +49,7 @@ namespace DotVVM.Framework.Runtime
                 var masterPageFile = contentPage.Directives[ParserConstants.MasterPageDirective];
                 var masterPage = (DotvvmView)controlBuilderFactory.GetControlBuilder(masterPageFile).builder.Value.BuildControl(controlBuilderFactory, context.Services);
 
-                FillsDefaultDirectives(masterPage, context.Configuration);
+                FillsDefaultDirectives(masterPage);
                 PerformMasterPageComposition(contentPage, masterPage);
 
                 masterPage.ViewModelType = contentPage.ViewModelType;
@@ -91,13 +93,13 @@ namespace DotVVM.Framework.Runtime
         /// <summary>
         /// Fills default directives if specific directives are not set
         /// </summary>
-        private void FillsDefaultDirectives(DotvvmView page, DotvvmConfiguration configuration)
+        private void FillsDefaultDirectives(DotvvmView page)
         {
-            foreach (var key in configuration.Markup.DefaultDirectives.Keys)
+            foreach (var key in markupConfiguration.DefaultDirectives.Keys)
             {
                 if (!page.Directives.Keys.Contains(key))
                 {
-                    page.Directives[key] = configuration.Markup.DefaultDirectives[key];
+                    page.Directives[key] = markupConfiguration.DefaultDirectives[key];
                 }
             }
         }

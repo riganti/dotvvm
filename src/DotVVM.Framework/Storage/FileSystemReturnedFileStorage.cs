@@ -67,29 +67,15 @@ namespace DotVVM.Framework.Storage
             return SecureGuidGenerator.GenerateGuid();
         }
 
-        public async Task<Guid> StoreFile(byte[] bytes, ReturnedFileMetadata metadata)
-        {
-            var id = GenerateFileId();
-            var dataFilePath = GetDataFilePath(id);
-
-            using (var fs = new FileStream(dataFilePath, FileMode.Create))
-            {
-                await fs.WriteAsync(bytes, 0, bytes.Length).ConfigureAwait(false);
-            }
-
-            StoreMetadata(id, metadata);
-            return id;
-        }
-
         public async Task<Guid> StoreFile(Stream stream, ReturnedFileMetadata metadata)
         {
             var id = GenerateFileId();
             var dataFilePath = GetDataFilePath(id);
             using (var fs = new FileStream(dataFilePath, FileMode.Create))
             {
-                await stream.CopyToAsync(fs).ConfigureAwait(false);    
+                await stream.CopyToAsync(fs).ConfigureAwait(false);
             }
-            
+
             StoreMetadata(id, metadata);
             return id;
         }

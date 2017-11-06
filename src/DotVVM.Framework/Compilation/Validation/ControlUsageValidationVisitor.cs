@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Compilation.Validation
 {
@@ -12,7 +13,6 @@ namespace DotVVM.Framework.Compilation.Validation
         {
             this.validator = validator;
         }
-        public ControlUsageValidationVisitor(DotvvmConfiguration config) : this(config.ServiceLocator.GetService<IControlUsageValidator>()) { }
 
         public override void VisitControl(ResolvedControl control)
         {

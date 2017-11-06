@@ -7,6 +7,7 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Security;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Routing
 {
@@ -82,10 +83,8 @@ namespace DotVVM.Framework.Routing
         /// <summary>
         /// Creates the default presenter factory.
         /// </summary>
-        public IDotvvmPresenter GetDefaultPresenter()
-        {
-            return configuration.ServiceLocator.GetService<IDotvvmPresenter>();
-        }
+        public IDotvvmPresenter GetDefaultPresenter() =>
+            configuration.ServiceProvider.GetRequiredService<IDotvvmPresenter>();
 
         /// <summary>
         /// Adds the specified route name.
@@ -114,7 +113,7 @@ namespace DotVVM.Framework.Routing
             {
                 throw new InvalidOperationException($"The route with name '{routeName}' has already been registered!");
             }
-            // internal assign routename 
+            // internal assign routename
             route.RouteName = routeName;
 
             group?.AddToParentRouteTable?.Invoke(routeName, route);

@@ -23,7 +23,7 @@ namespace DotVVM.Framework.Controls
         private EmptyData emptyDataContainer;
         private int numberOfRows;
         private HtmlGenericControl head;
-        
+
         public GridView() : base("table")
         {
             SetValue(Internal.IsNamingContainerProperty, true);
@@ -86,6 +86,7 @@ namespace DotVVM.Framework.Controls
             get { return (List<Decorator>)GetValue(RowDecoratorsProperty); }
             set { SetValue(RowDecoratorsProperty, value); }
         }
+
         public static readonly DotvvmProperty RowDecoratorsProperty =
             DotvvmProperty.Register<List<Decorator>, GridView>(c => c.RowDecorators);
 
@@ -200,7 +201,6 @@ namespace DotVVM.Framework.Controls
             if (dataSource != null)
             {
                 var itemBinding = GetItemBinding();
-                var bindingService = context.Configuration.ServiceLocator.GetService<BindingCompilationService>();
                 foreach (var item in GetIEnumerableFromDataSource())
                 {
                     // create row

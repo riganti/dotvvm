@@ -11,6 +11,12 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.FileUpload
 {
     public class FileUploadViewModel : DotvvmViewModelBase
     {
+        private readonly IUploadedFileStorage fileStorage;
+        public FileUploadViewModel(IUploadedFileStorage fileStorage)
+        {
+            this.fileStorage = fileStorage;
+        }
+
         public UploadedFilesCollection Files { get; set; } = new UploadedFilesCollection();
 
         public List<string> FilesInStorage
@@ -44,14 +50,12 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.FileUpload
 
         public void Process()
         {
-            var storage = Context.Configuration.ServiceLocator.GetService<IUploadedFileStorage>();
-
             var uploadPath = GetUploadPath();
 
             foreach (var file in Files.Files)
             {
-                storage.SaveAs(file.FileId, Path.Combine(uploadPath, file.FileId + ".bin"));
-                storage.DeleteFile(file.FileId);
+                fileStorage.SaveAs(file.FileId, Path.Combine(uploadPath, file.FileId + ".bin"));
+                fileStorage.DeleteFile(file.FileId);
             }
             Files.Clear();
         }
