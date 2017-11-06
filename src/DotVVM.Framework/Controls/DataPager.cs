@@ -142,8 +142,7 @@ namespace DotVVM.Framework.Controls
             set { SetValue(EnabledProperty, value); }
         }
         public static readonly DotvvmProperty EnabledProperty =
-            DotvvmPropertyWithFallback.Register<bool, DataPager>(nameof(Enabled),
-                FormControls.EnabledProperty, defaultPropertyInherit: true);
+            DotvvmPropertyWithFallback.Register<bool, DataPager>(nameof(Enabled), FormControls.EnabledProperty);
 
 
         private HtmlGenericControl content;
