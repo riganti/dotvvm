@@ -58,7 +58,7 @@ namespace Owin
 
             app.Use<DotvvmMiddleware>(config, new List<IMiddleware> {
                 ActivatorUtilities.CreateInstance<DotvvmLocalResourceMiddleware>(config.ServiceProvider),
-                new DotvvmFileUploadMiddleware(),
+                ActivatorUtilities.CreateInstance<DotvvmFileUploadMiddleware>(config.ServiceProvider),
                 new DotvvmReturnedFileMiddleware(),
                 new DotvvmRoutingMiddleware()
             });

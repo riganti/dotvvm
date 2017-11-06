@@ -186,7 +186,7 @@ namespace DotVVM.Compiler
             var styleVisitor = new StylingVisitor(configuration);
             resolvedView.Accept(styleVisitor);
 
-            var validationVisitor = new ControlUsageValidationVisitor(configuration);
+            var validationVisitor = new ControlUsageValidationVisitor(new DefaultControlUsageValidator());
             resolvedView.Accept(validationVisitor);
             if (validationVisitor.Errors.Any())
             {

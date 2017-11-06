@@ -109,19 +109,19 @@ namespace Microsoft.Extensions.DependencyInjection
         public static void ConfigureWithServices<TObject, TService>(this IServiceCollection services, Action<TObject, TService> configure)
             where TObject: class
         {
-            services.AddSingleton<IConfigureOptions<TObject>>(s => new ConfigureNamedOptions<TObject>(Options.Options.DefaultName, o => configure(o, s.GetRequiredService<TService>())));
+            services.AddSingleton<IConfigureOptions<TObject>>(s => new ConfigureOptions<TObject>(o => configure(o, s.GetRequiredService<TService>())));
         }
 
         public static void ConfigureWithServices<TObject, TService1, TService2>(this IServiceCollection services, Action<TObject, TService1, TService2> configure)
             where TObject: class
         {
-            services.AddSingleton<IConfigureOptions<TObject>>(s => new ConfigureNamedOptions<TObject>(Options.Options.DefaultName, o => configure(o, s.GetRequiredService<TService1>(), s.GetRequiredService<TService2>())));
+            services.AddSingleton<IConfigureOptions<TObject>>(s => new ConfigureOptions<TObject>(o => configure(o, s.GetRequiredService<TService1>(), s.GetRequiredService<TService2>())));
         }
 
         public static void ConfigureWithServices<TObject>(this IServiceCollection services, Action<TObject, IServiceProvider> configure)
             where TObject: class
         {
-            services.AddSingleton<IConfigureOptions<TObject>>(s => new ConfigureNamedOptions<TObject>(Options.Options.DefaultName, o => configure(o, s)));
+            services.AddSingleton<IConfigureOptions<TObject>>(s => new ConfigureOptions<TObject>(o => configure(o, s)));
         }
     }
 }
