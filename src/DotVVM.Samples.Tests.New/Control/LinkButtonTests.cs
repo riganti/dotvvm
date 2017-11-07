@@ -6,7 +6,9 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
+using DotVVM.Samples.Tests.New;
 using DotVVM.Testing.Abstractions;
+using Xunit.Abstractions;
 
 
 namespace DotVVM.Samples.Tests.Control
@@ -21,46 +23,48 @@ namespace DotVVM.Samples.Tests.Control
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_LinkButton_LinkButton);
 
-                browser.First("#ButtonTextProperty").CheckTagName("a");
-                browser.First("#ButtonTextBinding").CheckTagName("a");
-                browser.First("#ButtonInnerText").CheckTagName("a");
+                AssertUI.TagName(browser.First("#ButtonTextProperty"), "a");
+                AssertUI.TagName(browser.First("#ButtonTextBinding"), "a");
+                AssertUI.TagName(browser.First("#ButtonInnerText"), "a");
 
                 // try to click on a disabled button
                 browser.Click("#EnabledLinkButton");
                 browser.Wait();
-                browser.Last("span").CheckIfInnerTextEquals("0");
+                AssertUI.InnerTextEquals(browser.Last("span"), "0");
 
                 // enable it
                 browser.Click("input[type=checkbox]");
                 browser.Wait();
                 browser.Click("#EnabledLinkButton");
                 browser.Wait();
-                browser.Last("span").CheckIfInnerTextEquals("1");
+                AssertUI.InnerTextEquals(browser.Last("span"), "1");
 
                 // try to click on a disabled button again
                 browser.Click("#EnabledLinkButton");
                 browser.Wait();
-                browser.Last("span").CheckIfInnerTextEquals("1");
+                AssertUI.InnerTextEquals(browser.Last("span"), "1");
             });
         }
 
         [TestMethod]
         public void Control_LinkButton_LinkButtonOnClick()
         {
-            //TODO Rewrite CheckElementWrapper in selenium api
-            throw new NotImplementedException();
-            //RunInAllBrowsers(browser =>
-            //{
-            //    browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_LinkButton_LinkButtonOnclick);
-            //    var onclickResult = browser.First("span.result1").Check();
-            //    var clickResult = browser.First("span.result2").Check();
-            //    clickResult.InnerText(s => s.Equals(""));
-            //    onclickResult.InnerText(s => s.Equals(""));
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_LinkButton_LinkButtonOnclick);
+                var onclickResult = browser.First("span.result1");
+                var clickResult = browser.First("span.result2");
+                AssertUI.InnerTextEquals(clickResult, "");
+                AssertUI.InnerTextEquals(onclickResult, "");
 
-            //    browser.Click("#LinkButton");
-            //    clickResult.InnerText(s => s.Equals("Changed from command binding"));
-            //    onclickResult.InnerText(s => s.Contains("Changed from onclick"));
-            //});
+                browser.Click("#LinkButton");
+                AssertUI.InnerTextEquals(clickResult, "Changed from command binding");
+                AssertUI.InnerTextEquals(onclickResult, "Changed from onclick");
+            });
+        }
+
+        public LinkButtonTests(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

@@ -27,12 +27,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="seleniumconfig.aspnetcore.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="seleniumconfig.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Complex\" />
   </ItemGroup>
 
 </Project>
