@@ -3,7 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Firefox;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,7 +27,7 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
-        private static void ChangeAndTestLocalization(BrowserWrapper browser)
+        private static void ChangeAndTestLocalization(IBrowserWrapperFluentApi browser)
         {
             browser.First("p").CheckIfInnerTextEquals("This comes from resource file!", false, true);
             // change language

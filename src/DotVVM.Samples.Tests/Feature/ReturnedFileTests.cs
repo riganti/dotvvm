@@ -1,7 +1,7 @@
 ﻿
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +35,7 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
-        private void ReturnedFileDownload(BrowserWrapper browser, string fileContent)
+        private void ReturnedFileDownload(IBrowserWrapperFluentApi browser, string fileContent)
         {
             browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ReturnedFile_ReturnedFileSample);
             var jsexec = browser.GetJavaScriptExecutor();

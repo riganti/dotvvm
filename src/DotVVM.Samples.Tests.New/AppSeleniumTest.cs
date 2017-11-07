@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-using Riganti.Utils.Testing.Selenium.AssertApi;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.AssertApi;
+using Riganti.Selenium.Core;
 using Xunit.Abstractions;
 
 namespace DotVVM.Samples.Tests.New

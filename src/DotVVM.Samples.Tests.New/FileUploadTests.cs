@@ -3,8 +3,8 @@ using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 using DotVVM.Testing.Abstractions;
-using Riganti.Utils.Testing.Selenium.Core;
-using Riganti.Utils.Testing.Selenium.DotVVM;
+using Riganti.Selenium.Core;
+using Riganti.Selenium.DotVVM;
 
 namespace DotVVM.Samples.Tests.New
 {
@@ -79,8 +79,8 @@ namespace DotVVM.Samples.Tests.New
                 browser.WaitFor(() => browser.First(".dotvvm-upload-files").GetText() == "1 files", 60000,
                     "File was not uploaded in 1 min interval.");
 
-                isFileTypeAllowed.CheckIfTextEquals("true");
-                isMaxSizeExceeded.CheckIfTextEquals("false");
+                AssertUI.TextEquals(isFileTypeAllowed, "true");
+                AssertUI.TextEquals(isMaxSizeExceeded, "false");
 
                 File.Delete(textFile);
             });
@@ -104,8 +104,8 @@ namespace DotVVM.Samples.Tests.New
                 browser.WaitFor(() => browser.First(".dotvvm-upload-files").GetText() == "1 files", 60000,
                     "File was not uploaded in 1 min interval.");
 
-                isFileTypeAllowed.CheckIfTextEquals("false");
-                isMaxSizeExceeded.CheckIfTextEquals("false");
+                AssertUI.TextEquals(isFileTypeAllowed, "false");
+                AssertUI.TextEquals(isMaxSizeExceeded, "false");
 
                 File.Delete(mdFile);
             });
@@ -130,8 +130,8 @@ namespace DotVVM.Samples.Tests.New
                 browser.WaitFor(() => browser.First(".dotvvm-upload-files").GetText() == "1 files", 60000,
                     "File was not uploaded in 1 min interval.");
 
-                isFileTypeAllowed.CheckIfTextEquals("true");
-                isMaxSizeExceeded.CheckIfTextEquals("true");
+                AssertUI.TextEquals(isFileTypeAllowed, "true");
+                AssertUI.TextEquals(isMaxSizeExceeded, "true");
 
                 File.Delete(largeFile);
             });
@@ -154,7 +154,7 @@ namespace DotVVM.Samples.Tests.New
                 browser.WaitFor(() => browser.First(".dotvvm-upload-files").GetText() == "1 files", 60000,
                     "File was not uploaded in 1 min interval.");
 
-                fileSize.CheckIfTextEquals("2 MB");
+                AssertUI.TextEquals(fileSize, "2 MB");
 
                 File.Delete(file);
             });

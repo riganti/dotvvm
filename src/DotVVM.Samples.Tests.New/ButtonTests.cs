@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using DotVVM.Testing.Abstractions;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.Core;
 using Xunit;
 using Xunit.Abstractions;
 

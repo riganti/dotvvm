@@ -1,7 +1,7 @@
 ﻿
 using DotVVM.Testing.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.Core;
 
 namespace DotVVM.Samples.Tests.Control
 {
@@ -217,7 +217,7 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
-        private void ShowHideControl(BrowserWrapper browser)
+        private void ShowHideControl(IBrowserWrapperFluentApi browser)
         {
             // verify the second pager is hidden
             browser.First(".pagination").CheckIfIsDisplayed();

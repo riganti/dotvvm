@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Riganti.Selenium.Core;
 using Xunit;
 using Xunit.Abstractions;
-using Assert = Riganti.Utils.Testing.Selenium.Core.Assert;
 
 namespace DotVVM.Samples.Tests.New
 {
@@ -23,11 +23,11 @@ namespace DotVVM.Samples.Tests.New
             {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_EmbeddedResourceControls_EmbeddedResourceControls);
 
-                Assert.CheckAttribute(browser.First("input[type=button]"), "value", "Nothing");
+                AssertUI.Attribute(browser.First("input[type=button]"), "value", "Nothing");
 
                 browser.First("input[type=button]").Click();
 
-                Assert.CheckAttribute(browser.First("input[type=button]"), "value", "This is text");
+                AssertUI.Attribute(browser.First("input[type=button]"), "value", "This is text");
             });
         }
     }
