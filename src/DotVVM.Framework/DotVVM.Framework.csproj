@@ -28,7 +28,7 @@
     <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="..\DotVVM.Compiler\bin\$(Configuration)\DotVVM.Compiler.exe">
+    <Content Include="..\DotVVM.Compiler\bin\$(Configuration)\net461\DotVVM.Compiler.exe">
       <Pack>true</Pack>
       <InProject>false</InProject>
       <PackagePath>tools\DotVVM.Compiler.exe</PackagePath>
