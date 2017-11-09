@@ -1,6 +1,6 @@
 ﻿
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.Core;
 using System;
 using System.Globalization;
 using DotVVM.Testing.Abstractions;
@@ -103,7 +103,7 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
-        private void CheckSelectAllOnFocus(BrowserWrapper browser, string textBoxDataUi, bool isSelectAllOnFocusTrue = true)
+        private void CheckSelectAllOnFocus(IBrowserWrapperFluentApi browser, string textBoxDataUi, bool isSelectAllOnFocusTrue = true)
         {
             var textBox = browser.Single(textBoxDataUi, this.SelectByDataUi);
             textBox.Click();

@@ -1,7 +1,7 @@
 ﻿
 using DotVVM.Testing.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.Core;
 
 namespace DotVVM.Samples.Tests.Feature
 {
@@ -29,12 +29,12 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
-        private void CheckTreeItems(BrowserWrapper browser, int level, int count)
+        private void CheckTreeItems(IBrowserWrapperFluentApi browser, int level, int count)
         {
             browser.FindElements($"[data-ui='offset_{level}']").ThrowIfDifferentCountThan(count);
         }
 
-        private void CheckTableRow(BrowserWrapper browser, int row)
+        private void CheckTableRow(IBrowserWrapperFluentApi browser, int row)
         {
             var table = browser.Single("table");
 

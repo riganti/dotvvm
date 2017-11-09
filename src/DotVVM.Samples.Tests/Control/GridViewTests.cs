@@ -1,6 +1,6 @@
 ﻿
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -416,7 +416,7 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
-        private void Control_GridViewShowHeaderWhenNoData(BrowserWrapper browser)
+        private void Control_GridViewShowHeaderWhenNoData(IBrowserWrapperFluentApi browser)
         {
             browser.FindElements("[data-ui='ShowHeaderWhenNoDataGrid']").FindElements("th").First().IsDisplayed();
         }

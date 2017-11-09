@@ -1,13 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OpenQA.Selenium;
-using OpenQA.Selenium.Interactions;
-using Riganti.Utils.Testing.Selenium.Core;
-using System;
-using System.Globalization;
-using System.Linq;
-using System.Threading;
-using DotVVM.Testing.Abstractions;
-
+﻿using DotVVM.Testing.Abstractions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DotVVM.Samples.Tests.Control
 {
@@ -17,8 +9,7 @@ namespace DotVVM.Samples.Tests.Control
         [TestMethod]
         public void Control_LinkButton_LinkButton()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_LinkButton_LinkButton);
 
                 browser.First("#ButtonTextProperty").CheckTagName("a");
@@ -47,8 +38,7 @@ namespace DotVVM.Samples.Tests.Control
         [TestMethod]
         public void Control_LinkButton_LinkButtonOnClick()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_LinkButton_LinkButtonOnclick);
                 var onclickResult = browser.First("span.result1");
                 var clickResult = browser.First("span.result2");
