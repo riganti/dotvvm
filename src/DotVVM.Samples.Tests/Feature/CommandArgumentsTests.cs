@@ -25,7 +25,7 @@ namespace DotVVM.Samples.Tests.Feature
                 text.CheckIfTextEquals("Nothing here");
 
                 browser.Single("[data-ui='button'] button").Click();
-                var alert = browser._GetInternalWebDriver().SwitchTo().Alert();
+                var alert = browser.GetAlert();
                 alert.SendKeys(Value);
                 alert.Accept();
 

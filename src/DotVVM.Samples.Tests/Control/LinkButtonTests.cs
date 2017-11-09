@@ -47,20 +47,18 @@ namespace DotVVM.Samples.Tests.Control
         [TestMethod]
         public void Control_LinkButton_LinkButtonOnClick()
         {
-            //TODO Rewrite CheckElementWrapper in selenium api
-            throw new NotImplementedException();
-            //RunInAllBrowsers(browser =>
-            //{
-            //    browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_LinkButton_LinkButtonOnclick);
-            //    var onclickResult = browser.First("span.result1").Check();
-            //    var clickResult = browser.First("span.result2").Check();
-            //    clickResult.InnerText(s => s.Equals(""));
-            //    onclickResult.InnerText(s => s.Equals(""));
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_LinkButton_LinkButtonOnclick);
+                var onclickResult = browser.First("span.result1");
+                var clickResult = browser.First("span.result2");
+                clickResult.CheckIfInnerText(s => s.Equals(""));
+                onclickResult.CheckIfInnerText(s => s.Equals(""));
 
-            //    browser.Click("#LinkButton");
-            //    clickResult.InnerText(s => s.Equals("Changed from command binding"));
-            //    onclickResult.InnerText(s => s.Contains("Changed from onclick"));
-            //});
+                browser.Click("#LinkButton");
+                clickResult.CheckIfInnerText(s => s.Equals("Changed from command binding"));
+                onclickResult.CheckIfInnerText(s => s.Contains("Changed from onclick"));
+            });
         }
     }
 }

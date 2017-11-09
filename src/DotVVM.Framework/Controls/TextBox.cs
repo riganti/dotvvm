@@ -186,6 +186,7 @@ namespace DotVVM.Framework.Controls
                 }
             }, UpdateTextAfterKeydown ? "afterkeydown" : null, renderEvenInServerRenderingMode: true);
             var binding = GetValueBinding(TextProperty);
+            var resultType = binding?.ResultType;
             var formatString = FormatString;
             if (string.IsNullOrEmpty(formatString))
             {
@@ -203,11 +204,11 @@ namespace DotVVM.Framework.Controls
                 writer.AddAttribute("data-dotvvm-value-type", ValueType.ToString().ToLowerInvariant());
             }
             #pragma warning restore
-            else if (binding?.ResultType == typeof(DateTime))
+            else if (resultType == typeof(DateTime) || resultType == typeof(DateTime?))
             {
                 writer.AddAttribute("data-dotvvm-value-type", "datetime");
             }
-            else if (ReflectionUtils.IsNumericType(binding?.ResultType))
+            else if (resultType.IsNumericType())
             {
                 writer.AddAttribute("data-dotvvm-value-type", "number");
             }

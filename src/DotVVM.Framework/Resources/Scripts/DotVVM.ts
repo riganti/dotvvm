@@ -769,7 +769,7 @@ class DotVVM {
             if (query.hasOwnProperty(property)) {
                 if (!property) continue;
                 var queryParamValue = ko.unwrap(query[property]);
-                if (queryParamValue != null) continue;
+                if (queryParamValue == null) continue;
                 resultSuffix = resultSuffix.concat(resultSuffix.indexOf("?") !== -1
                     ? `&${property}=${queryParamValue}`
                     : `?${property}=${queryParamValue}`);
@@ -1025,7 +1025,7 @@ class DotVVM {
                             currentValue = dotvvm.globalize.parseDotvvmDate(currentValue);
                         }
                         result = dotvvm.globalize.parseDate(element.value, elmMetadata.format, currentValue);
-                        isEmpty = result === null;
+                        isEmpty = result == null;
                         newValue = isEmpty ? null : dotvvm.serialization.serializeDate(result, false);
                     } else {
                         // parse number
@@ -1036,9 +1036,11 @@ class DotVVM {
 
                     // update element validation metadata
                     if (newValue == null && element.value !== null && element.value !== "") {
+                        element.attributes["data-invalid-value"] = element.value;
                         element.attributes["data-dotvvm-value-type-valid"] = false;
                         elmMetadata.elementValidationState = false;
                     } else {
+                        element.attributes["data-invalid-value"] = null;
                         element.attributes["data-dotvvm-value-type-valid"] = true;
                         elmMetadata.elementValidationState = true;
                     }
@@ -1056,13 +1058,11 @@ class DotVVM {
             },
             update(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
                 var value = ko.unwrap(valueAccessor());
-                if (element.attributes["data-dotvvm-value-type-valid"] != false) {
-                    var format = (element.attributes["data-dotvvm-format"] || { value: "" }).value;
-                    if (format) {
-                        element.value = dotvvm.globalize.formatString(format, value);
-                    } else {
-                        element.value = value;
-                    }
+                var format = (element.attributes["data-dotvvm-format"] || { value: "" }).value;
+                if (format) {
+                    element.value = dotvvm.globalize.formatString(format, value) || element.attributes["data-invalid-value"] || "";
+                } else {
+                    element.value = value;
                 }
             }
         };

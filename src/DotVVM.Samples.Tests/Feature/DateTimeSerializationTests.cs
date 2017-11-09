@@ -50,6 +50,8 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.ElementAt("input[type=button]", 0).Click();
                 browser.ElementAt("input[type=button]", 2).Click();
 
+                browser.Wait(500);
+
                 // there is no time in the field
                 browser.ElementAt("input[type=text]", 0)
                     .CheckAttribute("value", s => (DateTime.Now - DateTime.Parse(s, culture)).TotalHours < 24);
