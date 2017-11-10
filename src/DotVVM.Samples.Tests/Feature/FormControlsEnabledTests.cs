@@ -5,8 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Testing.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Selenium.Core;
-using Riganti.Selenium.Core.Abstractions;
+using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Utils.Testing.Selenium.Core.Abstractions;
 
 namespace DotVVM.Samples.Tests.Feature
 {

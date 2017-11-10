@@ -1,4 +1,4 @@
-﻿using Riganti.Selenium.Core;
+﻿using Riganti.Utils.Testing.Selenium.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
