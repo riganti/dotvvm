@@ -6,8 +6,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using Dotvvm.Samples.Tests;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using DotVVM.Testing.Abstractions;
 
 namespace DotVVM.Samples.Tests.CompletenessChecker
 {
