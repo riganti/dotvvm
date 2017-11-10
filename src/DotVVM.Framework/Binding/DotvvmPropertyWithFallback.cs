@@ -1,44 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using DotVVM.Framework.Controls;
+﻿using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Binding
 {
     /// <summary>
-    /// A DotvvmProperty that defaults to another DotvvmProperty's value
+    /// The DotvvmProperty that fallbacks to another DotvvmProperty's value.
     /// </summary>
     public class DotvvmPropertyWithFallback : DotvvmProperty
     {
         /// <summary>
-        /// Gets the property whose value this property will default to if it is not set
+        /// Gets the property which value will be used as a follback when this property is not set.
         /// </summary>
-        public DotvvmProperty DefaultProperty { get; protected set; }
+        public DotvvmProperty FallbackProperty { get; protected set; }
 
-        /// <summary>
-        /// Gets whether the value of the default property when can be inherited from the parent controls.
-        /// </summary>
-        public bool DefaultPropertyInherit { get; protected set; }
-
-        /// <summary>
-        /// Gets the value of the property.
-        /// </summary>
+        /// <inheritdoc />
         public override object GetValue(DotvvmBindableObject control, bool inherit = true)
         {
-            object value;
-            if (control.properties != null)
+            if (!TryGetValue(control, out var value, inherit))
             {
-                if (control.properties.TryGetValue(this, out value))
-                {
-                    return value;
-                }
-            }
-            if (IsValueInherited && inherit && control.Parent != null)
-            {
-                return GetValue(control.Parent);
+                return FallbackProperty.GetValue(control, inherit);
             }
 
-            return DefaultProperty.GetValue(control, DefaultPropertyInherit);
+            return value;
         }
 
         /// <summary>
@@ -46,26 +28,35 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public override bool IsSet(DotvvmBindableObject control, bool inherit = true)
         {
-            if (control.properties != null && control.properties.ContainsKey(this))
+            return base.IsSet(control, inherit) || FallbackProperty.IsSet(control, inherit);
+        }
+
+        /// <summary>
+        /// Registers a new DotVVM property which fallbacks to the <paramref name="fallbackProperty" /> when not set.
+        /// </summary>
+        /// <param name="propertyName">The name of the property.</param>
+        /// <param name="fallbackProperty">The property which value will be used as a follback when the new property is not set.</param>
+        /// <param name="isValueInherited">Indicates whether the value can be inherited from the parent controls.</param>
+        public static DotvvmPropertyWithFallback Register<TPropertyType, TDeclaringType>(string propertyName, DotvvmProperty fallbackProperty, bool isValueInherited = false)
+        {
+            var property = new DotvvmPropertyWithFallback { FallbackProperty = fallbackProperty };
+            return Register<TPropertyType, TDeclaringType>(propertyName, isValueInherited: isValueInherited, property: property) as DotvvmPropertyWithFallback;
+        }
+
+        private bool TryGetValue(DotvvmBindableObject control, out object value, bool inherit = true)
+        {
+            if (control.properties != null && control.properties.TryGetValue(this, out value))
             {
                 return true;
             }
 
             if (IsValueInherited && inherit && control.Parent != null)
             {
-                return IsSet(control.Parent);
+                return TryGetValue(control.Parent, out value);
             }
 
-            return DefaultProperty.IsSet(control, DefaultPropertyInherit);
-        }
-
-        /// <summary>
-        /// Registers the specified DotVVM property.
-        /// </summary>
-        public static DotvvmPropertyWithFallback Register<TPropertyType, TDeclaringType>(string propertyName, DotvvmProperty defaultProperty, bool defaultPropertyInherit, bool isValueInherited = false)
-        {
-            var property = new DotvvmPropertyWithFallback() { DefaultProperty = defaultProperty, DefaultPropertyInherit = defaultPropertyInherit };
-            return DotvvmProperty.Register<TPropertyType, TDeclaringType>(propertyName, isValueInherited: isValueInherited, property: property) as DotvvmPropertyWithFallback;
+            value = null;
+            return false;
         }
     }
 }

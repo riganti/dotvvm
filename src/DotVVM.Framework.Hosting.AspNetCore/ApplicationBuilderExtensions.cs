@@ -60,16 +60,10 @@ namespace Microsoft.AspNetCore.Builder
 
             app.UseMiddleware<DotvvmMiddleware>(config, new List<IMiddleware> {
                 ActivatorUtilities.CreateInstance<DotvvmLocalResourceMiddleware>(app.ApplicationServices),
-                new DotvvmFileUploadMiddleware(),
+                ActivatorUtilities.CreateInstance<DotvvmFileUploadMiddleware>(app.ApplicationServices),
                 new DotvvmReturnedFileMiddleware(),
                 new DotvvmRoutingMiddleware()
             });
-
-            var configurators = config.ServiceLocator.GetServiceProvider().GetServices<IConfigureOptions<DotvvmConfiguration>>();
-            foreach (var configurator in configurators)
-            {
-                configurator.Configure(config);
-            }
 
             return config;
         }

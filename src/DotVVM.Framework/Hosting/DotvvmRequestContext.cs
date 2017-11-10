@@ -110,7 +110,7 @@ namespace DotVVM.Framework.Hosting
         private IServiceProvider _services;
         public IServiceProvider Services
         {
-            get => _services ?? (_services = Configuration?.ServiceLocator?.GetServiceProvider() ?? throw new NotSupportedException());
+            get => _services ?? (_services = Configuration.ServiceProvider ?? throw new NotSupportedException());
             set => _services = value;
         }
 

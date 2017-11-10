@@ -185,7 +185,7 @@ namespace DotVVM.Framework.Compilation.Binding
             {
                 if (arg.Type == StaticCommandParameterType.Argument)
                 {
-                    if (arg.Arg == (parameter?.ParameterType ?? plan.Method.DeclaringType))
+                    if ((parameter?.ParameterType ?? plan.Method.DeclaringType).Equals(arg.Arg))
                         array.Add(JValue.CreateNull());
                     else
                         array.Add(new JValue(arg.Arg.CastTo<Type>().AssemblyQualifiedName));
@@ -200,7 +200,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
                 else if (arg.Type == StaticCommandParameterType.Inject)
                 {
-                    if (arg.Arg == (parameter?.ParameterType ?? plan.Method.DeclaringType))
+                    if ((parameter?.ParameterType ?? plan.Method.DeclaringType).Equals(arg.Arg))
                         array.Add(JValue.CreateNull());
                     else
                         array.Add(new JValue(arg.Arg.CastTo<Type>().AssemblyQualifiedName));

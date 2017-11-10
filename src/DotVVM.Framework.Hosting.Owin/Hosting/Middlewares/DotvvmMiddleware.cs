@@ -39,8 +39,8 @@ namespace DotVVM.Framework.Hosting
             {
                 VisualStudioHelper.DumpConfiguration(Configuration, Configuration.ApplicationPhysicalPath);
             }
-            
-            using (var scope = Configuration.ServiceLocator.GetServiceProvider().GetRequiredService<IServiceScopeFactory>().CreateScope())
+
+            using (var scope = Configuration.ServiceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 // create the context
                 var dotvvmContext = CreateDotvvmContext(context, scope);

@@ -1,5 +1,5 @@
 ﻿using OpenQA.Selenium;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.Core;
 
 namespace DotVVM.Samples.Tests
 {

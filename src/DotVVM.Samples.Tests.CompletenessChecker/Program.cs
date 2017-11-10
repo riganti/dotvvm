@@ -1,19 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using DotVVM.Samples.Tests;
 using DotVVM.Testing.Abstractions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DotVVM.Samples.Tests.CompletenessChecker
 {
     class Program
     {
-
         // this utility compares the UI tests and Selenium tests and reports samples which do not have tests
         static void Main(string[] args)
         {

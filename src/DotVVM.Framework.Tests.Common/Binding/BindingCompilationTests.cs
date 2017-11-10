@@ -15,6 +15,7 @@ using DotVVM.Framework.Binding.Properties;
 using System.Collections.Immutable;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Utils;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -28,7 +29,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void INIT()
         {
             this.configuration = DotvvmTestHelper.CreateConfiguration();
-            this.bindingService = configuration.ServiceLocator.GetService<BindingCompilationService>();
+            this.bindingService = configuration.ServiceProvider.GetRequiredService<BindingCompilationService>();
         }
 
         public object ExecuteBinding(string expression, object[] contexts, DotvvmControl control, NamespaceImport[] imports = null, Type expectedType = null)

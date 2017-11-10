@@ -1,6 +1,6 @@
 ﻿
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,7 +48,7 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
-        private static void Feature_StaticCommand_ComboBoxSelectionChangedViewModel_Core(BrowserWrapper browser)
+        private static void Feature_StaticCommand_ComboBoxSelectionChangedViewModel_Core(IBrowserWrapperFluentApi browser)
         {
             browser.Wait();
 

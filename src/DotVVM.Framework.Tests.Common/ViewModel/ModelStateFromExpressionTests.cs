@@ -9,6 +9,7 @@ using DotVVM.Framework.Tests.Binding;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.ViewModel.Validation;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DotVVM.Framework.Tests.Common.ViewModel
@@ -25,7 +26,7 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
                 Configuration = DotvvmTestHelper.CreateConfiguration()
             };
 
-            this.viewModel.Context.Configuration.ServiceLocator.GetService<IViewModelSerializationMapper>().Map(typeof(ViewModel), m => {
+            this.viewModel.Context.Services.GetRequiredService<IViewModelSerializationMapper>().Map(typeof(ViewModel), m => {
                 m.Property(nameof(ViewModel.RenamedProperty)).Name = "rp";
             });
         }

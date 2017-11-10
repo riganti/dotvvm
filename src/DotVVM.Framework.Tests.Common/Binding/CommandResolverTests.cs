@@ -12,6 +12,7 @@ using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Binding.Properties;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -25,7 +26,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void INIT()
         {
             this.configuration = DotvvmTestHelper.CreateConfiguration();
-            this.bindingService = configuration.ServiceLocator.GetService<BindingCompilationService>();
+            this.bindingService = configuration.ServiceProvider.GetRequiredService<BindingCompilationService>();
         }
 
         [TestMethod]
