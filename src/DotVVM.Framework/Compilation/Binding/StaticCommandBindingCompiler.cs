@@ -37,7 +37,7 @@ namespace DotVVM.Framework.Compilation.Binding
         public JsExpression CompileToJavascript(DataContextStack dataContext, Expression expression)
         {
             var currentContextVariable = new JsTemporaryVariableParameter(new JsIdentifierExpression("ko").Member("contextFor").Invoke(new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter)));
-            var resultPromiseVariable = new JsTemporaryVariableParameter(new JsNewExpression("DotvvmPromise"));
+            // var resultPromiseVariable = new JsNewExpression("DotvvmPromise"));
             var senderVariable = new JsTemporaryVariableParameter(new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter));
             var visitor = new ExtractExpressionVisitor(ex => {
                 if (ex.NodeType == ExpressionType.Call && ex is MethodCallExpression methodCall)
@@ -53,10 +53,10 @@ namespace DotVVM.Framework.Compilation.Binding
                 return null;
             });
             var rootCallback = visitor.Visit(expression);
-            var js = SouldCompileCallback(rootCallback) ? new JsSymbolicParameter(resultPromiseVariable).Member("resolve").Invoke(javascriptTranslator.CompileToJavascript(rootCallback, dataContext)) : null;
+            var js = SouldCompileCallback(rootCallback) ? new JsIdentifierExpression("resolve").Invoke(javascriptTranslator.CompileToJavascript(rootCallback, dataContext)) : null;
             foreach (var param in visitor.ParameterOrder.Reverse<ParameterExpression>())
             {
-                js = js ?? new JsSymbolicParameter(resultPromiseVariable).Member("resolve").Invoke(new JsIdentifierExpression(param.Name));
+                js = js ?? new JsIdentifierExpression("resolve").Invoke(new JsIdentifierExpression(param.Name));
                 var callback = new JsFunctionExpression(new[] { new JsIdentifier(param.Name) }, new JsBlockStatement(new JsExpressionStatement(js)));
                 var method = visitor.Replaced[param] as MethodCallExpression;
                 js = CompileMethodCall(method, dataContext, callback);
@@ -67,7 +67,20 @@ namespace DotVVM.Framework.Compilation.Binding
                 else if (sp.Symbol == JavascriptTranslator.KnockoutViewModelParameter) sp.ReplaceWith(new JsSymbolicParameter(currentContextVariable).Member("$data"));
                 else if (sp.Symbol == CommandBindingExpression.SenderElementParameter) sp.Symbol = senderVariable;
             }
-            return new JsBinaryExpression(js, BinaryOperatorType.Sequence, new JsSymbolicParameter(resultPromiseVariable));
+
+            if (js is JsInvocationExpression invocation && invocation.Target is JsIdentifierExpression identifier && identifier.Identifier == "resolve")
+            {
+                // optimize `new Promise(function (resolve) { resolve(x) })` to `Promise.resolve(x)`
+                identifier.ReplaceWith(new JsIdentifierExpression("Promise").Member("resolve"));
+                return js;
+            }
+            else
+            {
+                return new JsNewExpression(new JsIdentifierExpression("Promise"), new JsFunctionExpression(
+                    new [] { new JsIdentifier("resolve") },
+                    new JsBlockStatement(new JsExpressionStatement(js))
+                ));
+            }
         }
 
         protected virtual bool SouldCompileCallback(Expression c)

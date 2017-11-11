@@ -451,9 +451,9 @@ test <dot:Literal><a /></dot:Literal>";
 
         protected internal override string ClientHandlerName => "something";
 
-        protected internal override Dictionary<string, string> GetHandlerOptionClientExpressions()
+        protected internal override Dictionary<string, object> GetHandlerOptions()
         {
-            return new Dictionary<string, string>();
+            return new Dictionary<string, object>();
         }
     }
 

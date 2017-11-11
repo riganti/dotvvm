@@ -455,7 +455,7 @@ namespace DotVVM.Framework.Controls
                     if (f is IValueBinding binding)
                     {
                         service = service ?? binding.GetProperty<BindingCompilationService>(ErrorHandlingMode.ReturnNull);
-                        result.Add(binding.GetParametrizedKnockoutExpression(this, unwraped: true), 14);
+                        result.Add(binding.GetParametrizedKnockoutExpression(this, unwrapped: true), 14);
                     }
                     else result.Add(JavascriptCompilationHelper.CompileConstant(f));
                 }

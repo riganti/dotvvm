@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using DotVVM.Framework.Controls;
 using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.DoublePostBackPrevention
@@ -14,6 +15,10 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.DoublePostBackPr
         public int CurrentIndex { get; set; }
 
         public string LastAction { get; set; }
+
+        [FromQuery("concurrency")]
+        [Bind(Direction.None)]
+        public PostbackConcurrencyMode ConcurrencyMode { get; set; }
 
 
         public void LongAction()
@@ -28,7 +33,5 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.DoublePostBackPr
             CurrentIndex++;
             LastAction = "short";
         }
-        
-
     }
 }

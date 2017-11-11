@@ -18,6 +18,7 @@ namespace DotVVM.Framework.Controls
     public class HtmlWriter : IHtmlWriter
     {
         private readonly TextWriter writer;
+        private readonly bool debug;
         private readonly IDotvvmRequestContext requestContext;
 
         private OrderedDictionary attributes = new OrderedDictionary();
@@ -44,6 +45,7 @@ namespace DotVVM.Framework.Controls
         {
             this.writer = writer;
             this.requestContext = requestContext;
+            this.debug = requestContext.Configuration.Debug;
         }
 
         public static string GetSeparatorForAttribute(string attributeName)
@@ -240,9 +242,23 @@ namespace DotVVM.Framework.Controls
             if (attributeValue != null)
             {
                 WriteUnencodedText("=");
-                WriteUnencodedText("\"");
-                WriteText(attributeValue);
-                WriteUnencodedText("\"");
+                if (this.debug)
+                {
+                    // this is only for debug, as I'm not sure about performance and security implications
+                    // TODO: make this production ready (including proper performance comparison and security analysis)
+                    var (singleCount, doubleCount) = (attributeValue.Count(c => c == '\''), attributeValue.Count(c => c == '"'));
+                    var separator = singleCount > doubleCount ? "\"" : "'";
+                    WriteUnencodedText(separator.ToString());
+                    WriteUnencodedText(
+                        (separator == "'" ? attributeValue.Replace("&", "&amp;").Replace("'", "&#39;") : attributeValue.Replace("&", "&amp;").Replace("\"", "&quot;"))
+                        .Replace(">", "&gt;").Replace("<", "&lt;"));
+                    WriteUnencodedText(separator.ToString());
+                } else
+                {
+                    WriteUnencodedText("\"");
+                    WriteText(attributeValue);
+                    WriteUnencodedText("\"");
+                }
             }
         }
 
