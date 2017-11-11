@@ -171,6 +171,8 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public virtual void Render(IHtmlWriter writer, IDotvvmRequestContext context)
         {
+            this.Children.ValidateParentsLifecycleEvents(); // debug check
+
             if (Properties.ContainsKey(PostBack.UpdateProperty))
             {
                 AddDotvvmUniqueIdAttribute();
