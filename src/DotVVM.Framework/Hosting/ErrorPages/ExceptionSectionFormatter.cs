@@ -83,7 +83,6 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                 w.WriteUnencoded("<div class='frame'><span class='method code'>");
                 w.WriteText(frame.FormattedMethod ?? FormatMethod(frame.Method));
                 w.WriteUnencoded(" </span>");
-                if (frame.At.FileName != null) w.WriteText(frame.At.FileName + " +" + frame.At.LineNumber);
                 w.WriteUnencoded("<span class='docLinks'>");
                 foreach (var icon in frame.MoreInfo)
                 {

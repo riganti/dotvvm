@@ -85,7 +85,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                     }
                     else
                     {
-                        this.Write(p.ToString());
+                        this.WriteText(p.ToString());
                     }
                 }
                 this.Write(@"</div>]</span></div>");
@@ -146,8 +146,8 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             if (!string.IsNullOrEmpty(source.FileName))
             {
                 Write("<p class='source file'>Source File: <strong>");
-                Write(source.SystemFileName);
-                Write("</strong></p>");
+                WriteText(source.SystemFileName);
+                Write($"</strong> +{source.LineNumber}</p>");
             }
         }
 
@@ -159,7 +159,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                 Write("<span class='lineNumber'>");
                 Write(startLine + i + ": ");
                 Write("</span><span class='codeLine'>");
-                Write(WebUtility.HtmlEncode(lines[i]));
+                WriteText(lines[i]);
                 WriteLine("</span>");
             }
             Write("</pre>");
@@ -187,7 +187,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             if (!string.IsNullOrWhiteSpace(errorUnderline))
             {
                 Write("<span class='errorUnderline'>");
-                Write(errorUnderline);
+                WriteText(errorUnderline);
                 Write("</span>");
             }
 
