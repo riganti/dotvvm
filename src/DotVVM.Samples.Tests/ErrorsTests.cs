@@ -1,13 +1,14 @@
-﻿using Dotvvm.Samples.Tests;
+﻿
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.Core;
 using System;
 using System.Linq;
+using DotVVM.Testing.Abstractions;
 
 namespace DotVVM.Samples.Tests
 {
     [TestClass]
-    public class ErrorsTests : SeleniumTest
+    public class ErrorsTests : AppSeleniumTest
     {
         [TestMethod]
         public void Error_MissingViewModel()
@@ -293,7 +294,7 @@ namespace DotVVM.Samples.Tests
                            .GetAttribute("href");
                 var startQuery = link.IndexOf("q=");
                 var query = link.Substring(startQuery + 2);
-                Log("query: " + query);
+                //Log("query: " + query);
                 var specificLink = "http://referencesource.microsoft.com/api/symbols/?symbol=" + query;
                 using (var wc = new System.Net.WebClient())
                 {

@@ -5,20 +5,20 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime.Tracing;
 using DotVVM.Framework.Utils;
 using Microsoft.ApplicationInsights;
+using System.Diagnostics;
 
 namespace DotVVM.Tracing.ApplicationInsights
 {
     public class ApplicationInsightsBulkTracer : IRequestTracer
     {
         private readonly TelemetryClient telemetryClient;
-        private readonly IStopwatch stopwatch;
+        private readonly Stopwatch stopwatch = Stopwatch.StartNew();
 
         private List<Event> events = new List<Event>();
 
-        public ApplicationInsightsBulkTracer(TelemetryClient telemetryClient, IStopwatch stopwatch)
+        public ApplicationInsightsBulkTracer(TelemetryClient telemetryClient)
         {
             this.telemetryClient = telemetryClient;
-            this.stopwatch = stopwatch;
         }
 
         public Task EndRequest(IDotvvmRequestContext context)
@@ -43,7 +43,7 @@ namespace DotVVM.Tracing.ApplicationInsights
             var newEvent = new Event
             {
                 Name = eventName,
-                TimeStamp = stopwatch.GetElapsedMiliseconds()
+                TimeStamp = stopwatch.ElapsedMilliseconds
             };
 
             events.Add(newEvent);

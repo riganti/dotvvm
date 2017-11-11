@@ -320,8 +320,8 @@ class DotvvmSerialization {
         if (typeof date == "string") {
             // just print in the console if it's invalid
             if (dotvvm.globalize.parseDotvvmDate(date) != null)
-                console.error(new Error(`Date ${date} is invalid.`))
-            return date
+                console.error(new Error(`Date ${date} is invalid.`));
+            return date;
         }
         var date2 = new Date(date.getTime());
         if (convertToUtc) {

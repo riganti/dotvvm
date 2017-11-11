@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Dotvvm.Samples.Tests;
+using DotVVM.Testing.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.Core;
 
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class MasterPageTests : SeleniumTest
+    public class MasterPageTests : AppSeleniumTest
     {
         [TestMethod]
         [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_NestedMasterPages_Content))]

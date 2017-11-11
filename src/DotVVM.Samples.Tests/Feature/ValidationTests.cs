@@ -4,14 +4,14 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Dotvvm.Samples.Tests;
+using DotVVM.Testing.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.Core;
 
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class ValidationTests : SeleniumTest
+    public class ValidationTests : AppSeleniumTest
     {
         [TestMethod]
         public void Feature_Validation_ClientSideValidationDisabling()

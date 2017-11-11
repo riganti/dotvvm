@@ -144,8 +144,20 @@ namespace DotVVM.Framework.Compilation.Javascript
             IsControl == other.IsControl &&
             ExtensionParameter == other.ExtensionParameter &&
             ContainsObservables == other.ContainsObservables;
-        
+
         public override bool Equals(object obj) => obj is ViewModelInfoAnnotation obj2 && this.Equals(obj2);
+
+        public override int GetHashCode()
+        {
+            var hash = 69848087;
+            hash += Type.GetHashCode();
+            hash *= 444_272_593;
+            hash += ExtensionParameter.GetHashCode();
+            hash *= 444_272_617;
+            if (IsControl) hash *= 444_272_629;
+            if (ContainsObservables) hash *= 444_272_641;
+            return hash;
+        }
 
         public ViewModelInfoAnnotation(Type type, bool isControl = false, BindingExtensionParameter extensionParameter = null, bool containsObservables = true)
         {

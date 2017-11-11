@@ -23,7 +23,7 @@ namespace DotVVM.Framework.Controls
         private EmptyData emptyDataContainer;
         private int numberOfRows;
         private HtmlGenericControl head;
-        
+
         public GridView() : base("table")
         {
             SetValue(Internal.IsNamingContainerProperty, true);
@@ -86,6 +86,7 @@ namespace DotVVM.Framework.Controls
             get { return (List<Decorator>)GetValue(RowDecoratorsProperty); }
             set { SetValue(RowDecoratorsProperty, value); }
         }
+
         public static readonly DotvvmProperty RowDecoratorsProperty =
             DotvvmProperty.Register<List<Decorator>, GridView>(c => c.RowDecorators);
 
@@ -172,11 +173,21 @@ namespace DotVVM.Framework.Controls
                 CallGridViewDataSetRefreshRequest(refreshableDataSet);
             }
 
-            var sortCommand = 
-                dataSource is ISortableGridViewDataSet sortableGridViewDataSet ?
-                sortableGridViewDataSet.SetSortExpression :
-                SortChanged;
-           
+            var sortCommand =
+                dataSource is ISortableGridViewDataSet sortableSet && sortableSet.SortingOptions is ISortingOptions sortOptions ?
+                    expr => {
+                        if (sortOptions.SortExpression == expr)
+                            sortOptions.SortDescending ^= true;
+                        else {
+                            sortOptions.SortExpression = expr;
+                            sortOptions.SortDescending = false;
+                        }
+                        return (sortableSet as IPageableGridViewDataSet)?.GoToFirstPageAsync() ?? TaskUtils.GetCompletedTask();
+                    } :
+                SortChanged != null ?
+                    expr => { SortChanged(expr); return TaskUtils.GetCompletedTask(); } :
+                (Func<string, Task>)null;
+
             // WORKAROUND: DataSource is null => don't throw exception
             if (sortCommand == null && dataSource == null)
             {
@@ -190,7 +201,6 @@ namespace DotVVM.Framework.Controls
             if (dataSource != null)
             {
                 var itemBinding = GetItemBinding();
-                var bindingService = context.Configuration.ServiceLocator.GetService<BindingCompilationService>();
                 foreach (var item in GetIEnumerableFromDataSource())
                 {
                     // create row
@@ -221,7 +231,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void CreateHeaderRow(IDotvvmRequestContext context, Action<string> sortCommand)
+        private void CreateHeaderRow(IDotvvmRequestContext context, Func<string, Task> sortCommand)
         {
             head = new HtmlGenericControl("thead");
             Children.Add(head);
@@ -470,7 +480,7 @@ namespace DotVVM.Framework.Controls
         {
             writer.AddKnockoutDataBind("withGridViewDataSet", GetDataSourceBinding().GetKnockoutBindingExpression(this));
 
-            if (!ShowHeaderWhenNoData && !true.Equals(GetValueRaw(VisibleProperty)))
+            if (!ShowHeaderWhenNoData && !IsPropertySet(VisibleProperty))
             {
                 writer.AddKnockoutDataBind("visible",
                     GetForeachDataBindExpression().GetProperty<DataSourceLengthBinding>().Binding.CastTo<IValueBinding>().GetKnockoutBindingExpression(this));

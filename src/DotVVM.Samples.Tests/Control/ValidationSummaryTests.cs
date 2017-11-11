@@ -1,16 +1,16 @@
-﻿using Riganti.Utils.Testing.Selenium.Core;
+﻿using Riganti.Selenium.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Dotvvm.Samples.Tests;
+using DotVVM.Testing.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class ValidationSummaryTests : SeleniumTest
+    public class ValidationSummaryTests : AppSeleniumTest
     {
 
         [TestMethod]

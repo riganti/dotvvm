@@ -102,3 +102,4 @@ More Info
 * [Twitter @dotvvm](https://twitter.com/dotvvm)
 * [Gitter Chat](https://gitter.im/riganti/dotvvm)
 * [Samples](https://github.com/search?q=topic%3Adotvvm-sample+org%3Ariganti&type=Repositories)
+* [Roadmap](https://github.com/riganti/dotvvm/blob/master/roadmap.md)

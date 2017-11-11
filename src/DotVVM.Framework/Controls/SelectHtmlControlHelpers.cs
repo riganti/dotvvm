@@ -25,19 +25,23 @@ namespace DotVVM.Framework.Controls
             {
                 writer.AddKnockoutDataBind("optionsText", selector.ItemTextBinding.GetProperty<SelectorItemBindingProperty>().Expression, selector);
             }
+            #pragma warning disable
             else if (!String.IsNullOrEmpty(selector.DisplayMember))
             {
                 writer.AddKnockoutDataBind("optionsText", "function (i) { return ko.unwrap(i)[" + KnockoutHelper.MakeStringLiteral(selector.DisplayMember) + "]; }");
             }
+            #pragma warning restore
 
             if (selector.ItemValueBinding != null)
             {
                 writer.AddKnockoutDataBind("optionsValue", selector.ItemValueBinding.GetProperty<SelectorItemBindingProperty>().Expression, selector);
             }
+            #pragma warning disable
             else if (!String.IsNullOrEmpty(selector.ValueMember))
             {
                 writer.AddKnockoutDataBind("optionsValue", "function (i) { return ko.unwrap(i)[" + KnockoutHelper.MakeStringLiteral(selector.ValueMember) + "]; }");
             }
+            #pragma warning restore
         }
 
         public static void RenderChangedEvent(IHtmlWriter writer, SelectorBase selector)

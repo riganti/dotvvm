@@ -1,9 +1,9 @@
 ﻿
 
-namespace Dotvvm.Samples.Tests{
+namespace DotVVM.Testing.Abstractions {
     public class SamplesRouteUrls{
-
-        public static string Default => "Default";
+        
+            public static string Default => "Default";
 
             public static string ComplexSamples_Auth_Login => "ComplexSamples/Auth/Login";
 
@@ -239,6 +239,10 @@ namespace Dotvvm.Samples.Tests{
 
             public static string FeatureSamples_ActionFilterErrorHandling_ActionFilterRedirect => "FeatureSamples/ActionFilterErrorHandling/ActionFilterRedirect";
 
+            public static string FeatureSamples_Api_AzureFunctionsApi => "FeatureSamples/Api/AzureFunctionsApi";
+
+            public static string FeatureSamples_Api_AzureFunctionsApiTable => "FeatureSamples/Api/AzureFunctionsApiTable";
+
             public static string FeatureSamples_Api_GetCollection => "FeatureSamples/Api/GetCollection";
 
             public static string FeatureSamples_Api_GithubRepoApi => "FeatureSamples/Api/GithubRepoApi";
@@ -257,6 +261,8 @@ namespace Dotvvm.Samples.Tests{
 
             public static string FeatureSamples_CommandArguments_CommandArguments => "FeatureSamples/CommandArguments/CommandArguments";
 
+            public static string FeatureSamples_CommandArguments_ReturnValue => "FeatureSamples/CommandArguments/ReturnValue";
+
             public static string FeatureSamples_ConditionalCssClasses_ConditionalCssClasses => "FeatureSamples/ConditionalCssClasses/ConditionalCssClasses";
 
             public static string FeatureSamples_DateTimeSerialization_DateTimeSerialization => "FeatureSamples/DateTimeSerialization/DateTimeSerialization";
@@ -272,8 +278,6 @@ namespace Dotvvm.Samples.Tests{
             public static string FeatureSamples_DoublePostBackPrevention_DoublePostBackPrevention => "FeatureSamples/DoublePostBackPrevention/DoublePostBackPrevention";
 
             public static string FeatureSamples_EmbeddedResourceControls_EmbeddedResourceControls => "FeatureSamples/EmbeddedResourceControls/EmbeddedResourceControls";
-
-            public static string FeatureSamples_EmbeddedResourceControls_EmbeddedResourceView => "FeatureSamples/EmbeddedResourceControls/EmbeddedResourceView";
 
             public static string FeatureSamples_Formatting_Formatting => "FeatureSamples/Formatting/Formatting";
 

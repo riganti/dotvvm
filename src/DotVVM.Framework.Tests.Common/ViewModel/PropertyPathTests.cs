@@ -25,14 +25,9 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
                 }
             };
 
-            var error = new ViewModelValidationError
-            {
-                ErrorMessage = "Testing validation error.",
-                PropertyPath = PropertyPath.BuildPath<SampleViewModel>(vm => vm.Users[0].Post.PostText,
-                viewModel.Context.Configuration)
-            };
+            viewModel.Context.ModelState.ValidationTarget = viewModel;
 
-            viewModel.Context.ModelState.Errors.Add(error);
+            var error = viewModel.AddModelError(vm => vm.Users[0].Post.PostText, "Testing validation error.");
 
             Assert.AreEqual("Users()[0].Post().PostText", error.PropertyPath);
         }

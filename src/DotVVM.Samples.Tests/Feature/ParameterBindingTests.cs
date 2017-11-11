@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Dotvvm.Samples.Tests;
+using DotVVM.Testing.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.Core;
 
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class ParameterBindingTests : SeleniumTestBase
+    public class ParameterBindingTests : AppSeleniumTest
     {
 
         [TestMethod]

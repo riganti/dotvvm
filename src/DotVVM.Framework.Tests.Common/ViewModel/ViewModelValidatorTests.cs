@@ -9,13 +9,14 @@ using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Validation;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Tests.ViewModel
 {
     [TestClass]
     public class ViewModelValidatorTests
     {
-        private IViewModelValidator CreateValidator() => DotvvmTestHelper.CreateConfiguration().ServiceLocator.GetService<IViewModelValidator>();
+        private IViewModelValidator CreateValidator() => DotvvmTestHelper.CreateConfiguration().ServiceProvider.GetRequiredService<IViewModelValidator>();
 
         [TestMethod]
         public void ViewModelValidator_SimpleObject()

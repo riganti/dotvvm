@@ -1,16 +1,17 @@
-﻿using Dotvvm.Samples.Tests;
+﻿
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Testing.Abstractions;
 
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class StaticCommandTests : SeleniumTest
+    public class StaticCommandTests : AppSeleniumTest
     {
         [TestMethod]
         public void Feature_StaticCommand_StaticCommand()
@@ -47,7 +48,7 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
-        private static void Feature_StaticCommand_ComboBoxSelectionChangedViewModel_Core(BrowserWrapper browser)
+        private static void Feature_StaticCommand_ComboBoxSelectionChangedViewModel_Core(IBrowserWrapperFluentApi browser)
         {
             browser.Wait();
 

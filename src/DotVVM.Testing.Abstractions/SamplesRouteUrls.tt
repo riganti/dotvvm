@@ -11,7 +11,7 @@
 
 <#@ output extension=".cs" #>
 
-namespace Dotvvm.Samples.Tests{
+namespace DotVVM.Testing.Abstractions {
     public class SamplesRouteUrls{
     <# 
     

@@ -16,6 +16,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Navigates to the first page.
         /// </summary>
+        [Obsolete("Use GoToFirstPageAsync")]
         void GoToFirstPage();
 
         /// <summary>
@@ -27,6 +28,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Navigates to the last page.
         /// </summary>
+        [Obsolete("Use GoToFirstLastAsync")]
         void GoToLastPage();
 
         /// <summary>
@@ -37,6 +39,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Navigates to the next page (if possible).
         /// </summary>
+        [Obsolete("Use GoToNextPageAsync")]
         void GoToNextPage();
 
         /// <summary>
@@ -48,6 +51,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Navigates to the specific page.
         /// </summary>
+        [Obsolete("Use GoToPageAsync")]
         void GoToPage(int index);
 
         /// <summary>
@@ -58,6 +62,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Navigates to the previous page (if possible).
         /// </summary>
+        [Obsolete("Use GoToPreviousPageAsync")]
         void GoToPreviousPage();
 
         /// <summary>

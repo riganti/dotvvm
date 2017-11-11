@@ -21,6 +21,7 @@
     <UseGlobalApplicationHostFile />
     <ApplicationInsightsResourceId>/subscriptions/1f41fa3c-37d6-4b89-b5dc-913463de0d9a/resourcegroups/DotVVMWeb/providers/microsoft.insights/components/DotvvmTrackingPoints</ApplicationInsightsResourceId>
     <ApplicationInsightsAnnotationResourceId>/subscriptions/1f41fa3c-37d6-4b89-b5dc-913463de0d9a/resourceGroups/DotVVMWeb/providers/microsoft.insights/components/DotvvmTrackingPoints</ApplicationInsightsAnnotationResourceId>
+    <Use64BitIISExpress />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -172,6 +173,10 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.Analyzers.dll" />
+    <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

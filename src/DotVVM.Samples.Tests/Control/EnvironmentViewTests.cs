@@ -1,12 +1,12 @@
 ﻿using System.Linq;
-using Dotvvm.Samples.Tests;
+using DotVVM.Testing.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.Core;
 
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class EnvironmentViewTests : SeleniumTest
+    public class EnvironmentViewTests : AppSeleniumTest
     {
         [TestMethod]
         public void Control_EnvironmentView_EnvironmentViewTest()

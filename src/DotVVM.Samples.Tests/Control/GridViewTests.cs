@@ -1,16 +1,17 @@
-﻿using Dotvvm.Samples.Tests;
+﻿
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Testing.Abstractions;
 
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class GridViewTests : SeleniumTest
+    public class GridViewTests : AppSeleniumTest
     {
 
 
@@ -53,7 +54,7 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditingValidation);
-                browser.Browser.Manage().Window.Maximize();
+                browser.Driver.Manage().Window.Maximize();
 
                 //Get rows
                 var rows = browser.First("table tbody");
@@ -415,7 +416,7 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
-        private void Control_GridViewShowHeaderWhenNoData(BrowserWrapper browser)
+        private void Control_GridViewShowHeaderWhenNoData(IBrowserWrapperFluentApi browser)
         {
             browser.FindElements("[data-ui='ShowHeaderWhenNoDataGrid']").FindElements("th").First().IsDisplayed();
         }

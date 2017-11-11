@@ -11,6 +11,7 @@ using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Samples.BasicSamples.Controls;
 using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Redirect;
 using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Serialization;
+using DotVVM.Samples.Common;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.ServerSideStyles;
 
 namespace DotVVM.Samples.BasicSamples
@@ -25,14 +26,7 @@ namespace DotVVM.Samples.BasicSamples
             AddStyles(config);
 
             AddRoutes(config);
-
-            RegisterResources(config);
-
-            // import namespaces
-            config.Markup.ImportedNamespaces.Add(new Framework.Compilation.NamespaceImport("DotVVM.Samples.BasicSamples.TestNamespace1", "TestNamespaceAlias"));
-            config.Markup.ImportedNamespaces.Add(new Framework.Compilation.NamespaceImport("DotVVM.Samples.BasicSamples.TestNamespace2"));
-
-
+            
             // configure serializer
             config.GetSerializationMapper()
                 .Map(typeof(SerializationViewModel), map => {
@@ -44,38 +38,6 @@ namespace DotVVM.Samples.BasicSamples
             config.RegisterApiGroup(typeof(TestWebApiClient.TestWebApiClient), "http://localhost:5001/", "Scripts/TestWebApiClient.js");
             config.RegisterApiGroup(typeof(GithubApiClient.GithubApiClient), "https://api.github.com/", "Scripts/GithubApiClient.js", "_github", customFetchFunction: "basicAuthenticatedFetch");
             config.RegisterApiClient(typeof(AzureFunctionsApi.Client), "https://dotvvmazurefunctionstest.azurewebsites.net/", "Scripts/AzureFunctionsApiClient.js", "_azureFuncApi");
-        }
-
-        private static void RegisterResources(DotvvmConfiguration config)
-        {
-            config.Resources.Register("ControlSamples_SpaContentPlaceHolder_testCss", new StylesheetResource(new FileResourceLocation("Content/testResource.css")));
-            config.Resources.Register("ControlSamples_SpaContentPlaceHolder_testJs", new ScriptResource(new FileResourceLocation("Scripts/testResource.js")));
-            config.Resources.Register("ControlSamples_SpaContentPlaceHolder_MasterPageResource", new ScriptResource(new FileResourceLocation("Scripts/testResource2.js")));
-
-            config.Resources.Register("FeatureSamples_Resources_CdnUnavailableResourceLoad", new ScriptResource() {
-                Location = new UrlResourceLocation("http://unavailable.local/testResource.js"),
-                LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new FileResourceLocation("~/Scripts/testResource.js"))
-            });
-
-            config.Resources.Register("FeatureSamples_Resources_CdnScriptPriority", new ScriptResource {
-                Location = new FileResourceLocation("~/Scripts/testResource.js"),
-                LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new FileResourceLocation("~/Scripts/testResource2.js"))
-            });
-
-            config.Resources.Register("extenders", new ScriptResource
-            {
-                Location = new FileResourceLocation("Scripts/ClientExtenders.js")
-            });
-
-            // dev files
-            config.Resources.SetEmbeddedResourceDebugFile("dotvvm.internal", "../DotVVM.Framework/Resources/Scripts/DotVVM.js");
-            config.Resources.SetEmbeddedResourceDebugFile("dotvvm.debug", "../DotVVM.Framework/Resources/Scripts/DotVVM.Debug.js");
-            config.Resources.SetEmbeddedResourceDebugFile("dotvvm.fileupload-css", "../DotVVM.Framework/Resources/Scripts/DotVVM.FileUploads.css");
-
-            // test debug version of knockout
-            //((ScriptResource)config.Resources.FindResource("knockout"))
-            //    .Location = new FileResourceLocation("..\\DotVVM.Framework\\Resources\\Scripts\\knockout-latest.debug.js");
-
         }
 
         public static void AddStyles(DotvvmConfiguration config)

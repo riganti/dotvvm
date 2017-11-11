@@ -291,20 +291,5 @@ namespace DotVVM.Framework.Binding
 
             return registeredProperties.Values.Where(p => types.Contains(p.DeclaringType)).ToArray();
         }
-
-        /// <summary>
-        /// Called when a control of the property type is created and initialized.
-        /// </summary>
-        [Obsolete("Does not work as you would expect and will be changed/removed")]
-        protected internal virtual void OnControlInitialized(DotvvmBindableObject dotvvmControl)
-        {
-        }
-
-        /// <summary>
-        /// Called right before the page is rendered.
-        /// </summary>
-        public void OnControlRendering(DotvvmBindableObject dotvvmControl)
-        {
-        }
     }
 }

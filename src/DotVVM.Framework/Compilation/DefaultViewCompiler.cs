@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -16,23 +16,35 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CSharp.RuntimeBinder;
 using DotVVM.Framework.Utils;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace DotVVM.Framework.Compilation
 {
+    public class ViewCompilerConfiguration
+    {
+        public List<Func<ResolvedControlTreeVisitor>> TreeVisitors { get; } = new List<Func<ResolvedControlTreeVisitor>>();
+    }
     public class DefaultViewCompiler : IViewCompiler
     {
-        public DefaultViewCompiler(DotvvmConfiguration configuration, Func<BindingRequiredResourceVisitor> bindingResourceRegisteringVisitor)
+        public DefaultViewCompiler(IOptions<ViewCompilerConfiguration> config, IControlTreeResolver controlTreeResolver, IBindingCompiler bindingCompiler, Func<Validation.ControlUsageValidationVisitor> controlValidatorFactory, DotvvmMarkupConfiguration markupConfiguration)
         {
-           this.configuration = configuration;
-           this.controlTreeResolver = configuration.ServiceLocator.GetService<IControlTreeResolver>();
+           this.config = config.Value;
+           this.controlTreeResolver = controlTreeResolver;
+           this.bindingCompiler = bindingCompiler;
            this.assemblyCache = CompiledAssemblyCache.Instance;
-           this.bindingResourceRegisteringVisitor = bindingResourceRegisteringVisitor;
+           this.controlValidatorFactory = controlValidatorFactory;
+           this.markupConfiguration = markupConfiguration;
         }
 
         private readonly CompiledAssemblyCache assemblyCache;
         private readonly IControlTreeResolver controlTreeResolver;
-        private readonly DotvvmConfiguration configuration;
-        private readonly Func<BindingRequiredResourceVisitor> bindingResourceRegisteringVisitor;
+        private readonly IBindingCompiler bindingCompiler;
+        private readonly ViewCompilerConfiguration config;
+        private readonly Func<Validation.ControlUsageValidationVisitor> controlValidatorFactory;
+        private readonly DotvvmMarkupConfiguration markupConfiguration;
 
         /// <summary>
         /// Compiles the view and returns a function that can be invoked repeatedly. The function builds full control tree and activates the page.
@@ -68,27 +80,20 @@ namespace DotVVM.Framework.Compilation
                     }
                 }
 
-                var bindingResourceRegisteringVisitor = this.bindingResourceRegisteringVisitor();
-                resolvedView.Accept(bindingResourceRegisteringVisitor);
+                foreach (var visitor in config.TreeVisitors)
+                    visitor().ApplyAction(resolvedView.Accept).ApplyAction(v => (v as IDisposable)?.Dispose());
 
-                var styleVisitor = new StylingVisitor(configuration);
-                resolvedView.Accept(styleVisitor);
 
-                var contextSpaceVisitor = new DataContextPropertyAssigningVisitor();
-                resolvedView.Accept(contextSpaceVisitor);
-
-                var validationVisitor = new Validation.ControlUsageValidationVisitor(configuration);
-                resolvedView.Accept(validationVisitor);
+                var validationVisitor = this.controlValidatorFactory.Invoke()
+                    .ApplyAction(resolvedView.Accept);
                 if (validationVisitor.Errors.Any())
                 {
                     var controlUsageError = validationVisitor.Errors.First();
                     throw new DotvvmCompilationException(controlUsageError.ErrorMessage, controlUsageError.Nodes.SelectMany(n => n.Tokens));
                 }
 
-                new LifecycleRequirementsAssigningVisitor().ApplyAction(resolvedView.Accept);
-
                 var emitter = new DefaultViewCompilerCodeEmitter();
-                var compilingVisitor = new ViewCompilingVisitor(emitter, configuration.ServiceLocator.GetService<IBindingCompiler>(), className);
+                var compilingVisitor = new ViewCompilingVisitor(emitter, bindingCompiler, className);
 
                 resolvedView.Accept(compilingVisitor);
 
@@ -113,24 +118,31 @@ namespace DotVVM.Framework.Compilation
 
         public virtual CSharpCompilation CreateCompilation(string assemblyName)
         {
-            return CSharpCompilation.Create(assemblyName).AddReferences(new[]
-                {
-                    typeof(RuntimeBinderException).GetTypeInfo().Assembly,
-                    typeof(System.Runtime.CompilerServices.DynamicAttribute).GetTypeInfo().Assembly,
-                    typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
+            var diAssembly = typeof(ServiceCollection).Assembly;
+
+            var references = diAssembly.GetReferencedAssemblies().Select(Assembly.Load)
+                .Concat(markupConfiguration.Assemblies.Select(e => Assembly.Load(new AssemblyName(e))))
+                .Concat(new[] {
+                    diAssembly,
                     Assembly.Load(new AssemblyName("mscorlib")),
+                    typeof(IServiceProvider).Assembly,
+                    typeof(RuntimeBinderException).Assembly,
+                    typeof(DynamicAttribute).Assembly,
+                    typeof(DotvvmConfiguration).Assembly,
 #if DotNetCore
+                    Assembly.Load(new AssemblyName("netstandard")),
                     Assembly.Load(new AssemblyName("System.Runtime")),
                     Assembly.Load(new AssemblyName("System.Collections.Concurrent")),
                     Assembly.Load(new AssemblyName("System.Collections")),
-                    Assembly.Load(new AssemblyName("System.ValueTuple")),
-                    Assembly.Load(new AssemblyName("netstandard")),
+                    Assembly.Load(new AssemblyName("System.ValueTuple"))
 #else
-                    typeof(System.Collections.Generic.List<>).Assembly
+                    typeof(List<>).Assembly
 #endif
-            }.Concat(configuration.Markup.Assemblies.Select(e => Assembly.Load(new AssemblyName(e)))).Distinct()
-                .Select(a => assemblyCache.GetAssemblyMetadata(a)))
-                .WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+                })
+                .Distinct();
+
+            return CSharpCompilation.Create(assemblyName, options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
+                .AddReferences(references.Select(a => assemblyCache.GetAssemblyMetadata(a)));
         }
 
         protected virtual IControlBuilder GetControlBuilder(Assembly assembly, string namespaceName, string className)

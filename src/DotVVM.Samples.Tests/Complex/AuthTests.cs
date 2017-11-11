@@ -1,16 +1,17 @@
-﻿using Dotvvm.Samples.Tests;
+﻿
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Testing.Abstractions;
 
 namespace DotVVM.Samples.Tests.Complex
 {
     [TestClass]
-    public class AuthTests : SeleniumTest
+    public class AuthTests : AppSeleniumTest
     {
         [TestMethod]
         [SampleReference(nameof(SamplesRouteUrls.ComplexSamples_Auth_SecuredPage))]

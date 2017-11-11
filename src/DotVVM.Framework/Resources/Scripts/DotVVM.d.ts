@@ -80,14 +80,14 @@ declare class DotvvmAfterPostBackEventArgs implements PostbackEventArgs {
     postbackOptions: PostbackOptions;
     serverResponseObject: any;
     commandResult: any;
-    xhr: XMLHttpRequest;
+    xhr: XMLHttpRequest | undefined;
     isHandled: boolean;
     wasInterrupted: boolean;
     readonly postbackClientId: number;
     readonly viewModelName: string;
     readonly viewModel: any;
     readonly sender: HTMLElement | undefined;
-    constructor(postbackOptions: PostbackOptions, serverResponseObject: any, commandResult?: any, xhr?: XMLHttpRequest);
+    constructor(postbackOptions: PostbackOptions, serverResponseObject: any, commandResult?: any, xhr?: XMLHttpRequest | undefined);
 }
 declare class DotvvmSpaNavigatingEventArgs implements DotvvmEventArgs {
     viewModel: any;
@@ -173,12 +173,12 @@ interface AdditionalPostbackData {
 }
 declare class PostbackOptions {
     readonly postbackId: number;
-    readonly sender: HTMLElement;
+    readonly sender: HTMLElement | undefined;
     readonly args: any[];
     readonly viewModel: any;
-    readonly viewModelName: string;
+    readonly viewModelName: string | undefined;
     readonly additionalPostbackData: AdditionalPostbackData;
-    constructor(postbackId: number, sender?: HTMLElement, args?: any[], viewModel?: any, viewModelName?: string);
+    constructor(postbackId: number, sender?: HTMLElement | undefined, args?: any[], viewModel?: any, viewModelName?: string | undefined);
 }
 declare class ConfirmPostBackHandler implements DotvvmPostbackHandler {
     message: string;

@@ -398,10 +398,6 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         internal virtual void OnPreInit(IDotvvmRequestContext context)
         {
-            foreach (var property in GetDeclaredProperties())
-            {
-                property.OnControlInitialized(this);
-            }
         }
 
         /// <summary>
@@ -409,11 +405,6 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         internal virtual void OnPreRenderComplete(IDotvvmRequestContext context)
         {
-            // events on properties
-            foreach (var property in GetDeclaredProperties())
-            {
-                property.OnControlRendering(this);
-            }
         }
 
         /// <summary>

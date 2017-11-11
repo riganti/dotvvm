@@ -1,17 +1,18 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.Core;
 using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
-using Dotvvm.Samples.Tests;
+using DotVVM.Testing.Abstractions;
+
 
 namespace DotVVM.Samples.Tests.Feature
 {   
     [TestClass]
-    public class DateTimeSerializationTests : SeleniumTest
+    public class DateTimeSerializationTests : AppSeleniumTest
     {
         [TestMethod]
         public void Feature_DateTimeSerialization_DateTimeSerialization()
@@ -48,6 +49,8 @@ namespace DotVVM.Samples.Tests.Feature
                 // try to set dates from server
                 browser.ElementAt("input[type=button]", 0).Click();
                 browser.ElementAt("input[type=button]", 2).Click();
+
+                browser.Wait(500);
 
                 // there is no time in the field
                 browser.ElementAt("input[type=text]", 0)

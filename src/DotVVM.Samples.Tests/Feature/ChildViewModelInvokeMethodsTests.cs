@@ -1,12 +1,12 @@
 using System.Linq;
-using Dotvvm.Samples.Tests;
+using DotVVM.Testing.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.Core;
 
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class ChildViewModelInvokeMethodsTests : SeleniumTest
+    public class ChildViewModelInvokeMethodsTests : AppSeleniumTest
     {
         [TestMethod]
         public void Feature_ChildViewModelInvokeMethods_ChildViewModelInvokeMethods()
@@ -25,7 +25,7 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
-        private static void CheckIfInnerTextEqualsToOne(BrowserWrapper browser, string dataUi)
+        private static void CheckIfInnerTextEqualsToOne(IBrowserWrapperFluentApi browser, string dataUi)
         {
             browser.FindElements($"[data-ui='{dataUi}']").First().CheckIfInnerTextEquals(1.ToString());
         }

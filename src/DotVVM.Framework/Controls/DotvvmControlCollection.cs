@@ -272,7 +272,11 @@ namespace DotVVM.Framework.Controls
                 var reqflag = (1 << ((int)eventType - 1));
                 if (isMissingInvoke) reqflag = reqflag << 5;
                 // abort when control does not require that
-                if ((parent.LifecycleRequirements & (ControlLifecycleRequirements)reqflag) == 0) continue;
+                if ((parent.LifecycleRequirements & (ControlLifecycleRequirements)reqflag) == 0)
+                {
+                    continue;
+                }
+
                 lastProcessedControl = parent;
                 switch (eventType)
                 {

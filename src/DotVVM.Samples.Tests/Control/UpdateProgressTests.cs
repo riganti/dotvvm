@@ -1,17 +1,17 @@
-﻿using Riganti.Utils.Testing.Selenium.Core;
+﻿using Riganti.Selenium.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Dotvvm.Samples.Tests;
+using DotVVM.Testing.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core.Exceptions;
+using Riganti.Selenium.Core.Abstractions.Exceptions;
 
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class UpdateProgressTests : SeleniumTest
+    public class UpdateProgressTests : AppSeleniumTest
     {
 
         [TestMethod]
@@ -66,32 +66,18 @@ namespace DotVVM.Samples.Tests.Control
         [TestMethod]
         public void Control_UpdateProgress_UpdateProgressDelayShortTest()
         {
-            try
+            RunInAllBrowsers(browser =>
             {
-                RunInAllBrowsers(browser =>
-                {
-                    browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_UpdateProgress_UpdateProgressDelay);
-                    browser.Wait();
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_UpdateProgress_UpdateProgressDelay);
+                browser.Wait();
 
-                    // click the second button with short test and verify that the progress does not appear
-                    browser.First(".update-progress").CheckIfIsNotDisplayed();
-                    browser.First(".short-test").Click();
+                // click the second button with short test and verify that the progress does not appear
+                browser.First(".update-progress").CheckIfIsNotDisplayed();
+                browser.First(".short-test").Click();
 
-                    browser.WaitFor(() =>
-                    {
-                        browser.First(".update-progress").CheckIfIsDisplayed();
-                    }, 3000);
-                    throw new UnexpectedElementStateException("Progress should not be displayed");
+                browser.WaitFor(() => browser.First(".update-progress").CheckIfIsNotDisplayed(), 3000);
 
-                });
-            }
-            catch (UnexpectedElementStateException e)
-            {
-                if (!e.Message.Contains("Element is not displayed"))
-                {
-                    throw;
-                }
-            }
+            });
         }
 
         [TestMethod]
