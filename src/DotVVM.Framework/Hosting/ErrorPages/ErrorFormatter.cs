@@ -15,13 +15,32 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 {
     public class ErrorFormatter
     {
-        public ExceptionModel LoadException(Exception exception, StackFrameModel[] existingTrace = null)
+#if DotNetCore
+        public ExceptionModel LoadDemystifiedException(Exception exception)
         {
+            return LoadException(exception, stackFrameGetter: ex => {
+                var rawStackTrace = new StackTrace(ex, true).GetFrames();
+                if (rawStackTrace == null) return null; // demystifier throws in these cases
+                try
+                {
+                    return new EnhancedStackTrace(ex).GetFrames();
+                }
+                catch(Exception bensException)
+                {
+                    return rawStackTrace;
+                }
+            });
+        }
+#endif
+        public ExceptionModel LoadException(Exception exception, StackFrameModel[] existingTrace = null, Func<Exception, StackFrame[]> stackFrameGetter = null)
+        {
+            stackFrameGetter = stackFrameGetter ?? (ex => new StackTrace(ex, true).GetFrames());
+
             var m = new ExceptionModel();
             m.Message = exception.Message;
             m.OriginalException = exception;
             m.TypeName = exception.GetType().FullName;
-            var frames = new StackTrace(exception, true).GetFrames() ?? new StackFrame[0];
+            var frames = stackFrameGetter(exception) ?? new StackFrame[0];
             var stack = new List<StackFrameModel>();
             bool skipping = existingTrace != null;
             for (int i = frames.Length - 1; i >= 0; i--)
@@ -30,9 +49,16 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                 if (skipping && existingTrace.Length > i && f.GetMethod() == existingTrace[i].Method) continue;
                 skipping = false;
 
+#if DotNetCore
+                var niceMethod = (f as EnhancedStackFrame)?.MethodInfo;
+#endif
+
                 stack.Add(AddMoreInfo(new StackFrameModel
                 {
                     Method = f.GetMethod(),
+#if DotNetCore
+                    FormattedMethod = niceMethod?.ToString(),
+#endif
                     At = LoadSourcePiece(f.GetFileName(), f.GetFileLineNumber(),
                         errorColumn: f.GetFileColumnNumber())
                 }));
@@ -48,7 +74,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             }
             stack.Reverse();
             m.Stack = stack.ToArray();
-            if (exception.InnerException != null) m.InnerException = LoadException(exception.InnerException, m.Stack);
+            if (exception.InnerException != null) m.InnerException = LoadException(exception.InnerException, m.Stack, stackFrameGetter);
             return m;
         }
 
@@ -60,6 +86,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             }
             catch
             {
+                frame.MoreInfo = new IFrameMoreInfo[0];
             }
 
             return frame;
@@ -95,7 +122,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             if (frame.Method?.DeclaringType?.GetTypeInfo()?.Assembly == typeof(ErrorFormatter).GetTypeInfo().Assembly)
             {
                 // dotvvm github
-                if (frame.At?.FileName != null)
+                if (!String.IsNullOrEmpty(frame.At?.FileName))
                 {
                     var fileName =
                         frame.At.FileName.Substring(
@@ -174,7 +201,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             if (frame.Method?.DeclaringType?.GetTypeInfo()?.Assembly != null &&
                 ReferenceSourceAssemblies.Contains(frame.Method.DeclaringType.GetTypeInfo().Assembly.GetName().Name))
             {
-                if (frame.At?.FileName != null)
+                if (!String.IsNullOrEmpty(frame.At?.FileName))
                 {
                     throw new NotImplementedException();
                 }
@@ -307,7 +334,10 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         {
             var f = new ErrorFormatter();
             f.Formatters.Add((e, o) => DotvvmMarkupErrorSection.Create(e));
-            f.Formatters.Add((e, o) => new ExceptionSectionFormatter {Exception = f.LoadException(e)});
+#if DotNetCore
+            f.Formatters.Add((e, o) => new ExceptionSectionFormatter(f.LoadDemystifiedException(e)));
+#endif
+            f.Formatters.Add((e, o) => new ExceptionSectionFormatter(f.LoadException(e), "Raw Stack Trace", "raw_stack_trace"));
             f.Formatters.Add((e, o) => DictionarySection.Create("Cookies", "cookies", o.Request.Cookies));
             f.Formatters.Add((e, o) => DictionarySection.Create("Request Headers", "reqHeaders", o.Request.Headers));
             f.AddInfoLoader<ReflectionTypeLoadException>(e => new ExceptionAdditionalInfo
