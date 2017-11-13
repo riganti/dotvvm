@@ -15,14 +15,14 @@
     <div Validator.InvalidCssClass="has-error">
         <dot:TextBox Text="{value: DateTimeTestValue}" Validator.Value="{value:  DateTimeTestValue}"
                      ValueType="DateTime" FormatString="dd/MM/yyyy H:mm:ss" style="width:250px;" />
-        <dot:TextBox Text="{value: DateTimeTestValue2}" Validator.Value="{value:  DateTimeTestValue2}"
+        <dot:TextBox Text="{value: DateTimeTestValue}" Validator.Value="{value:  DateTimeTestValue}"
                      ValueType="DateTime" FormatString="dd/MM/yyyy H:mm:ss" style="width:250px;" />
 
         
         <dot:Validator Value="{value: DateTimeTestValue}">
             <span class="validation-error">*</span>
         </dot:Validator>
-        <dot:Validator Value="{value: DateTimeTestValue2}">
+        <dot:Validator Value="{value: DateTimeTestValue}">
             <span class="validation-error">*</span>
         </dot:Validator>
     </div>
@@ -30,5 +30,3 @@
     <dot:Button Text="Validate" Click="{command:  ValidateNullableDateTime() }" ID="ValidateButton"></dot:Button>
 </body>
 </html>
-
-
