@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -17,6 +17,8 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CSharp.RuntimeBinder;
 using DotVVM.Framework.Utils;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace DotVVM.Framework.Compilation
@@ -116,24 +118,31 @@ namespace DotVVM.Framework.Compilation
 
         public virtual CSharpCompilation CreateCompilation(string assemblyName)
         {
-            return CSharpCompilation.Create(assemblyName).AddReferences(new[]
-                {
-                    typeof(RuntimeBinderException).GetTypeInfo().Assembly,
-                    typeof(System.Runtime.CompilerServices.DynamicAttribute).GetTypeInfo().Assembly,
-                    typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
+            var diAssembly = typeof(ServiceCollection).Assembly;
+
+            var references = diAssembly.GetReferencedAssemblies().Select(Assembly.Load)
+                .Concat(markupConfiguration.Assemblies.Select(e => Assembly.Load(new AssemblyName(e))))
+                .Concat(new[] {
+                    diAssembly,
                     Assembly.Load(new AssemblyName("mscorlib")),
+                    typeof(IServiceProvider).Assembly,
+                    typeof(RuntimeBinderException).Assembly,
+                    typeof(DynamicAttribute).Assembly,
+                    typeof(DotvvmConfiguration).Assembly,
 #if DotNetCore
+                    Assembly.Load(new AssemblyName("netstandard")),
                     Assembly.Load(new AssemblyName("System.Runtime")),
                     Assembly.Load(new AssemblyName("System.Collections.Concurrent")),
                     Assembly.Load(new AssemblyName("System.Collections")),
-                    Assembly.Load(new AssemblyName("System.ValueTuple")),
-                    Assembly.Load(new AssemblyName("netstandard")),
+                    Assembly.Load(new AssemblyName("System.ValueTuple"))
 #else
-                    typeof(System.Collections.Generic.List<>).Assembly
+                    typeof(List<>).Assembly
 #endif
-            }.Concat(markupConfiguration.Assemblies.Select(e => Assembly.Load(new AssemblyName(e)))).Distinct()
-                .Select(a => assemblyCache.GetAssemblyMetadata(a)))
-                .WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+                })
+                .Distinct();
+
+            return CSharpCompilation.Create(assemblyName, options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
+                .AddReferences(references.Select(a => assemblyCache.GetAssemblyMetadata(a)));
         }
 
         protected virtual IControlBuilder GetControlBuilder(Assembly assembly, string namespaceName, string className)

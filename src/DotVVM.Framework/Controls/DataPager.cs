@@ -44,6 +44,7 @@ namespace DotVVM.Framework.Controls
         private readonly BindingCompilationService bindingService;
 
         public DataPager(CommonBindings commonBindings, BindingCompilationService bindingService)
+            : base("div")
         {
             this.commonBindings = commonBindings;
             this.bindingService = bindingService;
@@ -151,10 +152,7 @@ namespace DotVVM.Framework.Controls
         private PlaceHolder numbersPlaceHolder;
         private HtmlGenericControl nextLi;
         private HtmlGenericControl lastLi;
-
-
-        public DataPager() : base("div") { }
-
+        
         protected internal override void OnLoad(Hosting.IDotvvmRequestContext context)
         {
             DataBind(context);

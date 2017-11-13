@@ -698,7 +698,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
         protected internal override string ClientHandlerName => null;
 
-        protected internal override Dictionary<string, string> GetHandlerOptionClientExpressions()
+        protected internal override Dictionary<string, object> GetHandlerOptions()
         {
             throw new NotImplementedException();
         }
@@ -717,7 +717,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
         protected internal override string ClientHandlerName => null;
 
-        protected internal override Dictionary<string, string> GetHandlerOptionClientExpressions()
+        protected internal override Dictionary<string, object> GetHandlerOptions()
         {
             throw new NotImplementedException();
         }

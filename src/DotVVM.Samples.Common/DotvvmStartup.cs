@@ -11,6 +11,7 @@ using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Samples.BasicSamples.Controls;
 using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Redirect;
 using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Serialization;
+using DotVVM.Samples.Common;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.ServerSideStyles;
 
 namespace DotVVM.Samples.BasicSamples
@@ -25,7 +26,7 @@ namespace DotVVM.Samples.BasicSamples
             AddStyles(config);
 
             AddRoutes(config);
-
+            
             // configure serializer
             config.GetSerializationMapper()
                 .Map(typeof(SerializationViewModel), map => {

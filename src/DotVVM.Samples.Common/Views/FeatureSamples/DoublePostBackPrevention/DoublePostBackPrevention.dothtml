@@ -5,7 +5,7 @@
     <title>Hello from DotVVM!</title>
 </head>
 <body>
-    <div class="container">
+    <div class="container" Postback.concurrency="{resource: ConcurrencyMode}">
         <h1>Double postback prevention</h1>
         <p>
             <dot:Button Text="Long action" Click="{command: LongAction()}" />
@@ -38,6 +38,13 @@
             </dot:UpdateProgress>
 
             <dot:Button Text="Test UpdateProgress" Click="{command: LongAction()}" />
+        </div>
+
+        <div>
+            Concurrency Mode:
+            <a href="?concurrency=None">None</a> /
+            <a href="?concurrency=Queue">Queue</a> /
+            <a href="?concurrency=Deny">Deny</a>
         </div>
     </div>
 </body>
