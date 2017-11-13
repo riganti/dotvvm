@@ -457,6 +457,17 @@ namespace DotVVM.Framework.Controls
             writer.RenderEndTag();
         }
 
+        protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
+        {
+            if (!ShowHeaderWhenNoData)
+            {
+                writer.WriteKnockoutDataBindComment("if",
+                    GetForeachDataBindExpression().GetProperty<DataSourceLengthBinding>().Binding.CastTo<IValueBinding>().GetKnockoutBindingExpression(this));
+            }
+
+            base.RenderBeginTag(writer, context);
+        }
+
         protected override void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (RenderOnServer && numberOfRows == 0 && !ShowHeaderWhenNoData)
@@ -473,21 +484,21 @@ namespace DotVVM.Framework.Controls
         {
             base.RenderEndTag(writer, context);
 
+            if (!ShowHeaderWhenNoData)
+            {
+                writer.WriteKnockoutDataBindEndComment();
+            }
+
             emptyDataContainer?.Render(writer, context);
         }
 
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             writer.AddKnockoutDataBind("withGridViewDataSet", GetDataSourceBinding().GetKnockoutBindingExpression(this));
-
-            if (!ShowHeaderWhenNoData && !IsPropertySet(VisibleProperty))
-            {
-                writer.AddKnockoutDataBind("visible",
-                    GetForeachDataBindExpression().GetProperty<DataSourceLengthBinding>().Binding.CastTo<IValueBinding>().GetKnockoutBindingExpression(this));
-            }
-
             base.AddAttributesToRender(writer, context);
         }
+
+        
 
         public override IEnumerable<DotvvmBindableObject> GetLogicalChildren()
         {

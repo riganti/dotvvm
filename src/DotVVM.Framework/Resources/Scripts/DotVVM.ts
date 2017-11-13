@@ -404,14 +404,14 @@ class DotVVM {
     private applyPostbackHandlersCore(callback: (options: PostbackOptions) => Promise<PostbackCommitFunction | undefined>, options: PostbackOptions, handlers?: DotvvmPostbackHandler[]) : Promise<PostbackCommitFunction> {
         const processResult = t => typeof t == "function" ? t : (() => Promise.resolve(new DotvvmAfterPostBackEventArgs(options, null, t)))
         if (handlers == null || handlers.length === 0) {
-            return callback(options).then(processResult, Promise.reject);
+            return callback(options).then(processResult, r => Promise.reject(r));
         } else {
             const sortedHandlers = this.sortHandlers(handlers);
             return sortedHandlers
                 .reduceRight(
                     (prev, val, index) => () =>
                         val.execute(prev, options),
-                    () => callback(options).then(processResult, Promise.reject)
+                    () => callback(options).then(processResult, r => Promise.reject(r))
                 )();
         }
     }
@@ -506,7 +506,7 @@ class DotVVM {
                     });
                 }));
             }, xhr => {
-                reject({ type: 'network', options: options, error: new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, xhr, options.postbackId) });
+                reject({ type: 'network', options: options, args: new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, xhr, options.postbackId) });
             });
         });
     }
@@ -530,21 +530,21 @@ class DotVVM {
 
         const result = promise.then(
                 r => r().then(r => r, error => Promise.reject({ type: "commit", args: error })),
-                Promise.reject
+                r => Promise.reject(r)
             )
         result.then(
             r => r && this.events.afterPostback.trigger(r),
             (error: PostbackRejectionReason) => {
-            var afterPostBackArgsCanceled = new DotvvmAfterPostBackEventArgs(options, error.type == "commit" ? error.args.serverResponseObject : null, options.postbackId);
-            if (error.type == "handler" || error.type == "event") {
-                // trigger afterPostback event
-                afterPostBackArgsCanceled.wasInterrupted = true
-                this.events.postbackRejected.trigger({})
-            } else if (error.type == "network") {
-                 this.events.error.trigger(error.args)
-            }
-            this.events.afterPostback.trigger(afterPostBackArgsCanceled)
-        });
+                var afterPostBackArgsCanceled = new DotvvmAfterPostBackEventArgs(options, error.type == "commit" && error.args ? error.args.serverResponseObject : null, options.postbackId);
+                if (error.type == "handler" || error.type == "event") {
+                    // trigger afterPostback event
+                    afterPostBackArgsCanceled.wasInterrupted = true
+                    this.events.postbackRejected.trigger({})
+                } else if (error.type == "network") {
+                     this.events.error.trigger(error.args)
+                }
+                this.events.afterPostback.trigger(afterPostBackArgsCanceled)
+            });
         return result;
     }
 

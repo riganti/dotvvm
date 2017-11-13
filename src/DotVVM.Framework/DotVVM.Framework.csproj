@@ -58,7 +58,6 @@
     <EmbeddedResource Include="Resources\Scripts\DotVVM.js" />
     <None Include="Resources\Scripts\DotVVM.js.map" />
     <None Include="Resources\Scripts\DotVVM.PostBackHandlers.ts" />
-    <None Include="Resources\Scripts\DotVVM.Promise.ts" />
     <None Include="Resources\Scripts\DotVVM.Serialization.ts" />
     <None Include="Resources\Scripts\DotVVM.ts" />
     <None Include="Resources\Scripts\DotVVM.Validation.ts" />
