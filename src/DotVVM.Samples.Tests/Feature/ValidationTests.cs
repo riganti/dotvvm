@@ -125,46 +125,40 @@ namespace DotVVM.Samples.Tests.Feature
                 var textBox1 = browser.ElementAt("input[type=text]", 0);
                 var textBox2 = browser.ElementAt("input[type=text]", 1);
                 var button = browser.Single("input[type=button]");
-                var errorField1 = browser.First(".validation-error");
-                var errorField2 = browser.Last(".validation-error");
+                var errorField = browser.Single(".validation-error");
 
                 // empty field - no error
                 textBox1.Clear();
-                textBox2.Clear();
                 button.Click();
                 textBox1.CheckIfHasNotClass("has-error");
                 textBox2.CheckIfHasNotClass("has-error");
-                errorField1.CheckIfIsNotDisplayed();
-                errorField2.CheckIfIsNotDisplayed();
+                errorField.CheckIfIsNotDisplayed();
 
                 // invalid value - should report error
                 textBox1.SendKeys("06-14-2017");
                 button.Click();
                 textBox1.CheckIfHasClass("has-error");
-                textBox2.CheckIfHasNotClass("has-error");
-                errorField1.CheckIfIsDisplayed();
-                errorField2.CheckIfIsNotDisplayed();
+                textBox2.CheckIfHasClass("has-error");
+                errorField.CheckIfIsDisplayed();
 
                 // valid value - no error
                 textBox1.Clear();
-                textBox2.Clear();
                 textBox1.SendKeys(DateTime.Now.ToString("dd/MM/yyyy H:mm:ss", CultureInfo.InvariantCulture));
                 button.Click();
                 textBox1.CheckIfHasNotClass("has-error");
                 textBox2.CheckIfHasNotClass("has-error");
-                errorField1.CheckIfIsNotDisplayed();
-                errorField2.CheckIfIsNotDisplayed();
+                errorField.CheckIfIsNotDisplayed();
+                textBox1.CheckIfInnerTextEquals(textBox2.GetInnerText());
 
                 // one textbox has invalid value and second gets valid - should have no error
                 textBox1.Clear();
-                textBox2.Clear();
                 textBox1.SendKeys("Invalid value");
                 textBox2.SendKeys(DateTime.Now.ToString("dd/MM/yyyy H:mm:ss", CultureInfo.InvariantCulture));
                 button.Click();
-                textBox1.CheckIfHasClass("has-error");
+                textBox1.CheckIfHasNotClass("has-error");
                 textBox2.CheckIfHasNotClass("has-error");
-                errorField1.CheckIfIsDisplayed();
-                errorField2.CheckIfIsNotDisplayed();
+                errorField.CheckIfIsNotDisplayed();
+                textBox1.CheckIfInnerTextEquals(textBox2.GetInnerText());
             });
         }
 
