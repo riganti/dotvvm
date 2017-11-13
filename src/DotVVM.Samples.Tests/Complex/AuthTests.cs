@@ -36,10 +36,10 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.SendKeys("input[type=text]", "message");
                 browser.First("input[type=button]").Click().Wait(500);
 
-                browser.ElementAt("h1",1)
+                browser.ElementAt("span", 0)
                     .CheckIfInnerText(
                         s =>
-                            s.Contains("DotVVM Debugger: Error 403: Forbidden"),
+                            s.Contains("server: Hello!"),
                             "User is not in admin role"
                         );
 
