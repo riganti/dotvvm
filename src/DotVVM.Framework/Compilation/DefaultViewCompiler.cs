@@ -125,6 +125,7 @@ namespace DotVVM.Framework.Compilation
                 .Concat(new[] {
                     diAssembly,
                     Assembly.Load(new AssemblyName("mscorlib")),
+                    Assembly.Load(new AssemblyName("System.ValueTuple")),
                     typeof(IServiceProvider).Assembly,
                     typeof(RuntimeBinderException).Assembly,
                     typeof(DynamicAttribute).Assembly,
@@ -134,7 +135,6 @@ namespace DotVVM.Framework.Compilation
                     Assembly.Load(new AssemblyName("System.Runtime")),
                     Assembly.Load(new AssemblyName("System.Collections.Concurrent")),
                     Assembly.Load(new AssemblyName("System.Collections")),
-                    Assembly.Load(new AssemblyName("System.ValueTuple"))
 #else
                     typeof(List<>).Assembly
 #endif
