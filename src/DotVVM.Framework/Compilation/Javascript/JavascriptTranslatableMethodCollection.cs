@@ -110,15 +110,10 @@ namespace DotVVM.Framework.Compilation.Javascript
             //AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Count), lengthMethod, new[] { typeof(IEnumerable) });
 
             AddMethodTranslator(typeof(Api), nameof(Api.RefreshOnChange),
-                new GenericMethodCompiler(a => (a[2] is JsIdentifierExpression || a[2] is JsMemberAccessExpression member && member.Target is JsSymbolicParameter && !member.Target.HasAnnotation<ResultIsObservableAnnotation>() ?
+                new GenericMethodCompiler(a =>
                     new JsIdentifierExpression("dotvvm").Member("apiRefreshOn").Invoke(
                         a[1].WithAnnotation(ShouldBeObservableAnnotation.Instance),
-                        a[2].WithAnnotation(ShouldBeObservableAnnotation.Instance)) :
-                    new JsIdentifierExpression("dotvvm").Member("apiRefreshOn").Invoke(
-                        a[1].WithAnnotation(ShouldBeObservableAnnotation.Instance),
-                        new JsIdentifierExpression("ko").Member("pureComputed").Invoke(new JsFunctionExpression(
-                            parameters: Enumerable.Empty<JsIdentifier>(),
-                            bodyBlock: new JsBlockStatement(new JsReturnStatement(a[2]))))))
+                        a[2].EnsureObservableWrapped())
                         .WithAnnotation(a[1].Annotation<ResultIsObservableAnnotation>())
                         .WithAnnotation(a[1].Annotation<ViewModelInfoAnnotation>())
                         .WithAnnotation(a[1].Annotation<MayBeNullAnnotation>())
@@ -156,10 +151,14 @@ namespace DotVVM.Framework.Compilation.Javascript
             foreach (var num in ReflectionUtils.NumericTypes.Except(new[] { typeof(char) }))
             {
                 AddMethodTranslator(num.GetMethod("ToString", Type.EmptyTypes), new GenericMethodCompiler(
-                    args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingNumberToString").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])
+                    args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingNumberToString")
+                            .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])
+                            .WithAnnotation(ResultIsObservableAnnotation.Instance)
                 ));
                 AddMethodTranslator(num.GetMethod("ToString", new[] { typeof(string) }), new GenericMethodCompiler(
-                    args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingNumberToString").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])
+                    args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingNumberToString")
+                            .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])
+                            .WithAnnotation(ResultIsObservableAnnotation.Instance)
                 ));
             }
 
@@ -170,7 +169,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         public JsExpression TryTranslateCall(HalfTranslatedExpression context, HalfTranslatedExpression[] args, MethodInfo method)
         {
             if (method == null) return null;
-            { 
+            {
                 if (MethodTranslators.TryGetValue(method, out var translator) && translator.TryTranslateCall(context, args, method) is JsExpression result)
                     return result;
             }

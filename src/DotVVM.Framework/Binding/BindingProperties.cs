@@ -27,10 +27,13 @@ namespace DotVVM.Framework.Binding.Properties
         /// Knockout binding expression. Always unwraps the observable.
         /// </summary>
         public readonly ParametrizedCode UnwrapedCode;
-        public KnockoutExpressionBindingProperty(ParametrizedCode code, ParametrizedCode unwrapedCode)
+        /// Knockout binding expression. Always returns an observable.
+        public readonly ParametrizedCode WrappedCode;
+        public KnockoutExpressionBindingProperty(ParametrizedCode code, ParametrizedCode unwrapedCode, ParametrizedCode wrappedCode)
         {
             this.Code = code;
             this.UnwrapedCode = unwrapedCode;
+            this.WrappedCode = wrappedCode;
         }
     }
 

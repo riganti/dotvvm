@@ -101,7 +101,10 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public KnockoutExpressionBindingProperty FormatJavascript(KnockoutJsExpressionBindingProperty expression)
         {
-            return new KnockoutExpressionBindingProperty(FormatJavascript(expression.Expression, true, niceMode: configuration.Debug), FormatJavascript(expression.Expression, false, niceMode: configuration.Debug));
+            return new KnockoutExpressionBindingProperty(
+                FormatJavascript(expression.Expression, true, niceMode: configuration.Debug),
+                FormatJavascript(expression.Expression, false, niceMode: configuration.Debug),
+                FormatJavascript(expression.Expression.Clone().EnsureObservableWrapped(), true, niceMode: configuration.Debug));
         }
 
         public static ParametrizedCode FormatJavascript(JsExpression node, bool allowObservableResult = true, bool niceMode = false, bool nullChecks = true)

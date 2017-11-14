@@ -39,6 +39,7 @@ namespace DotVVM.Framework.Binding.Expressions
 
         public ParametrizedCode KnockoutExpression => this.GetProperty<KnockoutExpressionBindingProperty>().Code;
         public ParametrizedCode UnwrapedKnockoutExpression => this.GetProperty<KnockoutExpressionBindingProperty>().UnwrapedCode;
+        public ParametrizedCode WrappedKnockoutExpression => this.GetProperty<KnockoutExpressionBindingProperty>().WrappedCode;
 
         public Type ResultType => this.GetProperty<ResultTypeBindingProperty>().Type;
 
@@ -69,7 +70,7 @@ namespace DotVVM.Framework.Binding.Expressions
             new ValueBindingExpression(service, new object[] {
                 new BindingDelegate((o, c) => func(o)),
                 new ResultTypeBindingProperty(typeof(T)),
-                new KnockoutExpressionBindingProperty(expression, expression),
+                new KnockoutExpressionBindingProperty(expression, expression, expression),
                 dataContext
             });
 
