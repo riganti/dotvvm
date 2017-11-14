@@ -185,6 +185,7 @@ FakesAssemblies/
 *.bak
 /src/DotVVM.sln.GhostDoc.xml
 /src/.vs
+/src/DotVVM.Framework/Resources/Scripts/DotVVM.js.map
 /src/DotVVM.Framework/Resources/Scripts/DotVVM.d.ts
 /src/DotVVM.Framework.Tests.Javascript/tests/*.js
 /src/DotVVM.Framework.Tests.Javascript/tests/*.js.map

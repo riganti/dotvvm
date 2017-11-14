@@ -86,6 +86,14 @@ class DotVVM {
                 }
                 return dotvvm.commonConcurrencyHandler(callback(), options, queue);
             }
+        }),
+        "suppressOnUpdating": (options: any) => ({
+            name: "suppressOnUpdating",
+            before: [ "setIsPostackRunning", "concurrency-none", "concurrency-queue", "concurrency-deny" ],
+            execute(callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions) {
+                if (dotvvm.isViewModelUpdating) return Promise.reject({ type: "handler", handler: this, message: "ViewModel is updating, so it's probably false onchange event" })
+                else return callback()
+            }
         })
     }
 

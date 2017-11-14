@@ -88,19 +88,17 @@ namespace DotVVM.Framework.Controls
         }
         public static string GenerateClientPostBackScript(string propertyName, ICommandBinding expression, DotvvmBindableObject control, PostbackScriptOptions options)
         {
+            var expr = GenerateClientPostBackExpression(propertyName, expression, control, options);
+            if (options.ReturnValue == false)
+                return expr + ";event.stopPropagation();return false;";
+            else
+                return expr;
+        }
+        public static string GenerateClientPostBackExpression(string propertyName, ICommandBinding expression, DotvvmBindableObject control, PostbackScriptOptions options)
+        {
             var target = (DotvvmControl)control.GetClosestControlBindingTarget();
             var uniqueControlId = target?.GetDotvvmUniqueId();
 
-            // return the script
-            string returnStatement;
-            if (options.ReturnValue == false)
-            {
-                returnStatement = ";event.stopPropagation();return false;";
-            }
-            else
-            {
-                returnStatement = "";
-            }
             string getHandlerScript()
             {
                 // turn validation off for static commands
@@ -114,6 +112,8 @@ namespace DotVVM.Framework.Controls
 
                     // use window.setTimeout
                     options.UseWindowSetTimeout ? "\"timeout\"" : null,
+
+                    options.IsOnChange ? "\"suppressOnUpdating\"" : null,
 
                     GenerateConcurrencyModeHandler(control)
                 );
@@ -134,10 +134,8 @@ namespace DotVVM.Framework.Controls
                 default(CodeParameterAssignment)
             );
             if (generatedPostbackHandlers == null)
-                call = $"dotvvm.applyPostbackHandlers(function(){{return {call}}}.bind(this),{options.ElementAccessor.Code.ToString(e => default(CodeParameterAssignment))},{getHandlerScript()})";
-            if (options.IsOnChange)
-                call = "if(!dotvvm.isViewModelUpdating){" + call + "}";
-            return call + returnStatement;
+                return $"dotvvm.applyPostbackHandlers(function(){{return {call}}}.bind(this),{options.ElementAccessor.Code.ToString(e => default(CodeParameterAssignment))},{getHandlerScript()})";
+            else return call;
         }
 
         /// <summary>
