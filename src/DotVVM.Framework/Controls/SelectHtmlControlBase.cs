@@ -56,6 +56,7 @@ namespace DotVVM.Framework.Controls
         protected virtual void RenderSelectedValueProperty(IHtmlWriter writer)
         {
             writer.AddKnockoutDataBind("value", this, SelectedValueProperty, renderEvenInServerRenderingMode: true);
+            writer.AddKnockoutDataBind("valueAllowUnset", "true");
         }
     }
 }
