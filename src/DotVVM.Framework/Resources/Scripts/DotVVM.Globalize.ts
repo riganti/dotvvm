@@ -75,7 +75,7 @@
             });
         }
         else {
-            return formatDate();
+            return ko.pureComputed(() => formatDate());
         }
     }
 
@@ -109,7 +109,7 @@
             });
         }
         else {
-            return formatNumber();
+            return ko.pureComputed(() => formatNumber());
         }
     }
 
