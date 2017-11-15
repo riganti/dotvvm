@@ -734,6 +734,11 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             {
                 return new ResolvedTypeDescriptor(typeof(int));
             }
+
+            public override Type GetChildDataContextType(Type dataContext, DataContextStack controlContextStack, DotvvmBindableObject control, DotvvmProperty property = null)
+            {
+                return typeof(int);
+            }
         }
     }
 
@@ -745,6 +750,17 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             public override IDataContextStack ChangeStackForChildren(IDataContextStack original, IAbstractControl control, IPropertyDescriptor property, Func<IDataContextStack, ITypeDescriptor, IDataContextStack> createNewFrame)
             {
                 return DataContextStack.Create(ResolvedTypeDescriptor.ToSystemType(original.DataContextType), (DataContextStack)original.Parent,
+                    bindingPropertyResolvers: new Delegate[]{
+                        new Func<ParsedExpressionBindingProperty, ParsedExpressionBindingProperty>(e => {
+                            if (e.Expression.NodeType == ExpressionType.Constant && (string)((ConstantExpression)e.Expression).Value == "abc") return new ParsedExpressionBindingProperty(Expression.Constant("def"));
+                            else return e;
+                        })
+                    });
+            }
+
+            public override DataContextStack ChangeStackForChildren(DataContextStack original, DotvvmBindableObject obj, DotvvmProperty property, Func<DataContextStack, Type, DataContextStack> createNewFrame)
+            {
+                return DataContextStack.Create(original.DataContextType, original.Parent,
                     bindingPropertyResolvers: new Delegate[]{
                         new Func<ParsedExpressionBindingProperty, ParsedExpressionBindingProperty>(e => {
                             if (e.Expression.NodeType == ExpressionType.Constant && (string)((ConstantExpression)e.Expression).Value == "abc") return new ParsedExpressionBindingProperty(Expression.Constant("def"));

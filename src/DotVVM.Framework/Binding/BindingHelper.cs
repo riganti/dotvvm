@@ -12,6 +12,7 @@ using DotVVM.Framework.Compilation.ControlTree;
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
 
 namespace DotVVM.Framework.Binding
 {
@@ -285,6 +286,49 @@ namespace DotVVM.Framework.Binding
                 itemBinding.KnockoutExpression.AssignParameters(p =>
                     p == JavascriptTranslator.CurrentIndexParameter ? new CodeParameterAssignment(index.ToString(), OperatorPrecedence.Max) :
                     default(CodeParameterAssignment))));
+        }
+
+        public static DataContextStack GetDataContextType(this DotvvmProperty property, DotvvmBindableObject obj)
+        {
+            if (obj.HasBinding(property))
+            {
+                return obj.GetBinding(property).GetProperty<DataContextStack>();
+            }
+
+            var dataContextType = obj.GetDataContextType();
+
+            if (dataContextType == null)
+            {
+                return null;
+            }
+
+            if (property.DataContextManipulationAttribute != null)
+            {
+                return property.DataContextManipulationAttribute.ChangeStackForChildren(dataContextType, obj, property, (parent, changeType) => DataContextStack.Create(changeType, parent));
+            }
+
+            if (property.DataContextChangeAttributes == null || property.DataContextChangeAttributes.Length == 0)
+            {
+                return dataContextType;
+            }
+
+            var (childType, extensionParameters) = ApplyDataContextChange(dataContextType, property.DataContextChangeAttributes, obj, property);
+            return DataContextStack.Create(childType, dataContextType, extensionParameters: extensionParameters.ToArray());
+        }
+
+        private static (Type childType, List<BindingExtensionParameter> extensionParameters) ApplyDataContextChange(DataContextStack dataContextType, DataContextChangeAttribute[] attributes, DotvvmBindableObject obj, DotvvmProperty property)
+        {
+            var type = dataContextType.DataContextType;
+            var extensionParameters = new List<BindingExtensionParameter>();
+
+            foreach (var attribute in attributes.OrderBy(a => a.Order))
+            {
+                if (type == null) break;
+                extensionParameters.AddRange(attribute.GetExtensionParameters(new ResolvedTypeDescriptor(type)));
+                type = attribute.GetChildDataContextType(type, dataContextType, obj, property);
+            }
+
+            return (type, extensionParameters);
         }
 
         /// <summary>
