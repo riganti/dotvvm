@@ -41,10 +41,6 @@
     <None Remove="node_modules\**" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="Resources\Scripts\DotVVM.d.ts" />
-    <None Remove="Resources\Scripts\knockout-latest.js" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Resources\Scripts\DotVVM.FileUpload.css" />
   </ItemGroup>
   <ItemGroup>
