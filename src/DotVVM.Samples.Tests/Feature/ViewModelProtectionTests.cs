@@ -1,10 +1,10 @@
 ﻿
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.Core;
 using System;
 using System.Collections.Generic;
 using DotVVM.Testing.Abstractions;
-using Riganti.Utils.Testing.Selenium.Core.Abstractions;
+using Riganti.Selenium.Core.Abstractions;
 
 namespace DotVVM.Samples.Tests.Feature
 {
@@ -114,7 +114,7 @@ namespace DotVVM.Samples.Tests.Feature
 
         private void CheckRadioButtonsState(IBrowserWrapperFluentApi browser, RadioButtonValues selectedColor)
         {
-            var radios = new List<IElementWrapper>();
+            var radios = new List<IElementWrapperFluentApi>();
             radios.Add(browser.Single("radio-red", this.SelectByDataUi));
             radios.Add(browser.Single("radio-green", this.SelectByDataUi));
             radios.Add(browser.Single("radio-blue", this.SelectByDataUi));
