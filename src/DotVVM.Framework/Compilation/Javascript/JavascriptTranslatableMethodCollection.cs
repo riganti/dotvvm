@@ -210,7 +210,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 }
             }
             var baseMethod = method.GetBaseDefinition();
-            if (baseMethod != null && baseMethod != method) return TryTranslateCall(context, args, method);
+            if (baseMethod != null && baseMethod != method) return TryTranslateCall(context, args, baseMethod);
             else return null;
         }
     }

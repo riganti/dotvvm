@@ -14,11 +14,17 @@ namespace DotVVM.Framework.Compilation
         public Type BindingType { get; }
         public string ScopeParameter { get; }
 
+        /// <summary>
+        /// Additional namespace imports that will be added to imports defined in Dotvvm page just before the binding is resolved
+        /// </summary>
         public ImmutableList<NamespaceImport> ImportNamespaces { get; }
 
+        /// <summary>
+        /// Additional export parameters that will be added to export parameters defined in Dotvvm page just before the binding is resolved
+        /// </summary>
         public ImmutableList<BindingExtensionParameter> ExtensionParameters { get; }
 
-        public virtual TypeRegistry AddTypes(TypeRegistry reg)
+        public virtual TypeRegistry AddImportedTypes(TypeRegistry reg)
         {
             if (ImportNamespaces != null)
             {
