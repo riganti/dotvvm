@@ -25,6 +25,8 @@ namespace DotVVM.Samples.Common.ViewModels.ControlSamples.ComboBox
                 new ComboBoxDelaySync3Value() { Value = "d", Id = 4 },
                 new ComboBoxDelaySync3Value() { Value = "e", Id = 5 }
             };
+
+            Item.SelectedItem = 1;
         }
         
     }
