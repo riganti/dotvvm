@@ -13,6 +13,10 @@ using DotVVM.Framework.Controls.DynamicData.Configuration;
 using DotVVM.Framework.Controls.DynamicData.Metadata;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ViewModel.Validation;
+using Microsoft.Extensions.DependencyInjection;
+using DotVVM.Framework.Binding;
+using DotVVM.Framework.Utils;
+using DotVVM.Framework.Binding.Properties;
 
 namespace DotVVM.Framework.Controls.DynamicData
 {
@@ -25,57 +29,53 @@ namespace DotVVM.Framework.Controls.DynamicData
         public IViewModelValidationMetadataProvider ValidationMetadataProvider { get; }
 
         public IPropertyDisplayMetadataProvider PropertyDisplayMetadataProvider { get; }
+        public DynamicDataConfiguration DynamicDataConfiguration { get; }
 
         public Type EntityType => DataContextStack.DataContextType;
 
-        public DynamicDataConfiguration DynamicDataConfiguration { get; }
 
         public string ViewName { get; set; }
 
         public string GroupName { get; set; }
-                
+
 
 
         public Dictionary<StateBagKey, object> StateBag { get; } = new Dictionary<StateBagKey, object>();
-
+        public BindingCompilationService BindingCompilationService { get; }
 
         public DynamicDataContext(DataContextStack dataContextStack, IDotvvmRequestContext requestContext)
         {
             DataContextStack = dataContextStack;
             RequestContext = requestContext;
 
-            ValidationMetadataProvider = requestContext.Configuration.ServiceLocator.GetService<IViewModelValidationMetadataProvider>();
-            PropertyDisplayMetadataProvider = requestContext.Configuration.ServiceLocator.GetService<IPropertyDisplayMetadataProvider>();
-            DynamicDataConfiguration = requestContext.Configuration.ServiceLocator.GetService<DynamicDataConfiguration>();
+            ValidationMetadataProvider = requestContext.Configuration.ServiceProvider.GetRequiredService<IViewModelValidationMetadataProvider>();
+            PropertyDisplayMetadataProvider = requestContext.Configuration.ServiceProvider.GetRequiredService<IPropertyDisplayMetadataProvider>();
+            DynamicDataConfiguration = requestContext.Configuration.ServiceProvider.GetRequiredService<DynamicDataConfiguration>();
+            BindingCompilationService = requestContext.Configuration.ServiceProvider.GetRequiredService<BindingCompilationService>();
         }
-        
+
 
         public ValueBindingExpression CreateValueBinding(string expression, params Type[] nestedDataContextTypes)
         {
             return CompileValueBindingExpression(expression, nestedDataContextTypes);
         }
-        
+
 
         private ValueBindingExpression CompileValueBindingExpression(string expression, params Type[] nestedDataContextTypes)
         {
             var dataContextStack = CreateDataContextStack(DataContextStack, nestedDataContextTypes);
 
-            var parser = new BindingExpressionBuilder();
             var bindingOptions = BindingParserOptions.Create<ValueBindingExpression>();
-            var parserResult = parser.Parse(expression, dataContextStack, bindingOptions);
 
-            var compiledExpression = new BindingCompilationAttribute().CompileToDelegate(parserResult, dataContextStack, typeof(object));
-            var javascript = new BindingCompilationAttribute().CompileToJavascript(new ResolvedBinding()
+
+            var properties = new object[]
             {
-                Value = expression,
-                Expression = parserResult,
-                BindingType = typeof(ValueBindingExpression),
-                DataContextTypeStack = dataContextStack
-            }, null);
-            return new ValueBindingExpression(compiledExpression.Compile(), javascript)
-            {
-                OriginalString = expression
+                new BindingParserOptions(typeof(ValueBindingExpression)),
+                dataContextStack,
+                new OriginalStringBindingProperty(expression)
             };
+
+            return new ValueBindingExpression(BindingCompilationService, properties);
         }
 
         public CommandBindingExpression CreateCommandBinding(string expression, params Type[] nestedDataContextTypes)
@@ -87,23 +87,24 @@ namespace DotVVM.Framework.Controls.DynamicData
         {
             var dataContextStack = CreateDataContextStack(DataContextStack, nestedDataContextTypes);
 
-            var parser = new BindingExpressionBuilder();
             var bindingOptions = BindingParserOptions.Create<CommandBindingExpression>();
-            var parserResult = parser.Parse(expression, dataContextStack, bindingOptions);
-            var compiledExpression = new CommandBindingCompilationAttribute().CompileToDelegate(parserResult, dataContextStack, typeof(Command)).Compile();
 
             var bindingId = Convert.ToBase64String(Encoding.ASCII.GetBytes(dataContextStack.DataContextType.Name + "." + expression));
-            return new CommandBindingExpression(compiledExpression, bindingId)
-            {
-                OriginalString = expression
+
+            var properties = new object[]{
+                dataContextStack,
+                new OriginalStringBindingProperty(expression),
+                new IdBindingProperty(bindingId)
             };
+
+            return new CommandBindingExpression(BindingCompilationService, properties);
         }
 
         private DataContextStack CreateDataContextStack(DataContextStack dataContextStack, Type[] nestedDataContextTypes)
         {
             foreach (var type in nestedDataContextTypes)
             {
-                dataContextStack = new DataContextStack(type, dataContextStack, dataContextStack.RootControlType, dataContextStack.NamespaceImports);
+                dataContextStack = DataContextStack.Create(type, dataContextStack, dataContextStack.NamespaceImports, dataContextStack.ExtensionParameters);
             }
             return dataContextStack;
         }

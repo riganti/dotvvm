@@ -134,7 +134,7 @@ namespace DotVVM.Framework.Controls.DynamicData
         protected virtual Type GetElementType(GridView grid)
         {
             var dataSourceBinding = (ValueBindingExpression)grid.GetValueBinding(ItemsControl.DataSourceProperty);
-            var dataSourceType = dataSourceBinding.ExpressionTree.Type;
+            var dataSourceType = dataSourceBinding.ResultType;
 
             if (dataSourceType.GetTypeInfo().IsGenericType && dataSourceType.GetGenericTypeDefinition() == typeof(GridViewDataSet<>))
             {
