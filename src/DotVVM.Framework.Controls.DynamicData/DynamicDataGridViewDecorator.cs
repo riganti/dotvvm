@@ -54,13 +54,10 @@ namespace DotVVM.Framework.Controls.DynamicData
         {
             var grid = FindGridView();
 
-            // determine entity type
-            var entityType = GetElementType(grid);
+            var itemViewModelType = GetItemViewModelType(grid);
 
-            // create context
-            var dataContextStack = DataContextStackHelper.CreateDataContextStack(grid);
-            dataContextStack = DataContextStackHelper.CreateChildStack(entityType, dataContextStack);
-            var dynamicDataContext = new DynamicDataContext(dataContextStack, context)
+            var itemDataContextStack = grid.CreateChildStack(itemViewModelType);
+            var dynamicDataContext = new DynamicDataContext(itemDataContextStack, context)
             {
                 ViewName = ViewName
             };
@@ -68,7 +65,7 @@ namespace DotVVM.Framework.Controls.DynamicData
             // generate columns
             var entityPropertyListProvider = context.Configuration.ServiceLocator.GetService<IEntityPropertyListProvider>();
             var viewContext = dynamicDataContext.CreateViewContext(context);
-            var entityProperties = entityPropertyListProvider.GetProperties(entityType, viewContext);
+            var entityProperties = entityPropertyListProvider.GetProperties(itemViewModelType, viewContext);
             
             // create columns
             var newColumns = new List<GridViewColumn>();
@@ -131,7 +128,7 @@ namespace DotVVM.Framework.Controls.DynamicData
         /// <summary>
         /// Gets the element type from the GridView control.
         /// </summary>
-        protected virtual Type GetElementType(GridView grid)
+        protected virtual Type GetItemViewModelType(GridView grid)
         {
             var dataSourceBinding = (ValueBindingExpression)grid.GetValueBinding(ItemsControl.DataSourceProperty);
             var dataSourceType = dataSourceBinding.ResultType;

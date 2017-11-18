@@ -48,10 +48,10 @@ namespace DotVVM.Framework.Controls.DynamicData
             DataContextStack = dataContextStack;
             RequestContext = requestContext;
 
-            ValidationMetadataProvider = requestContext.Configuration.ServiceProvider.GetRequiredService<IViewModelValidationMetadataProvider>();
-            PropertyDisplayMetadataProvider = requestContext.Configuration.ServiceProvider.GetRequiredService<IPropertyDisplayMetadataProvider>();
-            DynamicDataConfiguration = requestContext.Configuration.ServiceProvider.GetRequiredService<DynamicDataConfiguration>();
-            BindingCompilationService = requestContext.Configuration.ServiceProvider.GetRequiredService<BindingCompilationService>();
+            ValidationMetadataProvider = requestContext.Services.GetRequiredService<IViewModelValidationMetadataProvider>();
+            PropertyDisplayMetadataProvider = requestContext.Services.GetRequiredService<IPropertyDisplayMetadataProvider>();
+            DynamicDataConfiguration = requestContext.Services.GetRequiredService<DynamicDataConfiguration>();
+            BindingCompilationService = requestContext.Services.GetRequiredService<BindingCompilationService>();
         }
 
 

@@ -106,8 +106,7 @@ namespace DotVVM.Framework.Controls.DynamicData
 
         private DynamicDataContext CreateDynamicDataContext(IDotvvmRequestContext context)
         {
-            var dataContextStack = DataContextStackHelper.CreateDataContextStack(this);
-            return new DynamicDataContext(dataContextStack, context)
+            return new DynamicDataContext(this.GetDataContextType(), context)
             {
                 ViewName = ViewName,
                 GroupName = GroupName

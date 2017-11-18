@@ -10,28 +10,15 @@ namespace DotVVM.Framework.Controls.DynamicData
 {
     public static class DataContextStackHelper
     {
-        public static DataContextStack CreateDataContextStack(DotvvmControl control)
+        public static DataContextStack CreateChildStack(this DotvvmBindableObject bindableObject, Type viewModelType)
         {
-            //TODO: Will parameters be accesible? Where to get them from?
-            //Namespace imports appear to be incorectly set as it is
-            return (new[] { control }).Concat(control.GetAllAncestors())
-                .Reverse()
-                .Where(c => c.IsPropertySet(DotvvmBindableObject.DataContextProperty, false))
-                .Select(GetDataContextType)
-                .Aggregate((DataContextStack)null, (parent, type) => DataContextStack.Create(type, parent, new List<NamespaceImport>()));
-        }
+            var dataContextTypeStack = bindableObject.GetDataContextType();
 
-        private static Type GetDataContextType(DotvvmBindableObject control)
-        {
-            return control.GetValueBinding(DotvvmBindableObject.DataContextProperty, false)
-                .As<ValueBindingExpression>()
-                ?.ResultType 
-                ?? control.DataContext.GetType();
-        }
-
-        public static DataContextStack CreateChildStack(Type entityType, DataContextStack dataContextStack)
-        {
-            return DataContextStack.Create(entityType, dataContextStack, dataContextStack.NamespaceImports, dataContextStack.ExtensionParameters);
+            return DataContextStack.Create(
+                viewModelType, 
+                dataContextTypeStack,
+                dataContextTypeStack.NamespaceImports,
+                dataContextTypeStack.ExtensionParameters);
         }
     }
 }
