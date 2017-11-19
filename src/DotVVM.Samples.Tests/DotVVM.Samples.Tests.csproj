@@ -25,13 +25,13 @@
     <PackageReference Include="Moq" Version="4.7.142" />
     <PackageReference Include="MSTest.TestFramework" Version="1.2.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.2.0" />
-    <PackageReference Include="Riganti.Selenium.Coordinator.Client" Version="2.0.0-beta10" />
-    <PackageReference Include="Riganti.Selenium.Core" Version="2.0.0-beta10" />
-    <PackageReference Include="Riganti.Selenium.Core.Abstractions" Version="2.0.0-beta10" />
-    <PackageReference Include="Riganti.Selenium.DotVVM" Version="2.0.0-beta10" />
-    <PackageReference Include="Riganti.Selenium.FluentApi" Version="2.0.0-beta10" />
-    <PackageReference Include="Riganti.Selenium.MSTest2Integration" Version="2.0.0-beta10" />
-    <PackageReference Include="Riganti.Selenium.Validators" Version="2.0.0-beta10" />
+    <PackageReference Include="Riganti.Selenium.Coordinator.Client" Version="2.0.0-beta11" />
+    <PackageReference Include="Riganti.Selenium.Core" Version="2.0.0-beta11" />
+    <PackageReference Include="Riganti.Selenium.Core.Abstractions" Version="2.0.0-beta11" />
+    <PackageReference Include="Riganti.Selenium.DotVVM" Version="2.0.0-beta11" />
+    <PackageReference Include="Riganti.Selenium.FluentApi" Version="2.0.0-beta11" />
+    <PackageReference Include="Riganti.Selenium.MSTest2Integration" Version="2.0.0-beta11" />
+    <PackageReference Include="Riganti.Selenium.Validators" Version="2.0.0-beta11" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
     <Reference Include="System" />

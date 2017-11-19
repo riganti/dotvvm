@@ -4,16 +4,18 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Samples.Tests.New;
 using DotVVM.Testing.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Riganti.Selenium.Core;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace DotVVM.Samples.Tests.Feature
 {
-    [TestClass]
     public class ValidationTests : AppSeleniumTest
     {
-        [TestMethod]
+        [Fact]
         public void Feature_Validation_ClientSideValidationDisabling()
         {
             RunInAllBrowsers(browser =>
@@ -26,28 +28,28 @@ namespace DotVVM.Samples.Tests.Feature
                 var requiredTextbox = browser.Single("required", SelectBy.Id);
                 var emailTextbox = browser.Single("email", SelectBy.Id);
 
-                requiredValidationResult.CheckIfIsNotDisplayed();
-                emailValidationResult.CheckIfIsNotDisplayed();
+                AssertUI.IsNotDisplayed(requiredValidationResult);
+                AssertUI.IsNotDisplayed(emailValidationResult);
 
                 requiredTextbox.SendKeys("test");
                 emailTextbox.SendKeys("test@test.test");
                 validationTriggerButton.Click();
 
-                requiredValidationResult.CheckIfIsNotDisplayed();
-                emailValidationResult.CheckIfIsNotDisplayed();
+                AssertUI.IsNotDisplayed(requiredValidationResult);
+                AssertUI.IsNotDisplayed(emailValidationResult);
 
                 requiredTextbox.Clear();
                 emailTextbox.Clear();
                 emailTextbox.SendKeys("notEmail");
                 validationTriggerButton.Click();
 
-                requiredValidationResult.CheckIfIsDisplayed();
-                emailValidationResult.CheckIfIsDisplayed();
+                AssertUI.IsDisplayed(requiredValidationResult);
+                AssertUI.IsDisplayed(emailValidationResult);
             });
         }
 
 
-        [TestMethod]
+        [Fact]
         [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_Validation_ClientSideValidationDisabling))]
         public void Feature_Validation_ClientSideValidationDisabling_Enabled()
         {
@@ -61,27 +63,27 @@ namespace DotVVM.Samples.Tests.Feature
                 var requiredTextbox = browser.Single("required", SelectBy.Id);
                 var emailTextbox = browser.Single("email", SelectBy.Id);
 
-                requiredValidationResult.CheckIfIsNotDisplayed();
-                emailValidationResult.CheckIfIsNotDisplayed();
+                AssertUI.IsNotDisplayed(requiredValidationResult);
+                AssertUI.IsNotDisplayed(emailValidationResult);
 
                 requiredTextbox.SendKeys("test");
                 emailTextbox.SendKeys("test@test.test");
                 validationTriggerButton.Click();
 
-                requiredValidationResult.CheckIfIsNotDisplayed();
-                emailValidationResult.CheckIfIsNotDisplayed();
+                AssertUI.IsNotDisplayed(requiredValidationResult);
+                AssertUI.IsNotDisplayed(emailValidationResult);
 
                 requiredTextbox.Clear();
                 emailTextbox.Clear();
                 emailTextbox.SendKeys("notEmail");
                 validationTriggerButton.Click();
 
-                requiredValidationResult.CheckIfIsDisplayed();
-                emailValidationResult.CheckIfIsNotDisplayed();
+                AssertUI.IsDisplayed(requiredValidationResult);
+                AssertUI.IsNotDisplayed(emailValidationResult);
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void Feature_Validation_DateTimeValidation()
         {
             RunInAllBrowsers(browser =>
@@ -94,29 +96,29 @@ namespace DotVVM.Samples.Tests.Feature
                 // empty field - should have error
                 textBox.Clear();
                 button.Click();
-                textBox.CheckIfHasClass("has-error");
+                AssertUI.HasClass(textBox, "has-error");
 
                 // corrent value - no error
                 textBox.SendKeys("06/14/2017 8:10:35 AM");
                 browser.Wait(2000);
                 button.Click();
-                textBox.CheckIfHasNotClass("has-error");
+                AssertUI.HasNotClass(textBox, "has-error");
 
                 // incorrent value - should have error
                 textBox.Clear();
                 textBox.SendKeys("06-14-2017");
                 button.Click();
-                textBox.CheckIfHasClass("has-error");
+                AssertUI.HasClass(textBox, "has-error");
 
                 // correct value - no error
                 textBox.Clear();
                 textBox.SendKeys("10/13/2017 10:30:50 PM");
                 button.Click();
-                textBox.CheckIfHasNotClass("has-error");
+                AssertUI.HasNotClass(textBox, "has-error");
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void Feature_Validation_DateTimeValidation_NullableDateTime()
         {
             RunInAllBrowsers(browser =>
@@ -130,39 +132,39 @@ namespace DotVVM.Samples.Tests.Feature
                 // empty field - no error
                 textBox1.Clear();
                 button.Click();
-                textBox1.CheckIfHasNotClass("has-error");
-                textBox2.CheckIfHasNotClass("has-error");
-                errorField.CheckIfIsNotDisplayed();
+                AssertUI.HasNotClass(textBox1, "has-error");
+                AssertUI.HasNotClass(textBox2, "has-error");
+                AssertUI.IsNotDisplayed(errorField);
 
                 // invalid value - should report error
                 textBox1.SendKeys("06-14-2017");
                 button.Click();
-                textBox1.CheckIfHasClass("has-error");
-                textBox2.CheckIfHasClass("has-error");
-                errorField.CheckIfIsDisplayed();
+                AssertUI.HasClass(textBox1, "has-error");
+                AssertUI.HasClass(textBox2, "has-error");
+                AssertUI.IsDisplayed(errorField);
 
                 // valid value - no error
                 textBox1.Clear();
                 textBox1.SendKeys(DateTime.Now.ToString("dd/MM/yyyy H:mm:ss", CultureInfo.InvariantCulture));
                 button.Click();
-                textBox1.CheckIfHasNotClass("has-error");
-                textBox2.CheckIfHasNotClass("has-error");
-                errorField.CheckIfIsNotDisplayed();
-                textBox1.CheckIfValue(textBox2.GetValue());
+                AssertUI.HasNotClass(textBox1, "has-error");
+                AssertUI.HasNotClass(textBox2, "has-error");
+                AssertUI.IsNotDisplayed(errorField);
+                AssertUI.Value(textBox1, textBox2.GetValue());
 
                 // one textbox has invalid value and second gets valid - should have no error
                 textBox1.Clear();
                 textBox1.SendKeys("Invalid value");
                 textBox2.SendKeys(DateTime.Now.ToString("dd/MM/yyyy H:mm:ss", CultureInfo.InvariantCulture));
                 button.Click();
-                textBox1.CheckIfHasNotClass("has-error");
-                textBox2.CheckIfHasNotClass("has-error");
-                errorField.CheckIfIsNotDisplayed();
-                textBox1.CheckIfInnerTextEquals(textBox2.GetInnerText());
+                AssertUI.HasNotClass(textBox1, "has-error");
+                AssertUI.HasNotClass(textBox2, "has-error");
+                AssertUI.IsNotDisplayed(errorField);
+                AssertUI.InnerTextEquals(textBox1, textBox2.GetInnerText());
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void Feature_Validation_DynamicValidation()
         {
             RunInAllBrowsers(browser =>
@@ -173,7 +175,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.Last("input[type=button]").Click();
 
                 // ensure validators are hidden
-                browser.Last("span").CheckIfInnerTextEquals("true");
+                AssertUI.InnerTextEquals(browser.Last("span"), "true");
                 browser.FindElements("li").ThrowIfDifferentCountThan(0);
 
                 // load the customer
@@ -184,7 +186,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.Last("input[type=button]").Click();
 
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
-                browser.First("li").CheckIfInnerText(s => s.Contains("Email"));
+                AssertUI.InnerText(browser.First("li"), s => s.Contains("Email"));
 
                 // fix the e-mail address
                 browser.Last("input[type=text]").Clear();
@@ -192,12 +194,12 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.Last("input[type=button]").Click();
 
                 // try to validate
-                browser.Last("span").CheckIfInnerTextEquals("true");
+                AssertUI.InnerTextEquals(browser.Last("span"), "true");
                 browser.FindElements("li").ThrowIfDifferentCountThan(0);
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void Feature_Validation_EssentialTypeValidation()
         {
             RunInAllBrowsers(browser =>
@@ -214,7 +216,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.FindElements("li").ThrowIfDifferentCountThan(0);
                 withBtn.Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
-                browser.First("li").CheckIfInnerTextEquals("The NullableIntegerProperty field is required.");
+                AssertUI.InnerTextEquals(browser.First("li"), "The NullableIntegerProperty field is required.");
                 withOutBtn.Click();                                         // should not remove the validation error
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
                 browser.First(".nullableInt input[type=text]").SendKeys("5");
@@ -241,9 +243,10 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.ElementAt(".nullableInt input[type=text]", 3).SendKeys("15");
                 browser.First(".NaNTest input[type=text]").SendKeys("asd");
                 withBtn.Click();
+                Riganti.Selenium.DotVVM.DotVVMBrowserWrapperExtensions.WaitForPostback(browser);
                 browser.FindElements("li").ThrowIfDifferentCountThan(2);
-                browser.First("li")
-                    .CheckIfInnerTextEquals(
+                AssertUI.InnerTextEquals(browser.First("li")
+                    ,
                         "The value of property NullableFloatProperty (asd) is invalid value for type double?.");
 
                 // correct form test
@@ -257,7 +260,7 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void Feature_Validation_ModelStateErrors()
         {
             RunInAllBrowsers(browser =>
@@ -267,30 +270,30 @@ namespace DotVVM.Samples.Tests.Feature
                 //click first button - viewmodel error
                 browser.ElementAt("input[type=button]", 0).Click();
                 browser.FindElements(".vmErrors li").ThrowIfDifferentCountThan(1);
-                browser.ElementAt(".vm1Error", 0).CheckIfIsNotDisplayed();
-                browser.ElementAt(".vm2Error", 0).CheckIfIsNotDisplayed();
-                browser.ElementAt(".vm2Error", 1).CheckIfIsNotDisplayed();
-                browser.ElementAt(".vm2Error", 2).CheckIfIsNotDisplayed();
+                AssertUI.IsNotDisplayed(browser.ElementAt(".vm1Error", 0));
+                AssertUI.IsNotDisplayed(browser.ElementAt(".vm2Error", 0));
+                AssertUI.IsNotDisplayed(browser.ElementAt(".vm2Error", 1));
+                AssertUI.IsNotDisplayed(browser.ElementAt(".vm2Error", 2));
 
                 //click second button - nested viewmodel1 error
                 browser.ElementAt("input[type=button]", 1).Click();
                 browser.FindElements(".vmErrors li").ThrowIfDifferentCountThan(1);
-                browser.ElementAt(".vm1Error", 0).CheckIfIsDisplayed();
-                browser.ElementAt(".vm2Error", 0).CheckIfIsNotDisplayed();
-                browser.ElementAt(".vm2Error", 1).CheckIfIsNotDisplayed();
-                browser.ElementAt(".vm2Error", 2).CheckIfIsNotDisplayed();
+                AssertUI.IsDisplayed(browser.ElementAt(".vm1Error", 0));
+                AssertUI.IsNotDisplayed(browser.ElementAt(".vm2Error", 0));
+                AssertUI.IsNotDisplayed(browser.ElementAt(".vm2Error", 1));
+                AssertUI.IsNotDisplayed(browser.ElementAt(".vm2Error", 2));
 
                 //click third button - nested viewmodel2 two errors
                 browser.ElementAt("input[type=button]", 2).Click();
                 browser.FindElements(".vmErrors li").ThrowIfDifferentCountThan(2);
-                browser.ElementAt(".vm1Error", 0).CheckIfIsNotDisplayed();
-                browser.ElementAt(".vm2Error", 0).CheckIfIsDisplayed();
-                browser.ElementAt(".vm2Error", 1).CheckIfIsNotDisplayed();
-                browser.ElementAt(".vm2Error", 2).CheckIfIsDisplayed();
+                AssertUI.IsNotDisplayed(browser.ElementAt(".vm1Error", 0));
+                AssertUI.IsDisplayed(browser.ElementAt(".vm2Error", 0));
+                AssertUI.IsNotDisplayed(browser.ElementAt(".vm2Error", 1));
+                AssertUI.IsDisplayed(browser.ElementAt(".vm2Error", 2));
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void Feature_Validation_NestedValidation()
         {
             RunInAllBrowsers(browser =>
@@ -298,10 +301,10 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_NestedValidation);
 
                 // ensure validators not visible
-                browser.ElementAt("span", 0).CheckIfIsNotDisplayed();
-                browser.ElementAt("span", 1).CheckIfIsDisplayed();
-                browser.ElementAt("span", 1).CheckClassAttribute(s => !s.Contains("validator"));
-                browser.ElementAt("span", 2).CheckIfIsNotDisplayed();
+                AssertUI.IsNotDisplayed(browser.ElementAt("span", 0));
+                AssertUI.IsDisplayed(browser.ElementAt("span", 1));
+                AssertUI.ClassAttribute(browser.ElementAt("span", 1), s => !s.Contains("validator"));
+                AssertUI.IsNotDisplayed(browser.ElementAt("span", 2));
 
                 browser.FindElements(".summary1 li").ThrowIfDifferentCountThan(0);
                 browser.FindElements(".summary2 li").ThrowIfDifferentCountThan(0);
@@ -310,10 +313,10 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.Click("input[type=button]");
 
                 // ensure validators visible
-                browser.ElementAt("span", 0).CheckIfIsDisplayed();
-                browser.ElementAt("span", 1).CheckIfIsDisplayed();
-                browser.ElementAt("span", 1).CheckClassAttribute(s => s.Contains("invalid"));
-                browser.ElementAt("span", 2).CheckIfIsDisplayed();
+                AssertUI.IsDisplayed(browser.ElementAt("span", 0));
+                AssertUI.IsDisplayed(browser.ElementAt("span", 1));
+                AssertUI.ClassAttribute(browser.ElementAt("span", 1), s => s.Contains("invalid"));
+                AssertUI.IsDisplayed(browser.ElementAt("span", 2));
 
                 browser.FindElements(".summary1 li").ThrowIfDifferentCountThan(0);
                 browser.FindElements(".summary2 li").ThrowIfDifferentCountThan(1);
@@ -322,10 +325,10 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.Click("input[type=button]");
 
                 // ensure validators visible
-                browser.ElementAt("span", 0).CheckIfIsDisplayed();
-                browser.ElementAt("span", 1).CheckIfIsDisplayed();
-                browser.ElementAt("span", 1).CheckClassAttribute(s => s.Contains("invalid"));
-                browser.ElementAt("span", 2).CheckIfIsDisplayed();
+                AssertUI.IsDisplayed(browser.ElementAt("span", 0));
+                AssertUI.IsDisplayed(browser.ElementAt("span", 1));
+                AssertUI.ClassAttribute(browser.ElementAt("span", 1), s => s.Contains("invalid"));
+                AssertUI.IsDisplayed(browser.ElementAt("span", 2));
 
                 browser.FindElements(".summary1 li").ThrowIfDifferentCountThan(0);
                 browser.FindElements(".summary2 li").ThrowIfDifferentCountThan(1);
@@ -336,10 +339,10 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.Click("input[type=button]");
 
                 // ensure validators
-                browser.ElementAt("span", 0).CheckIfIsNotDisplayed();
-                browser.ElementAt("span", 1).CheckIfIsDisplayed();
-                browser.ElementAt("span", 1).CheckClassAttribute(s => !s.Contains("validator"));
-                browser.ElementAt("span", 2).CheckIfIsNotDisplayed();
+                AssertUI.IsNotDisplayed(browser.ElementAt("span", 0));
+                AssertUI.IsDisplayed(browser.ElementAt("span", 1));
+                AssertUI.ClassAttribute(browser.ElementAt("span", 1), s => !s.Contains("validator"));
+                AssertUI.IsNotDisplayed(browser.ElementAt("span", 2));
 
                 browser.FindElements(".summary1 li").ThrowIfDifferentCountThan(0);
                 browser.FindElements(".summary2 li").ThrowIfDifferentCountThan(0);
@@ -347,7 +350,7 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void Feature_Validation_NullValidationTarget()
         {
             RunInAllBrowsers(browser =>
@@ -362,23 +365,23 @@ namespace DotVVM.Samples.Tests.Feature
                 //test both fields empty
                 targetRootBtn.Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(2);
-                browser.ElementAt("li", 0).CheckIfInnerTextEquals("The NullObject field is required.");
-                browser.ElementAt("li", 1).CheckIfInnerTextEquals("The Required field is required.");
+                AssertUI.InnerTextEquals(browser.ElementAt("li", 0), "The NullObject field is required.");
+                AssertUI.InnerTextEquals(browser.ElementAt("li", 1), "The Required field is required.");
 
                 targetNullBtn.Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(0);
 
                 targetSomeBtn.Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
-                browser.First("li").CheckIfInnerTextEquals("The Required field is required.");
+                AssertUI.InnerTextEquals(browser.First("li"), "The Required field is required.");
 
                 //test invalid Email and empty Required
                 browser.ElementAt("input[type=text]", 0).SendKeys("invalid");
 
                 targetRootBtn.Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(2);
-                browser.ElementAt("li", 0).CheckIfInnerTextEquals("The NullObject field is required.");
-                browser.ElementAt("li", 1).CheckIfInnerTextEquals("The Required field is required.");
+                AssertUI.InnerTextEquals(browser.ElementAt("li", 0), "The NullObject field is required.");
+                AssertUI.InnerTextEquals(browser.ElementAt("li", 1), "The Required field is required.");
 
                 targetNullBtn.Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(0);
@@ -386,7 +389,7 @@ namespace DotVVM.Samples.Tests.Feature
                 // The invalid Email won't be reported because emails are checked only on the server
                 targetSomeBtn.Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
-                browser.ElementAt("li", 0).CheckIfInnerTextEquals("The Required field is required.");
+                AssertUI.InnerTextEquals(browser.ElementAt("li", 0), "The Required field is required.");
 
                 //test valid Email and empty Required
                 browser.ElementAt("input[type=text]", 0).Clear();
@@ -394,15 +397,15 @@ namespace DotVVM.Samples.Tests.Feature
 
                 targetRootBtn.Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(2);
-                browser.ElementAt("li", 0).CheckIfInnerTextEquals("The NullObject field is required.");
-                browser.ElementAt("li", 1).CheckIfInnerTextEquals("The Required field is required.");
+                AssertUI.InnerTextEquals(browser.ElementAt("li", 0), "The NullObject field is required.");
+                AssertUI.InnerTextEquals(browser.ElementAt("li", 1), "The Required field is required.");
 
                 targetNullBtn.Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(0);
 
                 targetSomeBtn.Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
-                browser.First("li").CheckIfInnerTextEquals("The Required field is required.");
+                AssertUI.InnerTextEquals(browser.First("li"), "The Required field is required.");
 
                 //test invalid Email and filled Required
                 browser.ElementAt("input[type=text]", 0).Clear();
@@ -411,7 +414,7 @@ namespace DotVVM.Samples.Tests.Feature
 
                 targetRootBtn.Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
-                browser.ElementAt("li", 0).CheckIfInnerTextEquals("The NullObject field is required.");
+                AssertUI.InnerTextEquals(browser.ElementAt("li", 0), "The NullObject field is required.");
 
                 targetNullBtn.Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(0);
@@ -419,7 +422,7 @@ namespace DotVVM.Samples.Tests.Feature
                 // The invalid email will be reported this time because now the check makes it to the server
                 targetSomeBtn.Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
-                browser.ElementAt("li", 0).CheckIfInnerTextEquals("The Email field is not a valid e-mail address.");
+                AssertUI.InnerTextEquals(browser.ElementAt("li", 0), "The Email field is not a valid e-mail address.");
 
                 //test valid Email and filled Required (valid form - expect for null object)
                 browser.ElementAt("input[type=text]", 0).Clear();
@@ -427,7 +430,7 @@ namespace DotVVM.Samples.Tests.Feature
 
                 targetRootBtn.Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
-                browser.ElementAt("li", 0).CheckIfInnerTextEquals("The NullObject field is required.");
+                AssertUI.InnerTextEquals(browser.ElementAt("li", 0), "The NullObject field is required.");
 
                 targetNullBtn.Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(0);
@@ -437,7 +440,7 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void Feature_Validation_RegexValidation()
         {
             RunInAllBrowsers(browser =>
@@ -448,19 +451,19 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.Wait();
                 browser.ElementAt("input[type=button]", 0).Click();
 
-                browser.ElementAt("span", 0).CheckIfIsNotDisplayed();
-                browser.ElementAt("span", 1).CheckIfInnerTextEquals("25");
+                AssertUI.IsNotDisplayed(browser.ElementAt("span", 0));
+                AssertUI.InnerTextEquals(browser.ElementAt("span", 1), "25");
 
                 browser.ElementAt("input", 0).SendKeys("a");
                 browser.Wait();
                 browser.ElementAt("input[type=button]", 0).Click();
 
-                browser.ElementAt("span", 0).CheckIfIsDisplayed();
-                browser.ElementAt("span", 1).CheckIfInnerTextEquals("25");
+                AssertUI.IsDisplayed(browser.ElementAt("span", 0));
+                AssertUI.InnerTextEquals(browser.ElementAt("span", 1), "25");
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void Feature_Validation_SimpleValidation()
         {
             RunInAllBrowsers(browser =>
@@ -468,12 +471,17 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_SimpleValidation);
 
                 // ensure validators not visible
-                browser.FindElements("li").ThrowIfDifferentCountThan(0);
+                browser.WaitFor(() =>
+                {
+                    browser.FindElements("li").ThrowIfDifferentCountThan(0);
+                }, 1000, 30);
 
-                browser.ElementAt("span", 0).CheckIfIsNotDisplayed();
-                browser.ElementAt("span", 1).CheckIfIsDisplayed();
-                browser.ElementAt("span", 1).CheckClassAttribute(s => !s.Contains("validator"));
-                browser.ElementAt("span", 2).CheckIfIsNotDisplayed();
+
+
+                AssertUI.IsNotDisplayed(browser.ElementAt("span", 0));
+                AssertUI.IsDisplayed(browser.ElementAt("span", 1));
+                AssertUI.ClassAttribute(browser.ElementAt("span", 1), s => !s.Contains("validator"));
+                AssertUI.IsNotDisplayed(browser.ElementAt("span", 2));
 
                 // leave textbox empty and submit the form
                 browser.Click("input[type=button]");
@@ -481,10 +489,10 @@ namespace DotVVM.Samples.Tests.Feature
                 // ensure validators visible
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
 
-                browser.ElementAt("span", 0).CheckIfIsDisplayed();
-                browser.ElementAt("span", 1).CheckIfIsDisplayed();
-                browser.ElementAt("span", 1).CheckClassAttribute(s => s.Contains("validator"));
-                browser.ElementAt("span", 2).CheckIfIsDisplayed();
+                AssertUI.IsDisplayed(browser.ElementAt("span", 0));
+                AssertUI.IsDisplayed(browser.ElementAt("span", 1));
+                AssertUI.ClassAttribute(browser.ElementAt("span", 1), s => s.Contains("validator"));
+                AssertUI.IsDisplayed(browser.ElementAt("span", 2));
 
                 // submit once again and test the validation summary still holds one error
                 browser.Click("input[type=button]");
@@ -498,10 +506,10 @@ namespace DotVVM.Samples.Tests.Feature
                 // ensure validators visible
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
 
-                browser.ElementAt("span", 0).CheckIfIsDisplayed();
-                browser.ElementAt("span", 1).CheckIfIsDisplayed();
-                browser.ElementAt("span", 1).CheckClassAttribute(s => s.Contains("validator"));
-                browser.ElementAt("span", 2).CheckIfIsDisplayed();
+                AssertUI.IsDisplayed(browser.ElementAt("span", 0));
+                AssertUI.IsDisplayed(browser.ElementAt("span", 1));
+                AssertUI.ClassAttribute(browser.ElementAt("span", 1), s => s.Contains("validator"));
+                AssertUI.IsDisplayed(browser.ElementAt("span", 2));
 
                 // fill valid value in the task title
                 browser.ClearElementsContent("input[type=text]");
@@ -512,10 +520,10 @@ namespace DotVVM.Samples.Tests.Feature
                 // ensure validators not visible
                 browser.FindElements("li").ThrowIfDifferentCountThan(0);
 
-                browser.ElementAt("span", 0).CheckIfIsNotDisplayed();
-                browser.ElementAt("span", 1).CheckIfIsDisplayed();
-                browser.ElementAt("span", 1).CheckClassAttribute(s => !s.Contains("validator"));
-                browser.ElementAt("span", 2).CheckIfIsNotDisplayed();
+                AssertUI.IsNotDisplayed(browser.ElementAt("span", 0));
+                AssertUI.IsDisplayed(browser.ElementAt("span", 1));
+                AssertUI.ClassAttribute(browser.ElementAt("span", 1), s => !s.Contains("validator"));
+                AssertUI.IsNotDisplayed(browser.ElementAt("span", 2));
 
                 // ensure the item was added
                 browser.FindElements(".table tr").ThrowIfDifferentCountThan(4);
@@ -525,8 +533,8 @@ namespace DotVVM.Samples.Tests.Feature
         /// <summary>
         /// Feature_s the validation rules load on postback.
         /// </summary>
-        [TestMethod]
-        [Timeout(120000)]
+        [Fact]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.Timeout(120000)]
         public void Feature_Validation_ValidationRulesLoadOnPostback()
         {
             RunInAllBrowsers(browser =>
@@ -538,7 +546,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.Wait();
 
                 // ensure validators are hidden
-                browser.Last("span").CheckIfInnerTextEquals("true");
+                AssertUI.InnerTextEquals(browser.Last("span"), "true");
                 browser.FindElements("li").ThrowIfDifferentCountThan(0);
                 // load the customer
                 browser.Click("input[type=button]");
@@ -546,7 +554,7 @@ namespace DotVVM.Samples.Tests.Feature
                 // try to validate
                 browser.Last("input[type=button]").Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
-                browser.First("li").CheckIfInnerText(s => s.Contains("Email"));
+                AssertUI.InnerText(browser.First("li"), s => s.Contains("Email"));
 
                 // fix the e-mail address
                 browser.Last("input[type=text]").Clear();
@@ -554,12 +562,12 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.Last("input[type=button]").Click();
 
                 // try to validate
-                browser.Last("span").CheckIfInnerTextEquals("true");
+                AssertUI.InnerTextEquals(browser.Last("span"), "true");
                 browser.FindElements("li").ThrowIfDifferentCountThan(0);
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void Feature_Validation_ValidationScopes()
         {
             RunInAllBrowsers(browser =>
@@ -568,11 +576,11 @@ namespace DotVVM.Samples.Tests.Feature
 
                 browser.First("input[type=button]").Click();
 
-                browser.First("li").CheckIfInnerText(i => i.Contains("The Value field is required."));
+                AssertUI.InnerText(browser.First("li"), i => i.Contains("The Value field is required."));
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void Feature_Validation_ValidationScopes2()
         {
             RunInAllBrowsers(browser =>
@@ -582,28 +590,28 @@ namespace DotVVM.Samples.Tests.Feature
                 // we are testing the first button
 
                 // don't fill required field, the client validation should appear
-                browser.Single(".result").CheckIfTextEquals("0");
+                AssertUI.TextEquals(browser.Single(".result"), "0");
                 browser.ElementAt("input[type=button]", 0).Click();
-                browser.Single(".result").CheckIfTextEquals("0");
-                browser.ElementAt("input[type=text]", 0).CheckIfHasClass("has-error");
-                browser.ElementAt("input[type=text]", 1).CheckIfHasNotClass("has-error");
+                AssertUI.TextEquals(browser.Single(".result"), "0");
+                AssertUI.HasClass(browser.ElementAt("input[type=text]", 0), "has-error");
+                AssertUI.HasNotClass(browser.ElementAt("input[type=text]", 1), "has-error");
 
                 // fill first required field and second field with a short string, the server validation should appear
                 browser.ElementAt("input[type=text]", 0).SendKeys("aaa");
                 browser.ElementAt("input[type=text]", 1).SendKeys("aaa");
-                browser.Single(".result").CheckIfTextEquals("0");
+                AssertUI.TextEquals(browser.Single(".result"), "0");
                 browser.ElementAt("input[type=button]", 0).Click();
-                browser.Single(".result").CheckIfTextEquals("0");
-                browser.ElementAt("input[type=text]", 0).CheckIfHasNotClass("has-error");
-                browser.ElementAt("input[type=text]", 1).CheckIfHasClass("has-error");
+                AssertUI.TextEquals(browser.Single(".result"), "0");
+                AssertUI.HasNotClass(browser.ElementAt("input[type=text]", 0), "has-error");
+                AssertUI.HasClass(browser.ElementAt("input[type=text]", 1), "has-error");
 
                 // fill the second field so the validation passes
                 browser.ElementAt("input[type=text]", 1).Clear().SendKeys("aaaaaa");
-                browser.Single(".result").CheckIfTextEquals("0");
+                AssertUI.TextEquals(browser.Single(".result"), "0");
                 browser.ElementAt("input[type=button]", 0).Click();
-                browser.Single(".result").CheckIfTextEquals("1");
-                browser.ElementAt("input[type=text]", 0).CheckIfHasNotClass("has-error");
-                browser.ElementAt("input[type=text]", 1).CheckIfHasNotClass("has-error");
+                AssertUI.TextEquals(browser.Single(".result"), "1");
+                AssertUI.HasNotClass(browser.ElementAt("input[type=text]", 0), "has-error");
+                AssertUI.HasNotClass(browser.ElementAt("input[type=text]", 1), "has-error");
 
                 // clear the fields
                 browser.ElementAt("input[type=text]", 0).Clear();
@@ -612,30 +620,34 @@ namespace DotVVM.Samples.Tests.Feature
                 // we are testing the second button
 
                 // don't fill required field, the client validation should appear
-                browser.Single(".result").CheckIfTextEquals("1");
+                AssertUI.TextEquals(browser.Single(".result"), "1");
                 browser.ElementAt("input[type=button]", 1).Click();
-                browser.Single(".result").CheckIfTextEquals("1");
-                browser.ElementAt("input[type=text]", 0).CheckIfHasClass("has-error");
-                browser.ElementAt("input[type=text]", 1).CheckIfHasNotClass("has-error");
+                AssertUI.TextEquals(browser.Single(".result"), "1");
+                AssertUI.HasClass(browser.ElementAt("input[type=text]", 0), "has-error");
+                AssertUI.HasNotClass(browser.ElementAt("input[type=text]", 1), "has-error");
 
                 // fill first required field and second field with a short string, the server validation should appear
                 browser.ElementAt("input[type=text]", 0).SendKeys("aaa");
                 browser.ElementAt("input[type=text]", 1).SendKeys("aaa");
-                browser.Single(".result").CheckIfTextEquals("1");
+                AssertUI.TextEquals(browser.Single(".result"), "1");
                 browser.ElementAt("input[type=button]", 1).Click();
-                browser.Single(".result").CheckIfTextEquals("1");
-                browser.ElementAt("input[type=text]", 0).CheckIfHasNotClass("has-error");
-                browser.ElementAt("input[type=text]", 1).CheckIfHasClass("has-error");
+                AssertUI.TextEquals(browser.Single(".result"), "1");
+                AssertUI.HasNotClass(browser.ElementAt("input[type=text]", 0), "has-error");
+                AssertUI.HasClass(browser.ElementAt("input[type=text]", 1), "has-error");
 
                 // fill the second field so the validation passes
                 browser.ElementAt("input[type=text]", 1).Clear().SendKeys("aaaaaa");
-                browser.Single(".result").CheckIfTextEquals("1");
+                AssertUI.TextEquals(browser.Single(".result"), "1");
                 browser.ElementAt("input[type=button]", 1).Click();
-                browser.Single(".result").CheckIfTextEquals("2");
-                browser.ElementAt("input[type=text]", 0).CheckIfHasNotClass("has-error");
-                browser.ElementAt("input[type=text]", 1).CheckIfHasNotClass("has-error");
+                AssertUI.TextEquals(browser.Single(".result"), "2");
+                AssertUI.HasNotClass(browser.ElementAt("input[type=text]", 0), "has-error");
+                AssertUI.HasNotClass(browser.ElementAt("input[type=text]", 1), "has-error");
 
             });
+        }
+
+        public ValidationTests(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }
