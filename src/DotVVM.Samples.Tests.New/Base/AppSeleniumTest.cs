@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using OpenQA.Selenium;
 using Riganti.Selenium.AssertApi;
 using Riganti.Selenium.Core;
 using Xunit.Abstractions;
@@ -11,6 +12,9 @@ namespace DotVVM.Samples.Tests.New
         public AppSeleniumTest(ITestOutputHelper output) : base(output)
         {
         }
+        public By SelectByDataUi(string selector)
+            => SelectBy.CssSelector($"[data-ui='{selector}']");
+
 
         public virtual void RunInAllBrowsers(Action<BrowserWrapperAssertApi> testBody,
             [CallerMemberName] string callerMemberName = "", 
