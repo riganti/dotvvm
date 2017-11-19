@@ -125,7 +125,7 @@ namespace DotVVM.Samples.Tests.Feature
                 var textBox1 = browser.ElementAt("input[type=text]", 0);
                 var textBox2 = browser.ElementAt("input[type=text]", 1);
                 var button = browser.Single("input[type=button]");
-                var errorField = browser.Single(".validation-error");
+                var errorField = browser.First(".validation-error");
 
                 // empty field - no error
                 textBox1.Clear();
@@ -148,7 +148,7 @@ namespace DotVVM.Samples.Tests.Feature
                 textBox1.CheckIfHasNotClass("has-error");
                 textBox2.CheckIfHasNotClass("has-error");
                 errorField.CheckIfIsNotDisplayed();
-                textBox1.CheckIfInnerTextEquals(textBox2.GetInnerText());
+                textBox1.CheckIfValue(textBox2.GetValue());
 
                 // one textbox has invalid value and second gets valid - should have no error
                 textBox1.Clear();

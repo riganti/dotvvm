@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using DotVVM.Testing.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Riganti.Selenium.Core;
+using Riganti.Selenium.DotVVM;
 
 namespace DotVVM.Samples.Tests.Feature
 {
@@ -23,6 +24,8 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.Single(".result").CheckIfInnerTextEquals("no error");
 
                 browser.ElementAt("input[type=button]", 0).Click();
+
+                browser.WaitForPostback();
                 browser.Single("iframe").CheckIfIsNotDisplayed();
                 browser.Single(".result").CheckIfInnerTextEquals("error was handled");
 
