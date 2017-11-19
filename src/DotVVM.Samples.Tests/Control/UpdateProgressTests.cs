@@ -87,23 +87,24 @@ namespace DotVVM.Samples.Tests.Control
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_UpdateProgress_UpdateProgressDelay);
                 browser.Wait();
+                var updateProgressControl = browser.First(".update-progress");
 
                 // click the second button with short test and verify that the progress does not appear
-                browser.First(".update-progress").CheckIfIsNotDisplayed();
+                updateProgressControl.CheckIfIsNotDisplayed();
                 browser.First(".long-test").Click();
                 //waiting for the update progress to show up
                 browser.WaitFor(() =>
                 {
-                    browser.First(".update-progress").CheckIfIsDisplayed();
+                    updateProgressControl.CheckIfIsDisplayed();
                 }, 3000);
 
                 //interrupting first update progress (it should not be displayed and the timer should reset)
                 browser.First(".long-test").Click();
-                browser.First(".update-progress").CheckIfIsNotDisplayed();
+                updateProgressControl.CheckIfIsNotDisplayed();
                 //waiting for the update progress to show up again
                 browser.WaitFor(() =>
                 {
-                    browser.First(".update-progress").CheckIfIsDisplayed();
+                    updateProgressControl.CheckIfIsDisplayed();
                 }, 3000);
             });
         }
