@@ -1,17 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DotVVM.Samples.Tests.New;
 using DotVVM.Testing.Abstractions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Riganti.Selenium.Core;
 using Xunit;
+using Riganti.Selenium.DotVVM;
 using Xunit.Abstractions;
 
-namespace DotVVM.Samples.Tests.Feature
+namespace DotVVM.Samples.Tests.New.Feature
 {
     public class ValidationTests : AppSeleniumTest
     {
@@ -243,7 +238,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.ElementAt(".nullableInt input[type=text]", 3).SendKeys("15");
                 browser.First(".NaNTest input[type=text]").SendKeys("asd");
                 withBtn.Click();
-                Riganti.Selenium.DotVVM.DotVVMBrowserWrapperExtensions.WaitForPostback(browser);
+                browser.WaitForPostback();
                 browser.FindElements("li").ThrowIfDifferentCountThan(2);
                 AssertUI.InnerTextEquals(browser.First("li")
                     ,
