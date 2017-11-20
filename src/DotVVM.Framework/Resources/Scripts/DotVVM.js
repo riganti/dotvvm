@@ -314,7 +314,7 @@ var DotvvmGlobalize = (function () {
         if (ko.isWriteableObservable(value)) {
             var unwrappedVal = unwrapDate();
             var setter_1 = typeof unwrappedVal == "string" ? function (v) {
-                return value(v == null ? null : dotvvm.serialization.serializeDate(v));
+                return value(v == null ? null : dotvvm.serialization.serializeDate(v, false));
             } : value;
             return ko.pureComputed({
                 read: function () { return formatDate(); },
@@ -346,8 +346,8 @@ var DotvvmGlobalize = (function () {
             return ko.pureComputed({
                 read: function () { return formatNumber(); },
                 write: function (val) {
-                    var parsedFloat = dotvvm_Globalize.parseFloat(val, 10, dotvvm.culture);
-                    value(isNaN(parsedFloat) ? null : parsedFloat);
+                    var parsedFloat = dotvvm_Globalize.parseFloat(val, 10, dotvvm.culture), isValid = val == null || (parsedFloat != null && !isNaN(parsedFloat));
+                    value(isValid ? parsedFloat : null);
                 }
             });
         }
@@ -1786,9 +1786,10 @@ var DotVVM = (function () {
         };
         ko.bindingHandlers['dotvvm-textbox-text'] = {
             init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-                var obs = valueAccessor();
+                var obs = valueAccessor(), valueUpdate = allBindingsAccessor.get("valueUpdate");
                 //generate metadata func
                 var elmMetadata = new DotvvmValidationElementMetadata();
+                elmMetadata.element = element;
                 elmMetadata.dataType = (element.attributes["data-dotvvm-value-type"] || { value: "" }).value;
                 elmMetadata.format = (element.attributes["data-dotvvm-format"] || { value: "" }).value;
                 //add metadata for validation
@@ -1814,7 +1815,7 @@ var DotVVM = (function () {
                         }
                     });
                 }, 0, obs.dotvvmMetadata.elementsMetadata, element);
-                dotvvm.domUtils.attachEvent(element, "blur", function () {
+                dotvvm.domUtils.attachEvent(element, "change", function () {
                     if (!ko.isObservable(obs))
                         return;
                     // parse the value
@@ -1860,10 +1861,26 @@ var DotVVM = (function () {
                 });
             },
             update: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-                var value = ko.unwrap(valueAccessor());
-                var format = (element.attributes["data-dotvvm-format"] || { value: "" }).value;
+                var obs = valueAccessor(), format = (element.attributes["data-dotvvm-format"] || { value: "" }).value, value = ko.unwrap(obs);
                 if (format) {
-                    element.value = dotvvm.globalize.formatString(format, value) || element.attributes["data-invalid-value"] || "";
+                    var formatted = dotvvm.globalize.formatString(format, value), invalidValue = element.attributes["data-invalid-value"];
+                    if (invalidValue == null) {
+                        element.value = formatted || "";
+                        if (obs.dotvvmMetadata && obs.dotvvmMetadata.elementsMetadata) {
+                            var elemsMetadata = obs.dotvvmMetadata.elementsMetadata;
+                            for (var _i = 0, elemsMetadata_1 = elemsMetadata; _i < elemsMetadata_1.length; _i++) {
+                                var elemMetadata = elemsMetadata_1[_i];
+                                if (elemMetadata.element === element) {
+                                    element.attributes["data-dotvvm-value-type-valid"] = true;
+                                    elemMetadata.elementValidationState = true;
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        element.attributes["data-invalid-value"] = null;
+                        element.value = invalidValue;
+                    }
                 }
                 else {
                     element.value = value;

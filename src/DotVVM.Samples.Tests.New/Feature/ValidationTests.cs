@@ -160,7 +160,7 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.HasNotClass(textBox1, "has-error");
                 AssertUI.HasNotClass(textBox2, "has-error");
                 AssertUI.IsNotDisplayed(errorField);
-                AssertUI.InnerTextEquals(textBox1, textBox2.GetInnerText());
+                AssertUI.Value(textBox1, textBox2.GetValue());
             });
         }
 

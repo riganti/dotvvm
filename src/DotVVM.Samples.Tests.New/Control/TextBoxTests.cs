@@ -38,7 +38,7 @@ namespace DotVVM.Samples.Tests.Control
                 browser.ElementAt("input[type=button]", 0).Click();
                 browser.Wait();
 
-                AssertUI.InnerTextEquals(browser.ElementAt("input", 0), "");
+                AssertUI.InnerTextEquals(browser.ElementAt("input", 0), "0");
                 AssertUI.InnerTextEquals(browser.ElementAt("span", 0), "0");
             });
         }
