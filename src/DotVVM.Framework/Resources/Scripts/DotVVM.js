@@ -2241,10 +2241,10 @@ var DotvvmValidation = (function () {
                 dotvvm.viewModels[args.viewModelName].validationRules = {};
                 existingRules = dotvvm.viewModels[args.viewModelName].validationRules;
             }
-            for (var type in args.serverResponseObject) {
-                if (!args.serverResponseObject.hasOwnProperty(type))
+            for (var type in args.serverResponseObject.validationRules) {
+                if (!args.serverResponseObject.validationRules.hasOwnProperty(type))
                     continue;
-                existingRules[type] = args.serverResponseObject[type];
+                existingRules[type] = args.serverResponseObject.validationRules[type];
             }
         }
     };
