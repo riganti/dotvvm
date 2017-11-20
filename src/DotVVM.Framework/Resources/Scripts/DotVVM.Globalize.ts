@@ -44,7 +44,7 @@
         return dotvvm_Globalize.parseDate(value, format, dotvvm.culture, previousValue);
     }
 
-    public bindingDateToString(value: KnockoutObservable<string | Date>, format: string = "G") {
+    public bindingDateToString(value: KnockoutObservable<string | Date> | string | Date, format: string = "G") {
         if (!value) {
             return "";
         }
@@ -63,11 +63,11 @@
 
             return "";
         }
-        
+
         if (ko.isWriteableObservable(value)) {
             const unwrappedVal = unwrapDate();
             const setter = typeof unwrappedVal == "string" ? v => {
-                 return value(v == null ? null : dotvvm.serialization.serializeDate(v, false));
+                return value(v == null ? null : dotvvm.serialization.serializeDate(v, false));
             } : value;
             return ko.pureComputed({
                 read: () => formatDate(),
@@ -79,7 +79,7 @@
         }
     }
 
-    public bindingNumberToString(value: KnockoutObservable<string | number>, format: string = "G") {
+    public bindingNumberToString(value: KnockoutObservable<string | number> | string | number, format: string = "G") {
         if (!value) {
             return "";
         }
@@ -98,7 +98,7 @@
 
             return "";
         }
-        
+
         if (ko.isWriteableObservable(value)) {
             return ko.pureComputed({
                 read: () => formatNumber(),

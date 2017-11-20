@@ -70,7 +70,7 @@ class DotVVM {
             execute(callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions) {
                 var queue = o.q || "default";
                 if (dotvvm.getPostbackQueue(queue).noRunning > 0)
-                    return Promise.reject({ type: "handler", handler: this, message: "An postback is already running"});
+                    return Promise.reject({ type: "handler", handler: this, message: "An postback is already running" });
                 return dotvvm.commonConcurrencyHandler(callback(), options, queue);
             }
         }),
@@ -89,7 +89,7 @@ class DotVVM {
         }),
         "suppressOnUpdating": (options: any) => ({
             name: "suppressOnUpdating",
-            before: [ "setIsPostackRunning", "concurrency-none", "concurrency-queue", "concurrency-deny" ],
+            before: ["setIsPostackRunning", "concurrency-none", "concurrency-queue", "concurrency-deny"],
             execute(callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions) {
                 if (dotvvm.isViewModelUpdating) return Promise.reject({ type: "handler", handler: this, message: "ViewModel is updating, so it's probably false onchange event" })
                 else return callback()
@@ -97,7 +97,7 @@ class DotVVM {
         })
     }
 
-    private beforePostbackEventPostbackHandler : DotvvmPostbackHandler = {
+    private beforePostbackEventPostbackHandler: DotvvmPostbackHandler = {
         execute: <T>(callback: () => Promise<T>, options: PostbackOptions) => {
 
             // trigger beforePostback event
@@ -537,9 +537,9 @@ class DotVVM {
         }, options, preparedHandlers);
 
         const result = promise.then(
-                r => r().then(r => r, error => Promise.reject({ type: "commit", args: error })),
-                r => Promise.reject(r)
-            )
+            r => r().then(r => r, error => Promise.reject({ type: "commit", args: error })),
+            r => Promise.reject(r)
+        )
         result.then(
             r => r && this.events.afterPostback.trigger(r),
             (error: PostbackRejectionReason) => {
@@ -549,7 +549,7 @@ class DotVVM {
                     afterPostBackArgsCanceled.wasInterrupted = true
                     this.events.postbackRejected.trigger({})
                 } else if (error.type == "network") {
-                     this.events.error.trigger(error.args)
+                    this.events.error.trigger(error.args)
                 }
                 this.events.afterPostback.trigger(afterPostBackArgsCanceled)
             });
