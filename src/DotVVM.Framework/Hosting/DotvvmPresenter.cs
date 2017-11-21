@@ -255,10 +255,6 @@ namespace DotVVM.Framework.Hosting
                 }
                 await context.RequestTracers.TracingEvent(RequestTracingConstants.OutputRendered, context);
 
-                if (context.ViewModel != null)
-                {
-                    ViewModelLoader.DisposeViewModel(context.ViewModel);
-                }
                 foreach (var f in requestFilters) await f.OnPageLoadedAsync(context);
             }
             catch (DotvvmInterruptRequestExecutionException) { throw; }
@@ -277,6 +273,13 @@ namespace DotVVM.Framework.Hosting
                 }
 
                 throw;
+            }
+            finally
+            {
+                if (context.ViewModel != null)
+                {
+                    ViewModelLoader.DisposeViewModel(context.ViewModel);
+                }
             }
         }
 
