@@ -121,15 +121,14 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
-        //TODO: check this test
-        //[TestMethod]
-        //public void Control_CheckBox_NullCollection()
-        //{
-        //    RunInAllBrowsers(browser =>
-        //    {
-        //        browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_CheckBox_CheckedItemsNull);
-        //    });
-        //}
+        [TestMethod]
+        public void Control_CheckBox_NullCollection()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_CheckBox_CheckedItemsNull);
+            });
+        }
 
         [TestMethod]
         public void Control_CheckBox_Indeterminate()
