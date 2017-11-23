@@ -114,7 +114,7 @@ namespace DotVVM.Framework.Hosting
         }
 
         public static void SetRedirectResponse(this IDotvvmRequestContext context, string url, int statusCode = (int)HttpStatusCode.Redirect, bool replaceInHistory = false, bool allowSpaRedirect = false) =>
-            context.Services.GetService<IHttpRedirectService>()?.WriteRedirectReponse(context.HttpContext, url, statusCode, replaceInHistory, allowSpaRedirect);
+            context.Services.GetService<IHttpRedirectService>()?.WriteRedirectResponse(context.HttpContext, url, statusCode, replaceInHistory, allowSpaRedirect);
 
 
         /// <summary>
