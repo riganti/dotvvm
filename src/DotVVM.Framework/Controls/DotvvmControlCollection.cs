@@ -270,7 +270,7 @@ namespace DotVVM.Framework.Controls
             }
             catch (Exception ex)
             {
-                throw new DotvvmControlException(lastProcessedControl, "Unhandled exception occured while executing page lifecycle event.", ex);
+                throw new DotvvmControlException(lastProcessedControl, "Unhandled exception occurred while executing page lifecycle event.", ex);
             }
         }
 

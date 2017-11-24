@@ -368,7 +368,7 @@ namespace DotVVM.Framework.Hosting
 
             if (context.CommandException != null && !context.IsCommandExceptionHandled)
             {
-                throw new Exception("Unhandled exception occured in the command!", context.CommandException);
+                throw new Exception("Unhandled exception occurred in the command!", context.CommandException);
             }
 
             if (resultTask != null)
