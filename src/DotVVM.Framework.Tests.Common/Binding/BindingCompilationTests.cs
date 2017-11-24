@@ -412,7 +412,6 @@ namespace DotVVM.Framework.Tests.Binding
     class TestViewModel
     {
         public string StringProp { get; set; }
-
         public TestViewModel2 TestViewModel2 { get; set; }
         public TestEnum EnumProperty { get; set; }
         public string StringProp2 { get; set; }
