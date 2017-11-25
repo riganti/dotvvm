@@ -10,6 +10,7 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Storage;
 using Microsoft.AspNet.WebUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Hosting.Middlewares
@@ -25,6 +26,16 @@ namespace DotVVM.Framework.Hosting.Middlewares
         {
             this.outputRenderer = outputRenderer;
             this.fileStorage = fileStorage;
+        }
+
+        public static DotvvmFileUploadMiddleware TryCreate(IServiceProvider provider)
+        {
+            var renderer = provider.GetRequiredService<IOutputRenderer>();
+            var fileStorage = provider.GetService<IUploadedFileStorage>();
+            if (fileStorage != null)
+                return new DotvvmFileUploadMiddleware(renderer, fileStorage);
+            else
+                return null;
         }
 
         public async Task<bool> Handle(IDotvvmRequestContext request)
