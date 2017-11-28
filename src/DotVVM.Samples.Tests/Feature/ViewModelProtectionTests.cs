@@ -62,7 +62,7 @@ namespace DotVVM.Samples.Tests.Feature
             {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModelProtection_SignedNestedInServerToClient);
 
-                browser.First("h1").CheckIfTextEquals("Server Error, HTTP 500: Unhandled exception occured");
+                browser.First("h1").CheckIfTextEquals("Server Error, HTTP 500: Unhandled exception occurred");
             });
         }
         [TestMethod]

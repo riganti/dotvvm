@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Hosting.Middlewares;
@@ -58,10 +59,10 @@ namespace Owin
 
             app.Use<DotvvmMiddleware>(config, new List<IMiddleware> {
                 ActivatorUtilities.CreateInstance<DotvvmLocalResourceMiddleware>(config.ServiceProvider),
-                ActivatorUtilities.CreateInstance<DotvvmFileUploadMiddleware>(config.ServiceProvider),
+                DotvvmFileUploadMiddleware.TryCreate(config.ServiceProvider),
                 new DotvvmReturnedFileMiddleware(),
                 new DotvvmRoutingMiddleware()
-            });
+            }.Where(t => t != null).ToArray());
 
             return config;
         }
