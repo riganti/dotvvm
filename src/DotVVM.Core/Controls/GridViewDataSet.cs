@@ -97,9 +97,10 @@ namespace DotVVM.Framework.Controls
         /// <param name="source">The source to load data from.</param>
         public void LoadFromQueryable(IQueryable<T> source)
         {
-            var options = CreateLoadOptions();
-            var data = options.LoadDataFromQueryable(source);
-            FillDataSet(data);
+            source = ApplyFiltersToQueryable(source);
+            Items = ApplyOptionsToQueryable(source).ToList();
+            PagingOptions.TotalItemsCount = source.Count();
+            IsRefreshRequired = false;
         }
 
         /// <summary>
@@ -129,24 +130,33 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
-        /// Creates a <see cref="IGridViewDataSetLoadOptions{T}" /> implmentation providing options required to reload data.
+        /// Applies filters to the <paramref name="queryable" /> before the total number
+        /// of items is retrieved.
         /// </summary>
-        protected virtual IGridViewDataSetLoadOptions<T> CreateLoadOptions()
+        /// <param name="queryable">The <see cref="IQueryable{T}" /> to modify.</param>
+        protected virtual IQueryable<T> ApplyFiltersToQueryable(IQueryable<T> queryable)
         {
-            return new GridViewDataSetLoadOptions<T> {
-                PagingOptions = PagingOptions,
-                SortingOptions = SortingOptions
-            };
+            return queryable;
         }
 
         /// <summary>
-        /// Fills the GridViewDataSet with specified data.
+        /// Applies options to the <paramref name="queryable" /> after the total number
+        /// of items is retrieved.
         /// </summary>
-        protected virtual void FillDataSet(GridViewDataSetLoadedData<T> data)
+        /// <param name="queryable">The <see cref="IQueryable{T}" /> to modify.</param>
+        protected virtual IQueryable<T> ApplyOptionsToQueryable(IQueryable<T> queryable)
         {
-            Items = data.Items.ToList();
-            PagingOptions.TotalItemsCount = data.TotalItemsCount;
-            IsRefreshRequired = false;
+            if (SortingOptions?.SortExpression != null)
+            {
+                queryable = SortingOptions.ApplyToQueryable(queryable);
+            }
+
+            if (PagingOptions != null)
+            {
+                queryable = PagingOptions.ApplyToQueryable(queryable);
+            }
+
+            return queryable;
         }
     }
 }
