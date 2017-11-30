@@ -1,18 +1,28 @@
-using System;
 using System.Collections;
-using DotVVM.Framework.ViewModel;
+using System.Collections.Generic;
 
 namespace DotVVM.Framework.Controls
 {
+    /// <summary>
+    /// Defines the basic contract for DataSets.
+    /// </summary>
+    /// <typeparam name="T">The type of the <see cref="Items" /> elements.</typeparam>
+    public interface IBaseGridViewDataSet<T> : IBaseGridViewDataSet
+    {
+        /// <summary>
+        /// Gets the items for the current page.
+        /// </summary>
+        new IList<T> Items { get; }
+    }
 
     /// <summary>
-    /// Represents a common core functionality for GridViewDataSets.
+    /// Defines the basic contract for DataSets.
     /// </summary>
     public interface IBaseGridViewDataSet
     {
         /// <summary>
-        /// Gets or sets the items for the current page.
+        /// Gets the items for the current page.
         /// </summary>
-        IList Items { get;}
+        IList Items { get; }
     }
 }

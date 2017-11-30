@@ -6,7 +6,7 @@ using DotVVM.Framework.ViewModel;
 namespace DotVVM.Framework.Controls
 {
     /// <summary>
-    /// Represents a settings for paging.
+    /// Represents settings for paging.
     /// </summary>
     public class PagingOptions : IPagingOptions
     {
@@ -17,17 +17,17 @@ namespace DotVVM.Framework.Controls
         public INearPageIndexesProvider NearPageIndexesProvider { get; set; } = new DistanceNearPageIndexesProvider(5);
 
         /// <summary>
-        /// Determines whether the PageIndex represents the first page.
+        /// Gets whether the <see cref="PageIndex"/> represents the first page.
         /// </summary>
         public bool IsFirstPage => PageIndex == 0;
 
         /// <summary>
-        /// Determines whether the PageIndex represents the last page.
+        /// Gets whether the <see cref="PageIndex"/> represents the last page.
         /// </summary>
         public bool IsLastPage => PageIndex == PagesCount - 1;
 
         /// <summary>
-        /// Calcualtes the total number of pages.
+        /// Gets the total number of pages.
         /// </summary>
         public int PagesCount
         {
@@ -37,7 +37,7 @@ namespace DotVVM.Framework.Controls
                 {
                     return 1;
                 }
-                return (int) Math.Ceiling((double) TotalItemsCount / PageSize);
+                return (int)Math.Ceiling((double)TotalItemsCount / PageSize);
             }
         }
 
@@ -47,7 +47,7 @@ namespace DotVVM.Framework.Controls
         public int PageIndex { get; set; }
 
         /// <summary>
-        /// Gets or sets the size of page.
+        /// Gets or sets the maximum number of items on a page.
         /// </summary>
         public int PageSize { get; set; }
 
@@ -57,22 +57,17 @@ namespace DotVVM.Framework.Controls
         public int TotalItemsCount { get; set; }
 
         /// <summary>
-        /// Calculates a list of page indexes for the pager controls.
+        /// Gets a list of page indexes near the current page. It can be used to build data pagers.
         /// </summary>
         public IList<int> NearPageIndexes => NearPageIndexesProvider.GetIndexes(this);
 
-
         /// <summary>
-        /// Applies the paging settings to the IQueryable object.
+        /// Applies the paging options to the <paramref name="queryable"/> object.
         /// </summary>
+        /// <param name="queryable">The <see cref="IQueryable{T}" /> to modify.</param>
         public virtual IQueryable<T> ApplyToQueryable<T>(IQueryable<T> queryable)
         {
-            if (PageSize <= 0)
-            {
-                return queryable;
-            }
-
-            return queryable.Skip(PageSize * PageIndex).Take(PageSize);
+            return PageSize <= 0 ? queryable : queryable.Skip(PageSize * PageIndex).Take(PageSize);
         }
     }
 }

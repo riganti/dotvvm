@@ -2,12 +2,16 @@ using System.Linq;
 
 namespace DotVVM.Framework.Controls
 {
-    public interface IGridViewDataSetLoadOptions
+    /// <summary>
+    /// Represents options required to reload data in <see cref="GridViewDataSet{T}" />.
+    /// </summary>
+    /// <typeparam name="T">The type of data to be loaded.</typeparam>
+    public interface IGridViewDataSetLoadOptions<T>
     {
-        IPagingOptions PagingOptions { get; set; }
-
-        ISortingOptions SortingOptions { get; set; }
-
-        GridViewDataSetLoadedData GetDataFromQueryable(IQueryable queryable);
+        /// <summary>
+        /// Loads data from the <paramref name="source" /> queryable.
+        /// </summary>
+        /// <param name="source">The source to load data from.</param>
+        GridViewDataSetLoadedData<T> LoadDataFromQueryable(IQueryable<T> source);
     }
 }
