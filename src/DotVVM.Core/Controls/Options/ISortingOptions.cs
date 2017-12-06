@@ -3,7 +3,7 @@ using System.Linq;
 namespace DotVVM.Framework.Controls
 {
     /// <summary>
-    /// Represents a settings for sorting.
+    /// Represents settings for sorting.
     /// </summary>
     public interface ISortingOptions
     {
@@ -18,8 +18,9 @@ namespace DotVVM.Framework.Controls
         string SortExpression { get; set; }
 
         /// <summary>
-        /// Applies the paging settings to the IQueryable object.
+        /// Applies the paging options to the <paramref name="queryable"/> object.
         /// </summary>
+        /// <param name="queryable">The <see cref="IQueryable{T}" /> to modify.</param>
         IQueryable<T> ApplyToQueryable<T>(IQueryable<T> queryable);
     }
 }

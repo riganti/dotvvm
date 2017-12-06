@@ -1,24 +1,25 @@
 namespace DotVVM.Framework.Controls
 {
     /// <summary>
-    /// Extends the base GridViewDataSet with row insert functionality.
+    /// Extends the <see cref="IBaseGridViewDataSet" /> with row insert functionality.
     /// </summary>
-    public interface IRowInsertGridViewDataSet<T> : IRowInsertGridViewDataSet
+    /// <typeparam name="T">The type of the <see cref="IBaseGridViewDataSet{T}.Items" /> elements.</typeparam>
+    public interface IRowInsertGridViewDataSet<T> : IRowInsertGridViewDataSet, IBaseGridViewDataSet<T>
         where T : new()
     {
         /// <summary>
-        /// Gets or sets the settings for row insert feature.
+        /// Gets the settings for row (item) insert feature.
         /// </summary>
         new IRowInsertOptions<T> RowInsertOptions { get; }
     }
 
     /// <summary>
-    /// Extends the base GridViewDataSet with row insert functionality.
+    /// Extends the <see cref="IBaseGridViewDataSet" /> with row insert functionality.
     /// </summary>
     public interface IRowInsertGridViewDataSet : IBaseGridViewDataSet
     {
         /// <summary>
-        /// Gets or sets the settings for row insert feature.
+        /// Gets the settings for row (item) insert feature.
         /// </summary>
         IRowInsertOptions RowInsertOptions { get; }
     }
