@@ -16,6 +16,15 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+(function () {
+    if (typeof Promise === 'undefined' || !self.fetch) {
+        var resource = document.createElement('script');
+        resource.src = window['dotvvm__polyfillUrl'];
+        resource.type = "text/javascript";
+        var headElement = document.getElementsByTagName('head')[0];
+        headElement.appendChild(resource);
+    }
+})();
 var DotvvmDomUtils = /** @class */ (function () {
     function DotvvmDomUtils() {
     }
