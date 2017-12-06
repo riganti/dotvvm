@@ -1,6 +1,6 @@
 ﻿(function () {
     if (typeof Promise === 'undefined' || !self.fetch) {
-        var resource = <HTMLScriptElement>document.createElement('script');
+        var resource = document.createElement('script');
         resource.src = window['dotvvm__polyfillUrl'];
         resource.type = "text/javascript";
 
