@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 
 namespace DotVVM.Framework.Controls
 {
@@ -24,12 +23,12 @@ namespace DotVVM.Framework.Controls
         int TotalItemsCount { get; set; }
 
         /// <summary>
-        /// Gets whether the <see cref="PageIndex"/> represents the first page.
+        /// Gets whether the <see cref="PageIndex" /> represents the first page.
         /// </summary>
         bool IsFirstPage { get; }
 
         /// <summary>
-        /// Gets whether the <see cref="PageIndex"/> represents the last page.
+        /// Gets whether the <see cref="PageIndex" /> represents the last page.
         /// </summary>
         bool IsLastPage { get; }
 
@@ -42,11 +41,5 @@ namespace DotVVM.Framework.Controls
         /// Gets a list of page indexes near the current page. It can be used to build data pagers.
         /// </summary>
         IList<int> NearPageIndexes { get; }
-
-        /// <summary>
-        /// Applies the paging options to the <paramref name="queryable"/> object.
-        /// </summary>
-        /// <param name="queryable">The <see cref="IQueryable{T}" /> to modify.</param>
-        IQueryable<T> ApplyToQueryable<T>(IQueryable<T> queryable);
     }
 }

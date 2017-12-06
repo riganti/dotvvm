@@ -1,5 +1,3 @@
-using System.Linq;
-
 namespace DotVVM.Framework.Controls
 {
     /// <summary>
@@ -16,11 +14,5 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the name of the property that is used for sorting.
         /// </summary>
         string SortExpression { get; set; }
-
-        /// <summary>
-        /// Applies the paging options to the <paramref name="queryable"/> object.
-        /// </summary>
-        /// <param name="queryable">The <see cref="IQueryable{T}" /> to modify.</param>
-        IQueryable<T> ApplyToQueryable<T>(IQueryable<T> queryable);
     }
 }

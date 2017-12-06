@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Framework.Controls
@@ -17,12 +16,12 @@ namespace DotVVM.Framework.Controls
         public INearPageIndexesProvider NearPageIndexesProvider { get; set; } = new DistanceNearPageIndexesProvider(5);
 
         /// <summary>
-        /// Gets whether the <see cref="PageIndex"/> represents the first page.
+        /// Gets whether the <see cref="PageIndex" /> represents the first page.
         /// </summary>
         public bool IsFirstPage => PageIndex == 0;
 
         /// <summary>
-        /// Gets whether the <see cref="PageIndex"/> represents the last page.
+        /// Gets whether the <see cref="PageIndex" /> represents the last page.
         /// </summary>
         public bool IsLastPage => PageIndex == PagesCount - 1;
 
@@ -60,14 +59,5 @@ namespace DotVVM.Framework.Controls
         /// Gets a list of page indexes near the current page. It can be used to build data pagers.
         /// </summary>
         public IList<int> NearPageIndexes => NearPageIndexesProvider.GetIndexes(this);
-
-        /// <summary>
-        /// Applies the paging options to the <paramref name="queryable"/> object.
-        /// </summary>
-        /// <param name="queryable">The <see cref="IQueryable{T}" /> to modify.</param>
-        public virtual IQueryable<T> ApplyToQueryable<T>(IQueryable<T> queryable)
-        {
-            return PageSize <= 0 ? queryable : queryable.Skip(PageSize * PageIndex).Take(PageSize);
-        }
     }
 }
