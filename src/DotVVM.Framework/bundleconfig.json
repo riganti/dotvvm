@@ -3,8 +3,7 @@
     "outputFileName": "Resources/Scripts/polyfills/polyfill.bundle.js",
     "inputFiles": [
       "Resources/Scripts/Polyfills/promise.js",
-      "Resources/Scripts/Polyfills/fetch.js",
-      "Resources/Scripts/Polyfills/firstElementChild.js"
+      "Resources/Scripts/Polyfills/fetch.js"
     ]
   }
 ]
