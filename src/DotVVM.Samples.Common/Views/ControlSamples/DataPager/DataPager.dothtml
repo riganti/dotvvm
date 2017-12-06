@@ -24,13 +24,6 @@
                     data-ui="populate-button"/>
 
         <dot:CheckBox ID="enableCheckbox" Text="DataPager enabled" Checked="{value: Enabled}" />
-
-        <br/>
-        <dot:Button Click="{command: ShouldLoadAsync = !ShouldLoadAsync}"
-                    Text="ShouldLoadAsync"
-                    data-ui="shouldLoadAsync-button"/>
-        <span>is</span>
-        <span>{{value: ShouldLoadAsync}}</span>
     </div>
 </body>
 </html>

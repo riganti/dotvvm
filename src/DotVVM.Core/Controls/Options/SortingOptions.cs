@@ -7,7 +7,7 @@ using DotVVM.Framework.ViewModel;
 namespace DotVVM.Framework.Controls
 {
     /// <summary>
-    /// Represents a settings for sorting.
+    /// Represents settings for sorting.
     /// </summary>
     public class SortingOptions : ISortingOptions
     {
@@ -22,8 +22,9 @@ namespace DotVVM.Framework.Controls
         public string SortExpression { get; set; }
 
         /// <summary>
-        /// Applies the sorting settings to the IQueryable object.
+        /// Applies the paging options to the <paramref name="queryable"/> object.
         /// </summary>
+        /// <param name="queryable">The <see cref="IQueryable{T}" /> to modify.</param>
         public virtual IQueryable<T> ApplyToQueryable<T>(IQueryable<T> queryable)
         {
             var parameterExpression = Expression.Parameter(typeof(T), "p");
@@ -52,7 +53,6 @@ namespace DotVVM.Framework.Controls
                 return queryable.Provider.CreateQuery<T>(methodCallExpression);
             }
         }
-
 
         private string GetSortingMethodName()
         {
