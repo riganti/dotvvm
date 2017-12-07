@@ -1,9 +1,0 @@
-[
-  {
-    "outputFileName": "Resources/Scripts/polyfills/polyfill.bundle.js",
-    "inputFiles": [
-      "Resources/Scripts/Polyfills/promise.js",
-      "Resources/Scripts/Polyfills/fetch.js"
-    ]
-  }
-]

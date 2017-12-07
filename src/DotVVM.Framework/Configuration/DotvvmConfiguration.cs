@@ -279,7 +279,7 @@ namespace DotVVM.Framework.Configuration
             configuration.Resources.Register(ResourceConstants.PolyfillBundleResourceName,
                 new ScriptResource(new EmbeddedResourceLocation(
                     typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
-                    "DotVVM.Framework.Resources.Scripts.Polyfills.polyfill.bundle.min.js")));
+                    "DotVVM.Framework.Resources.Scripts.Polyfills.polyfill.bundle.js")));
         }
     }
 }

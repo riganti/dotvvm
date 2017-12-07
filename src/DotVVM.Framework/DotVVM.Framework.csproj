@@ -47,10 +47,8 @@
     <EmbeddedResource Include="Resources\Scripts\DotVVM.Debug.js" />
     <EmbeddedResource Include="Resources\Scripts\DotVVM.js" />
     <EmbeddedResource Include="Resources\Scripts\knockout-latest.js" />
-    <EmbeddedResource Include="Resources\Scripts\Polyfills\polyfill.bundle.min.js" />
+    <EmbeddedResource Include="Resources\Scripts\Polyfills\polyfill.bundle.js" />
     <EmbeddedResource Include="Resources\Scripts\Globalize\globalize.js" />
-    <None Remove="Resources\Scripts\DotVVM.js" />
-    <None Remove="Resources\Scripts\Polyfills\polyfill.bundle.min.js" />
     <None Include="Resources\Scripts\DotVVM.DomUtils.ts" />
     <None Include="Resources\Scripts\DotVVM.Evaluator.ts" />
     <None Include="Resources\Scripts\DotVVM.Events.ts" />
