@@ -1,9 +1,7 @@
-using System.Linq;
-
 namespace DotVVM.Framework.Controls
 {
     /// <summary>
-    /// Represents a settings for sorting.
+    /// Represents settings for sorting.
     /// </summary>
     public interface ISortingOptions
     {
@@ -16,10 +14,5 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the name of the property that is used for sorting.
         /// </summary>
         string SortExpression { get; set; }
-
-        /// <summary>
-        /// Applies the paging settings to the IQueryable object.
-        /// </summary>
-        IQueryable<T> ApplyToQueryable<T>(IQueryable<T> queryable);
     }
 }

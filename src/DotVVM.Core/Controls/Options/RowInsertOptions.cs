@@ -1,12 +1,14 @@
 ﻿namespace DotVVM.Framework.Controls
 {
     /// <summary>
-    /// Represents a settings for row insert feature.
+    /// Represents settings for row (item) insert feature.
     /// </summary>
     /// <typeparam name="T">The type of inserted row.</typeparam>
     public class RowInsertOptions<T> : IRowInsertOptions<T> where T : new()
     {
-        /// <inheritdoc />
+        /// <summary>
+        /// Gets or sets the row to be inserted to data source.
+        /// </summary>
         public T InsertedRow { get; set; }
         
         object IRowInsertOptions.InsertedRow => InsertedRow;
