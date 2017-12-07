@@ -27,7 +27,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             map.SetConstructor(p => factory.Invoke(p, Array.Empty<object>()));
         }
 
-        public static void AllowDependencyInjeciton(this ViewModelSerializationMap map)
+        public static void AllowDependencyInjectiton(this ViewModelSerializationMap map)
         {
             map.SetConstructor(ActivatorUtilities.CreateFactory(map.Type, Type.EmptyTypes));
         }
