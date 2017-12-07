@@ -1,7 +1,7 @@
 ﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyTitle>DotVVM</AssemblyTitle>
-    <VersionPrefix>2.0.0-pre01</VersionPrefix>
+    <VersionPrefix>2.0.0-pre07</VersionPrefix>
     <TargetFrameworks>netstandard2.0;net451</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -9,7 +9,7 @@
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>DotVVM</PackageId>
-    <PackageVersion>2.0.0-pre01</PackageVersion>
+    <PackageVersion>2.0.0-pre07</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>DotVVM is an open source ASP.NET-based framework which allows to build modern web apps without writing any JavaScript code.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
@@ -41,10 +41,6 @@
     <None Remove="node_modules\**" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="Resources\Scripts\DotVVM.d.ts" />
-    <None Remove="Resources\Scripts\knockout-latest.js" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Resources\Scripts\DotVVM.FileUpload.css" />
   </ItemGroup>
   <ItemGroup>
@@ -58,7 +54,6 @@
     <EmbeddedResource Include="Resources\Scripts\DotVVM.js" />
     <None Include="Resources\Scripts\DotVVM.js.map" />
     <None Include="Resources\Scripts\DotVVM.PostBackHandlers.ts" />
-    <None Include="Resources\Scripts\DotVVM.Promise.ts" />
     <None Include="Resources\Scripts\DotVVM.Serialization.ts" />
     <None Include="Resources\Scripts\DotVVM.ts" />
     <None Include="Resources\Scripts\DotVVM.Validation.ts" />
@@ -99,6 +94,15 @@
   <ItemGroup>
     <None Update="Controls\DelegateTemplate.d.ts">
       <DependentUpon>DelegateTemplate.cs</DependentUpon>
+    </None>
+    <None Update="Controls\FileUploadPageTemplate.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+    </None>
+    <None Update="Hosting\ErrorPages\ErrorPageTemplate.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+    </None>
+    <None Update="ResourceManagement\ClientGlobalize\JQueryGlobalizeRegisterTemplate.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
     </None>
   </ItemGroup>
   <ItemGroup>

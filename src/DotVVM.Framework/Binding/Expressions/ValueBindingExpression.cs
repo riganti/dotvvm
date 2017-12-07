@@ -28,7 +28,8 @@ namespace DotVVM.Framework.Binding.Expressions
     [Options]
     public class ValueBindingExpression : BindingExpression, IUpdatableValueBinding, IValueBinding
     {
-        public ValueBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties)
+        public ValueBindingExpression(BindingCompilationService service, IEnumerable<object> properties) 
+            : base(service, properties)
         {
             AddNullResolvers();
         }
@@ -39,15 +40,26 @@ namespace DotVVM.Framework.Binding.Expressions
 
         public ParametrizedCode KnockoutExpression => this.GetProperty<KnockoutExpressionBindingProperty>().Code;
         public ParametrizedCode UnwrapedKnockoutExpression => this.GetProperty<KnockoutExpressionBindingProperty>().UnwrapedCode;
+        public ParametrizedCode WrappedKnockoutExpression => this.GetProperty<KnockoutExpressionBindingProperty>().WrappedCode;
 
         public Type ResultType => this.GetProperty<ResultTypeBindingProperty>().Type;
 
         public class OptionsAttribute : BindingCompilationOptionsAttribute
         {
             public override IEnumerable<Delegate> GetResolvers() => new Delegate[] {
-                new Func<KnockoutJsExpressionBindingProperty, RequiredRuntimeResourcesBindingProperty>(js => {
-                    var resources = js.Expression.DescendantNodesAndSelf().Select(n => n.Annotation<RequiredRuntimeResourcesBindingProperty>()).Where(n => n != null).SelectMany(n => n.Resources).ToImmutableArray();
-                    return resources.Length == 0 ? RequiredRuntimeResourcesBindingProperty.Empty : new RequiredRuntimeResourcesBindingProperty(resources);
+                new Func<KnockoutJsExpressionBindingProperty, RequiredRuntimeResourcesBindingProperty>(js =>
+                {
+                    var resources =
+                        js.Expression
+                        .DescendantNodesAndSelf()
+                        .Select(n => n.Annotation<RequiredRuntimeResourcesBindingProperty>())
+                        .Where(n => n != null)
+                        .SelectMany(n => n.Resources)
+                        .ToImmutableArray();
+
+                    return resources.Length == 0
+                        ? RequiredRuntimeResourcesBindingProperty.Empty
+                        : new RequiredRuntimeResourcesBindingProperty(resources);
                 })
             };
         }
@@ -69,7 +81,7 @@ namespace DotVVM.Framework.Binding.Expressions
             new ValueBindingExpression(service, new object[] {
                 new BindingDelegate((o, c) => func(o)),
                 new ResultTypeBindingProperty(typeof(T)),
-                new KnockoutExpressionBindingProperty(expression, expression),
+                new KnockoutExpressionBindingProperty(expression, expression, expression),
                 dataContext
             });
 

@@ -16,7 +16,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="Views\ComplexSamples\CascadeSelectors\TripleComboBoxes.dothtml" />
-    <None Remove="Views\ComplexSamples\GridViewDataSet\GridViewDataSetDelegate.dothtml" />
     <None Remove="Views\ControlSamples\Button\ButtonOnclick.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\ComboBoxDelaySync.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\ComboBoxDelaySync2.dothtml" />
@@ -47,6 +46,7 @@
     <None Remove="Views\FeatureSamples\ServerSideStyles\ServerSideStyles_MatchingViewModel.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_ComboBoxSelectionChanged.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_ComboBoxSelectionChanged_Objects.dothtml" />
+    <None Remove="Views\FeatureSamples\Validation\Localization.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModelProtection\ComplexViewModelProtection.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModelProtection\SignedNestedInServerToClient.dothtml" />
   </ItemGroup>
@@ -55,7 +55,6 @@
     <Content Include="Scripts\testResource.js" />
     <Content Include="Scripts\testResource2.js" />
     <Content Include="Views\ComplexSamples\CascadeSelectors\TripleComboBoxes.dothtml" />
-    <Content Include="Views\ComplexSamples\GridViewDataSet\GridViewDataSetDelegate.dothtml" />
     <Content Include="Views\ControlSamples\ValidationSummary\master.dotmaster" />
     <Content Include="Views\ControlSamples\ValidationSummary\IncludeErrorsFromTarget_PropertyPathNull.dothtml" />
     <Content Include="Views\ControlSamples\Button\ButtonOnclick.dothtml" />
@@ -90,6 +89,7 @@
     <Content Include="Views\FeatureSamples\ServerSideStyles\ServerSideStyles_DotvvmProperties.dothtml" />
     <Content Include="Views\FeatureSamples\StaticCommand\StaticCommand_ComboBoxSelectionChanged.dothtml" />
     <Content Include="Views\FeatureSamples\StaticCommand\StaticCommand_ComboBoxSelectionChanged_Objects.dothtml" />
+    <Content Include="Views\FeatureSamples\Validation\Localization.dothtml" />
     <Content Include="Views\FeatureSamples\ViewModelProtection\ComplexViewModelProtection.dothtml" />
     <Content Include="Views\FeatureSamples\ViewModelProtection\SignedNestedInServerToClient.dothtml" />
   </ItemGroup>

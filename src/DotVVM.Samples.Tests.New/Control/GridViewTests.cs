@@ -1,54 +1,18 @@
-﻿
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Selenium.Core;
-using System;
-using System.Collections.Generic;
+﻿using Riganti.Selenium.Core;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DotVVM.Testing.Abstractions;
+using Riganti.Selenium.Core.Abstractions;
+using Riganti.Selenium.DotVVM;
+using Xunit;
+using Xunit.Abstractions;
 
-namespace DotVVM.Samples.Tests.Control
+namespace DotVVM.Samples.Tests.New.Control
 {
-    [TestClass]
     public class GridViewTests : AppSeleniumTest
     {
 
 
-        [TestMethod]
-        public void Control_GridView_GridViewPagingSorting()
-        {
-            Control_GridViewPagingSortingBase( SamplesRouteUrls.ControlSamples_GridView_GridViewPagingSorting);
-
-        }
-        [TestMethod]
-        public void Control_GridView_GridViewServerRender()
-        {
-            Control_GridViewPagingSortingBase(SamplesRouteUrls.ControlSamples_GridView_GridViewServerRender);
-        }
-
-        [TestMethod]
-        public void Control_GridView_GridViewStaticCommand()
-        {
-            RunInAllBrowsers(browser =>
-            {
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewStaticCommand);
-                browser.Wait();
-
-                //check rows
-                browser.FindElements("table tbody tr").ThrowIfDifferentCountThan(5);
-                //check first row Id
-                browser.First("table tbody tr td span").CheckIfInnerTextEquals("1");
-                //cal static command for delete row
-                browser.First("table tbody tr input[type=button]").Click();
-                //check rows again
-                browser.FindElements("table tbody tr").ThrowIfDifferentCountThan(4);
-                //check first row Id
-                browser.First("table tbody tr td span").CheckIfInnerTextEquals("2");
-            });
-        }
-
-        [TestMethod]
+        [Fact]
         public void Control_GridView_GridViewInlineEditingValidation()
         {
             RunInAllBrowsers(browser =>
@@ -67,10 +31,10 @@ namespace DotVVM.Samples.Tests.Control
                 firstRow = rows.ElementAt("tr", 0);
 
                 //Check type
-                firstRow.ElementAt("td", 1).First("input").CheckAttribute("type", "text");
-                firstRow.ElementAt("td", 2).First("input").CheckAttribute("type", "text");
-                firstRow.ElementAt("td", 3).First("input").CheckAttribute("type", "text");
-                firstRow.ElementAt("td", 4).First("input").CheckAttribute("type", "text");
+                AssertUI.Attribute(firstRow.ElementAt("td", 1).First("input"), "type", "text");
+                AssertUI.Attribute(firstRow.ElementAt("td", 2).First("input"), "type", "text");
+                AssertUI.Attribute(firstRow.ElementAt("td", 3).First("input"), "type", "text");
+                AssertUI.Attribute(firstRow.ElementAt("td", 4).First("input"), "type", "text");
 
                 //clear name
                 firstRow.ElementAt("td", 1).First("input").Clear();
@@ -86,29 +50,71 @@ namespace DotVVM.Samples.Tests.Control
                 browser.Wait(1000);
 
                 var validationResult = browser.ElementAt(".validation", 0);
-                validationResult.CheckIfInnerTextEquals("The Name field is required.");
+
+                AssertUI.InnerTextEquals(validationResult, "The Name field is required.");
 
                 //change name
                 firstRow.ElementAt("td", 1).First("input").SendKeys("Test");
 
                 //clear email
                 firstRow.ElementAt("td", 3).First("input").Clear();
-                
+
                 //update
                 firstRow.ElementAt("td", 5).First("button").Click();
 
                 //check validation
-                validationResult.CheckIfInnerTextEquals("The Email field is not a valid e-mail address.");
+                AssertUI.InnerTextEquals(validationResult, "The Email field is not a valid e-mail address.");
             });
         }
 
-        [TestMethod]
+
+        public GridViewTests(ITestOutputHelper output) : base(output)
+        {
+        }
+
+
+
+        [Fact]
+        public void Control_GridView_GridViewPagingSorting()
+        {
+            Control_GridViewPagingSortingBase(SamplesRouteUrls.ControlSamples_GridView_GridViewPagingSorting);
+
+        }
+        [Fact]
+        public void Control_GridView_GridViewServerRender()
+        {
+            Control_GridViewPagingSortingBase(SamplesRouteUrls.ControlSamples_GridView_GridViewServerRender);
+        }
+
+        [Fact]
+        public void Control_GridView_GridViewStaticCommand()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewStaticCommand);
+                browser.Wait();
+
+                //check rows
+                browser.FindElements("table tbody tr").ThrowIfDifferentCountThan(5);
+                //check first row Id
+                AssertUI.InnerTextEquals(browser.First("table tbody tr td span"), "1");
+                //cal static command for delete row
+                browser.First("table tbody tr input[type=button]").Click();
+                //check rows again
+                browser.FindElements("table tbody tr").ThrowIfDifferentCountThan(4);
+                //check first row Id
+                AssertUI.InnerTextEquals(browser.First("table tbody tr td span"), "2");
+            });
+        }
+
+
+        [Fact]
         public void Control_GridView_GridViewInlineEditingValidation_GridViewInlineEditingFormat()
         {
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditingValidation);
-                
+
                 //Get rows
                 var rows = browser.First("table tbody");
                 rows.FindElements("tr").ThrowIfDifferentCountThan(3);
@@ -126,13 +132,13 @@ namespace DotVVM.Samples.Tests.Control
                 firstRow = rows.ElementAt("tr", 0);
 
                 //check format
-                firstRow.ElementAt("td", 2).First("input").CheckIfTextEquals(dateDisplay);
-                firstRow.ElementAt("td", 4).First("input").CheckIfTextEquals(moneyDisplay);
+                AssertUI.TextEquals(firstRow.ElementAt("td", 2).First("input"), dateDisplay);
+                AssertUI.TextEquals(firstRow.ElementAt("td", 4).First("input"), moneyDisplay);
 
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void Control_GridView_GridViewInlineEditingPrimaryKeyGuid()
         {
             RunInAllBrowsers(browser =>
@@ -142,8 +148,8 @@ namespace DotVVM.Samples.Tests.Control
                 var rows = browser.First("table tbody");
                 rows.FindElements("tr").ThrowIfDifferentCountThan(3);
 
-                var firstRow = rows.ElementAt("tr",0);
-                firstRow.ElementAt("td", 0).First("span").CheckIfInnerTextEquals("9536d712-2e91-43d2-8ebb-93fbec31cf34");
+                var firstRow = rows.ElementAt("tr", 0);
+                AssertUI.InnerTextEquals(firstRow.ElementAt("td", 0).First("span"), "9536d712-2e91-43d2-8ebb-93fbec31cf34");
                 //Edit
                 firstRow.ElementAt("td", 4).First("button").Click();
                 browser.Wait(500);
@@ -153,9 +159,9 @@ namespace DotVVM.Samples.Tests.Control
                 firstRow = rows.ElementAt("tr", 0);
 
                 //Check type
-                firstRow.ElementAt("td", 1).First("input").CheckAttribute("type","text");
-                firstRow.ElementAt("td", 2).First("input").CheckAttribute("type", "text");
-                firstRow.ElementAt("td", 3).First("input").CheckAttribute("type", "text");
+                AssertUI.Attribute(firstRow.ElementAt("td", 1).First("input"), "type", "text");
+                AssertUI.Attribute(firstRow.ElementAt("td", 2).First("input"), "type", "text");
+                AssertUI.Attribute(firstRow.ElementAt("td", 3).First("input"), "type", "text");
 
                 //change name
                 firstRow.ElementAt("td", 1).First("input").Clear();
@@ -173,13 +179,13 @@ namespace DotVVM.Samples.Tests.Control
                 firstRow = rows.ElementAt("tr", 0);
 
                 //check changed name
-                firstRow.ElementAt("td", 1).First("span").CheckIfInnerTextEquals("Test");
-               
+                AssertUI.InnerTextEquals(firstRow.ElementAt("td", 1).First("span"), "Test");
+
             });
         }
 
 
-        [TestMethod]
+        [Fact]
         public void Control_GridView_GridViewInlineEditingPrimaryKeyString()
         {
             RunInAllBrowsers(browser =>
@@ -190,7 +196,7 @@ namespace DotVVM.Samples.Tests.Control
                 rows.FindElements("tr").ThrowIfDifferentCountThan(3);
 
                 var firstRow = rows.ElementAt("tr", 0);
-                firstRow.ElementAt("td", 0).First("span").CheckIfInnerTextEquals("A");
+                AssertUI.InnerTextEquals(firstRow.ElementAt("td", 0).First("span"), "A");
                 //Edit
                 firstRow.ElementAt("td", 4).First("button").Click();
                 browser.Wait(500);
@@ -200,9 +206,9 @@ namespace DotVVM.Samples.Tests.Control
                 firstRow = rows.ElementAt("tr", 0);
 
                 //Check type
-                firstRow.ElementAt("td", 1).First("input").CheckAttribute("type", "text");
-                firstRow.ElementAt("td", 2).First("input").CheckAttribute("type", "text");
-                firstRow.ElementAt("td", 3).First("input").CheckAttribute("type", "text");
+                AssertUI.Attribute(firstRow.ElementAt("td", 1).First("input"), "type", "text");
+                AssertUI.Attribute(firstRow.ElementAt("td", 2).First("input"), "type", "text");
+                AssertUI.Attribute(firstRow.ElementAt("td", 3).First("input"), "type", "text");
 
                 //change name
                 firstRow.ElementAt("td", 1).First("input").Clear();
@@ -220,33 +226,33 @@ namespace DotVVM.Samples.Tests.Control
                 firstRow = rows.ElementAt("tr", 0);
 
                 //check changed name and Id
-                firstRow.ElementAt("td", 0).First("span").CheckIfInnerTextEquals("A");
-                firstRow.ElementAt("td", 1).First("span").CheckIfInnerTextEquals("Test");
+                AssertUI.InnerTextEquals(firstRow.ElementAt("td", 0).First("span"), "A");
+                AssertUI.InnerTextEquals(firstRow.ElementAt("td", 1).First("span"), "Test");
 
             });
         }
-        
-        [TestMethod]
+
+        [Fact]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing))]
         public void Control_GridView_GridViewInlineEditing_Server()
         {
             Control_GridViewInlineEditing(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing, 0);
         }
 
-        [TestMethod]
+        [Fact]
         public void Control_GridView_GridViewInlineEditing()
         {
             Control_GridViewInlineEditing(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing, 1);
         }
 
-        [TestMethod]
+        [Fact]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing))]
         public void Control_GridView_GridViewInlineEditing_PagingWhenEditModeServer()
         {
             Control_GridView_GridViewInlineEditing_PagingWhenEditing(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing, 0);
         }
 
-        [TestMethod]
+        [Fact]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing))]
         public void Control_GridView_GridViewInlineEditing_PagingWhenEditModeClient()
         {
@@ -261,15 +267,15 @@ namespace DotVVM.Samples.Tests.Control
 
                 // get table
                 var table = browser.ElementAt("table", tableID);
-                
+
                 //check rows
                 table.FindElements("tbody tr").ThrowIfDifferentCountThan(10);
 
                 // check whether the first row is in edit mode
                 var firstRow = table.First("tbody tr");
-                firstRow.First("td").CheckIfInnerTextEquals("1");
-                firstRow.ElementAt("td", 1).Single("input").CheckIfIsDisplayed();
-                firstRow.ElementAt("td", 2).Single("input").CheckIfIsDisplayed();
+                AssertUI.InnerTextEquals(firstRow.First("td"), "1");
+                AssertUI.IsDisplayed(firstRow.ElementAt("td", 1).Single("input"));
+                AssertUI.IsDisplayed(firstRow.ElementAt("td", 2).Single("input"));
                 firstRow.ElementAt("td", 3).FindElements("button").ThrowIfDifferentCountThan(2);
 
                 // check if right number of testboxs are displayed => IsEditable works
@@ -288,7 +294,7 @@ namespace DotVVM.Samples.Tests.Control
                 // check if edit row changed
                 table = browser.ElementAt("table", tableID);
                 desiredRow = table.ElementAt("tbody tr", 3);
-                desiredRow.First("input").CheckIfIsDisplayed();
+                AssertUI.IsDisplayed(desiredRow.First("input"));
                 desiredRow.FindElements("button").ThrowIfDifferentCountThan(2);
             });
         }
@@ -308,9 +314,9 @@ namespace DotVVM.Samples.Tests.Control
 
                 // check whether the first row is in edit mode
                 var firstRow = table.First("tbody tr");
-                firstRow.First("td").CheckIfInnerTextEquals("1");
-                firstRow.ElementAt("td", 1).Single("input").CheckIfIsDisplayed();
-                firstRow.ElementAt("td", 2).Single("input").CheckIfIsDisplayed();
+                AssertUI.InnerTextEquals(firstRow.First("td"), "1");
+                AssertUI.IsDisplayed(firstRow.ElementAt("td", 1).Single("input"));
+                AssertUI.IsDisplayed(firstRow.ElementAt("td", 2).Single("input"));
                 firstRow.ElementAt("td", 3).FindElements("button").ThrowIfDifferentCountThan(2);
 
                 // check if right number of testboxs are displayed => IsEditable works
@@ -323,7 +329,7 @@ namespace DotVVM.Samples.Tests.Control
 
                 table = browser.ElementAt("table", tableID);
                 firstRow = table.First("tbody tr");
-                firstRow.First("td").CheckIfInnerTextEquals("11");
+                AssertUI.InnerTextEquals(firstRow.First("td"), "11");
 
                 //page to back
                 navigation = browser.ElementAt(".pagination", 0);
@@ -333,73 +339,74 @@ namespace DotVVM.Samples.Tests.Control
                 //after page back check edit row
                 table = browser.ElementAt("table", tableID);
                 firstRow = table.First("tbody tr");
-                firstRow.First("td").CheckIfInnerTextEquals("1");
-                firstRow.ElementAt("td", 1).Single("input").CheckIfIsDisplayed();
-                firstRow.ElementAt("td", 2).Single("input").CheckIfIsDisplayed();
+                AssertUI.InnerTextEquals(firstRow.First("td"), "1");
+                AssertUI.IsDisplayed(firstRow.ElementAt("td", 1).Single("input"));
+                AssertUI.IsDisplayed(firstRow.ElementAt("td", 2).Single("input"));
                 firstRow.ElementAt("td", 3).FindElements("button").ThrowIfDifferentCountThan(2);
 
 
             });
         }
 
-        public void Control_GridViewPagingSortingBase(string path) { 
+        public void Control_GridViewPagingSortingBase(string path)
+        {
 
-            
+
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(path);
                 browser.ActionWaitTime = 500;
 
-                Action performTest = () =>
+                System.Action performTest = () =>
                 {
                     //// make sure that thirs row's first cell is yellow
-                    browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0).CheckClassAttribute(s => s.Equals(""));
-                    browser.ElementAt("table", 0).ElementAt("tr", 2).ElementAt("td", 0).CheckClassAttribute(s => s.Equals("alternate"));
+                    AssertUI.ClassAttribute(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), s => s.Equals(""));
+                    AssertUI.ClassAttribute(browser.ElementAt("table", 0).ElementAt("tr", 2).ElementAt("td", 0), s => s.Equals("alternate"));
 
                     //// go to second page
-                    browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0).CheckIfInnerTextEquals("1");
+                    AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "1");
                     browser.ElementAt("ul", 0).FindElements("li a").Single(s => s.GetText() == "2").Click();
                     browser.Wait();
 
                     //// go to previous page
-                    browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0).CheckIfInnerTextEquals("11");
+                    AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "11");
                     browser.ElementAt("ul", 0).FindElements("li a").Single(s => s.GetText() == "««").Click();
                     browser.Wait();
 
                     //// go to next page
-                    browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0).CheckIfInnerTextEquals("1");
+                    AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "1");
                     browser.ElementAt("ul", 0).FindElements("li a").Single(s => s.GetText() == "»»").Click();
                     browser.Wait();
 
                     //// try the disabled link - nothing should happen
-                    browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0).CheckIfInnerTextEquals("11");
+                    AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "11");
                     browser.ElementAt("ul", 0).FindElements("li a").Single(s => s.GetText() == "»»").Click();
                     browser.Wait();
 
-                    browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0).CheckIfInnerTextEquals("11");
+                    AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "11");
 
                     // try sorting in the first grid
                     browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 2).ElementAt("button", 0).Click();
                     browser.Wait();
                     browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 1).ElementAt("a", 0).Click();
                     browser.Wait();
-                    browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 1).CheckClassAttribute("sort-asc");
+                    AssertUI.ClassAttribute(browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 1), "sort-asc");
 
                     browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 0).ElementAt("a", 0).Click();
                     browser.Wait();
-                    browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0).CheckIfInnerTextEquals("1");
+                    AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "1");
 
                     //// sort descending in the first grid
                     browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 1).ElementAt("a", 0).Click();
                     browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 1).ElementAt("a", 0).Click();
                     browser.Wait();
-                    browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 1).CheckClassAttribute("sort-desc");
-                    browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0).CheckIfInnerTextEquals("16");
+                    AssertUI.ClassAttribute(browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 1), "sort-desc");
+                    AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "16");
 
                     //// sort by different column in the first grid
                     browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 0).ElementAt("a", 0).Click();
                     browser.Wait();
-                    browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0).CheckIfInnerTextEquals("1");
+                    AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "1");
 
                 };
 
@@ -416,12 +423,12 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
-        private void Control_GridViewShowHeaderWhenNoData(IBrowserWrapperFluentApi browser)
+        private void Control_GridViewShowHeaderWhenNoData(IBrowserWrapper browser)
         {
             browser.FindElements("[data-ui='ShowHeaderWhenNoDataGrid']").FindElements("th").First().IsDisplayed();
         }
 
-        [TestMethod]
+        [Fact]
         public void Control_GridView_GridViewRowDecorators()
         {
             RunInAllBrowsers(browser =>
@@ -436,32 +443,36 @@ namespace DotVVM.Samples.Tests.Control
                 browser.Wait();
                 for (int i = 0; i < 6; i++)
                 {
-                    browser.ElementAt("table", 0).ElementAt("tr", i).CheckClassAttribute(v => v.Contains("selected") == (i == 3));
+                    AssertUI.ClassAttribute(browser.ElementAt("table", 0).ElementAt("tr", i), v => v.Contains("selected") == (i == 3));
                 }
                 // we dont want to check if element is clickable, it is not a button just fire click event
                 browser.ElementAt("tr", 2).ElementAt("td", 0).Click();
                 browser.Wait();
                 for (int i = 0; i < 6; i++)
                 {
-                    browser.ElementAt("table", 0).ElementAt("tr", i).CheckClassAttribute(v => v.Contains("selected") == (i == 2));
+                    AssertUI.ClassAttribute(browser.ElementAt("table", 0).ElementAt("tr", i), v => v.Contains("selected") == (i == 2));
                 }
-                
+
                 // check that the edit row has the 'edit' class while the other rows have the 'normal' class
                 for (int i = 1; i < 6; i++)
                 {
                     if (i != 2)
                     {
-                        browser.ElementAt("table", 1).ElementAt("tr", i).CheckIfHasClass("normal").CheckIfHasNotClass("edit");
+                        var elementWrapper = browser.ElementAt("table", 1).ElementAt("tr", i);
+                        AssertUI.HasClass(elementWrapper, "normal");
+                        AssertUI.HasNotClass(elementWrapper, "edit");
                     }
                     else
                     {
-                        browser.ElementAt("table", 1).ElementAt("tr", i).CheckIfHasClass("edit").CheckIfHasNotClass("normal");
+                        var elementWrapper = browser.ElementAt("table", 1).ElementAt("tr", i);
+                        AssertUI.HasClass(elementWrapper, "edit");
+                        AssertUI.HasNotClass(elementWrapper, "normal");
                     }
                 }
             });
         }
 
-        [TestMethod]
+        [Fact]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_GridView_GridViewRowDecorators))]
         public void Control_GridView_GridViewRowDecorators_ClickPropagation()
         {
@@ -471,19 +482,19 @@ namespace DotVVM.Samples.Tests.Control
                 browser.Wait();
 
                 browser.ElementAt("table", 0).ElementAt("tr", 4).First("input[type=button]").Click().Wait();
-                browser.ElementAt("table", 0).ElementAt("tr", 4).CheckIfHasNotClass("selected");
-                browser.ElementAt("table", 0).ElementAt("tr", 4).ElementAt("td", 1).CheckIfInnerText(t => t == "xxx");
+                AssertUI.HasNotClass(browser.ElementAt("table", 0).ElementAt("tr", 4), "selected");
+                AssertUI.InnerText(browser.ElementAt("table", 0).ElementAt("tr", 4).ElementAt("td", 1), t => t == "xxx");
 
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewRowDecorators);
                 browser.Wait();
 
                 browser.ElementAt("table", 0).ElementAt("tr", 4).First("a").Click().Wait();
-                browser.ElementAt("table", 0).ElementAt("tr", 4).CheckIfHasNotClass("selected");
-                browser.ElementAt("table", 0).ElementAt("tr", 4).ElementAt("td", 1).CheckIfInnerText(t => t == "xxx");
+                AssertUI.HasNotClass(browser.ElementAt("table", 0).ElementAt("tr", 4), "selected");
+                AssertUI.InnerText(browser.ElementAt("table", 0).ElementAt("tr", 4).ElementAt("td", 1), t => t == "xxx");
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void Control_GridView_ColumnVisible()
         {
             RunInAllBrowsers(browser =>
@@ -494,38 +505,38 @@ namespace DotVVM.Samples.Tests.Control
                 // check that columns are visible
                 for (int i = 0; i < 6; i++)
                 {
-                    browser.ElementAt("table", 0).ElementAt("tr", i).ElementAt("td,th", 2).CheckIfIsDisplayed();
+                    AssertUI.IsDisplayed(browser.ElementAt("table", 0).ElementAt("tr", i).ElementAt("td,th", 2));
                 }
                 for (int i = 0; i < 2; i++)
                 {
-                    browser.ElementAt("table", 1).ElementAt("tr", i).ElementAt("td,th", 1).CheckIfIsDisplayed();
+                    AssertUI.IsDisplayed(browser.ElementAt("table", 1).ElementAt("tr", i).ElementAt("td,th", 1));
                 }
 
                 // check that columns are hidden
                 browser.First("input[type=checkbox]").Click();
                 for (int i = 0; i < 6; i++)
                 {
-                    browser.ElementAt("table", 0).ElementAt("tr", i).ElementAt("td,th", 2).CheckIfIsNotDisplayed();
+                    AssertUI.IsNotDisplayed(browser.ElementAt("table", 0).ElementAt("tr", i).ElementAt("td,th", 2));
                 }
                 for (int i = 0; i < 2; i++)
                 {
-                    browser.ElementAt("table", 1).ElementAt("tr", i).ElementAt("td,th", 1).CheckIfIsNotDisplayed();
+                    AssertUI.IsNotDisplayed(browser.ElementAt("table", 1).ElementAt("tr", i).ElementAt("td,th", 1));
                 }
 
                 // check that columns are visible again
                 browser.First("input[type=checkbox]").Click();
                 for (int i = 0; i < 6; i++)
                 {
-                    browser.ElementAt("table", 0).ElementAt("tr", i).ElementAt("td,th", 2).CheckIfIsDisplayed();
+                    AssertUI.IsDisplayed(browser.ElementAt("table", 0).ElementAt("tr", i).ElementAt("td,th", 2));
                 }
                 for (int i = 0; i < 2; i++)
                 {
-                    browser.ElementAt("table", 1).ElementAt("tr", i).ElementAt("td,th", 1).CheckIfIsDisplayed();
+                    AssertUI.IsDisplayed(browser.ElementAt("table", 1).ElementAt("tr", i).ElementAt("td,th", 1));
                 }
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void Control_GridView_LargeGrid()
         {
             const int RowCount = 1000;
@@ -542,13 +553,12 @@ namespace DotVVM.Samples.Tests.Control
                 tbody.First("tr").FindElements("td").ThrowIfDifferentCountThan(ColumnCount);
 
                 // Check first cell
-                tbody.First("tr").First("td").Single("span").CheckIfTextEquals(FirstCell);
+                AssertUI.TextEquals(tbody.First("tr").First("td").Single("span"), FirstCell);
 
                 // Check last cell
-                tbody.Last("tr").Last("td").Single("span").CheckIfTextEquals(LastCell);
+                AssertUI.TextEquals(tbody.Last("tr").Last("td").Single("span"), LastCell);
 
             });
         }
-
     }
 }

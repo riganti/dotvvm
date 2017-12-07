@@ -1,12 +1,12 @@
 ﻿
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Selenium.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Testing.Abstractions;
+using Riganti.Selenium.Core;
 
 namespace DotVVM.Samples.Tests.Feature
 {
@@ -54,16 +54,19 @@ namespace DotVVM.Samples.Tests.Feature
 
             // select second value in the first combo box, the second one should select the second value too 
             browser.ElementAt("select", 0).Select(1).Wait();
+            browser.ElementAt("select", 1).Select(1).Wait();
             browser.ElementAt("select", 0).ElementAt("option", 1).CheckIfIsSelected();
             browser.ElementAt("select", 1).ElementAt("option", 1).CheckIfIsSelected();
 
             // select third value in the first combo box, the second one should select the third value too 
             browser.ElementAt("select", 0).Select(2).Wait();
+            browser.ElementAt("select", 1).Select(2).Wait();
             browser.ElementAt("select", 0).ElementAt("option", 2).CheckIfIsSelected();
             browser.ElementAt("select", 1).ElementAt("option", 2).CheckIfIsSelected();
 
             // select first value in the first combo box, the second one should select the first value too 
             browser.ElementAt("select", 0).Select(0).Wait();
+            browser.ElementAt("select", 1).Select(0).Wait();
             browser.ElementAt("select", 0).ElementAt("option", 0).CheckIfIsSelected();
             browser.ElementAt("select", 1).ElementAt("option", 0).CheckIfIsSelected();
 

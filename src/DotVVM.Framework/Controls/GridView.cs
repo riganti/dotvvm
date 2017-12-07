@@ -154,7 +154,7 @@ namespace DotVVM.Framework.Controls
             base.OnPreRender(context);
         }
 
-        private void CallGridViewDataSetRefreshRequest(IRefreshableGridViewDataSet refreshableGridViewDataSet)
+        private void CallGridViewDataSetRequestRefresh(IRefreshableGridViewDataSet refreshableGridViewDataSet)
         {
             refreshableGridViewDataSet.RequestRefresh();
         }
@@ -170,23 +170,24 @@ namespace DotVVM.Framework.Controls
 
             if (dataSource is IRefreshableGridViewDataSet refreshableDataSet)
             {
-                CallGridViewDataSetRefreshRequest(refreshableDataSet);
+                CallGridViewDataSetRequestRefresh(refreshableDataSet);
             }
 
             var sortCommand =
                 dataSource is ISortableGridViewDataSet sortableSet && sortableSet.SortingOptions is ISortingOptions sortOptions ?
                     expr => {
                         if (sortOptions.SortExpression == expr)
+                        {
                             sortOptions.SortDescending ^= true;
-                        else {
+                        }
+                        else
+                        {
                             sortOptions.SortExpression = expr;
                             sortOptions.SortDescending = false;
                         }
-                        return (sortableSet as IPageableGridViewDataSet)?.GoToFirstPageAsync() ?? TaskUtils.GetCompletedTask();
+                        (sortableSet as IPageableGridViewDataSet)?.GoToFirstPage();
                     } :
-                SortChanged != null ?
-                    expr => { SortChanged(expr); return TaskUtils.GetCompletedTask(); } :
-                (Func<string, Task>)null;
+                    SortChanged;
 
             // WORKAROUND: DataSource is null => don't throw exception
             if (sortCommand == null && dataSource == null)
@@ -231,7 +232,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void CreateHeaderRow(IDotvvmRequestContext context, Func<string, Task> sortCommand)
+        private void CreateHeaderRow(IDotvvmRequestContext context, Action<string> sortCommand)
         {
             head = new HtmlGenericControl("thead");
             Children.Add(head);
@@ -457,6 +458,17 @@ namespace DotVVM.Framework.Controls
             writer.RenderEndTag();
         }
 
+        protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
+        {
+            if (!ShowHeaderWhenNoData)
+            {
+                writer.WriteKnockoutDataBindComment("if",
+                    GetForeachDataBindExpression().GetProperty<DataSourceLengthBinding>().Binding.CastTo<IValueBinding>().GetKnockoutBindingExpression(this));
+            }
+
+            base.RenderBeginTag(writer, context);
+        }
+
         protected override void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (RenderOnServer && numberOfRows == 0 && !ShowHeaderWhenNoData)
@@ -473,21 +485,21 @@ namespace DotVVM.Framework.Controls
         {
             base.RenderEndTag(writer, context);
 
+            if (!ShowHeaderWhenNoData)
+            {
+                writer.WriteKnockoutDataBindEndComment();
+            }
+
             emptyDataContainer?.Render(writer, context);
         }
 
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             writer.AddKnockoutDataBind("withGridViewDataSet", GetDataSourceBinding().GetKnockoutBindingExpression(this));
-
-            if (!ShowHeaderWhenNoData && !IsPropertySet(VisibleProperty))
-            {
-                writer.AddKnockoutDataBind("visible",
-                    GetForeachDataBindExpression().GetProperty<DataSourceLengthBinding>().Binding.CastTo<IValueBinding>().GetKnockoutBindingExpression(this));
-            }
-
             base.AddAttributesToRender(writer, context);
         }
+
+        
 
         public override IEnumerable<DotvvmBindableObject> GetLogicalChildren()
         {

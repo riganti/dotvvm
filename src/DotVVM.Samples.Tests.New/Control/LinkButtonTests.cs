@@ -9,14 +9,18 @@ using System.Threading;
 using DotVVM.Samples.Tests.New;
 using DotVVM.Testing.Abstractions;
 using Xunit.Abstractions;
-
+using Xunit;
 
 namespace DotVVM.Samples.Tests.Control
 {
-    [TestClass]
     public class LinkButtonTests : AppSeleniumTest
     {
-        [TestMethod]
+
+        public LinkButtonTests(ITestOutputHelper output) : base(output)
+        {
+        }
+
+        [Fact]
         public void Control_LinkButton_LinkButton()
         {
             RunInAllBrowsers(browser =>
@@ -46,7 +50,7 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void Control_LinkButton_LinkButtonOnClick()
         {
             RunInAllBrowsers(browser =>
@@ -61,10 +65,6 @@ namespace DotVVM.Samples.Tests.Control
                 AssertUI.InnerTextEquals(clickResult, "Changed from command binding");
                 AssertUI.InnerTextEquals(onclickResult, "Changed from onclick");
             });
-        }
-
-        public LinkButtonTests(ITestOutputHelper output) : base(output)
-        {
         }
     }
 }

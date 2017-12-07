@@ -231,7 +231,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             else viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper);
 
             // get validation path
-            context.ModelState.ValidationTargetPath = data["validationTargetPath"]?.Value<string>();
+            context.ModelState.ValidationTargetPath = data.SelectToken("additionalData.validationTargetPath")?.Value<string>();
 
             // populate the ViewModel
             var serializer = CreateJsonSerializer();
