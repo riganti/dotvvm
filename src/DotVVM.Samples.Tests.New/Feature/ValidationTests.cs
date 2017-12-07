@@ -641,6 +641,29 @@ namespace DotVVM.Samples.Tests.New.Feature
             });
         }
 
+        [Fact]
+        public void Feature_Validation_Localization()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_Localization);
+
+
+                browser.ElementAt("button[type=submit]", 0).Click();
+
+                AssertUI.TextEquals(browser.Single(".result-code"), "This comes from resource file!");
+                AssertUI.TextEquals(browser.Single(".result-markup"), "This comes from resource file!");
+                browser.ElementAt("a", 1).Click();
+                browser.ElementAt("button[type=submit]", 0).Click();
+                AssertUI.TextEquals(browser.Single(".result-code"), "Tohle pochází z resource souboru!");
+                AssertUI.TextEquals(browser.Single(".result-markup"), "Tohle pochází z resource souboru!");
+                browser.ElementAt("a", 0).Click();
+                browser.ElementAt("button[type=submit]", 0).Click();
+                AssertUI.TextEquals(browser.Single(".result-code"), "This comes from resource file!");
+                AssertUI.TextEquals(browser.Single(".result-markup"), "This comes from resource file!");
+            });
+        }
+
         public ValidationTests(ITestOutputHelper output) : base(output)
         {
         }
