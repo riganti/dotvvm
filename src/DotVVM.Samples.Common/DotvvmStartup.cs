@@ -2,6 +2,7 @@ using System.Linq;
 using System.Reflection;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.Parser;
+using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.ResourceManagement;
@@ -57,11 +58,12 @@ namespace DotVVM.Samples.BasicSamples
             // All style samples
             config.Styles.Register<Controls.ServerSideStylesControl>()
                 .SetAttribute("value", "Text changed")
-                .SetDotvvmProperty(Controls.ServerSideStylesControl.CustomProperty, "Custom property changed", false)
-                .SetAttribute("class", "Class changed", true);
+                .SetDotvvmProperty(Controls.ServerSideStylesControl.CustomProperty, "Custom property changed")
+                .SetAttribute("class", "Class changed", StyleOverrideOptions.Overwrite);
             config.Styles.Register("customTagName")
-                .SetAttribute("noAppend", "Attribute changed")
-                .SetAttribute("append", "Attribute changed", true);
+                .SetAttribute("ignore", "Attribute ignored", StyleOverrideOptions.Ignore)
+                .SetAttribute("overwrite", "Attribute changed", StyleOverrideOptions.Overwrite)
+                .SetAttribute("append", "Attribute appended", StyleOverrideOptions.Append);
             config.Styles.Register<Controls.ServerSideStylesControl>(c => c.HasProperty(Controls.ServerSideStylesControl.CustomProperty), false)
                 .SetAttribute("derivedAttr", "Derived attribute");
             config.Styles.Register<Controls.ServerSideStylesControl>(c => c.HasProperty(Controls.ServerSideStylesControl.AddedProperty))

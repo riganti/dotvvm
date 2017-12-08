@@ -23,7 +23,8 @@
 
         <customTagName id="htmlControlWithAttr"
                        append="Default attribute"
-                       noAppend="Default attribute">
+                       overwrite="Default attribute"
+                       ignore="Default attribute">
             Custom html control with default attributes
         </customTagName>
     </div>
