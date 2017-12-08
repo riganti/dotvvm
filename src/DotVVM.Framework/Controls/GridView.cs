@@ -15,7 +15,7 @@ using DotVVM.Framework.Utils;
 namespace DotVVM.Framework.Controls
 {
     /// <summary>
-    /// A multi-purpose grid control with advanced binding and templating options and sorting support.
+    /// A multi-purpose grid control with advanced binding, templating options and sorting support.
     /// </summary>
     [ControlMarkupOptions(AllowContent = false, DefaultContentProperty = nameof(Columns))]
     public class GridView : ItemsControl
@@ -76,7 +76,7 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<List<GridViewColumn>, GridView>(c => c.Columns);
 
         /// <summary>
-        /// Gets or sets a list of decorators that will be applied on each row which is not in the ediit mode.
+        /// Gets or sets a list of decorators that will be applied on each row which is not in the edit mode.
         /// </summary>
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         [ControlPropertyBindingDataContextChange("DataSource")]
@@ -91,7 +91,7 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<List<Decorator>, GridView>(c => c.RowDecorators);
 
         /// <summary>
-        /// Gets or sets a list of decorators that will be applied on each row which is in edit mode.
+        /// Gets or sets a list of decorators that will be applied on each row in edit mode.
         /// </summary>
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         [ControlPropertyBindingDataContextChange("DataSource")]

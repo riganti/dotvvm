@@ -47,6 +47,7 @@
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_ComboBoxSelectionChanged.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_ComboBoxSelectionChanged_Objects.dothtml" />
     <None Remove="Views\FeatureSamples\Validation\Localization.dothtml" />
+    <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_NullBinding.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModelProtection\ComplexViewModelProtection.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModelProtection\SignedNestedInServerToClient.dothtml" />
   </ItemGroup>
@@ -90,6 +91,7 @@
     <Content Include="Views\FeatureSamples\StaticCommand\StaticCommand_ComboBoxSelectionChanged.dothtml" />
     <Content Include="Views\FeatureSamples\StaticCommand\StaticCommand_ComboBoxSelectionChanged_Objects.dothtml" />
     <Content Include="Views\FeatureSamples\Validation\Localization.dothtml" />
+    <Content Include="Views\FeatureSamples\StaticCommand\StaticCommand_NullBinding.dothtml" />
     <Content Include="Views\FeatureSamples\ViewModelProtection\ComplexViewModelProtection.dothtml" />
     <Content Include="Views\FeatureSamples\ViewModelProtection\SignedNestedInServerToClient.dothtml" />
   </ItemGroup>
