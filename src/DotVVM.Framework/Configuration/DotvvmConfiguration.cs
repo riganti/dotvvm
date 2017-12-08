@@ -238,7 +238,7 @@ namespace DotVVM.Framework.Configuration
                     typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
                     "DotVVM.Framework.Resources.Scripts.DotVVM.js"))
                 {
-                    Dependencies = new[] { ResourceConstants.KnockoutJSResourceName }
+                    Dependencies = new[] { ResourceConstants.KnockoutJSResourceName, ResourceConstants.PolyfillResourceName }
                 });
             configuration.Resources.Register(ResourceConstants.DotvvmResourceName,
                 new InlineScriptResource(@"if (window.dotvvm) { throw 'DotVVM is already loaded!'; } window.dotvvm = new DotVVM();") {
@@ -259,6 +259,7 @@ namespace DotVVM.Framework.Configuration
                     "DotVVM.Framework.Resources.Scripts.DotVVM.FileUpload.css")));
 
             RegisterGlobalizeResources(configuration);
+            RegisterPolyfillResources(configuration);
         }
 
         private static void RegisterGlobalizeResources(DotvvmConfiguration configuration)
@@ -271,5 +272,14 @@ namespace DotVVM.Framework.Configuration
             configuration.Resources.RegisterNamedParent("globalize", new JQueryGlobalizeResourceRepository());
         }
 
+        private static void RegisterPolyfillResources(DotvvmConfiguration configuration)
+        {
+            configuration.Resources.Register(ResourceConstants.PolyfillResourceName, new PolyfillResource());
+
+            configuration.Resources.Register(ResourceConstants.PolyfillBundleResourceName,
+                new ScriptResource(new EmbeddedResourceLocation(
+                    typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
+                    "DotVVM.Framework.Resources.Scripts.Polyfills.polyfill.bundle.js")));
+        }
     }
 }
