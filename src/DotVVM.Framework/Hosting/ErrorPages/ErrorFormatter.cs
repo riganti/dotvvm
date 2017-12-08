@@ -15,7 +15,6 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 {
     public class ErrorFormatter
     {
-#if DotNetCore
         public ExceptionModel LoadDemystifiedException(Exception exception)
         {
             return LoadException(exception, stackFrameGetter: ex => {
@@ -31,7 +30,6 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                 }
             });
         }
-#endif
         public ExceptionModel LoadException(Exception exception, StackFrameModel[] existingTrace = null, Func<Exception, StackFrame[]> stackFrameGetter = null)
         {
             stackFrameGetter = stackFrameGetter ?? (ex => new StackTrace(ex, true).GetFrames());
@@ -48,17 +46,12 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                 var f = frames[i];
                 if (skipping && existingTrace.Length > i && f.GetMethod() == existingTrace[i].Method) continue;
                 skipping = false;
-
-#if DotNetCore
-                var niceMethod = (f as EnhancedStackFrame)?.MethodInfo;
-#endif
+               var niceMethod = (f as EnhancedStackFrame)?.MethodInfo;
 
                 stack.Add(AddMoreInfo(new StackFrameModel
                 {
                     Method = f.GetMethod(),
-#if DotNetCore
                     FormattedMethod = niceMethod?.ToString(),
-#endif
                     At = LoadSourcePiece(f.GetFileName(), f.GetFileLineNumber(),
                         errorColumn: f.GetFileColumnNumber())
                 }));
@@ -334,9 +327,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         {
             var f = new ErrorFormatter();
             f.Formatters.Add((e, o) => DotvvmMarkupErrorSection.Create(e));
-#if DotNetCore
             f.Formatters.Add((e, o) => new ExceptionSectionFormatter(f.LoadDemystifiedException(e)));
-#endif
             f.Formatters.Add((e, o) => new ExceptionSectionFormatter(f.LoadException(e), "Raw Stack Trace", "raw_stack_trace"));
             f.Formatters.Add((e, o) => DictionarySection.Create("Cookies", "cookies", o.Request.Cookies));
             f.Formatters.Add((e, o) => DictionarySection.Create("Request Headers", "reqHeaders", o.Request.Headers));
