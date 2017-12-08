@@ -4,6 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Hosting;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace DotVVM.Framework.Tests.Routing
 {
@@ -141,6 +145,54 @@ namespace DotVVM.Framework.Tests.Routing
         }
 
         [TestMethod]
+        public void DotvvmRoute_IsMatch_OneOptionalPrefixedParameter()
+        {
+            var route = new DotvvmRoute("{Id?}/Article", null, null, null, configuration);
+
+            IDictionary<string, object> parameters;
+            var result = route.IsMatch("Article", out parameters);
+
+            Assert.IsTrue(result);
+            Assert.AreEqual(0, parameters.Count);
+        }
+
+        [TestMethod]
+        public void DotvvmRoute_IsMatch_OneOptionalSuffixedParameter_WithConstraint()
+        {
+            var route = new DotvvmRoute("Article/{Id?:int}", null, null, null, configuration);
+
+            IDictionary<string, object> parameters;
+            var result = route.IsMatch("Article", out parameters);
+
+            Assert.IsTrue(result);
+            Assert.AreEqual(0, parameters.Count);
+        }
+
+        [TestMethod]
+        public void DotvvmRoute_IsMatch_OneOptionalParameter()
+        {
+            var route = new DotvvmRoute("Article/{Id?}/edit", null, null, null, configuration);
+
+            IDictionary<string, object> parameters;
+            var result = route.IsMatch("Article/edit", out parameters);
+
+            Assert.IsTrue(result);
+            Assert.AreEqual(0, parameters.Count);
+        }
+
+        [TestMethod]
+        public void DotvvmRoute_IsMatch_TwoParameters_OneOptional_Suffix()
+        {
+            var route = new DotvvmRoute("Article/Test/{Id?}/{Id2}/suffix", null, null, null, configuration);
+
+            IDictionary<string, object> parameters;
+            var result = route.IsMatch("Article/Test/5/suffix", out parameters);
+
+            Assert.IsTrue(result);
+            Assert.AreEqual(1, parameters.Count);
+        }
+
+        [TestMethod]
         public void DotvvmRoute_BuildUrl_UrlTwoParameters()
         {
             var route = new DotvvmRoute("Article/id_{Id}/{Title}", null, null, null, configuration);
@@ -257,7 +309,6 @@ namespace DotVVM.Framework.Tests.Routing
             Assert.AreEqual("~/Article/5", result);
         }
 
-
         [TestMethod]
         public void DotvvmRoute_BuildUrl_ParameterOnly()
         {
@@ -269,7 +320,7 @@ namespace DotVVM.Framework.Tests.Routing
         }
 
         [TestMethod]
-        public void DotvvmRoute_BuildUrl_OptionlaParameter()
+        public void DotvvmRoute_BuildUrl_OptionalParameter()
         {
             var route = new DotvvmRoute("myPage/{Id?}/edit", null, null, null, configuration);
 
@@ -278,6 +329,18 @@ namespace DotVVM.Framework.Tests.Routing
 
             Assert.AreEqual("~/myPage/edit", result);
             Assert.AreEqual("~/myPage/edit", result2);
+        }
+
+        [TestMethod]
+        public void DotvvmRoute_BuildUrl_OneOptionalPrefixedParameter()
+        {
+            var route = new DotvvmRoute("{Id?}/Article", null, null, null, configuration);
+
+            var result = route.BuildUrl(new { });
+            var result2 = route.BuildUrl(new Dictionary<string, object> { ["Id"] = 0 });
+
+            Assert.AreEqual("~/Article", result);
+            Assert.AreEqual("~/0/Article", result2);
         }
 
         [TestMethod]
@@ -450,6 +513,28 @@ namespace DotVVM.Framework.Tests.Routing
             var route = new DotvvmRoute("Article/{name}@{domain}/{id:int}", null, null, null, configuration);
             IDictionary<string, object> parameters;
             Assert.IsFalse(route.IsMatch("Article/f" + new string('@', 2000) + "f/4f", out parameters));
+        }
+
+        [TestMethod]
+        public void DotvvmRoute_PresenterType()
+        {
+            var configuration = DotvvmConfiguration.CreateDefault(services => {
+                services.TryAddSingleton<TestPresenter>();
+            });
+
+            var table = new DotvvmRouteTable(configuration);
+            table.Add<TestPresenter>("Article", "", "", null);
+            Assert.IsInstanceOfType(table.First().GetPresenter(), typeof(TestPresenter));
+        }
+
+        
+    }
+
+    public class TestPresenter : IDotvvmPresenter
+    {
+        public Task ProcessRequest(IDotvvmRequestContext context)
+        {
+            throw new NotImplementedException();
         }
     }
 }

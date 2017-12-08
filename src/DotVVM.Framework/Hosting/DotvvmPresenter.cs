@@ -115,7 +115,10 @@ namespace DotVVM.Framework.Hosting
             // get action filters
             var viewModelFilters = ActionFilterHelper.GetActionFilters<IViewModelActionFilter>(context.ViewModel.GetType().GetTypeInfo());
             viewModelFilters.AddRange(context.Configuration.Runtime.GlobalFilters.OfType<IViewModelActionFilter>());
+
             var requestFilters = ActionFilterHelper.GetActionFilters<IPageActionFilter>(context.ViewModel.GetType().GetTypeInfo());
+            requestFilters.AddRange(context.Configuration.Runtime.GlobalFilters.OfType<IPageActionFilter>());
+
             foreach (var f in requestFilters)
             {
                 await f.OnPageLoadingAsync(context);
@@ -252,10 +255,6 @@ namespace DotVVM.Framework.Hosting
                 }
                 await requestTracer.TraceEvent(RequestTracingConstants.OutputRendered, context);
 
-                if (context.ViewModel != null)
-                {
-                    ViewModelLoader.DisposeViewModel(context.ViewModel);
-                }
                 foreach (var f in requestFilters) await f.OnPageLoadedAsync(context);
             }
             catch (DotvvmInterruptRequestExecutionException) { throw; }
@@ -274,6 +273,13 @@ namespace DotVVM.Framework.Hosting
                 }
 
                 throw;
+            }
+            finally
+            {
+                if (context.ViewModel != null)
+                {
+                    ViewModelLoader.DisposeViewModel(context.ViewModel);
+                }
             }
         }
 

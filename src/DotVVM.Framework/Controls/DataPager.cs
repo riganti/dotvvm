@@ -33,11 +33,11 @@ namespace DotVVM.Framework.Controls
 
             public CommonBindings(BindingCompilationService service)
             {
-                GoToNextPageCommand = new CommandBindingExpression(service, h => ((IPageableGridViewDataSet)h[0]).GoToNextPageAsync(), "__$DataPager_GoToNextPage");
-                GoToThisPageCommand = new CommandBindingExpression(service, h => ((IPageableGridViewDataSet)h[1]).GoToPageAsync((int)h[0]), "__$DataPager_GoToThisPage");
-                GoToPrevPageCommand = new CommandBindingExpression(service, h => ((IPageableGridViewDataSet)h[0]).GoToPreviousPageAsync(), "__$DataPager_GoToPrevPage");
-                GoToFirstPageCommand = new CommandBindingExpression(service, h => ((IPageableGridViewDataSet)h[0]).GoToFirstPageAsync(), "__$DataPager_GoToFirstPage");
-                GoToLastPageCommand = new CommandBindingExpression(service, h => ((IPageableGridViewDataSet)h[0]).GoToLastPageAsync(), "__$DataPager_GoToLastPage");
+                GoToNextPageCommand = new CommandBindingExpression(service, h => ((IPageableGridViewDataSet)h[0]).GoToNextPage(), "__$DataPager_GoToNextPage");
+                GoToThisPageCommand = new CommandBindingExpression(service, h => ((IPageableGridViewDataSet)h[1]).GoToPage((int)h[0]), "__$DataPager_GoToThisPage");
+                GoToPrevPageCommand = new CommandBindingExpression(service, h => ((IPageableGridViewDataSet)h[0]).GoToPreviousPage(), "__$DataPager_GoToPrevPage");
+                GoToFirstPageCommand = new CommandBindingExpression(service, h => ((IPageableGridViewDataSet)h[0]).GoToFirstPage(), "__$DataPager_GoToFirstPage");
+                GoToLastPageCommand = new CommandBindingExpression(service, h => ((IPageableGridViewDataSet)h[0]).GoToLastPage(), "__$DataPager_GoToLastPage");
             }
         }
         private readonly CommonBindings commonBindings;
