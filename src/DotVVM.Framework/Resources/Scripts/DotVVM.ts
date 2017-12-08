@@ -739,10 +739,15 @@ class DotVVM {
         return ko.unwrap(ko.unwrap(array));
     }
     public buildRouteUrl(routePath: string, params: any): string {
-        return routePath.replace(/\{([^\}]+?)\??(:(.+?))?\}/g, (s, paramName, hsjdhsj, type) => {
+        var url = routePath.replace(/\{([^\}]+?)\??(:(.+?))?\}/g, (s, paramName, hsjdhsj, type) => {
             if (!paramName) return "";
             return ko.unwrap(params[paramName.toLowerCase()]) || "";
         });
+
+        if (url.indexOf('/') === 0) {
+            return url.substring(1);
+        }
+        return url;
     }
 
     private isPostBackProhibited(element: HTMLElement) {
