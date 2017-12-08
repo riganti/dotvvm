@@ -7,6 +7,7 @@ using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
@@ -28,9 +29,8 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Adds essential DotVVM services to the specified <see cref="IServiceCollection" />.
         /// </summary>
         /// <param name="services">The <see cref="IServiceCollection" /> to add services to.</param>
-        /// <param name="configuration">The DotVVM configuration to use. A default one will be used if the value is <c>null</c>.</param>
         /// <param name="allowDebugServices">If the vs-diagnostics services should be registered</param>
-        public static IServiceCollection RegisterDotVVMServices(IServiceCollection services, DotvvmConfiguration configuration = null, bool allowDebugServices = true)
+        public static IServiceCollection RegisterDotVVMServices(IServiceCollection services, bool allowDebugServices = true)
         {
             services.AddOptions();
 
@@ -51,6 +51,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IControlResolver, DefaultControlResolver>();
             services.TryAddSingleton<IControlTreeResolver, DefaultControlTreeResolver>();
             services.TryAddSingleton<IAbstractTreeBuilder, ResolvedTreeBuilder>();
+            services.TryAddSingleton<Func<ControlUsageValidationVisitor>>(s => () => ActivatorUtilities.CreateInstance<ControlUsageValidationVisitor>(s));
             services.TryAddSingleton<IViewCompiler, DefaultViewCompiler>();
             services.TryAddSingleton<IBindingCompiler, BindingCompiler>();
             services.TryAddSingleton<IBindingExpressionBuilder, BindingExpressionBuilder>();
@@ -65,15 +66,24 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.TryAddScoped<AggregateRequestTracer, AggregateRequestTracer>();
             services.TryAddScoped<ResourceManager, ResourceManager>();
-            services.TryAddSingleton<Func<BindingRequiredResourceVisitor>>(s => {
-               var requiredResourceControl = s.GetRequiredService<IControlResolver>().ResolveControl(new ResolvedTypeDescriptor(typeof(RequiredResource)));
-               return () => new BindingRequiredResourceVisitor((ControlResolverMetadata)requiredResourceControl);
+            services.TryAddSingleton(s => DotvvmConfiguration.CreateDefault(s));
+            services.TryAddSingleton(s => s.GetRequiredService<DotvvmConfiguration>().Markup);
+            services.TryAddSingleton(s => s.GetRequiredService<DotvvmConfiguration>().Resources);
+            services.TryAddSingleton(s => s.GetRequiredService<DotvvmConfiguration>().RouteTable);
+            services.TryAddSingleton(s => s.GetRequiredService<DotvvmConfiguration>().Runtime);
+            services.TryAddSingleton(s => s.GetRequiredService<DotvvmConfiguration>().Security);
+            services.TryAddSingleton(s => s.GetRequiredService<DotvvmConfiguration>().Styles);
+
+            services.ConfigureWithServices<BindingCompilationOptions>((o, s) => {
+                 o.TransformerClasses.Add(ActivatorUtilities.CreateInstance<BindingPropertyResolvers>(s));
             });
 
-            services.TryAddSingleton(s => configuration ?? (configuration = DotvvmConfiguration.CreateDefault(s)));
-
-            services.Configure<BindingCompilationOptions>(o => {
-                 o.TransformerClasses.Add(ActivatorUtilities.CreateInstance<BindingPropertyResolvers>(configuration.ServiceLocator.GetServiceProvider()));
+            services.ConfigureWithServices<ViewCompilerConfiguration>((o, s) => {
+                var requiredResourceControl = s.GetRequiredService<IControlResolver>().ResolveControl(new ResolvedTypeDescriptor(typeof(RequiredResource)));
+                o.TreeVisitors.Add(() => new BindingRequiredResourceVisitor((ControlResolverMetadata)requiredResourceControl));
+                o.TreeVisitors.Add(() => ActivatorUtilities.CreateInstance<StylingVisitor>(s));
+                o.TreeVisitors.Add(() => ActivatorUtilities.CreateInstance<DataContextPropertyAssigningVisitor>(s));
+                o.TreeVisitors.Add(() => new LifecycleRequirementsAssigningVisitor());
             });
 
             return services;
@@ -95,6 +105,23 @@ namespace Microsoft.Extensions.DependencyInjection
 
             return services;
         }
-    }
 
+        public static void ConfigureWithServices<TObject, TService>(this IServiceCollection services, Action<TObject, TService> configure)
+            where TObject: class
+        {
+            services.AddSingleton<IConfigureOptions<TObject>>(s => new ConfigureOptions<TObject>(o => configure(o, s.GetRequiredService<TService>())));
+        }
+
+        public static void ConfigureWithServices<TObject, TService1, TService2>(this IServiceCollection services, Action<TObject, TService1, TService2> configure)
+            where TObject: class
+        {
+            services.AddSingleton<IConfigureOptions<TObject>>(s => new ConfigureOptions<TObject>(o => configure(o, s.GetRequiredService<TService1>(), s.GetRequiredService<TService2>())));
+        }
+
+        public static void ConfigureWithServices<TObject>(this IServiceCollection services, Action<TObject, IServiceProvider> configure)
+            where TObject: class
+        {
+            services.AddSingleton<IConfigureOptions<TObject>>(s => new ConfigureOptions<TObject>(o => configure(o, s)));
+        }
+    }
 }

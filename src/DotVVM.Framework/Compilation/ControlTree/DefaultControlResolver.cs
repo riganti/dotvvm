@@ -18,11 +18,11 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         private static object locker = new object();
         private static bool isInitialized = false;
-        
 
-        public DefaultControlResolver(DotvvmConfiguration configuration) : base(configuration)
+
+        public DefaultControlResolver(DotvvmMarkupConfiguration configuration, IControlBuilderFactory controlBuilderFactory) : base(configuration)
         {
-            this.controlBuilderFactory = configuration.ServiceLocator.GetService<IControlBuilderFactory>();
+            this.controlBuilderFactory = controlBuilderFactory;
 
             if (!isInitialized)
             {

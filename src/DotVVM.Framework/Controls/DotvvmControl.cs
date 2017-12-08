@@ -171,6 +171,8 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public virtual void Render(IHtmlWriter writer, IDotvvmRequestContext context)
         {
+            this.Children.ValidateParentsLifecycleEvents(); // debug check
+
             if (Properties.ContainsKey(PostBack.UpdateProperty))
             {
                 AddDotvvmUniqueIdAttribute();
@@ -183,7 +185,7 @@ namespace DotVVM.Framework.Controls
             catch (DotvvmControlException) { throw; }
             catch (Exception e)
             {
-                throw new DotvvmControlException(this, "Error occured in Render method", e);
+                throw new DotvvmControlException(this, "Error occurred in Render method", e);
             }
         }
 
@@ -453,7 +455,7 @@ namespace DotVVM.Framework.Controls
                     if (f is IValueBinding binding)
                     {
                         service = service ?? binding.GetProperty<BindingCompilationService>(ErrorHandlingMode.ReturnNull);
-                        result.Add(binding.GetParametrizedKnockoutExpression(this, unwraped: true), 14);
+                        result.Add(binding.GetParametrizedKnockoutExpression(this, unwrapped: true), 14);
                     }
                     else result.Add(JavascriptCompilationHelper.CompileConstant(f));
                 }

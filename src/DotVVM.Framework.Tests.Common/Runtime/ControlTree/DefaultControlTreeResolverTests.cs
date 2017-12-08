@@ -21,6 +21,7 @@ using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Compilation;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Tests.Runtime.ControlTree
 {
@@ -35,7 +36,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         {
             configuration = DotvvmTestHelper.CreateConfiguration();
             configuration.Markup.AddCodeControls("cc", typeof(ClassWithInnerElementProperty));
-            controlTreeResolver = configuration.ServiceLocator.GetService<IControlTreeResolver>();
+            controlTreeResolver = configuration.ServiceProvider.GetRequiredService<IControlTreeResolver>();
         }
 
         [TestMethod]
@@ -674,7 +675,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
                 .CastTo<ResolvedTreeRoot>()
                 .ApplyAction(new DataContextPropertyAssigningVisitor().VisitView)
                 .ApplyAction(new StylingVisitor(configuration).VisitView)
-                .ApplyAction(new ControlUsageValidationVisitor(configuration).VisitView);
+                .ApplyAction(ActivatorUtilities.CreateInstance<ControlUsageValidationVisitor>(configuration.ServiceProvider).VisitView);
         }
 
     }
@@ -697,7 +698,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
         protected internal override string ClientHandlerName => null;
 
-        protected internal override Dictionary<string, string> GetHandlerOptionClientExpressions()
+        protected internal override Dictionary<string, object> GetHandlerOptions()
         {
             throw new NotImplementedException();
         }
@@ -716,7 +717,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
         protected internal override string ClientHandlerName => null;
 
-        protected internal override Dictionary<string, string> GetHandlerOptionClientExpressions()
+        protected internal override Dictionary<string, object> GetHandlerOptions()
         {
             throw new NotImplementedException();
         }
@@ -733,6 +734,11 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             {
                 return new ResolvedTypeDescriptor(typeof(int));
             }
+
+            public override Type GetChildDataContextType(Type dataContext, DataContextStack controlContextStack, DotvvmBindableObject control, DotvvmProperty property = null)
+            {
+                return typeof(int);
+            }
         }
     }
 
@@ -744,6 +750,17 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             public override IDataContextStack ChangeStackForChildren(IDataContextStack original, IAbstractControl control, IPropertyDescriptor property, Func<IDataContextStack, ITypeDescriptor, IDataContextStack> createNewFrame)
             {
                 return DataContextStack.Create(ResolvedTypeDescriptor.ToSystemType(original.DataContextType), (DataContextStack)original.Parent,
+                    bindingPropertyResolvers: new Delegate[]{
+                        new Func<ParsedExpressionBindingProperty, ParsedExpressionBindingProperty>(e => {
+                            if (e.Expression.NodeType == ExpressionType.Constant && (string)((ConstantExpression)e.Expression).Value == "abc") return new ParsedExpressionBindingProperty(Expression.Constant("def"));
+                            else return e;
+                        })
+                    });
+            }
+
+            public override DataContextStack ChangeStackForChildren(DataContextStack original, DotvvmBindableObject obj, DotvvmProperty property, Func<DataContextStack, Type, DataContextStack> createNewFrame)
+            {
+                return DataContextStack.Create(original.DataContextType, original.Parent,
                     bindingPropertyResolvers: new Delegate[]{
                         new Func<ParsedExpressionBindingProperty, ParsedExpressionBindingProperty>(e => {
                             if (e.Expression.NodeType == ExpressionType.Constant && (string)((ConstantExpression)e.Expression).Value == "abc") return new ParsedExpressionBindingProperty(Expression.Constant("def"));

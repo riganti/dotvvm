@@ -1,12 +1,12 @@
 ﻿
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Testing.Abstractions;
+using Riganti.Selenium.Core;
 
 namespace DotVVM.Samples.Tests.Feature
 {
@@ -29,7 +29,39 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [TestMethod]
-        public void Feature_StaticCommand_StaticCommand_ComboBoxSelectionChanged()
+        public void Feature_StaticCommand_NullBinding()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_StaticCommand_StaticCommand_NullBinding);
+                browser.Wait();
+
+                browser.First("#show-selected")
+                    .CheckIfIsNotDisplayed();
+
+                browser.First("#listObject > input:nth-child(2)").Click();
+                browser.First("#show-selected")
+                    .CheckIfIsDisplayed()
+                    .CheckIfInnerTextEquals("Hello 2");
+
+                browser.First("#listObject > input:nth-child(3)").Click();
+                browser.First("#show-selected")
+                    .CheckIfIsDisplayed()
+                    .CheckIfInnerTextEquals("Hello 3");
+
+                browser.First("#listObject > input:nth-child(4)").Click();
+                browser.First("#show-selected")
+                    .CheckIfIsNotDisplayed();
+
+                browser.First("#listObject > input:nth-child(1)").Click();
+                browser.First("#show-selected")
+                    .CheckIfIsDisplayed()
+                    .CheckIfInnerTextEquals("Hello 1");
+            });
+        }
+
+        [TestMethod]
+        public void Feature_StaticCommand_ComboBoxSelectionChanged()
         {
             RunInAllBrowsers(browser =>
             {
@@ -48,22 +80,25 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
-        private static void Feature_StaticCommand_ComboBoxSelectionChangedViewModel_Core(BrowserWrapper browser)
+        private static void Feature_StaticCommand_ComboBoxSelectionChangedViewModel_Core(IBrowserWrapperFluentApi browser)
         {
             browser.Wait();
 
             // select second value in the first combo box, the second one should select the second value too 
             browser.ElementAt("select", 0).Select(1).Wait();
+            browser.ElementAt("select", 1).Select(1).Wait();
             browser.ElementAt("select", 0).ElementAt("option", 1).CheckIfIsSelected();
             browser.ElementAt("select", 1).ElementAt("option", 1).CheckIfIsSelected();
 
             // select third value in the first combo box, the second one should select the third value too 
             browser.ElementAt("select", 0).Select(2).Wait();
+            browser.ElementAt("select", 1).Select(2).Wait();
             browser.ElementAt("select", 0).ElementAt("option", 2).CheckIfIsSelected();
             browser.ElementAt("select", 1).ElementAt("option", 2).CheckIfIsSelected();
 
             // select first value in the first combo box, the second one should select the first value too 
             browser.ElementAt("select", 0).Select(0).Wait();
+            browser.ElementAt("select", 1).Select(0).Wait();
             browser.ElementAt("select", 0).ElementAt("option", 0).CheckIfIsSelected();
             browser.ElementAt("select", 1).ElementAt("option", 0).CheckIfIsSelected();
 

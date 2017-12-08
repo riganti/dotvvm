@@ -15,7 +15,7 @@ using DotVVM.Framework.Utils;
 namespace DotVVM.Framework.Controls
 {
     /// <summary>
-    /// A multi-purpose grid control with advanced binding and templating options and sorting support.
+    /// A multi-purpose grid control with advanced binding, templating options and sorting support.
     /// </summary>
     [ControlMarkupOptions(AllowContent = false, DefaultContentProperty = nameof(Columns))]
     public class GridView : ItemsControl
@@ -23,7 +23,7 @@ namespace DotVVM.Framework.Controls
         private EmptyData emptyDataContainer;
         private int numberOfRows;
         private HtmlGenericControl head;
-        
+
         public GridView() : base("table")
         {
             SetValue(Internal.IsNamingContainerProperty, true);
@@ -76,7 +76,7 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<List<GridViewColumn>, GridView>(c => c.Columns);
 
         /// <summary>
-        /// Gets or sets a list of decorators that will be applied on each row which is not in the ediit mode.
+        /// Gets or sets a list of decorators that will be applied on each row which is not in the edit mode.
         /// </summary>
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         [ControlPropertyBindingDataContextChange("DataSource")]
@@ -86,11 +86,12 @@ namespace DotVVM.Framework.Controls
             get { return (List<Decorator>)GetValue(RowDecoratorsProperty); }
             set { SetValue(RowDecoratorsProperty, value); }
         }
+
         public static readonly DotvvmProperty RowDecoratorsProperty =
             DotvvmProperty.Register<List<Decorator>, GridView>(c => c.RowDecorators);
 
         /// <summary>
-        /// Gets or sets a list of decorators that will be applied on each row which is in edit mode.
+        /// Gets or sets a list of decorators that will be applied on each row in edit mode.
         /// </summary>
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         [ControlPropertyBindingDataContextChange("DataSource")]
@@ -153,7 +154,7 @@ namespace DotVVM.Framework.Controls
             base.OnPreRender(context);
         }
 
-        private void CallGridViewDataSetRefreshRequest(IRefreshableGridViewDataSet refreshableGridViewDataSet)
+        private void CallGridViewDataSetRequestRefresh(IRefreshableGridViewDataSet refreshableGridViewDataSet)
         {
             refreshableGridViewDataSet.RequestRefresh();
         }
@@ -169,23 +170,24 @@ namespace DotVVM.Framework.Controls
 
             if (dataSource is IRefreshableGridViewDataSet refreshableDataSet)
             {
-                CallGridViewDataSetRefreshRequest(refreshableDataSet);
+                CallGridViewDataSetRequestRefresh(refreshableDataSet);
             }
 
             var sortCommand =
                 dataSource is ISortableGridViewDataSet sortableSet && sortableSet.SortingOptions is ISortingOptions sortOptions ?
                     expr => {
                         if (sortOptions.SortExpression == expr)
+                        {
                             sortOptions.SortDescending ^= true;
-                        else {
+                        }
+                        else
+                        {
                             sortOptions.SortExpression = expr;
                             sortOptions.SortDescending = false;
                         }
-                        return (sortableSet as IPageableGridViewDataSet)?.GoToFirstPageAsync() ?? TaskUtils.GetCompletedTask();
+                        (sortableSet as IPageableGridViewDataSet)?.GoToFirstPage();
                     } :
-                SortChanged != null ?
-                    expr => { SortChanged(expr); return TaskUtils.GetCompletedTask(); } :
-                (Func<string, Task>)null;
+                    SortChanged;
 
             // WORKAROUND: DataSource is null => don't throw exception
             if (sortCommand == null && dataSource == null)
@@ -200,7 +202,6 @@ namespace DotVVM.Framework.Controls
             if (dataSource != null)
             {
                 var itemBinding = GetItemBinding();
-                var bindingService = context.Configuration.ServiceLocator.GetService<BindingCompilationService>();
                 foreach (var item in GetIEnumerableFromDataSource())
                 {
                     // create row
@@ -231,7 +232,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void CreateHeaderRow(IDotvvmRequestContext context, Func<string, Task> sortCommand)
+        private void CreateHeaderRow(IDotvvmRequestContext context, Action<string> sortCommand)
         {
             head = new HtmlGenericControl("thead");
             Children.Add(head);
@@ -457,6 +458,17 @@ namespace DotVVM.Framework.Controls
             writer.RenderEndTag();
         }
 
+        protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
+        {
+            if (!ShowHeaderWhenNoData)
+            {
+                writer.WriteKnockoutDataBindComment("if",
+                    GetForeachDataBindExpression().GetProperty<DataSourceLengthBinding>().Binding.CastTo<IValueBinding>().GetKnockoutBindingExpression(this));
+            }
+
+            base.RenderBeginTag(writer, context);
+        }
+
         protected override void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (RenderOnServer && numberOfRows == 0 && !ShowHeaderWhenNoData)
@@ -473,21 +485,21 @@ namespace DotVVM.Framework.Controls
         {
             base.RenderEndTag(writer, context);
 
+            if (!ShowHeaderWhenNoData)
+            {
+                writer.WriteKnockoutDataBindEndComment();
+            }
+
             emptyDataContainer?.Render(writer, context);
         }
 
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             writer.AddKnockoutDataBind("withGridViewDataSet", GetDataSourceBinding().GetKnockoutBindingExpression(this));
-
-            if (!ShowHeaderWhenNoData && !true.Equals(GetValueRaw(VisibleProperty)))
-            {
-                writer.AddKnockoutDataBind("visible",
-                    GetForeachDataBindExpression().GetProperty<DataSourceLengthBinding>().Binding.CastTo<IValueBinding>().GetKnockoutBindingExpression(this));
-            }
-
             base.AddAttributesToRender(writer, context);
         }
+
+        
 
         public override IEnumerable<DotvvmBindableObject> GetLogicalChildren()
         {

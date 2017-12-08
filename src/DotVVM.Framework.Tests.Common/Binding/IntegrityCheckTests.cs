@@ -19,7 +19,7 @@ namespace DotVVM.Framework.Tests.Binding
             var context = new TestDotvvmRequestContext()
             {
                 Configuration = configuration,
-                ResourceManager = new ResourceManager(configuration),
+                ResourceManager = new ResourceManager(configuration.Resources),
                 ViewModel = new DotvvmViewModelBase()
             };
 

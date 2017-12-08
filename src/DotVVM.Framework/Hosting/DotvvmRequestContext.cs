@@ -70,21 +70,21 @@ namespace DotVVM.Framework.Hosting
         public IQueryCollection Query => HttpContext.Request.Query;
 
         /// <summary>
-        /// Gets or sets the value indiciating whether the exception that occured in the command execution was handled. 
+        /// Gets or sets the value indicating whether the exception that occurred in the command execution was handled. 
         /// This property is typically set from the exception filter's OnCommandException method.
         /// </summary>
         public bool IsCommandExceptionHandled { get; set; }
 
 
         /// <summary>
-        /// Gets or sets the value indiciating whether the exception that occured during the page execution was handled and that the OnPageExceptionHandled will not be called on the next action filters. 
+        /// Gets or sets the value indicating whether the exception that occurred during the page execution was handled and that the OnPageExceptionHandled will not be called on the next action filters. 
         /// This property is typically set from the action filter's OnPageExceptionHandled method.
         /// </summary>
         public bool IsPageExceptionHandled { get; set; }
 
 
         /// <summary>
-        /// Gets or sets the exception that occured when the command was executed.
+        /// Gets or sets the exception that occurred when the command was executed.
         /// </summary>
         public Exception CommandException { get; set; }
 
@@ -110,7 +110,7 @@ namespace DotVVM.Framework.Hosting
         private IServiceProvider _services;
         public IServiceProvider Services
         {
-            get => _services ?? (_services = Configuration?.ServiceLocator?.GetServiceProvider() ?? throw new NotSupportedException());
+            get => _services ?? (_services = Configuration.ServiceProvider ?? throw new NotSupportedException());
             set => _services = value;
         }
 

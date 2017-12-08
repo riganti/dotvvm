@@ -7,6 +7,7 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Security;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Routing
 {
@@ -82,10 +83,8 @@ namespace DotVVM.Framework.Routing
         /// <summary>
         /// Creates the default presenter factory.
         /// </summary>
-        public IDotvvmPresenter GetDefaultPresenter()
-        {
-            return configuration.ServiceLocator.GetService<IDotvvmPresenter>();
-        }
+        public IDotvvmPresenter GetDefaultPresenter() =>
+            configuration.ServiceProvider.GetRequiredService<IDotvvmPresenter>();
 
         /// <summary>
         /// Adds the specified route name.
@@ -101,6 +100,21 @@ namespace DotVVM.Framework.Routing
             {
                 presenterFactory = GetDefaultPresenter;
             }
+
+            Add(group?.RouteNamePrefix + routeName, new DotvvmRoute(group?.UrlPrefix + url, group?.VirtualPathPrefix + virtualPath, defaultValues, presenterFactory, configuration));
+        }
+
+        /// <summary>
+        /// Adds the specified route name.
+        /// </summary>
+        /// <typeparam name="T">Type of presenter</typeparam>
+        /// <param name="routeName">Name of the route.</param>
+        /// <param name="url">The URL.</param>
+        /// <param name="virtualPath">The virtual path of the Dothtml file.</param>
+        /// <param name="defaultValues">The default values.</param>
+        public void Add<T>(string routeName, string url, string virtualPath, object defaultValues = null) where T : IDotvvmPresenter
+        { 
+            Func<IDotvvmPresenter> presenterFactory = presenterFactory = () => configuration.ServiceProvider.GetRequiredService<T>();
 
             Add(group?.RouteNamePrefix + routeName, new DotvvmRoute(group?.UrlPrefix + url, group?.VirtualPathPrefix + virtualPath, defaultValues, presenterFactory, configuration));
         }

@@ -44,7 +44,7 @@ namespace DotVVM.Framework.Configuration
                     !ViewModelJsonConverter.IsEnumerable(obj) && ViewModelJsonConverter.IsComplexType(obj) && !ViewModelJsonConverter.IsTuple(obj))
                 {
 
-                    config.ServiceLocator.GetService<IViewModelSerializationMapper>().Map(obj, m => {
+                    config.GetSerializationMapper().Map(obj, m => {
                         foreach (var prop in m.Properties)
                         {
                             prop.Name = KnockoutHelper.ConvertToCamelCase(prop.Name);

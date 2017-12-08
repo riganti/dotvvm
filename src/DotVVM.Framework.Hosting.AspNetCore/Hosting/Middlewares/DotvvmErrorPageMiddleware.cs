@@ -63,12 +63,12 @@ namespace DotVVM.Framework.Hosting.Middlewares
                         writer.WriteLine("Error in Dotvvm Application:");
                         writer.WriteLine(error.ToString());
                         writer.WriteLine();
-                        writer.WriteLine("Error occured while displaying the error page. This it s internal error and should not happend, please report it:");
+                        writer.WriteLine("Error occurred while displaying the error page. This is internal error and should not happened, please report it:");
                         writer.WriteLine(exc.ToString());
                     }
                 }
                 catch { }
-                throw new Exception("Error occured inside dotvvm error handler, this is internal error and should not happen; \n Original error:" + error.ToString(), exc);
+                throw new Exception("Error occurred inside dotvvm error handler, this is internal error and should not happen; \n Original error:" + error.ToString(), exc);
             }
         }
 

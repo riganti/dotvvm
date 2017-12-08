@@ -1,6 +1,6 @@
 ﻿
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
+
 using System;
 using System.Linq;
 using DotVVM.Testing.Abstractions;

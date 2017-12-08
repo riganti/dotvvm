@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
@@ -60,16 +61,10 @@ namespace Microsoft.AspNetCore.Builder
 
             app.UseMiddleware<DotvvmMiddleware>(config, new List<IMiddleware> {
                 ActivatorUtilities.CreateInstance<DotvvmLocalResourceMiddleware>(app.ApplicationServices),
-                new DotvvmFileUploadMiddleware(),
+                DotvvmFileUploadMiddleware.TryCreate(app.ApplicationServices),
                 new DotvvmReturnedFileMiddleware(),
                 new DotvvmRoutingMiddleware()
-            });
-
-            var configurators = config.ServiceLocator.GetServiceProvider().GetServices<IConfigureOptions<DotvvmConfiguration>>();
-            foreach (var configurator in configurators)
-            {
-                configurator.Configure(config);
-            }
+            }.Where(t => t != null).ToArray());
 
             return config;
         }

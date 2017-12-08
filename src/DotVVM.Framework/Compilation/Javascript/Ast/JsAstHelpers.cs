@@ -78,5 +78,18 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             node.Remove();
             return node;
         }
+
+        /// Wraps the expression in `dotvvm.evaluator.wrapExpression` if needed
+        public static JsExpression EnsureObservableWrapped(this JsExpression expression) =>
+            // It's not needed to wrap if none of the descendants return an observalbe
+            !expression.DescendantNodes().Any(n => (n.HasAnnotation<ResultIsObservableAnnotation>() && !n.HasAnnotation<ShouldBeObservableAnnotation>()) || n.HasAnnotation<ObservableUnwrapInvocationAnnotation>()) ?
+
+                expression.WithAnnotation(ShouldBeObservableAnnotation.Instance) :
+
+                new JsIdentifierExpression("dotvvm").Member("evaluator").Member("wrapKnockoutExpression").Invoke(new JsFunctionExpression(
+                    parameters: Enumerable.Empty<JsIdentifier>(),
+                    bodyBlock: new JsBlockStatement(new JsReturnStatement(expression))))
+                    .WithAnnotation(ResultIsObservableAnnotation.Instance)
+                    .WithAnnotation(ShouldBeObservableAnnotation.Instance);
     }
 }

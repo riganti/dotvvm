@@ -20,20 +20,18 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
     <PackageReference Include="Microsoft.Owin.Security" Version="3.0.1" />
-    <PackageReference Include="Moq" Version="4.6.38-alpha" />
+    <PackageReference Include="Moq" Version="4.7.142" />
     <PackageReference Include="MSTest.TestFramework" Version="1.2.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.2.0" />
-    <PackageReference Include="Riganti.Utils.Testing.Selenium.Coordinator.Client" Version="2.0.0-alpha7" />
-    <PackageReference Include="Riganti.Utils.Testing.Selenium.Core" Version="2.0.0-alpha7" />
-    <PackageReference Include="Riganti.Utils.Testing.Selenium.Core.Abstractions" Version="2.0.0-alpha7" />
-    <PackageReference Include="Riganti.Utils.Testing.Selenium.DotVVM" Version="1.0.4" />
-    <PackageReference Include="Riganti.Utils.Testing.Selenium.FluentApi" Version="2.0.0-alpha7" />
-    <PackageReference Include="Riganti.Utils.Testing.Selenium.MSTest2Integration" Version="2.0.0-alpha7" />
-    <PackageReference Include="Riganti.Utils.Testing.Selenium.Validators" Version="2.0.0-alpha7" />
-    <PackageReference Include="Selenium.Support" Version="3.6.0" />
-    <PackageReference Include="Selenium.WebDriver" Version="3.6.0" />
+    <PackageReference Include="Riganti.Selenium.Coordinator.Client" Version="2.0.0-beta17" />
+    <PackageReference Include="Riganti.Selenium.Core" Version="2.0.0-beta17" />
+    <PackageReference Include="Riganti.Selenium.Core.Abstractions" Version="2.0.0-beta17" />
+    <PackageReference Include="Riganti.Selenium.DotVVM" Version="2.0.0-beta17" />
+    <PackageReference Include="Riganti.Selenium.FluentApi" Version="2.0.0-beta17" />
+    <PackageReference Include="Riganti.Selenium.MSTest2Integration" Version="2.0.0-beta17" />
+    <PackageReference Include="Riganti.Selenium.Validators" Version="2.0.0-beta17" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
     <Reference Include="System" />
@@ -47,4 +45,5 @@
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
+
 </Project>

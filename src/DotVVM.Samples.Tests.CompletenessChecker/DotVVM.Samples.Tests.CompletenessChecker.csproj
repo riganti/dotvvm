@@ -14,8 +14,14 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MSTest.TestFramework" Version="1.2.0" />
+  </ItemGroup>
+  
   <ItemGroup>
     <ProjectReference Include="..\DotVVM.Samples.Tests\DotVVM.Samples.Tests.csproj" />
+    <ProjectReference Include="..\DotVVM.Testing.Abstractions\DotVVM.Testing.Abstractions.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

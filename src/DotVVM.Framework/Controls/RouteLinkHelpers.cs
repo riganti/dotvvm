@@ -53,7 +53,7 @@ namespace DotVVM.Framework.Controls
             foreach (var param in parameters.Where(p => p.Value is IStaticValueBinding).ToList())
             {
                 EnsureValidBindingType(param.Value as BindingExpression);
-                parameters[param.Key] = ((ValueBindingExpression)param.Value).Evaluate(control);   // TODO: see below
+                parameters[param.Key] = ((IValueBinding)param.Value).Evaluate(control);   // TODO: see below
             }
 
             // generate the URL

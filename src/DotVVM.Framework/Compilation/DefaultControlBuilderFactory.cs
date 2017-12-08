@@ -7,6 +7,7 @@ using System.Reflection;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -15,15 +16,15 @@ namespace DotVVM.Framework.Compilation
     /// </summary>
     public class DefaultControlBuilderFactory : IControlBuilderFactory
     {
-        private DotvvmConfiguration configuration;
-        private IMarkupFileLoader markupFileLoader;
+        private readonly DotvvmConfiguration configuration;
+        private readonly IMarkupFileLoader markupFileLoader;
 
         public Func<IViewCompiler> ViewCompilerFactory { get; private set; }
 
         private ConcurrentDictionary<MarkupFile, (ControlBuilderDescriptor, Lazy<IControlBuilder>)> controlBuilders = new ConcurrentDictionary<MarkupFile, (ControlBuilderDescriptor, Lazy<IControlBuilder>)>();
 
 
-        public DefaultControlBuilderFactory(DotvvmConfiguration configuration)
+        public DefaultControlBuilderFactory(DotvvmConfiguration configuration, IMarkupFileLoader markupFileLoader)
         {
             for (int i = 0; i < compilationLocks.Length; i++)
             {
@@ -32,8 +33,10 @@ namespace DotVVM.Framework.Compilation
 
             this.configuration = configuration;
 
-            ViewCompilerFactory = () => configuration.ServiceLocator.GetService<IViewCompiler>();
-            markupFileLoader = configuration.ServiceLocator.GetService<IMarkupFileLoader>();
+            // WORKAROUND: there is a circular dependency
+            // TODO: get rid of that
+            this.ViewCompilerFactory = () => configuration.ServiceProvider.GetRequiredService<IViewCompiler>();
+            this.markupFileLoader = markupFileLoader;
 
             if (configuration.CompiledViewsAssemblies != null)
                 foreach (var assembly in configuration.CompiledViewsAssemblies)

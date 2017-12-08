@@ -4,6 +4,7 @@ using System;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Controls
 {
@@ -130,7 +131,7 @@ namespace DotVVM.Framework.Controls
 
         public abstract void CreateEditControls(IDotvvmRequestContext context, DotvvmControl container);
 
-        public virtual void CreateHeaderControls(IDotvvmRequestContext context, GridView gridView, Func<string, Task> sortCommand, HtmlGenericControl cell, IGridViewDataSet gridViewDataSet)
+        public virtual void CreateHeaderControls(IDotvvmRequestContext context, GridView gridView, Action<string> sortCommand, HtmlGenericControl cell, IGridViewDataSet gridViewDataSet)
         {
             if (HeaderTemplate != null)
             {
@@ -152,7 +153,7 @@ namespace DotVVM.Framework.Controls
                 cell.Children.Add(linkButton);
 
                 var bindingId = linkButton.GetValue(Internal.UniqueIDProperty) + "_sortBinding";
-                var binding = new CommandBindingExpression(context.Configuration.ServiceLocator.GetService<BindingCompilationService>().WithoutInitialization(), h => sortCommand(sortExpression), bindingId);
+                var binding = new CommandBindingExpression(context.Services.GetRequiredService<BindingCompilationService>().WithoutInitialization(), h => sortCommand(sortExpression), bindingId);
                 linkButton.SetBinding(ButtonBase.ClickProperty, binding);
 
                 SetSortedCssClass(cell, gridViewDataSet);
