@@ -4,6 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Hosting;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace DotVVM.Framework.Tests.Routing
 {
@@ -450,6 +454,28 @@ namespace DotVVM.Framework.Tests.Routing
             var route = new DotvvmRoute("Article/{name}@{domain}/{id:int}", null, null, null, configuration);
             IDictionary<string, object> parameters;
             Assert.IsFalse(route.IsMatch("Article/f" + new string('@', 2000) + "f/4f", out parameters));
+        }
+
+        [TestMethod]
+        public void DotvvmRoute_PresenterType()
+        {
+            var configuration = DotvvmConfiguration.CreateDefault(services => {
+                services.TryAddSingleton<TestPresenter>();
+            });
+
+            var table = new DotvvmRouteTable(configuration);
+            table.Add<TestPresenter>("Article", "", "", null);
+            Assert.IsInstanceOfType(table.First().GetPresenter(), typeof(TestPresenter));
+        }
+
+        
+    }
+
+    public class TestPresenter : IDotvvmPresenter
+    {
+        public Task ProcessRequest(IDotvvmRequestContext context)
+        {
+            throw new NotImplementedException();
         }
     }
 }
