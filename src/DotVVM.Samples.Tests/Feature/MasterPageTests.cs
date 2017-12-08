@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using DotVVM.Testing.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
-using Riganti.Utils.Testing;
+
 
 namespace DotVVM.Samples.Tests.Feature
 {

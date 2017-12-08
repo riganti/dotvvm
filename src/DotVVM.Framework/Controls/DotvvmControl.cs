@@ -185,7 +185,7 @@ namespace DotVVM.Framework.Controls
             catch (DotvvmControlException) { throw; }
             catch (Exception e)
             {
-                throw new DotvvmControlException(this, "Error occured in Render method", e);
+                throw new DotvvmControlException(this, "Error occurred in Render method", e);
             }
         }
 

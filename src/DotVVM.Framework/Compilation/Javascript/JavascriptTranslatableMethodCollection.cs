@@ -142,23 +142,31 @@ namespace DotVVM.Framework.Compilation.Javascript
                 args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("format").Invoke(args[1], args[2])
             ));
             AddMethodTranslator(typeof(DateTime).GetMethod("ToString", Type.EmptyTypes), new GenericMethodCompiler(
-                args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingDateToString").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])
+                args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingDateToString").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))
             ));
             AddMethodTranslator(typeof(DateTime).GetMethod("ToString", new[] { typeof(string) }), new GenericMethodCompiler(
                 args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingDateToString").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])
+            ));
+            AddMethodTranslator(typeof(DateTime?).GetMethod("ToString", Type.EmptyTypes), new GenericMethodCompiler(
+                args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingDateToString").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))
             ));
 
             foreach (var num in ReflectionUtils.NumericTypes.Except(new[] { typeof(char) }))
             {
                 AddMethodTranslator(num.GetMethod("ToString", Type.EmptyTypes), new GenericMethodCompiler(
                     args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingNumberToString")
-                            .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])
+                            .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))
                             .WithAnnotation(ResultIsObservableAnnotation.Instance)
                 ));
                 AddMethodTranslator(num.GetMethod("ToString", new[] { typeof(string) }), new GenericMethodCompiler(
                     args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingNumberToString")
                             .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])
                             .WithAnnotation(ResultIsObservableAnnotation.Instance)
+                ));
+                AddMethodTranslator(typeof(Nullable<>).MakeGenericType(num).GetMethod("ToString", Type.EmptyTypes), new GenericMethodCompiler(
+                    args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingNumberToString")
+                        .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))
+                        .WithAnnotation(ResultIsObservableAnnotation.Instance)
                 ));
             }
 
@@ -210,7 +218,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 }
             }
             var baseMethod = method.GetBaseDefinition();
-            if (baseMethod != null && baseMethod != method) return TryTranslateCall(context, args, method);
+            if (baseMethod != null && baseMethod != method) return TryTranslateCall(context, args, baseMethod);
             else return null;
         }
     }

@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.Core;
 using System;
 using System.Globalization;
 using System.Linq;
@@ -121,15 +121,14 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
-        //TODO: check this test
-        //[TestMethod]
-        //public void Control_CheckBox_NullCollection()
-        //{
-        //    RunInAllBrowsers(browser =>
-        //    {
-        //        browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_CheckBox_CheckedItemsNull);
-        //    });
-        //}
+        [TestMethod]
+        public void Control_CheckBox_NullCollection()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_CheckBox_CheckedItemsNull);
+            });
+        }
 
         [TestMethod]
         public void Control_CheckBox_Indeterminate()

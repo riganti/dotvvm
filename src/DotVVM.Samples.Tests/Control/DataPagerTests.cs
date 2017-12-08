@@ -1,7 +1,7 @@
 ﻿
 using DotVVM.Testing.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.Core;
 
 namespace DotVVM.Samples.Tests.Control
 {
@@ -199,20 +199,6 @@ namespace DotVVM.Samples.Tests.Control
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_DataPager_DataPager);
                 browser.Wait();
-                ShowHideControl(browser);
-            });
-        }
-
-        [TestMethod]
-        public void Control_DataPager_ShowHideControlAsync()
-        {
-            RunInAllBrowsers(browser =>
-            {
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_DataPager_DataPager);
-                browser.Wait();
-
-                browser.Single("shouldLoadAsync-button", this.SelectByDataUi).Click().Wait();
-
                 ShowHideControl(browser);
             });
         }

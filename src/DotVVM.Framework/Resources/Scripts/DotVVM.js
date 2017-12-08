@@ -16,7 +16,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var DotvvmDomUtils = (function () {
+var DotvvmDomUtils = /** @class */ (function () {
     function DotvvmDomUtils() {
     }
     DotvvmDomUtils.prototype.onDocumentReady = function (callback) {
@@ -34,7 +34,7 @@ var DotvvmDomUtils = (function () {
     };
     return DotvvmDomUtils;
 }());
-var DotvvmEvents = (function () {
+var DotvvmEvents = /** @class */ (function () {
     function DotvvmEvents() {
         this.init = new DotvvmEvent("dotvvm.events.init", true);
         this.beforePostback = new DotvvmEvent("dotvvm.events.beforePostback");
@@ -57,7 +57,7 @@ var DotvvmEvents = (function () {
 }());
 // DotvvmEvent is used because CustomEvent is not browser compatible and does not support
 // calling missed events for handler that subscribed too late.
-var DotvvmEvent = (function () {
+var DotvvmEvent = /** @class */ (function () {
     function DotvvmEvent(name, triggerMissedEventsOnSubscribe) {
         if (triggerMissedEventsOnSubscribe === void 0) { triggerMissedEventsOnSubscribe = false; }
         this.name = name;
@@ -89,7 +89,7 @@ var DotvvmEvent = (function () {
     };
     return DotvvmEvent;
 }());
-var DotvvmErrorEventArgs = (function () {
+var DotvvmErrorEventArgs = /** @class */ (function () {
     function DotvvmErrorEventArgs(sender, viewModel, viewModelName, xhr, postbackClientId, serverResponseObject, isSpaNavigationError) {
         if (serverResponseObject === void 0) { serverResponseObject = undefined; }
         if (isSpaNavigationError === void 0) { isSpaNavigationError = false; }
@@ -104,7 +104,7 @@ var DotvvmErrorEventArgs = (function () {
     }
     return DotvvmErrorEventArgs;
 }());
-var DotvvmBeforePostBackEventArgs = (function () {
+var DotvvmBeforePostBackEventArgs = /** @class */ (function () {
     function DotvvmBeforePostBackEventArgs(sender, viewModel, viewModelName, postbackClientId) {
         this.sender = sender;
         this.viewModel = viewModel;
@@ -115,7 +115,7 @@ var DotvvmBeforePostBackEventArgs = (function () {
     }
     return DotvvmBeforePostBackEventArgs;
 }());
-var DotvvmAfterPostBackEventArgs = (function () {
+var DotvvmAfterPostBackEventArgs = /** @class */ (function () {
     function DotvvmAfterPostBackEventArgs(postbackOptions, serverResponseObject, commandResult, xhr) {
         if (commandResult === void 0) { commandResult = null; }
         this.postbackOptions = postbackOptions;
@@ -147,7 +147,7 @@ var DotvvmAfterPostBackEventArgs = (function () {
     });
     return DotvvmAfterPostBackEventArgs;
 }());
-var DotvvmSpaNavigatingEventArgs = (function () {
+var DotvvmSpaNavigatingEventArgs = /** @class */ (function () {
     function DotvvmSpaNavigatingEventArgs(viewModel, viewModelName, newUrl) {
         this.viewModel = viewModel;
         this.viewModelName = viewModelName;
@@ -156,7 +156,7 @@ var DotvvmSpaNavigatingEventArgs = (function () {
     }
     return DotvvmSpaNavigatingEventArgs;
 }());
-var DotvvmSpaNavigatedEventArgs = (function () {
+var DotvvmSpaNavigatedEventArgs = /** @class */ (function () {
     function DotvvmSpaNavigatedEventArgs(viewModel, viewModelName, serverResponseObject) {
         this.viewModel = viewModel;
         this.viewModelName = viewModelName;
@@ -165,7 +165,7 @@ var DotvvmSpaNavigatedEventArgs = (function () {
     }
     return DotvvmSpaNavigatedEventArgs;
 }());
-var DotvvmRedirectEventArgs = (function () {
+var DotvvmRedirectEventArgs = /** @class */ (function () {
     function DotvvmRedirectEventArgs(viewModel, viewModelName, url, replace) {
         this.viewModel = viewModel;
         this.viewModelName = viewModelName;
@@ -175,7 +175,7 @@ var DotvvmRedirectEventArgs = (function () {
     }
     return DotvvmRedirectEventArgs;
 }());
-var DotvvmFileUpload = (function () {
+var DotvvmFileUpload = /** @class */ (function () {
     function DotvvmFileUpload() {
     }
     DotvvmFileUpload.prototype.showUploadDialog = function (sender) {
@@ -222,7 +222,7 @@ var DotvvmFileUpload = (function () {
     };
     return DotvvmFileUpload;
 }());
-var DotvvmFileUploadCollection = (function () {
+var DotvvmFileUploadCollection = /** @class */ (function () {
     function DotvvmFileUploadCollection() {
         this.Files = ko.observableArray();
         this.Progress = ko.observable(0);
@@ -231,7 +231,7 @@ var DotvvmFileUploadCollection = (function () {
     }
     return DotvvmFileUploadCollection;
 }());
-var DotvvmFileUploadData = (function () {
+var DotvvmFileUploadData = /** @class */ (function () {
     function DotvvmFileUploadData() {
         this.FileId = ko.observable();
         this.FileName = ko.observable();
@@ -242,14 +242,14 @@ var DotvvmFileUploadData = (function () {
     }
     return DotvvmFileUploadData;
 }());
-var DotvvmFileSize = (function () {
+var DotvvmFileSize = /** @class */ (function () {
     function DotvvmFileSize() {
         this.Bytes = ko.observable();
         this.FormattedText = ko.observable();
     }
     return DotvvmFileSize;
 }());
-var DotvvmGlobalize = (function () {
+var DotvvmGlobalize = /** @class */ (function () {
     function DotvvmGlobalize() {
     }
     DotvvmGlobalize.prototype.format = function (format) {
@@ -314,7 +314,7 @@ var DotvvmGlobalize = (function () {
         if (ko.isWriteableObservable(value)) {
             var unwrappedVal = unwrapDate();
             var setter_1 = typeof unwrappedVal == "string" ? function (v) {
-                return value(v == null ? null : dotvvm.serialization.serializeDate(v));
+                return value(v == null ? null : dotvvm.serialization.serializeDate(v, false));
             } : value;
             return ko.pureComputed({
                 read: function () { return formatDate(); },
@@ -346,8 +346,8 @@ var DotvvmGlobalize = (function () {
             return ko.pureComputed({
                 read: function () { return formatNumber(); },
                 write: function (val) {
-                    var parsedFloat = dotvvm_Globalize.parseFloat(val, 10, dotvvm.culture);
-                    value(isNaN(parsedFloat) ? null : parsedFloat);
+                    var parsedFloat = dotvvm_Globalize.parseFloat(val, 10, dotvvm.culture), isValid = val == null || (parsedFloat != null && !isNaN(parsedFloat));
+                    value(isValid ? parsedFloat : null);
                 }
             });
         }
@@ -357,7 +357,7 @@ var DotvvmGlobalize = (function () {
     };
     return DotvvmGlobalize;
 }());
-var PostbackOptions = (function () {
+var PostbackOptions = /** @class */ (function () {
     function PostbackOptions(postbackId, sender, args, viewModel, viewModelName) {
         if (args === void 0) { args = []; }
         this.postbackId = postbackId;
@@ -369,7 +369,7 @@ var PostbackOptions = (function () {
     }
     return PostbackOptions;
 }());
-var ConfirmPostBackHandler = (function () {
+var ConfirmPostBackHandler = /** @class */ (function () {
     function ConfirmPostBackHandler(message) {
         this.message = message;
     }
@@ -386,7 +386,7 @@ var ConfirmPostBackHandler = (function () {
     };
     return ConfirmPostBackHandler;
 }());
-var DotvvmSerialization = (function () {
+var DotvvmSerialization = /** @class */ (function () {
     function DotvvmSerialization() {
     }
     DotvvmSerialization.prototype.deserialize = function (viewModel, target, deserializeAll) {
@@ -712,7 +712,7 @@ var DotvvmSerialization = (function () {
 document.getElementByDotvvmId = function (id) {
     return document.querySelector("[data-dotvvm-id='" + id + "']");
 };
-var DotVVM = (function () {
+var DotVVM = /** @class */ (function () {
     function DotVVM() {
         var _this = this;
         this.postBackCounter = 0;
@@ -1088,7 +1088,7 @@ var DotVVM = (function () {
         if (viewModel === void 0) { viewModel = context.$root; }
         var options = new PostbackOptions(this.backUpPostBackConter(), sender, args, viewModel, viewModelName);
         return this.applyPostbackHandlersCore(callback, options, this.findPostbackHandlers(context, this.globalPostbackHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers)))
-            .then(function (r) { return r(); }, Promise.reject);
+            .then(function (r) { return r(); }, function (r) { return Promise.reject(r); });
     };
     DotVVM.prototype.postbackCore = function (options, path, command, controlUniqueId, context, commandArgs) {
         var _this = this;
@@ -1786,9 +1786,10 @@ var DotVVM = (function () {
         };
         ko.bindingHandlers['dotvvm-textbox-text'] = {
             init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-                var obs = valueAccessor();
+                var obs = valueAccessor(), valueUpdate = allBindingsAccessor.get("valueUpdate");
                 //generate metadata func
                 var elmMetadata = new DotvvmValidationElementMetadata();
+                elmMetadata.element = element;
                 elmMetadata.dataType = (element.attributes["data-dotvvm-value-type"] || { value: "" }).value;
                 elmMetadata.format = (element.attributes["data-dotvvm-format"] || { value: "" }).value;
                 //add metadata for validation
@@ -1814,7 +1815,7 @@ var DotVVM = (function () {
                         }
                     });
                 }, 0, obs.dotvvmMetadata.elementsMetadata, element);
-                dotvvm.domUtils.attachEvent(element, "blur", function () {
+                dotvvm.domUtils.attachEvent(element, "change", function () {
                     if (!ko.isObservable(obs))
                         return;
                     // parse the value
@@ -1860,10 +1861,26 @@ var DotVVM = (function () {
                 });
             },
             update: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-                var value = ko.unwrap(valueAccessor());
-                var format = (element.attributes["data-dotvvm-format"] || { value: "" }).value;
+                var obs = valueAccessor(), format = (element.attributes["data-dotvvm-format"] || { value: "" }).value, value = ko.unwrap(obs);
                 if (format) {
-                    element.value = dotvvm.globalize.formatString(format, value) || element.attributes["data-invalid-value"] || "";
+                    var formatted = dotvvm.globalize.formatString(format, value), invalidValue = element.attributes["data-invalid-value"];
+                    if (invalidValue == null) {
+                        element.value = formatted || "";
+                        if (obs.dotvvmMetadata && obs.dotvvmMetadata.elementsMetadata) {
+                            var elemsMetadata = obs.dotvvmMetadata.elementsMetadata;
+                            for (var _i = 0, elemsMetadata_1 = elemsMetadata; _i < elemsMetadata_1.length; _i++) {
+                                var elemMetadata = elemsMetadata_1[_i];
+                                if (elemMetadata.element === element) {
+                                    element.attributes["data-dotvvm-value-type-valid"] = true;
+                                    elemMetadata.elementValidationState = true;
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        element.attributes["data-invalid-value"] = null;
+                        element.value = invalidValue;
+                    }
                 }
                 else {
                     element.value = value;
@@ -1900,7 +1917,7 @@ var DotVVM = (function () {
 }());
 /// <reference path="typings/knockout/knockout.d.ts" />
 /// <reference path="DotVVM.ts" />
-var DotvvmValidationContext = (function () {
+var DotvvmValidationContext = /** @class */ (function () {
     function DotvvmValidationContext(valueToValidate, parentViewModel, parameters) {
         this.valueToValidate = valueToValidate;
         this.parentViewModel = parentViewModel;
@@ -1908,18 +1925,18 @@ var DotvvmValidationContext = (function () {
     }
     return DotvvmValidationContext;
 }());
-var DotvvmValidationObservableMetadata = (function () {
+var DotvvmValidationObservableMetadata = /** @class */ (function () {
     function DotvvmValidationObservableMetadata() {
     }
     return DotvvmValidationObservableMetadata;
 }());
-var DotvvmValidationElementMetadata = (function () {
+var DotvvmValidationElementMetadata = /** @class */ (function () {
     function DotvvmValidationElementMetadata() {
         this.elementValidationState = true;
     }
     return DotvvmValidationElementMetadata;
 }());
-var DotvvmValidatorBase = (function () {
+var DotvvmValidatorBase = /** @class */ (function () {
     function DotvvmValidatorBase() {
     }
     DotvvmValidatorBase.prototype.isValid = function (context, property) {
@@ -1933,7 +1950,7 @@ var DotvvmValidatorBase = (function () {
     };
     return DotvvmValidatorBase;
 }());
-var DotvvmRequiredValidator = (function (_super) {
+var DotvvmRequiredValidator = /** @class */ (function (_super) {
     __extends(DotvvmRequiredValidator, _super);
     function DotvvmRequiredValidator() {
         return _super !== null && _super.apply(this, arguments) || this;
@@ -1944,7 +1961,7 @@ var DotvvmRequiredValidator = (function (_super) {
     };
     return DotvvmRequiredValidator;
 }(DotvvmValidatorBase));
-var DotvvmRegularExpressionValidator = (function (_super) {
+var DotvvmRegularExpressionValidator = /** @class */ (function (_super) {
     __extends(DotvvmRegularExpressionValidator, _super);
     function DotvvmRegularExpressionValidator() {
         return _super !== null && _super.apply(this, arguments) || this;
@@ -1956,7 +1973,7 @@ var DotvvmRegularExpressionValidator = (function (_super) {
     };
     return DotvvmRegularExpressionValidator;
 }(DotvvmValidatorBase));
-var DotvvmIntRangeValidator = (function (_super) {
+var DotvvmIntRangeValidator = /** @class */ (function (_super) {
     __extends(DotvvmIntRangeValidator, _super);
     function DotvvmIntRangeValidator() {
         return _super !== null && _super.apply(this, arguments) || this;
@@ -1969,7 +1986,7 @@ var DotvvmIntRangeValidator = (function (_super) {
     };
     return DotvvmIntRangeValidator;
 }(DotvvmValidatorBase));
-var DotvvmEnforceClientFormatValidator = (function (_super) {
+var DotvvmEnforceClientFormatValidator = /** @class */ (function (_super) {
     __extends(DotvvmEnforceClientFormatValidator, _super);
     function DotvvmEnforceClientFormatValidator() {
         return _super !== null && _super.apply(this, arguments) || this;
@@ -1999,7 +2016,7 @@ var DotvvmEnforceClientFormatValidator = (function (_super) {
     };
     return DotvvmEnforceClientFormatValidator;
 }(DotvvmValidatorBase));
-var DotvvmRangeValidator = (function (_super) {
+var DotvvmRangeValidator = /** @class */ (function (_super) {
     __extends(DotvvmRangeValidator, _super);
     function DotvvmRangeValidator() {
         return _super !== null && _super.apply(this, arguments) || this;
@@ -2012,7 +2029,7 @@ var DotvvmRangeValidator = (function (_super) {
     };
     return DotvvmRangeValidator;
 }(DotvvmValidatorBase));
-var DotvvmNotNullValidator = (function (_super) {
+var DotvvmNotNullValidator = /** @class */ (function (_super) {
     __extends(DotvvmNotNullValidator, _super);
     function DotvvmNotNullValidator() {
         return _super !== null && _super.apply(this, arguments) || this;
@@ -2022,7 +2039,7 @@ var DotvvmNotNullValidator = (function (_super) {
     };
     return DotvvmNotNullValidator;
 }(DotvvmValidatorBase));
-var ValidationError = (function () {
+var ValidationError = /** @class */ (function () {
     function ValidationError(validatedObservable, errorMessage) {
         this.validatedObservable = validatedObservable;
         this.errorMessage = errorMessage;
@@ -2048,7 +2065,7 @@ var ValidationError = (function () {
     };
     return ValidationError;
 }());
-var DotvvmValidation = (function () {
+var DotvvmValidation = /** @class */ (function () {
     function DotvvmValidation(dotvvm) {
         var _this = this;
         this.rules = {
@@ -2224,10 +2241,10 @@ var DotvvmValidation = (function () {
                 dotvvm.viewModels[args.viewModelName].validationRules = {};
                 existingRules = dotvvm.viewModels[args.viewModelName].validationRules;
             }
-            for (var type in args.serverResponseObject) {
-                if (!args.serverResponseObject.hasOwnProperty(type))
+            for (var type in args.serverResponseObject.validationRules) {
+                if (!args.serverResponseObject.validationRules.hasOwnProperty(type))
                     continue;
-                existingRules[type] = args.serverResponseObject[type];
+                existingRules[type] = args.serverResponseObject.validationRules[type];
             }
         }
     };
@@ -2342,7 +2359,7 @@ var DotvvmValidation = (function () {
     return DotvvmValidation;
 }());
 ;
-var DotvvmEvaluator = (function () {
+var DotvvmEvaluator = /** @class */ (function () {
     function DotvvmEvaluator() {
     }
     DotvvmEvaluator.prototype.evaluateOnViewModel = function (context, expression) {
@@ -2522,7 +2539,7 @@ var DotvvmEvaluator = (function () {
 }());
 /// <reference path="typings/knockout/knockout.d.ts" />
 /// <reference path="DotVVM.ts" />
-var DotvvmEventHub = (function () {
+var DotvvmEventHub = /** @class */ (function () {
     function DotvvmEventHub() {
         this.map = {};
     }

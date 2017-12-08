@@ -1,11 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Text;
-using DotVVM.Testing.Abstractions;
+﻿using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace DotVVM.Samples.Tests.New
+namespace DotVVM.Samples.Tests.New.Control
 {
     public class ButtonTests : AppSeleniumTest
     {

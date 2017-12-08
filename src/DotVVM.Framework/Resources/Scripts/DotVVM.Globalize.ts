@@ -63,11 +63,11 @@
 
             return "";
         }
-        
+
         if (ko.isWriteableObservable(value)) {
             const unwrappedVal = unwrapDate();
             const setter = typeof unwrappedVal == "string" ? v => {
-                 return value(v == null ? null : dotvvm.serialization.serializeDate(v));
+                return value(v == null ? null : dotvvm.serialization.serializeDate(v, false));
             } : value;
             return ko.pureComputed({
                 read: () => formatDate(),
@@ -98,13 +98,15 @@
 
             return "";
         }
-        
+
         if (ko.isWriteableObservable(value)) {
             return ko.pureComputed({
                 read: () => formatNumber(),
                 write: val => {
-                    const parsedFloat = dotvvm_Globalize.parseFloat(val, 10, dotvvm.culture);
-                    value(isNaN(parsedFloat) ? null : parsedFloat);
+                    const parsedFloat = dotvvm_Globalize.parseFloat(val, 10, dotvvm.culture),
+                        isValid = val == null || (parsedFloat != null && !isNaN(parsedFloat));
+
+                    value(isValid ? parsedFloat : null);
                 }
             });
         }

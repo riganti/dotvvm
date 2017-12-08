@@ -1,8 +1,8 @@
 ﻿
 using DotVVM.Testing.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing;
-using Riganti.Utils.Testing.Selenium.Core;
+
+using Riganti.Selenium.Core;
 
 namespace DotVVM.Samples.Tests.Control
 {

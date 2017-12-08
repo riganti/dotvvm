@@ -1,7 +1,7 @@
 ﻿
 using DotVVM.Testing.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing;
+
 
 namespace DotVVM.Samples.Tests.Feature
 {

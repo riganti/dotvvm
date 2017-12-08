@@ -11,7 +11,7 @@ DotVVM = HTML + C#
 
 [DotVVM](https://www.dotvvm.com) is an ASP.NET framework that lets you build **line-of-business applications** and **SPAs** without writing tons of JavaScript code. You only have to write a viewmodel in C# and a view in HTML. DotVVM will do the rest for you.
 
-**DotVVM** brings full **MVVM** experience and it uses **KnockoutJS** on the client side. It handles the client-server communication, validation, localization, date & time formatting on the client side, SPAs and much more. 
+**DotVVM** brings full **MVVM** experience and it uses **KnockoutJS** on the client side. It handles the client-server communication, validation, date & time formatting on the client side, SPAs and much more. 
 
 It is open source, it supports both OWIN and ASP.NET Core and it runs on **.NET Framework**, **.NET Core** and **Mono**.
 

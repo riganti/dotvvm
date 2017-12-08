@@ -369,6 +369,8 @@ namespace DotVVM.Testing.Abstractions {
 
             public static string FeatureSamples_Validation_EssentialTypeValidation => "FeatureSamples/Validation/EssentialTypeValidation";
 
+            public static string FeatureSamples_Validation_Localization => "FeatureSamples/Validation/Localization";
+
             public static string FeatureSamples_Validation_ModelStateErrors => "FeatureSamples/Validation/ModelStateErrors";
 
             public static string FeatureSamples_Validation_NestedValidation => "FeatureSamples/Validation/NestedValidation";
