@@ -1586,12 +1586,16 @@ var DotVVM = /** @class */ (function () {
         return ko.unwrap(ko.unwrap(array));
     };
     DotVVM.prototype.buildRouteUrl = function (routePath, params) {
-        return routePath.replace(/\{([^\}]+?)\??(:(.+?))?\}/g, function (s, paramName, hsjdhsj, type) {
+        var url = routePath.replace(/\{([^\}]+?)\??(:(.+?))?\}/g, function (s, paramName, hsjdhsj, type) {
             if (!paramName)
                 return "";
             var x = ko.unwrap(params[paramName.toLowerCase()]);
             return x == null ? "" : x;
         });
+        if (url.indexOf('/') === 0) {
+            return url.substring(1);
+        }
+        return url;
     };
     DotVVM.prototype.buildUrlSuffix = function (urlSuffix, query) {
         var resultSuffix, hashSuffix;
