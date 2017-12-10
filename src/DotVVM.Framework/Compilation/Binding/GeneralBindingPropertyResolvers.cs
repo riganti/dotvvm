@@ -47,19 +47,19 @@ namespace DotVVM.Framework.Compilation.Binding
             return new ActionFiltersBindingProperty(list.ToImmutableArray());
         }
 
-        public Expression<CompiledBindingExpression.BindingDelegate> CompileToDelegate(
+        public Expression<BindingDelegate> CompileToDelegate(
             CastedExpressionBindingProperty expression, DataContextStack dataContext)
         {
             var expr = BindingCompiler.ReplaceParameters(expression.Expression, dataContext);
             expr = new ExpressionNullPropagationVisitor(e => true).Visit(expr);
             expr = ExpressionUtils.ConvertToObject(expr);
-            return Expression.Lambda<CompiledBindingExpression.BindingDelegate>(expr, BindingCompiler.ViewModelsParameter, BindingCompiler.CurrentControlParameter);
+            return Expression.Lambda<BindingDelegate>(expr, BindingCompiler.ViewModelsParameter, BindingCompiler.CurrentControlParameter);
         }
 
         public CastedExpressionBindingProperty ConvertExpressionToType(ParsedExpressionBindingProperty expr, ExpectedTypeBindingProperty expectedType = null) =>
             new CastedExpressionBindingProperty(TypeConversion.ImplicitConversion(expr.Expression, expectedType?.Type ?? typeof(object), throwException: true, allowToString: true));
 
-        public Expression<CompiledBindingExpression.BindingUpdateDelegate> CompileToUpdateDelegate(ParsedExpressionBindingProperty binding, DataContextStack dataContext)
+        public Expression<BindingUpdateDelegate> CompileToUpdateDelegate(ParsedExpressionBindingProperty binding, DataContextStack dataContext)
         {
             var valueParameter = Expression.Parameter(typeof(object), "value");
             var expr = BindingCompiler.ReplaceParameters(binding.Expression, dataContext);
@@ -70,7 +70,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 expr.NodeType != ExpressionType.Index) return null;
 
             var assignment = Expression.Assign(expr, Expression.Convert(valueParameter, expr.Type));
-            return Expression.Lambda<CompiledBindingExpression.BindingUpdateDelegate>(assignment, BindingCompiler.ViewModelsParameter, BindingCompiler.CurrentControlParameter, valueParameter);
+            return Expression.Lambda<BindingUpdateDelegate>(assignment, BindingCompiler.ViewModelsParameter, BindingCompiler.CurrentControlParameter, valueParameter);
         }
 
         public BindingParserOptions GetDefaultBindingParserOptions(IBinding binding)
@@ -101,7 +101,10 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public KnockoutExpressionBindingProperty FormatJavascript(KnockoutJsExpressionBindingProperty expression)
         {
-            return new KnockoutExpressionBindingProperty(FormatJavascript(expression.Expression, true, niceMode: configuration.Debug), FormatJavascript(expression.Expression, false, niceMode: configuration.Debug));
+            return new KnockoutExpressionBindingProperty(
+                FormatJavascript(expression.Expression, true, niceMode: configuration.Debug),
+                FormatJavascript(expression.Expression, false, niceMode: configuration.Debug),
+                FormatJavascript(expression.Expression.Clone().EnsureObservableWrapped(), true, niceMode: configuration.Debug));
         }
 
         public static ParametrizedCode FormatJavascript(JsExpression node, bool allowObservableResult = true, bool niceMode = false, bool nullChecks = true)
@@ -157,8 +160,8 @@ namespace DotVVM.Framework.Compilation.Binding
                 .Aggregate((a, b) => a.ApplySecond(b));
         }
 
-        public CompiledBindingExpression.BindingDelegate Compile(Expression<CompiledBindingExpression.BindingDelegate> expr) => expr.Compile();
-        public CompiledBindingExpression.BindingUpdateDelegate Compile(Expression<CompiledBindingExpression.BindingUpdateDelegate> expr) => expr.Compile();
+        public BindingDelegate Compile(Expression<BindingDelegate> expr) => expr.Compile();
+        public BindingUpdateDelegate Compile(Expression<BindingUpdateDelegate> expr) => expr.Compile();
 
         private ConditionalWeakTable<ResolvedTreeRoot, ConcurrentDictionary<DataContextStack, int>> bindingCounts = new ConditionalWeakTable<ResolvedTreeRoot, ConcurrentDictionary<DataContextStack, int>>();
 

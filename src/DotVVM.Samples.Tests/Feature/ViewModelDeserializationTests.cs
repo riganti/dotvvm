@@ -1,16 +1,17 @@
-﻿using Dotvvm.Samples.Tests;
+﻿
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Testing.Abstractions;
 
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class ViewModelDeserializationTests : SeleniumTest
+    public class ViewModelDeserializationTests : AppSeleniumTest
     {
         [TestMethod]
         public void Feature_ViewModelDeserialization_DoesNotDropObject()

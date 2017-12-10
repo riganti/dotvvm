@@ -24,8 +24,12 @@ namespace DotVVM.Framework.Diagnostics
         {
             try
             {
-                var diagnosticsJson = File.ReadAllText(DiagnosticsServerConfiguration.DiagnosticsFilePath);
-                configuration = JsonConvert.DeserializeObject<DiagnosticsServerConfiguration>(diagnosticsJson);
+                var path = DiagnosticsServerConfiguration.DiagnosticsFilePath;
+                if (path != null && File.Exists(path))
+                {
+                    var diagnosticsJson = File.ReadAllText(path);
+                    configuration = JsonConvert.DeserializeObject<DiagnosticsServerConfiguration>(diagnosticsJson);
+                }
             }
             catch
             {

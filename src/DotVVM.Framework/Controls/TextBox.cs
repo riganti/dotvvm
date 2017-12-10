@@ -24,8 +24,7 @@ namespace DotVVM.Framework.Controls
         }
 
         public static readonly DotvvmProperty EnabledProperty =
-            DotvvmPropertyWithFallback.Register<bool, TextBox>(nameof(Enabled),
-                FormControls.EnabledProperty, defaultPropertyInherit: true);
+            DotvvmPropertyWithFallback.Register<bool, TextBox>(nameof(Enabled), FormControls.EnabledProperty);
 
 
         /// <summary>
@@ -116,13 +115,16 @@ namespace DotVVM.Framework.Controls
             set { SetValue(ValueTypeProperty, value); }
         }
 
+        [Obsolete("ValueType property is no longer required, it is automatically inferred from compile-time type of Text binding")]
         public static readonly DotvvmProperty ValueTypeProperty =
             DotvvmProperty.Register<FormatValueType, TextBox>(t => t.ValueType);
 
         protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
             isFormattingRequired = !string.IsNullOrEmpty(FormatString) ||
+                #pragma warning disable
                 ValueType != FormatValueType.Text ||
+                #pragma warning restore
                 Literal.NeedsFormatting(GetValueBinding(TextProperty));
             if (isFormattingRequired)
             {
@@ -184,6 +186,7 @@ namespace DotVVM.Framework.Controls
                 }
             }, UpdateTextAfterKeydown ? "afterkeydown" : null, renderEvenInServerRenderingMode: true);
             var binding = GetValueBinding(TextProperty);
+            var resultType = binding?.ResultType;
             var formatString = FormatString;
             if (string.IsNullOrEmpty(formatString))
             {
@@ -194,15 +197,18 @@ namespace DotVVM.Framework.Controls
             }
 
             writer.AddAttribute("data-dotvvm-format", formatString);
+
+            #pragma warning disable
             if (ValueType != FormatValueType.Text)
             {
                 writer.AddAttribute("data-dotvvm-value-type", ValueType.ToString().ToLowerInvariant());
             }
-            else if (binding?.ResultType == typeof(DateTime))
+            #pragma warning restore
+            else if (resultType == typeof(DateTime) || resultType == typeof(DateTime?))
             {
                 writer.AddAttribute("data-dotvvm-value-type", "datetime");
             }
-            else if (ReflectionUtils.IsNumericType(binding?.ResultType))
+            else if (resultType.IsNumericType())
             {
                 writer.AddAttribute("data-dotvvm-value-type", "number");
             }

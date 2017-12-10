@@ -38,7 +38,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
 
                 var symbols = InitSymbols(dataContexts);
-                symbols = options.AddTypes(symbols);
+                symbols = options.AddImportedTypes(symbols);
                 symbols = symbols.AddSymbols(options.ExtensionParameters.Select(p => CreateParameter(dataContexts, p.Identifier, p)));
 
                 var visitor = new ExpressionBuildingVisitor(symbols);
@@ -103,7 +103,12 @@ namespace DotVVM.Framework.Compilation.Binding
         }
 
         static ParameterExpression CreateParameter(DataContextStack stackItem, string name, BindingExtensionParameter extensionParameter = null) =>
-            Expression.Parameter((extensionParameter == null ? stackItem.DataContextType : ResolvedTypeDescriptor.ToSystemType(extensionParameter.ParameterType)) ?? typeof(ExpressionHelper.UnknownTypeSentinel), name)
+            Expression.Parameter(
+                (extensionParameter == null 
+                    ? stackItem.DataContextType 
+                    : ResolvedTypeDescriptor.ToSystemType(extensionParameter.ParameterType)) 
+                    ?? typeof(ExpressionHelper.UnknownTypeSentinel)
+                , name)
             .AddParameterAnnotation(new BindingParameterAnnotation(stackItem, extensionParameter));
     }
 }

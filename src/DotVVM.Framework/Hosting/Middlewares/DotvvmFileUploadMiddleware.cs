@@ -10,6 +10,7 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Storage;
 using Microsoft.AspNet.WebUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Hosting.Middlewares
@@ -18,12 +19,27 @@ namespace DotVVM.Framework.Hosting.Middlewares
     {
         private static readonly Regex baseMimeTypeRegex = new Regex(@"/.*$");
         private static readonly Regex wildcardMimeTypeRegex = new Regex(@"/\*$");
+        private readonly IOutputRenderer outputRenderer;
+        private readonly IUploadedFileStorage fileStorage;
 
-        private DotvvmConfiguration _configuration;
+        public DotvvmFileUploadMiddleware(IOutputRenderer outputRenderer, IUploadedFileStorage fileStorage)
+        {
+            this.outputRenderer = outputRenderer;
+            this.fileStorage = fileStorage;
+        }
+
+        public static DotvvmFileUploadMiddleware TryCreate(IServiceProvider provider)
+        {
+            var renderer = provider.GetRequiredService<IOutputRenderer>();
+            var fileStorage = provider.GetService<IUploadedFileStorage>();
+            if (fileStorage != null)
+                return new DotvvmFileUploadMiddleware(renderer, fileStorage);
+            else
+                return null;
+        }
 
         public async Task<bool> Handle(IDotvvmRequestContext request)
         {
-            _configuration = request.Configuration;
             var url = DotvvmMiddlewareBase.GetCleanRequestUrl(request.HttpContext);
 
             // file upload handler
@@ -80,7 +96,6 @@ namespace DotVVM.Framework.Hosting.Middlewares
 
         private async Task RenderResponse(IHttpContext context, bool isPost, string errorMessage, List<UploadedFile> uploadedFiles)
         {
-            var outputRenderer = _configuration.ServiceLocator.GetService<IOutputRenderer>();
             if (isPost && ShouldReturnJsonResponse(context))
             {
                 // modern browser - return JSON
@@ -131,16 +146,13 @@ namespace DotVVM.Framework.Hosting.Middlewares
 
         private async Task SaveFiles(IHttpContext context, Group boundary, List<UploadedFile> uploadedFiles)
         {
-            // get the file store
-            var fileStore = _configuration.ServiceLocator.GetService<IUploadedFileStorage>();
-
             // parse the stream
             var multiPartReader = new MultipartReader(boundary.Value, context.Request.Body);
             MultipartSection section;
             while ((section = await multiPartReader.ReadNextSectionAsync()) != null)
             {
                 // process the section
-                var result = await StoreFile(context, section, fileStore);
+                var result = await StoreFile(context, section, fileStorage);
                 if (result != null)
                 {
                     uploadedFiles.Add(result);
@@ -158,7 +170,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
             var fileName = fileNameGroup.Success ? fileNameGroup.Value : string.Empty;
             var mimeType = section.ContentType ?? string.Empty;
             var fileSize = section.Body.Length;
-            
+
             return new UploadedFile {
                 FileId = fileId,
                 FileName = fileName,

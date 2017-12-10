@@ -13,6 +13,9 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.Javascript;
 using System.Collections;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Hosting;
+using Moq;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -26,7 +29,7 @@ namespace DotVVM.Framework.Tests.Runtime
         public void INIT()
         {
             this.configuration = DotvvmTestHelper.CreateConfiguration();
-            this.bindingService = configuration.ServiceLocator.GetService<BindingCompilationService>();
+            this.bindingService = configuration.ServiceProvider.GetRequiredService<BindingCompilationService>();
         }
 
 
@@ -35,7 +38,7 @@ namespace DotVVM.Framework.Tests.Runtime
             configuration = configuration ?? DotvvmTestHelper.CreateConfiguration();
             return new TestDotvvmRequestContext() {
                 Configuration = configuration,
-                ResourceManager = new ResourceManagement.ResourceManager(configuration),
+                ResourceManager = new ResourceManagement.ResourceManager(configuration.Resources),
                 ViewModel = viewModel
             };
         }
@@ -82,7 +85,7 @@ namespace DotVVM.Framework.Tests.Runtime
                 var repeater = new Repeater() {
                     ItemTemplate = new DelegateTemplate((f, s, c) => c.Children.Add(new HtmlGenericControl("ITEM_TAG"))),
                     EmptyDataTemplate = new DelegateTemplate((f, s, c) => c.Children.Add(new HtmlGenericControl("EMPTY_DATA"))),
-                    DataSource = ValueBindingExpression.CreateThisBinding<string[]>(configuration.ServiceLocator.GetService<BindingCompilationService>(), null),
+                    DataSource = ValueBindingExpression.CreateThisBinding<string[]>(configuration.ServiceProvider.GetRequiredService<BindingCompilationService>(), null),
                     RenderWrapperTag = false
                 };
                 repeater.SetValue(RenderSettings.ModeProperty, renderMode);
@@ -137,6 +140,32 @@ namespace DotVVM.Framework.Tests.Runtime
         }
 
         [TestMethod]
+        public void HtmlGenericControl_MetaTag_RenderContentAttribute()
+        {
+            var context = CreateContext(new object());
+            var mockHttpContext = new Mock<IHttpContext>();
+            var mockHttpRequest = new Mock<IHttpRequest>();
+            var mockPathBase = new Mock<IPathString>();
+
+            mockPathBase.Setup(p => p.Value).Returns("home");
+            mockHttpRequest.Setup(p => p.PathBase).Returns(mockPathBase.Object);
+            mockHttpContext.Setup(p => p.Request).Returns(mockHttpRequest.Object);
+            context.HttpContext = mockHttpContext.Object;
+
+            var clientHtml = InvokeLifecycleAndRender(new HtmlGenericControl("meta") 
+            {
+                Attributes =
+                {
+                    { "content", "~/test" }
+                }
+            }, context);
+
+            Assert.IsTrue(clientHtml.Contains("<meta"));
+            Assert.IsTrue(clientHtml.Contains("/home/test"));
+            Assert.IsTrue(!clientHtml.Contains("~"));
+        }
+
+        [TestMethod]
         public void MarkupControl_WrapperTagDirective()
         {
             var viewModel = new string[] { };
@@ -157,6 +186,27 @@ namespace DotVVM.Framework.Tests.Runtime
             Assert.IsTrue(clientHtml.Contains("<elem2"));
             Assert.IsTrue(!clientHtml.Contains("<div"));
             Assert.IsTrue(clientHtml.Contains("<elem3"));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(DotvvmControlException))]
+        public void MarkupControl_WrapperTagAndNoWrapperTagDirective()
+        {
+            var viewModel = new string[] { };
+            var clientHtml = InvokeLifecycleAndRender(new HtmlGenericControl("elem1")
+            {
+                Children = {
+                    new DotvvmMarkupControl(){
+                        Directives = {
+                            ["wrapperTag"] = "elem3",
+                            ["noWrapperTag"] = ""
+                        },
+                        Children = {
+                            new HtmlGenericControl("elem2")
+                        }
+                    }
+                }
+            }, CreateContext(viewModel));
         }
     }
 }

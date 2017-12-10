@@ -22,8 +22,8 @@ namespace DotVVM.Framework.Binding.Expressions
     {
         public ControlPropertyBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties) { }
 
-        public new CompiledBindingExpression.BindingDelegate<T> BindingDelegate => base.BindingDelegate.ToGeneric<T>();
+        public new BindingDelegate<T> BindingDelegate => base.BindingDelegate.ToGeneric<T>();
 
-        public new CompiledBindingExpression.BindingUpdateDelegate<T> UpdateDelegate => base.UpdateDelegate.ToGeneric<T>();
+        public new BindingUpdateDelegate<T> UpdateDelegate => base.UpdateDelegate.ToGeneric<T>();
     }
 }

@@ -33,7 +33,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
 
 #if !NETCOREAPP1_0
-            System.Threading.Thread.CurrentThread.CurrentCulture = 
+            System.Threading.Thread.CurrentThread.CurrentCulture =
             System.Threading.Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo("cs-CZ");
 #else
             CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = new CultureInfo("cs-CZ");
@@ -49,6 +49,47 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             {
                 ReflectionUtils.ConvertValue("Local | NonPublic", typeof(DateTimeKind));
             });
+        }
+
+        [TestMethod]
+        public void ValueConversion_CommaInDoubleThrowException()
+        {
+            Assert.ThrowsException<FormatException>(() => {
+                ReflectionUtils.ConvertValue("1,2", typeof(double));
+            });
+            Assert.ThrowsException<FormatException>(() => {
+                ReflectionUtils.ConvertValue("1,2", typeof(float));
+            });
+            Assert.ThrowsException<FormatException>(() => {
+                ReflectionUtils.ConvertValue("1,2", typeof(decimal));
+            });
+            Assert.ThrowsException<FormatException>(() => {
+                ReflectionUtils.ConvertValue("1,2", typeof(long));
+            });
+            Assert.ThrowsException<FormatException>(() => {
+                ReflectionUtils.ConvertValue("1 2", typeof(int));
+            });
+        }
+
+        [TestMethod]
+        public void ValueConversions_BasicNumberTypes()
+        {
+            Assert.AreEqual(3, ReflectionUtils.ConvertValue("3", typeof(int)));
+            Assert.AreEqual(3, ReflectionUtils.ConvertValue("+3", typeof(int)));
+            Assert.AreEqual(-66, ReflectionUtils.ConvertValue("-66", typeof(int)));
+            Assert.AreEqual(15, ReflectionUtils.ConvertValue("00015", typeof(int)));
+            Assert.AreEqual((uint)3, ReflectionUtils.ConvertValue("3", typeof(uint)));
+            Assert.AreEqual(long.MaxValue, ReflectionUtils.ConvertValue(long.MaxValue.ToString(), typeof(long)));
+            Assert.AreEqual(ulong.MaxValue, ReflectionUtils.ConvertValue(ulong.MaxValue.ToString(), typeof(ulong)));
+            Assert.AreEqual((byte)5, ReflectionUtils.ConvertValue("5", typeof(byte)));
+            Assert.AreEqual((sbyte)-5, ReflectionUtils.ConvertValue("-5", typeof(sbyte)));
+
+            Assert.AreEqual(5.5, ReflectionUtils.ConvertValue("5.5", typeof(double)));
+            Assert.AreEqual(5.5f, ReflectionUtils.ConvertValue("5.5", typeof(float)));
+            Assert.AreEqual(5.5m, ReflectionUtils.ConvertValue("5.5", typeof(decimal)));
+            Assert.AreEqual(5e5, ReflectionUtils.ConvertValue("5e5", typeof(double)));
+            Assert.AreEqual(5.5e5, ReflectionUtils.ConvertValue("5.5e5", typeof(double)));
+            Assert.AreEqual(5.5e5m, ReflectionUtils.ConvertValue("5.5e5", typeof(decimal)));
         }
     }
 }

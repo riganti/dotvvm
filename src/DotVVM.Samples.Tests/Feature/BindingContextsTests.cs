@@ -1,17 +1,18 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.Core;
 using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
-using Dotvvm.Samples.Tests;
+using DotVVM.Testing.Abstractions;
+
 
 namespace DotVVM.Samples.Tests.Feature
 {   
     [TestClass]
-    public class BindingContextsTests : SeleniumTest
+    public class BindingContextsTests : AppSeleniumTest
     {
         [TestMethod]
         public void Feature_BindingContexts_BindingContext()

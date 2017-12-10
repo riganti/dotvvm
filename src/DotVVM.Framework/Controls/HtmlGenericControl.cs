@@ -46,10 +46,10 @@ namespace DotVVM.Framework.Controls
         [PropertyGroup(new[] { "", "html:" })]
         public Dictionary<string, object> Attributes { get; private set; }
 
-        public VirtualPropertyGroupDictionary<string> CssClasses => new VirtualPropertyGroupDictionary<string>(this, CssClassesGroupDescriptor);
+        public VirtualPropertyGroupDictionary<bool> CssClasses => new VirtualPropertyGroupDictionary<bool>(this, CssClassesGroupDescriptor);
 
         public static DotvvmPropertyGroup CssClassesGroupDescriptor =
-            DotvvmPropertyGroup.Register<string, HtmlGenericControl>("Class-", "CssClasses");
+            DotvvmPropertyGroup.Register<bool, HtmlGenericControl>("Class-", "CssClasses");
 
         /// <summary>
         /// Gets or sets the inner text of the HTML element.

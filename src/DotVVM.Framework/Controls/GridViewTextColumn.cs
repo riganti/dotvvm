@@ -43,11 +43,13 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the type of value being formatted - Number or DateTime.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
+        [Obsolete("ValueType property is no longer required, it is automatically inferred from compile-time type of ValueBinding")]
         public FormatValueType ValueType
         {
             get { return (FormatValueType)GetValue(ValueTypeProperty); }
             set { SetValue(ValueTypeProperty, value); }
         }
+        [Obsolete("ValueType property is no longer required, it is automatically inferred from compile-time type of ValueBinding")]
         public static readonly DotvvmProperty ValueTypeProperty =
             DotvvmProperty.Register<FormatValueType, GridViewTextColumn>(t => t.ValueType);
 
@@ -81,7 +83,9 @@ namespace DotVVM.Framework.Controls
         {
             var literal = new Literal();
             literal.FormatString = FormatString;
+            #pragma warning disable
             literal.ValueType = ValueType;
+            #pragma warning restore
             literal.SetBinding(Literal.TextProperty, ValueBinding);
 
             container.Children.Add(literal);
@@ -91,7 +95,10 @@ namespace DotVVM.Framework.Controls
         {
             var textBox = new TextBox();
             textBox.FormatString = FormatString;
+            #pragma warning disable
             textBox.ValueType = ValueType;
+            #pragma warning restore
+
             textBox.SetBinding(TextBox.TextProperty, ValueBinding);
             textBox.SetBinding(TextBox.ChangedProperty, ChangedBinding);
 

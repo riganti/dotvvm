@@ -27,7 +27,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.InvoiceCalculato
                 {
                     Number = "001",
                     Quantity = 15,
-                    TaxCoeff = 0,
+                    TaxCoeff = 1,
                     Title = "Beer",
                     UnitPrice = 6.4m
                 });

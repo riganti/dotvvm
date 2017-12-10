@@ -1,12 +1,13 @@
-﻿using Dotvvm.Samples.Tests;
+﻿
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.Core;
 using System;
+using DotVVM.Testing.Abstractions;
 
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class IncludeInPagePropertyTests : SeleniumTest
+    public class IncludeInPagePropertyTests : AppSeleniumTest
     {
         [TestMethod]
         public void Control_IncludeInPageProperty_IncludeInPage_GridView()
@@ -91,7 +92,7 @@ namespace DotVVM.Samples.Tests.Control
         [TestMethod]
         public void Control_IncludeInPageProperty_IncludeInPage_TextBoxWithVisibleAndDataContext() => CheckTextBox("textbox-visible-dataContext", "John Smith", true);
 
-        private void CheckIncludeInPage(Action<BrowserWrapper> beforeSwitch, Action<BrowserWrapper> afterSwitch)
+        private void CheckIncludeInPage(Action<IBrowserWrapperFluentApi> beforeSwitch, Action<IBrowserWrapperFluentApi> afterSwitch)
         {
             RunInAllBrowsers(browser =>
             {

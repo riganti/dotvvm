@@ -107,7 +107,7 @@ namespace DotVVM.Framework.Compilation
             var requirements = binding.BindingService.GetRequirements(binding.Binding);
 
             var properties = requirements.Required.Concat(requirements.Optional)
-                    .Concat(new[] { typeof(OriginalStringBindingProperty), typeof(DataContextStack), typeof(LocationInfoBindingProperty), typeof(BindingParserOptions) })
+                    .Concat(new[] { typeof(OriginalStringBindingProperty), typeof(DataContextStack), typeof(LocationInfoBindingProperty), typeof(BindingParserOptions), typeof(BindingCompilationRequirementsAttribute) })
                     .Select(p => binding.Binding.GetProperty(p, ErrorHandlingMode.ReturnNull))
                     .Where(p => p != null).ToArray();
             return (IBinding)Activator.CreateInstance(binding.BindingType, new object[] {

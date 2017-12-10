@@ -1,0 +1,41 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Validation.LocalizationViewModel, DotVVM.Samples.Common
+@import DotVVM.Samples.BasicSamples
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+	<h1>Localization of error messages</h1>
+	<form>
+		<div>
+			<span>Required input with error message from code-behind</span><br />
+			<dot:TextBox Text="{value: Email}" Type="Email" Validator.Value="{value: Email}" />
+			<dot:Validator class="result-code" Value="{value: Email}" ShowErrorMessageText="true">
+			</dot:Validator>
+		</div>
+		<div>
+			<span>Required input with error message from markup language</span><br />
+			<dot:TextBox Text="{value: Email}" Type="Email" Validator.Value="{value: Email}" />
+			<dot:Validator class="result-markup" Value="{value: Email}">
+				{{resource: Localization_Resources.LocalizedString1}}
+			</dot:Validator>
+		</div>
+		<dot:Button ButtonTagName="button"
+					IsSubmitButton="true"
+					Text="Submit"
+					Click="{command:  Submit()}">
+		</dot:Button>
+	</form>
+	<ul>
+		<li><a href="Localization">English</a></li>
+		<li><a href="Localization?lang=cs-CZ">Czech</a></li>
+	</ul>
+
+</body>
+</html>
+
+

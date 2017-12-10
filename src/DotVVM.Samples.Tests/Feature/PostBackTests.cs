@@ -1,19 +1,20 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
-using Riganti.Utils.Testing.Selenium.Core;
+
 using System;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
 using System.Text.RegularExpressions;
 using System.Threading;
-using Dotvvm.Samples.Tests;
+using DotVVM.Testing.Abstractions;
+
 
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class PostBackTests : SeleniumTest
+    public class PostBackTests : AppSeleniumTest
     {
         [TestMethod]
         public void Feature_PostBack_PostbackUpdate()

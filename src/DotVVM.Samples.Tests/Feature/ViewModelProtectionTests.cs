@@ -1,13 +1,15 @@
-﻿using Dotvvm.Samples.Tests;
+﻿
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.Core;
 using System;
 using System.Collections.Generic;
+using DotVVM.Testing.Abstractions;
+using Riganti.Selenium.Core.Abstractions;
 
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class ViewModelProtectionTests : SeleniumTest
+    public class ViewModelProtectionTests : AppSeleniumTest
     {
         public const string ChangedText = "The quick brown fox jumps over the lazy dog";
         public const string OriginalText = "Lorem Ipsum Dolor Sit Amet";
@@ -60,7 +62,7 @@ namespace DotVVM.Samples.Tests.Feature
             {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModelProtection_SignedNestedInServerToClient);
 
-                browser.First("h1").CheckIfTextEquals("Server Error, HTTP 500: Unhandled exception occured");
+                browser.First("h1").CheckIfTextEquals("Server Error, HTTP 500: Unhandled exception occurred");
             });
         }
         [TestMethod]
@@ -110,9 +112,9 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
-        private void CheckRadioButtonsState(BrowserWrapper browser, RadioButtonValues selectedColor)
+        private void CheckRadioButtonsState(IBrowserWrapperFluentApi browser, RadioButtonValues selectedColor)
         {
-            var radios = new List<ElementWrapper>();
+            var radios = new List<IElementWrapperFluentApi>();
             radios.Add(browser.Single("radio-red", this.SelectByDataUi));
             radios.Add(browser.Single("radio-green", this.SelectByDataUi));
             radios.Add(browser.Single("radio-blue", this.SelectByDataUi));
@@ -125,7 +127,7 @@ namespace DotVVM.Samples.Tests.Feature
 
             selectedColorElement.CheckIfTextEquals(selectedColor.ToString().ToLower());
         }
-        private void RunComplexViewModelProtectionTest(Action<BrowserWrapper> beforePostback, Action<BrowserWrapper> afterPostback)
+        private void RunComplexViewModelProtectionTest(Action<IBrowserWrapperFluentApi> beforePostback, Action<IBrowserWrapperFluentApi> afterPostback)
         {
             RunInAllBrowsers(browser =>
             {

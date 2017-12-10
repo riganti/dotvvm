@@ -35,30 +35,7 @@ namespace DotVVM.Framework.Configuration
             return serviceCollection.BuildServiceProvider();
         }
 
-        public T GetService<T>() 
+        public T GetService<T>()
             => GetServiceProvider().GetService<T>();
-
-        [Obsolete("You should not register service on ServiceLocator, use IServiceCollection instead", true)]
-        public void RegisterTransient<T>(Func<T> factory)
-        {
-            RegisterService(factory, ServiceLifetime.Transient);
-        }
-
-        [Obsolete("You should not register service on ServiceLocator, use IServiceCollection instead", true)]
-        public void RegisterSingleton<T>(Func<T> factory)
-        {
-            RegisterService(factory, ServiceLifetime.Singleton);
-        }
-
-        [Obsolete("You should not register service on ServiceLocator, use IServiceCollection instead", true)]
-        private void RegisterService<T>(Func<T> factory, ServiceLifetime lifetime)
-        {
-            if (serviceCollection == null)
-            {
-                throw new InvalidOperationException("Could not register service to ServiceLocator that has already built IServiceProvider.");
-            }
-
-            serviceCollection.Add(new ServiceDescriptor(typeof(T), p => factory(), lifetime));
-        }
     }
 }

@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
-using System.Threading.Tasks;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
-using System.Text;
 using System.IO;
 using Newtonsoft.Json;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,6 +19,7 @@ namespace DotVVM.Framework.ResourceManagement
         public ResourceLocationFallback LocationFallback { get; set; }
         public string MimeType { get; private set; }
         public bool VerifyResourceIntegrity { get; set; }
+        public string IntegrityHash { get; set; }
 
         public LinkResourceBase(ResourceRenderPosition renderPosition, string mimeType, IResourceLocation location) : base(renderPosition)
         {
@@ -84,7 +82,7 @@ namespace DotVVM.Framework.ResourceManagement
 
         protected void AddIntegrityAttribute(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            var hash = ComputeIntegrityHash(context);
+            var hash = IntegrityHash ?? ComputeIntegrityHash(context);
             if (hash != null)
             {
                 writer.AddAttribute("integrity", hash);

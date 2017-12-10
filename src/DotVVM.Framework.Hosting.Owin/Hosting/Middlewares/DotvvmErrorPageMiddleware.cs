@@ -51,7 +51,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
             }
             catch (Exception exc)
             {
-                throw new Exception("Error occured inside dotvvm error handler, this is internal error and should not happen; \n Original error:" + error.ToString(), exc);
+                throw new Exception("Error occurred inside dotvvm error handler, this is internal error and should not happen; \n Original error:" + error.ToString(), exc);
             }
         }
     }

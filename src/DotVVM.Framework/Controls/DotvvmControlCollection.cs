@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Resources;
 using DotVVM.Framework.Hosting;
+using System.Diagnostics;
 
 namespace DotVVM.Framework.Controls
 {
@@ -219,6 +220,16 @@ namespace DotVVM.Framework.Controls
             {
                 item.SetValue(Internal.UniqueIDProperty, parent.GetValue(Internal.UniqueIDProperty) + "a" + Count);
             }
+
+            ValidateParentsLifecycleEvents();
+        }
+
+        [Conditional("DEBUG")]
+        internal void ValidateParentsLifecycleEvents()
+        {
+            // check if all ancestors have the flags
+            if (!this.parent.GetAllAncestors().OfType<DotvvmControl>().All(c => (c.LifecycleRequirements & this.parent.LifecycleRequirements) == this.parent.LifecycleRequirements))
+                throw new Exception("Internal bug in Lifecycle events.");
         }
 
         private DotvvmControl GetClosestDotvvmControlAncestor(DotvvmControl control)
@@ -259,12 +270,14 @@ namespace DotVVM.Framework.Controls
             }
             catch (Exception ex)
             {
-                throw new DotvvmControlException(lastProcessedControl, "Unhandled exception occured while executing page lifecycle event.", ex);
+                throw new DotvvmControlException(lastProcessedControl, "Unhandled exception occurred while executing page lifecycle event.", ex);
             }
         }
 
         private void InvokeMissedPageLifeCycleEvent(IDotvvmRequestContext context, LifeCycleEventType targetEventType, bool isMissingInvoke, ref DotvvmControl lastProcessedControl)
         {
+            ValidateParentsLifecycleEvents();
+
             isInvokingEvent = true;
             for (var eventType = lastLifeCycleEvent + 1; eventType <= targetEventType; eventType++)
             {
@@ -272,7 +285,11 @@ namespace DotVVM.Framework.Controls
                 var reqflag = (1 << ((int)eventType - 1));
                 if (isMissingInvoke) reqflag = reqflag << 5;
                 // abort when control does not require that
-                if ((parent.LifecycleRequirements & (ControlLifecycleRequirements)reqflag) == 0) continue;
+                if ((parent.LifecycleRequirements & (ControlLifecycleRequirements)reqflag) == 0)
+                {
+                    continue;
+                }
+
                 lastProcessedControl = parent;
                 switch (eventType)
                 {

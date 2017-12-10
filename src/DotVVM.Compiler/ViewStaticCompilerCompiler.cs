@@ -18,6 +18,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Collections.Immutable;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Compiler
 {
@@ -80,9 +81,9 @@ namespace DotVVM.Compiler
             
             if (Options.FullCompile)
             {
-                controlTreeResolver = configuration.ServiceLocator.GetService<IControlTreeResolver>();
-                fileLoader = configuration.ServiceLocator.GetService<IMarkupFileLoader>();
-                compiler = configuration.ServiceLocator.GetService<IViewCompiler>();
+                controlTreeResolver = configuration.ServiceProvider.GetRequiredService<IControlTreeResolver>();
+                fileLoader = configuration.ServiceProvider.GetRequiredService<IMarkupFileLoader>();
+                compiler = configuration.ServiceProvider.GetRequiredService<IViewCompiler>();
                 compilation = compiler.CreateCompilation(Options.AssemblyName);
             }
 
@@ -185,7 +186,7 @@ namespace DotVVM.Compiler
             var styleVisitor = new StylingVisitor(configuration);
             resolvedView.Accept(styleVisitor);
 
-            var validationVisitor = new ControlUsageValidationVisitor(configuration);
+            var validationVisitor = new ControlUsageValidationVisitor(new DefaultControlUsageValidator());
             resolvedView.Accept(validationVisitor);
             if (validationVisitor.Errors.Any())
             {
@@ -204,7 +205,7 @@ namespace DotVVM.Compiler
                 var className = DefaultControlBuilderFactory.GetClassFromFileName(file.FileName) + "ControlBuilder";
                 fullClassName = namespaceName + "." + className;
                 emitter = new DefaultViewCompilerCodeEmitter();
-                var compilingVisitor = new ViewCompilingVisitor(emitter, configuration.ServiceLocator.GetService<IBindingCompiler>(), className);
+                var compilingVisitor = new ViewCompilingVisitor(emitter, configuration.ServiceProvider.GetRequiredService<IBindingCompiler>(), className);
 
                 resolvedView.Accept(compilingVisitor);
 

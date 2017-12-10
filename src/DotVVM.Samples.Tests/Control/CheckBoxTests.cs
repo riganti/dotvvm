@@ -1,17 +1,18 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.Core;
 using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
-using Dotvvm.Samples.Tests;
+using DotVVM.Testing.Abstractions;
+
 
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class CheckBoxTests : SeleniumTest
+    public class CheckBoxTests : AppSeleniumTest
     {
         [TestMethod]
         public void Control_CheckBox_CheckBox()
@@ -86,6 +87,7 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser =>
             {
+                
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_CheckBox_InRepeater);
 
                 var repeater = browser.Single("div[data-ui='repeater']");
@@ -119,14 +121,14 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
-        //[TestMethod]
-        //public void Control_CheckBox_NullCollection()
-        //{
-        //    RunInAllBrowsers(browser =>
-        //    {
-        //        browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_CheckBox_CheckedItemsNull);
-        //    });
-        //}
+        [TestMethod]
+        public void Control_CheckBox_NullCollection()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_CheckBox_CheckedItemsNull);
+            });
+        }
 
         [TestMethod]
         public void Control_CheckBox_Indeterminate()

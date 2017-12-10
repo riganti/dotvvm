@@ -297,7 +297,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                     .Select(o => DictionarySection.Create(o.Item1, "env_" + o.Item1.GetHashCode(), o.Item2)))
                 .Where(t => t != null).ToArray();
             template.ErrorCode = context.Response.StatusCode;
-            template.ErrorDescription = "Unhandled exception occured";
+            template.ErrorDescription = "Unhandled exception occurred";
             template.Summary = exception.GetType().FullName + ": " + LimitLength(exception.Message, 600);
 
             return template.TransformText();
