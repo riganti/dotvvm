@@ -397,4 +397,51 @@ describe("DotVVM.Serialization - serialize", () => {
 
         expect(obj.a).toBe(null);
     });
+
+    it("Deserialize - null replaced with object",
+        () => {
+            var viewModel = {
+                selected: ko.observable(null),
+                items: ko.observable([
+                    ko.observable({
+                        id: ko.observable(1)
+                    }),
+                    ko.observable({
+                        id: ko.observable(2)
+                    }),
+                    ko.observable({
+                        id: ko.observable(3)
+                    })
+                ])
+            };
+
+            dotvvm.serialization.deserialize(viewModel.items()[0](), viewModel.selected);
+            expect(viewModel.selected().id()).toBe(1);
+            expect(viewModel.selected()).not.toBe(viewModel.items()[0]());
+            expect(viewModel.selected().id).not.toBe(viewModel.items()[0]().id);
+        });
+
+    it("Deserialize - null replaced with object and then with another object",
+        () => {
+            var viewModel = {
+                selected: ko.observable(null),
+                items: ko.observable([
+                    ko.observable({
+                        id: ko.observable(1)
+                    }),
+                    ko.observable({
+                        id: ko.observable(2)
+                    }),
+                    ko.observable({
+                        id: ko.observable(3)
+                    })
+                ])
+            };
+
+            dotvvm.serialization.deserialize(viewModel.items()[0](), viewModel.selected);
+            dotvvm.serialization.deserialize(viewModel.items()[1](), viewModel.selected);
+            expect(viewModel.selected().id()).toBe(2);
+            expect(viewModel.items()[0]().id()).toBe(1);
+            expect(viewModel.items()[1]().id()).toBe(2);
+        });
 });

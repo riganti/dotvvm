@@ -186,8 +186,7 @@ test";
         [TestMethod]
         public void DothtmlTokenizer_DirectiveParsing_Invalid_AtSymbol_DirectiveName_NewLine_Content()
         {
-            var input = @"@viewmodel
-test";
+            var input = "@viewmodel\ntest";
 
             // parse
             var tokenizer = new DothtmlTokenizer();
@@ -208,7 +207,7 @@ test";
             Assert.AreEqual(0, tokenizer.Tokens[i].Length);
             Assert.AreEqual(DothtmlTokenType.DirectiveValue, tokenizer.Tokens[i++].Type);
 
-            Assert.AreEqual(Environment.NewLine, tokenizer.Tokens[i].Text);
+            Assert.AreEqual("\n", tokenizer.Tokens[i].Text);
             Assert.AreEqual(DothtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
 
             Assert.AreEqual("test", tokenizer.Tokens[i].Text);
@@ -218,8 +217,7 @@ test";
         [TestMethod]
         public void DothtmlTokenizer_DirectiveParsing_Invalid_AtSymbol_DirectiveName_Space_NewLine_Content()
         {
-            var input = @"@viewmodel  
-test";
+            var input = "@viewmodel  \ntest";
 
             // parse
             var tokenizer = new DothtmlTokenizer();
@@ -239,7 +237,7 @@ test";
             Assert.AreEqual(0, tokenizer.Tokens[i].Length);
             Assert.AreEqual(DothtmlTokenType.DirectiveValue, tokenizer.Tokens[i++].Type);
 
-            Assert.AreEqual(Environment.NewLine, tokenizer.Tokens[i].Text);
+            Assert.AreEqual("\n", tokenizer.Tokens[i].Text);
             Assert.AreEqual(DothtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
 
             Assert.AreEqual("test", tokenizer.Tokens[i].Text);
@@ -250,8 +248,7 @@ test";
         [TestMethod]
         public void DothtmlTokenizer_DirectiveParsing_Invalid_AtSymbol_Space_NewLine_Content()
         {
-            var input = @"@  
-test";
+            var input = "@  \ntest";
 
             // parse
             var tokenizer = new DothtmlTokenizer();
@@ -272,7 +269,7 @@ test";
             Assert.AreEqual(0, tokenizer.Tokens[i].Length);
             Assert.AreEqual(DothtmlTokenType.DirectiveValue, tokenizer.Tokens[i++].Type);
 
-            Assert.AreEqual(Environment.NewLine, tokenizer.Tokens[i].Text);
+            Assert.AreEqual("\n", tokenizer.Tokens[i].Text);
             Assert.AreEqual(DothtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
 
             Assert.AreEqual("test", tokenizer.Tokens[i].Text);

@@ -1,6 +1,5 @@
 /// <reference path="typings/knockout/knockout.d.ts" />
 /// <reference path="typings/knockout/knockout.dotvvm.d.ts" />
-/// <reference path="typings/knockout.mapper/knockout.mapper.d.ts" />
 /// <reference path="typings/globalize/globalize.d.ts" />
 
 interface Document {
@@ -931,11 +930,16 @@ class DotVVM {
         return ko.unwrap(ko.unwrap(array));
     }
     public buildRouteUrl(routePath: string, params: any): string {
-        return routePath.replace(/\{([^\}]+?)\??(:(.+?))?\}/g, (s, paramName, hsjdhsj, type) => {
+        var url = routePath.replace(/\{([^\}]+?)\??(:(.+?))?\}/g, (s, paramName, hsjdhsj, type) => {
             if (!paramName) return "";
             const x = ko.unwrap(params[paramName.toLowerCase()])
             return x == null ? "" : x;
         });
+
+        if (url.indexOf('/') === 0) {
+            return url.substring(1);
+        }
+        return url;
     }
 
     public buildUrlSuffix(urlSuffix: string, query: any): string {
@@ -1276,8 +1280,8 @@ class DotVVM {
         };
 
         ko.bindingHandlers["dotvvm-CheckState"] = {
-            init(element, valueAccessor, allBindings) {
-                ko.getBindingHandler("checked").init!(element, valueAccessor, allBindings);
+            init(element, valueAccessor, allBindings, viewModel, bindingContext) {
+                ko.getBindingHandler("checked").init!(element, valueAccessor, allBindings, viewModel, bindingContext);
             },
             update(element, valueAccessor, allBindings) {
                 let value = ko.unwrap(valueAccessor());
