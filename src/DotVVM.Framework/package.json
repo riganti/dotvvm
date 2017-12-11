@@ -1,0 +1,13 @@
+{
+  "name": "dotvvm.framework",
+  "version": "1.0.0",
+  "private": true,
+  "devDependencies": {
+    "uglify-js": "3.1.10",
+    "watch": "1.0.2"
+  },
+  "scripts": {
+    "bundle": "npm run bundle:js",
+    "bundle:js": "uglifyjs -o Resources/Scripts/Polyfills/polyfill.bundle.js -c -m -- Resources/Scripts/Polyfills/promise.js Resources/Scripts/Polyfills/fetch.js"
+  }
+}

@@ -16,6 +16,15 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+(function () {
+    if (typeof Promise === 'undefined' || !self.fetch) {
+        var resource = document.createElement('script');
+        resource.src = window['dotvvm__polyfillUrl'];
+        resource.type = "text/javascript";
+        var headElement = document.getElementsByTagName('head')[0];
+        headElement.appendChild(resource);
+    }
+})();
 var DotvvmDomUtils = /** @class */ (function () {
     function DotvvmDomUtils() {
     }
@@ -392,13 +401,23 @@ var DotvvmSerialization = /** @class */ (function () {
     DotvvmSerialization.prototype.deserialize = function (viewModel, target, deserializeAll) {
         if (deserializeAll === void 0) { deserializeAll = false; }
         if (typeof (viewModel) == "undefined" || viewModel == null) {
+            if (ko.isObservable(target)) {
+                target(viewModel);
+            }
             return viewModel;
         }
         if (typeof (viewModel) == "string" || typeof (viewModel) == "number" || typeof (viewModel) == "boolean") {
+            if (ko.isObservable(target)) {
+                target(viewModel);
+            }
             return viewModel;
         }
         if (viewModel instanceof Date) {
-            return dotvvm.serialization.serializeDate(viewModel);
+            viewModel = dotvvm.serialization.serializeDate(viewModel);
+            if (ko.isObservable(target)) {
+                target(viewModel);
+            }
+            return viewModel;
         }
         // handle arrays
         if (viewModel instanceof Array) {
@@ -439,8 +458,15 @@ var DotvvmSerialization = /** @class */ (function () {
             target = {};
         }
         var result = ko.unwrap(target);
+        var updateTarget = false;
         if (result == null) {
-            target = result = {};
+            result = {};
+            if (ko.isObservable(target)) {
+                updateTarget = true;
+            }
+            else {
+                target = result;
+            }
         }
         for (var prop in viewModel) {
             if (viewModel.hasOwnProperty(prop) && !/\$options$/.test(prop)) {
@@ -470,7 +496,8 @@ var DotvvmSerialization = /** @class */ (function () {
                         }
                     }
                     else {
-                        result[prop] = deserialized;
+                        var unwrapped = ko.unwrap(deserialized);
+                        result[prop] = Array.isArray(unwrapped) ? ko.observableArray(unwrapped) : ko.observable(unwrapped); // don't reuse the same observable from the source
                     }
                 }
                 else {
@@ -506,6 +533,9 @@ var DotvvmSerialization = /** @class */ (function () {
                     result[originalName] = ko.observable();
                 }
             }
+        }
+        if (updateTarget) {
+            target(result);
         }
         return target;
     };
@@ -707,7 +737,6 @@ var DotvvmSerialization = /** @class */ (function () {
 }());
 /// <reference path="typings/knockout/knockout.d.ts" />
 /// <reference path="typings/knockout/knockout.dotvvm.d.ts" />
-/// <reference path="typings/knockout.mapper/knockout.mapper.d.ts" />
 /// <reference path="typings/globalize/globalize.d.ts" />
 document.getElementByDotvvmId = function (id) {
     return document.querySelector("[data-dotvvm-id='" + id + "']");
@@ -1566,12 +1595,16 @@ var DotVVM = /** @class */ (function () {
         return ko.unwrap(ko.unwrap(array));
     };
     DotVVM.prototype.buildRouteUrl = function (routePath, params) {
-        return routePath.replace(/\{([^\}]+?)\??(:(.+?))?\}/g, function (s, paramName, hsjdhsj, type) {
+        var url = routePath.replace(/\{([^\}]+?)\??(:(.+?))?\}/g, function (s, paramName, hsjdhsj, type) {
             if (!paramName)
                 return "";
             var x = ko.unwrap(params[paramName.toLowerCase()]);
             return x == null ? "" : x;
         });
+        if (url.indexOf('/') === 0) {
+            return url.substring(1);
+        }
+        return url;
     };
     DotVVM.prototype.buildUrlSuffix = function (urlSuffix, query) {
         var resultSuffix, hashSuffix;
@@ -1904,8 +1937,8 @@ var DotVVM = /** @class */ (function () {
             }
         };
         ko.bindingHandlers["dotvvm-CheckState"] = {
-            init: function (element, valueAccessor, allBindings) {
-                ko.getBindingHandler("checked").init(element, valueAccessor, allBindings);
+            init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+                ko.getBindingHandler("checked").init(element, valueAccessor, allBindings, viewModel, bindingContext);
             },
             update: function (element, valueAccessor, allBindings) {
                 var value = ko.unwrap(valueAccessor());

@@ -141,6 +141,54 @@ namespace DotVVM.Framework.Tests.Routing
         }
 
         [TestMethod]
+        public void DotvvmRoute_IsMatch_OneOptionalPrefixedParameter()
+        {
+            var route = new DotvvmRoute("{Id?}/Article", null, null, null, configuration);
+
+            IDictionary<string, object> parameters;
+            var result = route.IsMatch("Article", out parameters);
+
+            Assert.IsTrue(result);
+            Assert.AreEqual(0, parameters.Count);
+        }
+
+        [TestMethod]
+        public void DotvvmRoute_IsMatch_OneOptionalSuffixedParameter_WithConstraint()
+        {
+            var route = new DotvvmRoute("Article/{Id?:int}", null, null, null, configuration);
+
+            IDictionary<string, object> parameters;
+            var result = route.IsMatch("Article", out parameters);
+
+            Assert.IsTrue(result);
+            Assert.AreEqual(0, parameters.Count);
+        }
+
+        [TestMethod]
+        public void DotvvmRoute_IsMatch_OneOptionalParameter()
+        {
+            var route = new DotvvmRoute("Article/{Id?}/edit", null, null, null, configuration);
+
+            IDictionary<string, object> parameters;
+            var result = route.IsMatch("Article/edit", out parameters);
+
+            Assert.IsTrue(result);
+            Assert.AreEqual(0, parameters.Count);
+        }
+
+        [TestMethod]
+        public void DotvvmRoute_IsMatch_TwoParameters_OneOptional_Suffix()
+        {
+            var route = new DotvvmRoute("Article/Test/{Id?}/{Id2}/suffix", null, null, null, configuration);
+
+            IDictionary<string, object> parameters;
+            var result = route.IsMatch("Article/Test/5/suffix", out parameters);
+
+            Assert.IsTrue(result);
+            Assert.AreEqual(1, parameters.Count);
+        }
+
+        [TestMethod]
         public void DotvvmRoute_BuildUrl_UrlTwoParameters()
         {
             var route = new DotvvmRoute("Article/id_{Id}/{Title}", null, null, null, configuration);
@@ -257,7 +305,6 @@ namespace DotVVM.Framework.Tests.Routing
             Assert.AreEqual("~/Article/5", result);
         }
 
-
         [TestMethod]
         public void DotvvmRoute_BuildUrl_ParameterOnly()
         {
@@ -269,7 +316,7 @@ namespace DotVVM.Framework.Tests.Routing
         }
 
         [TestMethod]
-        public void DotvvmRoute_BuildUrl_OptionlaParameter()
+        public void DotvvmRoute_BuildUrl_OptionalParameter()
         {
             var route = new DotvvmRoute("myPage/{Id?}/edit", null, null, null, configuration);
 
@@ -278,6 +325,18 @@ namespace DotVVM.Framework.Tests.Routing
 
             Assert.AreEqual("~/myPage/edit", result);
             Assert.AreEqual("~/myPage/edit", result2);
+        }
+
+        [TestMethod]
+        public void DotvvmRoute_BuildUrl_OneOptionalPrefixedParameter()
+        {
+            var route = new DotvvmRoute("{Id?}/Article", null, null, null, configuration);
+
+            var result = route.BuildUrl(new { });
+            var result2 = route.BuildUrl(new Dictionary<string, object> { ["Id"] = 0 });
+
+            Assert.AreEqual("~/Article", result);
+            Assert.AreEqual("~/0/Article", result2);
         }
 
         [TestMethod]

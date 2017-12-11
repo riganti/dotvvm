@@ -62,152 +62,23 @@ namespace DotVVM.Framework.Routing
         /// </summary>
         private void ParseRouteUrl(DotvvmConfiguration configuration)
         {
-            if (Url.StartsWith("/", StringComparison.Ordinal))
-                throw new ArgumentException("The route URL must not start with '/'!");
-            if (Url.EndsWith("/", StringComparison.Ordinal))
-                throw new ArgumentException("The route URL must not end with '/'!");
+            var parser = new DotvvmRouteParser(configuration.RouteConstraints);
 
-            parameters = new List<KeyValuePair<string, Func<string, ParameterParseResult>>>();
+            var result = parser.ParseRouteUrl(Url, DefaultValues);
 
-            urlBuilders = new List<Func<Dictionary<string, object>, string>>();
-            urlBuilders.Add(_ => "~/");
-
-            // go through the route components and parse it
-            var regex = new StringBuilder("^");
-            var startIndex = 0;
-            for (int i = 0; i < Url.Length; i++)
-            {
-                if (Url[i] == '/')
-                {
-                    // standard URL component
-                    var str = Url.Substring(startIndex, i - startIndex);
-                    regex.Append(Regex.Escape(str));
-                    urlBuilders.Add(_ => str);
-                    startIndex = i;
-                }
-                else if (Url[i] == '{')
-                {
-                    // route parameter
-                    var str = Url.Substring(startIndex, i - startIndex);
-                    i++;
-                    regex.Append(ParseParameter(str, ref i, configuration.RouteConstraints));
-                    startIndex = i + 1;
-                }
-            }
-            if (startIndex < Url.Length)
-            {
-                // standard URL component
-                var str = Url.Substring(startIndex);
-                regex.Append(Regex.Escape(str));
-                urlBuilders.Add(_ => str);
-            }
-
-            // finish the route-matching regular expression
-            regex.Append("/?$");
-            routeRegex = new Regex(regex.ToString(), RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            routeRegex = result.RouteRegex;
+            urlBuilders = result.UrlBuilders;
+            parameters = result.Parameters;
         }
-
-        private string ParseParameter(string prefix, ref int index, Dictionary<string, IRouteParameterConstraint> routeConstraints)
-        {
-            // find the end of the route parameter name
-            var startIndex = index;
-            index = Url.IndexOfAny(new[] { '}', ':' }, index);
-            if (index < 0)
-            {
-                throw new ArgumentException($"The route URL '{Url}' is not valid! It contains an unclosed parameter.");
-            }
-            var name = Url.Substring(startIndex, index - startIndex).Trim();
-
-            // determine whether the parameter is optional - it must end with ?, or must be present in the DefaultValues collection
-            var isOptional = name.EndsWith("?", StringComparison.Ordinal);
-            if (isOptional)
-            {
-                name = name.Substring(0, name.Length - 1);
-            }
-            else
-            {
-                isOptional = DefaultValues.ContainsKey(name);
-            }
-
-            // determine route parameter constraint
-            IRouteParameterConstraint type = null;
-            string parameter = null;
-            if (Url[index] == ':')
-            {
-                startIndex = index + 1;
-                index = Url.IndexOfAny("}(:".ToArray(), index + 1);
-                if (index < 0)
-                {
-                    throw new ArgumentException($"The route URL '{Url}' is not valid! It contains an unclosed parameter.");
-                }
-
-                var typeName = Url.Substring(startIndex, index - startIndex);
-                if (!routeConstraints.ContainsKey(typeName))
-                {
-                    throw new ArgumentException($"The route parameter constraint '{typeName}' is not valid!");
-                }
-                type = routeConstraints[typeName];
-                if (Url[index] == '(') // parameters
-                {
-                    index++;
-                    startIndex = index;
-                    int plevel = 0;
-                    while (!(plevel == 0 && Url[index] == ')'))
-                    {
-                        if (Url[index] == '(') plevel++;
-                        else if (Url[index] == ')') plevel--;
-                        index++;
-                        if (Url.Length == index) throw new AggregateException($"The route constraint parameter of '{name}:{type}' is not closed: {Url}");
-                    }
-                    parameter = Url.Substring(startIndex, index - startIndex);
-                    index++;
-                }
-                if (Url[index] == ':') throw new NotImplementedException("Support for multiple route constraints is not implemented."); // TODO
-
-            }
-            if (Url[index] != '}') throw new AggregateException($"Route parameter { name } should be closed with curly bracket");
-
-            // generate the URL builder
-            if (isOptional)
-            {
-                urlBuilders.Add(v =>
-                {
-                    if (v.TryGetValue(name, out var r) && r != null)
-                    {
-                        return prefix + r.ToString();
-                    }
-                    else
-                    {
-                        return "";
-                    }
-                });
-            }
-            else
-            {
-                urlBuilders.Add(v => prefix + (v[name]?.ToString() ?? throw new ArgumentNullException($"Could not build route, parameter '{name}' is null")));
-            }
-
-            // add a parameter
-            if (type != null)parameters.Add(new KeyValuePair<string, Func<string, ParameterParseResult>>(name, s => type.ParseString(s, parameter)));
-            else parameters.Add(new KeyValuePair<string, Func<string, ParameterParseResult>>(name, null));
-
-            // generate the regex
-            var pattern = type?.GetPartRegex(parameter) ?? "[^/]*?";     // parameters cannot contain /
-            var result = $"{ Regex.Escape(prefix) }(?<param{Regex.Escape(name)}>{pattern})";
-            if (isOptional)
-            {
-                result = "(" + result + ")?";
-            }
-
-            return result;
-        }
-
 
         /// <summary>
         /// Determines whether the route matches to the specified URL and extracts the parameter values.
         /// </summary>
         public override bool IsMatch(string url, out IDictionary<string, object> values)
         {
+            if (!url.StartsWith("/"))
+                url = '/' + url;
+
             var match = routeRegex.Match(url);
             if (!match.Success)
             {
@@ -242,7 +113,12 @@ namespace DotVVM.Framework.Routing
         {
             try
             {
-                return string.Concat(urlBuilders.Select(b => b(values)));
+                var url = string.Concat(urlBuilders.Select(b => b(values)));
+
+                if (url == "~")
+                    return "~/";
+
+                return url;
             }
             catch (Exception ex)
             {
