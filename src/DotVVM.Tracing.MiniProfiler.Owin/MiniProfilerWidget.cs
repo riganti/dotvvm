@@ -79,6 +79,23 @@ namespace DotVVM.Tracing.MiniProfiler.Owin
         public static readonly DotvvmProperty StartHiddenProperty
             = DotvvmProperty.Register<bool?, MiniProfilerWidget>(c => c.StartHidden, null);
 
+        protected override void OnPreRender(IDotvvmRequestContext context)
+        {
+            context.ResourceManager.AddStartupScript("DotVVM-MiniProfiler-Integration",
+                @"dotvvm.events.afterPostback.subscribe(
+                    function(arg) { 
+                        if(arg.xhr && arg.xhr.getResponseHeader) { 
+                            var jsonIds = arg.xhr.getResponseHeader('X-MiniProfiler-Ids'); 
+                            if (jsonIds) {
+                                var ids = JSON.parse(jsonIds);
+                                MiniProfiler.fetchResults(ids);
+                            }
+                        }
+                    })", "dotvvm");
+
+            base.OnPreRender(context);
+        }
+
         protected override void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             var html = StackExchange.Profiling.MiniProfiler.RenderIncludes(
