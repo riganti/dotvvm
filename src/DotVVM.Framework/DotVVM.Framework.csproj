@@ -46,6 +46,8 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\Scripts\DotVVM.Debug.js" />
     <EmbeddedResource Include="Resources\Scripts\DotVVM.js" />
+    <EmbeddedResource Include="Resources\Scripts\DotVVM.min.js" />
+    <EmbeddedResource Include="Resources\Scripts\Globalize\globalize.min.js" />
     <EmbeddedResource Include="Resources\Scripts\knockout-latest.js" />
     <EmbeddedResource Include="Resources\Scripts\Polyfills\polyfill.bundle.js" />
     <EmbeddedResource Include="Resources\Scripts\Globalize\globalize.js" />
