@@ -3,7 +3,6 @@ using Microsoft.Owin;
 using Owin;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Tracing.MiniProfiler.Owin;
-using StackExchange.Profiling;
 
 [assembly: OwinStartup(typeof(DotVVM.Samples.MiniProfiler.Owin.Startup))]
 namespace DotVVM.Samples.MiniProfiler.Owin
