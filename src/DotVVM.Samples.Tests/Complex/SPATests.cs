@@ -86,5 +86,35 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.CheckUrl(s => s.Contains("ComplexSamples/SPA/default"));
             });
         }
+
+        [TestMethod]
+        [SampleReference(nameof(SamplesRouteUrls.ComplexSamples_SPA_default))]
+        [SampleReference(nameof(SamplesRouteUrls.ComplexSamples_SPA_test))]
+        public void Complex_SPA_ValidationAndNavigation()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl("/");
+                browser.Wait(1000);
+
+                browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_SPA_test);
+                browser.Wait(1000);
+
+                // click to generate validation error
+                browser.Single("input[type=button]").Click();
+
+                // check if validation error is displayed
+                browser.Wait(500);
+                browser.Single("span[data-ui='sample-text']").CheckIfInnerTextEquals(string.Empty);
+
+                // go to default page
+                browser.ElementAt("a", 0).Click().Wait();
+                browser.Wait(1000);
+
+                // click to check if validation error disapeared
+                browser.Single("input[type=button]").Click();
+                browser.Wait(500);
+                browser.Single("span[data-ui='sample-text']").CheckIfInnerTextEquals("Sample Text");
+            });
+        }
     }
 }
