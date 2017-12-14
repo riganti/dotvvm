@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+  	<AssemblyTitle>DotVVM.Tracing.MiniProfiler.Owin</AssemblyTitle>
+    <VersionPrefix>2.0.0-pre08</VersionPrefix>
+    <TargetFramework>net451</TargetFramework>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
+    <PackageId>DotVVM.Tracing.MiniProfiler.Owin</PackageId>
+    <PackageVersion>2.0.0-pre08</PackageVersion>
+    <Authors>RIGANTI</Authors>
+    <Description>MiniProfiler Tracing module for OWIN and DotVVM</Description>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageTags>dotvvm;asp.net;mvvm;owin</PackageTags>
+    <PackageIconUrl>https://dotvvm.com/Content/images/icons/icon-blue-64x64.png</PackageIconUrl>
+    <PackageLicenseUrl>https://github.com/riganti/dotvvm/blob/master/LICENSE</PackageLicenseUrl>
+    <PreserveCompilationContext>true</PreserveCompilationContext>  
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DotVVM.Owin" Version="2.0.0-pre08" />
+    <PackageReference Include="MiniProfiler" Version="3.2.0.157" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Web" />
+  </ItemGroup>
+
+</Project>
