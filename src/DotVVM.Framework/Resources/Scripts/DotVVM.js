@@ -898,6 +898,9 @@ var DotvvmValidation = /** @class */ (function () {
             }
             _this.events.validationErrorsChanged.trigger(args);
         });
+        dotvvm.events.spaNavigating.subscribe(function (args) {
+            _this.clearValidationErrors(dotvvm.viewModelObservables[args.viewModelName]);
+        });
         // add knockout binding handler
         ko.bindingHandlers["dotvvmValidation"] = {
             init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
