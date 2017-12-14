@@ -5,5 +5,8 @@
 
     <h2>Test</h2>
 
+    <dot:TextBox Text="{value: Name}" />
+    <dot:Button Click="{command: EmptyCommand()}" Text="Validated command"/>
+
 </dot:Content>
 
