@@ -166,10 +166,11 @@ var DotvvmSpaNavigatingEventArgs = /** @class */ (function () {
     return DotvvmSpaNavigatingEventArgs;
 }());
 var DotvvmSpaNavigatedEventArgs = /** @class */ (function () {
-    function DotvvmSpaNavigatedEventArgs(viewModel, viewModelName, serverResponseObject) {
+    function DotvvmSpaNavigatedEventArgs(viewModel, viewModelName, serverResponseObject, xhr) {
         this.viewModel = viewModel;
         this.viewModelName = viewModelName;
         this.serverResponseObject = serverResponseObject;
+        this.xhr = xhr;
         this.isHandled = false;
     }
     return DotvvmSpaNavigatedEventArgs;
@@ -1367,7 +1368,7 @@ var DotVVM = /** @class */ (function () {
                     return;
                 }
                 // trigger spaNavigated event
-                var spaNavigatedArgs = new DotvvmSpaNavigatedEventArgs(viewModel, viewModelName, resultObject);
+                var spaNavigatedArgs = new DotvvmSpaNavigatedEventArgs(viewModel, viewModelName, resultObject, result);
                 _this.events.spaNavigated.trigger(spaNavigatedArgs);
                 if (!isSuccess && !spaNavigatedArgs.isHandled) {
                     throw "Invalid response from server!";

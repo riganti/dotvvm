@@ -94,7 +94,7 @@ class DotvvmSpaNavigatingEventArgs implements DotvvmEventArgs {
 }
 class DotvvmSpaNavigatedEventArgs implements DotvvmEventArgs {
     public isHandled: boolean = false;
-    constructor(public viewModel: any, public viewModelName: string, public serverResponseObject: any) {
+    constructor(public viewModel: any, public viewModelName: string, public serverResponseObject: any, public xhr?: XMLHttpRequest) {
     }
 }
 class DotvvmRedirectEventArgs implements DotvvmEventArgs {
