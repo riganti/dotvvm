@@ -77,7 +77,7 @@ namespace DotVVM.Framework.Controls
 
             if (!HideForAnonymousUsers || isAuthenticated == true)
             {
-                if (IsMember(user))
+                if (isAuthenticated == true && IsMember(user))
                 {
                     IsMemberTemplate?.BuildContent(context, this);
                 }
