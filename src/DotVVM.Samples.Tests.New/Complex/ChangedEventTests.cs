@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
+using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -38,7 +39,7 @@ namespace DotVVM.Samples.Tests.New.Complex
                 var firstTextbox = browser.First("*[data-id='first-textbox']");
                 browser.WaitFor(() =>
                 {
-                    AssertUI.InnerTextEquals(firstTextbox, "Valuetest");
+                    AssertUI.InnerText(firstTextbox, s=> s.Contains("Valuetes"));
                 }, 1000, 100);
 
                 new Actions(browser.Driver).SendKeys(Keys.Enter).SendKeys(Keys.Tab).Perform();
