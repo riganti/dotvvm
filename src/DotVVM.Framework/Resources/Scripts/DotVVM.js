@@ -1763,10 +1763,6 @@ var DotVVM = /** @class */ (function () {
                         }, delay);
                     }
                 };
-                var interrupt = function () {
-                    clearTimeout(timeout);
-                    element.style.display = "none";
-                };
                 var hide = function () {
                     running = false;
                     clearTimeout(timeout);
@@ -1774,10 +1770,9 @@ var DotVVM = /** @class */ (function () {
                 };
                 dotvvm.isPostbackRunning.subscribe(function (e) {
                     if (e) {
-                        if (running) {
-                            interrupt();
+                        if (!running) {
+                            show();
                         }
-                        show();
                     }
                     else {
                         hide();

@@ -43,8 +43,9 @@ namespace DotVVM.Samples.Tests.New.Complex
                 }, 1000, 100);
 
                 new Actions(browser.Driver).SendKeys(Keys.Enter).SendKeys(Keys.Tab).Perform();
-                AssertUI.InnerTextEquals(firstTextbox, "Valuetest");
-                browser.Wait();
+                browser.WaitFor(() => {
+                    AssertUI.InnerTextEquals(firstTextbox, "Valuetest");
+                }, 1000, 100);
                 AssertUI.InnerTextEquals(totalChanges, "1");
 
                 // second textbox
