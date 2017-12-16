@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Swagger\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
@@ -31,6 +32,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj" />
+    <ProjectReference Include="..\DotVVM.Framework.Api.Swashbuckle.AspNetCore\DotVVM.Framework.Api.Swashbuckle.AspNetCore.csproj" />
     <ProjectReference Include="..\DotVVM.Framework.Hosting.AspNetCore\DotVVM.Framework.Hosting.AspNetCore.csproj" />
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
   </ItemGroup>

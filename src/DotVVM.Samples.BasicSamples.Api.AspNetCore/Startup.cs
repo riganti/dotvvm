@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DotVVM.Framework.Api.Swashbuckle.AspNetCore;
 using DotVVM.Samples.BasicSamples.Api.AspNetCore.DataStore;
 using DotVVM.Samples.BasicSamples.Api.AspNetCore.Model;
-using DotVVM.Samples.BasicSamples.Api.AspNetCore.Swagger;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -44,9 +44,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore
             services.AddSwaggerGen(options => {
                 options.SwaggerDoc("v1", new Info() { Title = "DotVVM Test API", Version = "v1" });
 
-                options.OperationFilter<AddFromUriParameterGroupsOperationFilter>();
-                options.OperationFilter<RemoveReadOnlyFromUriParametersOperationFilter>();
-                options.OperationFilter<RemoveBindNoneFromUriParametersOperationFilter>();
+                options.EnableDotvvmIntegration();
             });
         }
 

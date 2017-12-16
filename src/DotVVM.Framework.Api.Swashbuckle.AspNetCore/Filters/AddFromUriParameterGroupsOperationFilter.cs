@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.Swagger
+namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Filters
 {
     public class AddFromUriParameterGroupsOperationFilter : IOperationFilter 
     {
