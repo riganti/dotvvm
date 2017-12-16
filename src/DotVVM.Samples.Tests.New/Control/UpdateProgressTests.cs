@@ -24,7 +24,7 @@ namespace DotVVM.Samples.Tests.Control
                 browser.Wait();
 
                 // click the button and verify that the progress appears and disappears again
-           AssertUI.IsNotDisplayed(browser.First(".update-progress"));
+                AssertUI.IsNotDisplayed(browser.First(".update-progress"));
                 browser.ElementAt("input[type=button]", 0).Click();
                 AssertUI.IsDisplayed(browser.First(".update-progress"));
                 browser.Wait(3000);
@@ -102,19 +102,21 @@ namespace DotVVM.Samples.Tests.Control
                 AssertUI.IsNotDisplayed(updateProgressControl);
                 browser.First(".long-test").Click();
                 //waiting for the update progress to show up
-                browser.WaitFor(() =>
-                {
+                browser.WaitFor(() => {
                     AssertUI.IsDisplayed(updateProgressControl);
                 }, 3000);
 
-                //interrupting first update progress (it should not be displayed and the timer should reset)
+                //interrupting first postback with another postback (it should still be displayed and wait to second postback end)
+                AssertUI.IsDisplayed(updateProgressControl);
                 browser.First(".long-test").Click();
-                AssertUI.IsNotDisplayed(updateProgressControl);
-                //waiting for the update progress to show up again
-                browser.WaitFor(() =>
-                {
-                    AssertUI.IsDisplayed(updateProgressControl);
-                }, 3000);
+                //update progress should be displayed during whole postback
+                browser.Wait(2000);
+                AssertUI.IsDisplayed(updateProgressControl);
+
+                //update progress should disapear after postback end
+                browser.WaitFor(() => {
+                    AssertUI.IsNotDisplayed(updateProgressControl);
+                }, 2000);
             });
         }
 

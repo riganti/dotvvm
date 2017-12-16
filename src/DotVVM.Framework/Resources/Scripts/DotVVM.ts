@@ -1097,11 +1097,6 @@ class DotVVM {
                     }
                 }
 
-                var interrupt = () => {
-                    clearTimeout(timeout);
-                    element.style.display = "none";
-                }
-
                 var hide = () => {
                     running = false;
                     clearTimeout(timeout);
@@ -1110,10 +1105,9 @@ class DotVVM {
 
                 dotvvm.isPostbackRunning.subscribe(e => {
                     if (e) {
-                        if (running) {
-                            interrupt();
+                        if (!running) {
+                            show();
                         }
-                        show();
                     } else {
                         hide();
                     }
