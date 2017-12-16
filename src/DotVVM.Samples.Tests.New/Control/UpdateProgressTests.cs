@@ -92,6 +92,14 @@ namespace DotVVM.Samples.Tests.Control
 
                 // click the second button with short test and verify that the progress does not appear
                 AssertUI.IsNotDisplayed(updateProgressControl);
+                browser.First(".short-test").Click();
+                //waiting for the update progress to show up
+                browser.WaitFor(() => {
+                    AssertUI.IsNotDisplayed(updateProgressControl);
+                }, 3000);
+
+                // click the first button with long test and verify that the progress does appear
+                AssertUI.IsNotDisplayed(updateProgressControl);
                 browser.First(".long-test").Click();
                 //waiting for the update progress to show up
                 browser.WaitFor(() =>
