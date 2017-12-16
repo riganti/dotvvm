@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.Model
+namespace DotVVM.Samples.BasicSamples.Api.Common.Model
 {
     public class Order
     {

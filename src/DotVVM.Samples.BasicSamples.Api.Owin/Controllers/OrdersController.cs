@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
+using System.Web.Http;
 using DotVVM.Samples.BasicSamples.Api.Common.DataStore;
 using DotVVM.Samples.BasicSamples.Api.Common.Model;
-using Microsoft.AspNetCore.Mvc;
 
-namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.Controllers
+namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.AspNetCore.Controllers
 {
-    [Route("api/[controller]")]
-    public class OrdersController : Controller
+    [RoutePrefix("api/orders")]
+    public class OrdersController : ApiController
     {
 
         [HttpGet]
+        [Route("")]
         public List<Order> Get(int companyId, int pageIndex = 0, int pageSize = 20)
         {
             lock (Database.Instance)
@@ -28,7 +30,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.Controllers
 
         [HttpGet]
         [Route("{orderId}", Name = nameof(GetItem))]
-        public Order GetItem(int orderId)
+        public Order GetItem(int orderId = 0)
         {
             lock (Database.Instance)
             {
@@ -37,7 +39,8 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody]Order order)
+        [Route("")]
+        public IHttpActionResult Post([FromBody]Order order)
         {
             lock (Database.Instance)
             {
@@ -51,12 +54,12 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.Controllers
                 Database.Instance.Orders.Add(order);
             }
 
-            return CreatedAtRoute("GetItem", new { orderId = order.Id });
+            return CreatedAtRoute("GetItem", new { orderId = order.Id }, order);
         }
 
         [HttpPut]
         [Route("{orderId}")]
-        public IActionResult Put(int orderId, [FromBody]Order order)
+        public IHttpActionResult Put(int orderId, [FromBody]Order order)
         {
             lock (Database.Instance)
             {
@@ -72,7 +75,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.Controllers
                 }
 
                 Database.Instance.Orders[index] = order;
-                return NoContent();
+                return Ok(HttpStatusCode.NoContent);
             }
         }
 

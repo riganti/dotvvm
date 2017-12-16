@@ -15,7 +15,7 @@
       "isSingleClient": false
     },
     {
-      "swaggerFile": "/home/exyi/Downloads/WebApi.swagger.json",
+      "swaggerFile": "http://localhost:61453/swagger/docs/v1",
       "csharpClient": "./TestWebApiClient.cs",
       "typescriptClient": "./Scripts/TestWebApiClient.ts",
       "namespace": "TestWebApiClient",

@@ -1,4 +1,4 @@
-﻿namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.Model
+﻿namespace DotVVM.Samples.BasicSamples.Api.Common.Model
 {
     public class OrderItem
     {

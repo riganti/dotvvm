@@ -3,15 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using DotVVM.Framework.Api.Swashbuckle.Attributes;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Filters
 {
-    public class AddFromUriParameterGroupsOperationFilter : IOperationFilter 
+    public class AddAsObjectAnnotationOperationFilter : IOperationFilter 
     {
         public void Apply(Operation operation, OperationFilterContext context)
         {
@@ -22,18 +21,23 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Filters
                 foreach (var group in groups.Where(p => p.Count() > 1))
                 {
                     // determine group name
-                    var name = ((ControllerParameterDescriptor)group.First().ParameterDescriptor).ParameterInfo
-                        .GetCustomAttribute<FromQueryAttribute>()?.Name;
-                    if (string.IsNullOrEmpty(name))
+                    var attribute = ((ControllerParameterDescriptor)group.First().ParameterDescriptor)
+                        .ParameterInfo
+                        .GetCustomAttribute<AsObjectAttribute>();
+                    if (attribute == null)
                     {
-                        name = group.First().ParameterDescriptor.Name;
+                        continue;
                     }
 
                     // add group name in the metadata
                     foreach (var param in group)
                     {
-                        var jsonParam = operation.Parameters.Single(p => p.Name == param.Name);
-                        jsonParam.Extensions.Add("paramGroup", name);
+                        var jsonParam = operation.Parameters.SingleOrDefault(p => p.Name == param.Name);
+                        if (jsonParam != null)
+                        {
+                            jsonParam.Name = group.First().ParameterDescriptor.Name + "." + jsonParam.Name;
+                            jsonParam.Extensions.Add("x-dotvvm-wrapperType", param.ParameterDescriptor.ParameterType.FullName + ", " + param.ParameterDescriptor.ParameterType.Assembly.GetName().Name);
+                        }
                     }
                 }
             }

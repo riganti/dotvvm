@@ -12,11 +12,10 @@ namespace TestWebApiClient
     public partial class CompaniesClient 
     {
         private System.Lazy<Newtonsoft.Json.JsonSerializerSettings> _settings;
-        private string _baseUrl = "";
+        private string _baseUrl = "http://localhost:61453";
         
-        public CompaniesClient(string baseUrl)
+        public CompaniesClient()
         {
-            BaseUrl = baseUrl; 
     		_settings = new System.Lazy<Newtonsoft.Json.JsonSerializerSettings>(() => 
             {
                 var settings = new Newtonsoft.Json.JsonSerializerSettings();
@@ -36,6 +35,7 @@ namespace TestWebApiClient
         partial void PrepareRequest(System.Net.Http.HttpClient client, System.Net.Http.HttpRequestMessage request, System.Text.StringBuilder urlBuilder);
         partial void ProcessResponse(System.Net.Http.HttpClient client, System.Net.Http.HttpResponseMessage response);
     
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Collections.Generic.List<Company> Get()
         {
@@ -43,11 +43,12 @@ namespace TestWebApiClient
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<System.Collections.Generic.List<Company>> GetAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl).Append("/api/Companies");
+            urlBuilder_.Append(BaseUrl).Append("/api/companies");
     
             var client_ = new System.Net.Http.HttpClient();
             try
@@ -109,17 +110,254 @@ namespace TestWebApiClient
             }
         }
     
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public GridViewDataSetOfCompany GetWithSorting(bool? sortingOptions_sortDescending = null, string sortingOptions_sortExpression = null)
+        {
+            return System.Threading.Tasks.Task.Run(async () => await GetWithSortingAsync(sortingOptions_sortDescending, sortingOptions_sortExpression, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+        }
+    
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public async System.Threading.Tasks.Task<GridViewDataSetOfCompany> GetWithSortingAsync(bool? sortingOptions_sortDescending = null, string sortingOptions_sortExpression = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        {
+            var urlBuilder_ = new System.Text.StringBuilder();
+            urlBuilder_.Append(BaseUrl).Append("/api/companies/sorted?");
+            if (sortingOptions_sortDescending != null) urlBuilder_.Append("sortingOptions.sortDescending=").Append(System.Uri.EscapeDataString(System.Convert.ToString(sortingOptions_sortDescending.Value, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            if (sortingOptions_sortExpression != null) urlBuilder_.Append("sortingOptions.sortExpression=").Append(System.Uri.EscapeDataString(System.Convert.ToString(sortingOptions_sortExpression, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            urlBuilder_.Length--;
+    
+            var client_ = new System.Net.Http.HttpClient();
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+    
+                    PrepareRequest(client_, request_, urlBuilder_);
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+                    PrepareRequest(client_, request_, url_);
+    
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    try
+                    {
+                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
+                        foreach (var item_ in response_.Content.Headers)
+                            headers_[item_.Key] = item_.Value;
+    
+                        ProcessResponse(client_, response_);
+    
+                        var status_ = ((int)response_.StatusCode).ToString();
+                        if (status_ == "200") 
+                        {
+                            var responseData_ = await response_.Content.ReadAsStringAsync().ConfigureAwait(false); 
+                            var result_ = default(GridViewDataSetOfCompany); 
+                            try
+                            {
+                                result_ = Newtonsoft.Json.JsonConvert.DeserializeObject<GridViewDataSetOfCompany>(responseData_, _settings.Value);
+                                return result_; 
+                            } 
+                            catch (System.Exception exception) 
+                            {
+                                throw new SwaggerException("Could not deserialize the response body.", status_, responseData_, headers_, exception);
+                            }
+                        }
+                        else
+                        if (status_ != "200" && status_ != "204")
+                        {
+                            var responseData_ = await response_.Content.ReadAsStringAsync().ConfigureAwait(false); 
+                            throw new SwaggerException("The HTTP status code of the response was not expected (" + (int)response_.StatusCode + ").", status_, responseData_, headers_, null);
+                        }
+            
+                        return default(GridViewDataSetOfCompany);
+                    }
+                    finally
+                    {
+                        if (response_ != null)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (client_ != null)
+                    client_.Dispose();
+            }
+        }
+    
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public GridViewDataSetOfCompany GetWithPaging(int? pagingOptions_pageIndex = null, int? pagingOptions_pageSize = null, int? pagingOptions_totalItemsCount = null)
+        {
+            return System.Threading.Tasks.Task.Run(async () => await GetWithPagingAsync(pagingOptions_pageIndex, pagingOptions_pageSize, pagingOptions_totalItemsCount, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+        }
+    
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public async System.Threading.Tasks.Task<GridViewDataSetOfCompany> GetWithPagingAsync(int? pagingOptions_pageIndex = null, int? pagingOptions_pageSize = null, int? pagingOptions_totalItemsCount = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        {
+            var urlBuilder_ = new System.Text.StringBuilder();
+            urlBuilder_.Append(BaseUrl).Append("/api/companies/paged?");
+            if (pagingOptions_pageIndex != null) urlBuilder_.Append("pagingOptions.pageIndex=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pagingOptions_pageIndex.Value, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            if (pagingOptions_pageSize != null) urlBuilder_.Append("pagingOptions.pageSize=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pagingOptions_pageSize.Value, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            if (pagingOptions_totalItemsCount != null) urlBuilder_.Append("pagingOptions.totalItemsCount=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pagingOptions_totalItemsCount.Value, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            urlBuilder_.Length--;
+    
+            var client_ = new System.Net.Http.HttpClient();
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+    
+                    PrepareRequest(client_, request_, urlBuilder_);
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+                    PrepareRequest(client_, request_, url_);
+    
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    try
+                    {
+                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
+                        foreach (var item_ in response_.Content.Headers)
+                            headers_[item_.Key] = item_.Value;
+    
+                        ProcessResponse(client_, response_);
+    
+                        var status_ = ((int)response_.StatusCode).ToString();
+                        if (status_ == "200") 
+                        {
+                            var responseData_ = await response_.Content.ReadAsStringAsync().ConfigureAwait(false); 
+                            var result_ = default(GridViewDataSetOfCompany); 
+                            try
+                            {
+                                result_ = Newtonsoft.Json.JsonConvert.DeserializeObject<GridViewDataSetOfCompany>(responseData_, _settings.Value);
+                                return result_; 
+                            } 
+                            catch (System.Exception exception) 
+                            {
+                                throw new SwaggerException("Could not deserialize the response body.", status_, responseData_, headers_, exception);
+                            }
+                        }
+                        else
+                        if (status_ != "200" && status_ != "204")
+                        {
+                            var responseData_ = await response_.Content.ReadAsStringAsync().ConfigureAwait(false); 
+                            throw new SwaggerException("The HTTP status code of the response was not expected (" + (int)response_.StatusCode + ").", status_, responseData_, headers_, null);
+                        }
+            
+                        return default(GridViewDataSetOfCompany);
+                    }
+                    finally
+                    {
+                        if (response_ != null)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (client_ != null)
+                    client_.Dispose();
+            }
+        }
+    
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public GridViewDataSetOfCompany GetWithSortingAndPaging(bool? sortingOptions_sortDescending = null, string sortingOptions_sortExpression = null, int? pagingOptions_pageIndex = null, int? pagingOptions_pageSize = null, int? pagingOptions_totalItemsCount = null)
+        {
+            return System.Threading.Tasks.Task.Run(async () => await GetWithSortingAndPagingAsync(sortingOptions_sortDescending, sortingOptions_sortExpression, pagingOptions_pageIndex, pagingOptions_pageSize, pagingOptions_totalItemsCount, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+        }
+    
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        public async System.Threading.Tasks.Task<GridViewDataSetOfCompany> GetWithSortingAndPagingAsync(bool? sortingOptions_sortDescending = null, string sortingOptions_sortExpression = null, int? pagingOptions_pageIndex = null, int? pagingOptions_pageSize = null, int? pagingOptions_totalItemsCount = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        {
+            var urlBuilder_ = new System.Text.StringBuilder();
+            urlBuilder_.Append(BaseUrl).Append("/api/companies/sortedandpaged?");
+            if (sortingOptions_sortDescending != null) urlBuilder_.Append("sortingOptions.sortDescending=").Append(System.Uri.EscapeDataString(System.Convert.ToString(sortingOptions_sortDescending.Value, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            if (sortingOptions_sortExpression != null) urlBuilder_.Append("sortingOptions.sortExpression=").Append(System.Uri.EscapeDataString(System.Convert.ToString(sortingOptions_sortExpression, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            if (pagingOptions_pageIndex != null) urlBuilder_.Append("pagingOptions.pageIndex=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pagingOptions_pageIndex.Value, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            if (pagingOptions_pageSize != null) urlBuilder_.Append("pagingOptions.pageSize=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pagingOptions_pageSize.Value, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            if (pagingOptions_totalItemsCount != null) urlBuilder_.Append("pagingOptions.totalItemsCount=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pagingOptions_totalItemsCount.Value, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            urlBuilder_.Length--;
+    
+            var client_ = new System.Net.Http.HttpClient();
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+    
+                    PrepareRequest(client_, request_, urlBuilder_);
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+                    PrepareRequest(client_, request_, url_);
+    
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    try
+                    {
+                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
+                        foreach (var item_ in response_.Content.Headers)
+                            headers_[item_.Key] = item_.Value;
+    
+                        ProcessResponse(client_, response_);
+    
+                        var status_ = ((int)response_.StatusCode).ToString();
+                        if (status_ == "200") 
+                        {
+                            var responseData_ = await response_.Content.ReadAsStringAsync().ConfigureAwait(false); 
+                            var result_ = default(GridViewDataSetOfCompany); 
+                            try
+                            {
+                                result_ = Newtonsoft.Json.JsonConvert.DeserializeObject<GridViewDataSetOfCompany>(responseData_, _settings.Value);
+                                return result_; 
+                            } 
+                            catch (System.Exception exception) 
+                            {
+                                throw new SwaggerException("Could not deserialize the response body.", status_, responseData_, headers_, exception);
+                            }
+                        }
+                        else
+                        if (status_ != "200" && status_ != "204")
+                        {
+                            var responseData_ = await response_.Content.ReadAsStringAsync().ConfigureAwait(false); 
+                            throw new SwaggerException("The HTTP status code of the response was not expected (" + (int)response_.StatusCode + ").", status_, responseData_, headers_, null);
+                        }
+            
+                        return default(GridViewDataSetOfCompany);
+                    }
+                    finally
+                    {
+                        if (response_ != null)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (client_ != null)
+                    client_.Dispose();
+            }
+        }
+    
     }
     
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "11.3.5.0")]
     public partial class OrdersClient 
     {
         private System.Lazy<Newtonsoft.Json.JsonSerializerSettings> _settings;
-        private string _baseUrl = "";
+        private string _baseUrl = "http://localhost:61453";
         
-        public OrdersClient(string baseUrl)
+        public OrdersClient()
         {
-            BaseUrl = baseUrl; 
     		_settings = new System.Lazy<Newtonsoft.Json.JsonSerializerSettings>(() => 
             {
                 var settings = new Newtonsoft.Json.JsonSerializerSettings();
@@ -139,6 +377,7 @@ namespace TestWebApiClient
         partial void PrepareRequest(System.Net.Http.HttpClient client, System.Net.Http.HttpRequestMessage request, System.Text.StringBuilder urlBuilder);
         partial void ProcessResponse(System.Net.Http.HttpClient client, System.Net.Http.HttpResponseMessage response);
     
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public System.Collections.Generic.List<Order> Get(int companyId, int? pageIndex = null, int? pageSize = null)
         {
@@ -146,23 +385,18 @@ namespace TestWebApiClient
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<System.Collections.Generic.List<Order>> GetAsync(int companyId, int? pageIndex = null, int? pageSize = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (companyId == null)
                 throw new System.ArgumentNullException("companyId");
     
-            if (pageIndex == null)
-                throw new System.ArgumentNullException("pageIndex");
-    
-            if (pageSize == null)
-                throw new System.ArgumentNullException("pageSize");
-    
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl).Append("/api/Orders/{companyId}?");
-            urlBuilder_.Replace("{companyId}", System.Uri.EscapeDataString(System.Convert.ToString(companyId, System.Globalization.CultureInfo.InvariantCulture)));
-            urlBuilder_.Append("pageIndex=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pageIndex.Value, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
-            urlBuilder_.Append("pageSize=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pageSize.Value, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            urlBuilder_.Append(BaseUrl).Append("/api/orders?");
+            urlBuilder_.Append("companyId=").Append(System.Uri.EscapeDataString(System.Convert.ToString(companyId, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            if (pageIndex != null) urlBuilder_.Append("pageIndex=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pageIndex.Value, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            if (pageSize != null) urlBuilder_.Append("pageSize=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pageSize.Value, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             urlBuilder_.Length--;
     
             var client_ = new System.Net.Http.HttpClient();
@@ -225,6 +459,7 @@ namespace TestWebApiClient
             }
         }
     
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public Order GetItem(int orderId)
         {
@@ -232,6 +467,7 @@ namespace TestWebApiClient
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<Order> GetItemAsync(int orderId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
@@ -239,7 +475,7 @@ namespace TestWebApiClient
                 throw new System.ArgumentNullException("orderId");
     
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl).Append("/api/Orders/{orderId}");
+            urlBuilder_.Append(BaseUrl).Append("/api/orders/{orderId}");
             urlBuilder_.Replace("{orderId}", System.Uri.EscapeDataString(System.Convert.ToString(orderId, System.Globalization.CultureInfo.InvariantCulture)));
     
             var client_ = new System.Net.Http.HttpClient();
@@ -302,21 +538,23 @@ namespace TestWebApiClient
             }
         }
     
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public FileResponse Put(int orderId, Order order = null)
+        public object Put(int orderId, Order order)
         {
             return System.Threading.Tasks.Task.Run(async () => await PutAsync(orderId, order, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task<FileResponse> PutAsync(int orderId, Order order = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public async System.Threading.Tasks.Task<object> PutAsync(int orderId, Order order, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (orderId == null)
                 throw new System.ArgumentNullException("orderId");
     
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl).Append("/api/Orders/{orderId}");
+            urlBuilder_.Append(BaseUrl).Append("/api/orders/{orderId}");
             urlBuilder_.Replace("{orderId}", System.Uri.EscapeDataString(System.Convert.ToString(orderId, System.Globalization.CultureInfo.InvariantCulture)));
     
             var client_ = new System.Net.Http.HttpClient();
@@ -345,12 +583,19 @@ namespace TestWebApiClient
                         ProcessResponse(client_, response_);
     
                         var status_ = ((int)response_.StatusCode).ToString();
-                        if (status_ == "200" || status_ == "206") 
+                        if (status_ == "200") 
                         {
-                            var responseStream_ = await response_.Content.ReadAsStreamAsync().ConfigureAwait(false);
-                            var fileResponse_ = new FileResponse(status_, headers_, responseStream_, client_, response_); 
-                            client_ = null; response_ = null; // response and client are disposed by FileResponse
-                            return fileResponse_;
+                            var responseData_ = await response_.Content.ReadAsStringAsync().ConfigureAwait(false); 
+                            var result_ = default(object); 
+                            try
+                            {
+                                result_ = Newtonsoft.Json.JsonConvert.DeserializeObject<object>(responseData_, _settings.Value);
+                                return result_; 
+                            } 
+                            catch (System.Exception exception) 
+                            {
+                                throw new SwaggerException("Could not deserialize the response body.", status_, responseData_, headers_, exception);
+                            }
                         }
                         else
                         if (status_ != "200" && status_ != "204")
@@ -359,7 +604,7 @@ namespace TestWebApiClient
                             throw new SwaggerException("The HTTP status code of the response was not expected (" + (int)response_.StatusCode + ").", status_, responseData_, headers_, null);
                         }
             
-                        return default(FileResponse);
+                        return default(object);
                     }
                     finally
                     {
@@ -375,75 +620,7 @@ namespace TestWebApiClient
             }
         }
     
-        /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public FileResponse Post(Order order = null)
-        {
-            return System.Threading.Tasks.Task.Run(async () => await PostAsync(order, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
-        }
-    
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task<FileResponse> PostAsync(Order order = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
-        {
-            var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl).Append("/api/Orders");
-    
-            var client_ = new System.Net.Http.HttpClient();
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    var content_ = new System.Net.Http.StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(order, _settings.Value));
-                    content_.Headers.ContentType.MediaType = "application/json";
-                    request_.Content = content_;
-                    request_.Method = new System.Net.Http.HttpMethod("POST");
-                    request_.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-    
-                    PrepareRequest(client_, request_, urlBuilder_);
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-                    PrepareRequest(client_, request_, url_);
-    
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    try
-                    {
-                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
-                        foreach (var item_ in response_.Content.Headers)
-                            headers_[item_.Key] = item_.Value;
-    
-                        ProcessResponse(client_, response_);
-    
-                        var status_ = ((int)response_.StatusCode).ToString();
-                        if (status_ == "200" || status_ == "206") 
-                        {
-                            var responseStream_ = await response_.Content.ReadAsStreamAsync().ConfigureAwait(false);
-                            var fileResponse_ = new FileResponse(status_, headers_, responseStream_, client_, response_); 
-                            client_ = null; response_ = null; // response and client are disposed by FileResponse
-                            return fileResponse_;
-                        }
-                        else
-                        if (status_ != "200" && status_ != "204")
-                        {
-                            var responseData_ = await response_.Content.ReadAsStringAsync().ConfigureAwait(false); 
-                            throw new SwaggerException("The HTTP status code of the response was not expected (" + (int)response_.StatusCode + ").", status_, responseData_, headers_, null);
-                        }
-            
-                        return default(FileResponse);
-                    }
-                    finally
-                    {
-                        if (response_ != null)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (client_ != null)
-                    client_.Dispose();
-            }
-        }
-    
+        /// <returns>No Content</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public void Delete(int orderId)
         {
@@ -451,6 +628,7 @@ namespace TestWebApiClient
         }
     
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>No Content</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task DeleteAsync(int orderId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
@@ -458,7 +636,7 @@ namespace TestWebApiClient
                 throw new System.ArgumentNullException("orderId");
     
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl).Append("/api/Orders/delete-{orderId}");
+            urlBuilder_.Append(BaseUrl).Append("/api/orders/delete/{orderId}");
             urlBuilder_.Replace("{orderId}", System.Uri.EscapeDataString(System.Convert.ToString(orderId, System.Globalization.CultureInfo.InvariantCulture)));
     
             var client_ = new System.Net.Http.HttpClient();
@@ -515,8 +693,8 @@ namespace TestWebApiClient
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.4.5.0")]
     public partial class Company 
     {
-        [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.Always)]
-        public int Id { get; set; }
+        [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? Id { get; set; }
     
         [Newtonsoft.Json.JsonProperty("Name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Name { get; set; }
@@ -536,20 +714,181 @@ namespace TestWebApiClient
     }
     
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.4.5.0")]
+    public partial class SortingOptions 
+    {
+        [Newtonsoft.Json.JsonProperty("SortDescending", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? SortDescending { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("SortExpression", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string SortExpression { get; set; }
+    
+        public string ToJson() 
+        {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
+        }
+        
+        public static SortingOptions FromJson(string data)
+        {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<SortingOptions>(data);
+        }
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.4.5.0")]
+    public partial class GridViewDataSetOfCompany 
+    {
+        [Newtonsoft.Json.JsonProperty("IsRefreshRequired", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? IsRefreshRequired { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("Items", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.List<Company> Items { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("PagingOptions", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public IPagingOptions PagingOptions { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("RowEditOptions", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public IRowEditOptions RowEditOptions { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("SortingOptions", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public ISortingOptions SortingOptions { get; set; }
+    
+        public string ToJson() 
+        {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
+        }
+        
+        public static GridViewDataSetOfCompany FromJson(string data)
+        {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<GridViewDataSetOfCompany>(data);
+        }
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.4.5.0")]
+    public partial class IPagingOptions 
+    {
+        [Newtonsoft.Json.JsonProperty("PageIndex", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? PageIndex { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("PageSize", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? PageSize { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("TotalItemsCount", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? TotalItemsCount { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("IsFirstPage", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? IsFirstPage { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("IsLastPage", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? IsLastPage { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("PagesCount", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? PagesCount { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("NearPageIndexes", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.List<int> NearPageIndexes { get; set; }
+    
+        public string ToJson() 
+        {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
+        }
+        
+        public static IPagingOptions FromJson(string data)
+        {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<IPagingOptions>(data);
+        }
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.4.5.0")]
+    public partial class IRowEditOptions 
+    {
+        [Newtonsoft.Json.JsonProperty("PrimaryKeyPropertyName", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string PrimaryKeyPropertyName { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("EditRowId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public object EditRowId { get; set; }
+    
+        public string ToJson() 
+        {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
+        }
+        
+        public static IRowEditOptions FromJson(string data)
+        {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<IRowEditOptions>(data);
+        }
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.4.5.0")]
+    public partial class ISortingOptions 
+    {
+        [Newtonsoft.Json.JsonProperty("SortDescending", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? SortDescending { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("SortExpression", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string SortExpression { get; set; }
+    
+        public string ToJson() 
+        {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
+        }
+        
+        public static ISortingOptions FromJson(string data)
+        {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<ISortingOptions>(data);
+        }
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.4.5.0")]
+    public partial class PagingOptions 
+    {
+        [Newtonsoft.Json.JsonProperty("NearPageIndexesProvider", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public object NearPageIndexesProvider { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("IsFirstPage", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? IsFirstPage { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("IsLastPage", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? IsLastPage { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("PagesCount", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? PagesCount { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("PageIndex", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? PageIndex { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("PageSize", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? PageSize { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("TotalItemsCount", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? TotalItemsCount { get; set; }
+    
+        [Newtonsoft.Json.JsonProperty("NearPageIndexes", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.List<int> NearPageIndexes { get; set; }
+    
+        public string ToJson() 
+        {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
+        }
+        
+        public static PagingOptions FromJson(string data)
+        {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<PagingOptions>(data);
+        }
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.4.5.0")]
     public partial class Order 
     {
-        [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.Always)]
-        public int Id { get; set; }
+        [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? Id { get; set; }
     
         [Newtonsoft.Json.JsonProperty("Number", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Number { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("Date", Required = Newtonsoft.Json.Required.Always)]
-        [System.ComponentModel.DataAnnotations.Required]
-        public System.DateTime Date { get; set; }
+        [Newtonsoft.Json.JsonProperty("Date", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.DateTime? Date { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("CompanyId", Required = Newtonsoft.Json.Required.Always)]
-        public int CompanyId { get; set; }
+        [Newtonsoft.Json.JsonProperty("CompanyId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? CompanyId { get; set; }
     
         [Newtonsoft.Json.JsonProperty("OrderItems", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.List<OrderItem> OrderItems { get; set; }
@@ -568,20 +907,20 @@ namespace TestWebApiClient
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.4.5.0")]
     public partial class OrderItem 
     {
-        [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.Always)]
-        public int Id { get; set; }
+        [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? Id { get; set; }
     
         [Newtonsoft.Json.JsonProperty("Text", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Text { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("Amount", Required = Newtonsoft.Json.Required.Always)]
-        public decimal Amount { get; set; }
+        [Newtonsoft.Json.JsonProperty("Amount", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double? Amount { get; set; }
     
         [Newtonsoft.Json.JsonProperty("Discount", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public decimal? Discount { get; set; }
+        public double? Discount { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("IsOnStock", Required = Newtonsoft.Json.Required.Always)]
-        public bool IsOnStock { get; set; }
+        [Newtonsoft.Json.JsonProperty("IsOnStock", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? IsOnStock { get; set; }
     
         public string ToJson() 
         {
@@ -591,42 +930,6 @@ namespace TestWebApiClient
         public static OrderItem FromJson(string data)
         {
             return Newtonsoft.Json.JsonConvert.DeserializeObject<OrderItem>(data);
-        }
-    }
-
-    public class FileResponse : System.IDisposable
-    {
-        private System.IDisposable _client; 
-        private System.IDisposable _response; 
-
-        public string StatusCode { get; private set; }
-
-        public System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>> Headers { get; private set; }
-
-        public System.IO.Stream Stream { get; private set; }
-
-        public bool IsPartial
-        {
-            get { return StatusCode == "206"; }
-        }
-
-        public FileResponse(string statusCode, System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>> headers, System.IO.Stream stream, System.IDisposable client, System.IDisposable response)
-        {
-            StatusCode = statusCode; 
-            Headers = headers; 
-            Stream = stream; 
-            _client = client; 
-            _response = response;
-        }
-
-        public void Dispose() 
-        {
-            if (Stream != null)
-                Stream.Dispose();
-            if (_response != null)
-                _response.Dispose();
-            if (_client != null)
-                _client.Dispose();
         }
     }
 

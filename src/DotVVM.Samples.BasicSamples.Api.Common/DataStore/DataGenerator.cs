@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 using System.Text;
-using DotVVM.Samples.BasicSamples.Api.AspNetCore.Model;
+using DotVVM.Samples.BasicSamples.Api.Common.Model;
 
-namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.DataStore
+namespace DotVVM.Samples.BasicSamples.Api.Common.DataStore
 {
     public class DataGenerator
     {

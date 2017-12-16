@@ -1,18 +1,17 @@
 ﻿using System;
-using DotVVM.Framework.Api.Swashbuckle.AspNetCore.Filters;
-using Swashbuckle.AspNetCore.SwaggerGen;
+using DotVVM.Framework.Api.Swashbuckle.Owin.Filters;
+using Swashbuckle.Application;
+using Swashbuckle.Swagger;
 
-namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore
+namespace DotVVM.Framework.Api.Swashbuckle.Owin
 {
     public static class SwashbuckleExtensions
     {
         /// <summary>
         /// Confgures Swaschbuckle to provide additional metadata in methods which use FromQuery attribute so the API provided by DotVVM API generator is easier to use.
         /// </summary>
-        public static void EnableDotvvmIntegration(this SwaggerGenOptions options)
+        public static void EnableDotvvmIntegration(this SwaggerDocsConfig options)
         {
-            options.OperationFilter<RemoveReadOnlyFromUriParametersOperationFilter>();
-            options.OperationFilter<RemoveBindNoneFromUriParametersOperationFilter>();
             options.OperationFilter<AddAsObjectAnnotationOperationFilter>();
             options.OperationFilter<HandleGridViewDataSetReturnType>();
         }
