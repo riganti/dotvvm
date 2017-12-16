@@ -1,6 +1,6 @@
 ﻿using DotVVM.Framework.Configuration;
 
-namespace swag
+namespace DotVVM.Samples.BasicSamples.Api.AspNetCore
 {
     public class DotvvmStartup : IDotvvmStartup
     {

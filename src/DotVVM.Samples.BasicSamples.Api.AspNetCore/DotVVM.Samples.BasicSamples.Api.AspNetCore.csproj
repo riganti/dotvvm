@@ -17,15 +17,22 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotVVM.AspNetCore" Version="1.1.5.0" />
-    <PackageReference Include="Microsoft.AspNetCore" Version="1.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="1.1.2" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="1.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.0" />
     <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="11.3.5" />
     <PackageReference Include="NSwag.CodeGeneration.TypeScript" Version="11.3.5" />
     <PackageReference Include="NSwag.SwaggerGeneration.WebApi" Version="11.3.5" />
     <PackageReference Include="NJsonSchema.CodeGeneration" Version="9.4.5" />
     <PackageReference Include="Faker.NETCore" Version="1.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="1.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj" />
+    <ProjectReference Include="..\DotVVM.Framework.Hosting.AspNetCore\DotVVM.Framework.Hosting.AspNetCore.csproj" />
+    <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
   </ItemGroup>
 
 </Project>

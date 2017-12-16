@@ -2,18 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DotVVM.Samples.BasicSamples.Api.AspNetCore.DataStore;
+using DotVVM.Samples.BasicSamples.Api.AspNetCore.Model;
 using Microsoft.AspNetCore.Mvc;
-using swag.DataStore;
-using swag.Model;
 
-namespace swag.Controllers
+namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.AspNetCore.Controllers
 {
     [Route("api/[controller]")]
     public class OrdersController : Controller
     {
-        
 
-        [Route("{companyId}")]
+        [HttpGet]
         public List<Order> Get(int companyId, int pageIndex = 0, int pageSize = 20)
         {
             lock (Database.Instance)
@@ -27,6 +26,7 @@ namespace swag.Controllers
             }
         }
 
+        [HttpGet]
         [Route("{orderId}", Name = nameof(GetItem))]
         public Order GetItem(int orderId)
         {
@@ -36,7 +36,8 @@ namespace swag.Controllers
             }
         }
 
-        public IActionResult Post(Order order)
+        [HttpPost]
+        public IActionResult Post([FromBody]Order order)
         {
             lock (Database.Instance)
             {
@@ -53,8 +54,9 @@ namespace swag.Controllers
             return CreatedAtRoute("GetItem", new { orderId = order.Id });
         }
 
+        [HttpPut]
         [Route("{orderId}")]
-        public IActionResult Put(int orderId, Order order)
+        public IActionResult Put(int orderId, [FromBody]Order order)
         {
             lock (Database.Instance)
             {
@@ -74,7 +76,8 @@ namespace swag.Controllers
             }
         }
 
-        [Route("delete-{orderId}")]
+        [HttpDelete]
+        [Route("delete/{orderId}")]
         public void Delete(int orderId)
         {
             lock (Database.Instance)

@@ -1,4 +1,4 @@
-﻿namespace swag.Model
+﻿namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.Model
 {
     public class OrderItem
     {

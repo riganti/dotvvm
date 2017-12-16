@@ -15,7 +15,7 @@ using NSwag.CodeGeneration.OperationNameGenerators;
 using NSwag.CodeGeneration.TypeScript;
 using NSwag.SwaggerGeneration.WebApi;
 
-namespace swag.ViewModels
+namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.ViewModels
 {
     public class GeneratorViewModel : DotvvmViewModelBase
     {
