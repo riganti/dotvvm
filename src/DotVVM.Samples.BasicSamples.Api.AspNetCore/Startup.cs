@@ -2,15 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DotVVM.Samples.BasicSamples.Api.AspNetCore.DataStore;
+using DotVVM.Samples.BasicSamples.Api.AspNetCore.Model;
+using DotVVM.Samples.BasicSamples.Api.AspNetCore.Swagger;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using swag.DataStore;
-using swag.Model;
+using Swashbuckle.AspNetCore.Swagger;
 
-namespace swag
+namespace DotVVM.Samples.BasicSamples.Api.AspNetCore
 {
     public class Startup
     {
@@ -30,15 +32,21 @@ namespace swag
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
-            services.AddMvc(opt => {
+            services.AddMvc()
+                .AddJsonOptions(opt => {
+                    opt.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
+                });
 
-            }).AddJsonOptions(opt => {
-                opt.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
+            services.AddDotVVM(options => {
+                options.AddDefaultTempStorages("temp");
             });
 
-            services.AddDotVVM(options =>
-            {
-                options.AddDefaultTempStorages("temp");
+            services.AddSwaggerGen(options => {
+                options.SwaggerDoc("v1", new Info() { Title = "DotVVM Test API", Version = "v1" });
+
+                options.OperationFilter<AddFromUriParameterGroupsOperationFilter>();
+                options.OperationFilter<RemoveReadOnlyFromUriParametersOperationFilter>();
+                options.OperationFilter<RemoveBindNoneFromUriParametersOperationFilter>();
             });
         }
 
@@ -47,16 +55,21 @@ namespace swag
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
-            app.UseCors(p => {
+
+            app.UseCors(p =>
+            {
                 p.AllowAnyOrigin();
                 p.AllowAnyMethod();
                 p.AllowAnyHeader();
             });
 
-            app.UseMvc(opt => {
+            app.UseSwagger();
+            app.UseSwaggerUI(c => {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Northwind API");
             });
-            
 
+            app.UseMvc();
+            
             app.UseDotVVM<DotvvmStartup>(env.ContentRootPath);
 
             SeedDatabase();
@@ -82,13 +95,13 @@ namespace swag
                     Date = generator.GetDate(TimeSpan.FromDays(500), TimeSpan.FromDays(0)),
                     Number = generator.GetString(8, Casing.AllUpper),
                     OrderItems = generator.GetCollection(10, c => new OrderItem()
-                    {
-                        Id = c,
-                        Amount = generator.GetDecimal(0, 1000),
-                        Discount = generator.GetBoolean() ? generator.GetDecimal(0, 50) : (decimal?) null,
-                        IsOnStock = generator.GetBoolean(),
-                        Text = generator.GetWords(10, 8, Casing.AllLower)
-                    })
+                        {
+                            Id = c,
+                            Amount = generator.GetDecimal(0, 1000),
+                            Discount = generator.GetBoolean() ? generator.GetDecimal(0, 50) : (decimal?)null,
+                            IsOnStock = generator.GetBoolean(),
+                            Text = generator.GetWords(10, 8, Casing.AllLower)
+                        })
                 })
                 .ToList();
 
