@@ -24,8 +24,18 @@ namespace DotVVM.Framework.Api.Swashbuckle.Owin.Filters
                     var dict = jsonParam.vendorExtensions.ToDictionary(e => e.Key, e => e.Value);
                     dict.Add("x-dotvvm-wrapperType", param.ParameterDescriptor.ParameterType.FullName + ", " + param.ParameterDescriptor.ParameterType.Assembly.GetName().Name);
                     jsonParam.vendorExtensions = dict;
+
+                    // fix casing in the second part of the name
+                    var propertyName = FindPropertyName(param.ParameterDescriptor.ParameterType, jsonParam.name.Substring(jsonParam.name.IndexOf(".") + 1));
+                    jsonParam.name = param.Name + "." + propertyName;
                 }
             }
+        }
+
+        private string FindPropertyName(Type type, string propertyName)
+        {
+            var property = type.GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase);
+            return property?.Name ?? propertyName;
         }
     }
 }
