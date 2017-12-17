@@ -140,6 +140,10 @@
       <Project>{e6072462-b15a-4c3e-b3dc-61859dafb1af}</Project>
       <Name>DotVVM.Samples.BasicSamples.Api.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\DotVVM.Samples.BasicSamples.Owin\DotVVM.Samples.BasicSamples.Owin.csproj">
+      <Project>{1c7a9914-8cdc-4075-9422-37bd0e51c076}</Project>
+      <Name>DotVVM.Samples.BasicSamples.Owin</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
