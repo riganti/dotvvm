@@ -130,7 +130,6 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(typeof(Api), nameof(Api.PushEvent),
                 new GenericMethodCompiler(a =>
                     new JsIdentifierExpression("dotvvm").Member("eventHub").Member("notify").Invoke(a[1])
-                    // TODO: check wether the API is used correctly - I don't really understand the annotations
                 ));
             BindingPageInfo.RegisterJavascriptTranslations(this);
             BindingCollectionInfo.RegisterJavascriptTranslations(this);
