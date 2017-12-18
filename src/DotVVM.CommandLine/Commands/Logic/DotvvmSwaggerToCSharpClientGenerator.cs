@@ -41,7 +41,10 @@ namespace DotVVM.CommandLine.Commands.Logic
                     Schema = new JsonSchema4(),
                     Kind = SwaggerParameterKind.Query
                 };
-                var newParameter = new DotvvmCSharpParameterModel(g.Key, g.Key, typeName, swaggerParameter, operation.Parameters, settings.CodeGeneratorSettings, this, model);
+                var newParameter = new DotvvmCSharpParameterModel(g.Key, g.Key, typeName, swaggerParameter, operation.Parameters, settings.CodeGeneratorSettings, this, model)
+                {
+                    ExcludeFromQuery = true
+                };
                 var targetIndex = g.Min(p => model.Parameters.IndexOf(p));
                 foreach (var p in g)
                 {

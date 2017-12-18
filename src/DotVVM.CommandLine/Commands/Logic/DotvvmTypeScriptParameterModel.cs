@@ -15,6 +15,8 @@ namespace DotVVM.CommandLine.Commands.Logic
 
         public string CustomInitializer { get; set; }
 
+        public bool ExcludeFromQuery { get; set; }
+
         public bool IsLastMethodParameter => operation.MethodParameters.LastOrDefault() == this;
 
         public DotvvmTypeScriptParameterModel(string parameterName, string variableName, string typeName, SwaggerParameter parameter, IList<SwaggerParameter> allParameters, SwaggerToTypeScriptClientGeneratorSettings settings, SwaggerToTypeScriptClientGenerator generator, DotvvmTypeScriptOperationModel operation) : base(parameterName, variableName, typeName, parameter, allParameters, settings, generator)

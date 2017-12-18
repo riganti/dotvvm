@@ -23,7 +23,7 @@ else
     url_ = url_.replace("/{{{ parameter.Name }}}", ""); 
 {%     endif -%}
 {% endfor -%}
-{% for parameter in operation.QueryParameters -%}
+{% for parameter in operation.ActualQueryParameters -%}
 {%     if parameter.IsRequired -%}
 {%         if parameter.IsNullable -%}
 if ({{ parameter.VariableName }} === undefined)

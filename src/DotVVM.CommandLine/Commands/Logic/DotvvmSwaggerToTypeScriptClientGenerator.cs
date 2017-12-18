@@ -39,11 +39,14 @@ namespace DotVVM.CommandLine.Commands.Logic
                     Schema = new JsonSchema4(),
                     Kind = SwaggerParameterKind.Query
                 };
-                var newParameter = new DotvvmTypeScriptParameterModel(g.Key, g.Key, "any", swaggerParameter, operation.Parameters, settings, this, model);
+                var newParameter = new DotvvmTypeScriptParameterModel(g.Key, g.Key, "any", swaggerParameter, operation.Parameters, settings, this, model)
+                {
+                    ExcludeFromQuery = true
+                };
                 var targetIndex = g.Min(p => model.Parameters.IndexOf(p));
                 foreach (var p in g)
                 {
-                    ((DotvvmTypeScriptParameterModel)p).CustomInitializer = $"let {p.VariableName} = {g.Key} !== undefined ? {p.Name} : {g.Key};";
+                    ((DotvvmTypeScriptParameterModel)p).CustomInitializer = $"let {p.VariableName} = ({g.Key} !== null && typeof {g.Key} === 'object') ? {p.Name} : null;";
                 }
                 model.Parameters.Insert(targetIndex, newParameter);
             }

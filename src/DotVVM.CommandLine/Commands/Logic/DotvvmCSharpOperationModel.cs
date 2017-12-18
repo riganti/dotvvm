@@ -14,6 +14,8 @@ namespace DotVVM.CommandLine.Commands.Logic
 
         public IEnumerable<DotvvmCSharpParameterModel> CustomInitializedParameters => Parameters.OfType<DotvvmCSharpParameterModel>().Where(p => !string.IsNullOrEmpty(p.CustomInitializer));
 
+        public IEnumerable<DotvvmCSharpParameterModel> ActualQueryParameters => this.QueryParameters.OfType<DotvvmCSharpParameterModel>().Where(p => !p.ExcludeFromQuery);
+
         public DotvvmCSharpOperationModel(SwaggerOperation operation, SwaggerToCSharpGeneratorSettings settings, SwaggerToCSharpGeneratorBase generator, SwaggerToCSharpTypeResolver resolver) : base(operation, settings, generator, resolver)
         {
             RewriteParameters(operation, settings, generator);

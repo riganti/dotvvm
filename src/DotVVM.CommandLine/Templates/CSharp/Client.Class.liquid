@@ -114,7 +114,7 @@
             urlBuilder_.Replace("/{{ "{" }}{{ parameter.Name }}}", string.Empty);
 {%         endif -%}
 {%     endfor -%}
-{%     for parameter in operation.QueryParameters -%}
+{%     for parameter in operation.ActualQueryParameters -%}
         {% if parameter.IsOptional -%}
 if ({{ parameter.VariableName }} != null) {% endif -%}
 {%         if parameter.IsDateArray -%}

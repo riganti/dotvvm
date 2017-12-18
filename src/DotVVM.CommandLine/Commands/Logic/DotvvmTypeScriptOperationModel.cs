@@ -15,6 +15,8 @@ namespace DotVVM.CommandLine.Commands.Logic
 
         public IEnumerable<DotvvmTypeScriptParameterModel> CustomInitializedParameters => Parameters.OfType<DotvvmTypeScriptParameterModel>().Where(p => !string.IsNullOrEmpty(p.CustomInitializer));
 
+        public IEnumerable<DotvvmTypeScriptParameterModel> ActualQueryParameters => this.QueryParameters.OfType<DotvvmTypeScriptParameterModel>().Where(p => !p.ExcludeFromQuery);
+
         public DotvvmTypeScriptOperationModel(SwaggerOperation operation, SwaggerToTypeScriptClientGeneratorSettings settings, SwaggerToTypeScriptClientGenerator generator, TypeResolverBase resolver) : base(operation, settings, generator, resolver)
         {
             var parameters = operation.ActualParameters.ToList();

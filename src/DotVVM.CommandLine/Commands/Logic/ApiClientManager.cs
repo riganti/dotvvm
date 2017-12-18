@@ -140,7 +140,14 @@ namespace DotVVM.CommandLine.Commands.Logic
 
             if (definition.CompileTypescript)
             {
-                Process.Start("tsc", definition.TypescriptClient).WaitForExit();
+                Process.Start(new ProcessStartInfo()
+                {
+                    FileName = "tsc",
+                    Arguments = definition.TypescriptClient,
+                    UseShellExecute = true,
+                    CreateNoWindow = true,
+                    WindowStyle = ProcessWindowStyle.Hidden
+                }).WaitForExit();
             }
         }
 
