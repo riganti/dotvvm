@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Cors;
 using DotVVM.Samples.BasicSamples.Api.Common.DataStore;
 using Microsoft.Owin;
 using Owin;
@@ -20,6 +21,7 @@ namespace DotVVM.Samples.BasicSamples.Api.Owin
             // Web API
             var config = new HttpConfiguration();
             config.MapHttpAttributeRoutes();
+            config.EnableCors(new EnableCorsAttribute("*", "*", "*"));
             SwaggerConfig.Register(config);
             app.UseWebApi(config);
         }

@@ -112,7 +112,7 @@ namespace DotVVM.Samples.Common.Api.Owin
     
         /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public DotVVM.Framework.Controls.GridViewDataSet<Company> GetWithSorting(DotVVM.Framework.Controls.SortingOptions sortingOptions = null)
+        public DotVVM.Framework.Controls.GridViewDataSet<Company> GetWithSorting(DotVVM.Framework.Controls.ISortingOptions sortingOptions = null)
         {
             return System.Threading.Tasks.Task.Run(async () => await GetWithSortingAsync(sortingOptions, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
@@ -120,7 +120,7 @@ namespace DotVVM.Samples.Common.Api.Owin
         /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        public async System.Threading.Tasks.Task<DotVVM.Framework.Controls.GridViewDataSet<Company>> GetWithSortingAsync(DotVVM.Framework.Controls.SortingOptions sortingOptions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public async System.Threading.Tasks.Task<DotVVM.Framework.Controls.GridViewDataSet<Company>> GetWithSortingAsync(DotVVM.Framework.Controls.ISortingOptions sortingOptions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             var sortingOptions_SortDescending = sortingOptions != null ? sortingOptions.SortDescending : default(bool?);
             var sortingOptions_SortExpression = sortingOptions != null ? sortingOptions.SortExpression : default(string);
@@ -193,7 +193,7 @@ namespace DotVVM.Samples.Common.Api.Owin
     
         /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public DotVVM.Framework.Controls.GridViewDataSet<Company> GetWithPaging(DotVVM.Framework.Controls.PagingOptions pagingOptions = null)
+        public DotVVM.Framework.Controls.GridViewDataSet<Company> GetWithPaging(DotVVM.Framework.Controls.IPagingOptions pagingOptions = null)
         {
             return System.Threading.Tasks.Task.Run(async () => await GetWithPagingAsync(pagingOptions, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
@@ -201,7 +201,7 @@ namespace DotVVM.Samples.Common.Api.Owin
         /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        public async System.Threading.Tasks.Task<DotVVM.Framework.Controls.GridViewDataSet<Company>> GetWithPagingAsync(DotVVM.Framework.Controls.PagingOptions pagingOptions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public async System.Threading.Tasks.Task<DotVVM.Framework.Controls.GridViewDataSet<Company>> GetWithPagingAsync(DotVVM.Framework.Controls.IPagingOptions pagingOptions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             var pagingOptions_PageIndex = pagingOptions != null ? pagingOptions.PageIndex : default(int?);
             var pagingOptions_PageSize = pagingOptions != null ? pagingOptions.PageSize : default(int?);
@@ -276,7 +276,7 @@ namespace DotVVM.Samples.Common.Api.Owin
     
         /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public DotVVM.Framework.Controls.GridViewDataSet<Company> GetWithSortingAndPaging(DotVVM.Framework.Controls.SortingOptions sortingOptions = null, DotVVM.Framework.Controls.PagingOptions pagingOptions = null)
+        public DotVVM.Framework.Controls.GridViewDataSet<Company> GetWithSortingAndPaging(DotVVM.Framework.Controls.ISortingOptions sortingOptions = null, DotVVM.Framework.Controls.IPagingOptions pagingOptions = null)
         {
             return System.Threading.Tasks.Task.Run(async () => await GetWithSortingAndPagingAsync(sortingOptions, pagingOptions, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
@@ -284,7 +284,7 @@ namespace DotVVM.Samples.Common.Api.Owin
         /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        public async System.Threading.Tasks.Task<DotVVM.Framework.Controls.GridViewDataSet<Company>> GetWithSortingAndPagingAsync(DotVVM.Framework.Controls.SortingOptions sortingOptions = null, DotVVM.Framework.Controls.PagingOptions pagingOptions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public async System.Threading.Tasks.Task<DotVVM.Framework.Controls.GridViewDataSet<Company>> GetWithSortingAndPagingAsync(DotVVM.Framework.Controls.ISortingOptions sortingOptions = null, DotVVM.Framework.Controls.IPagingOptions pagingOptions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             var sortingOptions_SortDescending = sortingOptions != null ? sortingOptions.SortDescending : default(bool?);
             var sortingOptions_SortExpression = sortingOptions != null ? sortingOptions.SortExpression : default(string);

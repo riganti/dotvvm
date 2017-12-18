@@ -30,6 +30,8 @@
     <None Remove="Views\FeatureSamples\ActionFilterErrorHandling\ActionFilterRedirect.dothtml" />
     <None Remove="Views\FeatureSamples\Api\GetCollection.dothtml" />
     <None Remove="Views\FeatureSamples\Api\GithubRepoApi.dothtml" />
+    <None Remove="Views\FeatureSamples\Api\GridViewDataSetAspNetCore.dothtml" />
+    <None Remove="Views\FeatureSamples\Api\GridViewDataSetOwin.dothtml" />
     <None Remove="Views\FeatureSamples\BindingContexts\CollectionContext.dothtml" />
     <None Remove="Views\FeatureSamples\CommandArguments\CommandArguments.dothtml" />
     <None Remove="Views\FeatureSamples\MarkupControl\CommandBindingInDataContextWithControlProperty.dothtml" />
@@ -73,6 +75,8 @@
     <Content Include="Views\FeatureSamples\ActionFilterErrorHandling\ActionFilterRedirect.dothtml" />
     <Content Include="Views\FeatureSamples\Api\GetCollection.dothtml" />
     <Content Include="Views\FeatureSamples\Api\GithubRepoApi.dothtml" />
+    <Content Include="Views\FeatureSamples\Api\GridViewDataSetAspNetCore.dothtml" />
+    <Content Include="Views\FeatureSamples\Api\GridViewDataSetOwin.dothtml" />
     <Content Include="Views\FeatureSamples\BindingContexts\CollectionContext.dothtml" />
     <Content Include="Views\FeatureSamples\CommandArguments\CommandArguments.dothtml" />
     <Content Include="Views\FeatureSamples\DependencyInjection\ViewModelScopedService.dothtml" />

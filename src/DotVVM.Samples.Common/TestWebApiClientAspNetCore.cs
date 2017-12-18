@@ -113,7 +113,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
     
         /// <returns>Success</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public DotVVM.Framework.Controls.GridViewDataSet<Company> ApiCompaniesSortedGet(DotVVM.Framework.Controls.SortingOptions sortingOptions = null)
+        public DotVVM.Framework.Controls.GridViewDataSet<Company> ApiCompaniesSortedGet(DotVVM.Framework.Controls.ISortingOptions sortingOptions = null)
         {
             return System.Threading.Tasks.Task.Run(async () => await ApiCompaniesSortedGetAsync(sortingOptions, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
@@ -121,7 +121,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         /// <returns>Success</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        public async System.Threading.Tasks.Task<DotVVM.Framework.Controls.GridViewDataSet<Company>> ApiCompaniesSortedGetAsync(DotVVM.Framework.Controls.SortingOptions sortingOptions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public async System.Threading.Tasks.Task<DotVVM.Framework.Controls.GridViewDataSet<Company>> ApiCompaniesSortedGetAsync(DotVVM.Framework.Controls.ISortingOptions sortingOptions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             var sortingOptions_SortDescending = sortingOptions != null ? sortingOptions.SortDescending : default(bool);
             var sortingOptions_SortExpression = sortingOptions != null ? sortingOptions.SortExpression : default(string);
@@ -197,7 +197,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
     
         /// <returns>Success</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public DotVVM.Framework.Controls.GridViewDataSet<Company> ApiCompaniesPagedGet(DotVVM.Framework.Controls.PagingOptions pagingOptions = null)
+        public DotVVM.Framework.Controls.GridViewDataSet<Company> ApiCompaniesPagedGet(DotVVM.Framework.Controls.IPagingOptions pagingOptions = null)
         {
             return System.Threading.Tasks.Task.Run(async () => await ApiCompaniesPagedGetAsync(pagingOptions, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
@@ -205,7 +205,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         /// <returns>Success</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        public async System.Threading.Tasks.Task<DotVVM.Framework.Controls.GridViewDataSet<Company>> ApiCompaniesPagedGetAsync(DotVVM.Framework.Controls.PagingOptions pagingOptions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public async System.Threading.Tasks.Task<DotVVM.Framework.Controls.GridViewDataSet<Company>> ApiCompaniesPagedGetAsync(DotVVM.Framework.Controls.IPagingOptions pagingOptions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             var pagingOptions_PageIndex = pagingOptions != null ? pagingOptions.PageIndex : default(int);
             var pagingOptions_PageSize = pagingOptions != null ? pagingOptions.PageSize : default(int);
@@ -289,7 +289,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
     
         /// <returns>Success</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        public DotVVM.Framework.Controls.GridViewDataSet<Company> ApiCompaniesSortedandpagedGet(DotVVM.Framework.Controls.SortingOptions sortingOptions = null, DotVVM.Framework.Controls.PagingOptions pagingOptions = null)
+        public DotVVM.Framework.Controls.GridViewDataSet<Company> ApiCompaniesSortedandpagedGet(DotVVM.Framework.Controls.ISortingOptions sortingOptions = null, DotVVM.Framework.Controls.IPagingOptions pagingOptions = null)
         {
             return System.Threading.Tasks.Task.Run(async () => await ApiCompaniesSortedandpagedGetAsync(sortingOptions, pagingOptions, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
@@ -297,7 +297,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         /// <returns>Success</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        public async System.Threading.Tasks.Task<DotVVM.Framework.Controls.GridViewDataSet<Company>> ApiCompaniesSortedandpagedGetAsync(DotVVM.Framework.Controls.SortingOptions sortingOptions = null, DotVVM.Framework.Controls.PagingOptions pagingOptions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public async System.Threading.Tasks.Task<DotVVM.Framework.Controls.GridViewDataSet<Company>> ApiCompaniesSortedandpagedGetAsync(DotVVM.Framework.Controls.ISortingOptions sortingOptions = null, DotVVM.Framework.Controls.IPagingOptions pagingOptions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             var sortingOptions_SortDescending = sortingOptions != null ? sortingOptions.SortDescending : default(bool);
             var pagingOptions_PageIndex = pagingOptions != null ? pagingOptions.PageIndex : default(int);
