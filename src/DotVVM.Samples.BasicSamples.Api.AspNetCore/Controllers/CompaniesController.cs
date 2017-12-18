@@ -22,7 +22,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.Controllers
 
         [HttpGet]
         [Route("sorted")]
-        public GridViewDataSet<Company> GetWithSorting([FromQuery, AsObject]SortingOptions sortingOptions)
+        public GridViewDataSet<Company> GetWithSorting([FromQuery, AsObject(typeof(ISortingOptions))]SortingOptions sortingOptions)
         {
             lock (Database.Instance)
             {
@@ -37,7 +37,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.Controllers
 
         [HttpGet]
         [Route("paged")]
-        public GridViewDataSet<Company> GetWithPaging([FromQuery, AsObject]PagingOptions pagingOptions)
+        public GridViewDataSet<Company> GetWithPaging([FromQuery, AsObject(typeof(IPagingOptions))]PagingOptions pagingOptions)
         {
             lock (Database.Instance)
             {
@@ -52,7 +52,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.Controllers
 
         [HttpGet]
         [Route("sortedandpaged")]
-        public GridViewDataSet<Company> GetWithSortingAndPaging([FromQuery, AsObject]SortingOptions sortingOptions, [FromQuery, AsObject]PagingOptions pagingOptions)
+        public GridViewDataSet<Company> GetWithSortingAndPaging([FromQuery, AsObject(typeof(ISortingOptions))]SortingOptions sortingOptions, [FromQuery, AsObject(typeof(IPagingOptions))]PagingOptions pagingOptions)
         {
             lock (Database.Instance)
             {

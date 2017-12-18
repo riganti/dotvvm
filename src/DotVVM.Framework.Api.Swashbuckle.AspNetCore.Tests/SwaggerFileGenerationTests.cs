@@ -74,7 +74,7 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Tests
         {
             var operation1 = document.Paths["/api/Companies/sorted"].Get;
             var param1 = operation1.Parameters.Single(p => p.Name == "sortingOptions.SortDescending");
-            Assert.AreEqual("DotVVM.Framework.Controls.SortingOptions, DotVVM.Core", param1.Extensions["x-dotvvm-wrapperType"]);
+            Assert.AreEqual("DotVVM.Framework.Controls.ISortingOptions, DotVVM.Core", param1.Extensions["x-dotvvm-wrapperType"]);
         }
 
         [TestMethod]
@@ -83,8 +83,8 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Tests
             var operation = document.Paths["/api/Companies/sortedandpaged"].Get;
             var param1 = operation.Parameters.Single(p => p.Name == "sortingOptions.SortDescending");
             var param2 = operation.Parameters.Single(p => p.Name == "pagingOptions.PageSize");
-            Assert.AreEqual("DotVVM.Framework.Controls.SortingOptions, DotVVM.Core", param1.Extensions["x-dotvvm-wrapperType"]);
-            Assert.AreEqual("DotVVM.Framework.Controls.PagingOptions, DotVVM.Core", param2.Extensions["x-dotvvm-wrapperType"]);
+            Assert.AreEqual("DotVVM.Framework.Controls.ISortingOptions, DotVVM.Core", param1.Extensions["x-dotvvm-wrapperType"]);
+            Assert.AreEqual("DotVVM.Framework.Controls.IPagingOptions, DotVVM.Core", param2.Extensions["x-dotvvm-wrapperType"]);
         }
 
         [TestMethod]

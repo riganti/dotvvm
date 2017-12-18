@@ -11,5 +11,16 @@ namespace DotVVM.Framework.Api.Swashbuckle.Attributes
     [AttributeUsage(AttributeTargets.Parameter)]
     public class AsObjectAttribute : Attribute
     {
+
+        public Type ClientType { get; set; }
+
+        public AsObjectAttribute()
+        {
+        }
+
+        public AsObjectAttribute(Type clientType)
+        {
+            ClientType = clientType;
+        }
     }
 }

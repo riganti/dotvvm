@@ -35,8 +35,10 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Filters
                         var jsonParam = operation.Parameters.SingleOrDefault(p => p.Name == param.Name);
                         if (jsonParam != null)
                         {
+                            var parameterType = attribute.ClientType ?? param.ParameterDescriptor.ParameterType;
+
                             jsonParam.Name = group.First().ParameterDescriptor.Name + "." + jsonParam.Name;
-                            jsonParam.Extensions.Add("x-dotvvm-wrapperType", param.ParameterDescriptor.ParameterType.FullName + ", " + param.ParameterDescriptor.ParameterType.Assembly.GetName().Name);
+                            jsonParam.Extensions.Add("x-dotvvm-wrapperType", parameterType.FullName + ", " + parameterType.Assembly.GetName().Name);
                         }
                     }
                 }

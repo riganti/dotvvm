@@ -15,19 +15,28 @@ namespace DotVVM.Framework.Api.Swashbuckle.Owin.Filters
     {
         public void Apply(Operation operation, SchemaRegistry schemaRegistry, ApiDescription apiDescription)
         {
-            foreach (var param in apiDescription.ParameterDescriptions.Where(d => d.ParameterDescriptor.GetCustomAttributes<AsObjectAttribute>().Any()))
+            var parameters = apiDescription.ParameterDescriptions
+                .Select(d => new {
+                    Parameter = d,
+                    AsObjectAttribute = d.ParameterDescriptor.GetCustomAttributes<AsObjectAttribute>().FirstOrDefault()
+                })
+                .Where(d => d.AsObjectAttribute != null);
+
+            foreach (var param in parameters)
             {
                 // add full type name to the metadata
-                foreach (var jsonParam in operation.parameters.Where(p => p.name.StartsWith(param.Name + ".")))
+                foreach (var jsonParam in operation.parameters.Where(p => p.name.StartsWith(param.Parameter.Name + ".")))
                 {
+                    var parameterType = param.AsObjectAttribute.ClientType ?? param.Parameter.ParameterDescriptor.ParameterType;
+
                     // the vendorExtensions dictionary instance is reused, create a new one
                     var dict = jsonParam.vendorExtensions.ToDictionary(e => e.Key, e => e.Value);
-                    dict.Add("x-dotvvm-wrapperType", param.ParameterDescriptor.ParameterType.FullName + ", " + param.ParameterDescriptor.ParameterType.Assembly.GetName().Name);
+                    dict.Add("x-dotvvm-wrapperType", parameterType.FullName + ", " + parameterType.Assembly.GetName().Name);
                     jsonParam.vendorExtensions = dict;
 
                     // fix casing in the second part of the name
-                    var propertyName = FindPropertyName(param.ParameterDescriptor.ParameterType, jsonParam.name.Substring(jsonParam.name.IndexOf(".") + 1));
-                    jsonParam.name = param.Name + "." + propertyName;
+                    var propertyName = FindPropertyName(parameterType, jsonParam.name.Substring(jsonParam.name.IndexOf(".") + 1));
+                    jsonParam.name = param.Parameter.Name + "." + propertyName;
                 }
             }
         }
