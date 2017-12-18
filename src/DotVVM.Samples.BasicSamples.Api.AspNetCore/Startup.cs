@@ -43,7 +43,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore
 
             services.AddSwaggerGen(options => {
                 options.SwaggerDoc("v1", new Info() { Title = "DotVVM Test API", Version = "v1" });
-
+                
                 options.EnableDotvvmIntegration();
             });
         }
@@ -61,7 +61,12 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore
                 p.AllowAnyHeader();
             });
 
-            app.UseSwagger();
+            app.UseSwagger(options => {
+                options.PreSerializeFilters.Add((swaggerDoc, httpReq) => {
+                    swaggerDoc.Host = "localhost:5001";
+                    swaggerDoc.Schemes = new List<string>() { "http" };
+                });
+            });
             app.UseSwaggerUI(c => {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Northwind API");
             });
