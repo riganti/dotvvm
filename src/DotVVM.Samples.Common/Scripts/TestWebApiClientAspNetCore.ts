@@ -21,7 +21,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore {
         constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
             super();
             this.http = http ? http : <any>window;
-            this.baseUrl = baseUrl ? baseUrl : "";
+            this.baseUrl = baseUrl ? baseUrl : "http://localhost:5001";
         }
     
         /**
@@ -74,11 +74,9 @@ namespace DotVVM.Samples.Common.Api.AspNetCore {
          * @return Success
          */
         apiCompaniesSortedGet(sortingOptions?: any): Promise<GridViewDataSetOfCompany> {
-            let sortingOptions_SortDescending = sortingOptions !== undefined ? sortingOptions.SortDescending : sortingOptions;
-            let sortingOptions_SortExpression = sortingOptions !== undefined ? sortingOptions.SortExpression : sortingOptions;
+            let sortingOptions_SortDescending = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortDescending : null;
+            let sortingOptions_SortExpression = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortExpression : null;
             let url_ = this.baseUrl + "/api/Companies/sorted?";
-            if (sortingOptions !== undefined)
-                url_ += "sortingOptions=" + encodeURIComponent("" + sortingOptions) + "&"; 
             if (sortingOptions_SortDescending === undefined || sortingOptions_SortDescending === null)
                 throw new Error("The parameter 'sortingOptions_SortDescending' must be defined and cannot be null.");
             else
@@ -125,12 +123,10 @@ namespace DotVVM.Samples.Common.Api.AspNetCore {
          * @return Success
          */
         apiCompaniesPagedGet(pagingOptions?: any): Promise<GridViewDataSetOfCompany> {
-            let pagingOptions_PageIndex = pagingOptions !== undefined ? pagingOptions.PageIndex : pagingOptions;
-            let pagingOptions_PageSize = pagingOptions !== undefined ? pagingOptions.PageSize : pagingOptions;
-            let pagingOptions_TotalItemsCount = pagingOptions !== undefined ? pagingOptions.TotalItemsCount : pagingOptions;
+            let pagingOptions_PageIndex = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageIndex : null;
+            let pagingOptions_PageSize = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageSize : null;
+            let pagingOptions_TotalItemsCount = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.TotalItemsCount : null;
             let url_ = this.baseUrl + "/api/Companies/paged?";
-            if (pagingOptions !== undefined)
-                url_ += "pagingOptions=" + encodeURIComponent("" + pagingOptions) + "&"; 
             if (pagingOptions_PageIndex === undefined || pagingOptions_PageIndex === null)
                 throw new Error("The parameter 'pagingOptions_PageIndex' must be defined and cannot be null.");
             else
@@ -185,20 +181,16 @@ namespace DotVVM.Samples.Common.Api.AspNetCore {
          * @return Success
          */
         apiCompaniesSortedandpagedGet(sortingOptions?: any, pagingOptions?: any): Promise<GridViewDataSetOfCompany> {
-            let sortingOptions_SortDescending = sortingOptions !== undefined ? sortingOptions.SortDescending : sortingOptions;
-            let pagingOptions_PageIndex = pagingOptions !== undefined ? pagingOptions.PageIndex : pagingOptions;
-            let pagingOptions_PageSize = pagingOptions !== undefined ? pagingOptions.PageSize : pagingOptions;
-            let pagingOptions_TotalItemsCount = pagingOptions !== undefined ? pagingOptions.TotalItemsCount : pagingOptions;
-            let sortingOptions_SortExpression = sortingOptions !== undefined ? sortingOptions.SortExpression : sortingOptions;
+            let sortingOptions_SortDescending = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortDescending : null;
+            let pagingOptions_PageIndex = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageIndex : null;
+            let pagingOptions_PageSize = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageSize : null;
+            let pagingOptions_TotalItemsCount = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.TotalItemsCount : null;
+            let sortingOptions_SortExpression = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortExpression : null;
             let url_ = this.baseUrl + "/api/Companies/sortedandpaged?";
-            if (sortingOptions !== undefined)
-                url_ += "sortingOptions=" + encodeURIComponent("" + sortingOptions) + "&"; 
             if (sortingOptions_SortDescending === undefined || sortingOptions_SortDescending === null)
                 throw new Error("The parameter 'sortingOptions_SortDescending' must be defined and cannot be null.");
             else
                 url_ += "sortingOptions.SortDescending=" + encodeURIComponent("" + sortingOptions_SortDescending) + "&"; 
-            if (pagingOptions !== undefined)
-                url_ += "pagingOptions=" + encodeURIComponent("" + pagingOptions) + "&"; 
             if (pagingOptions_PageIndex === undefined || pagingOptions_PageIndex === null)
                 throw new Error("The parameter 'pagingOptions_PageIndex' must be defined and cannot be null.");
             else

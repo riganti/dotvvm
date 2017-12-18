@@ -100,11 +100,9 @@ var DotVVM;
                          */
                         CompaniesClient.prototype.getWithSorting = function (sortingOptions) {
                             var _this = this;
-                            var sortingOptions_SortDescending = sortingOptions !== undefined ? sortingOptions.SortDescending : sortingOptions;
-                            var sortingOptions_SortExpression = sortingOptions !== undefined ? sortingOptions.SortExpression : sortingOptions;
+                            var sortingOptions_SortDescending = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortDescending : null;
+                            var sortingOptions_SortExpression = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortExpression : null;
                             var url_ = this.baseUrl + "/api/companies/sorted?";
-                            if (sortingOptions !== undefined)
-                                url_ += "sortingOptions=" + encodeURIComponent("" + sortingOptions) + "&";
                             if (sortingOptions_SortDescending !== undefined)
                                 url_ += "sortingOptions.SortDescending=" + encodeURIComponent("" + sortingOptions_SortDescending) + "&";
                             if (sortingOptions_SortExpression !== undefined)
@@ -155,12 +153,10 @@ var DotVVM;
                          */
                         CompaniesClient.prototype.getWithPaging = function (pagingOptions) {
                             var _this = this;
-                            var pagingOptions_PageIndex = pagingOptions !== undefined ? pagingOptions.PageIndex : pagingOptions;
-                            var pagingOptions_PageSize = pagingOptions !== undefined ? pagingOptions.PageSize : pagingOptions;
-                            var pagingOptions_TotalItemsCount = pagingOptions !== undefined ? pagingOptions.TotalItemsCount : pagingOptions;
+                            var pagingOptions_PageIndex = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageIndex : null;
+                            var pagingOptions_PageSize = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageSize : null;
+                            var pagingOptions_TotalItemsCount = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.TotalItemsCount : null;
                             var url_ = this.baseUrl + "/api/companies/paged?";
-                            if (pagingOptions !== undefined)
-                                url_ += "pagingOptions=" + encodeURIComponent("" + pagingOptions) + "&";
                             if (pagingOptions_PageIndex !== undefined)
                                 url_ += "pagingOptions.PageIndex=" + encodeURIComponent("" + pagingOptions_PageIndex) + "&";
                             if (pagingOptions_PageSize !== undefined)
@@ -216,20 +212,16 @@ var DotVVM;
                          */
                         CompaniesClient.prototype.getWithSortingAndPaging = function (sortingOptions, pagingOptions) {
                             var _this = this;
-                            var sortingOptions_SortDescending = sortingOptions !== undefined ? sortingOptions.SortDescending : sortingOptions;
-                            var sortingOptions_SortExpression = sortingOptions !== undefined ? sortingOptions.SortExpression : sortingOptions;
-                            var pagingOptions_PageIndex = pagingOptions !== undefined ? pagingOptions.PageIndex : pagingOptions;
-                            var pagingOptions_PageSize = pagingOptions !== undefined ? pagingOptions.PageSize : pagingOptions;
-                            var pagingOptions_TotalItemsCount = pagingOptions !== undefined ? pagingOptions.TotalItemsCount : pagingOptions;
+                            var sortingOptions_SortDescending = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortDescending : null;
+                            var sortingOptions_SortExpression = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortExpression : null;
+                            var pagingOptions_PageIndex = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageIndex : null;
+                            var pagingOptions_PageSize = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageSize : null;
+                            var pagingOptions_TotalItemsCount = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.TotalItemsCount : null;
                             var url_ = this.baseUrl + "/api/companies/sortedandpaged?";
-                            if (sortingOptions !== undefined)
-                                url_ += "sortingOptions=" + encodeURIComponent("" + sortingOptions) + "&";
                             if (sortingOptions_SortDescending !== undefined)
                                 url_ += "sortingOptions.SortDescending=" + encodeURIComponent("" + sortingOptions_SortDescending) + "&";
                             if (sortingOptions_SortExpression !== undefined)
                                 url_ += "sortingOptions.SortExpression=" + encodeURIComponent("" + sortingOptions_SortExpression) + "&";
-                            if (pagingOptions !== undefined)
-                                url_ += "pagingOptions=" + encodeURIComponent("" + pagingOptions) + "&";
                             if (pagingOptions_PageIndex !== undefined)
                                 url_ += "pagingOptions.PageIndex=" + encodeURIComponent("" + pagingOptions_PageIndex) + "&";
                             if (pagingOptions_PageSize !== undefined)
@@ -498,7 +490,7 @@ var DotVVM;
                         /**
                          * @return No Content
                          */
-                        OrdersClient.prototype.delete = function (orderId) {
+                        OrdersClient.prototype["delete"] = function (orderId) {
                             var _this = this;
                             var url_ = this.baseUrl + "/api/orders/delete/{orderId}";
                             if (orderId === undefined || orderId === null)
@@ -508,7 +500,7 @@ var DotVVM;
                             var options_ = {
                                 method: "DELETE",
                                 headers: new Headers({
-                                    "Content-Type": "application/json",
+                                    "Content-Type": "application/json"
                                 })
                             };
                             return this.transformOptions(options_).then(function (transformedOptions_) {
@@ -943,4 +935,3 @@ var DotVVM;
         })(Common = Samples.Common || (Samples.Common = {}));
     })(Samples = DotVVM.Samples || (DotVVM.Samples = {}));
 })(DotVVM || (DotVVM = {}));
-//# sourceMappingURL=TestWebApiClientOwin.js.map

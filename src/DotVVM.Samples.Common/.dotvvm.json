@@ -12,7 +12,10 @@
       "namespace": "GithubApiClient",
       "compileTypescript": true,
       "generateWrapperClass": true,
-      "isSingleClient": false
+      "isSingleClient": false,
+      "fetchOptions": {
+        "credentials": "same-origin"
+      }
     },
     {
       "swaggerFile": "http://localhost:5001/swagger/v1/swagger.json",
@@ -21,7 +24,10 @@
       "namespace": "DotVVM.Samples.Common.Api.AspNetCore",
       "compileTypescript": true,
       "generateWrapperClass": true,
-      "isSingleClient": false
+      "isSingleClient": true,
+      "fetchOptions": {
+        "credentials": "same-origin"
+      }
     },
     {
       "swaggerFile": "http://localhost:61453/swagger/docs/v1",
@@ -30,7 +36,10 @@
       "namespace": "DotVVM.Samples.Common.Api.Owin",
       "compileTypescript": true,
       "generateWrapperClass": true,
-      "isSingleClient": false
+      "isSingleClient": false,
+      "fetchOptions": {
+        "credentials": "same-origin"
+      }
     }
   ]
 }

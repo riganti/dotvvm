@@ -75,11 +75,9 @@ namespace DotVVM.Samples.Common.Api.Owin {
          * @return OK
          */
         getWithSorting(sortingOptions?: any): Promise<GridViewDataSetOfCompany> {
-            let sortingOptions_SortDescending = sortingOptions !== undefined ? sortingOptions.SortDescending : sortingOptions;
-            let sortingOptions_SortExpression = sortingOptions !== undefined ? sortingOptions.SortExpression : sortingOptions;
+            let sortingOptions_SortDescending = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortDescending : null;
+            let sortingOptions_SortExpression = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortExpression : null;
             let url_ = this.baseUrl + "/api/companies/sorted?";
-            if (sortingOptions !== undefined)
-                url_ += "sortingOptions=" + encodeURIComponent("" + sortingOptions) + "&"; 
             if (sortingOptions_SortDescending !== undefined)
                 url_ += "sortingOptions.SortDescending=" + encodeURIComponent("" + sortingOptions_SortDescending) + "&"; 
             if (sortingOptions_SortExpression !== undefined)
@@ -127,12 +125,10 @@ namespace DotVVM.Samples.Common.Api.Owin {
          * @return OK
          */
         getWithPaging(pagingOptions?: any): Promise<GridViewDataSetOfCompany> {
-            let pagingOptions_PageIndex = pagingOptions !== undefined ? pagingOptions.PageIndex : pagingOptions;
-            let pagingOptions_PageSize = pagingOptions !== undefined ? pagingOptions.PageSize : pagingOptions;
-            let pagingOptions_TotalItemsCount = pagingOptions !== undefined ? pagingOptions.TotalItemsCount : pagingOptions;
+            let pagingOptions_PageIndex = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageIndex : null;
+            let pagingOptions_PageSize = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageSize : null;
+            let pagingOptions_TotalItemsCount = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.TotalItemsCount : null;
             let url_ = this.baseUrl + "/api/companies/paged?";
-            if (pagingOptions !== undefined)
-                url_ += "pagingOptions=" + encodeURIComponent("" + pagingOptions) + "&"; 
             if (pagingOptions_PageIndex !== undefined)
                 url_ += "pagingOptions.PageIndex=" + encodeURIComponent("" + pagingOptions_PageIndex) + "&"; 
             if (pagingOptions_PageSize !== undefined)
@@ -185,20 +181,16 @@ namespace DotVVM.Samples.Common.Api.Owin {
          * @return OK
          */
         getWithSortingAndPaging(sortingOptions?: any, pagingOptions?: any): Promise<GridViewDataSetOfCompany> {
-            let sortingOptions_SortDescending = sortingOptions !== undefined ? sortingOptions.SortDescending : sortingOptions;
-            let sortingOptions_SortExpression = sortingOptions !== undefined ? sortingOptions.SortExpression : sortingOptions;
-            let pagingOptions_PageIndex = pagingOptions !== undefined ? pagingOptions.PageIndex : pagingOptions;
-            let pagingOptions_PageSize = pagingOptions !== undefined ? pagingOptions.PageSize : pagingOptions;
-            let pagingOptions_TotalItemsCount = pagingOptions !== undefined ? pagingOptions.TotalItemsCount : pagingOptions;
+            let sortingOptions_SortDescending = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortDescending : null;
+            let sortingOptions_SortExpression = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortExpression : null;
+            let pagingOptions_PageIndex = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageIndex : null;
+            let pagingOptions_PageSize = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageSize : null;
+            let pagingOptions_TotalItemsCount = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.TotalItemsCount : null;
             let url_ = this.baseUrl + "/api/companies/sortedandpaged?";
-            if (sortingOptions !== undefined)
-                url_ += "sortingOptions=" + encodeURIComponent("" + sortingOptions) + "&"; 
             if (sortingOptions_SortDescending !== undefined)
                 url_ += "sortingOptions.SortDescending=" + encodeURIComponent("" + sortingOptions_SortDescending) + "&"; 
             if (sortingOptions_SortExpression !== undefined)
                 url_ += "sortingOptions.SortExpression=" + encodeURIComponent("" + sortingOptions_SortExpression) + "&"; 
-            if (pagingOptions !== undefined)
-                url_ += "pagingOptions=" + encodeURIComponent("" + pagingOptions) + "&"; 
             if (pagingOptions_PageIndex !== undefined)
                 url_ += "pagingOptions.PageIndex=" + encodeURIComponent("" + pagingOptions_PageIndex) + "&"; 
             if (pagingOptions_PageSize !== undefined)

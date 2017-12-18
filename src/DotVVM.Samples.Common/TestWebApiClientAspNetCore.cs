@@ -11,12 +11,11 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "11.12.13.0 (NJsonSchema v9.10.14.0 (Newtonsoft.Json v9.0.0.0))")]
     public partial class Client 
     {
-        private string _baseUrl = "";
+        private string _baseUrl = "http://localhost:5001";
         private System.Lazy<Newtonsoft.Json.JsonSerializerSettings> _settings;
     
-        public Client(string baseUrl)
+        public Client()
         {
-            BaseUrl = baseUrl; 
     		_settings = new System.Lazy<Newtonsoft.Json.JsonSerializerSettings>(() => 
             {
                 var settings = new Newtonsoft.Json.JsonSerializerSettings();
@@ -130,7 +129,6 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
     
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/Companies/sorted?");
-            if (sortingOptions != null) urlBuilder_.Append("sortingOptions=").Append(System.Uri.EscapeDataString(System.Convert.ToString(sortingOptions, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             urlBuilder_.Append("sortingOptions.SortDescending=").Append(System.Uri.EscapeDataString(System.Convert.ToString(sortingOptions_SortDescending, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             if (sortingOptions_SortExpression != null) urlBuilder_.Append("sortingOptions.SortExpression=").Append(System.Uri.EscapeDataString(System.Convert.ToString(sortingOptions_SortExpression, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             urlBuilder_.Length--;
@@ -221,7 +219,6 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
     
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/Companies/paged?");
-            if (pagingOptions != null) urlBuilder_.Append("pagingOptions=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pagingOptions, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             urlBuilder_.Append("pagingOptions.PageIndex=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pagingOptions_PageIndex, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             urlBuilder_.Append("pagingOptions.PageSize=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pagingOptions_PageSize, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             urlBuilder_.Append("pagingOptions.TotalItemsCount=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pagingOptions_TotalItemsCount, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
@@ -318,9 +315,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
     
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/Companies/sortedandpaged?");
-            if (sortingOptions != null) urlBuilder_.Append("sortingOptions=").Append(System.Uri.EscapeDataString(System.Convert.ToString(sortingOptions, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             urlBuilder_.Append("sortingOptions.SortDescending=").Append(System.Uri.EscapeDataString(System.Convert.ToString(sortingOptions_SortDescending, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
-            if (pagingOptions != null) urlBuilder_.Append("pagingOptions=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pagingOptions, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             urlBuilder_.Append("pagingOptions.PageIndex=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pagingOptions_PageIndex, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             urlBuilder_.Append("pagingOptions.PageSize=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pagingOptions_PageSize, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             urlBuilder_.Append("pagingOptions.TotalItemsCount=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pagingOptions_TotalItemsCount, System.Globalization.CultureInfo.InvariantCulture))).Append("&");

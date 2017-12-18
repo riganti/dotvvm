@@ -40,7 +40,7 @@ var DotVVM;
                             var _this = _super.call(this) || this;
                             _this.jsonParseReviver = undefined;
                             _this.http = http ? http : window;
-                            _this.baseUrl = baseUrl ? baseUrl : "";
+                            _this.baseUrl = baseUrl ? baseUrl : "http://localhost:5001";
                             return _this;
                         }
                         /**
@@ -99,11 +99,9 @@ var DotVVM;
                          */
                         Client.prototype.apiCompaniesSortedGet = function (sortingOptions) {
                             var _this = this;
-                            var sortingOptions_SortDescending = sortingOptions !== undefined ? sortingOptions.SortDescending : sortingOptions;
-                            var sortingOptions_SortExpression = sortingOptions !== undefined ? sortingOptions.SortExpression : sortingOptions;
+                            var sortingOptions_SortDescending = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortDescending : null;
+                            var sortingOptions_SortExpression = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortExpression : null;
                             var url_ = this.baseUrl + "/api/Companies/sorted?";
-                            if (sortingOptions !== undefined)
-                                url_ += "sortingOptions=" + encodeURIComponent("" + sortingOptions) + "&";
                             if (sortingOptions_SortDescending === undefined || sortingOptions_SortDescending === null)
                                 throw new Error("The parameter 'sortingOptions_SortDescending' must be defined and cannot be null.");
                             else
@@ -153,12 +151,10 @@ var DotVVM;
                          */
                         Client.prototype.apiCompaniesPagedGet = function (pagingOptions) {
                             var _this = this;
-                            var pagingOptions_PageIndex = pagingOptions !== undefined ? pagingOptions.PageIndex : pagingOptions;
-                            var pagingOptions_PageSize = pagingOptions !== undefined ? pagingOptions.PageSize : pagingOptions;
-                            var pagingOptions_TotalItemsCount = pagingOptions !== undefined ? pagingOptions.TotalItemsCount : pagingOptions;
+                            var pagingOptions_PageIndex = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageIndex : null;
+                            var pagingOptions_PageSize = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageSize : null;
+                            var pagingOptions_TotalItemsCount = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.TotalItemsCount : null;
                             var url_ = this.baseUrl + "/api/Companies/paged?";
-                            if (pagingOptions !== undefined)
-                                url_ += "pagingOptions=" + encodeURIComponent("" + pagingOptions) + "&";
                             if (pagingOptions_PageIndex === undefined || pagingOptions_PageIndex === null)
                                 throw new Error("The parameter 'pagingOptions_PageIndex' must be defined and cannot be null.");
                             else
@@ -216,20 +212,16 @@ var DotVVM;
                          */
                         Client.prototype.apiCompaniesSortedandpagedGet = function (sortingOptions, pagingOptions) {
                             var _this = this;
-                            var sortingOptions_SortDescending = sortingOptions !== undefined ? sortingOptions.SortDescending : sortingOptions;
-                            var pagingOptions_PageIndex = pagingOptions !== undefined ? pagingOptions.PageIndex : pagingOptions;
-                            var pagingOptions_PageSize = pagingOptions !== undefined ? pagingOptions.PageSize : pagingOptions;
-                            var pagingOptions_TotalItemsCount = pagingOptions !== undefined ? pagingOptions.TotalItemsCount : pagingOptions;
-                            var sortingOptions_SortExpression = sortingOptions !== undefined ? sortingOptions.SortExpression : sortingOptions;
+                            var sortingOptions_SortDescending = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortDescending : null;
+                            var pagingOptions_PageIndex = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageIndex : null;
+                            var pagingOptions_PageSize = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageSize : null;
+                            var pagingOptions_TotalItemsCount = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.TotalItemsCount : null;
+                            var sortingOptions_SortExpression = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortExpression : null;
                             var url_ = this.baseUrl + "/api/Companies/sortedandpaged?";
-                            if (sortingOptions !== undefined)
-                                url_ += "sortingOptions=" + encodeURIComponent("" + sortingOptions) + "&";
                             if (sortingOptions_SortDescending === undefined || sortingOptions_SortDescending === null)
                                 throw new Error("The parameter 'sortingOptions_SortDescending' must be defined and cannot be null.");
                             else
                                 url_ += "sortingOptions.SortDescending=" + encodeURIComponent("" + sortingOptions_SortDescending) + "&";
-                            if (pagingOptions !== undefined)
-                                url_ += "pagingOptions=" + encodeURIComponent("" + pagingOptions) + "&";
                             if (pagingOptions_PageIndex === undefined || pagingOptions_PageIndex === null)
                                 throw new Error("The parameter 'pagingOptions_PageIndex' must be defined and cannot be null.");
                             else
@@ -355,7 +347,7 @@ var DotVVM;
                                 body: content_,
                                 method: "POST",
                                 headers: new Headers({
-                                    "Content-Type": "application/json",
+                                    "Content-Type": "application/json"
                                 })
                             };
                             return this.transformOptions(options_).then(function (transformedOptions_) {
@@ -445,7 +437,7 @@ var DotVVM;
                                 body: content_,
                                 method: "PUT",
                                 headers: new Headers({
-                                    "Content-Type": "application/json",
+                                    "Content-Type": "application/json"
                                 })
                             };
                             return this.transformOptions(options_).then(function (transformedOptions_) {
@@ -486,7 +478,7 @@ var DotVVM;
                             var options_ = {
                                 method: "DELETE",
                                 headers: new Headers({
-                                    "Content-Type": "application/json",
+                                    "Content-Type": "application/json"
                                 })
                             };
                             return this.transformOptions(options_).then(function (transformedOptions_) {
@@ -827,4 +819,3 @@ var DotVVM;
         })(Common = Samples.Common || (Samples.Common = {}));
     })(Samples = DotVVM.Samples || (DotVVM.Samples = {}));
 })(DotVVM || (DotVVM = {}));
-//# sourceMappingURL=TestWebApiClientAspNetCore.js.map

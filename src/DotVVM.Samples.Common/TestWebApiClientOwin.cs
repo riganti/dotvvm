@@ -126,7 +126,6 @@ namespace DotVVM.Samples.Common.Api.Owin
             var sortingOptions_SortExpression = sortingOptions != null ? sortingOptions.SortExpression : default(string);
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/companies/sorted?");
-            if (sortingOptions != null) urlBuilder_.Append("sortingOptions=").Append(System.Uri.EscapeDataString(System.Convert.ToString(sortingOptions, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             if (sortingOptions_SortDescending != null) urlBuilder_.Append("sortingOptions.SortDescending=").Append(System.Uri.EscapeDataString(System.Convert.ToString(sortingOptions_SortDescending, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             if (sortingOptions_SortExpression != null) urlBuilder_.Append("sortingOptions.SortExpression=").Append(System.Uri.EscapeDataString(System.Convert.ToString(sortingOptions_SortExpression, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             urlBuilder_.Length--;
@@ -208,7 +207,6 @@ namespace DotVVM.Samples.Common.Api.Owin
             var pagingOptions_TotalItemsCount = pagingOptions != null ? pagingOptions.TotalItemsCount : default(int?);
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/companies/paged?");
-            if (pagingOptions != null) urlBuilder_.Append("pagingOptions=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pagingOptions, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             if (pagingOptions_PageIndex != null) urlBuilder_.Append("pagingOptions.PageIndex=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pagingOptions_PageIndex, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             if (pagingOptions_PageSize != null) urlBuilder_.Append("pagingOptions.PageSize=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pagingOptions_PageSize, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             if (pagingOptions_TotalItemsCount != null) urlBuilder_.Append("pagingOptions.TotalItemsCount=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pagingOptions_TotalItemsCount, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
@@ -293,10 +291,8 @@ namespace DotVVM.Samples.Common.Api.Owin
             var pagingOptions_TotalItemsCount = pagingOptions != null ? pagingOptions.TotalItemsCount : default(int?);
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/companies/sortedandpaged?");
-            if (sortingOptions != null) urlBuilder_.Append("sortingOptions=").Append(System.Uri.EscapeDataString(System.Convert.ToString(sortingOptions, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             if (sortingOptions_SortDescending != null) urlBuilder_.Append("sortingOptions.SortDescending=").Append(System.Uri.EscapeDataString(System.Convert.ToString(sortingOptions_SortDescending, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             if (sortingOptions_SortExpression != null) urlBuilder_.Append("sortingOptions.SortExpression=").Append(System.Uri.EscapeDataString(System.Convert.ToString(sortingOptions_SortExpression, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
-            if (pagingOptions != null) urlBuilder_.Append("pagingOptions=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pagingOptions, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             if (pagingOptions_PageIndex != null) urlBuilder_.Append("pagingOptions.PageIndex=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pagingOptions_PageIndex, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             if (pagingOptions_PageSize != null) urlBuilder_.Append("pagingOptions.PageSize=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pagingOptions_PageSize, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             if (pagingOptions_TotalItemsCount != null) urlBuilder_.Append("pagingOptions.TotalItemsCount=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pagingOptions_TotalItemsCount, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
