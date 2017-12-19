@@ -43,6 +43,7 @@
             </tr>
         </table>
         <dot:Button Text="Add" Click="{staticCommand: _azureFuncApi._api_AddTableEntity_post(NewForm)}" />
+        <dot:Button Text="Refresh" Click="{staticCommand: Api.PushEvent("PreRender")}" />
     </div>
 </body>
 </html>

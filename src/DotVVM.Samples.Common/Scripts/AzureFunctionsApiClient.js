@@ -35,7 +35,7 @@ var AzureFunctionsApi;
                 body: content_,
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
                 }
             };
             return this.http.fetch(url_, options_).then(function (_response) {
@@ -66,7 +66,7 @@ var AzureFunctionsApi;
             var options_ = {
                 method: "DELETE",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
                 }
             };
             return this.http.fetch(url_, options_).then(function (_response) {
@@ -251,7 +251,7 @@ var AzureFunctionsApi;
                 body: content_,
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
                 }
             };
             return this.http.fetch(url_, options_).then(function (_response) {
@@ -470,3 +470,4 @@ var AzureFunctionsApi;
             throw new SwaggerException(message, status, response, null);
     }
 })(AzureFunctionsApi || (AzureFunctionsApi = {}));
+//# sourceMappingURL=AzureFunctionsApiClient.js.map

@@ -236,7 +236,7 @@ namespace DotVVM.Framework.Configuration
             configuration.Resources.Register(ResourceConstants.DotvvmResourceName + ".internal",
                 new ScriptResource(new EmbeddedResourceLocation(
                     typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
-                    "DotVVM.Framework.Resources.Scripts.DotVVM.js"))
+                    "DotVVM.Framework.Resources.Scripts.DotVVM.min.js"))
                 {
                     Dependencies = new[] { ResourceConstants.KnockoutJSResourceName, ResourceConstants.PolyfillResourceName }
                 });
@@ -267,7 +267,7 @@ namespace DotVVM.Framework.Configuration
             configuration.Resources.Register(ResourceConstants.GlobalizeResourceName,
                 new ScriptResource(new EmbeddedResourceLocation(
                     typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
-                    "DotVVM.Framework.Resources.Scripts.Globalize.globalize.js")));
+                    "DotVVM.Framework.Resources.Scripts.Globalize.globalize.min.js")));
 
             configuration.Resources.RegisterNamedParent("globalize", new JQueryGlobalizeResourceRepository());
         }

@@ -26,7 +26,8 @@ namespace DotVVM.Tracing.MiniProfiler.AspNetCore
             options.Services.Configure((DotvvmConfiguration conf) =>
             {
                 conf.Markup.AddCodeControls("dot", typeof(MiniProfilerWidget));
-                conf.Runtime.GlobalFilters.Add(new MiniProfilerActionFilter());
+                conf.Runtime.GlobalFilters.Add(
+                    new MiniProfilerActionFilter(conf.ServiceLocator.GetService<IOptions<MiniProfilerOptions>>()));
             });
 
             return options;

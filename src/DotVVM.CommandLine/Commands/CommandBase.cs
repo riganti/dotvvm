@@ -14,7 +14,7 @@ namespace DotVVM.CommandLine.Commands
 
         public abstract string Usage { get; }
 
-        public abstract bool CanHandle(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata);
+        public abstract bool TryConsumeArgs(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata);
 
         public abstract void Handle(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata);
 

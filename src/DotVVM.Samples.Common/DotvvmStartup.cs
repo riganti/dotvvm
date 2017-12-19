@@ -35,7 +35,10 @@ namespace DotVVM.Samples.BasicSamples
                     map.Property(nameof(SerializationViewModel.IgnoredProperty)).Ignore();
                 });
             // new GithubApiClient.GithubApiClient().Repos.GetIssues()
-            config.RegisterApiGroup(typeof(TestWebApiClient.TestWebApiClient), "http://localhost:5001/", "Scripts/TestWebApiClient.js");
+
+            config.RegisterApiGroup(typeof(Common.Api.Owin.TestWebApiClientOwin), "http://localhost:61453/", "Scripts/TestWebApiClientOwin.js", "_api");
+            config.RegisterApiClient(typeof(Common.Api.AspNetCore.Client), "http://localhost:5001/", "Scripts/TestWebApiClientAspNetCore.js", "_api2");
+
             config.RegisterApiGroup(typeof(GithubApiClient.GithubApiClient), "https://api.github.com/", "Scripts/GithubApiClient.js", "_github", customFetchFunction: "basicAuthenticatedFetch");
             config.RegisterApiClient(typeof(AzureFunctionsApi.Client), "https://dotvvmazurefunctionstest.azurewebsites.net/", "Scripts/AzureFunctionsApiClient.js", "_azureFuncApi");
         }

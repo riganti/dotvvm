@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth;
 using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand;

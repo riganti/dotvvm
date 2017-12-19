@@ -15,6 +15,7 @@
     <None Include="**\*.dotmaster" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="tsconfig.json" />
     <None Remove="Views\ComplexSamples\CascadeSelectors\TripleComboBoxes.dothtml" />
     <None Remove="Views\ControlSamples\Button\ButtonOnclick.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\ComboBoxDelaySync.dothtml" />
@@ -29,6 +30,8 @@
     <None Remove="Views\FeatureSamples\ActionFilterErrorHandling\ActionFilterRedirect.dothtml" />
     <None Remove="Views\FeatureSamples\Api\GetCollection.dothtml" />
     <None Remove="Views\FeatureSamples\Api\GithubRepoApi.dothtml" />
+    <None Remove="Views\FeatureSamples\Api\GridViewDataSetAspNetCore.dothtml" />
+    <None Remove="Views\FeatureSamples\Api\GridViewDataSetOwin.dothtml" />
     <None Remove="Views\FeatureSamples\BindingContexts\CollectionContext.dothtml" />
     <None Remove="Views\FeatureSamples\CommandArguments\CommandArguments.dothtml" />
     <None Remove="Views\FeatureSamples\MarkupControl\CommandBindingInDataContextWithControlProperty.dothtml" />
@@ -55,6 +58,7 @@
     <Content Include="Scripts\ClientExtenders.js" />
     <Content Include="Scripts\testResource.js" />
     <Content Include="Scripts\testResource2.js" />
+    <Content Include="tsconfig.json" />
     <Content Include="Views\ComplexSamples\CascadeSelectors\TripleComboBoxes.dothtml" />
     <Content Include="Views\ControlSamples\ValidationSummary\master.dotmaster" />
     <Content Include="Views\ControlSamples\ValidationSummary\IncludeErrorsFromTarget_PropertyPathNull.dothtml" />
@@ -71,6 +75,8 @@
     <Content Include="Views\FeatureSamples\ActionFilterErrorHandling\ActionFilterRedirect.dothtml" />
     <Content Include="Views\FeatureSamples\Api\GetCollection.dothtml" />
     <Content Include="Views\FeatureSamples\Api\GithubRepoApi.dothtml" />
+    <Content Include="Views\FeatureSamples\Api\GridViewDataSetAspNetCore.dothtml" />
+    <Content Include="Views\FeatureSamples\Api\GridViewDataSetOwin.dothtml" />
     <Content Include="Views\FeatureSamples\BindingContexts\CollectionContext.dothtml" />
     <Content Include="Views\FeatureSamples\CommandArguments\CommandArguments.dothtml" />
     <Content Include="Views\FeatureSamples\DependencyInjection\ViewModelScopedService.dothtml" />

@@ -127,6 +127,10 @@ namespace DotVVM.Framework.Compilation.Javascript
                     .WithAnnotation(a[1].Annotation<ViewModelInfoAnnotation>())
                     .WithAnnotation(a[1].Annotation<MayBeNullAnnotation>())
                 ));
+            AddMethodTranslator(typeof(Api), nameof(Api.PushEvent),
+                new GenericMethodCompiler(a =>
+                    new JsIdentifierExpression("dotvvm").Member("eventHub").Member("notify").Invoke(a[1])
+                ));
             BindingPageInfo.RegisterJavascriptTranslations(this);
             BindingCollectionInfo.RegisterJavascriptTranslations(this);
 
