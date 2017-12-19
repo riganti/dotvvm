@@ -184,7 +184,7 @@ namespace DotVVM.Framework.Routing
         /// <summary>
         /// Processes the request.
         /// </summary>
-        public abstract IDotvvmPresenter GetPresenter();
+        public abstract IDotvvmPresenter GetPresenter(IServiceProvider provider);
 
     }
 }
