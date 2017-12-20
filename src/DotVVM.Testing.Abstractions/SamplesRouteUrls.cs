@@ -159,6 +159,8 @@ namespace DotVVM.Testing.Abstractions
 
         public static string ControlSamples_RoleView_RoleViewTest => "ControlSamples/RoleView/RoleViewTest";
 
+        public static string ControlSamples_RouteLink_RouteLinkUrlGen => "ControlSamples/RouteLink/RouteLinkUrlGen";
+
         public static string ControlSamples_RouteLink_RouteLinkEnabled => "ControlSamples/RouteLink/RouteLinkEnabled";
 
         public static string ControlSamples_RouteLink_RouteLinkEnabledFalse => "ControlSamples/RouteLink/RouteLinkEnabledFalse";

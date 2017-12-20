@@ -22,9 +22,22 @@ namespace DotVVM.Samples.Tests.Control
                 browser.Single("body > div.container > p:nth-child(3) > a").Click();
                 browser.CheckUrl("/ControlSamples/Repeater/RouteLink/0", UrlKind.Relative, UriComponents.PathAndQuery);
                 browser.NavigateBack();
+            });
+        }
 
-                browser.Single("a[data-ui='optional-parameter']").Click();
-                browser.CheckUrl("/ControlSamples/Repeater/RouteLink/", UrlKind.Relative, UriComponents.PathAndQuery);
+        [TestMethod]
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_RouteLink_TestRoute))]
+        public void Control_RouteLink_RouteLinkUrlGeneration()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_RouteLink_RouteLinkUrlGen);
+
+                browser.Single("a[data-ui='optional-parameter-client']").Click();
+                browser.CheckUrl("/ControlSamples/Repeater/RouteLink", UrlKind.Relative, UriComponents.PathAndQuery);
+                browser.NavigateBack();
+
+                browser.Single("a[data-ui='optional-parameter-server']").Click();
+                browser.CheckUrl("/ControlSamples/Repeater/RouteLink", UrlKind.Relative, UriComponents.PathAndQuery);
                 browser.NavigateBack();
 
                 browser.Single("a[data-ui='0-parameters']").Click();

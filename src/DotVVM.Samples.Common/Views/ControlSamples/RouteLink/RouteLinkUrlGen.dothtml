@@ -1,0 +1,30 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.RouteLink.RouteLinkEnabledViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+    <style>
+        .invalid {
+            color: red;
+        }
+    </style>
+    <dot:RequiredResource Name="globalize:cs-CZ" />
+</head>
+<body>
+    <div class="container">
+        <h1>RouteLink url generation demo</h1>
+        <p>
+            <dot:RouteLink RenderSettings.Mode="Client" RouteName="RepeaterRouteLink-PageDetail_IdOptional"
+                           Text="Client rendered: Optional parameter href" data-ui="optional-parameter-client" />
+        </p>
+        <p>
+            <dot:RouteLink RenderSettings.Mode="Server" RouteName="RepeaterRouteLink-PageDetail_IdOptional"
+                           Text="Server rendered: Optional parameter href"  data-ui="optional-parameter-server" />
+        </p>
+        <p>
+            <dot:RouteLink RouteName="Default" Text="0 parameters href" data-ui="0-parameters" />
+        </p>
+    </div>
+</body>
+</html>
