@@ -78,6 +78,8 @@ namespace DotVVM.Samples.BasicSamples
             config.RouteTable.AutoDiscoverRoutes(new DefaultRouteStrategy(config));
             config.RouteTable.Add("RepeaterRouteLink-PageDetail", "ControlSamples/Repeater/RouteLink/{Id}", "Views/ControlSamples/Repeater/RouteLink.dothtml", new { Id = 0 });
             config.RouteTable.Add("RepeaterRouteLink-PageDetail_IdOptional", "ControlSamples/Repeater/RouteLink/{Id?}", "Views/ControlSamples/Repeater/RouteLink.dothtml");
+            config.RouteTable.Add("RepeaterRouteLink-PageDetail_IdOptionalPrefixed", "ControlSamples/Repeater/RouteLink/id-{Id?}", "Views/ControlSamples/Repeater/RouteLink.dothtml");
+            config.RouteTable.Add("RepeaterRouteLink-PageDetail_IdOptionalAtStart", "id-{Id?}/ControlSamples/Repeater/RouteLink", "Views/ControlSamples/Repeater/RouteLink.dothtml");
             config.RouteTable.Add("RepeaterRouteLinkUrlSuffix-PageDetail", "ControlSamples/Repeater/RouteLinkUrlSuffix/{Id}", "Views/ControlSamples/Repeater/RouteLink.dothtml", new { Id = 0 });
             config.RouteTable.Add("FeatureSamples_Redirect_RedirectFromPresenter", "FeatureSamples/Redirect/RedirectFromPresenter", null, null, () => new RedirectingPresenter());
             config.RouteTable.Add("FeatureSamples_Validation_ClientSideValidationDisabling2", "FeatureSamples/Validation/ClientSideValidationDisabling/{ClientSideValidationEnabled}", "Views/FeatureSamples/Validation/ClientSideValidationDisabling.dothtml", new { ClientSideValidationEnabled = false });

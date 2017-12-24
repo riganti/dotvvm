@@ -32,17 +32,29 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_RouteLink_RouteLinkUrlGen);
 
-                browser.Single("a[data-ui='optional-parameter-client']").Click();
-                browser.CheckUrl("/ControlSamples/Repeater/RouteLink", UrlKind.Relative, UriComponents.PathAndQuery);
-                browser.NavigateBack();
+                void checkNavigatedUrl(string selector, string relativeUrl)
+                {
+                    browser.Single(selector).Click();
+                    browser.CheckUrl(relativeUrl, UrlKind.Relative, UriComponents.PathAndQuery);
+                    browser.NavigateBack();
+                }
 
-                browser.Single("a[data-ui='optional-parameter-server']").Click();
-                browser.CheckUrl("/ControlSamples/Repeater/RouteLink", UrlKind.Relative, UriComponents.PathAndQuery);
-                browser.NavigateBack();
+                checkNavigatedUrl("a[data-ui='optional-parameter-client']", "/ControlSamples/Repeater/RouteLink");
+                checkNavigatedUrl("a[data-ui='optional-parameter-server']", "/ControlSamples/Repeater/RouteLink");
 
-                browser.Single("a[data-ui='0-parameters']").Click();
-                browser.CheckUrl("/", UrlKind.Relative, UriComponents.PathAndQuery);
-                browser.NavigateBack();
+                checkNavigatedUrl("a[data-ui='0-parameters']", "/");
+
+                checkNavigatedUrl("a[data-ui='optional-parameter-prefixed-client']", "/ControlSamples/Repeater/RouteLink");
+                checkNavigatedUrl("a[data-ui='optional-parameter-prefixed-server']", "/ControlSamples/Repeater/RouteLink");
+
+                checkNavigatedUrl("a[data-ui='parameter-prefixed-client']", "/ControlSamples/Repeater/RouteLink/id-1");
+                checkNavigatedUrl("a[data-ui='parameter-prefixed-server']", "/ControlSamples/Repeater/RouteLink/id-1");
+
+                checkNavigatedUrl("a[data-ui='optional-parameter-at-start-client']", "/ControlSamples/Repeater/RouteLink");
+                checkNavigatedUrl("a[data-ui='optional-parameter-at-start-server']", "/ControlSamples/Repeater/RouteLink");
+
+                checkNavigatedUrl("a[data-ui='optional-prefixed-parameter-at-start-client']", "/id-1/ControlSamples/Repeater/RouteLink");
+                checkNavigatedUrl("a[data-ui='optional-prefixed-parameter-at-start-client']", "/id-1/ControlSamples/Repeater/RouteLink");
             });
         }
 
