@@ -512,6 +512,18 @@ namespace DotVVM.Framework.Tests.Routing
         }
 
         [TestMethod]
+        public void DotvvmRoute_PresenterFactoryMethod()
+        {
+            var configuration = DotvvmConfiguration.CreateDefault(services => {
+                services.TryAddSingleton<TestPresenter>();
+            });
+
+            var table = new DotvvmRouteTable(configuration);
+            table.Add("Article", "", typeof(TestPresenter), null);
+            Assert.IsInstanceOfType(table.First().GetPresenter(configuration.ServiceProvider), typeof(TestPresenter));
+        }
+
+        [TestMethod]
         public void DotvvmRoute_PresenterType()
         {
             var configuration = DotvvmConfiguration.CreateDefault(services => {
@@ -522,8 +534,6 @@ namespace DotVVM.Framework.Tests.Routing
             table.Add("Article", "", provider => provider.GetService<TestPresenter>(), null);
             Assert.IsInstanceOfType(table.First().GetPresenter(configuration.ServiceProvider), typeof(TestPresenter));
         }
-
-
     }
 
     public class TestPresenter : IDotvvmPresenter

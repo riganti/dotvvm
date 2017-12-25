@@ -122,6 +122,10 @@ namespace DotVVM.Framework.Routing
         /// <param name="defaultValues">The default values.</param>
         public void Add(string routeName, string url, Type presenterType, object defaultValues = null)
         {
+            if (!typeof(IDotvvmPresenter).IsAssignableFrom(presenterType))
+            {
+                throw new ArgumentException($@"{nameof(presenterType)} has to inherit from DotVVM.Framework.Hosting.IDotvvmPresenter.", nameof(presenterType));
+            }
             Func<IServiceProvider, IDotvvmPresenter> presenterFactory = provider => (IDotvvmPresenter)provider.GetService(presenterType);
             Add(routeName, url, presenterFactory, defaultValues);
         }
