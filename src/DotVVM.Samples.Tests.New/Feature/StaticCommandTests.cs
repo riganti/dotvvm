@@ -6,9 +6,11 @@ using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
+using Riganti.Selenium.Core.Abstractions;
 using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
+using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace DotVVM.Samples.Tests.New.Feature
 {
@@ -19,7 +21,7 @@ namespace DotVVM.Samples.Tests.New.Feature
         }
 
         [Fact]
-        public void Feature_StaticCommand_ValueAssignmentControl()
+        public void Feature_StaticCommand_ValueAssignmentInControl()
         {
 
             RunInAllBrowsers(browser => {
@@ -73,6 +75,105 @@ namespace DotVVM.Samples.Tests.New.Feature
                 vmSetFalse.Click();
                 AssertUI.TextEquals(vmResult, "false");
             });
+        }
+
+        [Fact]
+        public void Feature_StaticCommand_StaticCommand()
+        {
+            RunInAllBrowsers(browser => {
+                foreach (var b in browser.FindElements("input[type=button]"))
+                {
+                    browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_StaticCommand_StaticCommand);
+                    browser.Wait();
+                    b.Click();
+                    AssertUI.InnerTextEquals(browser.First("span"), "Hello Deep Thought!");
+                }
+            });
+        }
+
+        [Fact]
+        public void Feature_StaticCommand_NullBinding()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_StaticCommand_StaticCommand_NullBinding);
+                browser.Wait();
+
+                var showSelected = browser.First("#show-selected");
+                AssertUI.IsNotDisplayed(showSelected);
+
+                browser.First("#listObject > input:nth-child(2)").Click();
+                AssertUI.IsDisplayed(showSelected);
+                AssertUI.InnerTextEquals(showSelected, "Hello 2");
+
+                browser.First("#listObject > input:nth-child(3)").Click();
+                AssertUI.IsDisplayed(showSelected);
+                AssertUI.IsDisplayed(showSelected);
+                AssertUI.InnerTextEquals(showSelected, "Hello 3");
+
+                browser.First("#listObject > input:nth-child(4)").Click();
+                AssertUI.IsNotDisplayed(showSelected);
+
+                browser.First("#listObject > input:nth-child(1)").Click();
+
+                AssertUI.IsDisplayed(showSelected);
+                AssertUI.InnerTextEquals(showSelected, "Hello 1");
+            });
+        }
+
+        [Fact]
+        public void Feature_StaticCommand_ComboBoxSelectionChanged()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_StaticCommand_StaticCommand_ComboBoxSelectionChanged);
+                Feature_StaticCommand_ComboBoxSelectionChangedViewModel_Core(browser);
+            });
+        }
+
+        [Fact]
+        public void Feature_StaticCommand_StaticCommand_ComboBoxSelectionChanged_Objects()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_StaticCommand_StaticCommand_ComboBoxSelectionChanged_Objects);
+                Feature_StaticCommand_ComboBoxSelectionChangedViewModel_Core(browser);
+            });
+        }
+
+        private static void Feature_StaticCommand_ComboBoxSelectionChangedViewModel_Core(IBrowserWrapper browser)
+        {
+            browser.Wait();
+
+            // select second value in the first combo box, the second one should select the second value too 
+            browser.ElementAt("select", 0).Select(1).Wait();
+            browser.ElementAt("select", 1).Select(1).Wait();
+            AssertUI.IsSelected(browser.ElementAt("select", 0).ElementAt("option", 1));
+            AssertUI.IsSelected(browser.ElementAt("select", 1).ElementAt("option", 1));
+
+            // select third value in the first combo box, the second one should select the third value too 
+            browser.ElementAt("select", 0).Select(2).Wait();
+            browser.ElementAt("select", 1).Select(2).Wait();
+            AssertUI.IsSelected(browser.ElementAt("select", 0).ElementAt("option", 2));
+            AssertUI.IsSelected(browser.ElementAt("select", 1).ElementAt("option", 2));
+
+            // select first value in the first combo box, the second one should select the first value too 
+            browser.ElementAt("select", 0).Select(0).Wait();
+            browser.ElementAt("select", 1).Select(0).Wait();
+            AssertUI.IsSelected(browser.ElementAt("select", 0).ElementAt("option", 0));
+            AssertUI.IsSelected(browser.ElementAt("select", 1).ElementAt("option", 0));
+
+            // click the first button - the second value should be selected in the first select, the second select should not change
+            browser.ElementAt("input", 0).Click().Wait();
+            AssertUI.IsSelected(browser.ElementAt("select", 0).ElementAt("option", 1));
+            AssertUI.IsSelected(browser.ElementAt("select", 1).ElementAt("option", 0));
+
+            // click the second button - the third value should be selected in the second select, the first select should not change
+            browser.ElementAt("input", 1).Click().Wait();
+            AssertUI.IsSelected(browser.ElementAt("select", 0).ElementAt("option", 1));
+            AssertUI.IsSelected(browser.ElementAt("select", 1).ElementAt("option", 2));
+
+            // click the third button - the first value should be selected in the second select, the first select should not change
+            browser.ElementAt("input", 2).Click().Wait();
+            AssertUI.IsSelected(browser.ElementAt("select", 0).ElementAt("option", 1));
+            AssertUI.IsSelected(browser.ElementAt("select", 1).ElementAt("option", 0));
         }
     }
 }
