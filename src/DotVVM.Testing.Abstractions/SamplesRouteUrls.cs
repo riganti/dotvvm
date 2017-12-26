@@ -319,6 +319,8 @@ namespace DotVVM.Testing.Abstractions {
 
             public static string FeatureSamples_NestedMasterPages_Content => "FeatureSamples/NestedMasterPages/Content";
 
+            public static string FeatureSamples_ParameterBinding_OptionalParameterBinding => "FeatureSamples/ParameterBinding/OptionalParameterBinding";
+
             public static string FeatureSamples_ParameterBinding_ParameterBinding => "FeatureSamples/ParameterBinding/ParameterBinding";
 
             public static string FeatureSamples_PostBack_PostBackHandlers => "FeatureSamples/PostBack/PostBackHandlers";
