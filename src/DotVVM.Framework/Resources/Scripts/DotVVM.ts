@@ -702,7 +702,7 @@ class DotVVM {
                 }
 
                 // trigger spaNavigated event
-                var spaNavigatedArgs = new DotvvmSpaNavigatedEventArgs(viewModel, viewModelName, resultObject);
+                var spaNavigatedArgs = new DotvvmSpaNavigatedEventArgs(viewModel, viewModelName, resultObject, result);
                 this.events.spaNavigated.trigger(spaNavigatedArgs);
                 if (!isSuccess && !spaNavigatedArgs.isHandled) {
                     throw "Invalid response from server!";
@@ -1097,11 +1097,6 @@ class DotVVM {
                     }
                 }
 
-                var interrupt = () => {
-                    clearTimeout(timeout);
-                    element.style.display = "none";
-                }
-
                 var hide = () => {
                     running = false;
                     clearTimeout(timeout);
@@ -1110,10 +1105,9 @@ class DotVVM {
 
                 dotvvm.isPostbackRunning.subscribe(e => {
                     if (e) {
-                        if (running) {
-                            interrupt();
+                        if (!running) {
+                            show();
                         }
-                        show();
                     } else {
                         hide();
                     }

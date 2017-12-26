@@ -99,8 +99,9 @@ declare class DotvvmSpaNavigatedEventArgs implements DotvvmEventArgs {
     viewModel: any;
     viewModelName: string;
     serverResponseObject: any;
+    xhr: XMLHttpRequest | undefined;
     isHandled: boolean;
-    constructor(viewModel: any, viewModelName: string, serverResponseObject: any);
+    constructor(viewModel: any, viewModelName: string, serverResponseObject: any, xhr?: XMLHttpRequest | undefined);
 }
 declare class DotvvmRedirectEventArgs implements DotvvmEventArgs {
     viewModel: any;

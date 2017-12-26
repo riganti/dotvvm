@@ -166,10 +166,11 @@ var DotvvmSpaNavigatingEventArgs = /** @class */ (function () {
     return DotvvmSpaNavigatingEventArgs;
 }());
 var DotvvmSpaNavigatedEventArgs = /** @class */ (function () {
-    function DotvvmSpaNavigatedEventArgs(viewModel, viewModelName, serverResponseObject) {
+    function DotvvmSpaNavigatedEventArgs(viewModel, viewModelName, serverResponseObject, xhr) {
         this.viewModel = viewModel;
         this.viewModelName = viewModelName;
         this.serverResponseObject = serverResponseObject;
+        this.xhr = xhr;
         this.isHandled = false;
     }
     return DotvvmSpaNavigatedEventArgs;
@@ -1367,7 +1368,7 @@ var DotVVM = /** @class */ (function () {
                     return;
                 }
                 // trigger spaNavigated event
-                var spaNavigatedArgs = new DotvvmSpaNavigatedEventArgs(viewModel, viewModelName, resultObject);
+                var spaNavigatedArgs = new DotvvmSpaNavigatedEventArgs(viewModel, viewModelName, resultObject, result);
                 _this.events.spaNavigated.trigger(spaNavigatedArgs);
                 if (!isSuccess && !spaNavigatedArgs.isHandled) {
                     throw "Invalid response from server!";
@@ -1762,10 +1763,6 @@ var DotVVM = /** @class */ (function () {
                         }, delay);
                     }
                 };
-                var interrupt = function () {
-                    clearTimeout(timeout);
-                    element.style.display = "none";
-                };
                 var hide = function () {
                     running = false;
                     clearTimeout(timeout);
@@ -1773,10 +1770,9 @@ var DotVVM = /** @class */ (function () {
                 };
                 dotvvm.isPostbackRunning.subscribe(function (e) {
                     if (e) {
-                        if (running) {
-                            interrupt();
+                        if (!running) {
+                            show();
                         }
-                        show();
                     }
                     else {
                         hide();
@@ -2182,6 +2178,9 @@ var DotvvmValidation = /** @class */ (function () {
                 }
             }
             _this.events.validationErrorsChanged.trigger(args);
+        });
+        dotvvm.events.spaNavigating.subscribe(function (args) {
+            _this.clearValidationErrors(dotvvm.viewModelObservables[args.viewModelName]);
         });
         // add knockout binding handler
         ko.bindingHandlers["dotvvmValidation"] = {

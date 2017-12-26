@@ -10,7 +10,7 @@ namespace DotVVM.Framework.ViewModel.Validation
         public string ClientRuleName { get; set; }
 
         [JsonProperty("errorMessage")]
-        public string ErrorMessage { get; set; }
+        public string ErrorMessage =>  SourceValidationAttribute.FormatErrorMessage(PropertyName);
 
         [JsonProperty("parameters")]
         public object[] Parameters { get; set; }
@@ -18,14 +18,7 @@ namespace DotVVM.Framework.ViewModel.Validation
         [JsonIgnore]
         public ValidationAttribute SourceValidationAttribute { get; set; }
 
-        public ViewModelPropertyValidationRule(string clientRule, ValidationAttribute sourceValidationAttribute, string errorMessage, params object[] parameters)
-        {
-            ClientRuleName = clientRule;
-            SourceValidationAttribute = sourceValidationAttribute;
-            ErrorMessage = errorMessage;
-            Parameters = parameters;
-        }
-
-        public ViewModelPropertyValidationRule() { }
+        [JsonIgnore]
+        public string PropertyName { get; set; }
     }
 }
