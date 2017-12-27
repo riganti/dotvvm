@@ -9,8 +9,7 @@
 </head>
 <body>
 
-    <sample:StaticCommand_ValueAssignmentControl></sample:StaticCommand_ValueAssignmentControl>
-    ViewModelValueResult: <span id="vmResult">{{value: Value}}</span>
+    <sample:StaticCommand_ValueAssignmentControl Model="{value:  Model}" ></sample:StaticCommand_ValueAssignmentControl>
 
 </body>
 </html>

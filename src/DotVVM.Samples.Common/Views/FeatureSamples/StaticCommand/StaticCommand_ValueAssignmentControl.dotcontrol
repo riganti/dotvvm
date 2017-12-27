@@ -6,49 +6,12 @@
         <legend>
             Boolean values
         </legend>
-        <dot:Button Text="Set true" ID="setTrue" Click="{staticCommand:  _control.BoolValue = true }" /><br />
-        <dot:Button Text="Set false" ID="setFalse" Click="{staticCommand:  _control.BoolValue = false }" /><br />
-        Value:
 
-        <dot:Literal ID="boolResult" Text="{value:  _control.BoolValue}">
-        </dot:Literal>
-    </fieldset>
-
-    <fieldset style="margin-top:20px;">
-        <legend>
-            String values
-        </legend>
-
-        <dot:Button Text="Set true" ID="setNull" Click="{staticCommand:  _control.StringValue = null}" /><br />
-        <dot:Button Text="Set false" ID="setStringValue" Click="{staticCommand:  _control.StringValue = "value"}" /><br />
-        Value:
-
-        <dot:Literal ID="stringResult" Text="{value:  _control.StringValue}">
-        </dot:Literal>
-    </fieldset>
-
-    <fieldset style="margin-top:20px;">
-        <legend>
-            Int values
-        </legend>
-
-
-        <dot:Button Text="Set true" ID="setZero" Click="{staticCommand:  _control.IntValue = 0}" /><br />
-        <dot:Button Text="Set false" ID="setTen" Click="{staticCommand:  _control.IntValue = 10}" /><br />
-
+        <dot:Button Text="Set text" ID="setText" Click="{staticCommand:  _control.Model.Value = "text"}" /><br />
+        <dot:Button Text="Set null" ID="setNull" Click="{staticCommand:  _control.Model.Value = null }" /><br />
 
         Value:
-        <dot:Literal ID="intResult" Text="{value:  _control.IntValue}">
+        <dot:Literal ID="result" Text="{value:  _control.Model.Value}">
         </dot:Literal>
-    </fieldset>
-
-
-    <fieldset style="margin-top:20px;">
-        <legend>
-            ViewModel.Value
-        </legend>
-
-        <dot:Button Text="Set true to VM.Value" ID="vmSetTrue" Click="{staticCommand:  _this.Value = true }" /><br />
-        <dot:Button Text="Set false to VM.Value" ID="vmSetFalse" Click="{staticCommand:  _this.Value = false }" /><br />
     </fieldset>
 </div>
