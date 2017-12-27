@@ -190,13 +190,15 @@ namespace DotVVM.Framework.Binding.Properties
         public readonly (int, int)[] Ranges;
         public readonly int LineNumber;
         public readonly Type ControlType;
+        public readonly DotvvmProperty RelatedProperty;
 
-        public LocationInfoBindingProperty(string fileName, (int, int)[] ranges, int lineNumber, Type controlType)
+        public LocationInfoBindingProperty(string fileName, (int, int)[] ranges, int lineNumber, Type controlType, DotvvmProperty relatedProperty = null)
         {
             this.FileName = fileName;
             this.Ranges = ranges;
             this.LineNumber = lineNumber;
             this.ControlType = controlType;
+            this.RelatedProperty = relatedProperty;
         }
     }
 

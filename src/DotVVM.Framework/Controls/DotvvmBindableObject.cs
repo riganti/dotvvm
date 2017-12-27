@@ -292,12 +292,18 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets all ancestors of this control starting with the parent.
         /// </summary>
-        public IEnumerable<DotvvmBindableObject> GetAllAncestors(bool incudingThis = false)
+        /// <param name="onlyWhenInChildren">only enumerate until the parent has this control in <see cref="DotvvmControl.Children" />. Note that it may have a non-trivial performance penalty</param>
+        public IEnumerable<DotvvmBindableObject> GetAllAncestors(bool incudingThis = false, bool onlyWhenInChildren = false)
         {
             var ancestor = incudingThis ? this : Parent;
             while (ancestor != null)
             {
                 yield return ancestor;
+                if (onlyWhenInChildren)
+                {
+                    if (!(ancestor.Parent is DotvvmControl parentControl && parentControl.Children.Contains(ancestor)))
+                        yield break;
+                }
                 ancestor = ancestor.Parent;
             }
         }
