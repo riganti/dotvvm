@@ -98,7 +98,7 @@ namespace DotVVM.Framework.Routing
             return null;
         }
 
-        protected virtual Func<IDotvvmPresenter> GetRoutePresenterFactory(RouteStrategyMarkupFileInfo file)
+        protected virtual Func<IServiceProvider, IDotvvmPresenter> GetRoutePresenterFactory(RouteStrategyMarkupFileInfo file)
         {
             return configuration.RouteTable.GetDefaultPresenter;
         }

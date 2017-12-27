@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DotVVM.Samples.BasicSamples.Api.AspNetCore.DataStore;
-using DotVVM.Samples.BasicSamples.Api.AspNetCore.Model;
-using DotVVM.Samples.BasicSamples.Api.AspNetCore.Swagger;
+using DotVVM.Framework.Api.Swashbuckle.AspNetCore;
+using DotVVM.Samples.BasicSamples.Api.Common.DataStore;
+using DotVVM.Samples.BasicSamples.Api.Common.Model;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -43,10 +43,8 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore
 
             services.AddSwaggerGen(options => {
                 options.SwaggerDoc("v1", new Info() { Title = "DotVVM Test API", Version = "v1" });
-
-                options.OperationFilter<AddFromUriParameterGroupsOperationFilter>();
-                options.OperationFilter<RemoveReadOnlyFromUriParametersOperationFilter>();
-                options.OperationFilter<RemoveBindNoneFromUriParametersOperationFilter>();
+                
+                options.EnableDotvvmIntegration();
             });
         }
 
@@ -63,7 +61,12 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore
                 p.AllowAnyHeader();
             });
 
-            app.UseSwagger();
+            app.UseSwagger(options => {
+                options.PreSerializeFilters.Add((swaggerDoc, httpReq) => {
+                    swaggerDoc.Host = "localhost:5001";
+                    swaggerDoc.Schemes = new List<string>() { "http" };
+                });
+            });
             app.UseSwaggerUI(c => {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Northwind API");
             });
@@ -77,34 +80,8 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore
 
         private static void SeedDatabase()
         {
-            var generator = new DataGenerator(1);
-
             var database = new Database();
-            database.Companies = generator.GetCollection(7, i => new Company()
-                {
-                    Id = i,
-                    Name = Faker.Company.Name(),
-                    Owner = Faker.Name.FullName(Faker.NameFormats.WithPrefix)
-                })
-                .ToList();
-
-            database.Orders = generator.GetCollection(300, i => new Order()
-                {
-                    Id = i,
-                    CompanyId = generator.GetCollectionItem(database.Companies).Id,
-                    Date = generator.GetDate(TimeSpan.FromDays(500), TimeSpan.FromDays(0)),
-                    Number = generator.GetString(8, Casing.AllUpper),
-                    OrderItems = generator.GetCollection(10, c => new OrderItem()
-                        {
-                            Id = c,
-                            Amount = generator.GetDecimal(0, 1000),
-                            Discount = generator.GetBoolean() ? generator.GetDecimal(0, 50) : (decimal?)null,
-                            IsOnStock = generator.GetBoolean(),
-                            Text = generator.GetWords(10, 8, Casing.AllLower)
-                        })
-                })
-                .ToList();
-
+            database.SeedData();
             Database.Instance = database;
         }
     }

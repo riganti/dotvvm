@@ -190,13 +190,15 @@ namespace DotVVM.Framework.Binding.Properties
         public readonly (int, int)[] Ranges;
         public readonly int LineNumber;
         public readonly Type ControlType;
+        public readonly DotvvmProperty RelatedProperty;
 
-        public LocationInfoBindingProperty(string fileName, (int, int)[] ranges, int lineNumber, Type controlType)
+        public LocationInfoBindingProperty(string fileName, (int, int)[] ranges, int lineNumber, Type controlType, DotvvmProperty relatedProperty = null)
         {
             this.FileName = fileName;
             this.Ranges = ranges;
             this.LineNumber = lineNumber;
             this.ControlType = controlType;
+            this.RelatedProperty = relatedProperty;
         }
     }
 
@@ -234,7 +236,7 @@ namespace DotVVM.Framework.Binding.Properties
         public string GetErrorMessage(IBinding binding)
         {
             var badRequirements = Errors.Where(e => e.severity == Microsoft.CodeAnalysis.DiagnosticSeverity.Error).Select(e => e.req).Distinct().ToArray();
-            return $"Could not initialize binding '{binding}', requirement{(badRequirements.Length > 1 ? "s" : "")} {string.Join<Type>(", ", badRequirements)} {(badRequirements.Length > 1 ? "were" : "was")} not met";
+            return $"Could not initialize binding '{binding}', requirement{(badRequirements.Length > 1 ? "s" : "")} {string.Join<Type>(", ", badRequirements)} {(badRequirements.Length > 1 ? "were" : "was")} not met.";
         }
         public IEnumerable<Exception> Exceptions => Errors.Select(e => e.error);
     }

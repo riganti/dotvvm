@@ -8,12 +8,16 @@ namespace DotVVM.Compiler
 {
     public class CompilerOptions
     {
+        //optional
         public string[] DothtmlFiles { get; set; }
+
+        //required
         public string WebSiteAssembly { get; set; }
         public bool OutputResolvedDothtmlMap { get; set; }
         public string BindingsAssemblyName { get; set; }
         public string BindingClassName { get; set; }
         public string OutputPath { get; set; }
+
         public string AssemblyName { get; set; }
         public string WebSitePath { get; set; }
         public bool FullCompile { get; set; } = true;

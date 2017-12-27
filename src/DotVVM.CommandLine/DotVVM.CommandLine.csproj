@@ -28,6 +28,16 @@
     <OutputType>Exe</OutputType>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Templates\Client.Class.liquid" />
+    <None Remove="Templates\TypeScript\Client.RequestUrl.liquid" />
+    <None Remove="Templates\TypeScript\FetchClient.liquid" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\CSharp\Client.Class.liquid" />
+    <EmbeddedResource Include="Templates\TypeScript\Client.RequestUrl.liquid" />
+    <EmbeddedResource Include="Templates\TypeScript\FetchClient.liquid" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
   </ItemGroup>
   <ItemGroup>
@@ -74,9 +84,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="NSwag.CodeGeneration" Version="11.3.5" />
-    <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="11.3.5" />
-    <PackageReference Include="NSwag.CodeGeneration.Typescript" Version="11.3.5" />
+    <PackageReference Include="NSwag.CodeGeneration" Version="11.12.13" />
+    <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="11.12.13" />
+    <PackageReference Include="NSwag.CodeGeneration.Typescript" Version="11.12.13" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>

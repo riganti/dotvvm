@@ -1596,11 +1596,13 @@ var DotVVM = /** @class */ (function () {
         return ko.unwrap(ko.unwrap(array));
     };
     DotVVM.prototype.buildRouteUrl = function (routePath, params) {
-        var url = routePath.replace(/\{([^\}]+?)\??(:(.+?))?\}/g, function (s, paramName, hsjdhsj, type) {
+        // prepend url with backslash to correctly handle optional parameters at start
+        routePath = '/' + routePath;
+        var url = routePath.replace(/(\/[^\/]*?)\{([^\}]+?)\??(:(.+?))?\}/g, function (s, prefix, paramName, _, type) {
             if (!paramName)
                 return "";
             var x = ko.unwrap(params[paramName.toLowerCase()]);
-            return x == null ? "" : x;
+            return x == null ? "" : prefix + x;
         });
         if (url.indexOf('/') === 0) {
             return url.substring(1);

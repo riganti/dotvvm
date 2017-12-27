@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using DotVVM.Framework.Api.Swashbuckle.Attributes;
 using DotVVM.Framework.Controls;
-using DotVVM.Samples.BasicSamples.Api.AspNetCore.DataStore;
-using DotVVM.Samples.BasicSamples.Api.AspNetCore.Model;
+using DotVVM.Samples.BasicSamples.Api.Common.DataStore;
+using DotVVM.Samples.BasicSamples.Api.Common.Model;
 using Microsoft.AspNetCore.Mvc;
 
-namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.AspNetCore.Controllers
+namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.Controllers
 {
     [Route("api/[controller]")]
     public class CompaniesController : Controller
@@ -21,7 +22,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.AspNetCore.Controllers
 
         [HttpGet]
         [Route("sorted")]
-        public GridViewDataSet<Company> GetWithSorting([FromQuery]SortingOptions sortingOptions)
+        public GridViewDataSet<Company> GetWithSorting([FromQuery, AsObject(typeof(ISortingOptions))]SortingOptions sortingOptions)
         {
             lock (Database.Instance)
             {
@@ -36,7 +37,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.AspNetCore.Controllers
 
         [HttpGet]
         [Route("paged")]
-        public GridViewDataSet<Company> GetWithPaging([FromQuery]PagingOptions pagingOptions)
+        public GridViewDataSet<Company> GetWithPaging([FromQuery, AsObject(typeof(IPagingOptions))]PagingOptions pagingOptions)
         {
             lock (Database.Instance)
             {
@@ -51,7 +52,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.AspNetCore.Controllers
 
         [HttpGet]
         [Route("sortedandpaged")]
-        public GridViewDataSet<Company> GetWithSortingAndPaging([FromQuery]SortingOptions sortingOptions, [FromQuery]PagingOptions pagingOptions)
+        public GridViewDataSet<Company> GetWithSortingAndPaging([FromQuery, AsObject(typeof(ISortingOptions))]SortingOptions sortingOptions, [FromQuery, AsObject(typeof(IPagingOptions))]PagingOptions pagingOptions)
         {
             lock (Database.Instance)
             {

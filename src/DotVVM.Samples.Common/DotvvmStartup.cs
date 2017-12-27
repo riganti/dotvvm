@@ -2,6 +2,7 @@ using System.Linq;
 using System.Reflection;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.Parser;
+using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.ResourceManagement;
@@ -26,7 +27,7 @@ namespace DotVVM.Samples.BasicSamples
             AddStyles(config);
 
             AddRoutes(config);
-            
+
             // configure serializer
             config.GetSerializationMapper()
                 .Map(typeof(SerializationViewModel), map => {
@@ -35,7 +36,10 @@ namespace DotVVM.Samples.BasicSamples
                     map.Property(nameof(SerializationViewModel.IgnoredProperty)).Ignore();
                 });
             // new GithubApiClient.GithubApiClient().Repos.GetIssues()
-            config.RegisterApiGroup(typeof(TestWebApiClient.TestWebApiClient), "http://localhost:5001/", "Scripts/TestWebApiClient.js");
+
+            config.RegisterApiGroup(typeof(Common.Api.Owin.TestWebApiClientOwin), "http://localhost:61453/", "Scripts/TestWebApiClientOwin.js", "_api");
+            config.RegisterApiClient(typeof(Common.Api.AspNetCore.Client), "http://localhost:5001/", "Scripts/TestWebApiClientAspNetCore.js", "_api2");
+
             config.RegisterApiGroup(typeof(GithubApiClient.GithubApiClient), "https://api.github.com/", "Scripts/GithubApiClient.js", "_github", customFetchFunction: "basicAuthenticatedFetch");
             config.RegisterApiClient(typeof(AzureFunctionsApi.Client), "https://dotvvmazurefunctionstest.azurewebsites.net/", "Scripts/AzureFunctionsApiClient.js", "_azureFuncApi");
         }
@@ -57,11 +61,12 @@ namespace DotVVM.Samples.BasicSamples
             // All style samples
             config.Styles.Register<Controls.ServerSideStylesControl>()
                 .SetAttribute("value", "Text changed")
-                .SetDotvvmProperty(Controls.ServerSideStylesControl.CustomProperty, "Custom property changed", false)
-                .SetAttribute("class", "Class changed", true);
+                .SetDotvvmProperty(Controls.ServerSideStylesControl.CustomProperty, "Custom property changed")
+                .SetAttribute("class", "Class changed", StyleOverrideOptions.Overwrite);
             config.Styles.Register("customTagName")
-                .SetAttribute("noAppend", "Attribute changed")
-                .SetAttribute("append", "Attribute changed", true);
+                .SetAttribute("ignore", "Attribute ignored", StyleOverrideOptions.Ignore)
+                .SetAttribute("overwrite", "Attribute changed", StyleOverrideOptions.Overwrite)
+                .SetAttribute("append", "Attribute appended", StyleOverrideOptions.Append);
             config.Styles.Register<Controls.ServerSideStylesControl>(c => c.HasProperty(Controls.ServerSideStylesControl.CustomProperty), false)
                 .SetAttribute("derivedAttr", "Derived attribute");
             config.Styles.Register<Controls.ServerSideStylesControl>(c => c.HasProperty(Controls.ServerSideStylesControl.AddedProperty))
@@ -75,10 +80,15 @@ namespace DotVVM.Samples.BasicSamples
             config.RouteTable.Add("ControlSamples_SpaContentPlaceHolder_PageA", "ControlSamples/SpaContentPlaceHolder/PageA/{Id}", "Views/ControlSamples/SpaContentPlaceHolder/PageA.dothtml", new { Id = 0 });
             config.RouteTable.Add("ControlSamples_SpaContentPlaceHolder_PrefixRouteName_PageA", "ControlSamples/SpaContentPlaceHolder_PrefixRouteName/PageA/{Id}", "Views/ControlSamples/SpaContentPlaceHolder_PrefixRouteName/PageA.dothtml", new { Id = 0 });
             config.RouteTable.Add("FeatureSamples_ParameterBinding_ParameterBinding", "FeatureSamples/ParameterBinding/ParameterBinding/{A}", "Views/FeatureSamples/ParameterBinding/ParameterBinding.dothtml", new { A = 123 });
+            config.RouteTable.Add("FeatureSamples_ParameterBinding_OptionalParameterBinding", "FeatureSamples/ParameterBinding/OptionalParameterBinding/{Id?}", "Views/FeatureSamples/ParameterBinding/OptionalParameterBinding.dothtml");
+            config.RouteTable.Add("FeatureSamples_ParameterBinding_OptionalParameterBinding2", "FeatureSamples/ParameterBinding/OptionalParameterBinding2/{Id?}", "Views/FeatureSamples/ParameterBinding/OptionalParameterBinding.dothtml", new { Id = 300 });
             config.RouteTable.AutoDiscoverRoutes(new DefaultRouteStrategy(config));
             config.RouteTable.Add("RepeaterRouteLink-PageDetail", "ControlSamples/Repeater/RouteLink/{Id}", "Views/ControlSamples/Repeater/RouteLink.dothtml", new { Id = 0 });
+            config.RouteTable.Add("RepeaterRouteLink-PageDetail_IdOptional", "ControlSamples/Repeater/RouteLink/{Id?}", "Views/ControlSamples/Repeater/RouteLink.dothtml");
+            config.RouteTable.Add("RepeaterRouteLink-PageDetail_IdOptionalPrefixed", "ControlSamples/Repeater/RouteLink/id-{Id?}", "Views/ControlSamples/Repeater/RouteLink.dothtml");
+            config.RouteTable.Add("RepeaterRouteLink-PageDetail_IdOptionalAtStart", "id-{Id?}/ControlSamples/Repeater/RouteLink", "Views/ControlSamples/Repeater/RouteLink.dothtml");
             config.RouteTable.Add("RepeaterRouteLinkUrlSuffix-PageDetail", "ControlSamples/Repeater/RouteLinkUrlSuffix/{Id}", "Views/ControlSamples/Repeater/RouteLink.dothtml", new { Id = 0 });
-            config.RouteTable.Add("FeatureSamples_Redirect_RedirectFromPresenter", "FeatureSamples/Redirect/RedirectFromPresenter", null, null, () => new RedirectingPresenter());
+            config.RouteTable.Add("FeatureSamples_Redirect_RedirectFromPresenter", "FeatureSamples/Redirect/RedirectFromPresenter", provider => new RedirectingPresenter());
             config.RouteTable.Add("FeatureSamples_Validation_ClientSideValidationDisabling2", "FeatureSamples/Validation/ClientSideValidationDisabling/{ClientSideValidationEnabled}", "Views/FeatureSamples/Validation/ClientSideValidationDisabling.dothtml", new { ClientSideValidationEnabled = false });
             config.RouteTable.Add("FeatureSamples_EmbeddedResourceControls_EmbeddedResourceView", "FeatureSamples/EmbeddedResourceControls/EmbeddedResourceView", "embedded://EmbeddedResourceControls/EmbeddedResourceView.dothtml");
         }
@@ -99,6 +109,7 @@ namespace DotVVM.Samples.BasicSamples
 
             config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/ComplexSamples/ServerRendering/"));
             config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/FeatureSamples/MarkupControl/"));
+            config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/FeatureSamples/StaticCommand/"));
             config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/Errors/"));
         }
     }
