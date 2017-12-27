@@ -346,8 +346,8 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public JsExpression TryTranslateMethodCall(MethodInfo methodInfo, Expression target, IEnumerable<Expression> arguments) =>
             Translator.TryTranslateCall(
-                new HalfTranslatedExpression(target, Translate),
-                arguments.Select(a => new HalfTranslatedExpression(a, Translate)).ToArray(),
+                new LazyTranslatedExpression(target, Translate),
+                arguments.Select(a => new LazyTranslatedExpression(a, Translate)).ToArray(),
                 methodInfo)
                 ?.WithAnnotation(new ViewModelInfoAnnotation(methodInfo.ReturnType), append: false);
 
@@ -356,7 +356,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             private readonly Func<JsExpression, JsExpression> getJsTranslation;
 
             public FakeExtensionParameter(Func<JsExpression, JsExpression> getJsTranslation, string identifier = "__", ITypeDescriptor type = null, bool inherit = false): base(identifier, type, inherit)
-            { 
+            {
                 this.getJsTranslation = getJsTranslation;
             }
 
@@ -365,13 +365,14 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
     }
 
-    public class HalfTranslatedExpression
+    /// Represents an Linq.Expression that is being translated to JsAst.
+    public class LazyTranslatedExpression
     {
         private static readonly Lazy<JsExpression> nullLazy = new Lazy<JsExpression>(() => null);
         private readonly Lazy<JsExpression> lazyJsExpression;
         public JsExpression JsExpression() => lazyJsExpression.Value;
         public Expression OriginalExpression { get; }
-        public HalfTranslatedExpression(Expression expr, Func<Expression, JsExpression> translateMethod)
+        public LazyTranslatedExpression(Expression expr, Func<Expression, JsExpression> translateMethod)
         {
             this.OriginalExpression = expr;
             this.lazyJsExpression = expr == null ? nullLazy : new Lazy<JsExpression>(() => translateMethod(expr));

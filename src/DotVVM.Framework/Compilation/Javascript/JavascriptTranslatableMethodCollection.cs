@@ -178,7 +178,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         }
 
-        public JsExpression TryTranslateCall(HalfTranslatedExpression context, HalfTranslatedExpression[] args, MethodInfo method)
+        public JsExpression TryTranslateCall(LazyTranslatedExpression context, LazyTranslatedExpression[] args, MethodInfo method)
         {
             if (method == null) return null;
             {
