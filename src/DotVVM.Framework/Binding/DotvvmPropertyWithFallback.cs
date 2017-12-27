@@ -1,4 +1,8 @@
-﻿using DotVVM.Framework.Controls;
+﻿using System;
+using System.Linq.Expressions;
+using System.Reflection;
+using DotVVM.Framework.Controls;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Binding
 {
@@ -29,6 +33,19 @@ namespace DotVVM.Framework.Binding
         public override bool IsSet(DotvvmBindableObject control, bool inherit = true)
         {
             return base.IsSet(control, inherit) || FallbackProperty.IsSet(control, inherit);
+        }
+
+        /// <summary>
+        /// Registers a new DotVVM property which fallbacks to the <paramref name="fallbackProperty" /> when not set.
+        /// </summary>
+        /// <param name="propertyAccessor">The expression pointing to instance property.</param>
+        /// <param name="fallbackProperty">The property which value will be used as a follback when the new property is not set.</param>
+        /// <param name="isValueInherited">Indicates whether the value can be inherited from the parent controls.</param>
+        public static DotvvmProperty Register<TPropertyType, TDeclaringType>(Expression<Func<TDeclaringType, object>> propertyAccessor, DotvvmProperty fallbackProperty, bool isValueInherited = false)
+        {
+            var property = ReflectionUtils.GetMemberFromExpression(propertyAccessor.Body) as PropertyInfo;
+            if (property == null) throw new ArgumentException("The expression should be simple property access", nameof(propertyAccessor));
+            return Register<TPropertyType, TDeclaringType>(property.Name, fallbackProperty, isValueInherited);
         }
 
         /// <summary>

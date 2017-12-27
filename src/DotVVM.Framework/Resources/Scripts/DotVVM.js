@@ -16,6 +16,15 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+(function () {
+    if (typeof Promise === 'undefined' || !self.fetch) {
+        var resource = document.createElement('script');
+        resource.src = window['dotvvm__polyfillUrl'];
+        resource.type = "text/javascript";
+        var headElement = document.getElementsByTagName('head')[0];
+        headElement.appendChild(resource);
+    }
+})();
 var DotvvmDomUtils = /** @class */ (function () {
     function DotvvmDomUtils() {
     }
@@ -157,10 +166,11 @@ var DotvvmSpaNavigatingEventArgs = /** @class */ (function () {
     return DotvvmSpaNavigatingEventArgs;
 }());
 var DotvvmSpaNavigatedEventArgs = /** @class */ (function () {
-    function DotvvmSpaNavigatedEventArgs(viewModel, viewModelName, serverResponseObject) {
+    function DotvvmSpaNavigatedEventArgs(viewModel, viewModelName, serverResponseObject, xhr) {
         this.viewModel = viewModel;
         this.viewModelName = viewModelName;
         this.serverResponseObject = serverResponseObject;
+        this.xhr = xhr;
         this.isHandled = false;
     }
     return DotvvmSpaNavigatedEventArgs;
@@ -1358,7 +1368,7 @@ var DotVVM = /** @class */ (function () {
                     return;
                 }
                 // trigger spaNavigated event
-                var spaNavigatedArgs = new DotvvmSpaNavigatedEventArgs(viewModel, viewModelName, resultObject);
+                var spaNavigatedArgs = new DotvvmSpaNavigatedEventArgs(viewModel, viewModelName, resultObject, result);
                 _this.events.spaNavigated.trigger(spaNavigatedArgs);
                 if (!isSuccess && !spaNavigatedArgs.isHandled) {
                     throw "Invalid response from server!";
@@ -1586,12 +1596,18 @@ var DotVVM = /** @class */ (function () {
         return ko.unwrap(ko.unwrap(array));
     };
     DotVVM.prototype.buildRouteUrl = function (routePath, params) {
-        return routePath.replace(/\{([^\}]+?)\??(:(.+?))?\}/g, function (s, paramName, hsjdhsj, type) {
+        // prepend url with backslash to correctly handle optional parameters at start
+        routePath = '/' + routePath;
+        var url = routePath.replace(/(\/[^\/]*?)\{([^\}]+?)\??(:(.+?))?\}/g, function (s, prefix, paramName, _, type) {
             if (!paramName)
                 return "";
             var x = ko.unwrap(params[paramName.toLowerCase()]);
-            return x == null ? "" : x;
+            return x == null ? "" : prefix + x;
         });
+        if (url.indexOf('/') === 0) {
+            return url.substring(1);
+        }
+        return url;
     };
     DotVVM.prototype.buildUrlSuffix = function (urlSuffix, query) {
         var resultSuffix, hashSuffix;
@@ -1749,10 +1765,6 @@ var DotVVM = /** @class */ (function () {
                         }, delay);
                     }
                 };
-                var interrupt = function () {
-                    clearTimeout(timeout);
-                    element.style.display = "none";
-                };
                 var hide = function () {
                     running = false;
                     clearTimeout(timeout);
@@ -1760,10 +1772,9 @@ var DotVVM = /** @class */ (function () {
                 };
                 dotvvm.isPostbackRunning.subscribe(function (e) {
                     if (e) {
-                        if (running) {
-                            interrupt();
+                        if (!running) {
+                            show();
                         }
-                        show();
                     }
                     else {
                         hide();
@@ -2169,6 +2180,9 @@ var DotvvmValidation = /** @class */ (function () {
                 }
             }
             _this.events.validationErrorsChanged.trigger(args);
+        });
+        dotvvm.events.spaNavigating.subscribe(function (args) {
+            _this.clearValidationErrors(dotvvm.viewModelObservables[args.viewModelName]);
         });
         // add knockout binding handler
         ko.bindingHandlers["dotvvmValidation"] = {

@@ -4,11 +4,22 @@ using DotVVM.Framework.Runtime.Filters;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Binding;
 using StackExchange.Profiling;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 
 namespace DotVVM.Tracing.MiniProfiler.AspNetCore
 {
     public class MiniProfilerActionFilter : ActionFilterAttribute
     {
+        private readonly IOptions<MiniProfilerOptions> minipProfilerOptions;
+        private readonly PathString resultsLink;
+
+        public MiniProfilerActionFilter(IOptions<MiniProfilerOptions> minipProfilerOptions)
+        {
+            this.minipProfilerOptions = minipProfilerOptions;
+            this.resultsLink = minipProfilerOptions.Value.RouteBasePath.Add(new PathString("/results-index"));
+        }
+
         protected override Task OnPageLoadedAsync(IDotvvmRequestContext context)
         {
             // Naming for PostBack occurs in method OnCommandExecutingAsync
@@ -35,10 +46,10 @@ namespace DotVVM.Tracing.MiniProfiler.AspNetCore
         private void AddMiniProfilerName(IDotvvmRequestContext context, params string[] nameParts)
         {
             var currentMiniProfiler = StackExchange.Profiling.MiniProfiler.Current;
-
+            
             if (currentMiniProfiler != null)
             {
-                currentMiniProfiler.AddCustomLink("results", "/profiler/results-index");
+                currentMiniProfiler.AddCustomLink("results", resultsLink);
                 currentMiniProfiler.Name = string.Join(" ", nameParts);
             }
         }

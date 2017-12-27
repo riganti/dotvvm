@@ -1,30 +1,18 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OpenQA.Selenium;
-using OpenQA.Selenium.Interactions;
-using Riganti.Selenium.Core;
-using System;
-using System.Globalization;
-using System.Linq;
-using System.Threading;
-using DotVVM.Samples.Tests.New;
+﻿using DotVVM.Samples.Tests.New;
 using DotVVM.Testing.Abstractions;
-using Xunit.Abstractions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Riganti.Selenium.Core;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace DotVVM.Samples.Tests.Control
 {
     public class LinkButtonTests : AppSeleniumTest
     {
-
-        public LinkButtonTests(ITestOutputHelper output) : base(output)
-        {
-        }
-
         [Fact]
         public void Control_LinkButton_LinkButton()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_LinkButton_LinkButton);
 
                 AssertUI.TagName(browser.First("#ButtonTextProperty"), "a");
@@ -53,18 +41,21 @@ namespace DotVVM.Samples.Tests.Control
         [Fact]
         public void Control_LinkButton_LinkButtonOnClick()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_LinkButton_LinkButtonOnclick);
                 var onclickResult = browser.First("span.result1");
                 var clickResult = browser.First("span.result2");
-                AssertUI.InnerTextEquals(clickResult, "");
-                AssertUI.InnerTextEquals(onclickResult, "");
+                AssertUI.InnerText(clickResult, s => s.Equals(""));
+                AssertUI.InnerText(onclickResult, s => s.Equals(""));
 
                 browser.Click("#LinkButton");
-                AssertUI.InnerTextEquals(clickResult, "Changed from command binding");
-                AssertUI.InnerTextEquals(onclickResult, "Changed from onclick");
+                AssertUI.InnerText(clickResult, s => s.Equals("Changed from command binding"));
+                AssertUI.InnerText(onclickResult, s => s.Contains("Changed from onclick"));
             });
+        }
+
+        public LinkButtonTests(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

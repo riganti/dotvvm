@@ -1,7 +1,7 @@
 ﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyTitle>DotVVM</AssemblyTitle>
-    <VersionPrefix>2.0.0-pre07</VersionPrefix>
+    <VersionPrefix>2.0.0-pre08</VersionPrefix>
     <TargetFrameworks>netstandard2.0;net451</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -9,7 +9,7 @@
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>DotVVM</PackageId>
-    <PackageVersion>2.0.0-pre07</PackageVersion>
+    <PackageVersion>2.0.0-pre08</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>DotVVM is an open source ASP.NET-based framework which allows to build modern web apps without writing any JavaScript code.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
@@ -45,18 +45,21 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Scripts\DotVVM.Debug.js" />
+    <EmbeddedResource Include="Resources\Scripts\DotVVM.js" />
+    <EmbeddedResource Include="Resources\Scripts\DotVVM.min.js" />
+    <EmbeddedResource Include="Resources\Scripts\Globalize\globalize.min.js" />
     <EmbeddedResource Include="Resources\Scripts\knockout-latest.js" />
+    <EmbeddedResource Include="Resources\Scripts\Polyfills\polyfill.bundle.js" />
+    <EmbeddedResource Include="Resources\Scripts\Globalize\globalize.js" />
     <None Include="Resources\Scripts\DotVVM.DomUtils.ts" />
     <None Include="Resources\Scripts\DotVVM.Evaluator.ts" />
     <None Include="Resources\Scripts\DotVVM.Events.ts" />
     <None Include="Resources\Scripts\DotVVM.FileUpload.ts" />
     <None Include="Resources\Scripts\DotVVM.Globalize.ts" />
-    <EmbeddedResource Include="Resources\Scripts\DotVVM.js" />
     <None Include="Resources\Scripts\DotVVM.PostBackHandlers.ts" />
     <None Include="Resources\Scripts\DotVVM.Serialization.ts" />
     <None Include="Resources\Scripts\DotVVM.ts" />
     <None Include="Resources\Scripts\DotVVM.Validation.ts" />
-    <EmbeddedResource Include="Resources\Scripts\Globalize\globalize.js" />
     <None Include="Resources\Scripts\typings\globalize\globalize.d.ts" />
     <None Include="Resources\Scripts\typings\knockout.mapper\knockout.mapper.d.ts" />
     <None Include="Resources\Scripts\typings\knockout\knockout.d.ts" />

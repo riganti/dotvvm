@@ -228,7 +228,7 @@ namespace DotVVM.Framework.Controls
         internal void ValidateParentsLifecycleEvents()
         {
             // check if all ancestors have the flags
-            if (!this.parent.GetAllAncestors().OfType<DotvvmControl>().All(c => (c.LifecycleRequirements & this.parent.LifecycleRequirements) == this.parent.LifecycleRequirements))
+            if (!this.parent.GetAllAncestors(onlyWhenInChildren: true).OfType<DotvvmControl>().All(c => (c.LifecycleRequirements & this.parent.LifecycleRequirements) == this.parent.LifecycleRequirements))
                 throw new Exception("Internal bug in Lifecycle events.");
         }
 

@@ -19,8 +19,7 @@ namespace DotVVM.Framework.Tests.Routing
         [TestMethod]
         public void DotvvmRoute_IsMatch_RouteMustNotStartWithSlash()
         {
-            Assert.ThrowsException<ArgumentException>(() =>
-            {
+            Assert.ThrowsException<ArgumentException>(() => {
                 var route = new DotvvmRoute("/Test", null, null, null, configuration);
             });
         }
@@ -29,8 +28,7 @@ namespace DotVVM.Framework.Tests.Routing
         [TestMethod]
         public void DotvvmRoute_IsMatch_RouteMustNotEndWithSlash()
         {
-            Assert.ThrowsException<ArgumentException>(() =>
-            {
+            Assert.ThrowsException<ArgumentException>(() => {
                 var route = new DotvvmRoute("Test/", null, null, null, configuration);
             });
         }
@@ -325,7 +323,7 @@ namespace DotVVM.Framework.Tests.Routing
             var route = new DotvvmRoute("myPage/{Id?}/edit", null, null, null, configuration);
 
             var result = route.BuildUrl(new { });
-            var result2 = route.BuildUrl(new Dictionary<string, object>{ ["Id"] = null });
+            var result2 = route.BuildUrl(new Dictionary<string, object> { ["Id"] = null });
 
             Assert.AreEqual("~/myPage/edit", result);
             Assert.AreEqual("~/myPage/edit", result2);
@@ -349,7 +347,7 @@ namespace DotVVM.Framework.Tests.Routing
             var route = new DotvvmRoute("myPage/{Id}/edit", null, null, null, configuration);
 
             var ex = Assert.ThrowsException<Exception>(() => {
-                route.BuildUrl(new Dictionary<string, object>{ ["Id"] = null });
+                route.BuildUrl(new Dictionary<string, object> { ["Id"] = null });
             });
             Assert.IsInstanceOfType(ex.InnerException, typeof(ArgumentNullException));
         }
@@ -368,8 +366,7 @@ namespace DotVVM.Framework.Tests.Routing
         [TestMethod]
         public void DotvvmRoute_BuildUrl_Invalid_UnclosedParameter()
         {
-            Assert.ThrowsException<ArgumentException>(() =>
-            {
+            Assert.ThrowsException<ArgumentException>(() => {
 
                 var route = new DotvvmRoute("{Id", null, null, null, configuration);
 
@@ -382,8 +379,7 @@ namespace DotVVM.Framework.Tests.Routing
 
         public void DotvvmRoute_BuildUrl_Invalid_UnclosedParameterConstraint()
         {
-            Assert.ThrowsException<ArgumentException>(() =>
-            {
+            Assert.ThrowsException<ArgumentException>(() => {
 
                 var route = new DotvvmRoute("{Id:int", null, null, null, configuration);
 
@@ -516,6 +512,18 @@ namespace DotVVM.Framework.Tests.Routing
         }
 
         [TestMethod]
+        public void DotvvmRoute_PresenterFactoryMethod()
+        {
+            var configuration = DotvvmConfiguration.CreateDefault(services => {
+                services.TryAddSingleton<TestPresenter>();
+            });
+
+            var table = new DotvvmRouteTable(configuration);
+            table.Add("Article", "", typeof(TestPresenter), null);
+            Assert.IsInstanceOfType(table.First().GetPresenter(configuration.ServiceProvider), typeof(TestPresenter));
+        }
+
+        [TestMethod]
         public void DotvvmRoute_PresenterType()
         {
             var configuration = DotvvmConfiguration.CreateDefault(services => {
@@ -523,11 +531,9 @@ namespace DotVVM.Framework.Tests.Routing
             });
 
             var table = new DotvvmRouteTable(configuration);
-            table.Add<TestPresenter>("Article", "", "", null);
-            Assert.IsInstanceOfType(table.First().GetPresenter(), typeof(TestPresenter));
+            table.Add("Article", "", provider => provider.GetService<TestPresenter>(), null);
+            Assert.IsInstanceOfType(table.First().GetPresenter(configuration.ServiceProvider), typeof(TestPresenter));
         }
-
-        
     }
 
     public class TestPresenter : IDotvvmPresenter

@@ -57,7 +57,7 @@ namespace DotVVM.Framework.Tests.Runtime
             {
                 Configuration = configuration,
                 HttpContext = contextMock.Object,
-                Presenter = configuration.RouteTable.GetDefaultPresenter(),
+                Presenter = configuration.RouteTable.GetDefaultPresenter(configuration.ServiceProvider),
             };
         }
 

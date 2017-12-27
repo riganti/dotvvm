@@ -184,7 +184,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             Translators.Add(MethodCollection = new JavascriptTranslatableMethodCollection());
         }
 
-        public JsExpression TryTranslateCall(HalfTranslatedExpression context, HalfTranslatedExpression[] arguments, MethodInfo method) =>
+        public JsExpression TryTranslateCall(LazyTranslatedExpression context, LazyTranslatedExpression[] arguments, MethodInfo method) =>
             Translators.Select(t => t.TryTranslateCall(context, arguments, method)).FirstOrDefault(d => d != null);
     }
 }

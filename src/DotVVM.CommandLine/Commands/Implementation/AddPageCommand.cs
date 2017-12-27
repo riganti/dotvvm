@@ -14,7 +14,7 @@ namespace DotVVM.CommandLine.Commands.Implementation
 
         public override string Usage => "dotvvm add page <NAME> [-m|--master|--masterpage <MASTERPAGE>]\ndotvvm ap <NAME> [-m|--master|--masterpage <MASTERPAGE>]";
 
-        public override bool CanHandle(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
+        public override bool TryConsumeArgs(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
         {
             if (string.Equals(args[0], "add", StringComparison.CurrentCultureIgnoreCase)
                 && string.Equals(args[1], "page", StringComparison.CurrentCultureIgnoreCase))

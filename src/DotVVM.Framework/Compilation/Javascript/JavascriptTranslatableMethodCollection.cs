@@ -127,6 +127,10 @@ namespace DotVVM.Framework.Compilation.Javascript
                     .WithAnnotation(a[1].Annotation<ViewModelInfoAnnotation>())
                     .WithAnnotation(a[1].Annotation<MayBeNullAnnotation>())
                 ));
+            AddMethodTranslator(typeof(Api), nameof(Api.PushEvent),
+                new GenericMethodCompiler(a =>
+                    new JsIdentifierExpression("dotvvm").Member("eventHub").Member("notify").Invoke(a[1])
+                ));
             BindingPageInfo.RegisterJavascriptTranslations(this);
             BindingCollectionInfo.RegisterJavascriptTranslations(this);
 
@@ -172,9 +176,16 @@ namespace DotVVM.Framework.Compilation.Javascript
 
             AddPropertyGetterTranslator(typeof(Task<>), "Result", new GenericMethodCompiler(args => FunctionalExtensions.ApplyAction(args[0], a => a.RemoveAnnotations(typeof(ViewModelInfoAnnotation)))));
 
+            AddMethodTranslator(typeof(DotvvmBindableObject).GetMethods(BindingFlags.Instance | BindingFlags.Public).Single(m => m.Name == "GetValue" && !m.ContainsGenericParameters), new GenericMethodCompiler(
+                args => {
+                    var dotvvmproperty = ((DotvvmProperty)((JsLiteral)args[1]).Value);
+                    return JavascriptTranslationVisitor.TranslateViewModelProperty(args[0], (MemberInfo)dotvvmproperty.PropertyInfo ?? dotvvmproperty.PropertyType.GetTypeInfo(), name: dotvvmproperty.Name);
+                }
+            ));
+
         }
 
-        public JsExpression TryTranslateCall(HalfTranslatedExpression context, HalfTranslatedExpression[] args, MethodInfo method)
+        public JsExpression TryTranslateCall(LazyTranslatedExpression context, LazyTranslatedExpression[] args, MethodInfo method)
         {
             if (method == null) return null;
             {
