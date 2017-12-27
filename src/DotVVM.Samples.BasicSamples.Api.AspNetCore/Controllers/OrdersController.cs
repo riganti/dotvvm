@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DotVVM.Samples.BasicSamples.Api.AspNetCore.DataStore;
-using DotVVM.Samples.BasicSamples.Api.AspNetCore.Model;
+using DotVVM.Samples.BasicSamples.Api.Common.DataStore;
+using DotVVM.Samples.BasicSamples.Api.Common.Model;
 using Microsoft.AspNetCore.Mvc;
 
-namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.AspNetCore.Controllers
+namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.Controllers
 {
     [Route("api/[controller]")]
     public class OrdersController : Controller
