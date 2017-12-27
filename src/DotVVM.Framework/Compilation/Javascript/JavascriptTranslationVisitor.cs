@@ -161,7 +161,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
 
         private JsExpression SetProperty(JsExpression target, PropertyInfo property, JsExpression value) =>
-            new JsAssignmentExpression(this.TranslateViewModelProperty(target, property), value);
+            new JsAssignmentExpression(TranslateViewModelProperty(target, property), value);
 
         public JsExpression TranslateConditional(ConditionalExpression expression) =>
             new JsConditionalExpression(
@@ -230,12 +230,6 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             var thisExpression = expression.Object == null ? null : Translate(expression.Object);
             var args = expression.Arguments.Select(Translate).ToArray();
-
-            if (expression.Method.Name == "GetValue" && expression.Method.DeclaringType == typeof(DotvvmBindableObject))
-            {
-                var dotvvmproperty = ((DotvvmProperty)((JsLiteral)args[0]).Value);
-                return TranslateViewModelProperty(thisExpression, (MemberInfo)dotvvmproperty.PropertyInfo ?? dotvvmproperty.PropertyType.GetTypeInfo(), name: dotvvmproperty.Name);
-            }
 
             var result = TryTranslateMethodCall(expression.Method, expression.Object, expression.Arguments.ToArray());
             if (result == null)
@@ -341,7 +335,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             }
         }
 
-        public JsExpression TranslateViewModelProperty(JsExpression context, MemberInfo propInfo, string name = null) =>
+        public static JsExpression TranslateViewModelProperty(JsExpression context, MemberInfo propInfo, string name = null) =>
             new JsMemberAccessExpression(context, name ?? propInfo.Name).WithAnnotation(new VMPropertyInfoAnnotation { MemberInfo = propInfo }).WithAnnotation(new ViewModelInfoAnnotation(propInfo.GetResultType()));
 
         public JsExpression TryTranslateMethodCall(MethodInfo methodInfo, Expression target, IEnumerable<Expression> arguments) =>
