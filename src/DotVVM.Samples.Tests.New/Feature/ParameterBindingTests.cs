@@ -71,7 +71,7 @@ namespace DotVVM.Samples.Tests.Feature
             AssertUI.HyperLinkEquals(browser.First("#opt2_empty"), "FeatureSamples/ParameterBinding/OptionalParameterBinding2/300", UrlKind.Relative, UriComponents.PathAndQuery);
             AssertUI.HyperLinkEquals(browser.First("#opt2_param_A"), "FeatureSamples/ParameterBinding/OptionalParameterBinding2/300", UrlKind.Relative, UriComponents.PathAndQuery);
             AssertUI.HyperLinkEquals(browser.First("#opt2_param_2"), "FeatureSamples/ParameterBinding/OptionalParameterBinding2/3", UrlKind.Relative, UriComponents.PathAndQuery);
-            AssertUI.HyperLinkEquals(browser.First("#opt2_param_ID2A2"), "FeatureSamples/ParameterBinding/OptionalParameterBinding/4", UrlKind.Relative, UriComponents.PathAndQuery);
+            AssertUI.HyperLinkEquals(browser.First("#opt2_param_ID2A2"), "FeatureSamples/ParameterBinding/OptionalParameterBinding2/4", UrlKind.Relative, UriComponents.PathAndQuery);
         }
     }
 }
