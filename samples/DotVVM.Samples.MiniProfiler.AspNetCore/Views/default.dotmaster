@@ -14,7 +14,13 @@
     <a href="/profiler/results-index">MiniProfiler dataset</a>
     <dot:MiniProfilerWidget Position="Right" />
 
+    <ul>
+        <li><dot:RouteLink RouteName="Page1" Text="Page1"/></li>
+        <li><dot:RouteLink RouteName="Page2" Text="Page2"/></li>
+    </ul>
+
     <dot:Button Text="Sample Command" Click="{command:  Command()}"/>
+    <dot:SpaContentPlaceHolder ID="ContentPlaceHolder" DefaultRouteName="Page1" />
 
 </body>
 </html>

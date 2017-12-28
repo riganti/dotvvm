@@ -14,7 +14,9 @@ namespace DotVVM.Samples.MiniProfiler.AspNetCore
 
         private void ConfigureRoutes(DotvvmConfiguration config, string applicationPath)
         {
-            config.RouteTable.Add("Default", "", "Views/default.dothtml");
+            config.RouteTable.Add("Default", "", "Views/default.dotmaster");
+            config.RouteTable.Add("Page1", "page1", "Views/page1.dothtml");
+            config.RouteTable.Add("Page2", "page2", "Views/page2.dothtml");
 
             // Uncomment the following line to auto-register all dothtml files in the Views folder
             // config.RouteTable.AutoDiscoverRoutes(new DefaultRouteStrategy(config));    

@@ -7,15 +7,20 @@
 	</ItemGroup>
 	<ItemGroup>
 		<None Remove="dotvvm_serialized_config.json.tmp" />
+		<None Remove="Views\page1.dothtml" />
+		<None Remove="Views\page2.dothtml" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="DotVVM.AspNetCore" Version="2.0.0-pre08" />
+	  <Content Include="Views\default.dotmaster" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="DotVVM.AspNetCore" Version="2.0.0-pre09" />
 		<PackageReference Include="Microsoft.AspNetCore" Version="2.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="2.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.0.0" />
-		<PackageReference Include="MiniProfiler.AspNetCore.Mvc" Version="4.0.0-alpha8-165" />
-		<PackageReference Include="MiniProfiler.EntityFrameworkCore" Version="4.0.0-alpha8-165" />
+		<PackageReference Include="MiniProfiler.AspNetCore.Mvc" Version="4.0.0-alpha9-00206" />
+		<PackageReference Include="MiniProfiler.EntityFrameworkCore" Version="4.0.0-alpha9-00206" />
 	</ItemGroup>
   <ItemGroup>
     <DotNetCliToolReference Include="DotVVM.Compiler.Light" Version="1.1.0.1" />

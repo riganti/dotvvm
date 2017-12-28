@@ -2,6 +2,7 @@
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using StackExchange.Profiling;
+using StackExchange.Profiling.Internal;
 
 namespace DotVVM.Tracing.MiniProfiler.AspNetCore
 {
@@ -81,9 +82,9 @@ namespace DotVVM.Tracing.MiniProfiler.AspNetCore
 
         protected override void OnPreRender(IDotvvmRequestContext context)
         {
-            context.ResourceManager.AddStartupScript("DotVVM-MiniProfiler-Integration", 
-                @"dotvvm.events.afterPostback.subscribe(
-                    function(arg) { 
+            context.ResourceManager.AddStartupScript("DotVVM-MiniProfiler-Integration",
+                @"(function() {
+                    var miniProfilerUpdate = function(arg) { 
                         if(arg.xhr && arg.xhr.getResponseHeader) { 
                             var jsonIds = arg.xhr.getResponseHeader('X-MiniProfiler-Ids'); 
                             if (jsonIds) {
@@ -91,7 +92,10 @@ namespace DotVVM.Tracing.MiniProfiler.AspNetCore
                                 MiniProfiler.fetchResults(ids);
                             }
                         }
-                    })", "dotvvm");
+                    };
+                    dotvvm.events.afterPostback.subscribe(miniProfilerUpdate);
+                    dotvvm.events.spaNavigated.subscribe(miniProfilerUpdate);
+                })()", "dotvvm");
 
             base.OnPreRender(context);
         }
