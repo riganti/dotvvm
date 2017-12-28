@@ -24,7 +24,8 @@
         <customTagName id="htmlControlWithAttr"
                        append="Default attribute"
                        overwrite="Default attribute"
-                       ignore="Default attribute">
+                       ignore="Default attribute"
+                       class="default-class">
             Custom html control with default attributes
         </customTagName>
     </div>

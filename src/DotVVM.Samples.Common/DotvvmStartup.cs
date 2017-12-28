@@ -47,7 +47,7 @@ namespace DotVVM.Samples.BasicSamples
         public static void AddStyles(DotvvmConfiguration config)
         {
             // HasViewInDirectory samples
-            config.Styles.Register<Controls.ServerSideStylesControl>(c => c.HasViewInDirectory("Views/FeatureSamples/ServerSideStyles/DirectoryStyle/"))
+            config.Styles.Register<ServerSideStylesControl>(c => c.HasViewInDirectory("Views/FeatureSamples/ServerSideStyles/DirectoryStyle/"))
                 .SetAttribute("directory", "matching");
             config.Styles.Register("customTagName", c => c.HasViewInDirectory("Views/FeatureSamples/ServerSideStyles/DirectoryStyle/"))
                 .SetAttribute("directory", "matching");
@@ -59,17 +59,18 @@ namespace DotVVM.Samples.BasicSamples
                 SetAttribute("dataContextCheck", "matching");
 
             // All style samples
-            config.Styles.Register<Controls.ServerSideStylesControl>()
+            config.Styles.Register<ServerSideStylesControl>()
                 .SetAttribute("value", "Text changed")
-                .SetDotvvmProperty(Controls.ServerSideStylesControl.CustomProperty, "Custom property changed")
+                .SetDotvvmProperty(ServerSideStylesControl.CustomProperty, "Custom property changed", StyleOverrideOptions.Ignore)
                 .SetAttribute("class", "Class changed", StyleOverrideOptions.Overwrite);
             config.Styles.Register("customTagName")
                 .SetAttribute("ignore", "Attribute ignored", StyleOverrideOptions.Ignore)
                 .SetAttribute("overwrite", "Attribute changed", StyleOverrideOptions.Overwrite)
-                .SetAttribute("append", "Attribute appended", StyleOverrideOptions.Append);
-            config.Styles.Register<Controls.ServerSideStylesControl>(c => c.HasProperty(Controls.ServerSideStylesControl.CustomProperty), false)
+                .SetAttribute("append", "Attribute appended", StyleOverrideOptions.Append)
+                .SetAttribute("class", "new-class", StyleOverrideOptions.Append);
+            config.Styles.Register<ServerSideStylesControl>(c => c.HasProperty(ServerSideStylesControl.CustomProperty), false)
                 .SetAttribute("derivedAttr", "Derived attribute");
-            config.Styles.Register<Controls.ServerSideStylesControl>(c => c.HasProperty(Controls.ServerSideStylesControl.AddedProperty))
+            config.Styles.Register<ServerSideStylesControl>(c => c.HasProperty(ServerSideStylesControl.AddedProperty))
                 .SetAttribute("addedAttr", "Added attribute");
         }
 
