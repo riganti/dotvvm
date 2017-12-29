@@ -23,7 +23,7 @@ namespace DotVVM.Compiler
             }
 
             Program2.ContinueMain(args);
-            Console.ReadKey();
+      
         }
 
     }
