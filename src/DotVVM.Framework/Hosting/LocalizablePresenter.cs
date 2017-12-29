@@ -9,6 +9,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Hosting
 {
+    /// A DotVVM Presenter that reads culture by <see cref="getCulture" />,
+    /// sets the thread culture and invokes the default dotvvm presenter (obtained from IServiceProvider)
     public class LocalizablePresenter : IDotvvmPresenter
     {
         private readonly Func<IDotvvmRequestContext, Task> nextPresenter;
@@ -31,6 +33,9 @@ namespace DotVVM.Framework.Hosting
             return this.nextPresenter(context);
         }
 
+        /// Creates a <see cref="LocalizablePresenter" /> factory that read the culture from route parameter.
+        /// <param name="name">Name of the route parameter</param>
+        /// <param name="redirectWhenNotFound">If the culture is invalid, it will perform redirect to a url with default culture specified.</param>
         public static Func<IServiceProvider, LocalizablePresenter> BasedOnParameter(string name, bool redirectWhenNotFound = true)
         {
             void redirect(IDotvvmRequestContext context)
@@ -50,6 +55,9 @@ namespace DotVVM.Framework.Hosting
             return _ => presenter;
         }
 
+        /// Creates a <see cref="LocalizablePresenter" /> factory that read the culture from request query string parameter.
+        /// <param name="name">Name of the query string parameter</param>
+        /// <param name="redirectWhenNotFound">If the culture is invalid, it will perform redirect to a url with default culture specified.</param>
         public static Func<IServiceProvider, LocalizablePresenter> BasedOnQuery(string name, bool redirectWhenNotFound = true)
         {
             void redirect(IDotvvmRequestContext context)
