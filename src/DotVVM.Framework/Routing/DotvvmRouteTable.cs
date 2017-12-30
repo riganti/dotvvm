@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Routing
         private List<KeyValuePair<string, RouteBase>> list = new List<KeyValuePair<string, RouteBase>>();
 
         /// <summary>
-        /// Dictionary for faster checking of duplicate entries when adding. 
+        /// Dictionary for faster checking of duplicate entries when adding.
         /// </summary>
         private Dictionary<string, RouteBase> dictionary = new Dictionary<string, RouteBase>(StringComparer.OrdinalIgnoreCase);
 
@@ -158,8 +158,7 @@ namespace DotVVM.Framework.Routing
         {
             get
             {
-                var route = list.FirstOrDefault(r => string.Equals(r.Key, routeName, StringComparison.OrdinalIgnoreCase)).Value;
-                if (route == null)
+                if (!dictionary.TryGetValue(routeName, out var route))
                 {
                     throw new ArgumentException($"The route with name '{routeName}' does not exist!");
                 }
