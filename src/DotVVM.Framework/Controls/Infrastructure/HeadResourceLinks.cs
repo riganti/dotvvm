@@ -18,7 +18,7 @@ namespace DotVVM.Framework.Controls
             // render resource links
             var resourceManager = context.ResourceManager;
             if (resourceManager.HeadRendered) return;
-            resourceManager.HeadRendered = true; // set the flag before the resources are rendered, so they can't add more resources to the list  during the rende
+            resourceManager.HeadRendered = true; // set the flag before the resources are rendered, so they can't add more resources to the list during the render
             foreach (var resource in resourceManager.GetNamedResourcesInOrder())
             {
                 if (resource.Resource.RenderPosition == ResourceRenderPosition.Head)

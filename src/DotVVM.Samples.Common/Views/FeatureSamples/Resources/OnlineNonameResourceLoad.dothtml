@@ -15,5 +15,6 @@
 	<script>
 		if (!window.dotvvm)
 			alert("DotVVM scripts were not loaded before this one ;(");
+	</script>
 </body>
 </html>
