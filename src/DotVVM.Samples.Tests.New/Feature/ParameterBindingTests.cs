@@ -32,6 +32,7 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.InnerTextEquals(browser.Single(".nested-b"), "abc");
             });
         }
+
         [Fact]
         public void Feature_ParameterBinding_OptionalParameterBinding()
         {
@@ -50,12 +51,10 @@ namespace DotVVM.Samples.Tests.Feature
                 ValidateDefaultRouteLinkState(browser, "/5");
                 AssertUI.TextEquals(browser.First("#Result"), "Id:5");
 
-                browser.First("#opt2_empty").Click();
-                ValidateDefaultRouteLinkState(browser);
-                AssertUI.TextEquals(browser.First("#Result"), "Id:300");
-
+                browser.First("#opt2_param_2").Click();
+                ValidateDefaultRouteLinkState(browser, "/3");
+                AssertUI.TextEquals(browser.First("#Result"), "Id:3");
             });
-
         }
 
         private void ValidateDefaultRouteLinkState(IBrowserWrapper browser, string suffix = "")
@@ -67,9 +66,9 @@ namespace DotVVM.Samples.Tests.Feature
             AssertUI.HyperLinkEquals(browser.First("#opt1_param_ID2"), "FeatureSamples/ParameterBinding/OptionalParameterBinding/4", UrlKind.Relative, UriComponents.PathAndQuery);
             AssertUI.HyperLinkEquals(browser.First("#opt1_param_ID2A2"), "FeatureSamples/ParameterBinding/OptionalParameterBinding/5", UrlKind.Relative, UriComponents.PathAndQuery);
 
-
-            AssertUI.HyperLinkEquals(browser.First("#opt2_empty"), "FeatureSamples/ParameterBinding/OptionalParameterBinding2/300", UrlKind.Relative, UriComponents.PathAndQuery);
-            AssertUI.HyperLinkEquals(browser.First("#opt2_param_A"), "FeatureSamples/ParameterBinding/OptionalParameterBinding2/300", UrlKind.Relative, UriComponents.PathAndQuery);
+            var suffixWithDefaultValue = string.IsNullOrEmpty(suffix) ? "/300" : suffix;
+            AssertUI.HyperLinkEquals(browser.First("#opt2_empty"), "FeatureSamples/ParameterBinding/OptionalParameterBinding2" + suffixWithDefaultValue, UrlKind.Relative, UriComponents.PathAndQuery);
+            AssertUI.HyperLinkEquals(browser.First("#opt2_param_A"), "FeatureSamples/ParameterBinding/OptionalParameterBinding2" + suffixWithDefaultValue, UrlKind.Relative, UriComponents.PathAndQuery);
             AssertUI.HyperLinkEquals(browser.First("#opt2_param_2"), "FeatureSamples/ParameterBinding/OptionalParameterBinding2/3", UrlKind.Relative, UriComponents.PathAndQuery);
             AssertUI.HyperLinkEquals(browser.First("#opt2_param_ID2A2"), "FeatureSamples/ParameterBinding/OptionalParameterBinding2/4", UrlKind.Relative, UriComponents.PathAndQuery);
         }
