@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -23,7 +24,13 @@ namespace DotVVM.Framework.Hosting
         {
             var culture = this.getCulture(context);
             if (culture != null)
+            {
+#if DotNetCore
                 CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = culture;
+#else
+                Thread.CurrentThread.CurrentUICulture = Thread.CurrentThread.CurrentCulture = culture;
+#endif
+            }
             return this.nextPresenter(context);
         }
 
