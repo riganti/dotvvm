@@ -238,7 +238,6 @@ namespace DotVVM.Framework.Binding
                 new object[] {
                     b.GetProperty<DataContextStack>(ErrorHandlingMode.ReturnNull),
                     b.GetProperty<BindingResolverCollection>(ErrorHandlingMode.ReturnNull),
-                    b.GetProperty<AssignedPropertyBindingProperty>(ErrorHandlingMode.ReturnNull),
                     b.GetProperty<BindingCompilationRequirementsAttribute>(ErrorHandlingMode.ReturnNull)?.ClearRequirements(),
                     b.GetProperty<BindingErrorReporterProperty>(ErrorHandlingMode.ReturnNull),
                     b.GetProperty<LocationInfoBindingProperty>(ErrorHandlingMode.ReturnNull)

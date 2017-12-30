@@ -11,7 +11,7 @@ namespace DotVVM.Framework.Routing
 {
     public class DotvvmRoute : RouteBase
     {
-        private Func<IDotvvmPresenter> presenterFactory;
+        private Func<IServiceProvider,IDotvvmPresenter> presenterFactory;
 
         private Regex routeRegex;
         private List<Func<Dictionary<string, object>, string>> urlBuilders;
@@ -26,7 +26,7 @@ namespace DotVVM.Framework.Routing
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmRoute"/> class.
         /// </summary>
-        public DotvvmRoute(string url, string virtualPath, object defaultValues, Func<IDotvvmPresenter> presenterFactory, DotvvmConfiguration configuration)
+        public DotvvmRoute(string url, string virtualPath, object defaultValues, Func<IServiceProvider, IDotvvmPresenter> presenterFactory, DotvvmConfiguration configuration)
             : base(url, virtualPath, defaultValues)
         {
             this.presenterFactory = presenterFactory;
@@ -37,7 +37,7 @@ namespace DotVVM.Framework.Routing
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmRoute"/> class.
         /// </summary>
-        public DotvvmRoute(string url, string virtualPath, IDictionary<string, object> defaultValues, Func<DotvvmPresenter> presenterFactory, DotvvmConfiguration configuration)
+        public DotvvmRoute(string url, string virtualPath, IDictionary<string, object> defaultValues, Func<IServiceProvider, IDotvvmPresenter> presenterFactory, DotvvmConfiguration configuration)
             : base(url, virtualPath, defaultValues)
         {
             this.presenterFactory = presenterFactory;
@@ -48,7 +48,7 @@ namespace DotVVM.Framework.Routing
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmRoute"/> class.
         /// </summary>
-        public DotvvmRoute(string url, string virtualPath, string name, IDictionary<string, object> defaultValues, Func<DotvvmPresenter> presenterFactory, DotvvmConfiguration configuration)
+        public DotvvmRoute(string url, string virtualPath, string name, IDictionary<string, object> defaultValues, Func<IServiceProvider, IDotvvmPresenter> presenterFactory, DotvvmConfiguration configuration)
             : base(url, virtualPath, name, defaultValues)
         {
             this.presenterFactory = presenterFactory;
@@ -129,6 +129,6 @@ namespace DotVVM.Framework.Routing
         /// <summary>
         /// Processes the request.
         /// </summary>
-        public override IDotvvmPresenter GetPresenter() => presenterFactory();
+        public override IDotvvmPresenter GetPresenter(IServiceProvider provider) => presenterFactory(provider);
     }
 }

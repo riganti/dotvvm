@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Compilation.Styles
 
         private static DotvvmProperty GetProperty(string name)
         {
-            var field = typeof(T).GetField(name + "Property", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.FlattenHierarchy);
+            var field = typeof(T).GetField(name + "Property", BindingFlags.Static | BindingFlags.Public | BindingFlags.FlattenHierarchy);
             return field.GetValue(null) as DotvvmProperty;
         }
 
@@ -39,22 +39,22 @@ namespace DotVVM.Framework.Compilation.Styles
             return SetDotvvmProperty(GetProperty(propertyName), value);
         }
 
-        public StyleBuilder<T> SetDotvvmProperty(ResolvedPropertySetter setter, bool append = true)
+        public StyleBuilder<T> SetDotvvmProperty(ResolvedPropertySetter setter, StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
         {
-            style.SetProperties[setter.Property] = new CompileTimeStyleBase.PropertyInsertionInfo(setter, append);
+            style.SetProperties[setter.Property] = new CompileTimeStyleBase.PropertyInsertionInfo(setter, options);
             return this;
         }
 
-        public StyleBuilder<T> SetDotvvmProperty(DotvvmProperty property, object value, bool append = true) => 
-            SetDotvvmProperty(new ResolvedPropertyValue(property, value), append);
+        public StyleBuilder<T> SetDotvvmProperty(DotvvmProperty property, object value, StyleOverrideOptions options = StyleOverrideOptions.Overwrite) =>
+            SetDotvvmProperty(new ResolvedPropertyValue(property, value), options);
 
-        public StyleBuilder<T> SetAttribute(string attribute, object value, bool append = false) => 
-            SetPropertyGroupMember("", attribute, value, append);
+        public StyleBuilder<T> SetAttribute(string attribute, object value, StyleOverrideOptions options = StyleOverrideOptions.Ignore) =>
+            SetPropertyGroupMember("", attribute, value, options);
 
-        public StyleBuilder<T> SetPropertyGroupMember(string prefix, string memberName, object value, bool append = true)
+        public StyleBuilder<T> SetPropertyGroupMember(string prefix, string memberName, object value, StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
         {
-            var prop = DotvvmPropertyGroup .GetPropertyGroups(typeof(T)).Single(p => p.Prefixes.Contains(prefix));
-            return SetDotvvmProperty(prop.GetDotvvmProperty(memberName), value, append);
+            var prop = DotvvmPropertyGroup.GetPropertyGroups(typeof(T)).Single(p => p.Prefixes.Contains(prefix));
+            return SetDotvvmProperty(prop.GetDotvvmProperty(memberName), value, options);
         }
 
         public StyleBuilder<T> WithCondition(Func<StyleMatchContext, bool> condition)
@@ -94,5 +94,12 @@ namespace DotVVM.Framework.Compilation.Styles
                 return Matcher != null ? Matcher(matchInfo) : true;
             }
         }
+    }
+
+    public enum StyleOverrideOptions
+    {
+        Ignore,
+        Overwrite,
+        Append
     }
 }

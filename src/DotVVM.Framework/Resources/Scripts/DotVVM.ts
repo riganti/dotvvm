@@ -702,7 +702,7 @@ class DotVVM {
                 }
 
                 // trigger spaNavigated event
-                var spaNavigatedArgs = new DotvvmSpaNavigatedEventArgs(viewModel, viewModelName, resultObject);
+                var spaNavigatedArgs = new DotvvmSpaNavigatedEventArgs(viewModel, viewModelName, resultObject, result);
                 this.events.spaNavigated.trigger(spaNavigatedArgs);
                 if (!isSuccess && !spaNavigatedArgs.isHandled) {
                     throw "Invalid response from server!";
@@ -930,11 +930,19 @@ class DotVVM {
         return ko.unwrap(ko.unwrap(array));
     }
     public buildRouteUrl(routePath: string, params: any): string {
-        return routePath.replace(/\{([^\}]+?)\??(:(.+?))?\}/g, (s, paramName, hsjdhsj, type) => {
+        // prepend url with backslash to correctly handle optional parameters at start
+        routePath = '/' + routePath; 
+
+        var url = routePath.replace(/(\/[^\/]*?)\{([^\}]+?)\??(:(.+?))?\}/g, (s, prefix, paramName, _, type) => {
             if (!paramName) return "";
             const x = ko.unwrap(params[paramName.toLowerCase()])
-            return x == null ? "" : x;
+            return x == null ? "" : prefix + x;
         });
+
+        if (url.indexOf('/') === 0) {
+            return url.substring(1);
+        }
+        return url;
     }
 
     public buildUrlSuffix(urlSuffix: string, query: any): string {
@@ -1092,11 +1100,6 @@ class DotVVM {
                     }
                 }
 
-                var interrupt = () => {
-                    clearTimeout(timeout);
-                    element.style.display = "none";
-                }
-
                 var hide = () => {
                     running = false;
                     clearTimeout(timeout);
@@ -1105,10 +1108,9 @@ class DotVVM {
 
                 dotvvm.isPostbackRunning.subscribe(e => {
                     if (e) {
-                        if (running) {
-                            interrupt();
+                        if (!running) {
+                            show();
                         }
-                        show();
                     } else {
                         hide();
                     }

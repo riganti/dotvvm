@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth;
 using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand;
@@ -87,7 +88,7 @@ namespace DotVVM.Samples.BasicSamples
             });
 
             var config = app.UseDotVVM<DotvvmStartup>(GetApplicationPath(env));
-            config.RouteTable.Add("AuthorizedPresenter", "ComplexSamples/Auth/AuthorizedPresenter", null, null, () => new AuthorizedPresenter());
+            config.RouteTable.Add("AuthorizedPresenter", "ComplexSamples/Auth/AuthorizedPresenter", provider => new AuthorizedPresenter());
 
             app.UseStaticFiles();
         }

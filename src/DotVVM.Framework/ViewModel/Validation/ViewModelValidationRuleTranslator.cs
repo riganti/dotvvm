@@ -21,7 +21,7 @@ namespace DotVVM.Framework.ViewModel.Validation
                     {
                         ClientRuleName = "required",
                         SourceValidationAttribute = attribute,
-                        ErrorMessage = attribute.FormatErrorMessage(property.Name)
+                        PropertyName = property.Name
                     };
                 }
                 else if (attribute is RegularExpressionAttribute)
@@ -31,7 +31,7 @@ namespace DotVVM.Framework.ViewModel.Validation
                     {
                         ClientRuleName = "regularExpression",
                         SourceValidationAttribute = attribute,
-                        ErrorMessage = attribute.FormatErrorMessage(property.Name),
+                        PropertyName = property.Name,
                         Parameters = new object[] { typedAttribute.Pattern }
                     };
                 }
@@ -42,7 +42,7 @@ namespace DotVVM.Framework.ViewModel.Validation
                     {
                         ClientRuleName = "range",
                         SourceValidationAttribute = attribute,
-                        ErrorMessage = attribute.FormatErrorMessage(property.Name),
+                        PropertyName = property.Name,
                         Parameters = new object[] { typed.Minimum, typed.Maximum }
                     };
                 }
@@ -53,7 +53,7 @@ namespace DotVVM.Framework.ViewModel.Validation
                     {
                         ClientRuleName = "enforceClientFormat",
                         SourceValidationAttribute = attribute,
-                        ErrorMessage = attribute.FormatErrorMessage(property.Name),
+                        PropertyName = property.Name,
                         Parameters = new object[] { typed.AllowNull, typed.AllowEmptyString, typed.AllowEmptyStringOrWhitespaces }
                     };
                 }
@@ -63,7 +63,7 @@ namespace DotVVM.Framework.ViewModel.Validation
                     {
                         ClientRuleName = string.Empty,
                         SourceValidationAttribute = attribute,
-                        ErrorMessage = attribute.FormatErrorMessage(property.Name)
+                        PropertyName = property.Name
                     };
                 }
             }

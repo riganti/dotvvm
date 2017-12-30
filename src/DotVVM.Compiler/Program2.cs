@@ -21,7 +21,7 @@ namespace DotVVM.Compiler
         {
             GetEnvironmentAssemblySearchPaths();
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
-            
+
             if (args.Length == 0)
             {
                 while (true)
@@ -67,6 +67,7 @@ namespace DotVVM.Compiler
 
         private static void WaitForDbg()
         {
+            WriteInfo("Process ID: " + Process.GetCurrentProcess().Id);
             while (!Debugger.IsAttached) Thread.Sleep(10);
         }
 
@@ -140,8 +141,7 @@ namespace DotVVM.Compiler
                     // only export configuration
                     result = ExportConfiguration(options);
                 }
-                Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented, new JsonSerializerSettings
-                {
+                Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented, new JsonSerializerSettings {
                     TypeNameHandling = TypeNameHandling.Auto
                 }));
 
@@ -165,8 +165,7 @@ namespace DotVVM.Compiler
         {
             var assembly = Assembly.LoadFile(options.WebSiteAssembly);
             var config = OwinInitializer.InitDotVVM(assembly, options.WebSitePath, null, (s) => { });
-            return new CompilationResult()
-            {
+            return new CompilationResult() {
                 Configuration = config
             };
         }
