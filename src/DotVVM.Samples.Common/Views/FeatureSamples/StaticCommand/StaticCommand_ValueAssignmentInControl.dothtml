@@ -5,13 +5,12 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <title></title>
+    <title></title> 
 </head>
 <body>
 
-    <sample:StaticCommand_ValueAssignmentControl></sample:StaticCommand_ValueAssignmentControl>
-    ViewModelValueResult: <span id="vmResult">{{value: Value}}</span>
-
+    <sample:StaticCommand_ValueAssignmentControl Model="{value:  Model}" ></sample:StaticCommand_ValueAssignmentControl>
+     
 </body>
 </html>
 

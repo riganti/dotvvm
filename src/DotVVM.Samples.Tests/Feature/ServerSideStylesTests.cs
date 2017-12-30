@@ -40,8 +40,10 @@ namespace DotVVM.Samples.Tests.Feature
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles);
-                browser.First("customTagName[id=htmlControlNoAttr]").CheckAttribute("append", "Attribute changed");
-                browser.First("customTagName[id=htmlControlNoAttr]").CheckAttribute("noAppend", "Attribute changed");
+                browser.First("customTagName[id=htmlControlNoAttr]").CheckAttribute("ignore", "Attribute ignored");
+                browser.First("customTagName[id=htmlControlNoAttr]").CheckAttribute("append", "Attribute appended");
+                browser.First("customTagName[id=htmlControlNoAttr]").CheckAttribute("overwrite", "Attribute changed");
+                browser.First("customTagName[id=htmlControlNoAttr]").CheckAttribute("class", "new-class");
             });
         }
 
@@ -51,8 +53,10 @@ namespace DotVVM.Samples.Tests.Feature
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles);
-                browser.First("customTagName[id=htmlControlWithAttr]").CheckAttribute("append", "Attribute changed");
-                browser.First("customTagName[id=htmlControlWithAttr]").CheckAttribute("noAppend", "Default attribute");
+                browser.First("customTagName[id=htmlControlWithAttr]").CheckAttribute("ignore", "Default attribute");
+                browser.First("customTagName[id=htmlControlWithAttr]").CheckAttribute("append", "Default attribute;Attribute appended");
+                browser.First("customTagName[id=htmlControlWithAttr]").CheckAttribute("overwrite", "Attribute changed");
+                browser.First("customTagName[id=htmlControlWithAttr]").CheckAttribute("class", "default-class new-class");
             });
         }
 
