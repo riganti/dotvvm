@@ -3,6 +3,7 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
 using System;
+using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Controls
 {
@@ -166,13 +167,20 @@ namespace DotVVM.Framework.Controls
 
         private void AddEnabledPropertyToRender(IHtmlWriter writer)
         {
-            writer.AddKnockoutDataBind("enable", this, EnabledProperty, () =>
+            switch(this.GetValueRaw(EnabledProperty))
             {
-                if (!Enabled)
-                {
-                    writer.AddAttribute("disabled", "disabled");
-                }
-            });
+                case bool value:
+                    if (!value)
+                        writer.AddAttribute("disabled", "disabled");
+                    break;
+                case IValueBinding binding:
+                    writer.AddKnockoutDataBind("enable", binding.GetKnockoutBindingExpression(this));
+                    break;
+                default:
+                    if (!Enabled)
+                        writer.AddAttribute("disabled", "disabled");
+                    break;
+            }
         }
 
         private void AddFormatBindingToRender(IHtmlWriter writer, IDotvvmRequestContext context)
@@ -231,22 +239,30 @@ namespace DotVVM.Framework.Controls
         private void AddSelectAllOnFocusPropertyToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             const string KoBindingName = "dotvvm-textbox-select-all-on-focus";
-            writer.AddKnockoutDataBind(KoBindingName, this, SelectAllOnFocusProperty, () =>
+            switch(this.GetValueRaw(SelectAllOnFocusProperty))
             {
-                writer.AddKnockoutDataBind(KoBindingName, this.GetKnockoutBindingExpression(SelectAllOnFocusProperty));
-            }, renderEvenInServerRenderingMode: true);
+                case bool value when !value:
+                    break;
+                case IValueBinding valueBinding:
+                    writer.AddKnockoutDataBind(KoBindingName, valueBinding.GetKnockoutBindingExpression(this));
+                    break;
+                default:
+                    writer.AddKnockoutDataBind(KoBindingName, JsonConvert.ToString(SelectAllOnFocus));
+                    break;
+            }
         }
 
         private void AddTypeAttributeToRender(IHtmlWriter writer)
         {
-            var isTagName = Type.TryGetTagName(out string tagName);
-            var isInputType = Type.TryGetInputType(out string inputType);
+            var type = this.Type;
+            var isTagName = type.TryGetTagName(out string tagName);
+            var isInputType = type.TryGetInputType(out string inputType);
 
             if (isTagName)
             {
                 TagName = tagName;
                 // do not overwrite type attribute
-                if (Type == TextBoxType.Normal && !Attributes.ContainsKey("type"))
+                if (type == TextBoxType.Normal && !Attributes.ContainsKey("type"))
                 {
                     writer.AddAttribute("type", "text");
                 }
@@ -260,7 +276,7 @@ namespace DotVVM.Framework.Controls
                 return;
             }
 
-            throw new NotSupportedException($"TextBox Type '{ Type }' not supported");
+            throw new NotSupportedException($"TextBox Type '{ type }' not supported");
         }
 
         private void AddValueBindingToRender(IHtmlWriter writer, IDotvvmRequestContext context)

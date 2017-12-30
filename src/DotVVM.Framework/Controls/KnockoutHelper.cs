@@ -255,7 +255,7 @@ namespace DotVVM.Framework.Controls
                 return null;
             }
 
-            return control.GetValueBinding(Validation.TargetProperty).GetKnockoutBindingExpression(control) ??
+            return control.GetValueBinding(Validation.TargetProperty)?.GetKnockoutBindingExpression(control) ??
                    RootValidationTargetExpression;
         }
 
