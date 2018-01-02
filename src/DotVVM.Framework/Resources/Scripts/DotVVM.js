@@ -1205,8 +1205,11 @@ var DotVVM = /** @class */ (function () {
     };
     DotVVM.prototype.postBack = function (viewModelName, sender, path, command, controlUniqueId, context, handlers, commandArgs) {
         var _this = this;
-        if (this.isPostBackProhibited(sender))
-            return new Promise(function (resolve, reject) { return reject("rejected"); });
+        if (this.isPostBackProhibited(sender)) {
+            var rejectedPromise = new Promise(function (resolve, reject) { return reject("rejected"); });
+            rejectedPromise.catch(function () { return console.log("Postback probihited"); });
+            return rejectedPromise;
+        }
         context = context || ko.contextFor(sender);
         var preparedHandlers = this.findPostbackHandlers(context, this.globalPostbackHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers));
         if (preparedHandlers.filter(function (h) { return h.name && h.name.indexOf("concurrency-") == 0; }).length == 0) {
