@@ -308,16 +308,9 @@ namespace DotVVM.Framework.Controls
         private static DotvvmControl GetClosestDotvvmControlAncestor(DotvvmControl control)
         {
             var currentParent = control.Parent;
-            while (!(currentParent is DotvvmControl))
+            while (currentParent != null && !(currentParent is DotvvmControl))
             {
-                if (currentParent.Parent != null)
-                {
-                    currentParent = currentParent.Parent;
-                }
-                else
-                {
-                    return null;
-                }
+                currentParent = currentParent.Parent;
             }
 
             return (DotvvmControl)currentParent;
