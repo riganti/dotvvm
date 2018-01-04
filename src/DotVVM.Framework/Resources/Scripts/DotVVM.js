@@ -166,10 +166,11 @@ var DotvvmSpaNavigatingEventArgs = /** @class */ (function () {
     return DotvvmSpaNavigatingEventArgs;
 }());
 var DotvvmSpaNavigatedEventArgs = /** @class */ (function () {
-    function DotvvmSpaNavigatedEventArgs(viewModel, viewModelName, serverResponseObject) {
+    function DotvvmSpaNavigatedEventArgs(viewModel, viewModelName, serverResponseObject, xhr) {
         this.viewModel = viewModel;
         this.viewModelName = viewModelName;
         this.serverResponseObject = serverResponseObject;
+        this.xhr = xhr;
         this.isHandled = false;
     }
     return DotvvmSpaNavigatedEventArgs;
@@ -1204,8 +1205,11 @@ var DotVVM = /** @class */ (function () {
     };
     DotVVM.prototype.postBack = function (viewModelName, sender, path, command, controlUniqueId, context, handlers, commandArgs) {
         var _this = this;
-        if (this.isPostBackProhibited(sender))
-            return new Promise(function (resolve, reject) { return reject("rejected"); });
+        if (this.isPostBackProhibited(sender)) {
+            var rejectedPromise = new Promise(function (resolve, reject) { return reject("rejected"); });
+            rejectedPromise.catch(function () { return console.log("Postback probihited"); });
+            return rejectedPromise;
+        }
         context = context || ko.contextFor(sender);
         var preparedHandlers = this.findPostbackHandlers(context, this.globalPostbackHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers));
         if (preparedHandlers.filter(function (h) { return h.name && h.name.indexOf("concurrency-") == 0; }).length == 0) {
@@ -1367,7 +1371,7 @@ var DotVVM = /** @class */ (function () {
                     return;
                 }
                 // trigger spaNavigated event
-                var spaNavigatedArgs = new DotvvmSpaNavigatedEventArgs(viewModel, viewModelName, resultObject);
+                var spaNavigatedArgs = new DotvvmSpaNavigatedEventArgs(viewModel, viewModelName, resultObject, result);
                 _this.events.spaNavigated.trigger(spaNavigatedArgs);
                 if (!isSuccess && !spaNavigatedArgs.isHandled) {
                     throw "Invalid response from server!";
@@ -1595,11 +1599,13 @@ var DotVVM = /** @class */ (function () {
         return ko.unwrap(ko.unwrap(array));
     };
     DotVVM.prototype.buildRouteUrl = function (routePath, params) {
-        var url = routePath.replace(/\{([^\}]+?)\??(:(.+?))?\}/g, function (s, paramName, hsjdhsj, type) {
+        // prepend url with backslash to correctly handle optional parameters at start
+        routePath = '/' + routePath;
+        var url = routePath.replace(/(\/[^\/]*?)\{([^\}]+?)\??(:(.+?))?\}/g, function (s, prefix, paramName, _, type) {
             if (!paramName)
                 return "";
             var x = ko.unwrap(params[paramName.toLowerCase()]);
-            return x == null ? "" : x;
+            return x == null ? "" : prefix + x;
         });
         if (url.indexOf('/') === 0) {
             return url.substring(1);
@@ -1762,10 +1768,6 @@ var DotVVM = /** @class */ (function () {
                         }, delay);
                     }
                 };
-                var interrupt = function () {
-                    clearTimeout(timeout);
-                    element.style.display = "none";
-                };
                 var hide = function () {
                     running = false;
                     clearTimeout(timeout);
@@ -1773,10 +1775,9 @@ var DotVVM = /** @class */ (function () {
                 };
                 dotvvm.isPostbackRunning.subscribe(function (e) {
                     if (e) {
-                        if (running) {
-                            interrupt();
+                        if (!running) {
+                            show();
                         }
-                        show();
                     }
                     else {
                         hide();
@@ -2182,6 +2183,9 @@ var DotvvmValidation = /** @class */ (function () {
                 }
             }
             _this.events.validationErrorsChanged.trigger(args);
+        });
+        dotvvm.events.spaNavigating.subscribe(function (args) {
+            _this.clearValidationErrors(dotvvm.viewModelObservables[args.viewModelName]);
         });
         // add knockout binding handler
         ko.bindingHandlers["dotvvmValidation"] = {

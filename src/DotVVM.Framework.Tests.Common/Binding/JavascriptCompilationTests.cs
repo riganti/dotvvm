@@ -263,6 +263,23 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual("dotvvm.globalize.bindingNumberToString(LongProperty,\"0000\")", FormatKnockoutScript(result.KnockoutExpression));
             Assert.AreEqual("dotvvm.globalize.bindingNumberToString(LongProperty,\"0000\")", FormatKnockoutScript(result.WrappedKnockoutExpression));
         }
+
+
+        [TestMethod]
+        public void JsTranslator_SimpleCSharpExpression()
+        {
+            Expression<Func<string, string>> expr = abc => abc + "def";
+            var tree = configuration.ServiceProvider.GetRequiredService<JavascriptTranslator>().CompileToJavascript(expr, DataContextStack.Create(typeof(object)));
+            Assert.AreEqual("function(abc){return abc+\"def\";}", tree.ToString());
+        }
+
+        [TestMethod]
+        public void JsTranslator_StaticFieldInCSharpExpression()
+        {
+            Expression<Func<string, string>> expr = _ => string.Empty;
+            var tree = configuration.ServiceProvider.GetRequiredService<JavascriptTranslator>().CompileToJavascript(expr, DataContextStack.Create(typeof(object)));
+            Assert.AreEqual("function(_){return \"\";}", tree.ToString());
+        }
     }
 
 

@@ -14,7 +14,6 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime.Filters;
 using DotVVM.Framework.Utils;
-using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.Binding;
 using System.Collections;
 using System.Reflection;
@@ -170,7 +169,7 @@ namespace DotVVM.Framework.Compilation.Binding
             ParsedExpressionBindingProperty expression = null,
             DataContextStack dataContext = null,
             ResolvedBinding resolvedBinding = null,
-            AssignedPropertyBindingProperty assignedProperty = null)
+            LocationInfoBindingProperty locationInfo = null)
         {
             var sb = new StringBuilder();
 
@@ -211,7 +210,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 dataContext = dataContext.Parent;
             }
             sb.Append(" || ");
-            sb.Append(assignedProperty?.DotvvmProperty?.FullName);
+            sb.Append(locationInfo?.RelatedProperty?.FullName);
 
             using (var sha = System.Security.Cryptography.SHA256.Create())
             {
@@ -301,13 +300,15 @@ namespace DotVVM.Framework.Compilation.Binding
         public StaticCommandJavascriptProperty FormatStaticCommand(StaticCommandJsAstProperty code) =>
             new StaticCommandJavascriptProperty(FormatJavascript(code.Expression, niceMode: configuration.Debug));
 
-        public LocationInfoBindingProperty GetLocationInfo(ResolvedBinding resolvedBinding)
+        public LocationInfoBindingProperty GetLocationInfo(ResolvedBinding resolvedBinding, AssignedPropertyBindingProperty assignedProperty = null)
         {
             return new LocationInfoBindingProperty(
                 resolvedBinding.TreeRoot?.FileName,
                 resolvedBinding.DothtmlNode?.Tokens?.Select(t => (t.StartPosition, t.EndPosition)).ToArray(),
                 resolvedBinding.DothtmlNode?.Tokens?.FirstOrDefault()?.LineNumber ?? -1,
-                resolvedBinding.GetAncestors().OfType<ResolvedControl>().FirstOrDefault()?.Metadata?.Type);
+                resolvedBinding.GetAncestors().OfType<ResolvedControl>().FirstOrDefault()?.Metadata?.Type,
+                assignedProperty?.DotvvmProperty
+            );
         }
 
         public SelectorItemBindingProperty GetItemLambda(ParsedExpressionBindingProperty expression, DataContextStack dataContext, IValueBinding binding)

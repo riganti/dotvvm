@@ -15,6 +15,7 @@
     <None Include="**\*.dotmaster" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="tsconfig.json" />
     <None Remove="Views\ComplexSamples\CascadeSelectors\TripleComboBoxes.dothtml" />
     <None Remove="Views\ControlSamples\Button\ButtonOnclick.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\ComboBoxDelaySync.dothtml" />
@@ -29,6 +30,8 @@
     <None Remove="Views\FeatureSamples\ActionFilterErrorHandling\ActionFilterRedirect.dothtml" />
     <None Remove="Views\FeatureSamples\Api\GetCollection.dothtml" />
     <None Remove="Views\FeatureSamples\Api\GithubRepoApi.dothtml" />
+    <None Remove="Views\FeatureSamples\Api\GridViewDataSetAspNetCore.dothtml" />
+    <None Remove="Views\FeatureSamples\Api\GridViewDataSetOwin.dothtml" />
     <None Remove="Views\FeatureSamples\BindingContexts\CollectionContext.dothtml" />
     <None Remove="Views\FeatureSamples\CommandArguments\CommandArguments.dothtml" />
     <None Remove="Views\FeatureSamples\MarkupControl\CommandBindingInDataContextWithControlProperty.dothtml" />
@@ -38,6 +41,7 @@
     <None Remove="Views\FeatureSamples\MarkupControl\HierarchyControl.dotcontrol" />
     <None Remove="Views\FeatureSamples\MarkupControl\HierarchyControlPage.dothtml" />
     <None Remove="Views\FeatureSamples\MarkupControl\MultiControlHierarchy.dothtml" />
+    <None Remove="Views\FeatureSamples\ParameterBinding\OptionalParameterBinding.dothtml" />
     <None Remove="Views\FeatureSamples\ParameterBinding\ParameterBinding.dothtml" />
     <None Remove="Views\FeatureSamples\ServerSideStyles\DirectoryStyle\ServerSideStyles.dothtml" />
     <None Remove="Views\FeatureSamples\ServerSideStyles\NoDirectoryStyle\ServerSideStyles.dothtml" />
@@ -46,6 +50,8 @@
     <None Remove="Views\FeatureSamples\ServerSideStyles\ServerSideStyles_MatchingViewModel.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_ComboBoxSelectionChanged.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_ComboBoxSelectionChanged_Objects.dothtml" />
+    <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_ValueAssignmentControl.dotcontrol" />
+    <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_ValueAssignmentInControl.dothtml" />
     <None Remove="Views\FeatureSamples\Validation\Localization.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_NullBinding.dothtml" />
     <None Remove="Views\FeatureSamples\ViewModelProtection\ComplexViewModelProtection.dothtml" />
@@ -55,6 +61,7 @@
     <Content Include="Scripts\ClientExtenders.js" />
     <Content Include="Scripts\testResource.js" />
     <Content Include="Scripts\testResource2.js" />
+    <Content Include="tsconfig.json" />
     <Content Include="Views\ComplexSamples\CascadeSelectors\TripleComboBoxes.dothtml" />
     <Content Include="Views\ControlSamples\ValidationSummary\master.dotmaster" />
     <Content Include="Views\ControlSamples\ValidationSummary\IncludeErrorsFromTarget_PropertyPathNull.dothtml" />
@@ -71,6 +78,8 @@
     <Content Include="Views\FeatureSamples\ActionFilterErrorHandling\ActionFilterRedirect.dothtml" />
     <Content Include="Views\FeatureSamples\Api\GetCollection.dothtml" />
     <Content Include="Views\FeatureSamples\Api\GithubRepoApi.dothtml" />
+    <Content Include="Views\FeatureSamples\Api\GridViewDataSetAspNetCore.dothtml" />
+    <Content Include="Views\FeatureSamples\Api\GridViewDataSetOwin.dothtml" />
     <Content Include="Views\FeatureSamples\BindingContexts\CollectionContext.dothtml" />
     <Content Include="Views\FeatureSamples\CommandArguments\CommandArguments.dothtml" />
     <Content Include="Views\FeatureSamples\DependencyInjection\ViewModelScopedService.dothtml" />
@@ -82,12 +91,15 @@
     <Content Include="Views\FeatureSamples\MarkupControl\HierarchyControl.dotcontrol" />
     <Content Include="Views\FeatureSamples\MarkupControl\HierarchyControlPage.dothtml" />
     <Content Include="Views\FeatureSamples\MarkupControl\MultiControlHierarchy.dothtml" />
+    <Content Include="Views\FeatureSamples\ParameterBinding\OptionalParameterBinding.dothtml" />
     <Content Include="Views\FeatureSamples\ParameterBinding\ParameterBinding.dothtml" />
     <Content Include="Views\FeatureSamples\ServerSideStyles\DirectoryStyle\ServerSideStyles.dothtml" />
     <Content Include="Views\FeatureSamples\ServerSideStyles\NoDirectoryStyle\ServerSideStyles.dothtml" />
     <Content Include="Views\FeatureSamples\ServerSideStyles\ServerSideStyles_MatchingViewModel.dothtml" />
     <Content Include="Views\FeatureSamples\ServerSideStyles\ServerSideStyles.dothtml" />
     <Content Include="Views\FeatureSamples\ServerSideStyles\ServerSideStyles_DotvvmProperties.dothtml" />
+    <Content Include="Views\FeatureSamples\StaticCommand\StaticCommand_ValueAssignmentControl.dotcontrol" />
+    <Content Include="Views\FeatureSamples\StaticCommand\StaticCommand_ValueAssignmentInControl.dothtml" />
     <Content Include="Views\FeatureSamples\StaticCommand\StaticCommand_ComboBoxSelectionChanged.dothtml" />
     <Content Include="Views\FeatureSamples\StaticCommand\StaticCommand_ComboBoxSelectionChanged_Objects.dothtml" />
     <Content Include="Views\FeatureSamples\Validation\Localization.dothtml" />

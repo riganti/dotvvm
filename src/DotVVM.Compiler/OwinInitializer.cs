@@ -7,12 +7,15 @@ using DotVVM.Framework.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Owin.Hosting;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Compiler.Fakes;
+using DotVVM.Framework.Security;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+using Owin;
 
 namespace DotVVM.Compiler
 {
@@ -28,29 +31,53 @@ namespace DotVVM.Compiler
             var configureServices =
                 webSiteAssembly.GetLoadableTypes()
                 .Where(t => t.Name == "Startup")
+
                 .Select(t => t.GetMethod("ConfigureDotvvmServices", new[] { typeof(IServiceCollection) }) ?? t.GetMethod("ConfigureServices", new[] { typeof(IServiceCollection) }))
                 .Where(m => m != null)
                 .Where(m => m.IsStatic || m.DeclaringType.GetConstructor(Type.EmptyTypes) != null)
                 .ToArray();
 
+            // TODO: run startup class to get configuration from dotvvm middleware
+
+            var startupClass = webSiteAssembly.CustomAttributes?.Where(s => s.AttributeType == typeof(Microsoft.Owin.OwinStartupAttribute)).FirstOrDefault()?.ConstructorArguments[0].Value as Type;
+            //if (startupClass != null)
+            //{
+                
+            //    var configureMethod = startupClass.GetRuntimeMethods().FirstOrDefault(s =>
+            //        s.Name == "Configuration" && s.GetParameters().Length == 1 &&
+            //        s.GetParameters()[0].ParameterType == typeof(IAppBuilder));
+            //    var app = new CompilerAppBuilder();
+
+            //    var startupClassInstance = Activator.CreateInstance(startupClass);
+
+            //    var debug = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes())
+            //        .Where(s => s.Name == "AppBuilderExtension").ToList();
+
+            //    configureMethod.Invoke(startupClassInstance, new object[] { app });
+
+            //    var config2 = (DotvvmConfiguration)app.args[0];
+            //}
+
+
+
             if (startup == null && configureServices.Length == 0) throw new Exception($"Could not find ConfigureServices method, nor a IDotvvmStartup implementation.");
 
             var config = DotvvmConfiguration.CreateDefault(
-                services =>
-                {
+                services => {
                     if (viewStaticCompilerCompiler != null)
                     {
                         services.AddSingleton<ViewStaticCompilerCompiler>(viewStaticCompilerCompiler);
                         services.AddSingleton<IControlResolver, OfflineCompilationControlResolver>();
+                        services.TryAddSingleton<IViewModelProtector, FakeViewModelProtector>();
                     }
                     registerServices?.Invoke(services);
-                    foreach(var cs in configureServices)
+                    foreach (var cs in configureServices)
                         cs.Invoke(cs.IsStatic ? null : Activator.CreateInstance(cs.DeclaringType), new object[] { services });
                 });
             config.ApplicationPhysicalPath = webSitePath;
             startup?.Configure(config, webSitePath);
             config.CompiledViewsAssemblies = null;
-            
+
             var configurers = config.ServiceProvider.GetServices<IConfigureOptions<DotvvmConfiguration>>().ToArray();
             if (startup == null && configurers.Length == 0) throw new Exception($"Could not find any IConfigureOptions<DotvvmConfiguration> nor a IDotvvmStartup implementation.");
             foreach (var configurer in configurers)
@@ -60,5 +87,7 @@ namespace DotVVM.Compiler
 
             return config;
         }
+
+       
     }
 }

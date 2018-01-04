@@ -14,7 +14,7 @@ namespace DotVVM.CommandLine.Commands.Implementation
 
         public override string Usage => "dotvvm api create <http://path/to/swagger.json> <Namespace> <../ApiProject/CSharpClient.cs> <Scripts/TypescriptClient.cs>";
 
-        public override bool CanHandle(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
+        public override bool TryConsumeArgs(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
         {
             if (string.Equals(args[0], "api", StringComparison.CurrentCultureIgnoreCase)
                 && string.Equals(args[1], "create", StringComparison.CurrentCultureIgnoreCase))
