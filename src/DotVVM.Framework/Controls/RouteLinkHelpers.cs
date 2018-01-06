@@ -36,7 +36,7 @@ namespace DotVVM.Framework.Controls
 
             if ((bool)control.GetValue(Internal.IsSpaPageProperty))
             {
-                return "#!/" + coreUrl;
+                return "#!/" + (coreUrl.StartsWith("~/") ? coreUrl.Substring(2) : coreUrl);
             }
             else
             {
