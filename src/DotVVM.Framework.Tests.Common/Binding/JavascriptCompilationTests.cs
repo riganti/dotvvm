@@ -120,7 +120,7 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        public void JavascriptCompilation_UnwrapedObservables()
+        public void JavascriptCompilation_UnwrappedObservables()
         {
             var js = CompileBinding("TestViewModel2.Collection[0].StringValue.Length + TestViewModel2.Collection[8].StringValue", new[] { typeof(TestViewModel) });
             Assert.AreEqual("TestViewModel2().Collection()[0]().StringValue().length+TestViewModel2().Collection()[8]().StringValue()", js);
@@ -232,7 +232,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_WrappedIdentifierExpression()
         {
             var result = CompileValueBinding("_this", new [] {typeof(TestViewModel) }, typeof(object));
-            Assert.AreEqual("$data", FormatKnockoutScript(result.UnwrapedKnockoutExpression));
+            Assert.AreEqual("$data", FormatKnockoutScript(result.UnwrappedKnockoutExpression));
             Assert.AreEqual("$rawData", FormatKnockoutScript(result.KnockoutExpression));
             Assert.AreEqual("$rawData", FormatKnockoutScript(result.WrappedKnockoutExpression));
         }
@@ -241,7 +241,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_WrappedPropertyAccessExpression()
         {
             var result = CompileValueBinding("StringProp", new [] {typeof(TestViewModel) }, typeof(object));
-            Assert.AreEqual("StringProp()", FormatKnockoutScript(result.UnwrapedKnockoutExpression));
+            Assert.AreEqual("StringProp()", FormatKnockoutScript(result.UnwrappedKnockoutExpression));
             Assert.AreEqual("StringProp", FormatKnockoutScript(result.KnockoutExpression));
             Assert.AreEqual("StringProp", FormatKnockoutScript(result.WrappedKnockoutExpression));
         }
@@ -250,7 +250,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_WrappedExpression()
         {
             var result = CompileValueBinding("StringProp.Length + 43", new [] {typeof(TestViewModel) }, typeof(object));
-            Assert.AreEqual("(StringProp()==null?null:StringProp().length)+43", FormatKnockoutScript(result.UnwrapedKnockoutExpression));
+            Assert.AreEqual("(StringProp()==null?null:StringProp().length)+43", FormatKnockoutScript(result.UnwrappedKnockoutExpression));
             Assert.AreEqual("(StringProp()==null?null:StringProp().length)+43", FormatKnockoutScript(result.KnockoutExpression));
             Assert.AreEqual("dotvvm.evaluator.wrapKnockoutExpression(function(){return (StringProp()==null?null:StringProp().length)+43;})", FormatKnockoutScript(result.WrappedKnockoutExpression));
         }
@@ -259,7 +259,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_FormatStringExpression()
         {
             var result = CompileValueBinding("LongProperty.ToString('0000')", new [] {typeof(TestViewModel) }, typeof(object));
-            Assert.AreEqual("dotvvm.globalize.bindingNumberToString(LongProperty,\"0000\")()", FormatKnockoutScript(result.UnwrapedKnockoutExpression));
+            Assert.AreEqual("dotvvm.globalize.bindingNumberToString(LongProperty,\"0000\")()", FormatKnockoutScript(result.UnwrappedKnockoutExpression));
             Assert.AreEqual("dotvvm.globalize.bindingNumberToString(LongProperty,\"0000\")", FormatKnockoutScript(result.KnockoutExpression));
             Assert.AreEqual("dotvvm.globalize.bindingNumberToString(LongProperty,\"0000\")", FormatKnockoutScript(result.WrappedKnockoutExpression));
         }
