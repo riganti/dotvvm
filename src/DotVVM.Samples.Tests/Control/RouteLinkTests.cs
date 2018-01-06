@@ -66,7 +66,8 @@ namespace DotVVM.Samples.Tests.Control
             checkNavigatedUrl("a[data-ui='optional-parameter-client']", "/ControlSamples/Repeater/RouteLink");
             checkNavigatedUrl("a[data-ui='optional-parameter-server']", "/ControlSamples/Repeater/RouteLink");
 
-            checkNavigatedUrl("a[data-ui='0-parameters']", "/");
+            checkNavigatedUrl("a[data-ui='0-parameters-client']", "/");
+            checkNavigatedUrl("a[data-ui='0-parameters-server']", "/");
 
             checkNavigatedUrl("a[data-ui='optional-parameter-prefixed-client']", "/ControlSamples/Repeater/RouteLink");
             checkNavigatedUrl("a[data-ui='optional-parameter-prefixed-server']", "/ControlSamples/Repeater/RouteLink");

@@ -23,7 +23,10 @@
                            Text="Server rendered: Optional parameter" data-ui="optional-parameter-server" />
         </p>
         <p>
-            <dot:RouteLink RouteName="Default" Text="0 parameters" data-ui="0-parameters" />
+            <dot:RouteLink RouteName="Default" Text="Client rendered: 0 parameters" data-ui="0-parameters-client" />
+        </p>
+        <p>
+            <dot:RouteLink RouteName="Default" Text="Server rendered: 0 parameters" data-ui="0-parameters-server" RenderSettings.Mode="Server" />
         </p>
         <p>
             <dot:RouteLink RenderSettings.Mode="Client" RouteName="RepeaterRouteLink-PageDetail_IdOptionalPrefixed"
