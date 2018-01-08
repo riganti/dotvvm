@@ -161,6 +161,8 @@ namespace DotVVM.Testing.Abstractions {
 
             public static string ControlSamples_RouteLink_RouteLinkUrlGen => "ControlSamples/RouteLink/RouteLinkUrlGen";
 
+            public static string ControlSamples_RouteLink_RouteLinkSpaUrlGen => "ControlSamples/RouteLink/RouteLinkSpaUrlGen";
+
             public static string ControlSamples_RouteLink_TestRoute => "ControlSamples/RouteLink/TestRoute";
 
             public static string ControlSamples_SpaContentPlaceHolder_Default => "ControlSamples/SpaContentPlaceHolder/Default";

@@ -127,7 +127,7 @@ namespace DotVVM.Framework.Hosting
         /// <returns></returns>
         public static string GetCleanRequestUrl(IHttpContext context)
         {
-            return context.Request.Url.AbsolutePath.TrimStart('/').TrimEnd('/');
+            return context.Request.Path.Value.TrimStart('/').TrimEnd('/');
         }
     }
 }

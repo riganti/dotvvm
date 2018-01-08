@@ -11,7 +11,6 @@ namespace DotVVM.Framework.Hosting
         string Scheme { get; }
         string ContentType { get; }
         bool IsHttps { get; }
-        [Obsolete("Use the Url property instead")]
         IPathString Path { get; }
         IPathString PathBase { get; }
         Stream Body { get; }

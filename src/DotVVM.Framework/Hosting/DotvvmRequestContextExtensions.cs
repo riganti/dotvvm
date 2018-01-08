@@ -118,7 +118,7 @@ public static class DotvvmRequestContextExtensions
 
     /// <summary>
     /// Ends the request execution when the <see cref="ModelState"/> is not valid and displays the validation errors in <see cref="ValidationSummary"/> control.
-    /// If it is, it does nothing.
+    /// If it is valid, it does nothing.
     /// </summary>
     public static void FailOnInvalidModelState(this IDotvvmRequestContext context)
     {
