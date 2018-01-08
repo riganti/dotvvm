@@ -300,6 +300,7 @@ declare class DotVVM {
     private concatUrl(url1, url2);
     patch(source: any, patch: any): any;
     private updateDynamicPathFragments(context, path);
+    private getParentIndexPath(context);
     private postJSON(url, method, postData, success, error, preprocessRequest?);
     private getJSON(url, method, spaPlaceHolderUniqueId, success, error);
     getXHR(): XMLHttpRequest;
