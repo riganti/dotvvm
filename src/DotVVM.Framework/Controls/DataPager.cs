@@ -382,7 +382,7 @@ namespace DotVVM.Framework.Controls
             AddItemCssClass(writer, context);
             AddKnockoutActiveCssDataBind(writer, context, "$data == $parent.PagingOptions().PageIndex()");
             li = new HtmlGenericControl("li");
-            li.SetValue(Internal.PathFragmentProperty, "PagingOptions.nearPageIndexes[$index]");
+            li.SetValue(Internal.PathFragmentProperty, "PagingOptions.NearPageIndexes[$index]");
             var link = new LinkButton();
             li.Children.Add(link);
             link.SetDataContextType(currentPageTextContext);
