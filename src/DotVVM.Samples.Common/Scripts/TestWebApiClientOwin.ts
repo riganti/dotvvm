@@ -483,9 +483,9 @@ namespace DotVVM.Samples.Common.Api.Owin {
     }
     
     export class Company implements ICompany {
-        id?: number;
-        name?: string;
-        owner?: string;
+        Id?: number;
+        Name?: string;
+        Owner?: string;
     
         constructor(data?: ICompany) {
             if (data) {
@@ -498,9 +498,9 @@ namespace DotVVM.Samples.Common.Api.Owin {
     
         init(data?: any) {
             if (data) {
-                this.id = data["Id"] !== undefined ? data["Id"] : <any>null;
-                this.name = data["Name"] !== undefined ? data["Name"] : <any>null;
-                this.owner = data["Owner"] !== undefined ? data["Owner"] : <any>null;
+                this.Id = data["Id"] !== undefined ? data["Id"] : <any>null;
+                this.Name = data["Name"] !== undefined ? data["Name"] : <any>null;
+                this.Owner = data["Owner"] !== undefined ? data["Owner"] : <any>null;
             }
         }
     
@@ -512,22 +512,22 @@ namespace DotVVM.Samples.Common.Api.Owin {
     
         toJSON(data?: any) {
             data = typeof data === 'object' ? data : {};
-            data["Id"] = this.id !== undefined ? this.id : <any>null;
-            data["Name"] = this.name !== undefined ? this.name : <any>null;
-            data["Owner"] = this.owner !== undefined ? this.owner : <any>null;
+            data["Id"] = this.Id !== undefined ? this.Id : <any>null;
+            data["Name"] = this.Name !== undefined ? this.Name : <any>null;
+            data["Owner"] = this.Owner !== undefined ? this.Owner : <any>null;
             return data; 
         }
     }
     
     export interface ICompany {
-        id?: number;
-        name?: string;
-        owner?: string;
+        Id?: number;
+        Name?: string;
+        Owner?: string;
     }
     
     export class SortingOptions implements ISortingOptions {
-        sortDescending?: boolean;
-        sortExpression?: string;
+        SortDescending?: boolean;
+        SortExpression?: string;
     
         constructor(data?: ISortingOptions) {
             if (data) {
@@ -540,8 +540,8 @@ namespace DotVVM.Samples.Common.Api.Owin {
     
         init(data?: any) {
             if (data) {
-                this.sortDescending = data["SortDescending"] !== undefined ? data["SortDescending"] : <any>null;
-                this.sortExpression = data["SortExpression"] !== undefined ? data["SortExpression"] : <any>null;
+                this.SortDescending = data["SortDescending"] !== undefined ? data["SortDescending"] : <any>null;
+                this.SortExpression = data["SortExpression"] !== undefined ? data["SortExpression"] : <any>null;
             }
         }
     
@@ -553,23 +553,23 @@ namespace DotVVM.Samples.Common.Api.Owin {
     
         toJSON(data?: any) {
             data = typeof data === 'object' ? data : {};
-            data["SortDescending"] = this.sortDescending !== undefined ? this.sortDescending : <any>null;
-            data["SortExpression"] = this.sortExpression !== undefined ? this.sortExpression : <any>null;
+            data["SortDescending"] = this.SortDescending !== undefined ? this.SortDescending : <any>null;
+            data["SortExpression"] = this.SortExpression !== undefined ? this.SortExpression : <any>null;
             return data; 
         }
     }
     
     export interface ISortingOptions {
-        sortDescending?: boolean;
-        sortExpression?: string;
+        SortDescending?: boolean;
+        SortExpression?: string;
     }
     
     export class GridViewDataSetOfCompany implements IGridViewDataSetOfCompany {
-        isRefreshRequired?: boolean;
-        items?: Company[];
-        pagingOptions?: IPagingOptions;
-        rowEditOptions?: IRowEditOptions;
-        sortingOptions?: ISortingOptions;
+        IsRefreshRequired?: boolean;
+        Items?: Company[];
+        PagingOptions?: IPagingOptions;
+        RowEditOptions?: IRowEditOptions;
+        SortingOptions?: ISortingOptions;
     
         constructor(data?: IGridViewDataSetOfCompany) {
             if (data) {
@@ -582,15 +582,15 @@ namespace DotVVM.Samples.Common.Api.Owin {
     
         init(data?: any) {
             if (data) {
-                this.isRefreshRequired = data["IsRefreshRequired"] !== undefined ? data["IsRefreshRequired"] : <any>null;
+                this.IsRefreshRequired = data["IsRefreshRequired"] !== undefined ? data["IsRefreshRequired"] : <any>null;
                 if (data["Items"] && data["Items"].constructor === Array) {
-                    this.items = [];
+                    this.Items = [];
                     for (let item of data["Items"])
-                        this.items.push(Company.fromJS(item));
+                        this.Items.push(Company.fromJS(item));
                 }
-                this.pagingOptions = data["PagingOptions"] ? IPagingOptions.fromJS(data["PagingOptions"]) : <any>null;
-                this.rowEditOptions = data["RowEditOptions"] ? IRowEditOptions.fromJS(data["RowEditOptions"]) : <any>null;
-                this.sortingOptions = data["SortingOptions"] ? ISortingOptions.fromJS(data["SortingOptions"]) : <any>null;
+                this.PagingOptions = data["PagingOptions"] ? IPagingOptions.fromJS(data["PagingOptions"]) : <any>null;
+                this.RowEditOptions = data["RowEditOptions"] ? IRowEditOptions.fromJS(data["RowEditOptions"]) : <any>null;
+                this.SortingOptions = data["SortingOptions"] ? ISortingOptions.fromJS(data["SortingOptions"]) : <any>null;
             }
         }
     
@@ -602,35 +602,35 @@ namespace DotVVM.Samples.Common.Api.Owin {
     
         toJSON(data?: any) {
             data = typeof data === 'object' ? data : {};
-            data["IsRefreshRequired"] = this.isRefreshRequired !== undefined ? this.isRefreshRequired : <any>null;
-            if (this.items && this.items.constructor === Array) {
+            data["IsRefreshRequired"] = this.IsRefreshRequired !== undefined ? this.IsRefreshRequired : <any>null;
+            if (this.Items && this.Items.constructor === Array) {
                 data["Items"] = [];
-                for (let item of this.items)
+                for (let item of this.Items)
                     data["Items"].push(item.toJSON());
             }
-            data["PagingOptions"] = this.pagingOptions ? this.pagingOptions.toJSON() : <any>null;
-            data["RowEditOptions"] = this.rowEditOptions ? this.rowEditOptions.toJSON() : <any>null;
-            data["SortingOptions"] = this.sortingOptions ? this.sortingOptions.toJSON() : <any>null;
+            data["PagingOptions"] = this.PagingOptions ? this.PagingOptions.toJSON() : <any>null;
+            data["RowEditOptions"] = this.RowEditOptions ? this.RowEditOptions.toJSON() : <any>null;
+            data["SortingOptions"] = this.SortingOptions ? this.SortingOptions.toJSON() : <any>null;
             return data; 
         }
     }
     
     export interface IGridViewDataSetOfCompany {
-        isRefreshRequired?: boolean;
-        items?: Company[];
-        pagingOptions?: IPagingOptions;
-        rowEditOptions?: IRowEditOptions;
-        sortingOptions?: ISortingOptions;
+        IsRefreshRequired?: boolean;
+        Items?: Company[];
+        PagingOptions?: IPagingOptions;
+        RowEditOptions?: IRowEditOptions;
+        SortingOptions?: ISortingOptions;
     }
     
     export class IPagingOptions implements IIPagingOptions {
-        pageIndex?: number;
-        pageSize?: number;
-        totalItemsCount?: number;
-        isFirstPage?: boolean;
-        isLastPage?: boolean;
-        pagesCount?: number;
-        nearPageIndexes?: number[];
+        PageIndex?: number;
+        PageSize?: number;
+        TotalItemsCount?: number;
+        IsFirstPage?: boolean;
+        IsLastPage?: boolean;
+        PagesCount?: number;
+        NearPageIndexes?: number[];
     
         constructor(data?: IIPagingOptions) {
             if (data) {
@@ -643,16 +643,16 @@ namespace DotVVM.Samples.Common.Api.Owin {
     
         init(data?: any) {
             if (data) {
-                this.pageIndex = data["PageIndex"] !== undefined ? data["PageIndex"] : <any>null;
-                this.pageSize = data["PageSize"] !== undefined ? data["PageSize"] : <any>null;
-                this.totalItemsCount = data["TotalItemsCount"] !== undefined ? data["TotalItemsCount"] : <any>null;
-                this.isFirstPage = data["IsFirstPage"] !== undefined ? data["IsFirstPage"] : <any>null;
-                this.isLastPage = data["IsLastPage"] !== undefined ? data["IsLastPage"] : <any>null;
-                this.pagesCount = data["PagesCount"] !== undefined ? data["PagesCount"] : <any>null;
+                this.PageIndex = data["PageIndex"] !== undefined ? data["PageIndex"] : <any>null;
+                this.PageSize = data["PageSize"] !== undefined ? data["PageSize"] : <any>null;
+                this.TotalItemsCount = data["TotalItemsCount"] !== undefined ? data["TotalItemsCount"] : <any>null;
+                this.IsFirstPage = data["IsFirstPage"] !== undefined ? data["IsFirstPage"] : <any>null;
+                this.IsLastPage = data["IsLastPage"] !== undefined ? data["IsLastPage"] : <any>null;
+                this.PagesCount = data["PagesCount"] !== undefined ? data["PagesCount"] : <any>null;
                 if (data["NearPageIndexes"] && data["NearPageIndexes"].constructor === Array) {
-                    this.nearPageIndexes = [];
+                    this.NearPageIndexes = [];
                     for (let item of data["NearPageIndexes"])
-                        this.nearPageIndexes.push(item);
+                        this.NearPageIndexes.push(item);
                 }
             }
         }
@@ -665,15 +665,15 @@ namespace DotVVM.Samples.Common.Api.Owin {
     
         toJSON(data?: any) {
             data = typeof data === 'object' ? data : {};
-            data["PageIndex"] = this.pageIndex !== undefined ? this.pageIndex : <any>null;
-            data["PageSize"] = this.pageSize !== undefined ? this.pageSize : <any>null;
-            data["TotalItemsCount"] = this.totalItemsCount !== undefined ? this.totalItemsCount : <any>null;
-            data["IsFirstPage"] = this.isFirstPage !== undefined ? this.isFirstPage : <any>null;
-            data["IsLastPage"] = this.isLastPage !== undefined ? this.isLastPage : <any>null;
-            data["PagesCount"] = this.pagesCount !== undefined ? this.pagesCount : <any>null;
-            if (this.nearPageIndexes && this.nearPageIndexes.constructor === Array) {
+            data["PageIndex"] = this.PageIndex !== undefined ? this.PageIndex : <any>null;
+            data["PageSize"] = this.PageSize !== undefined ? this.PageSize : <any>null;
+            data["TotalItemsCount"] = this.TotalItemsCount !== undefined ? this.TotalItemsCount : <any>null;
+            data["IsFirstPage"] = this.IsFirstPage !== undefined ? this.IsFirstPage : <any>null;
+            data["IsLastPage"] = this.IsLastPage !== undefined ? this.IsLastPage : <any>null;
+            data["PagesCount"] = this.PagesCount !== undefined ? this.PagesCount : <any>null;
+            if (this.NearPageIndexes && this.NearPageIndexes.constructor === Array) {
                 data["NearPageIndexes"] = [];
-                for (let item of this.nearPageIndexes)
+                for (let item of this.NearPageIndexes)
                     data["NearPageIndexes"].push(item);
             }
             return data; 
@@ -681,18 +681,18 @@ namespace DotVVM.Samples.Common.Api.Owin {
     }
     
     export interface IIPagingOptions {
-        pageIndex?: number;
-        pageSize?: number;
-        totalItemsCount?: number;
-        isFirstPage?: boolean;
-        isLastPage?: boolean;
-        pagesCount?: number;
-        nearPageIndexes?: number[];
+        PageIndex?: number;
+        PageSize?: number;
+        TotalItemsCount?: number;
+        IsFirstPage?: boolean;
+        IsLastPage?: boolean;
+        PagesCount?: number;
+        NearPageIndexes?: number[];
     }
     
     export class IRowEditOptions implements IIRowEditOptions {
-        primaryKeyPropertyName?: string;
-        editRowId?: any;
+        PrimaryKeyPropertyName?: string;
+        EditRowId?: any;
     
         constructor(data?: IIRowEditOptions) {
             if (data) {
@@ -705,12 +705,12 @@ namespace DotVVM.Samples.Common.Api.Owin {
     
         init(data?: any) {
             if (data) {
-                this.primaryKeyPropertyName = data["PrimaryKeyPropertyName"] !== undefined ? data["PrimaryKeyPropertyName"] : <any>null;
+                this.PrimaryKeyPropertyName = data["PrimaryKeyPropertyName"] !== undefined ? data["PrimaryKeyPropertyName"] : <any>null;
                 if (data["EditRowId"]) {
-                    this.editRowId = {};
+                    this.EditRowId = {};
                     for (let key in data["EditRowId"]) {
                         if (data["EditRowId"].hasOwnProperty(key))
-                            this.editRowId[key] = data["EditRowId"][key];
+                            this.EditRowId[key] = data["EditRowId"][key];
                     }
                 }
             }
@@ -724,12 +724,12 @@ namespace DotVVM.Samples.Common.Api.Owin {
     
         toJSON(data?: any) {
             data = typeof data === 'object' ? data : {};
-            data["PrimaryKeyPropertyName"] = this.primaryKeyPropertyName !== undefined ? this.primaryKeyPropertyName : <any>null;
-            if (this.editRowId) {
+            data["PrimaryKeyPropertyName"] = this.PrimaryKeyPropertyName !== undefined ? this.PrimaryKeyPropertyName : <any>null;
+            if (this.EditRowId) {
                 data["EditRowId"] = {};
-                for (let key in this.editRowId) {
-                    if (this.editRowId.hasOwnProperty(key))
-                        data["EditRowId"][key] = this.editRowId[key] !== undefined ? this.editRowId[key] : <any>null;
+                for (let key in this.EditRowId) {
+                    if (this.EditRowId.hasOwnProperty(key))
+                        data["EditRowId"][key] = this.EditRowId[key] !== undefined ? this.EditRowId[key] : <any>null;
                 }
             }
             return data; 
@@ -737,13 +737,13 @@ namespace DotVVM.Samples.Common.Api.Owin {
     }
     
     export interface IIRowEditOptions {
-        primaryKeyPropertyName?: string;
-        editRowId?: any;
+        PrimaryKeyPropertyName?: string;
+        EditRowId?: any;
     }
     
     export class ISortingOptions implements IISortingOptions {
-        sortDescending?: boolean;
-        sortExpression?: string;
+        SortDescending?: boolean;
+        SortExpression?: string;
     
         constructor(data?: IISortingOptions) {
             if (data) {
@@ -756,8 +756,8 @@ namespace DotVVM.Samples.Common.Api.Owin {
     
         init(data?: any) {
             if (data) {
-                this.sortDescending = data["SortDescending"] !== undefined ? data["SortDescending"] : <any>null;
-                this.sortExpression = data["SortExpression"] !== undefined ? data["SortExpression"] : <any>null;
+                this.SortDescending = data["SortDescending"] !== undefined ? data["SortDescending"] : <any>null;
+                this.SortExpression = data["SortExpression"] !== undefined ? data["SortExpression"] : <any>null;
             }
         }
     
@@ -769,26 +769,26 @@ namespace DotVVM.Samples.Common.Api.Owin {
     
         toJSON(data?: any) {
             data = typeof data === 'object' ? data : {};
-            data["SortDescending"] = this.sortDescending !== undefined ? this.sortDescending : <any>null;
-            data["SortExpression"] = this.sortExpression !== undefined ? this.sortExpression : <any>null;
+            data["SortDescending"] = this.SortDescending !== undefined ? this.SortDescending : <any>null;
+            data["SortExpression"] = this.SortExpression !== undefined ? this.SortExpression : <any>null;
             return data; 
         }
     }
     
     export interface IISortingOptions {
-        sortDescending?: boolean;
-        sortExpression?: string;
+        SortDescending?: boolean;
+        SortExpression?: string;
     }
     
     export class PagingOptions implements IPagingOptions {
-        nearPageIndexesProvider?: any;
-        isFirstPage?: boolean;
-        isLastPage?: boolean;
-        pagesCount?: number;
-        pageIndex?: number;
-        pageSize?: number;
-        totalItemsCount?: number;
-        nearPageIndexes?: number[];
+        NearPageIndexesProvider?: any;
+        IsFirstPage?: boolean;
+        IsLastPage?: boolean;
+        PagesCount?: number;
+        PageIndex?: number;
+        PageSize?: number;
+        TotalItemsCount?: number;
+        NearPageIndexes?: number[];
     
         constructor(data?: IPagingOptions) {
             if (data) {
@@ -802,22 +802,22 @@ namespace DotVVM.Samples.Common.Api.Owin {
         init(data?: any) {
             if (data) {
                 if (data["NearPageIndexesProvider"]) {
-                    this.nearPageIndexesProvider = {};
+                    this.NearPageIndexesProvider = {};
                     for (let key in data["NearPageIndexesProvider"]) {
                         if (data["NearPageIndexesProvider"].hasOwnProperty(key))
-                            this.nearPageIndexesProvider[key] = data["NearPageIndexesProvider"][key];
+                            this.NearPageIndexesProvider[key] = data["NearPageIndexesProvider"][key];
                     }
                 }
-                this.isFirstPage = data["IsFirstPage"] !== undefined ? data["IsFirstPage"] : <any>null;
-                this.isLastPage = data["IsLastPage"] !== undefined ? data["IsLastPage"] : <any>null;
-                this.pagesCount = data["PagesCount"] !== undefined ? data["PagesCount"] : <any>null;
-                this.pageIndex = data["PageIndex"] !== undefined ? data["PageIndex"] : <any>null;
-                this.pageSize = data["PageSize"] !== undefined ? data["PageSize"] : <any>null;
-                this.totalItemsCount = data["TotalItemsCount"] !== undefined ? data["TotalItemsCount"] : <any>null;
+                this.IsFirstPage = data["IsFirstPage"] !== undefined ? data["IsFirstPage"] : <any>null;
+                this.IsLastPage = data["IsLastPage"] !== undefined ? data["IsLastPage"] : <any>null;
+                this.PagesCount = data["PagesCount"] !== undefined ? data["PagesCount"] : <any>null;
+                this.PageIndex = data["PageIndex"] !== undefined ? data["PageIndex"] : <any>null;
+                this.PageSize = data["PageSize"] !== undefined ? data["PageSize"] : <any>null;
+                this.TotalItemsCount = data["TotalItemsCount"] !== undefined ? data["TotalItemsCount"] : <any>null;
                 if (data["NearPageIndexes"] && data["NearPageIndexes"].constructor === Array) {
-                    this.nearPageIndexes = [];
+                    this.NearPageIndexes = [];
                     for (let item of data["NearPageIndexes"])
-                        this.nearPageIndexes.push(item);
+                        this.NearPageIndexes.push(item);
                 }
             }
         }
@@ -830,22 +830,22 @@ namespace DotVVM.Samples.Common.Api.Owin {
     
         toJSON(data?: any) {
             data = typeof data === 'object' ? data : {};
-            if (this.nearPageIndexesProvider) {
+            if (this.NearPageIndexesProvider) {
                 data["NearPageIndexesProvider"] = {};
-                for (let key in this.nearPageIndexesProvider) {
-                    if (this.nearPageIndexesProvider.hasOwnProperty(key))
-                        data["NearPageIndexesProvider"][key] = this.nearPageIndexesProvider[key] !== undefined ? this.nearPageIndexesProvider[key] : <any>null;
+                for (let key in this.NearPageIndexesProvider) {
+                    if (this.NearPageIndexesProvider.hasOwnProperty(key))
+                        data["NearPageIndexesProvider"][key] = this.NearPageIndexesProvider[key] !== undefined ? this.NearPageIndexesProvider[key] : <any>null;
                 }
             }
-            data["IsFirstPage"] = this.isFirstPage !== undefined ? this.isFirstPage : <any>null;
-            data["IsLastPage"] = this.isLastPage !== undefined ? this.isLastPage : <any>null;
-            data["PagesCount"] = this.pagesCount !== undefined ? this.pagesCount : <any>null;
-            data["PageIndex"] = this.pageIndex !== undefined ? this.pageIndex : <any>null;
-            data["PageSize"] = this.pageSize !== undefined ? this.pageSize : <any>null;
-            data["TotalItemsCount"] = this.totalItemsCount !== undefined ? this.totalItemsCount : <any>null;
-            if (this.nearPageIndexes && this.nearPageIndexes.constructor === Array) {
+            data["IsFirstPage"] = this.IsFirstPage !== undefined ? this.IsFirstPage : <any>null;
+            data["IsLastPage"] = this.IsLastPage !== undefined ? this.IsLastPage : <any>null;
+            data["PagesCount"] = this.PagesCount !== undefined ? this.PagesCount : <any>null;
+            data["PageIndex"] = this.PageIndex !== undefined ? this.PageIndex : <any>null;
+            data["PageSize"] = this.PageSize !== undefined ? this.PageSize : <any>null;
+            data["TotalItemsCount"] = this.TotalItemsCount !== undefined ? this.TotalItemsCount : <any>null;
+            if (this.NearPageIndexes && this.NearPageIndexes.constructor === Array) {
                 data["NearPageIndexes"] = [];
-                for (let item of this.nearPageIndexes)
+                for (let item of this.NearPageIndexes)
                     data["NearPageIndexes"].push(item);
             }
             return data; 
@@ -853,22 +853,22 @@ namespace DotVVM.Samples.Common.Api.Owin {
     }
     
     export interface IPagingOptions {
-        nearPageIndexesProvider?: any;
-        isFirstPage?: boolean;
-        isLastPage?: boolean;
-        pagesCount?: number;
-        pageIndex?: number;
-        pageSize?: number;
-        totalItemsCount?: number;
-        nearPageIndexes?: number[];
+        NearPageIndexesProvider?: any;
+        IsFirstPage?: boolean;
+        IsLastPage?: boolean;
+        PagesCount?: number;
+        PageIndex?: number;
+        PageSize?: number;
+        TotalItemsCount?: number;
+        NearPageIndexes?: number[];
     }
     
     export class Order implements IOrder {
-        id?: number;
-        number?: string;
-        date?: Date;
-        companyId?: number;
-        orderItems?: OrderItem[];
+        Id?: number;
+        Number?: string;
+        Date?: Date;
+        CompanyId?: number;
+        OrderItems?: OrderItem[];
     
         constructor(data?: IOrder) {
             if (data) {
@@ -881,14 +881,14 @@ namespace DotVVM.Samples.Common.Api.Owin {
     
         init(data?: any) {
             if (data) {
-                this.id = data["Id"] !== undefined ? data["Id"] : <any>null;
-                this.number = data["Number"] !== undefined ? data["Number"] : <any>null;
-                this.date = data["Date"] ? new Date(data["Date"].toString()) : <any>null;
-                this.companyId = data["CompanyId"] !== undefined ? data["CompanyId"] : <any>null;
+                this.Id = data["Id"] !== undefined ? data["Id"] : <any>null;
+                this.Number = data["Number"] !== undefined ? data["Number"] : <any>null;
+                this.Date = data["Date"] ? new Date(data["Date"].toString()) : <any>null;
+                this.CompanyId = data["CompanyId"] !== undefined ? data["CompanyId"] : <any>null;
                 if (data["OrderItems"] && data["OrderItems"].constructor === Array) {
-                    this.orderItems = [];
+                    this.OrderItems = [];
                     for (let item of data["OrderItems"])
-                        this.orderItems.push(OrderItem.fromJS(item));
+                        this.OrderItems.push(OrderItem.fromJS(item));
                 }
             }
         }
@@ -901,13 +901,13 @@ namespace DotVVM.Samples.Common.Api.Owin {
     
         toJSON(data?: any) {
             data = typeof data === 'object' ? data : {};
-            data["Id"] = this.id !== undefined ? this.id : <any>null;
-            data["Number"] = this.number !== undefined ? this.number : <any>null;
-            data["Date"] = this.date ? this.date.toISOString() : <any>null;
-            data["CompanyId"] = this.companyId !== undefined ? this.companyId : <any>null;
-            if (this.orderItems && this.orderItems.constructor === Array) {
+            data["Id"] = this.Id !== undefined ? this.Id : <any>null;
+            data["Number"] = this.Number !== undefined ? this.Number : <any>null;
+            data["Date"] = this.Date ? this.Date.toISOString() : <any>null;
+            data["CompanyId"] = this.CompanyId !== undefined ? this.CompanyId : <any>null;
+            if (this.OrderItems && this.OrderItems.constructor === Array) {
                 data["OrderItems"] = [];
-                for (let item of this.orderItems)
+                for (let item of this.OrderItems)
                     data["OrderItems"].push(item.toJSON());
             }
             return data; 
@@ -915,19 +915,19 @@ namespace DotVVM.Samples.Common.Api.Owin {
     }
     
     export interface IOrder {
-        id?: number;
-        number?: string;
-        date?: Date;
-        companyId?: number;
-        orderItems?: OrderItem[];
+        Id?: number;
+        Number?: string;
+        Date?: Date;
+        CompanyId?: number;
+        OrderItems?: OrderItem[];
     }
     
     export class OrderItem implements IOrderItem {
-        id?: number;
-        text?: string;
-        amount?: number;
-        discount?: number;
-        isOnStock?: boolean;
+        Id?: number;
+        Text?: string;
+        Amount?: number;
+        Discount?: number;
+        IsOnStock?: boolean;
     
         constructor(data?: IOrderItem) {
             if (data) {
@@ -940,11 +940,11 @@ namespace DotVVM.Samples.Common.Api.Owin {
     
         init(data?: any) {
             if (data) {
-                this.id = data["Id"] !== undefined ? data["Id"] : <any>null;
-                this.text = data["Text"] !== undefined ? data["Text"] : <any>null;
-                this.amount = data["Amount"] !== undefined ? data["Amount"] : <any>null;
-                this.discount = data["Discount"] !== undefined ? data["Discount"] : <any>null;
-                this.isOnStock = data["IsOnStock"] !== undefined ? data["IsOnStock"] : <any>null;
+                this.Id = data["Id"] !== undefined ? data["Id"] : <any>null;
+                this.Text = data["Text"] !== undefined ? data["Text"] : <any>null;
+                this.Amount = data["Amount"] !== undefined ? data["Amount"] : <any>null;
+                this.Discount = data["Discount"] !== undefined ? data["Discount"] : <any>null;
+                this.IsOnStock = data["IsOnStock"] !== undefined ? data["IsOnStock"] : <any>null;
             }
         }
     
@@ -956,21 +956,21 @@ namespace DotVVM.Samples.Common.Api.Owin {
     
         toJSON(data?: any) {
             data = typeof data === 'object' ? data : {};
-            data["Id"] = this.id !== undefined ? this.id : <any>null;
-            data["Text"] = this.text !== undefined ? this.text : <any>null;
-            data["Amount"] = this.amount !== undefined ? this.amount : <any>null;
-            data["Discount"] = this.discount !== undefined ? this.discount : <any>null;
-            data["IsOnStock"] = this.isOnStock !== undefined ? this.isOnStock : <any>null;
+            data["Id"] = this.Id !== undefined ? this.Id : <any>null;
+            data["Text"] = this.Text !== undefined ? this.Text : <any>null;
+            data["Amount"] = this.Amount !== undefined ? this.Amount : <any>null;
+            data["Discount"] = this.Discount !== undefined ? this.Discount : <any>null;
+            data["IsOnStock"] = this.IsOnStock !== undefined ? this.IsOnStock : <any>null;
             return data; 
         }
     }
     
     export interface IOrderItem {
-        id?: number;
-        text?: string;
-        amount?: number;
-        discount?: number;
-        isOnStock?: boolean;
+        Id?: number;
+        Text?: string;
+        Amount?: number;
+        Discount?: number;
+        IsOnStock?: boolean;
     }
     
     export class SwaggerException extends Error {
