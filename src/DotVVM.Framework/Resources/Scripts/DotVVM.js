@@ -1493,19 +1493,12 @@ var DotVVM = /** @class */ (function () {
         for (var i = path.length - 1; i >= 0; i--) {
             if (path[i].indexOf("[$index]") >= 0) {
                 path[i] = path[i].replace("[$index]", "[" + context.$index() + "]");
-                if (path[i].indexOf("$parentIndexPath")) {
-                    path[i] = path[i].replace("$parentIndexPath", this.getParentIndexPath(context));
-                }
+            }
+            if (path[i].indexOf("[$indexPath]") >= 0) {
+                path[i] = path[i].replace("[$indexPath]", "[" + context.$indexPath.map(function (i) { return i(); }).join("]/[") + "]");
             }
             context = context.$parentContext;
         }
-    };
-    DotVVM.prototype.getParentIndexPath = function (context) {
-        var path = "", parentContext = context.$parentContext;
-        if (parentContext.$index) {
-            path = "/[" + parentContext.$index() + "]" + path;
-        }
-        return path;
     };
     DotVVM.prototype.postJSON = function (url, method, postData, success, error, preprocessRequest) {
         if (preprocessRequest === void 0) { preprocessRequest = function (xhr) { }; }

@@ -832,24 +832,14 @@ class DotVVM {
         for (var i = path.length - 1; i >= 0; i--) {
             if (path[i].indexOf("[$index]") >= 0) {
                 path[i] = path[i].replace("[$index]", `[${context.$index()}]`);
-
-                if (path[i].indexOf("$parentIndexPath")) {
-                    path[i] = path[i].replace("$parentIndexPath", this.getParentIndexPath(context));
-                }
             }
+
+            if (path[i].indexOf("[$indexPath]") >= 0) {
+                path[i] = path[i].replace("[$indexPath]", `[${context.$indexPath.map(i => i()).join("]/[")}]`);
+            }
+
             context = context.$parentContext;
         }
-    }
-
-    private getParentIndexPath(context: any) {
-        let path = "",
-            parentContext = context.$parentContext;
-
-        if (parentContext.$index) {
-            path = `/[${parentContext.$index()}]${path}`;
-        }
-
-        return path;
     }
 
     private postJSON(url: string, method: string, postData: any, success: (request: XMLHttpRequest) => void, error: (response: XMLHttpRequest) => void, preprocessRequest = (xhr: XMLHttpRequest) => { }) {
