@@ -5554,8 +5554,8 @@ ko.exportSymbol('__tr_ambtns', ko.templateRewriting.applyMemoizedBindingsToNextS
                 var contextProperties = {};
 
                 if(hierarchyRole === "Child") {
-                    indexPath = parentBindingContext.$indexPath.concat(indexPath);
-                    hierarchyLevel = parentBindingContext.$hierarchyLevel + 1;
+                    indexPath = parentBindingContext["$indexPath"].concat(indexPath);
+                    hierarchyLevel = parentBindingContext["$hierarchyLevel"] + 1;
                 }
 
                 contextProperties["$index"] = index;
