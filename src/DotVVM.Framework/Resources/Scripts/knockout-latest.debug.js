@@ -5106,12 +5106,7 @@ ko.bindingHandlers['visible'] = {
             element.style.display = "none";
     }
 };
-ko.bindingHandlers.withProperties = {
-    init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-        ko.applyBindingsToDescendants(bindingContext.extend(valueAccessor), element);
-        return { controlsDescendantBindings: true };
-    }
-};// 'click' is just a shorthand for the usual full-length event:{click:handler}
+// 'click' is just a shorthand for the usual full-length event:{click:handler}
 makeEventHandlerShortcut('click');
 // If you want to make a custom template engine,
 //
@@ -5552,7 +5547,7 @@ ko.exportSymbol('__tr_ambtns', ko.templateRewriting.applyMemoizedBindingsToNextS
             var hierarchyRole = options["hierarchyRole"];
 
             // Support selecting template as a function of the data being rendered
-            if(hierarchyRole != null) {
+            if(hierarchyRole) {
                 var indexPath = [index];
                 var hierarchyLevel = 0;
                 var alias = "$" + (options["as"] || "item");
