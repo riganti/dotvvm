@@ -47,7 +47,6 @@ namespace DotVVM.Framework.Configuration
                     config.GetSerializationMapper().Map(obj, m => {
                         foreach (var prop in m.Properties)
                         {
-                            prop.Name = KnockoutHelper.ConvertToCamelCase(prop.Name);
                             if (isSameAssembly(prop.Type))
                                 RegisterApiDtoProperties(prop.Type, config, currentAssembly);
                         }

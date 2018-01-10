@@ -17,7 +17,7 @@ var AzureFunctionsApi;
     // </auto-generated>
     //----------------------
     // ReSharper disable InconsistentNaming
-    var Client = (function () {
+    var Client = /** @class */ (function () {
         function Client(baseUrl, http) {
             this.jsonParseReviver = undefined;
             this.http = http ? http : window;
@@ -275,7 +275,7 @@ var AzureFunctionsApi;
         return Client;
     }());
     AzureFunctionsApi.Client = Client;
-    var CreateFormModel = (function () {
+    var CreateFormModel = /** @class */ (function () {
         function CreateFormModel(data) {
             if (data) {
                 for (var property in data) {
@@ -286,10 +286,10 @@ var AzureFunctionsApi;
         }
         CreateFormModel.prototype.init = function (data) {
             if (data) {
-                this.text = data["Text"] !== undefined ? data["Text"] : null;
-                this.number = data["Number"] !== undefined ? data["Number"] : null;
-                this.date = data["Date"] ? new Date(data["Date"].toString()) : null;
-                this.toDelete = data["ToDelete"] !== undefined ? data["ToDelete"] : null;
+                this.Text = data["Text"] !== undefined ? data["Text"] : null;
+                this.Number = data["Number"] !== undefined ? data["Number"] : null;
+                this.Date = data["Date"] ? new Date(data["Date"].toString()) : null;
+                this.ToDelete = data["ToDelete"] !== undefined ? data["ToDelete"] : null;
             }
         };
         CreateFormModel.fromJS = function (data) {
@@ -299,16 +299,16 @@ var AzureFunctionsApi;
         };
         CreateFormModel.prototype.toJSON = function (data) {
             data = typeof data === 'object' ? data : {};
-            data["Text"] = this.text !== undefined ? this.text : null;
-            data["Number"] = this.number !== undefined ? this.number : null;
-            data["Date"] = this.date ? this.date.toISOString() : null;
-            data["ToDelete"] = this.toDelete !== undefined ? this.toDelete : null;
+            data["Text"] = this.Text !== undefined ? this.Text : null;
+            data["Number"] = this.Number !== undefined ? this.Number : null;
+            data["Date"] = this.Date ? this.Date.toISOString() : null;
+            data["ToDelete"] = this.ToDelete !== undefined ? this.ToDelete : null;
             return data;
         };
         return CreateFormModel;
     }());
     AzureFunctionsApi.CreateFormModel = CreateFormModel;
-    var FormModel = (function () {
+    var FormModel = /** @class */ (function () {
         function FormModel(data) {
             if (data) {
                 for (var property in data) {
@@ -319,13 +319,13 @@ var AzureFunctionsApi;
         }
         FormModel.prototype.init = function (data) {
             if (data) {
-                this.partitionsKey = data["PartitionsKey"] !== undefined ? data["PartitionsKey"] : null;
-                this.rowKey = data["RowKey"] !== undefined ? data["RowKey"] : null;
-                this.timestamp = data["Timestamp"] ? new Date(data["Timestamp"].toString()) : null;
-                this.text = data["Text"] !== undefined ? data["Text"] : null;
-                this.number = data["Number"] !== undefined ? data["Number"] : null;
-                this.date = data["Date"] ? new Date(data["Date"].toString()) : null;
-                this.toDelete = data["ToDelete"] !== undefined ? data["ToDelete"] : null;
+                this.PartitionsKey = data["PartitionsKey"] !== undefined ? data["PartitionsKey"] : null;
+                this.RowKey = data["RowKey"] !== undefined ? data["RowKey"] : null;
+                this.Timestamp = data["Timestamp"] ? new Date(data["Timestamp"].toString()) : null;
+                this.Text = data["Text"] !== undefined ? data["Text"] : null;
+                this.Number = data["Number"] !== undefined ? data["Number"] : null;
+                this.Date = data["Date"] ? new Date(data["Date"].toString()) : null;
+                this.ToDelete = data["ToDelete"] !== undefined ? data["ToDelete"] : null;
             }
         };
         FormModel.fromJS = function (data) {
@@ -335,19 +335,19 @@ var AzureFunctionsApi;
         };
         FormModel.prototype.toJSON = function (data) {
             data = typeof data === 'object' ? data : {};
-            data["PartitionsKey"] = this.partitionsKey !== undefined ? this.partitionsKey : null;
-            data["RowKey"] = this.rowKey !== undefined ? this.rowKey : null;
-            data["Timestamp"] = this.timestamp ? this.timestamp.toISOString() : null;
-            data["Text"] = this.text !== undefined ? this.text : null;
-            data["Number"] = this.number !== undefined ? this.number : null;
-            data["Date"] = this.date ? this.date.toISOString() : null;
-            data["ToDelete"] = this.toDelete !== undefined ? this.toDelete : null;
+            data["PartitionsKey"] = this.PartitionsKey !== undefined ? this.PartitionsKey : null;
+            data["RowKey"] = this.RowKey !== undefined ? this.RowKey : null;
+            data["Timestamp"] = this.Timestamp ? this.Timestamp.toISOString() : null;
+            data["Text"] = this.Text !== undefined ? this.Text : null;
+            data["Number"] = this.Number !== undefined ? this.Number : null;
+            data["Date"] = this.Date ? this.Date.toISOString() : null;
+            data["ToDelete"] = this.ToDelete !== undefined ? this.ToDelete : null;
             return data;
         };
         return FormModel;
     }());
     AzureFunctionsApi.FormModel = FormModel;
-    var DataModel = (function () {
+    var DataModel = /** @class */ (function () {
         function DataModel(data) {
             if (data) {
                 for (var property in data) {
@@ -358,10 +358,10 @@ var AzureFunctionsApi;
         }
         DataModel.prototype.init = function (data) {
             if (data) {
-                this.text = data["Text"] !== undefined ? data["Text"] : null;
-                this.number = data["Number"] !== undefined ? data["Number"] : null;
-                this.date = data["Date"] ? new Date(data["Date"].toString()) : null;
-                this.bool = data["Bool"] !== undefined ? data["Bool"] : null;
+                this.Text = data["Text"] !== undefined ? data["Text"] : null;
+                this.Number = data["Number"] !== undefined ? data["Number"] : null;
+                this.Date = data["Date"] ? new Date(data["Date"].toString()) : null;
+                this.Bool = data["Bool"] !== undefined ? data["Bool"] : null;
             }
         };
         DataModel.fromJS = function (data) {
@@ -371,16 +371,16 @@ var AzureFunctionsApi;
         };
         DataModel.prototype.toJSON = function (data) {
             data = typeof data === 'object' ? data : {};
-            data["Text"] = this.text !== undefined ? this.text : null;
-            data["Number"] = this.number !== undefined ? this.number : null;
-            data["Date"] = this.date ? this.date.toISOString() : null;
-            data["Bool"] = this.bool !== undefined ? this.bool : null;
+            data["Text"] = this.Text !== undefined ? this.Text : null;
+            data["Number"] = this.Number !== undefined ? this.Number : null;
+            data["Date"] = this.Date ? this.Date.toISOString() : null;
+            data["Bool"] = this.Bool !== undefined ? this.Bool : null;
             return data;
         };
         return DataModel;
     }());
     AzureFunctionsApi.DataModel = DataModel;
-    var Country = (function () {
+    var Country = /** @class */ (function () {
         function Country(data) {
             if (data) {
                 for (var property in data) {
@@ -391,12 +391,12 @@ var AzureFunctionsApi;
         }
         Country.prototype.init = function (data) {
             if (data) {
-                this.name = data["Name"] !== undefined ? data["Name"] : null;
+                this.Name = data["Name"] !== undefined ? data["Name"] : null;
                 if (data["Regions"] && data["Regions"].constructor === Array) {
-                    this.regions = [];
+                    this.Regions = [];
                     for (var _i = 0, _a = data["Regions"]; _i < _a.length; _i++) {
                         var item = _a[_i];
-                        this.regions.push(Region.fromJS(item));
+                        this.Regions.push(Region.fromJS(item));
                     }
                 }
             }
@@ -408,10 +408,10 @@ var AzureFunctionsApi;
         };
         Country.prototype.toJSON = function (data) {
             data = typeof data === 'object' ? data : {};
-            data["Name"] = this.name !== undefined ? this.name : null;
-            if (this.regions && this.regions.constructor === Array) {
+            data["Name"] = this.Name !== undefined ? this.Name : null;
+            if (this.Regions && this.Regions.constructor === Array) {
                 data["Regions"] = [];
-                for (var _i = 0, _a = this.regions; _i < _a.length; _i++) {
+                for (var _i = 0, _a = this.Regions; _i < _a.length; _i++) {
                     var item = _a[_i];
                     data["Regions"].push(item.toJSON());
                 }
@@ -421,7 +421,7 @@ var AzureFunctionsApi;
         return Country;
     }());
     AzureFunctionsApi.Country = Country;
-    var Region = (function () {
+    var Region = /** @class */ (function () {
         function Region(data) {
             if (data) {
                 for (var property in data) {
@@ -432,8 +432,8 @@ var AzureFunctionsApi;
         }
         Region.prototype.init = function (data) {
             if (data) {
-                this.id = data["Id"] !== undefined ? data["Id"] : null;
-                this.name = data["Name"] !== undefined ? data["Name"] : null;
+                this.Id = data["Id"] !== undefined ? data["Id"] : null;
+                this.Name = data["Name"] !== undefined ? data["Name"] : null;
             }
         };
         Region.fromJS = function (data) {
@@ -443,14 +443,14 @@ var AzureFunctionsApi;
         };
         Region.prototype.toJSON = function (data) {
             data = typeof data === 'object' ? data : {};
-            data["Id"] = this.id !== undefined ? this.id : null;
-            data["Name"] = this.name !== undefined ? this.name : null;
+            data["Id"] = this.Id !== undefined ? this.Id : null;
+            data["Name"] = this.Name !== undefined ? this.Name : null;
             return data;
         };
         return Region;
     }());
     AzureFunctionsApi.Region = Region;
-    var SwaggerException = (function (_super) {
+    var SwaggerException = /** @class */ (function (_super) {
         __extends(SwaggerException, _super);
         function SwaggerException(message, status, response, result) {
             var _this = _super.call(this) || this;

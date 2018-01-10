@@ -124,7 +124,7 @@ namespace DotVVM.CommandLine.Commands.Logic
                 UseTransformOptionsMethod = true,
                 ClientBaseClass = "ClientBase"
             };
-            settings.TypeScriptGeneratorSettings.PropertyNameGenerator = new MyPropertyNameGenerator(c => ConversionUtilities.ConvertToLowerCamelCase(c, true));
+            settings.TypeScriptGeneratorSettings.PropertyNameGenerator = new MyPropertyNameGenerator(c => ConversionUtilities.ConvertToUpperCamelCase(c, true));
             settings.TypeScriptGeneratorSettings.NullValue = TypeScriptNullValue.Null;
             settings.TypeScriptGeneratorSettings.TemplateFactory = new DotvvmClientTemplateFactory(settings.CodeGeneratorSettings, new[] {
                 typeof(TypeScriptGeneratorSettings).Assembly,
