@@ -141,6 +141,8 @@ namespace DotVVM.Testing.Abstractions {
 
             public static string ControlSamples_Repeater_NestedRepeater => "ControlSamples/Repeater/NestedRepeater";
 
+            public static string ControlSamples_Repeater_NestedRepeaterWithControl => "ControlSamples/Repeater/NestedRepeaterWithControl";
+
             public static string ControlSamples_Repeater_RepeaterAsSeparator => "ControlSamples/Repeater/RepeaterAsSeparator";
 
             public static string ControlSamples_Repeater_RepeaterWrapperTag => "ControlSamples/Repeater/RepeaterWrapperTag";
@@ -159,9 +161,9 @@ namespace DotVVM.Testing.Abstractions {
 
             public static string ControlSamples_RouteLink_RouteLinkEnabledFalse => "ControlSamples/RouteLink/RouteLinkEnabledFalse";
 
-            public static string ControlSamples_RouteLink_RouteLinkUrlGen => "ControlSamples/RouteLink/RouteLinkUrlGen";
-
             public static string ControlSamples_RouteLink_RouteLinkSpaUrlGen => "ControlSamples/RouteLink/RouteLinkSpaUrlGen";
+
+            public static string ControlSamples_RouteLink_RouteLinkUrlGen => "ControlSamples/RouteLink/RouteLinkUrlGen";
 
             public static string ControlSamples_RouteLink_TestRoute => "ControlSamples/RouteLink/TestRoute";
 

@@ -13,6 +13,8 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.Repeater
 
         public string ClickedChild { get; set; }
 
+        public int Counter { get; set; } = 1;
+
         public override Task Init()
         {
             if (!Context.IsPostBack)
@@ -27,6 +29,13 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.Repeater
                             new NestedRepeaterEntry() { Name = "Subchild 1" },
                             new NestedRepeaterEntry() { Name = "Subchild 2" },
                             new NestedRepeaterEntry() { Name = "Subchild 3" }
+                        },
+                         Entry =  new NestedRepeaterEntry(){
+                             Name = "Child 3",
+                            Children = new List<NestedRepeaterEntry>()
+                            {
+                                new NestedRepeaterEntry() { Name = "Subchild 1" }
+                            }
                         }
                     },
                     new NestedRepeaterEntry()
@@ -46,7 +55,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.Repeater
                             new NestedRepeaterEntry() { Name = "Subchild 1" }
                         }
                     }
-                };    
+                };
             }
 
             return base.Init();
@@ -57,12 +66,18 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.Repeater
             ClickedChild = name + " " + name2;
         }
 
+        public void IncrementCounter()
+        {
+            Counter++;
+        }
     }
 
     public class NestedRepeaterEntry
     {
         public string Name { get; set; }
 
-        public List<NestedRepeaterEntry> Children { get; set; } 
+        public List<NestedRepeaterEntry> Children { get; set; }
+
+        public NestedRepeaterEntry Entry { get; set; }
     }
 }
