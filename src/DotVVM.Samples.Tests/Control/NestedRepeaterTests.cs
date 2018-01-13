@@ -70,5 +70,26 @@ namespace DotVVM.Samples.Tests.Control
                 browser.First("#result").CheckIfInnerTextEquals("Child 3 Subchild 1");
             });
         }
+
+        [TestMethod]
+        public void Control_NestedRepeaterWithControl()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_NestedRepeaterWithControl);
+                browser.Wait();
+
+                var result = browser.First("#result");
+                var buttons = browser.FindElements("input[type=button]");
+
+                int count = 1;
+                foreach (var button in buttons)
+                {
+                    browser.WaitFor(() => result.CheckIfInnerTextEquals(count.ToString()), 500);
+                    button.Click();
+                    count++;
+                }
+            });
+        }
     }
 }
