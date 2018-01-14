@@ -187,10 +187,9 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             if (!string.IsNullOrWhiteSpace(errorUnderline))
             {
                 Write("<span class='errorUnderline'>");
-                WriteText(errorUnderline);
+                Write(errorUnderline);
                 Write("</span>");
             }
-
 
             Write(WebUtility.HtmlEncode(line.Substring(Math.Min(line.Length, errorColumn + errorLength))));
             WriteLine("</span>");
