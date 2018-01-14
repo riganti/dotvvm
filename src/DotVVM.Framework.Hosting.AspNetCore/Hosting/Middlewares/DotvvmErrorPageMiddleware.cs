@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Hosting.ErrorPages;
 using Microsoft.AspNetCore.Http;
 using System.IO;
+using System.Diagnostics;
 
 namespace DotVVM.Framework.Hosting.Middlewares
 {
@@ -49,7 +50,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
             try
             {
 
-                var text = (Formatter ?? (Formatter = ErrorFormatter.CreateDefault()))
+                var text = (Formatter ?? (Formatter = CreateDefaultWithDemystifier()))
                     .ErrorHtml(error, DotvvmMiddleware.ConvertHttpContext(context));
                 return context.Response.WriteAsync(text);
             }
@@ -72,5 +73,33 @@ namespace DotVVM.Framework.Hosting.Middlewares
             }
         }
 
+        private ErrorFormatter CreateDefaultWithDemystifier()
+        {
+            var errorFormatter = ErrorFormatter.CreateDefault();
+
+            var insertPosition = errorFormatter.Formatters.Count > 0 ? 1 : 0;
+            errorFormatter.Formatters.Insert(insertPosition, (e, o) =>
+                new ExceptionSectionFormatter(LoadDemystifiedException(errorFormatter, e)));
+
+            return errorFormatter;
+        }
+
+        private ExceptionModel LoadDemystifiedException(ErrorFormatter formatter, Exception exception)
+        {
+            return formatter.LoadException(exception,
+                stackFrameGetter: ex => {
+                    var rawStackTrace = new StackTrace(ex, true).GetFrames();
+                    if (rawStackTrace == null) return null; // demystifier throws in these cases
+                    try
+                    {
+                        return new EnhancedStackTrace(ex).GetFrames();
+                    }
+                    catch
+                    {
+                        return rawStackTrace;
+                    }
+                },
+                methodFormatter: f => (f as EnhancedStackFrame)?.MethodInfo?.ToString());
+        }
     }
 }
