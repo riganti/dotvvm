@@ -26,7 +26,11 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.Repeater
                         Name = "Child 1",
                         Children = new List<NestedRepeaterEntry>()
                         {
-                            new NestedRepeaterEntry() { Name = "Subchild 1" },
+                            new NestedRepeaterEntry() { Name = "Subchild 1", Children = new List<NestedRepeaterEntry>()
+                                {
+                                    new NestedRepeaterEntry() { Name = "SubSubchild 1" }
+                                }
+                            },
                             new NestedRepeaterEntry() { Name = "Subchild 2" },
                             new NestedRepeaterEntry() { Name = "Subchild 3" }
                         },
