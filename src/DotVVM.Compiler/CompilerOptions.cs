@@ -23,5 +23,6 @@ namespace DotVVM.Compiler
         public bool FullCompile { get; set; } = true;
         public bool CheckBindingErrors { get; set; }
         public bool SerializeConfig { get; set; }
+        public string ConfigOutputPath { get; set; }
     }
 }

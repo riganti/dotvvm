@@ -65,6 +65,10 @@ namespace DotVVM.Compiler
             }
 
             var wsa = assemblyDictionary.GetOrAdd(Options.WebSiteAssembly, _ => Assembly.LoadFile(Options.WebSiteAssembly));
+
+            AssemblyResolver.LoadReferences(wsa);
+
+
             configuration = GetCachedConfiguration(wsa, Options.WebSitePath,
                  (services) =>
                  {
@@ -74,7 +78,7 @@ namespace DotVVM.Compiler
                      }
                  });
 
-            if (Options.DothtmlFiles == null)
+            if (Options.DothtmlFiles == null  || !Options.DothtmlFiles.Any())
             {
                 Options.DothtmlFiles = configuration.RouteTable.Select(r => r.VirtualPath).ToArray();
             }

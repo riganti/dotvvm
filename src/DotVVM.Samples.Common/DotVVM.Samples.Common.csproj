@@ -41,6 +41,7 @@
     <None Remove="Views\FeatureSamples\MarkupControl\HierarchyControl.dotcontrol" />
     <None Remove="Views\FeatureSamples\MarkupControl\HierarchyControlPage.dothtml" />
     <None Remove="Views\FeatureSamples\MarkupControl\MultiControlHierarchy.dothtml" />
+    <None Remove="Views\FeatureSamples\ParameterBinding\OptionalParameterBinding.dothtml" />
     <None Remove="Views\FeatureSamples\ParameterBinding\ParameterBinding.dothtml" />
     <None Remove="Views\FeatureSamples\ServerSideStyles\DirectoryStyle\ServerSideStyles.dothtml" />
     <None Remove="Views\FeatureSamples\ServerSideStyles\NoDirectoryStyle\ServerSideStyles.dothtml" />
@@ -90,6 +91,7 @@
     <Content Include="Views\FeatureSamples\MarkupControl\HierarchyControl.dotcontrol" />
     <Content Include="Views\FeatureSamples\MarkupControl\HierarchyControlPage.dothtml" />
     <Content Include="Views\FeatureSamples\MarkupControl\MultiControlHierarchy.dothtml" />
+    <Content Include="Views\FeatureSamples\ParameterBinding\OptionalParameterBinding.dothtml" />
     <Content Include="Views\FeatureSamples\ParameterBinding\ParameterBinding.dothtml" />
     <Content Include="Views\FeatureSamples\ServerSideStyles\DirectoryStyle\ServerSideStyles.dothtml" />
     <Content Include="Views\FeatureSamples\ServerSideStyles\NoDirectoryStyle\ServerSideStyles.dothtml" />

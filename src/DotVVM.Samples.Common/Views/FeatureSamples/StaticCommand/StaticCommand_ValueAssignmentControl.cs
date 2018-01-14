@@ -10,31 +10,21 @@ namespace DotVVM.Samples.Common.Views.FeatureSamples.StaticCommand
     public class StaticCommand_ValueAssignmentControl : DotvvmMarkupControl
     {
 
-        public bool BoolValue
+        public StaticCommand_ValueAssignmentControlModel Model
         {
-            get { return (bool)GetValue(BoolValueProperty); }
-            set { SetValue(BoolValueProperty, value); }
+            get { return (StaticCommand_ValueAssignmentControlModel)GetValue(ModelProperty); }
+            set { SetValue(ModelProperty, value); }
         }
-        public static readonly DotvvmProperty BoolValueProperty
-            = DotvvmProperty.Register<bool, StaticCommand_ValueAssignmentControl>(c => c.BoolValue, false);
-
-        public string StringValue
-        {
-            get { return (string)GetValue(StringValueProperty); }
-            set { SetValue(StringValueProperty, value); }
-        } 
-        public static readonly DotvvmProperty StringValueProperty
-            = DotvvmProperty.Register<string, StaticCommand_ValueAssignmentControl>(c => c.StringValue, null);
-
-        public int IntValue
-        {
-            get { return (int)GetValue(IntValueProperty); }
-            set { SetValue(IntValueProperty, value); }
-        }
-        public static readonly DotvvmProperty IntValueProperty
-            = DotvvmProperty.Register<int, StaticCommand_ValueAssignmentControl>(c => c.IntValue, 0);
-
-
+        public static readonly DotvvmProperty ModelProperty
+            = DotvvmProperty.Register<StaticCommand_ValueAssignmentControlModel, StaticCommand_ValueAssignmentControl>(c => c.Model, null);
     }
+
+
+    public class StaticCommand_ValueAssignmentControlModel
+    {
+
+        public string Value { get; set; }
+    }
+
 }
 

@@ -8,9 +8,9 @@ namespace DotVVM.Framework.Compilation.Javascript
 {
     public class GenericMethodCompiler : IJavascriptMethodTranslator
     {
-        public Func<HalfTranslatedExpression, HalfTranslatedExpression[], MethodInfo, JsExpression> TryTranslateDelegate;
+        public Func<LazyTranslatedExpression, LazyTranslatedExpression[], MethodInfo, JsExpression> TryTranslateDelegate;
 
-        public JsExpression TryTranslateCall(HalfTranslatedExpression context, HalfTranslatedExpression[] arguments, MethodInfo method) =>
+        public JsExpression TryTranslateCall(LazyTranslatedExpression context, LazyTranslatedExpression[] arguments, MethodInfo method) =>
             TryTranslateDelegate(context, arguments, method);
 
         public GenericMethodCompiler(Func<JsExpression[], JsExpression> builder, Func<MethodInfo, Expression, Expression[], bool> check = null)

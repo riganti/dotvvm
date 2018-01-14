@@ -27,53 +27,24 @@ namespace DotVVM.Samples.Tests.New.Feature
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_StaticCommand_StaticCommand_ValueAssignmentInControl);
 
-                var intResult = browser.First("#intResult");
-                var vmResult = browser.First("#vmResult");
-                var stringResult = browser.First("#stringResult");
-                var boolResult = browser.First("#boolResult");
+                var result = browser.First("#result");
+                
 
-
-                var setTrue = browser.First("#setTrue");
-                var setFalse = browser.First("#setFalse");
-
+                var setText = browser.First("#setText");
                 var setNull = browser.First("#setNull");
-                var setStringValue = browser.First("#setStringValue");
 
-                var setZero = browser.First("#setZero");
-                var setTen = browser.First("#setTen");
+                //default
+                AssertUI.TextEquals(result, "");
 
-                var vmSetTrue = browser.First("#vmSetTrue");
-                var vmSetFalse = browser.First("#vmSetFalse");
+                setText.Click();
+                AssertUI.TextEquals(result, "text");
 
-
-                AssertUI.TextEquals(intResult, "0");
-                AssertUI.TextEquals(stringResult, "");
-                AssertUI.TextEquals(vmResult, "false");
-                AssertUI.TextEquals(boolResult, "false");
-
-                //bool
-                setTrue.Click();
-                AssertUI.TextEquals(boolResult, "true");
-                setFalse.Click();
-                AssertUI.TextEquals(boolResult, "false");
-
-                //int
-                setTen.Click();
-                AssertUI.TextEquals(intResult, "10");
-                setZero.Click();
-                AssertUI.TextEquals(intResult, "0");
-
-                //string
-                setStringValue.Click();
-                AssertUI.TextEquals(stringResult, "value");
                 setNull.Click();
-                AssertUI.TextEquals(stringResult, "");
+                AssertUI.TextEquals(result, "");
 
-                //vm value
-                vmSetTrue.Click();
-                AssertUI.TextEquals(vmResult, "true");
-                vmSetFalse.Click();
-                AssertUI.TextEquals(vmResult, "false");
+                setText.Click();
+                AssertUI.TextEquals(result, "text");
+
             });
         }
 

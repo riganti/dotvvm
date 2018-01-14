@@ -521,7 +521,11 @@ class DotVVM {
 
 
     public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, context?: any, handlers?: ClientFriendlyPostbackHandlerConfiguration[], commandArgs?: any[]): Promise<DotvvmAfterPostBackEventArgs> {
-        if (this.isPostBackProhibited(sender)) return new Promise<DotvvmAfterPostBackEventArgs>((resolve, reject) => reject("rejected"));
+        if (this.isPostBackProhibited(sender)) {
+            const rejectedPromise =  new Promise<DotvvmAfterPostBackEventArgs>((resolve, reject) => reject("rejected"));
+            rejectedPromise.catch(() => console.log("Postback probihited"));
+            return rejectedPromise;
+        }
 
         context = context || ko.contextFor(sender);
 
@@ -827,8 +831,13 @@ class DotVVM {
     private updateDynamicPathFragments(context: any, path: string[]): void {
         for (var i = path.length - 1; i >= 0; i--) {
             if (path[i].indexOf("[$index]") >= 0) {
-                path[i] = path[i].replace("[$index]", "[" + context.$index() + "]");
+                path[i] = path[i].replace("[$index]", `[${context.$index()}]`);
             }
+
+            if (path[i].indexOf("[$indexPath]") >= 0) {
+                path[i] = path[i].replace("[$indexPath]", `[${context.$indexPath.map(i => i()).join("]/[")}]`);
+            }
+
             context = context.$parentContext;
         }
     }
@@ -930,10 +939,13 @@ class DotVVM {
         return ko.unwrap(ko.unwrap(array));
     }
     public buildRouteUrl(routePath: string, params: any): string {
-        var url = routePath.replace(/\{([^\}]+?)\??(:(.+?))?\}/g, (s, paramName, hsjdhsj, type) => {
+        // prepend url with backslash to correctly handle optional parameters at start
+        routePath = '/' + routePath; 
+
+        var url = routePath.replace(/(\/[^\/]*?)\{([^\}]+?)\??(:(.+?))?\}/g, (s, prefix, paramName, _, type) => {
             if (!paramName) return "";
             const x = ko.unwrap(params[paramName.toLowerCase()])
-            return x == null ? "" : x;
+            return x == null ? "" : prefix + x;
         });
 
         if (url.indexOf('/') === 0) {

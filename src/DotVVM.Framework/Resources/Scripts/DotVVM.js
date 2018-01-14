@@ -1205,8 +1205,11 @@ var DotVVM = /** @class */ (function () {
     };
     DotVVM.prototype.postBack = function (viewModelName, sender, path, command, controlUniqueId, context, handlers, commandArgs) {
         var _this = this;
-        if (this.isPostBackProhibited(sender))
-            return new Promise(function (resolve, reject) { return reject("rejected"); });
+        if (this.isPostBackProhibited(sender)) {
+            var rejectedPromise = new Promise(function (resolve, reject) { return reject("rejected"); });
+            rejectedPromise.catch(function () { return console.log("Postback probihited"); });
+            return rejectedPromise;
+        }
         context = context || ko.contextFor(sender);
         var preparedHandlers = this.findPostbackHandlers(context, this.globalPostbackHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers));
         if (preparedHandlers.filter(function (h) { return h.name && h.name.indexOf("concurrency-") == 0; }).length == 0) {
@@ -1491,6 +1494,9 @@ var DotVVM = /** @class */ (function () {
             if (path[i].indexOf("[$index]") >= 0) {
                 path[i] = path[i].replace("[$index]", "[" + context.$index() + "]");
             }
+            if (path[i].indexOf("[$indexPath]") >= 0) {
+                path[i] = path[i].replace("[$indexPath]", "[" + context.$indexPath.map(function (i) { return i(); }).join("]/[") + "]");
+            }
             context = context.$parentContext;
         }
     };
@@ -1596,11 +1602,13 @@ var DotVVM = /** @class */ (function () {
         return ko.unwrap(ko.unwrap(array));
     };
     DotVVM.prototype.buildRouteUrl = function (routePath, params) {
-        var url = routePath.replace(/\{([^\}]+?)\??(:(.+?))?\}/g, function (s, paramName, hsjdhsj, type) {
+        // prepend url with backslash to correctly handle optional parameters at start
+        routePath = '/' + routePath;
+        var url = routePath.replace(/(\/[^\/]*?)\{([^\}]+?)\??(:(.+?))?\}/g, function (s, prefix, paramName, _, type) {
             if (!paramName)
                 return "";
             var x = ko.unwrap(params[paramName.toLowerCase()]);
-            return x == null ? "" : x;
+            return x == null ? "" : prefix + x;
         });
         if (url.indexOf('/') === 0) {
             return url.substring(1);

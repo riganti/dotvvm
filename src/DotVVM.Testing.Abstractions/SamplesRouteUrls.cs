@@ -141,6 +141,8 @@ namespace DotVVM.Testing.Abstractions {
 
             public static string ControlSamples_Repeater_NestedRepeater => "ControlSamples/Repeater/NestedRepeater";
 
+            public static string ControlSamples_Repeater_NestedRepeaterWithControl => "ControlSamples/Repeater/NestedRepeaterWithControl";
+
             public static string ControlSamples_Repeater_RepeaterAsSeparator => "ControlSamples/Repeater/RepeaterAsSeparator";
 
             public static string ControlSamples_Repeater_RepeaterWrapperTag => "ControlSamples/Repeater/RepeaterWrapperTag";
@@ -158,6 +160,10 @@ namespace DotVVM.Testing.Abstractions {
             public static string ControlSamples_RouteLink_RouteLinkEnabled => "ControlSamples/RouteLink/RouteLinkEnabled";
 
             public static string ControlSamples_RouteLink_RouteLinkEnabledFalse => "ControlSamples/RouteLink/RouteLinkEnabledFalse";
+
+            public static string ControlSamples_RouteLink_RouteLinkSpaUrlGen => "ControlSamples/RouteLink/RouteLinkSpaUrlGen";
+
+            public static string ControlSamples_RouteLink_RouteLinkUrlGen => "ControlSamples/RouteLink/RouteLinkUrlGen";
 
             public static string ControlSamples_RouteLink_TestRoute => "ControlSamples/RouteLink/TestRoute";
 
@@ -318,6 +324,8 @@ namespace DotVVM.Testing.Abstractions {
             public static string FeatureSamples_MarkupControl_MultiControlHierarchy => "FeatureSamples/MarkupControl/MultiControlHierarchy";
 
             public static string FeatureSamples_NestedMasterPages_Content => "FeatureSamples/NestedMasterPages/Content";
+
+            public static string FeatureSamples_ParameterBinding_OptionalParameterBinding => "FeatureSamples/ParameterBinding/OptionalParameterBinding";
 
             public static string FeatureSamples_ParameterBinding_ParameterBinding => "FeatureSamples/ParameterBinding/ParameterBinding";
 

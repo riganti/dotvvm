@@ -73,11 +73,11 @@ namespace DotVVM.Framework.Controls
         protected internal override void OnInit(IDotvvmRequestContext context)
         {
             var user = context.HttpContext.User;
-            var isAuthenticated = user?.Identity?.IsAuthenticated;
+            var isAuthenticated = user?.Identity?.IsAuthenticated == true;
 
-            if (!HideForAnonymousUsers || isAuthenticated == true)
+            if (!HideForAnonymousUsers || isAuthenticated)
             {
-                if (IsMember(user))
+                if (isAuthenticated && IsMember(user))
                 {
                     IsMemberTemplate?.BuildContent(context, this);
                 }

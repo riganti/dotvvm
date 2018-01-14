@@ -15,17 +15,15 @@
     <div class="container">
         <h1>RouteLink enabled property demo</h1>
 
-		<p>
-			<dot:CheckBox Checked="{value: Enabled}" Text="Enabled" />
-		</p>
-		<p>
-			<dot:RouteLink RouteName="RepeaterRouteLink-PageDetail" Param-Id="0" Enabled="{value: Enabled}" Text="Static href" />
-		</p>
-
-		<p>
-			<dot:RouteLink RouteName="RepeaterRouteLink-PageDetail" Param-Id="{value: RouteParameter}" Enabled="{value: Enabled}" Text="Dynamic href" />
-		</p>
-
+        <p>
+            <dot:CheckBox Checked="{value: Enabled}" Text="Enabled" />
+        </p>
+        <p>
+            <dot:RouteLink RouteName="RepeaterRouteLink-PageDetail" Param-Id="0" Enabled="{value: Enabled}" Text="Static href" />
+        </p>
+        <p>
+            <dot:RouteLink RouteName="RepeaterRouteLink-PageDetail" Param-Id="{value: RouteParameter}" Enabled="{value: Enabled}" Text="Dynamic href" />
+        </p>
     </div>
 </body>
 </html>

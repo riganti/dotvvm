@@ -36,7 +36,7 @@ namespace DotVVM.Framework.Controls
 
             if ((bool)control.GetValue(Internal.IsSpaPageProperty))
             {
-                return "#!/" + coreUrl;
+                return "#!/" + (coreUrl.StartsWith("~/") ? coreUrl.Substring(2) : coreUrl);
             }
             else
             {
@@ -111,8 +111,9 @@ namespace DotVVM.Framework.Controls
             // generate the function call
 
             return
-                parametersExpression.Length > 0 ? $"dotvvm.buildRouteUrl({JsonConvert.ToString(route.Url)}, {{{parametersExpression}}})" :
-                JsonConvert.ToString(route.Url);
+                route.ParameterNames.Any()
+                    ? $"dotvvm.buildRouteUrl({JsonConvert.ToString(route.Url)}, {{{parametersExpression}}})"
+                    : JsonConvert.ToString(route.Url);
         }
 
         private static string TranslateRouteParameter(DotvvmBindableObject control, KeyValuePair<string, object> param, bool caseSensitive = false)

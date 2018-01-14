@@ -111,6 +111,12 @@ namespace DotVVM.Framework.Controls
             set { SetValue(IncludeInPageProperty, value); }
         }
 
+        DotvvmControlCollection IDotvvmControl.Children => throw new NotImplementedException();
+
+        ClientIDMode IDotvvmControl.ClientIDMode { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        string IDotvvmControl.ID { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        DotvvmBindableObject IDotvvmControl.Parent { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
         public static readonly DotvvmProperty IncludeInPageProperty =
             DotvvmProperty.Register<bool, DotvvmControl>(t => t.IncludeInPage, true);
 
@@ -561,5 +567,7 @@ namespace DotVVM.Framework.Controls
         {
             return Children;
         }
+
+        IEnumerable<DotvvmBindableObject> IDotvvmControl.GetAllAncestors(bool incudingThis) => this.GetAllAncestors(incudingThis);
     }
 }
