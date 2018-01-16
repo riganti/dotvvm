@@ -283,7 +283,11 @@ namespace DotVVM.Testing.Abstractions {
 
             public static string FeatureSamples_Directives_ViewModelMissingAssembly => "FeatureSamples/Directives/ViewModelMissingAssembly";
 
-            public static string FeatureSamples_DoublePostBackPrevention_DoublePostBackPrevention => "FeatureSamples/DoublePostBackPrevention/DoublePostBackPrevention";
+            public static string FeatureSamples_PostbackConcurrency_NoneMode => "FeatureSamples/PostbackConcurrency/PostbackConcurrencyMode?concurrency=None";
+
+            public static string FeatureSamples_PostbackConcurrency_QueueMode => "FeatureSamples/PostbackConcurrency/PostbackConcurrencyMode?concurrency=Queue";
+
+            public static string FeatureSamples_PostbackConcurrency_DenyMode => "FeatureSamples/PostbackConcurrency/PostbackConcurrencyMode?concurrency=Deny";
 
             public static string FeatureSamples_EmbeddedResourceControls_EmbeddedResourceControls => "FeatureSamples/EmbeddedResourceControls/EmbeddedResourceControls";
 

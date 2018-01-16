@@ -779,12 +779,13 @@ var DotVVM = /** @class */ (function () {
                 before: ["setIsPostackRunning"],
                 execute: function (callback, options) {
                     var queue = o.q || "default";
+                    var handler = function () { return dotvvm.commonConcurrencyHandler(callback(), options, queue); };
                     if (dotvvm.getPostbackQueue(queue).noRunning > 0) {
                         return new Promise(function (resolve) {
-                            dotvvm.getPostbackQueue(queue).queue.push(function () { return resolve(callback()); });
+                            dotvvm.getPostbackQueue(queue).queue.push(function () { return resolve(handler()); });
                         });
                     }
-                    return dotvvm.commonConcurrencyHandler(callback(), options, queue);
+                    return handler();
                 }
             }); },
             "suppressOnUpdating": function (options) { return ({

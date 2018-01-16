@@ -78,12 +78,14 @@ class DotVVM {
             before: ["setIsPostackRunning"],
             execute(callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions) {
                 var queue = o.q || "default";
+                var handler = () => dotvvm.commonConcurrencyHandler(callback(), options, queue);
+
                 if (dotvvm.getPostbackQueue(queue).noRunning > 0) {
                     return new Promise<PostbackCommitFunction>(resolve => {
-                        dotvvm.getPostbackQueue(queue).queue.push(() => resolve(callback()));
+                        dotvvm.getPostbackQueue(queue).queue.push(() => resolve(handler()));
                     })
                 }
-                return dotvvm.commonConcurrencyHandler(callback(), options, queue);
+                return handler();
             }
         }),
         "suppressOnUpdating": (options: any) => ({
