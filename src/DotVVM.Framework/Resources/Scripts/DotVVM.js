@@ -1118,8 +1118,11 @@ var DotVVM = /** @class */ (function () {
         if (context === void 0) { context = ko.contextFor(sender); }
         if (viewModel === void 0) { viewModel = context.$root; }
         var options = new PostbackOptions(this.backUpPostBackConter(), sender, args, viewModel, viewModelName);
-        return this.applyPostbackHandlersCore(callback, options, this.findPostbackHandlers(context, this.globalPostbackHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers)))
+        var promise = this.applyPostbackHandlersCore(callback, options, this.findPostbackHandlers(context, this.globalPostbackHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers)))
             .then(function (r) { return r(); }, function (r) { return Promise.reject(r); });
+        promise.catch(function (reason) { if (reason)
+            console.log("Rejected: " + reason); });
+        return promise;
     };
     DotVVM.prototype.postbackCore = function (options, path, command, controlUniqueId, context, commandArgs) {
         var _this = this;
