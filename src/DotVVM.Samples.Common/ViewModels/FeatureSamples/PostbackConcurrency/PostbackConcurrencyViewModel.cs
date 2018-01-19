@@ -8,9 +8,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.PostbackConcurre
     {
         public const int LongActionDurationInMs = 3000;
 
-        public int CurrentIndex { get; set; }
-
-        public string LastAction { get; set; }
+        public StateViewModel State { get; set; } = new StateViewModel();
 
         [FromQuery("concurrency")]
         [Bind(Direction.None)]
@@ -19,14 +17,36 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.PostbackConcurre
         public void LongAction()
         {
             Thread.Sleep(LongActionDurationInMs);
-            CurrentIndex++;
-            LastAction = "long";
+            State.CurrentIndex++;
+            State.LastAction = "long";
         }
 
         public void ShortAction()
         {
-            CurrentIndex++;
-            LastAction = "short";
+            State.CurrentIndex++;
+            State.LastAction = "short";
+        }
+
+        [AllowStaticCommand]
+        public static StateViewModel LongAction(int currentIndex)
+        {
+            Thread.Sleep(LongActionDurationInMs);
+            currentIndex++;
+            return new StateViewModel { CurrentIndex = currentIndex, LastAction = "long" };
+        }
+
+        [AllowStaticCommand]
+        public static StateViewModel ShortAction(int currentIndex)
+        {
+            currentIndex++;
+            return new StateViewModel { CurrentIndex = currentIndex, LastAction = "short" };
+        }
+
+        public class StateViewModel
+        {
+            public int CurrentIndex { get; set; }
+
+            public string LastAction { get; set; }
         }
     }
 }
