@@ -13,7 +13,7 @@ namespace DotVVM.Samples.Tests.Control
     public class TextBoxTests : AppSeleniumTest
     {
         [Fact]
-        public void Control_TextBox_FormatDoubleProperty()
+        public void Control_TextBox_TextBox_FormatDoubleProperty()
         {
             RunInAllBrowsers(browser =>
             {

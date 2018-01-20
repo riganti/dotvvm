@@ -1,16 +1,8 @@
-﻿
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DotVVM.Testing.Abstractions;
+﻿using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
-using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
-using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace DotVVM.Samples.Tests.New.Feature
 {
@@ -21,14 +13,13 @@ namespace DotVVM.Samples.Tests.New.Feature
         }
 
         [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_StaticCommand_StaticCommand_ValueAssignmentInControl))]
         public void Feature_StaticCommand_ValueAssignmentInControl()
         {
-
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_StaticCommand_StaticCommand_ValueAssignmentInControl);
 
                 var result = browser.First("#result");
-                
 
                 var setText = browser.First("#setText");
                 var setNull = browser.First("#setNull");
@@ -44,7 +35,6 @@ namespace DotVVM.Samples.Tests.New.Feature
 
                 setText.Click();
                 AssertUI.TextEquals(result, "text");
-
             });
         }
 
@@ -63,6 +53,7 @@ namespace DotVVM.Samples.Tests.New.Feature
         }
 
         [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_StaticCommand_StaticCommand_NullBinding))]
         public void Feature_StaticCommand_NullBinding()
         {
             RunInAllBrowsers(browser => {
@@ -92,6 +83,7 @@ namespace DotVVM.Samples.Tests.New.Feature
         }
 
         [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_StaticCommand_StaticCommand_ComboBoxSelectionChanged))]
         public void Feature_StaticCommand_ComboBoxSelectionChanged()
         {
             RunInAllBrowsers(browser => {
