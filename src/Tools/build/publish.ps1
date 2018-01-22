@@ -68,7 +68,7 @@ function BuildPackages() {
 			& dotnet restore --source $nugetRestoreAltSource --source https://nuget.org/api/v2/ | Out-Host
 		}
 		
-		& dotnet pack | Out-Host
+		& dotnet pack --configuration Release | Out-Host
 		cd ..
 	}
 }
