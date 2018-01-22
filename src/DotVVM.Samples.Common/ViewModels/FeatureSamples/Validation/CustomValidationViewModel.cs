@@ -34,12 +34,7 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.Validation
                 }
                 else
                 {
-                    Context.ModelState.Errors.Add(
-                        new ViewModelValidationError
-                        {
-                            ErrorMessage = "This error uses only the C# dot notation.",
-                            PropertyPath = "Detail.Name"
-                        });
+                    this.AddModelError(t => t.Detail.Name, "This error uses C# extension method AddModelError");
                 }
             }
             Context.FailOnInvalidModelState();
