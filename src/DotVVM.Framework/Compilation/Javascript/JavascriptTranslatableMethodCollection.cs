@@ -96,6 +96,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 a => new JsIdentifierExpression("String").Invoke(a[0]), (m, c, a) => ToStringCheck(c)), 0);
             AddMethodTranslator(typeof(Convert), "ToString", new GenericMethodCompiler(
                 a => new JsIdentifierExpression("String").Invoke(a[1]), (m, c, a) => ToStringCheck(a[0])), 1, true);
+            AddMethodTranslator(typeof(Enums), "GetNames", new EnumGetNamesMethodTranslator(), 0);
 
             JsExpression indexer(JsExpression[] args, MethodInfo method) =>
                 BuildIndexer(args[0], args[1], method.DeclaringType.GetProperty("Item"));
