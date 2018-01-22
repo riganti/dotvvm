@@ -122,7 +122,7 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [TestMethod]
-        public void Control_CheckBox_NullCollection()
+        public void Control_CheckBox_CheckedItemsNull()
         {
             RunInAllBrowsers(browser =>
             {

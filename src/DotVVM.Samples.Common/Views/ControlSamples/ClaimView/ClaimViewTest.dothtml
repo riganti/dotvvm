@@ -1,5 +1,5 @@
-﻿@import System.Security.Claims
-@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.ClaimView.ClaimViewTestViewModel
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.ClaimView.ClaimViewTestViewModel
+@import System.Security.Claims
 
 <!DOCTYPE html>
 
@@ -11,7 +11,7 @@
 <body>
     <h1>ClaimView Test</h1>
 
-    <dot:ClaimView Claim="{value: ClaimTypes.Role}" Values="admin, moderator , tester" HideForAnonymousUsers="false">
+    <dot:ClaimView Claim="{value: ClaimTypes.Role}" Values="admin,moderator,tester" HideForAnonymousUsers="false">
         <HasClaimTemplate>
             <p class="result1">I am a member!</p>
         </HasClaimTemplate>
@@ -20,7 +20,7 @@
         </HasNotClaimTemplate>
     </dot:ClaimView>
 
-    <dot:ClaimView Claim="{value: ClaimTypes.Role}" Values="admin, moderator , tester">
+    <dot:ClaimView Claim="{value: ClaimTypes.Role}" Values="admin,moderator,tester">
         <HasClaimTemplate>
             <p class="result2">I am a member!</p>
         </HasClaimTemplate>

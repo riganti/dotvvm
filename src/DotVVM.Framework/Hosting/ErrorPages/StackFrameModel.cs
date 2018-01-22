@@ -10,6 +10,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
     public class StackFrameModel
     {
         public MethodBase Method { get; set; }
+        public string FormattedMethod { get; set; }
         public SourceModel At { get; set; }
         public IFrameMoreInfo[] MoreInfo { get; set; }
     }

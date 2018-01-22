@@ -1,25 +1,29 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using DotVVM.Samples.Tests;
 using DotVVM.Testing.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
 namespace DotVVM.Samples.Tests.CompletenessChecker
 {
-    class Program
+    static class Program
     {
         // this utility compares the UI tests and Selenium tests and reports samples which do not have tests
         static void Main(string[] args)
         {
+            var testAssemblies = new[] { "DotVVM.Samples.Tests", "DotVVM.Samples.Tests.New" };
+            var testMethodAttributes = new[] { typeof(TestMethodAttribute), typeof(FactAttribute), typeof(TheoryAttribute) };
+
             // get a list of tests
-            var testMethods = typeof(SamplesRouteUrls).Assembly.GetTypes()
+            var testMethods = testAssemblies
+                .Select(Assembly.Load)
+                .SelectMany(a => a.GetTypes())
                 .Where(t => t.IsClass)
                 .SelectMany(t => t.GetMethods())
-                .Where(m => m.GetCustomAttributes<TestMethodAttribute>().Any());
+                .Where(m => testMethodAttributes.Any(attrType => m.GetCustomAttributes(attrType, true).Any()));
 
             // get samples used by any of the tests
             var samplesUsedByTests = testMethods
@@ -49,25 +53,20 @@ namespace DotVVM.Samples.Tests.CompletenessChecker
             Environment.Exit(results.Any() ? 1 : 0);
         }
 
+        private static Dictionary<string, string> categoryDict = new Dictionary<string, string> {
+                { "ComplexSamples", "Complex" },
+                { "ControlSamples", "Control" },
+                { "FeatureSamples", "Feature" },
+                { "Errors", "Error" }
+            };
+
         private static string FixSampleName(string sampleName)
         {
             var parts = sampleName.Split('_');
 
-            if (parts[0] == "ComplexSamples")
+            if (categoryDict.TryGetValue(parts[0], out var newCategoryName))
             {
-                parts[0] = "Complex";
-            }
-            else if (parts[0] == "ControlSamples")
-            {
-                parts[0] = "Control";
-            }
-            else if (parts[0] == "FeatureSamples")
-            {
-                parts[0] = "Feature";
-            }
-            else if (parts[0] == "Errors")
-            {
-                parts[0] = "Error";
+                parts[0] = newCategoryName;
             }
 
             return string.Join("_", parts);

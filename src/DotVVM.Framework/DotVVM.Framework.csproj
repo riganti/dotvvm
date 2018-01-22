@@ -1,7 +1,7 @@
 ﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyTitle>DotVVM</AssemblyTitle>
-    <VersionPrefix>2.0.0-pre04</VersionPrefix>
+    <VersionPrefix>2.0.0-pre12</VersionPrefix>
     <TargetFrameworks>netstandard2.0;net451</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -9,7 +9,7 @@
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>DotVVM</PackageId>
-    <PackageVersion>2.0.0-pre04</PackageVersion>
+    <PackageVersion>2.0.0-pre12</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>DotVVM is an open source ASP.NET-based framework which allows to build modern web apps without writing any JavaScript code.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
@@ -45,19 +45,21 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Scripts\DotVVM.Debug.js" />
+    <EmbeddedResource Include="Resources\Scripts\DotVVM.js" />
+    <EmbeddedResource Include="Resources\Scripts\DotVVM.min.js" />
+    <EmbeddedResource Include="Resources\Scripts\Globalize\globalize.min.js" />
     <EmbeddedResource Include="Resources\Scripts\knockout-latest.js" />
+    <EmbeddedResource Include="Resources\Scripts\Polyfills\polyfill.bundle.js" />
+    <EmbeddedResource Include="Resources\Scripts\Globalize\globalize.js" />
     <None Include="Resources\Scripts\DotVVM.DomUtils.ts" />
     <None Include="Resources\Scripts\DotVVM.Evaluator.ts" />
     <None Include="Resources\Scripts\DotVVM.Events.ts" />
     <None Include="Resources\Scripts\DotVVM.FileUpload.ts" />
     <None Include="Resources\Scripts\DotVVM.Globalize.ts" />
-    <EmbeddedResource Include="Resources\Scripts\DotVVM.js" />
-    <None Include="Resources\Scripts\DotVVM.js.map" />
     <None Include="Resources\Scripts\DotVVM.PostBackHandlers.ts" />
     <None Include="Resources\Scripts\DotVVM.Serialization.ts" />
     <None Include="Resources\Scripts\DotVVM.ts" />
     <None Include="Resources\Scripts\DotVVM.Validation.ts" />
-    <EmbeddedResource Include="Resources\Scripts\Globalize\globalize.js" />
     <None Include="Resources\Scripts\typings\globalize\globalize.d.ts" />
     <None Include="Resources\Scripts\typings\knockout.mapper\knockout.mapper.d.ts" />
     <None Include="Resources\Scripts\typings\knockout\knockout.d.ts" />
@@ -67,7 +69,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
-    <PackageReference Include="System.ValueTuple" Version="4.3.0" />
+    <PackageReference Include="System.ValueTuple" Version="4.4.0" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
     <PackageReference Include="System.Collections.Specialized" Version="4.3.0" />
@@ -77,7 +79,7 @@
     <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
     <PackageReference Include="System.Security.Claims" Version="4.3.0" />
     <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="2.3.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="2.4.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="2.0.0" />

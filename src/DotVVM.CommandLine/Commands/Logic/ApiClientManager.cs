@@ -59,16 +59,22 @@ namespace DotVVM.CommandLine.Commands.Logic
             {
                 GenerateSyncMethods = true,
                 OperationNameGenerator = nameGenerator,
-                GenerateOptionalParameters = true,
+                GenerateOptionalParameters = true
             };
             settings.CSharpGeneratorSettings.ClassStyle = CSharpClassStyle.Poco;
             settings.CSharpGeneratorSettings.Namespace = definition.Namespace;
             settings.CSharpGeneratorSettings.ArrayType = "System.Collections.Generic.List";
             settings.CSharpGeneratorSettings.PropertyNameGenerator =
                 new MyPropertyNameGenerator(c => ConversionUtilities.ConvertToUpperCamelCase(c, true));
-
-
-            var generator = new SwaggerToCSharpClientGenerator(document, settings);
+            settings.CSharpGeneratorSettings.TypeNameGenerator =
+                new DotvmmCSharpTypeNameGenerator(settings.CSharpGeneratorSettings);
+            settings.CSharpGeneratorSettings.TemplateFactory = new DotvvmClientTemplateFactory(settings.CodeGeneratorSettings, new [] {
+                typeof(CSharpGeneratorSettings).Assembly,
+                typeof(SwaggerToCSharpGeneratorSettings).Assembly
+            });
+            
+            var resolver = SwaggerToCSharpTypeResolver.CreateWithDefinitions(settings.CSharpGeneratorSettings, document);
+            var generator = new DotvvmSwaggerToCSharpClientGenerator(document, settings, resolver);
             var csharp = generator.GenerateFile();
 
             var newClient = InjectWrapperClass(csharp, Path.GetFileNameWithoutExtension(definition.CSharpClient), document, settings.OperationNameGenerator, out var isSingleClient, out var wrapperTypeName);
@@ -118,11 +124,15 @@ namespace DotVVM.CommandLine.Commands.Logic
                 UseTransformOptionsMethod = true,
                 ClientBaseClass = "ClientBase"
             };
-            settings.TypeScriptGeneratorSettings.PropertyNameGenerator = new MyPropertyNameGenerator(c => ConversionUtilities.ConvertToLowerCamelCase(c, true));
+            settings.TypeScriptGeneratorSettings.PropertyNameGenerator = new MyPropertyNameGenerator(c => ConversionUtilities.ConvertToUpperCamelCase(c, true));
             settings.TypeScriptGeneratorSettings.NullValue = TypeScriptNullValue.Null;
+            settings.TypeScriptGeneratorSettings.TemplateFactory = new DotvvmClientTemplateFactory(settings.CodeGeneratorSettings, new[] {
+                typeof(TypeScriptGeneratorSettings).Assembly,
+                typeof(SwaggerToTypeScriptClientGeneratorSettings).Assembly
+            });
 
-
-            var generator = new SwaggerToTypeScriptClientGenerator(document, settings);
+            var resolver = new TypeScriptTypeResolver(settings.TypeScriptGeneratorSettings);
+            var generator = new DotvvmSwaggerToTypeScriptClientGenerator(document, settings, resolver);
             var ts = generator.GenerateFile();
             var baseClass = CreateBaseClass(definition);
             ts = WrapInNamespace(definition, ts, baseClass);
@@ -130,7 +140,14 @@ namespace DotVVM.CommandLine.Commands.Logic
 
             if (definition.CompileTypescript)
             {
-                Process.Start("tsc", definition.TypescriptClient).WaitForExit();
+                Process.Start(new ProcessStartInfo()
+                {
+                    FileName = "tsc",
+                    Arguments = definition.TypescriptClient,
+                    UseShellExecute = true,
+                    CreateNoWindow = true,
+                    WindowStyle = ProcessWindowStyle.Hidden
+                }).WaitForExit();
             }
         }
 
@@ -201,6 +218,30 @@ namespace DotVVM.CommandLine.Commands.Logic
             var lastPathSegment = pathSegments.LastOrDefault();
             var path = string.Concat(pathSegments.Take(pathSegments.Length - 1).Select(s => s + "_"));
             return path + operation.Method.ToString()[0].ToString().ToUpper() + operation.Method.ToString().Substring(1).ToLower() + ConversionUtilities.ConvertToUpperCamelCase(lastPathSegment.Replace('_', '-'), false);
+        }
+    }
+
+    public class DotvmmCSharpTypeNameGenerator : DefaultTypeNameGenerator
+    {
+        private readonly CSharpGeneratorSettings settings;
+
+        public DotvmmCSharpTypeNameGenerator(CSharpGeneratorSettings settings)
+        {
+            this.settings = settings;
+        }
+
+        public override string Generate(JsonSchema4 schema, string typeNameHint, IEnumerable<string> reservedTypeNames)
+        {
+            var name = base.Generate(schema, typeNameHint, reservedTypeNames);
+
+            if (name.StartsWith("GridViewDataSetOf"))
+            {
+                var type = "DotVVM.Framework.Controls.GridViewDataSet<" + name.Substring("GridViewDataSetOf".Length) + ">";
+                settings.ExcludedTypeNames = (settings.ExcludedTypeNames ?? new string[] { }).Concat(new [] { type }).ToArray();
+                return type;
+            }
+
+            return name;
         }
     }
 

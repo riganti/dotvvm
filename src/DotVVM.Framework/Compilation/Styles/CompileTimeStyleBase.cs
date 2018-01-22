@@ -25,9 +25,11 @@ namespace DotVVM.Framework.Compilation.Styles
             {
                 foreach (var prop in SetProperties)
                 {
-                    if (!control.Properties.ContainsKey(prop.Key) || prop.Value.Append)
+                    if (!control.Properties.ContainsKey(prop.Key)
+                        || prop.Value.Type == StyleOverrideOptions.Append
+                        || prop.Value.Type == StyleOverrideOptions.Overwrite)
                     {
-                        control.SetProperty(prop.Value.Value, prop.Value.Append, out string error);
+                        control.SetProperty(prop.Value.Value, prop.Value.Type == StyleOverrideOptions.Overwrite, out string error);
                     }
                 }
             }
@@ -51,12 +53,12 @@ namespace DotVVM.Framework.Compilation.Styles
         public struct PropertyInsertionInfo
         {
             public readonly ResolvedPropertySetter Value;
-            public readonly bool Append;
+            public readonly StyleOverrideOptions Type;
 
-            public PropertyInsertionInfo(ResolvedPropertySetter value, bool append)
+            public PropertyInsertionInfo(ResolvedPropertySetter value, StyleOverrideOptions type)
             {
                 this.Value = value;
-                this.Append = append;
+                this.Type = type;
             }
         }
     }

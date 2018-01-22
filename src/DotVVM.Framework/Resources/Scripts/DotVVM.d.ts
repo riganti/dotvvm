@@ -1,6 +1,5 @@
 /// <reference path="typings/knockout/knockout.d.ts" />
 /// <reference path="typings/knockout/knockout.dotvvm.d.ts" />
-/// <reference path="typings/knockout.mapper/knockout.mapper.d.ts" />
 /// <reference path="typings/globalize/globalize.d.ts" />
 declare class DotvvmDomUtils {
     onDocumentReady(callback: () => void): void;
@@ -100,8 +99,9 @@ declare class DotvvmSpaNavigatedEventArgs implements DotvvmEventArgs {
     viewModel: any;
     viewModelName: string;
     serverResponseObject: any;
+    xhr: XMLHttpRequest | undefined;
     isHandled: boolean;
-    constructor(viewModel: any, viewModelName: string, serverResponseObject: any);
+    constructor(viewModel: any, viewModelName: string, serverResponseObject: any, xhr?: XMLHttpRequest | undefined);
 }
 declare class DotvvmRedirectEventArgs implements DotvvmEventArgs {
     viewModel: any;

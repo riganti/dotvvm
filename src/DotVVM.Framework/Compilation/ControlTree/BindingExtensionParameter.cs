@@ -57,7 +57,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public override Expression GetServerEquivalent(Expression controlParameter)
         {
-            return ExpressionUtils.Replace((DotvvmBindableObject c) => c.GetAllAncestors(true).OfType<DataItemContainer>().First().DataItemIndex.Value, controlParameter);
+            return ExpressionUtils.Replace((DotvvmBindableObject c) => c.GetAllAncestors(true, false).OfType<DataItemContainer>().First().DataItemIndex.Value, controlParameter);
         }
 
         public override JsExpression GetJsTranslation(JsExpression dataContext)
@@ -95,7 +95,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         }
 
         public override Expression GetServerEquivalent(Expression controlParameter) =>
-            ExpressionUtils.Replace((DotvvmBindableObject c) => new BindingCollectionInfo(c.GetAllAncestors(true).OfType<DataItemContainer>().First().DataItemIndex.Value), controlParameter);
+            ExpressionUtils.Replace((DotvvmBindableObject c) => new BindingCollectionInfo(c.GetAllAncestors(true, false).OfType<DataItemContainer>().First().DataItemIndex.Value), controlParameter);
 
         public override JsExpression GetJsTranslation(JsExpression dataContext)
         {
@@ -107,7 +107,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
     {
         public InjectedServiceExtensionParameter(string identifier, ITypeDescriptor type)
             : base(identifier, type, inherit: true) { }
-        
+
         public override Expression GetServerEquivalent(Expression controlParameter)
         {
             var type = ((ResolvedTypeDescriptor)this.ParameterType).Type;

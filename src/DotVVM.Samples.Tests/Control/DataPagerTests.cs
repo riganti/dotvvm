@@ -203,20 +203,6 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
-        [TestMethod]
-        public void Control_DataPager_ShowHideControlAsync()
-        {
-            RunInAllBrowsers(browser =>
-            {
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_DataPager_DataPager);
-                browser.Wait();
-
-                browser.Single("shouldLoadAsync-button", this.SelectByDataUi).Click().Wait();
-
-                ShowHideControl(browser);
-            });
-        }
-
         private void ShowHideControl(IBrowserWrapperFluentApi browser)
         {
             // verify the second pager is hidden

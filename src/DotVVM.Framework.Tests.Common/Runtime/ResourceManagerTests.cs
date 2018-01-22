@@ -37,8 +37,9 @@ namespace DotVVM.Framework.Tests.Runtime
             manager.AddRequiredResource(ResourceConstants.DotvvmResourceName);
             var resourcesInCorrectOrder = manager.GetResourcesInOrder().ToList();
             Assert.AreEqual(configuration.Resources.FindResource(ResourceConstants.KnockoutJSResourceName), resourcesInCorrectOrder[0]);
-            Assert.AreEqual(configuration.Resources.FindResource(ResourceConstants.DotvvmResourceName + ".internal"), resourcesInCorrectOrder[1]);
-            Assert.AreEqual(configuration.Resources.FindResource(ResourceConstants.DotvvmResourceName), resourcesInCorrectOrder[2]);
+            Assert.AreEqual(configuration.Resources.FindResource(ResourceConstants.PolyfillResourceName), resourcesInCorrectOrder[1]);
+            Assert.AreEqual(configuration.Resources.FindResource(ResourceConstants.DotvvmResourceName + ".internal"), resourcesInCorrectOrder[2]);
+            Assert.AreEqual(configuration.Resources.FindResource(ResourceConstants.DotvvmResourceName), resourcesInCorrectOrder[3]);
         }
 
 

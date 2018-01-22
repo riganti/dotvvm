@@ -1,8 +1,8 @@
 ﻿
-
-namespace DotVVM.Testing.Abstractions {
-    public class SamplesRouteUrls{
-        
+namespace DotVVM.Testing.Abstractions
+{
+    public class SamplesRouteUrls
+    {
             public static string Default => "Default";
 
             public static string ComplexSamples_Auth_Login => "ComplexSamples/Auth/Login";
@@ -22,8 +22,6 @@ namespace DotVVM.Testing.Abstractions {
             public static string ComplexSamples_FileUploadInRepeater_FileUploadInRepeater => "ComplexSamples/FileUploadInRepeater/FileUploadInRepeater";
 
             public static string ComplexSamples_GridViewDataSet_GridViewDataSet => "ComplexSamples/GridViewDataSet/GridViewDataSet";
-
-            public static string ComplexSamples_GridViewDataSet_GridViewDataSetDelegate => "ComplexSamples/GridViewDataSet/GridViewDataSetDelegate";
 
             public static string ComplexSamples_InvoiceCalculator_InvoiceCalculator => "ComplexSamples/InvoiceCalculator/InvoiceCalculator";
 
@@ -143,6 +141,8 @@ namespace DotVVM.Testing.Abstractions {
 
             public static string ControlSamples_Repeater_NestedRepeater => "ControlSamples/Repeater/NestedRepeater";
 
+            public static string ControlSamples_Repeater_NestedRepeaterWithControl => "ControlSamples/Repeater/NestedRepeaterWithControl";
+
             public static string ControlSamples_Repeater_RepeaterAsSeparator => "ControlSamples/Repeater/RepeaterAsSeparator";
 
             public static string ControlSamples_Repeater_RepeaterWrapperTag => "ControlSamples/Repeater/RepeaterWrapperTag";
@@ -160,6 +160,10 @@ namespace DotVVM.Testing.Abstractions {
             public static string ControlSamples_RouteLink_RouteLinkEnabled => "ControlSamples/RouteLink/RouteLinkEnabled";
 
             public static string ControlSamples_RouteLink_RouteLinkEnabledFalse => "ControlSamples/RouteLink/RouteLinkEnabledFalse";
+
+            public static string ControlSamples_RouteLink_RouteLinkSpaUrlGen => "ControlSamples/RouteLink/RouteLinkSpaUrlGen";
+
+            public static string ControlSamples_RouteLink_RouteLinkUrlGen => "ControlSamples/RouteLink/RouteLinkUrlGen";
 
             public static string ControlSamples_RouteLink_TestRoute => "ControlSamples/RouteLink/TestRoute";
 
@@ -247,6 +251,10 @@ namespace DotVVM.Testing.Abstractions {
 
             public static string FeatureSamples_Api_GithubRepoApi => "FeatureSamples/Api/GithubRepoApi";
 
+            public static string FeatureSamples_Api_GridViewDataSetAspNetCore => "FeatureSamples/Api/GridViewDataSetAspNetCore";
+
+            public static string FeatureSamples_Api_GridViewDataSetOwin => "FeatureSamples/Api/GridViewDataSetOwin";
+
             public static string FeatureSamples_BindingContexts_BindingContext => "FeatureSamples/BindingContexts/BindingContext";
 
             public static string FeatureSamples_BindingContexts_CollectionContext => "FeatureSamples/BindingContexts/CollectionContext";
@@ -275,7 +283,11 @@ namespace DotVVM.Testing.Abstractions {
 
             public static string FeatureSamples_Directives_ViewModelMissingAssembly => "FeatureSamples/Directives/ViewModelMissingAssembly";
 
-            public static string FeatureSamples_DoublePostBackPrevention_DoublePostBackPrevention => "FeatureSamples/DoublePostBackPrevention/DoublePostBackPrevention";
+            public static string FeatureSamples_PostbackConcurrency_NoneMode => "FeatureSamples/PostbackConcurrency/PostbackConcurrencyMode?concurrency=None";
+
+            public static string FeatureSamples_PostbackConcurrency_QueueMode => "FeatureSamples/PostbackConcurrency/PostbackConcurrencyMode?concurrency=Queue";
+
+            public static string FeatureSamples_PostbackConcurrency_DenyMode => "FeatureSamples/PostbackConcurrency/PostbackConcurrencyMode?concurrency=Deny";
 
             public static string FeatureSamples_EmbeddedResourceControls_EmbeddedResourceControls => "FeatureSamples/EmbeddedResourceControls/EmbeddedResourceControls";
 
@@ -316,6 +328,8 @@ namespace DotVVM.Testing.Abstractions {
             public static string FeatureSamples_MarkupControl_MultiControlHierarchy => "FeatureSamples/MarkupControl/MultiControlHierarchy";
 
             public static string FeatureSamples_NestedMasterPages_Content => "FeatureSamples/NestedMasterPages/Content";
+
+            public static string FeatureSamples_ParameterBinding_OptionalParameterBinding => "FeatureSamples/ParameterBinding/OptionalParameterBinding";
 
             public static string FeatureSamples_ParameterBinding_ParameterBinding => "FeatureSamples/ParameterBinding/ParameterBinding";
 
@@ -359,7 +373,13 @@ namespace DotVVM.Testing.Abstractions {
 
             public static string FeatureSamples_StaticCommand_StaticCommand_ComboBoxSelectionChanged_Objects => "FeatureSamples/StaticCommand/StaticCommand_ComboBoxSelectionChanged_Objects";
 
+            public static string FeatureSamples_StaticCommand_StaticCommand_NullBinding => "FeatureSamples/StaticCommand/StaticCommand_NullBinding";
+
+            public static string FeatureSamples_StaticCommand_StaticCommand_ValueAssignmentInControl => "FeatureSamples/StaticCommand/StaticCommand_ValueAssignmentInControl";
+
             public static string FeatureSamples_Validation_ClientSideValidationDisabling => "FeatureSamples/Validation/ClientSideValidationDisabling";
+
+            public static string FeatureSamples_Validation_CustomValidation => "FeatureSamples/Validation/CustomValidation";
 
             public static string FeatureSamples_Validation_DateTimeValidation => "FeatureSamples/Validation/DateTimeValidation";
 
@@ -368,6 +388,8 @@ namespace DotVVM.Testing.Abstractions {
             public static string FeatureSamples_Validation_DynamicValidation => "FeatureSamples/Validation/DynamicValidation";
 
             public static string FeatureSamples_Validation_EssentialTypeValidation => "FeatureSamples/Validation/EssentialTypeValidation";
+
+            public static string FeatureSamples_Validation_Localization => "FeatureSamples/Validation/Localization";
 
             public static string FeatureSamples_Validation_ModelStateErrors => "FeatureSamples/Validation/ModelStateErrors";
 
@@ -394,6 +416,5 @@ namespace DotVVM.Testing.Abstractions {
             public static string FeatureSamples_ViewModelProtection_SignedNestedInServerToClient => "FeatureSamples/ViewModelProtection/SignedNestedInServerToClient";
 
             public static string FeatureSamples_ViewModelProtection_ViewModelProtection => "FeatureSamples/ViewModelProtection/ViewModelProtection";
-
         }
 }

@@ -14,5 +14,7 @@ namespace DotVVM.Framework.Binding.HelperNamespace
         public static T RefreshOnChange<T>(T obj, object refreshOn) => obj;
 
         public static T RefreshOnEvent<T>(T obj, string eventName) => obj;
+
+        public static void PushEvent(string eventName) { }
     }
 }

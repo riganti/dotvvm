@@ -1,6 +1,5 @@
 /// <reference path="typings/knockout/knockout.d.ts" />
 /// <reference path="typings/knockout/knockout.dotvvm.d.ts" />
-/// <reference path="typings/knockout.mapper/knockout.mapper.d.ts" />
 /// <reference path="typings/globalize/globalize.d.ts" />
 
 interface Document {
@@ -79,12 +78,14 @@ class DotVVM {
             before: ["setIsPostackRunning"],
             execute(callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions) {
                 var queue = o.q || "default";
+                var handler = () => dotvvm.commonConcurrencyHandler(callback(), options, queue);
+
                 if (dotvvm.getPostbackQueue(queue).noRunning > 0) {
                     return new Promise<PostbackCommitFunction>(resolve => {
-                        dotvvm.getPostbackQueue(queue).queue.push(() => resolve(callback()));
+                        dotvvm.getPostbackQueue(queue).queue.push(() => resolve(handler()));
                     })
                 }
-                return dotvvm.commonConcurrencyHandler(callback(), options, queue);
+                return handler();
             }
         }),
         "suppressOnUpdating": (options: any) => ({
@@ -426,8 +427,12 @@ class DotVVM {
 
     public applyPostbackHandlers(callback: (options: PostbackOptions) => Promise<PostbackCommitFunction | undefined>, sender: HTMLElement, handlers?: ClientFriendlyPostbackHandlerConfiguration[], args: any[] = [], context = ko.contextFor(sender), viewModel = context.$root, viewModelName?: string): Promise<DotvvmAfterPostBackEventArgs> {
         const options = new PostbackOptions(this.backUpPostBackConter(), sender, args, viewModel, viewModelName)
-        return this.applyPostbackHandlersCore(callback, options, this.findPostbackHandlers(context, this.globalPostbackHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers)))
-            .then(r => r(), Promise.reject);
+        const promise =  this.applyPostbackHandlersCore(callback, options, this.findPostbackHandlers(context, this.globalPostbackHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers)))
+            .then(r => r(), r => Promise.reject(r))
+
+        promise.catch(reason => { if (reason) console.log("Rejected: " + reason) });
+
+        return promise;
     }
 
     public postbackCore(options: PostbackOptions, path: string[], command: string, controlUniqueId: string, context: any, commandArgs?: any[]) {
@@ -522,7 +527,11 @@ class DotVVM {
 
 
     public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, context?: any, handlers?: ClientFriendlyPostbackHandlerConfiguration[], commandArgs?: any[]): Promise<DotvvmAfterPostBackEventArgs> {
-        if (this.isPostBackProhibited(sender)) return new Promise<DotvvmAfterPostBackEventArgs>((resolve, reject) => reject("rejected"));
+        if (this.isPostBackProhibited(sender)) {
+            const rejectedPromise =  new Promise<DotvvmAfterPostBackEventArgs>((resolve, reject) => reject("rejected"));
+            rejectedPromise.catch(() => console.log("Postback probihited"));
+            return rejectedPromise;
+        }
 
         context = context || ko.contextFor(sender);
 
@@ -703,7 +712,7 @@ class DotVVM {
                 }
 
                 // trigger spaNavigated event
-                var spaNavigatedArgs = new DotvvmSpaNavigatedEventArgs(viewModel, viewModelName, resultObject);
+                var spaNavigatedArgs = new DotvvmSpaNavigatedEventArgs(viewModel, viewModelName, resultObject, result);
                 this.events.spaNavigated.trigger(spaNavigatedArgs);
                 if (!isSuccess && !spaNavigatedArgs.isHandled) {
                     throw "Invalid response from server!";
@@ -828,8 +837,13 @@ class DotVVM {
     private updateDynamicPathFragments(context: any, path: string[]): void {
         for (var i = path.length - 1; i >= 0; i--) {
             if (path[i].indexOf("[$index]") >= 0) {
-                path[i] = path[i].replace("[$index]", "[" + context.$index() + "]");
+                path[i] = path[i].replace("[$index]", `[${context.$index()}]`);
             }
+
+            if (path[i].indexOf("[$indexPath]") >= 0) {
+                path[i] = path[i].replace("[$indexPath]", `[${context.$indexPath.map(i => i()).join("]/[")}]`);
+            }
+
             context = context.$parentContext;
         }
     }
@@ -931,11 +945,19 @@ class DotVVM {
         return ko.unwrap(ko.unwrap(array));
     }
     public buildRouteUrl(routePath: string, params: any): string {
-        return routePath.replace(/\{([^\}]+?)\??(:(.+?))?\}/g, (s, paramName, hsjdhsj, type) => {
+        // prepend url with backslash to correctly handle optional parameters at start
+        routePath = '/' + routePath; 
+
+        var url = routePath.replace(/(\/[^\/]*?)\{([^\}]+?)\??(:(.+?))?\}/g, (s, prefix, paramName, _, type) => {
             if (!paramName) return "";
             const x = ko.unwrap(params[paramName.toLowerCase()])
-            return x == null ? "" : x;
+            return x == null ? "" : prefix + x;
         });
+
+        if (url.indexOf('/') === 0) {
+            return url.substring(1);
+        }
+        return url;
     }
 
     public buildUrlSuffix(urlSuffix: string, query: any): string {
@@ -1093,11 +1115,6 @@ class DotVVM {
                     }
                 }
 
-                var interrupt = () => {
-                    clearTimeout(timeout);
-                    element.style.display = "none";
-                }
-
                 var hide = () => {
                     running = false;
                     clearTimeout(timeout);
@@ -1106,10 +1123,9 @@ class DotVVM {
 
                 dotvvm.isPostbackRunning.subscribe(e => {
                     if (e) {
-                        if (running) {
-                            interrupt();
+                        if (!running) {
+                            show();
                         }
-                        show();
                     } else {
                         hide();
                     }
@@ -1276,8 +1292,8 @@ class DotVVM {
         };
 
         ko.bindingHandlers["dotvvm-CheckState"] = {
-            init(element, valueAccessor, allBindings) {
-                ko.getBindingHandler("checked").init!(element, valueAccessor, allBindings);
+            init(element, valueAccessor, allBindings, viewModel, bindingContext) {
+                ko.getBindingHandler("checked").init!(element, valueAccessor, allBindings, viewModel, bindingContext);
             },
             update(element, valueAccessor, allBindings) {
                 let value = ko.unwrap(valueAccessor());

@@ -1,0 +1,37 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Validation.CustomValidationViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Custom Validation Sample</title>
+    <style>
+        .has-error {
+            background-color: #ffaaaa;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <dot:CheckBox Checked="{value: UseKnockoutNotation}"
+                      Text="Use Knockout Notation" />
+    </div>
+    <div>
+        <p>The name must be one of these: "John", "James", "Ted".</p>
+        <p>Detail.Name: </p>
+        <dot:TextBox Text="{value: Detail.Name}"
+                     Validator.Value="{value: Detail.Name}" />
+        <br />
+        <p>Detail.Age: </p>
+        <dot:TextBox Text="{value: Detail.Age}"
+                     Validator.Value="{value: Detail.Age}" />
+        <br />
+        <dot:Button Click="{command: 0}"
+                    Text="Send postback" />
+    </div>
+    <div>
+        <p>ValidationSummary: </p>
+        <dot:ValidationSummary IncludeErrorsFromChildren="True" />
+    </div>
+</body>
+</html>
