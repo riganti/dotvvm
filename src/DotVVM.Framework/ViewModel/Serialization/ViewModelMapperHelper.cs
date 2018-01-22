@@ -24,10 +24,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         public static void SetConstructor(this ViewModelSerializationMap map, ObjectFactory factory)
         {
-            map.SetConstructor(p => factory.Invoke(p, Array.Empty<object>()));
+            map.SetConstructor(p => factory.Invoke(p, new object[0]));
         }
 
-        public static void AllowDependencyInjectiton(this ViewModelSerializationMap map)
+        public static void AllowDependencyInjection(this ViewModelSerializationMap map)
         {
             map.SetConstructor(ActivatorUtilities.CreateFactory(map.Type, Type.EmptyTypes));
         }
