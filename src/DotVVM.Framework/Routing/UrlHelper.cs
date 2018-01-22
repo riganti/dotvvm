@@ -13,8 +13,10 @@ namespace DotVVM.Framework.Routing
         public static string BuildUrlSuffix(string urlSuffix, object query)
         {
             urlSuffix = urlSuffix ?? "";
+
             var hashIndex = urlSuffix.IndexOf('#');
-            var resultSuffix = hashIndex < 0 ? urlSuffix : urlSuffix.Substring(0, hashIndex);
+            var suffixContainsHash = hashIndex >= 0;
+            var resultSuffix = !suffixContainsHash ? urlSuffix : urlSuffix.Substring(0, hashIndex);
 
             switch (query)
             {
@@ -23,30 +25,27 @@ namespace DotVVM.Framework.Routing
                 case IEnumerable<KeyValuePair<string, string>> keyValueCollection:
                     foreach (var item in keyValueCollection)
                     {
-                        resultSuffix = resultSuffix + (resultSuffix.LastIndexOf('?') < 0 ? "?" : "&") +
-                                       Uri.EscapeDataString(item.Key) +
-                                       "=" + Uri.EscapeDataString(item.Value);
+                        AppendQueryParam(ref resultSuffix, item.Key, item.Value);
                     }
                     break;
                 case IEnumerable<KeyValuePair<string, object>> keyValueCollection:
                     foreach (var item in keyValueCollection)
                     {
-                        resultSuffix = resultSuffix + (resultSuffix.LastIndexOf('?') < 0 ? "?" : "&") +
-                                       Uri.EscapeDataString(item.Key) +
-                                       "=" + Uri.EscapeDataString(item.Value.ToString());
+                        AppendQueryParam(ref resultSuffix, item.Key, item.Value.ToString());
                     }
                     break;
                 default:
                     foreach (var prop in query.GetType().GetProperties())
                     {
-                        resultSuffix = resultSuffix + (resultSuffix.LastIndexOf('?') < 0 ? "?" : "&") +
-                                       Uri.EscapeDataString(prop.Name) +
-                                       "=" + Uri.EscapeDataString(prop.GetValue(query).ToString());
+                        AppendQueryParam(ref resultSuffix, prop.Name, prop.GetValue(query).ToString());
                     }
                     break;
             }
 
-            return resultSuffix + (hashIndex < 0 ? "" : urlSuffix.Substring(hashIndex));
+            return resultSuffix + (!suffixContainsHash ? "" : urlSuffix.Substring(hashIndex));
         }
+
+        private static string AppendQueryParam(ref string urlSuffix, string name, string value)
+            => urlSuffix += (urlSuffix.LastIndexOf('?') < 0 ? "?" : "&") + $"{Uri.EscapeDataString(name)}={Uri.EscapeDataString(value)}";
     }
 }
