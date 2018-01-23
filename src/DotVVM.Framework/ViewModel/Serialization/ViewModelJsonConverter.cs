@@ -23,8 +23,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         private readonly IViewModelSerializationMapper viewModelSerializationMapper;
 
-        public ViewModelJsonConverter(bool isPostback, IViewModelSerializationMapper viewModelSerializationMapper, JObject encryptedValues = null)
+        public ViewModelJsonConverter(bool isPostback, IViewModelSerializationMapper viewModelSerializationMapper, IServiceProvider services, JObject encryptedValues = null)
         {
+            Services = services;
             IsPostback = isPostback;
             EncryptedValues = encryptedValues ?? new JObject();
             evReader = new Lazy<EncryptedValuesReader>(() => {
@@ -44,6 +45,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
 
         public HashSet<ViewModelSerializationMap> UsedSerializationMaps { get; set; }
+        public IServiceProvider Services { get; }
         public bool IsPostback { get; private set; }
 
         private ViewModelSerializationMap GetSerializationMapForType(Type type)
@@ -75,7 +77,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
             // deserialize
             var serializationMap = GetSerializationMapForType(objectType);
-            var instance = serializationMap.ConstructorFactory();
+            var instance = serializationMap.ConstructorFactory(Services);
             serializationMap.ReaderFactory(reader, serializer, instance, evReader.Value);
             return instance;
         }

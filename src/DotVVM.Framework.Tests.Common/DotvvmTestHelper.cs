@@ -6,6 +6,7 @@ using System.Text;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Security;
+using DotVVM.Framework.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -55,5 +56,19 @@ namespace DotVVM.Framework.Tests
                 customServices?.Invoke(s);
                 RegisterMoqServices(s);
             });
+
+        public static TestDotvvmRequestContext CreateContext(DotvvmConfiguration configuration)
+        {
+            IServiceProvider services = configuration.ServiceProvider.CreateScope().ServiceProvider;
+            var context = new TestDotvvmRequestContext()
+            {
+                Configuration = configuration,
+                Services = services,
+                CsrfToken = "Test CSRF Token",
+                ModelState = new ModelState(),
+                ResourceManager = services.GetService<ResourceManagement.ResourceManager>()
+            };
+            return context;
+        }
     }
 }

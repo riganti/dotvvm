@@ -22,6 +22,16 @@ namespace DotVVM.Framework.ViewModel.Serialization
             return mapper;
         }
 
+        public static void SetConstructor(this ViewModelSerializationMap map, ObjectFactory factory)
+        {
+            map.SetConstructor(p => factory.Invoke(p, new object[0]));
+        }
+
+        public static void AllowDependencyInjection(this ViewModelSerializationMap map)
+        {
+            map.SetConstructor(ActivatorUtilities.CreateFactory(map.Type, Type.EmptyTypes));
+        }
+
         public static ViewModelPropertyMap Property(this ViewModelSerializationMap map, string name) =>
             map.Properties.SingleOrDefault(p => p.PropertyInfo.Name == name) ??
             throw new InvalidOperationException($"Property '{name}' was not found on '{map.Type}'.");
