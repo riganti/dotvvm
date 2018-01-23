@@ -45,8 +45,10 @@
         <dot:TextBox Text="{value: Title}" />
         <dot:TextBox Type="MultiLine" Text="{value: Body}" />
         <span Visible="{value: Api.RefreshOnChange(_github.Repos.GetWatchers(_root.UserName, _root.Repo), _root.Repo).Count > 0}"> You can only push issues to repos that have 0 watchers. </span>
-        <dot:Button Click="{staticCommand: _github.Repos.PostIssues(_root.UserName, _root.Repo, _this)}" Enabled="{value: Api.RefreshOnChange(_github.Repos.GetWatchers(_root.UserName, _root.Repo), _root.Repo).Count == 0}"> Submit issue </dot:Button>
+        <dot:Button Click="{staticCommand: _github.Repos.PostIssues(_root.UserName, _root.Repo, _this);}" Enabled="{value: Api.RefreshOnChange(_github.Repos.GetWatchers(_root.UserName, _root.Repo), _root.Repo).Count == 0}"> Submit issue </dot:Button>
     </div>
+
+    <dot:Button Text="Fill sample issue" Click="{staticCommand: NewIssue.Title = "Hello."; NewIssue.Body = "This project is simply awesome."}" />
 
     <dot:Button Text="Put star" Click="{staticCommand: _github.User.PutStarred(UserName, Repo)}" />
 </body>

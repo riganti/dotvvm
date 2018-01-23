@@ -17,8 +17,8 @@ namespace DotVVM.Framework.Tests
         class FakeProtector : IViewModelProtector
         {
             // I hope I will not see this message anywhere on the web ;)
-            public const string WarningPrefix = "WARNING: This message should have been encrypted, but you are using a moq IViewModelProtector";
-            public static readonly byte[] WarningPrefixBytes = Encoding.UTF8.GetBytes(WarningPrefix);
+            public const string WarningPrefix = "WARNING - Message not encryped: ";
+            public static readonly byte[] WarningPrefixBytes = Convert.FromBase64String("WARNING/NOT/ENCRYPTED+++");
 
             public string Protect(string serializedData, IDotvvmRequestContext context)
             {
@@ -28,7 +28,7 @@ namespace DotVVM.Framework.Tests
             public byte[] Protect(byte[] plaintextData, params string[] purposes)
             {
                 var result = new List<byte>();
-                result.AddRange(Encoding.UTF8.GetBytes(WarningPrefix));
+                result.AddRange(WarningPrefixBytes);
                 result.AddRange(plaintextData);
                 return result.ToArray();
             }

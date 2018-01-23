@@ -712,7 +712,10 @@ var DotvvmSerialization = /** @class */ (function () {
     };
     DotvvmSerialization.prototype.serializeDate = function (date, convertToUtc) {
         if (convertToUtc === void 0) { convertToUtc = true; }
-        if (typeof date == "string") {
+        if (date == null) {
+            return null;
+        }
+        else if (typeof date == "string") {
             // just print in the console if it's invalid
             if (dotvvm.globalize.parseDotvvmDate(date) != null)
                 console.error(new Error("Date " + date + " is invalid."));

@@ -64,6 +64,9 @@ namespace DotVVM.Framework.Compilation.Javascript
 
                 case ExpressionType.Block:
                     return TranslateBlock((BlockExpression)expression);
+                
+                case ExpressionType.Default:
+                    return TranslateDefault((DefaultExpression)expression);
             }
             if (expression is BinaryExpression)
             {
@@ -222,6 +225,12 @@ namespace DotVVM.Framework.Compilation.Javascript
             if (WriteUnknownParameters && !string.IsNullOrEmpty(expression.Name)) return new JsIdentifierExpression(expression.Name);
             else throw new NotSupportedException($"Can't translate parameter '{expression}' to Javascript.");
         }
+
+        public JsLiteral TranslateDefault(DefaultExpression expression) =>
+            new JsLiteral(expression.Type.IsValueType && expression.Type != typeof(void) ? 
+                          Activator.CreateInstance(expression.Type) :
+                          null)
+            .WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
 
         public JsLiteral TranslateConstant(ConstantExpression expression) =>
             new JsLiteral(expression.Value).WithAnnotation(new ViewModelInfoAnnotation(expression.Type));

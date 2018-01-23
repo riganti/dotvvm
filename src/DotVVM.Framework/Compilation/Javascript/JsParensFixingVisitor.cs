@@ -114,8 +114,10 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public static OperatorPrecedence GetOperatorPrecedence(JsExpression expression)
         {
+            if (expression.Role == JsTreeRoles.Argument && expression is JsBinaryExpression binary && binary.Operator == BinaryOperatorType.Sequence)
+                return new OperatorPrecedence(1, true);
             if (expression.Role == JsTreeRoles.Argument || expression.Parent is JsParenthesizedExpression)
-                return OperatorPrecedence.Max; // argument is never parenthised
+                return OperatorPrecedence.Max;
             return new OperatorPrecedence(OperatorLevel(expression), IsPreferedSide(expression));
         }
 
