@@ -58,6 +58,7 @@ function SetVersion() {
 }
 
 function BuildPackages() {
+	$transformComments = [System.IO.Path]::GetFullPath("Tools/add-summary-comments.fsx")
 	foreach ($package in $packages) {
 		cd .\$($package.Directory)
 		
@@ -68,7 +69,12 @@ function BuildPackages() {
 			& dotnet restore --source $nugetRestoreAltSource --source https://nuget.org/api/v2/ | Out-Host
 		}
 		
-		& dotnet pack | Out-Host
+		& dotnet build --no-incremental --configuration Release | Out-Host
+		foreach($commentFile in (ls ./bin/Release/*/*.xml)) {
+			fsi $transformComments $commentFile
+			echo "Processed doccomment file $commentFile"
+		}
+		& dotnet pack --configuration Release --no-build | Out-Host
 		cd ..
 	}
 }
