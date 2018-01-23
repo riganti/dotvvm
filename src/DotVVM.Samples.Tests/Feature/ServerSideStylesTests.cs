@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Dotvvm.Samples.Tests;
+﻿using DotVVM.Testing.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
 
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class ServerSideStylesTests : SeleniumTest
+    public class ServerSideStylesTests : AppSeleniumTest
     {
         [TestMethod]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles))]
         public void Feature_ServerSideStyles_DotvvmControlNoAttributes()
         {
             RunInAllBrowsers(browser =>
@@ -24,6 +19,7 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [TestMethod]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles))]
         public void Feature_ServerSideStyles_DotvvmControlWithAttributes()
         {
             RunInAllBrowsers(browser =>
@@ -35,29 +31,36 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [TestMethod]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles))]
         public void Feature_ServerSideStyles_HtmlControlNoAttributes()
         {
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles);
-                browser.First("customTagName[id=htmlControlNoAttr]").CheckAttribute("append", "Attribute changed");
-                browser.First("customTagName[id=htmlControlNoAttr]").CheckAttribute("noAppend", "Attribute changed");
+                browser.First("customTagName[id=htmlControlNoAttr]").CheckAttribute("ignore", "Attribute ignored");
+                browser.First("customTagName[id=htmlControlNoAttr]").CheckAttribute("append", "Attribute appended");
+                browser.First("customTagName[id=htmlControlNoAttr]").CheckAttribute("overwrite", "Attribute changed");
+                browser.First("customTagName[id=htmlControlNoAttr]").CheckAttribute("class", "new-class");
             });
         }
 
         [TestMethod]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles))]
         public void Feature_ServerSideStyles_HtmlControlWithAttributes()
         {
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles);
-                browser.First("customTagName[id=htmlControlWithAttr]").CheckAttribute("append", "Attribute changed");
-                browser.First("customTagName[id=htmlControlWithAttr]").CheckAttribute("noAppend", "Default attribute");
+                browser.First("customTagName[id=htmlControlWithAttr]").CheckAttribute("ignore", "Default attribute");
+                browser.First("customTagName[id=htmlControlWithAttr]").CheckAttribute("append", "Default attribute;Attribute appended");
+                browser.First("customTagName[id=htmlControlWithAttr]").CheckAttribute("overwrite", "Attribute changed");
+                browser.First("customTagName[id=htmlControlWithAttr]").CheckAttribute("class", "default-class new-class");
             });
         }
 
 
         [TestMethod]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles_DotvvmProperties))]
         public void Feature_ServerSideStyles_DotvvmControlProperties()
         {
             RunInAllBrowsers(browser =>
@@ -69,6 +72,7 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [TestMethod]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles_DotvvmProperties))]
         public void Feature_ServerSideStyles_DerivedMatcher()
         {
             RunInAllBrowsers(browser =>
@@ -81,6 +85,7 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [TestMethod]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles_DotvvmProperties))]
         public void Feature_ServerSideStyles_Matcher()
         {
             RunInAllBrowsers(browser =>
@@ -93,6 +98,8 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [TestMethod]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ServerSideStyles_DirectoryStyle_ServerSideStyles))]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ServerSideStyles_NoDirectoryStyle_ServerSideStyles))]
         public void Feature_ServerSideStyles_Directory()
         {
             RunInAllBrowsers(browser =>
@@ -107,6 +114,8 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [TestMethod]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles_MatchingViewModel))]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles))]
         public void Feature_ServerSideStyles_DataContexts()
         {
             RunInAllBrowsers(browser =>

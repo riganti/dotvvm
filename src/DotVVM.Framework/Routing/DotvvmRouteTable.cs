@@ -7,6 +7,7 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Security;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Routing
 {
@@ -82,10 +83,8 @@ namespace DotVVM.Framework.Routing
         /// <summary>
         /// Creates the default presenter factory.
         /// </summary>
-        public IDotvvmPresenter GetDefaultPresenter()
-        {
-            return configuration.ServiceLocator.GetService<IDotvvmPresenter>();
-        }
+        public IDotvvmPresenter GetDefaultPresenter(IServiceProvider provider) =>
+            provider.GetRequiredService<IDotvvmPresenter>();
 
         /// <summary>
         /// Adds the specified route name.
@@ -94,15 +93,41 @@ namespace DotVVM.Framework.Routing
         /// <param name="url">The URL.</param>
         /// <param name="virtualPath">The virtual path of the Dothtml file.</param>
         /// <param name="defaultValues">The default values.</param>
-        /// <param name="presenterFactory">The presenter factory.</param>
-        public void Add(string routeName, string url, string virtualPath, object defaultValues = null, Func<IDotvvmPresenter> presenterFactory = null)
+        public void Add(string routeName, string url, string virtualPath, object defaultValues = null)
         {
-            if (presenterFactory == null)
-            {
-                presenterFactory = GetDefaultPresenter;
-            }
+            Add(group?.RouteNamePrefix + routeName, new DotvvmRoute(group?.UrlPrefix + url, group?.VirtualPathPrefix + virtualPath, defaultValues, GetDefaultPresenter, configuration));
+        }
 
-            Add(group?.RouteNamePrefix + routeName, new DotvvmRoute(group?.UrlPrefix + url, group?.VirtualPathPrefix + virtualPath, defaultValues, presenterFactory, configuration));
+
+        /// <summary>
+        /// Adds the specified route name.
+        /// </summary>
+        /// <param name="routeName">Name of the route.</param>
+        /// <param name="url">The URL.</param>
+        /// <param name="defaultValues">The default values.</param>
+        /// <param name="presenterFactory">The presenter factory.</param>
+        public void Add(string routeName, string url, Func<IServiceProvider, IDotvvmPresenter> presenterFactory, object defaultValues = null)
+        {
+
+            Add(group?.RouteNamePrefix + routeName, new DotvvmRoute(group?.UrlPrefix + url, group?.VirtualPathPrefix, defaultValues, presenterFactory, configuration));
+        }
+
+
+        /// <summary>
+        /// Adds the specified route name.
+        /// </summary>
+        /// <param name="routeName">Name of the route.</param>
+        /// <param name="url">The URL.</param>
+        /// <param name="presenterType">The presenter factory.</param>
+        /// <param name="defaultValues">The default values.</param>
+        public void Add(string routeName, string url, Type presenterType, object defaultValues = null)
+        {
+            if (!typeof(IDotvvmPresenter).IsAssignableFrom(presenterType))
+            {
+                throw new ArgumentException($@"{nameof(presenterType)} has to inherit from DotVVM.Framework.Hosting.IDotvvmPresenter.", nameof(presenterType));
+            }
+            Func<IServiceProvider, IDotvvmPresenter> presenterFactory = provider => (IDotvvmPresenter)provider.GetService(presenterType);
+            Add(routeName, url, presenterFactory, defaultValues);
         }
 
         /// <summary>
@@ -114,7 +139,7 @@ namespace DotVVM.Framework.Routing
             {
                 throw new InvalidOperationException($"The route with name '{routeName}' has already been registered!");
             }
-            // internal assign routename 
+            // internal assign routename
             route.RouteName = routeName;
 
             group?.AddToParentRouteTable?.Invoke(routeName, route);

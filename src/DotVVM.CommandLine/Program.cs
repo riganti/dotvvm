@@ -46,7 +46,7 @@ namespace DotVVM.CommandLine
                 //new GenerateUiTestStubCommand()
             };
             var arguments = new Arguments(args);
-            var command = commands.FirstOrDefault(c => c.CanHandle(arguments, metadata));
+            var command = commands.FirstOrDefault(c => c.TryConsumeArgs(arguments, metadata));
 
             // execute the command
             try

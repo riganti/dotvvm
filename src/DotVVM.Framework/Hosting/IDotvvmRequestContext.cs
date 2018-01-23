@@ -78,19 +78,19 @@ namespace DotVVM.Framework.Hosting
         IQueryCollection Query { get; }
 
         /// <summary>
-        /// Gets or sets the value indiciating whether the exception that occured in the command execution was handled. 
+        /// Gets or sets the value indicating whether the exception that occurred in the command execution was handled. 
         /// This property is typically set from the exception filter.
         /// </summary>
         bool IsCommandExceptionHandled { get; set; }
 
         /// <summary>
-        /// Gets or sets the value indiciating whether the exception that occured in the command execution was handled. 
+        /// Gets or sets the value indicating whether the exception that occurred in the command execution was handled. 
         /// This property is typically set from the action filter's OnPageExceptionHandled method.
         /// </summary>
         bool IsPageExceptionHandled { get; set; }
 
         /// <summary>
-        /// Gets or sets the exception that occured when the command was executed.
+        /// Gets or sets the exception that occurred when the command was executed.
         /// </summary>
         Exception CommandException { get; set; }
 

@@ -12,6 +12,7 @@ using DotVVM.Framework.Compilation.ControlTree;
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
 
 namespace DotVVM.Framework.Binding
 {
@@ -26,14 +27,14 @@ namespace DotVVM.Framework.Binding
         /// Gets the javascript translation of the binding adjusted to the `currentControl`s DataContext
         /// </summary>
         public static string GetKnockoutBindingExpression(this IValueBinding binding, DotvvmBindableObject currentControl, bool unwrapped = false) =>
-            (unwrapped ? binding.UnwrapedKnockoutExpression : binding.KnockoutExpression)
+            (unwrapped ? binding.UnwrappedKnockoutExpression : binding.KnockoutExpression)
             .FormatKnockoutScript(currentControl, binding);
 
         /// <summary>
         /// Gets the javascript translation of the binding adjusted to the `currentControl`s DataContext, returned value is ParametrizedCode, so it can be further adjusted
         /// </summary>
-        public static ParametrizedCode GetParametrizedKnockoutExpression(this IValueBinding binding, DotvvmBindableObject currentControl, bool unwraped = false) =>
-            JavascriptTranslator.AdjustKnockoutScriptContext(unwraped ? binding.UnwrapedKnockoutExpression : binding.KnockoutExpression, dataContextLevel: FindDataContextTarget(binding, currentControl).stepsUp);
+        public static ParametrizedCode GetParametrizedKnockoutExpression(this IValueBinding binding, DotvvmBindableObject currentControl, bool unwrapped = false) =>
+            JavascriptTranslator.AdjustKnockoutScriptContext(unwrapped ? binding.UnwrappedKnockoutExpression : binding.KnockoutExpression, dataContextLevel: FindDataContextTarget(binding, currentControl).stepsUp);
 
         /// <summary>
         /// Adjusts the knockout expression to `currentControl`s DataContext like it was translated in `currentBinding`s context
@@ -77,7 +78,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Prepares DataContext hierarchy argument and executes update delegate.
         /// </summary>
-        public static void ExecUpdateDelegate(this CompiledBindingExpression.BindingUpdateDelegate func, DotvvmBindableObject contextControl, object value)
+        public static void ExecUpdateDelegate(this BindingUpdateDelegate func, DotvvmBindableObject contextControl, object value)
         {
             var dataContexts = GetDataContexts(contextControl);
             //var control = contextControl.GetClosestControlBindingTarget();
@@ -87,7 +88,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Prepares DataContext hierarchy argument and executes update delegate.
         /// </summary>
-        public static void ExecUpdateDelegate<T>(this CompiledBindingExpression.BindingUpdateDelegate<T> func, DotvvmBindableObject contextControl, T value)
+        public static void ExecUpdateDelegate<T>(this BindingUpdateDelegate<T> func, DotvvmBindableObject contextControl, T value)
         {
             var dataContexts = GetDataContexts(contextControl);
             //var control = contextControl.GetClosestControlBindingTarget();
@@ -97,7 +98,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Prepares DataContext hierarchy argument and executes update delegate.
         /// </summary>
-        public static object ExecDelegate(this CompiledBindingExpression.BindingDelegate func, DotvvmBindableObject contextControl)
+        public static object ExecDelegate(this BindingDelegate func, DotvvmBindableObject contextControl)
         {
             var dataContexts = GetDataContexts(contextControl);
             return func(dataContexts.ToArray(), contextControl);
@@ -106,7 +107,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Prepares DataContext hierarchy argument and executes update delegate.
         /// </summary>
-        public static T ExecDelegate<T>(this CompiledBindingExpression.BindingDelegate<T> func, DotvvmBindableObject contextControl)
+        public static T ExecDelegate<T>(this BindingDelegate<T> func, DotvvmBindableObject contextControl)
         {
             var dataContexts = GetDataContexts(contextControl);
             return func(dataContexts.ToArray(), contextControl);
@@ -237,6 +238,7 @@ namespace DotVVM.Framework.Binding
                 new object[] {
                     b.GetProperty<DataContextStack>(ErrorHandlingMode.ReturnNull),
                     b.GetProperty<BindingResolverCollection>(ErrorHandlingMode.ReturnNull),
+                    b.GetProperty<BindingCompilationRequirementsAttribute>(ErrorHandlingMode.ReturnNull)?.ClearRequirements(),
                     b.GetProperty<BindingErrorReporterProperty>(ErrorHandlingMode.ReturnNull),
                     b.GetProperty<LocationInfoBindingProperty>(ErrorHandlingMode.ReturnNull)
                 };
@@ -285,6 +287,49 @@ namespace DotVVM.Framework.Binding
                     default(CodeParameterAssignment))));
         }
 
+        public static DataContextStack GetDataContextType(this DotvvmProperty property, DotvvmBindableObject obj)
+        {
+            if (obj.HasBinding(property))
+            {
+                return obj.GetBinding(property).GetProperty<DataContextStack>();
+            }
+
+            var dataContextType = obj.GetDataContextType();
+
+            if (dataContextType == null)
+            {
+                return null;
+            }
+
+            if (property.DataContextManipulationAttribute != null)
+            {
+                return property.DataContextManipulationAttribute.ChangeStackForChildren(dataContextType, obj, property, (parent, changeType) => DataContextStack.Create(changeType, parent));
+            }
+
+            if (property.DataContextChangeAttributes == null || property.DataContextChangeAttributes.Length == 0)
+            {
+                return dataContextType;
+            }
+
+            var (childType, extensionParameters) = ApplyDataContextChange(dataContextType, property.DataContextChangeAttributes, obj, property);
+            return DataContextStack.Create(childType, dataContextType, extensionParameters: extensionParameters.ToArray());
+        }
+
+        private static (Type childType, List<BindingExtensionParameter> extensionParameters) ApplyDataContextChange(DataContextStack dataContextType, DataContextChangeAttribute[] attributes, DotvvmBindableObject obj, DotvvmProperty property)
+        {
+            var type = dataContextType.DataContextType;
+            var extensionParameters = new List<BindingExtensionParameter>();
+
+            foreach (var attribute in attributes.OrderBy(a => a.Order))
+            {
+                if (type == null) break;
+                extensionParameters.AddRange(attribute.GetExtensionParameters(new ResolvedTypeDescriptor(type)));
+                type = attribute.GetChildDataContextType(type, dataContextType, obj, property);
+            }
+
+            return (type, extensionParameters);
+        }
+
         /// <summary>
         /// Annotates `_this`, `_parent`, `_root` parameters with BindingParameterAnnotation indicating their DataContext
         /// </summary>
@@ -311,8 +356,8 @@ namespace DotVVM.Framework.Binding
             }
         }
 
-        public static CompiledBindingExpression.BindingDelegate<T> ToGeneric<T>(this CompiledBindingExpression.BindingDelegate d) => (a, b) => (T)d(a, b);
-        public static CompiledBindingExpression.BindingUpdateDelegate<T> ToGeneric<T>(this CompiledBindingExpression.BindingUpdateDelegate d) => (a, b, c) => d(a, b, c);
+        public static BindingDelegate<T> ToGeneric<T>(this BindingDelegate d) => (a, b) => (T)d(a, b);
+        public static BindingUpdateDelegate<T> ToGeneric<T>(this BindingUpdateDelegate d) => (a, b, c) => d(a, b, c);
     }
 
 

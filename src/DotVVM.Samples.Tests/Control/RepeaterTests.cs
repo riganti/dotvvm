@@ -1,11 +1,13 @@
-﻿using Dotvvm.Samples.Tests;
+﻿
+using DotVVM.Testing.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
+
+using Riganti.Selenium.Core;
 
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class RepeaterTests : SeleniumTest
+    public class RepeaterTests : AppSeleniumTest
     {
         [TestMethod]
         public void Control_Repeater_DataSourceNull()
@@ -99,7 +101,7 @@ namespace DotVVM.Samples.Tests.Control
                 browser.Wait();
 
                 var repeater = browser.Single("root-repeater", this.SelectByDataUi);
-                var separators = repeater.FindElements("separator", this.SelectByDataUi);
+                var separators =repeater.FindElements("separator", this.SelectByDataUi);
                 Assert.AreEqual(2, separators.Count);
 
                 foreach (var separator in separators)
@@ -265,7 +267,7 @@ namespace DotVVM.Samples.Tests.Control
                 CheckSeparators(browser, "client-repeater");
             });
         }
-        private void CheckSeparators(BrowserWrapper browser, string repeaterDataUi)
+        private void CheckSeparators(IBrowserWrapperFluentApi browser, string repeaterDataUi)
         {
             var repeater = browser.Single(repeaterDataUi, this.SelectByDataUi);
             for (int i = 0; i < repeater.Children.Count; i++)

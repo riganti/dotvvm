@@ -5,5 +5,8 @@
 
     <h2>Default</h2>
 
+    <dot:Button Click="{command: AddSampleText()}" Text="Validated command"/>
+
+    <dot:Literal data-ui="sample-text" RenderSpanElement="true" Text="{value: SampleText}"/>
 </dot:Content>
 

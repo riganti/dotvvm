@@ -12,11 +12,11 @@ namespace DotVVM.Framework.Controls
     {
         protected internal override string ClientHandlerName => "confirm";
 
-        protected internal override Dictionary<string, string> GetHandlerOptionClientExpressions()
+        protected internal override Dictionary<string, object> GetHandlerOptions()
         {
-            return new Dictionary<string, string>()
+            return new Dictionary<string, object>()
             {
-                ["message"] = TranslateValueOrBinding(MessageProperty)
+                ["message"] = this.GetValueRaw(MessageProperty)
             };
         }
 

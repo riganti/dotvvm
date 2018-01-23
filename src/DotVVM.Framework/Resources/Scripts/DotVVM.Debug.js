@@ -1,7 +1,7 @@
 (function() {
     var div = "<div id='debugWindow'><h1></h1><button type='button' id='closeDebugWindow'>Close</button><iframe></iframe><div id='debugFooter'></div></div>";
     var parser = new DOMParser();
-    var debugWindow = parser.parseFromString(div, "text/html").firstElementChild.querySelector("#debugWindow");
+    var debugWindow = parser.parseFromString(div, "text/html").querySelector("#debugWindow");
     debugWindow.style.display = 'none';
     debugWindow.style.flexFlow = "column";
     debugWindow.style.zIndex = 2147483647;
@@ -13,7 +13,7 @@
     debugWindow.style.left = 0;
     document.body.appendChild(debugWindow);
 
-    var notificationWindow = parser.parseFromString("<div id='debugNotification'></div>", "text/html").firstElementChild.querySelector("#debugnotification");
+    var notificationWindow = parser.parseFromString("<div id='debugNotification'></div>", "text/html").querySelector("#debugNotification");
     // notificationWindow.style.display = "none";
     notificationWindow.style.zIndex = 2147483647;
     notificationWindow.style.position = "fixed";
@@ -57,7 +57,7 @@
         try {
             return func();
         } catch (error) {
-            console.warn("Error '" + error + "' occured while evaluating " + func + ".");
+            console.warn("Error '" + error + "' occurred while evaluating " + func + ".");
             return null;
         }
     }

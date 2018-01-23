@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Hosting.Middlewares;
@@ -57,17 +58,11 @@ namespace Owin
             }
 
             app.Use<DotvvmMiddleware>(config, new List<IMiddleware> {
-                ActivatorUtilities.CreateInstance<DotvvmLocalResourceMiddleware>(config.ServiceLocator.GetServiceProvider()),
-                new DotvvmFileUploadMiddleware(),
+                ActivatorUtilities.CreateInstance<DotvvmLocalResourceMiddleware>(config.ServiceProvider),
+                DotvvmFileUploadMiddleware.TryCreate(config.ServiceProvider),
                 new DotvvmReturnedFileMiddleware(),
                 new DotvvmRoutingMiddleware()
-            });
-
-            var configurators = config.ServiceLocator.GetServiceProvider().GetServices<IConfigureOptions<DotvvmConfiguration>>();
-            foreach (var configurator in configurators)
-            {
-                configurator.Configure(config);
-            }
+            }.Where(t => t != null).ToArray());
 
             return config;
         }

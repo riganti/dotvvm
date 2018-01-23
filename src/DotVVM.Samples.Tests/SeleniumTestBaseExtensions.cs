@@ -1,11 +1,11 @@
 ﻿using OpenQA.Selenium;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.Core;
 
 namespace DotVVM.Samples.Tests
 {
     public static class SeleniumTestBaseExtensions
     {
-        public static By SelectByDataUi(this SeleniumTestBase testBase, string selector)
+        public static By SelectByDataUi(this ISeleniumTest testBase, string selector)
         => By.CssSelector($"[data-ui='{selector}']");
     }
 }

@@ -127,6 +127,6 @@
     <value>The files were uploaded successfully.</value>
   </data>
   <data name="FileUpload_UploadErrorMessageText" xml:space="preserve">
-    <value>Error occured.</value>
+    <value>Error occurred.</value>
   </data>
 </root>

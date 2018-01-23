@@ -190,24 +190,29 @@ class DotvvmValidation {
     }
 
     constructor(dotvvm: DotVVM) {
-        // perform the validation before postback
-        dotvvm.events.beforePostback.subscribe(args => {
-            if (args.validationTargetPath) {
-                // resolve target
-                var context = ko.contextFor(args.sender);
-                var validationTarget = dotvvm.evaluator.evaluateOnViewModel(context, args.validationTargetPath);
+        const createValidationHandler = (path: string) => ({
+            execute: <T>(callback: () => Promise<T>, options: PostbackOptions) => {
+                if (path) {
+                    options.additionalPostbackData.validationTargetPath = path;
+                    // resolve target
+                    var context = ko.contextFor(options.sender);
+                    var validationTarget = dotvvm.evaluator.evaluateOnViewModel(context, path);
 
-                // validate the object
-                this.clearValidationErrors(dotvvm.viewModelObservables[args.viewModelName]);
-                this.validateViewModel(validationTarget);
-                if (this.errors().length > 0) {
-                    console.log("Validation failed: postback aborted; errors: ", this.errors());
-                    args.cancel = true;
-                    args.clientValidationFailed = true;
+                    // validate the object
+                    this.clearValidationErrors(dotvvm.viewModelObservables[options.viewModelName || 'root']);
+                    this.validateViewModel(validationTarget);
+                    if (this.errors().length > 0) {
+                        console.log("Validation failed: postback aborted; errors: ", this.errors());
+                        return Promise.reject({type: "handler", handler: this, message: "Validation failed"})
+                    }
+                    this.events.validationErrorsChanged.trigger({viewModel: options.viewModel});
                 }
+                return callback()
             }
-            this.events.validationErrorsChanged.trigger(args);
-        });
+        })
+        dotvvm.postbackHandlers["validate"] = (opt) => createValidationHandler(opt.path);
+        dotvvm.postbackHandlers["validate-root"] = () => createValidationHandler("dotvvm.viewModelObservables['root']");
+        dotvvm.postbackHandlers["validate-this"] = () => createValidationHandler("$data");
 
         dotvvm.events.afterPostback.subscribe(args => {
             if (!args.wasInterrupted && args.serverResponseObject) {
@@ -223,6 +228,10 @@ class DotvvmValidation {
             }
 
             this.events.validationErrorsChanged.trigger(args);
+        });
+
+        dotvvm.events.spaNavigating.subscribe(args => {
+            this.clearValidationErrors(dotvvm.viewModelObservables[args.viewModelName]);
         });
 
         // add knockout binding handler
@@ -249,7 +258,7 @@ class DotvvmValidation {
         };
     }
 
-    /** 
+    /**
      * Validates the specified view model
     */
     public validateViewModel(viewModel: any) {
@@ -321,9 +330,9 @@ class DotvvmValidation {
                 dotvvm.viewModels[args.viewModelName].validationRules = {};
                 existingRules = dotvvm.viewModels[args.viewModelName].validationRules;
             }
-            for (var type in args.serverResponseObject) {
-                if (!args.serverResponseObject.hasOwnProperty(type)) continue;
-                existingRules![type] = args.serverResponseObject[type];
+            for (var type in args.serverResponseObject.validationRules) {
+                if (!args.serverResponseObject.validationRules.hasOwnProperty(type)) continue;
+                existingRules![type] = args.serverResponseObject.validationRules[type];
             }
         }
     }
@@ -410,7 +419,7 @@ class DotvvmValidation {
         // resolve validation target
         var context = ko.contextFor(args.sender);
         var validationTarget: KnockoutValidatedObservable<any>
-            = dotvvm.evaluator.evaluateOnViewModel(context, args.validationTargetPath);
+            = dotvvm.evaluator.evaluateOnViewModel(context, args.postbackOptions.additionalPostbackData.validationTargetPath);
         if (!validationTarget) return;
 
         // add validation errors

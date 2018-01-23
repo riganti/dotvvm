@@ -15,6 +15,7 @@ using DotVVM.Framework.Binding.Properties;
 using System.Collections.Immutable;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Utils;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -28,7 +29,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void INIT()
         {
             this.configuration = DotvvmTestHelper.CreateConfiguration();
-            this.bindingService = configuration.ServiceLocator.GetService<BindingCompilationService>();
+            this.bindingService = configuration.ServiceProvider.GetRequiredService<BindingCompilationService>();
         }
 
         public object ExecuteBinding(string expression, object[] contexts, DotvvmControl control, NamespaceImport[] imports = null, Type expectedType = null)
@@ -242,6 +243,13 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void BindingCompiler_Valid_CollectionCount()
+        {
+            var viewModel = new TestViewModel2() { Collection = new List<Something>() { new Something { Value = true } } };
+            Assert.AreEqual(ExecuteBinding("Collection.Count > 0", viewModel), true);
+        }
+
+        [TestMethod]
         public void BindingCompiler_Valid_AndAlso()
         {
             var viewModel = new TestViewModel() { };
@@ -391,6 +399,14 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = ExecuteBinding("_this != null ? _this.LongProperty : 0", new [] { new TestViewModel { LongProperty = 5 } });
             Assert.AreEqual(5L, result);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_ComparisonOperators()
+        {
+            var result = ExecuteBinding("LongProperty < TestViewModel2.MyProperty && LongProperty > TestViewModel2.MyProperty", new [] { new TestViewModel { TestViewModel2 = new TestViewModel2() } });
+            Assert.AreEqual(false, result);
+
         }
     }
     class TestViewModel

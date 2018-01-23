@@ -11,7 +11,7 @@ using DotVVM.Framework.Runtime.Filters;
 namespace DotVVM.Framework.Binding.Expressions
 {
     [BindingCompilationRequirements(
-        required: new[] { typeof(StaticCommandJavascriptProperty), /*typeof(CompiledBindingExpression.BindingDelegate)*/ }
+        required: new[] { typeof(StaticCommandJavascriptProperty), /*typeof(BindingDelegate)*/ }
     )]
     [Options]
     public class StaticCommandBindingExpression : BindingExpression, ICommandBinding
@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Binding.Expressions
 
         public ImmutableArray<IActionFilter> ActionFilters => this.GetProperty<ActionFiltersBindingProperty>(ErrorHandlingMode.ReturnNull)?.Filters ?? ImmutableArray<IActionFilter>.Empty;
 
-        public CompiledBindingExpression.BindingDelegate BindingDelegate => this.GetProperty<CompiledBindingExpression.BindingDelegate>();
+        public BindingDelegate BindingDelegate => this.GetProperty<BindingDelegate>();
 
         public ParametrizedCode CommandJavascript => this.GetProperty<StaticCommandJavascriptProperty>().Code;
 
@@ -39,6 +39,6 @@ namespace DotVVM.Framework.Binding.Expressions
     public class StaticCommandBindingExpression<T>: StaticCommandBindingExpression, ICommandBinding<T>
     {
         public StaticCommandBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties) { }
-        public CompiledBindingExpression.BindingDelegate<T> BindingDelegate => base.BindingDelegate.ToGeneric<T>();
+        public new BindingDelegate<T> BindingDelegate => base.BindingDelegate.ToGeneric<T>();
     }
 }

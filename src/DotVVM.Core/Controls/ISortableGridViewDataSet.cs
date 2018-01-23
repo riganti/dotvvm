@@ -6,12 +6,12 @@ namespace DotVVM.Framework.Controls
     public interface ISortableGridViewDataSet : IBaseGridViewDataSet
     {
         /// <summary>
-        /// Gets or sets an object that represents the settings for sorting.
+        /// Gets the settings for sorting.
         /// </summary>
-        ISortingOptions SortingOptions { get; set; }
+        ISortingOptions SortingOptions { get; }
 
         /// <summary>
-        /// Sets the sort expression. If the specified expression is already active, switches the sort direction.
+        /// Sets the sort expression. If the specified expression is already set, switches the sort direction.
         /// </summary>
         void SetSortExpression(string expression);
     }

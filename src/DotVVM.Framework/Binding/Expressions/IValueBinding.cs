@@ -5,8 +5,8 @@ namespace DotVVM.Framework.Binding.Expressions
     public interface IValueBinding : IStaticValueBinding
     {
         ParametrizedCode KnockoutExpression { get; }
-        ParametrizedCode UnwrapedKnockoutExpression { get; }
-        //string GetKnockoutBindingExpression();
+        ParametrizedCode UnwrappedKnockoutExpression { get; }
+        ParametrizedCode WrappedKnockoutExpression { get; }
     }
 
     public interface IValueBinding<out T> : IValueBinding, IStaticValueBinding<T>

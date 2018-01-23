@@ -6,6 +6,6 @@ namespace DotVVM.Framework.Compilation.Javascript
 {
     public interface IJavascriptMethodTranslator
     {
-        JsExpression TryTranslateCall(HalfTranslatedExpression context, HalfTranslatedExpression[] arguments, MethodInfo method);
+        JsExpression TryTranslateCall(LazyTranslatedExpression context, LazyTranslatedExpression[] arguments, MethodInfo method);
     }
 }

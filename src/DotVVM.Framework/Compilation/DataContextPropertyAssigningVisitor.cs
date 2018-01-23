@@ -7,6 +7,9 @@ using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation
 {
+    /// <summary>
+    /// Assigns <see cref="Internal.DataContextTypeProperty" /> to all controls that have different datacontext that their parent
+    /// </summary>
     public class DataContextPropertyAssigningVisitor: ResolvedControlTreeVisitor
     {
         public override void VisitControl(ResolvedControl control)

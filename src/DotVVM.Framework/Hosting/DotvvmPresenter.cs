@@ -23,7 +23,6 @@ using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Runtime.Tracing;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -34,7 +33,7 @@ namespace DotVVM.Framework.Hosting
         /// Initializes a new instance of the <see cref="DotvvmPresenter" /> class.
         /// </summary>
         public DotvvmPresenter(DotvvmConfiguration configuration, IDotvvmViewBuilder viewBuilder, IViewModelLoader viewModelLoader, IViewModelSerializer viewModelSerializer,
-            IOutputRenderer outputRender, ICsrfProtector csrfProtector, IStopwatch stopwatch, IViewModelParameterBinder viewModelParameterBinder)
+            IOutputRenderer outputRender, ICsrfProtector csrfProtector, IViewModelParameterBinder viewModelParameterBinder)
         {
             DotvvmViewBuilder = viewBuilder;
             ViewModelLoader = viewModelLoader;
@@ -56,8 +55,6 @@ namespace DotVVM.Framework.Hosting
         public ICsrfProtector CsrfProtector { get; }
 
         public IViewModelParameterBinder ViewModelParameterBinder { get; }
-
-        public IStopwatch Stopwatch { get; }
 
         public string ApplicationPath { get; }
 
@@ -118,7 +115,10 @@ namespace DotVVM.Framework.Hosting
             // get action filters
             var viewModelFilters = ActionFilterHelper.GetActionFilters<IViewModelActionFilter>(context.ViewModel.GetType().GetTypeInfo());
             viewModelFilters.AddRange(context.Configuration.Runtime.GlobalFilters.OfType<IViewModelActionFilter>());
+
             var requestFilters = ActionFilterHelper.GetActionFilters<IPageActionFilter>(context.ViewModel.GetType().GetTypeInfo());
+            requestFilters.AddRange(context.Configuration.Runtime.GlobalFilters.OfType<IPageActionFilter>());
+
             foreach (var f in requestFilters)
             {
                 await f.OnPageLoadingAsync(context);
@@ -255,10 +255,6 @@ namespace DotVVM.Framework.Hosting
                 }
                 await requestTracer.TraceEvent(RequestTracingConstants.OutputRendered, context);
 
-                if (context.ViewModel != null)
-                {
-                    ViewModelLoader.DisposeViewModel(context.ViewModel);
-                }
                 foreach (var f in requestFilters) await f.OnPageLoadedAsync(context);
             }
             catch (DotvvmInterruptRequestExecutionException) { throw; }
@@ -277,6 +273,13 @@ namespace DotVVM.Framework.Hosting
                 }
 
                 throw;
+            }
+            finally
+            {
+                if (context.ViewModel != null)
+                {
+                    ViewModelLoader.DisposeViewModel(context.ViewModel);
+                }
             }
         }
 
@@ -371,7 +374,7 @@ namespace DotVVM.Framework.Hosting
 
             if (context.CommandException != null && !context.IsCommandExceptionHandled)
             {
-                throw new Exception("Unhandled exception occured in the command!", context.CommandException);
+                throw new Exception("Unhandled exception occurred in the command!", context.CommandException);
             }
 
             if (resultTask != null)
