@@ -93,9 +93,9 @@ namespace DotVVM.Framework.Routing
         /// <param name="url">The URL.</param>
         /// <param name="virtualPath">The virtual path of the Dothtml file.</param>
         /// <param name="defaultValues">The default values.</param>
-        public void Add(string routeName, string url, string virtualPath, object defaultValues = null)
+        public void Add(string routeName, string url, string virtualPath, object defaultValues = null, Func<IServiceProvider, IDotvvmPresenter> presenterFactory = null)
         {
-            Add(group?.RouteNamePrefix + routeName, new DotvvmRoute(group?.UrlPrefix + url, group?.VirtualPathPrefix + virtualPath, defaultValues, GetDefaultPresenter, configuration));
+            Add(group?.RouteNamePrefix + routeName, new DotvvmRoute(group?.UrlPrefix + url, group?.VirtualPathPrefix + virtualPath, defaultValues, presenterFactory ?? GetDefaultPresenter, configuration));
         }
 
 

@@ -26,15 +26,18 @@ public static class DotvvmRequestContextExtensions
         return DotvvmPresenter.DetermineSpaContentPlaceHolderUniqueId(context.HttpContext);
     }
 
+
     /// <summary>
     /// Changes the current culture of this HTTP request.
     /// </summary>
+    [Obsolete("This method only assigns CultureInfo.CurrentCulture, which is not preserved in async methods. You should assign it manually, or use RequestLocalization middleware or LocalizablePresenter.")]
     public static void ChangeCurrentCulture(this IDotvvmRequestContext context, string cultureName)
         => context.ChangeCurrentCulture(cultureName, cultureName);
 
     /// <summary>
     /// Changes the current culture of this HTTP request.
     /// </summary>
+    [Obsolete("This method only assigns CultureInfo.CurrentCulture, which is not preserved in async methods. You should assign it manually, or use RequestLocalization middleware or LocalizablePresenter.")]
     public static void ChangeCurrentCulture(this IDotvvmRequestContext context, string cultureName, string uiCultureName)
     {
 #if DotNetCore

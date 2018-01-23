@@ -16,7 +16,13 @@ namespace DotVVM.Framework.Hosting
 
         public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
         {
-            return (IEnumerator<KeyValuePair<string, string>>) OriginalQuery.GetEnumerator();
+            foreach (var q in this.OriginalQuery)
+            {
+                foreach (var str in q.Value)
+                {
+                    yield return new KeyValuePair<string, string>(q.Key, str);
+                }
+            }
         }
 
         IEnumerator IEnumerable.GetEnumerator()
