@@ -371,6 +371,17 @@ test <dot:Literal><a /></dot:Literal>";
         }
 
         [TestMethod]
+        public void DefaultViewCompiler_ControlWithDependentProperties()
+        {
+            var markup = @"
+@viewModel System.Collections.Generic.List<string>
+<ff:ControlWithCompileDependentProperties OtherProperty='{value: _this.Length}' DataSource='{value: _this}'>
+</ff:ControlWithCompileDependentProperties>
+";
+            var page = CompileMarkup(markup);
+	}
+
+        [TestMethod]
         public void DefaultViewCompiler_ExcludedBindingProperty()
         {
             var markup = @"
@@ -518,6 +529,28 @@ test <dot:Literal><a /></dot:Literal>";
         {
             throw new NotImplementedException();
         }
+    }
+
+    public class ControlWithCompileDependentProperties: DotvvmControl
+    {
+        public IEnumerable<object> DataSource
+        {
+            get { return (IEnumerable<object>)GetValue(DataSourceProperty); }
+            set { SetValue(DataSourceProperty, value); }
+        }
+        public static readonly DotvvmProperty DataSourceProperty =
+            DotvvmProperty.Register<IEnumerable<object>, ControlWithCompileDependentProperties>(nameof(DataSource));
+
+
+        [ControlPropertyBindingDataContextChange("DataSource")]
+        [CollectionElementDataContextChange(1)]
+        public IValueBinding OtherProperty
+        {
+            get { return (IValueBinding)GetValue(OtherPropertyProperty); }
+            set { SetValue(OtherPropertyProperty, value); }
+        }
+        public static readonly DotvvmProperty OtherPropertyProperty =
+            DotvvmProperty.Register<IValueBinding, ControlWithCompileDependentProperties>(nameof(OtherProperty));
     }
 
     public class ControlWithCustomBindingProperties : DotvvmControl

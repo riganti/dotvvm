@@ -70,6 +70,7 @@ namespace DotVVM.Framework.Binding
             PropertyName = propertyName;
             Order = order;
         }
-        
+
+        public override IEnumerable<string> PropertyDependsOn => new [] { PropertyName };
     }
 }
