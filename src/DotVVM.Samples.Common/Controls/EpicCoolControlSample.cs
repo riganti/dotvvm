@@ -5,6 +5,7 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Controls.Infrastructure;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Samples.BasicSamples.Controls
 {
@@ -19,7 +20,10 @@ namespace DotVVM.Samples.BasicSamples.Controls
 
             [ControlPropertyBindingDataContextChange("dataSource")]
             [CollectionElementDataContextChange(1)]
-            IValueBinding<int?> numberBinding
+            IValueBinding<int?> numberBinding,
+
+            [PropertyGroup("", "html:")]
+            VirtualPropertyGroupDictionary<object> attributes
         )
         {
             return new Repeater() {
@@ -33,7 +37,9 @@ namespace DotVVM.Samples.BasicSamples.Controls
                             .SetValue(t => t.SelectAllOnFocus, true)
                     }
                 })
-            }.SetBinding(r => r.DataSource, dataSource);
+            }
+            .SetBinding(r => r.DataSource, dataSource)
+            .ApplyAction(c => attributes.CopyTo(c.Attributes));
         }
     }
 }

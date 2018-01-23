@@ -9,7 +9,7 @@
 </head>
 <body>
 
-    <cc:EpicCoolControlSample DataSource="{value: List}" TitleBinding="{value: "[" + _index + "] " + Title}" NumberBinding="{value: EditableNumber}" />
+    <cc:EpicCoolControlSample DataSource="{value: List}" TitleBinding="{value: "[" + _index + "] " + Title}" NumberBinding="{value: EditableNumber}" style="color: blue" />
 
     <p>
         Numbers:

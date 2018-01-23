@@ -8,6 +8,8 @@ using System.Collections.Concurrent;
 using DotVVM.Framework.Binding.Expressions;
 using System.Diagnostics;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls
 {
@@ -32,34 +34,65 @@ namespace DotVVM.Framework.Controls
                 if (parameter.ParameterType == typeof(IDotvvmRequestContext))
                     return (context, _) => context;
 
-                var type =
-                    typeof(ValueOrBinding).IsAssignableFrom(parameter.ParameterType) ?
-                    (
-                        parameter.ParameterType.IsGenericType ?
-                        parameter.ParameterType.GenericTypeArguments.Single() :
-                        typeof(object)
-                    ) :
-                    parameter.ParameterType;
+                if (parameter.GetCustomAttribute<PropertyGroupAttribute>() is PropertyGroupAttribute groupAttribute)
+                {
+                    // get value type from dictionary
+                    var elementType =
+                        parameter.ParameterType.GetGenericTypeDefinition() == typeof(VirtualPropertyGroupDictionary<>) ?
+                            parameter.ParameterType.GetGenericArguments()[0] :
+                        parameter.ParameterType.GetGenericTypeDefinition() == typeof(IReadOnlyDictionary<,>) ||parameter.ParameterType.GetGenericTypeDefinition() == typeof(IDictionary<,>) ?
+                            parameter.ParameterType.GetGenericArguments()
+                            .Assert(p => p[0] == typeof(string))
+                            [0] :
+                        throw new NotSupportedException($"{parameter.ParameterType.FullName} is not supported property group type");
 
-                var dotvvmProperty = new DotvvmProperty();
-                DotvvmProperty.Register(parameter.Name, type, controlType, parameter.DefaultValue, false, dotvvmProperty, parameter);
 
-                if (!parameter.HasDefaultValue)
-                    dotvvmProperty.MarkupOptions.Required = true;
+                    var propertyGroup = DotvvmPropertyGroup.Register(
+                        controlType,
+                        groupAttribute.Prefixes,
+                        parameter.Name,
+                        elementType,
+                        parameter as ICustomAttributeProvider,
+                        null
+                    );
 
-                if (typeof(IBinding).IsAssignableFrom(parameter.ParameterType))
-                    dotvvmProperty.MarkupOptions.AllowHardCodedValue = false;
-                else if (!typeof(ValueOrBinding).IsAssignableFrom(parameter.ParameterType))
-                    dotvvmProperty.MarkupOptions.AllowBinding = false;
+                    return (_, control) =>
+                        typeof(VirtualPropertyGroupDictionary<>)
+                        .MakeGenericType(new [] { elementType })
+                        .GetConstructor(new [] { typeof(DotvvmBindableObject), typeof(DotvvmPropertyGroup) })
+                        .Invoke(new object[] { control, propertyGroup });
+                }
+                else
+                {
+                    var type =
+                        typeof(ValueOrBinding).IsAssignableFrom(parameter.ParameterType) ?
+                        (
+                            parameter.ParameterType.IsGenericType ?
+                            parameter.ParameterType.GenericTypeArguments.Single() :
+                            typeof(object)
+                        ) :
+                        parameter.ParameterType;
 
-                if (typeof(DotvvmBindableObject).IsAssignableFrom(type))
-                    dotvvmProperty.MarkupOptions.MappingMode = MappingMode.Both;
+                    var dotvvmProperty = new DotvvmProperty();
+                    DotvvmProperty.Register(parameter.Name, type, controlType, parameter.DefaultValue, false, dotvvmProperty, parameter);
 
-                if (typeof(IBinding).IsAssignableFrom(parameter.ParameterType))
-                    return (_, control) => control.GetBinding(dotvvmProperty);
-                else if (typeof(ValueOrBinding).IsAssignableFrom(parameter.ParameterType))
-                    return (_, control) => typeof(DotvvmBindableObject).GetMethod("GetValueOrBinding").MakeGenericMethod(new [] { type }).Invoke(control, new object[]{ dotvvmProperty, true });
-                else return (_, control) => control.GetValue(dotvvmProperty);
+                    if (!parameter.HasDefaultValue)
+                        dotvvmProperty.MarkupOptions.Required = true;
+
+                    if (typeof(IBinding).IsAssignableFrom(parameter.ParameterType))
+                        dotvvmProperty.MarkupOptions.AllowHardCodedValue = false;
+                    else if (!typeof(ValueOrBinding).IsAssignableFrom(parameter.ParameterType))
+                        dotvvmProperty.MarkupOptions.AllowBinding = false;
+
+                    if (typeof(DotvvmBindableObject).IsAssignableFrom(type))
+                        dotvvmProperty.MarkupOptions.MappingMode = MappingMode.Both;
+
+                    if (typeof(IBinding).IsAssignableFrom(parameter.ParameterType))
+                        return (_, control) => control.GetBinding(dotvvmProperty);
+                    else if (typeof(ValueOrBinding).IsAssignableFrom(parameter.ParameterType))
+                        return (_, control) => typeof(DotvvmBindableObject).GetMethod("GetValueOrBinding").MakeGenericMethod(new [] { type }).Invoke(control, new object[]{ dotvvmProperty, true });
+                    else return (_, control) => control.GetValue(dotvvmProperty);
+                }
             }
 
             lock(registrationLock)
