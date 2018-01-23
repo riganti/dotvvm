@@ -3,13 +3,13 @@
   <PropertyGroup>
     <AssemblyTitle>DotVVM.CommandLine</AssemblyTitle>
     <AssemblyName>dotnet-dotvvm</AssemblyName>
-    <VersionPrefix>1.1.6.2</VersionPrefix>
+    <VersionPrefix>2.0.0-pre13</VersionPrefix>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>DotVVM.CommandLine</PackageId>
-    <PackageVersion>1.1.6.2</PackageVersion>
+    <PackageVersion>2.0.0-pre13</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>Command-line tools for DotVVM.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
@@ -27,6 +27,16 @@
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <OutputType>Exe</OutputType>
   </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Templates\Client.Class.liquid" />
+    <None Remove="Templates\TypeScript\Client.RequestUrl.liquid" />
+    <None Remove="Templates\TypeScript\FetchClient.liquid" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\CSharp\Client.Class.liquid" />
+    <EmbeddedResource Include="Templates\TypeScript\Client.RequestUrl.liquid" />
+    <EmbeddedResource Include="Templates\TypeScript\FetchClient.liquid" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
   </ItemGroup>
@@ -74,9 +84,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="NSwag.CodeGeneration" Version="11.3.5" />
-    <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="11.3.5" />
-    <PackageReference Include="NSwag.CodeGeneration.Typescript" Version="11.3.5" />
+    <PackageReference Include="NSwag.CodeGeneration" Version="11.12.13" />
+    <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="11.12.13" />
+    <PackageReference Include="NSwag.CodeGeneration.Typescript" Version="11.12.13" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>

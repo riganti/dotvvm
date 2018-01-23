@@ -39,8 +39,8 @@ namespace DotVVM.Framework.Hosting
             {
                 VisualStudioHelper.DumpConfiguration(Configuration, Configuration.ApplicationPhysicalPath);
             }
-            
-            using (var scope = Configuration.ServiceLocator.GetServiceProvider().GetRequiredService<IServiceScopeFactory>().CreateScope())
+
+            using (var scope = Configuration.ServiceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 // create the context
                 var dotvvmContext = CreateDotvvmContext(context, scope);
@@ -127,7 +127,7 @@ namespace DotVVM.Framework.Hosting
         /// <returns></returns>
         public static string GetCleanRequestUrl(IHttpContext context)
         {
-            return context.Request.Url.AbsolutePath.TrimStart('/').TrimEnd('/');
+            return context.Request.Path.Value.TrimStart('/').TrimEnd('/');
         }
     }
 }

@@ -43,4 +43,3 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand
     }
 
 }
-

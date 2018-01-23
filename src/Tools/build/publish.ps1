@@ -68,14 +68,14 @@ function BuildPackages() {
 			& dotnet restore --source $nugetRestoreAltSource --source https://nuget.org/api/v2/ | Out-Host
 		}
 		
-		& dotnet pack | Out-Host
+		& dotnet pack --configuration Release | Out-Host
 		cd ..
 	}
 }
 
 function PushPackages() {
 	foreach ($package in $packages) {
-		& .\Tools\nuget.exe push .\$($package.Directory)\bin\debug\$($package.Package).$version.nupkg -source $server -apiKey $apiKey | Out-Host
+		& .\Tools\nuget.exe push .\$($package.Directory)\bin\Release\$($package.Package).$version.nupkg -source $server -apiKey $apiKey | Out-Host
 	}
 }
 
@@ -103,12 +103,7 @@ $packages = @(
 	[pscustomobject]@{ Package = "DotVVM.Owin"; Directory = "DotVVM.Framework.Hosting.Owin" },
 	[pscustomobject]@{ Package = "DotVVM.AspNetCore"; Directory = "DotVVM.Framework.Hosting.AspNetCore" },
 	[pscustomobject]@{ Package = "DotVVM.CommandLine"; Directory = "DotVVM.CommandLine" },
-	[pscustomobject]@{ Package = "DotVVM.Compiler.Light"; Directory = "DotVVM.Compiler.Light" },
-	[pscustomobject]@{ Package = "DotVVM.Tracing.ApplicationInsights"; Directory = "DotVVM.Tracing.ApplicationInsights" },
-	[pscustomobject]@{ Package = "DotVVM.Tracing.ApplicationInsights.Owin"; Directory = "DotVVM.Tracing.ApplicationInsights.Owin" },
-	[pscustomobject]@{ Package = "DotVVM.Tracing.ApplicationInsights.AspNetCore"; Directory = "DotVVM.Tracing.ApplicationInsights.AspNetCore" },
-	[pscustomobject]@{ Package = "DotVVM.Tracing.MiniProfiler.Owin"; Directory = "DotVVM.Tracing.MiniProfiler.Owin" },
-	[pscustomobject]@{ Package = "DotVVM.Tracing.MiniProfiler.AspNetCore"; Directory = "DotVVM.Tracing.MiniProfiler.AspNetCore" }
+	[pscustomobject]@{ Package = "DotVVM.Compiler.Light"; Directory = "DotVVM.Compiler.Light" }
 )
 
 function PublishTemplates() {

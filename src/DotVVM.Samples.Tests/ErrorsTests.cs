@@ -1,8 +1,9 @@
-﻿using Dotvvm.Samples.Tests;
+﻿
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
+
 using System;
 using System.Linq;
+using DotVVM.Testing.Abstractions;
 
 namespace DotVVM.Samples.Tests
 {
@@ -261,8 +262,8 @@ namespace DotVVM.Samples.Tests
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_FieldInValueBinding);
 
                 //click Exception
-                browser.First("label[for=menu_radio_exception]").Click();
-                browser.First("#container_exception").CheckIfIsDisplayed();
+                browser.First("label[for=menu_radio_stack_trace]").Click();
+                browser.First("#container_stack_trace").CheckIfIsDisplayed();
 
                 //click Cookies
                 browser.First("label[for=menu_radio_cookies]").Click();
@@ -285,7 +286,7 @@ namespace DotVVM.Samples.Tests
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_FieldInValueBinding);
-                browser.First("label[for=menu_radio_exception]").Click();
+                browser.First("label[for=menu_radio_stack_trace]").Click();
 
                 //find and click on github link
                 var link = browser.FindElements("div.exceptionStackTrace span.docLinks a")

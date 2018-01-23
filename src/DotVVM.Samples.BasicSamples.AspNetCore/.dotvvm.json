@@ -4,5 +4,7 @@
   "rootNamespace": "DotVVM.Samples.BasicSamples.AspNetCore",
   "uiTestProjectPath": null,
   "uiTestProjectRootNamespace": null,
-  "apiClients": []
+  "apiClients": [
+
+  ]
 }

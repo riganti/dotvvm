@@ -40,21 +40,8 @@ namespace DotVVM.Framework.Controls
         protected internal abstract string ClientHandlerName { get; }
 
         /// <summary>
-        /// Gets an array of javascript expressions which will be passes to the handler as parameters.
+        /// Gets an array of objects or bindings that will be passed to the postback handler as parameters.
         /// </summary>
-        protected internal abstract Dictionary<string, string> GetHandlerOptionClientExpressions();
-
-        protected internal string TranslateValueOrBinding(DotvvmProperty property)
-        {
-            var binding = GetValueBinding(property);
-            if (binding == null)
-            {
-                return JsonConvert.SerializeObject(GetValue(property), DefaultViewModelSerializer.CreateDefaultSettings());
-            }
-            else
-            {
-                return "ko.unwrap(" + binding.GetKnockoutBindingExpression(this) + ")";
-            }
-        }
+        protected internal abstract Dictionary<string, object> GetHandlerOptions();
     }
 }

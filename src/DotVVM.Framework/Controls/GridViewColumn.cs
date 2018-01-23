@@ -3,6 +3,8 @@ using DotVVM.Framework.Hosting;
 using System;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Controls
 {
@@ -113,7 +115,7 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty WidthProperty
             = DotvvmProperty.Register<string, GridViewColumn>(c => c.Width, null);
-        
+
         [PopDataContextManipulationAttribute]
         [MarkupOptions(AllowHardCodedValue = false)]
         public bool Visible
@@ -151,7 +153,7 @@ namespace DotVVM.Framework.Controls
                 cell.Children.Add(linkButton);
 
                 var bindingId = linkButton.GetValue(Internal.UniqueIDProperty) + "_sortBinding";
-                var binding = new CommandBindingExpression(context.Configuration.ServiceLocator.GetService<BindingCompilationService>().WithoutInitialization(), h => sortCommand(sortExpression), bindingId);
+                var binding = new CommandBindingExpression(context.Services.GetRequiredService<BindingCompilationService>().WithoutInitialization(), h => sortCommand(sortExpression), bindingId);
                 linkButton.SetBinding(ButtonBase.ClickProperty, binding);
 
                 SetSortedCssClass(cell, gridViewDataSet);

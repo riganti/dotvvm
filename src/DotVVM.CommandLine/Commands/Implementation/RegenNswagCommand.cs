@@ -15,12 +15,11 @@ namespace DotVVM.CommandLine.Commands.Implementation
 
         public override string Usage => "dotvvm api regen [ swagger path -- if not specified all of them are refreshed ]";
 
-        public override bool CanHandle(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
+        public override bool TryConsumeArgs(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
         {
             if (string.Equals(args[0], "api", StringComparison.CurrentCultureIgnoreCase)
                 && string.Equals(args[1], "regen", StringComparison.CurrentCultureIgnoreCase))
             {
-                // ahhh, yes, you are not drunk, this function that should only detect if it can be handled has side effects on the args parameter...
                 args.Consume(2);
                 return true;
             }

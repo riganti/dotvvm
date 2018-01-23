@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using DotVVM.Framework.Compilation;
 using DotVVM.Framework.ViewModel.Validation;
 using Newtonsoft.Json;
 
@@ -19,6 +20,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public ProtectMode ViewModelProtection { get; set; }
 
         public Type Type { get; set; }
+
+        public Direction BindDirection { get; set; }
 
         public bool TransferToServer { get; set; }
         public bool TransferToServerOnlyInPath { get; set; }
@@ -47,6 +50,13 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public override string ToString()
         {
             return $"{nameof(ViewModelPropertyMap)}: {Type.Name} {Name}";
+        }
+        public void ValidateSettings()
+        {
+            if (ViewModelProtection != ProtectMode.None && !IsFullyTransfered())
+            {
+                throw new DotvvmCompilationException($"The property {PropertyInfo.Name} of type {Type} uses the Protect attribute, therefore its Bind Direction must be set to {Direction.Both}.");
+            }
         }
     }
 }

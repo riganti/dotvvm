@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Hosting.ErrorPages;
 using Microsoft.AspNetCore.Http;
 using System.IO;
+using System.Diagnostics;
 
 namespace DotVVM.Framework.Hosting.Middlewares
 {
@@ -49,7 +50,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
             try
             {
 
-                var text = (Formatter ?? (Formatter = ErrorFormatter.CreateDefault()))
+                var text = (Formatter ?? (Formatter = CreateDefaultWithDemystifier()))
                     .ErrorHtml(error, DotvvmMiddleware.ConvertHttpContext(context));
                 return context.Response.WriteAsync(text);
             }
@@ -63,14 +64,42 @@ namespace DotVVM.Framework.Hosting.Middlewares
                         writer.WriteLine("Error in Dotvvm Application:");
                         writer.WriteLine(error.ToString());
                         writer.WriteLine();
-                        writer.WriteLine("Error occured while displaying the error page. This it s internal error and should not happend, please report it:");
+                        writer.WriteLine("Error occurred while displaying the error page. This is internal error and should not happened, please report it:");
                         writer.WriteLine(exc.ToString());
                     }
                 }
                 catch { }
-                throw new Exception("Error occured inside dotvvm error handler, this is internal error and should not happen; \n Original error:" + error.ToString(), exc);
+                throw new Exception("Error occurred inside dotvvm error handler, this is internal error and should not happen; \n Original error:" + error.ToString(), exc);
             }
         }
 
+        private ErrorFormatter CreateDefaultWithDemystifier()
+        {
+            var errorFormatter = ErrorFormatter.CreateDefault();
+
+            var insertPosition = errorFormatter.Formatters.Count > 0 ? 1 : 0;
+            errorFormatter.Formatters.Insert(insertPosition, (e, o) =>
+                new ExceptionSectionFormatter(LoadDemystifiedException(errorFormatter, e)));
+
+            return errorFormatter;
+        }
+
+        private ExceptionModel LoadDemystifiedException(ErrorFormatter formatter, Exception exception)
+        {
+            return formatter.LoadException(exception,
+                stackFrameGetter: ex => {
+                    var rawStackTrace = new StackTrace(ex, true).GetFrames();
+                    if (rawStackTrace == null) return null; // demystifier throws in these cases
+                    try
+                    {
+                        return new EnhancedStackTrace(ex).GetFrames();
+                    }
+                    catch
+                    {
+                        return rawStackTrace;
+                    }
+                },
+                methodFormatter: f => (f as EnhancedStackFrame)?.MethodInfo?.ToString());
+        }
     }
 }

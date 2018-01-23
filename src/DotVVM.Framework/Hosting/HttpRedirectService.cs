@@ -25,12 +25,12 @@ namespace DotVVM.Framework.Hosting
 {
     public interface IHttpRedirectService
     {
-        void WriteRedirectReponse(IHttpContext httpContext, string url, int statusCode = (int)HttpStatusCode.Redirect, bool replaceInHistory = false, bool allowSpaRedirect = false);
+        void WriteRedirectResponse(IHttpContext httpContext, string url, int statusCode = (int)HttpStatusCode.Redirect, bool replaceInHistory = false, bool allowSpaRedirect = false);
     }
 
     public class DefaultHttpRedirectService: IHttpRedirectService
     {
-        public void WriteRedirectReponse(IHttpContext httpContext, string url, int statusCode = (int)HttpStatusCode.Redirect, bool replaceInHistory = false, bool allowSpaRedirect = false)
+        public void WriteRedirectResponse(IHttpContext httpContext, string url, int statusCode = (int)HttpStatusCode.Redirect, bool replaceInHistory = false, bool allowSpaRedirect = false)
         {
             if (!DotvvmPresenter.DeterminePartialRendering(httpContext))
             {

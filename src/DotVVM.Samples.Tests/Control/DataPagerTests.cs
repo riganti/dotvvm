@@ -1,6 +1,7 @@
-﻿using Dotvvm.Samples.Tests;
+﻿
+using DotVVM.Testing.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.Core;
 
 namespace DotVVM.Samples.Tests.Control
 {
@@ -202,21 +203,7 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
-        [TestMethod]
-        public void Control_DataPager_ShowHideControlAsync()
-        {
-            RunInAllBrowsers(browser =>
-            {
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_DataPager_DataPager);
-                browser.Wait();
-
-                browser.Single("shouldLoadAsync-button", this.SelectByDataUi).Click().Wait();
-
-                ShowHideControl(browser);
-            });
-        }
-
-        private void ShowHideControl(BrowserWrapper browser)
+        private void ShowHideControl(IBrowserWrapperFluentApi browser)
         {
             // verify the second pager is hidden
             browser.First(".pagination").CheckIfIsDisplayed();

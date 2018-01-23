@@ -20,34 +20,46 @@ namespace DotVVM.Framework.Binding.Expressions
     /// </summary>
     [BindingCompilationRequirements(
         required: new[] {
-            typeof(CompiledBindingExpression.BindingDelegate),
+            typeof(BindingDelegate),
             typeof(ResultTypeBindingProperty),
             typeof(KnockoutExpressionBindingProperty)
         },
-        optional: new[] { typeof(CompiledBindingExpression.BindingUpdateDelegate) })]
+        optional: new[] { typeof(BindingUpdateDelegate) })]
     [Options]
     public class ValueBindingExpression : BindingExpression, IUpdatableValueBinding, IValueBinding
     {
-        public ValueBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties)
+        public ValueBindingExpression(BindingCompilationService service, IEnumerable<object> properties) 
+            : base(service, properties)
         {
             AddNullResolvers();
         }
 
-        public CompiledBindingExpression.BindingDelegate BindingDelegate => this.GetProperty<CompiledBindingExpression.BindingDelegate>();
+        public BindingDelegate BindingDelegate => this.GetProperty<BindingDelegate>();
 
-        public CompiledBindingExpression.BindingUpdateDelegate UpdateDelegate => this.GetProperty<CompiledBindingExpression.BindingUpdateDelegate>();
+        public BindingUpdateDelegate UpdateDelegate => this.GetProperty<BindingUpdateDelegate>();
 
         public ParametrizedCode KnockoutExpression => this.GetProperty<KnockoutExpressionBindingProperty>().Code;
-        public ParametrizedCode UnwrapedKnockoutExpression => this.GetProperty<KnockoutExpressionBindingProperty>().UnwrapedCode;
+        public ParametrizedCode UnwrappedKnockoutExpression => this.GetProperty<KnockoutExpressionBindingProperty>().UnwrappedCode;
+        public ParametrizedCode WrappedKnockoutExpression => this.GetProperty<KnockoutExpressionBindingProperty>().WrappedCode;
 
         public Type ResultType => this.GetProperty<ResultTypeBindingProperty>().Type;
 
         public class OptionsAttribute : BindingCompilationOptionsAttribute
         {
             public override IEnumerable<Delegate> GetResolvers() => new Delegate[] {
-                new Func<KnockoutJsExpressionBindingProperty, RequiredRuntimeResourcesBindingProperty>(js => {
-                    var resources = js.Expression.DescendantNodesAndSelf().Select(n => n.Annotation<RequiredRuntimeResourcesBindingProperty>()).Where(n => n != null).SelectMany(n => n.Resources).ToImmutableArray();
-                    return resources.Length == 0 ? RequiredRuntimeResourcesBindingProperty.Empty : new RequiredRuntimeResourcesBindingProperty(resources);
+                new Func<KnockoutJsExpressionBindingProperty, RequiredRuntimeResourcesBindingProperty>(js =>
+                {
+                    var resources =
+                        js.Expression
+                        .DescendantNodesAndSelf()
+                        .Select(n => n.Annotation<RequiredRuntimeResourcesBindingProperty>())
+                        .Where(n => n != null)
+                        .SelectMany(n => n.Resources)
+                        .ToImmutableArray();
+
+                    return resources.Length == 0
+                        ? RequiredRuntimeResourcesBindingProperty.Empty
+                        : new RequiredRuntimeResourcesBindingProperty(resources);
                 })
             };
         }
@@ -59,7 +71,7 @@ namespace DotVVM.Framework.Binding.Expressions
 
         public static ValueBindingExpression CreateBinding<T>(BindingCompilationService service, Func<object[], T> func, JsExpression expression, DataContextStack dataContext = null) =>
             new ValueBindingExpression(service, new object[] {
-                new CompiledBindingExpression.BindingDelegate((o, c) => func(o)),
+                new BindingDelegate((o, c) => func(o)),
                 new ResultTypeBindingProperty(typeof(T)),
                 new KnockoutJsExpressionBindingProperty(expression),
                 dataContext
@@ -67,9 +79,9 @@ namespace DotVVM.Framework.Binding.Expressions
 
         public static ValueBindingExpression CreateBinding<T>(BindingCompilationService service, Func<object[], T> func, ParametrizedCode expression, DataContextStack dataContext = null) =>
             new ValueBindingExpression(service, new object[] {
-                new CompiledBindingExpression.BindingDelegate((o, c) => func(o)),
+                new BindingDelegate((o, c) => func(o)),
                 new ResultTypeBindingProperty(typeof(T)),
-                new KnockoutExpressionBindingProperty(expression, expression),
+                new KnockoutExpressionBindingProperty(expression, expression, expression),
                 dataContext
             });
 
@@ -137,9 +149,9 @@ namespace DotVVM.Framework.Binding.Expressions
 
     public class ValueBindingExpression<T> : ValueBindingExpression, IValueBinding<T>, IUpdatableValueBinding<T>
     {
-        public new CompiledBindingExpression.BindingDelegate<T> BindingDelegate => base.BindingDelegate.ToGeneric<T>();
+        public new BindingDelegate<T> BindingDelegate => base.BindingDelegate.ToGeneric<T>();
 
-        public new CompiledBindingExpression.BindingUpdateDelegate<T> UpdateDelegate => base.UpdateDelegate.ToGeneric<T>();
+        public new BindingUpdateDelegate<T> UpdateDelegate => base.UpdateDelegate.ToGeneric<T>();
 
         public ValueBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties) { }
     }

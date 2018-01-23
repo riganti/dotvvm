@@ -2,9 +2,9 @@
 {
     public static class TextUtils
     {
-        private static readonly string[] sizeUnits = { "B", "KB", "MB", "GB", "TB" };
+        private static readonly string[] sizeUnits = { "B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" };
 
-        public static string FormatSize(long bytes)
+        public static string FormatSize(double bytes)
         {
             var order = 0;
             var size = bytes;

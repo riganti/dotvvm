@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Tests.Runtime
         public void ResourceManager_SimpleTest()
         {
             var configuration = DotvvmTestHelper.CreateConfiguration();
-            var manager = new ResourceManager(configuration);
+            var manager = new ResourceManager(configuration.Resources);
 
             manager.AddRequiredResource(ResourceConstants.GlobalizeResourceName);
             Assert.AreEqual(configuration.Resources.FindResource(ResourceConstants.GlobalizeResourceName), manager.GetResourcesInOrder().First());
@@ -32,13 +32,14 @@ namespace DotVVM.Framework.Tests.Runtime
         public void ResourceManager_DependentResources()
         {
             var configuration = DotvvmTestHelper.CreateConfiguration();
-            var manager = new ResourceManager(configuration);
+            var manager = new ResourceManager(configuration.Resources);
 
             manager.AddRequiredResource(ResourceConstants.DotvvmResourceName);
             var resourcesInCorrectOrder = manager.GetResourcesInOrder().ToList();
             Assert.AreEqual(configuration.Resources.FindResource(ResourceConstants.KnockoutJSResourceName), resourcesInCorrectOrder[0]);
-            Assert.AreEqual(configuration.Resources.FindResource(ResourceConstants.DotvvmResourceName + ".internal"), resourcesInCorrectOrder[1]);
-            Assert.AreEqual(configuration.Resources.FindResource(ResourceConstants.DotvvmResourceName), resourcesInCorrectOrder[2]);
+            Assert.AreEqual(configuration.Resources.FindResource(ResourceConstants.PolyfillResourceName), resourcesInCorrectOrder[1]);
+            Assert.AreEqual(configuration.Resources.FindResource(ResourceConstants.DotvvmResourceName + ".internal"), resourcesInCorrectOrder[2]);
+            Assert.AreEqual(configuration.Resources.FindResource(ResourceConstants.DotvvmResourceName), resourcesInCorrectOrder[3]);
         }
 
 
@@ -46,7 +47,7 @@ namespace DotVVM.Framework.Tests.Runtime
         public void ResourceManager_DependentResources_Css()
         {
             var configuration = DotvvmTestHelper.CreateConfiguration();
-            var manager = new ResourceManager(configuration);
+            var manager = new ResourceManager(configuration.Resources);
 
             manager.AddRequiredResource(ResourceConstants.DotvvmFileUploadCssResourceName);
             var resourcesInCorrectOrder = manager.GetResourcesInOrder().ToList();

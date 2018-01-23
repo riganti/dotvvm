@@ -65,7 +65,7 @@ namespace DotVVM.Framework.Controls
 
         protected IValueBinding GetItemBinding()
         {
-            return GetForeachDataBindExpression().CastTo<ValueBindingExpression>().GetListIndexer();
+            return (IValueBinding)GetForeachDataBindExpression().GetProperty<DataSourceCurrentElementBinding>().Binding;
         }
 
         public IEnumerable GetIEnumerableFromDataSource() =>

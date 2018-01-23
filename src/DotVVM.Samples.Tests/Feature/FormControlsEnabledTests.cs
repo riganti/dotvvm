@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Dotvvm.Samples.Tests;
+using DotVVM.Testing.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.Core;
+using Riganti.Selenium.Core.Abstractions;
 
 namespace DotVVM.Samples.Tests.Feature
 {
@@ -88,7 +89,7 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
-        private void TestLinkButton(BrowserWrapper browser, string id, bool shouldBeEnabled, ref int currentPresses)
+        private void TestLinkButton(IBrowserWrapperFluentApi browser, string id, bool shouldBeEnabled, ref int currentPresses)
         {
             browser.First($"#{id}").Click();
             if (shouldBeEnabled)

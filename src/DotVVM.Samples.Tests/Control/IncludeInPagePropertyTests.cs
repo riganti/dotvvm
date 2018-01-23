@@ -1,7 +1,8 @@
-﻿using Dotvvm.Samples.Tests;
+﻿
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.Core;
 using System;
+using DotVVM.Testing.Abstractions;
 
 namespace DotVVM.Samples.Tests.Control
 {
@@ -9,6 +10,7 @@ namespace DotVVM.Samples.Tests.Control
     public class IncludeInPagePropertyTests : AppSeleniumTest
     {
         [TestMethod]
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_IncludeInPageProperty_IncludeInPage))]
         public void Control_IncludeInPageProperty_IncludeInPage_GridView()
         {
             CheckIncludeInPage(browser =>
@@ -24,6 +26,7 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [TestMethod]
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_IncludeInPageProperty_IncludeInPage))]
         public void Control_IncludeInPageProperty_IncludeInPage_GridViewEmptyDataTemplate()
         {
             const string gridViewDataUi = "gridView-emptyDataTemplate";
@@ -43,6 +46,7 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [TestMethod]
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_IncludeInPageProperty_IncludeInPage))]
         public void Control_IncludeInPageProperty_IncludeInPage_Literal()
         {
             CheckIncludeInPage(browser =>
@@ -57,6 +61,7 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [TestMethod]
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_IncludeInPageProperty_IncludeInPage))]
         public void Control_IncludeInPageProperty_IncludeInPage_LiteralsInRepeater()
         {
             CheckIncludeInPage(browser =>

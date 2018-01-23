@@ -27,7 +27,9 @@ namespace DotVVM.Samples.BasicSamples.Controls
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             var script = KnockoutHelper.GenerateClientPostBackScript(nameof(Click), this.GetCommandBinding(ClickProperty), this, new PostbackScriptOptions(returnValue: null));
-            writer.AddAttribute("onclick", $"var promise = {script}; promise.done(a => this.innerText = a.commandResult || a)");
+            writer.AddAttribute("onclick", $"var promise = {script}; promise.then(a => this.innerText = a.commandResult || a)");
+
+            base.AddAttributesToRender(writer, context);
         }
     }
 }

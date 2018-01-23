@@ -42,7 +42,11 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.GridViewDataSet
                 }
             };
 
-            GridData.LoadFromQueryable(data.AsQueryable());
+            if (GridData.IsRefreshRequired)
+            {
+                GridData.LoadFromQueryable(data.AsQueryable());
+            }
+
             return base.PreRender();
         }
     }

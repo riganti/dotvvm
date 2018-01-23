@@ -164,7 +164,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
 
         private JsExpression SetProperty(JsExpression target, PropertyInfo property, JsExpression value) =>
-            new JsAssignmentExpression(this.TranslateViewModelProperty(target, property), value);
+            new JsAssignmentExpression(TranslateViewModelProperty(target, property), value);
 
         public JsExpression TranslateConditional(ConditionalExpression expression) =>
             new JsConditionalExpression(
@@ -239,12 +239,6 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             var thisExpression = expression.Object == null ? null : Translate(expression.Object);
             var args = expression.Arguments.Select(Translate).ToArray();
-
-            if (expression.Method.Name == "GetValue" && expression.Method.DeclaringType == typeof(DotvvmBindableObject))
-            {
-                var dotvvmproperty = ((DotvvmProperty)((JsLiteral)args[0]).Value);
-                return TranslateViewModelProperty(thisExpression, (MemberInfo)dotvvmproperty.PropertyInfo ?? dotvvmproperty.PropertyType.GetTypeInfo(), name: dotvvmproperty.Name);
-            }
 
             var result = TryTranslateMethodCall(expression.Method, expression.Object, expression.Arguments.ToArray());
             if (result == null)
@@ -350,13 +344,13 @@ namespace DotVVM.Framework.Compilation.Javascript
             }
         }
 
-        public JsExpression TranslateViewModelProperty(JsExpression context, MemberInfo propInfo, string name = null) =>
+        public static JsExpression TranslateViewModelProperty(JsExpression context, MemberInfo propInfo, string name = null) =>
             new JsMemberAccessExpression(context, name ?? propInfo.Name).WithAnnotation(new VMPropertyInfoAnnotation { MemberInfo = propInfo }).WithAnnotation(new ViewModelInfoAnnotation(propInfo.GetResultType()));
 
         public JsExpression TryTranslateMethodCall(MethodInfo methodInfo, Expression target, IEnumerable<Expression> arguments) =>
             Translator.TryTranslateCall(
-                new HalfTranslatedExpression(target, Translate),
-                arguments.Select(a => new HalfTranslatedExpression(a, Translate)).ToArray(),
+                new LazyTranslatedExpression(target, Translate),
+                arguments.Select(a => new LazyTranslatedExpression(a, Translate)).ToArray(),
                 methodInfo)
                 ?.WithAnnotation(new ViewModelInfoAnnotation(methodInfo.ReturnType), append: false);
 
@@ -365,7 +359,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             private readonly Func<JsExpression, JsExpression> getJsTranslation;
 
             public FakeExtensionParameter(Func<JsExpression, JsExpression> getJsTranslation, string identifier = "__", ITypeDescriptor type = null, bool inherit = false): base(identifier, type, inherit)
-            { 
+            {
                 this.getJsTranslation = getJsTranslation;
             }
 
@@ -374,13 +368,14 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
     }
 
-    public class HalfTranslatedExpression
+    /// Represents an Linq.Expression that is being translated to JsAst.
+    public class LazyTranslatedExpression
     {
         private static readonly Lazy<JsExpression> nullLazy = new Lazy<JsExpression>(() => null);
         private readonly Lazy<JsExpression> lazyJsExpression;
         public JsExpression JsExpression() => lazyJsExpression.Value;
         public Expression OriginalExpression { get; }
-        public HalfTranslatedExpression(Expression expr, Func<Expression, JsExpression> translateMethod)
+        public LazyTranslatedExpression(Expression expr, Func<Expression, JsExpression> translateMethod)
         {
             this.OriginalExpression = expr;
             this.lazyJsExpression = expr == null ? nullLazy : new Lazy<JsExpression>(() => translateMethod(expr));

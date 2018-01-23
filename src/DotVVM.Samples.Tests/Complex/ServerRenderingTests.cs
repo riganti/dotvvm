@@ -1,13 +1,14 @@
-﻿using Dotvvm.Samples.Tests;
+﻿
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Testing.Abstractions;
 using OpenQA.Selenium;
-using Riganti.Utils.Testing.Selenium.Core.Abstractions.Exceptions;
+using Riganti.Selenium.Core.Abstractions.Exceptions;
 
 namespace DotVVM.Samples.Tests.Complex
 {
@@ -98,7 +99,7 @@ namespace DotVVM.Samples.Tests.Complex
             });
         }
 
-        public static void CheckArticleCount(BrowserWrapper browser, string repeaterUiId, int expectedCount)
+        public static void CheckArticleCount(IBrowserWrapperFluentApi browser, string repeaterUiId, int expectedCount)
         {
             var articles = browser.First($"div[data-ui='{repeaterUiId}']").FindElements("article[data-ui='test-article']");
             if (articles.Count != expectedCount)

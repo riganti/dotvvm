@@ -8,7 +8,6 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFramework>net461</TargetFramework>
-    <RuntimeIdentifier>win7-x86</RuntimeIdentifier>
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
@@ -22,7 +21,7 @@
     <None Include="dotvvmwizard.snk" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.2.0" />
     <PackageReference Include="MSTest.TestFramework" Version="1.2.0" />
     <PackageReference Include="Microsoft.Owin.Security" Version="3.0.1" />

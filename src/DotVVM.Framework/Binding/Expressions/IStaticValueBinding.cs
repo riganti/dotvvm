@@ -5,12 +5,12 @@ namespace DotVVM.Framework.Binding.Expressions
 {
     public interface IStaticValueBinding: IBinding
     {
-        CompiledBindingExpression.BindingDelegate BindingDelegate { get; }
+        BindingDelegate BindingDelegate { get; }
         Type ResultType { get; }
     }
 
     public interface IStaticValueBinding<out T>: IStaticValueBinding
     {
-        CompiledBindingExpression.BindingDelegate<T> BindingDelegate { get; }
+        new BindingDelegate<T> BindingDelegate { get; }
     }
 }

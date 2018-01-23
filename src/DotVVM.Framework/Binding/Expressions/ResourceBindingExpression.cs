@@ -13,14 +13,14 @@ using DotVVM.Framework.Utils;
 namespace DotVVM.Framework.Binding.Expressions
 {
     [BindingCompilationRequirements(
-        required: new[] {typeof(CompiledBindingExpression.BindingDelegate)}
+        required: new[] {typeof(BindingDelegate)}
         )]
     [Options]
     public class ResourceBindingExpression : BindingExpression, IStaticValueBinding
     {
         public ResourceBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties) { }
 
-        public CompiledBindingExpression.BindingDelegate BindingDelegate => this.GetProperty<CompiledBindingExpression.BindingDelegate>();
+        public BindingDelegate BindingDelegate => this.GetProperty<BindingDelegate>();
 
         public Type ResultType => this.GetProperty<ResultTypeBindingProperty>().Type;
 
@@ -36,6 +36,6 @@ namespace DotVVM.Framework.Binding.Expressions
     {
         public ResourceBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties) { }
 
-        public new CompiledBindingExpression.BindingDelegate<T> BindingDelegate => base.BindingDelegate.ToGeneric<T>();
+        public new BindingDelegate<T> BindingDelegate => base.BindingDelegate.ToGeneric<T>();
     }
 }

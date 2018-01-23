@@ -24,6 +24,11 @@ namespace DotVVM.Framework.Binding
             return TypeDescriptorUtils.GetCollectionItemType(dataContext);
         }
 
+        public override Type GetChildDataContextType(Type dataContext, DataContextStack controlContextStack, DotvvmBindableObject control, DotvvmProperty property = null)
+        {
+            return ReflectionUtils.GetEnumerableType(dataContext);
+        }
+
         public override IEnumerable<BindingExtensionParameter> GetExtensionParameters(ITypeDescriptor dataContext)
         {
             return base.GetExtensionParameters(dataContext).Concat(new BindingExtensionParameter[] { new CurrentCollectionIndexExtensionParameter(), new BindingCollectionInfoExtensionParameter("_collection") });

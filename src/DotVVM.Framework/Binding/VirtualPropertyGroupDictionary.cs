@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections;
+using DotVVM.Framework.Binding.Expressions;
 
 namespace DotVVM.Framework.Binding
 {
@@ -88,6 +89,10 @@ namespace DotVVM.Framework.Binding
             }
         }
 
+        public IValueBinding GetValueBinding(string key) => control.GetValueBinding(group.GetDotvvmProperty(key));
+        public IBinding GetBinding(string key) => control.GetBinding(group.GetDotvvmProperty(key));
+        public object GetValueRaw(string key) => control.GetValueRaw(group.GetDotvvmProperty(key));
+
 
         public bool ContainsKey(string key)
         {
@@ -97,6 +102,11 @@ namespace DotVVM.Framework.Binding
         public void Add(string key, TValue value)
         {
             control.SetValue(group.GetDotvvmProperty(key), value);
+        }
+
+        public void AddBinding(string key, IBinding binding)
+        {
+            control.SetBinding(group.GetDotvvmProperty(key), binding);
         }
 
         public bool Remove(string key)

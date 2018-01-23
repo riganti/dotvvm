@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 namespace DotVVM.Framework.Compilation.Javascript
 {
     /// <summary>
-    /// Represens a piece of Javascript code that may contain unresolved symbolic parameters.
+    /// Represents a piece of Javascript code that may contain unresolved symbolic parameters.
     /// </summary>
     public class ParametrizedCode
     {

@@ -43,7 +43,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
             string url;
             if (!TryParseGooglebotHashbangEscapedFragment(context.HttpContext.Request.Url.Query, out url))
             {
-                url = context.HttpContext.Request.Url.AbsolutePath;
+                url = context.HttpContext.Request.Path.Value;
             }
             url = url.Trim('/');
 
@@ -79,7 +79,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
             context.Route = route;
             context.Parameters = parameters;
 
-            var presenter = context.Presenter = route.GetPresenter();
+            var presenter = context.Presenter = route.GetPresenter(context.Services);
             var filters = ActionFilterHelper.GetActionFilters<IPageActionFilter>(presenter.GetType().GetTypeInfo());
             filters.AddRange(context.Configuration.Runtime.GlobalFilters.OfType<IPageActionFilter>());
             try
