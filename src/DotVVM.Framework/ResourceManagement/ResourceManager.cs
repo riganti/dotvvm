@@ -24,6 +24,9 @@ namespace DotVVM.Framework.ResourceManagement
             get { return requiredResourcesOrdered.AsReadOnly(); }
         }
 
+        internal bool HeadRendered;
+        internal bool BodyRendered;
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ResourceManager"/> class.
@@ -64,6 +67,8 @@ namespace DotVVM.Framework.ResourceManagement
             }
             else
             {
+                if (this.IsAlreadyRendered(resource.RenderPosition))
+                    throw new Exception($"Can't add {resource.GetType().Name} '{name}' to {resource.RenderPosition}, it is already rendered.");
                 foreach (var dep in resource.Dependencies)
                 {
                     AddRequiredResource(dep);
@@ -72,6 +77,11 @@ namespace DotVVM.Framework.ResourceManagement
                 requiredResources[name] = resource;
             }
         }
+
+        /// Checks whether the resource position is already rendered.
+        private bool IsAlreadyRendered(ResourceRenderPosition position) =>
+            position == ResourceRenderPosition.Head && HeadRendered ||
+            position == ResourceRenderPosition.Body && BodyRendered;
 
         /// <summary>
         /// Adds the required script file.
