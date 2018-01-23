@@ -70,6 +70,5 @@ namespace DotVVM.Framework.Binding
             PropertyName = propertyName;
             Order = order;
         }
-        
     }
 }
