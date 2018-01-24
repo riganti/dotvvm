@@ -120,13 +120,15 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty ValueTypeProperty =
             DotvvmProperty.Register<FormatValueType, TextBox>(t => t.ValueType);
 
+        public static bool NeedsFormatting(IValueBinding binding) => binding != null && (binding.ResultType == typeof(DateTime) || ReflectionUtils.IsNumericType(binding.ResultType));
+
         protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
             isFormattingRequired = !string.IsNullOrEmpty(FormatString) ||
                 #pragma warning disable
                 ValueType != FormatValueType.Text ||
                 #pragma warning restore
-                Literal.NeedsFormatting(GetValueBinding(TextProperty));
+                NeedsFormatting(GetValueBinding(TextProperty));
             if (isFormattingRequired)
             {
                 context.ResourceManager.AddCurrentCultureGlobalizationResource();
