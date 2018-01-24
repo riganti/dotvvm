@@ -312,11 +312,11 @@ namespace DotVVM.Framework.Controls
 
             if (HasBinding(EnabledProperty))
             {
-                writer.AddKnockoutDataBind("css", "{disabled:$pagerEnabled()}");
+                AddKnockoutDisabledCssDataBind(writer, context, "$pagerEnabled()");
             }
             else
             {
-                writer.AddKnockoutDataBind("css", $"{{ 'disabled': { (!Enabled).ToString().ToLower() } }}");
+                AddKnockoutDisabledCssDataBind(writer, context, (!Enabled).ToString().ToLower());
             }
 
             writer.AddKnockoutDataBind("with", this, DataSetProperty, renderEvenInServerRenderingMode: true);
@@ -324,15 +324,31 @@ namespace DotVVM.Framework.Controls
 
         }
 
+        protected virtual void AddItemCssClass(IHtmlWriter writer, IDotvvmRequestContext context)
+        {
+        }
+
+        protected virtual void AddKnockoutDisabledCssDataBind(IHtmlWriter writer, IDotvvmRequestContext context, string expression)
+        {
+            writer.AddKnockoutDataBind("css", $"{{ 'disabled': {expression} }}");
+        }
+
+        protected virtual void AddKnockoutActiveCssDataBind(IHtmlWriter writer, IDotvvmRequestContext context, string expression)
+        {
+            writer.AddKnockoutDataBind("css", $"{{ 'active': {expression} }}");
+        }
+
         private static ParametrizedCode currentPageTextJs = new JsBinaryExpression(new JsBinaryExpression(new JsLiteral(1), BinaryOperatorType.Plus, new JsSymbolicParameter(JavascriptTranslator.KnockoutViewModelParameter)), BinaryOperatorType.Plus, new JsLiteral("")).FormatParametrizedScript();
 
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
 
-            writer.AddKnockoutDataBind("css", "{ 'disabled': PagingOptions().IsFirstPage() }");
+            AddItemCssClass(writer, context);
+            AddKnockoutDisabledCssDataBind(writer, context, "PagingOptions().IsFirstPage()");
             firstLi.Render(writer, context);
 
-            writer.AddKnockoutDataBind("css", "{ 'disabled': PagingOptions().IsFirstPage() }");
+            AddItemCssClass(writer, context);
+            AddKnockoutDisabledCssDataBind(writer, context, "PagingOptions().IsFirstPage()");
             previousLi.Render(writer, context);
 
             // render template
@@ -349,7 +365,8 @@ namespace DotVVM.Framework.Controls
             if (!RenderLinkForCurrentPage)
             {
                 writer.AddKnockoutDataBind("visible", "$data == $parent.PagingOptions().PageIndex()");
-                writer.AddKnockoutDataBind("css", "{'active': $data == $parent.PagingOptions().PageIndex()}");
+                AddItemCssClass(writer, context);
+                AddKnockoutActiveCssDataBind(writer, context, "$data == $parent.PagingOptions().PageIndex()");
                 li = new HtmlGenericControl("li");
                 var literal = new Literal();
                 literal.DataContext = 0;
@@ -362,9 +379,10 @@ namespace DotVVM.Framework.Controls
 
                 writer.AddKnockoutDataBind("visible", "$data != $parent.PagingOptions().PageIndex()");
             }
-            writer.AddKnockoutDataBind("css", "{ 'active': $data == $parent.PagingOptions().PageIndex()}");
+            AddItemCssClass(writer, context);
+            AddKnockoutActiveCssDataBind(writer, context, "$data == $parent.PagingOptions().PageIndex()");
             li = new HtmlGenericControl("li");
-            li.SetValue(Internal.PathFragmentProperty, "PagingOptions.nearPageIndexes[$index]");
+            li.SetValue(Internal.PathFragmentProperty, "PagingOptions.NearPageIndexes[$index]");
             var link = new LinkButton();
             li.Children.Add(link);
             link.SetDataContextType(currentPageTextContext);
@@ -381,13 +399,14 @@ namespace DotVVM.Framework.Controls
 
             writer.WriteKnockoutDataBindEndComment();
 
-            writer.AddKnockoutDataBind("css", "{ 'disabled': PagingOptions().IsLastPage() }");
+            AddItemCssClass(writer, context);
+            AddKnockoutDisabledCssDataBind(writer, context, "PagingOptions().IsLastPage()");
             nextLi.Render(writer, context);
 
-            writer.AddKnockoutDataBind("css", "{ 'disabled': PagingOptions().IsLastPage() }");
+            AddItemCssClass(writer, context);
+            AddKnockoutDisabledCssDataBind(writer, context, "PagingOptions().IsLastPage()");
             lastLi.Render(writer, context);
         }
-
 
         protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {

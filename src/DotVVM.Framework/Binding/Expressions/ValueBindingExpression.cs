@@ -39,7 +39,7 @@ namespace DotVVM.Framework.Binding.Expressions
         public BindingUpdateDelegate UpdateDelegate => this.GetProperty<BindingUpdateDelegate>();
 
         public ParametrizedCode KnockoutExpression => this.GetProperty<KnockoutExpressionBindingProperty>().Code;
-        public ParametrizedCode UnwrapedKnockoutExpression => this.GetProperty<KnockoutExpressionBindingProperty>().UnwrapedCode;
+        public ParametrizedCode UnwrappedKnockoutExpression => this.GetProperty<KnockoutExpressionBindingProperty>().UnwrappedCode;
         public ParametrizedCode WrappedKnockoutExpression => this.GetProperty<KnockoutExpressionBindingProperty>().WrappedCode;
 
         public Type ResultType => this.GetProperty<ResultTypeBindingProperty>().Type;

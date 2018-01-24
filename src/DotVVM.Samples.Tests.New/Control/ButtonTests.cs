@@ -70,7 +70,7 @@ namespace DotVVM.Samples.Tests.New.Control
         }
 
         [Fact]
-        public void Control_Button_ButtonOnClick()
+        public void Control_Button_ButtonOnclick()
         {
             RunInAllBrowsers(browser =>
             {

@@ -1,18 +1,17 @@
-﻿
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Selenium.Core;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using DotVVM.Testing.Abstractions;
+using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
+using Xunit;
 
-namespace DotVVM.Samples.Tests.Feature
+namespace DotVVM.Samples.Tests.New.Feature
 {
-    [TestClass]
     public class ViewModelProtectionTests : AppSeleniumTest
     {
         public const string ChangedText = "The quick brown fox jumps over the lazy dog";
         public const string OriginalText = "Lorem Ipsum Dolor Sit Amet";
+
         private enum RadioButtonValues
         {
             Red,
@@ -20,56 +19,34 @@ namespace DotVVM.Samples.Tests.Feature
             Blue
         }
 
-        [TestMethod]
-        public void Feature_ViewModelProtection_ComplexViewModelProtection_BothMessage() => 
-            CheckMessage("bothMessage", OriginalText, ChangedText, ChangedText);
+        public ViewModelProtectionTests(Xunit.Abstractions.ITestOutputHelper output) : base(output)
+        {
+        }
 
-        [TestMethod]
-        public void Feature_ViewModelProtection_ComplexViewModelProtection_ClientToServerMessage() => 
-            CheckMessage("clientToServerMessage", "", ChangedText, ChangedText);
-
-        [TestMethod]
-        public void Feature_ViewModelProtection_ComplexViewModelProtection_IfInPostbackPathMessage() => 
-            CheckMessage("ifInPostbackPathMessage", OriginalText, ChangedText, OriginalText);
-
-        [TestMethod]
-        public void Feature_ViewModelProtection_ComplexViewModelProtection_ServerToClientFirstRequestMessage() => 
-            CheckMessage("serverToClientFirstRequestMessage", OriginalText, ChangedText, ChangedText);
-
-        [TestMethod]
-        public void Feature_ViewModelProtection_ComplexViewModelProtection_ServerToClientMessage() => 
-            CheckMessage("serverToClientMessage", OriginalText, ChangedText, OriginalText);
-
-        [TestMethod]
-        public void Feature_ViewModelProtection_ComplexViewModelProtection_ServerToClientPostbackMessage() => 
-            CheckMessage("serverToClientPostbackMessage", "", "", OriginalText);
-
-        [TestMethod]
+        [Fact]
         public void Feature_ViewModelProtection_ComplexViewModelProtection_SignedString()
         {
-            RunComplexViewModelProtectionTest(browser =>
-            {
+            RunComplexViewModelProtectionTest(browser => {
                 CheckRadioButtonsState(browser, RadioButtonValues.Red);
                 browser.Single("change-color", this.SelectByDataUi).Click();
                 CheckRadioButtonsState(browser, RadioButtonValues.Green);
             }, browser => CheckRadioButtonsState(browser, RadioButtonValues.Red));
         }
 
-        [TestMethod]
+        [Fact]
         public void Feature_ViewModelProtection_SignedNestedInServerToClient()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModelProtection_SignedNestedInServerToClient);
 
-                browser.First("h1").CheckIfTextEquals("Server Error, HTTP 500: Unhandled exception occurred");
+                AssertUI.InnerTextEquals(browser.First("h1"), "Server Error, HTTP 500: Unhandled exception occurred");
             });
         }
-        [TestMethod]
+
+        [Fact]
         public void Feature_ViewModelProtection_ViewModelProtection()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModelProtection_ViewModelProtection);
 
                 // get original value
@@ -80,7 +57,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.Wait(750);
 
                 // make sure it happened
-                browser.First("strong span").CheckIfInnerTextEquals("hello");
+                AssertUI.InnerTextEquals(browser.First("strong span"), "hello");
 
                 // try to do postback
                 browser.SendKeys("input[type=text]", "DotVVM rocks!");
@@ -89,48 +66,51 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.Wait(750);
 
                 // verify that the original value was restored
-                browser.First("strong span").CheckIfInnerTextEquals(originalValue);
+                AssertUI.InnerTextEquals(browser.First("strong span"), originalValue);
             });
         }
 
-        private void CheckMessage(string messageDataUi, string originalText, string changedText, string afterPostBackText)
+        [Theory]
+        [InlineData("bothMessage", OriginalText, ChangedText, ChangedText)]
+        [InlineData("clientToServerMessage", "", ChangedText, ChangedText)]
+        [InlineData("ifInPostbackPathMessage", OriginalText, ChangedText, OriginalText)]
+        [InlineData("serverToClientFirstRequestMessage", OriginalText, ChangedText, ChangedText)]
+        [InlineData("serverToClientPostbackMessage", "", "", OriginalText)]
+        public void Feature_ViewModelProtection_ComplexViewModelProtection(string messageDataUi, string originalText, string changedText, string afterPostBackText)
         {
-            RunComplexViewModelProtectionTest(browser =>
-            {
+            RunComplexViewModelProtectionTest(browser => {
                 var message = browser.Single(messageDataUi, this.SelectByDataUi);
-                message.CheckIfTextEquals(originalText);
+                AssertUI.TextEquals(message, originalText);
                 browser.Single($"change-{messageDataUi}", this.SelectByDataUi).Click().Wait();
 
                 message = browser.Single(messageDataUi, this.SelectByDataUi);
-                message.CheckIfTextEquals(changedText);
-
+                AssertUI.TextEquals(message, changedText);
             },
-            browser => 
-            {
+            browser => {
                 var message = browser.Single(messageDataUi, this.SelectByDataUi);
-                message.CheckIfTextEquals(afterPostBackText);
+                AssertUI.TextEquals(message, afterPostBackText);
             });
         }
 
-        private void CheckRadioButtonsState(IBrowserWrapperFluentApi browser, RadioButtonValues selectedColor)
+        private void CheckRadioButtonsState(IBrowserWrapper browser, RadioButtonValues selectedColor)
         {
-            var radios = new List<IElementWrapperFluentApi>();
+            var radios = new List<IElementWrapper>();
             radios.Add(browser.Single("radio-red", this.SelectByDataUi));
             radios.Add(browser.Single("radio-green", this.SelectByDataUi));
             radios.Add(browser.Single("radio-blue", this.SelectByDataUi));
             var selectedColorElement = browser.Single("selected-color", this.SelectByDataUi);
 
             int checkedRadioIndex = (int)selectedColor;
-            radios[checkedRadioIndex].CheckIfIsChecked();
+            AssertUI.IsChecked(radios[checkedRadioIndex]);
             radios.RemoveAt(checkedRadioIndex);
-            radios.ForEach(r => r.CheckIfIsNotChecked());
+            radios.ForEach(AssertUI.IsNotChecked);
 
-            selectedColorElement.CheckIfTextEquals(selectedColor.ToString().ToLower());
+            AssertUI.TextEquals(selectedColorElement, selectedColor.ToString().ToLower());
         }
-        private void RunComplexViewModelProtectionTest(Action<IBrowserWrapperFluentApi> beforePostback, Action<IBrowserWrapperFluentApi> afterPostback)
+
+        private void RunComplexViewModelProtectionTest(Action<IBrowserWrapper> beforePostback, Action<IBrowserWrapper> afterPostback)
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModelProtection_ComplexViewModelProtection);
 
                 beforePostback(browser);

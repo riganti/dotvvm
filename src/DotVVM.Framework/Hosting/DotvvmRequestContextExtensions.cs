@@ -113,12 +113,12 @@ public static class DotvvmRequestContextExtensions
     }
 
     public static void SetRedirectResponse(this IDotvvmRequestContext context, string url, int statusCode = (int)HttpStatusCode.Redirect, bool replaceInHistory = false, bool allowSpaRedirect = false) =>
-        context.Services.GetService<IHttpRedirectService>()?.WriteRedirectReponse(context.HttpContext, url, statusCode, replaceInHistory, allowSpaRedirect);
+        context.Services.GetService<IHttpRedirectService>()?.WriteRedirectResponse(context.HttpContext, url, statusCode, replaceInHistory, allowSpaRedirect);
 
 
     /// <summary>
     /// Ends the request execution when the <see cref="ModelState"/> is not valid and displays the validation errors in <see cref="ValidationSummary"/> control.
-    /// If it is, it does nothing.
+    /// If it is valid, it does nothing.
     /// </summary>
     public static void FailOnInvalidModelState(this IDotvvmRequestContext context)
     {

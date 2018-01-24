@@ -78,12 +78,14 @@ class DotVVM {
             before: ["setIsPostackRunning"],
             execute(callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions) {
                 var queue = o.q || "default";
+                var handler = () => dotvvm.commonConcurrencyHandler(callback(), options, queue);
+
                 if (dotvvm.getPostbackQueue(queue).noRunning > 0) {
                     return new Promise<PostbackCommitFunction>(resolve => {
-                        dotvvm.getPostbackQueue(queue).queue.push(() => resolve(callback()));
+                        dotvvm.getPostbackQueue(queue).queue.push(() => resolve(handler()));
                     })
                 }
-                return dotvvm.commonConcurrencyHandler(callback(), options, queue);
+                return handler();
             }
         }),
         "suppressOnUpdating": (options: any) => ({
@@ -425,8 +427,12 @@ class DotVVM {
 
     public applyPostbackHandlers(callback: (options: PostbackOptions) => Promise<PostbackCommitFunction | undefined>, sender: HTMLElement, handlers?: ClientFriendlyPostbackHandlerConfiguration[], args: any[] = [], context = ko.contextFor(sender), viewModel = context.$root, viewModelName?: string): Promise<DotvvmAfterPostBackEventArgs> {
         const options = new PostbackOptions(this.backUpPostBackConter(), sender, args, viewModel, viewModelName)
-        return this.applyPostbackHandlersCore(callback, options, this.findPostbackHandlers(context, this.globalPostbackHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers)))
-            .then(r => r(), r => Promise.reject(r));
+        const promise =  this.applyPostbackHandlersCore(callback, options, this.findPostbackHandlers(context, this.globalPostbackHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers)))
+            .then(r => r(), r => Promise.reject(r))
+
+        promise.catch(reason => { if (reason) console.log("Rejected: " + reason) });
+
+        return promise;
     }
 
     public postbackCore(options: PostbackOptions, path: string[], command: string, controlUniqueId: string, context: any, commandArgs?: any[]) {
@@ -521,7 +527,11 @@ class DotVVM {
 
 
     public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, context?: any, handlers?: ClientFriendlyPostbackHandlerConfiguration[], commandArgs?: any[]): Promise<DotvvmAfterPostBackEventArgs> {
-        if (this.isPostBackProhibited(sender)) return new Promise<DotvvmAfterPostBackEventArgs>((resolve, reject) => reject("rejected"));
+        if (this.isPostBackProhibited(sender)) {
+            const rejectedPromise =  new Promise<DotvvmAfterPostBackEventArgs>((resolve, reject) => reject("rejected"));
+            rejectedPromise.catch(() => console.log("Postback probihited"));
+            return rejectedPromise;
+        }
 
         context = context || ko.contextFor(sender);
 
@@ -827,8 +837,13 @@ class DotVVM {
     private updateDynamicPathFragments(context: any, path: string[]): void {
         for (var i = path.length - 1; i >= 0; i--) {
             if (path[i].indexOf("[$index]") >= 0) {
-                path[i] = path[i].replace("[$index]", "[" + context.$index() + "]");
+                path[i] = path[i].replace("[$index]", `[${context.$index()}]`);
             }
+
+            if (path[i].indexOf("[$indexPath]") >= 0) {
+                path[i] = path[i].replace("[$indexPath]", `[${context.$indexPath.map(i => i()).join("]/[")}]`);
+            }
+
             context = context.$parentContext;
         }
     }

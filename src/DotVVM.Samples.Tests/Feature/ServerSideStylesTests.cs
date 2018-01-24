@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DotVVM.Testing.Abstractions;
+﻿using DotVVM.Testing.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Selenium.Core;
 
 namespace DotVVM.Samples.Tests.Feature
 {
@@ -13,6 +7,7 @@ namespace DotVVM.Samples.Tests.Feature
     public class ServerSideStylesTests : AppSeleniumTest
     {
         [TestMethod]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles))]
         public void Feature_ServerSideStyles_DotvvmControlNoAttributes()
         {
             RunInAllBrowsers(browser =>
@@ -24,6 +19,7 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [TestMethod]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles))]
         public void Feature_ServerSideStyles_DotvvmControlWithAttributes()
         {
             RunInAllBrowsers(browser =>
@@ -35,6 +31,7 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [TestMethod]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles))]
         public void Feature_ServerSideStyles_HtmlControlNoAttributes()
         {
             RunInAllBrowsers(browser =>
@@ -48,6 +45,7 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [TestMethod]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles))]
         public void Feature_ServerSideStyles_HtmlControlWithAttributes()
         {
             RunInAllBrowsers(browser =>
@@ -62,6 +60,7 @@ namespace DotVVM.Samples.Tests.Feature
 
 
         [TestMethod]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles_DotvvmProperties))]
         public void Feature_ServerSideStyles_DotvvmControlProperties()
         {
             RunInAllBrowsers(browser =>
@@ -73,6 +72,7 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [TestMethod]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles_DotvvmProperties))]
         public void Feature_ServerSideStyles_DerivedMatcher()
         {
             RunInAllBrowsers(browser =>
@@ -85,6 +85,7 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [TestMethod]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles_DotvvmProperties))]
         public void Feature_ServerSideStyles_Matcher()
         {
             RunInAllBrowsers(browser =>
@@ -97,6 +98,8 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [TestMethod]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ServerSideStyles_DirectoryStyle_ServerSideStyles))]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ServerSideStyles_NoDirectoryStyle_ServerSideStyles))]
         public void Feature_ServerSideStyles_Directory()
         {
             RunInAllBrowsers(browser =>
@@ -111,6 +114,8 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [TestMethod]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles_MatchingViewModel))]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles))]
         public void Feature_ServerSideStyles_DataContexts()
         {
             RunInAllBrowsers(browser =>

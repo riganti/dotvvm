@@ -10,11 +10,17 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 {
     public class ExceptionSectionFormatter : IErrorSectionFormatter
     {
-        public string DisplayName => "Exception";
+        public ExceptionSectionFormatter(ExceptionModel exception, string displayName = "Stack trace", string id = "stack_trace")
+        {
+            this.DisplayName = displayName;
+            this.Exception = exception;
+            this.Id = id;
+        }
+        public string DisplayName { get; }
 
-        public string Id => "exception";
+        public string Id { get; }
 
-        public ExceptionModel Exception { get; set; }
+        public ExceptionModel Exception { get; }
 
         public void WriteBody(IErrorWriter w)
         {
@@ -75,9 +81,8 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             foreach (var frame in model.Stack)
             {
                 w.WriteUnencoded("<div class='frame'><span class='method code'>");
-                w.WriteText(FormatMethod(frame.Method));
+                w.WriteText(frame.FormattedMethod ?? FormatMethod(frame.Method));
                 w.WriteUnencoded(" </span>");
-                if (frame.At.FileName != null) w.WriteText(frame.At.FileName + " +" + frame.At.LineNumber);
                 w.WriteUnencoded("<span class='docLinks'>");
                 foreach (var icon in frame.MoreInfo)
                 {

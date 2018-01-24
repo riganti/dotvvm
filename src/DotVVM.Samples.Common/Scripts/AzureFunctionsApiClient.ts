@@ -280,10 +280,10 @@ namespace AzureFunctionsApi {
     }
     
     export class CreateFormModel implements ICreateFormModel {
-        text: string;
-        number: number;
-        date: Date;
-        toDelete: boolean;
+        Text: string;
+        Number: number;
+        Date: Date;
+        ToDelete: boolean;
     
         constructor(data?: ICreateFormModel) {
             if (data) {
@@ -296,10 +296,10 @@ namespace AzureFunctionsApi {
     
         init(data?: any) {
             if (data) {
-                this.text = data["Text"] !== undefined ? data["Text"] : <any>null;
-                this.number = data["Number"] !== undefined ? data["Number"] : <any>null;
-                this.date = data["Date"] ? new Date(data["Date"].toString()) : <any>null;
-                this.toDelete = data["ToDelete"] !== undefined ? data["ToDelete"] : <any>null;
+                this.Text = data["Text"] !== undefined ? data["Text"] : <any>null;
+                this.Number = data["Number"] !== undefined ? data["Number"] : <any>null;
+                this.Date = data["Date"] ? new Date(data["Date"].toString()) : <any>null;
+                this.ToDelete = data["ToDelete"] !== undefined ? data["ToDelete"] : <any>null;
             }
         }
     
@@ -311,29 +311,29 @@ namespace AzureFunctionsApi {
     
         toJSON(data?: any) {
             data = typeof data === 'object' ? data : {};
-            data["Text"] = this.text !== undefined ? this.text : <any>null;
-            data["Number"] = this.number !== undefined ? this.number : <any>null;
-            data["Date"] = this.date ? this.date.toISOString() : <any>null;
-            data["ToDelete"] = this.toDelete !== undefined ? this.toDelete : <any>null;
+            data["Text"] = this.Text !== undefined ? this.Text : <any>null;
+            data["Number"] = this.Number !== undefined ? this.Number : <any>null;
+            data["Date"] = this.Date ? this.Date.toISOString() : <any>null;
+            data["ToDelete"] = this.ToDelete !== undefined ? this.ToDelete : <any>null;
             return data; 
         }
     }
     
     export interface ICreateFormModel {
-        text: string;
-        number: number;
-        date: Date;
-        toDelete: boolean;
+        Text: string;
+        Number: number;
+        Date: Date;
+        ToDelete: boolean;
     }
     
     export class FormModel implements IFormModel {
-        partitionsKey?: string;
-        rowKey?: string;
-        timestamp?: Date;
-        text: string;
-        number: number;
-        date: Date;
-        toDelete: boolean;
+        PartitionsKey?: string;
+        RowKey?: string;
+        Timestamp?: Date;
+        Text: string;
+        Number: number;
+        Date: Date;
+        ToDelete: boolean;
     
         constructor(data?: IFormModel) {
             if (data) {
@@ -346,13 +346,13 @@ namespace AzureFunctionsApi {
     
         init(data?: any) {
             if (data) {
-                this.partitionsKey = data["PartitionsKey"] !== undefined ? data["PartitionsKey"] : <any>null;
-                this.rowKey = data["RowKey"] !== undefined ? data["RowKey"] : <any>null;
-                this.timestamp = data["Timestamp"] ? new Date(data["Timestamp"].toString()) : <any>null;
-                this.text = data["Text"] !== undefined ? data["Text"] : <any>null;
-                this.number = data["Number"] !== undefined ? data["Number"] : <any>null;
-                this.date = data["Date"] ? new Date(data["Date"].toString()) : <any>null;
-                this.toDelete = data["ToDelete"] !== undefined ? data["ToDelete"] : <any>null;
+                this.PartitionsKey = data["PartitionsKey"] !== undefined ? data["PartitionsKey"] : <any>null;
+                this.RowKey = data["RowKey"] !== undefined ? data["RowKey"] : <any>null;
+                this.Timestamp = data["Timestamp"] ? new Date(data["Timestamp"].toString()) : <any>null;
+                this.Text = data["Text"] !== undefined ? data["Text"] : <any>null;
+                this.Number = data["Number"] !== undefined ? data["Number"] : <any>null;
+                this.Date = data["Date"] ? new Date(data["Date"].toString()) : <any>null;
+                this.ToDelete = data["ToDelete"] !== undefined ? data["ToDelete"] : <any>null;
             }
         }
     
@@ -364,32 +364,32 @@ namespace AzureFunctionsApi {
     
         toJSON(data?: any) {
             data = typeof data === 'object' ? data : {};
-            data["PartitionsKey"] = this.partitionsKey !== undefined ? this.partitionsKey : <any>null;
-            data["RowKey"] = this.rowKey !== undefined ? this.rowKey : <any>null;
-            data["Timestamp"] = this.timestamp ? this.timestamp.toISOString() : <any>null;
-            data["Text"] = this.text !== undefined ? this.text : <any>null;
-            data["Number"] = this.number !== undefined ? this.number : <any>null;
-            data["Date"] = this.date ? this.date.toISOString() : <any>null;
-            data["ToDelete"] = this.toDelete !== undefined ? this.toDelete : <any>null;
+            data["PartitionsKey"] = this.PartitionsKey !== undefined ? this.PartitionsKey : <any>null;
+            data["RowKey"] = this.RowKey !== undefined ? this.RowKey : <any>null;
+            data["Timestamp"] = this.Timestamp ? this.Timestamp.toISOString() : <any>null;
+            data["Text"] = this.Text !== undefined ? this.Text : <any>null;
+            data["Number"] = this.Number !== undefined ? this.Number : <any>null;
+            data["Date"] = this.Date ? this.Date.toISOString() : <any>null;
+            data["ToDelete"] = this.ToDelete !== undefined ? this.ToDelete : <any>null;
             return data; 
         }
     }
     
     export interface IFormModel {
-        partitionsKey?: string;
-        rowKey?: string;
-        timestamp?: Date;
-        text: string;
-        number: number;
-        date: Date;
-        toDelete: boolean;
+        PartitionsKey?: string;
+        RowKey?: string;
+        Timestamp?: Date;
+        Text: string;
+        Number: number;
+        Date: Date;
+        ToDelete: boolean;
     }
     
     export class DataModel implements IDataModel {
-        text: string;
-        number: number;
-        date: Date;
-        bool: boolean;
+        Text: string;
+        Number: number;
+        Date: Date;
+        Bool: boolean;
     
         constructor(data?: IDataModel) {
             if (data) {
@@ -402,10 +402,10 @@ namespace AzureFunctionsApi {
     
         init(data?: any) {
             if (data) {
-                this.text = data["Text"] !== undefined ? data["Text"] : <any>null;
-                this.number = data["Number"] !== undefined ? data["Number"] : <any>null;
-                this.date = data["Date"] ? new Date(data["Date"].toString()) : <any>null;
-                this.bool = data["Bool"] !== undefined ? data["Bool"] : <any>null;
+                this.Text = data["Text"] !== undefined ? data["Text"] : <any>null;
+                this.Number = data["Number"] !== undefined ? data["Number"] : <any>null;
+                this.Date = data["Date"] ? new Date(data["Date"].toString()) : <any>null;
+                this.Bool = data["Bool"] !== undefined ? data["Bool"] : <any>null;
             }
         }
     
@@ -417,24 +417,24 @@ namespace AzureFunctionsApi {
     
         toJSON(data?: any) {
             data = typeof data === 'object' ? data : {};
-            data["Text"] = this.text !== undefined ? this.text : <any>null;
-            data["Number"] = this.number !== undefined ? this.number : <any>null;
-            data["Date"] = this.date ? this.date.toISOString() : <any>null;
-            data["Bool"] = this.bool !== undefined ? this.bool : <any>null;
+            data["Text"] = this.Text !== undefined ? this.Text : <any>null;
+            data["Number"] = this.Number !== undefined ? this.Number : <any>null;
+            data["Date"] = this.Date ? this.Date.toISOString() : <any>null;
+            data["Bool"] = this.Bool !== undefined ? this.Bool : <any>null;
             return data; 
         }
     }
     
     export interface IDataModel {
-        text: string;
-        number: number;
-        date: Date;
-        bool: boolean;
+        Text: string;
+        Number: number;
+        Date: Date;
+        Bool: boolean;
     }
     
     export class Country implements ICountry {
-        name?: string;
-        regions?: Region[];
+        Name?: string;
+        Regions?: Region[];
     
         constructor(data?: ICountry) {
             if (data) {
@@ -447,11 +447,11 @@ namespace AzureFunctionsApi {
     
         init(data?: any) {
             if (data) {
-                this.name = data["Name"] !== undefined ? data["Name"] : <any>null;
+                this.Name = data["Name"] !== undefined ? data["Name"] : <any>null;
                 if (data["Regions"] && data["Regions"].constructor === Array) {
-                    this.regions = [];
+                    this.Regions = [];
                     for (let item of data["Regions"])
-                        this.regions.push(Region.fromJS(item));
+                        this.Regions.push(Region.fromJS(item));
                 }
             }
         }
@@ -464,10 +464,10 @@ namespace AzureFunctionsApi {
     
         toJSON(data?: any) {
             data = typeof data === 'object' ? data : {};
-            data["Name"] = this.name !== undefined ? this.name : <any>null;
-            if (this.regions && this.regions.constructor === Array) {
+            data["Name"] = this.Name !== undefined ? this.Name : <any>null;
+            if (this.Regions && this.Regions.constructor === Array) {
                 data["Regions"] = [];
-                for (let item of this.regions)
+                for (let item of this.Regions)
                     data["Regions"].push(item.toJSON());
             }
             return data; 
@@ -475,13 +475,13 @@ namespace AzureFunctionsApi {
     }
     
     export interface ICountry {
-        name?: string;
-        regions?: Region[];
+        Name?: string;
+        Regions?: Region[];
     }
     
     export class Region implements IRegion {
-        id?: number;
-        name?: string;
+        Id?: number;
+        Name?: string;
     
         constructor(data?: IRegion) {
             if (data) {
@@ -494,8 +494,8 @@ namespace AzureFunctionsApi {
     
         init(data?: any) {
             if (data) {
-                this.id = data["Id"] !== undefined ? data["Id"] : <any>null;
-                this.name = data["Name"] !== undefined ? data["Name"] : <any>null;
+                this.Id = data["Id"] !== undefined ? data["Id"] : <any>null;
+                this.Name = data["Name"] !== undefined ? data["Name"] : <any>null;
             }
         }
     
@@ -507,15 +507,15 @@ namespace AzureFunctionsApi {
     
         toJSON(data?: any) {
             data = typeof data === 'object' ? data : {};
-            data["Id"] = this.id !== undefined ? this.id : <any>null;
-            data["Name"] = this.name !== undefined ? this.name : <any>null;
+            data["Id"] = this.Id !== undefined ? this.Id : <any>null;
+            data["Name"] = this.Name !== undefined ? this.Name : <any>null;
             return data; 
         }
     }
     
     export interface IRegion {
-        id?: number;
-        name?: string;
+        Id?: number;
+        Name?: string;
     }
     
     export class SwaggerException extends Error {

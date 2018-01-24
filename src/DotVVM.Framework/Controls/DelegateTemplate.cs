@@ -23,6 +23,19 @@ namespace DotVVM.Framework.Controls
             this.BuildContentBody = buildContentBody;
         }
 
+        public DelegateTemplate(Func<IServiceProvider, DotvvmControl> buildContentBody)
+        {
+            this.BuildContentBody = (f, s, control) => control.Children.Add(buildContentBody(s));
+        }
+
+        public DelegateTemplate(Func<IServiceProvider, IEnumerable<DotvvmControl>> buildContentBody)
+        {
+            this.BuildContentBody = (f, s, control) => {
+                foreach (var c in buildContentBody(s))
+                    control.Children.Add(c);
+            };
+        }
+
 
         public void BuildContent(IDotvvmRequestContext context, DotvvmControl container)
         {

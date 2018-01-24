@@ -779,12 +779,13 @@ var DotVVM = /** @class */ (function () {
                 before: ["setIsPostackRunning"],
                 execute: function (callback, options) {
                     var queue = o.q || "default";
+                    var handler = function () { return dotvvm.commonConcurrencyHandler(callback(), options, queue); };
                     if (dotvvm.getPostbackQueue(queue).noRunning > 0) {
                         return new Promise(function (resolve) {
-                            dotvvm.getPostbackQueue(queue).queue.push(function () { return resolve(callback()); });
+                            dotvvm.getPostbackQueue(queue).queue.push(function () { return resolve(handler()); });
                         });
                     }
-                    return dotvvm.commonConcurrencyHandler(callback(), options, queue);
+                    return handler();
                 }
             }); },
             "suppressOnUpdating": function (options) { return ({
@@ -1117,8 +1118,11 @@ var DotVVM = /** @class */ (function () {
         if (context === void 0) { context = ko.contextFor(sender); }
         if (viewModel === void 0) { viewModel = context.$root; }
         var options = new PostbackOptions(this.backUpPostBackConter(), sender, args, viewModel, viewModelName);
-        return this.applyPostbackHandlersCore(callback, options, this.findPostbackHandlers(context, this.globalPostbackHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers)))
+        var promise = this.applyPostbackHandlersCore(callback, options, this.findPostbackHandlers(context, this.globalPostbackHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers)))
             .then(function (r) { return r(); }, function (r) { return Promise.reject(r); });
+        promise.catch(function (reason) { if (reason)
+            console.log("Rejected: " + reason); });
+        return promise;
     };
     DotVVM.prototype.postbackCore = function (options, path, command, controlUniqueId, context, commandArgs) {
         var _this = this;
@@ -1205,8 +1209,11 @@ var DotVVM = /** @class */ (function () {
     };
     DotVVM.prototype.postBack = function (viewModelName, sender, path, command, controlUniqueId, context, handlers, commandArgs) {
         var _this = this;
-        if (this.isPostBackProhibited(sender))
-            return new Promise(function (resolve, reject) { return reject("rejected"); });
+        if (this.isPostBackProhibited(sender)) {
+            var rejectedPromise = new Promise(function (resolve, reject) { return reject("rejected"); });
+            rejectedPromise.catch(function () { return console.log("Postback probihited"); });
+            return rejectedPromise;
+        }
         context = context || ko.contextFor(sender);
         var preparedHandlers = this.findPostbackHandlers(context, this.globalPostbackHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers));
         if (preparedHandlers.filter(function (h) { return h.name && h.name.indexOf("concurrency-") == 0; }).length == 0) {
@@ -1490,6 +1497,9 @@ var DotVVM = /** @class */ (function () {
         for (var i = path.length - 1; i >= 0; i--) {
             if (path[i].indexOf("[$index]") >= 0) {
                 path[i] = path[i].replace("[$index]", "[" + context.$index() + "]");
+            }
+            if (path[i].indexOf("[$indexPath]") >= 0) {
+                path[i] = path[i].replace("[$indexPath]", "[" + context.$indexPath.map(function (i) { return i(); }).join("]/[") + "]");
             }
             context = context.$parentContext;
         }

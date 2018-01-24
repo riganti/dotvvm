@@ -1,8 +1,8 @@
 ﻿
-
-namespace DotVVM.Testing.Abstractions {
-    public class SamplesRouteUrls{
-        
+namespace DotVVM.Testing.Abstractions
+{
+    public class SamplesRouteUrls
+    {
             public static string Default => "Default";
 
             public static string ComplexSamples_Auth_Login => "ComplexSamples/Auth/Login";
@@ -141,6 +141,8 @@ namespace DotVVM.Testing.Abstractions {
 
             public static string ControlSamples_Repeater_NestedRepeater => "ControlSamples/Repeater/NestedRepeater";
 
+            public static string ControlSamples_Repeater_NestedRepeaterWithControl => "ControlSamples/Repeater/NestedRepeaterWithControl";
+
             public static string ControlSamples_Repeater_RepeaterAsSeparator => "ControlSamples/Repeater/RepeaterAsSeparator";
 
             public static string ControlSamples_Repeater_RepeaterWrapperTag => "ControlSamples/Repeater/RepeaterWrapperTag";
@@ -158,6 +160,8 @@ namespace DotVVM.Testing.Abstractions {
             public static string ControlSamples_RouteLink_RouteLinkEnabled => "ControlSamples/RouteLink/RouteLinkEnabled";
 
             public static string ControlSamples_RouteLink_RouteLinkEnabledFalse => "ControlSamples/RouteLink/RouteLinkEnabledFalse";
+
+            public static string ControlSamples_RouteLink_RouteLinkSpaUrlGen => "ControlSamples/RouteLink/RouteLinkSpaUrlGen";
 
             public static string ControlSamples_RouteLink_RouteLinkUrlGen => "ControlSamples/RouteLink/RouteLinkUrlGen";
 
@@ -279,7 +283,11 @@ namespace DotVVM.Testing.Abstractions {
 
             public static string FeatureSamples_Directives_ViewModelMissingAssembly => "FeatureSamples/Directives/ViewModelMissingAssembly";
 
-            public static string FeatureSamples_DoublePostBackPrevention_DoublePostBackPrevention => "FeatureSamples/DoublePostBackPrevention/DoublePostBackPrevention";
+            public static string FeatureSamples_PostbackConcurrency_NoneMode => "FeatureSamples/PostbackConcurrency/PostbackConcurrencyMode?concurrency=None";
+
+            public static string FeatureSamples_PostbackConcurrency_QueueMode => "FeatureSamples/PostbackConcurrency/PostbackConcurrencyMode?concurrency=Queue";
+
+            public static string FeatureSamples_PostbackConcurrency_DenyMode => "FeatureSamples/PostbackConcurrency/PostbackConcurrencyMode?concurrency=Deny";
 
             public static string FeatureSamples_EmbeddedResourceControls_EmbeddedResourceControls => "FeatureSamples/EmbeddedResourceControls/EmbeddedResourceControls";
 
@@ -408,6 +416,5 @@ namespace DotVVM.Testing.Abstractions {
             public static string FeatureSamples_ViewModelProtection_SignedNestedInServerToClient => "FeatureSamples/ViewModelProtection/SignedNestedInServerToClient";
 
             public static string FeatureSamples_ViewModelProtection_ViewModelProtection => "FeatureSamples/ViewModelProtection/ViewModelProtection";
-
         }
 }

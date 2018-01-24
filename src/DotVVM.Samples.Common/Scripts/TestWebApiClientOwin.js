@@ -18,7 +18,7 @@ var DotVVM;
             (function (Api) {
                 var Owin;
                 (function (Owin) {
-                    var ClientBase = (function () {
+                    var ClientBase = /** @class */ (function () {
                         function ClientBase() {
                         }
                         ClientBase.prototype.transformOptions = function (options) {
@@ -34,7 +34,7 @@ var DotVVM;
                     // </auto-generated>
                     //----------------------
                     // ReSharper disable InconsistentNaming
-                    var CompaniesClient = (function (_super) {
+                    var CompaniesClient = /** @class */ (function (_super) {
                         __extends(CompaniesClient, _super);
                         function CompaniesClient(baseUrl, http) {
                             var _this = _super.call(this) || this;
@@ -268,7 +268,7 @@ var DotVVM;
                         return CompaniesClient;
                     }(ClientBase));
                     Owin.CompaniesClient = CompaniesClient;
-                    var OrdersClient = (function (_super) {
+                    var OrdersClient = /** @class */ (function (_super) {
                         __extends(OrdersClient, _super);
                         function OrdersClient(baseUrl, http) {
                             var _this = _super.call(this) || this;
@@ -490,7 +490,7 @@ var DotVVM;
                         /**
                          * @return No Content
                          */
-                        OrdersClient.prototype["delete"] = function (orderId) {
+                        OrdersClient.prototype.delete = function (orderId) {
                             var _this = this;
                             var url_ = this.baseUrl + "/api/orders/delete/{orderId}";
                             if (orderId === undefined || orderId === null)
@@ -500,7 +500,7 @@ var DotVVM;
                             var options_ = {
                                 method: "DELETE",
                                 headers: new Headers({
-                                    "Content-Type": "application/json"
+                                    "Content-Type": "application/json",
                                 })
                             };
                             return this.transformOptions(options_).then(function (transformedOptions_) {
@@ -531,7 +531,7 @@ var DotVVM;
                         return OrdersClient;
                     }(ClientBase));
                     Owin.OrdersClient = OrdersClient;
-                    var Company = (function () {
+                    var Company = /** @class */ (function () {
                         function Company(data) {
                             if (data) {
                                 for (var property in data) {
@@ -542,9 +542,9 @@ var DotVVM;
                         }
                         Company.prototype.init = function (data) {
                             if (data) {
-                                this.id = data["Id"] !== undefined ? data["Id"] : null;
-                                this.name = data["Name"] !== undefined ? data["Name"] : null;
-                                this.owner = data["Owner"] !== undefined ? data["Owner"] : null;
+                                this.Id = data["Id"] !== undefined ? data["Id"] : null;
+                                this.Name = data["Name"] !== undefined ? data["Name"] : null;
+                                this.Owner = data["Owner"] !== undefined ? data["Owner"] : null;
                             }
                         };
                         Company.fromJS = function (data) {
@@ -554,15 +554,15 @@ var DotVVM;
                         };
                         Company.prototype.toJSON = function (data) {
                             data = typeof data === 'object' ? data : {};
-                            data["Id"] = this.id !== undefined ? this.id : null;
-                            data["Name"] = this.name !== undefined ? this.name : null;
-                            data["Owner"] = this.owner !== undefined ? this.owner : null;
+                            data["Id"] = this.Id !== undefined ? this.Id : null;
+                            data["Name"] = this.Name !== undefined ? this.Name : null;
+                            data["Owner"] = this.Owner !== undefined ? this.Owner : null;
                             return data;
                         };
                         return Company;
                     }());
                     Owin.Company = Company;
-                    var SortingOptions = (function () {
+                    var SortingOptions = /** @class */ (function () {
                         function SortingOptions(data) {
                             if (data) {
                                 for (var property in data) {
@@ -573,8 +573,8 @@ var DotVVM;
                         }
                         SortingOptions.prototype.init = function (data) {
                             if (data) {
-                                this.sortDescending = data["SortDescending"] !== undefined ? data["SortDescending"] : null;
-                                this.sortExpression = data["SortExpression"] !== undefined ? data["SortExpression"] : null;
+                                this.SortDescending = data["SortDescending"] !== undefined ? data["SortDescending"] : null;
+                                this.SortExpression = data["SortExpression"] !== undefined ? data["SortExpression"] : null;
                             }
                         };
                         SortingOptions.fromJS = function (data) {
@@ -584,14 +584,14 @@ var DotVVM;
                         };
                         SortingOptions.prototype.toJSON = function (data) {
                             data = typeof data === 'object' ? data : {};
-                            data["SortDescending"] = this.sortDescending !== undefined ? this.sortDescending : null;
-                            data["SortExpression"] = this.sortExpression !== undefined ? this.sortExpression : null;
+                            data["SortDescending"] = this.SortDescending !== undefined ? this.SortDescending : null;
+                            data["SortExpression"] = this.SortExpression !== undefined ? this.SortExpression : null;
                             return data;
                         };
                         return SortingOptions;
                     }());
                     Owin.SortingOptions = SortingOptions;
-                    var GridViewDataSetOfCompany = (function () {
+                    var GridViewDataSetOfCompany = /** @class */ (function () {
                         function GridViewDataSetOfCompany(data) {
                             if (data) {
                                 for (var property in data) {
@@ -602,17 +602,17 @@ var DotVVM;
                         }
                         GridViewDataSetOfCompany.prototype.init = function (data) {
                             if (data) {
-                                this.isRefreshRequired = data["IsRefreshRequired"] !== undefined ? data["IsRefreshRequired"] : null;
+                                this.IsRefreshRequired = data["IsRefreshRequired"] !== undefined ? data["IsRefreshRequired"] : null;
                                 if (data["Items"] && data["Items"].constructor === Array) {
-                                    this.items = [];
+                                    this.Items = [];
                                     for (var _i = 0, _a = data["Items"]; _i < _a.length; _i++) {
                                         var item = _a[_i];
-                                        this.items.push(Company.fromJS(item));
+                                        this.Items.push(Company.fromJS(item));
                                     }
                                 }
-                                this.pagingOptions = data["PagingOptions"] ? IPagingOptions.fromJS(data["PagingOptions"]) : null;
-                                this.rowEditOptions = data["RowEditOptions"] ? IRowEditOptions.fromJS(data["RowEditOptions"]) : null;
-                                this.sortingOptions = data["SortingOptions"] ? ISortingOptions.fromJS(data["SortingOptions"]) : null;
+                                this.PagingOptions = data["PagingOptions"] ? IPagingOptions.fromJS(data["PagingOptions"]) : null;
+                                this.RowEditOptions = data["RowEditOptions"] ? IRowEditOptions.fromJS(data["RowEditOptions"]) : null;
+                                this.SortingOptions = data["SortingOptions"] ? ISortingOptions.fromJS(data["SortingOptions"]) : null;
                             }
                         };
                         GridViewDataSetOfCompany.fromJS = function (data) {
@@ -622,23 +622,23 @@ var DotVVM;
                         };
                         GridViewDataSetOfCompany.prototype.toJSON = function (data) {
                             data = typeof data === 'object' ? data : {};
-                            data["IsRefreshRequired"] = this.isRefreshRequired !== undefined ? this.isRefreshRequired : null;
-                            if (this.items && this.items.constructor === Array) {
+                            data["IsRefreshRequired"] = this.IsRefreshRequired !== undefined ? this.IsRefreshRequired : null;
+                            if (this.Items && this.Items.constructor === Array) {
                                 data["Items"] = [];
-                                for (var _i = 0, _a = this.items; _i < _a.length; _i++) {
+                                for (var _i = 0, _a = this.Items; _i < _a.length; _i++) {
                                     var item = _a[_i];
                                     data["Items"].push(item.toJSON());
                                 }
                             }
-                            data["PagingOptions"] = this.pagingOptions ? this.pagingOptions.toJSON() : null;
-                            data["RowEditOptions"] = this.rowEditOptions ? this.rowEditOptions.toJSON() : null;
-                            data["SortingOptions"] = this.sortingOptions ? this.sortingOptions.toJSON() : null;
+                            data["PagingOptions"] = this.PagingOptions ? this.PagingOptions.toJSON() : null;
+                            data["RowEditOptions"] = this.RowEditOptions ? this.RowEditOptions.toJSON() : null;
+                            data["SortingOptions"] = this.SortingOptions ? this.SortingOptions.toJSON() : null;
                             return data;
                         };
                         return GridViewDataSetOfCompany;
                     }());
                     Owin.GridViewDataSetOfCompany = GridViewDataSetOfCompany;
-                    var IPagingOptions = (function () {
+                    var IPagingOptions = /** @class */ (function () {
                         function IPagingOptions(data) {
                             if (data) {
                                 for (var property in data) {
@@ -649,17 +649,17 @@ var DotVVM;
                         }
                         IPagingOptions.prototype.init = function (data) {
                             if (data) {
-                                this.pageIndex = data["PageIndex"] !== undefined ? data["PageIndex"] : null;
-                                this.pageSize = data["PageSize"] !== undefined ? data["PageSize"] : null;
-                                this.totalItemsCount = data["TotalItemsCount"] !== undefined ? data["TotalItemsCount"] : null;
-                                this.isFirstPage = data["IsFirstPage"] !== undefined ? data["IsFirstPage"] : null;
-                                this.isLastPage = data["IsLastPage"] !== undefined ? data["IsLastPage"] : null;
-                                this.pagesCount = data["PagesCount"] !== undefined ? data["PagesCount"] : null;
+                                this.PageIndex = data["PageIndex"] !== undefined ? data["PageIndex"] : null;
+                                this.PageSize = data["PageSize"] !== undefined ? data["PageSize"] : null;
+                                this.TotalItemsCount = data["TotalItemsCount"] !== undefined ? data["TotalItemsCount"] : null;
+                                this.IsFirstPage = data["IsFirstPage"] !== undefined ? data["IsFirstPage"] : null;
+                                this.IsLastPage = data["IsLastPage"] !== undefined ? data["IsLastPage"] : null;
+                                this.PagesCount = data["PagesCount"] !== undefined ? data["PagesCount"] : null;
                                 if (data["NearPageIndexes"] && data["NearPageIndexes"].constructor === Array) {
-                                    this.nearPageIndexes = [];
+                                    this.NearPageIndexes = [];
                                     for (var _i = 0, _a = data["NearPageIndexes"]; _i < _a.length; _i++) {
                                         var item = _a[_i];
-                                        this.nearPageIndexes.push(item);
+                                        this.NearPageIndexes.push(item);
                                     }
                                 }
                             }
@@ -671,15 +671,15 @@ var DotVVM;
                         };
                         IPagingOptions.prototype.toJSON = function (data) {
                             data = typeof data === 'object' ? data : {};
-                            data["PageIndex"] = this.pageIndex !== undefined ? this.pageIndex : null;
-                            data["PageSize"] = this.pageSize !== undefined ? this.pageSize : null;
-                            data["TotalItemsCount"] = this.totalItemsCount !== undefined ? this.totalItemsCount : null;
-                            data["IsFirstPage"] = this.isFirstPage !== undefined ? this.isFirstPage : null;
-                            data["IsLastPage"] = this.isLastPage !== undefined ? this.isLastPage : null;
-                            data["PagesCount"] = this.pagesCount !== undefined ? this.pagesCount : null;
-                            if (this.nearPageIndexes && this.nearPageIndexes.constructor === Array) {
+                            data["PageIndex"] = this.PageIndex !== undefined ? this.PageIndex : null;
+                            data["PageSize"] = this.PageSize !== undefined ? this.PageSize : null;
+                            data["TotalItemsCount"] = this.TotalItemsCount !== undefined ? this.TotalItemsCount : null;
+                            data["IsFirstPage"] = this.IsFirstPage !== undefined ? this.IsFirstPage : null;
+                            data["IsLastPage"] = this.IsLastPage !== undefined ? this.IsLastPage : null;
+                            data["PagesCount"] = this.PagesCount !== undefined ? this.PagesCount : null;
+                            if (this.NearPageIndexes && this.NearPageIndexes.constructor === Array) {
                                 data["NearPageIndexes"] = [];
-                                for (var _i = 0, _a = this.nearPageIndexes; _i < _a.length; _i++) {
+                                for (var _i = 0, _a = this.NearPageIndexes; _i < _a.length; _i++) {
                                     var item = _a[_i];
                                     data["NearPageIndexes"].push(item);
                                 }
@@ -689,7 +689,7 @@ var DotVVM;
                         return IPagingOptions;
                     }());
                     Owin.IPagingOptions = IPagingOptions;
-                    var IRowEditOptions = (function () {
+                    var IRowEditOptions = /** @class */ (function () {
                         function IRowEditOptions(data) {
                             if (data) {
                                 for (var property in data) {
@@ -700,12 +700,12 @@ var DotVVM;
                         }
                         IRowEditOptions.prototype.init = function (data) {
                             if (data) {
-                                this.primaryKeyPropertyName = data["PrimaryKeyPropertyName"] !== undefined ? data["PrimaryKeyPropertyName"] : null;
+                                this.PrimaryKeyPropertyName = data["PrimaryKeyPropertyName"] !== undefined ? data["PrimaryKeyPropertyName"] : null;
                                 if (data["EditRowId"]) {
-                                    this.editRowId = {};
+                                    this.EditRowId = {};
                                     for (var key in data["EditRowId"]) {
                                         if (data["EditRowId"].hasOwnProperty(key))
-                                            this.editRowId[key] = data["EditRowId"][key];
+                                            this.EditRowId[key] = data["EditRowId"][key];
                                     }
                                 }
                             }
@@ -717,12 +717,12 @@ var DotVVM;
                         };
                         IRowEditOptions.prototype.toJSON = function (data) {
                             data = typeof data === 'object' ? data : {};
-                            data["PrimaryKeyPropertyName"] = this.primaryKeyPropertyName !== undefined ? this.primaryKeyPropertyName : null;
-                            if (this.editRowId) {
+                            data["PrimaryKeyPropertyName"] = this.PrimaryKeyPropertyName !== undefined ? this.PrimaryKeyPropertyName : null;
+                            if (this.EditRowId) {
                                 data["EditRowId"] = {};
-                                for (var key in this.editRowId) {
-                                    if (this.editRowId.hasOwnProperty(key))
-                                        data["EditRowId"][key] = this.editRowId[key] !== undefined ? this.editRowId[key] : null;
+                                for (var key in this.EditRowId) {
+                                    if (this.EditRowId.hasOwnProperty(key))
+                                        data["EditRowId"][key] = this.EditRowId[key] !== undefined ? this.EditRowId[key] : null;
                                 }
                             }
                             return data;
@@ -730,7 +730,7 @@ var DotVVM;
                         return IRowEditOptions;
                     }());
                     Owin.IRowEditOptions = IRowEditOptions;
-                    var ISortingOptions = (function () {
+                    var ISortingOptions = /** @class */ (function () {
                         function ISortingOptions(data) {
                             if (data) {
                                 for (var property in data) {
@@ -741,8 +741,8 @@ var DotVVM;
                         }
                         ISortingOptions.prototype.init = function (data) {
                             if (data) {
-                                this.sortDescending = data["SortDescending"] !== undefined ? data["SortDescending"] : null;
-                                this.sortExpression = data["SortExpression"] !== undefined ? data["SortExpression"] : null;
+                                this.SortDescending = data["SortDescending"] !== undefined ? data["SortDescending"] : null;
+                                this.SortExpression = data["SortExpression"] !== undefined ? data["SortExpression"] : null;
                             }
                         };
                         ISortingOptions.fromJS = function (data) {
@@ -752,14 +752,14 @@ var DotVVM;
                         };
                         ISortingOptions.prototype.toJSON = function (data) {
                             data = typeof data === 'object' ? data : {};
-                            data["SortDescending"] = this.sortDescending !== undefined ? this.sortDescending : null;
-                            data["SortExpression"] = this.sortExpression !== undefined ? this.sortExpression : null;
+                            data["SortDescending"] = this.SortDescending !== undefined ? this.SortDescending : null;
+                            data["SortExpression"] = this.SortExpression !== undefined ? this.SortExpression : null;
                             return data;
                         };
                         return ISortingOptions;
                     }());
                     Owin.ISortingOptions = ISortingOptions;
-                    var PagingOptions = (function () {
+                    var PagingOptions = /** @class */ (function () {
                         function PagingOptions(data) {
                             if (data) {
                                 for (var property in data) {
@@ -771,23 +771,23 @@ var DotVVM;
                         PagingOptions.prototype.init = function (data) {
                             if (data) {
                                 if (data["NearPageIndexesProvider"]) {
-                                    this.nearPageIndexesProvider = {};
+                                    this.NearPageIndexesProvider = {};
                                     for (var key in data["NearPageIndexesProvider"]) {
                                         if (data["NearPageIndexesProvider"].hasOwnProperty(key))
-                                            this.nearPageIndexesProvider[key] = data["NearPageIndexesProvider"][key];
+                                            this.NearPageIndexesProvider[key] = data["NearPageIndexesProvider"][key];
                                     }
                                 }
-                                this.isFirstPage = data["IsFirstPage"] !== undefined ? data["IsFirstPage"] : null;
-                                this.isLastPage = data["IsLastPage"] !== undefined ? data["IsLastPage"] : null;
-                                this.pagesCount = data["PagesCount"] !== undefined ? data["PagesCount"] : null;
-                                this.pageIndex = data["PageIndex"] !== undefined ? data["PageIndex"] : null;
-                                this.pageSize = data["PageSize"] !== undefined ? data["PageSize"] : null;
-                                this.totalItemsCount = data["TotalItemsCount"] !== undefined ? data["TotalItemsCount"] : null;
+                                this.IsFirstPage = data["IsFirstPage"] !== undefined ? data["IsFirstPage"] : null;
+                                this.IsLastPage = data["IsLastPage"] !== undefined ? data["IsLastPage"] : null;
+                                this.PagesCount = data["PagesCount"] !== undefined ? data["PagesCount"] : null;
+                                this.PageIndex = data["PageIndex"] !== undefined ? data["PageIndex"] : null;
+                                this.PageSize = data["PageSize"] !== undefined ? data["PageSize"] : null;
+                                this.TotalItemsCount = data["TotalItemsCount"] !== undefined ? data["TotalItemsCount"] : null;
                                 if (data["NearPageIndexes"] && data["NearPageIndexes"].constructor === Array) {
-                                    this.nearPageIndexes = [];
+                                    this.NearPageIndexes = [];
                                     for (var _i = 0, _a = data["NearPageIndexes"]; _i < _a.length; _i++) {
                                         var item = _a[_i];
-                                        this.nearPageIndexes.push(item);
+                                        this.NearPageIndexes.push(item);
                                     }
                                 }
                             }
@@ -799,22 +799,22 @@ var DotVVM;
                         };
                         PagingOptions.prototype.toJSON = function (data) {
                             data = typeof data === 'object' ? data : {};
-                            if (this.nearPageIndexesProvider) {
+                            if (this.NearPageIndexesProvider) {
                                 data["NearPageIndexesProvider"] = {};
-                                for (var key in this.nearPageIndexesProvider) {
-                                    if (this.nearPageIndexesProvider.hasOwnProperty(key))
-                                        data["NearPageIndexesProvider"][key] = this.nearPageIndexesProvider[key] !== undefined ? this.nearPageIndexesProvider[key] : null;
+                                for (var key in this.NearPageIndexesProvider) {
+                                    if (this.NearPageIndexesProvider.hasOwnProperty(key))
+                                        data["NearPageIndexesProvider"][key] = this.NearPageIndexesProvider[key] !== undefined ? this.NearPageIndexesProvider[key] : null;
                                 }
                             }
-                            data["IsFirstPage"] = this.isFirstPage !== undefined ? this.isFirstPage : null;
-                            data["IsLastPage"] = this.isLastPage !== undefined ? this.isLastPage : null;
-                            data["PagesCount"] = this.pagesCount !== undefined ? this.pagesCount : null;
-                            data["PageIndex"] = this.pageIndex !== undefined ? this.pageIndex : null;
-                            data["PageSize"] = this.pageSize !== undefined ? this.pageSize : null;
-                            data["TotalItemsCount"] = this.totalItemsCount !== undefined ? this.totalItemsCount : null;
-                            if (this.nearPageIndexes && this.nearPageIndexes.constructor === Array) {
+                            data["IsFirstPage"] = this.IsFirstPage !== undefined ? this.IsFirstPage : null;
+                            data["IsLastPage"] = this.IsLastPage !== undefined ? this.IsLastPage : null;
+                            data["PagesCount"] = this.PagesCount !== undefined ? this.PagesCount : null;
+                            data["PageIndex"] = this.PageIndex !== undefined ? this.PageIndex : null;
+                            data["PageSize"] = this.PageSize !== undefined ? this.PageSize : null;
+                            data["TotalItemsCount"] = this.TotalItemsCount !== undefined ? this.TotalItemsCount : null;
+                            if (this.NearPageIndexes && this.NearPageIndexes.constructor === Array) {
                                 data["NearPageIndexes"] = [];
-                                for (var _i = 0, _a = this.nearPageIndexes; _i < _a.length; _i++) {
+                                for (var _i = 0, _a = this.NearPageIndexes; _i < _a.length; _i++) {
                                     var item = _a[_i];
                                     data["NearPageIndexes"].push(item);
                                 }
@@ -824,7 +824,7 @@ var DotVVM;
                         return PagingOptions;
                     }());
                     Owin.PagingOptions = PagingOptions;
-                    var Order = (function () {
+                    var Order = /** @class */ (function () {
                         function Order(data) {
                             if (data) {
                                 for (var property in data) {
@@ -835,15 +835,15 @@ var DotVVM;
                         }
                         Order.prototype.init = function (data) {
                             if (data) {
-                                this.id = data["Id"] !== undefined ? data["Id"] : null;
-                                this.number = data["Number"] !== undefined ? data["Number"] : null;
-                                this.date = data["Date"] ? new Date(data["Date"].toString()) : null;
-                                this.companyId = data["CompanyId"] !== undefined ? data["CompanyId"] : null;
+                                this.Id = data["Id"] !== undefined ? data["Id"] : null;
+                                this.Number = data["Number"] !== undefined ? data["Number"] : null;
+                                this.Date = data["Date"] ? new Date(data["Date"].toString()) : null;
+                                this.CompanyId = data["CompanyId"] !== undefined ? data["CompanyId"] : null;
                                 if (data["OrderItems"] && data["OrderItems"].constructor === Array) {
-                                    this.orderItems = [];
+                                    this.OrderItems = [];
                                     for (var _i = 0, _a = data["OrderItems"]; _i < _a.length; _i++) {
                                         var item = _a[_i];
-                                        this.orderItems.push(OrderItem.fromJS(item));
+                                        this.OrderItems.push(OrderItem.fromJS(item));
                                     }
                                 }
                             }
@@ -855,13 +855,13 @@ var DotVVM;
                         };
                         Order.prototype.toJSON = function (data) {
                             data = typeof data === 'object' ? data : {};
-                            data["Id"] = this.id !== undefined ? this.id : null;
-                            data["Number"] = this.number !== undefined ? this.number : null;
-                            data["Date"] = this.date ? this.date.toISOString() : null;
-                            data["CompanyId"] = this.companyId !== undefined ? this.companyId : null;
-                            if (this.orderItems && this.orderItems.constructor === Array) {
+                            data["Id"] = this.Id !== undefined ? this.Id : null;
+                            data["Number"] = this.Number !== undefined ? this.Number : null;
+                            data["Date"] = this.Date ? this.Date.toISOString() : null;
+                            data["CompanyId"] = this.CompanyId !== undefined ? this.CompanyId : null;
+                            if (this.OrderItems && this.OrderItems.constructor === Array) {
                                 data["OrderItems"] = [];
-                                for (var _i = 0, _a = this.orderItems; _i < _a.length; _i++) {
+                                for (var _i = 0, _a = this.OrderItems; _i < _a.length; _i++) {
                                     var item = _a[_i];
                                     data["OrderItems"].push(item.toJSON());
                                 }
@@ -871,7 +871,7 @@ var DotVVM;
                         return Order;
                     }());
                     Owin.Order = Order;
-                    var OrderItem = (function () {
+                    var OrderItem = /** @class */ (function () {
                         function OrderItem(data) {
                             if (data) {
                                 for (var property in data) {
@@ -882,11 +882,11 @@ var DotVVM;
                         }
                         OrderItem.prototype.init = function (data) {
                             if (data) {
-                                this.id = data["Id"] !== undefined ? data["Id"] : null;
-                                this.text = data["Text"] !== undefined ? data["Text"] : null;
-                                this.amount = data["Amount"] !== undefined ? data["Amount"] : null;
-                                this.discount = data["Discount"] !== undefined ? data["Discount"] : null;
-                                this.isOnStock = data["IsOnStock"] !== undefined ? data["IsOnStock"] : null;
+                                this.Id = data["Id"] !== undefined ? data["Id"] : null;
+                                this.Text = data["Text"] !== undefined ? data["Text"] : null;
+                                this.Amount = data["Amount"] !== undefined ? data["Amount"] : null;
+                                this.Discount = data["Discount"] !== undefined ? data["Discount"] : null;
+                                this.IsOnStock = data["IsOnStock"] !== undefined ? data["IsOnStock"] : null;
                             }
                         };
                         OrderItem.fromJS = function (data) {
@@ -896,17 +896,17 @@ var DotVVM;
                         };
                         OrderItem.prototype.toJSON = function (data) {
                             data = typeof data === 'object' ? data : {};
-                            data["Id"] = this.id !== undefined ? this.id : null;
-                            data["Text"] = this.text !== undefined ? this.text : null;
-                            data["Amount"] = this.amount !== undefined ? this.amount : null;
-                            data["Discount"] = this.discount !== undefined ? this.discount : null;
-                            data["IsOnStock"] = this.isOnStock !== undefined ? this.isOnStock : null;
+                            data["Id"] = this.Id !== undefined ? this.Id : null;
+                            data["Text"] = this.Text !== undefined ? this.Text : null;
+                            data["Amount"] = this.Amount !== undefined ? this.Amount : null;
+                            data["Discount"] = this.Discount !== undefined ? this.Discount : null;
+                            data["IsOnStock"] = this.IsOnStock !== undefined ? this.IsOnStock : null;
                             return data;
                         };
                         return OrderItem;
                     }());
                     Owin.OrderItem = OrderItem;
-                    var SwaggerException = (function (_super) {
+                    var SwaggerException = /** @class */ (function (_super) {
                         __extends(SwaggerException, _super);
                         function SwaggerException(message, status, response, headers, result) {
                             var _this = _super.call(this) || this;
@@ -935,3 +935,4 @@ var DotVVM;
         })(Common = Samples.Common || (Samples.Common = {}));
     })(Samples = DotVVM.Samples || (DotVVM.Samples = {}));
 })(DotVVM || (DotVVM = {}));
+//# sourceMappingURL=TestWebApiClientOwin.js.map

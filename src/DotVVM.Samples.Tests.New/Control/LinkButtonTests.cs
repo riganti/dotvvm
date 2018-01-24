@@ -39,7 +39,7 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [Fact]
-        public void Control_LinkButton_LinkButtonOnClick()
+        public void Control_LinkButton_LinkButtonOnclick()
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_LinkButton_LinkButtonOnclick);

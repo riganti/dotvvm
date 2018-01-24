@@ -27,14 +27,14 @@ namespace DotVVM.Framework.Binding
         /// Gets the javascript translation of the binding adjusted to the `currentControl`s DataContext
         /// </summary>
         public static string GetKnockoutBindingExpression(this IValueBinding binding, DotvvmBindableObject currentControl, bool unwrapped = false) =>
-            (unwrapped ? binding.UnwrapedKnockoutExpression : binding.KnockoutExpression)
+            (unwrapped ? binding.UnwrappedKnockoutExpression : binding.KnockoutExpression)
             .FormatKnockoutScript(currentControl, binding);
 
         /// <summary>
         /// Gets the javascript translation of the binding adjusted to the `currentControl`s DataContext, returned value is ParametrizedCode, so it can be further adjusted
         /// </summary>
         public static ParametrizedCode GetParametrizedKnockoutExpression(this IValueBinding binding, DotvvmBindableObject currentControl, bool unwrapped = false) =>
-            JavascriptTranslator.AdjustKnockoutScriptContext(unwrapped ? binding.UnwrapedKnockoutExpression : binding.KnockoutExpression, dataContextLevel: FindDataContextTarget(binding, currentControl).stepsUp);
+            JavascriptTranslator.AdjustKnockoutScriptContext(unwrapped ? binding.UnwrappedKnockoutExpression : binding.KnockoutExpression, dataContextLevel: FindDataContextTarget(binding, currentControl).stepsUp);
 
         /// <summary>
         /// Adjusts the knockout expression to `currentControl`s DataContext like it was translated in `currentBinding`s context
@@ -214,6 +214,19 @@ namespace DotVVM.Framework.Binding
             JavascriptTranslator.AdjustKnockoutScriptContext(binding.CommandJavascript,
                 dataContextLevel: FindDataContextTarget(binding, control).stepsUp);
 
+        public static object GetBindingValue(this IBinding binding, DotvvmBindableObject control)
+        {
+            if (binding is IStaticValueBinding valueBinding)
+            {
+                return valueBinding.Evaluate(control);
+            }
+            else if (binding is ICommandBinding command)
+            {
+                return command.GetCommandDelegate(control);
+            }
+            else throw new NotSupportedException();
+        }
+
         /// <summary>
         /// Creates new `TBinding` with the original DataContextStack, LocationInfo, AdditionalResolvers and BindingCompilationService. 
         /// </summary>
@@ -274,7 +287,7 @@ namespace DotVVM.Framework.Binding
         public static BindingParameterAnnotation GetParameterAnnotation(this Expression expr) =>
             _expressionAnnotations.TryGetValue(expr, out var annotation) ? annotation : null;
 
-        public static void SetDataContextTypeFromDataSource(this DotvvmBindableObject obj, IValueBinding dataSourceBinding) =>
+        public static void SetDataContextTypeFromDataSource(this DotvvmBindableObject obj, IBinding dataSourceBinding) =>
             obj.SetDataContextType(dataSourceBinding.GetProperty<CollectionElementDataContextBindingProperty>().DataContext);
 
         public static void SetDataContextForItem(this DotvvmBindableObject obj, IValueBinding itemBinding, int index, object currentItem)

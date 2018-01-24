@@ -43,7 +43,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
             string url;
             if (!TryParseGooglebotHashbangEscapedFragment(context.HttpContext.Request.Url.Query, out url))
             {
-                url = context.HttpContext.Request.Url.AbsolutePath;
+                url = context.HttpContext.Request.Path.Value;
             }
             url = url.Trim('/');
 
