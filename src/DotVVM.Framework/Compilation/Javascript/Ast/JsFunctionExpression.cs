@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace DotVVM.Framework.Compilation.Javascript.Ast
@@ -36,5 +37,14 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         }
 
         public override void AcceptVisitor(IJsNodeVisitor visitor) => visitor.VisitFunctionExpression(this);
+
+        public static JsExpression CreateIIFE(JsBlockStatement block, IEnumerable<(string name, JsExpression initExpression)> parameters = null)
+        {
+            if (parameters == null) parameters = Enumerable.Empty<(string, JsExpression)>();
+            return new JsFunctionExpression(
+                parameters.Select(p => new JsIdentifier(p.name)),
+                block
+            ).Invoke(parameters.Select(p => p.initExpression));
+        }
     }
 }

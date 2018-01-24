@@ -12,12 +12,16 @@
             <dot:Button Text="Short action" data-ui="short-action-button" Click="{command: ShortAction()}" />
         </p>
         <p>
+            <dot:Button Text="static - Long action" data-ui="long-static-action-button" Click="{staticCommand: State = PostbackConcurrencyViewModel.LongAction(State.CurrentIndex)}" />
+            <dot:Button Text="static - Short action" data-ui="short-static-action-button" Click="{staticCommand: State = PostbackConcurrencyViewModel.ShortAction(State.CurrentIndex)}" />
+        </p>
+        <p>
             Postback index:
-            <span data-ui="postback-index">{{value: CurrentIndex}}</span>
+            <span data-ui="postback-index">{{value: State.CurrentIndex}}</span>
         </p>
         <p>
             Last action:
-            <span data-ui="last-action">{{value: LastAction}}</span>
+            <span data-ui="last-action">{{value: State.LastAction}}</span>
         </p>
         <p>Click the long action and then immediately the short action. The first request result should not apply after the second request result.</p>
 

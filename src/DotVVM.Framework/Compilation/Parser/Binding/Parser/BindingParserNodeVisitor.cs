@@ -55,6 +55,14 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 return VisitAssemblyQualifiedName((AssemblyQualifiedNameBindingParserNode)node);
             }
+            else if (node is BlockBindingParserNode blockNode)
+            {
+                return VisitBlock(blockNode);
+            }
+            else if (node is null)
+            {
+                return default(T);
+            }
             else
             {
                 throw new NotSupportedException($"The node of type {node.GetType()} is not supported!");
@@ -116,10 +124,16 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             return DefaultVisit(node);
         }
 
-        private T VisitAssemblyQualifiedName(AssemblyQualifiedNameBindingParserNode node)
+        protected virtual T VisitAssemblyQualifiedName(AssemblyQualifiedNameBindingParserNode node)
         {
             return DefaultVisit(node);
         }
+
+        protected virtual T VisitBlock(BlockBindingParserNode node)
+        {
+            return DefaultVisit(node);
+        }
+
         protected virtual T DefaultVisit(BindingParserNode node)
         {
             throw new NotImplementedException("The visitor implementation should implement this method!");

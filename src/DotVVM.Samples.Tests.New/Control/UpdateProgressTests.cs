@@ -39,6 +39,7 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_UpdateProgress_UpdateProgressDelay))]
         public void Control_UpdateProgress_UpdateProgressDelayLongTest()
         {
             RunInAllBrowsers(browser =>
@@ -65,6 +66,7 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_UpdateProgress_UpdateProgressDelay))]
         public void Control_UpdateProgress_UpdateProgressDelayShortTest()
         {
             RunInAllBrowsers(browser =>
@@ -82,6 +84,7 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_UpdateProgress_UpdateProgressDelay))]
         public void Control_UpdateProgress_UpdateProgressDelayInterruptTest()
         {
             RunInAllBrowsers(browser =>

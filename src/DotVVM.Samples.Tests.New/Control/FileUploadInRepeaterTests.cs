@@ -56,11 +56,10 @@ namespace DotVVM.Samples.Tests.New
                 {
                     File.Delete(tempPath);
                 }
-                catch (Exception ex)
+                catch
                 {
                     //TODO log
                 }
-
             });
         }
     }

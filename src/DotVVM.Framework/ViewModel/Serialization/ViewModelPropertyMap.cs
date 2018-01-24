@@ -51,7 +51,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
         {
             return $"{nameof(ViewModelPropertyMap)}: {Type.Name} {Name}";
         }
-        
         public void ValidateSettings()
         {
             if (ViewModelProtection != ProtectMode.None && !IsFullyTransfered())

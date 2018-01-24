@@ -8,24 +8,23 @@ using DotVVM.Framework.Runtime;
 using DotVVM.Framework.ResourceManagement;
 using System.Globalization;
 
-namespace DotVVM.Framework.Controls.Infrastructure
+namespace DotVVM.Framework.Controls
 {
     /// <summary>
-    /// Renders the script elements and the serialized viewmodel. This control must be on every page just before the end of body element.
+    /// Renders the resource links with RenderPosition = Body and the serialized viewmodel. This control must be on every page, usually just before the end of body element.
     /// </summary>
     public class BodyResourceLinks : DotvvmControl
     {
-
-        /// <summary>
-        /// Renders the control into the specified writer.
-        /// </summary>
         protected override void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             // render resource links
-            var resources = context.ResourceManager.GetNamedResourcesInOrder().Where(r => r.Resource.RenderPosition == ResourceRenderPosition.Body);
-            foreach (var resource in resources)
+            var resourceManager = context.ResourceManager;
+            if (resourceManager.BodyRendered) return;
+            resourceManager.BodyRendered = true;  // set the flag before the resources are rendered, so they can't add more resources to the list during the render
+            foreach (var resource in resourceManager.GetNamedResourcesInOrder())
             {
-                resource.RenderResourceCached(writer, context);
+                if (resource.Resource.RenderPosition == ResourceRenderPosition.Body)
+                    resource.RenderResourceCached(writer, context);
             }
 
             // render the serialized viewmodel
@@ -38,8 +37,8 @@ namespace DotVVM.Framework.Controls.Infrastructure
             // init on load
             writer.RenderBeginTag("script");
             writer.WriteUnencodedText($@"
-window.dotvvm.domUtils.onDocumentReady(function () {{ 
-    window.dotvvm.init('root', '{CultureInfo.CurrentCulture.Name}'); 
+window.dotvvm.domUtils.onDocumentReady(function () {{
+    window.dotvvm.init('root', '{CultureInfo.CurrentCulture.Name}');
 }});");
             writer.RenderEndTag();
         }

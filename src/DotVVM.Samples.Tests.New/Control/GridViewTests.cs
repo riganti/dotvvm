@@ -2,15 +2,17 @@
 using System.Linq;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core.Abstractions;
-using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
+using System.Collections.Generic;
 
 namespace DotVVM.Samples.Tests.New.Control
 {
     public class GridViewTests : AppSeleniumTest
     {
-
+        public GridViewTests(ITestOutputHelper output) : base(output)
+        {
+        }
 
         [Fact]
         public void Control_GridView_GridViewInlineEditingValidation()
@@ -67,25 +69,6 @@ namespace DotVVM.Samples.Tests.New.Control
             });
         }
 
-
-        public GridViewTests(ITestOutputHelper output) : base(output)
-        {
-        }
-
-
-
-        [Fact]
-        public void Control_GridView_GridViewPagingSorting()
-        {
-            Control_GridViewPagingSortingBase(SamplesRouteUrls.ControlSamples_GridView_GridViewPagingSorting);
-
-        }
-        [Fact]
-        public void Control_GridView_GridViewServerRender()
-        {
-            Control_GridViewPagingSortingBase(SamplesRouteUrls.ControlSamples_GridView_GridViewServerRender);
-        }
-
         [Fact]
         public void Control_GridView_GridViewStaticCommand()
         {
@@ -106,7 +89,6 @@ namespace DotVVM.Samples.Tests.New.Control
                 AssertUI.InnerTextEquals(browser.First("table tbody tr td span"), "2");
             });
         }
-
 
         [Fact]
         public void Control_GridView_GridViewInlineEditingValidation_GridViewInlineEditingFormat()
@@ -134,7 +116,6 @@ namespace DotVVM.Samples.Tests.New.Control
                 //check format
                 AssertUI.TextEquals(firstRow.ElementAt("td", 2).First("input"), dateDisplay);
                 AssertUI.TextEquals(firstRow.ElementAt("td", 4).First("input"), moneyDisplay);
-
             });
         }
 
@@ -180,10 +161,8 @@ namespace DotVVM.Samples.Tests.New.Control
 
                 //check changed name
                 AssertUI.InnerTextEquals(firstRow.ElementAt("td", 1).First("span"), "Test");
-
             });
         }
-
 
         [Fact]
         public void Control_GridView_GridViewInlineEditingPrimaryKeyString()
@@ -228,38 +207,20 @@ namespace DotVVM.Samples.Tests.New.Control
                 //check changed name and Id
                 AssertUI.InnerTextEquals(firstRow.ElementAt("td", 0).First("span"), "A");
                 AssertUI.InnerTextEquals(firstRow.ElementAt("td", 1).First("span"), "Test");
-
             });
         }
 
-        [Fact]
+        public static IEnumerable<object[]> GridViewInlineEditingData =>
+            new List<object[]>
+            {
+                new object[] { SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing, 0 },
+                new object[] { SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing, 1 },
+            };
+
+        [Theory]
+        [MemberData(nameof(GridViewInlineEditingData))]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing))]
-        public void Control_GridView_GridViewInlineEditing_Server()
-        {
-            Control_GridViewInlineEditing(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing, 0);
-        }
-
-        [Fact]
-        public void Control_GridView_GridViewInlineEditing()
-        {
-            Control_GridViewInlineEditing(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing, 1);
-        }
-
-        [Fact]
-        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing))]
-        public void Control_GridView_GridViewInlineEditing_PagingWhenEditModeServer()
-        {
-            Control_GridView_GridViewInlineEditing_PagingWhenEditing(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing, 0);
-        }
-
-        [Fact]
-        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing))]
-        public void Control_GridView_GridViewInlineEditing_PagingWhenEditModeClient()
-        {
-            Control_GridView_GridViewInlineEditing_PagingWhenEditing(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing, 1);
-        }
-
-        public void Control_GridViewInlineEditing(string path, int tableID)
+        public void Control_GridView_GridViewInlineEditing(string path, int tableID)
         {
             RunInAllBrowsers(browser =>
             {
@@ -299,6 +260,16 @@ namespace DotVVM.Samples.Tests.New.Control
             });
         }
 
+        public static IEnumerable<object[]> GridViewInlineEditingPagingWhenEditingData =>
+            new List<object[]>
+            {
+                new object[] { SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing, 0 },
+                new object[] { SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing, 1 },
+            };
+
+        [Theory]
+        [MemberData(nameof(GridViewInlineEditingPagingWhenEditingData))]
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing))]
         public void Control_GridView_GridViewInlineEditing_PagingWhenEditing(string path, int tableID)
         {
             RunInAllBrowsers(browser =>
@@ -343,15 +314,22 @@ namespace DotVVM.Samples.Tests.New.Control
                 AssertUI.IsDisplayed(firstRow.ElementAt("td", 1).Single("input"));
                 AssertUI.IsDisplayed(firstRow.ElementAt("td", 2).Single("input"));
                 firstRow.ElementAt("td", 3).FindElements("button").ThrowIfDifferentCountThan(2);
-
-
             });
         }
 
-        public void Control_GridViewPagingSortingBase(string path)
+        public static IEnumerable<object[]> GridViewPagingSortingData =>
+            new List<object[]>
+            {
+                new object[] { SamplesRouteUrls.ControlSamples_GridView_GridViewPagingSorting },
+                new object[] { SamplesRouteUrls.ControlSamples_GridView_GridViewServerRender },
+            };
+
+        [Theory]
+        [MemberData(nameof(GridViewPagingSortingData))]
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_GridView_GridViewPagingSorting))]
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_GridView_GridViewServerRender))]
+        public void Control_GridView_GridViewPagingSortingBase(string path)
         {
-
-
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(path);
@@ -407,7 +385,6 @@ namespace DotVVM.Samples.Tests.New.Control
                     browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 0).ElementAt("a", 0).Click();
                     browser.Wait();
                     AssertUI.InnerTextEquals(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), "1");
-
                 };
 
                 Control_GridViewShowHeaderWhenNoData(browser);
@@ -557,7 +534,6 @@ namespace DotVVM.Samples.Tests.New.Control
 
                 // Check last cell
                 AssertUI.TextEquals(tbody.Last("tr").Last("td").Single("span"), LastCell);
-
             });
         }
     }

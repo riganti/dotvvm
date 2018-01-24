@@ -1,14 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OpenQA.Selenium;
-using OpenQA.Selenium.Interactions;
-using System;
-using System.Globalization;
-using System.Linq;
-using System.Threading;
-using DotVVM.Samples.Tests.New;
+﻿using DotVVM.Samples.Tests.New;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
-using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -17,7 +9,7 @@ namespace DotVVM.Samples.Tests.Control
     public class NestedRepeaterTests : AppSeleniumTest
     {
         [Fact]
-        public void Control_NestedRepeater()
+        public void Control_Repeater_NestedRepeater()
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_NestedRepeater);
@@ -75,7 +67,7 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [Fact]
-        public void Control_NestedRepeaterWithControl()
+        public void Control_Repeater_NestedRepeaterWithControl()
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_NestedRepeaterWithControl);

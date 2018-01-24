@@ -1,8 +1,8 @@
 ﻿
-
-namespace DotVVM.Testing.Abstractions {
-    public class SamplesRouteUrls{
-        
+namespace DotVVM.Testing.Abstractions
+{
+    public class SamplesRouteUrls
+    {
             public static string Default => "Default";
 
             public static string ComplexSamples_Auth_Login => "ComplexSamples/Auth/Login";
@@ -416,6 +416,5 @@ namespace DotVVM.Testing.Abstractions {
             public static string FeatureSamples_ViewModelProtection_SignedNestedInServerToClient => "FeatureSamples/ViewModelProtection/SignedNestedInServerToClient";
 
             public static string FeatureSamples_ViewModelProtection_ViewModelProtection => "FeatureSamples/ViewModelProtection/ViewModelProtection";
-
         }
 }

@@ -12,31 +12,34 @@ namespace DotVVM.Samples.Tests.New.Feature
         {
         }
 
-        [Fact]
-        public void Feature_PostbackConcurrency_UpdateProgressControl()
+        [Theory]
+        [InlineData("input[data-ui=long-action-button]")]
+        [InlineData("input[data-ui=long-static-action-button]")]
+        public void Feature_PostbackConcurrency_UpdateProgressControl(string longActionSelector)
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostbackConcurrency_NoneMode);
 
                 // test update progress control
                 AssertUI.IsNotDisplayed(browser, "div[data-ui=update-progress]");
-                browser.Single("input[data-ui=long-action-button]").Click();
+                browser.Single(longActionSelector).Click();
                 AssertUI.IsDisplayed(browser, "div[data-ui=update-progress]");
                 browser.Wait(3000);
                 AssertUI.IsNotDisplayed(browser, "div[data-ui=update-progress]");
             });
         }
 
-        [Fact]
-        public void Feature_PostbackConcurrency_NoneMode()
+        [Theory]
+        [InlineData("input[data-ui=long-action-button]", "input[data-ui=short-action-button]")]
+        public void Feature_PostbackConcurrency_NoneMode(string longActionSelector, string shortActionSelector)
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostbackConcurrency_NoneMode);
 
                 // try the long action interrupted by the short one
-                browser.Single("input[data-ui=long-action-button]").Click();
+                browser.Single(longActionSelector).Click();
                 browser.Wait(1000);
-                browser.Single("input[data-ui=short-action-button]").Click();
+                browser.Single(shortActionSelector).Click();
 
                 var postbackIndexSpan = browser.Single("span[data-ui=postback-index]");
                 var lastActionSpan = browser.Single("span[data-ui=last-action]");
@@ -52,18 +55,21 @@ namespace DotVVM.Samples.Tests.New.Feature
             });
         }
 
-        [Fact]
-        public void Feature_PostbackConcurrency_QueueMode()
+        [Theory]
+        [InlineData("input[data-ui=long-action-button]", "input[data-ui=short-action-button]")]
+        [InlineData("input[data-ui=long-static-action-button]", "input[data-ui=short-static-action-button]")]
+        public void Feature_PostbackConcurrency_QueueMode(string longActionSelector, string shortActionSelector)
         {
             RunInAllBrowsers(browser => {
+
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostbackConcurrency_QueueMode);
 
                 // try the long action than queue another long action and short action
-                browser.Single("input[data-ui=long-action-button]").Click();
+                browser.Single(longActionSelector).Click();
                 browser.Wait(500);
-                browser.Single("input[data-ui=long-action-button]").Click();
+                browser.Single(longActionSelector).Click();
                 browser.Wait(500);
-                browser.Single("input[data-ui=short-action-button]").Click();
+                browser.Single(shortActionSelector).Click();
 
                 var postbackIndexSpan = browser.Single("span[data-ui=postback-index]");
                 var lastActionSpan = browser.Single("span[data-ui=last-action]");
@@ -85,16 +91,19 @@ namespace DotVVM.Samples.Tests.New.Feature
             });
         }
 
-        [Fact]
-        public void Feature_PostbackConcurrency_DenyMode()
+        [Theory]
+        [InlineData("input[data-ui=long-action-button]", "input[data-ui=short-action-button]")]
+        [InlineData("input[data-ui=long-static-action-button]", "input[data-ui=short-static-action-button]")]
+        public void Feature_PostbackConcurrency_DenyMode(string longActionSelector, string shortActionSelector)
         {
             RunInAllBrowsers(browser => {
+
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostbackConcurrency_DenyMode);
 
                 // try the long action than queue the short action which should fail
-                browser.Single("input[data-ui=long-action-button]").Click();
+                browser.Single(longActionSelector).Click();
                 browser.Wait(500);
-                browser.Single("input[data-ui=short-action-button]").Click();
+                browser.Single(shortActionSelector).Click();
 
                 var postbackIndexSpan = browser.Single("span[data-ui=postback-index]");
                 var lastActionSpan = browser.Single("span[data-ui=last-action]");
