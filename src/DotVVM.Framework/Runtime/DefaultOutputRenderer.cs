@@ -16,9 +16,6 @@ namespace DotVVM.Framework.Runtime
     {
         protected virtual string RenderPage(IDotvvmRequestContext context, DotvvmView view)
         {
-            // embed resource links
-            EmbedResourceLinks(view);
-
             // prepare the render context
             // get the HTML
             using (var textWriter = new StringWriter())
@@ -35,7 +32,15 @@ namespace DotVVM.Framework.Runtime
             context.HttpContext.Response.ContentType = "text/html; charset=utf-8";
             SetCacheHeaders(context.HttpContext);
             var html = RenderPage(context, view);
+            CheckRenderedResources(context);
             await context.HttpContext.Response.WriteAsync(html);
+        }
+
+        private void CheckRenderedResources(IDotvvmRequestContext context)
+        {
+            var resourceManager = context.ResourceManager;
+            if (!resourceManager.BodyRendered || !resourceManager.HeadRendered)
+                throw new Exception($"Required resources were not rendered, make sure that page contains <head> and <body> elements or <dot:HeadResourceLinks> and <dot:BodyResourceLinks> controls.");
         }
 
         public virtual IEnumerable<(string name, string html)> RenderPostbackUpdatedControls(IDotvvmRequestContext context, DotvvmView page)
@@ -114,28 +119,5 @@ namespace DotVVM.Framework.Runtime
             context.Response.Headers["Pragma"] = "no-cache";
             context.Response.Headers["Expires"] = "-1";
         }
-
-
-        /// <summary>
-        /// Embeds the resource links in the page.
-        /// </summary>
-        private void EmbedResourceLinks(DotvvmView view)
-        {
-            // PERF: 
-            var sections = view.GetThisAndAllDescendants()
-                .OfType<HtmlGenericControl>()
-                .Where(t => t.TagName == "head" || t.TagName == "body")
-                .OrderBy(t => t.TagName)
-                .ToList();
-
-            if (sections.Count != 2 || sections[0].TagName == sections[1].TagName)
-            {
-                throw new Exception("The page must have exactly one <head> and one <body> section!");
-            }
-
-            sections[0].Children.Add(new BodyResourceLinks());
-            sections[1].Children.Add(new HeadResourceLinks());
-        }
-
     }
 }

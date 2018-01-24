@@ -124,7 +124,7 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
-        /// Verifies that the control hasn't any HTML attributes or Visible or DataContext bindings set.
+        /// Verifies that the control hasn't any HTML attributes, css classes or Visible or DataContext bindings set.
         /// </summary>
         protected virtual void EnsureNoAttributesSet()
         {
@@ -135,7 +135,7 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
-        /// Renders the control begin tag.
+        /// Renders the control begin tag if <see cref="RendersHtmlTag" /> == true.
         /// </summary>
         protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
@@ -146,10 +146,16 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
-        /// Renders the control end tag.
+        /// Renders the control end tag if <see cref="RendersHtmlTag" /> == true. Also renders required resource i before the end tag, if it is a `head` or `body` element
         /// </summary>
         protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
+            // render resource link. If the Render is onvoked multiple times the resources are rendered on the first invocation.
+            if (TagName == "head")
+                new HeadResourceLinks().Render(writer, context);
+            else if (TagName == "body")
+                new BodyResourceLinks().Render(writer, context);
+
             if (RendersHtmlTag)
             {
                 writer.RenderEndTag();

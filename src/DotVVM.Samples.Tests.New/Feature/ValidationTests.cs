@@ -664,6 +664,39 @@ namespace DotVVM.Samples.Tests.New.Feature
             });
         }
 
+        [Fact]
+        public void Feature_Validation_CustomValidation()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_CustomValidation);
+
+                var submitButton = browser.First("[data-ui=submit-button]");
+                var validationSummary = browser.First("[data-ui=validation-summary]");
+                var textbox = browser.First("[data-ui=name-textbox]");
+
+                submitButton.Click();
+                Assert.Equal(0, validationSummary.Children.Count);
+                AssertUI.HasNotClass(textbox, "has-error");
+
+                textbox.SendKeys("123");
+                submitButton.Click();
+                AssertUI.HasClass(textbox, "has-error");
+                Assert.Equal(1, validationSummary.Children.Count);
+
+                textbox.Clear();
+                textbox.SendKeys("Ted");
+                submitButton.Click();
+                Assert.Equal(0, validationSummary.Children.Count);
+                AssertUI.HasNotClass(textbox, "has-error");
+
+                textbox.SendKeys("123");
+                browser.First("[data-ui=notation-checkbox]").Click();
+                submitButton.Click();
+                AssertUI.HasClass(textbox, "has-error");
+                Assert.Equal(1, validationSummary.Children.Count);
+            });
+        }
+
         public ValidationTests(ITestOutputHelper output) : base(output)
         {
         }

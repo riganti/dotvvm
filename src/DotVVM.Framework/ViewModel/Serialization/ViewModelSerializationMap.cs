@@ -51,17 +51,20 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// Gets the JSON writer factory.
         /// </summary>
         public WriterDelegate WriterFactory => writerFactory ?? (writerFactory = CreateWriterFactory());
-        private Func<object> constructorFactory;
+        private Func<IServiceProvider, object> constructorFactory;
         /// <summary>
         /// Gets the constructor factory.
         /// </summary>
-        public Func<object> ConstructorFactory => constructorFactory ?? (constructorFactory = CreateConstructorFactory());
+        public Func<IServiceProvider, object> ConstructorFactory => constructorFactory ?? (constructorFactory = CreateConstructorFactory());
+
+        public void SetConstructor(Func<IServiceProvider, object> constructor) => constructorFactory = constructor;
+
         /// <summary>
         /// Creates the constructor for this object.
         /// </summary>
-        public Func<object> CreateConstructorFactory()
+        public Func<IServiceProvider, object> CreateConstructorFactory()
         {
-            var ex = Expression.Lambda<Func<object>>(Expression.New(Type));
+            var ex = Expression.Lambda<Func<IServiceProvider, object>>(Expression.New(Type), new [] { Expression.Parameter(typeof(IServiceProvider)) });
             return ex.Compile();
         }
 

@@ -402,6 +402,22 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void BindingCompiler_SimpleBlockExpression()
+        {
+            var result = ExecuteBinding("SetStringProp2(StringProp + 'kk'); StringProp = StringProp2 + 'll'", new [] { new TestViewModel { StringProp = "a" } });
+            Assert.AreEqual("akkll", result);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_MultiBlockExpression()
+        {
+            TestViewModel vm = new TestViewModel { StringProp = "a" };
+            var result = ExecuteBinding("StringProp = StringProp + 'll'; SetStringProp2(StringProp + 'kk'); StringProp = 'nn'; StringProp2 + '|' + StringProp", new [] { vm });
+            Assert.AreEqual("nn", vm.StringProp);
+            Assert.AreEqual("allkk", vm.StringProp2);
+            Assert.AreEqual("allkk|nn", result);
+	}
+
         public void BindingCompiler_ComparisonOperators()
         {
             var result = ExecuteBinding("LongProperty < TestViewModel2.MyProperty && LongProperty > TestViewModel2.MyProperty", new [] { new TestViewModel { TestViewModel2 = new TestViewModel2() } });
@@ -412,7 +428,6 @@ namespace DotVVM.Framework.Tests.Binding
     class TestViewModel
     {
         public string StringProp { get; set; }
-
         public TestViewModel2 TestViewModel2 { get; set; }
         public TestEnum EnumProperty { get; set; }
         public string StringProp2 { get; set; }
@@ -450,6 +465,11 @@ namespace DotVVM.Framework.Tests.Binding
         {
             BoolMethodExecuted = true;
             return false;
+        }
+
+        public void SetStringProp2(string value)
+        {
+            this.StringProp2 = value;
         }
     }
 

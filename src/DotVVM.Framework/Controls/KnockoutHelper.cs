@@ -101,6 +101,7 @@ namespace DotVVM.Framework.Controls
 
             string getHandlerScript()
             {
+                if (!options.AllowPostbackHandlers) return "[]";
                 // turn validation off for static commands
                 var validationPath = expression is StaticCommandBindingExpression ? null : GetValidationTargetExpression(control);
                 return GetPostBackHandlersScript(control, propertyName,
@@ -133,7 +134,7 @@ namespace DotVVM.Framework.Controls
                 p == CommandBindingExpression.PostbackHandlersParameter ? new CodeParameterAssignment(generatedPostbackHandlers ?? (generatedPostbackHandlers = getHandlerScript()), OperatorPrecedence.Max) :
                 default(CodeParameterAssignment)
             );
-            if (generatedPostbackHandlers == null)
+            if (generatedPostbackHandlers == null && options.AllowPostbackHandlers)
                 return $"dotvvm.applyPostbackHandlers(function(){{return {call}}}.bind(this),{options.ElementAccessor.Code.ToString(e => default(CodeParameterAssignment))},{getHandlerScript()})";
             else return call;
         }
