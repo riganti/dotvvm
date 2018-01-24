@@ -210,7 +210,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
             (from method in typeof(JsonWriter).GetMethods(BindingFlags.Public | BindingFlags.Instance)
             where method.Name == nameof(JsonWriter.WriteValue)
             let parameters = method.GetParameters()
-            where parameters.Length == 1 && parameters[0].ParameterType != typeof(object)
+            where parameters.Length == 1
+            where parameters[0].ParameterType != typeof(object)
+            where parameters[0].ParameterType != typeof(DateTime)
+            where parameters[0].ParameterType != typeof(DateTimeOffset)
             select new { key = parameters[0].ParameterType, value = method }
             ).ToDictionary(x => x.key, x => x.value);
 
