@@ -23,7 +23,7 @@ namespace DotVVM.Framework.Binding
             if (binding == null) throw new ArgumentNullException(nameof(binding));
             if (binding.GetProperty<ResultTypeBindingProperty>(ErrorHandlingMode.ReturnNull) is ResultTypeBindingProperty resultType &&
                     !typeof(T).IsAssignableFrom(resultType.Type))
-                    throw new ArgumentException($"The binding result type {resultType.Type.FullName} is not assignable to {typeof(T).FullName}");
+                throw new ArgumentException($"The binding result type {resultType.Type.FullName} is not assignable to {typeof(T).FullName}");
             this.binding = binding;
             this.value = default;
         }
@@ -96,5 +96,7 @@ namespace DotVVM.Framework.Binding
             else
                 return processValue(this.Evaluate(control));
         }
+
+        public static implicit operator ValueOrBinding<T>(T val) => new ValueOrBinding<T>(val);
     }
 }
