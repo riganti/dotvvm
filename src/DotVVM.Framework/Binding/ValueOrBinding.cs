@@ -98,5 +98,13 @@ namespace DotVVM.Framework.Binding
         }
 
         public static implicit operator ValueOrBinding<T>(T val) => new ValueOrBinding<T>(val);
+
+        public const string EqualsDisabledReason = "Equals is disabled on ValueOrBinding<T> as it may lead to unexpected behavior. Please use object.ReferenceEquals for reference comparison or evalate the ValueOrBinding<T> and compare the value.";
+        [Obsolete(EqualsDisabledReason, error: true)]
+        public static bool operator ==(ValueOrBinding<T> a, ValueOrBinding<T> b) =>
+            throw new NotSupportedException(EqualsDisabledReason);
+        [Obsolete(EqualsDisabledReason, error: true)]
+        public static bool operator !=(ValueOrBinding<T> a, ValueOrBinding<T> b) =>
+            throw new NotSupportedException(EqualsDisabledReason);
     }
 }
