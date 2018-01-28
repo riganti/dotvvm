@@ -127,6 +127,14 @@ namespace DotVVM.Framework.Controls
             this.properties.AssignBulk(keys, values, hashSeed);
         }
 
+        public void SetValue<T>(DotvvmProperty property, ValueOrBinding<T> valueOrBinding)
+        {
+            if (valueOrBinding.BindingOrDefault == null)
+                this.SetValue(property, valueOrBinding.BoxedValue);
+            else
+                this.SetBinding(property, valueOrBinding.BindingOrDefault);
+        }
+
         /// <summary>
         /// Sets the value of a specified property.
         /// </summary>
