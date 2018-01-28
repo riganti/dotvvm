@@ -7,13 +7,13 @@ using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Binding
 {
-    public abstract class ValueOrBinding
+    public interface ValueOrBinding
     {
-        public abstract IBinding BindingOrDefault { get; }
-        public abstract object BoxedValue { get; }
+        IBinding BindingOrDefault { get; }
+        object BoxedValue { get; }
     }
 
-    public class ValueOrBinding<T> : ValueOrBinding
+    public struct ValueOrBinding<T> : ValueOrBinding
     {
         private readonly IBinding binding;
         private readonly T value;
@@ -25,19 +25,21 @@ namespace DotVVM.Framework.Binding
                     !typeof(T).IsAssignableFrom(resultType.Type))
                     throw new ArgumentException($"The binding result type {resultType.Type.FullName} is not assignable to {typeof(T).FullName}");
             this.binding = binding;
+            this.value = default;
         }
 
         public ValueOrBinding(T value)
         {
             this.value = value;
+            this.binding = default;
         }
 
         public T Evaluate(DotvvmBindableObject control) =>
             binding != null ? (T)binding.GetBindingValue(control) : value;
 
         public T ValueOrDefault => value;
-        public override IBinding BindingOrDefault => binding;
-        public override object BoxedValue => (object)value;
+        public IBinding BindingOrDefault => binding;
+        public object BoxedValue => (object)value;
 
         public ParametrizedCode GetParametrizedJsExpression(DotvvmBindableObject control, bool unwrapped = false) =>
             ProcessValueBinding(control,

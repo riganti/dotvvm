@@ -120,6 +120,14 @@ namespace DotVVM.Framework.Controls
             else return new ValueOrBinding<T>((T)value);
         }
 
+        public void SetValue<T>(DotvvmProperty property, ValueOrBinding<T> valueOrBinding)
+        {
+            if (valueOrBinding.BindingOrDefault == null)
+                this.SetValue(property, valueOrBinding.BoxedValue);
+            else
+                this.SetBinding(property, valueOrBinding.BindingOrDefault);
+        }
+
         /// <summary>
         /// Sets the value of a specified property.
         /// </summary>
