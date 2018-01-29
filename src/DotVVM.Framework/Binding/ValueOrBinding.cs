@@ -18,12 +18,26 @@ namespace DotVVM.Framework.Binding
         private readonly IBinding binding;
         private readonly T value;
 
+        private ValueOrBinding(IBinding binding, T value)
+        {
+            this.binding = binding;
+            this.value = value;
+        }
+
         public ValueOrBinding(IBinding binding)
         {
             if (binding == null) throw new ArgumentNullException(nameof(binding));
             if (binding.GetProperty<ResultTypeBindingProperty>(ErrorHandlingMode.ReturnNull) is ResultTypeBindingProperty resultType &&
                     !typeof(T).IsAssignableFrom(resultType.Type))
                 throw new ArgumentException($"The binding result type {resultType.Type.FullName} is not assignable to {typeof(T).FullName}");
+            this.binding = binding;
+            this.value = default;
+        }
+
+        public ValueOrBinding(IStaticValueBinding<T> binding)
+        {
+            if (binding == null) throw new ArgumentNullException(nameof(binding));
+            // result type check is unnecesary when binding is generic
             this.binding = binding;
             this.value = default;
         }
@@ -40,6 +54,16 @@ namespace DotVVM.Framework.Binding
         public T ValueOrDefault => value;
         public IBinding BindingOrDefault => binding;
         public object BoxedValue => (object)value;
+
+        public static ValueOrBinding<T> DownCast<T2>(ValueOrBinding<T2> createFrom)
+            where T2 : T => new ValueOrBinding<T>(createFrom.binding, createFrom.value);
+
+
+        public ValueOrBinding<T2> UpCast<T2>()
+            where T2 : T =>
+            this.binding != null ?
+            new ValueOrBinding<T2>(this.binding) :
+            new ValueOrBinding<T2>((T2)this.value);
 
         public ParametrizedCode GetParametrizedJsExpression(DotvvmBindableObject control, bool unwrapped = false) =>
             ProcessValueBinding(control,
