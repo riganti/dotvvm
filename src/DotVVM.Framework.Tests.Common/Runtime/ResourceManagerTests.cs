@@ -36,10 +36,22 @@ namespace DotVVM.Framework.Tests.Runtime
 
             manager.AddRequiredResource(ResourceConstants.DotvvmResourceName);
             var resourcesInCorrectOrder = manager.GetResourcesInOrder().ToList();
-            Assert.AreEqual(configuration.Resources.FindResource(ResourceConstants.KnockoutJSResourceName), resourcesInCorrectOrder[0]);
-            Assert.AreEqual(configuration.Resources.FindResource(ResourceConstants.PolyfillResourceName), resourcesInCorrectOrder[1]);
-            Assert.AreEqual(configuration.Resources.FindResource(ResourceConstants.DotvvmResourceName + ".internal"), resourcesInCorrectOrder[2]);
-            Assert.AreEqual(configuration.Resources.FindResource(ResourceConstants.DotvvmResourceName), resourcesInCorrectOrder[3]);
+            var expectedResources = new [] {
+                    ResourceConstants.KnockoutJSResourceName,
+                    ResourceConstants.PolyfillResourceName,
+                    ResourceConstants.DotvvmResourceName + ".internal",
+                    ResourceConstants.DotvvmResourceName
+                }
+                .Select(configuration.Resources.FindResource)
+                .ToArray();
+            Assert.IsTrue(
+                resourcesInCorrectOrder.Intersect(expectedResources).SequenceEqual(expectedResources),
+                $@"Expected resources were not in correct order or some were missing:
+                    expected: {JsonConvert.SerializeObject(expectedResources)}
+                    actual: {JsonConvert.SerializeObject(resourcesInCorrectOrder)}
+                
+                "
+            );
         }
 
 
