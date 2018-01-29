@@ -39,7 +39,7 @@ const ko_createBindingContext = (() => {
     ko.originalContextFor = origFn;
 })();
 
-export const nonControllingBindingHandlers : { [bindingName: string]: boolean } = { visible: true, text: true, html: true, css: true, style: true, attr: true, enabled: true, textInput: true, disabled: true, value: true, options: true, selectedOptions: true, uniqueName: true, checked: true, hasFocus: true, submit: true, event: true, click: true, dotvvmValidation: true, "dotvvm-CheckState": true, "dotvvm-textbox-select-all-on-focus": true, "dotvvm-textbox-text": true, "dotvvm-table-columnvisible": true, "dotvvm-UpdateProgress-Visible": true, "dotvvm-checkbox-updateAfterPostback": true, "dotvvmEnable": true  }
+export const nonControllingBindingHandlers : { [bindingName: string]: boolean } = { visible: true, text: true, html: true, css: true, style: true, attr: true, enabled: true, textInput: true, disabled: true, value: true, options: true, selectedOptions: true, uniqueName: true, checked: true, hasFocus: true, submit: true, event: true, click: true, dotvvmValidation: true, "dotvvm-CheckState": true, "dotvvm-textbox-select-all-on-focus": true, "dotvvm-textbox-text": true, "dotvvm-table-columnvisible": true, "dotvvm-UpdateProgress-Visible": true, "dotvvm-checkbox-updateAfterPostback": true, "dotvvmEnable": true, checkedArrayContainsObservables: true }
 
 export function createKnockoutContext(dataContext: KnockoutObservable<RenderContext<any>>): KnockoutBindingContext {
     const dataComputed = ko.pureComputed(() => wrapInObservables(ko.pureComputed(() => dataContext().dataContext), dataContext().update))
@@ -107,12 +107,13 @@ export function wrapInObservables(objOrObservable: any, update: ((updater: State
         const rr = ko.observableArray(result)
         let isUpdating = false;
         rr.subscribe((newVal) => {
-            if (isUpdating || newVal && newVal["__unwrapped_data"] == objOrObservable) return;
+            const isNastyUpdate = ko.unwrap(newVal["__unwrapped_data"]).length != newVal.length;
+            if (isUpdating || newVal && newVal["__unwrapped_data"] == objOrObservable && !isNastyUpdate) return;
             if (update) {
-                if (newVal && newVal["__unwrapped_data"]) update(f => ko.unwrap(newVal["__unwrapped_data"]))
-                else update(f => dotvvm.serialization.deserialize(newVal))
+                if (newVal && newVal["__unwrapped_data"] && !isNastyUpdate) update(f => ko.unwrap(newVal["__unwrapped_data"]))
+                else update(f => dotvvm.serialization.serialize(newVal))
             }
-            else throw new Error("Array mutation is not supported.");
+            else throw new Error("Array mutation is not supported.")
         })
         if (ko.isObservable(objOrObservable)) {
             objOrObservable.subscribe((newVal) => {

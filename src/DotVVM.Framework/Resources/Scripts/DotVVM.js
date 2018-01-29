@@ -62,7 +62,7 @@ var DotvvmKnockoutCompat;
         };
         ko.originalContextFor = origFn;
     })();
-    DotvvmKnockoutCompat.nonControllingBindingHandlers = { visible: true, text: true, html: true, css: true, style: true, attr: true, enabled: true, textInput: true, disabled: true, value: true, options: true, selectedOptions: true, uniqueName: true, checked: true, hasFocus: true, submit: true, event: true, click: true, dotvvmValidation: true, "dotvvm-CheckState": true, "dotvvm-textbox-select-all-on-focus": true, "dotvvm-textbox-text": true, "dotvvm-table-columnvisible": true, "dotvvm-UpdateProgress-Visible": true, "dotvvm-checkbox-updateAfterPostback": true, "dotvvmEnable": true };
+    DotvvmKnockoutCompat.nonControllingBindingHandlers = { visible: true, text: true, html: true, css: true, style: true, attr: true, enabled: true, textInput: true, disabled: true, value: true, options: true, selectedOptions: true, uniqueName: true, checked: true, hasFocus: true, submit: true, event: true, click: true, dotvvmValidation: true, "dotvvm-CheckState": true, "dotvvm-textbox-select-all-on-focus": true, "dotvvm-textbox-text": true, "dotvvm-table-columnvisible": true, "dotvvm-UpdateProgress-Visible": true, "dotvvm-checkbox-updateAfterPostback": true, "dotvvmEnable": true, checkedArrayContainsObservables: true };
     function createKnockoutContext(dataContext) {
         var dataComputed = ko.pureComputed(function () { return wrapInObservables(ko.pureComputed(function () { return dataContext().dataContext; }), dataContext().update); });
         var result = dataContext.peek().parentContext ?
@@ -124,13 +124,14 @@ var DotvvmKnockoutCompat;
             var rr_1 = ko.observableArray(result);
             var isUpdating_1 = false;
             rr_1.subscribe(function (newVal) {
-                if (isUpdating_1 || newVal && newVal["__unwrapped_data"] == objOrObservable)
+                var isNastyUpdate = ko.unwrap(newVal["__unwrapped_data"]).length != newVal.length;
+                if (isUpdating_1 || newVal && newVal["__unwrapped_data"] == objOrObservable && !isNastyUpdate)
                     return;
                 if (update) {
-                    if (newVal && newVal["__unwrapped_data"])
+                    if (newVal && newVal["__unwrapped_data"] && !isNastyUpdate)
                         update(function (f) { return ko.unwrap(newVal["__unwrapped_data"]); });
                     else
-                        update(function (f) { return dotvvm.serialization.deserialize(newVal); });
+                        update(function (f) { return dotvvm.serialization.serialize(newVal); });
                 }
                 else
                     throw new Error("Array mutation is not supported.");
@@ -142,12 +143,18 @@ var DotvvmKnockoutCompat;
                         if (!newVal)
                             rr_1(newVal);
                         else {
+                            var oldValue = rr_1();
                             var result_1 = [];
                             result_1["__unwrapped_data"] = objOrObservable;
                             if (update)
                                 result_1["__update_function"] = update;
                             for (var index = 0; index < newVal.length; index++) {
-                                result_1.push(createComputed(index, arrayUpdate(index)));
+                                if (ko.isComputed(oldValue[index]) && typeof oldValue[index]() == typeof ko.unwrap(obj[index])) {
+                                    result_1.push(oldValue[index]);
+                                }
+                                else {
+                                    result_1.push(createComputed(index, arrayUpdate(index)));
+                                }
                             }
                             rr_1(result_1);
                         }
@@ -180,6 +187,7 @@ var DotvvmKnockoutCompat;
         }
     }
     DotvvmKnockoutCompat.wrapInObservables = wrapInObservables;
+    var defer = Promise.prototype.then.bind(Promise.resolve());
     var KnockoutBindingHook = /** @class */ (function () {
         function KnockoutBindingHook(dataContext) {
             this.dataContext = dataContext;
@@ -197,8 +205,9 @@ var DotvvmKnockoutCompat;
             }
             else {
                 var lastState = this.lastState = ko.observable(this.dataContext);
-                var context = createKnockoutContext(lastState);
-                ko.applyBindingsToNode(node, null, context);
+                var context_1 = createKnockoutContext(lastState);
+                // wait a moment for the node to be bound to DOM.
+                defer(function () { return ko.applyBindingsToNode(node, null, context_1); });
             }
         };
         KnockoutBindingHook.prototype.unhoook = function (node, propertyName, nextValue) {
@@ -207,6 +216,7 @@ var DotvvmKnockoutCompat;
         return KnockoutBindingHook;
     }());
     DotvvmKnockoutCompat.KnockoutBindingHook = KnockoutBindingHook;
+    /// This is magic, sometimes work...
     var KnockoutBindingWidget = /** @class */ (function () {
         function KnockoutBindingWidget(dataContext, node, nodeChildren, dataBind, koComments) {
             this.dataContext = dataContext;
@@ -214,7 +224,7 @@ var DotvvmKnockoutCompat;
             this.nodeChildren = nodeChildren;
             this.dataBind = dataBind;
             this.koComments = koComments;
-            // type KnockoutVirtualElement = { start: number; end: number; dataBind: string }
+            // type KnockoutVirtualElement = { start: number; oldArrayend: number; dataBind: string }
             this.type = "Widget";
             this.elementId = Math.floor(Math.random() * 1000000).toString();
             this.contentMapping = null;
@@ -304,8 +314,11 @@ var DotvvmKnockoutCompat;
                         // TODO removed nodes
                         for (var _a = 0, _b = createArray(rec.removedNodes); _a < _b.length; _a++) {
                             var rm = _b[_a];
-                            if (rm["__bound_element"] && rm["__bound_element"].parentElement) {
+                            if (rm["__bound_element"] && rm["__bound_element"].parentElement && rm.nodeType == Node.ELEMENT_NODE && rm.dataset.fakeContentFor == _this.elementId) {
                                 rm["__bound_element"].remove();
+                                // knockout sometimes reorders the elements, so we want to hold it for possible reuse
+                                // rm["__retired_bound_element"] = rm["__bound_element"]
+                                rm["__bound_element"] = null;
                             }
                         }
                     }
@@ -3381,20 +3394,16 @@ var DotvvmValidation = /** @class */ (function () {
         })(), prop = _a[0], objectPath = _a[1];
         if (objectPath.lastIndexOf('.') == objectPath.length - 1)
             objectPath = objectPath.substr(0, objectPath.length - 1);
+        var targetObject = objectPath ?
+            dotvvm.evaluator.evaluateOnViewModel(ko.unwrap(target == dotvvm.viewModelObservables.root ? target.viewModel : target), objectPath) :
+            target;
         if (!prop)
             throw new Error();
-        var targetUpdate = this.unwrapValidationTarget(target).targetUpdate;
+        var targetUpdate = this.unwrapValidationTarget(targetObject).targetUpdate;
         targetUpdate(function (vm) {
             var validationProp = prop + "$validation";
             var newErrors = [new ValidationError(null, error)];
-            if (validationProp in vm) {
-                return __assign({}, vm, (_a = {}, _a[validationProp] = __assign({}, vm[validationProp], { errors: Array.prototype.concat(vm[validationProp].errors || [], newErrors) }), _a));
-            }
-            else {
-                return __assign({}, vm, (_b = {}, _b[validationProp] = {
-                    errors: newErrors
-                }, _b));
-            }
+            return __assign({}, vm, (_a = {}, _a[validationProp] = (validationProp in vm ? __assign({}, vm[validationProp], { errors: Array.prototype.concat(vm[validationProp].errors || [], newErrors) }) : __assign({}, vm, (_b = {}, _b[validationProp] = { errors: newErrors }, _b))), _a));
             var _a, _b;
         });
     };
