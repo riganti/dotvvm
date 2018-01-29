@@ -124,7 +124,7 @@ var DotvvmKnockoutCompat;
             var rr_1 = ko.observableArray(result);
             var isUpdating_1 = false;
             rr_1.subscribe(function (newVal) {
-                var isNastyUpdate = ko.unwrap(newVal["__unwrapped_data"]).length != newVal.length;
+                var isNastyUpdate = newVal && ko.unwrap(newVal["__unwrapped_data"]).length != newVal.length;
                 if (isUpdating_1 || newVal && newVal["__unwrapped_data"] == objOrObservable && !isNastyUpdate)
                     return;
                 if (update) {

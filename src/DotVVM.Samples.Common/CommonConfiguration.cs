@@ -45,8 +45,8 @@ namespace DotVVM.Samples.Common
             resources.SetEmbeddedResourceDebugFile("dotvvm.fileupload-css", "../DotVVM.Framework/Resources/Scripts/DotVVM.FileUploads.css");
 
             // test debug version of knockout
-            //((ScriptResource)config.Resources.FindResource("knockout"))
-            //    .Location = new FileResourceLocation("..\\DotVVM.Framework\\Resources\\Scripts\\knockout-latest.debug.js");
+            ((ScriptResource)resources.FindResource("knockout"))
+               .Location = new FileResourceLocation("../DotVVM.Framework/Resources/Scripts/knockout-latest.debug.js");
 
         }
     }

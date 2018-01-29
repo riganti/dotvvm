@@ -107,7 +107,7 @@ export function wrapInObservables(objOrObservable: any, update: ((updater: State
         const rr = ko.observableArray(result)
         let isUpdating = false;
         rr.subscribe((newVal) => {
-            const isNastyUpdate = ko.unwrap(newVal["__unwrapped_data"]).length != newVal.length;
+            const isNastyUpdate = newVal && ko.unwrap(newVal["__unwrapped_data"]).length != newVal.length;
             if (isUpdating || newVal && newVal["__unwrapped_data"] == objOrObservable && !isNastyUpdate) return;
             if (update) {
                 if (newVal && newVal["__unwrapped_data"] && !isNastyUpdate) update(f => ko.unwrap(newVal["__unwrapped_data"]))
