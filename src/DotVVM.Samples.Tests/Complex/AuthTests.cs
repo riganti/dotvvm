@@ -1,16 +1,17 @@
-﻿using Dotvvm.Samples.Tests;
+﻿
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Testing.Abstractions;
 
 namespace DotVVM.Samples.Tests.Complex
 {
     [TestClass]
-    public class AuthTests : SeleniumTest
+    public class AuthTests : AppSeleniumTest
     {
         [TestMethod]
         [SampleReference(nameof(SamplesRouteUrls.ComplexSamples_Auth_SecuredPage))]
@@ -35,7 +36,7 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.SendKeys("input[type=text]", "message");
                 browser.First("input[type=button]").Click().Wait(500);
 
-                browser.ElementAt("h1",1)
+                browser.ElementAt("h1", 1)
                     .CheckIfInnerText(
                         s =>
                             s.Contains("DotVVM Debugger: Error 403: Forbidden"),

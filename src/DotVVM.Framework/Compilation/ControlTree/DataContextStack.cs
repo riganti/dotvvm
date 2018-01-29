@@ -93,7 +93,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             return this == stack || hashCode == stack.hashCode
                 && DataContextType == stack.DataContextType
                 && NamespaceImports.SequenceEqual(stack.NamespaceImports)
-                && Parent.Equals(stack.Parent);
+                && Equals(Parent, stack.Parent);
         }
 
         public override int GetHashCode()

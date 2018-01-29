@@ -40,6 +40,8 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
         OrOperator,
         OrElseOperator,
 
-        AssignOperator
+        AssignOperator,
+
+        Semicolon
     }
 }

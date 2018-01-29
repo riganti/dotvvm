@@ -270,6 +270,20 @@ namespace DotVVM.Framework.Compilation.Binding
             return GetMemberOrTypeExpression(node, typeParameters);
         }
 
+        protected override Expression VisitBlock(BlockBindingParserNode node)
+        {
+            var left = HandleErrors(node.FirstExpression, Visit);
+            var right = HandleErrors(node.SecondExpression, Visit) ?? Expression.Default(typeof(void));
+            ThrowOnErrors();
+
+            if (right is BlockExpression rightBlock)
+            {
+                // flat the `(a; b; c; d; e; ...)` expression down
+                return Expression.Block(rightBlock.Variables, new Expression[] { left }.Concat(rightBlock.Expressions));
+            }
+            else return Expression.Block(left, right);
+        }
+
         private Expression GetMemberOrTypeExpression(IdentifierNameBindingParserNode node, Type[] typeParameters)
         {
             

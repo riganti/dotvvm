@@ -116,7 +116,7 @@ declare namespace RendererInitializer {
     } | {
         readonly type: "func";
         readonly dataContextDepth: number;
-        readonly elements: RenderNodeAst[];
+        readonly elements: any[];
         readonly func: (dataContext: RenderContext<any>, elements: RenderFunction<any>[]) => T;
     };
     interface AttrDescriptor {
@@ -130,7 +130,15 @@ declare namespace RendererInitializer {
         readonly type: "decorator";
         readonly fn: ConstantOrFunction<(node: RenderFunction<any>) => virtualDom.VTree>;
     };
-    type RenderNodeAst = ConstantOrFunction<virtualDom.VTree> | {
+    type RenderNodeAst = {
+        readonly type: "constant";
+        readonly constant: virtualDom.VTree;
+    } | {
+        readonly type: "func";
+        readonly dataContextDepth: number;
+        readonly elements: RenderNodeAst[];
+        readonly func: (dataContext: RenderContext<any>, elements: RenderFunction<any>[]) => virtualDom.VTree;
+    } | {
         readonly type: "ast";
         readonly name: ConstantOrFunction<string>;
         readonly attributes: AttrDescriptor[];
@@ -169,10 +177,31 @@ declare class DotvvmEvents {
     spaNavigating: DotvvmEvent<DotvvmSpaNavigatingEventArgs>;
     spaNavigated: DotvvmEvent<DotvvmSpaNavigatedEventArgs>;
     redirect: DotvvmEvent<DotvvmRedirectEventArgs>;
+    postbackHandlersStarted: DotvvmEvent<{}>;
+    postbackHandlersCompleted: DotvvmEvent<{}>;
+    postbackResponseReceived: DotvvmEvent<{}>;
+    postbackCommitInvoked: DotvvmEvent<{}>;
+    postbackViewModelUpdated: DotvvmEvent<{}>;
+    postbackRejected: DotvvmEvent<{}>;
+    staticCommandMethodInvoking: DotvvmEvent<{
+        args: any[];
+        command: string;
+    }>;
+    staticCommandMethodInvoked: DotvvmEvent<{
+        args: any[];
+        command: string;
+        result: any;
+    }>;
+    staticCommandMethodFailed: DotvvmEvent<{
+        args: any[];
+        command: string;
+        xhr: XMLHttpRequest;
+        error?: any;
+    }>;
 }
-declare class DotvvmEvent<T extends DotvvmEventArgs> {
-    name: string;
-    private triggerMissedEventsOnSubscribe;
+declare class DotvvmEvent<T> {
+    readonly name: string;
+    private readonly triggerMissedEventsOnSubscribe;
     private handlers;
     private history;
     constructor(name: string, triggerMissedEventsOnSubscribe?: boolean);
@@ -205,23 +234,23 @@ declare class DotvvmBeforePostBackEventArgs implements PostbackEventArgs {
     sender: HTMLElement;
     viewModel: any;
     viewModelName: string;
-    validationTargetPath: any;
     postbackClientId: number;
     cancel: boolean;
     clientValidationFailed: boolean;
-    constructor(sender: HTMLElement, viewModel: any, viewModelName: string, validationTargetPath: any, postbackClientId: number);
+    constructor(sender: HTMLElement, viewModel: any, viewModelName: string, postbackClientId: number);
 }
 declare class DotvvmAfterPostBackEventArgs implements PostbackEventArgs {
-    sender: HTMLElement | undefined;
-    viewModel: any;
-    viewModelName: string;
-    validationTargetPath: any;
+    postbackOptions: PostbackOptions;
     serverResponseObject: any;
-    postbackClientId: number;
     commandResult: any;
+    xhr: XMLHttpRequest | undefined;
     isHandled: boolean;
     wasInterrupted: boolean;
-    constructor(sender: HTMLElement | undefined, viewModel: any, viewModelName: string, validationTargetPath: any, serverResponseObject: any, postbackClientId: number, commandResult?: any);
+    readonly postbackClientId: number;
+    readonly viewModelName: string;
+    readonly viewModel: any;
+    readonly sender: HTMLElement | undefined;
+    constructor(postbackOptions: PostbackOptions, serverResponseObject: any, commandResult?: any, xhr?: XMLHttpRequest | undefined);
 }
 declare class DotvvmSpaNavigatingEventArgs implements DotvvmEventArgs {
     viewModel: any;
@@ -234,8 +263,9 @@ declare class DotvvmSpaNavigatedEventArgs implements DotvvmEventArgs {
     viewModel: any;
     viewModelName: string;
     serverResponseObject: any;
+    xhr: XMLHttpRequest | undefined;
     isHandled: boolean;
-    constructor(viewModel: any, viewModelName: string, serverResponseObject: any);
+    constructor(viewModel: any, viewModelName: string, serverResponseObject: any, xhr?: XMLHttpRequest | undefined);
 }
 declare class DotvvmRedirectEventArgs implements DotvvmEventArgs {
     viewModel: any;
@@ -276,15 +306,19 @@ declare class DotvvmGlobalize {
     parseDotvvmDate(value: string): Date | null;
     parseNumber(value: string): number;
     parseDate(value: string, format: string, previousValue?: Date): Date;
-    bindingDateToString(value: KnockoutObservable<string | Date> | string | Date, format?: string): string | KnockoutComputed<string>;
-    bindingNumberToString(value: KnockoutObservable<string | number> | string | number, format?: string): string | KnockoutComputed<string>;
+    bindingDateToString(value: KnockoutObservable<string | Date> | string | Date, format?: string): "" | KnockoutComputed<string>;
+    bindingNumberToString(value: KnockoutObservable<string | number> | string | number, format?: string): "" | KnockoutComputed<string>;
 }
-declare type DotvvmPostbackHandler2 = {
-    execute<T>(callback: () => Promise<T>, options: PostbackOptions): Promise<T>;
+declare type DotvvmPostbackHandler = {
+    execute(callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions): Promise<PostbackCommitFunction>;
+    name?: string;
+    after?: (string | DotvvmPostbackHandler)[];
+    before?: (string | DotvvmPostbackHandler)[];
 };
+declare type PostbackCommitFunction = () => Promise<DotvvmAfterPostBackEventArgs>;
 declare type PostbackRejectionReason = {
     type: "handler";
-    handler: DotvvmPostbackHandler2 | DotvvmPostBackHandler;
+    handler: DotvvmPostbackHandler;
     message?: string;
 } | {
     type: 'network';
@@ -297,32 +331,29 @@ declare type PostbackRejectionReason = {
 } & {
     options?: PostbackOptions;
 };
-declare class DotvvmPostBackHandler {
-    execute<T>(callback: () => void, sender: HTMLElement): void;
-}
-declare class ConfirmPostBackHandler extends DotvvmPostBackHandler {
-    message: string;
-    constructor(message: string);
-    execute(callback: () => void, sender: HTMLElement): void;
+interface AdditionalPostbackData {
+    [key: string]: any;
+    validationTargetPath?: string;
 }
 declare class PostbackOptions {
     readonly postbackId: number;
-    readonly sender: HTMLElement;
+    readonly sender: HTMLElement | undefined;
     readonly args: any[];
     readonly viewModel: any;
-    readonly viewModelName: string;
-    readonly validationTargetPath: any;
-    constructor(postbackId: number, sender?: HTMLElement, args?: any[], viewModel?: any, viewModelName?: string, validationTargetPath?: any);
+    readonly viewModelName: string | undefined;
+    readonly additionalPostbackData: AdditionalPostbackData;
+    constructor(postbackId: number, sender?: HTMLElement | undefined, args?: any[], viewModel?: any, viewModelName?: string | undefined);
 }
-declare class ConfirmPostBackHandler2 implements DotvvmPostbackHandler2 {
+declare class ConfirmPostBackHandler implements DotvvmPostbackHandler {
     message: string;
     constructor(message: string);
     execute<T>(callback: () => Promise<T>, options: PostbackOptions): Promise<T>;
 }
-interface IDotvvmPostBackHandlerConfiguration {
+declare type DotvvmPostBackHandlerConfiguration = {
     name: string;
-    options: () => any;
-}
+    options: (context: KnockoutBindingContext) => any;
+};
+declare type ClientFriendlyPostbackHandlerConfiguration = string | DotvvmPostbackHandler | DotvvmPostBackHandlerConfiguration | [string, object] | [string, (context: KnockoutBindingContext, data: any) => any];
 interface ISerializationOptions {
     serializeAll?: boolean;
     oneLevel?: boolean;
@@ -341,7 +372,7 @@ declare class DotvvmSerialization {
     flatSerialize(viewModel: any): any;
     getPureObject(viewModel: any): {};
     private pad(value, digits);
-    serializeDate(date: string | Date, convertToUtc?: boolean): string;
+    serializeDate(date: string | Date | null, convertToUtc?: boolean): string | null;
 }
 interface Document {
     getElementByDotvvmId(id: string): HTMLElement;
@@ -350,7 +381,7 @@ interface IRenderedResourceList {
     [name: string]: string;
 }
 interface IDotvvmPostbackScriptFunction {
-    (pageArea: string, sender: HTMLElement, pathFragments: string[], controlId: string, useWindowSetTimeout: boolean, validationTarget: string, context: any, handlers: IDotvvmPostBackHandlerConfiguration[]): void;
+    (pageArea: string, sender: HTMLElement, pathFragments: string[], controlId: string, useWindowSetTimeout: boolean, validationTarget: string, context: any, handlers: DotvvmPostBackHandlerConfiguration[]): void;
 }
 interface IDotvvmExtensions {
 }
@@ -369,6 +400,12 @@ declare type IDotvvmStateRoot<T> = {
     readonly url: string;
     readonly virtualDirectory: string;
 };
+interface IDotvvmPostbackHandlerCollection {
+    [name: string]: ((options: any) => DotvvmPostbackHandler);
+    confirm: (options: {
+        message?: string;
+    }) => ConfirmPostBackHandler;
+}
 declare class DotVVM {
     private postBackCounter;
     private lastStartedPostack;
@@ -386,19 +423,22 @@ declare class DotVVM {
     rootRenderer: Renderer<any>;
     culture: string;
     serialization: DotvvmSerialization;
-    postBackHandlers: {
-        [name: string]: ((options: any) => DotvvmPostBackHandler);
-    };
-    postbackHandlers2: {
-        [name: string]: ((options: any) => DotvvmPostbackHandler2);
-    };
+    postbackHandlers: IDotvvmPostbackHandlerCollection;
     private beforePostbackEventPostbackHandler;
     private isPostBackRunningHandler;
-    private windowsSetTimeoutHandler;
+    private createWindowSetTimeoutHandler(time);
+    private windowSetTimeoutHandler;
+    private commonConcurrencyHandler;
     private defaultConcurrencyPostbackHandler;
-    globalPostbackHandlers: (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[];
-    globalLaterPostbackHandlers: (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[];
-    private convertOldHandler(handler);
+    private postbackQueues;
+    getPostbackQueue(name?: string): {
+        queue: (() => void)[];
+        noRunning: number;
+    };
+    private postbackHandlersStartedEventHandler;
+    private postbackHandlersCompletedEventHandler;
+    globalPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[];
+    globalLaterPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[];
     events: DotvvmEvents;
     globalize: DotvvmGlobalize;
     evaluator: DotvvmEvaluator;
@@ -409,19 +449,19 @@ declare class DotVVM {
     isPostbackRunning: KnockoutObservable<boolean>;
     init(viewModelName: string, culture: string): void;
     private handleHashChange(viewModelName, spaPlaceHolder, isInitialPageLoad);
-    private postbackScript(bindingId);
     private persistViewModel(viewModelName);
     private backUpPostBackConter();
     private isPostBackStillActive(currentPostBackCounter);
     staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback?: (_: any) => void, errorCallback?: (xhr: XMLHttpRequest, error?: any) => void): void;
     private processPassedId(id, context);
-    protected getPostbackHandler(name: string): (options: any) => DotvvmPostbackHandler2;
+    protected getPostbackHandler(name: string): (options: any) => DotvvmPostbackHandler;
     private isPostbackHandler(obj);
-    findPostbackHandlers(knockoutContext: any, config: (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[]): DotvvmPostbackHandler2[];
-    private applyPostbackHandlersCore<T>(callback, options, handlers?);
-    applyPostbackHandlers<T>(callback: (options: PostbackOptions) => Promise<T>, sender: HTMLElement, handlers?: (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[], args?: any[], validationPath?: any, context?: any, viewModel?: any, viewModelName?: string): Promise<T>;
-    postbackCore(viewModelName: string, options: PostbackOptions, path: string[], command: string, controlUniqueId: string, context: any, validationTargetPath?: any, commandArgs?: any[]): Promise<() => Promise<DotvvmAfterPostBackEventArgs>>;
-    postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, useWindowSetTimeout: boolean, validationTargetPath?: any, context?: any, handlers?: (IDotvvmPostBackHandlerConfiguration | string | DotvvmPostbackHandler2)[], commandArgs?: any[]): Promise<DotvvmAfterPostBackEventArgs>;
+    findPostbackHandlers(knockoutContext: any, config: ClientFriendlyPostbackHandlerConfiguration[]): DotvvmPostbackHandler[];
+    private sortHandlers(handlers);
+    private applyPostbackHandlersCore(callback, options, handlers?);
+    applyPostbackHandlers(callback: (options: PostbackOptions) => Promise<PostbackCommitFunction | undefined>, sender: HTMLElement, handlers?: ClientFriendlyPostbackHandlerConfiguration[], args?: any[], context?: any, viewModel?: any, viewModelName?: string): Promise<DotvvmAfterPostBackEventArgs>;
+    postbackCore(options: PostbackOptions, path: string[], command: string, controlUniqueId: string, context: any, commandArgs?: any[]): Promise<() => Promise<DotvvmAfterPostBackEventArgs>>;
+    postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, context?: any, handlers?: ClientFriendlyPostbackHandlerConfiguration[], commandArgs?: any[]): Promise<DotvvmAfterPostBackEventArgs>;
     private loadResourceList(resources, callback);
     private loadResourceElements(elements, offset, callback);
     private getSpaPlaceHolder();
@@ -519,7 +559,9 @@ declare class DotvvmValidation {
     rules: DotvvmValidationRules;
     errors: KnockoutObservableArray<ValidationError>;
     events: {
-        validationErrorsChanged: DotvvmEvent<DotvvmEventArgs>;
+        validationErrorsChanged: DotvvmEvent<DotvvmEventArgs & {
+            validation?: ValidationResult | undefined;
+        }>;
     };
     elementUpdateFunctions: DotvvmValidationElementUpdateFunctions;
     private unwrapValidationTarget(validationTarget);
@@ -559,6 +601,11 @@ declare class DotvvmEvaluator {
     evaluateOnContext(context: any, expression: string): any;
     getDataSourceItems(viewModel: any): any;
     tryEval(func: () => any): any;
+    isObservableArray(instance: any): instance is KnockoutObservableArray<any>;
+    wrapKnockoutExpression(func: () => any): KnockoutComputed<any>;
+    private updateObservable(getObservable, value);
+    private updateObservableArray(getObservableArray, fnName, args);
+    private getExpressionResult(func);
 }
 declare type ApiComputed<T> = KnockoutObservable<T | null> & {
     refreshValue: (throwOnError?: boolean) => PromiseLike<any> | undefined;

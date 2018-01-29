@@ -51,6 +51,7 @@ namespace DotVVM.Framework.Controls
             get { return (FormatValueType)GetValue(ValueTypeProperty); }
             set { SetValue(ValueTypeProperty, value); }
         }
+        [Obsolete("ValueType property is no longer required, it is automatically inferred from compile-time type of Text binding")]
         public static readonly DotvvmProperty ValueTypeProperty =
             DotvvmProperty.Register<FormatValueType, Literal>(t => t.ValueType);
 
@@ -91,7 +92,12 @@ namespace DotVVM.Framework.Controls
 
         protected override bool RendersHtmlTag => RenderSpanElement;
 
-        public bool IsFormattingRequired => !string.IsNullOrEmpty(FormatString) || ValueType != FormatValueType.Text || NeedsFormatting(GetValueBinding(TextProperty));
+        public bool IsFormattingRequired =>
+            !string.IsNullOrEmpty(FormatString) ||
+            #pragma warning disable
+            ValueType != FormatValueType.Text ||
+            #pragma warning restore
+            NeedsFormatting(GetValueBinding(TextProperty));
 
         protected internal override void OnPreRender(Hosting.IDotvvmRequestContext context)
         {

@@ -17,7 +17,7 @@ namespace DotVVM.CommandLine.Commands.Implementation
 
         public override string Usage => "dotvvm gen uitest <NAME>\ndotvvm gut <NAME>";
 
-        public override bool CanHandle(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
+        public override bool TryConsumeArgs(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
         {
             if (string.Equals(args[0], "gen", StringComparison.CurrentCultureIgnoreCase)
                 && string.Equals(args[1], "uitest", StringComparison.CurrentCultureIgnoreCase))

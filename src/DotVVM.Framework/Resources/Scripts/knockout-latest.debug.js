@@ -5536,7 +5536,7 @@ ko.exportSymbol('__tr_ambtns', ko.templateRewriting.applyMemoizedBindingsToNextS
         }
     };
 
-    ko.renderTemplateForEach = function (template, arrayOrObservableArray, options, targetNode, parentBindingContext, separatorTemplate) {
+    ko.renderTemplateForEach = function (template, arrayOrObservableArray, options, targetNode, parentBindingContext) {
         // Since setDomNodeChildrenFromArrayMapping always calls executeTemplateForArrayItem and then
         // activateBindingsCallback for added items, we can store the binding context in the former to use in the latter.
         var arrayItemContext;
@@ -5544,12 +5544,34 @@ ko.exportSymbol('__tr_ambtns', ko.templateRewriting.applyMemoizedBindingsToNextS
 
         // This will be called by setDomNodeChildrenFromArrayMapping to get the nodes to add to targetNode
         var executeTemplateForArrayItem = function (arrayValue, index) {
+            var hierarchyRole = options["hierarchyRole"];
+
             // Support selecting template as a function of the data being rendered
-            arrayItemContext = parentBindingContext['createChildContext'](arrayValue, options['as'], function(context) {
-                context['$index'] = index;
-            });
+            if(hierarchyRole) {
+                var indexPath = [index];
+                var hierarchyLevel = 0;
+                var alias = "$" + (options["as"] || "item");
+                var contextProperties = {};
+
+                if(hierarchyRole === "Child") {
+                    indexPath = parentBindingContext["$indexPath"].concat(indexPath);
+                    hierarchyLevel = parentBindingContext["$hierarchyLevel"] + 1;
+                }
+
+                contextProperties["$index"] = index;
+                contextProperties["$indexPath"] = indexPath;
+                contextProperties["$hierarchyLevel"] = hierarchyLevel;
+                contextProperties[alias] = arrayValue;
+
+                arrayItemContext = parentBindingContext['extend'](contextProperties);
+            } else {
+                arrayItemContext = parentBindingContext['createChildContext'](arrayValue, options['as'], function(context) {
+                    context['$index'] = index;
+                });
+            }
 
             var nodes = [];
+            var separatorTemplate = options['separatorTemplate'];
             separatorElementsCount = undefined;
             if (separatorTemplate && ko.utils.peekObservable(index) > 0) {
                 nodes = nodes.concat(executeTemplate(targetNode, "ignoreTargetNode", separatorTemplate, parentBindingContext, options));
@@ -5650,7 +5672,7 @@ ko.exportSymbol('__tr_ambtns', ko.templateRewriting.applyMemoizedBindingsToNextS
             if ('foreach' in options) {
                 // Render once for each data point (treating data set as empty if shouldDisplay==false)
                 var dataArray = (shouldDisplay && options['foreach']) || [];
-                templateComputed = ko.renderTemplateForEach(templateName || element, dataArray, options, element, bindingContext, options['separatorTemplate']);
+                templateComputed = ko.renderTemplateForEach(templateName || element, dataArray, options, element, bindingContext);
             } else if (!shouldDisplay) {
                 ko.virtualElements.emptyNode(element);
             } else {

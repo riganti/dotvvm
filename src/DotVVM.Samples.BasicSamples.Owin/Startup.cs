@@ -11,6 +11,7 @@ using Owin;
 using DotVVM.Framework.Configuration;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
 using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand;
+using DotVVM.Samples.Common;
 
 [assembly: OwinStartup(typeof(Startup))]
 
@@ -54,11 +55,12 @@ namespace DotVVM.Samples.BasicSamples
             );
             var config = app.UseDotVVM<DotvvmStartup>(GetApplicationPath(), options: b =>
             {
+                CommonConfiguration.ConfigureServices(b.Services);
                 b.AddDefaultTempStorages("Temp");
                 b.Services.AddScoped<ViewModelScopedDependency>();
                 b.Services.AddSingleton<IGreetingComputationService, HelloGreetingComputationService>();
             });
-            config.RouteTable.Add("AuthorizedPresenter", "ComplexSamples/Auth/AuthorizedPresenter", null, null, () => new AuthorizedPresenter());
+            config.RouteTable.Add("AuthorizedPresenter", "ComplexSamples/Auth/AuthorizedPresenter", provider => new AuthorizedPresenter());
 
             app.UseStaticFiles();
         }

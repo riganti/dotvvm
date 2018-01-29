@@ -39,7 +39,7 @@ namespace DotVVM.Framework.Utils
 
         public static TOut As<TOut>(this object original)
             where TOut : class
-            => original as TOut;     
+            => original as TOut;
 
         public static IEnumerable<T> SelectRecursively<T>(this IEnumerable<T> enumerable, Func<T, IEnumerable<T>> children)
         {
@@ -49,6 +49,15 @@ namespace DotVVM.Framework.Utils
                 foreach (var ce in children(e).SelectRecursively(children))
                     yield return ce;
             }
+        }
+
+        public static string StringJoin(this IEnumerable<string> enumerable, string separator) =>
+            string.Join(separator, enumerable);
+
+        public static void Deconstruct<K, V>(this KeyValuePair<K, V> pair, out K key, out V value)
+        {
+            key = pair.Key;
+            value = pair.Value;
         }
     }
 }

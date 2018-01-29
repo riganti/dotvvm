@@ -13,7 +13,7 @@ namespace DotVVM.CommandLine.Commands.Implementation
 
         public override string Usage => "dotvvm add viewmodel <NAME>\ndotvvm avm <NAME>";
 
-        public override bool CanHandle(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
+        public override bool TryConsumeArgs(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
         {
             if (string.Equals(args[0], "add", StringComparison.CurrentCultureIgnoreCase)
                 && string.Equals(args[1], "viewmodel", StringComparison.CurrentCultureIgnoreCase))

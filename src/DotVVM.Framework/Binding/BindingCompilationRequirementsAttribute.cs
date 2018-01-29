@@ -46,5 +46,16 @@ namespace DotVVM.Framework.Binding
                 optional: Optional.Concat(attr.Optional).Distinct().ToImmutableArray(),
                 excluded: Excluded.Concat(attr.Excluded).Distinct().ToImmutableArray());
         }
+
+
+        public BindingCompilationRequirementsAttribute ClearRequirements()
+        {
+            if (Required.Length == 0) return this;
+            return new BindingCompilationRequirementsAttribute(
+                required: ImmutableArray<Type>.Empty,
+                optional: Optional,
+                excluded: Excluded
+            );
+        }
     }
 }

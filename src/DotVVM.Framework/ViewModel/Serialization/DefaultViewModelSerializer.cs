@@ -61,7 +61,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         {
             // serialize the ViewModel
             var serializer = CreateJsonSerializer();
-            var viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper) {
+            var viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper, context.Services) {
                 UsedSerializationMaps = new HashSet<ViewModelSerializationMap>()
             };
             serializer.Converters.Add(viewModelConverter);
@@ -116,7 +116,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public string BuildStaticCommandResponse(IDotvvmRequestContext context, object result)
         {
             var serializer = CreateJsonSerializer();
-            var viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper) {
+            var viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper, context.Services) {
                 UsedSerializationMaps = new HashSet<ViewModelSerializationMap>()
             };
             serializer.Converters.Add(viewModelConverter);
@@ -226,12 +226,12 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 // load encrypted values
                 var encryptedValuesString = viewModelToken["$encryptedValues"].Value<string>();
-                viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper, JObject.Parse(viewModelProtector.Unprotect(encryptedValuesString, context)));
+                viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper, context.Services, JObject.Parse(viewModelProtector.Unprotect(encryptedValuesString, context)));
             }
-            else viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper);
+            else viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper, context.Services);
 
             // get validation path
-            context.ModelState.ValidationTargetPath = data["validationTargetPath"]?.Value<string>();
+            context.ModelState.ValidationTargetPath = data.SelectToken("additionalData.validationTargetPath")?.Value<string>();
 
             // populate the ViewModel
             var serializer = CreateJsonSerializer();

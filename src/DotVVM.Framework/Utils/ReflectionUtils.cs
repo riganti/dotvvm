@@ -207,6 +207,22 @@ namespace DotVVM.Framework.Utils
                 return array;
             }
 
+            // numbers
+            const NumberStyles numberStyle = NumberStyles.AllowDecimalPoint | NumberStyles.AllowExponent | NumberStyles.AllowLeadingSign | NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite;
+            if (value is string str2)
+            {
+                if (type == typeof(double))
+                    return double.Parse(str2, numberStyle & NumberStyles.Float, CultureInfo.InvariantCulture);
+                else if (type == typeof(float))
+                    return float.Parse(str2, numberStyle & NumberStyles.Float, CultureInfo.InvariantCulture);
+                else if (type == typeof(decimal))
+                    return decimal.Parse(str2, numberStyle & NumberStyles.Float, CultureInfo.InvariantCulture);
+                else if (type == typeof(ulong))
+                    return ulong.Parse(str2, numberStyle & NumberStyles.Integer, CultureInfo.InvariantCulture);
+                else if (type.IsNumericType())
+                    return Convert.ChangeType(long.Parse(str2, numberStyle & NumberStyles.Integer, CultureInfo.InvariantCulture), type, CultureInfo.InvariantCulture);
+            }
+
             // convert
             return Convert.ChangeType(value, type, CultureInfo.InvariantCulture);
         }

@@ -13,24 +13,27 @@ namespace DotVVM.Framework.ResourceManagement
     /// </summary>
     public class ResourceManager
     {
-        private readonly DotvvmConfiguration configuration;
         private List<string> requiredResourcesOrdered = new List<string>();
         private Dictionary<string, IResource> requiredResources = new Dictionary<string, IResource>();
         private List<IResourceProcessor> processors = new List<IResourceProcessor>();
         private int nonameCtr = 0;
+        private readonly DotvvmResourceRepository repository;
 
         public IReadOnlyCollection<string> RequiredResources
         {
             get { return requiredResourcesOrdered.AsReadOnly(); }
         }
 
+        internal bool HeadRendered;
+        internal bool BodyRendered;
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ResourceManager"/> class.
         /// </summary>
-        public ResourceManager(DotvvmConfiguration configuration)
+        public ResourceManager(DotvvmResourceRepository repository)
         {
-            this.configuration = configuration;
+            this.repository = repository;
         }
 
         /// <summary>
@@ -38,7 +41,7 @@ namespace DotVVM.Framework.ResourceManagement
         /// </summary>
         public void AddRequiredResource(string name)
         {
-            var resource = configuration.Resources.FindResource(name);
+            var resource = repository.FindResource(name);
             if (resource == null)
             {
                 ThrowResourceNotFound(name);
@@ -64,6 +67,8 @@ namespace DotVVM.Framework.ResourceManagement
             }
             else
             {
+                if (this.IsAlreadyRendered(resource.RenderPosition))
+                    throw new Exception($"Can't add {resource.GetType().Name} '{name}' to {resource.RenderPosition}, it is already rendered.");
                 foreach (var dep in resource.Dependencies)
                 {
                     AddRequiredResource(dep);
@@ -72,6 +77,11 @@ namespace DotVVM.Framework.ResourceManagement
                 requiredResources[name] = resource;
             }
         }
+
+        /// Checks whether the resource position is already rendered.
+        private bool IsAlreadyRendered(ResourceRenderPosition position) =>
+            position == ResourceRenderPosition.Head && HeadRendered ||
+            position == ResourceRenderPosition.Body && BodyRendered;
 
         /// <summary>
         /// Adds the required script file.
@@ -107,7 +117,7 @@ namespace DotVVM.Framework.ResourceManagement
         /// </summary>
         public void AddStartupScript(string name, string javascriptCode, params string[] dependentResourceNames)
         {
-            AddRequiredResourceCore(name, new InlineScriptResource() { Code = javascriptCode, Dependencies = dependentResourceNames });
+            AddRequiredResourceCore(name, new InlineScriptResource(javascriptCode) { Dependencies = dependentResourceNames });
         }
 
         /// <summary>
@@ -115,7 +125,7 @@ namespace DotVVM.Framework.ResourceManagement
         /// </summary>
         public void AddStartupScript(string javascriptCode, params string[] dependentResourceNames)
         {
-            AddRequiredResourceCore(new InlineScriptResource() { Code = javascriptCode, Dependencies = dependentResourceNames });
+            AddRequiredResourceCore(new InlineScriptResource(javascriptCode) { Dependencies = dependentResourceNames });
         }
 
         /// <summary>
@@ -137,7 +147,7 @@ namespace DotVVM.Framework.ResourceManagement
         /// </summary>
         public IEnumerable<IResource> GetResourcesInOrder()
         {
-            if (processors.Count == 0 && configuration.Resources.DefaultResourceProcessors.Count == 0)
+            if (processors.Count == 0 && repository.DefaultResourceProcessors.Count == 0)
                 return requiredResourcesOrdered.Select(k => requiredResources[k]);
             return GetNamedResourcesInOrder().Select(r => r.Resource);
         }
@@ -148,7 +158,7 @@ namespace DotVVM.Framework.ResourceManagement
         {
             var result = requiredResourcesOrdered.Select(k => new NamedResource(k, requiredResources[k]));
 
-            foreach (var proc in configuration.Resources.DefaultResourceProcessors)
+            foreach (var proc in repository.DefaultResourceProcessors)
             {
                 result = proc.Process(result);
             }
@@ -171,7 +181,7 @@ namespace DotVVM.Framework.ResourceManagement
                 return resource;
             }
 
-            resource = configuration.Resources.FindResource(name);
+            resource = repository.FindResource(name);
             if (resource == null)
             {
                 ThrowResourceNotFound(name);

@@ -12,6 +12,7 @@ using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Binding.Properties;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -25,7 +26,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void INIT()
         {
             this.configuration = DotvvmTestHelper.CreateConfiguration();
-            this.bindingService = configuration.ServiceLocator.GetService<BindingCompilationService>();
+            this.bindingService = configuration.ServiceProvider.GetRequiredService<BindingCompilationService>();
         }
 
         [TestMethod]
@@ -33,7 +34,9 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var path = new[] { ValueBindingExpression.CreateBinding<object>(bindingService, vm => ((Test1)vm[0]).A[0], (DataContextStack)null) };
             var commandId = "someCommand";
-            var command = new CommandBindingExpression(bindingService, vm => ((TestA)vm[0]).Test(((TestA)vm[0]).StringToPass, ((dynamic)vm[1]).NumberToPass), commandId);
+            var command = new CommandBindingExpression(bindingService, vm => {
+                ((TestA)vm[0]).Test(((TestA)vm[0]).StringToPass, ((dynamic)vm[1]).NumberToPass);
+            }, commandId);
 
             var testObject = new Test1 {
                 A = new[]

@@ -19,11 +19,14 @@ namespace DotVVM.Framework.Compilation
 
         public override void VisitPropertyBinding(ResolvedPropertyBinding propertyBinding)
         {
-            var errors = propertyBinding.Binding.Errors.Where(e => e.Item3 == Microsoft.CodeAnalysis.DiagnosticSeverity.Error).ToArray();
-            if (errors.Length > 0)
+            var errors = propertyBinding.Binding.Errors;
+            if (errors.HasErrors)
             {
-                // TODO: better compilation error handling
-                throw new DotvvmCompilationException($"Could not initialize binding '{propertyBinding.Binding.BindingType}', requirements {string.Join(", ", errors.Select(e => e.requirement))} was not met", new AggregateException(errors.Select(e => e.error)), propertyBinding.Binding.BindingNode.Tokens);
+                // TODO: aggregate all errors from the page
+                throw new DotvvmCompilationException(
+                    errors.GetErrorMessage(propertyBinding.Binding.Binding),
+                    errors.Exceptions.Count() > 1 ? new AggregateException(errors.Exceptions) : errors.Exceptions.SingleOrDefault(),
+                    propertyBinding.Binding.BindingNode.Tokens);
             }
             base.VisitPropertyBinding(propertyBinding);
         }

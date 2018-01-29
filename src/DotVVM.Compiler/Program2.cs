@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -11,23 +13,27 @@ using Newtonsoft.Json;
 
 namespace DotVVM.Compiler
 {
+
     public class Program2
     {
 
-        private static HashSet<string> assemblySearchPaths = new HashSet<string>();
+
+        internal static CompilerOptions Options { get; private set; }
+        internal static HashSet<string> assemblySearchPaths { get; private set; } = new HashSet<string>();
         private static Stopwatch stopwatcher;
 
         public static void ContinueMain(string[] args)
         {
             GetEnvironmentAssemblySearchPaths();
-            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
-            
+            AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolver.ResolveAssembly;
+
             if (args.Length == 0)
             {
                 while (true)
                 {
                     var optionsJson = ReadJsonFromStdin();
-                    DoCompile(GetCompilerOptions(optionsJson));
+                    Options = GetCompilerOptions(optionsJson);
+                    DoCompile(Options);
                 }
             }
 
@@ -41,7 +47,8 @@ namespace DotVVM.Compiler
             {
                 var opt = string.Join(" ", args.Skip(1));
 
-                if (!DoCompile(GetCompilerOptions(opt)))
+                Options = GetCompilerOptions(opt);
+                if (!DoCompile(Options))
                 {
                     Environment.Exit(1);
                 }
@@ -67,42 +74,10 @@ namespace DotVVM.Compiler
 
         private static void WaitForDbg()
         {
+            WriteInfo("Process ID: " + Process.GetCurrentProcess().Id);
             while (!Debugger.IsAttached) Thread.Sleep(10);
         }
 
-        private static int isResolveRunning = 0;
-
-        private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
-        {
-            if (Interlocked.CompareExchange(ref isResolveRunning, 1, 0) != 0) return null;
-            try
-            {
-                WriteInfo($"Resolving assembly `{args.Name}`.");
-                var r = LoadFromAlternativeFolder(args.Name);
-                if (r != null) return r;
-                WriteInfo($"Assembly `{args.Name}` resolve failed.");
-
-                //We cannot do typeof(sometyhing).Assembly, because besides the compiler there are no dlls, dointhat will try to load the dll from the disk
-                //which fails, so this event is called again call this event...
-
-                return null;
-            }
-            finally
-            {
-                isResolveRunning = 0;
-            }
-        }
-
-        private static Assembly LoadFromAlternativeFolder(string name)
-        {
-            foreach (var path in assemblySearchPaths)
-            {
-                var assemblyPath = Path.Combine(path, new AssemblyName(name).Name + ".dll");
-                if (!File.Exists(assemblyPath)) continue;
-                return Assembly.LoadFile(assemblyPath);
-            }
-            return null;
-        }
 
         private static string ReadJsonFromStdin()
         {
@@ -124,7 +99,6 @@ namespace DotVVM.Compiler
         private static bool DoCompile(CompilerOptions options)
         {
             InitStopwacher();
-            WriteInfo("Starting compilation...");
 
             //Dont touch anything until the paths are filled we have to touch Json though
             try
@@ -133,17 +107,22 @@ namespace DotVVM.Compiler
                 if (options.FullCompile)
                 {
                     // compile views
+                    WriteInfo("Starting full compilation...");
                     result = DoFullCompile(options);
                 }
                 else
                 {
                     // only export configuration
+                    WriteInfo("Starting export configuration only ...");
                     result = ExportConfiguration(options);
                 }
-                Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented, new JsonSerializerSettings
-                {
-                    TypeNameHandling = TypeNameHandling.Auto
-                }));
+
+                var serializedResult = JsonConvert.SerializeObject(result, Formatting.Indented,
+                    new JsonSerializerSettings {
+                        TypeNameHandling = TypeNameHandling.Auto
+                    });
+                Console.WriteLine(serializedResult);
+                WriteConfigurationOutput(serializedResult);
 
                 Console.WriteLine();
                 return true;
@@ -153,6 +132,19 @@ namespace DotVVM.Compiler
                 WriteError(ex);
                 return false;
             }
+        }
+
+        private static void WriteConfigurationOutput(string serializedResult)
+        {
+            var path = Options.ConfigOutputPath;
+            if (string.IsNullOrWhiteSpace(path)) return;
+            var file = new FileInfo(path);
+            if (!file.Directory.Exists)
+            {
+                file.Directory.Create();
+            }
+            WriteInfo($"Saving configuration to '{file.FullName}'");
+            File.WriteAllText(file.FullName, serializedResult);
         }
 
         private static CompilationResult DoFullCompile(CompilerOptions options)
@@ -165,8 +157,7 @@ namespace DotVVM.Compiler
         {
             var assembly = Assembly.LoadFile(options.WebSiteAssembly);
             var config = OwinInitializer.InitDotVVM(assembly, options.WebSitePath, null, (s) => { });
-            return new CompilationResult()
-            {
+            return new CompilationResult() {
                 Configuration = config
             };
         }

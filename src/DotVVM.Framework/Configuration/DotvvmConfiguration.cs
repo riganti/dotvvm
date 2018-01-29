@@ -103,7 +103,11 @@ namespace DotVVM.Framework.Configuration
         /// Gets an instance of the service locator component.
         /// </summary>
         [JsonIgnore]
+        [Obsolete("You probably want to use ServiceProvider")]
         public ServiceLocator ServiceLocator { get; private set; }
+
+        [JsonIgnore]
+        public IServiceProvider ServiceProvider { get; private set; }
 
         [JsonIgnore]
         public StyleRepository Styles { get; set; }
@@ -117,7 +121,7 @@ namespace DotVVM.Framework.Configuration
         internal DotvvmConfiguration()
         {
             DefaultCulture = CultureInfo.CurrentCulture.Name;
-            Markup = new DotvvmMarkupConfiguration(new Lazy<JavascriptTranslatorConfiguration>(() => ServiceLocator.GetService<IOptions<JavascriptTranslatorConfiguration>>().Value));
+            Markup = new DotvvmMarkupConfiguration(new Lazy<JavascriptTranslatorConfiguration>(() => ServiceProvider.GetRequiredService<IOptions<JavascriptTranslatorConfiguration>>().Value));
             RouteTable = new DotvvmRouteTable(this);
             Resources = new DotvvmResourceRepository();
             Security = new DotvvmSecurityConfiguration();
@@ -132,13 +136,10 @@ namespace DotVVM.Framework.Configuration
         public static DotvvmConfiguration CreateDefault(Action<IServiceCollection> registerServices = null)
         {
             var services = new ServiceCollection();
-            services.AddOptions();
-            var config = CreateDefault(new ServiceLocator(services));
-
-            DotvvmServiceCollectionExtensions.RegisterDotVVMServices(services, config);
+            DotvvmServiceCollectionExtensions.RegisterDotVVMServices(services);
             registerServices?.Invoke(services);
 
-            return config;
+            return new ServiceLocator(services).GetService<DotvvmConfiguration>();
         }
 
         /// <summary>
@@ -146,13 +147,13 @@ namespace DotVVM.Framework.Configuration
         /// </summary>
         /// <param name="serviceProvider">The service provider to resolve services from.</param>
         public static DotvvmConfiguration CreateDefault(IServiceProvider serviceProvider)
-            => CreateDefault(new ServiceLocator(serviceProvider));
-
-        private static DotvvmConfiguration CreateDefault(ServiceLocator serviceLocator)
         {
             var config = new DotvvmConfiguration
             {
-                ServiceLocator = serviceLocator
+                #pragma warning disable
+                ServiceLocator = new ServiceLocator(serviceProvider),
+                #pragma warning restore
+                ServiceProvider = serviceProvider
             };
 
             config.Runtime.GlobalFilters.Add(new ModelValidationFilterAttribute());
@@ -165,7 +166,24 @@ namespace DotVVM.Framework.Configuration
             RegisterConstraints(config);
             RegisterResources(config);
 
+            ConfigureOptions(config.RouteTable, serviceProvider);
+            ConfigureOptions(config.Markup, serviceProvider);
+            ConfigureOptions(config.Resources, serviceProvider);
+            ConfigureOptions(config.Runtime, serviceProvider);
+            ConfigureOptions(config.Security, serviceProvider);
+            ConfigureOptions(config.Styles, serviceProvider);
+            ConfigureOptions(config, serviceProvider);
+
             return config;
+        }
+
+        private static void ConfigureOptions<T>(T obj, IServiceProvider serviceProvider)
+            where T: class
+        {
+            foreach (var conf in serviceProvider.GetServices<IConfigureOptions<T>>())
+            {
+                conf.Configure(obj);
+            }
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
@@ -210,19 +228,12 @@ namespace DotVVM.Framework.Configuration
 
         private static void RegisterResources(DotvvmConfiguration configuration)
         {
-            configuration.Resources.Register(ResourceConstants.JQueryResourceName,
-                new ScriptResource(new UrlResourceLocation("https://code.jquery.com/jquery-2.1.1.min.js"))
-                {
-                    LocationFallback = new ResourceLocationFallback(
-                        "window.jQuery",
-                        new EmbeddedResourceLocation(typeof(DotvvmConfiguration).GetTypeInfo().Assembly, "DotVVM.Framework.Resources.Scripts.jquery-2.1.1.min.js"))
-                });
             configuration.Resources.Register("virtual-dom",
                 new ScriptResource(new EmbeddedResourceLocation(
                     typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
                     "DotVVM.Framework.Resources.Scripts.virtual-dom.js")));
 
-            configuration.Resources.Register("knockout",
+            configuration.Resources.Register(ResourceConstants.KnockoutJSResourceName,
                 new ScriptResource(new EmbeddedResourceLocation(
                     typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
                     "DotVVM.Framework.Resources.Scripts.knockout-latest.js")));
@@ -230,9 +241,9 @@ namespace DotVVM.Framework.Configuration
             configuration.Resources.Register(ResourceConstants.DotvvmResourceName + ".internal",
                 new ScriptResource(new EmbeddedResourceLocation(
                     typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
-                    "DotVVM.Framework.Resources.Scripts.DotVVM.js"))
+                    "DotVVM.Framework.Resources.Scripts.DotVVM.min.js"))
                 {
-                    Dependencies = new[] { "virtual-dom", "knockout" }
+                    Dependencies = new[] { "virtual-dom", "knockout", ResourceConstants.PolyfillResourceName }
                 });
             configuration.Resources.Register(ResourceConstants.DotvvmResourceName,
                 new InlineScriptResource(@"if (window.dotvvm) { throw 'DotVVM is already loaded!'; } window.dotvvm = new DotVVM();") {
@@ -244,7 +255,7 @@ namespace DotVVM.Framework.Configuration
                     typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
                     "DotVVM.Framework.Resources.Scripts.DotVVM.Debug.js"))
                 {
-                    Dependencies = new[] { ResourceConstants.DotvvmResourceName, ResourceConstants.JQueryResourceName }
+                    Dependencies = new[] { ResourceConstants.DotvvmResourceName }
                 });
 
             configuration.Resources.Register(ResourceConstants.DotvvmFileUploadCssResourceName,
@@ -253,6 +264,7 @@ namespace DotVVM.Framework.Configuration
                     "DotVVM.Framework.Resources.Scripts.DotVVM.FileUpload.css")));
 
             RegisterGlobalizeResources(configuration);
+            RegisterPolyfillResources(configuration);
         }
 
         private static void RegisterGlobalizeResources(DotvvmConfiguration configuration)
@@ -260,10 +272,19 @@ namespace DotVVM.Framework.Configuration
             configuration.Resources.Register(ResourceConstants.GlobalizeResourceName,
                 new ScriptResource(new EmbeddedResourceLocation(
                     typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
-                    "DotVVM.Framework.Resources.Scripts.Globalize.globalize.js")));
+                    "DotVVM.Framework.Resources.Scripts.Globalize.globalize.min.js")));
 
             configuration.Resources.RegisterNamedParent("globalize", new JQueryGlobalizeResourceRepository());
         }
 
+        private static void RegisterPolyfillResources(DotvvmConfiguration configuration)
+        {
+            configuration.Resources.Register(ResourceConstants.PolyfillResourceName, new PolyfillResource());
+
+            configuration.Resources.Register(ResourceConstants.PolyfillBundleResourceName,
+                new ScriptResource(new EmbeddedResourceLocation(
+                    typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
+                    "DotVVM.Framework.Resources.Scripts.Polyfills.polyfill.bundle.js")));
+        }
     }
 }

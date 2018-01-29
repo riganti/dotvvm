@@ -1,36 +1,30 @@
-type DotvvmPostbackHandler2 = {
-    execute<T>(callback: () => Promise<T>, options: PostbackOptions): Promise<T>
+type DotvvmPostbackHandler = {
+    execute(callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions): Promise<PostbackCommitFunction>
+    name?: string
+    after?: (string | DotvvmPostbackHandler)[]
+    before?: (string | DotvvmPostbackHandler)[]
 }
 
+type PostbackCommitFunction = () => Promise<DotvvmAfterPostBackEventArgs>
+
 type PostbackRejectionReason =
-    | { type: "handler", handler: DotvvmPostbackHandler2 | DotvvmPostBackHandler, message?: string }
+    | { type: "handler", handler: DotvvmPostbackHandler, message?: string }
     | { type: 'network', args: DotvvmErrorEventArgs }
     | { type: 'commit', args: DotvvmErrorEventArgs }
     | { type: 'event' }
     & { options?: PostbackOptions }
 
-class DotvvmPostBackHandler {
-    public execute<T>(callback: () => void, sender: HTMLElement): void {
-    }
-}
-
-class ConfirmPostBackHandler extends DotvvmPostBackHandler {
-    constructor(public message: string) {
-        super();
-    }
-
-    public execute(callback: () => void, sender: HTMLElement) {
-        if (confirm(this.message)) {
-            callback();
-        }
-    }
+interface AdditionalPostbackData {
+    [key: string]: any
+    validationTargetPath?: string
 }
 
 class PostbackOptions {
-    constructor(public readonly postbackId: number, public readonly sender?: HTMLElement, public readonly args : any[] = [], public readonly viewModel?: any, public readonly viewModelName?: string, public readonly validationTargetPath?: any) {}
+    public readonly additionalPostbackData: AdditionalPostbackData = {};
+    constructor(public readonly postbackId: number, public readonly sender?: HTMLElement, public readonly args : any[] = [], public readonly viewModel?: any, public readonly viewModelName?: string) {}
 }
 
-class ConfirmPostBackHandler2 implements DotvvmPostbackHandler2 {
+class ConfirmPostBackHandler implements DotvvmPostbackHandler {
     constructor(public message: string) { }
     execute<T>(callback: () => Promise<T>, options: PostbackOptions): Promise<T> {
         return new Promise<T>((resolve, reject) => {
@@ -43,7 +37,14 @@ class ConfirmPostBackHandler2 implements DotvvmPostbackHandler2 {
     }
 }
 
-interface IDotvvmPostBackHandlerConfiguration {
+type DotvvmPostBackHandlerConfiguration = {
     name: string;
-    options: () => any;
+    options: (context: KnockoutBindingContext) => any;
 }
+
+type ClientFriendlyPostbackHandlerConfiguration =
+    | string // just a name
+    | DotvvmPostbackHandler // the handler itself
+    | DotvvmPostBackHandlerConfiguration // the verbose configuration
+    | [string, object] // compressed configuration - [name, handler options]
+    | [string, (context: KnockoutBindingContext, data: any) => any] // compressed configuration with binding support - [name, context => handler options]

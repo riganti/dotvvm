@@ -121,13 +121,14 @@ class Renderer<TViewModel> {
 namespace RendererInitializer {
     export type ConstantOrFunction<T> =
         | { readonly type: "constant"; readonly constant: T }
-        | { readonly type: "func"; readonly dataContextDepth: number; readonly elements: RenderNodeAst[]; readonly func: (dataContext: RenderContext<any>, elements: RenderFunction<any>[]) => T }
+        | { readonly type: "func"; readonly dataContextDepth: number; readonly elements: any[]; readonly func: (dataContext: RenderContext<any>, elements: RenderFunction<any>[]) => T }
     export interface AttrDescriptor { name: ConstantOrFunction<string>; value: ConstantOrFunction<any> }
     export type AssignedPropDescriptor =
         | { readonly type: "attr", readonly attr: AttrDescriptor }
         | { readonly type: "decorator", readonly fn: ConstantOrFunction<(node: RenderFunction<any>) => virtualDom.VTree> }
     export type RenderNodeAst =
-        | ConstantOrFunction<virtualDom.VTree>
+        | { readonly type: "constant"; readonly constant: virtualDom.VTree }
+        | { readonly type: "func"; readonly dataContextDepth: number; readonly elements: RenderNodeAst[]; readonly func: (dataContext: RenderContext<any>, elements: RenderFunction<any>[]) => virtualDom.VTree }
         | { readonly type: "ast"; readonly name: ConstantOrFunction<string>; readonly attributes: AttrDescriptor[]; readonly content: RenderNodeAst[] }
         | { readonly type: "text"; readonly content: ConstantOrFunction<string> }
 

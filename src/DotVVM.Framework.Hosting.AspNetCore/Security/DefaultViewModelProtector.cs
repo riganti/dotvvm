@@ -14,11 +14,11 @@ namespace DotVVM.Framework.Security
     {
         private const string PRIMARY_PURPOSE = "DotVVM.Framework.Security.DefaultViewModelProtector";
 
-        private IDataProtectionProvider protectionProvider;
+        private readonly IDataProtectionProvider protectionProvider;
 
-        public DefaultViewModelProtector(DotvvmConfiguration configuration)
+        public DefaultViewModelProtector(IDataProtectionProvider protectionProvider)
         {
-            this.protectionProvider = configuration.ServiceLocator.GetService<IDataProtectionProvider>();
+            this.protectionProvider = protectionProvider;
         }
 
         public string Protect(string serializedData, IDotvvmRequestContext context)

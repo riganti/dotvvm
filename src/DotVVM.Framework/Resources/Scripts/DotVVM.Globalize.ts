@@ -45,33 +45,73 @@
     }
 
     public bindingDateToString(value: KnockoutObservable<string | Date> | string | Date, format: string = "G") {
-        const unwrapedVal = ko.unwrap(value)
-        const date = typeof unwrapedVal == "string" ? this.parseDotvvmDate(unwrapedVal) : unwrapedVal;
-        if (date == null) return "";
+        if (!value) {
+            return "";
+        }
+
+        const unwrapDate = () => {
+            const unwrappedVal = ko.unwrap(value);
+            return typeof unwrappedVal == "string" ? this.parseDotvvmDate(unwrappedVal) : unwrappedVal;
+        };
+
+        const formatDate = () => {
+            const unwrappedVal = unwrapDate();
+
+            if (unwrappedVal != null) {
+                return dotvvm_Globalize.format(unwrappedVal, format, dotvvm.culture);
+            }
+
+            return "";
+        }
+
         if (ko.isWriteableObservable(value)) {
-            const setter = typeof unwrapedVal == "string" ? v => value(dotvvm.serialization.serializeDate(v)) : value
+            const unwrappedVal = unwrapDate();
+            const setter = typeof unwrappedVal == "string" ? v => {
+                return value(v == null ? null : dotvvm.serialization.serializeDate(v, false));
+            } : value;
             return ko.pureComputed({
-                read: () => dotvvm_Globalize.format(date, format, dotvvm.culture),
+                read: () => formatDate(),
                 write: val => setter(dotvvm_Globalize.parseDate(val, format, dotvvm.culture))
             });
         }
         else {
-            return dotvvm_Globalize.format(date, format, dotvvm.culture);
+            return ko.pureComputed(() => formatDate());
         }
     }
 
     public bindingNumberToString(value: KnockoutObservable<string | number> | string | number, format: string = "G") {
-        const unwrapedVal = ko.unwrap(value)
-        const num = typeof unwrapedVal == "string" ? this.parseNumber(unwrapedVal) : unwrapedVal;
-        if (num == null) return "";
+        if (!value) {
+            return "";
+        }
+
+        const unwrapNumber = () => {
+            const unwrappedVal = ko.unwrap(value);
+            return typeof unwrappedVal == "string" ? this.parseNumber(unwrappedVal) : unwrappedVal;
+        };
+
+        const formatNumber = () => {
+            const unwrappedVal = unwrapNumber();
+
+            if (unwrappedVal != null) {
+                return dotvvm_Globalize.format(unwrappedVal, format, dotvvm.culture);
+            }
+
+            return "";
+        }
+
         if (ko.isWriteableObservable(value)) {
             return ko.pureComputed({
-                read: () => dotvvm_Globalize.format(num, format, dotvvm.culture),
-                write: val => value(dotvvm_Globalize.parseFloat(val, 10, dotvvm.culture))
+                read: () => formatNumber(),
+                write: val => {
+                    const parsedFloat = dotvvm_Globalize.parseFloat(val, 10, dotvvm.culture),
+                        isValid = val == null || (parsedFloat != null && !isNaN(parsedFloat));
+
+                    value(isValid ? parsedFloat : null);
+                }
             });
         }
         else {
-            return dotvvm_Globalize.format(num, format, dotvvm.culture);
+            return ko.pureComputed(() => formatNumber());
         }
     }
 

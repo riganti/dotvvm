@@ -1,5 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Text;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Testing;
@@ -7,6 +9,7 @@ using DotVVM.Framework.Tests.Binding;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.ViewModel.Validation;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DotVVM.Framework.Tests.Common.ViewModel
@@ -23,7 +26,7 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
                 Configuration = DotvvmTestHelper.CreateConfiguration()
             };
 
-            this.viewModel.Context.Configuration.ServiceLocator.GetService<IViewModelSerializationMapper>().Map(typeof(ViewModel), m => {
+            this.viewModel.Context.Services.GetRequiredService<IViewModelSerializationMapper>().Map(typeof(ViewModel), m => {
                 m.Property(nameof(ViewModel.RenamedProperty)).Name = "rp";
             });
         }
@@ -52,12 +55,24 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
             Assert.AreEqual("AnotherProperty().TestViewModel2().Collection()[0]().StringValue", ValidationErrorFactory.CreateModelError(viewModel, v => v.AnotherProperty.TestViewModel2.Collection[0].StringValue, "").PropertyPath);
         }
 
-        class ViewModel: DotvvmViewModelBase
+        [TestMethod]
+        public void ModelState_ValidatableObjectHelpers()
+        {
+            var result = viewModel.Validate(null).ToArray();
+            var memberNames = result[0].MemberNames.ToArray();
+            Assert.AreEqual(memberNames[0], "AnotherProperty().EnumProperty");
+            Assert.AreEqual(memberNames[1], "rp");
+        }
+
+        class ViewModel: DotvvmViewModelBase, IValidatableObject
         {
             public int MyProperty { get; set; }
             public int RenamedProperty { get; set; }
-
             public TestViewModel AnotherProperty { get; set; }
+            public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+            {
+                yield return ValidationErrorFactory.CreateValidationResult(this, "Error", t => t.AnotherProperty.EnumProperty, t => t.RenamedProperty);
+            }
         }
     }
 }

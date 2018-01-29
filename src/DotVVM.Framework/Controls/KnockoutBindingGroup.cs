@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.ViewModel.Serialization;
 using Newtonsoft.Json;
 
@@ -14,7 +15,7 @@ namespace DotVVM.Framework.Controls
         
         public bool IsEmpty => entries.Count == 0;
 
-        public void Add(string name, DotvvmControl control, DotvvmProperty property, Action nullBindingAction = null)
+        public virtual void Add(string name, DotvvmControl control, DotvvmProperty property, Action nullBindingAction = null)
         {
             var binding = control.GetValueBinding(property);
             if (binding == null)
@@ -24,11 +25,11 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                entries.Add(new KnockoutBindingInfo() { Name = name, Expression = control.GetValueBinding(property).GetKnockoutBindingExpression(control) });
+                entries.Add(new KnockoutBindingInfo() { Name = name, Expression = GetKnockoutBindingExpression(control, control.GetValueBinding(property)) });
             }
         }
 
-        public void Add(string name, string expression, bool surroundWithDoubleQuotes = false)
+        public virtual void Add(string name, string expression, bool surroundWithDoubleQuotes = false)
         {
             if (surroundWithDoubleQuotes)
             {
@@ -38,12 +39,17 @@ namespace DotVVM.Framework.Controls
             entries.Add(new KnockoutBindingInfo() { Name = name, Expression = expression });
         }
 
-        public void AddFrom(KnockoutBindingGroup other)
+        public virtual void AddFrom(KnockoutBindingGroup other)
         {
             entries.AddRange(other.entries);
         }
 
         public List<KnockoutBindingInfo>.Enumerator GetEnumerator() => entries.GetEnumerator();
+
+        protected virtual string GetKnockoutBindingExpression(DotvvmBindableObject obj, IValueBinding valueBinding)
+        {
+            return valueBinding.GetKnockoutBindingExpression(obj);
+        }
 
         public override string ToString()
         {

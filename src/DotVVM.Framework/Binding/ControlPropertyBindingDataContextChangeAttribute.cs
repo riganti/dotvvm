@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Controls;
 using System.Linq.Expressions;
+using System.Reflection;
 using DotVVM.Framework.Compilation.ControlTree;
 
 namespace DotVVM.Framework.Binding
@@ -19,27 +20,49 @@ namespace DotVVM.Framework.Binding
 
         public override ITypeDescriptor GetChildDataContextType(ITypeDescriptor dataContext, IDataContextStack controlContextStack, IAbstractControl control, IPropertyDescriptor property = null)
         {
-            IPropertyDescriptor controlProperty;
-            if (!control.Metadata.TryGetProperty(PropertyName, out controlProperty))
+            if (!control.Metadata.TryGetProperty(PropertyName, out var controlProperty))
             {
                 throw new Exception($"The property '{PropertyName}' was not found on control '{control.Metadata.Type}'!");
             }
 
-            IAbstractPropertySetter setter;
-            if (control.TryGetProperty(controlProperty, out setter))
+            if (control.TryGetProperty(controlProperty, out var setter))
             {
-                var binding = setter as IAbstractPropertyBinding;
-                if (binding == null)
-                {
-                    return dataContext;
-                }
-                return binding.Binding.ResultType;
+                return setter is IAbstractPropertyBinding binding 
+                    ? binding.Binding.ResultType 
+                    : dataContext;
             }
-            else
+
+            if (AllowMissingProperty)
             {
-                if (AllowMissingProperty) return dataContext;
-                else throw new Exception($"Property '{PropertyName}' is required on '{control.Metadata.Type.Name}'.");
+                return dataContext;
             }
+
+            throw new Exception($"Property '{PropertyName}' is required on '{control.Metadata.Type.Name}'.");
+        }
+
+        public override Type GetChildDataContextType(Type dataContext, DataContextStack controlContextStack, DotvvmBindableObject control, DotvvmProperty property = null)
+        {
+            var controlType = control.GetType();
+            var controlPropertyField = controlType.GetField($"{PropertyName}Property", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);
+            var controlProperty = (DotvvmProperty)controlPropertyField?.GetValue(null);
+
+            if (controlProperty == null)
+            {
+                throw new Exception($"The property '{PropertyName}' was not found on control '{controlType}'!");
+            }
+
+            if (control.Properties.ContainsKey(controlProperty))
+            {
+                var binding = control.GetValueBinding(controlProperty);
+                return binding == null ? dataContext : binding.ResultType;
+            }
+
+            if (AllowMissingProperty)
+            {
+                return dataContext;
+            }
+
+            throw new Exception($"Property '{PropertyName}' is required on '{controlType.Name}'.");
         }
 
         public ControlPropertyBindingDataContextChangeAttribute(string propertyName, int order = 0)
@@ -47,6 +70,7 @@ namespace DotVVM.Framework.Binding
             PropertyName = propertyName;
             Order = order;
         }
-        
+
+        public override IEnumerable<string> PropertyDependsOn => new [] { PropertyName };
     }
 }

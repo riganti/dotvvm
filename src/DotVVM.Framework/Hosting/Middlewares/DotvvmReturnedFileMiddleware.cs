@@ -8,17 +8,18 @@ using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Hosting.Middlewares
-{ 
+{
     //TODO: Code reveiw
     public class DotvvmReturnedFileMiddleware : IMiddleware
     {
+
         public async Task<bool> Handle(IDotvvmRequestContext request)
         {
             var url = DotvvmMiddlewareBase.GetCleanRequestUrl(request.HttpContext);
 
             if (url.StartsWith("dotvvmReturnedFile", StringComparison.Ordinal))
             {
-                await RenderReturnedFile(request.HttpContext, request.Services.GetService<IReturnedFileStorage>());
+                await RenderReturnedFile(request.HttpContext, request.Services.GetRequiredService<IReturnedFileStorage>());
                 return true;
             }
             else return false;

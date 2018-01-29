@@ -19,6 +19,8 @@ namespace DotVVM.Framework.Diagnostics
 
         private long ElapsedMillisSinceLastLog => events.Sum(e => e.Duration);
 
+        private (long compressedLength, long realLength)? ResponseSize;
+
         public DiagnosticsRequestTracer(IDiagnosticsInformationSender sender)
         {
             this.informationSender = sender;
@@ -61,6 +63,11 @@ namespace DotVVM.Framework.Diagnostics
             return informationSender.SendInformationAsync(diagnosticsData);
         }
 
+        public void LogResponseSize(long compressedSize, long realSize)
+        {
+            this.ResponseSize = (compressedSize, realSize);
+        }
+
         private void Reset()
         {
             stopwatch.Reset();
@@ -84,7 +91,7 @@ namespace DotVVM.Framework.Diagnostics
             {
                 RequestType = RequestTypeFromContext(request),
                 Method = request.HttpContext.Request.Method,
-                Url = request.HttpContext.Request.Path.Value,
+                Url = request.HttpContext.Request.Url.AbsolutePath,
                 Headers = request.HttpContext.Request.Headers.Select(HttpHeaderItem.FromKeyValuePair)
                     .ToList(),
                 ViewModelJson = request.ReceivedViewModelJson?.GetValue("viewModel")?.ToString()
@@ -116,19 +123,9 @@ namespace DotVVM.Framework.Diagnostics
                     .ToList(),
                 ViewModelJson = request.ViewModelJson?.GetValue("viewModel")?.ToString(),
                 ViewModelDiff = request.ViewModelJson?.GetValue("viewModelDiff")?.ToString(),
-                ResponseSize = GetResponseContentLength(request)
+                ResponseSize = ResponseSize?.realLength ?? -1,
+                CompressedResponseSize = ResponseSize?.compressedLength ?? -1
             };
-        }
-
-        private long GetResponseContentLength(IDotvvmRequestContext request)
-        {
-            var dotvvmPresenter = request.Presenter as DotvvmPresenter;
-            var diagnosticsRenderer = dotvvmPresenter?.OutputRenderer as DiagnosticsRenderer;
-            if (diagnosticsRenderer != null)
-            {
-                return diagnosticsRenderer.ContentLength;
-            }
-            return 0;
         }
     }
 

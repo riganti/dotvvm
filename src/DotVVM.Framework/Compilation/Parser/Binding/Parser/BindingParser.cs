@@ -96,12 +96,25 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             var startIndex = CurrentIndex;
             SkipWhiteSpace();
-            return CreateNode(ReadUnsupportedOperatorExpression(), startIndex);
+            return CreateNode(ReadSemicolonSeparatedExpression(), startIndex);
         }
 
         public bool OnEnd()
         {
             return CurrentIndex >= Tokens.Count;
+        }
+        
+        private BindingParserNode ReadSemicolonSeparatedExpression()
+        {
+            var startIndex = CurrentIndex;
+            var first = ReadUnsupportedOperatorExpression();
+            if (Peek() != null && Peek().Type == BindingTokenType.Semicolon)
+            {
+                var operatorToken = Read();
+                var second = Peek() == null ? null : ReadSemicolonSeparatedExpression();
+                first = CreateNode(new BlockBindingParserNode(first, second), startIndex);
+            }
+            return first;
         }
 
         private BindingParserNode ReadUnsupportedOperatorExpression()

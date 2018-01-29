@@ -48,7 +48,6 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty IncludeErrorsFromTargetProperty
             = DotvvmProperty.Register<bool, ValidationSummary>(c => c.IncludeErrorsFromTarget, false);
 
-
         /// <summary>
         /// Adds all attributes that should be added to the control begin tag.
         /// </summary>
@@ -59,6 +58,10 @@ namespace DotVVM.Framework.Controls
             {
                 writer.AddKnockoutDataBind("foreach", $"dotvvm.validation.getValidationErrors({expression}, " +
                     $"{IncludeErrorsFromChildren.ToString().ToLower()}, {IncludeErrorsFromTarget.ToString().ToLower()})");
+            }
+            else
+            {
+                writer.AddKnockoutDataBind("foreach", $"[]");
             }
 
             base.AddAttributesToRender(writer, context);

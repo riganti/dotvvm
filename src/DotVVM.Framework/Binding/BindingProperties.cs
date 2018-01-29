@@ -26,11 +26,14 @@ namespace DotVVM.Framework.Binding.Properties
         /// <summary>
         /// Knockout binding expression. Always unwraps the observable.
         /// </summary>
-        public readonly ParametrizedCode UnwrapedCode;
-        public KnockoutExpressionBindingProperty(ParametrizedCode code, ParametrizedCode unwrapedCode)
+        public readonly ParametrizedCode UnwrappedCode;
+        /// Knockout binding expression. Always returns an observable.
+        public readonly ParametrizedCode WrappedCode;
+        public KnockoutExpressionBindingProperty(ParametrizedCode code, ParametrizedCode unwrappedCode, ParametrizedCode wrappedCode)
         {
             this.Code = code;
-            this.UnwrapedCode = unwrapedCode;
+            this.UnwrappedCode = unwrappedCode;
+            this.WrappedCode = wrappedCode;
         }
     }
 
@@ -187,13 +190,15 @@ namespace DotVVM.Framework.Binding.Properties
         public readonly (int, int)[] Ranges;
         public readonly int LineNumber;
         public readonly Type ControlType;
+        public readonly DotvvmProperty RelatedProperty;
 
-        public LocationInfoBindingProperty(string fileName, (int, int)[] ranges, int lineNumber, Type controlType)
+        public LocationInfoBindingProperty(string fileName, (int, int)[] ranges, int lineNumber, Type controlType, DotvvmProperty relatedProperty = null)
         {
             this.FileName = fileName;
             this.Ranges = ranges;
             this.LineNumber = lineNumber;
             this.ControlType = controlType;
+            this.RelatedProperty = relatedProperty;
         }
     }
 
@@ -226,7 +231,14 @@ namespace DotVVM.Framework.Binding.Properties
     /// </summary>
     public sealed class BindingErrorReporterProperty
     {
-        public ConcurrentStack<(Type req, Exception error, DiagnosticSeverity)> Errors = new ConcurrentStack<(Type req, Exception error, DiagnosticSeverity)>();
+        public ConcurrentStack<(Type req, Exception error, DiagnosticSeverity severity)> Errors = new ConcurrentStack<(Type req, Exception error, DiagnosticSeverity)>();
+        public bool HasErrors => Errors.Any(e => e.severity == Microsoft.CodeAnalysis.DiagnosticSeverity.Error);
+        public string GetErrorMessage(IBinding binding)
+        {
+            var badRequirements = Errors.Where(e => e.severity == Microsoft.CodeAnalysis.DiagnosticSeverity.Error).Select(e => e.req).Distinct().ToArray();
+            return $"Could not initialize binding '{binding}', requirement{(badRequirements.Length > 1 ? "s" : "")} {string.Join<Type>(", ", badRequirements)} {(badRequirements.Length > 1 ? "were" : "was")} not met.";
+        }
+        public IEnumerable<Exception> Exceptions => Errors.Select(e => e.error);
     }
 
     /// <summary>

@@ -1,0 +1,65 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.RouteLink.RouteLinkUrlGenViewModel
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+    <style>
+        .invalid {
+            color: red;
+        }
+    </style>
+    <dot:RequiredResource Name="globalize:cs-CZ" />
+</head>
+<body>
+    <div class="container">
+        <h1>RouteLink url generation demo</h1>
+        <p>
+            <dot:RouteLink RenderSettings.Mode="Client" RouteName="RepeaterRouteLink-PageDetail_IdOptional"
+                           Text="Client rendered: Optional parameter" data-ui="optional-parameter-client" />
+        </p>
+        <p>
+            <dot:RouteLink RenderSettings.Mode="Server" RouteName="RepeaterRouteLink-PageDetail_IdOptional"
+                           Text="Server rendered: Optional parameter" data-ui="optional-parameter-server" />
+        </p>
+        <p>
+            <dot:RouteLink RouteName="Default" Text="0 parameters" data-ui="0-parameters-client" />
+        </p>
+        <p>
+            <dot:RouteLink RouteName="Default" Text="Server rendered: 0 parameters" data-ui="0-parameters-server" RenderSettings.Mode="Server" />
+        </p>
+        <p>
+            <dot:RouteLink RenderSettings.Mode="Client" RouteName="RepeaterRouteLink-PageDetail_IdOptionalPrefixed"
+                           Text="Client rendered: Optional parameter (Prefixed)" data-ui="optional-parameter-prefixed-client" />
+        </p>
+        <p>
+            <dot:RouteLink RenderSettings.Mode="Server" RouteName="RepeaterRouteLink-PageDetail_IdOptionalPrefixed"
+                           Text="Server rendered: Optional parameter (Prefixed)" data-ui="optional-parameter-prefixed-server" />
+        </p>
+        <p>
+            <dot:RouteLink RenderSettings.Mode="Client" RouteName="RepeaterRouteLink-PageDetail_IdOptionalPrefixed" Param-Id="{value: RouteParameter}"
+                           Text="Client rendered: Parameter (Prefixed)" data-ui="parameter-prefixed-client" />
+        </p>
+        <p>
+            <dot:RouteLink RenderSettings.Mode="Server" RouteName="RepeaterRouteLink-PageDetail_IdOptionalPrefixed" Param-Id="{value: RouteParameter}"
+                           Text="Server rendered: Parameter (Prefixed)" data-ui="parameter-prefixed-server" />
+        </p>
+        <p>
+            <dot:RouteLink RenderSettings.Mode="Client" RouteName="RepeaterRouteLink-PageDetail_IdOptionalAtStart"
+                           Text="Client rendered: Optional parameter (at start)" data-ui="optional-parameter-at-start-client" />
+        </p>
+        <p>
+            <dot:RouteLink RenderSettings.Mode="Server" RouteName="RepeaterRouteLink-PageDetail_IdOptionalAtStart"
+                           Text="Server rendered: Optional parameter (at start)" data-ui="optional-parameter-at-start-server" />
+        </p>
+        <p>
+            <dot:RouteLink RenderSettings.Mode="Client" RouteName="RepeaterRouteLink-PageDetail_IdOptionalAtStart" Param-Id="{value: RouteParameter}"
+                           Text="Client rendered: Optional prefixed parameter (at start)" data-ui="optional-prefixed-parameter-at-start-client" />
+        </p>
+        <p>
+            <dot:RouteLink RenderSettings.Mode="Server" RouteName="RepeaterRouteLink-PageDetail_IdOptionalAtStart" Param-Id="{value: RouteParameter}"
+                           Text="Server rendered: Optional prefixed parameter (at start)" data-ui="optional-prefix-parameter-at-start-server" />
+        </p>
+    </div>
+</body>
+</html>

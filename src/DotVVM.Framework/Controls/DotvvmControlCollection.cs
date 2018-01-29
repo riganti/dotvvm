@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Resources;
 using DotVVM.Framework.Hosting;
+using System.Diagnostics;
 
 namespace DotVVM.Framework.Controls
 {
@@ -17,7 +18,6 @@ namespace DotVVM.Framework.Controls
 
         private LifeCycleEventType lastLifeCycleEvent;
         private bool isInvokingEvent;
-
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmControlCollection"/> class.
@@ -106,18 +106,12 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets the number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1" />.
         /// </summary>
-        public int Count
-        {
-            get { return controls.Count; }
-        }
+        public int Count => controls.Count;
 
         /// <summary>
         /// Gets a value indicating whether the <see cref="T:System.Collections.Generic.ICollection`1" /> is read-only.
         /// </summary>
-        public bool IsReadOnly
-        {
-            get { return false; }
-        }
+        public bool IsReadOnly => false;
 
         /// <summary>
         /// Determines the index of a specific item in the <see cref="T:System.Collections.Generic.IList`1" />.
@@ -141,7 +135,6 @@ namespace DotVVM.Framework.Controls
             controls.Insert(index, item);
             SetParent(item);
         }
-
 
         /// <summary>
         /// Removes the <see cref="T:System.Collections.Generic.IList`1" /> item at the specified index.
@@ -177,7 +170,8 @@ namespace DotVVM.Framework.Controls
         {
             if (item.Parent != null && item.Parent != parent)
             {
-                throw new DotvvmControlException(parent, "The control cannot be added to the collection because it already has a different parent! Remove it from the original collection first.");
+                throw new DotvvmControlException(parent, "The control cannot be added to the collection " +
+                    "because it already has a different parent! Remove it from the original collection first.");
             }
             item.Parent = parent;
 
@@ -219,24 +213,16 @@ namespace DotVVM.Framework.Controls
             {
                 item.SetValue(Internal.UniqueIDProperty, parent.GetValue(Internal.UniqueIDProperty) + "a" + Count);
             }
+
+            ValidateParentsLifecycleEvents();
         }
 
-        private DotvvmControl GetClosestDotvvmControlAncestor(DotvvmControl control)
+        [Conditional("DEBUG")]
+        internal void ValidateParentsLifecycleEvents()
         {
-            var currentParent = control.Parent;
-            while(!(parent is DotvvmControl))
-            {
-                if(currentParent.Parent != null)
-                {
-                    currentParent = currentParent.Parent;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-
-            return (DotvvmControl)currentParent;
+            // check if all ancestors have the flags
+            if (!this.parent.GetAllAncestors(onlyWhenInChildren: true).OfType<DotvvmControl>().All(c => (c.LifecycleRequirements & this.parent.LifecycleRequirements) == this.parent.LifecycleRequirements))
+                throw new Exception("Internal bug in Lifecycle events.");
         }
 
         /// <summary>
@@ -259,12 +245,14 @@ namespace DotVVM.Framework.Controls
             }
             catch (Exception ex)
             {
-                throw new DotvvmControlException(lastProcessedControl, "Unhandled exception occured while executing page lifecycle event.", ex);
+                throw new DotvvmControlException(lastProcessedControl, "Unhandled exception occurred while executing page lifecycle event.", ex);
             }
         }
 
         private void InvokeMissedPageLifeCycleEvent(IDotvvmRequestContext context, LifeCycleEventType targetEventType, bool isMissingInvoke, ref DotvvmControl lastProcessedControl)
         {
+            ValidateParentsLifecycleEvents();
+
             isInvokingEvent = true;
             for (var eventType = lastLifeCycleEvent + 1; eventType <= targetEventType; eventType++)
             {
@@ -272,7 +260,11 @@ namespace DotVVM.Framework.Controls
                 var reqflag = (1 << ((int)eventType - 1));
                 if (isMissingInvoke) reqflag = reqflag << 5;
                 // abort when control does not require that
-                if ((parent.LifecycleRequirements & (ControlLifecycleRequirements)reqflag) == 0) continue;
+                if ((parent.LifecycleRequirements & (ControlLifecycleRequirements)reqflag) == 0)
+                {
+                    continue;
+                }
+
                 lastProcessedControl = parent;
                 switch (eventType)
                 {
@@ -311,6 +303,17 @@ namespace DotVVM.Framework.Controls
         public static void InvokePageLifeCycleEventRecursive(DotvvmControl rootControl, LifeCycleEventType eventType)
         {
             rootControl.Children.InvokeMissedPageLifeCycleEvents(eventType, isMissingInvoke: false);
+        }
+
+        private static DotvvmControl GetClosestDotvvmControlAncestor(DotvvmControl control)
+        {
+            var currentParent = control.Parent;
+            while (currentParent != null && !(currentParent is DotvvmControl))
+            {
+                currentParent = currentParent.Parent;
+            }
+
+            return (DotvvmControl)currentParent;
         }
     }
 }

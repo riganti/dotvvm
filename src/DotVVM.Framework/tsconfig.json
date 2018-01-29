@@ -11,6 +11,7 @@
     "lib": ["dom", "es2015.promise", "es5"]
   },
   "files": [
+    "Resources/Scripts/DotVVM.Polyfills.ts",
     "Resources/Scripts/knockout-compat.ts",
     "Resources/Scripts/DotVVM.Rendering.ts",
     "Resources/Scripts/DotVVM.DomUtils.ts",
