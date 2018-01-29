@@ -120,11 +120,16 @@ export function wrapInObservables(objOrObservable: any, update: ((updater: State
                     isUpdating = true;
                     if (!newVal) rr(newVal);
                     else {
+                        const oldValue = rr();
                         const result: any[] = []
                         result["__unwrapped_data"] = objOrObservable
                         if (update) result["__update_function"] = update
                         for (var index = 0; index < newVal.length; index++) {
-                            result.push(createComputed(index, arrayUpdate(index)));
+                            if (ko.isComputed(oldValue[index]) && typeof oldValue[index]() == typeof ko.unwrap(obj[index])) {
+                                result.push(oldValue[index]);
+                            } else {
+                                result.push(createComputed(index, arrayUpdate(index)));
+                            }
                         }
                         rr(result);
                     }
@@ -152,6 +157,8 @@ export function wrapInObservables(objOrObservable: any, update: ((updater: State
     }
 }
 
+const defer = Promise.prototype.then.bind(Promise.resolve())
+
 export class KnockoutBindingHook implements virtualDom.VHook {
     constructor(public readonly dataContext: RenderContext<any>) {}
     private lastState: KnockoutObservable<RenderContext<any>> | null = null;
@@ -165,7 +172,8 @@ export class KnockoutBindingHook implements virtualDom.VHook {
         } else {
             const lastState = this.lastState = ko.observable(this.dataContext)
             const context = createKnockoutContext(lastState)
-            ko.applyBindingsToNode(node, null, context)
+            // wait a moment for the node to be bound to DOM.
+            defer(() => ko.applyBindingsToNode(node, null, context));
         }
     }
     unhoook(node: Element, propertyName: string, nextValue: any): any {
@@ -173,8 +181,9 @@ export class KnockoutBindingHook implements virtualDom.VHook {
     }
 }
 
+/// This is magic, sometimes work...
 export class KnockoutBindingWidget implements virtualDom.Widget {
-    // type KnockoutVirtualElement = { start: number; end: number; dataBind: string }
+    // type KnockoutVirtualElement = { start: number; oldArrayend: number; dataBind: string }
 
     readonly type: string = "Widget"
     elementId = Math.floor(Math.random() * 1000000).toString()
@@ -277,8 +286,11 @@ export class KnockoutBindingWidget implements virtualDom.Widget {
                     this.replaceTmpSpans(createArray(rec.addedNodes), element);
                     // TODO removed nodes
                     for (const rm of createArray(rec.removedNodes)) {
-                        if (rm["__bound_element"] && rm["__bound_element"].parentElement) {
+                        if (rm["__bound_element"] && rm["__bound_element"].parentElement && rm.nodeType == Node.ELEMENT_NODE && (rm as HTMLElement).dataset.fakeContentFor == this.elementId) {
                             rm["__bound_element"].remove()
+                            // knockout sometimes reorders the elements, so we want to hold it for possible reuse
+                            // rm["__retired_bound_element"] = rm["__bound_element"]
+                            rm["__bound_element"] = null;
                         }
                     }
                 }

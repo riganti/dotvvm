@@ -538,21 +538,23 @@ class DotvvmValidation {
         if (objectPath.lastIndexOf('.') == objectPath.length - 1)
             objectPath = objectPath.substr(0, objectPath.length - 1);
 
+        const targetObject =
+            objectPath ?
+            dotvvm.evaluator.evaluateOnViewModel(ko.unwrap(target == dotvvm.viewModelObservables.root ? target.viewModel : target), objectPath) :
+            target;
+
         if (!prop) throw new Error();
-        const {targetUpdate} = this.unwrapValidationTarget(target)
+
+        const {targetUpdate} = this.unwrapValidationTarget(targetObject)
 
         targetUpdate!(vm => {
             const validationProp = prop + "$validation"
             const newErrors = [new ValidationError(null, error)]
-            if (validationProp in vm) {
-                return {...vm, [validationProp]: {
-                    ...vm[validationProp],
-                    errors: Array.prototype.concat(vm[validationProp].errors || [], newErrors)
-                }};
-            } else {
-                return {...vm, [validationProp]: {
-                    errors: newErrors
-                }};
+            return {...vm, [validationProp]: (
+                    validationProp in vm ?
+                    { ...vm[validationProp], errors: Array.prototype.concat(vm[validationProp].errors || [], newErrors) } :
+                    { ...vm, [validationProp]: { errors: newErrors } }
+                )
             }
         });
     }
