@@ -4,6 +4,12 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using DotVVM.Framework.Utils;
 using System.Reflection;
+using System.Threading.Tasks;
+using System.Linq;
+using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.Javascript.Ast;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Binding;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
@@ -322,6 +328,107 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
             }
             return null;
+        }
+
+        /// This is a strange conversion that wraps the entire expression into a Lambda
+        /// and makes an invokable delegate from a normal expression.
+        /// It also replaces special ExtensionParameters attached to the expression for lambda parameters
+        public static Expression MagicLambdaConversion(Expression expr, Type expectedType)
+        {
+            if (expectedType.IsDelegate())
+            {
+                var resultType = expectedType.GetMethod("Invoke").ReturnType;
+                var delegateArgs = expectedType
+                                      .GetMethod("Invoke")
+                                      .GetParameters()
+                                      .Select(p => Expression.Parameter(p.ParameterType, p.Name))
+                                      .ToArray();
+
+                var convertedToResult = TypeConversion.ImplicitConversion(expr, resultType) ?? TaskConversion(expr, resultType);
+                // TODO: convert delegates to another delegates
+
+                if (convertedToResult == null)
+                    return null;
+                else
+                {
+                    var replacedArgs = convertedToResult.ReplaceAll(arg =>
+                        arg?.GetParameterAnnotation()?.ExtensionParameter is MagicLambdaConversionExtensionParameter extensionParam ?
+                            delegateArgs.Single(a => a.Name == extensionParam.Identifier)
+                            .Assert(p => p.Type == ResolvedTypeDescriptor.ToSystemType(extensionParam.ParameterType)) :
+                        arg
+                    );
+                    return Expression.Lambda(
+                        expectedType,
+                        replacedArgs,
+                        delegateArgs
+                    );
+                }
+            }
+            else
+                return null;
+        }
+
+        public class MagicLambdaConversionExtensionParameter : BindingExtensionParameter
+        {
+            public MagicLambdaConversionExtensionParameter(string identifier, Type type) : base(identifier, new ResolvedTypeDescriptor(type), inherit: false) { }
+
+            public override JsExpression GetJsTranslation(JsExpression dataContext) =>
+                // although it is translated as commandArgs reference in staticCommand this conversion could cause significantly less readable error message in other contexts
+                throw Error();
+
+            private Exception Error() =>
+                new Exception($"The delegate parameter '{this.Identifier}' was not resolved - seems that the expression wasn't wrapped in lambda");
+
+            public override Expression GetServerEquivalent(Expression controlParameter) => throw Error();
+        }
+
+        private static Type GetTaskType(Type taskType)
+            => taskType.GetProperty("Result")?.PropertyType ?? typeof(void);
+
+        /// Performs conversions by wrapping or unwrapping results to/from <see cref="Task" />
+        public static Expression TaskConversion(Expression expr, Type expectedType)
+        {
+            if (typeof(Task).IsAssignableFrom(expr.Type) && !typeof(Task).IsAssignableFrom(expectedType))
+            {
+                // wait for task
+                if (expectedType == typeof(void))
+                    return Expression.Call(expr, "Wait", Type.EmptyTypes);
+                else
+                {
+                    var taskResult = GetTaskType(expectedType);
+                    if (taskResult != typeof(void))
+                        return TypeConversion.ImplicitConversion(Expression.Property(expr, "Result"), expectedType);
+                    else
+                        return null;
+                }
+            }
+            else if (typeof(Task).IsAssignableFrom(expectedType))
+            {
+                if (!typeof(Task).IsAssignableFrom(expr.Type))
+                {
+                    // return dummy completed task
+                    if (expectedType == typeof(Task))
+                    {
+                        return Expression.Block(expr, Expression.Call(typeof(TaskUtils), "GetCompletedTask", Type.EmptyTypes));
+                    }
+                    else if (typeof(Task<>).IsAssignableFrom(expectedType))
+                    {
+                        var taskType = GetTaskType(expectedType);
+                        var converted = TypeConversion.ImplicitConversion(expr, taskType);
+                        if (converted != null)
+                            return Expression.Call(typeof(Task), "FromResult", new Type[] { taskType }, converted);
+                        else
+                            return null;
+                    }
+                    else
+                        return null;
+                }
+                else
+                    return null;
+                // TODO: convert Task<> to another Task<>
+            }
+            else
+                return null;
         }
 
         static TypeConversion()

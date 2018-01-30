@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
@@ -15,8 +16,7 @@ namespace DotVVM.Framework.Compilation.Binding
 {
     public class BindingExpressionBuilder : IBindingExpressionBuilder
     {
-
-        public Expression Parse(string expression, DataContextStack dataContexts, BindingParserOptions options)
+        public Expression Parse(string expression, DataContextStack dataContexts, BindingParserOptions options, params KeyValuePair<string, Expression>[] additionalSymbols)
         {
             try
             {
@@ -40,6 +40,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 var symbols = InitSymbols(dataContexts);
                 symbols = options.AddImportedTypes(symbols);
                 symbols = symbols.AddSymbols(options.ExtensionParameters.Select(p => CreateParameter(dataContexts, p.Identifier, p)));
+                symbols = symbols.AddSymbols(additionalSymbols);
 
                 var visitor = new ExpressionBuildingVisitor(symbols);
                 visitor.Scope = symbols.Resolve(options.ScopeParameter);
@@ -47,7 +48,8 @@ namespace DotVVM.Framework.Compilation.Binding
             }
             catch (Exception ex)
             {
-                ex.ForInnerExceptions<BindingCompilationException>(bce => {
+                ex.ForInnerExceptions<BindingCompilationException>(bce =>
+                {
                     if (bce.Expression == null) bce.Expression = expression;
                 });
                 throw;
@@ -104,11 +106,35 @@ namespace DotVVM.Framework.Compilation.Binding
 
         static ParameterExpression CreateParameter(DataContextStack stackItem, string name, BindingExtensionParameter extensionParameter = null) =>
             Expression.Parameter(
-                (extensionParameter == null 
-                    ? stackItem.DataContextType 
-                    : ResolvedTypeDescriptor.ToSystemType(extensionParameter.ParameterType)) 
+                (extensionParameter == null
+                    ? stackItem.DataContextType
+                    : ResolvedTypeDescriptor.ToSystemType(extensionParameter.ParameterType))
                     ?? typeof(ExpressionHelper.UnknownTypeSentinel)
                 , name)
             .AddParameterAnnotation(new BindingParameterAnnotation(stackItem, extensionParameter));
+    }
+
+    public static class BindingExpressionBuilderExtension
+    {
+        public static Expression ParseWithLambdaConversion(this IBindingExpressionBuilder builder, string expression, DataContextStack dataContexts, BindingParserOptions options, Type expectedType, params KeyValuePair<string, Expression>[] additionalSymbols)
+        {
+            if (expectedType.IsDelegate())
+            {
+                var resultType = expectedType.GetMethod("Invoke").ReturnType;
+                var delegateSymbols = expectedType
+                                      .GetMethod("Invoke")
+                                      .GetParameters()
+                                      .Select(p => new KeyValuePair<string, Expression>(
+                                          p.Name,
+                                          Expression.Parameter(p.ParameterType, p.Name)
+                                              .AddParameterAnnotation(new BindingParameterAnnotation(
+                                                  extensionParameter: new TypeConversion.MagicLambdaConversionExtensionParameter(p.Name, p.ParameterType)))
+                                      ))
+                                      .ToArray();
+                return builder.Parse(expression, dataContexts, options, additionalSymbols.Concat(delegateSymbols).ToArray());
+            }
+            else
+                return builder.Parse(expression, dataContexts, options, additionalSymbols);
+        }
     }
 }

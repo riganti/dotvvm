@@ -54,7 +54,7 @@ namespace DotVVM.Framework.Tests.Binding
 
         /// Gets translation of the specified binding expression if it would be passed in static command
         /// For better readability, the returned code does not include null checks
-        public string CompileBinding(string expression, params Type[] contexts) => CompileBinding(expression, contexts, expectedType: typeof(object));
+        public string CompileBinding(string expression, params Type[] contexts) => CompileBinding(expression, contexts, expectedType: typeof(Command));
         public string CompileBinding(string expression, Type[] contexts, Type expectedType)
         {
             var configuration = DotvvmTestHelper.CreateConfiguration();
@@ -69,7 +69,7 @@ namespace DotVVM.Framework.Tests.Binding
                 context = DataContextStack.Create(contexts[i], context);
             }
             var parser = new BindingExpressionBuilder();
-            var expressionTree = TypeConversion.ImplicitConversion(parser.Parse(expression, context, BindingParserOptions.Create<ValueBindingExpression>()), expectedType, true, true);
+            var expressionTree = parser.ParseWithLambdaConversion(expression, context, BindingParserOptions.Create<ValueBindingExpression>(), expectedType);
             var jsExpression =
                 configuration.ServiceProvider.GetRequiredService<StaticCommandBindingCompiler>().CompileToJavascript(context, expressionTree);
             return KnockoutHelper.GenerateClientPostBackScript(
@@ -78,7 +78,8 @@ namespace DotVVM.Framework.Tests.Binding
                 new Literal(),
                 new PostbackScriptOptions(
                     allowPostbackHandlers: false,
-                    returnValue: null
+                    returnValue: null,
+                    commandArgs: CodeParameterAssignment.FromIdentifier("commandArguments")
                 ));
         }
 
@@ -129,6 +130,13 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding("DateFrom = DateTo", typeof(TestViewModel));
             Assert.AreEqual("(function(a){return Promise.resolve(a.$data.DateFrom(dotvvm.serialization.serializeDate(a.$data.DateTo())).DateFrom());}(ko.contextFor(this)))", result);
+        }
+
+        [TestMethod]
+        public void StaticCommandCompilation_CommandArgumentUsage()
+        {
+            var result = CompileBinding("StringProp = arg.ToString()", new [] { typeof(TestViewModel) }, typeof(Func<int, Task>));
+            Assert.AreEqual("(function(a){return Promise.resolve(a.$data.StringProp(dotvvm.globalize.bindingNumberToString(commandArguments.arg)()).StringProp());}(ko.contextFor(this)))", result);
         }
     }
 
