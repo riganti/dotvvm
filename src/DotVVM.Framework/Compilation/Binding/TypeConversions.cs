@@ -178,13 +178,22 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public static Expression ToStringConversion(Expression src)
         {
-			if (!IsStringConversionAllowed(src.Type)) return null;
+            var toStringMethod = src.Type.GetTypeInfo().GetMethod("ToString", Type.EmptyTypes);
+            // is the conversion allowed?
+            // IConvertibles, types that override ToString (primitive types do)
+            if (!(toStringMethod != null || typeof(IConvertible).IsAssignableFrom(src.Type)))
+                return null;
             if (src.NodeType == ExpressionType.Constant)
             {
                 var constant = (ConstantExpression)src;
-                return Expression.Constant(System.Convert.ToString(constant.Value), typeof(string));
+                return Expression.Constant(
+                    toStringMethod != null ? toStringMethod.Invoke(constant.Value, new object[0]) : System.Convert.ToString(constant.Value),
+                    typeof(string));
             }
-            else return Expression.Call(typeof(Convert), "ToString", Type.EmptyTypes, Expression.Convert(src, typeof(object)));
+            else if (toStringMethod != null)
+                return Expression.Call(src, toStringMethod);
+            else
+                return Expression.Call(typeof(Convert), "ToString", Type.EmptyTypes, Expression.Convert(src, typeof(object)));
         }
 
         // 6.1.9 Implicit constant expression conversions
