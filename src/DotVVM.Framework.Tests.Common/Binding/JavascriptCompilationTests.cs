@@ -111,7 +111,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_ToString()
         {
             var js = CompileBinding("MyProperty", new[] { typeof(TestViewModel2) }, typeof(string));
-            Assert.AreEqual("String(MyProperty())", js);
+            Assert.AreEqual("dotvvm.globalize.bindingNumberToString(MyProperty)", js);
         }
 
         [TestMethod]

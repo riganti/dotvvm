@@ -179,6 +179,8 @@ namespace DotVVM.Framework.Compilation.Binding
         public static Expression ToStringConversion(Expression src)
         {
             var toStringMethod = src.Type.GetTypeInfo().GetMethod("ToString", Type.EmptyTypes);
+            if (toStringMethod?.DeclaringType == typeof(object))
+                toStringMethod = null;
             // is the conversion allowed?
             // IConvertibles, types that override ToString (primitive types do)
             if (!(toStringMethod != null || typeof(IConvertible).IsAssignableFrom(src.Type)))
