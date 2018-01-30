@@ -11,8 +11,6 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     public class RouteLink : HtmlGenericControl
     {
-
-
         /// <summary>
         /// Gets or sets the name of the route in the route table.
         /// </summary>
@@ -75,12 +73,12 @@ namespace DotVVM.Framework.Controls
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             RouteLinkHelpers.WriteRouteLinkHrefAttribute(this, writer, context);
-           
+
             writer.AddKnockoutDataBind("text", this, TextProperty, () =>
             {
                 shouldRenderText = true;
             });
-            
+
             var enabledBinding = GetValueRaw(EnabledProperty);
 
             if (enabledBinding is bool)
