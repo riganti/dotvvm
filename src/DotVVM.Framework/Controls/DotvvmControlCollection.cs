@@ -152,9 +152,11 @@ namespace DotVVM.Framework.Controls
         /// <param name="items">An enumeration of objects to insert into the <see cref="T:System.Collections.Generic.IList`1" />.</param>
         public void Insert(int index, IEnumerable<DotvvmControl> items)
         {
-            foreach(var item in items.Reverse())
+            controls.InsertRange(index, items);
+
+            foreach(var item in items)
             {
-                Insert(index, item);
+                SetParent(item);
             }
         }
 
