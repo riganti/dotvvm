@@ -7,6 +7,7 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.ResourceManagement;
 using System.Globalization;
+using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Controls.Infrastructure
 {
@@ -38,8 +39,8 @@ namespace DotVVM.Framework.Controls.Infrastructure
             // init on load
             writer.RenderBeginTag("script");
             writer.WriteUnencodedText($@"
-window.dotvvm.domUtils.onDocumentReady(function () {{ 
-    window.dotvvm.init('root', '{CultureInfo.CurrentCulture.Name}'); 
+window.dotvvm.domUtils.onDocumentReady(function () {{
+    window.dotvvm.init('root', {JsonConvert.ToString(CultureInfo.CurrentCulture.Name, '"', StringEscapeHandling.EscapeHtml)});
 }});");
             writer.RenderEndTag();
         }
