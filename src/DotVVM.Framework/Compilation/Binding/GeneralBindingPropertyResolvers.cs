@@ -59,6 +59,7 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             Type destType = expectedType?.Type ?? typeof(object);
             return new CastedExpressionBindingProperty(
+                TypeConversion.ImplicitConversion(expr.Expression, destType, throwException: false, allowToString: true) ??
                 TypeConversion.MagicLambdaConversion(expr.Expression, destType) ??
                 TypeConversion.ImplicitConversion(expr.Expression, destType, throwException: true, allowToString: true)
             );
