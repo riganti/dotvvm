@@ -63,12 +63,15 @@ namespace DotVVM.Framework.Controls
 
         public static void WriteKnockoutDataBindComment(this IHtmlWriter writer, string name, string expression)
         {
+            if (name.Contains("-->") || expression.Contains("-->"))
+                throw new Exception("Knockout data bind comment can't contain substring '-->'. If you have discovered this exception in your log, you probably have a XSS vulnerability in you website.");
+
             writer.WriteUnencodedText($"<!-- ko { name }: { expression } -->");
         }
 
         public static void WriteKnockoutDataBindComment(this IHtmlWriter writer, string name, DotvvmBindableObject control, DotvvmProperty property)
         {
-            writer.WriteUnencodedText($"<!-- ko { name }: { control.GetValueBinding(property).GetKnockoutBindingExpression(control) } -->");
+            writer.WriteKnockoutDataBindComment(name, control.GetValueBinding(property).GetKnockoutBindingExpression(control));
         }
 
         public static void WriteKnockoutDataBindEndComment(this IHtmlWriter writer)
@@ -256,7 +259,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public static void AddCommentAliasBinding(IHtmlWriter writer, IDictionary<string, string> properties)
         {
-            writer.WriteKnockoutDataBindComment("dotvvm_introduceAlias", "{" + string.Join(", ", properties.Select(p => JsonConvert.ToString(p.Key) + ":" + properties.Values)) + "}");
+            writer.WriteKnockoutDataBindComment("dotvvm_introduceAlias", "{" + string.Join(", ", properties.Select(p => JsonConvert.ToString(p.Key, '"', StringEscapeHandling.EscapeHtml) + ":" + properties.Values)) + "}");
         }
 
         /// <summary>
