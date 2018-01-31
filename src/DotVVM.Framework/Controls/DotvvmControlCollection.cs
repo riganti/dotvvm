@@ -59,7 +59,11 @@ namespace DotVVM.Framework.Controls
         /// <exception cref="System.InvalidOperationException"></exception>
         public void Add(IEnumerable<DotvvmControl> items)
         {
-            Insert(controls.Count, items);
+            foreach (var item in items)
+            {
+                controls.Add(item);
+                SetParent(item);
+            }
         }
 
         /// <summary>
@@ -152,6 +156,7 @@ namespace DotVVM.Framework.Controls
         /// <param name="items">An enumeration of objects to insert into the <see cref="T:System.Collections.Generic.IList`1" />.</param>
         public void Insert(int index, IEnumerable<DotvvmControl> items)
         {
+            items = items.ToArray();
             controls.InsertRange(index, items);
 
             foreach(var item in items)
