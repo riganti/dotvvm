@@ -615,6 +615,20 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.IsTrue(control.Properties.Any(p => p.Value is ResolvedPropertyControlCollection));
         }
 
+        [TestMethod]
+        public void ResolvedTree_GridViewWithColumns()
+        {
+            var root = ParseSource(@"
+@viewModel System.Collections.Generic.List<string>
+<dot:GridView DataSource='{value: _this}'>
+    <dot:GridViewTextColumn HeaderText='' ValueBinding='{value: _this}' />
+
+</dot:GridView>");
+            var control = root.Content.First(n => n.Metadata.Type == typeof(GridView));
+            Assert.AreEqual(0, control.Content.Count);
+            Assert.AreEqual(1, control.Properties[GridView.ColumnsProperty].CastTo<ResolvedPropertyControlCollection>().Controls.Count);
+        }
+
 
         [TestMethod]
         public void ResolvedTree_ViewModel_GenericType()

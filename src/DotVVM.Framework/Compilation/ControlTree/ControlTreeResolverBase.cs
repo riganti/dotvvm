@@ -170,7 +170,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 if (node is DothtmlBindingNode)
                 {
                     // binding in text
-                    EnsureContentAllowed(parentMetadata, node);
                     return ProcessBindingInText(node, dataContext);
                 }
                 else if (node is DotHtmlCommentNode)
@@ -188,7 +187,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 else if (node is DothtmlElementNode)
                 {
                     // HTML element
-                    EnsureContentAllowed(parentMetadata, node);
                     var element = (DothtmlElementNode)node;
                     return ProcessObjectElement(element, dataContext);
                 }
@@ -225,10 +223,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
         private IAbstractControl ProcessText(DothtmlNode node, IControlResolverMetadata parentMetadata, IDataContextStack dataContext, DothtmlLiteralNode literalNode)
         {
             var whitespace = string.IsNullOrWhiteSpace(literalNode.Value);
-            if (!whitespace)
-            {
-                EnsureContentAllowed(parentMetadata, node);
-            }
 
             string text;
             if (literalNode.Escape)
@@ -791,17 +785,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 wrapperType = new ResolvedTypeDescriptor(typeof(DotvvmView));
             }
             return wrapperType;
-        }
-
-        /// <summary>
-        /// Checks that the element can have inner contents.
-        /// </summary>
-        private void EnsureContentAllowed(IControlResolverMetadata controlMetadata, DothtmlNode node)
-        {
-            if (!controlMetadata.IsContentAllowed)
-            {
-                node.AddError($"The content is not allowed inside the control '{controlMetadata.Type.FullName}'!");
-            }
         }
 
         protected virtual bool IsCollectionProperty(IPropertyDescriptor property)
