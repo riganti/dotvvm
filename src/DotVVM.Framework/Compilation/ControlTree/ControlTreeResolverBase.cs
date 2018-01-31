@@ -589,13 +589,17 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
             if (control.Metadata.DefaultContentProperty != null)
             {
+                // don't assign the property, when content is empty
+                if (content.All(c => !c.IsNotEmpty()))
+                    return;
+
                 if (control.HasProperty(control.Metadata.DefaultContentProperty))
                 {
                     foreach (var c in content)
                         if (c.IsNotEmpty())
                             c.AddError($"Property { control.Metadata.DefaultContentProperty.FullName } was already set.");
                 }
-                else if (!content.All(c => c is DothtmlLiteralNode && string.IsNullOrWhiteSpace(((DothtmlLiteralNode)c).Value)))
+                else
                 {
                     string error;
                     if (!treeBuilder.AddProperty(control, ProcessElementProperty(control, control.Metadata.DefaultContentProperty, content, null), out error))
@@ -637,6 +641,15 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// </summary>
         private IAbstractPropertySetter ProcessElementProperty(IAbstractControl control, IPropertyDescriptor property, IEnumerable<DothtmlNode> elementContent, DothtmlElementNode propertyWrapperElement)
         {
+            IEnumerable<IAbstractControl> filterByType(ITypeDescriptor type, IEnumerable<IAbstractControl> controls) =>
+                FilterOrError(controls,
+                        c => c.Metadata.Type.IsAssignableTo(type),
+                        c => {
+                            // empty nodes are only filtered, non-empty nodes cause errors
+                            if (c.DothtmlNode.IsNotEmpty())
+                                c.DothtmlNode.AddError($"Control type {c.Metadata.Type.FullName} can't be used in collection of type {type.FullName}.");
+                        });
+
             // resolve data context
             var dataContext = control.DataContextTypeStack;
             dataContext = GetDataContextChange(dataContext, control, property);
@@ -651,14 +664,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
             {
                 var collectionType = GetCollectionType(property);
                 // collection of elements
-                var collection =
-                        FilterNodes<DothtmlElementNode>(elementContent, property)
-                        .Select(childObject => ProcessObjectElement(childObject, dataContext));
+                var collection = elementContent.Select(childObject => ProcessNode(control, childObject, control.Metadata, dataContext));
                 if (collectionType != null)
                 {
-                    collection = FilterOrError(collection,
-                        c => c.Metadata.Type.IsAssignableTo(collectionType),
-                        c => c.DothtmlNode.AddError($"Control type {c.Metadata.Type.FullName} can't be used in collection of type {collectionType.FullName}."));
+                    collection = filterByType(collectionType, collection);
                 }
 
                 return treeBuilder.BuildPropertyControlCollection(property, collection.ToArray(), propertyWrapperElement);
@@ -672,16 +681,20 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
             else if (IsControlProperty(property))
             {
-                // new object
-                var children = FilterNodes<DothtmlElementNode>(elementContent, property).ToList();
-                if (children.Count > 1)
+                var children = filterByType(property.PropertyType, elementContent.Select(childObject => ProcessNode(control, childObject, control.Metadata, dataContext))).ToArray();
+                if (children.Length > 1)
                 {
-                    foreach (var c in children.Skip(1)) c.AddError($"The property '{property.MarkupOptions.Name}' can have only one child element!");
-                    children = children.Take(1).ToList();
+                    // try with the empty nodes are excluded
+                    children = children.Where(c => c.DothtmlNode.IsNotEmpty()).ToArray();
+                    if (children.Length > 1)
+                    {
+                        foreach (var c in children.Skip(1))
+                            c.DothtmlNode.AddError($"The property '{property.MarkupOptions.Name}' can have only one child element!");
+                    }
                 }
-                if (children.Count == 1)
+                if (children.Length >= 1)
                 {
-                    return treeBuilder.BuildPropertyControl(property, ProcessObjectElement(children[0], dataContext), propertyWrapperElement);
+                    return treeBuilder.BuildPropertyControl(property, children[0], propertyWrapperElement);
                 }
                 else
                 {

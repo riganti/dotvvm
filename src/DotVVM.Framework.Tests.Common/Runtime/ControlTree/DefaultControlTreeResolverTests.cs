@@ -551,6 +551,22 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         }
 
         [TestMethod]
+        public void ResolvedTree_InnerElementProperty_WhitespaceString()
+        {
+            var root = ParseSource(@"
+<dot:Button>
+    <PostBack.Handlers>
+        <cc:ClassWithInnerElementProperty><Property>   </Property></cc:ClassWithInnerElementProperty>
+    </PostBack.Handlers>
+</dot:Button>");
+            var control = root.Content.First(n => n.Metadata.Type == typeof(Button))
+                .Properties[PostBack.HandlersProperty].CastTo<ResolvedPropertyControlCollection>().Controls
+                .First(c => c.Metadata.Type == typeof(ClassWithInnerElementProperty));
+            Assert.AreEqual(0, control.Content.Count);
+            Assert.AreEqual("   ", control.Properties[ClassWithInnerElementProperty.PropertyProperty].CastTo<ResolvedPropertyValue>().Value);
+        }
+
+        [TestMethod]
         public void ResolvedTree_Invalid_Content()
         {
             var root = ParseSource(@"
@@ -564,6 +580,41 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
                 .First(c => c.Metadata.Type == typeof(ClassWithoutInnerElementProperty));
             Assert.AreEqual(0, control.Content.Count);
         }
+
+
+        [TestMethod]
+        public void ResolvedTree_InnerElementProperty_Controls()
+        {
+            var root = ParseSource(@"
+<cc:ClassWithDefaultDotvvmControlContent>some text</cc:ClassWithDefaultDotvvmControlContent>");
+            var control = root.Content.First(n => n.Metadata.Type == typeof(ClassWithDefaultDotvvmControlContent));
+            Assert.AreEqual(0, control.Content.Count);
+            Assert.AreEqual(1, control.Properties[ClassWithDefaultDotvvmControlContent.PropertyProperty].CastTo<ResolvedPropertyControlCollection>().Controls.Count);
+        }
+
+        [TestMethod]
+        public void ResolvedTree_InnerElementProperty_WhitespaceControls()
+        {
+            var root = ParseSource(@"
+<cc:ClassWithDefaultDotvvmControlContent>
+
+
+                       </cc:ClassWithDefaultDotvvmControlContent>");
+            var control = root.Content.First(n => n.Metadata.Type == typeof(ClassWithDefaultDotvvmControlContent));
+            Assert.AreEqual(0, control.Content.Count);
+            Assert.IsFalse(control.Properties.ContainsKey(ClassWithDefaultDotvvmControlContent.PropertyProperty));
+        }
+
+        [TestMethod]
+        public void ResolvedTree_InnerElementVirtualProperty_Controls()
+        {
+            var root = ParseSource(@"
+<cc:ClassWithDefaultDotvvmControlContent_NoDotvvmProperty>some text</cc:ClassWithDefaultDotvvmControlContent_NoDotvvmProperty>");
+            var control = root.Content.First(n => n.Metadata.Type == typeof(ClassWithDefaultDotvvmControlContent_NoDotvvmProperty));
+            Assert.AreEqual(0, control.Content.Count);
+            Assert.IsTrue(control.Properties.Any(p => p.Value is ResolvedPropertyControlCollection));
+        }
+
 
         [TestMethod]
         public void ResolvedTree_ViewModel_GenericType()
@@ -721,6 +772,26 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         {
             throw new NotImplementedException();
         }
+    }
+
+    [ControlMarkupOptions(DefaultContentProperty = nameof(Property))]
+    public class ClassWithDefaultDotvvmControlContent: HtmlGenericControl
+    {
+        [MarkupOptions(MappingMode = MappingMode.InnerElement)]
+        public List<DotvvmControl> Property
+        {
+            get { return (List<DotvvmControl>)GetValue(PropertyProperty); }
+            set { SetValue(PropertyProperty, value); }
+        }
+        public static readonly DotvvmProperty PropertyProperty
+            = DotvvmProperty.Register<List<DotvvmControl>, ClassWithDefaultDotvvmControlContent>(c => c.Property, null);
+    }
+
+    [ControlMarkupOptions(DefaultContentProperty = nameof(Property))]
+    public class ClassWithDefaultDotvvmControlContent_NoDotvvmProperty: HtmlGenericControl
+    {
+        [MarkupOptions(MappingMode = MappingMode.InnerElement)]
+        public List<DotvvmControl> Property { get; set; }
     }
 
     [DataContextChanger]
