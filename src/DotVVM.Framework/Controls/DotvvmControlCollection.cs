@@ -1,10 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using DotVVM.Framework.Resources;
-using DotVVM.Framework.Hosting;
 using System.Diagnostics;
+using System.Linq;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Controls
 {
@@ -51,6 +50,16 @@ namespace DotVVM.Framework.Controls
         public void Add(DotvvmControl item)
         {
             Insert(controls.Count, item);
+        }
+
+        /// <summary>
+        /// Adds items to the <see cref="T:System.Collections.Generic.ICollection`1" />.
+        /// </summary>
+        /// <param name="items">An enumeration of objects to add to the <see cref="T:System.Collections.Generic.ICollection`1" />.</param>
+        /// <exception cref="System.InvalidOperationException"></exception>
+        public void Add(IEnumerable<DotvvmControl> items)
+        {
+            Insert(controls.Count, items);
         }
 
         /// <summary>
@@ -137,6 +146,19 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
+        /// Inserts items to the <see cref="T:System.Collections.Generic.IList`1" /> at the specified index.
+        /// </summary>
+        /// <param name="index">The zero-based index at which <paramref name="items" /> should be inserted.</param>
+        /// <param name="items">An enumeration of objects to insert into the <see cref="T:System.Collections.Generic.IList`1" />.</param>
+        public void Insert(int index, IEnumerable<DotvvmControl> items)
+        {
+            foreach(var item in items.Reverse())
+            {
+                Insert(index, item);
+            }
+        }
+
+        /// <summary>
         /// Removes the <see cref="T:System.Collections.Generic.IList`1" /> item at the specified index.
         /// </summary>
         /// <param name="index">The zero-based index of the item to remove.</param>
@@ -168,7 +190,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         private void SetParent(DotvvmControl item)
         {
-            if (item.Parent != null && item.Parent != parent)
+            if (item.Parent != null && item.Parent != parent && IsInParentsChildren(item))
             {
                 throw new DotvvmControlException(parent, "The control cannot be added to the collection " +
                     "because it already has a different parent! Remove it from the original collection first.");
@@ -221,7 +243,7 @@ namespace DotVVM.Framework.Controls
         internal void ValidateParentsLifecycleEvents()
         {
             // check if all ancestors have the flags
-            if (!this.parent.GetAllAncestors(onlyWhenInChildren: true).OfType<DotvvmControl>().All(c => (c.LifecycleRequirements & this.parent.LifecycleRequirements) == this.parent.LifecycleRequirements))
+            if (!parent.GetAllAncestors(onlyWhenInChildren: true).OfType<DotvvmControl>().All(c => (c.LifecycleRequirements & parent.LifecycleRequirements) == parent.LifecycleRequirements))
                 throw new Exception("Internal bug in Lifecycle events.");
         }
 
@@ -314,6 +336,11 @@ namespace DotVVM.Framework.Controls
             }
 
             return (DotvvmControl)currentParent;
+        }
+
+        private static bool IsInParentsChildren(DotvvmControl item)
+        {
+            return item.Parent is DotvvmControl control && control.Children.Contains(item);
         }
     }
 }
