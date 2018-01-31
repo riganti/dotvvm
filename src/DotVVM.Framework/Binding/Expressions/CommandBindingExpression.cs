@@ -51,6 +51,14 @@ namespace DotVVM.Framework.Binding.Expressions
             {
                 public CommandJavascriptBindingProperty CreateJs(IdBindingProperty id) =>
                     new CommandJavascriptBindingProperty(CreateJsPostbackInvocation(id.Id));
+
+                public ExpectedTypeBindingProperty GetExpectedType(AssignedPropertyBindingProperty property = null)
+                {
+                    var prop = property?.DotvvmProperty;
+                    if (prop == null) return new ExpectedTypeBindingProperty(typeof(Command));
+
+                    return new ExpectedTypeBindingProperty(prop.IsBindingProperty ? (prop.PropertyType.GenericTypeArguments.SingleOrDefault() ?? typeof(Command)) : prop.PropertyType);
+                }
             }
         }
 
