@@ -182,6 +182,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         public JavascriptTranslatorConfiguration()
         {
             Translators.Add(MethodCollection = new JavascriptTranslatableMethodCollection());
+            Translators.Add(new EnumToStringMethodTranslator());
         }
 
         public JsExpression TryTranslateCall(LazyTranslatedExpression context, LazyTranslatedExpression[] arguments, MethodInfo method) =>

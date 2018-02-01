@@ -297,6 +297,16 @@ namespace DotVVM.Framework.Tests.Binding
             var result = this.CompileBinding("arg(12) + _this", new [] { typeof(string) }, typeof(Func<Func<int, string>, string>));
             Assert.AreEqual("function(arg){return ko.unwrap(arg)(12)+$data;}", result);
         }
+
+        [TestMethod]
+        public void JsTranslator_EnumToString()
+        {
+            var result = CompileBinding("EnumProperty.ToString()", typeof(TestViewModel));
+            var resultImplicit = CompileBinding("EnumProperty", new [] { typeof(TestViewModel) }, typeof(string));
+
+            Assert.AreEqual(result, resultImplicit);
+            Assert.AreEqual("EnumProperty", result);
+        }
     }
 
 
