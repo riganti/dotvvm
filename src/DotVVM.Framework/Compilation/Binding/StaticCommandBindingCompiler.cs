@@ -34,8 +34,22 @@ namespace DotVVM.Framework.Compilation.Binding
             this.javascriptTranslator = javascriptTranslator;
         }
 
+        /// Replaces delegate arguments with commandArgs reference
+        private static Expression ReplaceCommandArgs(Expression expression) =>
+            expression.ReplaceAll(e =>
+                e?.GetParameterAnnotation()?.ExtensionParameter is TypeConversion.MagicLambdaConversionExtensionParameter extensionParam ?
+                    Expression.Parameter(ResolvedTypeDescriptor.ToSystemType(extensionParam.ParameterType), $"commandArgs.['{extensionParam.Identifier}']")
+                    .AddParameterAnnotation(new BindingParameterAnnotation(extensionParameter: new JavascriptTranslationVisitor.FakeExtensionParameter(
+                        _ => new JsSymbolicParameter(CommandBindingExpression.CommandArgumentsParameter)
+                             .Member(extensionParam.Identifier)
+                    ))) :
+                e
+            );
+
         public JsExpression CompileToJavascript(DataContextStack dataContext, Expression expression)
         {
+            expression = ReplaceCommandArgs(expression);
+
             var currentContextVariable = new JsTemporaryVariableParameter(new JsIdentifierExpression("ko").Member("contextFor").Invoke(new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter)));
             // var resultPromiseVariable = new JsNewExpression("DotvvmPromise"));
             var senderVariable = new JsTemporaryVariableParameter(new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter));

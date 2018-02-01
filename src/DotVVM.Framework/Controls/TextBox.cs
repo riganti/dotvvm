@@ -75,7 +75,7 @@ namespace DotVVM.Framework.Controls
         }
 
         public static readonly DotvvmProperty TextProperty =
-            DotvvmProperty.Register<string, TextBox>(t => t.Text, "");
+            DotvvmProperty.Register<object, TextBox>(t => t.Text, "");
 
         /// <summary>
         /// Gets or sets the mode of the text field.
