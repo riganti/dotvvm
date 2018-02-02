@@ -9,10 +9,14 @@
 <#@ import namespace="DotVVM.Framework.Configuration" #>
 <#@ import namespace="System.IO" #>
 
-<#@ output extension=".cs" #>
+<#@ output extension=".designer.cs" #>
 
-namespace DotVVM.Testing.Abstractions {
-    public class SamplesRouteUrls{
+// DO NOT MODIFY THIS FILE - THIS FILE IS GENERATED !!!
+
+namespace DotVVM.Testing.Abstractions
+{
+    public partial class SamplesRouteUrls
+    {
     <# 
     
     
@@ -25,15 +29,13 @@ namespace DotVVM.Testing.Abstractions {
     var config = DotvvmConfiguration.CreateDefault();
     config.ApplicationPhysicalPath = samplesProjectDir ;
     var data = new List<RouteBase> (new DefaultRouteStrategy(config).GetRoutes());
-    
      #>
-    
+
     <# 
     //generate constants
     foreach (var info in data){
         #>
-        public static string <#= info.RouteName #> => "<#=  info.Url #>";
-
+    public static string <#= info.RouteName #> => "<#=  info.Url #>";
     <# } #>
     }
 }

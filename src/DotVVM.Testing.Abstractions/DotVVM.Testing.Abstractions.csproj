@@ -5,16 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Update="SamplesRouteUrls.cs">
-      <DependentUpon>SamplesRouteUrls.tt</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="SamplesRouteUrls.tt">
-      <LastGenOutput>SamplesRouteUrls.cs</LastGenOutput>
+      <LastGenOutput>SamplesRouteUrls.designer.cs</LastGenOutput>
       <Generator>TextTemplatingFileGenerator</Generator>
     </None>
   </ItemGroup>

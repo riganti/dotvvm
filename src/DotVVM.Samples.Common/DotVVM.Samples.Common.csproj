@@ -37,6 +37,8 @@
     <None Remove="Views\FeatureSamples\MarkupControl\CommandBindingInDataContextWithControlProperty.dothtml" />
     <None Remove="Views\FeatureSamples\MarkupControl\control2.dotcontrol" />
     <None Remove="Views\FeatureSamples\MarkupControl\ControlCommandBinding.dotcontrol" />
+    <None Remove="Views\FeatureSamples\MarkupControl\ControlControlCommandInvokeAction.dotcontrol" />
+    <None Remove="Views\FeatureSamples\MarkupControl\ControlControlCommandInvokeAction.dothtml" />
     <None Remove="Views\FeatureSamples\MarkupControl\ControlValueBindingWithCommand.dotcontrol" />
     <None Remove="Views\FeatureSamples\MarkupControl\HierarchyControl.dotcontrol" />
     <None Remove="Views\FeatureSamples\MarkupControl\HierarchyControlPage.dothtml" />
@@ -85,6 +87,8 @@
     <Content Include="Views\FeatureSamples\DependencyInjection\ViewModelScopedService.dothtml" />
     <Content Include="Views\FeatureSamples\MarkupControl\Control1.dotcontrol" />
     <Content Include="Views\FeatureSamples\MarkupControl\Control2.dotcontrol" />
+    <Content Include="Views\FeatureSamples\MarkupControl\ControlControlCommandInvokeAction.dotcontrol" />
+    <Content Include="Views\FeatureSamples\MarkupControl\ControlControlCommandInvokeAction.dothtml" />
     <Content Include="Views\FeatureSamples\MarkupControl\ControlValueBindingWithCommand.dotcontrol" />
     <Content Include="Views\FeatureSamples\MarkupControl\ControlCommandBinding.dotcontrol" />
     <Content Include="Views\FeatureSamples\MarkupControl\CommandBindingInDataContextWithControlProperty.dothtml" />
