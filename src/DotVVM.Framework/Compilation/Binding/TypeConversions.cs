@@ -403,21 +403,7 @@ namespace DotVVM.Framework.Compilation.Binding
         /// Performs conversions by wrapping or unwrapping results to/from <see cref="Task" />
         public static Expression TaskConversion(Expression expr, Type expectedType)
         {
-            if (typeof(Task).IsAssignableFrom(expr.Type) && !typeof(Task).IsAssignableFrom(expectedType))
-            {
-                // wait for task
-                if (expectedType == typeof(void))
-                    return Expression.Call(expr, "Wait", Type.EmptyTypes);
-                else
-                {
-                    var taskResult = GetTaskType(expectedType);
-                    if (taskResult != typeof(void))
-                        return TypeConversion.ImplicitConversion(Expression.Property(expr, "Result"), expectedType);
-                    else
-                        return null;
-                }
-            }
-            else if (typeof(Task).IsAssignableFrom(expectedType))
+            if (typeof(Task).IsAssignableFrom(expectedType))
             {
                 if (!typeof(Task).IsAssignableFrom(expr.Type))
                 {
