@@ -104,6 +104,7 @@ namespace DotVVM.Framework.Configuration
 
                     if (registerJS)
                     {
+                        // TODO: better detection of HTTP method
                         var isRead = method.Name.StartsWith("get", StringComparison.OrdinalIgnoreCase);
 
                         config.Markup.JavascriptTranslator.MethodCollection.AddMethodTranslator(method, new GenericMethodCompiler(
