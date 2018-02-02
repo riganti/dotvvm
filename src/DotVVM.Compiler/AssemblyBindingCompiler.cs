@@ -69,16 +69,16 @@ namespace DotVVM.Compiler
         //    return result;
         //}
 
-        public override ExpressionSyntax EmitCreateBinding(DefaultViewCompilerCodeEmitter emitter, ResolvedBinding binding)
-        {
-            throw new NotImplementedException();
-            //var info = PrecompileBinding(binding, id, expectedType);
-            //if (emitter != null)
-            //{
-            //    return GetCachedInitializer(emitter, GetCompiledBindingCreation(emitter, info.MethodName, info.UpdateMethodName, info.OriginalString, this.GetAttributeInitializers(info.ActionFilters, emitter)?.ToArray(), info.Javascript, id));
-            //}
-            //else return null;
-        }
+        //public override ExpressionSyntax EmitCreateBinding(DefaultViewCompilerCodeEmitter emitter, ResolvedBinding binding)
+        //{
+        //    throw new NotImplementedException();
+        //    //var info = PrecompileBinding(binding, id, expectedType);
+        //    //if (emitter != null)
+        //    //{
+        //    //    return GetCachedInitializer(emitter, GetCompiledBindingCreation(emitter, info.MethodName, info.UpdateMethodName, info.OriginalString, this.GetAttributeInitializers(info.ActionFilters, emitter)?.ToArray(), info.Javascript, id));
+        //    //}
+        //    //else return null;
+        //}
 
         //protected ExpressionSyntax GetCompiledBindingCreation(DefaultViewCompilerCodeEmitter emitter, string methodName, string updateMethodName, string originalString, ExpressionSyntax[] actionFilters, string javascript, string id)
         //{

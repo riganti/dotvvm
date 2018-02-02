@@ -21,7 +21,7 @@ namespace DotVVM.Compiler
 {
     class OwinInitializer
     {
-        public static DotvvmConfiguration InitDotVVM(Assembly webSiteAssembly, string webSitePath, ViewStaticCompilerCompiler viewStaticCompilerCompiler, Action<IServiceCollection> registerServices)
+        public static DotvvmConfiguration InitDotVVM(Assembly webSiteAssembly, string webSitePath, ViewStaticCompiler viewStaticCompilerCompiler, Action<IServiceCollection> registerServices)
         {
             var dotvvmStartups = webSiteAssembly.GetLoadableTypes()
                 .Where(t => typeof(IDotvvmStartup).IsAssignableFrom(t) && t.GetConstructor(Type.EmptyTypes) != null).ToArray();
@@ -66,7 +66,7 @@ namespace DotVVM.Compiler
                 services => {
                     if (viewStaticCompilerCompiler != null)
                     {
-                        services.AddSingleton<ViewStaticCompilerCompiler>(viewStaticCompilerCompiler);
+                        services.AddSingleton<ViewStaticCompiler>(viewStaticCompilerCompiler);
                         services.AddSingleton<IControlResolver, OfflineCompilationControlResolver>();
                         services.TryAddSingleton<IViewModelProtector, FakeViewModelProtector>();
                     }

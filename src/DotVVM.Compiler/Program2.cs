@@ -190,7 +190,7 @@ JSON structure:
 
         private static CompilationResult DoFullCompile(CompilerOptions options)
         {
-            var compiler = new ViewStaticCompilerCompiler();
+            var compiler = new ViewStaticCompiler();
             compiler.Options = options;
             return compiler.Execute();
         }

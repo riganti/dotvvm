@@ -22,7 +22,7 @@ using DotVVM.Framework.Utils;
 
 namespace DotVVM.Compiler
 {
-    internal class ViewStaticCompilerCompiler
+    internal class ViewStaticCompiler
     {
         private static ConcurrentDictionary<string, Assembly> assemblyDictionary = new ConcurrentDictionary<string, Assembly>();
         private static ConcurrentDictionary<string, DotvvmConfiguration> cachedConfig = new ConcurrentDictionary<string, DotvvmConfiguration>();
@@ -66,7 +66,7 @@ namespace DotVVM.Compiler
 
             var wsa = assemblyDictionary.GetOrAdd(Options.WebSiteAssembly, _ => Assembly.LoadFile(Options.WebSiteAssembly));
 
-            AssemblyResolver.LoadReferences(wsa);
+            //AssemblyResolver.LoadReferencedAssemblies(wsa);
 
 
             configuration = GetCachedConfiguration(wsa, Options.WebSitePath,
@@ -123,7 +123,7 @@ namespace DotVVM.Compiler
             Init();
 
             Program2.WriteInfo("Compiling views...");
-            foreach (var file in Options.DothtmlFiles)
+            foreach (var file in Options.DothtmlFiles.Where(s=> s != null))
             {
                 try
                 {

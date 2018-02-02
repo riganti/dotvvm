@@ -2,7 +2,7 @@
   "profiles": {
     "DotVVM.Compiler": {
       "commandName": "Project",
-      "commandLineArgs": "  --json \"{\\\"WebSiteAssembly\\\":\\\"C:\\\\dev\\\\website-checker\\\\WebsiteChecker\\\\bin\\\\WebsiteChecker.dll\\\",\\\"WebSitePath\\\":\\\"C:\\\\dev\\\\website-checker\\\\WebsiteChecker\\\",\\\"FullCompile\\\":true,\\\"SerializeConfig\\\":true,\\\"DothtmlFiles\\\":null ,\\\"OutputResolvedDothtmlMap\\\":true,\\\"CheckBindingErrors\\\":true}\""
+      "commandLineArgs": "--debugger --json \"{\\\"WebSiteAssembly\\\":\\\"C:\\\\dev\\\\website-checker\\\\WebsiteChecker\\\\bin\\\\WebsiteChecker.dll\\\",\\\"WebSitePath\\\":\\\"C:\\\\dev\\\\website-checker\\\\WebsiteChecker\\\",\\\"FullCompile\\\":true,\\\"SerializeConfig\\\":true,\\\"DothtmlFiles\\\":null ,\\\"OutputResolvedDothtmlMap\\\":true,\\\"CheckBindingErrors\\\":true, OutputPath: \\\"C:\\\\temp\\\\dotvvm-compiler\\\"}\""
     }
   }
 }

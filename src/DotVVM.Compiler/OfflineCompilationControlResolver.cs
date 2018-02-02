@@ -12,9 +12,9 @@ namespace DotVVM.Compiler
 {
     class OfflineCompilationControlResolver : DefaultControlResolver
     {
-        private ViewStaticCompilerCompiler compiler;
+        private ViewStaticCompiler compiler;
 
-        public OfflineCompilationControlResolver(DotvvmMarkupConfiguration config, IControlBuilderFactory controlBuilderFactory, ViewStaticCompilerCompiler compiler)
+        public OfflineCompilationControlResolver(DotvvmMarkupConfiguration config, IControlBuilderFactory controlBuilderFactory, ViewStaticCompiler compiler)
             : base(config, controlBuilderFactory)
         {
             this.compiler = compiler;
