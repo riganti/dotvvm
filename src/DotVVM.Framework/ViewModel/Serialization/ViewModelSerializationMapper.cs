@@ -67,6 +67,14 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     propertyMap.Bind(bindAttribute.Direction);
                     if (bindAttribute.Name != null) propertyMap.Name = bindAttribute.Name;
                 }
+                else
+                {
+                    var jsonPropertyAttribute = property.GetCustomAttribute<JsonPropertyAttribute>();
+                    if (!string.IsNullOrEmpty(jsonPropertyAttribute?.PropertyName))
+                    {
+                        propertyMap.Name = jsonPropertyAttribute.PropertyName;
+                    }
+                }
 
                 var viewModelProtectionAttribute = property.GetCustomAttribute<ProtectAttribute>();
                 if (viewModelProtectionAttribute != null)
