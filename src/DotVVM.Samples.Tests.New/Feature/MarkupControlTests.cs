@@ -68,7 +68,7 @@ namespace DotVVM.Samples.Tests.New.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_MarkupControl_ControlControlCommandInvokeAction);
-
+                browser.Wait(1000);
                 var allButtons = browser.First("#buttons").FindElements("button");
                 foreach (var button in allButtons)
                 {
