@@ -41,7 +41,7 @@ namespace DotVVM.Framework.Compilation.Binding
                     Expression.Parameter(ResolvedTypeDescriptor.ToSystemType(extensionParam.ParameterType), $"commandArgs.['{extensionParam.Identifier}']")
                     .AddParameterAnnotation(new BindingParameterAnnotation(extensionParameter: new JavascriptTranslationVisitor.FakeExtensionParameter(
                         _ => new JsSymbolicParameter(CommandBindingExpression.CommandArgumentsParameter)
-                             .Member(extensionParam.Identifier)
+                             .Indexer(new JsLiteral(extensionParam.ArgumentIndex))
                     ))) :
                 e
             );

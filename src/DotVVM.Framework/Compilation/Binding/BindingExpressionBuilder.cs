@@ -124,11 +124,11 @@ namespace DotVVM.Framework.Compilation.Binding
                 var delegateSymbols = expectedType
                                       .GetMethod("Invoke")
                                       .GetParameters()
-                                      .Select(p => new KeyValuePair<string, Expression>(
+                                      .Select((p, index) => new KeyValuePair<string, Expression>(
                                           p.Name,
                                           Expression.Parameter(p.ParameterType, p.Name)
                                               .AddParameterAnnotation(new BindingParameterAnnotation(
-                                                  extensionParameter: new TypeConversion.MagicLambdaConversionExtensionParameter(p.Name, p.ParameterType)))
+                                                  extensionParameter: new TypeConversion.MagicLambdaConversionExtensionParameter(index, p.Name, p.ParameterType)))
                                       ))
                                       .ToArray();
                 return builder.Parse(expression, dataContexts, options, additionalSymbols.Concat(delegateSymbols).ToArray());

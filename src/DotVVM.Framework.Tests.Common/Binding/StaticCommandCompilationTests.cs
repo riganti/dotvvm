@@ -136,7 +136,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void StaticCommandCompilation_CommandArgumentUsage()
         {
             var result = CompileBinding("StringProp = arg.ToString()", new [] { typeof(TestViewModel) }, typeof(Func<int, Task>));
-            Assert.AreEqual("(function(a){return Promise.resolve(a.$data.StringProp(dotvvm.globalize.bindingNumberToString(commandArguments.arg)()).StringProp());}(ko.contextFor(this)))", result);
+            Assert.AreEqual("(function(a){return Promise.resolve(a.$data.StringProp(dotvvm.globalize.bindingNumberToString(commandArguments[0])()).StringProp());}(ko.contextFor(this)))", result);
         }
     }
 

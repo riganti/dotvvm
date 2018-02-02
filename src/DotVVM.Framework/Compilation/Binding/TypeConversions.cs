@@ -381,7 +381,11 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public class MagicLambdaConversionExtensionParameter : BindingExtensionParameter
         {
-            public MagicLambdaConversionExtensionParameter(string identifier, Type type) : base(identifier, new ResolvedTypeDescriptor(type), inherit: false) { }
+            public int ArgumentIndex { get; }
+            public MagicLambdaConversionExtensionParameter(int argumentIndex, string identifier, Type type) : base(identifier, new ResolvedTypeDescriptor(type), inherit: false)
+            {
+                ArgumentIndex = argumentIndex;
+            }
 
             public override JsExpression GetJsTranslation(JsExpression dataContext) =>
                 // although it is translated as commandArgs reference in staticCommand this conversion could cause significantly less readable error message in other contexts
