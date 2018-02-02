@@ -40,7 +40,7 @@
     <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Ben.Demystifier" Version="0.0.8" />
+    <PackageReference Include="Ben.Demystifier" Version="0.0.43" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="2.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="2.0.0" />
