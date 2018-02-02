@@ -1,0 +1,49 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.MarkupControl.ControlControlCommandInvokeActionViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+    </style>
+</head>
+<body>
+    <h1>
+        Test command control (Invalid Command Invocation Test)
+    </h1>
+    value:
+    <span ID="value">
+        {{value: Value}}
+    </span>
+    <span>
+        <span data-id="Row">-1</span>
+        <span data-id="Column">
+            -1
+        </span>
+        <sample:ControlControlCommandInvokeAction DataContext="{value: _root}" GoToDetailAction="{command: OnGoToDetail}" />
+    </span>
+    <span ID="buttons">
+        <dot:Repeater DataSource="{value: Rows}" RenderWrapperTag="false">
+                    <dot:Repeater DataSource="{value: _parent.Columns}" RenderWrapperTag="false">
+                            <dot:Repeater DataSource="{value: _parent2.Rows}" RenderWrapperTag="false">
+                                        <dot:Repeater DataSource="{value: _parent3.Columns}" RenderWrapperTag="false">
+                                                <span>
+                                                    <span>Item {{value: _parent}}-{{value: _this}}</span>
+                                                    <span data-id="Row">{{value: _parent}}</span>
+                                                    <span data-id="Column">
+                                                        {{value: _this}}
+                                                    </span>
+                                                    <sample:ControlControlCommandInvokeAction GoToDetailAction="{command: _parent4.OnGoToDetail}" Row="{value: _parent}" Column="{value:  _this}" />
+                                                </span>
+                                        </dot:Repeater>
+                            </dot:Repeater>
+                    </dot:Repeater>
+        </dot:Repeater>
+    </span>
+
+</body>
+</html>
+
+

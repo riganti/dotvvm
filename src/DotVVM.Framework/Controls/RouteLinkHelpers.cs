@@ -17,13 +17,16 @@ namespace DotVVM.Framework.Controls
     {
         public static void WriteRouteLinkHrefAttribute(RouteLink control, IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            if (!control.RenderOnServer)
+            // Render client-side knockout expression only if there exists a parameter with value binding
+            var containsBindingParam = control.Params.RawValues.Any(p => p.Value is IValueBinding);
+            if (containsBindingParam)
             {
                 var group = new KnockoutBindingGroup();
                 group.Add("href", GenerateKnockoutHrefExpression(control.RouteName, control, context));
                 writer.AddKnockoutDataBind("attr", group);
             }
-            else
+
+            if (control.RenderOnServer || !containsBindingParam)
             {
                 writer.AddAttribute("href", EvaluateRouteUrl(control.RouteName, control, context));
             }

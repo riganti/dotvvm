@@ -67,6 +67,9 @@ namespace DotVVM.Framework.Compilation.Javascript
                 
                 case ExpressionType.Default:
                     return TranslateDefault((DefaultExpression)expression);
+
+                case ExpressionType.Invoke:
+                    return TranslateInvoke((InvocationExpression)expression);
             }
             if (expression is BinaryExpression)
             {
@@ -78,6 +81,12 @@ namespace DotVVM.Framework.Compilation.Javascript
             }
 
             throw new NotSupportedException($"The expression type {expression.NodeType} can not be translated to Javascript!");
+        }
+
+        private JsExpression TranslateInvoke(InvocationExpression expression)
+        {
+            // just invoke the function
+            return Translate(expression.Expression).Invoke(expression.Arguments.Select(Translate));
         }
 
         private Expression ReplaceVariables(Expression node, IReadOnlyList<ParameterExpression> variables, object[] args)

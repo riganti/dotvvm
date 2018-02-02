@@ -416,7 +416,29 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual("nn", vm.StringProp);
             Assert.AreEqual("allkk", vm.StringProp2);
             Assert.AreEqual("allkk|nn", result);
-	}
+        }
+
+        [TestMethod]
+        public void BindingCompiler_DelegateConversion_TaskFromResult()
+        {
+            TestViewModel vm = new TestViewModel { StringProp = "a" };
+            var function = ExecuteBinding("StringProp + arg", new [] { vm }, null, expectedType: typeof(Func<string, Task<string>>)) as Func<string, Task<string>>;
+            Assert.IsNotNull(function);
+            var result = function("test");
+            Assert.IsTrue(result.IsCompleted);
+            Assert.AreEqual("atest", result.Result);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_DelegateConversion_CompletedTask()
+        {
+            TestViewModel vm = new TestViewModel { StringProp = "a" };
+            var function = ExecuteBinding("SetStringProp(arg, 4)", new [] { vm }, null, expectedType: typeof(Func<string, Task>)) as Func<string, Task>;
+            Assert.IsNotNull(function);
+            var result = function("test");
+            Assert.IsTrue(result.IsCompleted);
+            Assert.AreEqual("test4", vm.StringProp);
+        }
 
         public void BindingCompiler_ComparisonOperators()
         {
@@ -470,6 +492,12 @@ namespace DotVVM.Framework.Tests.Binding
         public void SetStringProp2(string value)
         {
             this.StringProp2 = value;
+        }
+
+        public async Task<string> GetStringPropAsync()
+        {
+            await Task.Delay(10);
+            return StringProp;
         }
     }
 
