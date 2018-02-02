@@ -717,7 +717,7 @@ var DotvvmSerialization = /** @class */ (function () {
         }
         else if (typeof date == "string") {
             // just print in the console if it's invalid
-            if (dotvvm.globalize.parseDotvvmDate(date) != null)
+            if (dotvvm.globalize.parseDotvvmDate(date) == null)
                 console.error(new Error("Date " + date + " is invalid."));
             return date;
         }
