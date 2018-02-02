@@ -426,7 +426,7 @@ namespace DotVVM.Framework.Compilation.Binding
                     {
                         return Expression.Block(expr, Expression.Call(typeof(TaskUtils), "GetCompletedTask", Type.EmptyTypes));
                     }
-                    else if (typeof(Task<>).IsAssignableFrom(expectedType))
+                    else if (expectedType.GetGenericTypeDefinition() == typeof(Task<>))
                     {
                         var taskType = GetTaskType(expectedType);
                         var converted = TypeConversion.ImplicitConversion(expr, taskType);
