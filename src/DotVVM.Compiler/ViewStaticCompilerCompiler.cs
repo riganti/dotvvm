@@ -70,19 +70,18 @@ namespace DotVVM.Compiler
 
 
             configuration = GetCachedConfiguration(wsa, Options.WebSitePath,
-                 (services) =>
-                 {
+                 (services) => {
                      if (Options.FullCompile)
                      {
                          services.AddSingleton<IBindingCompiler>(s => bindingCompiler = new AssemblyBindingCompiler(Options.BindingsAssemblyName, Options.BindingClassName, Path.Combine(Options.OutputPath, Options.BindingsAssemblyName + ".dll"), s.GetRequiredService<DotvvmConfiguration>()));
                      }
                  });
 
-            if (Options.DothtmlFiles == null  || !Options.DothtmlFiles.Any())
+            if (Options.DothtmlFiles == null)
             {
                 Options.DothtmlFiles = configuration.RouteTable.Select(r => r.VirtualPath).ToArray();
             }
-            
+
             if (Options.FullCompile)
             {
                 controlTreeResolver = configuration.ServiceProvider.GetRequiredService<IControlTreeResolver>();
@@ -132,8 +131,7 @@ namespace DotVVM.Compiler
                 }
                 catch (DotvvmCompilationException exception)
                 {
-                    result.Files.Add(file, new FileCompilationResult
-                    {
+                    result.Files.Add(file, new FileCompilationResult {
                         Errors = new List<Exception>() { exception }
                     });
                 }
@@ -225,8 +223,7 @@ namespace DotVVM.Compiler
 
             Program2.WriteInfo($"The view { fileName } compiled successfully.");
 
-            var res = new ViewCompilationResult
-            {
+            var res = new ViewCompilationResult {
                 BuilderClassName = fullClassName,
                 ControlType = resolvedView.Metadata.Type,
                 DataContextType = emitter?.BuilderDataContextType,

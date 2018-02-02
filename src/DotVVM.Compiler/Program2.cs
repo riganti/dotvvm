@@ -36,7 +36,11 @@ namespace DotVVM.Compiler
                     DoCompile(Options);
                 }
             }
-
+            if (args[0] == "-?")
+            {
+                WriteHelp();
+                Exit(0);
+            }
             if (args[0] == "--debugger")
             {
                 WaitForDbg();
@@ -50,7 +54,7 @@ namespace DotVVM.Compiler
                 Options = GetCompilerOptions(opt);
                 if (!DoCompile(Options))
                 {
-                    Environment.Exit(1);
+                    Exit(1);
                 }
             }
             else
@@ -58,9 +62,46 @@ namespace DotVVM.Compiler
                 var file = string.Join(" ", args);
                 if (!DoCompileFromFile(file))
                 {
-                    Environment.Exit(1);
+                    Exit(1);
                 }
             }
+
+        }
+
+        private static void WriteHelp()
+        {
+            Console.Write(@"
+DotVVM Compiler
+    --json      - Determines options for compiler
+    --debugger  - Waits as long as compiler is not attached
+
+
+JSON structure:
+        string[] DothtmlFiles           (null = build all, [] = build none)
+        string WebSiteAssembly          
+        bool OutputResolvedDothtmlMap   
+        string BindingsAssemblyName 
+        string BindingClassName 
+        string OutputPath 
+
+        string AssemblyName             
+        string WebSitePath              
+        bool FullCompile                (default: true)
+        bool CheckBindingErrors         
+        bool SerializeConfig            
+        string ConfigOutputPath
+
+");
+
+        }
+
+        private static void Exit(int exitCode)
+        {
+            if (Debugger.IsAttached)
+            {
+                Console.ReadKey();
+            }
+            Environment.Exit(1);
         }
 
         private static void GetEnvironmentAssemblySearchPaths()
