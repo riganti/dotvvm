@@ -11,7 +11,9 @@
 
     <dot:TextBox Text="{value: EnumValue}" />
 
-    <dot:Button Text="Submit" Click="{command: null}" />
+    <dot:Button Text="Submit" Click="{command: Test()}" />
+
+    <p class="result" InnerText="{value: Success}"></p>
 
 </body>
 </html>
