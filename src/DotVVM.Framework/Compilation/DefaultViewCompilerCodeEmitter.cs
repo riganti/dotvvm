@@ -423,8 +423,9 @@ namespace DotVVM.Framework.Compilation
 
         public ExpressionSyntax CreateDotvvmPropertyIdentifier(DotvvmProperty property)
         {
-            if (property is GroupedDotvvmProperty gprop && gprop.PropertyGroup.DescriptorField != null)
+            if (property is GroupedDotvvmProperty)
             {
+                var gprop = (GroupedDotvvmProperty)property;
                 string fieldName;
                 if (!cachedGroupedDotvvmProperties.TryGetValue(gprop, out fieldName))
                 {
