@@ -15,6 +15,12 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.Serialization
         [JsonConverter(typeof(StringEnumConverter))]
         public EnumWithJsonConverter EnumValue { get; set; } = EnumWithJsonConverter.One;
 
+        public string Success { get; set; }
+
+        public void Test()
+        {
+            Success = "Success!";
+        }
     }
 
     public enum EnumWithJsonConverter

@@ -180,6 +180,7 @@ namespace DotVVM.Testing.Abstractions
         public static string FeatureSamples_Resources_CdnUnavailableResourceLoad => "FeatureSamples/Resources/CdnUnavailableResourceLoad";
         public static string FeatureSamples_Resources_OnlineNonameResourceLoad => "FeatureSamples/Resources/OnlineNonameResourceLoad";
         public static string FeatureSamples_ReturnedFile_ReturnedFileSample => "FeatureSamples/ReturnedFile/ReturnedFileSample";
+        public static string FeatureSamples_Serialization_EnumSerializationWithJsonConverter => "FeatureSamples/Serialization/EnumSerializationWithJsonConverter";
         public static string FeatureSamples_Serialization_ObservableCollectionShouldContainObservables => "FeatureSamples/Serialization/ObservableCollectionShouldContainObservables";
         public static string FeatureSamples_Serialization_Serialization => "FeatureSamples/Serialization/Serialization";
         public static string FeatureSamples_ServerComments_ServerComments => "FeatureSamples/ServerComments/ServerComments";

@@ -72,5 +72,22 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.ElementAt("select", 2).CheckAttribute("value", "2");
             });
         }
+
+        [TestMethod]
+        public void Feature_Serialization_EnumSerializationWithJsonConverter()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Serialization_EnumSerializationWithJsonConverter);
+                browser.Wait();
+
+                // click on the button
+                browser.Single("input[type=button]").Click().Wait();
+                
+                // make sure that deserialization worked correctly
+                browser.First("p.result").CheckIfInnerTextEquals("Success!");
+                
+            });
+        }
     }
 }
