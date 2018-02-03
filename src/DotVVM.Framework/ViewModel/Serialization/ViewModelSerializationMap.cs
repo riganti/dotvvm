@@ -189,7 +189,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
         {
             if (property.JsonConverter != null && property.JsonConverter.CanRead && property.JsonConverter.CanConvert(property.Type))
             {
-                return property.JsonConverter.ReadJson(jtoken.CreateReader(), property.Type, existingValue, serializer);
+                var jsonReader = jtoken.CreateReader();
+                jsonReader.Read();
+                return property.JsonConverter.ReadJson(jsonReader, property.Type, existingValue, serializer);
             }
             else if (existingValue != null && property.Populate)
             {
