@@ -209,6 +209,34 @@ namespace DotVVM.Framework.ViewModel.Serialization
             //return null;
         }
 
+        private static Dictionary<Type, MethodInfo> writeValueMethods =
+            (from method in typeof(JsonWriter).GetMethods(BindingFlags.Public | BindingFlags.Instance)
+            where method.Name == nameof(JsonWriter.WriteValue)
+            let parameters = method.GetParameters()
+            where parameters.Length == 1
+            where parameters[0].ParameterType != typeof(object)
+            where parameters[0].ParameterType != typeof(DateTime)
+            where parameters[0].ParameterType != typeof(DateTimeOffset)
+            select new { key = parameters[0].ParameterType, value = method }
+            ).ToDictionary(x => x.key, x => x.value);
+
+        private static Expression GetSerializeExpression(ViewModelPropertyMap property, Expression jsonWriter, Expression value, Expression serializer)
+        {
+            if (property.JsonConverter?.CanWrite == true)
+            {
+                // maybe use the converter. It can't be easily inlined because polymorpism
+                return ExpressionUtils.Replace((JsonSerializer s, JsonWriter w, object v) => Serialize(s, w, property, v), serializer, jsonWriter, value);
+            }
+            else if (writeValueMethods.TryGetValue(value.Type, out var method))
+            {
+                return Expression.Call(jsonWriter, method, new [] { value });
+            }
+            else
+            {
+                return Expression.Call(serializer, "Serialize", Type.EmptyTypes, new [] { jsonWriter, Expression.Convert(value, typeof(object)) });
+            }
+        }
+
         private static void Serialize(JsonSerializer serializer, JsonWriter writer, ViewModelPropertyMap property, object value)
         {
             if (property.JsonConverter != null && property.JsonConverter.CanWrite && property.JsonConverter.CanConvert(property.Type))
@@ -255,6 +283,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
         }
 
+        /// Gets if this object require $type to be serialized.
+        public bool RequiredTypeField() =>
+            this.Properties.Any(p => p.ClientValidationRules.Any()); // it is required for validation
+
         /// <summary>
         /// Creates the writer factory.
         /// </summary>
@@ -278,11 +310,14 @@ namespace DotVVM.Framework.ViewModel.Serialization
             // encryptedValuesWriter.Nest();
             block.Add(Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.Nest), Type.EmptyTypes));
 
-            // writer.WritePropertyName("$type");
-            block.Add(ExpressionUtils.Replace((JsonWriter w) => w.WritePropertyName("$type"), writer));
+            if (this.RequiredTypeField())
+            {
+                // writer.WritePropertyName("$type");
+                block.Add(ExpressionUtils.Replace((JsonWriter w) => w.WritePropertyName("$type"), writer));
 
-            // serializer.Serialize(writer, value.GetType().FullName)
-            block.Add(ExpressionUtils.Replace((JsonSerializer s, JsonWriter w, string t) => s.Serialize(w, t), serializer, writer, Expression.Constant(Type.GetTypeHash())));
+                // serializer.Serialize(writer, value.GetType().FullName)
+                block.Add(ExpressionUtils.Replace((JsonSerializer s, JsonWriter w, string t) => w.WriteValue(t), serializer, writer, Expression.Constant(Type.GetTypeHash())));
+            }
 
             // go through all properties that should be serialized
             for (int propertyIndex = 0; propertyIndex < Properties.Count(); propertyIndex++)
@@ -309,14 +344,14 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     }
 
                     // (object)value.{property.PropertyInfo.Name}
-                    var prop = Expression.Convert(Expression.Property(value, property.PropertyInfo), typeof(object));
+                    var prop = Expression.Property(value, property.PropertyInfo);
 
                     if (property.ViewModelProtection == ProtectMode.EncryptData ||
                         property.ViewModelProtection == ProtectMode.SignData)
                     {
                         // encryptedValuesWriter.Value({propertyIndex}, (object)value.{property.PropertyInfo.Name});
                         block.Add(
-                            Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.WriteValue), Type.EmptyTypes, Expression.Constant(propertyIndex), prop));
+                            Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.WriteValue), Type.EmptyTypes, Expression.Constant(propertyIndex), Expression.Convert(prop, typeof(object))));
                     }
 
                     if (property.ViewModelProtection == ProtectMode.None ||
@@ -335,11 +370,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
                             Expression.Constant(property.Name)));
 
                         // serializer.Serialize(serializer, writer, {property}, (object)value.{property.PropertyInfo.Name});
-                        block.Add(ExpressionUtils.Replace((JsonSerializer s, JsonWriter w, object v) => Serialize(s, w, property, v), serializer, writer, prop));
+                        block.Add(GetSerializeExpression(property, writer, prop, serializer));
 
                         if (checkEV)
                         {
-                            // encryption is worthless if the property is not being transfered both ways 
+                            // encryption is worthless if the property is not being transfered both ways
                             // therefore ClearEmptyNest throws exception if the property contains encrypted values
                             if (!property.IsFullyTransfered())
                             {

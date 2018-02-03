@@ -32,6 +32,13 @@ namespace DotVVM.Framework.Controls
             return control;
         }
 
+        public static TControl SetValue<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop, ValueOrBinding<TProperty> value)
+            where TControl : DotvvmBindableObject
+        {
+            control.SetValue(control.GetDotvvmProperty(prop), value);
+            return control;
+        }
+
         public static IValueBinding<TProperty> GetValueBinding<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop)
             where TControl : DotvvmBindableObject
             => (IValueBinding<TProperty>)control.GetValueBinding(control.GetDotvvmProperty(prop));
@@ -43,5 +50,9 @@ namespace DotVVM.Framework.Controls
         public static TProperty GetValue<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop)
             where TControl : DotvvmBindableObject
             => control.GetValue<TProperty>(control.GetDotvvmProperty(prop));
+
+        public static ValueOrBinding<TProperty> GetValueOrBinding<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop)
+            where TControl : DotvvmBindableObject
+            => control.GetValueOrBinding<TProperty>(control.GetDotvvmProperty(prop));
     }
 }

@@ -423,9 +423,8 @@ namespace DotVVM.Framework.Compilation
 
         public ExpressionSyntax CreateDotvvmPropertyIdentifier(DotvvmProperty property)
         {
-            if (property is GroupedDotvvmProperty)
+            if (property is GroupedDotvvmProperty gprop && gprop.PropertyGroup.DescriptorField != null)
             {
-                var gprop = (GroupedDotvvmProperty)property;
                 string fieldName;
                 if (!cachedGroupedDotvvmProperties.TryGetValue(gprop, out fieldName))
                 {
@@ -450,11 +449,17 @@ namespace DotVVM.Framework.Compilation
                 }
                 return SyntaxFactory.ParseName(fieldName);
             }
-            else
+            else if (property.DeclaringType.GetField(property.Name + "Property", BindingFlags.Static | BindingFlags.Public) != null)
             {
                 return SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
                     ParseTypeName(property.DeclaringType),
                     SyntaxFactory.IdentifierName(property.Name + "Property"));
+            }
+            else
+            {
+                return SyntaxFactory.CastExpression(
+                    this.ParseTypeName(typeof(DotvvmProperty)),
+                    this.EmitValueReference(property));
             }
         }
 
