@@ -18,7 +18,7 @@ namespace DotVVM.Framework.Binding
         {
             Order = order;
         }
-
+        
         public override ITypeDescriptor GetChildDataContextType(ITypeDescriptor dataContext, IDataContextStack controlContextStack, IAbstractControl control, IPropertyDescriptor property = null)
         {
             return TypeDescriptorUtils.GetCollectionItemType(dataContext);
