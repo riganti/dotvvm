@@ -97,10 +97,7 @@ JSON structure:
 
         private static void Exit(int exitCode)
         {
-            if (Debugger.IsAttached)
-            {
-                Console.ReadKey();
-            }
+            
             Environment.Exit(1);
         }
 
