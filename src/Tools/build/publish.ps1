@@ -35,7 +35,7 @@ $LASTEXITCODE
 
 function CleanOldGeneratedPackages() {
 	foreach ($package in $packages) {
-		del .\$($package.Directory)\bin\debug\*.nupkg -ErrorAction SilentlyContinue
+		del .\$($package.Directory)\bin\$configuration\*.nupkg -ErrorAction SilentlyContinue
 	}
 }
 
@@ -75,7 +75,7 @@ function BuildPackages() {
 
 function PushPackages() {
 	foreach ($package in $packages) {
-		& .\Tools\nuget.exe push .\$($package.Directory)\bin\debug\$($package.Package).$version.nupkg -source $server -apiKey $apiKey | Out-Host
+		& .\Tools\nuget.exe push .\$($package.Directory)\bin\$configuration\$($package.Package).$version.nupkg -source $server -apiKey $apiKey | Out-Host
 	}
 }
 
