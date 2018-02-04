@@ -71,7 +71,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     }
                 }
 
-                if (!string.IsNullOrEmpty(bindAttribute?.Name))
+                if (string.IsNullOrEmpty(bindAttribute?.Name))
                 {
                     // use JsonProperty name if Bind attribute is not present or doesn't specify it
                     var jsonPropertyAttribute = property.GetCustomAttribute<JsonPropertyAttribute>();
