@@ -225,7 +225,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             if (property.JsonConverter?.CanWrite == true)
             {
                 // maybe use the converter. It can't be easily inlined because polymorpism
-                return ExpressionUtils.Replace((JsonSerializer s, JsonWriter w, object v) => Serialize(s, w, property, v), serializer, jsonWriter, value);
+                return ExpressionUtils.Replace((JsonSerializer s, JsonWriter w, object v) => Serialize(s, w, property, v), serializer, jsonWriter, Expression.Convert(value, typeof(object)));
             }
             else if (writeValueMethods.TryGetValue(value.Type, out var method))
             {
