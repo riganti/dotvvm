@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
             var map = mapper.GetMap(typeof(JsonPropertyVsBindAttribute));
 
             Assert.AreEqual("NoAttribute", map.Property("NoAttribute").Name);
-            Assert.AreEqual("BindWithName", map.Property("BindWithName").Name);
+            Assert.AreEqual("bind1", map.Property("BindWithName").Name);
             Assert.AreEqual("BindWithoutName", map.Property("BindWithoutName").Name);
             Assert.AreEqual("jsonProperty1", map.Property("JsonPropertyWithName").Name);
             Assert.AreEqual("JsonPropertyWithoutName", map.Property("JsonPropertyWithoutName").Name);
