@@ -23,7 +23,7 @@ namespace DotVVM.Framework.Binding
                 .Configuration.ServiceProvider.GetRequiredService<BindingCompilationService>();
             var id = control.GetDotvvmUniqueId() + methodUsageId;
             var propertyName = control.GetType().FullName + "/" + methodUsageId;
-            var property = DotvvmProperty.Register<object, PropertyBox>(propertyName);
+            var property = DotvvmProperty.ResolveProperty(typeof(PropertyBox), propertyName) ?? DotvvmProperty.Register(propertyName, typeof(object), typeof(PropertyBox), null, false, null, typeof(PropertyBox));
             var binding = new CommandBindingExpression(bindingService, action, id);
             control.SetBinding(property, binding);
             return binding;

@@ -63,12 +63,15 @@ namespace DotVVM.Framework.Controls
 
         public static void WriteKnockoutDataBindComment(this IHtmlWriter writer, string name, string expression)
         {
+            if (name.Contains("-->") || expression.Contains("-->"))
+                throw new Exception("Knockout data bind comment can't contain substring '-->'. If you have discovered this exception in your log, you probably have a XSS vulnerability in you website.");
+
             writer.WriteUnencodedText($"<!-- ko { name }: { expression } -->");
         }
 
         public static void WriteKnockoutDataBindComment(this IHtmlWriter writer, string name, DotvvmBindableObject control, DotvvmProperty property)
         {
-            writer.WriteUnencodedText($"<!-- ko { name }: { control.GetValueBinding(property).GetKnockoutBindingExpression(control) } -->");
+            writer.WriteKnockoutDataBindComment(name, control.GetValueBinding(property).GetKnockoutBindingExpression(control));
         }
 
         public static void WriteKnockoutDataBindEndComment(this IHtmlWriter writer)
@@ -99,6 +102,22 @@ namespace DotVVM.Framework.Controls
             var target = (DotvvmControl)control.GetClosestControlBindingTarget();
             var uniqueControlId = target?.GetDotvvmUniqueId();
 
+            string getContextPath(DotvvmBindableObject current)
+            {
+                var result = new List<string>();
+                while (current != null)
+                {
+                    var pathFragment = current.GetDataContextPathFragment();
+                    if (pathFragment != null)
+                    {
+                        result.Add(JsonConvert.ToString(pathFragment));
+                    }
+                    current = current.Parent;
+                }
+                result.Reverse();
+                return "[" + string.Join(",", result) + "]";
+            }
+
             string getHandlerScript()
             {
                 if (!options.AllowPostbackHandlers) return "[]";
@@ -125,7 +144,7 @@ namespace DotVVM.Framework.Controls
                 p == CommandBindingExpression.ViewModelNameParameter ? new CodeParameterAssignment("\"root\"", OperatorPrecedence.Max) :
                 p == CommandBindingExpression.SenderElementParameter ? options.ElementAccessor :
                 p == CommandBindingExpression.CurrentPathParameter ? new CodeParameterAssignment(
-                    "[" + String.Join(", ", GetContextPath(control).Reverse().Select(JavascriptCompilationHelper.CompileConstant)) + "]",
+                    getContextPath(control),
                     OperatorPrecedence.Max) :
                 p == CommandBindingExpression.ControlUniqueIdParameter ? new CodeParameterAssignment(
                     (uniqueControlId is IValueBinding ? "{ expr: " + JsonConvert.ToString(((IValueBinding)uniqueControlId).GetKnockoutBindingExpression(control)) + "}" : '"' + (string)uniqueControlId + '"'), OperatorPrecedence.Max) :
@@ -240,15 +259,8 @@ namespace DotVVM.Framework.Controls
                 return null;
             }
 
-            // find the closest control
-            var validationTargetControl = control.GetClosestControlValidationTarget(out var _);
-            if (validationTargetControl == null)
-            {
-                return RootValidationTargetExpression;
-            }
-
-            // reparent the expression to work in current DataContext
-            return validationTargetControl.GetValueBinding(Validation.TargetProperty).GetKnockoutBindingExpression(control);
+            return control.GetValueBinding(Validation.TargetProperty)?.GetKnockoutBindingExpression(control) ??
+                   RootValidationTargetExpression;
         }
 
         /// <summary>
@@ -256,7 +268,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public static void AddCommentAliasBinding(IHtmlWriter writer, IDictionary<string, string> properties)
         {
-            writer.WriteKnockoutDataBindComment("dotvvm_introduceAlias", "{" + string.Join(", ", properties.Select(p => JsonConvert.ToString(p.Key) + ":" + properties.Values)) + "}");
+            writer.WriteKnockoutDataBindComment("dotvvm_introduceAlias", "{" + string.Join(", ", properties.Select(p => JsonConvert.ToString(p.Key, '"', StringEscapeHandling.EscapeHtml) + ":" + properties.Values)) + "}");
         }
 
         /// <summary>

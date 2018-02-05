@@ -37,6 +37,8 @@
     <None Remove="Views\FeatureSamples\MarkupControl\CommandBindingInDataContextWithControlProperty.dothtml" />
     <None Remove="Views\FeatureSamples\MarkupControl\control2.dotcontrol" />
     <None Remove="Views\FeatureSamples\MarkupControl\ControlCommandBinding.dotcontrol" />
+    <None Remove="Views\FeatureSamples\MarkupControl\ControlControlCommandInvokeAction.dotcontrol" />
+    <None Remove="Views\FeatureSamples\MarkupControl\ControlControlCommandInvokeAction.dothtml" />
     <None Remove="Views\FeatureSamples\MarkupControl\ControlValueBindingWithCommand.dotcontrol" />
     <None Remove="Views\FeatureSamples\MarkupControl\HierarchyControl.dotcontrol" />
     <None Remove="Views\FeatureSamples\MarkupControl\HierarchyControlPage.dothtml" />
@@ -48,6 +50,7 @@
     <None Remove="Views\FeatureSamples\ServerSideStyles\ServerSideStyles.dothtml" />
     <None Remove="Views\FeatureSamples\ServerSideStyles\ServerSideStyles_DotvvmProperties.dothtml" />
     <None Remove="Views\FeatureSamples\ServerSideStyles\ServerSideStyles_MatchingViewModel.dothtml" />
+    <None Remove="Views\FeatureSamples\Serialization\EnumSerializationWithJsonConverter.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_ComboBoxSelectionChanged.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_ComboBoxSelectionChanged_Objects.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_ValueAssignmentControl.dotcontrol" />
@@ -85,6 +88,8 @@
     <Content Include="Views\FeatureSamples\DependencyInjection\ViewModelScopedService.dothtml" />
     <Content Include="Views\FeatureSamples\MarkupControl\Control1.dotcontrol" />
     <Content Include="Views\FeatureSamples\MarkupControl\Control2.dotcontrol" />
+    <Content Include="Views\FeatureSamples\MarkupControl\ControlControlCommandInvokeAction.dotcontrol" />
+    <Content Include="Views\FeatureSamples\MarkupControl\ControlControlCommandInvokeAction.dothtml" />
     <Content Include="Views\FeatureSamples\MarkupControl\ControlValueBindingWithCommand.dotcontrol" />
     <Content Include="Views\FeatureSamples\MarkupControl\ControlCommandBinding.dotcontrol" />
     <Content Include="Views\FeatureSamples\MarkupControl\CommandBindingInDataContextWithControlProperty.dothtml" />
@@ -93,6 +98,7 @@
     <Content Include="Views\FeatureSamples\MarkupControl\MultiControlHierarchy.dothtml" />
     <Content Include="Views\FeatureSamples\ParameterBinding\OptionalParameterBinding.dothtml" />
     <Content Include="Views\FeatureSamples\ParameterBinding\ParameterBinding.dothtml" />
+    <Content Include="Views\FeatureSamples\Serialization\EnumSerializationWithJsonConverter.dothtml" />
     <Content Include="Views\FeatureSamples\ServerSideStyles\DirectoryStyle\ServerSideStyles.dothtml" />
     <Content Include="Views\FeatureSamples\ServerSideStyles\NoDirectoryStyle\ServerSideStyles.dothtml" />
     <Content Include="Views\FeatureSamples\ServerSideStyles\ServerSideStyles_MatchingViewModel.dothtml" />

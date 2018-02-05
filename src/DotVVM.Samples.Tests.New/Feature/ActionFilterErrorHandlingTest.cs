@@ -3,69 +3,72 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Samples.Tests.New;
 using DotVVM.Testing.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.DotVVM;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace DotVVM.Samples.Tests.Feature
 {
-    [TestClass]
     public class ActionFilterErrorHandlingTest : AppSeleniumTest
     {
-        [TestMethod]
+        [Fact]
         [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ActionFilterErrorHandling_ActionFilterErrorHandling))]
         public void Feature_ActionFilterErrorHandling_ActionFilterErrorHandling_CommandException()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ActionFilterErrorHandling_ActionFilterErrorHandling);
 
-                browser.Single(".result").CheckIfInnerTextEquals("no error");
+                AssertUI.InnerTextEquals(browser.Single(".result"), "no error");
 
                 browser.ElementAt("input[type=button]", 0).Click();
 
                 browser.WaitForPostback();
-                browser.Single("iframe").CheckIfIsNotDisplayed();
-                browser.Single(".result").CheckIfInnerTextEquals("error was handled");
+                AssertUI.IsNotDisplayed(browser.Single("iframe"));
+                AssertUI.InnerTextEquals(browser.Single(".result"), "error was handled");
 
                 browser.ElementAt("input[type=button]", 1).Click();
-                browser.Single("iframe").CheckIfIsDisplayed();
+                AssertUI.IsDisplayed(browser.Single("iframe"));
             });
         }
 
-        [TestMethod]
+        [Fact]
         [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ActionFilterErrorHandling_ActionFilterPageErrorHandling))]
         public void Feature_ActionFilterErrorHandling_ActionFilterErrorHandling_PageException()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ActionFilterErrorHandling_ActionFilterPageErrorHandling);
                 browser.Wait(1000);
-                browser.CheckUrl(u => u.Contains("error500"));
+                AssertUI.Url(browser, u => u.Contains("error500"));
             });
         }
 
 
-        [TestMethod]
+        [Fact]
         public void Feature_ActionFilterErrorHandling_ActionFilterRedirect()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 // try the first button
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ActionFilterErrorHandling_ActionFilterRedirect);
                 browser.Wait();
-                browser.CheckUrl(u => !u.Contains("?redirected=true"));
+                AssertUI.Url(browser, u => !u.Contains("?redirected=true"));
                 browser.ElementAt("input", 0).Click().Wait();
-                browser.CheckUrl(u => u.Contains("?redirected=true"));
+                AssertUI.Url(browser, u => u.Contains("?redirected=true"));
 
                 // try the second button
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ActionFilterErrorHandling_ActionFilterRedirect);
                 browser.Wait();
-                browser.CheckUrl(u => !u.Contains("?redirected=true"));
+                AssertUI.Url(browser, u => !u.Contains("?redirected=true"));
                 browser.ElementAt("input", 1).Click().Wait();
-                browser.CheckUrl(u => u.Contains("?redirected=true"));
+                AssertUI.Url(browser, u => u.Contains("?redirected=true"));
             });
+        }
+
+        public ActionFilterErrorHandlingTest(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

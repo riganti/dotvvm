@@ -71,11 +71,12 @@ namespace DotVVM.Framework.Runtime.Commands
                     // find bindings of current control
                     var bindings = control.GetAllBindings()
                         .Where(b => b.Value is CommandBindingExpression);
-                    List<string> wrongExceptionPropertyKeys = new List<string>();
-                    List<string> correctExceptionPropertyKeys = new List<string>();
+
                     foreach (var binding in bindings)
                     {
-                        StringBuilder infoMessage = new StringBuilder();
+                        var wrongExceptionPropertyKeys = new List<string>();
+                        var correctExceptionPropertyKeys = new List<string>();
+                        var infoMessage = new StringBuilder();
 
                         // checking path
                         if (!ViewModelPathComparer.AreEqual(path, walker.CurrentPathArray))

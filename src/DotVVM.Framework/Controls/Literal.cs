@@ -88,7 +88,7 @@ namespace DotVVM.Framework.Controls
             if (allowImplicitLifecycleRequirements && GetType() == typeof(Literal)) LifecycleRequirements = ControlLifecycleRequirements.None;
         }
 
-        public static bool NeedsFormatting(IValueBinding binding) => binding != null && (binding.ResultType == typeof(DateTime) || ReflectionUtils.IsNumericType(binding.ResultType));
+        public static bool NeedsFormatting(IValueBinding binding) => binding?.ResultType == typeof(DateTime);
 
         protected override bool RendersHtmlTag => RenderSpanElement;
 

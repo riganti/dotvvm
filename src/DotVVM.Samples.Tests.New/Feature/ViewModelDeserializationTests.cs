@@ -6,7 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Samples.Tests.New;
 using DotVVM.Testing.Abstractions;
+using Xunit.Abstractions;
 
 namespace DotVVM.Samples.Tests.Feature
 {
@@ -16,17 +18,16 @@ namespace DotVVM.Samples.Tests.Feature
         [TestMethod]
         public void Feature_ViewModelDeserialization_DoesNotDropObject()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModelDeserialization_DoesNotDropObject);
 
 
-                browser.First("span").CheckIfInnerTextEquals("0");
+                AssertUI.InnerTextEquals(browser.First("span"), "0");
                 //value++
-                browser.ElementAt("input[type=button]",2).Click();
+                browser.ElementAt("input[type=button]", 2).Click();
                 browser.ElementAt("input[type=button]", 2).Click();
                 //check value
-                browser.First("span").CheckIfInnerTextEquals("2");
+                AssertUI.InnerTextEquals(browser.First("span"), "2");
                 //hide span
                 browser.ElementAt("input[type=button]", 0).Click();
                 //show span
@@ -34,9 +35,13 @@ namespace DotVVM.Samples.Tests.Feature
                 //value++
                 browser.ElementAt("input[type=button]", 2).Click();
                 //check value
-                browser.First("span").CheckIfInnerTextEquals("3");
-               
+                AssertUI.InnerTextEquals(browser.First("span"), "3");
+
             });
+        }
+
+        public ViewModelDeserializationTests(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

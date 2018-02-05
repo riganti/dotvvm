@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -31,7 +32,14 @@ namespace DotVVM.Framework.Utils
             => outerFunction(target);
 
         public static T Assert<T>(this T target, Func<T, bool> predicate, string message = "A check has failed")
-            => predicate(target) ? target : throw new Exception(message);
+            => predicate(target) ? target : throw new Exception($"{message} | '{target.ToString()}' checked by {GetDebugFunctionInfo(predicate)}]");
+
+        private static string GetDebugFunctionInfo(Delegate func)
+        {
+            var fields = func.Target.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            var fieldsFormatted = string.Join("; ", fields.Select(f => f.Name + ": " + f.GetValue(func.Target)?.ToString() ?? "null"));
+            return $"'{func.Method.DeclaringType.FullName}.{func.Method.Name}' with closure [{fieldsFormatted}]";
+        }
 
         public static TOut CastTo<TOut>(this object original)
             where TOut : class

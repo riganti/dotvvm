@@ -291,7 +291,7 @@ namespace DotVVM.Samples.Tests
             });
         }
 
-        [Fact, Ignore]
+        [Fact(Skip = "Test is not reliable.")]
         [SampleReference(nameof(SamplesRouteUrls.Errors_FieldInValueBinding))]
         public void Error_ExceptionWindow_GitHubRedirect()
         {

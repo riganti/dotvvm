@@ -171,9 +171,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 var rule = new JObject();
 
-                foreach (var property in map.Properties.Where(p => p.ClientValidationRules.Any()))
+                foreach (var property in map.Properties)
                 {
-                    rule[property.Name] = JToken.FromObject(property.ClientValidationRules);
+                    if (property.ValidationRules.Count > 0 && property.ClientValidationRules.Any())
+                        rule[property.Name] = JToken.FromObject(property.ClientValidationRules);
                 }
                 if (rule.Count > 0) validationRules[map.Type.GetTypeHash()] = rule;
             }

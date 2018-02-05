@@ -44,7 +44,8 @@ namespace DotVVM.Samples.Tests.New.Feature
 
                 foreach (var title in titles.Skip(1))
                 {
-                    var titleText = "123" + string.Concat(Enumerable.Repeat(" & test", ParentElementsCount(title, "li")));
+                    var titleText =
+                        "123" + string.Concat(Enumerable.Repeat(" & test", ParentElementsCount(title, "li")));
                     Assert.Equal(titleText, title.GetInnerText());
                 }
             });
@@ -61,5 +62,28 @@ namespace DotVVM.Samples.Tests.New.Feature
                 ? ParentElementsCount(element.ParentElement, tagName) + 1
                 : ParentElementsCount(element.ParentElement, tagName);
         }
+        [Fact(Skip =  "Does not work on CI. IT NEED TO BE INVESTIGATED.")]
+        public void Feature_MarkupControl_ControlControlCommandInvokeAction()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_MarkupControl_ControlControlCommandInvokeAction);
+                browser.Wait(1000);
+                var allButtons = browser.First("#buttons").FindElements("button");
+                foreach (var button in allButtons)
+                {
+                    button.Click();
+                    browser.WaitFor(() => {
+                        var parent = button.ParentElement.ParentElement;
+                        var value = parent.First("[data-id='Row']").GetText().Trim() + "|" + parent.First("[data-id=Column]").GetText().Trim();
+                        AssertUI.InnerTextEquals(browser.First("#value"),value);
+
+                    }, 1500, "Button did not invoke action or action was not performed.");
+                }
+
+
+            });
+
+        }
+
     }
 }

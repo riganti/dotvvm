@@ -45,7 +45,10 @@ namespace DotVVM.Framework.Tests.Binding
                 context = DataContextStack.Create(contexts[i], context);
             }
             var parser = new BindingExpressionBuilder();
-            var expressionTree = TypeConversion.ImplicitConversion(parser.Parse(expression, context, BindingParserOptions.Create<ValueBindingExpression>()), expectedType, true, true);
+            var parsedExpression = parser.ParseWithLambdaConversion(expression, context, BindingParserOptions.Create<ValueBindingExpression>(), expectedType);
+            var expressionTree =
+                TypeConversion.MagicLambdaConversion(parsedExpression, expectedType) ??
+                TypeConversion.ImplicitConversion(parsedExpression, expectedType, true, true);
             var jsExpression = new JsParenthesizedExpression(configuration.ServiceProvider.GetRequiredService<JavascriptTranslator>().CompileToJavascript(expressionTree, context));
             jsExpression.AcceptVisitor(new KnockoutObservableHandlingVisitor(true));
             JsTemporaryVariableResolver.ResolveVariables(jsExpression);
@@ -108,7 +111,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_ToString()
         {
             var js = CompileBinding("MyProperty", new[] { typeof(TestViewModel2) }, typeof(string));
-            Assert.AreEqual("String(MyProperty())", js);
+            Assert.AreEqual("dotvvm.globalize.bindingNumberToString(MyProperty)", js);
         }
 
         [TestMethod]
@@ -279,6 +282,30 @@ namespace DotVVM.Framework.Tests.Binding
             Expression<Func<string, string>> expr = _ => string.Empty;
             var tree = configuration.ServiceProvider.GetRequiredService<JavascriptTranslator>().CompileToJavascript(expr, DataContextStack.Create(typeof(object)));
             Assert.AreEqual("function(_){return \"\";}", tree.ToString());
+        }
+
+        [TestMethod]
+        public void JsTranslator_LambdaWithParameter()
+        {
+            var result = this.CompileBinding("_this + arg", new [] { typeof(string) }, typeof(Func<string, string>));
+            Assert.AreEqual("function(arg){return $data+ko.unwrap(arg);}", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_LambdaWithDelegateInvocation()
+        {
+            var result = this.CompileBinding("arg(12) + _this", new [] { typeof(string) }, typeof(Func<Func<int, string>, string>));
+            Assert.AreEqual("function(arg){return ko.unwrap(arg)(12)+$data;}", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_EnumToString()
+        {
+            var result = CompileBinding("EnumProperty.ToString()", typeof(TestViewModel));
+            var resultImplicit = CompileBinding("EnumProperty", new [] { typeof(TestViewModel) }, typeof(string));
+
+            Assert.AreEqual(result, resultImplicit);
+            Assert.AreEqual("EnumProperty", result);
         }
     }
 

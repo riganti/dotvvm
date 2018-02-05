@@ -1,6 +1,9 @@
-﻿using DotVVM.Testing.Abstractions;
+﻿using DotVVM.Samples.Tests.New;
+using DotVVM.Testing.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Riganti.Selenium.Core;
+using Riganti.Selenium.Core.Abstractions;
+using Xunit.Abstractions;
 
 namespace DotVVM.Samples.Tests.Feature
 {
@@ -10,8 +13,7 @@ namespace DotVVM.Samples.Tests.Feature
         [TestMethod]
         public void Feature_ViewModelNesting_NestedViewModel()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModelNesting_NestedViewModel);
 
                 // check table values
@@ -28,12 +30,12 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
-        private void CheckTreeItems(IBrowserWrapperFluentApi browser, int level, int count)
+        private void CheckTreeItems(IBrowserWrapper browser, int level, int count)
         {
             browser.FindElements($"[data-ui='offset_{level}']").ThrowIfDifferentCountThan(count);
         }
 
-        private void CheckTableRow(IBrowserWrapperFluentApi browser, int row)
+        private void CheckTableRow(IBrowserWrapper browser, int row)
         {
             var table = browser.Single("table");
 
@@ -41,10 +43,14 @@ namespace DotVVM.Samples.Tests.Feature
             var value = table.ElementAt("tr", row).ElementAt("td", 3).GetInnerText();
 
             // check other columns to contain same value
-            table.ElementAt("tr", row).ElementAt("td", 1).CheckIfInnerTextEquals(value, false);
-            table.ElementAt("tr", row).ElementAt("td", 2).CheckIfInnerTextEquals(value, false);
+            AssertUI.InnerTextEquals(table.ElementAt("tr", row).ElementAt("td", 1), value);
+            AssertUI.InnerTextEquals(table.ElementAt("tr", row).ElementAt("td", 2), value, false);
 
             // server binding renders True with capital T, knockout binding renders true with lower case t -> comparison is case insensitive
+        }
+
+        public ViewModelNestingTests(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

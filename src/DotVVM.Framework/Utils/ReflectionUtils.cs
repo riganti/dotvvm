@@ -339,14 +339,18 @@ namespace DotVVM.Framework.Utils
         public static IEnumerable<T> GetCustomAttributes<T>(this ICustomAttributeProvider attributeProvider, bool inherit = true) =>
             attributeProvider.GetCustomAttributes(typeof(T), inherit).Cast<T>();
 
+
+        private static ConcurrentDictionary<Type, string> cache_GetTypeHash = new ConcurrentDictionary<Type, string>();
         public static string GetTypeHash(this Type type)
         {
-            using (var sha1 = SHA1.Create())
-            {
-                var hashBytes = sha1.ComputeHash(Encoding.UTF8.GetBytes(type.AssemblyQualifiedName));
+            return cache_GetTypeHash.GetOrAdd(type, t => {
+                using (var sha1 = SHA1.Create())
+                {
+                    var hashBytes = sha1.ComputeHash(Encoding.UTF8.GetBytes(t.AssemblyQualifiedName));
 
-                return Convert.ToBase64String(hashBytes);
-            }
+                    return Convert.ToBase64String(hashBytes);
+                }
+            });
         }
 
         private static ConcurrentDictionary<Type, Func<Delegate, object[], object>> delegateInvokeCache = new ConcurrentDictionary<Type, Func<Delegate, object[], object>>();
