@@ -2230,8 +2230,6 @@ var DotvvmValidation = /** @class */ (function () {
             return;
         // find validation rules
         var type = ko.unwrap(viewModel.$type);
-        if (!type)
-            return;
         var rulesForType = dotvvm.viewModels['root'].validationRules[type] || {};
         // validate all properties
         for (var property in viewModel) {
@@ -2258,7 +2256,7 @@ var DotvvmValidation = /** @class */ (function () {
                         this.validateViewModel(item);
                     }
                 }
-                else if (value.$type) {
+                else if (value && value instanceof Object) {
                     // handle nested objects
                     this.validateViewModel(value);
                 }
