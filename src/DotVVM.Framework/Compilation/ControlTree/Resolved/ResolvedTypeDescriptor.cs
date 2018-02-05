@@ -4,11 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using DotVVM.Framework.Controls;
+using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
     public class ResolvedTypeDescriptor : ITypeDescriptor
     {
+        [JsonIgnore]
         public Type Type { get; }
 
         public ResolvedTypeDescriptor(Type type)
