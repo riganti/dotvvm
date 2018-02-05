@@ -30,7 +30,7 @@
                      style="height: 20px; width: 200px;" />
         <dot:Literal ID="numberValueText"
                      ClientIDMode="Static"
-                     Text="{value: NumberValue }">
+                     Text="{value: NumberValue}">
         </dot:Literal>
     </p>
     <p ID="customNumberformat">
@@ -39,7 +39,7 @@
                      ClientIDMode="Static"
                      Text="{value: NumberValue.ToString('#0.00')}"
                      style="height: 20px; width: 200px;" />
-        <dot:Literal ID="numberValueText"
+        <dot:Literal ID="customNumberValueText"
                      ClientIDMode="Static"
                      Text="{value: NumberValue}"
                      ValueType="Text" />
@@ -52,7 +52,7 @@
                      ClientIDMode="Static"
                      Text="{value: BigNumberValue.ToString('#,##0.0##')}"
                      style="height: 20px; width: 200px;" />
-        <dot:Literal ID="numberValueText"
+        <dot:Literal ID="customNumberValueText2"
                      ClientIDMode="Static"
                      Text="{value: BigNumberValue}" />
         <dot:Literal ID="customFormatText2"
