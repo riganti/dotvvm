@@ -3,14 +3,14 @@ using DotVVM.Testing.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
+using Xunit;
 using Xunit.Abstractions;
 
-namespace DotVVM.Samples.Tests.Feature
+namespace DotVVM.Samples.Tests.New.Feature
 {
-    [TestClass]
     public class ViewModelNestingTests : AppSeleniumTest
     {
-        [TestMethod]
+        [Fact]
         public void Feature_ViewModelNesting_NestedViewModel()
         {
             RunInAllBrowsers(browser => {
