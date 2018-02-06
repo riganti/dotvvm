@@ -47,6 +47,25 @@ namespace DotVVM.Framework.Compilation
             }
         }
 
+        public override void VisitControl(ResolvedControl control)
+        {
+            if (control.Metadata.Type == typeof(Content))
+            {
+                var original = requiredResources;
+                base.VisitControl(control);
+                if (original != requiredResources)
+                {
+                    control.Content.AddRange(
+                        requiredResources.Except(original).Select(r => CreateRequiredResourceControl(r, control.DothtmlNode, control.Content.First().DataContextTypeStack)));
+                    requiredResources = original;
+                }
+            }
+            else
+            {
+                base.VisitControl(control);
+            }
+        }
+
         private ResolvedControl CreateRequiredResourceControl(string resource, Parser.Dothtml.Parser.DothtmlNode node, DataContextStack dataContext)
         {
             var c = new ResolvedControl(requiredResourceConrolMetadata, node, dataContext);
