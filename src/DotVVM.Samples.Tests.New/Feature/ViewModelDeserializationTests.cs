@@ -9,18 +9,17 @@ using System.Threading.Tasks;
 using DotVVM.Samples.Tests.New;
 using DotVVM.Testing.Abstractions;
 using Xunit.Abstractions;
+using Xunit;
 
-namespace DotVVM.Samples.Tests.Feature
+namespace DotVVM.Samples.Tests.New.Feature
 {
-    [TestClass]
     public class ViewModelDeserializationTests : AppSeleniumTest
     {
-        [TestMethod]
+        [Fact]
         public void Feature_ViewModelDeserialization_DoesNotDropObject()
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModelDeserialization_DoesNotDropObject);
-
 
                 AssertUI.InnerTextEquals(browser.First("span"), "0");
                 //value++
@@ -36,7 +35,6 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.ElementAt("input[type=button]", 2).Click();
                 //check value
                 AssertUI.InnerTextEquals(browser.First("span"), "3");
-
             });
         }
 

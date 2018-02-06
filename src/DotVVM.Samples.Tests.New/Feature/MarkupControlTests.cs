@@ -62,7 +62,8 @@ namespace DotVVM.Samples.Tests.New.Feature
                 ? ParentElementsCount(element.ParentElement, tagName) + 1
                 : ParentElementsCount(element.ParentElement, tagName);
         }
-        [Fact(Skip =  "Does not work on CI. IT NEED TO BE INVESTIGATED.")]
+
+        [Fact]
         public void Feature_MarkupControl_ControlControlCommandInvokeAction()
         {
             RunInAllBrowsers(browser => {
@@ -76,14 +77,9 @@ namespace DotVVM.Samples.Tests.New.Feature
                         var parent = button.ParentElement.ParentElement;
                         var value = parent.First("[data-id='Row']").GetText().Trim() + "|" + parent.First("[data-id=Column]").GetText().Trim();
                         AssertUI.InnerTextEquals(browser.First("#value"),value);
-
                     }, 1500, "Button did not invoke action or action was not performed.");
                 }
-
-
             });
-
         }
-
     }
 }

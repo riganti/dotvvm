@@ -102,6 +102,22 @@ namespace DotVVM.Framework.Controls
             var target = (DotvvmControl)control.GetClosestControlBindingTarget();
             var uniqueControlId = target?.GetDotvvmUniqueId();
 
+            string getContextPath(DotvvmBindableObject current)
+            {
+                var result = new List<string>();
+                while (current != null)
+                {
+                    var pathFragment = current.GetDataContextPathFragment();
+                    if (pathFragment != null)
+                    {
+                        result.Add(JsonConvert.ToString(pathFragment));
+                    }
+                    current = current.Parent;
+                }
+                result.Reverse();
+                return "[" + string.Join(",", result) + "]";
+            }
+
             string getHandlerScript()
             {
                 if (!options.AllowPostbackHandlers) return "[]";
@@ -128,7 +144,7 @@ namespace DotVVM.Framework.Controls
                 p == CommandBindingExpression.ViewModelNameParameter ? new CodeParameterAssignment("\"root\"", OperatorPrecedence.Max) :
                 p == CommandBindingExpression.SenderElementParameter ? options.ElementAccessor :
                 p == CommandBindingExpression.CurrentPathParameter ? new CodeParameterAssignment(
-                    "[" + String.Join(", ", GetContextPath(control).Reverse().Select(JavascriptCompilationHelper.CompileConstant)) + "]",
+                    getContextPath(control),
                     OperatorPrecedence.Max) :
                 p == CommandBindingExpression.ControlUniqueIdParameter ? new CodeParameterAssignment(
                     (uniqueControlId is IValueBinding ? "{ expr: " + JsonConvert.ToString(((IValueBinding)uniqueControlId).GetKnockoutBindingExpression(control)) + "}" : '"' + (string)uniqueControlId + '"'), OperatorPrecedence.Max) :
@@ -243,15 +259,8 @@ namespace DotVVM.Framework.Controls
                 return null;
             }
 
-            // find the closest control
-            var validationTargetControl = control.GetClosestControlValidationTarget(out var _);
-            if (validationTargetControl == null)
-            {
-                return RootValidationTargetExpression;
-            }
-
-            // reparent the expression to work in current DataContext
-            return validationTargetControl.GetValueBinding(Validation.TargetProperty).GetKnockoutBindingExpression(control);
+            return control.GetValueBinding(Validation.TargetProperty)?.GetKnockoutBindingExpression(control) ??
+                   RootValidationTargetExpression;
         }
 
         /// <summary>

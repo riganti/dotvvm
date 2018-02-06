@@ -20,6 +20,8 @@
     <None Remove="Views\ControlSamples\Button\ButtonOnclick.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\ComboBoxDelaySync.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\ComboBoxDelaySync2.dothtml" />
+    <None Remove="Views\ControlSamples\ContentPlaceHolder\DoubleContentPlaceHolderMasterPage.dotmaster" />
+    <None Remove="Views\ControlSamples\ContentPlaceHolder\DoubleContentPlaceHolderPage_ContentTest.dothtml" />
     <None Remove="Views\ControlSamples\IncludeInPageProperty\IncludeInPage.dothtml" />
     <None Remove="Views\ControlSamples\LinkButton\LinkButtonOnclick.dothtml" />
     <None Remove="Views\ControlSamples\Repeater\DataSourceNull.dothtml" />
@@ -50,6 +52,7 @@
     <None Remove="Views\FeatureSamples\ServerSideStyles\ServerSideStyles.dothtml" />
     <None Remove="Views\FeatureSamples\ServerSideStyles\ServerSideStyles_DotvvmProperties.dothtml" />
     <None Remove="Views\FeatureSamples\ServerSideStyles\ServerSideStyles_MatchingViewModel.dothtml" />
+    <None Remove="Views\FeatureSamples\Serialization\EnumSerializationWithJsonConverter.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_ComboBoxSelectionChanged.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_ComboBoxSelectionChanged_Objects.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_ValueAssignmentControl.dotcontrol" />
@@ -65,6 +68,8 @@
     <Content Include="Scripts\testResource2.js" />
     <Content Include="tsconfig.json" />
     <Content Include="Views\ComplexSamples\CascadeSelectors\TripleComboBoxes.dothtml" />
+    <Content Include="Views\ControlSamples\ContentPlaceHolder\DoubleContentPlaceHolderMasterPage.dotmaster" />
+    <Content Include="Views\ControlSamples\ContentPlaceHolder\DoubleContentPlaceHolderPage_ContentTest.dothtml" />
     <Content Include="Views\ControlSamples\ValidationSummary\master.dotmaster" />
     <Content Include="Views\ControlSamples\ValidationSummary\IncludeErrorsFromTarget_PropertyPathNull.dothtml" />
     <Content Include="Views\ControlSamples\Button\ButtonOnclick.dothtml" />
@@ -97,6 +102,7 @@
     <Content Include="Views\FeatureSamples\MarkupControl\MultiControlHierarchy.dothtml" />
     <Content Include="Views\FeatureSamples\ParameterBinding\OptionalParameterBinding.dothtml" />
     <Content Include="Views\FeatureSamples\ParameterBinding\ParameterBinding.dothtml" />
+    <Content Include="Views\FeatureSamples\Serialization\EnumSerializationWithJsonConverter.dothtml" />
     <Content Include="Views\FeatureSamples\ServerSideStyles\DirectoryStyle\ServerSideStyles.dothtml" />
     <Content Include="Views\FeatureSamples\ServerSideStyles\NoDirectoryStyle\ServerSideStyles.dothtml" />
     <Content Include="Views\FeatureSamples\ServerSideStyles\ServerSideStyles_MatchingViewModel.dothtml" />

@@ -269,7 +269,6 @@ class DotvvmValidation {
 
         // find validation rules
         var type = ko.unwrap(viewModel.$type);
-        if (!type) return;
         var rulesForType = dotvvm.viewModels['root'].validationRules![type] || {};
 
         // validate all properties
@@ -298,7 +297,7 @@ class DotvvmValidation {
                         this.validateViewModel(item);
                     }
                 }
-                else if (value.$type) {
+                else if (value && value instanceof Object) {
                     // handle nested objects
                     this.validateViewModel(value);
                 }

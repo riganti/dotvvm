@@ -24,7 +24,7 @@
         </span>
         <sample:ControlControlCommandInvokeAction DataContext="{value: _root}" GoToDetailAction="{command: OnGoToDetail}" />
     </span>
-    <span ID="buttons">
+    <span ID="buttons" ClientIDMode="Static">
         <dot:Repeater DataSource="{value: Rows}" RenderWrapperTag="false">
                     <dot:Repeater DataSource="{value: _parent.Columns}" RenderWrapperTag="false">
                             <dot:Repeater DataSource="{value: _parent2.Rows}" RenderWrapperTag="false">
