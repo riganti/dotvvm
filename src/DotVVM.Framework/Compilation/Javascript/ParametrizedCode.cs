@@ -299,5 +299,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             this.Description = description ?? throw new ArgumentNullException(nameof(description));
             this.DefaultAssignment = defaultAssignment;
         }
+
+        public override string ToString() => $"[{this.Description}|{(uint)this.GetHashCode()}]";
     }
 }
