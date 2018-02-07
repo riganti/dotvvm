@@ -43,7 +43,7 @@ namespace DotVVM.Framework.Tests.Common.Runtime.JavascriptCompilation
         [TestMethod]
         public void JsFormatter_SymbolicParameter_Global()
         {
-            var symbol = new CodeSymbolicParamerer();
+            var symbol = new CodeSymbolicParameter();
             Assert.AreEqual("a+global",
                 new JsBinaryExpression(new JsMemberAccessExpression(new JsSymbolicParameter(symbol), "a"), BinaryOperatorType.Plus,
                     new JsSymbolicParameter(symbol))

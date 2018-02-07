@@ -47,8 +47,8 @@ namespace DotVVM.Framework.Compilation.Javascript
         /// <summary>
         /// Converts this to string and assigns all parameters using `parameterAsssignment`. If there is any missing, exception is thrown.
         /// </summary>
-        public string ToString(Func<CodeSymbolicParamerer, CodeParameterAssignment> parameterAssignment) => ToString(parameterAssignment, out var _);
-        public string ToString(Func<CodeSymbolicParamerer, CodeParameterAssignment> parameterAssignment, out bool allIsDefault)
+        public string ToString(Func<CodeSymbolicParameter, CodeParameterAssignment> parameterAssignment) => ToString(parameterAssignment, out var _);
+        public string ToString(Func<CodeSymbolicParameter, CodeParameterAssignment> parameterAssignment, out bool allIsDefault)
         {
             allIsDefault = true;
             if (stringParts == null) return evaluatedDefault;
@@ -81,7 +81,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             return result;
         }
 
-        [Obsolete("ParametrizedCode.ToString use is discouraged, this overload does not return the code, please use the ToString(Func<...> parameterAssigner) overload or ToDefaultString method. Note that these may return an exception.", true)]
+        [Obsolete("ParametrizedCode.ToString use is discouraged, this overload does not return the code, please use the ToString(Func<...> parameterAssigner) overload or ToDefaultString method. Note that these methods may throw an exception.", true)]
         public override string ToString()
         {
             // leave for debug purposes.
@@ -98,11 +98,11 @@ namespace DotVVM.Framework.Compilation.Javascript
         /// <summary>
         /// Assigns parameters and return new ParametrizedCode. If parameter is not assigned, it is copied to the resulting parameter. Assigner can also replace parameter by script that contains another parameters.
         /// </summary>
-        public ParametrizedCode AssignParameters(Func<object, CodeParameterAssignment> parameterAssignement)
+        public ParametrizedCode AssignParameters(Func<CodeSymbolicParameter, CodeParameterAssignment> parameterAssignment)
         {
             if (stringParts == null) return this;
 
-            var assignment = FindAssignment(parameterAssignement, optional: true, allIsDefault: out bool allIsDefault);
+            var assignment = FindAssignment(parameterAssignment, optional: true, allIsDefault: out bool allIsDefault);
 
             if (allIsDefault) return this;
 
@@ -152,7 +152,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             }
         }
 
-        private (CodeParameterAssignment parameter, string code)[] FindStringAssignment(Func<CodeSymbolicParamerer, CodeParameterAssignment> parameterAssigner, out bool allIsDefault)
+        private (CodeParameterAssignment parameter, string code)[] FindStringAssignment(Func<CodeSymbolicParameter, CodeParameterAssignment> parameterAssigner, out bool allIsDefault)
         {
             var pp = FindAssignment(parameterAssigner, optional: false, allIsDefault: out allIsDefault);
             var codes = new(CodeParameterAssignment parameter, string code)[parameters.Length];
@@ -164,7 +164,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             return codes;
         }
 
-        private CodeParameterAssignment[] FindAssignment(Func<CodeSymbolicParamerer, CodeParameterAssignment> parameterAssigner, bool optional, out bool allIsDefault)
+        private CodeParameterAssignment[] FindAssignment(Func<CodeSymbolicParameter, CodeParameterAssignment> parameterAssigner, bool optional, out bool allIsDefault)
         {
             allIsDefault = true;
             var pp = new CodeParameterAssignment[parameters.Length];
@@ -233,7 +233,7 @@ namespace DotVVM.Framework.Compilation.Javascript
     /// </summary>
     public struct CodeParameterInfo
     {
-        public readonly CodeSymbolicParamerer Parameter;
+        public readonly CodeSymbolicParameter Parameter;
         /// Optional default value
         public readonly CodeParameterAssignment DefaultAssignment;
         /// <summary>
@@ -245,7 +245,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         /// </summary>
         public readonly bool IsSafeMemberAccess;
 
-        public CodeParameterInfo(CodeSymbolicParamerer parameter, byte operatorPrecence = 20, bool isMemberAccess = false, CodeParameterAssignment? assignment = null)
+        public CodeParameterInfo(CodeSymbolicParameter parameter, byte operatorPrecence = 20, bool isMemberAccess = false, CodeParameterAssignment? assignment = null)
         {
             this.Parameter = parameter;
             this.OperatorPrecedence = operatorPrecence;
@@ -288,13 +288,13 @@ namespace DotVVM.Framework.Compilation.Javascript
 
     /// (Base) class for symbolic parameter descriptors.
     /// This is mainly a marker class, the parameters are compared by reference equality, but this contains some optional features (default and description).
-    public class CodeSymbolicParamerer
+    public class CodeSymbolicParameter
     {
         public readonly string Description;
         public readonly CodeParameterAssignment DefaultAssignment;
         public bool HasDefault => DefaultAssignment.Code != null;
 
-        public CodeSymbolicParamerer(string description = "", CodeParameterAssignment defaultAssignment = default)
+        public CodeSymbolicParameter(string description = "", CodeParameterAssignment defaultAssignment = default)
         {
             this.Description = description ?? throw new ArgumentNullException(nameof(description));
             this.DefaultAssignment = defaultAssignment;

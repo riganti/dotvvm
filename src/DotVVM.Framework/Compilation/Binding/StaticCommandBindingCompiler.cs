@@ -86,7 +86,7 @@ namespace DotVVM.Framework.Compilation.Binding
                     methodInvocation is JsInvocationExpression invocation && invocation.Target.ToString() == "dotvvm.staticCommandPostback" ?
                     (JsArrayExpression)invocation.Arguments.ElementAt(3) :
                     methodInvocation;
-                var preCommandExpressions = new List<(CodeSymbolicParamerer parameter, JsNode node)>();
+                var preCommandExpressions = new List<(CodeSymbolicParameter parameter, JsNode node)>();
                 if (replacedNode != null)
                 {
                     var siblings = replacedNode

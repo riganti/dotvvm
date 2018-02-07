@@ -65,14 +65,15 @@ namespace DotVVM.Framework.Binding.Expressions
             }
         }
 
-        public static CodeSymbolicParamerer ViewModelNameParameter = new CodeSymbolicParamerer("CommandBindingExpression.ViewModelNameParameter", CodeParameterAssignment.FromLiteral("root"));
-        public static CodeSymbolicParamerer SenderElementParameter = new CodeSymbolicParamerer("CommandBindingExpression.SenderElementParameter");
-        public static CodeSymbolicParamerer CurrentPathParameter = new CodeSymbolicParamerer("CommandBindingExpression.CurrentPathParameter");
-        public static CodeSymbolicParamerer CommandIdParameter = new CodeSymbolicParamerer("CommandBindingExpression.CommandIdParameter");
-        public static CodeSymbolicParamerer ControlUniqueIdParameter = new CodeSymbolicParamerer("CommandBindingExpression.ControlUniqueIdParameter");
-        public static CodeSymbolicParamerer PostbackHandlersParameter = new CodeSymbolicParamerer("CommandBindingExpression.PostbackHandlersParameter");
-        public static CodeSymbolicParamerer CommandArgumentsParameter = new CodeSymbolicParamerer("CommandBindingExpression.CommandArgumentsParameter");
-        private static ParametrizedCode javascriptPostbackInvocation =
+        public static CodeSymbolicParameter ViewModelNameParameter = new CodeSymbolicParameter("CommandBindingExpression.ViewModelNameParameter", CodeParameterAssignment.FromLiteral("root"));
+        public static CodeSymbolicParameter SenderElementParameter = new CodeSymbolicParameter("CommandBindingExpression.SenderElementParameter");
+        public static CodeSymbolicParameter CurrentPathParameter = new CodeSymbolicParameter("CommandBindingExpression.CurrentPathParameter");
+        public static CodeSymbolicParameter CommandIdParameter = new CodeSymbolicParameter("CommandBindingExpression.CommandIdParameter");
+        public static CodeSymbolicParameter ControlUniqueIdParameter = new CodeSymbolicParameter("CommandBindingExpression.ControlUniqueIdParameter");
+        public static CodeSymbolicParameter PostbackHandlersParameter = new CodeSymbolicParameter("CommandBindingExpression.PostbackHandlersParameter");
+        public static CodeSymbolicParameter CommandArgumentsParameter = new CodeSymbolicParameter("CommandBindingExpression.CommandArgumentsParameter");
+
+        private static ParametrizedCode createJavascriptPostbackInvocation(JsExpression commandArgs) =>
             new JsIdentifierExpression("dotvvm").Member("postBack").Invoke(
                 new JsSymbolicParameter(ViewModelNameParameter),
                 new JsSymbolicParameter(SenderElementParameter),
@@ -81,22 +82,21 @@ namespace DotVVM.Framework.Binding.Expressions
                 new JsSymbolicParameter(ControlUniqueIdParameter),
                 new JsSymbolicParameter(JavascriptTranslator.KnockoutContextParameter, CodeParameterAssignment.FromIdentifier("null")),
                 new JsSymbolicParameter(PostbackHandlersParameter),
-                new JsSymbolicParameter(CommandArgumentsParameter)
+                commandArgs
             ).FormatParametrizedScript();
 
-        private static ParametrizedCode javascriptPostbackInvocation_noCommandArgs =
-            new JsIdentifierExpression("dotvvm").Member("postBack").Invoke(
-                new JsSymbolicParameter(ViewModelNameParameter),
-                new JsSymbolicParameter(SenderElementParameter),
-                new JsSymbolicParameter(CurrentPathParameter),
-                new JsSymbolicParameter(CommandIdParameter),
-                new JsSymbolicParameter(ControlUniqueIdParameter),
-                new JsSymbolicParameter(JavascriptTranslator.KnockoutContextParameter, CodeParameterAssignment.FromIdentifier("null")),
-                new JsSymbolicParameter(PostbackHandlersParameter)
-            ).FormatParametrizedScript();
+        private static ParametrizedCode javascriptPostbackInvocation = createJavascriptPostbackInvocation(
+            new JsSymbolicParameter(CommandArgumentsParameter, new CodeParameterAssignment("undefined", OperatorPrecedence.Max)));
 
-        public static ParametrizedCode CreateJsPostbackInvocation(string id, bool needsCommandArgs = true) =>
-            (needsCommandArgs ? javascriptPostbackInvocation : javascriptPostbackInvocation_noCommandArgs)
+        private static ParametrizedCode javascriptPostbackInvocation_requiredCommandArgs = createJavascriptPostbackInvocation(new JsSymbolicParameter(CommandArgumentsParameter));
+
+        private static ParametrizedCode javascriptPostbackInvocation_noCommandArgs = createJavascriptPostbackInvocation(null);
+
+        /// <param name="needsCommandArgs">Whether the Javascript will contain commandArgs (true - it will be required, false - the symbolic parameter will not be available, null - it will be optional)</param>
+        public static ParametrizedCode CreateJsPostbackInvocation(string id, bool? needsCommandArgs = true) =>
+            (needsCommandArgs == true ? javascriptPostbackInvocation_requiredCommandArgs :
+             needsCommandArgs == false ? javascriptPostbackInvocation_noCommandArgs :
+             javascriptPostbackInvocation)
             .AssignParameters(p =>
                 p == CommandIdParameter ? CodeParameterAssignment.FromLiteral(id) :
                 default);

@@ -12,15 +12,15 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             get { return defaultAssignment;}
             set { ThrowIfFrozen(); defaultAssignment = value;}
         }
-        private CodeSymbolicParamerer symbol;
+        private CodeSymbolicParameter symbol;
 
-        public CodeSymbolicParamerer Symbol
+        public CodeSymbolicParameter Symbol
         {
             get { return symbol; }
             set { ThrowIfFrozen(); symbol = value; }
         }
 
-        public JsSymbolicParameter(CodeSymbolicParamerer symbol, CodeParameterAssignment? defaultAssignment = null)
+        public JsSymbolicParameter(CodeSymbolicParameter symbol, CodeParameterAssignment? defaultAssignment = null)
         {
             this.symbol = symbol;
             this.defaultAssignment = defaultAssignment;

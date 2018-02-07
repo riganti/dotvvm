@@ -19,9 +19,9 @@ namespace DotVVM.Framework.Compilation.Javascript
 {
     public class JavascriptTranslator
     {
-        public static CodeSymbolicParamerer KnockoutContextParameter = new CodeSymbolicParamerer("JavascriptTranslator.KnockoutContextParameter", CodeParameterAssignment.FromIdentifier("$context", true));
-        public static CodeSymbolicParamerer KnockoutViewModelParameter = new CodeSymbolicParamerer("JavascriptTranslator.KnockoutViewModelParameter", CodeParameterAssignment.FromIdentifier("$data", true));
-        public static CodeSymbolicParamerer CurrentIndexParameter = new CodeSymbolicParamerer("JavascriptTranslator.CurrentIndexParameter", CodeParameterAssignment.FromIdentifier("$index()"));
+        public static CodeSymbolicParameter KnockoutContextParameter = new CodeSymbolicParameter("JavascriptTranslator.KnockoutContextParameter", CodeParameterAssignment.FromIdentifier("$context", true));
+        public static CodeSymbolicParameter KnockoutViewModelParameter = new CodeSymbolicParameter("JavascriptTranslator.KnockoutViewModelParameter", CodeParameterAssignment.FromIdentifier("$data", true));
+        public static CodeSymbolicParameter CurrentIndexParameter = new CodeSymbolicParameter("JavascriptTranslator.CurrentIndexParameter", CodeParameterAssignment.FromIdentifier("$index()"));
         private readonly IViewModelSerializationMapper mapper;
 
         public IJavascriptMethodTranslator DefaultMethodTranslator { get; }

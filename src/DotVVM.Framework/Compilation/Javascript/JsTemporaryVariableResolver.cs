@@ -94,7 +94,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
 
     }
-    public sealed class JsTemporaryVariableParameter: CodeSymbolicParamerer
+    public sealed class JsTemporaryVariableParameter: CodeSymbolicParameter
     {
         public JsExpression Initializer { get; }
         public string PreferedName { get; }

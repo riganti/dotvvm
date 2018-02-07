@@ -156,7 +156,7 @@ namespace DotVVM.Framework.Controls
                 p == CommandBindingExpression.ControlUniqueIdParameter ? new CodeParameterAssignment(
                     (uniqueControlId is IValueBinding ? "{ expr: " + JsonConvert.ToString(((IValueBinding)uniqueControlId).GetKnockoutBindingExpression(control)) + "}" : '"' + (string)uniqueControlId + '"'), OperatorPrecedence.Max) :
                 p == JavascriptTranslator.KnockoutContextParameter ? knockoutContext :
-                p == CommandBindingExpression.CommandArgumentsParameter ? options.CommandArgs ?? new CodeParameterAssignment("undefined", OperatorPrecedence.Max) :
+                p == CommandBindingExpression.CommandArgumentsParameter ? options.CommandArgs ?? default :
                 p == CommandBindingExpression.PostbackHandlersParameter ? new CodeParameterAssignment(generatedPostbackHandlers ?? (generatedPostbackHandlers = getHandlerScript()), OperatorPrecedence.Max) :
                 default(CodeParameterAssignment)
             );
