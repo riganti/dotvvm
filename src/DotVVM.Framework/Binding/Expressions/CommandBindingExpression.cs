@@ -93,7 +93,7 @@ namespace DotVVM.Framework.Binding.Expressions
         private static ParametrizedCode javascriptPostbackInvocation_noCommandArgs = createJavascriptPostbackInvocation(null);
 
         /// <param name="needsCommandArgs">Whether the Javascript will contain commandArgs (true - it will be required, false - the symbolic parameter will not be available, null - it will be optional)</param>
-        public static ParametrizedCode CreateJsPostbackInvocation(string id, bool? needsCommandArgs = true) =>
+        public static ParametrizedCode CreateJsPostbackInvocation(string id, bool? needsCommandArgs = null) =>
             (needsCommandArgs == true ? javascriptPostbackInvocation_requiredCommandArgs :
              needsCommandArgs == false ? javascriptPostbackInvocation_noCommandArgs :
              javascriptPostbackInvocation)
