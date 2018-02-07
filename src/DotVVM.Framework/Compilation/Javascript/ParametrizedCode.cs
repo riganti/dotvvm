@@ -21,6 +21,9 @@ namespace DotVVM.Framework.Compilation.Javascript
         public readonly OperatorPrecedence OperatorPrecedence;
 
         public bool HasParameters => parameters != null && parameters.Length > 0;
+        public IEnumerable<CodeParameterInfo> Parameters =>
+            // make sure that it's really immutable
+            parameters?.Select(p => p) ?? Enumerable.Empty<CodeParameterInfo>();
 
         public ParametrizedCode(string[] stringParts, CodeParameterInfo[] parameters, OperatorPrecedence operatorPrecence, string evaluatedDefault = null)
         {
