@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Tests.Common.Runtime.JavascriptCompilation
             Assert.AreEqual(expectedString, node.Clone().FormatScript());
 
             foreach (var dd in node.Descendants.OfType<JsExpression>()) {
-                var symbol = new JsSymbolicParameter(new object());
+                var symbol = new JsSymbolicParameter(new CodeSymbolicParamerer());
                 dd.ReplaceWith(symbol);
                 var parametrized = node.Clone().FormatParametrizedScript();
                 var resolved = parametrized.ToString(o =>

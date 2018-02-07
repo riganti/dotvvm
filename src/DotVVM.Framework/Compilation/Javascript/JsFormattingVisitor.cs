@@ -112,7 +112,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public ParametrizedCode GetResult(OperatorPrecedence operatorPrecedence)
         {
-            if (parameters == null || parameters.Count == 0) return new ParametrizedCode(new[] { result.ToString() }, null, operatorPrecedence);
+            if (parameters == null || parameters.Count == 0) return new ParametrizedCode(result.ToString(), operatorPrecedence);
             var parts = new string[parameters.Count + 1];
             parts[0] = result.ToString(0, parameters[0].index);
             for (int i = 1; i < parameters.Count; i++)

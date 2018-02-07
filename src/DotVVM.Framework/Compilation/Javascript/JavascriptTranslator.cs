@@ -19,9 +19,9 @@ namespace DotVVM.Framework.Compilation.Javascript
 {
     public class JavascriptTranslator
     {
-        public static object KnockoutContextParameter = new object();
-        public static object KnockoutViewModelParameter = new object();
-        public static object CurrentIndexParameter = new object();
+        public static CodeSymbolicParamerer KnockoutContextParameter = new CodeSymbolicParamerer("JavascriptTranslator.KnockoutContextParameter", CodeParameterAssignment.FromIdentifier("$context", true));
+        public static CodeSymbolicParamerer KnockoutViewModelParameter = new CodeSymbolicParamerer("JavascriptTranslator.KnockoutViewModelParameter", CodeParameterAssignment.FromIdentifier("$data", true));
+        public static CodeSymbolicParamerer CurrentIndexParameter = new CodeSymbolicParamerer("JavascriptTranslator.CurrentIndexParameter", CodeParameterAssignment.FromIdentifier("$index()"));
         private readonly IViewModelSerializationMapper mapper;
 
         public IJavascriptMethodTranslator DefaultMethodTranslator { get; }
@@ -109,11 +109,13 @@ namespace DotVVM.Framework.Compilation.Javascript
         public static string FormatKnockoutScript(ParametrizedCode expression, bool allowDataGlobal = true, int dataContextLevel = 0)
         {
             // TODO(exyi): more symbolic parameters
-            return AdjustKnockoutScriptContext(expression, dataContextLevel)
-                .ToString(o => o == KnockoutContextParameter ? CodeParameterAssignment.FromIdentifier("$context", true) :
+            var adjusted = AdjustKnockoutScriptContext(expression, dataContextLevel);
+            if (allowDataGlobal)
+                return expression.ToDefaultString();
+            else
+                return expression.ToString(o =>
                                o == KnockoutViewModelParameter ? CodeParameterAssignment.FromIdentifier("$data", allowDataGlobal) :
-                               o == CurrentIndexParameter ? CodeParameterAssignment.FromIdentifier("$index()") :
-                               throw new Exception());
+                               default);
         }
 
         /// <summary>

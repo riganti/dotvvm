@@ -140,7 +140,14 @@ namespace DotVVM.Framework.Controls
             }
             string generatedPostbackHandlers = null;
 
-            var call = expression.GetParametrizedCommandJavascript(control).ToString(p =>
+            var adjustedExpression = expression.GetParametrizedCommandJavascript(control);
+            // when the expression changes the dataContext, we need to override the default knockout context fo the command binding.
+            var knockoutContext = options.KoContext ?? (
+                adjustedExpression != expression.CommandJavascript ?
+                new CodeParameterAssignment(new ParametrizedCode.Builder { "ko.contextFor(", options.ElementAccessor.Code, ")" }.Build(OperatorPrecedence.Max)) :
+                default);
+
+            var call = adjustedExpression.ToString(p =>
                 p == CommandBindingExpression.ViewModelNameParameter ? new CodeParameterAssignment("\"root\"", OperatorPrecedence.Max) :
                 p == CommandBindingExpression.SenderElementParameter ? options.ElementAccessor :
                 p == CommandBindingExpression.CurrentPathParameter ? new CodeParameterAssignment(
@@ -148,7 +155,7 @@ namespace DotVVM.Framework.Controls
                     OperatorPrecedence.Max) :
                 p == CommandBindingExpression.ControlUniqueIdParameter ? new CodeParameterAssignment(
                     (uniqueControlId is IValueBinding ? "{ expr: " + JsonConvert.ToString(((IValueBinding)uniqueControlId).GetKnockoutBindingExpression(control)) + "}" : '"' + (string)uniqueControlId + '"'), OperatorPrecedence.Max) :
-                p == CommandBindingExpression.OptionalKnockoutContextParameter ? options.KoContext ?? new CodeParameterAssignment("null", OperatorPrecedence.Max) :
+                p == JavascriptTranslator.KnockoutContextParameter ? knockoutContext :
                 p == CommandBindingExpression.CommandArgumentsParameter ? options.CommandArgs ?? new CodeParameterAssignment("undefined", OperatorPrecedence.Max) :
                 p == CommandBindingExpression.PostbackHandlersParameter ? new CodeParameterAssignment(generatedPostbackHandlers ?? (generatedPostbackHandlers = getHandlerScript()), OperatorPrecedence.Max) :
                 default(CodeParameterAssignment)
