@@ -176,7 +176,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                     {
                         pp[i] = parameters[i].DefaultAssignment;
                         if (pp[i].Code == null)
-                            throw new InvalidOperationException($"Assignment of paremeter '{parameters[i].Parameter}' was not found.");
+                            throw new InvalidOperationException($"Assignment of parameter '{parameters[i].Parameter}' was not found.");
                     }
                 }
                 else
