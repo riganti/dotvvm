@@ -89,7 +89,11 @@ namespace DotVVM.Framework.Compilation.Binding
         public ParsedExpressionBindingProperty GetExpression(OriginalStringBindingProperty originalString, DataContextStack dataContext, BindingParserOptions options, ExpectedTypeBindingProperty expectedType = null)
         {
             var expr = bindingParser.ParseWithLambdaConversion(originalString.Code, dataContext, options, expectedType?.Type ?? typeof(object));
-            return new ParsedExpressionBindingProperty(expr.Reduce());
+            if (expr is StaticClassIdentifierExpression)
+                throw new Exception($"'{originalString.Code}' is a static class reference, not a valid expression.");
+            else if (expr is UnknownStaticClassIdentifierExpression)
+                expr = expr.Reduce();
+            return new ParsedExpressionBindingProperty(expr);
         }
 
         public KnockoutJsExpressionBindingProperty CompileToJavascript(CastedExpressionBindingProperty expression,
