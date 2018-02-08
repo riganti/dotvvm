@@ -61,6 +61,11 @@ namespace DotVVM.Framework.Binding
         public PropertyInfo? PropertyInfo { get; private set; }
 
         /// <summary>
+        /// Provider of custom attributes for this property.
+        /// </summary>
+        public ICustomAttributeProvider AttributeProvider { get; private set; }
+
+        /// <summary>
         /// Gets or sets the markup options.
         /// </summary>
         public MarkupOptionsAttribute MarkupOptions { get; set; }
@@ -210,7 +215,8 @@ namespace DotVVM.Framework.Binding
 
         public static void InitializeProperty(DotvvmProperty property, ICustomAttributeProvider attributeProvider)
         {
-            var propertyInfo = property.DeclaringType.GetProperty(property.Name);
+            var propertyInfo = property.PropertyInfo ?? property.DeclaringType.GetProperty(property.Name);
+            property.AttributeProvider = attributeProvider = propertyInfo ?? attributeProvider ?? throw new ArgumentNullException(nameof(attributeProvider));
             var markupOptions = propertyInfo?.GetCustomAttribute<MarkupOptionsAttribute>()
                 ?? attributeProvider.GetCustomAttribute<MarkupOptionsAttribute>()
                 ?? new MarkupOptionsAttribute() {
@@ -223,12 +229,8 @@ namespace DotVVM.Framework.Binding
 
             if (property == null) property = new DotvvmProperty();
             property.PropertyInfo = propertyInfo;
-            property.DataContextChangeAttributes = (propertyInfo != null ?
-                propertyInfo.GetCustomAttributes<DataContextChangeAttribute>(true) :
-                attributeProvider.GetCustomAttributes<DataContextChangeAttribute>()).ToArray();
-            property.DataContextManipulationAttribute = propertyInfo != null ?
-                propertyInfo.GetCustomAttribute<DataContextStackManipulationAttribute>(true) :
-                attributeProvider.GetCustomAttribute<DataContextStackManipulationAttribute>();
+            property.DataContextChangeAttributes = attributeProvider.GetCustomAttributes<DataContextChangeAttribute>().ToArray();
+            property.DataContextManipulationAttribute = attributeProvider.GetCustomAttribute<DataContextStackManipulationAttribute>();
             if (property.DataContextManipulationAttribute != null && property.DataContextChangeAttributes.Any()) throw new ArgumentException($"{nameof(DataContextChangeAttributes)} and {nameof(DataContextManipulationAttribute)} can not be set both at property '{property.FullName}'.");
             property.MarkupOptions = markupOptions;
             property.IsBindingProperty = typeof(IBinding).IsAssignableFrom(property.PropertyType);

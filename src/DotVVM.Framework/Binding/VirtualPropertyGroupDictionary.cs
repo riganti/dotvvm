@@ -10,13 +10,14 @@ using System.Collections;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Utils;
 using System.Diagnostics.CodeAnalysis;
+using System.Collections.Immutable;
 
 namespace DotVVM.Framework.Binding
 {
     public struct VirtualPropertyGroupDictionary<TValue> : IDictionary<string, TValue>, IReadOnlyDictionary<string, TValue>
     {
         private readonly DotvvmBindableObject control;
-        private readonly DotvvmPropertyGroup  group;
+        private readonly DotvvmPropertyGroup group;
 
         public VirtualPropertyGroupDictionary(DotvvmBindableObject control, DotvvmPropertyGroup  group)
         {
@@ -30,8 +31,7 @@ namespace DotVVM.Framework.Binding
             {
                 foreach (var (p, _) in control.properties)
                 {
-                    var pg = p as GroupedDotvvmProperty;
-                    if (pg != null && pg.PropertyGroup == group)
+                    if (p is GroupedDotvvmProperty pg && pg.PropertyGroup == group)
                     {
                         yield return pg.GroupMemberName;
                     }
@@ -45,8 +45,7 @@ namespace DotVVM.Framework.Binding
             {
                 foreach (var (p, _) in control.properties)
                 {
-                    var pg = p as GroupedDotvvmProperty;
-                    if (pg != null && pg.PropertyGroup == group)
+                    if (p is GroupedDotvvmProperty pg && pg.PropertyGroup == group)
                     {
                         yield return (TValue)control.GetValue(p)!;
                     }
@@ -60,8 +59,7 @@ namespace DotVVM.Framework.Binding
             {
                 foreach (var (p, _) in control.properties)
                 {
-                    var pg = p as GroupedDotvvmProperty;
-                    if (pg != null && pg.PropertyGroup == group)
+                    if (p is GroupedDotvvmProperty pg && pg.PropertyGroup == group)
                     {
                         yield return pg;
                     }
@@ -97,6 +95,11 @@ namespace DotVVM.Framework.Binding
         public bool ContainsKey(string key)
         {
             return control.IsPropertySet(group.GetDotvvmProperty(key));
+        }
+
+        public void Add(string key, ValueOrBinding<TValue> value)
+        {
+            control.SetValue(group.GetDotvvmProperty(key), value);
         }
 
         public void Add(string key, TValue value)
@@ -138,8 +141,7 @@ namespace DotVVM.Framework.Binding
         {
             foreach (var (p, _) in control.properties)
             {
-                var pg = p as GroupedDotvvmProperty;
-                if (pg != null && pg.PropertyGroup == group)
+                if (p is GroupedDotvvmProperty pg && pg.PropertyGroup == group)
                 {
                     control.Properties.Remove(p);
                 }
@@ -169,6 +171,24 @@ namespace DotVVM.Framework.Binding
             }
         }
 
+        public void CopyFrom(IEnumerable<KeyValuePair<string, TValue>> values, bool clear = false)
+        {
+            if (clear) this.Clear();
+            foreach (var item in values)
+            {
+                Add(item);
+            }
+        }
+
+        public void CopyFrom(IEnumerable<KeyValuePair<string, ValueOrBinding<TValue>>> values, bool clear = false)
+        {
+            if (clear) this.Clear();
+            foreach (var item in values)
+            {
+                Add(item.Key, item.Value);
+            }
+        }
+
         public bool Remove(KeyValuePair<string, TValue> item)
         {
             if (Contains(item)) return Remove(item.Key);
@@ -179,8 +199,7 @@ namespace DotVVM.Framework.Binding
         {
             foreach (var (p, value) in control.properties)
             {
-                var pg = p as GroupedDotvvmProperty;
-                if (pg != null && pg.PropertyGroup == group)
+                if (p is GroupedDotvvmProperty pg && pg.PropertyGroup == group)
                 {
                     yield return new KeyValuePair<string, TValue>(pg.GroupMemberName, (TValue)control.EvalPropertyValue(p, value)!);
                 }
@@ -194,13 +213,38 @@ namespace DotVVM.Framework.Binding
             {
                 foreach (var (p, value) in control.properties)
                 {
-                    var pg = p as GroupedDotvvmProperty;
-                    if (pg != null && pg.PropertyGroup == group)
+                    if (p is GroupedDotvvmProperty pg && pg.PropertyGroup == group)
                     {
                         yield return new KeyValuePair<string, object>(pg.GroupMemberName, value!);
                     }
                 }
             }
+        }
+
+        public static IDictionary<string, TValue> CreateValueDictionary(DotvvmBindableObject control, DotvvmPropertyGroup group)
+        {
+            var result = new Dictionary<string, TValue>();
+            if (control.properties != null) foreach (var p in control.properties.Keys)
+            {
+                if (p is GroupedDotvvmProperty pg && pg.PropertyGroup == group && control.GetValue(p) is TValue value)
+                {
+                    result.Add(pg.GroupMemberName, value);
+                }
+            }
+            return result;
+        }
+
+        public static IDictionary<string, ValueOrBinding<TValue>> CreatePropertyDictionary(DotvvmBindableObject control, DotvvmPropertyGroup group)
+        {
+            var result = new Dictionary<string, ValueOrBinding<TValue>>();
+            if (control.properties != null) foreach (var p in control.properties.Keys)
+            {
+                if (p is GroupedDotvvmProperty pg && pg.PropertyGroup == group)
+                {
+                    result.Add(pg.GroupMemberName, control.GetValueOrBinding<TValue>(pg));
+                }
+            }
+            return result;
         }
     }
 }
