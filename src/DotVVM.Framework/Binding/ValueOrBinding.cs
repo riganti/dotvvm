@@ -48,6 +48,12 @@ namespace DotVVM.Framework.Binding
             this.binding = default;
         }
 
+        public static ValueOrBinding<T> FromBoxedValue(object value) =>
+            value is IBinding binding ? new ValueOrBinding<T>(binding) :
+            value is ValueOrBinding vob ? new ValueOrBinding<T>(vob.BindingOrDefault, (T)vob.BoxedValue) :
+            new ValueOrBinding<T>((T)value);
+
+
         public T Evaluate(DotvvmBindableObject control) =>
             binding != null ? (T)binding.GetBindingValue(control) : value;
 

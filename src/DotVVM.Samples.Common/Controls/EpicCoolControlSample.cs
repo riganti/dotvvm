@@ -22,13 +22,16 @@ namespace DotVVM.Samples.BasicSamples.Controls
             [CollectionElementDataContextChange(1)]
             IValueBinding<int?> numberBinding,
 
-            [PropertyGroup("", "html:")]
-            VirtualPropertyGroupDictionary<object> attributes
+            HtmlCapability html,
+
+            [DotvvmControlCapability(prefix: "inner-li:")]
+            HtmlCapability liHtml
         )
         {
             return new Repeater() {
                 WrapperTagName = "ul",
                 ItemTemplate = new DelegateTemplate(_ => new HtmlGenericControl("li") {
+                    HtmlCapability = liHtml,
                     Children = {
                         new Literal(titleBinding),
                         new Literal(": "),
@@ -36,10 +39,10 @@ namespace DotVVM.Samples.BasicSamples.Controls
                             .SetBinding(t => t.Text, numberBinding)
                             .SetValue(t => t.SelectAllOnFocus, true)
                     }
-                })
+                }),
+                HtmlCapability = html
             }
-            .SetBinding(r => r.DataSource, dataSource)
-            .ApplyAction(c => attributes.CopyTo(c.Attributes));
+            .SetBinding(r => r.DataSource, dataSource);
         }
     }
 }
