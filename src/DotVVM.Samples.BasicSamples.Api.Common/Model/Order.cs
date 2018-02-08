@@ -7,7 +7,6 @@ namespace DotVVM.Samples.BasicSamples.Api.Common.Model
 {
     public class Order
     {
-
         public int Id { get; set; }
 
         public string Number { get; set; }
@@ -17,6 +16,5 @@ namespace DotVVM.Samples.BasicSamples.Api.Common.Model
         public int CompanyId { get; set; }
 
         public List<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
-
     }
 }

@@ -9,24 +9,31 @@ namespace DotVVM.Samples.BasicSamples.Api.Common.DataStore
 {
     public class Database
     {
-
         public List<Order> Orders { get; set; }
 
-        public List<Company> Companies { get; set; }
+        public List<Company<string>> Companies { get; set; }
 
+        public List<Company<bool>> Companies2 { get; set; }
 
         public static Database Instance { get; set; }
-
 
         public void SeedData()
         {
             Randomizer.Seed = new Random(1);
 
             var companyId = 1;
-            var companiesFaker = new Faker<Company>()
+            var companiesFaker = new Faker<Company<string>>()
                 .RuleFor(c => c.Id, f => companyId++)
                 .RuleFor(c => c.Name, f => f.Company.CompanyName())
                 .RuleFor(c => c.Owner, f => f.Name.FullName());
+
+            var Companies2 = new Faker<Company<bool>>()
+              .RuleFor(c => c.Id, f => companyId++)
+              .RuleFor(c => c.Name, f => f.Company.CompanyName())
+              .RuleFor(c => c.Owner, f => f.Name.FullName())
+              .RuleFor(c => c.Department, f => f.PickRandom(true, false))
+              .Generate(10)
+              .ToList();
 
             var orderItemId = 1;
             var orderItemsFaker = new Faker<OrderItem>()

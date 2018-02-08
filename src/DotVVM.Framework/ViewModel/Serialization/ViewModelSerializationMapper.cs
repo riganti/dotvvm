@@ -43,10 +43,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 if (property.GetCustomAttribute<JsonIgnoreAttribute>() != null) continue;
 
-                var propertyMap = new ViewModelPropertyMap()
-                {
+                var propertyMap = new ViewModelPropertyMap() {
                     PropertyInfo = property,
-                    Name = property.Name,
+                    Name = ResolvePropertyName(property),
                     ViewModelProtection = ProtectMode.None,
                     Type = property.PropertyType,
                     TransferAfterPostback = property.GetMethod != null && property.GetMethod.IsPublic,
@@ -65,20 +64,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 if (bindAttribute != null)
                 {
                     propertyMap.Bind(bindAttribute.Direction);
-                    if (!string.IsNullOrEmpty(bindAttribute.Name))
-                    {
-                        propertyMap.Name = bindAttribute.Name;
-                    }
-                }
-
-                if (string.IsNullOrEmpty(bindAttribute?.Name))
-                {
-                    // use JsonProperty name if Bind attribute is not present or doesn't specify it
-                    var jsonPropertyAttribute = property.GetCustomAttribute<JsonPropertyAttribute>();
-                    if (!string.IsNullOrEmpty(jsonPropertyAttribute?.PropertyName))
-                    {
-                        propertyMap.Name = jsonPropertyAttribute.PropertyName;
-                    }
                 }
 
                 var viewModelProtectionAttribute = property.GetCustomAttribute<ProtectAttribute>();
@@ -86,7 +71,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 {
                     propertyMap.ViewModelProtection = viewModelProtectionAttribute.Settings;
                 }
-                
+
                 propertyMap.ClientExtenders =
                     property.GetCustomAttributes<ClientExtenderAttribute>()
                     .OrderBy(c => c.Order)
@@ -95,11 +80,35 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
                 var validationAttributes = validationMetadataProvider.GetAttributesForProperty(property);
                 propertyMap.ValidationRules = validationRuleTranslator.TranslateValidationRules(property, validationAttributes).ToList();
-                
+
                 propertyMap.ValidateSettings();
 
                 yield return propertyMap;
             }
+        }
+
+        private static string ResolvePropertyName(PropertyInfo property)
+        {
+            var bindAttribute = property.GetCustomAttribute<BindAttribute>();
+            if (bindAttribute != null)
+            {
+                if (!string.IsNullOrEmpty(bindAttribute.Name))
+                {
+                    return bindAttribute.Name;
+                }
+            }
+
+            if (string.IsNullOrEmpty(bindAttribute?.Name))
+            {
+                // use JsonProperty name if Bind attribute is not present or doesn't specify it
+                var jsonPropertyAttribute = property.GetCustomAttribute<JsonPropertyAttribute>();
+                if (!string.IsNullOrEmpty(jsonPropertyAttribute?.PropertyName))
+                {
+                    return jsonPropertyAttribute.PropertyName;
+                }
+            }
+
+            return property.Name;
         }
 
         protected virtual JsonConverter GetJsonConverter(PropertyInfo property)

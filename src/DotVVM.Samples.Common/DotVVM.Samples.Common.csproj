@@ -1,6 +1,6 @@
 ﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net451</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
     <AssemblyName>DotVVM.Samples.Common</AssemblyName>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
@@ -117,7 +117,7 @@
     <Content Include="Views\FeatureSamples\ViewModelProtection\ComplexViewModelProtection.dothtml" />
     <Content Include="Views\FeatureSamples\ViewModelProtection\SignedNestedInServerToClient.dothtml" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net451' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -125,6 +125,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
+    <ProjectReference Include="..\DotVVM.Samples.BasicSamples.Api.Common\DotVVM.Samples.BasicSamples.Api.Common.csproj" />
     <ProjectReference Include="..\EmbeddedResourceControls\EmbeddedResourceControls.csproj" />
   </ItemGroup>
   <PropertyGroup Label="Configuration">

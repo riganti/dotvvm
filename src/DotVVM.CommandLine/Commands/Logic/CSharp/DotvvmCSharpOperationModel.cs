@@ -9,7 +9,6 @@ namespace DotVVM.CommandLine.Commands.Logic
 {
     public class DotvvmCSharpOperationModel : CSharpOperationModel
     {
-        
         public IEnumerable<DotvvmCSharpParameterModel> MethodParameters => Parameters.OfType<DotvvmCSharpParameterModel>().Where(p => string.IsNullOrEmpty(p.CustomInitializer));
 
         public IEnumerable<DotvvmCSharpParameterModel> CustomInitializedParameters => Parameters.OfType<DotvvmCSharpParameterModel>().Where(p => !string.IsNullOrEmpty(p.CustomInitializer));
@@ -36,6 +35,5 @@ namespace DotVVM.CommandLine.Commands.Logic
             );
             Parameters = new List<CSharpParameterModel>(newParameters);
         }
-        
     }
 }

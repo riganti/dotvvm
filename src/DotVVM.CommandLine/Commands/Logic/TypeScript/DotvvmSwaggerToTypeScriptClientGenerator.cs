@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using DotVVM.Core.Common;
 using NJsonSchema;
 using NJsonSchema.CodeGeneration.TypeScript;
 using NSwag;
@@ -30,23 +30,23 @@ namespace DotVVM.CommandLine.Commands.Logic
         private void HandleAsObjectParameters(SwaggerOperation operation, DotvvmTypeScriptOperationModel model, SwaggerToTypeScriptClientGeneratorSettings settings)
         {
             // find groups of parameters that should be treated as one
-            var parameters = model.QueryParameters.Where(p => p.Name.Contains(".") && p.Schema.ExtensionData.ContainsKey("x-dotvvm-wrapperType"));
-            var groups = parameters.GroupBy(p => p.Name.Substring(0, p.Name.IndexOf("."))).ToList();
-            foreach (var g in groups)
+            var parameters = model.QueryParameters.Where(p => p.Name.Contains('.') && p.Schema.ExtensionData.ContainsKey(ApiConstants.DotvvmWrapperTypeKey));
+            var groups = parameters.GroupBy(p => p.Name.Substring(0, p.Name.IndexOf('.'))).ToList();
+            foreach (var group in groups)
             {
                 var swaggerParameter = new SwaggerParameter() {
-                    Name = g.Key,
+                    Name = group.Key,
                     Schema = new JsonSchema4(),
                     Kind = SwaggerParameterKind.Query
                 };
-                var newParameter = new DotvvmTypeScriptParameterModel(g.Key, g.Key, "any", swaggerParameter, operation.Parameters, settings, this, model)
+                var newParameter = new DotvvmTypeScriptParameterModel(group.Key, group.Key, "any", swaggerParameter, operation.Parameters, settings, this, model)
                 {
                     ExcludeFromQuery = true
                 };
-                var targetIndex = g.Min(p => model.Parameters.IndexOf(p));
-                foreach (var p in g)
+                var targetIndex = group.Min(p => model.Parameters.IndexOf(p));
+                foreach (var p in group)
                 {
-                    ((DotvvmTypeScriptParameterModel)p).CustomInitializer = $"let {p.VariableName} = ({g.Key} !== null && typeof {g.Key} === 'object') ? {p.Name} : null;";
+                    ((DotvvmTypeScriptParameterModel)p).CustomInitializer = $"let {p.VariableName} = ({group.Key} !== null && typeof {group.Key} === 'object') ? {p.Name} : null;";
                 }
                 model.Parameters.Insert(targetIndex, newParameter);
             }

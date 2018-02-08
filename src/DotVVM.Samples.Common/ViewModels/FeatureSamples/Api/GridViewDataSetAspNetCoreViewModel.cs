@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.ViewModel;
-using DotVVM.Samples.Common.Api.AspNetCore;
-using SortingOptions = DotVVM.Framework.Controls.SortingOptions;
+using DotVVM.Samples.BasicSamples.Api.Common.Model;
 
 namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.Api
 {
@@ -12,14 +11,14 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.Api
     {
 
         public SortingOptions SortingOptions1 { get; set; } = new SortingOptions() {
-            SortExpression = nameof(Company.Id)
+            SortExpression = nameof(Company<string>.Id)
         };
 
         [Bind(Direction.ServerToClientFirstRequest)]
-        public GridViewDataSet<Company> DataSet1 { get; set; } = new GridViewDataSet<Company>() {
+        public GridViewDataSet<Company<string>> DataSet1 { get; set; } = new GridViewDataSet<Company<string>>() {
             SortingOptions =
             {
-                SortExpression = nameof(Company.Id)
+                SortExpression = nameof(Company<string>.Id)
             },
             PagingOptions =
             {
@@ -28,10 +27,10 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.Api
         };
 
         [Bind(Direction.ServerToClientFirstRequest)]
-        public GridViewDataSet<Company> DataSet2 { get; set; } = new GridViewDataSet<Company>() {
+        public GridViewDataSet<Company<string>> DataSet2 { get; set; } = new GridViewDataSet<Company<string>>() {
             SortingOptions =
             {
-                SortExpression = nameof(Company.Id)
+                SortExpression = nameof(Company<string>.Id)
             },
             PagingOptions =
             {

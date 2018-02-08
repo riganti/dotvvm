@@ -12,7 +12,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.Controllers
     public class CompaniesController : Controller
     {
         [HttpGet]
-        public List<Company> Get()
+        public List<Company<string>> Get()
         {
             lock (Database.Instance)
             {
@@ -22,11 +22,11 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.Controllers
 
         [HttpGet]
         [Route("sorted")]
-        public GridViewDataSet<Company> GetWithSorting([FromQuery, AsObject(typeof(ISortingOptions))]SortingOptions sortingOptions)
+        public GridViewDataSet<Company<string>> GetWithSorting([FromQuery, AsObject(typeof(ISortingOptions))]SortingOptions sortingOptions)
         {
             lock (Database.Instance)
             {
-                var dataSet = new GridViewDataSet<Company>()
+                var dataSet = new GridViewDataSet<Company<string>>()
                 {
                     SortingOptions = sortingOptions
                 };
@@ -37,11 +37,11 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.Controllers
 
         [HttpGet]
         [Route("paged")]
-        public GridViewDataSet<Company> GetWithPaging([FromQuery, AsObject(typeof(IPagingOptions))]PagingOptions pagingOptions)
+        public GridViewDataSet<Company<string>> GetWithPaging([FromQuery, AsObject(typeof(IPagingOptions))]PagingOptions pagingOptions)
         {
             lock (Database.Instance)
             {
-                var dataSet = new GridViewDataSet<Company>()
+                var dataSet = new GridViewDataSet<Company<string>>()
                 {
                     PagingOptions = pagingOptions
                 };
@@ -52,20 +52,18 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.Controllers
 
         [HttpGet]
         [Route("sortedandpaged")]
-        public GridViewDataSet<Company> GetWithSortingAndPaging([FromQuery, AsObject(typeof(ISortingOptions))]SortingOptions sortingOptions, [FromQuery, AsObject(typeof(IPagingOptions))]PagingOptions pagingOptions)
+        public GridViewDataSet<Company<bool>> GetWithSortingAndPaging([FromQuery, AsObject(typeof(ISortingOptions))]SortingOptions sortingOptions, [FromQuery, AsObject(typeof(IPagingOptions))]PagingOptions pagingOptions)
         {
             lock (Database.Instance)
             {
-                var dataSet = new GridViewDataSet<Company>()
+                var dataSet = new GridViewDataSet<Company<bool>>()
                 {
                     PagingOptions = pagingOptions,
                     SortingOptions = sortingOptions
                 };
-                dataSet.LoadFromQueryable(Database.Instance.Companies.AsQueryable());
+                dataSet.LoadFromQueryable(Database.Instance.Companies2.AsQueryable());
                 return dataSet;
             }
         }
-
     }
-    
 }

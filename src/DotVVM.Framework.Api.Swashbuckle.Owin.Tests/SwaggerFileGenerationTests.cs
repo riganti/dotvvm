@@ -43,8 +43,7 @@ namespace DotVVM.Framework.Api.Swashbuckle.Owin.Tests
 
                 // our custom filters
                 new AddAsObjectAnnotationOperationFilter(),
-                new HandleGridViewDataSetReturnType()
-            });
+            }, schemaFilters: new[] { new HandleKnownTypesSchemaFilter() });
             var generator = new SwaggerGenerator(apiExplorer, settings, versions, options);
             document = generator.GetSwagger("http://localhost:61453/", "v1");
         }
@@ -53,14 +52,14 @@ namespace DotVVM.Framework.Api.Swashbuckle.Owin.Tests
         public void Swashbuckle_Owin_ReturnsDataSetAnnotation_NotAdded()
         {
             var operation = document.paths["/api/companies"].get;
-            Assert.IsFalse(operation.vendorExtensions.ContainsKey("x-dotvvm-returnsDataSet"));
+            Assert.IsFalse(operation.vendorExtensions.ContainsKey("x-returns-knownType"));
         }
 
         [TestMethod]
         public void Swashbuckle_Owin_ReturnsDataSetAnnotation_Added()
         {
             var operation = document.paths["/api/companies/sorted"].get;
-            Assert.AreEqual("true", operation.vendorExtensions["x-dotvvm-returnsDataSet"].ToString());
+            Assert.AreEqual("true", operation.vendorExtensions["x-returns-knownType"].ToString());
         }
 
         [TestMethod]

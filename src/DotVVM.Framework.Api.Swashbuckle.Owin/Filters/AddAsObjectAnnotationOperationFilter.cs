@@ -6,12 +6,14 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Controllers;
 using System.Web.Http.Description;
+using DotVVM.Core;
+using DotVVM.Core.Common;
 using DotVVM.Framework.Api.Swashbuckle.Attributes;
 using Swashbuckle.Swagger;
 
 namespace DotVVM.Framework.Api.Swashbuckle.Owin.Filters
 {
-    public class AddAsObjectAnnotationOperationFilter : IOperationFilter 
+    public class AddAsObjectAnnotationOperationFilter : IOperationFilter
     {
         public void Apply(Operation operation, SchemaRegistry schemaRegistry, ApiDescription apiDescription)
         {
@@ -31,7 +33,7 @@ namespace DotVVM.Framework.Api.Swashbuckle.Owin.Filters
 
                     // the vendorExtensions dictionary instance is reused, create a new one
                     var dict = jsonParam.vendorExtensions.ToDictionary(e => e.Key, e => e.Value);
-                    dict.Add("x-dotvvm-wrapperType", parameterType.FullName + ", " + parameterType.Assembly.GetName().Name);
+                    dict.Add(ApiConstants.DotvvmWrapperTypeKey, parameterType.FullName + ", " + parameterType.Assembly.GetName().Name);
                     jsonParam.vendorExtensions = dict;
 
                     // fix casing in the second part of the name

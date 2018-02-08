@@ -13,8 +13,8 @@ namespace DotVVM.Framework.Api.Swashbuckle.Owin
         public static void EnableDotvvmIntegration(this SwaggerDocsConfig options)
         {
             options.OperationFilter<AddAsObjectAnnotationOperationFilter>();
-            options.OperationFilter<HandleGridViewDataSetReturnType>();
+            //options.OperationFilter<HandleKnownTypesOperationFilter>();
+            options.SchemaFilter<HandleKnownTypesSchemaFilter>();
         }
-
     }
 }

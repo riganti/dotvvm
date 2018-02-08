@@ -11,7 +11,6 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.Controllers
     [Route("api/[controller]")]
     public class OrdersController : Controller
     {
-
         [HttpGet]
         public List<Order> Get(int companyId, int pageIndex = 0, int pageSize = 20)
         {
@@ -85,7 +84,5 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.Controllers
                 Database.Instance.Orders.RemoveAll(o => o.Id == orderId);
             }
         }
-
     }
-    
 }
