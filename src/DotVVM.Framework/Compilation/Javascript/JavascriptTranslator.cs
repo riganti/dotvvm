@@ -111,9 +111,9 @@ namespace DotVVM.Framework.Compilation.Javascript
             // TODO(exyi): more symbolic parameters
             var adjusted = AdjustKnockoutScriptContext(expression, dataContextLevel);
             if (allowDataGlobal)
-                return expression.ToDefaultString();
+                return adjusted.ToDefaultString();
             else
-                return expression.ToString(o =>
+                return adjusted.ToString(o =>
                                o == KnockoutViewModelParameter ? CodeParameterAssignment.FromIdentifier("$data", allowDataGlobal) :
                                default);
         }
