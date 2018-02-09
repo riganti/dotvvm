@@ -289,6 +289,11 @@ namespace DotVVM.Framework.Utils
             return typeof(Delegate).IsAssignableFrom(type);
         }
 
+        public static ParameterInfo[] GetDelegateArguments(this Type type) =>
+            type.IsDelegate() ?
+            type.GetMethod("Invoke").GetParameters() :
+            null;
+
         public static bool IsReferenceType(this Type type)
         {
             return type.IsArray || type.GetTypeInfo().IsClass || type.GetTypeInfo().IsInterface || type.IsDelegate();
