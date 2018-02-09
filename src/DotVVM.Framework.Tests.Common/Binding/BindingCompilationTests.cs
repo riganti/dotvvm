@@ -440,6 +440,15 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual("test4", vm.StringProp);
         }
 
+        [TestMethod]
+        public void BindingCompiler_DelegateFromMethodGroup()
+        {
+            var result = ExecuteBinding("_this.MethodWithOverloads", new [] { new TestViewModel() }, null, expectedType: typeof(Func<int, int>)) as Func<int, int>;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(42, result(42));
+        }
+
         public void BindingCompiler_ComparisonOperators()
         {
             var result = ExecuteBinding("LongProperty < TestViewModel2.MyProperty && LongProperty > TestViewModel2.MyProperty", new [] { new TestViewModel { TestViewModel2 = new TestViewModel2() } });
@@ -499,6 +508,12 @@ namespace DotVVM.Framework.Tests.Binding
             await Task.Delay(10);
             return StringProp;
         }
+
+        public int MethodWithOverloads() => 1;
+        public int MethodWithOverloads(int i) => i;
+        public string MethodWithOverloads(string i) => i;
+        public string MethodWithOverloads(DateTime i) => i.ToString();
+        public int MethodWithOverloads(int a, int b) => a + b;
     }
 
     class TestViewModel2

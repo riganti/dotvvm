@@ -50,7 +50,13 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             expression = ReplaceCommandArgs(expression);
 
-            var currentContextVariable = new JsTemporaryVariableParameter(new JsIdentifierExpression("ko").Member("contextFor").Invoke(new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter)));
+            var knockoutContext =
+                new JsSymbolicParameter(
+                    JavascriptTranslator.KnockoutContextParameter,
+                    defaultAssignment: new JsIdentifierExpression("ko").Member("contextFor").Invoke(new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter)).FormatParametrizedScript()
+                );
+
+            var currentContextVariable = new JsTemporaryVariableParameter(knockoutContext);
             // var resultPromiseVariable = new JsNewExpression("DotvvmPromise"));
             var senderVariable = new JsTemporaryVariableParameter(new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter));
             var visitor = new ExtractExpressionVisitor(ex => {
@@ -80,7 +86,7 @@ namespace DotVVM.Framework.Compilation.Binding
                     methodInvocation is JsInvocationExpression invocation && invocation.Target.ToString() == "dotvvm.staticCommandPostback" ?
                     (JsArrayExpression)invocation.Arguments.ElementAt(3) :
                     methodInvocation;
-                var preCommandExpressions = new List<(object parameter, JsNode node)>();
+                var preCommandExpressions = new List<(CodeSymbolicParameter parameter, JsNode node)>();
                 if (replacedNode != null)
                 {
                     var siblings = replacedNode

@@ -307,6 +307,20 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual(result, resultImplicit);
             Assert.AreEqual("EnumProperty", result);
         }
+
+        [TestMethod]
+        public void JsTranslator_DataContextShift()
+        {
+            var result = CompileValueBinding("_this.StringProp", new [] { typeof(TestViewModel) }, typeof(string));
+            var expr0 = JavascriptTranslator.FormatKnockoutScript(result.KnockoutExpression, dataContextLevel: 0);
+            var expr0_explicit = JavascriptTranslator.FormatKnockoutScript(result.KnockoutExpression, allowDataGlobal: false, dataContextLevel: 0);
+            var expr1 = JavascriptTranslator.FormatKnockoutScript(result.KnockoutExpression, dataContextLevel: 1);
+            var expr2 = JavascriptTranslator.FormatKnockoutScript(result.KnockoutExpression, dataContextLevel: 2);
+            Assert.AreEqual("StringProp", expr0);
+            Assert.AreEqual("$data.StringProp", expr0_explicit);
+            Assert.AreEqual("$parent.StringProp", expr1);
+            Assert.AreEqual("$parents[1].StringProp", expr2);
+        }
     }
 
 
