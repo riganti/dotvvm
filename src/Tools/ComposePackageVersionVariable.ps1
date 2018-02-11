@@ -9,8 +9,14 @@ if($suffix){
     $_sufix = "-$suffix";
 }
 
-if($useBuildNumber){
-    $_buildNumber = "-$buildNumber";
+if($isFinal)
+{
+    $_final = "-final";
+}else {
+
+    if($useBuildNumber){
+        $_buildNumber = "-$buildNumber";
+    }
 }
 
 if($isFinal)
