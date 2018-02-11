@@ -21,8 +21,9 @@ if($isFinal)
 if($postSuffix){
     $_postSuffix = "-$postSuffix";
 }
-
-Write-Host "$versionCore$_sufix$_buildNumber$_final$_postSuffix"
+$packageVersion = "$versionCore$_sufix$_buildNumber$_final$_postSuffix"
+Write-Host "Adding or updation variable PackageVersion: $packageVersion"
+Write-Host "##vso[task.setvariable variable=PackageVersion]$packageVersion"
 
 ## versionCore-suffix-buildNumber
 ## 1.0.0-preview-24153515
