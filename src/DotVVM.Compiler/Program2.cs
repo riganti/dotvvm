@@ -147,7 +147,8 @@ JSON structure:
                     // compile views
                     WriteInfo("Starting full compilation...");
                     result = Compile(options);
-                }else if (options.CheckBindingErrors)
+                }
+                else if (options.CheckBindingErrors)
                 {
                     // check errors views
                     WriteInfo("Starting error validation...");
