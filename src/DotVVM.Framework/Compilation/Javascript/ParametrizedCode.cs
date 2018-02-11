@@ -248,11 +248,11 @@ namespace DotVVM.Framework.Compilation.Javascript
         /// </summary>
         public readonly bool IsSafeMemberAccess;
 
-        public CodeParameterInfo(CodeSymbolicParameter parameter, byte operatorPrecence = 20, bool isMemberAccess = false, CodeParameterAssignment? assignment = null)
+        public CodeParameterInfo(CodeSymbolicParameter parameter, byte operatorPrecedence = 20, bool isSafeMemberAccess = false, CodeParameterAssignment? assignment = null)
         {
             this.Parameter = parameter;
-            this.OperatorPrecedence = operatorPrecence;
-            this.IsSafeMemberAccess = isMemberAccess;
+            this.OperatorPrecedence = operatorPrecedence;
+            this.IsSafeMemberAccess = isSafeMemberAccess;
             this.DefaultAssignment = assignment ?? parameter.DefaultAssignment;
         }
 

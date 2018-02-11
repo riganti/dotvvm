@@ -33,7 +33,7 @@ namespace DotVVM.Compiler
                 {
                     var optionsJson = ReadJsonFromStdin();
                     Options = GetCompilerOptions(optionsJson);
-                    DoCompile(Options);
+                    ProcessCompilationRequest(Options);
                 }
             }
             if (args[0] == "-?")
@@ -52,7 +52,7 @@ namespace DotVVM.Compiler
                 var opt = string.Join(" ", args.Skip(1));
 
                 Options = GetCompilerOptions(opt);
-                if (!DoCompile(Options))
+                if (!ProcessCompilationRequest(Options))
                 {
                     Exit(1);
                 }
@@ -97,7 +97,7 @@ JSON structure:
 
         private static void Exit(int exitCode)
         {
-            
+
             Environment.Exit(1);
         }
 
@@ -131,14 +131,14 @@ JSON structure:
         {
             var optionsJson = File.ReadAllText(file);
             var compilerOptions = GetCompilerOptions(optionsJson);
-            return DoCompile(compilerOptions);
+            return ProcessCompilationRequest(compilerOptions);
         }
 
-        private static bool DoCompile(CompilerOptions options)
+        private static bool ProcessCompilationRequest(CompilerOptions options)
         {
             InitStopwacher();
 
-            //Dont touch anything until the paths are filled we have to touch Json though
+            //Don't touch anything until the paths are filled we have to touch Json though
             try
             {
                 CompilationResult result;
@@ -146,7 +146,12 @@ JSON structure:
                 {
                     // compile views
                     WriteInfo("Starting full compilation...");
-                    result = DoFullCompile(options);
+                    result = Compile(options);
+                }else if (options.CheckBindingErrors)
+                {
+                    // check errors views
+                    WriteInfo("Starting error validation...");
+                    result = Compile(options);
                 }
                 else
                 {
@@ -185,7 +190,7 @@ JSON structure:
             File.WriteAllText(file.FullName, serializedResult);
         }
 
-        private static CompilationResult DoFullCompile(CompilerOptions options)
+        private static CompilationResult Compile(CompilerOptions options)
         {
             var compiler = new ViewStaticCompiler();
             compiler.Options = options;
@@ -194,7 +199,7 @@ JSON structure:
         private static CompilationResult ExportConfiguration(CompilerOptions options)
         {
             var assembly = Assembly.LoadFile(options.WebSiteAssembly);
-            var config = OwinInitializer.InitDotVVM(assembly, options.WebSitePath, null, (s) => { });
+            var config = OwinInitializer.InitDotVVM(assembly, options.WebSitePath, null, (configuration, provider) => { });
             return new CompilationResult() {
                 Configuration = config
             };

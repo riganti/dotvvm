@@ -1,0 +1,15 @@
+﻿@viewModel DotVVM.Compiler.Sample.ViewModels.DefaultViewModel, DotVVM.Compiler.Sample
+@masterPage Views/MasterPage.dotmaster
+<dot:Content ContentPlaceHolderID="MainContent">
+
+    <h1>{{value: Value0}}</h1>
+    <%--<h1>{{value: _this.Value1 }}</h1>
+
+    <div DataContext="{value: Inner}">
+        <h1>{{value: _parent.Value2}}</h1>
+    </div>
+    <div DataContext="{value: Inner}">
+        <h1>{{value: Value4}}</h1>
+    </div>--%>
+
+</dot:Content>

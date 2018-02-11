@@ -21,7 +21,7 @@ namespace DotVVM.Compiler
 {
     class OwinInitializer
     {
-        public static DotvvmConfiguration InitDotVVM(Assembly webSiteAssembly, string webSitePath, ViewStaticCompiler viewStaticCompilerCompiler, Action<IServiceCollection> registerServices)
+        public static DotvvmConfiguration InitDotVVM(Assembly webSiteAssembly, string webSitePath, ViewStaticCompiler viewStaticCompilerCompiler, Action<DotvvmConfiguration, IServiceCollection> registerServices)
         {
             var dotvvmStartups = webSiteAssembly.GetLoadableTypes()
                 .Where(t => typeof(IDotvvmStartup).IsAssignableFrom(t) && t.GetConstructor(Type.EmptyTypes) != null).ToArray();
@@ -42,7 +42,7 @@ namespace DotVVM.Compiler
             var startupClass = webSiteAssembly.CustomAttributes?.Where(s => s.AttributeType == typeof(Microsoft.Owin.OwinStartupAttribute)).FirstOrDefault()?.ConstructorArguments[0].Value as Type;
             //if (startupClass != null)
             //{
-                
+
             //    var configureMethod = startupClass.GetRuntimeMethods().FirstOrDefault(s =>
             //        s.Name == "Configuration" && s.GetParameters().Length == 1 &&
             //        s.GetParameters()[0].ParameterType == typeof(IAppBuilder));
@@ -62,19 +62,23 @@ namespace DotVVM.Compiler
 
             if (startup == null && configureServices.Length == 0) throw new Exception($"Could not find ConfigureServices method, nor a IDotvvmStartup implementation.");
 
+            IServiceCollection serviceCollection = null;
             var config = DotvvmConfiguration.CreateDefault(
                 services => {
+                    serviceCollection = services;
                     if (viewStaticCompilerCompiler != null)
                     {
                         services.AddSingleton<ViewStaticCompiler>(viewStaticCompilerCompiler);
                         services.AddSingleton<IControlResolver, OfflineCompilationControlResolver>();
                         services.TryAddSingleton<IViewModelProtector, FakeViewModelProtector>();
+                        services.AddSingleton(new RefObjectSerializer());
                     }
-                    registerServices?.Invoke(services);
                     foreach (var cs in configureServices)
                         cs.Invoke(cs.IsStatic ? null : Activator.CreateInstance(cs.DeclaringType), new object[] { services });
                 });
             config.ApplicationPhysicalPath = webSitePath;
+            registerServices(config, serviceCollection);
+
             startup?.Configure(config, webSitePath);
             config.CompiledViewsAssemblies = null;
 
@@ -88,6 +92,6 @@ namespace DotVVM.Compiler
             return config;
         }
 
-       
+
     }
 }

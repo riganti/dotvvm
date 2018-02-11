@@ -174,11 +174,30 @@ namespace DotVVM.Framework.Compilation
                     if (File.Exists(possibleFileName)) return AssemblyLoader.LoadFile(possibleFileName);
                 }
             }
+            foreach (var assembly in ReflectionUtils.GetAllAssemblies())
+            {
+                // get already loaded assembly
+                if (assembly.GetName().Name == cleanName)
+                {
+                    var codeBase = assembly.GetCodeBasePath();
+                    if (codeBase.EndsWith(fileName, StringComparison.OrdinalIgnoreCase)) return assembly;
+                }
+            }
             return null;
         }
 
         public void LoadCompiledViewsAssembly(Assembly assembly)
         {
+            var initMethods = assembly.GetTypes()
+                .Where(t => t.Name == "SerializedObjects")
+                .SelectMany(t => t.GetMethods(BindingFlags.Public | BindingFlags.Static))
+                .Where(m => m.Name == "Init")
+                .ToArray();
+            foreach (var initMethod in initMethods)
+            {
+                var args = initMethod.GetParameters().Select(p => configuration.ServiceProvider.GetService(p.ParameterType)).ToArray();
+                initMethod.Invoke(null, args);
+            }
             var builders = assembly.GetTypes().Select(t => new
             {
                 type = t,
