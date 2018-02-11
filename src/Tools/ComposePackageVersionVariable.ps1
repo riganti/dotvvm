@@ -3,7 +3,7 @@ param([string]$versionCore, [string]$prereleaseVersion, [string]$buildNumber, [b
 
 
 ## sufix
-$_sufix = $_buildNumber  = $_final  = $_additionalSuffix = "";
+$_prereleaseVersion = $_buildNumber  = $_final  = $_additionalSuffix = "";
 
 if($prereleaseVersion){
     $_prereleaseVersion = "-$prereleaseVersion";
