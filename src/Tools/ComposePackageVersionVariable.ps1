@@ -1,16 +1,22 @@
-param([string]$versionCore, [string]$suffix, [string]$buildNumber, [bool]$useBuildNumber, [bool]$isFinal, [string]$postSuffix )
+param([string]$versionCore, [string]$prereleaseVersion, [string]$buildNumber, [bool]$useBuildNumber, [bool]$isFinal, [string]$additionalSuffix )
 
 
 
 ## sufix
-$_sufix = $_buildNumber  = $_final  = $_postSuffix = "";
+$_prereleaseVersion = $_buildNumber  = $_final  = $_additionalSuffix = "";
 
-if($suffix){
-    $_sufix = "-$suffix";
+if($prereleaseVersion){
+    $_prereleaseVersion = "-$prereleaseVersion";
 }
 
-if($useBuildNumber){
-    $_buildNumber = "-$buildNumber";
+if($isFinal)
+{
+    $_final = "-final";
+}else {
+
+    if($useBuildNumber){
+        $_buildNumber = "-$buildNumber";
+    }
 }
 
 if($isFinal)
@@ -18,10 +24,10 @@ if($isFinal)
     $_final = "-final";
 }
 
-if($postSuffix){
-    $_postSuffix = "-$postSuffix";
+if($additionalSuffix){
+    $_additionalSuffix = "-$additionalSuffix";
 }
-$packageVersion = "$versionCore$_sufix$_buildNumber$_final$_postSuffix"
+$packageVersion = "$versionCore$_prereleaseVersion$_buildNumber$_final$_additionalSuffix"
 Write-Host "Adding or updation variable PackageVersion: $packageVersion"
 Write-Host "##vso[task.setvariable variable=PackageVersion]$packageVersion"
 

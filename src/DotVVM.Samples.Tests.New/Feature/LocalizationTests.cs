@@ -4,8 +4,10 @@ using OpenQA.Selenium.Firefox;
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using DotVVM.Samples.Tests.New;
 using DotVVM.Testing.Abstractions;
@@ -26,6 +28,23 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Localization_Localization);
 
                 ChangeAndTestLocalization(browser);
+            });
+        }
+        [Fact]
+        public void Feature_Localization_Localization_FormatString()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Localization_Localization_FormatString);
+                var cultureElement = browser.First("#culture");
+
+                AssertUI.InnerText(cultureElement, s => !string.IsNullOrWhiteSpace(s), "Text is empty and should not be! (Missing current culture code!)");
+
+                var culture = cultureElement.GetText();
+                Thread.CurrentThread.CurrentCulture = Thread.CurrentThread.CurrentUICulture = new CultureInfo(culture);
+                var value = 12.3456;
+                AssertUI.InnerTextEquals(browser.First("#HardCodedValue"), value.ToString("#0.00"));
+                AssertUI.InnerTextEquals(browser.First("#HardCodedValue"), value.ToString("#0.00"));
+
             });
         }
 
