@@ -17,6 +17,7 @@ namespace DotVVM.Compiler.Blazor
     {
         public static DotvvmConfiguration InitDotVVM(Assembly webSiteAssembly, string webSitePath, Action<IServiceCollection> registerServices)
         {
+            var maybeDirectory = Path.GetDirectoryName(webSiteAssembly.Location);
             var dependencyContext = DependencyContext.Load(webSiteAssembly);
             var assemblyNames = new Lazy<List<AssemblyData>>(() => ResolveAssemblies(dependencyContext));
 
@@ -26,10 +27,16 @@ namespace DotVVM.Compiler.Blazor
                 var assembly = assemblyNames.Value
                     .Where(a => string.Equals(a.AssemblyFileName, name.Name, StringComparison.CurrentCultureIgnoreCase))
                     .Select(a => new { AssemblyData = a, AssemblyName = AssemblyLoadContext.GetAssemblyName(a.AssemblyFullPath) })
-                    .FirstOrDefault(a => a.AssemblyName.Name == name.Name && a.AssemblyName.Version == name.Version);
+                    .FirstOrDefault(a => a.AssemblyName.Name == name.Name && a.AssemblyName.Version.Major == name.Version.Major);
 
                 if (assembly == null)
                 {
+                    if (File.Exists(Path.Combine(maybeDirectory, name.Name + ".dll")))
+                        return AssemblyLoadContext.Default.LoadFromAssemblyPath(Path.Combine(maybeDirectory, name.Name + ".dll"));
+
+                    if (File.Exists(Path.Combine(maybeDirectory, name.Name + ".exe")))
+                        return AssemblyLoadContext.Default.LoadFromAssemblyPath(Path.Combine(maybeDirectory, name.Name + ".exe"));
+
                     return null;
                 }
                 else

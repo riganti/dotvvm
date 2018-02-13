@@ -32,8 +32,8 @@ namespace DotVVM.Compiler.Blazor
         readonly IControlTreeResolver controlTreeResolver;
         readonly IViewCompiler compiler;
         readonly IMarkupFileLoader fileLoader;
-        readonly CSharpCompilation compilation;
         readonly CompilationResult result = new CompilationResult();
+        CSharpCompilation compilation;
 
         public Dothtml2BlazorCompiler(DotvvmConfiguration dotvvmConfiguration, CompilerOptions options)
         {
@@ -72,12 +72,14 @@ namespace DotVVM.Compiler.Blazor
         {
             if (Options.FullCompile)
             {
-                var bindingsAssemblyPath = bindingCompiler.OutputFileName;
-                bindingCompiler.SaveAssembly();
+                // var bindingsAssemblyPath = bindingCompiler.OutputFileName;
+                // bindingCompiler.SaveAssembly();
 
-                Program.WriteInfo($"Bindings saved to {bindingsAssemblyPath}.");
+                // Program.WriteInfo($"Bindings saved to {bindingsAssemblyPath}.");
 
-                compilation = compilation.AddReferences(MetadataReference.CreateFromFile(Path.GetFullPath(bindingsAssemblyPath)));
+                // var compilation = this.compilation.AddReferences(MetadataReference.CreateFromFile(Path.GetFullPath(bindingsAssemblyPath)));
+                if (!Directory.Exists(Path.GetDirectoryName(Options.OutputPath)))
+                    Directory.CreateDirectory(Path.GetDirectoryName(Options.OutputPath));
                 var compiledViewsFileName = Path.Combine(Options.OutputPath, Options.AssemblyName + ".dll");
 
                 var result = compilation.Emit(compiledViewsFileName);
@@ -85,7 +87,7 @@ namespace DotVVM.Compiler.Blazor
                 {
                     throw new Exception("The compilation failed!");
                 }
-                Program2.WriteInfo($"Compiled views saved to {compiledViewsFileName}.");
+                Program.WriteInfo($"Compiled views saved to {compiledViewsFileName}.");
             }
         }
 
@@ -120,10 +122,6 @@ namespace DotVVM.Compiler.Blazor
         private void BuildFileResult(string fileName, ViewCompilationResult view)
         {
             var r = new FileCompilationResult();
-            var visitor = new ResolvedControlInfoVisitor();
-            if (Options.CheckBindingErrors) visitor.BindingCompiler = bindingCompiler;
-            visitor.Result = r;
-            view.ResolvedTree?.Accept(visitor);
             result.Files.Add(fileName, r);
         }
 
@@ -172,29 +170,30 @@ namespace DotVVM.Compiler.Blazor
             new LifecycleRequirementsAssigningVisitor().ApplyAction(resolvedView.Accept);
 
 
-            DefaultViewCompilerCodeEmitter emitter = null;
+            var emitter = new BetterCodeEmitter();
             string fullClassName = null;
             if (Options.FullCompile)
             {
                 var namespaceName = DefaultControlBuilderFactory.GetNamespaceFromFileName(file.FileName, file.LastWriteDateTimeUtc);
-                var className = DefaultControlBuilderFactory.GetClassFromFileName(file.FileName) + "ControlBuilder";
+                var className = DefaultControlBuilderFactory.GetClassFromFileName(file.FileName) + "_BlazorComponent";
                 fullClassName = namespaceName + "." + className;
-                emitter = new DefaultViewCompilerCodeEmitter();
-                var compilingVisitor = new ViewCompilingVisitor(emitter, configuration.ServiceProvider.GetRequiredService<IBindingCompiler>(), className);
 
+                var compilingVisitor = new BlazorCompilingVisitor(emitter);
                 resolvedView.Accept(compilingVisitor);
 
                 // compile master pages
-                if (resolvedView.Directives.ContainsKey("masterPage"))
-                    CompileFile(resolvedView.Directives["masterPage"].Single().Value);
+                // if (resolvedView.Directives.ContainsKey("masterPage"))
+                //     CompileFile(resolvedView.Directives["masterPage"].Single().Value);
+
+                var trees = emitter.BuildTree(namespaceName, className, fileName).Select(t => t.WithRootAndOptions(t.GetRoot().NormalizeWhitespace(), t.Options)).ToArray();
 
                 compilation = compilation
-                    .AddSyntaxTrees(emitter.BuildTree(namespaceName, className, fileName)/*.Select(t => SyntaxFactory.ParseSyntaxTree(t.GetRoot().NormalizeWhitespace().ToString()))*/)
+                    .AddSyntaxTrees(trees)
                     .AddReferences(emitter.UsedAssemblies
                         .Select(a => CompiledAssemblyCache.Instance.GetAssemblyMetadata(a.Key).WithAliases(ImmutableArray.Create(a.Value))));
             }
 
-            Program2.WriteInfo($"The view { fileName } compiled successfully.");
+            Program.WriteInfo($"The view { fileName } compiled successfully.");
 
             var res = new ViewCompilationResult
             {

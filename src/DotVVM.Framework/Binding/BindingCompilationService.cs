@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Binding
         {
             noInitService = new Lazy<BindingCompilationService>(() => new NoInitService(options));
             foreach (var p in GetDelegates(options.Value.TransformerClasses))
-                resolvers.AddDelegate(p);
+                resolvers.AddDelegate(p, replace: true);
         }
 
         BindingResolverCollection resolvers = new BindingResolverCollection(Enumerable.Empty<Delegate>());

@@ -1,6 +1,17 @@
 {
     "version": "0.2.0",
     "configurations": [
+    {
+        "name": "blazor compiler - .NET Core Launch (console)",
+        "type": "coreclr",
+        "request": "launch",
+        "preLaunchTask": "build",
+        "program": "${workspaceRoot}/DotVVM.Compiler.Blazor/bin/Debug/netcoreapp2.0/DotVVM.Compiler.Blazor.dll",
+        "args": [ "--json", "{FullCompiler: true, DothtmlFiles: [\"Views/default.dothtml\"], WebSiteAssembly: 'bin/Debug/netcoreapp2.0/Samples.Blazor.dll'}" ],
+        "cwd": "${workspaceRoot}/Samples.Blazor",
+        "stopAtEntry": false,
+        "console": "internalConsole"
+    },
         // {
         //     "name": "Tests",
         //     "type": "coreclr",

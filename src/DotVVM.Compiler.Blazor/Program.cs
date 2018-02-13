@@ -79,18 +79,21 @@ namespace DotVVM.Compiler.Blazor
             options.InitMissingOptions();
 
             //Dont touch anything until the paths are filled we have to touch Json though
-            try
-            {
+            // try
+            // {
                 var config = GetConfiguration(options);
+
+                var compiler = new Dothtml2BlazorCompiler(config, options);
+                var result = compiler.Execute();
 
                 Console.WriteLine();
                 return true;
-            }
-            catch (Exception ex)
-            {
-                WriteError(ex);
-                return false;
-            }
+            // }
+            // catch (Exception ex)
+            // {
+            //     WriteError(ex);
+            //     return false;
+            // }
         }
 
         private static DotvvmConfiguration GetConfiguration(CompilerOptions options)
@@ -123,8 +126,7 @@ namespace DotVVM.Compiler.Blazor
         private static void WriteError(Exception ex)
         {
             WriteInfo("Error occured!");
-            var exceptionJson = JsonConvert.SerializeObject(ex);
-            Console.WriteLine("!" + exceptionJson);
+            Console.WriteLine("!" + ex);
             Console.WriteLine();
         }
 

@@ -38,7 +38,6 @@ namespace DotVVM.Framework.Compilation
         private ConcurrentDictionary<(Type obj, string argTypes), string> injectionFactoryCache = new ConcurrentDictionary<(Type obj, string argTypes), string>();
         private Stack<EmitterMethodInfo> methods = new Stack<EmitterMethodInfo>();
         private List<EmitterMethodInfo> outputMethods = new List<EmitterMethodInfo>();
-        public SyntaxTree SyntaxTree { get; private set; }
         public Type BuilderDataContextType { get; set; }
         public string ResultControlType { get; set; }
 
@@ -56,7 +55,7 @@ namespace DotVVM.Framework.Compilation
             return usedAssemblies.GetOrAdd(type.GetTypeInfo().Assembly, _ => "Asm_" + Interlocked.Increment(ref assemblyIdCtr));
         }
 
-        private List<MemberDeclarationSyntax> otherDeclarations = new List<MemberDeclarationSyntax>();
+        protected List<MemberDeclarationSyntax> otherDeclarations = new List<MemberDeclarationSyntax>();
 
         public string EmitCreateVariable(ExpressionSyntax expression)
         {
@@ -99,7 +98,7 @@ namespace DotVVM.Framework.Compilation
                     EmitValue(parameterTypes).Apply(SyntaxFactory.Argument),
                 })));
 
-        
+
         public string EmitCustomInjectionFactoryInvocation(Type factoryType, Type controlType) =>
                 SyntaxFactory.IdentifierName(ServiceProviderParameterName)
                 .Apply(i => SyntaxFactory.MemberAccessExpression(
@@ -117,7 +116,7 @@ namespace DotVVM.Framework.Compilation
                     })))
                 .Apply(a => SyntaxFactory.CastExpression(ParseTypeName(controlType), a))
                 .Apply(EmitCreateVariable);
-        
+
         public string EmitInjectionFactoryInvocation(
             Type type,
             (Type type, ExpressionSyntax expression)[] arguments,
@@ -147,7 +146,7 @@ namespace DotVVM.Framework.Compilation
                     })))
                 .Apply(a => SyntaxFactory.CastExpression(ParseTypeName(type), a))
                 .Apply(EmitCreateVariable);
-        
+
         /// <summary>
         /// Emits the create object expression.
         /// </summary>
@@ -355,7 +354,8 @@ namespace DotVVM.Framework.Compilation
                         )
                    ).ToArray();
                 ExpressionSyntax expr = flags[0];
-                foreach (var i in flags.Skip(1)) {
+                foreach (var i in flags.Skip(1))
+                {
                     expr = SyntaxFactory.BinaryExpression(SyntaxKind.BitwiseOrExpression, expr, i);
                 }
                 return expr;
@@ -781,7 +781,7 @@ namespace DotVVM.Framework.Compilation
             }
         }
 
-        private TypeSyntax ParseTypeName(Type type)
+        public TypeSyntax ParseTypeName(Type type)
         {
             var asmName = UseType(type);
             if (type == typeof(void))
@@ -821,6 +821,8 @@ namespace DotVVM.Framework.Compilation
             }
         }
 
+        public void EmitStatement(StatementSyntax statement) => CurrentStatements.Add(statement);
+
         /// <summary>
         /// Emits the return clause.
         /// </summary>
@@ -829,16 +831,34 @@ namespace DotVVM.Framework.Compilation
             CurrentStatements.Add(SyntaxFactory.ReturnStatement(SyntaxFactory.IdentifierName(variableName)));
         }
 
+        protected virtual IEnumerable<BaseTypeSyntax> GetBuilderBaseTypes() => new BaseTypeSyntax[] {
+            SyntaxFactory.SimpleBaseType(
+                ParseTypeName(typeof(IControlBuilder))
+            )
+        };
+
+        protected virtual IEnumerable<MemberDeclarationSyntax> GetDefaultMemberDeclarations() => new [] {
+            SyntaxFactory.PropertyDeclaration(ParseTypeName(typeof(Type)), nameof(IControlBuilder.DataContextType))
+                .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
+                .WithExpressionBody(
+                    SyntaxFactory.ArrowExpressionClause(SyntaxFactory.TypeOfExpression(ParseTypeName(BuilderDataContextType))))
+                .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)),
+            SyntaxFactory.PropertyDeclaration(ParseTypeName(typeof(Type)), nameof(IControlBuilder.ControlType))
+                .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
+                .WithExpressionBody(
+                    SyntaxFactory.ArrowExpressionClause(SyntaxFactory.TypeOfExpression(
+                        ReflectionUtils.IsFullName(ResultControlType)
+                            ? ParseTypeName(ReflectionUtils.FindType(ResultControlType))
+                            : SyntaxFactory.ParseTypeName(ResultControlType))))
+                .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)),
+        };
+
         /// <summary>
         /// Gets the result syntax tree.
         /// </summary>
         public IEnumerable<SyntaxTree> BuildTree(string namespaceName, string className, string fileName)
         {
             UseType(BuilderDataContextType);
-
-            var controlType = ReflectionUtils.IsFullName(ResultControlType)
-                ? ParseTypeName(ReflectionUtils.FindType(ResultControlType))
-                : SyntaxFactory.ParseTypeName(ResultControlType);
 
             var root = SyntaxFactory.CompilationUnit()
                 .WithExterns(SyntaxFactory.List(
@@ -852,12 +872,7 @@ namespace DotVVM.Framework.Compilation
                             SyntaxFactory.ClassDeclaration(className)
                                 .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
                                 .WithBaseList(SyntaxFactory.BaseList(
-                                    SyntaxFactory.SeparatedList(new BaseTypeSyntax[]
-                                    {
-                                        SyntaxFactory.SimpleBaseType(
-                                            ParseTypeName(typeof(IControlBuilder))
-                                        )
-                                    })
+                                    SyntaxFactory.SeparatedList(GetBuilderBaseTypes())
                                 ))
                                 .AddAttributeLists(SyntaxFactory.AttributeList(SyntaxFactory.SeparatedList(new [] {
                                         SyntaxFactory.Attribute(
@@ -876,18 +891,7 @@ namespace DotVVM.Framework.Compilation
                                             .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
                                             .WithParameterList(m.Parameters)
                                             .WithBody(SyntaxFactory.Block(m.Statements))
-                                        ).Concat(new [] {
-                                            SyntaxFactory.PropertyDeclaration(ParseTypeName(typeof(Type)), nameof(IControlBuilder.DataContextType))
-                                                .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
-                                                .WithExpressionBody(
-                                                    SyntaxFactory.ArrowExpressionClause(SyntaxFactory.TypeOfExpression(ParseTypeName(BuilderDataContextType))))
-                                                .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)),
-                                            SyntaxFactory.PropertyDeclaration(ParseTypeName(typeof(Type)), nameof(IControlBuilder.ControlType))
-                                                .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
-                                                .WithExpressionBody(
-                                                    SyntaxFactory.ArrowExpressionClause(SyntaxFactory.TypeOfExpression(controlType)))
-                                                .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)),
-                                        }).Concat(otherDeclarations)
+                                        ).Concat(GetDefaultMemberDeclarations()).Concat(otherDeclarations)
                                     )
                                 )
                         }

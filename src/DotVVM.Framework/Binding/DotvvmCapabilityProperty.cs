@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
 
