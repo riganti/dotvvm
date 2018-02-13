@@ -19,9 +19,12 @@ namespace DotVVM.Compiler
 {
     internal class AssemblyBindingCompiler : BindingCompiler
     {
+
+#if NET461
         private AssemblyBuilder assemblyBuilder;
         private ModuleBuilder moduleBuilder;
         private TypeBuilder bindingsClass;
+#endif
         private int methodCounter;
         public string OutputFileName { get; set; }
 
@@ -30,9 +33,11 @@ namespace DotVVM.Compiler
         public AssemblyBindingCompiler(string assemblyName, string className, string outputFileName, DotvvmConfiguration configuration)
             : base(configuration)
         {
+#if NET461
             assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(new AssemblyName(assemblyName), AssemblyBuilderAccess.RunAndSave, Path.GetDirectoryName(outputFileName));
             moduleBuilder = assemblyBuilder.DefineDynamicModule(assemblyName, Path.GetFileName(outputFileName));
             bindingsClass = moduleBuilder.DefineType(className, TypeAttributes.Class | TypeAttributes.Public);
+#endif
             OutputFileName = outputFileName;
         }
 
@@ -43,11 +48,18 @@ namespace DotVVM.Compiler
             lock (locker)
             {
                 var name = "Binding_" + (methodCounter++);
+#if  NET461
+                
                 var method = bindingsClass.DefineMethod(name, MethodAttributes.Public | MethodAttributes.Static, returnType, parameters);
                 expr.CompileToMethod(method);
                 return method;
+#endif
+                throw new NotImplementedException();
+
             }
         }
+
+
 
         //public IExpressionToDelegateCompiler GetExpressionToDelegateCompiler()
         //{
@@ -172,11 +184,13 @@ namespace DotVVM.Compiler
         //{
         //    return attributes?.Select(a => emitter?.EmitAttributeInitializer(a)).ToArray();
         //}
-     
+
         public void SaveAssembly()
         {
+#if NET461
             bindingsClass.CreateType();
             assemblyBuilder.Save(Path.GetFileName(OutputFileName));
+#endif
         }
         public IExpressionToDelegateCompiler GetExpressionToDelegateCompiler()
         {
@@ -202,6 +216,8 @@ namespace DotVVM.Compiler
 
         public void AddSerializedObjects(string typeName, Expression builder, ParameterExpression[] fields)
         {
+#if  NET461
+            
             var type = moduleBuilder.DefineType(typeName, TypeAttributes.Class | TypeAttributes.Public);
             var builtFields = fields.Select(f => type.DefineField(f.Name, f.Type, FieldAttributes.Static | FieldAttributes.Public)).ToArray();
             var expandedBuilder = ExpressionUtils.Replace(
@@ -212,6 +228,7 @@ namespace DotVVM.Compiler
             var methodExpression = Expression.Lambda(expandedBuilder, RefObjectSerializer.DotvvmConfigurationParameter, RefObjectSerializer.ServiceProviderParameter);
             methodExpression.CompileToMethod(initMethod);
             type.CreateType();
+#endif
         }
 
         public class BindingExpressionCompilationInfo

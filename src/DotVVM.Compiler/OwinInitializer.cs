@@ -1,11 +1,11 @@
-﻿using DotVVM.Framework;
+﻿#if  NET461
+using DotVVM.Framework;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Owin.Hosting;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -15,6 +15,8 @@ using DotVVM.Compiler.Fakes;
 using DotVVM.Framework.Security;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+    
+using Microsoft.Owin.Hosting;
 using Owin;
 
 namespace DotVVM.Compiler
@@ -95,3 +97,4 @@ namespace DotVVM.Compiler
 
     }
 }
+#endif

@@ -48,7 +48,7 @@ namespace DotVVM.Compiler
         private DotvvmConfiguration GetCachedConfiguration(Assembly assembly, string webSitePath, Action<DotvvmConfiguration, IServiceCollection> registerServices)
         {
             return cachedConfig.GetOrAdd($"{assembly.GetName().Name}|{webSitePath}",
-                key => OwinInitializer.InitDotVVM(assembly, webSitePath, this, registerServices));
+                key => ConfigurationInitializer.Init(assembly, webSitePath, this, registerServices));
         }
 
         private void Init()

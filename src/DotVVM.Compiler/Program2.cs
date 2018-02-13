@@ -24,6 +24,8 @@ namespace DotVVM.Compiler
 
         public static void ContinueMain(string[] args)
         {
+            WriteTargetFramework();
+
             GetEnvironmentAssemblySearchPaths();
             AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolver.ResolveAssembly;
 
@@ -66,6 +68,15 @@ namespace DotVVM.Compiler
                 }
             }
 
+        }
+
+        private static void WriteTargetFramework()
+        {
+#if NET461
+            WriteInfo("Target framework: .NET Framework 4.6");
+#elif NETCOREAPP2_0
+            WriteInfo("Target framework: .NET Standard 2.0");
+#endif
         }
 
         private static void WriteHelp()
@@ -200,7 +211,7 @@ JSON structure:
         private static CompilationResult ExportConfiguration(CompilerOptions options)
         {
             var assembly = Assembly.LoadFile(options.WebSiteAssembly);
-            var config = OwinInitializer.InitDotVVM(assembly, options.WebSitePath, null, (configuration, provider) => { });
+            var config = ConfigurationInitializer.Init(assembly, options.WebSitePath, null, (configuration, provider) => { });
             return new CompilationResult() {
                 Configuration = config
             };

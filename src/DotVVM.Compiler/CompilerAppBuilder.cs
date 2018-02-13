@@ -1,7 +1,10 @@
-﻿using System;
+﻿#if  NET461
+
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Owin;
+
 
 namespace DotVVM.Compiler
 {
@@ -32,3 +35,4 @@ namespace DotVVM.Compiler
         public IDictionary<string, object> Properties { get; } = new ConcurrentDictionary<string, object>();
     }
 }
+#endif
