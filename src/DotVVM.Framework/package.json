@@ -17,4 +17,5 @@
     "watch:ts": "npm run compile:ts -- -w",
     "watch:js": "onchange \"Resources/Scripts/DotVVM.js\" -p -- npm run minify:dotvvm:js"
   }
+, "-vs-binding":{"BeforeBuild":["build"]}
 }

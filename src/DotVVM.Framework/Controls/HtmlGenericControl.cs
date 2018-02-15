@@ -182,7 +182,14 @@ namespace DotVVM.Framework.Controls
             foreach (var cssClass in CssClasses.Properties)
             {
                 if (cssClassBindingGroup == null) cssClassBindingGroup = new KnockoutBindingGroup();
-                cssClassBindingGroup.Add(cssClass.GroupMemberName, this, cssClass, null);
+                cssClassBindingGroup.Add(cssClass.GroupMemberName, this, cssClass, () => {});
+
+                try
+                {
+                    if (true.Equals(this.GetValue(cssClass)))
+                        writer.AddAttribute("class", cssClass.GroupMemberName, append: true, appendSeparator: " ");
+                }
+                catch { }
             }
             if (cssClassBindingGroup != null) writer.AddKnockoutDataBind("css", cssClassBindingGroup);
         }

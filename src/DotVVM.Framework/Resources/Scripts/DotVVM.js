@@ -1837,15 +1837,22 @@ var DotVVM = /** @class */ (function () {
                 elmMetadata.dataType = (element.attributes["data-dotvvm-value-type"] || { value: "" }).value;
                 elmMetadata.format = (element.attributes["data-dotvvm-format"] || { value: "" }).value;
                 //add metadata for validation
-                if (!obs.dotvvmMetadata) {
-                    obs.dotvvmMetadata = new DotvvmValidationObservableMetadata();
-                    obs.dotvvmMetadata.elementsMetadata = [elmMetadata];
+                var metadata = null;
+                if (ko.isObservable(obs)) {
+                    if (!obs.dotvvmMetadata) {
+                        obs.dotvvmMetadata = new DotvvmValidationObservableMetadata();
+                        obs.dotvvmMetadata.elementsMetadata = [elmMetadata];
+                    }
+                    else {
+                        if (!obs.dotvvmMetadata.elementsMetadata) {
+                            obs.dotvvmMetadata.elementsMetadata = [];
+                        }
+                        obs.dotvvmMetadata.elementsMetadata.push(elmMetadata);
+                    }
+                    metadata = obs.dotvvmMetadata.elementsMetadata;
                 }
                 else {
-                    if (!obs.dotvvmMetadata.elementsMetadata) {
-                        obs.dotvvmMetadata.elementsMetadata = [];
-                    }
-                    obs.dotvvmMetadata.elementsMetadata.push(elmMetadata);
+                    metadata = new DotvvmValidationObservableMetadata();
                 }
                 setTimeout(function (metaArray, element) {
                     // remove element from collection when its removed from dom
@@ -1858,7 +1865,7 @@ var DotVVM = /** @class */ (function () {
                             }
                         }
                     });
-                }, 0, obs.dotvvmMetadata.elementsMetadata, element);
+                }, 0, metadata, element);
                 dotvvm.domUtils.attachEvent(element, "change", function () {
                     if (!ko.isObservable(obs))
                         return;

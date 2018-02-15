@@ -31,6 +31,15 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
         [Fact]
+        public void Feature_Localization()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Localization_Localization);
+
+                ChangeAndTestLocalization(browser);
+            });
+        }
+        [Fact]
         public void Feature_Localization_Localization_FormatString()
         {
             RunInAllBrowsers(browser => {
@@ -42,8 +51,12 @@ namespace DotVVM.Samples.Tests.Feature
                 var culture = cultureElement.GetText();
                 Thread.CurrentThread.CurrentCulture = Thread.CurrentThread.CurrentUICulture = new CultureInfo(culture);
                 var value = 12.3456;
-                AssertUI.InnerTextEquals(browser.First("#HardCodedValue"), value.ToString("#0.00"));
-                AssertUI.InnerTextEquals(browser.First("#HardCodedValue"), value.ToString("#0.00"));
+
+                //not supported by framework
+                //AssertUI.InnerTextEquals(browser.First("#HardCodedValue"), value.ToString("#0.00"));
+
+                //supported
+                AssertUI.InnerTextEquals(browser.First("#HardCodedValueInBinding"), value.ToString("#0.00"));
 
             });
         }
