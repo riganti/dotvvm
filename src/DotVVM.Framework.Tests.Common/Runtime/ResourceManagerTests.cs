@@ -60,6 +60,7 @@ namespace DotVVM.Framework.Tests.Runtime
         [TestMethod]
         public void ResourceManager_ConfigurationDeserialization()
         {
+            //define
             var config1 = DotvvmTestHelper.CreateConfiguration();
             config1.Resources.Register("rs1", new ScriptResource(new FileResourceLocation("file.js")));
             config1.Resources.Register("rs2", new StylesheetResource(new UrlResourceLocation("http://c.c/")));
@@ -71,10 +72,18 @@ namespace DotVVM.Framework.Tests.Runtime
             {
                 LocationFallback = new ResourceLocationFallback("condition", new FileResourceLocation("file1.js"))
             });
+            config1.Resources.Register("rs7", new PolyfillResource(){ RenderPosition =  ResourceRenderPosition.Head});
+            config1.Resources.Register("rs8", new ScriptResource(new JQueryGlobalizeResourceLocation(CultureInfo.GetCultureInfo("en-US"))));
 
+
+
+            // serialize & deserialize
             JsonSerializerSettings settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto };
             var config2 = JsonConvert.DeserializeObject<DotvvmConfiguration>(JsonConvert.SerializeObject(config1, settings), settings);
 
+
+
+            //test 
             Assert.IsTrue(config2.Resources.FindResource("rs1") is ScriptResource rs1 &&
                 rs1.Location is FileResourceLocation rs1loc &&
                 rs1loc.FilePath == "file.js");
@@ -95,6 +104,10 @@ namespace DotVVM.Framework.Tests.Runtime
                 rs6.LocationFallback.JavascriptCondition == "condition" &&
                 rs6.LocationFallback.AlternativeLocations.Single() is FileResourceLocation rs6loc2 &&
                 rs6loc2.FilePath == "file1.js");
+            Assert.IsTrue(config2.Resources.FindResource("rs7") is PolyfillResource rs7 && rs7.RenderPosition == ResourceRenderPosition.Head);
+            Assert.IsTrue(config2.Resources.FindResource("rs8") is ScriptResource rs8 && rs8.Location is JQueryGlobalizeResourceLocation rs8loc);
+            
+
         }
 
         [TestMethod]
