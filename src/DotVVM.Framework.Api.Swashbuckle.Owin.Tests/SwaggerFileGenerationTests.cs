@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 using System.Web.Http.Description;
+using DotVVM.Core.Common;
 using DotVVM.Framework.Api.Swashbuckle.Owin.Filters;
+using DotVVM.Framework.ViewModel;
 using DotVVM.Samples.BasicSamples.Api.Owin.Controllers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
@@ -42,8 +44,8 @@ namespace DotVVM.Framework.Api.Swashbuckle.Owin.Tests
                 new ApplySwaggerOperationFilterAttributes(),
 
                 // our custom filters
-                new AddAsObjectAnnotationOperationFilter(),
-            }, schemaFilters: new[] { new HandleKnownTypesSchemaFilter() });
+                new AddAsObjectAnnotationOperationFilter(new DefaultPropertySerialization()),
+            }, schemaFilters: new[] { new HandleDotvvmNameSchemaFilter(new DotvvmApiOptions(), new DefaultPropertySerialization()) });
             var generator = new SwaggerGenerator(apiExplorer, settings, versions, options);
             document = generator.GetSwagger("http://localhost:61453/", "v1");
         }

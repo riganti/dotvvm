@@ -4,17 +4,17 @@
 // </auto-generated>
 //----------------------
 
-namespace DotVVM.Samples.Common.Api.AspNetCore
+namespace DotVVM.Samples.Common.Api.Owin
 {
     #pragma warning disable // Disable all warnings
 
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "11.12.13.0 (NJsonSchema v9.10.14.0 (Newtonsoft.Json v10.0.0.0))")]
-    public partial class Client 
+    public partial class CompaniesClient 
     {
-        private string _baseUrl = "http://localhost:5001";
+        private string _baseUrl = "http://localhost:61453";
         private System.Lazy<Newtonsoft.Json.JsonSerializerSettings> _settings;
     
-        public Client()
+        public CompaniesClient()
         {
     		_settings = new System.Lazy<Newtonsoft.Json.JsonSerializerSettings>(() => 
             {
@@ -35,22 +35,22 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         partial void PrepareRequest(System.Net.Http.HttpClient client, System.Net.Http.HttpRequestMessage request, System.Text.StringBuilder urlBuilder);
         partial void ProcessResponse(System.Net.Http.HttpClient client, System.Net.Http.HttpResponseMessage response);
     
-        /// <returns>Success</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
-        public System.Collections.ObjectModel.ObservableCollection<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>> ApiCompaniesGet()
+        public System.Collections.ObjectModel.ObservableCollection<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>> Get()
         {
-            return System.Threading.Tasks.Task.Run(async () => await ApiCompaniesGetAsync(System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            return System.Threading.Tasks.Task.Run(async () => await GetAsync(System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
     
-        /// <returns>Success</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
-        public async System.Threading.Tasks.Task<System.Collections.ObjectModel.ObservableCollection<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>>> ApiCompaniesGetAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public async System.Threading.Tasks.Task<System.Collections.ObjectModel.ObservableCollection<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>>> GetAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/Companies");
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/companies");
     
             var client_ = new System.Net.Http.HttpClient();
             try
@@ -112,28 +112,25 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
             }
         }
     
-        /// <returns>Success</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
-        public DotVVM.Framework.Controls.GridViewDataSet<CompanyOfBoolean> ApiCompaniesSortedGet(DotVVM.Framework.Controls.ISortingOptions sortingOptions = null)
+        public DotVVM.Framework.Controls.GridViewDataSet<CompanyOfBoolean> GetWithSorting(DotVVM.Framework.Controls.ISortingOptions sortingOptions = null)
         {
-            return System.Threading.Tasks.Task.Run(async () => await ApiCompaniesSortedGetAsync(sortingOptions, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            return System.Threading.Tasks.Task.Run(async () => await GetWithSortingAsync(sortingOptions, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
     
-        /// <returns>Success</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
-        public async System.Threading.Tasks.Task<DotVVM.Framework.Controls.GridViewDataSet<CompanyOfBoolean>> ApiCompaniesSortedGetAsync(DotVVM.Framework.Controls.ISortingOptions sortingOptions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public async System.Threading.Tasks.Task<DotVVM.Framework.Controls.GridViewDataSet<CompanyOfBoolean>> GetWithSortingAsync(DotVVM.Framework.Controls.ISortingOptions sortingOptions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
-            var sortingOptions_SortDescending = sortingOptions != null ? sortingOptions.SortDescending : default(bool);
+            var sortingOptions_SortDescending = sortingOptions != null ? sortingOptions.SortDescending : default(bool?);
             var sortingOptions_SortExpression = sortingOptions != null ? sortingOptions.SortExpression : default(string);
-            if (sortingOptions_SortDescending == null)
-                throw new System.ArgumentNullException("sortingOptions_SortDescending");
-    
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/Companies/sorted?");
-            urlBuilder_.Append("sortingOptions.SortDescending=").Append(System.Uri.EscapeDataString(System.Convert.ToString(sortingOptions_SortDescending, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/companies/sorted?");
+            if (sortingOptions_SortDescending != null) urlBuilder_.Append("sortingOptions.SortDescending=").Append(System.Uri.EscapeDataString(System.Convert.ToString(sortingOptions_SortDescending, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             if (sortingOptions_SortExpression != null) urlBuilder_.Append("sortingOptions.SortExpression=").Append(System.Uri.EscapeDataString(System.Convert.ToString(sortingOptions_SortExpression, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             urlBuilder_.Length--;
     
@@ -197,37 +194,28 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
             }
         }
     
-        /// <returns>Success</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
-        public DotVVM.Framework.Controls.GridViewDataSet<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>> ApiCompaniesPagedGet(DotVVM.Framework.Controls.IPagingOptions pagingOptions = null)
+        public DotVVM.Framework.Controls.GridViewDataSet<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>> GetWithPaging(DotVVM.Framework.Controls.IPagingOptions pagingOptions = null)
         {
-            return System.Threading.Tasks.Task.Run(async () => await ApiCompaniesPagedGetAsync(pagingOptions, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            return System.Threading.Tasks.Task.Run(async () => await GetWithPagingAsync(pagingOptions, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
     
-        /// <returns>Success</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
-        public async System.Threading.Tasks.Task<DotVVM.Framework.Controls.GridViewDataSet<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>>> ApiCompaniesPagedGetAsync(DotVVM.Framework.Controls.IPagingOptions pagingOptions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public async System.Threading.Tasks.Task<DotVVM.Framework.Controls.GridViewDataSet<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>>> GetWithPagingAsync(DotVVM.Framework.Controls.IPagingOptions pagingOptions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
-            var pagingOptions_PageIndex = pagingOptions != null ? pagingOptions.PageIndex : default(int);
-            var pagingOptions_PageSize = pagingOptions != null ? pagingOptions.PageSize : default(int);
-            var pagingOptions_TotalItemsCount = pagingOptions != null ? pagingOptions.TotalItemsCount : default(int);
-            if (pagingOptions_PageIndex == null)
-                throw new System.ArgumentNullException("pagingOptions_PageIndex");
-    
-            if (pagingOptions_PageSize == null)
-                throw new System.ArgumentNullException("pagingOptions_PageSize");
-    
-            if (pagingOptions_TotalItemsCount == null)
-                throw new System.ArgumentNullException("pagingOptions_TotalItemsCount");
-    
+            var pagingOptions_PageIndex = pagingOptions != null ? pagingOptions.PageIndex : default(int?);
+            var pagingOptions_PageSize = pagingOptions != null ? pagingOptions.PageSize : default(int?);
+            var pagingOptions_TotalItemsCount = pagingOptions != null ? pagingOptions.TotalItemsCount : default(int?);
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/Companies/paged?");
-            urlBuilder_.Append("pagingOptions.PageIndex=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pagingOptions_PageIndex, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
-            urlBuilder_.Append("pagingOptions.PageSize=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pagingOptions_PageSize, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
-            urlBuilder_.Append("pagingOptions.TotalItemsCount=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pagingOptions_TotalItemsCount, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/companies/paged?");
+            if (pagingOptions_PageIndex != null) urlBuilder_.Append("pagingOptions.PageIndex=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pagingOptions_PageIndex, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            if (pagingOptions_PageSize != null) urlBuilder_.Append("pagingOptions.PageSize=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pagingOptions_PageSize, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            if (pagingOptions_TotalItemsCount != null) urlBuilder_.Append("pagingOptions.TotalItemsCount=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pagingOptions_TotalItemsCount, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             urlBuilder_.Length--;
     
             var client_ = new System.Net.Http.HttpClient();
@@ -290,44 +278,32 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
             }
         }
     
-        /// <returns>Success</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
-        public DotVVM.Framework.Controls.GridViewDataSet<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>> ApiCompaniesSortedandpagedGet(DotVVM.Framework.Controls.ISortingOptions sortingOptions = null, DotVVM.Framework.Controls.IPagingOptions pagingOptions = null)
+        public DotVVM.Framework.Controls.GridViewDataSet<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>> GetWithSortingAndPaging(DotVVM.Framework.Controls.ISortingOptions sortingOptions = null, DotVVM.Framework.Controls.IPagingOptions pagingOptions = null)
         {
-            return System.Threading.Tasks.Task.Run(async () => await ApiCompaniesSortedandpagedGetAsync(sortingOptions, pagingOptions, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            return System.Threading.Tasks.Task.Run(async () => await GetWithSortingAndPagingAsync(sortingOptions, pagingOptions, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
     
-        /// <returns>Success</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
-        public async System.Threading.Tasks.Task<DotVVM.Framework.Controls.GridViewDataSet<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>>> ApiCompaniesSortedandpagedGetAsync(DotVVM.Framework.Controls.ISortingOptions sortingOptions = null, DotVVM.Framework.Controls.IPagingOptions pagingOptions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public async System.Threading.Tasks.Task<DotVVM.Framework.Controls.GridViewDataSet<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>>> GetWithSortingAndPagingAsync(DotVVM.Framework.Controls.ISortingOptions sortingOptions = null, DotVVM.Framework.Controls.IPagingOptions pagingOptions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
-            var sortingOptions_SortDescending = sortingOptions != null ? sortingOptions.SortDescending : default(bool);
-            var pagingOptions_PageIndex = pagingOptions != null ? pagingOptions.PageIndex : default(int);
-            var pagingOptions_PageSize = pagingOptions != null ? pagingOptions.PageSize : default(int);
-            var pagingOptions_TotalItemsCount = pagingOptions != null ? pagingOptions.TotalItemsCount : default(int);
+            var sortingOptions_SortDescending = sortingOptions != null ? sortingOptions.SortDescending : default(bool?);
             var sortingOptions_SortExpression = sortingOptions != null ? sortingOptions.SortExpression : default(string);
-            if (sortingOptions_SortDescending == null)
-                throw new System.ArgumentNullException("sortingOptions_SortDescending");
-    
-            if (pagingOptions_PageIndex == null)
-                throw new System.ArgumentNullException("pagingOptions_PageIndex");
-    
-            if (pagingOptions_PageSize == null)
-                throw new System.ArgumentNullException("pagingOptions_PageSize");
-    
-            if (pagingOptions_TotalItemsCount == null)
-                throw new System.ArgumentNullException("pagingOptions_TotalItemsCount");
-    
+            var pagingOptions_PageIndex = pagingOptions != null ? pagingOptions.PageIndex : default(int?);
+            var pagingOptions_PageSize = pagingOptions != null ? pagingOptions.PageSize : default(int?);
+            var pagingOptions_TotalItemsCount = pagingOptions != null ? pagingOptions.TotalItemsCount : default(int?);
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/Companies/sortedandpaged?");
-            urlBuilder_.Append("sortingOptions.SortDescending=").Append(System.Uri.EscapeDataString(System.Convert.ToString(sortingOptions_SortDescending, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
-            urlBuilder_.Append("pagingOptions.PageIndex=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pagingOptions_PageIndex, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
-            urlBuilder_.Append("pagingOptions.PageSize=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pagingOptions_PageSize, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
-            urlBuilder_.Append("pagingOptions.TotalItemsCount=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pagingOptions_TotalItemsCount, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/companies/sortedandpaged?");
+            if (sortingOptions_SortDescending != null) urlBuilder_.Append("sortingOptions.SortDescending=").Append(System.Uri.EscapeDataString(System.Convert.ToString(sortingOptions_SortDescending, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             if (sortingOptions_SortExpression != null) urlBuilder_.Append("sortingOptions.SortExpression=").Append(System.Uri.EscapeDataString(System.Convert.ToString(sortingOptions_SortExpression, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            if (pagingOptions_PageIndex != null) urlBuilder_.Append("pagingOptions.PageIndex=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pagingOptions_PageIndex, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            if (pagingOptions_PageSize != null) urlBuilder_.Append("pagingOptions.PageSize=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pagingOptions_PageSize, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            if (pagingOptions_TotalItemsCount != null) urlBuilder_.Append("pagingOptions.TotalItemsCount=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pagingOptions_TotalItemsCount, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             urlBuilder_.Length--;
     
             var client_ = new System.Net.Http.HttpClient();
@@ -390,34 +366,57 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
             }
         }
     
-        /// <returns>Success</returns>
-        /// <exception cref="SwaggerException">A server side error occurred.</exception>
-        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
-        public System.Collections.ObjectModel.ObservableCollection<Order> ApiOrdersGet(int companyId, int pageIndex, int pageSize)
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCode("NSwag", "11.12.13.0 (NJsonSchema v9.10.14.0 (Newtonsoft.Json v10.0.0.0))")]
+    public partial class OrdersClient 
+    {
+        private string _baseUrl = "http://localhost:61453";
+        private System.Lazy<Newtonsoft.Json.JsonSerializerSettings> _settings;
+    
+        public OrdersClient()
         {
-            return System.Threading.Tasks.Task.Run(async () => await ApiOrdersGetAsync(companyId, pageIndex, pageSize, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+    		_settings = new System.Lazy<Newtonsoft.Json.JsonSerializerSettings>(() => 
+            {
+                var settings = new Newtonsoft.Json.JsonSerializerSettings();
+                UpdateJsonSerializerSettings(settings);
+                return settings;
+            });
+    	}
+    
+        public string BaseUrl 
+        {
+            get { return _baseUrl; }
+            set { _baseUrl = value; }
         }
     
-        /// <returns>Success</returns>
+        partial void UpdateJsonSerializerSettings(Newtonsoft.Json.JsonSerializerSettings settings);
+        partial void PrepareRequest(System.Net.Http.HttpClient client, System.Net.Http.HttpRequestMessage request, string url);
+        partial void PrepareRequest(System.Net.Http.HttpClient client, System.Net.Http.HttpRequestMessage request, System.Text.StringBuilder urlBuilder);
+        partial void ProcessResponse(System.Net.Http.HttpClient client, System.Net.Http.HttpResponseMessage response);
+    
+        /// <returns>OK</returns>
+        /// <exception cref="SwaggerException">A server side error occurred.</exception>
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
+        public System.Collections.ObjectModel.ObservableCollection<Order> Get(int companyId, int? pageIndex = null, int? pageSize = null)
+        {
+            return System.Threading.Tasks.Task.Run(async () => await GetAsync(companyId, pageIndex, pageSize, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+        }
+    
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
-        public async System.Threading.Tasks.Task<System.Collections.ObjectModel.ObservableCollection<Order>> ApiOrdersGetAsync(int companyId, int pageIndex, int pageSize, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public async System.Threading.Tasks.Task<System.Collections.ObjectModel.ObservableCollection<Order>> GetAsync(int companyId, int? pageIndex = null, int? pageSize = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (companyId == null)
                 throw new System.ArgumentNullException("companyId");
     
-            if (pageIndex == null)
-                throw new System.ArgumentNullException("pageIndex");
-    
-            if (pageSize == null)
-                throw new System.ArgumentNullException("pageSize");
-    
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/Orders?");
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/orders?");
             urlBuilder_.Append("companyId=").Append(System.Uri.EscapeDataString(System.Convert.ToString(companyId, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
-            urlBuilder_.Append("pageIndex=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pageIndex, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
-            urlBuilder_.Append("pageSize=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pageSize, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            if (pageIndex != null) urlBuilder_.Append("pageIndex=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pageIndex, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            if (pageSize != null) urlBuilder_.Append("pageSize=").Append(System.Uri.EscapeDataString(System.Convert.ToString(pageSize, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             urlBuilder_.Length--;
     
             var client_ = new System.Net.Http.HttpClient();
@@ -480,22 +479,22 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
             }
         }
     
-        /// <returns>Success</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Post")]
-        public void ApiOrdersPost(Order order = null)
+        public object Post(Order order)
         {
-            System.Threading.Tasks.Task.Run(async () => await ApiOrdersPostAsync(order, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            return System.Threading.Tasks.Task.Run(async () => await PostAsync(order, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
     
-        /// <returns>Success</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Post")]
-        public async System.Threading.Tasks.Task ApiOrdersPostAsync(Order order = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public async System.Threading.Tasks.Task<object> PostAsync(Order order, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/Orders");
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/orders");
     
             var client_ = new System.Net.Http.HttpClient();
             try
@@ -506,6 +505,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
+                    request_.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
     
                     PrepareRequest(client_, request_, urlBuilder_);
                     var url_ = urlBuilder_.ToString();
@@ -524,7 +524,17 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
                         var status_ = ((int)response_.StatusCode).ToString();
                         if (status_ == "200") 
                         {
-                            return;
+                            var responseData_ = await response_.Content.ReadAsStringAsync().ConfigureAwait(false); 
+                            var result_ = default(object); 
+                            try
+                            {
+                                result_ = Newtonsoft.Json.JsonConvert.DeserializeObject<object>(responseData_, _settings.Value);
+                                return result_; 
+                            } 
+                            catch (System.Exception exception_) 
+                            {
+                                throw new SwaggerException("Could not deserialize the response body.", status_, responseData_, headers_, exception_);
+                            }
                         }
                         else
                         if (status_ != "200" && status_ != "204")
@@ -532,6 +542,8 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
                             var responseData_ = await response_.Content.ReadAsStringAsync().ConfigureAwait(false); 
                             throw new SwaggerException("The HTTP status code of the response was not expected (" + (int)response_.StatusCode + ").", status_, responseData_, headers_, null);
                         }
+            
+                        return default(object);
                     }
                     finally
                     {
@@ -547,25 +559,25 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
             }
         }
     
-        /// <returns>Success</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
-        public Order ApiOrdersByOrderIdGet(int orderId)
+        public Order GetItem(int orderId)
         {
-            return System.Threading.Tasks.Task.Run(async () => await ApiOrdersByOrderIdGetAsync(orderId, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            return System.Threading.Tasks.Task.Run(async () => await GetItemAsync(orderId, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
     
-        /// <returns>Success</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
-        public async System.Threading.Tasks.Task<Order> ApiOrdersByOrderIdGetAsync(int orderId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public async System.Threading.Tasks.Task<Order> GetItemAsync(int orderId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (orderId == null)
                 throw new System.ArgumentNullException("orderId");
     
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/Orders/{orderId}");
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/orders/{orderId}");
             urlBuilder_.Replace("{orderId}", System.Uri.EscapeDataString(System.Convert.ToString(orderId, System.Globalization.CultureInfo.InvariantCulture)));
     
             var client_ = new System.Net.Http.HttpClient();
@@ -628,25 +640,25 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
             }
         }
     
-        /// <returns>Success</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Put")]
-        public void ApiOrdersByOrderIdPut(int orderId, Order order = null)
+        public object Put(int orderId, Order order)
         {
-            System.Threading.Tasks.Task.Run(async () => await ApiOrdersByOrderIdPutAsync(orderId, order, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            return System.Threading.Tasks.Task.Run(async () => await PutAsync(orderId, order, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
     
-        /// <returns>Success</returns>
+        /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Put")]
-        public async System.Threading.Tasks.Task ApiOrdersByOrderIdPutAsync(int orderId, Order order = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public async System.Threading.Tasks.Task<object> PutAsync(int orderId, Order order, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (orderId == null)
                 throw new System.ArgumentNullException("orderId");
     
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/Orders/{orderId}");
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/orders/{orderId}");
             urlBuilder_.Replace("{orderId}", System.Uri.EscapeDataString(System.Convert.ToString(orderId, System.Globalization.CultureInfo.InvariantCulture)));
     
             var client_ = new System.Net.Http.HttpClient();
@@ -658,6 +670,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("PUT");
+                    request_.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
     
                     PrepareRequest(client_, request_, urlBuilder_);
                     var url_ = urlBuilder_.ToString();
@@ -676,7 +689,17 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
                         var status_ = ((int)response_.StatusCode).ToString();
                         if (status_ == "200") 
                         {
-                            return;
+                            var responseData_ = await response_.Content.ReadAsStringAsync().ConfigureAwait(false); 
+                            var result_ = default(object); 
+                            try
+                            {
+                                result_ = Newtonsoft.Json.JsonConvert.DeserializeObject<object>(responseData_, _settings.Value);
+                                return result_; 
+                            } 
+                            catch (System.Exception exception_) 
+                            {
+                                throw new SwaggerException("Could not deserialize the response body.", status_, responseData_, headers_, exception_);
+                            }
                         }
                         else
                         if (status_ != "200" && status_ != "204")
@@ -684,6 +707,8 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
                             var responseData_ = await response_.Content.ReadAsStringAsync().ConfigureAwait(false); 
                             throw new SwaggerException("The HTTP status code of the response was not expected (" + (int)response_.StatusCode + ").", status_, responseData_, headers_, null);
                         }
+            
+                        return default(object);
                     }
                     finally
                     {
@@ -699,25 +724,25 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
             }
         }
     
-        /// <returns>Success</returns>
+        /// <returns>No Content</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Delete")]
-        public void ApiOrdersDeleteByOrderIdDelete(int orderId)
+        public void Delete(int orderId)
         {
-            System.Threading.Tasks.Task.Run(async () => await ApiOrdersDeleteByOrderIdDeleteAsync(orderId, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            System.Threading.Tasks.Task.Run(async () => await DeleteAsync(orderId, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
     
-        /// <returns>Success</returns>
+        /// <returns>No Content</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Delete")]
-        public async System.Threading.Tasks.Task ApiOrdersDeleteByOrderIdDeleteAsync(int orderId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public async System.Threading.Tasks.Task DeleteAsync(int orderId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (orderId == null)
                 throw new System.ArgumentNullException("orderId");
     
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/Orders/delete/{orderId}");
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/orders/delete/{orderId}");
             urlBuilder_.Replace("{orderId}", System.Uri.EscapeDataString(System.Convert.ToString(orderId, System.Globalization.CultureInfo.InvariantCulture)));
     
             var client_ = new System.Net.Http.HttpClient();
@@ -742,7 +767,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
                         ProcessResponse(client_, response_);
     
                         var status_ = ((int)response_.StatusCode).ToString();
-                        if (status_ == "200") 
+                        if (status_ == "204") 
                         {
                             return;
                         }
@@ -774,16 +799,16 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.14.0 (Newtonsoft.Json v10.0.0.0)")]
     public partial class CompanyOfBoolean 
     {
-        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? Id { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("Name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Name { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("owner", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("Owner", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Owner { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("department", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("Department", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? Department { get; set; }
     
         public string ToJson() 
@@ -800,19 +825,19 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.14.0 (Newtonsoft.Json v10.0.0.0)")]
     public partial class Order 
     {
-        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? Id { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("number", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("Number", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Number { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("date", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("Date", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTime? Date { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("companyId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("CompanyId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? CompanyId { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("orderItems", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("OrderItems", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.List<OrderItem> OrderItems { get; set; }
     
         public string ToJson() 
@@ -829,19 +854,19 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.10.14.0 (Newtonsoft.Json v10.0.0.0)")]
     public partial class OrderItem 
     {
-        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? Id { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("text", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("Text", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Text { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("amount", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("Amount", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double? Amount { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("discount", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("Discount", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double? Discount { get; set; }
     
-        [Newtonsoft.Json.JsonProperty("isOnStock", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("IsOnStock", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? IsOnStock { get; set; }
     
         public string ToJson() 
@@ -890,4 +915,9 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         }
     }
 
+    public class TestWebApiClientOwin
+    {
+        public CompaniesClient Companies { get; set; }
+        public OrdersClient Orders { get; set; }
+    }
 }

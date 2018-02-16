@@ -16,11 +16,14 @@ namespace DotVVM.Framework.ViewModel.Serialization
     {
         private readonly IValidationRuleTranslator validationRuleTranslator;
         private readonly IViewModelValidationMetadataProvider validationMetadataProvider;
+        private readonly IPropertySerialization propertySerialization;
 
-        public ViewModelSerializationMapper(IValidationRuleTranslator validationRuleTranslator, IViewModelValidationMetadataProvider validationMetadataProvider)
+        public ViewModelSerializationMapper(IValidationRuleTranslator validationRuleTranslator, IViewModelValidationMetadataProvider validationMetadataProvider,
+            IPropertySerialization propertySerialization)
         {
             this.validationRuleTranslator = validationRuleTranslator;
             this.validationMetadataProvider = validationMetadataProvider;
+            this.propertySerialization = propertySerialization;
         }
 
         private readonly ConcurrentDictionary<Type, ViewModelSerializationMap> serializationMapCache = new ConcurrentDictionary<Type, ViewModelSerializationMap>();
@@ -45,7 +48,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
                 var propertyMap = new ViewModelPropertyMap() {
                     PropertyInfo = property,
-                    Name = ResolvePropertyName(property),
+                    Name = propertySerialization.ResolveName(property),
                     ViewModelProtection = ProtectMode.None,
                     Type = property.PropertyType,
                     TransferAfterPostback = property.GetMethod != null && property.GetMethod.IsPublic,
@@ -85,30 +88,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
                 yield return propertyMap;
             }
-        }
-
-        private static string ResolvePropertyName(PropertyInfo property)
-        {
-            var bindAttribute = property.GetCustomAttribute<BindAttribute>();
-            if (bindAttribute != null)
-            {
-                if (!string.IsNullOrEmpty(bindAttribute.Name))
-                {
-                    return bindAttribute.Name;
-                }
-            }
-
-            if (string.IsNullOrEmpty(bindAttribute?.Name))
-            {
-                // use JsonProperty name if Bind attribute is not present or doesn't specify it
-                var jsonPropertyAttribute = property.GetCustomAttribute<JsonPropertyAttribute>();
-                if (!string.IsNullOrEmpty(jsonPropertyAttribute?.PropertyName))
-                {
-                    return jsonPropertyAttribute.PropertyName;
-                }
-            }
-
-            return property.Name;
         }
 
         protected virtual JsonConverter GetJsonConverter(PropertyInfo property)

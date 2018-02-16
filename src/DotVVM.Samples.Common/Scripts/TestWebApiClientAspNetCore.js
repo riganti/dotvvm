@@ -134,7 +134,7 @@ var DotVVM;
                                 return response.text().then(function (_responseText) {
                                     var result200 = null;
                                     var resultData200 = _responseText === "" ? null : JSON.parse(_responseText, _this.jsonParseReviver);
-                                    result200 = resultData200 ? GridViewDataSetOfCompanyOfString.fromJS(resultData200) : new GridViewDataSetOfCompanyOfString();
+                                    result200 = resultData200 ? GridViewDataSetOfCompanyOfBoolean.fromJS(resultData200) : new GridViewDataSetOfCompanyOfBoolean();
                                     return result200;
                                 });
                             }
@@ -262,7 +262,7 @@ var DotVVM;
                                 return response.text().then(function (_responseText) {
                                     var result200 = null;
                                     var resultData200 = _responseText === "" ? null : JSON.parse(_responseText, _this.jsonParseReviver);
-                                    result200 = resultData200 ? GridViewDataSetOfCompanyOfBoolean.fromJS(resultData200) : new GridViewDataSetOfCompanyOfBoolean();
+                                    result200 = resultData200 ? GridViewDataSetOfCompanyOfString.fromJS(resultData200) : new GridViewDataSetOfCompanyOfString();
                                     return result200;
                                 });
                             }
@@ -542,8 +542,8 @@ var DotVVM;
                         return CompanyOfString;
                     }());
                     AspNetCore.CompanyOfString = CompanyOfString;
-                    var GridViewDataSetOfCompanyOfString = /** @class */ (function () {
-                        function GridViewDataSetOfCompanyOfString(data) {
+                    var GridViewDataSetOfCompanyOfBoolean = /** @class */ (function () {
+                        function GridViewDataSetOfCompanyOfBoolean(data) {
                             if (data) {
                                 for (var property in data) {
                                     if (data.hasOwnProperty(property))
@@ -551,14 +551,14 @@ var DotVVM;
                                 }
                             }
                         }
-                        GridViewDataSetOfCompanyOfString.prototype.init = function (data) {
+                        GridViewDataSetOfCompanyOfBoolean.prototype.init = function (data) {
                             if (data) {
                                 this.IsRefreshRequired = data["isRefreshRequired"] !== undefined ? data["isRefreshRequired"] : null;
                                 if (data["items"] && data["items"].constructor === Array) {
                                     this.Items = [];
                                     for (var _i = 0, _a = data["items"]; _i < _a.length; _i++) {
                                         var item = _a[_i];
-                                        this.Items.push(CompanyOfString.fromJS(item));
+                                        this.Items.push(CompanyOfBoolean.fromJS(item));
                                     }
                                 }
                                 this.PagingOptions = data["pagingOptions"] ? IPagingOptions.fromJS(data["pagingOptions"]) : null;
@@ -566,12 +566,12 @@ var DotVVM;
                                 this.SortingOptions = data["sortingOptions"] ? ISortingOptions.fromJS(data["sortingOptions"]) : null;
                             }
                         };
-                        GridViewDataSetOfCompanyOfString.fromJS = function (data) {
-                            var result = new GridViewDataSetOfCompanyOfString();
+                        GridViewDataSetOfCompanyOfBoolean.fromJS = function (data) {
+                            var result = new GridViewDataSetOfCompanyOfBoolean();
                             result.init(data);
                             return result;
                         };
-                        GridViewDataSetOfCompanyOfString.prototype.toJSON = function (data) {
+                        GridViewDataSetOfCompanyOfBoolean.prototype.toJSON = function (data) {
                             data = typeof data === 'object' ? data : {};
                             data["isRefreshRequired"] = this.IsRefreshRequired !== undefined ? this.IsRefreshRequired : null;
                             if (this.Items && this.Items.constructor === Array) {
@@ -586,9 +586,42 @@ var DotVVM;
                             data["sortingOptions"] = this.SortingOptions ? this.SortingOptions.toJSON() : null;
                             return data;
                         };
-                        return GridViewDataSetOfCompanyOfString;
+                        return GridViewDataSetOfCompanyOfBoolean;
                     }());
-                    AspNetCore.GridViewDataSetOfCompanyOfString = GridViewDataSetOfCompanyOfString;
+                    AspNetCore.GridViewDataSetOfCompanyOfBoolean = GridViewDataSetOfCompanyOfBoolean;
+                    var CompanyOfBoolean = /** @class */ (function () {
+                        function CompanyOfBoolean(data) {
+                            if (data) {
+                                for (var property in data) {
+                                    if (data.hasOwnProperty(property))
+                                        this[property] = data[property];
+                                }
+                            }
+                        }
+                        CompanyOfBoolean.prototype.init = function (data) {
+                            if (data) {
+                                this.id = data["id"] !== undefined ? data["id"] : null;
+                                this.name = data["name"] !== undefined ? data["name"] : null;
+                                this.owner = data["owner"] !== undefined ? data["owner"] : null;
+                                this.department = data["department"] !== undefined ? data["department"] : null;
+                            }
+                        };
+                        CompanyOfBoolean.fromJS = function (data) {
+                            var result = new CompanyOfBoolean();
+                            result.init(data);
+                            return result;
+                        };
+                        CompanyOfBoolean.prototype.toJSON = function (data) {
+                            data = typeof data === 'object' ? data : {};
+                            data["id"] = this.id !== undefined ? this.id : null;
+                            data["name"] = this.name !== undefined ? this.name : null;
+                            data["owner"] = this.owner !== undefined ? this.owner : null;
+                            data["department"] = this.department !== undefined ? this.department : null;
+                            return data;
+                        };
+                        return CompanyOfBoolean;
+                    }());
+                    AspNetCore.CompanyOfBoolean = CompanyOfBoolean;
                     var IPagingOptions = /** @class */ (function () {
                         function IPagingOptions(data) {
                             if (data) {
@@ -710,8 +743,8 @@ var DotVVM;
                         return ISortingOptions;
                     }());
                     AspNetCore.ISortingOptions = ISortingOptions;
-                    var GridViewDataSetOfCompanyOfBoolean = /** @class */ (function () {
-                        function GridViewDataSetOfCompanyOfBoolean(data) {
+                    var GridViewDataSetOfCompanyOfString = /** @class */ (function () {
+                        function GridViewDataSetOfCompanyOfString(data) {
                             if (data) {
                                 for (var property in data) {
                                     if (data.hasOwnProperty(property))
@@ -719,14 +752,14 @@ var DotVVM;
                                 }
                             }
                         }
-                        GridViewDataSetOfCompanyOfBoolean.prototype.init = function (data) {
+                        GridViewDataSetOfCompanyOfString.prototype.init = function (data) {
                             if (data) {
                                 this.IsRefreshRequired = data["isRefreshRequired"] !== undefined ? data["isRefreshRequired"] : null;
                                 if (data["items"] && data["items"].constructor === Array) {
                                     this.Items = [];
                                     for (var _i = 0, _a = data["items"]; _i < _a.length; _i++) {
                                         var item = _a[_i];
-                                        this.Items.push(CompanyOfBoolean.fromJS(item));
+                                        this.Items.push(CompanyOfString.fromJS(item));
                                     }
                                 }
                                 this.PagingOptions = data["pagingOptions"] ? IPagingOptions.fromJS(data["pagingOptions"]) : null;
@@ -734,12 +767,12 @@ var DotVVM;
                                 this.SortingOptions = data["sortingOptions"] ? ISortingOptions.fromJS(data["sortingOptions"]) : null;
                             }
                         };
-                        GridViewDataSetOfCompanyOfBoolean.fromJS = function (data) {
-                            var result = new GridViewDataSetOfCompanyOfBoolean();
+                        GridViewDataSetOfCompanyOfString.fromJS = function (data) {
+                            var result = new GridViewDataSetOfCompanyOfString();
                             result.init(data);
                             return result;
                         };
-                        GridViewDataSetOfCompanyOfBoolean.prototype.toJSON = function (data) {
+                        GridViewDataSetOfCompanyOfString.prototype.toJSON = function (data) {
                             data = typeof data === 'object' ? data : {};
                             data["isRefreshRequired"] = this.IsRefreshRequired !== undefined ? this.IsRefreshRequired : null;
                             if (this.Items && this.Items.constructor === Array) {
@@ -754,42 +787,9 @@ var DotVVM;
                             data["sortingOptions"] = this.SortingOptions ? this.SortingOptions.toJSON() : null;
                             return data;
                         };
-                        return GridViewDataSetOfCompanyOfBoolean;
+                        return GridViewDataSetOfCompanyOfString;
                     }());
-                    AspNetCore.GridViewDataSetOfCompanyOfBoolean = GridViewDataSetOfCompanyOfBoolean;
-                    var CompanyOfBoolean = /** @class */ (function () {
-                        function CompanyOfBoolean(data) {
-                            if (data) {
-                                for (var property in data) {
-                                    if (data.hasOwnProperty(property))
-                                        this[property] = data[property];
-                                }
-                            }
-                        }
-                        CompanyOfBoolean.prototype.init = function (data) {
-                            if (data) {
-                                this.id = data["id"] !== undefined ? data["id"] : null;
-                                this.name = data["name"] !== undefined ? data["name"] : null;
-                                this.owner = data["owner"] !== undefined ? data["owner"] : null;
-                                this.department = data["department"] !== undefined ? data["department"] : null;
-                            }
-                        };
-                        CompanyOfBoolean.fromJS = function (data) {
-                            var result = new CompanyOfBoolean();
-                            result.init(data);
-                            return result;
-                        };
-                        CompanyOfBoolean.prototype.toJSON = function (data) {
-                            data = typeof data === 'object' ? data : {};
-                            data["id"] = this.id !== undefined ? this.id : null;
-                            data["name"] = this.name !== undefined ? this.name : null;
-                            data["owner"] = this.owner !== undefined ? this.owner : null;
-                            data["department"] = this.department !== undefined ? this.department : null;
-                            return data;
-                        };
-                        return CompanyOfBoolean;
-                    }());
-                    AspNetCore.CompanyOfBoolean = CompanyOfBoolean;
+                    AspNetCore.GridViewDataSetOfCompanyOfString = GridViewDataSetOfCompanyOfString;
                     var Order = /** @class */ (function () {
                         function Order(data) {
                             if (data) {

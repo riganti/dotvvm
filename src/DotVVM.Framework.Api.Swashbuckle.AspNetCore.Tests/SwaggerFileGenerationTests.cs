@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Tests
         [ClassInitialize]
         public static void Init(TestContext testContext)
         {
-            var knownTypesOptions = Options.Create(new DotvvmApiKnownTypesOptions() {
+            var knownTypesOptions = Options.Create(new DotvvmApiOptions() {
                 KnownTypes = { typeof(Company<string>) }
             });
 
@@ -61,7 +61,7 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Tests
 
             var schemaSettings = new SchemaRegistrySettings() {
                 SchemaFilters = {
-                    new HandleKnownTypesSchemaFilter(knownTypesOptions)
+                    new HandleDotvvmNameSchemaFilter(knownTypesOptions)
                 }
             };
 

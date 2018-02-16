@@ -27,7 +27,7 @@ namespace DotVVM.Samples.Common.Api.Owin {
         /**
          * @return OK
          */
-        get(): Promise<Company[]> {
+        get(): Promise<CompanyOfString[]> {
             let url_ = this.baseUrl + "/api/companies";
             url_ = url_.replace(/[?&]$/, "");
     
@@ -46,7 +46,7 @@ namespace DotVVM.Samples.Common.Api.Owin {
             });
         }
     
-        protected processGet(response: Response): Promise<Company[]> {
+        protected processGet(response: Response): Promise<CompanyOfString[]> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
@@ -56,7 +56,7 @@ namespace DotVVM.Samples.Common.Api.Owin {
                 if (resultData200 && resultData200.constructor === Array) {
                     result200 = [];
                     for (let item of resultData200)
-                        result200.push(Company.fromJS(item));
+                        result200.push(CompanyOfString.fromJS(item));
                 }
                 return result200;
                 });
@@ -65,7 +65,7 @@ namespace DotVVM.Samples.Common.Api.Owin {
                 return throwException("An unexpected server error occurred.", status, _responseText, _headers);
                 });
             }
-            return Promise.resolve<Company[]>(<any>null);
+            return Promise.resolve<CompanyOfString[]>(<any>null);
         }
     
         /**
@@ -74,7 +74,7 @@ namespace DotVVM.Samples.Common.Api.Owin {
          * @sortingOptions_SortExpression (optional) 
          * @return OK
          */
-        getWithSorting(sortingOptions?: any): Promise<GridViewDataSetOfCompany> {
+        getWithSorting(sortingOptions?: any): Promise<GridViewDataSetOfCompanyOfBoolean> {
             let sortingOptions_SortDescending = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortDescending : null;
             let sortingOptions_SortExpression = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortExpression : null;
             let url_ = this.baseUrl + "/api/companies/sorted?";
@@ -99,14 +99,14 @@ namespace DotVVM.Samples.Common.Api.Owin {
             });
         }
     
-        protected processGetWithSorting(response: Response): Promise<GridViewDataSetOfCompany> {
+        protected processGetWithSorting(response: Response): Promise<GridViewDataSetOfCompanyOfBoolean> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
                 return response.text().then((_responseText) => {
                 let result200: any = null;
                 let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result200 = resultData200 ? GridViewDataSetOfCompany.fromJS(resultData200) : new GridViewDataSetOfCompany();
+                result200 = resultData200 ? GridViewDataSetOfCompanyOfBoolean.fromJS(resultData200) : new GridViewDataSetOfCompanyOfBoolean();
                 return result200;
                 });
             } else if (status !== 200 && status !== 204) {
@@ -114,7 +114,7 @@ namespace DotVVM.Samples.Common.Api.Owin {
                 return throwException("An unexpected server error occurred.", status, _responseText, _headers);
                 });
             }
-            return Promise.resolve<GridViewDataSetOfCompany>(<any>null);
+            return Promise.resolve<GridViewDataSetOfCompanyOfBoolean>(<any>null);
         }
     
         /**
@@ -124,7 +124,7 @@ namespace DotVVM.Samples.Common.Api.Owin {
          * @pagingOptions_TotalItemsCount (optional) 
          * @return OK
          */
-        getWithPaging(pagingOptions?: any): Promise<GridViewDataSetOfCompany> {
+        getWithPaging(pagingOptions?: any): Promise<GridViewDataSetOfCompanyOfString> {
             let pagingOptions_PageIndex = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageIndex : null;
             let pagingOptions_PageSize = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageSize : null;
             let pagingOptions_TotalItemsCount = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.TotalItemsCount : null;
@@ -152,14 +152,14 @@ namespace DotVVM.Samples.Common.Api.Owin {
             });
         }
     
-        protected processGetWithPaging(response: Response): Promise<GridViewDataSetOfCompany> {
+        protected processGetWithPaging(response: Response): Promise<GridViewDataSetOfCompanyOfString> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
                 return response.text().then((_responseText) => {
                 let result200: any = null;
                 let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result200 = resultData200 ? GridViewDataSetOfCompany.fromJS(resultData200) : new GridViewDataSetOfCompany();
+                result200 = resultData200 ? GridViewDataSetOfCompanyOfString.fromJS(resultData200) : new GridViewDataSetOfCompanyOfString();
                 return result200;
                 });
             } else if (status !== 200 && status !== 204) {
@@ -167,7 +167,7 @@ namespace DotVVM.Samples.Common.Api.Owin {
                 return throwException("An unexpected server error occurred.", status, _responseText, _headers);
                 });
             }
-            return Promise.resolve<GridViewDataSetOfCompany>(<any>null);
+            return Promise.resolve<GridViewDataSetOfCompanyOfString>(<any>null);
         }
     
         /**
@@ -180,7 +180,7 @@ namespace DotVVM.Samples.Common.Api.Owin {
          * @pagingOptions_TotalItemsCount (optional) 
          * @return OK
          */
-        getWithSortingAndPaging(sortingOptions?: any, pagingOptions?: any): Promise<GridViewDataSetOfCompany> {
+        getWithSortingAndPaging(sortingOptions?: any, pagingOptions?: any): Promise<GridViewDataSetOfCompanyOfString> {
             let sortingOptions_SortDescending = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortDescending : null;
             let sortingOptions_SortExpression = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortExpression : null;
             let pagingOptions_PageIndex = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageIndex : null;
@@ -214,14 +214,14 @@ namespace DotVVM.Samples.Common.Api.Owin {
             });
         }
     
-        protected processGetWithSortingAndPaging(response: Response): Promise<GridViewDataSetOfCompany> {
+        protected processGetWithSortingAndPaging(response: Response): Promise<GridViewDataSetOfCompanyOfString> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
                 return response.text().then((_responseText) => {
                 let result200: any = null;
                 let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result200 = resultData200 ? GridViewDataSetOfCompany.fromJS(resultData200) : new GridViewDataSetOfCompany();
+                result200 = resultData200 ? GridViewDataSetOfCompanyOfString.fromJS(resultData200) : new GridViewDataSetOfCompanyOfString();
                 return result200;
                 });
             } else if (status !== 200 && status !== 204) {
@@ -229,7 +229,7 @@ namespace DotVVM.Samples.Common.Api.Owin {
                 return throwException("An unexpected server error occurred.", status, _responseText, _headers);
                 });
             }
-            return Promise.resolve<GridViewDataSetOfCompany>(<any>null);
+            return Promise.resolve<GridViewDataSetOfCompanyOfString>(<any>null);
         }
     }
     
@@ -482,12 +482,13 @@ namespace DotVVM.Samples.Common.Api.Owin {
         }
     }
     
-    export class Company implements ICompany {
+    export class CompanyOfString implements ICompanyOfString {
         Id?: number;
         Name?: string;
         Owner?: string;
+        Department?: string;
     
-        constructor(data?: ICompany) {
+        constructor(data?: ICompanyOfString) {
             if (data) {
                 for (var property in data) {
                     if (data.hasOwnProperty(property))
@@ -501,11 +502,12 @@ namespace DotVVM.Samples.Common.Api.Owin {
                 this.Id = data["Id"] !== undefined ? data["Id"] : <any>null;
                 this.Name = data["Name"] !== undefined ? data["Name"] : <any>null;
                 this.Owner = data["Owner"] !== undefined ? data["Owner"] : <any>null;
+                this.Department = data["Department"] !== undefined ? data["Department"] : <any>null;
             }
         }
     
-        static fromJS(data: any): Company {
-            let result = new Company();
+        static fromJS(data: any): CompanyOfString {
+            let result = new CompanyOfString();
             result.init(data);
             return result;
         }
@@ -515,14 +517,16 @@ namespace DotVVM.Samples.Common.Api.Owin {
             data["Id"] = this.Id !== undefined ? this.Id : <any>null;
             data["Name"] = this.Name !== undefined ? this.Name : <any>null;
             data["Owner"] = this.Owner !== undefined ? this.Owner : <any>null;
+            data["Department"] = this.Department !== undefined ? this.Department : <any>null;
             return data; 
         }
     }
     
-    export interface ICompany {
+    export interface ICompanyOfString {
         Id?: number;
         Name?: string;
         Owner?: string;
+        Department?: string;
     }
     
     export class SortingOptions implements ISortingOptions {
@@ -564,14 +568,14 @@ namespace DotVVM.Samples.Common.Api.Owin {
         SortExpression?: string;
     }
     
-    export class GridViewDataSetOfCompany implements IGridViewDataSetOfCompany {
+    export class GridViewDataSetOfCompanyOfBoolean implements IGridViewDataSetOfCompanyOfBoolean {
         IsRefreshRequired?: boolean;
-        Items?: Company[];
+        Items?: CompanyOfBoolean[];
         PagingOptions?: IPagingOptions;
         RowEditOptions?: IRowEditOptions;
         SortingOptions?: ISortingOptions;
     
-        constructor(data?: IGridViewDataSetOfCompany) {
+        constructor(data?: IGridViewDataSetOfCompanyOfBoolean) {
             if (data) {
                 for (var property in data) {
                     if (data.hasOwnProperty(property))
@@ -586,7 +590,7 @@ namespace DotVVM.Samples.Common.Api.Owin {
                 if (data["Items"] && data["Items"].constructor === Array) {
                     this.Items = [];
                     for (let item of data["Items"])
-                        this.Items.push(Company.fromJS(item));
+                        this.Items.push(CompanyOfBoolean.fromJS(item));
                 }
                 this.PagingOptions = data["PagingOptions"] ? IPagingOptions.fromJS(data["PagingOptions"]) : <any>null;
                 this.RowEditOptions = data["RowEditOptions"] ? IRowEditOptions.fromJS(data["RowEditOptions"]) : <any>null;
@@ -594,8 +598,8 @@ namespace DotVVM.Samples.Common.Api.Owin {
             }
         }
     
-        static fromJS(data: any): GridViewDataSetOfCompany {
-            let result = new GridViewDataSetOfCompany();
+        static fromJS(data: any): GridViewDataSetOfCompanyOfBoolean {
+            let result = new GridViewDataSetOfCompanyOfBoolean();
             result.init(data);
             return result;
         }
@@ -615,12 +619,59 @@ namespace DotVVM.Samples.Common.Api.Owin {
         }
     }
     
-    export interface IGridViewDataSetOfCompany {
+    export interface IGridViewDataSetOfCompanyOfBoolean {
         IsRefreshRequired?: boolean;
-        Items?: Company[];
+        Items?: CompanyOfBoolean[];
         PagingOptions?: IPagingOptions;
         RowEditOptions?: IRowEditOptions;
         SortingOptions?: ISortingOptions;
+    }
+    
+    export class CompanyOfBoolean implements ICompanyOfBoolean {
+        Id?: number;
+        Name?: string;
+        Owner?: string;
+        Department?: boolean;
+    
+        constructor(data?: ICompanyOfBoolean) {
+            if (data) {
+                for (var property in data) {
+                    if (data.hasOwnProperty(property))
+                        (<any>this)[property] = (<any>data)[property];
+                }
+            }
+        }
+    
+        init(data?: any) {
+            if (data) {
+                this.Id = data["Id"] !== undefined ? data["Id"] : <any>null;
+                this.Name = data["Name"] !== undefined ? data["Name"] : <any>null;
+                this.Owner = data["Owner"] !== undefined ? data["Owner"] : <any>null;
+                this.Department = data["Department"] !== undefined ? data["Department"] : <any>null;
+            }
+        }
+    
+        static fromJS(data: any): CompanyOfBoolean {
+            let result = new CompanyOfBoolean();
+            result.init(data);
+            return result;
+        }
+    
+        toJSON(data?: any) {
+            data = typeof data === 'object' ? data : {};
+            data["Id"] = this.Id !== undefined ? this.Id : <any>null;
+            data["Name"] = this.Name !== undefined ? this.Name : <any>null;
+            data["Owner"] = this.Owner !== undefined ? this.Owner : <any>null;
+            data["Department"] = this.Department !== undefined ? this.Department : <any>null;
+            return data; 
+        }
+    }
+    
+    export interface ICompanyOfBoolean {
+        Id?: number;
+        Name?: string;
+        Owner?: string;
+        Department?: boolean;
     }
     
     export class IPagingOptions implements IIPagingOptions {
@@ -861,6 +912,65 @@ namespace DotVVM.Samples.Common.Api.Owin {
         PageSize?: number;
         TotalItemsCount?: number;
         NearPageIndexes?: number[];
+    }
+    
+    export class GridViewDataSetOfCompanyOfString implements IGridViewDataSetOfCompanyOfString {
+        IsRefreshRequired?: boolean;
+        Items?: CompanyOfString[];
+        PagingOptions?: IPagingOptions;
+        RowEditOptions?: IRowEditOptions;
+        SortingOptions?: ISortingOptions;
+    
+        constructor(data?: IGridViewDataSetOfCompanyOfString) {
+            if (data) {
+                for (var property in data) {
+                    if (data.hasOwnProperty(property))
+                        (<any>this)[property] = (<any>data)[property];
+                }
+            }
+        }
+    
+        init(data?: any) {
+            if (data) {
+                this.IsRefreshRequired = data["IsRefreshRequired"] !== undefined ? data["IsRefreshRequired"] : <any>null;
+                if (data["Items"] && data["Items"].constructor === Array) {
+                    this.Items = [];
+                    for (let item of data["Items"])
+                        this.Items.push(CompanyOfString.fromJS(item));
+                }
+                this.PagingOptions = data["PagingOptions"] ? IPagingOptions.fromJS(data["PagingOptions"]) : <any>null;
+                this.RowEditOptions = data["RowEditOptions"] ? IRowEditOptions.fromJS(data["RowEditOptions"]) : <any>null;
+                this.SortingOptions = data["SortingOptions"] ? ISortingOptions.fromJS(data["SortingOptions"]) : <any>null;
+            }
+        }
+    
+        static fromJS(data: any): GridViewDataSetOfCompanyOfString {
+            let result = new GridViewDataSetOfCompanyOfString();
+            result.init(data);
+            return result;
+        }
+    
+        toJSON(data?: any) {
+            data = typeof data === 'object' ? data : {};
+            data["IsRefreshRequired"] = this.IsRefreshRequired !== undefined ? this.IsRefreshRequired : <any>null;
+            if (this.Items && this.Items.constructor === Array) {
+                data["Items"] = [];
+                for (let item of this.Items)
+                    data["Items"].push(item.toJSON());
+            }
+            data["PagingOptions"] = this.PagingOptions ? this.PagingOptions.toJSON() : <any>null;
+            data["RowEditOptions"] = this.RowEditOptions ? this.RowEditOptions.toJSON() : <any>null;
+            data["SortingOptions"] = this.SortingOptions ? this.SortingOptions.toJSON() : <any>null;
+            return data; 
+        }
+    }
+    
+    export interface IGridViewDataSetOfCompanyOfString {
+        IsRefreshRequired?: boolean;
+        Items?: CompanyOfString[];
+        PagingOptions?: IPagingOptions;
+        RowEditOptions?: IRowEditOptions;
+        SortingOptions?: ISortingOptions;
     }
     
     export class Order implements IOrder {

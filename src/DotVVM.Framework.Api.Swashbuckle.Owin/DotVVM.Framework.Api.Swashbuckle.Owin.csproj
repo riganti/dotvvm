@@ -65,7 +65,8 @@
   <ItemGroup>
     <Compile Include="Attributes\AsObjectAttribute.cs" />
     <Compile Include="Filters\AddAsObjectAnnotationOperationFilter.cs" />
-    <Compile Include="Filters\HandleKnownTypesSchemaFilter.cs" />
+    <Compile Include="Filters\HandleKnownTypesDocumentFilter.cs" />
+    <Compile Include="Filters\HandleDotvvmNameSchemaFilter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SwashbuckleExtensions.cs" />
   </ItemGroup>

@@ -27,7 +27,7 @@ namespace DotVVM.Samples.BasicSamples.Api.Common.DataStore
                 .RuleFor(c => c.Name, f => f.Company.CompanyName())
                 .RuleFor(c => c.Owner, f => f.Name.FullName());
 
-            var Companies2 = new Faker<Company<bool>>()
+            Companies2 = new Faker<Company<bool>>()
               .RuleFor(c => c.Id, f => companyId++)
               .RuleFor(c => c.Name, f => f.Company.CompanyName())
               .RuleFor(c => c.Owner, f => f.Name.FullName())

@@ -22,15 +22,15 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.Controllers
 
         [HttpGet]
         [Route("sorted")]
-        public GridViewDataSet<Company<string>> GetWithSorting([FromQuery, AsObject(typeof(ISortingOptions))]SortingOptions sortingOptions)
+        public GridViewDataSet<Company<bool>> GetWithSorting([FromQuery, AsObject(typeof(ISortingOptions))]SortingOptions sortingOptions)
         {
             lock (Database.Instance)
             {
-                var dataSet = new GridViewDataSet<Company<string>>()
+                var dataSet = new GridViewDataSet<Company<bool>>()
                 {
                     SortingOptions = sortingOptions
                 };
-                dataSet.LoadFromQueryable(Database.Instance.Companies.AsQueryable());
+                dataSet.LoadFromQueryable(Database.Instance.Companies2.AsQueryable());
                 return dataSet;
             }
         }
@@ -52,16 +52,16 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.Controllers
 
         [HttpGet]
         [Route("sortedandpaged")]
-        public GridViewDataSet<Company<bool>> GetWithSortingAndPaging([FromQuery, AsObject(typeof(ISortingOptions))]SortingOptions sortingOptions, [FromQuery, AsObject(typeof(IPagingOptions))]PagingOptions pagingOptions)
+        public GridViewDataSet<Company<string>> GetWithSortingAndPaging([FromQuery, AsObject(typeof(ISortingOptions))]SortingOptions sortingOptions, [FromQuery, AsObject(typeof(IPagingOptions))]PagingOptions pagingOptions)
         {
             lock (Database.Instance)
             {
-                var dataSet = new GridViewDataSet<Company<bool>>()
+                var dataSet = new GridViewDataSet<Company<string>>()
                 {
                     PagingOptions = pagingOptions,
                     SortingOptions = sortingOptions
                 };
-                dataSet.LoadFromQueryable(Database.Instance.Companies2.AsQueryable());
+                dataSet.LoadFromQueryable(Database.Instance.Companies.AsQueryable());
                 return dataSet;
             }
         }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DotVVM.Core.Common;
 using DotVVM.Framework.Api.Swashbuckle.AspNetCore;
 using DotVVM.Framework.Api.Swashbuckle.AspNetCore.Filters;
 using DotVVM.Samples.BasicSamples.Api.Common.DataStore;
@@ -39,7 +40,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore
                 options.AddDefaultTempStorages("temp");
             });
 
-            services.Configure<DotvvmApiKnownTypesOptions>(opt => opt.KnownTypes.Add(typeof(Company<string>)));
+            services.Configure<DotvvmApiOptions>(opt => opt.KnownTypes.Add(typeof(Company<string>)));
 
             services.AddSwaggerGen(options => {
                 options.SwaggerDoc("v1", new Info() { Title = "DotVVM Test API", Version = "v1" });

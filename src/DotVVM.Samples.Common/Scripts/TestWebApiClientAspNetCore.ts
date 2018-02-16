@@ -73,7 +73,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore {
          * @sortingOptions_SortExpression (optional) 
          * @return Success
          */
-        apiCompaniesSortedGet(sortingOptions?: any): Promise<GridViewDataSetOfCompanyOfString> {
+        apiCompaniesSortedGet(sortingOptions?: any): Promise<GridViewDataSetOfCompanyOfBoolean> {
             let sortingOptions_SortDescending = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortDescending : null;
             let sortingOptions_SortExpression = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortExpression : null;
             let url_ = this.baseUrl + "/api/Companies/sorted?";
@@ -100,14 +100,14 @@ namespace DotVVM.Samples.Common.Api.AspNetCore {
             });
         }
     
-        protected processApiCompaniesSortedGet(response: Response): Promise<GridViewDataSetOfCompanyOfString> {
+        protected processApiCompaniesSortedGet(response: Response): Promise<GridViewDataSetOfCompanyOfBoolean> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
                 return response.text().then((_responseText) => {
                 let result200: any = null;
                 let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result200 = resultData200 ? GridViewDataSetOfCompanyOfString.fromJS(resultData200) : new GridViewDataSetOfCompanyOfString();
+                result200 = resultData200 ? GridViewDataSetOfCompanyOfBoolean.fromJS(resultData200) : new GridViewDataSetOfCompanyOfBoolean();
                 return result200;
                 });
             } else if (status !== 200 && status !== 204) {
@@ -115,7 +115,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore {
                 return throwException("An unexpected server error occurred.", status, _responseText, _headers);
                 });
             }
-            return Promise.resolve<GridViewDataSetOfCompanyOfString>(<any>null);
+            return Promise.resolve<GridViewDataSetOfCompanyOfBoolean>(<any>null);
         }
     
         /**
@@ -180,7 +180,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore {
          * @sortingOptions_SortExpression (optional) 
          * @return Success
          */
-        apiCompaniesSortedandpagedGet(sortingOptions?: any, pagingOptions?: any): Promise<GridViewDataSetOfCompanyOfBoolean> {
+        apiCompaniesSortedandpagedGet(sortingOptions?: any, pagingOptions?: any): Promise<GridViewDataSetOfCompanyOfString> {
             let sortingOptions_SortDescending = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortDescending : null;
             let pagingOptions_PageIndex = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageIndex : null;
             let pagingOptions_PageSize = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageSize : null;
@@ -222,14 +222,14 @@ namespace DotVVM.Samples.Common.Api.AspNetCore {
             });
         }
     
-        protected processApiCompaniesSortedandpagedGet(response: Response): Promise<GridViewDataSetOfCompanyOfBoolean> {
+        protected processApiCompaniesSortedandpagedGet(response: Response): Promise<GridViewDataSetOfCompanyOfString> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
                 return response.text().then((_responseText) => {
                 let result200: any = null;
                 let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result200 = resultData200 ? GridViewDataSetOfCompanyOfBoolean.fromJS(resultData200) : new GridViewDataSetOfCompanyOfBoolean();
+                result200 = resultData200 ? GridViewDataSetOfCompanyOfString.fromJS(resultData200) : new GridViewDataSetOfCompanyOfString();
                 return result200;
                 });
             } else if (status !== 200 && status !== 204) {
@@ -237,7 +237,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore {
                 return throwException("An unexpected server error occurred.", status, _responseText, _headers);
                 });
             }
-            return Promise.resolve<GridViewDataSetOfCompanyOfBoolean>(<any>null);
+            return Promise.resolve<GridViewDataSetOfCompanyOfString>(<any>null);
         }
     
         /**
@@ -509,14 +509,14 @@ namespace DotVVM.Samples.Common.Api.AspNetCore {
         Department?: string;
     }
     
-    export class GridViewDataSetOfCompanyOfString implements IGridViewDataSetOfCompanyOfString {
+    export class GridViewDataSetOfCompanyOfBoolean implements IGridViewDataSetOfCompanyOfBoolean {
         IsRefreshRequired?: boolean;
-        Items?: CompanyOfString[];
+        Items?: CompanyOfBoolean[];
         PagingOptions?: IPagingOptions;
         RowEditOptions?: IRowEditOptions;
         SortingOptions?: ISortingOptions;
     
-        constructor(data?: IGridViewDataSetOfCompanyOfString) {
+        constructor(data?: IGridViewDataSetOfCompanyOfBoolean) {
             if (data) {
                 for (var property in data) {
                     if (data.hasOwnProperty(property))
@@ -531,7 +531,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore {
                 if (data["items"] && data["items"].constructor === Array) {
                     this.Items = [];
                     for (let item of data["items"])
-                        this.Items.push(CompanyOfString.fromJS(item));
+                        this.Items.push(CompanyOfBoolean.fromJS(item));
                 }
                 this.PagingOptions = data["pagingOptions"] ? IPagingOptions.fromJS(data["pagingOptions"]) : <any>null;
                 this.RowEditOptions = data["rowEditOptions"] ? IRowEditOptions.fromJS(data["rowEditOptions"]) : <any>null;
@@ -539,8 +539,8 @@ namespace DotVVM.Samples.Common.Api.AspNetCore {
             }
         }
     
-        static fromJS(data: any): GridViewDataSetOfCompanyOfString {
-            let result = new GridViewDataSetOfCompanyOfString();
+        static fromJS(data: any): GridViewDataSetOfCompanyOfBoolean {
+            let result = new GridViewDataSetOfCompanyOfBoolean();
             result.init(data);
             return result;
         }
@@ -560,12 +560,59 @@ namespace DotVVM.Samples.Common.Api.AspNetCore {
         }
     }
     
-    export interface IGridViewDataSetOfCompanyOfString {
+    export interface IGridViewDataSetOfCompanyOfBoolean {
         IsRefreshRequired?: boolean;
-        Items?: CompanyOfString[];
+        Items?: CompanyOfBoolean[];
         PagingOptions?: IPagingOptions;
         RowEditOptions?: IRowEditOptions;
         SortingOptions?: ISortingOptions;
+    }
+    
+    export class CompanyOfBoolean implements ICompanyOfBoolean {
+        id?: number;
+        name?: string;
+        owner?: string;
+        department?: boolean;
+    
+        constructor(data?: ICompanyOfBoolean) {
+            if (data) {
+                for (var property in data) {
+                    if (data.hasOwnProperty(property))
+                        (<any>this)[property] = (<any>data)[property];
+                }
+            }
+        }
+    
+        init(data?: any) {
+            if (data) {
+                this.id = data["id"] !== undefined ? data["id"] : <any>null;
+                this.name = data["name"] !== undefined ? data["name"] : <any>null;
+                this.owner = data["owner"] !== undefined ? data["owner"] : <any>null;
+                this.department = data["department"] !== undefined ? data["department"] : <any>null;
+            }
+        }
+    
+        static fromJS(data: any): CompanyOfBoolean {
+            let result = new CompanyOfBoolean();
+            result.init(data);
+            return result;
+        }
+    
+        toJSON(data?: any) {
+            data = typeof data === 'object' ? data : {};
+            data["id"] = this.id !== undefined ? this.id : <any>null;
+            data["name"] = this.name !== undefined ? this.name : <any>null;
+            data["owner"] = this.owner !== undefined ? this.owner : <any>null;
+            data["department"] = this.department !== undefined ? this.department : <any>null;
+            return data; 
+        }
+    }
+    
+    export interface ICompanyOfBoolean {
+        id?: number;
+        name?: string;
+        owner?: string;
+        department?: boolean;
     }
     
     export class IPagingOptions implements IIPagingOptions {
@@ -725,14 +772,14 @@ namespace DotVVM.Samples.Common.Api.AspNetCore {
         SortExpression?: string;
     }
     
-    export class GridViewDataSetOfCompanyOfBoolean implements IGridViewDataSetOfCompanyOfBoolean {
+    export class GridViewDataSetOfCompanyOfString implements IGridViewDataSetOfCompanyOfString {
         IsRefreshRequired?: boolean;
-        Items?: CompanyOfBoolean[];
+        Items?: CompanyOfString[];
         PagingOptions?: IPagingOptions;
         RowEditOptions?: IRowEditOptions;
         SortingOptions?: ISortingOptions;
     
-        constructor(data?: IGridViewDataSetOfCompanyOfBoolean) {
+        constructor(data?: IGridViewDataSetOfCompanyOfString) {
             if (data) {
                 for (var property in data) {
                     if (data.hasOwnProperty(property))
@@ -747,7 +794,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore {
                 if (data["items"] && data["items"].constructor === Array) {
                     this.Items = [];
                     for (let item of data["items"])
-                        this.Items.push(CompanyOfBoolean.fromJS(item));
+                        this.Items.push(CompanyOfString.fromJS(item));
                 }
                 this.PagingOptions = data["pagingOptions"] ? IPagingOptions.fromJS(data["pagingOptions"]) : <any>null;
                 this.RowEditOptions = data["rowEditOptions"] ? IRowEditOptions.fromJS(data["rowEditOptions"]) : <any>null;
@@ -755,8 +802,8 @@ namespace DotVVM.Samples.Common.Api.AspNetCore {
             }
         }
     
-        static fromJS(data: any): GridViewDataSetOfCompanyOfBoolean {
-            let result = new GridViewDataSetOfCompanyOfBoolean();
+        static fromJS(data: any): GridViewDataSetOfCompanyOfString {
+            let result = new GridViewDataSetOfCompanyOfString();
             result.init(data);
             return result;
         }
@@ -776,59 +823,12 @@ namespace DotVVM.Samples.Common.Api.AspNetCore {
         }
     }
     
-    export interface IGridViewDataSetOfCompanyOfBoolean {
+    export interface IGridViewDataSetOfCompanyOfString {
         IsRefreshRequired?: boolean;
-        Items?: CompanyOfBoolean[];
+        Items?: CompanyOfString[];
         PagingOptions?: IPagingOptions;
         RowEditOptions?: IRowEditOptions;
         SortingOptions?: ISortingOptions;
-    }
-    
-    export class CompanyOfBoolean implements ICompanyOfBoolean {
-        id?: number;
-        name?: string;
-        owner?: string;
-        department?: boolean;
-    
-        constructor(data?: ICompanyOfBoolean) {
-            if (data) {
-                for (var property in data) {
-                    if (data.hasOwnProperty(property))
-                        (<any>this)[property] = (<any>data)[property];
-                }
-            }
-        }
-    
-        init(data?: any) {
-            if (data) {
-                this.id = data["id"] !== undefined ? data["id"] : <any>null;
-                this.name = data["name"] !== undefined ? data["name"] : <any>null;
-                this.owner = data["owner"] !== undefined ? data["owner"] : <any>null;
-                this.department = data["department"] !== undefined ? data["department"] : <any>null;
-            }
-        }
-    
-        static fromJS(data: any): CompanyOfBoolean {
-            let result = new CompanyOfBoolean();
-            result.init(data);
-            return result;
-        }
-    
-        toJSON(data?: any) {
-            data = typeof data === 'object' ? data : {};
-            data["id"] = this.id !== undefined ? this.id : <any>null;
-            data["name"] = this.name !== undefined ? this.name : <any>null;
-            data["owner"] = this.owner !== undefined ? this.owner : <any>null;
-            data["department"] = this.department !== undefined ? this.department : <any>null;
-            return data; 
-        }
-    }
-    
-    export interface ICompanyOfBoolean {
-        id?: number;
-        name?: string;
-        owner?: string;
-        department?: boolean;
     }
     
     export class Order implements IOrder {

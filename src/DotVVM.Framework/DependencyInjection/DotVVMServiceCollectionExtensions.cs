@@ -16,6 +16,7 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Runtime.Tracing;
+using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.ViewModel.Validation;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -41,6 +42,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IViewModelLoader, DefaultViewModelLoader>();
             services.TryAddSingleton<IViewModelValidationMetadataProvider, AttributeViewModelValidationMetadataProvider>();
             services.TryAddSingleton<IValidationRuleTranslator, ViewModelValidationRuleTranslator>();
+            services.TryAddSingleton<IPropertySerialization, DefaultPropertySerialization>();
             services.TryAddSingleton<IViewModelValidator, ViewModelValidator>();
             services.TryAddSingleton<IViewModelSerializationMapper, ViewModelSerializationMapper>();
             services.TryAddSingleton<IViewModelParameterBinder, AttributeViewModelParameterBinder>();

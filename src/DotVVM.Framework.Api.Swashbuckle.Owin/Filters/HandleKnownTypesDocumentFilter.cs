@@ -1,37 +1,36 @@
 ﻿using System;
 using System.Linq;
+using System.Web.Http.Description;
 using DotVVM.Core.Common;
 using Microsoft.Extensions.Options;
-using Swashbuckle.AspNetCore.Swagger;
-using Swashbuckle.AspNetCore.SwaggerGen;
+using Swashbuckle.Swagger;
 
-namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Filters
+namespace DotVVM.Framework.Api.Swashbuckle.Owin.Filters
 {
     public class HandleKnownTypesDocumentFilter : IDocumentFilter
     {
-        private readonly IOptions<DotvvmApiOptions> apiOptions;
+        private readonly DotvvmApiOptions apiOptions;
 
-        public HandleKnownTypesDocumentFilter(IOptions<DotvvmApiOptions> apiOptions)
+        public HandleKnownTypesDocumentFilter(DotvvmApiOptions apiOptions)
         {
             this.apiOptions = apiOptions;
         }
 
-        public void Apply(SwaggerDocument swaggerDoc, DocumentFilterContext context)
+        public void Apply(SwaggerDocument swaggerDoc, SchemaRegistry schemaRegistry, IApiExplorer apiExplorer)
         {
-            var knownTypes = apiOptions.Value;
-            foreach (var definition in swaggerDoc.Definitions)
+            foreach (var definition in swaggerDoc.definitions)
             {
-                if (definition.Value.Extensions.TryGetValue(ApiConstants.DotvvmTypeKey, out var objType) && objType is Type underlayingType
-                    && knownTypes.IsKnownType(underlayingType))
+                if (definition.Value.vendorExtensions.TryGetValue(ApiConstants.DotvvmTypeKey, out var objType) && objType is Type underlayingType
+                    && apiOptions.IsKnownType(underlayingType))
                 {
                     var name = CreateProperName(underlayingType, swaggerDoc);
-                    definition.Value.Extensions.Add(ApiConstants.DotvvmKnownTypeKey, name);
+                    definition.Value.vendorExtensions.Add(ApiConstants.DotvvmKnownTypeKey, name);
                 }
             }
 
-            foreach (var definition in swaggerDoc.Definitions)
+            foreach (var definition in swaggerDoc.definitions)
             {
-                definition.Value.Extensions.Remove(ApiConstants.DotvvmTypeKey);
+                definition.Value.vendorExtensions.Remove(ApiConstants.DotvvmTypeKey);
             }
         }
 
@@ -50,8 +49,8 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Filters
 
         public string CreateNameForGenericParameter(Type type, SwaggerDocument swaggerDoc)
         {
-            var definition = swaggerDoc.Definitions
-                .Where(d => d.Value.Extensions.TryGetValue(ApiConstants.DotvvmTypeKey, out var objType) && (Type)objType == type)
+            var definition = swaggerDoc.definitions
+                .Where(d => d.Value.vendorExtensions.TryGetValue(ApiConstants.DotvvmTypeKey, out var objType) && (Type)objType == type)
                 .FirstOrDefault();
 
             return definition.Key ?? type.FullName;

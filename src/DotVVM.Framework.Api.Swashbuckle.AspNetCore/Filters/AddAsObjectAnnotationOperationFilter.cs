@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using DotVVM.Core.Common;
 using DotVVM.Framework.Api.Swashbuckle.Attributes;
+using DotVVM.Framework.ViewModel;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.Options;
@@ -14,11 +15,13 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Filters
 {
     public class AddAsObjectOperationFilter : IOperationFilter
     {
-        private readonly DotvvmApiKnownTypesOptions knownTypesOptions;
+        private readonly DotvvmApiOptions knownTypesOptions;
+        private readonly DefaultPropertySerialization propertySerialization;
 
-        public AddAsObjectOperationFilter(IOptions<DotvvmApiKnownTypesOptions> knownTypesOptions)
+        public AddAsObjectOperationFilter(IOptions<DotvvmApiOptions> knownTypesOptions)
         {
             this.knownTypesOptions = knownTypesOptions.Value;
+            this.propertySerialization = new DefaultPropertySerialization();
         }
 
         public void Apply(Operation operation, OperationFilterContext context)
@@ -55,11 +58,23 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Filters
                     {
                         var parameterType = attribute.ClientType ?? param.ParameterDescriptor.ParameterType;
 
-                        jsonParam.Name = parameterDescriptor.Name + '.' + jsonParam.Name;
+                        jsonParam.Name = parameterDescriptor.Name + '.' + GetPropertyName(parameterType, jsonParam.Name);
                         jsonParam.Extensions.Add(ApiConstants.DotvvmWrapperTypeKey, parameterType.FullName + ", " + parameterType.Assembly.GetName().Name);
                     }
                 }
             }
+        }
+
+        private string GetPropertyName(Type type, string propertyName)
+        {
+            var propertyInfo = type.GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
+
+            if (propertyInfo == null)
+            {
+                return propertyName;
+            }
+
+            return propertySerialization.ResolveName(propertyInfo);
         }
     }
 }
