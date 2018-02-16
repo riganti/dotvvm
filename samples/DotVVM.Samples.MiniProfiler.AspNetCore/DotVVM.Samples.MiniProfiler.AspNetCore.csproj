@@ -14,7 +14,7 @@
 	  <Content Include="Views\default.dotmaster" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="DotVVM.AspNetCore" Version="2.0.0-pre09" />
+		<PackageReference Include="DotVVM.AspNetCore" Version="2.0.0-preview01-final" />
 		<PackageReference Include="Microsoft.AspNetCore" Version="2.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="2.0.0" />
