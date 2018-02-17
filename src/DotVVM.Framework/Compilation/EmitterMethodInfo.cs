@@ -14,6 +14,7 @@ namespace DotVVM.Framework.Compilation
         public ParameterListSyntax Parameters { get; set; }
 
         public TypeSyntax ReturnType { get; set; }
+        public bool IsStatic { get; set; }
 
         public EmitterMethodInfo(TypeSyntax returnType, params ParameterSyntax[] parameters)
         {

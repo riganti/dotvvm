@@ -28,6 +28,14 @@
             "isBuildCommand": true,
             "showOutput": "always",
             "problemMatcher": "$msCompile"
+        },
+        {
+            "taskName": "build-blazorCompiler",
+            "command": "build",
+            "args": [ "DotVVM.Compiler.Blazor", "/p:GenerateFullPaths=true" ],
+            "isBuildCommand": true,
+            "showOutput": "silent",
+            "problemMatcher": "$msCompile"
         }
     ]
 }

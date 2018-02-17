@@ -1,0 +1,481 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>DotVVM.Core</name>
+    </assembly>
+    <members>
+        <member name="T:System.ComponentModel.DataAnnotations.DotvvmEnforceClientFormatAttribute">
+            <summary>
+            Checks whether the value matches the format specified by DotVVM control (e.g. TextBox).
+            The value can be empty string or null. If it is not, it must match the FormatString that the control specifies.
+            </summary>
+        </member>
+        <member name="T:DotVVM.Framework.Controls.GridViewDataSet`1">
+            <summary>
+            Represents a collection of items with paging, sorting and row edit capabilities.
+            </summary>
+            <typeparam name="T">The type of the <see cref="P:DotVVM.Framework.Controls.GridViewDataSet`1.Items" /> elements.</typeparam>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.GridViewDataSet`1.IsRefreshRequired">
+            <summary>
+            Gets or sets whether the data should be refreshed. This property is set to true automatically
+            when paging, sorting or other options change.
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.GridViewDataSet`1.Items">
+            <summary>
+            Gets or sets the items for the current page.
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.GridViewDataSet`1.PagingOptions">
+            <summary>
+            Gets or sets the settings for paging.
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.GridViewDataSet`1.RowEditOptions">
+            <summary>
+            Gets or sets the settings for row (item) edit feature.
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.GridViewDataSet`1.SortingOptions">
+            <summary>
+            Gets or sets the settings for sorting.
+            </summary>
+        </member>
+        <member name="M:DotVVM.Framework.Controls.GridViewDataSet`1.GoToPage(System.Int32)">
+            <summary>
+            Navigates to the specific page.
+            </summary>
+            <param name="index">The zero-based index of the page to navigate to.</param>
+        </member>
+        <member name="M:DotVVM.Framework.Controls.GridViewDataSet`1.LoadFromQueryable(System.Linq.IQueryable{`0})">
+            <summary>
+            Loads data into the <see cref="T:DotVVM.Framework.Controls.GridViewDataSet`1" /> from the given <see cref="T:System.Linq.IQueryable`1" /> source.
+            </summary>
+            <param name="source">The source to load data from.</param>
+        </member>
+        <member name="M:DotVVM.Framework.Controls.GridViewDataSet`1.RequestRefresh">
+            <summary>
+            Requests to reload data into the <see cref="T:DotVVM.Framework.Controls.GridViewDataSet`1" />.
+            </summary>
+        </member>
+        <member name="M:DotVVM.Framework.Controls.GridViewDataSet`1.SetSortExpression(System.String)">
+            <summary>
+            Sets the sort expression. If the specified expression is already set, switches the sort direction.
+            </summary>
+        </member>
+        <member name="M:DotVVM.Framework.Controls.GridViewDataSet`1.ApplyFilteringToQueryable(System.Linq.IQueryable{`0})">
+            <summary>
+            Applies filtering to the <paramref name="queryable" /> before the total number
+            of items is retrieved.
+            </summary>
+            <param name="queryable">The <see cref="T:System.Linq.IQueryable`1" /> to modify.</param>
+        </member>
+        <member name="M:DotVVM.Framework.Controls.GridViewDataSet`1.ApplyOptionsToQueryable(System.Linq.IQueryable{`0})">
+            <summary>
+            Applies options to the <paramref name="queryable" /> after the total number
+            of items is retrieved.
+            </summary>
+            <param name="queryable">The <see cref="T:System.Linq.IQueryable`1" /> to modify.</param>
+        </member>
+        <member name="M:DotVVM.Framework.Controls.GridViewDataSet`1.ApplySortingToQueryable(System.Linq.IQueryable{`0})">
+            <summary>
+            Applies sorting to the <paramref name="queryable" /> after the total number
+            of items is retrieved.
+            </summary>
+            <param name="queryable">The <see cref="T:System.Linq.IQueryable`1" /> to modify.</param>
+        </member>
+        <member name="M:DotVVM.Framework.Controls.GridViewDataSet`1.ApplyPagingToQueryable(System.Linq.IQueryable{`0})">
+            <summary>
+            Applies paging to the <paramref name="queryable" /> after the total number
+            of items is retrieved.
+            </summary>
+            <param name="queryable">The <see cref="T:System.Linq.IQueryable`1" /> to modify.</param>
+        </member>
+        <member name="M:DotVVM.Framework.Controls.GridViewDataSetExtensions.GoToFirstPage(DotVVM.Framework.Controls.IPageableGridViewDataSet)">
+            <summary>
+            Navigates to the first page.
+            </summary>
+        </member>
+        <member name="M:DotVVM.Framework.Controls.GridViewDataSetExtensions.GoToPreviousPage(DotVVM.Framework.Controls.IPageableGridViewDataSet)">
+            <summary>
+            Navigates to the previous page if possible.
+            </summary>
+        </member>
+        <member name="M:DotVVM.Framework.Controls.GridViewDataSetExtensions.GoToNextPage(DotVVM.Framework.Controls.IPageableGridViewDataSet)">
+            <summary>
+            Navigates to the next page if possible.
+            </summary>
+        </member>
+        <member name="M:DotVVM.Framework.Controls.GridViewDataSetExtensions.GoToLastPage(DotVVM.Framework.Controls.IPageableGridViewDataSet)">
+            <summary>
+            Navigates to the last page.
+            </summary>
+        </member>
+        <member name="T:DotVVM.Framework.Controls.IBaseGridViewDataSet`1">
+            <summary>
+            Defines the basic contract for DataSets.
+            </summary>
+            <typeparam name="T">The type of the <see cref="P:DotVVM.Framework.Controls.IBaseGridViewDataSet`1.Items" /> elements.</typeparam>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.IBaseGridViewDataSet`1.Items">
+            <summary>
+            Gets the items for the current page.
+            </summary>
+        </member>
+        <member name="T:DotVVM.Framework.Controls.IBaseGridViewDataSet">
+            <summary>
+            Defines the basic contract for DataSets.
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.IBaseGridViewDataSet.Items">
+            <summary>
+            Gets the items for the current page.
+            </summary>
+        </member>
+        <member name="T:DotVVM.Framework.Controls.IGridViewDataSet`1">
+            <summary>
+            Represents a collection of items with paging, sorting and row edit capabilities.
+            </summary>
+            <typeparam name="T">The type of the <see cref="P:DotVVM.Framework.Controls.IBaseGridViewDataSet`1.Items" /> elements.</typeparam>
+        </member>
+        <member name="T:DotVVM.Framework.Controls.IGridViewDataSet">
+            <summary>
+            Represents a collection of items with paging, sorting and row edit capabilities.
+            </summary>
+        </member>
+        <member name="T:DotVVM.Framework.Controls.IPageableGridViewDataSet">
+            <summary>
+            Extends the <see cref="T:DotVVM.Framework.Controls.IBaseGridViewDataSet" /> with paging functionality.
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.IPageableGridViewDataSet.PagingOptions">
+            <summary>
+            Gets the settings for paging.
+            </summary>
+        </member>
+        <member name="M:DotVVM.Framework.Controls.IPageableGridViewDataSet.GoToPage(System.Int32)">
+            <summary>
+            Navigates to the specific page.
+            </summary>
+            <param name="index">The zero-based index of the page to navigate to.</param>
+        </member>
+        <member name="T:DotVVM.Framework.Controls.IRefreshableGridViewDataSet">
+            <summary>
+            Extends the <see cref="T:DotVVM.Framework.Controls.IBaseGridViewDataSet" /> with refresh functionality.
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.IRefreshableGridViewDataSet.IsRefreshRequired">
+            <summary>
+            Gets whether the data should be refreshed. This property is set to true automatically
+            when paging, sorting or other options change.
+            </summary>
+        </member>
+        <member name="M:DotVVM.Framework.Controls.IRefreshableGridViewDataSet.RequestRefresh">
+            <summary>
+            Requests to reload data into the <see cref="T:DotVVM.Framework.Controls.IRefreshableGridViewDataSet" />.
+            </summary>
+        </member>
+        <member name="T:DotVVM.Framework.Controls.IRowEditGridViewDataSet">
+            <summary>
+            Extends the <see cref="T:DotVVM.Framework.Controls.IBaseGridViewDataSet" /> with row edit functionality.
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.IRowEditGridViewDataSet.RowEditOptions">
+            <summary>
+            Gets the settings for row (item) edit feature.
+            </summary>
+        </member>
+        <member name="T:DotVVM.Framework.Controls.IRowInsertGridViewDataSet`1">
+            <summary>
+            Extends the <see cref="T:DotVVM.Framework.Controls.IBaseGridViewDataSet" /> with row insert functionality.
+            </summary>
+            <typeparam name="T">The type of the <see cref="P:DotVVM.Framework.Controls.IBaseGridViewDataSet`1.Items" /> elements.</typeparam>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.IRowInsertGridViewDataSet`1.RowInsertOptions">
+            <summary>
+            Gets the settings for row (item) insert feature.
+            </summary>
+        </member>
+        <member name="T:DotVVM.Framework.Controls.IRowInsertGridViewDataSet">
+            <summary>
+            Extends the <see cref="T:DotVVM.Framework.Controls.IBaseGridViewDataSet" /> with row insert functionality.
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.IRowInsertGridViewDataSet.RowInsertOptions">
+            <summary>
+            Gets the settings for row (item) insert feature.
+            </summary>
+        </member>
+        <member name="T:DotVVM.Framework.Controls.ISortableGridViewDataSet">
+            <summary>
+            Extends the base GridViewDataSet with sorting functionality.
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.ISortableGridViewDataSet.SortingOptions">
+            <summary>
+            Gets the settings for sorting.
+            </summary>
+        </member>
+        <member name="M:DotVVM.Framework.Controls.ISortableGridViewDataSet.SetSortExpression(System.String)">
+            <summary>
+            Sets the sort expression. If the specified expression is already set, switches the sort direction.
+            </summary>
+        </member>
+        <member name="T:DotVVM.Framework.Controls.DistanceNearPageIndexesProvider">
+            <summary>
+            Provides a list of page indexes near current paged based on distance.
+            </summary>
+        </member>
+        <member name="M:DotVVM.Framework.Controls.DistanceNearPageIndexesProvider.#ctor(System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:DotVVM.Framework.Controls.DistanceNearPageIndexesProvider" /> class.
+            </summary>
+            <param name="distance">The distance specifying the range of page indexes to return.</param>
+        </member>
+        <member name="M:DotVVM.Framework.Controls.DistanceNearPageIndexesProvider.GetIndexes(DotVVM.Framework.Controls.IPagingOptions)">
+            <summary>
+            Gets a list of page indexes near current page.
+            </summary>
+            <param name="pagingOptions">The settings for paging.</param>
+        </member>
+        <member name="T:DotVVM.Framework.Controls.INearPageIndexesProvider">
+            <summary>
+            Provides a list of page indexes near current page. It can be used to build data pagers.
+            </summary>
+        </member>
+        <member name="M:DotVVM.Framework.Controls.INearPageIndexesProvider.GetIndexes(DotVVM.Framework.Controls.IPagingOptions)">
+            <summary>
+            Gets a list of page indexes near current page.
+            </summary>
+            <param name="pagingOptions">The settings for paging.</param>
+        </member>
+        <member name="T:DotVVM.Framework.Controls.IPagingOptions">
+            <summary>
+            Represents settings for paging.
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.IPagingOptions.PageIndex">
+            <summary>
+            Gets or sets a zero-based index of the current page.
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.IPagingOptions.PageSize">
+            <summary>
+            Gets or sets the maximum number of items on a page.
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.IPagingOptions.TotalItemsCount">
+            <summary>
+            Gets or sets the total number of items in the data store without respect to paging.
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.IPagingOptions.IsFirstPage">
+            <summary>
+            Gets whether the <see cref="P:DotVVM.Framework.Controls.IPagingOptions.PageIndex" /> represents the first page.
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.IPagingOptions.IsLastPage">
+            <summary>
+            Gets whether the <see cref="P:DotVVM.Framework.Controls.IPagingOptions.PageIndex" /> represents the last page.
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.IPagingOptions.PagesCount">
+            <summary>
+            Gets the total number of pages.
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.IPagingOptions.NearPageIndexes">
+            <summary>
+            Gets a list of page indexes near the current page. It can be used to build data pagers.
+            </summary>
+        </member>
+        <member name="T:DotVVM.Framework.Controls.IRowEditOptions">
+            <summary>
+            Represents settings for row (item) edit feature.
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.IRowEditOptions.PrimaryKeyPropertyName">
+            <summary>
+            Gets or sets the name of a property that uniquely identifies a row. (row ID, primary key, etc.)
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.IRowEditOptions.EditRowId">
+            <summary>
+            Gets or sets the value of a <see cref="P:DotVVM.Framework.Controls.IRowEditOptions.PrimaryKeyPropertyName"/> property for the row that is being edited.
+            </summary>
+        </member>
+        <member name="T:DotVVM.Framework.Controls.IRowInsertOptions`1">
+            <summary>
+            Represents settings for row (item) insert feature.
+            </summary>
+            <typeparam name="T">The type of inserted row.</typeparam>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.IRowInsertOptions`1.InsertedRow">
+            <summary>
+            Gets or sets the row to be inserted to data source.
+            </summary>
+        </member>
+        <member name="T:DotVVM.Framework.Controls.IRowInsertOptions">
+            <summary>
+            Represents settings for row (item) insert feature.
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.IRowInsertOptions.InsertedRow">
+            <summary>
+            Gets or sets the row to be inserted into data source.
+            </summary>
+        </member>
+        <member name="T:DotVVM.Framework.Controls.ISortingOptions">
+            <summary>
+            Represents settings for sorting.
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.ISortingOptions.SortDescending">
+            <summary>
+            Gets or sets whether the sort order should be descending.
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.ISortingOptions.SortExpression">
+            <summary>
+            Gets or sets the name of the property that is used for sorting.
+            </summary>
+        </member>
+        <member name="T:DotVVM.Framework.Controls.PagingOptions">
+            <summary>
+            Represents settings for paging.
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.PagingOptions.NearPageIndexesProvider">
+            <summary>
+            Gets or sets the object that provides a list of page indexes near the current page.
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.PagingOptions.IsFirstPage">
+            <summary>
+            Gets whether the <see cref="P:DotVVM.Framework.Controls.PagingOptions.PageIndex" /> represents the first page.
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.PagingOptions.IsLastPage">
+            <summary>
+            Gets whether the <see cref="P:DotVVM.Framework.Controls.PagingOptions.PageIndex" /> represents the last page.
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.PagingOptions.PagesCount">
+            <summary>
+            Gets the total number of pages.
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.PagingOptions.PageIndex">
+            <summary>
+            Gets or sets a zero-based index of the current page.
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.PagingOptions.PageSize">
+            <summary>
+            Gets or sets the maximum number of items on a page.
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.PagingOptions.TotalItemsCount">
+            <summary>
+            Gets or sets the total number of items in the data store without respect to paging.
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.PagingOptions.NearPageIndexes">
+            <summary>
+            Gets a list of page indexes near the current page. It can be used to build data pagers.
+            </summary>
+        </member>
+        <member name="T:DotVVM.Framework.Controls.RowEditOptions">
+            <summary>
+            Represents settings for row (item) edit feature.
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.RowEditOptions.PrimaryKeyPropertyName">
+            <summary>
+            Gets or sets the name of a property that uniquely identifies a row. (row ID, primary key, etc.)
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.RowEditOptions.EditRowId">
+            <summary>
+            Gets or sets the value of a <see cref="P:DotVVM.Framework.Controls.RowEditOptions.PrimaryKeyPropertyName"/> property for the row that is being edited.
+            </summary>
+        </member>
+        <member name="T:DotVVM.Framework.Controls.RowInsertOptions`1">
+            <summary>
+            Represents settings for row (item) insert feature.
+            </summary>
+            <typeparam name="T">The type of inserted row.</typeparam>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.RowInsertOptions`1.InsertedRow">
+            <summary>
+            Gets or sets the row to be inserted to data source.
+            </summary>
+        </member>
+        <member name="T:DotVVM.Framework.Controls.SortingOptions">
+            <summary>
+            Represents settings for sorting.
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.SortingOptions.SortDescending">
+            <summary>
+            Gets or sets whether the sort order should be descending.
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.Controls.SortingOptions.SortExpression">
+            <summary>
+            Gets or sets the name of the property that is used for sorting.
+            </summary>
+        </member>
+        <member name="T:DotVVM.Framework.ViewModel.BindAttribute">
+            <summary>
+            Specifies the binding direction.
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.ViewModel.BindAttribute.Direction">
+            <summary>
+            Gets the binding direction.
+            </summary>
+        </member>
+        <member name="P:DotVVM.Framework.ViewModel.BindAttribute.Name">
+            <summary>
+            Name of the property in JSON and JS viewModel
+            </summary>
+        </member>
+        <member name="M:DotVVM.Framework.ViewModel.BindAttribute.#ctor(DotVVM.Framework.ViewModel.Direction)">
+            <summary>
+            Initializes a new instance of the <see cref="T:DotVVM.Framework.ViewModel.BindAttribute"/> class.
+            </summary>
+        </member>
+        <member name="T:DotVVM.Framework.ViewModel.Direction">
+            <summary>
+             ServerToClient, ServerToClient on postback, ClientToServer, C2S iff in command path
+            </summary>
+        </member>
+        <member name="T:DotVVM.Framework.ViewModel.ProtectAttribute">
+            <summary>
+            Defines the protection mode of the property in ViewModel.
+            </summary>
+        </member>
+        <member name="T:DotVVM.Framework.ViewModel.ProtectMode">
+            <summary>
+            An enumeration of possible view model data protection modes.
+            </summary>
+        </member>
+        <member name="F:DotVVM.Framework.ViewModel.ProtectMode.None">
+            <summary>
+            The property value is sent to the client unencrypted and it is not signed. It can be modified on the client with no restrictions.
+            </summary>
+        </member>
+        <member name="F:DotVVM.Framework.ViewModel.ProtectMode.SignData">
+            <summary>
+            The property value is sent to the client unencrypted, but it is also signed. If it is modified on the client, the server will throw an exception during postback.
+            </summary>
+        </member>
+        <member name="F:DotVVM.Framework.ViewModel.ProtectMode.EncryptData">
+            <summary>
+            The property value is encrypted before it is sent to the client.
+            </summary>
+        </member>
+    </members>
+</doc>

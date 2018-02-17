@@ -6,8 +6,9 @@
         "type": "coreclr",
         "request": "launch",
         "preLaunchTask": "build",
-        "program": "${workspaceRoot}/DotVVM.Compiler.Blazor/bin/Debug/netcoreapp2.0/DotVVM.Compiler.Blazor.dll",
-        "args": [ "--json", "{FullCompiler: true, DothtmlFiles: [\"Views/default.dothtml\"], WebSiteAssembly: 'bin/Debug/netcoreapp2.0/Samples.Blazor.dll'}" ],
+        "program": "${workspaceRoot}/DotVVM.Compiler.Blazor/tools/DotVVM.Compiler.Blazor.dll",
+        // "args": [ "--json", "{FullCompiler: true, DothtmlFiles: [\"Views/default.dothtml\"], WebSiteAssembly: 'bin/Debug/netcoreapp2.0/Samples.Blazor.dll'}" ],
+        "args": [ "build", "/home/exyi/code/dotvvm/src/Samples.Blazor/bin/Debug/netcoreapp2.0/Samples.Blazor.dll", "/home/exyi/code/dotvvm/src/Samples.Blazor/" ],
         "cwd": "${workspaceRoot}/Samples.Blazor",
         "stopAtEntry": false,
         "console": "internalConsole"

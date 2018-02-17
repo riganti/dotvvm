@@ -19,6 +19,7 @@ using System.Linq;
 using System.Reflection;
 using System.Collections.Immutable;
 using DotVVM.Framework.Utils;
+using System.Runtime.Loader;
 
 namespace DotVVM.Compiler.Blazor
 {
@@ -78,16 +79,42 @@ namespace DotVVM.Compiler.Blazor
                 // Program.WriteInfo($"Bindings saved to {bindingsAssemblyPath}.");
 
                 // var compilation = this.compilation.AddReferences(MetadataReference.CreateFromFile(Path.GetFullPath(bindingsAssemblyPath)));
+
                 if (!Directory.Exists(Path.GetDirectoryName(Options.OutputPath)))
                     Directory.CreateDirectory(Path.GetDirectoryName(Options.OutputPath));
                 var compiledViewsFileName = Path.Combine(Options.OutputPath, Options.AssemblyName + ".dll");
 
-                var result = compilation.Emit(compiledViewsFileName);
-                if (!result.Success)
+                try
                 {
-                    throw new Exception("The compilation failed!");
+                    var result = compilation.Emit(compiledViewsFileName);
+                    if (!result.Success)
+                    {
+                        Console.WriteLine("View compilation failed:");
+                        foreach(var group in result.Diagnostics.GroupBy(d => d.Location.SourceTree))
+                        {
+                            Console.WriteLine("     ---------------------------");
+                            Console.WriteLine(group.Key.ToString());
+                            foreach (var error in group)
+                                Console.WriteLine(error.ToString());
+                            Console.WriteLine("     ---------------------------");
+                            Console.WriteLine();
+                        }
+                        throw new Exception("The compilation failed!");
+                    }
+                    Program.WriteInfo($"Compiled views saved to {compiledViewsFileName}.");
                 }
-                Program.WriteInfo($"Compiled views saved to {compiledViewsFileName}.");
+                catch(Exception error)
+                {
+                    Console.WriteLine("Could not compile generated views:");
+                    Console.WriteLine(error);
+                    foreach(var tree in compilation.SyntaxTrees)
+                    {
+                        Console.WriteLine("     ---------------------------");
+                        Console.WriteLine(tree.ToString());
+                    }
+                    Console.WriteLine();
+                    throw;
+                }
             }
         }
 
@@ -96,12 +123,16 @@ namespace DotVVM.Compiler.Blazor
             Program.WriteInfo("Initializing...");
             // Init();
 
+            Options.PopulateRouteTable(this.configuration);
+
             Program.WriteInfo("Compiling views...");
-            foreach (var file in Options.DothtmlFiles)
+            var compiledFiles = new List<(string file, ViewCompilationResult)>();
+            foreach (var file in Options.DothtmlFiles.Distinct())
             {
                 try
                 {
-                    CompileFile(file);
+                    var result = CompileFile(file);
+                    compiledFiles.Add((file, result));
                 }
                 catch (DotvvmCompilationException exception)
                 {
@@ -111,6 +142,9 @@ namespace DotVVM.Compiler.Blazor
                     });
                 }
             }
+
+            var emitter = BlazorEntrypoint.CreateEntryPoint(this.Options.AssemblyName, compiledFiles.ToArray());
+            AddEmitter("IDK_JUST_SOME_FILE", emitter,Options.AssemblyName, "Program");
 
             Program.WriteInfo("Emitting assemblies...");
             Save();
@@ -184,13 +218,7 @@ namespace DotVVM.Compiler.Blazor
                 // compile master pages
                 // if (resolvedView.Directives.ContainsKey("masterPage"))
                 //     CompileFile(resolvedView.Directives["masterPage"].Single().Value);
-
-                var trees = emitter.BuildTree(namespaceName, className, fileName).Select(t => t.WithRootAndOptions(t.GetRoot().NormalizeWhitespace(), t.Options)).ToArray();
-
-                compilation = compilation
-                    .AddSyntaxTrees(trees)
-                    .AddReferences(emitter.UsedAssemblies
-                        .Select(a => CompiledAssemblyCache.Instance.GetAssemblyMetadata(a.Key).WithAliases(ImmutableArray.Create(a.Value))));
+                AddEmitter(fileName, emitter, namespaceName, className);
             }
 
             Program.WriteInfo($"The view { fileName } compiled successfully.");
@@ -204,6 +232,21 @@ namespace DotVVM.Compiler.Blazor
             };
             BuildFileResult(fileName, res);
             return res;
+        }
+
+        private void AddEmitter(string fileName, BetterCodeEmitter emitter, string namespaceName, string className)
+        {
+            var trees = emitter.BuildTree(namespaceName, className, fileName).Select(t => t.WithRootAndOptions(t.GetRoot().NormalizeWhitespace(), t.Options)).ToArray();
+
+            compilation = compilation
+                .AddSyntaxTrees(trees)
+                .AddReferences(emitter.UsedAssemblies
+                    .Select(a => CompiledAssemblyCache.Instance.GetAssemblyMetadata(a.Key).WithAliases(ImmutableArray.Create(a.Value))));
+        }
+
+        void AddEmitter(DefaultViewCompilerCodeEmitter emitter)
+        {
+
         }
     }
 

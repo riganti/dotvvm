@@ -165,7 +165,7 @@ namespace DotVVM.Framework.Compilation
         }
 
 
-        private string EmitCreateObject(TypeSyntax type, IEnumerable<ExpressionSyntax> arguments)
+        public string EmitCreateObject(TypeSyntax type, IEnumerable<ExpressionSyntax> arguments)
         {
             return EmitCreateVariable(
                 EmitCreateObjectExpression(type, arguments)
@@ -177,7 +177,7 @@ namespace DotVVM.Framework.Compilation
             return EmitCreateObjectExpression(ParseTypeName(type), arguments);
         }
 
-        private ExpressionSyntax EmitCreateObjectExpression(TypeSyntax type, IEnumerable<ExpressionSyntax> arguments)
+        public ExpressionSyntax EmitCreateObjectExpression(TypeSyntax type, IEnumerable<ExpressionSyntax> arguments)
         {
             return SyntaxFactory.ObjectCreationExpression(type).WithArgumentList(
                 SyntaxFactory.ArgumentList(
@@ -788,6 +788,22 @@ namespace DotVVM.Framework.Compilation
             {
                 return SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.VoidKeyword));
             }
+            else if (type.IsArray)
+            {
+                var elementType = type.GetElementType();
+                return SyntaxFactory.ArrayType(
+                    ParseTypeName(elementType)
+                )
+                .WithRankSpecifiers(
+                    SyntaxFactory.SingletonList<ArrayRankSpecifierSyntax>(
+                        SyntaxFactory.ArrayRankSpecifier(
+                            SyntaxFactory.SingletonSeparatedList<ExpressionSyntax>(
+                                SyntaxFactory.OmittedArraySizeExpression()
+                            )
+                        )
+                    )
+                );
+            }
             else if (!type.GetTypeInfo().IsGenericType)
             {
                 return SyntaxFactory.ParseTypeName($"{asmName}::{type.FullName.Replace('+', '.')}");
@@ -853,6 +869,16 @@ namespace DotVVM.Framework.Compilation
                 .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)),
         };
 
+        protected virtual ClassDeclarationSyntax ProcessViewBuilderClass(ClassDeclarationSyntax @class, string fileName) =>
+            @class.AddAttributeLists(SyntaxFactory.AttributeList(SyntaxFactory.SeparatedList(new [] {
+                SyntaxFactory.Attribute(
+                    (QualifiedNameSyntax)ParseTypeName(typeof(LoadControlBuilderAttribute)),
+                    SyntaxFactory.AttributeArgumentList(SyntaxFactory.SeparatedList(new [] {
+                        SyntaxFactory.AttributeArgument(EmitStringLiteral(fileName))
+                    }))
+                )
+            })));
+
         /// <summary>
         /// Gets the result syntax tree.
         /// </summary>
@@ -861,9 +887,6 @@ namespace DotVVM.Framework.Compilation
             UseType(BuilderDataContextType);
 
             var root = SyntaxFactory.CompilationUnit()
-                .WithExterns(SyntaxFactory.List(
-                    UsedAssemblies.Select(k => SyntaxFactory.ExternAliasDirective(SyntaxFactory.Identifier(k.Value)))
-                ))
                 .WithMembers(
                 SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(namespaceName)).WithMembers(
                     SyntaxFactory.List<MemberDeclarationSyntax>(
@@ -874,30 +897,30 @@ namespace DotVVM.Framework.Compilation
                                 .WithBaseList(SyntaxFactory.BaseList(
                                     SyntaxFactory.SeparatedList(GetBuilderBaseTypes())
                                 ))
-                                .AddAttributeLists(SyntaxFactory.AttributeList(SyntaxFactory.SeparatedList(new [] {
-                                        SyntaxFactory.Attribute(
-                                            (QualifiedNameSyntax)ParseTypeName(typeof(LoadControlBuilderAttribute)),
-                                            SyntaxFactory.AttributeArgumentList(SyntaxFactory.SeparatedList(new [] {
-                                                SyntaxFactory.AttributeArgument(EmitStringLiteral(fileName))
-                                            }))
-                                        )
-                                    })))
                                 .WithMembers(
                                 SyntaxFactory.List<MemberDeclarationSyntax>(
                                     outputMethods.Select<EmitterMethodInfo, MemberDeclarationSyntax>(m =>
                                         SyntaxFactory.MethodDeclaration(
                                             m.ReturnType,
                                             m.Name)
-                                            .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
+                                            .WithModifiers(SyntaxFactory.TokenList(
+                                                m.IsStatic ?
+                                                new [] { SyntaxFactory.Token(SyntaxKind.PublicKeyword), SyntaxFactory.Token(SyntaxKind.StaticKeyword) } :
+                                                new [] { SyntaxFactory.Token(SyntaxKind.PublicKeyword) }
+                                            ))
                                             .WithParameterList(m.Parameters)
                                             .WithBody(SyntaxFactory.Block(m.Statements))
                                         ).Concat(GetDefaultMemberDeclarations()).Concat(otherDeclarations)
                                     )
                                 )
-                        }
+                                .Apply(c => ProcessViewBuilderClass(c, fileName))
+                            }
+                        )
                     )
                 )
-            );
+                .WithExterns(SyntaxFactory.List(
+                    UsedAssemblies.Select(k => SyntaxFactory.ExternAliasDirective(SyntaxFactory.Identifier(k.Value)))
+                ));
 
             // WORKAROUND: serializing and parsing the tree is necessary here because Roslyn throws compilation errors when pass the original tree which uses markup controls (they reference in-memory assemblies)
             // the trees are the same (root2.GetChanges(root) returns empty collection) but without serialization and parsing it does not work
@@ -927,6 +950,15 @@ namespace DotVVM.Framework.Compilation
         public void PushNewMethod(string name, Type returnType, params ParameterSyntax[] parameters)
         {
             var emitterMethodInfo = new EmitterMethodInfo(ParseTypeName(returnType), parameters) { Name = name };
+            methods.Push(emitterMethodInfo);
+        }
+
+        /// <summary>
+        /// Pushes the new method.
+        /// </summary>
+        public void PushNewStaticMethod(string name, Type returnType, params ParameterSyntax[] parameters)
+        {
+            var emitterMethodInfo = new EmitterMethodInfo(ParseTypeName(returnType), parameters) { Name = name, IsStatic = true };
             methods.Push(emitterMethodInfo);
         }
 

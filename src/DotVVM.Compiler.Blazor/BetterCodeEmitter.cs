@@ -36,13 +36,29 @@ namespace DotVVM.Compiler.Blazor
         }
 
         protected override IEnumerable<BaseTypeSyntax> GetBuilderBaseTypes() => new BaseTypeSyntax[] {
-            SyntaxFactory.SimpleBaseType(ParseTypeName(typeof(Microsoft.AspNetCore.Blazor.Components.IComponent)))
+            SyntaxFactory.SimpleBaseType(ParseTypeName(this.BaseType))
         };
+
+        public Type BaseType { get; set; } = typeof(Microsoft.AspNetCore.Blazor.Components.IComponent);
 
         protected override IEnumerable<MemberDeclarationSyntax> GetDefaultMemberDeclarations() => new MemberDeclarationSyntax[] {
         };
 
+        protected override ClassDeclarationSyntax ProcessViewBuilderClass(ClassDeclarationSyntax @class, string fileName) => @class;
 
+        public ExpressionSyntax CreateTuple(Type tupleType, params ExpressionSyntax[] items) =>
+            // SyntaxFactory.TupleExpression(SyntaxFactory.SeparatedList(
+            //     items.Select(i => SyntaxFactory.Argument(i))
+            // ));
+            this.EmitCreateObjectExpression(
+                ParseTypeName(tupleType),
+                items
+            );
+
+        public void AddClassMember(MemberDeclarationSyntax member)
+        {
+            this.otherDeclarations.Add(member);
+        }
 
 
         #region builder methods

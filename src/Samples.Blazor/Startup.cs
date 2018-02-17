@@ -31,6 +31,8 @@ namespace Samples.Blazor
         {
             loggerFactory.AddConsole();
 
+            app.UseBlazor("Samples.Blazor.DotvvmClientApp");
+
             // use DotVVM
             var dotvvmConfiguration = app.UseDotVVM<DotvvmStartup>(env.ContentRootPath);
 

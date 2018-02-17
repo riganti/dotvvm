@@ -25,13 +25,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.Common", "Do
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.BasicSamples.AspNetCore", "DotVVM.Samples.BasicSamples.AspNetCore\DotVVM.Samples.BasicSamples.AspNetCore.csproj", "{E8AC4B04-1064-4AFD-8CE6-2387AC7FE856}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.BasicSamples.Owin", "DotVVM.Samples.BasicSamples.Owin\DotVVM.Samples.BasicSamples.Owin.csproj", "{1C7A9914-8CDC-4075-9422-37BD0E51C076}"
-	ProjectSection(ProjectDependencies) = postProject
-		{45FA2F43-D92B-4A9B-9B93-9AB519AD0127} = {45FA2F43-D92B-4A9B-9B93-9AB519AD0127}
-		{8BB2217D-0F2D-49D1-97BC-3654ED321F3B} = {8BB2217D-0F2D-49D1-97BC-3654ED321F3B}
-		{60CCCC83-BA9F-4DF0-A759-5E46C3D4DAB0} = {60CCCC83-BA9F-4DF0-A759-5E46C3D4DAB0}
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework.Hosting.AspNetCore", "DotVVM.Framework.Hosting.AspNetCore\DotVVM.Framework.Hosting.AspNetCore.csproj", "{C5AF6A0D-5416-44D4-B14D-8FFDD1B0E99B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.CommandLine", "DotVVM.CommandLine\DotVVM.CommandLine.csproj", "{8D62EAF9-9FA9-479E-84AF-9821C4394456}"
@@ -42,13 +35,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework.Tools.Sele
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Compiler.Light", "DotVVM.Compiler.Light\DotVVM.Compiler.Light.csproj", "{08C18C97-72BA-40D5-9DD6-245AE352D6EA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework.Tests.Owin", "DotVVM.Framework.Tests.Owin\DotVVM.Framework.Tests.Owin.csproj", "{96A89C66-D5E2-4A09-8083-C0FE8A7A2AFE}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.Tests", "DotVVM.Samples.Tests\DotVVM.Samples.Tests.csproj", "{96C99BC7-A588-4F75-972D-76C23C8AD6C2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework.PerfTests", "DotVVM.Framework.PerfTests\DotVVM.Framework.PerfTests.csproj", "{7FEC151D-6B54-4B6B-921E-590B9E11D650}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework.Hosting.Owin", "DotVVM.Framework.Hosting.Owin\DotVVM.Framework.Hosting.Owin.csproj", "{F578AC17-9BBF-40FB-B0EE-9059CD08865B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework.Testing.SeleniumHelpers", "DotVVM.Framework.Testing.SeleniumHelpers\DotVVM.Framework.Testing.SeleniumHelpers.csproj", "{0F9076E3-72DE-4D1D-83DE-5A828B71DB58}"
 EndProject
@@ -72,17 +61,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Swagger", "Swagger", "{BA93
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework.Api.Swashbuckle.AspNetCore", "DotVVM.Framework.Api.Swashbuckle.AspNetCore\DotVVM.Framework.Api.Swashbuckle.AspNetCore.csproj", "{C64B2831-5DB2-4E4A-B3ED-58FEE8790A02}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Framework.Api.Swashbuckle.Owin", "DotVVM.Framework.Api.Swashbuckle.Owin\DotVVM.Framework.Api.Swashbuckle.Owin.csproj", "{54AECFE5-AF60-425E-A022-8233D276D3C6}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.BasicSamples.Api.Owin", "DotVVM.Samples.BasicSamples.Api.Owin\DotVVM.Samples.BasicSamples.Api.Owin.csproj", "{5B5B07E7-BC20-4168-BE55-CF9414575D47}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.BasicSamples.Api.Common", "DotVVM.Samples.BasicSamples.Api.Common\DotVVM.Samples.BasicSamples.Api.Common.csproj", "{E6072462-B15A-4C3E-B3DC-61859DAFB1AF}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Framework.Api.Swashbuckle.Owin.Tests", "DotVVM.Framework.Api.Swashbuckle.Owin.Tests\DotVVM.Framework.Api.Swashbuckle.Owin.Tests.csproj", "{CDAA2A06-2070-4F85-BD35-8C910013FB77}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework.Api.Swashbuckle.AspNetCore.Tests", "DotVVM.Framework.Api.Swashbuckle.AspNetCore.Tests\DotVVM.Framework.Api.Swashbuckle.AspNetCore.Tests.csproj", "{7E3DCB6E-CEE8-4760-B19A-E23250DB7CC1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Compiler.Blazor", "DotVVM.Compiler.Blazor\DotVVM.Compiler.Blazor.csproj", "{2ED093D4-8D87-4BD2-A7A8-2C03EDF3B796}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Framework.Blazor", "DotVVM.Framework.Blazor\DotVVM.Framework.Blazor.csproj", "{2176BC30-F18C-47E1-A073-56A7C2487CF4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -450,6 +435,18 @@ Global
 		{2ED093D4-8D87-4BD2-A7A8-2C03EDF3B796}.Release|x64.Build.0 = Release|x64
 		{2ED093D4-8D87-4BD2-A7A8-2C03EDF3B796}.Release|x86.ActiveCfg = Release|x86
 		{2ED093D4-8D87-4BD2-A7A8-2C03EDF3B796}.Release|x86.Build.0 = Release|x86
+		{2176BC30-F18C-47E1-A073-56A7C2487CF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2176BC30-F18C-47E1-A073-56A7C2487CF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2176BC30-F18C-47E1-A073-56A7C2487CF4}.Debug|x64.ActiveCfg = Debug|x64
+		{2176BC30-F18C-47E1-A073-56A7C2487CF4}.Debug|x64.Build.0 = Debug|x64
+		{2176BC30-F18C-47E1-A073-56A7C2487CF4}.Debug|x86.ActiveCfg = Debug|x86
+		{2176BC30-F18C-47E1-A073-56A7C2487CF4}.Debug|x86.Build.0 = Debug|x86
+		{2176BC30-F18C-47E1-A073-56A7C2487CF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2176BC30-F18C-47E1-A073-56A7C2487CF4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2176BC30-F18C-47E1-A073-56A7C2487CF4}.Release|x64.ActiveCfg = Release|x64
+		{2176BC30-F18C-47E1-A073-56A7C2487CF4}.Release|x64.Build.0 = Release|x64
+		{2176BC30-F18C-47E1-A073-56A7C2487CF4}.Release|x86.ActiveCfg = Release|x86
+		{2176BC30-F18C-47E1-A073-56A7C2487CF4}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

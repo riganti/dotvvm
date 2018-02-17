@@ -40,6 +40,20 @@ namespace DotVVM.Compiler.Blazor
                     Environment.Exit(1);
                 }
             }
+            else if (args[0] == "build")
+            {
+                var webSiteAssembly = args[1];
+                var webSitePath = args[2];
+                var options = new CompilerOptions() {
+                    FullCompile = true,
+                    DothtmlFiles = null,
+                    WebSitePath = webSitePath,
+                    WebSiteAssembly = webSiteAssembly,
+                    OutputPath = Path.GetDirectoryName(webSiteAssembly),
+                    AssemblyName = Path.GetFileNameWithoutExtension(webSiteAssembly) + ".DotvvmClientApp"
+                };
+                DoCompile(options);
+            }
             else
             {
                 var file = string.Join(" ", args);
