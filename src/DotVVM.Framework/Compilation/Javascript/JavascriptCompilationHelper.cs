@@ -10,8 +10,8 @@ namespace DotVVM.Framework.Compilation.Javascript
     {
         public static string CompileConstant(object obj) => JsonConvert.SerializeObject(obj, new StringEnumConverter());
 
-        private static readonly object indexerTargetParameter = new object();
-        private static readonly object indexerExpressionParameter = new object();
+        private static readonly CodeSymbolicParameter indexerTargetParameter = new CodeSymbolicParameter("JavascriptCompilationHelper.indexerTargetParameter");
+        private static readonly CodeSymbolicParameter indexerExpressionParameter = new CodeSymbolicParameter("JavascriptCompilationHelper.indexerExpressionParameter");
         private static readonly ParametrizedCode indexerCode =
             new JsIdentifierExpression("ko").Member("unwrap").Invoke(new JsSymbolicParameter(indexerTargetParameter)).Indexer(new JsSymbolicParameter(indexerExpressionParameter))
             .FormatParametrizedScript();

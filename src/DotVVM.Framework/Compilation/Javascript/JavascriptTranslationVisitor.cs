@@ -89,7 +89,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             return Translate(expression.Expression).Invoke(expression.Arguments.Select(Translate));
         }
 
-        private Expression ReplaceVariables(Expression node, IReadOnlyList<ParameterExpression> variables, object[] args)
+        private Expression ReplaceVariables(Expression node, IReadOnlyList<ParameterExpression> variables, CodeSymbolicParameter[] args)
         {
             return ExpressionUtils.Replace(Expression.Lambda(node, variables), args.Zip(variables, (o, a) => Expression.Parameter(a.Type, a.Name).AddParameterAnnotation(
                 new BindingParameterAnnotation(extensionParameter: new FakeExtensionParameter(_ => new JsSymbolicParameter(o), a.Name, new ResolvedTypeDescriptor(a.Type)))
@@ -98,7 +98,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public JsExpression TranslateLambda(LambdaExpression expression)
         {
-            var args = expression.Parameters.Select(_ => new object()).ToArray();
+            var args = expression.Parameters.Select(p => new CodeSymbolicParameter($"lambda_param_" + p.Name)).ToArray();
             var (body, additionalVariables, additionalVarNames) = TranslateLambdaBody(ReplaceVariables(expression.Body, expression.Parameters, args));
             var usedNames = new HashSet<string>(body.DescendantNodesAndSelf().OfType<JsIdentifierExpression>().Select(i => i.Identifier));
             var argsNames = expression.Parameters.Select(p => JsTemporaryVariableResolver.GetNames(p.Name).First(usedNames.Add)).ToArray();
@@ -122,7 +122,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             if (expression is BlockExpression block)
             {
-                var args = block.Variables.Select(_ => new object()).ToArray();
+                var args = block.Variables.Select(_ => new CodeSymbolicParameter()).ToArray();
                 var expressions = block.Expressions.Select(s => Translate(ReplaceVariables(s, block.Variables, args))).ToArray();
                 return (
                     new JsBlockStatement(
