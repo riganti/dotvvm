@@ -1,6 +1,6 @@
 ﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <VersionPrefix>2.0.0-beta02</VersionPrefix>
+    <VersionPrefix>2.0.0-preview01-final</VersionPrefix>
     <TargetFramework>net451</TargetFramework>
     <RuntimeIdentifiers>win7-x64;win7-x86</RuntimeIdentifiers>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -17,7 +17,7 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <PackageId>DotVVM.Owin</PackageId>
-    <PackageVersion>2.0.0-beta02</PackageVersion>
+    <PackageVersion>2.0.0-preview01-final</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>
       This package contains OWIN middleware and hosting infrastructure for DotVVM apps.
@@ -42,7 +42,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Ben.Demystifier" Version="0.0.43" />
+    <PackageReference Include="Ben.Demystifier" Version="0.1.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="1.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="1.0.0" />
     <PackageReference Include="Microsoft.Owin.Security" Version="3.0.1" />

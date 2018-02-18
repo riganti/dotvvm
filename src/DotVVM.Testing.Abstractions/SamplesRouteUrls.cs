@@ -10,5 +10,7 @@
 
         public static string FeatureSamples_PostbackConcurrency_DenyMode =>
             "FeatureSamples/PostbackConcurrency/PostbackConcurrencyMode?concurrency=Deny";
+        public static string FeatureSamples_Localization => "FeatureSamples/Localization";
+
     }
 }

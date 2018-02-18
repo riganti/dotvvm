@@ -427,7 +427,7 @@ class DotVVM {
 
     public applyPostbackHandlers(callback: (options: PostbackOptions) => Promise<PostbackCommitFunction | undefined>, sender: HTMLElement, handlers?: ClientFriendlyPostbackHandlerConfiguration[], args: any[] = [], context = ko.contextFor(sender), viewModel = context.$root, viewModelName?: string): Promise<DotvvmAfterPostBackEventArgs> {
         const options = new PostbackOptions(this.backUpPostBackConter(), sender, args, viewModel, viewModelName)
-        const promise =  this.applyPostbackHandlersCore(callback, options, this.findPostbackHandlers(context, this.globalPostbackHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers)))
+        const promise = this.applyPostbackHandlersCore(callback, options, this.findPostbackHandlers(context, this.globalPostbackHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers)))
             .then(r => r(), r => Promise.reject(r))
 
         promise.catch(reason => { if (reason) console.log("Rejected: " + reason) });
@@ -528,7 +528,7 @@ class DotVVM {
 
     public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, context?: any, handlers?: ClientFriendlyPostbackHandlerConfiguration[], commandArgs?: any[]): Promise<DotvvmAfterPostBackEventArgs> {
         if (this.isPostBackProhibited(sender)) {
-            const rejectedPromise =  new Promise<DotvvmAfterPostBackEventArgs>((resolve, reject) => reject("rejected"));
+            const rejectedPromise = new Promise<DotvvmAfterPostBackEventArgs>((resolve, reject) => reject("rejected"));
             rejectedPromise.catch(() => console.log("Postback probihited"));
             return rejectedPromise;
         }
@@ -946,7 +946,7 @@ class DotVVM {
     }
     public buildRouteUrl(routePath: string, params: any): string {
         // prepend url with backslash to correctly handle optional parameters at start
-        routePath = '/' + routePath; 
+        routePath = '/' + routePath;
 
         var url = routePath.replace(/(\/[^\/]*?)\{([^\}]+?)\??(:(.+?))?\}/g, (s, prefix, paramName, _, type) => {
             if (!paramName) return "";
@@ -1177,14 +1177,21 @@ class DotVVM {
                 elmMetadata.format = (element.attributes["data-dotvvm-format"] || { value: "" }).value;
 
                 //add metadata for validation
-                if (!obs.dotvvmMetadata) {
-                    obs.dotvvmMetadata = new DotvvmValidationObservableMetadata();
-                    obs.dotvvmMetadata.elementsMetadata = [elmMetadata];
-                } else {
-                    if (!obs.dotvvmMetadata.elementsMetadata) {
-                        obs.dotvvmMetadata.elementsMetadata = [];
+                var metadata = <DotvvmValidationObservableMetadata><any>null;
+                if (ko.isObservable(obs)) {
+
+                    if (!obs.dotvvmMetadata) {
+                        obs.dotvvmMetadata = new DotvvmValidationObservableMetadata();
+                        obs.dotvvmMetadata.elementsMetadata = [elmMetadata];
+                    } else {
+                        if (!obs.dotvvmMetadata.elementsMetadata) {
+                            obs.dotvvmMetadata.elementsMetadata = [];
+                        }
+                        obs.dotvvmMetadata.elementsMetadata.push(elmMetadata);
                     }
-                    obs.dotvvmMetadata.elementsMetadata.push(elmMetadata);
+                    metadata = obs.dotvvmMetadata.elementsMetadata;
+                } else {
+                    metadata = new DotvvmValidationObservableMetadata();
                 }
                 setTimeout((metaArray: DotvvmValidationElementMetadata[], element: HTMLElement) => {
                     // remove element from collection when its removed from dom
@@ -1196,7 +1203,7 @@ class DotVVM {
                             }
                         }
                     });
-                }, 0, obs.dotvvmMetadata.elementsMetadata, element);
+                }, 0, metadata, element);
 
 
                 dotvvm.domUtils.attachEvent(element, "change", () => {

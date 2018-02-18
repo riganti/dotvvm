@@ -158,6 +158,7 @@ namespace DotVVM.Testing.Abstractions
         public static string FeatureSamples_JavascriptEvents_JavascriptEvents => "FeatureSamples/JavascriptEvents/JavascriptEvents";
         public static string FeatureSamples_Localization_Localization => "FeatureSamples/Localization/Localization";
         public static string FeatureSamples_Localization_Localization_Control_Page => "FeatureSamples/Localization/Localization_Control_Page";
+        public static string FeatureSamples_Localization_Localization_FormatString => "FeatureSamples/Localization/Localization_FormatString";
         public static string FeatureSamples_Localization_Localization_NestedPage_Type => "FeatureSamples/Localization/Localization_NestedPage_Type";
         public static string FeatureSamples_MarkupControl_CommandBindingInDataContextWithControlProperty => "FeatureSamples/MarkupControl/CommandBindingInDataContextWithControlProperty";
         public static string FeatureSamples_MarkupControl_CommandBindingInRepeater => "FeatureSamples/MarkupControl/CommandBindingInRepeater";
