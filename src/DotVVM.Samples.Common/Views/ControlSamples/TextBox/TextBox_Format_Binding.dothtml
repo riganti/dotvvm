@@ -22,6 +22,18 @@
         <span ID="date-result3">{{value: DateResult3}}</span>
     </p>
 
+    <p ID="nullableDateFormat">
+        Nullable DATE: <br>
+        <dot:TextBox ID="nullableDateTextbox"
+                     ClientIDMode="Static"
+                     Text="{value: NullableDateValue}"
+                     style="height: 20px; width: 200px;" />
+        <dot:Literal ID="nullableDateValueText"
+                     ClientIDMode="Static"
+                     Text="{value: NullableDateValue}">
+        </dot:Literal>
+    </p>
+
     <p ID="numberformat">
         Number: <br>
         <dot:TextBox ID="numberTextbox"
@@ -31,6 +43,17 @@
         <dot:Literal ID="numberValueText"
                      ClientIDMode="Static"
                      Text="{value: NumberValue}">
+        </dot:Literal>
+    </p>
+    <p ID="nullableNumberformat">
+        Nullable Number: <br>
+        <dot:TextBox ID="nullableNumberTextbox"
+                     ClientIDMode="Static"
+                     Text="{value: NullableNumberValue }"
+                     style="height: 20px; width: 200px;" />
+        <dot:Literal ID="nullableNumberValueText"
+                     ClientIDMode="Static"
+                     Text="{value: NullableNumberValue}">
         </dot:Literal>
     </p>
     <p ID="customNumberformat">
