@@ -130,11 +130,23 @@ namespace DotVVM.Samples.Tests.Control
                     var dateText = browser.First("#DateValueText");
                     AssertUI.InnerTextEquals(dateText, new DateTime(2015, 12, 27).ToString("G", culture));
 
+                    var nullableDateTextBox = browser.First("#nullableDateTextbox");
+                    AssertUI.Attribute(nullableDateTextBox, "value", new DateTime(2015, 12, 27).ToString("G", culture));
+
+                    var nullableDateText = browser.First("#nullableDateValueText");
+                    AssertUI.InnerTextEquals(nullableDateText, new DateTime(2015, 12, 27).ToString("G", culture));
+
                     var numberTextbox = browser.First("#numberTextbox");
                     AssertUI.Attribute(numberTextbox, "value", 123.1235.ToString(culture));
 
                     var numberValueText = browser.First("#numberValueText");
                     AssertUI.InnerTextEquals(numberValueText, 123.123456789.ToString(culture));
+
+                    var nullableNumberTextbox = browser.First("#nullableNumberTextbox");
+                    AssertUI.Attribute(nullableNumberTextbox, "value", 123.123456789.ToString(culture));
+
+                    var nullableNumberValueText = browser.First("#nullableNumberValueText");
+                    AssertUI.InnerTextEquals(nullableNumberValueText, 123.123456789.ToString(culture));
 
                     //write new valid values
                     dateTextBox.Clear().SendKeys(dateResult2);

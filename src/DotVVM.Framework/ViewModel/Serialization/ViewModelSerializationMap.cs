@@ -214,10 +214,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
             where method.Name == nameof(JsonWriter.WriteValue)
             let parameters = method.GetParameters()
             where parameters.Length == 1
-            where parameters[0].ParameterType != typeof(object)
-            where parameters[0].ParameterType != typeof(DateTime)
-            where parameters[0].ParameterType != typeof(DateTimeOffset)
-            select new { key = parameters[0].ParameterType, value = method }
+            let parameterType = parameters[0].ParameterType
+            where parameterType != typeof(object)
+            where parameterType != typeof(DateTime) && parameterType != typeof(DateTime?)
+            where parameterType != typeof(DateTimeOffset) && parameterType != typeof(DateTimeOffset?)
+            select new { key = parameterType, value = method }
             ).ToDictionary(x => x.key, x => x.value);
 
         private static Expression GetSerializeExpression(ViewModelPropertyMap property, Expression jsonWriter, Expression value, Expression serializer)

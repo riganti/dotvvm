@@ -274,7 +274,7 @@ namespace DotVVM.Framework.Binding
         public static BindingParameterAnnotation GetParameterAnnotation(this Expression expr) =>
             _expressionAnnotations.TryGetValue(expr, out var annotation) ? annotation : null;
 
-        public static void SetDataContextTypeFromDataSource(this DotvvmBindableObject obj, IValueBinding dataSourceBinding) =>
+        public static void SetDataContextTypeFromDataSource(this DotvvmBindableObject obj, IBinding dataSourceBinding) =>
             obj.SetDataContextType(dataSourceBinding.GetProperty<CollectionElementDataContextBindingProperty>().DataContext);
 
         public static void SetDataContextForItem(this DotvvmBindableObject obj, IValueBinding itemBinding, int index, object currentItem)
