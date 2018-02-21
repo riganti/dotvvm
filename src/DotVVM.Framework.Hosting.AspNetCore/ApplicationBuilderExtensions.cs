@@ -26,28 +26,9 @@ namespace Microsoft.AspNetCore.Builder
         /// A value indicating whether to show detailed error page if an exception occurs. It is enabled by default
         /// if <see cref="HostingEnvironmentExtensions.IsDevelopment" /> returns <c>true</c>.
         /// </param>
-        public static DotvvmConfiguration UseDotVVM<TStartup>(this IApplicationBuilder app, string applicationRootPath = null, bool? useErrorPages = null)
-            where TStartup : IDotvvmStartup, new()
+        public static DotvvmConfiguration UseDotVVM(this IApplicationBuilder app, string applicationRootPath, bool? useErrorPages = null)
         {
-            var config = app.UseDotVVM(applicationRootPath, useErrorPages);
-            new TStartup().Configure(config, applicationRootPath);
-            return config;
-        }
-
-        /// <summary>
-        /// Adds DotVVM to the <see cref="IApplicationBuilder" /> request execution pipeline.
-        /// </summary>
-        /// <param name="app">The <see cref="IApplicationBuilder" /> instance.</param>
-        /// <param name="applicationRootPath">
-        /// The path to application's root directory. It is used to resolve paths to views, etc.
-        /// The default value is equal to <see cref="IHostingEnvironment.ContentRootPath" />.
-        /// </param>
-        /// <param name="useErrorPages">
-        /// A value indicating whether to show detailed error page if an exception occurs. It is enabled by default
-        /// if <see cref="HostingEnvironmentExtensions.IsDevelopment" /> returns <c>true</c>.
-        /// </param>
-        public static DotvvmConfiguration UseDotVVM(this IApplicationBuilder app, string applicationRootPath, bool? useErrorPages)
-        {
+            var startup = app.ApplicationServices.GetRequiredService<IDotvvmStartup>();
             var env = app.ApplicationServices.GetRequiredService<IHostingEnvironment>();
             var config = app.ApplicationServices.GetRequiredService<DotvvmConfiguration>();
 
@@ -65,6 +46,8 @@ namespace Microsoft.AspNetCore.Builder
                 new DotvvmReturnedFileMiddleware(),
                 new DotvvmRoutingMiddleware()
             }.Where(t => t != null).ToArray());
+
+            startup.Configure(config, applicationRootPath);
 
             return config;
         }

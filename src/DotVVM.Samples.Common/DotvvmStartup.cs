@@ -13,8 +13,11 @@ using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Samples.BasicSamples.Controls;
 using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Redirect;
 using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Serialization;
+using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand;
 using DotVVM.Samples.Common;
+using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.ServerSideStyles;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Samples.BasicSamples
 {
@@ -43,6 +46,14 @@ namespace DotVVM.Samples.BasicSamples
 
             config.RegisterApiGroup(typeof(GithubApiClient.GithubApiClient), "https://api.github.com/", "Scripts/GithubApiClient.js", "_github", customFetchFunction: "basicAuthenticatedFetch");
             config.RegisterApiClient(typeof(AzureFunctionsApi.Client), "https://dotvvmazurefunctionstest.azurewebsites.net/", "Scripts/AzureFunctionsApiClient.js", "_azureFuncApi");
+        }
+
+        public void ConfigureServices(IDotvvmServiceCollection services)
+        {
+            CommonConfiguration.ConfigureServices(services.Services);
+            services.AddDefaultTempStorages("Temp");
+            services.Services.AddScoped<ViewModelScopedDependency>();
+            services.Services.AddSingleton<IGreetingComputationService, HelloGreetingComputationService>();
         }
 
         public static void AddStyles(DotvvmConfiguration config)
@@ -120,5 +131,7 @@ namespace DotVVM.Samples.BasicSamples
             config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/FeatureSamples/StaticCommand/"));
             config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/Errors/"));
         }
+
+        
     }
 }

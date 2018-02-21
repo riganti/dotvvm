@@ -42,7 +42,7 @@ namespace DotVVM.Compiler
             var startupClass = webSiteAssembly.CustomAttributes?.Where(s => s.AttributeType == typeof(Microsoft.Owin.OwinStartupAttribute)).FirstOrDefault()?.ConstructorArguments[0].Value as Type;
             //if (startupClass != null)
             //{
-                
+
             //    var configureMethod = startupClass.GetRuntimeMethods().FirstOrDefault(s =>
             //        s.Name == "Configuration" && s.GetParameters().Length == 1 &&
             //        s.GetParameters()[0].ParameterType == typeof(IAppBuilder));
@@ -62,6 +62,7 @@ namespace DotVVM.Compiler
 
             if (startup == null && configureServices.Length == 0) throw new Exception($"Could not find ConfigureServices method, nor a IDotvvmStartup implementation.");
 
+            IServiceCollection collection = null;
             var config = DotvvmConfiguration.CreateDefault(
                 services => {
                     if (viewStaticCompilerCompiler != null)
@@ -70,7 +71,9 @@ namespace DotVVM.Compiler
                         services.AddSingleton<IControlResolver, OfflineCompilationControlResolver>();
                         services.TryAddSingleton<IViewModelProtector, FakeViewModelProtector>();
                     }
+                    startup.ConfigureServices(new DotvvmServiceCollection(services));
                     registerServices?.Invoke(services);
+                    collection = services;
                     foreach (var cs in configureServices)
                         cs.Invoke(cs.IsStatic ? null : Activator.CreateInstance(cs.DeclaringType), new object[] { services });
                 });
@@ -88,6 +91,6 @@ namespace DotVVM.Compiler
             return config;
         }
 
-       
+
     }
 }

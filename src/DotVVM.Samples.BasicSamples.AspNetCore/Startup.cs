@@ -55,19 +55,12 @@ namespace DotVVM.Samples.BasicSamples
 
             services.AddLocalization(o => o.ResourcesPath = "Resources");
 
-            services.AddDotVVM(options =>
-            {
-                CommonConfiguration.ConfigureServices(options.Services);
-                options.AddDefaultTempStorages("Temp");
-            });
+            services.AddDotVVM<DotvvmStartup>();
 
             services.Configure<BindingCompilationOptions>(o => {
                 o.TransformerClasses.Add(new BindingTestResolvers());
             });
-
-            services.AddSingleton<IGreetingComputationService, HelloGreetingComputationService>();
-
-            services.AddScoped<ViewModelScopedDependency>();
+  
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
@@ -87,7 +80,7 @@ namespace DotVVM.Samples.BasicSamples
                 }
             });
 
-            var config = app.UseDotVVM<DotvvmStartup>(GetApplicationPath(env));
+            var config = app.UseDotVVM(GetApplicationPath(env));
             config.RouteTable.Add("AuthorizedPresenter", "ComplexSamples/Auth/AuthorizedPresenter", provider => new AuthorizedPresenter());
 
             app.UseStaticFiles();

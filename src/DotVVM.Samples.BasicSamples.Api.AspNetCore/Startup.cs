@@ -37,9 +37,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore
                     opt.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
                 });
 
-            services.AddDotVVM(options => {
-                options.AddDefaultTempStorages("temp");
-            });
+            services.AddDotVVM<DotvvmStartup>();
 
             services.AddSwaggerGen(options => {
                 options.SwaggerDoc("v1", new Info() { Title = "DotVVM Test API", Version = "v1" });
@@ -73,7 +71,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore
 
             app.UseMvc();
             
-            app.UseDotVVM<DotvvmStartup>(env.ContentRootPath);
+            app.UseDotVVM(env.ContentRootPath);
 
             SeedDatabase();
         }

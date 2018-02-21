@@ -1,4 +1,5 @@
 ﻿using System;
+using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Security;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -12,27 +13,20 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Adds DotVVM services with authorization and data protection to the specified <see cref="IServiceCollection" />.
         /// </summary>
         /// <param name="services">The <see cref="IServiceCollection" /> to add services to.</param>
-        /// <param name="options">A method that can set additional DotVVM options, like temporary file stores, or replace default DotVVM components with custom ones.</param>
-        public static IServiceCollection AddDotVVM(this IServiceCollection services, Action<IDotvvmOptions> options = null)
+        public static IServiceCollection AddDotVVM<TDotvvmStartup>(this IServiceCollection services) where TDotvvmStartup : IDotvvmStartup, new()
         {
             services
                 .AddAuthorization()
                 .AddDataProtection();
 
             DotvvmServiceCollectionExtensions.RegisterDotVVMServices(services);
-
+            services.TryAddSingleton<IDotvvmStartup>(service => new TDotvvmStartup());
             services.TryAddSingleton<ICsrfProtector, DefaultCsrfProtector>();
             services.TryAddSingleton<ICookieManager, ChunkingCookieManager>();
             services.TryAddSingleton<IViewModelProtector, DefaultViewModelProtector>();
             services.TryAddSingleton<IEnvironmentNameProvider, DotvvmEnvironmentNameProvider>();
             services.TryAddScoped<DotvvmRequestContextStorage>(_ => new DotvvmRequestContextStorage());
             services.TryAddScoped<IDotvvmRequestContext>(s => s.GetRequiredService<DotvvmRequestContextStorage>().Context);
-
-            if (options != null)
-            {
-                var builder = new DotvvmOptions(services);
-                options(builder);
-            }
 
             return services;
         }

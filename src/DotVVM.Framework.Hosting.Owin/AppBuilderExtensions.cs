@@ -27,26 +27,26 @@ namespace Owin
         /// </param>
         /// <param name="debug">A value indicating whether the application should run in debug mode.</param>
         /// <param name="options">An action to configure DotVVM services and extensions.</param>
-        public static DotvvmConfiguration UseDotVVM<TStartup>(this IAppBuilder app, string applicationRootPath, bool useErrorPages = true, bool debug = true, Action<IDotvvmOptions> options = null)
+        public static DotvvmConfiguration UseDotVVM<TStartup>(this IAppBuilder app, string applicationRootPath, bool useErrorPages = true, bool debug = true)
             where TStartup : IDotvvmStartup, new()
         {
-            var config = app.UseDotVVM(applicationRootPath, useErrorPages, debug, options);
-            new TStartup().Configure(config, applicationRootPath);
+            var startup = new TStartup();
+            var config = app.UseDotVVM(applicationRootPath, useErrorPages, debug, services => startup.ConfigureServices(services));
+            startup.Configure(config, applicationRootPath);
             return config;
         }
 
-        private static DotvvmConfiguration UseDotVVM(this IAppBuilder app, string applicationRootPath, bool useErrorPages, bool debug, Action<IDotvvmOptions> options)
+        private static DotvvmConfiguration UseDotVVM(this IAppBuilder app, string applicationRootPath, bool useErrorPages, bool debug, Action<IDotvvmServiceCollection> services)
         {
-            var config = DotvvmConfiguration.CreateDefault(s =>
-            {
+            var config = DotvvmConfiguration.CreateDefault(s => {
                 s.TryAddSingleton<IDataProtectionProvider>(p => new DefaultDataProtectionProvider(app));
                 s.TryAddSingleton<IViewModelProtector, DefaultViewModelProtector>();
                 s.TryAddSingleton<ICsrfProtector, DefaultCsrfProtector>();
                 s.TryAddSingleton<IEnvironmentNameProvider, DotvvmEnvironmentNameProvider>();
                 s.TryAddSingleton<ICookieManager, ChunkingCookieManager>();
                 s.TryAddScoped<DotvvmRequestContextStorage>(_ => new DotvvmRequestContextStorage());
-                s.TryAddScoped<IDotvvmRequestContext>(services => services.GetRequiredService<DotvvmRequestContextStorage>().Context);
-                options?.Invoke(new DotvvmOptions(s));
+                s.TryAddScoped<IDotvvmRequestContext>(serviceCollection => serviceCollection.GetRequiredService<DotvvmRequestContextStorage>().Context);
+                services?.Invoke(new DotvvmServiceCollection(s));
             });
 
             config.Debug = debug;
