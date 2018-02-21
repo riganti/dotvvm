@@ -30,7 +30,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             if (stringParts == null)
                 this.evaluatedDefault = evaluatedDefault ?? throw new ArgumentNullException(nameof(stringParts), "Can't be null, unless evaluatedDefauls is set.");
             else if (stringParts.Length == 1)
-                evaluatedDefault = stringParts[0] ?? throw new ArgumentNullException(nameof(stringParts), "Can't be null, unless evaluatedDefauls is set.");
+                this.evaluatedDefault = stringParts[0] ?? throw new ArgumentNullException(nameof(stringParts), "Can't be null, unless evaluatedDefauls is set.");
             else
             {
                 this.stringParts = stringParts;
