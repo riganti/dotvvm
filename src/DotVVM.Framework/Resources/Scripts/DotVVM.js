@@ -1996,7 +1996,9 @@ var DotVVM = /** @class */ (function () {
                         }
                     });
                 }, 0, obs.dotvvmMetadata.elementsMetadata, element);
-                dotvvm.domUtils.attachEvent(element, "blur", function () {
+                dotvvm.domUtils.attachEvent(element, "change", function () {
+                    if (!ko.isObservable(obs))
+                        return;
                     // parse the value
                     var result, isEmpty, newValue;
                     if (elmMetadata.dataType === "datetime") {

@@ -949,7 +949,8 @@ class DotVVM {
                 }, 0, obs.dotvvmMetadata.elementsMetadata, element);
 
 
-                dotvvm.domUtils.attachEvent(element, "blur", () => {
+                dotvvm.domUtils.attachEvent(element, "change", () => {
+                    if (!ko.isObservable(obs)) return;
 
                     // parse the value
                     var result, isEmpty, newValue;
@@ -979,10 +980,10 @@ class DotVVM {
                     }
 
                     if (obs() === newValue) {
-                        if ((<KnockoutObservable<number>>obs).valueHasMutated) {
-                            (<KnockoutObservable<number>>obs).valueHasMutated();
+                        if (obs.valueHasMutated) {
+                           obs.valueHasMutated();
                         } else {
-                            (<KnockoutObservable<number>>obs).notifySubscribers();
+                            obs.notifySubscribers();
                         }
                     } else {
                         obs(newValue);
