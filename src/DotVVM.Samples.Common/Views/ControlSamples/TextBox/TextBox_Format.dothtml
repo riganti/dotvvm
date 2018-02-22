@@ -89,6 +89,19 @@
                      Text="(Format: #,##0.0##)"
                      ValueType="Text" />
     </p>
+    <p>
+        Changed Command Binding Number: <br>
+        <dot:TextBox ID="bindingNumberFormatTextbox"
+                     ClientIDMode="Static"
+                     Text="{value: BindingNumberValue}"
+                     FormatString="N"
+                     Changed="{command: ChangedNumberValue()}"
+                     style="height: 20px; width: 200px;" />
+        <dot:Literal ID="resultNumberValueText"
+                     ClientIDMode="Static"
+                     Text="{value: ResultNumberValue}">
+        </dot:Literal>
+    </p>
     <div>
         <h3>Switch language</h3>
         <p>

@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using DotVVM.Samples.Tests.New;
 using DotVVM.Testing.Abstractions;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Interactions;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
 using Xunit;
@@ -15,8 +18,7 @@ namespace DotVVM.Samples.Tests.Control
         [Fact]
         public void Control_TextBox_TextBox_FormatDoubleProperty()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_TextBox_TextBox_FormatDoubleProperty);
 
                 AssertUI.TextEquals(browser.Single("[data-ui='textBox']"), "0.00");
@@ -30,8 +32,7 @@ namespace DotVVM.Samples.Tests.Control
         [Fact]
         public void Control_TextBox_IntBoundTextBox()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_TextBox_IntBoundTextBox);
 
                 browser.ElementAt("input", 0).SendKeys("hello");
@@ -46,8 +47,7 @@ namespace DotVVM.Samples.Tests.Control
         [Fact]
         public void Control_TextBox_SimpleDateBox()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_TextBox_SimpleDateBox);
 
                 var now = DateTime.Now;
@@ -67,8 +67,7 @@ namespace DotVVM.Samples.Tests.Control
         [Fact]
         public void Control_TextBox_TextBox()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_TextBox_TextBox);
 
                 AssertUI.TagName(browser.First("#TextBox1"), "input");
@@ -79,22 +78,9 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [Fact]
-        public void Control_TextBox_TextBox_Format()
-        {
-            Control_TextBox_StringFormat_core(SamplesRouteUrls.ControlSamples_TextBox_TextBox_Format);
-        }
-
-        [Fact]
-        public void Control_TextBox_TextBox_Format_Binding()
-        {
-            Control_TextBox_StringFormat_core(SamplesRouteUrls.ControlSamples_TextBox_TextBox_Format_Binding);
-        }
-
-        [Fact]
         public void Control_TextBox_SelectAllOnFocus()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_TextBox_SelectAllOnFocus);
 
                 CheckSelectAllOnFocus(browser, "hardcoded");
@@ -113,85 +99,139 @@ namespace DotVVM.Samples.Tests.Control
             Assert.AreEqual(expectedText, selectedText);
         }
 
-        private void Control_TextBox_StringFormat_core(string url)
-        {
-            RunInAllBrowsers(browser =>
+        public static IEnumerable<object[]> TextBoxStringFormatChangedCommandData =>
+            new object[][]
             {
-                void checkForLanguage(string language)
-                {
-                    var culture = new CultureInfo(language);
-                    var dateResult1 = browser.First("#date-result1").GetText();
-                    var dateResult2 = browser.First("#date-result2").GetText();
-                    var dateResult3 = browser.First("#date-result3").GetText();
+                new object[] { "cs-CZ", SamplesRouteUrls.ControlSamples_TextBox_TextBox_Format_Binding, "#czech"},
+                new object[] { "en-US", SamplesRouteUrls.ControlSamples_TextBox_TextBox_Format_Binding, "#english" },
+                new object[] { "cs-CZ", SamplesRouteUrls.ControlSamples_TextBox_TextBox_Format, "#czech"},
+                new object[] { "en-US", SamplesRouteUrls.ControlSamples_TextBox_TextBox_Format, "#english"},
+            };
 
-                    var dateTextBox = browser.First("#dateTextbox");
-                    AssertUI.Attribute(dateTextBox, "value", dateResult1);
+        [Theory]
+        [MemberData(nameof(TextBoxStringFormatChangedCommandData))]
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_TextBox_TextBox_Format))]
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_TextBox_TextBox_Format_Binding))]
+        private void Control_TextBox_StringFormat(string cultureName, string url, string linkSelector)
+        {
+            RunInAllBrowsers(browser => {
 
-                    var dateText = browser.First("#DateValueText");
-                    AssertUI.InnerTextEquals(dateText, new DateTime(2015, 12, 27).ToString("G", culture));
-
-                    var nullableDateTextBox = browser.First("#nullableDateTextbox");
-                    AssertUI.Attribute(nullableDateTextBox, "value", new DateTime(2015, 12, 27).ToString("G", culture));
-
-                    var nullableDateText = browser.First("#nullableDateValueText");
-                    AssertUI.InnerTextEquals(nullableDateText, new DateTime(2015, 12, 27).ToString("G", culture));
-
-                    var numberTextbox = browser.First("#numberTextbox");
-                    AssertUI.Attribute(numberTextbox, "value", 123.1235.ToString(culture));
-
-                    var numberValueText = browser.First("#numberValueText");
-                    AssertUI.InnerTextEquals(numberValueText, 123.123456789.ToString(culture));
-
-                    var nullableNumberTextbox = browser.First("#nullableNumberTextbox");
-                    AssertUI.Attribute(nullableNumberTextbox, "value", 123.123456789.ToString(culture));
-
-                    var nullableNumberValueText = browser.First("#nullableNumberValueText");
-                    AssertUI.InnerTextEquals(nullableNumberValueText, 123.123456789.ToString(culture));
-
-                    //write new valid values
-                    dateTextBox.Clear().SendKeys(dateResult2);
-                    numberTextbox.Clear().SendKeys(2000.ToString("n0", culture));
-                    dateTextBox.Click().Wait();
-
-                    //check new values
-                    AssertUI.InnerTextEquals(dateText, new DateTime(2018, 12, 27).ToString("G", culture));
-                    AssertUI.InnerTextEquals(numberValueText, 2000.ToString(culture));
-
-                    AssertUI.Attribute(numberTextbox,"value", 2000.ToString("n4", culture));
-                    AssertUI.Attribute(dateTextBox,"value", dateResult2);
-
-                    //write invalid values
-                    dateTextBox.Clear().SendKeys("dsasdasd");
-                    numberTextbox.Clear().SendKeys("000//*a");
-                    dateTextBox.Click();
-
-                    //check invalid values
-                    AssertUI.InnerTextEquals(dateText, "");
-                    AssertUI.InnerTextEquals(numberValueText, "");
-
-                    AssertUI.Attribute(numberTextbox,"value", "000//*a");
-                    AssertUI.Attribute(dateTextBox,"value", "dsasdasd");
-
-                    //write new valid values
-                    dateTextBox.Clear().SendKeys(new DateTime(2018, 1, 1).ToString("d", culture));
-                    numberTextbox.Clear().SendKeys(1000.550277.ToString(culture));
-                    dateTextBox.Click().Wait();
-
-                    //check new values
-                    AssertUI.InnerTextEquals(dateText, new DateTime(2018, 1, 1).ToString("G", culture));
-                    AssertUI.InnerTextEquals(numberValueText, 1000.550277.ToString(culture));
-
-                    AssertUI.Attribute( numberTextbox,"value", 1000.550277.ToString("n4", culture));
-                    AssertUI.Attribute( dateTextBox,"value", dateResult3);
-                };
-
-                //en-US
+                var culture = new CultureInfo(cultureName);
                 browser.NavigateToUrl(url);
-                checkForLanguage("en-US");
+                browser.First(linkSelector).Click();
 
-                //cs-CZ | reload
-                browser.First("#czech").Click();
-                checkForLanguage("cs-CZ");
+                var dateResult1 = browser.First("#date-result1").GetText();
+                var dateResult2 = browser.First("#date-result2").GetText();
+                var dateResult3 = browser.First("#date-result3").GetText();
+
+                var dateTextBox = browser.First("#dateTextbox");
+                AssertUI.Attribute(dateTextBox, "value", dateResult1);
+
+                var dateText = browser.First("#DateValueText");
+                AssertUI.InnerTextEquals(dateText, new DateTime(2015, 12, 27).ToString("G", culture));
+
+                var nullableDateTextBox = browser.First("#nullableDateTextbox");
+                AssertUI.Attribute(nullableDateTextBox, "value", new DateTime(2015, 12, 27).ToString("G", culture));
+
+                var nullableDateText = browser.First("#nullableDateValueText");
+                AssertUI.InnerTextEquals(nullableDateText, new DateTime(2015, 12, 27).ToString("G", culture));
+
+                var numberTextbox = browser.First("#numberTextbox");
+                AssertUI.Attribute(numberTextbox, "value", 123.1235.ToString(culture));
+
+                var numberValueText = browser.First("#numberValueText");
+                AssertUI.InnerTextEquals(numberValueText, 123.123456789.ToString(culture));
+
+                var nullableNumberTextbox = browser.First("#nullableNumberTextbox");
+                AssertUI.Attribute(nullableNumberTextbox, "value", 123.123456789.ToString(culture));
+
+                var nullableNumberValueText = browser.First("#nullableNumberValueText");
+                AssertUI.InnerTextEquals(nullableNumberValueText, 123.123456789.ToString(culture));
+
+                //write new valid values
+                dateTextBox.Clear().SendKeys(dateResult2);
+                numberTextbox.Clear().SendKeys(2000.ToString("n0", culture));
+                dateTextBox.Click().Wait();
+
+                //check new values
+                AssertUI.InnerTextEquals(dateText, new DateTime(2018, 12, 27).ToString("G", culture));
+                AssertUI.InnerTextEquals(numberValueText, 2000.ToString(culture));
+
+                AssertUI.Attribute(numberTextbox, "value", 2000.ToString("n4", culture));
+                AssertUI.Attribute(dateTextBox, "value", dateResult2);
+
+                //write invalid values
+                dateTextBox.Clear().SendKeys("dsasdasd");
+                numberTextbox.Clear().SendKeys("000//*a");
+                dateTextBox.Click();
+
+                //check invalid values
+                AssertUI.InnerTextEquals(dateText, "");
+                AssertUI.InnerTextEquals(numberValueText, "");
+
+                AssertUI.Attribute(numberTextbox, "value", "000//*a");
+                AssertUI.Attribute(dateTextBox, "value", "dsasdasd");
+
+                //write new valid values
+                dateTextBox.Clear().SendKeys(new DateTime(2018, 1, 1).ToString("d", culture));
+                numberTextbox.Clear().SendKeys(1000.550277.ToString(culture));
+                dateTextBox.Click().Wait();
+
+                //check new values
+                AssertUI.InnerTextEquals(dateText, new DateTime(2018, 1, 1).ToString("G", culture));
+                AssertUI.InnerTextEquals(numberValueText, 1000.550277.ToString(culture));
+
+                AssertUI.Attribute(numberTextbox, "value", 1000.550277.ToString("n4", culture));
+                AssertUI.Attribute(dateTextBox, "value", dateResult3);
+            });
+        }
+
+        [Theory]
+        [MemberData(nameof(TextBoxStringFormatChangedCommandData))]
+        private void Control_TextBox_StringFormat_ChangedCommandBinding(string cultureName, string url, string linkSelector)
+        {
+            RunInAllBrowsers(browser => {
+
+                void ClearInput(IElementWrapper element)
+                {
+                    // There is special threatment for TextBox with Changed Command
+                    // When Clear() method is used, changed command is invoked and default value '0.00' appear
+                    new Actions(browser.Driver)
+                        .DoubleClick(element.WebElement)
+                        .SendKeys(Keys.Delete)
+                        .Build()
+                        .Perform();
+                }
+
+                var culture = new CultureInfo(cultureName);
+                browser.NavigateToUrl(url);
+                browser.First(linkSelector).Click();
+
+                var numberTextbox = browser.First("#bindingNumberFormatTextbox");
+                AssertUI.Attribute(numberTextbox, "value", 0.ToString("N", culture));
+
+                var numberValueText = browser.First("#resultNumberValueText");
+                AssertUI.InnerTextEquals(numberValueText, 0.ToString(culture));
+
+                // send new values
+                ClearInput(numberTextbox);
+                numberTextbox.SendKeys("42")
+                    .SendEnterKey()
+                    .Wait();
+
+                // check new values
+                AssertUI.InnerTextEquals(numberValueText, 42.ToString(culture));
+                AssertUI.Attribute(numberTextbox, "value", 42.ToString("N", culture));
+
+                // send new values
+                ClearInput(numberTextbox);
+                numberTextbox.SendKeys(123.456789.ToString(culture))
+                    .SendEnterKey()
+                    .Wait();
+
+                // check new values
+                AssertUI.InnerTextEquals(numberValueText, 123.456789.ToString(culture));
+                AssertUI.Attribute(numberTextbox, "value", 123.456789.ToString("N", culture));
             });
         }
 
