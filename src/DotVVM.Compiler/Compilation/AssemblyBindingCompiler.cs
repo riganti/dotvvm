@@ -1,21 +1,16 @@
-﻿using DotVVM.Framework.Binding;
-using DotVVM.Framework.Runtime.Filters;
-using DotVVM.Framework.Utils;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
-using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation;
-using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Utils;
 
-namespace DotVVM.Compiler
+namespace DotVVM.Compiler.Compilation
 {
     internal class AssemblyBindingCompiler : BindingCompiler
     {

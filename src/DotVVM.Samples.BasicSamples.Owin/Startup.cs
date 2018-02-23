@@ -53,16 +53,18 @@ namespace DotVVM.Samples.BasicSamples
                     )
                 }
             );
-            var config = app.UseDotVVM<DotvvmStartup>(GetApplicationPath(), options: b =>
-            {
-                CommonConfiguration.ConfigureServices(b.Services);
-                b.AddDefaultTempStorages("Temp");
-                b.Services.AddScoped<ViewModelScopedDependency>();
-                b.Services.AddSingleton<IGreetingComputationService, HelloGreetingComputationService>();
-            });
+            var config = app.UseDotVVM<DotvvmStartup>(GetApplicationPath(), options: ConfigureOptions);
             config.RouteTable.Add("AuthorizedPresenter", "ComplexSamples/Auth/AuthorizedPresenter", provider => new AuthorizedPresenter());
 
             app.UseStaticFiles();
+        }
+
+        public void ConfigureOptions(IDotvvmOptions services)
+        {
+            CommonConfiguration.ConfigureServices(services.Services);
+            services.AddDefaultTempStorages("Temp");
+            services.Services.AddScoped<ViewModelScopedDependency>();
+            services.Services.AddSingleton<IGreetingComputationService, HelloGreetingComputationService>();
         }
 
         private string GetApplicationPath()

@@ -1,20 +1,21 @@
-﻿#if  NETCOREAPP2_0
+﻿#if NETCOREAPP2_0 
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
+using DotVVM.Compiler.Compilation;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyModel;
 
-namespace DotVVM.Compiler
+namespace DotVVM.Compiler.Initialization
 {
     internal class AspNetCoreInitializer
     {
-        public static DotvvmConfiguration InitDotVVM(Assembly webSiteAssembly, string webSitePath, ViewStaticCompiler viewStaticCompiler, Action<DotvvmConfiguration, IServiceCollection> registerServices)
+        public static DotvvmConfiguration InitDotVVM(Assembly webSiteAssembly, string webSitePath, ViewStaticCompiler viewStaticCompiler, Action<IServiceCollection> additionalServices)
         {
             var dependencyContext = DependencyContext.Load(webSiteAssembly);
             var assemblyNames = new Lazy<List<AssemblyData>>(() => ResolveAssemblies(dependencyContext));
@@ -39,7 +40,7 @@ namespace DotVVM.Compiler
             var dotvvmStartups = webSiteAssembly.GetLoadableTypes()
                 .Where(t => typeof(IDotvvmStartup).IsAssignableFrom(t) && t.GetConstructor(Type.EmptyTypes) != null).ToArray();
             if (dotvvmStartups.Length > 1) throw new Exception($"Found more than one implementation of IDotvvmStartup ({string.Join(", ", dotvvmStartups.Select(s => s.Name)) }).");
-            var startup = dotvvmStartups.SingleOrDefault()?.Apply(Activator.CreateInstance).CastTo<IDotvvmStartup>();
+            var dotvvmStartupInstance = dotvvmStartups.SingleOrDefault()?.Apply(Activator.CreateInstance).CastTo<IDotvvmStartup>();
 
             var configureServices =
                 webSiteAssembly.GetLoadableTypes()
@@ -49,7 +50,7 @@ namespace DotVVM.Compiler
                 .Where(m => m.IsStatic || m.DeclaringType.GetConstructor(Type.EmptyTypes) != null)
                 .ToArray();
 
-            if (startup == null && configureServices.Length == 0) throw new Exception($"Could not find ConfigureServices method, nor a IDotvvmStartup implementation.");
+            if (dotvvmStartupInstance == null && configureServices.Length == 0) throw new Exception($"Could not find ConfigureServices method, nor a IDotvvmStartup implementation.");
 
 
             IServiceCollection serviceProvider = null;
@@ -57,12 +58,15 @@ namespace DotVVM.Compiler
                 services => {
                     serviceProvider = services;
                     foreach (var cs in configureServices)
+                    {
                         cs.Invoke(cs.IsStatic ? null : Activator.CreateInstance(cs.DeclaringType), new object[] { services });
+                    }
+                    additionalServices?.Invoke(serviceProvider);
+
                 });
             config.ApplicationPhysicalPath = webSitePath;
-            registerServices?.Invoke(config, serviceProvider);
 
-            startup.Configure(config, webSitePath);
+            dotvvmStartupInstance.Configure(config, webSitePath);
             config.CompiledViewsAssemblies = null;
 
             // It should be handled by the DotvvmConfiguration.CreateDefault:

@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using DotVVM.Compiler.Initialization;
+using DotVVM.Compiler.Programs;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.ControlTree;
@@ -11,14 +13,13 @@ using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 using DotVVM.Framework.Compilation.Styles;
-using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DotVVM.Compiler
+namespace DotVVM.Compiler.Compilation
 {
 
     internal class ViewStaticCompiler
@@ -45,10 +46,10 @@ namespace DotVVM.Compiler
             if (Options.BindingClassName == null) Options.BindingClassName = Options.BindingsAssemblyName + "." + "CompiledBindings";
         }
 
-        private DotvvmConfiguration GetCachedConfiguration(Assembly assembly, string webSitePath, Action<DotvvmConfiguration, IServiceCollection> registerServices)
+        private DotvvmConfiguration GetCachedConfiguration(Assembly assembly, string webSitePath, Action<IServiceCollection> additionalServices)
         {
             return cachedConfig.GetOrAdd($"{assembly.GetName().Name}|{webSitePath}",
-                key => ConfigurationInitializer.Init(assembly, webSitePath, this, registerServices));
+                key => ConfigurationInitializer.Init(assembly, webSitePath, this, additionalServices));
         }
 
         private void Init()
@@ -67,10 +68,11 @@ namespace DotVVM.Compiler
 
             var wsa = assemblyDictionary.GetOrAdd(Options.WebSiteAssembly, _ => Assembly.LoadFile(Options.WebSiteAssembly));
             configuration = GetCachedConfiguration(wsa, Options.WebSitePath,
-                (config, services) => {
+                (services) => {
                     if (Options.FullCompile)
                     {
-                        bindingCompiler = new AssemblyBindingCompiler(Options.BindingsAssemblyName, Options.BindingClassName, Path.Combine(Options.OutputPath, Options.BindingsAssemblyName + ".dll"), config);
+                        throw new NotImplementedException();
+                        //TODO: LAST PARAMETER | bindingCompiler = new AssemblyBindingCompiler(Options.BindingsAssemblyName, Options.BindingClassName, Path.Combine(Options.OutputPath, Options.BindingsAssemblyName + ".dll"), null);
                         services.AddSingleton<IBindingCompiler>(bindingCompiler);
                         services.AddSingleton<IExpressionToDelegateCompiler>(bindingCompiler.GetExpressionToDelegateCompiler());
                     }

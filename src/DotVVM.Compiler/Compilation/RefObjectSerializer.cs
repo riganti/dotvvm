@@ -6,9 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation;
@@ -16,15 +14,14 @@ using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Utils;
-using static System.Linq.Expressions.Expression;
 
-namespace DotVVM.Compiler
+namespace DotVVM.Compiler.Compilation
 {
     public class RefObjectSerializer
     {
-        public static ParameterExpression ServiceProviderParameter = Parameter(typeof(IServiceProvider), "serviceProvider");
-        public static ParameterExpression DotvvmConfigurationParameter = Parameter(typeof(DotvvmConfiguration), "config");
-        public static Expression BindingCompilationService = Convert(Call(ServiceProviderParameter, nameof(IServiceProvider.GetService), Type.EmptyTypes, Constant(typeof(BindingCompilationService), typeof(Type))), typeof(BindingCompilationService));
+        public static ParameterExpression ServiceProviderParameter = Expression.Parameter(typeof(IServiceProvider), "serviceProvider");
+        public static ParameterExpression DotvvmConfigurationParameter = Expression.Parameter(typeof(DotvvmConfiguration), "config");
+        public static Expression BindingCompilationService = Expression.Convert(Expression.Call(ServiceProviderParameter, nameof(IServiceProvider.GetService), Type.EmptyTypes, Expression.Constant(typeof(BindingCompilationService), typeof(Type))), typeof(BindingCompilationService));
         public static readonly ConcurrentDictionary<object, Expression> KnownObjects = new ConcurrentDictionary<object, Expression>();
         static RefObjectSerializer()
         {
@@ -32,7 +29,7 @@ namespace DotVVM.Compiler
                 .Where(t => !t.IsGenericTypeDefinition)
                 .SelectMany(t => t.GetFields(BindingFlags.Static | BindingFlags.Public))
                 .Where(f => f.IsInitOnly)
-                .Select(f => new KeyValuePair<object, Expression>(f.GetValue(null), Field(null, f)));
+                .Select(f => new KeyValuePair<object, Expression>(f.GetValue(null), Expression.Field(null, f)));
             foreach (var obj in objects)
                 KnownObjects.TryAdd(obj.Key, obj.Value);
         }
@@ -59,7 +56,7 @@ namespace DotVVM.Compiler
                 {
                     if (item == null) continue;
                     var objExpression = Expression.Convert(
-                            MakeIndex(target, typeof(System.Collections.IList).GetProperty("Item"), new[] { Constant(i) }),
+                            Expression.MakeIndex(target, typeof(System.Collections.IList).GetProperty("Item"), new[] { Expression.Constant(i) }),
                             item.GetType()
                         );
                     if (!result.ContainsKey(item))
@@ -75,7 +72,7 @@ namespace DotVVM.Compiler
                     if (key == null || dictionary[key] == null) continue;
                     var item = dictionary[key];
                     var objExpression = Expression.Convert(
-                            MakeIndex(target, typeof(System.Collections.IDictionary).GetProperty("Item"), new[] { Constant(key, typeof(object)) }),
+                            Expression.MakeIndex(target, typeof(System.Collections.IDictionary).GetProperty("Item"), new[] { Expression.Constant(key, typeof(object)) }),
                             item.GetType()
                         );
                     if (!result.ContainsKey(item))
@@ -127,15 +124,15 @@ namespace DotVVM.Compiler
             Expression serializeObject(object obj, Type expectedType)
             {
                 if (obj == null)
-                    return Constant(null, expectedType);
+                    return Expression.Constant(null, expectedType);
                 if (dict.TryGetValue(obj, out var rrrr)) return rrrr;
                 if (!callStack.Add(obj)) throw new NotSupportedException($"Reference cycles are not supported.");
                 var objType = obj.GetType();
                 ParameterExpression ret(Expression e, bool thisobj = true)
                 {
                     if (dedupCache.TryGetValue(e, out var p)) return p;
-                    p = Parameter(e.Type);
-                    body.Add(Assign(p, e));
+                    p = Expression.Parameter(e.Type);
+                    body.Add(Expression.Assign(p, e));
                     if (thisobj) dict.Add(obj, p);
                     locals.Add(p);
                     dedupCache.Add(e, p);
@@ -146,19 +143,19 @@ namespace DotVVM.Compiler
                     if (KnownObjects.TryGetValue(obj, out var result))
                         return result;
                     else if (objType.IsPrimitive || obj is string || obj is MemberInfo)
-                        return Constant(obj, objType.GetPublicBaseType());
+                        return Expression.Constant(obj, objType.GetPublicBaseType());
                     else if (obj is System.Collections.IEnumerable collection)
                     {
                         var element = ReflectionUtils.GetEnumerableType(collection.GetType());
                         Expression expr = collection.OfType<object>()
                             .Select(e => serializeObject(e, element))
-                            .Apply(c => NewArrayInit(element, c));
+                            .Apply(c => Expression.NewArrayInit(element, c));
                         if (!objType.IsArray)
                         {
                             var targetType = objType.Name == "ImmutableList`1" ? typeof(ImmutableList) :
                                 //objType.Name == "ImmutableDictionary" ? typeof(ImmutableDictionary) :
                                 typeof(ImmutableArray);
-                            expr = expr.Apply(c => Call(null, targetType
+                            expr = expr.Apply(c => Expression.Call(null, targetType
                                 .GetMethods(BindingFlags.Static | BindingFlags.Public)
                                 .First(m => (m.Name == "Create" || m.Name == "To" + targetType.Name) && m.GetParameters().FirstOrDefault()?.ParameterType.IsArray == true)
                                 .MakeGenericMethod(new[] { element }),
@@ -168,7 +165,7 @@ namespace DotVVM.Compiler
                         return Expression.Convert(ret(expr), expectedType);
                     }
                     else if (obj is Expression expression)
-                        return ret(Quote(expression));
+                        return ret(Expression.Quote(expression));
                     else if (obj is Delegate deleg)
                     {
                         if (!translatedDelegates.TryGetValue(deleg, out var method)) throw new NotSupportedException("Could not serialize delegate");
@@ -179,9 +176,9 @@ namespace DotVVM.Compiler
                     {
                         var properties = BindingCompiler.GetMinimalCloneProperties(binding)
                             .Select(p => serializeObject(p, p.GetType()))
-                            .Apply(p => NewArrayInit(typeof(object), p));
+                            .Apply(p => Expression.NewArrayInit(typeof(object), p));
 
-                        return ret(New(
+                        return ret(Expression.New(
                             binding.GetType().GetConstructor(new[] { typeof(BindingCompilationService), typeof(IEnumerable<object>) }),
                             ret(BindingCompilationService, thisobj: false),
                             properties
@@ -209,11 +206,11 @@ namespace DotVVM.Compiler
             foreach (var req in requiredObjects)
             {
                 var expr = serializeObject(req.Key, req.GetType().GetPublicBaseType());
-                var field = Parameter(req.Key.GetType().GetPublicBaseType(), req.Value);
-                body.Add(Assign(field, expr));
+                var field = Expression.Parameter(req.Key.GetType().GetPublicBaseType(), req.Value);
+                body.Add(Expression.Assign(field, expr));
                 results.Add(field);
             }
-            return (Block(locals, body), results.ToArray());
+            return (Expression.Block(locals, body), results.ToArray());
         }
 
         static object Evaluate(LambdaExpression expr, params object[] parameters)
@@ -238,11 +235,11 @@ namespace DotVVM.Compiler
                 var ctorArgs = new[] { typeof(string[]), typeof(CodeParameterInfo[]), typeof(OperatorPrecedence) };
                 return new SerializationObjectMap(
                     new SerializationPropertyMap[0],
-                    CreateLambda(args => New(typeof(ParametrizedCode).GetConstructor(ctorArgs), args), ctorArgs),
+                    CreateLambda(args => Expression.New(typeof(ParametrizedCode).GetConstructor(ctorArgs), args), ctorArgs),
                     new[] {
-                        CreateLambda(e => Field(e, "stringParts"), typeof(ParametrizedCode)),
-                        CreateLambda(e => Field(e, "parameters"), typeof(ParametrizedCode)),
-                        CreateLambda(e => Field(e, "OperatorPrecedence"), typeof(ParametrizedCode)),
+                        CreateLambda(e => Expression.Field(e, "stringParts"), typeof(ParametrizedCode)),
+                        CreateLambda(e => Expression.Field(e, "parameters"), typeof(ParametrizedCode)),
+                        CreateLambda(e => Expression.Field(e, "OperatorPrecedence"), typeof(ParametrizedCode)),
                     });
             }
             else
@@ -252,8 +249,8 @@ namespace DotVVM.Compiler
                 var settableProps =
                     properties.Where(p => p.GetMethod?.IsPublic == true && p.SetMethod?.IsPublic == true)
                     .Select(p => new SerializationPropertyMap(
-                        CreateLambda(e => Property(e, p), type),
-                        CreateLambda((e, val) => Assign(Property(e, p), val), type, p.PropertyType)
+                        CreateLambda(e => Expression.Property(e, p), type),
+                        CreateLambda((e, val) => Expression.Assign(Expression.Property(e, p), val), type, p.PropertyType)
                     ));
                 var ctor = (MethodBase)type.GetMethod("refserializer_create", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic) ?? (MethodBase)type.GetConstructors().SingleOrDefault() ?? type.GetMethod("Create", BindingFlags.Static | BindingFlags.Public);
                 var ctorParameters = ctor.GetParameters();
@@ -265,18 +262,18 @@ namespace DotVVM.Compiler
                             arg = ctorParameters.FirstOrDefault(a => p.Name.Equals(a.Name, StringComparison.OrdinalIgnoreCase))
                         })
                         .Where(t => t.arg != null)
-                        .Select(t => (parameter: t.arg, getter: CreateLambda(e => Property(e, t.p), type)))
+                        .Select(t => (parameter: t.arg, getter: CreateLambda(e => Expression.Property(e, t.p), type)))
                     .Concat(fields.Select(f => new {
                         f,
                         arg = ctorParameters.FirstOrDefault(a => f.Name.Equals(a.Name, StringComparison.OrdinalIgnoreCase))
                     })
                         .Where(t => t.arg != null)
-                        .Select(t => (parameter: t.arg, getter: CreateLambda(e => Field(e, t.f), type)))).ToDictionary(p => p.parameter, p => p.getter);
+                        .Select(t => (parameter: t.arg, getter: CreateLambda(e => Expression.Field(e, t.f), type)))).ToDictionary(p => p.parameter, p => p.getter);
                 var ctorArgs = ctorParameters.Select(p => ctorProperties[p]);
 
                 return new SerializationObjectMap(
                     settableProps,
-                    CreateLambda(a => ctor is ConstructorInfo c ? (Expression)New(c, a) : Call(null, (MethodInfo)ctor, a), ctorParameters.Select(p => p.ParameterType).ToArray()),
+                    CreateLambda(a => ctor is ConstructorInfo c ? (Expression)Expression.New(c, a) : Expression.Call(null, (MethodInfo)ctor, a), ctorParameters.Select(p => p.ParameterType).ToArray()),
                     ctorArgs
                 );
             }
@@ -284,19 +281,19 @@ namespace DotVVM.Compiler
 
         static LambdaExpression CreateLambda(Func<Expression, Expression> expr, Type t)
         {
-            var param = Parameter(t);
-            return Lambda(expr(param), param);
+            var param = Expression.Parameter(t);
+            return Expression.Lambda(expr(param), param);
         }
         static LambdaExpression CreateLambda(Func<Expression, Expression, Expression> expr, Type t1, Type t2)
         {
-            var param1 = Parameter(t1);
-            var param2 = Parameter(t2);
-            return Lambda(expr(param1, param2), param1, param2);
+            var param1 = Expression.Parameter(t1);
+            var param2 = Expression.Parameter(t2);
+            return Expression.Lambda(expr(param1, param2), param1, param2);
         }
         static LambdaExpression CreateLambda(Func<Expression[], Expression> expr, Type[] t)
         {
-            var param = t.Select(Parameter).ToArray();
-            return Lambda(expr(param), param);
+            var param = t.Select(Expression.Parameter).ToArray();
+            return Expression.Lambda(expr(param), param);
         }
 
         static ConditionalWeakTable<Delegate, LambdaExpression> translatedDelegates = new ConditionalWeakTable<Delegate, LambdaExpression>();
@@ -336,31 +333,4 @@ namespace DotVVM.Compiler
             }
         }
     }
-    public class UnallowedConstantRemover : ExpressionVisitor
-    {
-        public static (Expression, (ParameterExpression, object)[]) ReplaceBadConstants(Expression expr)
-        {
-            var v = new UnallowedConstantRemover();
-            return (v.Visit(expr), v.Replacements.ToArray());
-        }
-
-        public readonly List<(ParameterExpression, object)> Replacements = new List<(ParameterExpression, object)>();
-
-        private UnallowedConstantRemover()
-        {
-        }
-
-        protected override Expression VisitConstant(ConstantExpression node)
-        {
-            if (node.Value == null)
-                return base.VisitConstant(node);
-            var type = node.Value.GetType();
-            if (type.IsPrimitive || type == typeof(string) || typeof(MemberInfo).IsAssignableFrom(type))
-                return base.VisitConstant(node);
-            var p = Expression.Parameter(node.Type);
-            Replacements.Add((p, node.Value));
-            return p;
-        }
-    }
-
 }

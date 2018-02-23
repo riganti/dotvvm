@@ -1,17 +1,17 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using DotVVM.Framework.Configuration;
+using DotVVM.Compiler.Compilation;
+using DotVVM.Compiler.Initialization;
+using DotVVM.Compiler.Resolving;
 using Newtonsoft.Json;
 
-namespace DotVVM.Compiler
+namespace DotVVM.Compiler.Programs
 {
 
     public class Program2
@@ -211,7 +211,7 @@ JSON structure:
         private static CompilationResult ExportConfiguration(CompilerOptions options)
         {
             var assembly = Assembly.LoadFile(options.WebSiteAssembly);
-            var config = ConfigurationInitializer.Init(assembly, options.WebSitePath, null, (configuration, provider) => { });
+            var config = ConfigurationInitializer.Init(assembly, options.WebSitePath, null, collection => { });
             return new CompilationResult() {
                 Configuration = config
             };

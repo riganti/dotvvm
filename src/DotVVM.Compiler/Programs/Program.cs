@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DotVVM.Compiler
+namespace DotVVM.Compiler.Programs
 {
     /// <summary>
     /// References versions MUST match with reference versions on Dotvvm.Framework, or else compiler will not be able to load them.

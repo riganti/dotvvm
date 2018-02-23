@@ -2,10 +2,11 @@
   "profiles": {
     "DotVVM.Compiler": {
       "commandName": "Project",
-      "commandLineArgs": "--debugger --json \"{\\\"WebSiteAssembly\\\":\\\"C:\\\\dev\\\\dotvvm-web\\\\src\\\\DotvvmWeb\\\\DotvvmWeb.Docs.AspNetCore\\\\bin\\\\debug\\\\netcoreapp2.0\\\\DotvvmWeb.Docs.AspNetCore.dll\\\",\\\"WebSitePath\\\":\\\"C:\\\\dev\\\\dotvvm-web\\\\src\\\\DotvvmWeb\\\\DotvvmWeb.Docs.AspNetCore\\\",\\\"FullCompile\\\":false,\\\"SerializeConfig\\\":true,\\\"DothtmlFiles\\\":null ,\\\"OutputResolvedDothtmlMap\\\":true,\\\"CheckBindingErrors\\\":true, OutputPath: \\\"C:\\\\temp\\\\dotvvm-compiler\\\"}\""
+      "commandLineArgs": "--debugger --json  \"{\\\"WebSiteAssembly\\\":\\\"C:\\\\dev\\\\website-checker\\\\WebsiteChecker\\\\bin\\\\WebsiteChecker.dll\\\",\\\"WebSitePath\\\":\\\"C:\\\\dev\\\\website-checker\\\\WebsiteChecker\\\",\\\"FullCompile\\\":false,\\\"SerializeConfig\\\":true,\\\"DothtmlFiles\\\":null,\\\"OutputResolvedDothtmlMap\\\":true,\\\"CheckBindingErrors\\\":true}\""
     },
     "NetCoreApp": {
-      "commandName": "Executable"
+      "commandName": "Project",
+      "commandLineArgs": "--debugger --json \"{\\\"WebSiteAssembly\\\":\\\"C:\\\\dev\\\\dotvvm-web\\\\src\\\\DotvvmWeb\\\\DotvvmWeb.Docs.AspNetCore\\\\bin\\\\debug\\\\netcoreapp2.0\\\\DotvvmWeb.Docs.AspNetCore.dll\\\",\\\"WebSitePath\\\":\\\"C:\\\\dev\\\\dotvvm-web\\\\src\\\\DotvvmWeb\\\\DotvvmWeb.Docs.AspNetCore\\\",\\\"FullCompile\\\":false,\\\"SerializeConfig\\\":true,\\\"DothtmlFiles\\\":null ,\\\"OutputResolvedDothtmlMap\\\":true,\\\"CheckBindingErrors\\\":true, OutputPath: \\\"C:\\\\temp\\\\dotvvm-compiler\\\"}\""
     }
   }
 }

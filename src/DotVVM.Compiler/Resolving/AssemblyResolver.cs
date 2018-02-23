@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Reflection;
 using System.Threading;
+using DotVVM.Compiler.Programs;
 
-namespace DotVVM.Compiler
+namespace DotVVM.Compiler.Resolving
 {
     public class AssemblyResolver
     {
@@ -151,16 +151,5 @@ namespace DotVVM.Compiler
                     LoadReferencedAssemblies(assembly);
             }
         }
-    }
-
-    internal class NugetDllMetadata
-    {
-        public Version Version { get; set; }
-        public string Location { get; set; }
-        public string TargetFramework { get; set; }
-        public string FileName { get; set; }
-        public List<string> DirectoryFragments { get; set; }
-        public string PackageName { get; set; }
-        public string PackageVersion { get; set; }
     }
 }
