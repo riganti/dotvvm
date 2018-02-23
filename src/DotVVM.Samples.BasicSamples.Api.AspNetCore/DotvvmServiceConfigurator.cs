@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Samples.BasicSamples.Api.AspNetCore
 {
-    public class DotvvmServiceConfigurator : IDotvvmServicesConfiguration
+    public class DotvvmServiceConfigurator : IDotvvmServiceConfigurator
     {
         public void ConfigureServices(IDotvvmOptions options)
         {

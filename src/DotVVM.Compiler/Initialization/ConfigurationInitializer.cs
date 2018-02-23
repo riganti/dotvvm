@@ -20,12 +20,7 @@ namespace DotVVM.Compiler.Initialization
         internal static DotvvmConfiguration InitDotVVM(Assembly webSiteAssembly, string webSitePath, ViewStaticCompiler viewStaticCompiler, Action<IServiceCollection> additionalServices = null)
         {
             var dotvvmStartup = new DotvvmStartupClassResolver().GetDotvvmStartupInstance(webSiteAssembly);
-#if NET461
-            var startupClass = new OwinStartupClassResolver().GetServiceConfigureExecutor(webSiteAssembly);
-#endif
-#if NETCOREAPP2_0
-            var startupClass = new NetCoreStartupClassResolver().GetServiceConfigureExecutor(webSiteAssembly);
-#endif
+            var startupClass = new DotvvmOptionsConfiguratorResolver().GetServiceConfigureExecutor(webSiteAssembly);
 
             var config = DotvvmConfiguration.CreateDefault(services => {
 
