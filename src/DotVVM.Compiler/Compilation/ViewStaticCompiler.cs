@@ -49,7 +49,7 @@ namespace DotVVM.Compiler.Compilation
         private DotvvmConfiguration GetCachedConfiguration(Assembly assembly, string webSitePath, Action<IServiceCollection> additionalServices)
         {
             return cachedConfig.GetOrAdd($"{assembly.GetName().Name}|{webSitePath}",
-                key => ConfigurationInitializer.Init(assembly, webSitePath, this, additionalServices));
+                key => ConfigurationInitializer.InitDotVVM(assembly, webSitePath, this, additionalServices));
         }
 
         private void Init()

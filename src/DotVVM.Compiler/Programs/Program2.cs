@@ -211,7 +211,7 @@ JSON structure:
         private static CompilationResult ExportConfiguration(CompilerOptions options)
         {
             var assembly = Assembly.LoadFile(options.WebSiteAssembly);
-            var config = ConfigurationInitializer.Init(assembly, options.WebSitePath, null, collection => { });
+            var config = ConfigurationInitializer.InitDotVVM(assembly, options.WebSitePath, null, collection => { });
             return new CompilationResult() {
                 Configuration = config
             };

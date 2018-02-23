@@ -12,7 +12,7 @@ using Microsoft.Owin;
 
 namespace DotVVM.Compiler.Resolving
 {
-    public class OwinStartupClassResolver
+    public class OwinStartupClassResolver : IStartupClassResolver
     {
         private Type ResolveOwinStartupClassType(Assembly assembly)
         {
@@ -21,15 +21,16 @@ namespace DotVVM.Compiler.Resolving
 
             if (owinStartupAttributes.Count > 1)
             {
-
+                throw new ConfigurationInitializationException("Compiler found more then one startup classes marked by Microsoft.Owin.OwinStartupAttribute.");
             }
             if (owinStartupAttributes.Count < 1)
             {
                 throw new ConfigurationInitializationException("Compiler cannot find startup class marked by Microsoft.Owin.OwinStartupAttribute.");
             }
+
             //needed if project reference different version of owin then compiler
             var owinAttribute = owinStartupAttributes.First();
-            var owinAttributeType = owinAttribute .GetType();
+            var owinAttributeType = owinAttribute.GetType();
             var startupTypeProperty = owinAttributeType.GetProperty(nameof(OwinStartupAttribute.StartupType));
             return startupTypeProperty.GetValue(owinAttribute) as Type;
         }
