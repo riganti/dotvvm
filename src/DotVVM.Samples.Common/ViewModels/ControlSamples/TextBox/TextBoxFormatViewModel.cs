@@ -14,5 +14,13 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.TextBox
         public string DateResult1 => $"{DateValue:d}";
         public string DateResult2 => $"{DateTime.Parse("2018-12-27T00:00:00.0000000"):d}";
         public string DateResult3 => $"{DateTime.Parse("2018-01-01T00:00:00.0000000"):d}";
+
+        public double BindingNumberValue { get; set; }
+        public double ResultNumberValue { get; set; }
+
+        public void ChangedNumberValue()
+        {
+            ResultNumberValue = BindingNumberValue;
+        }
     }
 }
