@@ -52,6 +52,8 @@ namespace DotVVM.Framework.Compilation
         {
             if (type == null) return null;
             UseType(type.GetTypeInfo().BaseType);
+            if (type.Assembly.FullName.Contains("System.Private.CoreLib"))
+                return "global";
             return usedAssemblies.GetOrAdd(type.GetTypeInfo().Assembly, _ => "Asm_" + Interlocked.Increment(ref assemblyIdCtr));
         }
 
