@@ -1,4 +1,4 @@
-@viewModel Samples.Blazor.ViewModels.DefaultViewModel, Samples.Blazor
+@viewModel Samples.Blazor.ViewModels.DefaultViewModel, Samples.Blazor.Client
 
 <!DOCTYPE html>
 

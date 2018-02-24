@@ -43,14 +43,16 @@ namespace DotVVM.Compiler.Blazor
             else if (args[0] == "build")
             {
                 var webSiteAssembly = args[1];
-                var webSitePath = args[2];
+                var clientSiteAssembly = args[2];
+                var webSitePath = args[3];
                 var options = new CompilerOptions() {
                     FullCompile = true,
                     DothtmlFiles = null,
                     WebSitePath = webSitePath,
+                    ClientSiteAssembly = clientSiteAssembly,
                     WebSiteAssembly = webSiteAssembly,
                     OutputPath = Path.GetDirectoryName(webSiteAssembly),
-                    AssemblyName = Path.GetFileNameWithoutExtension(webSiteAssembly) + ".DotvvmClientApp"
+                    AssemblyName = Path.GetFileNameWithoutExtension(clientSiteAssembly) + ".DotvvmClientApp"
                 };
                 DoCompile(options);
             }
@@ -112,8 +114,9 @@ namespace DotVVM.Compiler.Blazor
 
         private static DotvvmConfiguration GetConfiguration(CompilerOptions options)
         {
-            var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(options.WebSiteAssembly);
-            var config = AspNetCoreInitializer.InitDotVVM(assembly, options.WebSitePath, (s) => { });
+            var webSiteAssembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(options.WebSiteAssembly);
+            var clientSiteAssembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(options.ClientSiteAssembly);
+            var config = AspNetCoreInitializer.InitDotVVM(webSiteAssembly, clientSiteAssembly, options.WebSitePath, (s) => { });
             return config;
         }
 

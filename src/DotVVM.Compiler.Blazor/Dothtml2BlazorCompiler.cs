@@ -45,6 +45,7 @@ namespace DotVVM.Compiler.Blazor
             fileLoader = configuration.ServiceProvider.GetRequiredService<IMarkupFileLoader>();
             compiler = configuration.ServiceProvider.GetRequiredService<IViewCompiler>();
             compilation = compiler.CreateCompilation(Options.AssemblyName);
+            // compilation = compilation;
         }
 
         // private void Init()
@@ -79,6 +80,8 @@ namespace DotVVM.Compiler.Blazor
                 // Program.WriteInfo($"Bindings saved to {bindingsAssemblyPath}.");
 
                 // var compilation = this.compilation.AddReferences(MetadataReference.CreateFromFile(Path.GetFullPath(bindingsAssemblyPath)));
+
+                compilation = compilation.WithOptions(compilation.Options.WithMainTypeName($"{Options.AssemblyName}.Program").WithOutputKind(OutputKind.ConsoleApplication));
 
                 if (!Directory.Exists(Path.GetDirectoryName(Options.OutputPath)))
                     Directory.CreateDirectory(Path.GetDirectoryName(Options.OutputPath));
@@ -149,6 +152,8 @@ namespace DotVVM.Compiler.Blazor
                 }
                 catch (DotvvmCompilationException exception)
                 {
+                    Console.WriteLine($"Error compiling view {file}:");
+                    Console.WriteLine(exception);
                     result.Files.Add(file, new FileCompilationResult
                     {
                         Errors = new List<Exception>() { exception }

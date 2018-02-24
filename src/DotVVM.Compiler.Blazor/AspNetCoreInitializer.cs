@@ -15,7 +15,7 @@ namespace DotVVM.Compiler.Blazor
 {
     class AspNetCoreInitializer
     {
-        public static DotvvmConfiguration InitDotVVM(Assembly webSiteAssembly, string webSitePath, Action<IServiceCollection> registerServices)
+        public static DotvvmConfiguration InitDotVVM(Assembly webSiteAssembly, Assembly clientSiteAssembly, string webSitePath, Action<IServiceCollection> registerServices)
         {
             var maybeDirectory = Path.GetDirectoryName(webSiteAssembly.Location);
             var dependencyContext = DependencyContext.Load(webSiteAssembly);
@@ -45,13 +45,13 @@ namespace DotVVM.Compiler.Blazor
                 }
             };
 
-            var dotvvmStartups = webSiteAssembly.GetLoadableTypes()
+            var dotvvmStartups = clientSiteAssembly.GetLoadableTypes()
                 .Where(t => typeof(IDotvvmStartup).IsAssignableFrom(t) && t.GetConstructor(Type.EmptyTypes) != null).ToArray();
             if (dotvvmStartups.Length > 1) throw new Exception($"Found more than one implementation of IDotvvmStartup ({string.Join(", ", dotvvmStartups.Select(s => s.Name)) }).");
             var startup = dotvvmStartups.SingleOrDefault()?.Apply(Activator.CreateInstance).CastTo<IDotvvmStartup>();
 
             var configureServices =
-                webSiteAssembly.GetLoadableTypes()
+                clientSiteAssembly.GetLoadableTypes()
                 .Where(t => t.Name == "Startup")
                 .Select(t => t.GetMethod("ConfigureDotvvmServices", new[] { typeof(IServiceCollection) }) ?? t.GetMethod("ConfigureServices", new[] { typeof(IServiceCollection) }))
                 .Where(m => m != null)

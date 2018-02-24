@@ -8,6 +8,7 @@ namespace DotVVM.Compiler.Blazor
     {
         public string[] DothtmlFiles { get; set; }
         public string WebSiteAssembly { get; set; }
+        public string ClientSiteAssembly { get; set; }
         public bool OutputResolvedDothtmlMap { get; set; }
         public string BindingsAssemblyName { get; set; }
         public string BindingClassName { get; set; }

@@ -55,7 +55,7 @@
       <WebRootParam Condition="Exists('$(WebRootPath)')">--webroot "$(WebRootPath)"</WebRootParam>
     </PropertyGroup>
     <!-- TODO: Find the correct time to run this (right after assemblies were written) -->
-    <Exec Command="$(DotvvmBlazorBuildExe) build &quot;$(ProjectDir)$(OutDir)$(BlazorClientSideAssembly).dll&quot; $(ProjectDir)" />
+    <Exec Command="$(DotvvmBlazorBuildExe) build &quot;$(ProjectDir)$(OutDir)$(AssemblyName).dll&quot; &quot;$(ProjectDir)$(OutDir)$(BlazorClientSideAssembly).dll&quot; $(ProjectDir)../Samples.Blazor.Client" />
     <Exec Command="$(BlazorBuildExe) build &quot;$(ProjectDir)$(OutDir)$(BlazorClientSideAssembly).DotvvmClientApp.dll&quot; $(WebRootParam)" />
 
   </Target>
