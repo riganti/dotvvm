@@ -44,8 +44,18 @@ namespace DotVVM.Compiler.Blazor
             controlTreeResolver = configuration.ServiceProvider.GetRequiredService<IControlTreeResolver>();
             fileLoader = configuration.ServiceProvider.GetRequiredService<IMarkupFileLoader>();
             compiler = configuration.ServiceProvider.GetRequiredService<IViewCompiler>();
-            compilation = compiler.CreateCompilation(Options.AssemblyName);
+            compilation = CreateCompilation(Options.AssemblyName);
             // compilation = compilation;
+        }
+
+        public static CSharpCompilation CreateCompilation(string assemblyName)
+        {
+            var references =
+                typeof(DotvvmConfiguration).Assembly.GetReferencedAssemblies().Select(Assembly.Load);
+
+            return CSharpCompilation.Create(assemblyName, options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
+                .AddReferences(references.Select(a => CompiledAssemblyCache.Instance.GetAssemblyMetadata(a)))
+                .AddReferences(new [] { MetadataReference.CreateFromFile("/home/exyi/.nuget/packages/netstandard.library/2.0.1/build/netstandard2.0/ref/netstandard.dll") });
         }
 
         // private void Init()
@@ -102,22 +112,25 @@ namespace DotVVM.Compiler.Blazor
 
                 try
                 {
-                    var result = compilation.Emit(compiledViewsFileName);
-                    if (!result.Success)
+                    using (var outfile = File.Create(compiledViewsFileName))
                     {
-                        Console.WriteLine("View compilation failed:");
-                        foreach(var group in result.Diagnostics.GroupBy(d => d.Location.SourceTree))
+                        var result = compilation.Emit(outfile);//, options: new Microsoft.CodeAnalysis.Emit.EmitOptions(runtimeMetadataVersion: "v4.0.31019"));
+                        if (!result.Success)
                         {
-                            Console.WriteLine("     ---------------------------");
-                            Console.WriteLine(group.Key?.ToString());
-                            foreach (var error in group)
-                                Console.WriteLine(error.ToString());
-                            Console.WriteLine("     ---------------------------");
-                            Console.WriteLine();
+                            Console.WriteLine("View compilation failed:");
+                            foreach(var group in result.Diagnostics.GroupBy(d => d.Location.SourceTree))
+                            {
+                                Console.WriteLine("     ---------------------------");
+                                Console.WriteLine(group.Key?.ToString());
+                                foreach (var error in group)
+                                    Console.WriteLine(error.ToString());
+                                Console.WriteLine("     ---------------------------");
+                                Console.WriteLine();
+                            }
+                            throw new Exception("The compilation failed!");
                         }
-                        throw new Exception("The compilation failed!");
+                        Program.WriteInfo($"Compiled views saved to {compiledViewsFileName}.");
                     }
-                    Program.WriteInfo($"Compiled views saved to {compiledViewsFileName}.");
                 }
                 catch(Exception error)
                 {

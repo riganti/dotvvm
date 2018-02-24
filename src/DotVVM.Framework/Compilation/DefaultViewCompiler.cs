@@ -122,17 +122,19 @@ namespace DotVVM.Framework.Compilation
 
             var references = diAssembly.GetReferencedAssemblies().Select(Assembly.Load)
                 .Concat(markupConfiguration.Assemblies.Select(e => Assembly.Load(new AssemblyName(e))))
-                .Concat(new[] {
+                .Concat(typeof(DotvvmConfiguration).Assembly.GetReferencedAssemblies().Select(Assembly.Load))
+                .Concat(
+                    new[] {
                     diAssembly,
-                    Assembly.Load(new AssemblyName("mscorlib")),
-                    Assembly.Load(new AssemblyName("System.ValueTuple")),
-                    typeof(IServiceProvider).Assembly,
-                    typeof(RuntimeBinderException).Assembly,
-                    typeof(DynamicAttribute).Assembly,
+                    // Assembly.Load(new AssemblyName("mscorlib")),
+                    // Assembly.Load(new AssemblyName("System.ValueTuple")),
+                    // typeof(IServiceProvider).Assembly,
+                    // typeof(RuntimeBinderException).Assembly,
+                    // typeof(DynamicAttribute).Assembly,
                     typeof(DotvvmConfiguration).Assembly,
 #if DotNetCore
                     Assembly.Load(new AssemblyName("netstandard")),
-                    Assembly.Load(new AssemblyName("System.Runtime")),
+                    // Assembly.Load(new AssemblyName("System.Runtime")),
                     Assembly.Load(new AssemblyName("System.Collections.Concurrent")),
                     Assembly.Load(new AssemblyName("System.Collections")),
 #else
