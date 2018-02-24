@@ -2233,11 +2233,13 @@ var DotvvmValidation = /** @class */ (function () {
         if (ko.isObservable(viewModel)) {
             viewModel = ko.unwrap(viewModel);
         }
-        if (!viewModel || !dotvvm.viewModels['root'].validationRules)
+        if (!viewModel)
             return;
         // find validation rules
         var type = ko.unwrap(viewModel.$type);
-        var rulesForType = dotvvm.viewModels['root'].validationRules[type] || {};
+        // Event if there is no validation rules, there can be invalid value for given type
+        var validationRules = dotvvm.viewModels['root'].validationRules || {};
+        var rulesForType = validationRules[type] || {};
         // validate all properties
         for (var property in viewModel) {
             if (!viewModel.hasOwnProperty(property) || property.indexOf("$") === 0)
