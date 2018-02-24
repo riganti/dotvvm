@@ -116,7 +116,7 @@ namespace DotVVM.Compiler.Blazor
         {
             var webSiteAssembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(options.WebSiteAssembly);
             var clientSiteAssembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(options.ClientSiteAssembly);
-            var config = AspNetCoreInitializer.InitDotVVM(webSiteAssembly, clientSiteAssembly, options.WebSitePath, (s) => { });
+            var config = AspNetCoreInitializer.InitDotVVM(webSiteAssembly, clientSiteAssembly, options.WebSitePath, options.OutputPath, (s) => { });
             return config;
         }
 
