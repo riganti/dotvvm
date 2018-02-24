@@ -20,11 +20,17 @@
     <ProjectReference Include="../DotVVM.Compiler.Blazor/DotVVM.Compiler.Blazor.csproj" ReferenceOutputAssembly="false" PrivateAssets="all" />
     <ProjectReference Include="..\Blazor\src\Microsoft.AspNetCore.Blazor.Server\Microsoft.AspNetCore.Blazor.Server.csproj" />
     <ProjectReference Include="..\Blazor\src\Microsoft.AspNetCore.Blazor.Browser\Microsoft.AspNetCore.Blazor.Browser.csproj" />
+    <ProjectReference Include="../Samples.Blazor.Client/Samples.Blazor.Client.csproj" />
+
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore" Version="2.0.1" />
   </ItemGroup>
   <!-- taken from Blazor's Microsoft.AspNetCore.Blazor.Build/targets/All.targets -->
+
+  <PropertyGroup>
+    <BlazorClientSideAssembly>Samples.Blazor.Client</BlazorClientSideAssembly>
+  </PropertyGroup>
 
   <Target Name="GenerateBlazorMetadataFile" BeforeTargets="GetCopyToOutputDirectoryItems">
     <PropertyGroup>
@@ -32,7 +38,7 @@
       <BlazorMetadataFilePath>$(TargetDir)$(BlazorMetadataFileName)</BlazorMetadataFilePath>
     </PropertyGroup>
     <WriteLinesToFile File="$(BlazorMetadataFilePath)" Lines="$(MSBuildProjectFullPath)" Overwrite="true" Encoding="Unicode" />
-    <WriteLinesToFile File="$(BlazorMetadataFilePath)" Lines="$(OutDir)$(AssemblyName).dll" Overwrite="false" Encoding="Unicode" />
+    <WriteLinesToFile File="$(BlazorMetadataFilePath)" Lines="$(OutDir)$(BlazorClientSideAssembly).dll" Overwrite="false" Encoding="Unicode" />
     <ItemGroup>
       <ContentWithTargetPath Include="$(BlazorMetadataFilePath)" TargetPath="$(BlazorMetadataFileName)" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
@@ -49,8 +55,8 @@
       <WebRootParam Condition="Exists('$(WebRootPath)')">--webroot "$(WebRootPath)"</WebRootParam>
     </PropertyGroup>
     <!-- TODO: Find the correct time to run this (right after assemblies were written) -->
-    <Exec Command="$(DotvvmBlazorBuildExe) build &quot;$(ProjectDir)$(OutDir)$(AssemblyName).dll&quot; $(ProjectDir)" />
-    <Exec Command="$(BlazorBuildExe) build &quot;$(ProjectDir)$(OutDir)$(AssemblyName).DotvvmClientApp.dll&quot; $(WebRootParam)" />
+    <Exec Command="$(DotvvmBlazorBuildExe) build &quot;$(ProjectDir)$(OutDir)$(BlazorClientSideAssembly).dll&quot; $(ProjectDir)" />
+    <Exec Command="$(BlazorBuildExe) build &quot;$(ProjectDir)$(OutDir)$(BlazorClientSideAssembly).DotvvmClientApp.dll&quot; $(WebRootParam)" />
 
   </Target>
 </Project>

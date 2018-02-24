@@ -114,7 +114,7 @@ namespace DotVVM.Compiler.Blazor
                         SyntaxFactory.MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
                             SyntaxFactory.IdentifierName("builder"),
-                            SyntaxFactory.IdentifierName(nameof(RenderTreeBuilder.AddText))
+                            SyntaxFactory.IdentifierName(nameof(RenderTreeBuilder.AddContent))
                         ),
                         SyntaxFactory.SeparatedList<ArgumentSyntax>(new ArgumentSyntax[]{
                             SyntaxFactory.Argument(this.EmitValue(sequenceCounter)),

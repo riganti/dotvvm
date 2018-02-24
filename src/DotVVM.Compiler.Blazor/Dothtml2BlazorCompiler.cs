@@ -84,6 +84,19 @@ namespace DotVVM.Compiler.Blazor
                     Directory.CreateDirectory(Path.GetDirectoryName(Options.OutputPath));
                 var compiledViewsFileName = Path.Combine(Options.OutputPath, Options.AssemblyName + ".dll");
 
+                foreach(var tree in compilation.SyntaxTrees)
+                {
+                    Console.WriteLine("     ---------------------------");
+                    Console.WriteLine(tree.ToString());
+                }
+                Console.WriteLine();
+
+                foreach(var rf in compilation.References)
+                {
+                    Console.WriteLine($"{rf.Display} - {string.Join(", ", rf.Properties.Aliases)}");
+                }
+                Console.WriteLine();
+
                 try
                 {
                     var result = compilation.Emit(compiledViewsFileName);
@@ -93,7 +106,7 @@ namespace DotVVM.Compiler.Blazor
                         foreach(var group in result.Diagnostics.GroupBy(d => d.Location.SourceTree))
                         {
                             Console.WriteLine("     ---------------------------");
-                            Console.WriteLine(group.Key.ToString());
+                            Console.WriteLine(group.Key?.ToString());
                             foreach (var error in group)
                                 Console.WriteLine(error.ToString());
                             Console.WriteLine("     ---------------------------");

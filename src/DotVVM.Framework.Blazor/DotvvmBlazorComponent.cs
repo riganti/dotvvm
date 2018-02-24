@@ -9,8 +9,18 @@ namespace DotVVM.Framework.Blazor
 {
     public class DotvvmBlazorComponent: IComponent
     {
+        private RenderHandle renderHandle;
         public virtual void BuildRenderTree(RenderTreeBuilder builder)
         {
+        }
+
+        public virtual void Init(RenderHandle handle)
+        {
+            this.renderHandle = handle;
+        }
+        public virtual void SetParameters(ParameterCollection parameters)
+        {
+
         }
     }
 }

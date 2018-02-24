@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Samples.Blazor
+namespace Samples.Blazor.Client
 {
     public class Startup
     {
@@ -16,21 +16,14 @@ namespace Samples.Blazor
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            new Samples.Blazor.Client.Startup().ConfigureServices(services);
-        }
+            services.AddDataProtection();
+            services.AddAuthorization();
+            services.AddWebEncoders();
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
-        {
-            loggerFactory.AddConsole();
-
-            app.UseBlazor("Samples.Blazor.DotvvmClientApp");
-
-            // use DotVVM
-            var dotvvmConfiguration = app.UseDotVVM<DotvvmStartup>(env.ContentRootPath);
-
-            // use static files
-            //app.UseStaticFiles();
+            services.AddDotVVM(options =>
+            {
+                options.AddDefaultTempStorages("Temp");
+            });
         }
     }
 }

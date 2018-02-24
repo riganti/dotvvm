@@ -28,6 +28,12 @@ namespace DotVVM.Compiler.Blazor
         {
             var emitter = new BetterCodeEmitter();
             emitter.BaseType = typeof(DotvvmRootBlazorComponent);
+
+            // emitter.PushNewMethod("BuildRenderTree", typeof(void),
+            //     emitter.EmitParameter("builder", typeof(RenderTreeBuilder))
+            // );
+            // emitter.PopMethod();
+
             var pageRenders = pages.Select((p, index) => {
                 var methodName = $"BuildRenderTree_{index}";
                 emitter.PushNewStaticMethod(methodName, typeof(void),
@@ -42,20 +48,21 @@ namespace DotVVM.Compiler.Blazor
             ExpressionSyntax createArrayItem(int index)
             {
                 return emitter.CreateTuple(
-                    typeof((string, Action<RenderTreeBuilder>)),
+                    typeof(FileNameAndRenderFunctionTuple),
                     emitter.EmitValue(pages[index].fileName),
-                    emitter.CreateObjectExpression(typeof(Action<RenderTreeBuilder>), new [] {
+                    emitter.CreateObjectExpression(typeof(RenderFunctionDelegate), new [] {
                         SyntaxFactory.IdentifierName(pageRenders[index])
                     })
                 );
             }
 
             var baseCtorArgument = SyntaxFactory.ArrayCreationExpression(
-                ((ArrayTypeSyntax)emitter.ParseTypeName(typeof((string, Action<RenderTreeBuilder>)[]))),
+                ((ArrayTypeSyntax)emitter.ParseTypeName(typeof(FileNameAndRenderFunctionTuple[]))),
                 SyntaxFactory.InitializerExpression(SyntaxKind.ArrayInitializerExpression, SyntaxFactory.SeparatedList(
                     Enumerable.Range(0, pages.Length).Select(createArrayItem)
                 ))
             );
+            // var baseCtorArgument = SyntaxFactory.ParseExpression("null");
             emitter.AddClassMember(
                 SyntaxFactory.ConstructorDeclaration("Program")
                 .WithBody(SyntaxFactory.Block())

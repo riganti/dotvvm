@@ -6,16 +6,28 @@ using Microsoft.AspNetCore.Blazor.RenderTree;
 
 namespace DotVVM.Framework.Blazor
 {
-    public class DotvvmRootBlazorComponent: IComponent
+    public delegate void RenderFunctionDelegate(RenderTreeBuilder builder);
+    public class FileNameAndRenderFunctionTuple
     {
-        private readonly Dictionary<string, Action<RenderTreeBuilder>> views;
-        public IReadOnlyDictionary<string, Action<RenderTreeBuilder>> Views => this.views;
+        public FileNameAndRenderFunctionTuple(string fileName, RenderFunctionDelegate render)
+        {
+            this.FileName = fileName;
+            this.Render = render;
+        }
+        public string FileName { get; }
+        public RenderFunctionDelegate Render { get; }
 
-        public DotvvmRootBlazorComponent((string file, Action<RenderTreeBuilder> render)[] views)
+    }
+    public class DotvvmRootBlazorComponent : IComponent
+    {
+        private readonly Dictionary<string, RenderFunctionDelegate> views;
+        public IReadOnlyDictionary<string, RenderFunctionDelegate> Views => this.views;
+
+        public DotvvmRootBlazorComponent(FileNameAndRenderFunctionTuple[] views)
         {
             Console.WriteLine("Yay, running ctor");
-            this.views = views.ToDictionary(a => a.file, a => a.render);
-            CurrentView = views.First().file;
+            this.views = views.ToDictionary(a => a.FileName, a => a.Render);
+            CurrentView = views.First().FileName;
         }
         public string CurrentView { get; set; }
 
@@ -24,6 +36,16 @@ namespace DotVVM.Framework.Blazor
             Console.WriteLine("Yay, running render");
             var render = views[CurrentView];
             render(builder);
+        }
+
+        private RenderHandle renderHandle;
+        public virtual void Init(RenderHandle handle)
+        {
+            this.renderHandle = handle;
+        }
+        public virtual void SetParameters(ParameterCollection parameters)
+        {
+
         }
     }
 }
