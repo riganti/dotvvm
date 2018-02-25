@@ -4,4 +4,4 @@
 
 <h1 title="{value: Title}">Hello</h1>
 
-
+<dot:Button Click="{command: null}" Text="kokos" />

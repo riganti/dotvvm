@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Configuration
 {
-    public struct HtmlTagAttributePair 
+    public struct HtmlTagAttributePair
     {
 
         public string TagName { get; set; }

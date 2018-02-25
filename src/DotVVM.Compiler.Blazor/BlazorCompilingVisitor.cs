@@ -161,6 +161,24 @@ namespace DotVVM.Compiler.Blazor
                 var text = (string)control.ConstructorParameters[1];
                 emitter.EmitAddBuilderText(emitter.EmitValue(text));
             }
+            else
+            {
+                // emit control bridge
+                emitter.EmitOpenBuilderComponent(emitter.ParseTypeName(typeof(DotvvmBlazorBridgedControl)));
+                var values = control.Properties.Where(p => p.Value is ResolvedPropertyValue).ToArray();
+                emitter.PushNewMethod("", typeof(DotvvmControl));
+                var controlName = emitter.EmitCreateObject(control.Metadata.Type);
+                foreach(var (property, value) in values)
+                {
+                    emitter.EmitSetDotvvmProperty(controlName, property, ((ResolvedPropertyValue)value).Value);
+                }
+                emitter.EmitReturnClause(controlName);
+                var initializeFn = emitter.PopAsLambda(typeof(DotvvmControlInitializer));
+                emitter.EmitAddBuilderAttribute(
+                    emitter.EmitValue(nameof(DotvvmControlInitializer)),
+                    initializeFn);
+                emitter.EmitCloseBuilderComponent();
+            }
 
             base.VisitControl(control);
 

@@ -975,6 +975,21 @@ namespace DotVVM.Framework.Compilation
             methods.Push(emitterMethodInfo);
         }
 
+        public ExpressionSyntax PopAsLambda(Type lambdaType = null)
+        {
+            var m = methods.Pop();
+            var lambda = SyntaxFactory.ParenthesizedLambdaExpression(
+                m.Parameters,
+                SyntaxFactory.Block(m.Statements)
+            );
+            if (lambdaType == null)
+                return lambda;
+            else
+                return SyntaxFactory.CastExpression(
+                    ParseTypeName(lambdaType),
+                    SyntaxFactory.ParenthesizedExpression(lambda));
+        }
+
         /// <summary>
         /// Pops the method.
         /// </summary>

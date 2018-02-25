@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotVVM.Framework;
+using DotVVM.Framework.Controls;
 using Microsoft.AspNetCore.Blazor;
 using Microsoft.AspNetCore.Blazor.Components;
 using Microsoft.AspNetCore.Blazor.RenderTree;
@@ -24,6 +26,7 @@ namespace DotVVM.Framework.Blazor
                 dataContextProperty.SetValue(this, Activator.CreateInstance(dataContextProperty.PropertyType));
             }
         }
+
         public virtual void SetParameters(ParameterCollection parameters)
         {
             this.renderHandle.Render(BuildRenderTree);
