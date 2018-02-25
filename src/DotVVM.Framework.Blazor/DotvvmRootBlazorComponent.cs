@@ -42,11 +42,10 @@ namespace DotVVM.Framework.Blazor
         public virtual void Init(RenderHandle handle)
         {
             this.renderHandle = handle;
-            renderHandle.Render(BuildRenderTree);
         }
         public virtual void SetParameters(ParameterCollection parameters)
         {
-
+            renderHandle.Render(BuildRenderTree);
         }
     }
 }
