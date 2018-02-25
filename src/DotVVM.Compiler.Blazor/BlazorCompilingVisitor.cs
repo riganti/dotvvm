@@ -16,6 +16,7 @@ using DotVVM.Framework.Utils;
 using System.Collections.Concurrent;
 using Microsoft.AspNetCore.Blazor;
 using Microsoft.AspNetCore.Blazor.Components;
+using DotVVM.Framework.Blazor;
 
 namespace DotVVM.Compiler.Blazor
 {
@@ -31,11 +32,12 @@ namespace DotVVM.Compiler.Blazor
 
         public override void VisitView(ResolvedTreeRoot view)
         {
-            this.emitter.PushNewMethod("Init", typeof(void), emitter.EmitParameter("handle", typeof(RenderHandle)));
-            this.emitter.PopMethod();
-            this.emitter.PushNewMethod("SetParameters", typeof(void), emitter.EmitParameter("parameters", typeof(ParameterCollection)));
-            this.emitter.PopMethod();
-            this.emitter.PushNewMethod("BuildRenderTree", typeof(void),
+            this.emitter.BaseType = typeof(DotvvmBlazorComponent);
+            // this.emitter.PushNewMethod("Init", typeof(void), emitter.EmitParameter("handle", typeof(RenderHandle)));
+            // this.emitter.PopMethod();
+            // this.emitter.PushNewMethod("SetParameters", typeof(void), emitter.EmitParameter("parameters", typeof(ParameterCollection)));
+            // this.emitter.PopMethod();
+            this.emitter.PushNewOverrideMethod("BuildRenderTree", typeof(void),
                 emitter.EmitParameter("builder", typeof(RenderTreeBuilder))
             );
             dataContexts[view.DataContextTypeStack] =

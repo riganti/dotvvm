@@ -15,6 +15,7 @@ namespace DotVVM.Framework.Compilation
 
         public TypeSyntax ReturnType { get; set; }
         public bool IsStatic { get; set; }
+        public bool IsOverride { get; set; }
 
         public EmitterMethodInfo(TypeSyntax returnType, params ParameterSyntax[] parameters)
         {

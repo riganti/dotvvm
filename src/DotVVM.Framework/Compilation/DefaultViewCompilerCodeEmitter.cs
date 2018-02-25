@@ -908,6 +908,8 @@ namespace DotVVM.Framework.Compilation
                                             .WithModifiers(SyntaxFactory.TokenList(
                                                 m.IsStatic ?
                                                 new [] { SyntaxFactory.Token(SyntaxKind.PublicKeyword), SyntaxFactory.Token(SyntaxKind.StaticKeyword) } :
+                                                m.IsOverride ?
+                                                new [] { SyntaxFactory.Token(SyntaxKind.PublicKeyword), SyntaxFactory.Token(SyntaxKind.OverrideKeyword) } :
                                                 new [] { SyntaxFactory.Token(SyntaxKind.PublicKeyword) }
                                             ))
                                             .WithParameterList(m.Parameters)
@@ -952,6 +954,15 @@ namespace DotVVM.Framework.Compilation
         public void PushNewMethod(string name, Type returnType, params ParameterSyntax[] parameters)
         {
             var emitterMethodInfo = new EmitterMethodInfo(ParseTypeName(returnType), parameters) { Name = name };
+            methods.Push(emitterMethodInfo);
+        }
+
+        /// <summary>
+        /// Pushes the new method.
+        /// </summary>
+        public void PushNewOverrideMethod(string name, Type returnType, params ParameterSyntax[] parameters)
+        {
+            var emitterMethodInfo = new EmitterMethodInfo(ParseTypeName(returnType), parameters) { Name = name, IsOverride = true };
             methods.Push(emitterMethodInfo);
         }
 

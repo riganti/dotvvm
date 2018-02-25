@@ -17,10 +17,16 @@ namespace DotVVM.Framework.Blazor
         public virtual void Init(RenderHandle handle)
         {
             this.renderHandle = handle;
+
+            var dataContextProperty = this.GetType().GetProperty("DataContext");
+            if (dataContextProperty != null)
+            {
+                dataContextProperty.SetValue(this, Activator.CreateInstance(dataContextProperty.PropertyType));
+            }
         }
         public virtual void SetParameters(ParameterCollection parameters)
         {
-
+            this.renderHandle.Render(BuildRenderTree);
         }
     }
 }
