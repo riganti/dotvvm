@@ -19,6 +19,15 @@ namespace DotVVM.CompilationStatusPage.ViewModels
 
         public override Task Init()
         {
+            // ToDo: implement your own authorization logic
+            if (!Context.HttpContext.Request.Url.IsLoopback)
+            {
+                var response = Context.HttpContext.Response;
+                response.StatusCode = 403;
+
+                Context.InterruptRequest();
+            }
+
             if (!Context.IsPostBack)
             {
                 MasterPages = new List<DotHtmlFileInfo>();
@@ -29,7 +38,6 @@ namespace DotVVM.CompilationStatusPage.ViewModels
 
         public override Task Load()
         {
-
             if (!Context.IsPostBack)
             {
 
@@ -77,7 +85,6 @@ namespace DotVVM.CompilationStatusPage.ViewModels
             Controls.ForEach(BuildView);
             MasterPages.ForEach(BuildView);
         }
-
 
         public void BuildView(DotHtmlFileInfo file)
         {
@@ -134,7 +141,6 @@ namespace DotVVM.CompilationStatusPage.ViewModels
 
         /// <summary>Gets or sets the virtual path to the view.</summary>
         public string VirtualPath { get; set; }
-
 
         public bool HasParameters { get; set; }
     }
