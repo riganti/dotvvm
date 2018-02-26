@@ -89,7 +89,7 @@ namespace DotVVM.CompilationStatusPage.ViewModels
 
                     var pageBuilder = controlFactory.GetControlBuilder(file.VirtualPath);
 
-                    var compiledControl = pageBuilder.BuildControl(controlFactory);
+                    var compiledControl = pageBuilder.builder.Value.BuildControl(controlFactory, Context.Services);
 
                     if (compiledControl is DotvvmView view && view.Directives.TryGetValue(
                             ParserConstants.MasterPageDirective,

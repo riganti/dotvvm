@@ -167,9 +167,9 @@
         });
     </dot:InlineScript>
 
-    <dot:InlineScript Dependencies="jquery">
+    <dot:InlineScript>
         dotvvm.events.init.subscribe(function () {
-            $('#compile-all-button').click();
+            document.getElementById('compile-all-button').click();
         });
     </dot:InlineScript>
 </body>
