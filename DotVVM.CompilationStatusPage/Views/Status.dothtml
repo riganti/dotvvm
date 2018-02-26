@@ -1,0 +1,176 @@
+﻿@viewModel DotVVM.CompilationStatusPage.ViewModels.StatusViewModel
+@import DotVVM.CompilationStatusPage.ViewModels
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <style>
+        .table-danger {
+            color: #de1212;
+            font-weight: bold;
+        }
+
+        .table-success .status {
+            color: green;
+        }
+
+        @keyframes blink {
+            50% {
+                color: transparent
+            }
+        }
+
+        .compiling-update-progress span {
+            animation: 1s blink infinite
+        }
+
+            .compiling-update-progress span:nth-child(2) {
+                animation-delay: 250ms
+            }
+
+            .compiling-update-progress span:nth-child(3) {
+                animation-delay: 500ms
+            }
+    </style>
+</head>
+<body>
+    <h1>
+        Compilation Status Page
+    </h1>
+    <dot:Button ID="compile-all-button" Click="{command: CompileAll()}" Text="Compile All" class="btn btn-primary"></dot:Button>
+    <dot:UpdateProgress>
+        <p class="compiling-update-progress">Compiling<span>.</span><span>.</span><span>.</span></p>
+    </dot:UpdateProgress>
+    <div ID="views" ClientIDMode="Static">
+
+        <br />
+        <h2>Routes</h2>
+        <dot:GridView DataSource="{value:  Routes}" class="table table-hover">
+            <RowDecorators>
+                <dot:Decorator Class-table-danger="{value: Status == CompilationState.CompilationFailed}" />
+                <dot:Decorator Class-table-success="{value: Status == CompilationState.CompletedSuccessfully}" />
+            </RowDecorators>
+            <Columns>
+                <dot:GridViewTextColumn ValueBinding="{value: RouteName}" HeaderText="Route" />
+                <dot:GridViewTemplateColumn HeaderText="Url">
+                    <ContentTemplate>
+                        <span data-bind="if: !HasParameters()">
+                            <a href="{value:  "/" +  Url}">{{value: Url}}</a>
+                        </span>
+                        <span data-bind="if: HasParameters()">
+                            {{value: Url}}
+                        </span>
+                    </ContentTemplate>
+                </dot:GridViewTemplateColumn>
+                <dot:GridViewTextColumn ValueBinding="{value: VirtualPath}" HeaderText="Virtual Path" />
+                <dot:GridViewTemplateColumn HeaderText="Status">
+                    <ContentTemplate>
+                        <span class="status">
+                            {{value: Status}}
+                        </span>
+                    </ContentTemplate>
+                </dot:GridViewTemplateColumn>
+                <dot:GridViewTemplateColumn>
+                    <ContentTemplate>
+                        <span Visible="{value: Status != CompilationState.NonCompilable}">
+                            <dot:Button Click="{command: _root.BuildView(_this)}" Text="Compile" class="btn btn-primary" />
+                        </span>
+                    </ContentTemplate>
+                </dot:GridViewTemplateColumn>
+                <dot:GridViewTextColumn ValueBinding="{value: Exception}">
+                </dot:GridViewTextColumn>
+            </Columns>
+        </dot:GridView>
+
+        <h2>Controls</h2>
+        <dot:GridView DataSource="{value:  Controls}" class="table table-hover">
+            <RowDecorators>
+                <dot:Decorator Class-table-danger="{value: Status == CompilationState.CompilationFailed}" />
+                <dot:Decorator Class-table-success="{value: Status == CompilationState.CompletedSuccessfully}" />
+            </RowDecorators>
+            <Columns>
+                <dot:GridViewTextColumn ValueBinding="{value: TagPrefix }" HeaderText="Prefix" />
+                <dot:GridViewTextColumn ValueBinding="{value: TagName }" HeaderText="Tag" />
+                <dot:GridViewTextColumn ValueBinding="{value: VirtualPath }" HeaderText="Virtual Path" />
+                <dot:GridViewTemplateColumn HeaderText="Status">
+                    <ContentTemplate>
+                        <span class="status">
+                            {{value: Status}}
+                        </span>
+                    </ContentTemplate>
+                </dot:GridViewTemplateColumn>
+                <dot:GridViewTemplateColumn>
+                    <ContentTemplate>
+                        <dot:Button Click="{command: _root.BuildView(_this)}" Text="Compile" class="btn btn-primary" />
+                    </ContentTemplate>
+                </dot:GridViewTemplateColumn>
+                <dot:GridViewTextColumn ValueBinding="{value: Exception}">
+                </dot:GridViewTextColumn>
+            </Columns>
+        </dot:GridView>
+
+        <h2>Master Pages</h2>
+        <dot:GridView DataSource="{value:  MasterPages}" class="table table-hover">
+
+            <RowDecorators>
+                <dot:Decorator Class-table-danger="{value: Status == CompilationState.CompilationFailed}" />
+                <dot:Decorator Class-table-success="{value: Status == CompilationState.CompletedSuccessfully}" />
+            </RowDecorators>
+            <Columns>
+                <dot:GridViewTextColumn ValueBinding="{value: VirtualPath}" HeaderText="Virtual Path" />
+                <dot:GridViewTemplateColumn HeaderText="Status">
+                    <ContentTemplate>
+                        <span class="status">
+                            {{value: Status}}
+                        </span>
+                    </ContentTemplate>
+                </dot:GridViewTemplateColumn>
+                <dot:GridViewTemplateColumn>
+                    <ContentTemplate>
+                        <span Visible="{value: Status != CompilationState.NonCompilable}">
+                            <dot:Button Click="{command: _root.BuildView(_this)}" Text="Compile" class="btn btn-primary" />
+                        </span>
+                    </ContentTemplate>
+                </dot:GridViewTemplateColumn>
+                <dot:GridViewTextColumn ValueBinding="{value: Exception}">
+                </dot:GridViewTextColumn>
+            </Columns>
+        </dot:GridView>
+    </div>
+
+    <dot:InlineScript>
+        var _dotvvmCompilationStatusPageCounter = { count: 0, current: 0, handler: -1, runIndex: -1 };
+        function buildInQueue() {
+
+            var views = document.getElementById("views");
+            var buttons = views.querySelectorAll("input[type=button]");
+            _dotvvmCompilationStatusPageCounter.runIndex++;
+            _dotvvmCompilationStatusPageCounter.current = 0;
+            _dotvvmCompilationStatusPageCounter.count = buttons.length;
+            for (var i = 0; i < buttons.length; i++) {
+                buttons[i].click();
+            }
+        }
+        dotvvm.events.afterPostback.subscribe(function () {
+            _dotvvmCompilationStatusPageCounter.current++;
+            if (_dotvvmCompilationStatusPageCounter.current == _dotvvmCompilationStatusPageCounter.count) {
+                if (_dotvvmCompilationStatusPageCounter.runIndex == 0) {
+                    buildInQueue();
+                } else {
+                    _dotvvmCompilationStatusPageCounter.handler = setTimeout(buildInQueue, 3000);
+                }
+            }
+        });
+    </dot:InlineScript>
+
+    <dot:InlineScript Dependencies="jquery">
+        dotvvm.events.init.subscribe(function () {
+            $('#compile-all-button').click();
+        });
+    </dot:InlineScript>
+</body>
+</html>
