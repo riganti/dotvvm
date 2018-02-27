@@ -112,7 +112,7 @@ namespace DotVVM.Samples.Tests.Control
         [MemberData(nameof(TextBoxStringFormatChangedCommandData))]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_TextBox_TextBox_Format))]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_TextBox_TextBox_Format_Binding))]
-        private void Control_TextBox_StringFormat(string cultureName, string url, string linkSelector)
+        public void Control_TextBox_StringFormat(string cultureName, string url, string linkSelector)
         {
             RunInAllBrowsers(browser => {
 
