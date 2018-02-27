@@ -10,7 +10,6 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.MarkupControl
     public class ControlControlCommandInvokeActionViewModel : DotvvmViewModelBase
     {
         public List<int> Rows { get; set; }
-
         public List<int> Columns { get; set; }
         public string Value { get; set; }
 
@@ -18,11 +17,11 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.MarkupControl
         {
             Rows = new List<int>
             {
-                1,2,3,4,5,6
+                1,2,3
             };
             Columns = new List<int>
             {
-                9,8,7
+                5,4
             };
 
             return base.Load();

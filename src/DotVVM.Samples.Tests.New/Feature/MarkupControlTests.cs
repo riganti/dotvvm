@@ -68,7 +68,9 @@ namespace DotVVM.Samples.Tests.New.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_MarkupControl_ControlControlCommandInvokeAction);
-                browser.Wait(1000);
+                // The page is complex so we need to wait little longer until the DOM is properly generated
+                browser.Wait(3000);
+
                 var allButtons = browser.First("#buttons").FindElements("button");
                 foreach (var button in allButtons)
                 {
@@ -76,7 +78,7 @@ namespace DotVVM.Samples.Tests.New.Feature
                     browser.WaitFor(() => {
                         var parent = button.ParentElement.ParentElement;
                         var value = parent.First("[data-id='Row']").GetText().Trim() + "|" + parent.First("[data-id=Column]").GetText().Trim();
-                        AssertUI.InnerTextEquals(browser.First("#value"),value);
+                        AssertUI.InnerTextEquals(browser.First("#value"), value);
                     }, 1500, "Button did not invoke action or action was not performed.");
                 }
             });
