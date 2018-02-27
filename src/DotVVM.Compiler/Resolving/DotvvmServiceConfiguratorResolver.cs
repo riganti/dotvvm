@@ -9,9 +9,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Compiler.Resolving
 {
-    public class DotvvmOptionsConfiguratorResolver : IStartupClassResolver
+    public class DotvvmServiceConfiguratorResolver : IStartupClassResolver
     {
-        private Type ResolveOwinStartupClassType(Assembly assembly)
+        private Type ResolveIDotvvmServiceConfiguratorClassType(Assembly assembly)
         {
             var interfaceType = typeof(IDotvvmServiceConfigurator);
             var resultTypes = assembly.GetLoadableTypes().Where(s => s.GetTypeInfo().ImplementedInterfaces.Any(i => i.Name == interfaceType.Name)).Where(s => s != null).ToList();
@@ -39,7 +39,7 @@ namespace DotVVM.Compiler.Resolving
 
         public IServicesStartupClassExecutor GetServiceConfigureExecutor(Assembly assembly)
         {
-            var startupType = ResolveOwinStartupClassType(assembly);
+            var startupType = ResolveIDotvvmServiceConfiguratorClassType(assembly);
             if (startupType == null)
             {
                 return new NoServicesStartupClassExecutor();

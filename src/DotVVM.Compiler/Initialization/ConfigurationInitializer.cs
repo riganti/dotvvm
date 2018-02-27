@@ -20,7 +20,7 @@ namespace DotVVM.Compiler.Initialization
         internal static DotvvmConfiguration InitDotVVM(Assembly webSiteAssembly, string webSitePath, ViewStaticCompiler viewStaticCompiler, Action<IServiceCollection> additionalServices = null)
         {
             var dotvvmStartup = new DotvvmStartupClassResolver().GetDotvvmStartupInstance(webSiteAssembly);
-            var startupClass = new DotvvmOptionsConfiguratorResolver().GetServiceConfigureExecutor(webSiteAssembly);
+            var startupClass = new DotvvmServiceConfiguratorResolver().GetServiceConfigureExecutor(webSiteAssembly);
 
             var config = DotvvmConfiguration.CreateDefault(services => {
 

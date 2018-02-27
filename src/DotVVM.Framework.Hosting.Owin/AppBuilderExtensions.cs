@@ -26,11 +26,11 @@ namespace Owin
         /// in production.
         /// </param>
         /// <param name="debug">A value indicating whether the application should run in debug mode.</param>
-        public static DotvvmConfiguration UseDotVVM<TStartup, TServicesConfiguration>(this IAppBuilder app, string applicationRootPath, bool useErrorPages = true, bool debug = true)
+        public static DotvvmConfiguration UseDotVVM<TStartup, TServiceConfigurator>(this IAppBuilder app, string applicationRootPath, bool useErrorPages = true, bool debug = true)
             where TStartup : IDotvvmStartup, new()
-            where TServicesConfiguration : IDotvvmServiceConfigurator, new()
+            where TServiceConfigurator : IDotvvmServiceConfigurator, new()
         {
-            var serviceConfiguration = new TServicesConfiguration();
+            var serviceConfiguration = new TServiceConfigurator();
             var config = app.UseDotVVM(applicationRootPath, useErrorPages, debug, serviceConfiguration.ConfigureServices);
             new TStartup().Configure(config, applicationRootPath);
             return config;
