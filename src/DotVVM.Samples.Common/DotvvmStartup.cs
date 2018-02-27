@@ -126,10 +126,10 @@ namespace DotVVM.Samples.BasicSamples
 
         public void ConfigureServices(IDotvvmServiceCollection services)
         {
-            CommonConfiguration.ConfigureServices(services.Services);
+            CommonConfiguration.ConfigureServices(services);
             services.AddDefaultTempStorages("Temp");
-            services.Services.AddScoped<ViewModelScopedDependency>();
-            services.Services.AddSingleton<IGreetingComputationService, HelloGreetingComputationService>();
+            services.AddScoped<ViewModelScopedDependency>();
+            services.AddSingleton<IGreetingComputationService, HelloGreetingComputationService>();
         }
     }
 }

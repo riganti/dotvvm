@@ -7,9 +7,6 @@ namespace Microsoft.Extensions.DependencyInjection
     /// </summary>
     public interface IDotvvmServiceCollection :IServiceCollection
     {
-        /// <summary>
-        /// Gets the <see cref="IServiceCollection" /> where DotVVM services are configured.
-        /// </summary>
-        IServiceCollection Services { get; }
+    
     }
 }
