@@ -5,9 +5,9 @@ using Xunit;
 
 namespace DotVVM.Samples.New.Tests.Feature
 {
-    public class BindableStylePropertiesTests : AppSeleniumTest
+    public class BindableCssStylesTests : AppSeleniumTest
     {
-        public BindableStylePropertiesTests(Xunit.Abstractions.ITestOutputHelper output) : base(output)
+        public BindableCssStylesTests(Xunit.Abstractions.ITestOutputHelper output) : base(output)
         {
         }
 
@@ -19,7 +19,7 @@ namespace DotVVM.Samples.New.Tests.Feature
 
             // ToDo: update asserts with AssertUI when there are proper assert methods available
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_BindableStyleProperties_BindableStyleProperties);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_BindableCssStyles_BindableCssStyles);
 
                 var literal = browser.Single("[data-ui='literal-font-size']");
                 var fontSizeInc = browser.Single("[data-ui='font-size-inc']");
