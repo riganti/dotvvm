@@ -47,7 +47,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="autoDeleteInterval">The interval to delete the temporary files after.</param>
         public static IDotvvmServiceCollection AddUploadedFileStorage(this IDotvvmServiceCollection serviceCollection, string tempPath, TimeSpan autoDeleteInterval)
         {
-            serviceCollection.Services.TryAddSingleton<IUploadedFileStorage>(s =>
+            serviceCollection.TryAddSingleton<IUploadedFileStorage>(s =>
             {
                 var fullPath = Path.Combine(s.GetService<DotvvmConfiguration>().ApplicationPhysicalPath, tempPath);
                 return new FileSystemUploadedFileStorage(fullPath, autoDeleteInterval);
@@ -71,7 +71,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="autoDeleteInterval">The interval to delete the temporary files after.</param>
         public static IDotvvmServiceCollection AddReturnedFileStorage(this IDotvvmServiceCollection serviceCollection, string tempPath, TimeSpan autoDeleteInterval)
         {
-            serviceCollection.Services.TryAddSingleton<IReturnedFileStorage>(s =>
+            serviceCollection.TryAddSingleton<IReturnedFileStorage>(s =>
             {
                 var fullPath = Path.Combine(s.GetService<DotvvmConfiguration>().ApplicationPhysicalPath, tempPath);
                 return new FileSystemReturnedFileStorage(fullPath, autoDeleteInterval);

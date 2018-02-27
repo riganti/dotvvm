@@ -8,7 +8,7 @@ namespace DotVVM.Samples.BasicSamples
     {
         public void ConfigureServices(IDotvvmServiceCollection serviceCollection)
         {
-            CommonConfiguration.ConfigureServices(serviceCollection.Services);
+            CommonConfiguration.ConfigureServices(serviceCollection);
             serviceCollection.AddDefaultTempStorages("Temp");
         }
     }
