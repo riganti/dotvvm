@@ -26,6 +26,6 @@
 
   <ItemGroup>
     <PackageReference Include="DotVVM" Version="2.0.0-preview02-25978" />
-    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.1.1" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.2.1" />
   </ItemGroup>
 </Project>
