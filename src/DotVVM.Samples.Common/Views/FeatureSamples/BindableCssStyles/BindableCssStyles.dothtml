@@ -9,8 +9,8 @@
 </head>
 <body>
     <div>
-        <dot:Literal Text="Literal - Font Size" Style-font-size="{value: FontSize + 'px'}" data-ui="literal-font-size" />
-        <div Style-width="{value: Width + 'px'}" style="background-color: green" data-ui="div-width">
+        <dot:Literal Text="Literal - Font Size" Style-font-size="{value: FontSize + 'px'}" Style-font-weight="{value: 700}" data-ui="literal-font-size" />
+        <div Style-width="{value: Width + 'px'}" Style-height="50px" style="background-color: green" data-ui="div-width">
             Div - Width
         </div>
         <span Style-color="{value: Color}" Style-display="{value: Condition ? 'none' : 'inline-block'}" data-ui="span-color">Span - Color/Display</span>

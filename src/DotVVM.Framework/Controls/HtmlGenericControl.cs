@@ -205,8 +205,11 @@ namespace DotVVM.Framework.Controls
             KnockoutBindingGroup cssStylesBindingGroup = null;
             foreach (var styleProperty in CssStyles.Properties)
             {
-                if (cssStylesBindingGroup == null) cssStylesBindingGroup = new KnockoutBindingGroup();
-                cssStylesBindingGroup.Add(styleProperty.GroupMemberName, this, styleProperty);
+                if (HasValueBinding(styleProperty))
+                {
+                    if (cssStylesBindingGroup == null) cssStylesBindingGroup = new KnockoutBindingGroup();
+                    cssStylesBindingGroup.Add(styleProperty.GroupMemberName, this, styleProperty);
+                }
 
                 try
                 {

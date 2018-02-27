@@ -25,20 +25,24 @@ namespace DotVVM.Samples.New.Tests.Feature
                 var fontSizeInc = browser.Single("[data-ui='font-size-inc']");
                 var fontSizeDec = browser.Single("[data-ui='font-size-dec']");
                 Assert.Equal("14px", literal.WebElement.GetCssValue("font-size"));
+                Assert.Equal("700", literal.WebElement.GetCssValue("font-weight"));
                 fontSizeInc.Click().Click();
                 Assert.Equal("16px", literal.WebElement.GetCssValue("font-size"));
                 fontSizeDec.Click();
                 Assert.Equal("15px", literal.WebElement.GetCssValue("font-size"));
+                Assert.Equal("700", literal.WebElement.GetCssValue("font-weight"));
 
                 var div = browser.Single("[data-ui='div-width']");
                 var widthInc = browser.Single("[data-ui='width-inc']");
                 var widthDec = browser.Single("[data-ui='width-dec']");
                 Assert.Equal("50px", div.WebElement.GetCssValue("width"));
+                Assert.Equal("50px", div.WebElement.GetCssValue("height"));
                 Assert.Equal(greenColor, div.WebElement.GetCssValue("background-color"));
                 widthInc.Click().Click();
                 Assert.Equal("70px", div.WebElement.GetCssValue("width"));
                 widthDec.Click();
                 Assert.Equal("60px", div.WebElement.GetCssValue("width"));
+                Assert.Equal("50px", div.WebElement.GetCssValue("height"));
                 Assert.Equal(greenColor, div.WebElement.GetCssValue("background-color"));
 
                 var span = browser.Single("[data-ui='span-color']");
