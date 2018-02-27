@@ -18,12 +18,12 @@ namespace DotVVM.Compiler.Resolving
         {
             if (method.IsStatic)
             {
-                method.Invoke(null, new object[] {new DotvvmOptions(collection)});
+                method.Invoke(null, new object[] {new DotvvmServiceCollection(collection)});
             }
             else
             {
                 var instance = Activator.CreateInstance(startupType);
-                method.Invoke(instance, new object[] { new DotvvmOptions(collection) });
+                method.Invoke(instance, new object[] { new DotvvmServiceCollection(collection) });
 
             }
 

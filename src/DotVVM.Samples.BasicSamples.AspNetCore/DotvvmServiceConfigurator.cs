@@ -6,10 +6,10 @@ namespace DotVVM.Samples.BasicSamples
 {
     public class DotvvmServiceConfigurator : IDotvvmServiceConfigurator
     {
-        public void ConfigureServices(IDotvvmOptions options)
+        public void ConfigureServices(IDotvvmServiceCollection serviceCollection)
         {
-            CommonConfiguration.ConfigureServices(options.Services);
-            options.AddDefaultTempStorages("Temp");
+            CommonConfiguration.ConfigureServices(serviceCollection.Services);
+            serviceCollection.AddDefaultTempStorages("Temp");
         }
     }
 }

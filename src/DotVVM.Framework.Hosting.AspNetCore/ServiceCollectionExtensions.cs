@@ -18,7 +18,7 @@ namespace Microsoft.Extensions.DependencyInjection
             AddDotVVMServices(services);
 
             var options = new TServicesConfiguration();
-            var builder = new DotvvmOptions(services);
+            var builder = new DotvvmServiceCollection(services);
             options.ConfigureServices(builder);
 
             return services;

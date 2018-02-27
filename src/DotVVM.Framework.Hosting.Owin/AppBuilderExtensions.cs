@@ -30,8 +30,8 @@ namespace Owin
             where TStartup : IDotvvmStartup, new()
             where TServiceConfigurator : IDotvvmServiceConfigurator, new()
         {
-            var serviceConfiguration = new TServiceConfigurator();
-            var config = app.UseDotVVM(applicationRootPath, useErrorPages, debug, serviceConfiguration.ConfigureServices);
+            var serviceConfigurator = new TServiceConfigurator();
+            var config = app.UseDotVVM(applicationRootPath, useErrorPages, debug, serviceConfigurator.ConfigureServices);
             new TStartup().Configure(config, applicationRootPath);
             return config;
         }
@@ -50,7 +50,7 @@ namespace Owin
             where TStartup : IDotvvmStartup, new()
         {
             var startup = new TStartup();
-            Action<IDotvvmOptions> options = service => { };
+            Action<IDotvvmServiceCollection> options = service => { };
             if (startup is IDotvvmServiceConfigurator configurator)
             {
                 options = configurator.ConfigureServices;
@@ -62,7 +62,7 @@ namespace Owin
             return config;
         }
 
-        private static DotvvmConfiguration UseDotVVM(this IAppBuilder app, string applicationRootPath, bool useErrorPages, bool debug, Action<IDotvvmOptions> options)
+        private static DotvvmConfiguration UseDotVVM(this IAppBuilder app, string applicationRootPath, bool useErrorPages, bool debug, Action<IDotvvmServiceCollection> options)
         {
             var config = DotvvmConfiguration.CreateDefault(s => {
                 s.TryAddSingleton<IDataProtectionProvider>(p => new DefaultDataProtectionProvider(app));
@@ -72,7 +72,7 @@ namespace Owin
                 s.TryAddSingleton<ICookieManager, ChunkingCookieManager>();
                 s.TryAddScoped<DotvvmRequestContextStorage>(_ => new DotvvmRequestContextStorage());
                 s.TryAddScoped<IDotvvmRequestContext>(services => services.GetRequiredService<DotvvmRequestContextStorage>().Context);
-                options?.Invoke(new DotvvmOptions(s));
+                options?.Invoke(new DotvvmServiceCollection(s));
             });
 
             config.Debug = debug;

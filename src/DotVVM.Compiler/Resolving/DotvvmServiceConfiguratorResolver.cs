@@ -27,7 +27,7 @@ namespace DotVVM.Compiler.Resolving
         private List<MethodInfo> ResolveConfigureServicesMethods(Type startupType)
         {
             List<MethodInfo> methods = new List<MethodInfo>();
-            methods.Add(startupType.GetMethod("ConfigureServices", new[] { typeof(IDotvvmOptions) }));
+            methods.Add(startupType.GetMethod("ConfigureServices", new[] { typeof(IDotvvmServiceCollection) }));
             methods = methods.Where(s => s != null).ToList();
 
             if (!methods.Any())

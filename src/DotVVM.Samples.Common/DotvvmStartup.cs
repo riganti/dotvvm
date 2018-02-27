@@ -124,7 +124,7 @@ namespace DotVVM.Samples.BasicSamples
             config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/Errors/"));
         }
 
-        public void ConfigureServices(IDotvvmOptions services)
+        public void ConfigureServices(IDotvvmServiceCollection services)
         {
             CommonConfiguration.ConfigureServices(services.Services);
             services.AddDefaultTempStorages("Temp");
