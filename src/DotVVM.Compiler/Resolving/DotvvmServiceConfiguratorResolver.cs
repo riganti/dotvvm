@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Compiler.Resolving
 {
-    public class DotvvmServiceConfiguratorResolver : IStartupClassResolver
+    public class DotvvmServiceConfiguratorResolver : IDotvvmServiceConfiguratorResolver
     {
         private Type ResolveIDotvvmServiceConfiguratorClassType(Assembly assembly)
         {
