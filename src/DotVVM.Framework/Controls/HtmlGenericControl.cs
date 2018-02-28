@@ -109,7 +109,7 @@ namespace DotVVM.Framework.Controls
             {
                 AddHtmlAttributesToRender(writer);
                 AddCssClassesToRender(writer);
-                AddStylePropertiesToRender(writer);
+                AddCssStylesToRender(writer);
                 AddVisibleAttributeOrBinding(writer);
                 AddTextPropertyToRender(writer);
             }
@@ -200,7 +200,7 @@ namespace DotVVM.Framework.Controls
             if (cssClassBindingGroup != null) writer.AddKnockoutDataBind("css", cssClassBindingGroup);
         }
 
-        private void AddStylePropertiesToRender(IHtmlWriter writer)
+        private void AddCssStylesToRender(IHtmlWriter writer)
         {
             KnockoutBindingGroup cssStylesBindingGroup = null;
             foreach (var styleProperty in CssStyles.Properties)
