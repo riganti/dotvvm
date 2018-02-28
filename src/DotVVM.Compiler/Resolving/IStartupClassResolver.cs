@@ -4,6 +4,6 @@ namespace DotVVM.Compiler.Resolving
 {
     public interface IStartupClassResolver
     {
-        IServicesStartupClassExecutor GetServiceConfigureExecutor(Assembly assembly);
+        IServicesConfiguratorExecutor GetServiceConfiguratorExecutor(Assembly assembly);
     }
 }

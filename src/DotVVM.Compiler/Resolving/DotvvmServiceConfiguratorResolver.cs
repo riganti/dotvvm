@@ -21,7 +21,7 @@ namespace DotVVM.Compiler.Resolving
                     $"Assembly '{assembly.FullName}' contains more the one implementaion of IDotvvmServiceConfigurator.");
             }
 
-            return resultTypes.FirstOrDefault();
+            return resultTypes.Single();
         }
 
         private List<MethodInfo> ResolveConfigureServicesMethods(Type startupType)
@@ -32,21 +32,21 @@ namespace DotVVM.Compiler.Resolving
 
             if (!methods.Any())
             {
-                throw new ConfigurationInitializationException("Method void ConfigureServices(IDotvvmOptions options). Please follow docs https://www.dotvvm.com/docs/owin-compiler.");
+                throw new ConfigurationInitializationException("Missing method 'void ConfigureServices(IDotvvmServiceCollection serviceCollection)'.");
             }
             return methods;
         }
 
-        public IServicesStartupClassExecutor GetServiceConfigureExecutor(Assembly assembly)
+        public IServicesConfiguratorExecutor GetServiceConfiguratorExecutor(Assembly assembly)
         {
             var startupType = ResolveIDotvvmServiceConfiguratorClassType(assembly);
             if (startupType == null)
             {
-                return new NoServicesStartupClassExecutor();
+                return new NoServicesConfiguratorExecutor();
             }
             var resolvedMethods = ResolveConfigureServicesMethods(startupType);
 
-            return new ServicesStartupClassExecutor(resolvedMethods.FirstOrDefault(), startupType);
+            return new ServicesConfiguratorExecutor(resolvedMethods.FirstOrDefault(), startupType);
         }
 
     }

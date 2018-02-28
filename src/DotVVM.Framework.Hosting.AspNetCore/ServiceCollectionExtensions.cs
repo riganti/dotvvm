@@ -13,13 +13,13 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Adds DotVVM services with authorization and data protection to the specified <see cref="IServiceCollection" />.
         /// </summary>
         /// <param name="services">The <see cref="IServiceCollection" /> to add services to.</param>
-        public static IServiceCollection AddDotVVM<TServicesConfiguration>(this IServiceCollection services) where TServicesConfiguration : IDotvvmServiceConfigurator, new()
+        public static IServiceCollection AddDotVVM<TServicesConfigurator>(this IServiceCollection services) where TServicesConfigurator : IDotvvmServiceConfigurator, new()
         {
             AddDotVVMServices(services);
 
-            var options = new TServicesConfiguration();
+            var configurator = new TServicesConfigurator();
             var builder = new DotvvmServiceCollection(services);
-            options.ConfigureServices(builder);
+            configurator.ConfigureServices(builder);
 
             return services;
         }

@@ -2,7 +2,7 @@
 
 namespace DotVVM.Compiler.Resolving
 {
-    public class NoServicesStartupClassExecutor : IServicesStartupClassExecutor
+    public class NoServicesConfiguratorExecutor : IServicesConfiguratorExecutor
     {
         public void ConfigureServices(IServiceCollection collection)
         {
