@@ -20,7 +20,7 @@ namespace DotVVM.Compiler.Initialization
         internal static DotvvmConfiguration InitDotVVM(Assembly webSiteAssembly, string webSitePath, ViewStaticCompiler viewStaticCompiler, Action<IServiceCollection> additionalServices = null)
         {
             var dotvvmStartup = new DotvvmStartupClassResolver().GetDotvvmStartupInstance(webSiteAssembly);
-            var startupClass = new DotvvmServiceConfiguratorResolver().GetServiceConfiguratorExecutor(webSiteAssembly);
+            var serviceConfiguratorExecutor = new DotvvmServiceConfiguratorResolver().GetServiceConfiguratorExecutor(webSiteAssembly);
 
             var config = DotvvmConfiguration.CreateDefault(services => {
 
@@ -32,7 +32,7 @@ namespace DotVVM.Compiler.Initialization
                     services.AddSingleton(new RefObjectSerializer());
                 }
 
-                startupClass.ConfigureServices(services);
+                serviceConfiguratorExecutor.ConfigureServices(services);
                 additionalServices?.Invoke(services);
             });
 

@@ -24,17 +24,14 @@ namespace DotVVM.Compiler.Resolving
             return resultTypes.Single();
         }
 
-        private List<MethodInfo> ResolveConfigureServicesMethods(Type startupType)
+        private MethodInfo ResolveConfigureServicesMethods(Type startupType)
         {
-            List<MethodInfo> methods = new List<MethodInfo>();
-            methods.Add(startupType.GetMethod("ConfigureServices", new[] { typeof(IDotvvmServiceCollection) }));
-            methods = methods.Where(s => s != null).ToList();
-
-            if (!methods.Any())
+            var method = startupType.GetMethod("ConfigureServices", new[] {typeof(IDotvvmServiceCollection)});
+           if (method == null)
             {
                 throw new ConfigurationInitializationException("Missing method 'void ConfigureServices(IDotvvmServiceCollection serviceCollection)'.");
             }
-            return methods;
+            return method;
         }
 
         public IServiceConfiguratorExecutor GetServiceConfiguratorExecutor(Assembly assembly)
@@ -44,9 +41,9 @@ namespace DotVVM.Compiler.Resolving
             {
                 return new NoServiceConfiguratorExecutor();
             }
-            var resolvedMethods = ResolveConfigureServicesMethods(startupType);
+            var resolvedMethod = ResolveConfigureServicesMethods(startupType);
 
-            return new ServiceConfiguratorExecutor(resolvedMethods.FirstOrDefault(), startupType);
+            return new ServiceConfiguratorExecutor(resolvedMethod, startupType);
         }
 
     }
