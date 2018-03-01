@@ -50,13 +50,7 @@ namespace Owin
             where TStartup : IDotvvmStartup, new()
         {
             var startup = new TStartup();
-            IDotvvmServiceConfigurator configurator = null;
-            if (startup is IDotvvmServiceConfigurator)
-            {
-                configurator = (IDotvvmServiceConfigurator)startup;
-            }
-
-            var config = app.UseDotVVM(applicationRootPath, useErrorPages, debug, configurator);
+            var config = app.UseDotVVM(applicationRootPath, useErrorPages, debug, startup as IDotvvmServiceConfigurator);
             startup.Configure(config, applicationRootPath);
 
             return config;

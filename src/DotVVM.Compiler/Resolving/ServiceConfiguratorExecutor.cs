@@ -4,12 +4,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Compiler.Resolving
 {
-    public class ServicesConfiguratorExecutor : IServicesConfiguratorExecutor
+    public class ServiceConfiguratorExecutor : IServiceConfiguratorExecutor
     {
         private readonly MethodInfo method;
         private readonly Type startupType;
 
-        public ServicesConfiguratorExecutor(MethodInfo method, Type startupType)
+        public ServiceConfiguratorExecutor(MethodInfo method, Type startupType)
         {
             this.method = method;
             this.startupType = startupType;

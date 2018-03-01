@@ -2,7 +2,7 @@
 
 namespace DotVVM.Compiler.Resolving
 {
-    public interface IServicesConfiguratorExecutor
+    public interface IServiceConfiguratorExecutor
     {
         void ConfigureServices(IServiceCollection collection);
 

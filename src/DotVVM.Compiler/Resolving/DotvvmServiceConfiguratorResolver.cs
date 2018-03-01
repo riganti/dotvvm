@@ -37,16 +37,16 @@ namespace DotVVM.Compiler.Resolving
             return methods;
         }
 
-        public IServicesConfiguratorExecutor GetServiceConfiguratorExecutor(Assembly assembly)
+        public IServiceConfiguratorExecutor GetServiceConfiguratorExecutor(Assembly assembly)
         {
             var startupType = ResolveIDotvvmServiceConfiguratorClassType(assembly);
             if (startupType == null)
             {
-                return new NoServicesConfiguratorExecutor();
+                return new NoServiceConfiguratorExecutor();
             }
             var resolvedMethods = ResolveConfigureServicesMethods(startupType);
 
-            return new ServicesConfiguratorExecutor(resolvedMethods.FirstOrDefault(), startupType);
+            return new ServiceConfiguratorExecutor(resolvedMethods.FirstOrDefault(), startupType);
         }
 
     }
