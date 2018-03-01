@@ -134,6 +134,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Api_GithubRepoApi = "FeatureSamples/Api/GithubRepoApi";
         public const string FeatureSamples_Api_GridViewDataSetAspNetCore = "FeatureSamples/Api/GridViewDataSetAspNetCore";
         public const string FeatureSamples_Api_GridViewDataSetOwin = "FeatureSamples/Api/GridViewDataSetOwin";
+        public const string FeatureSamples_BindableCssStyles_BindableCssStyles = "FeatureSamples/BindableCssStyles/BindableCssStyles";
         public const string FeatureSamples_BindingContexts_BindingContext = "FeatureSamples/BindingContexts/BindingContext";
         public const string FeatureSamples_BindingContexts_CollectionContext = "FeatureSamples/BindingContexts/CollectionContext";
         public const string FeatureSamples_BindingNamespaces_BindingUsingNamespace = "FeatureSamples/BindingNamespaces/BindingUsingNamespace";
