@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DotVVM.Compiler
+namespace DotVVM.Compiler.Programs
 {
     /// <summary>
     /// References versions MUST match with reference versions on Dotvvm.Framework, or else compiler will not be able to load them.
@@ -12,6 +12,7 @@ namespace DotVVM.Compiler
 
         private static void Main(string[] args)
         {
+#if NET461
             if (!AppDomain.CurrentDomain.ShadowCopyFiles)
             {
                 var appDomain = AppDomain.CreateDomain("SecondaryDomainShadowCopyAllowed", null, new AppDomainSetup
@@ -21,9 +22,8 @@ namespace DotVVM.Compiler
                 appDomain.ExecuteAssemblyByName(typeof(Program).Assembly.FullName, args);
                 return;
             }
-
+#endif
             Program2.ContinueMain(args);
-      
         }
 
     }

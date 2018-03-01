@@ -67,5 +67,7 @@ namespace DotVVM.Framework.Utils
             key = pair.Key;
             value = pair.Value;
         }
+        public static IEnumerable<(int, T)> Indexed<T>(this IEnumerable<T> enumerable) =>
+            enumerable.Select((a, b) => (b, a));
     }
 }

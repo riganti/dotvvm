@@ -156,7 +156,7 @@ namespace DotVVM.Framework.Utils
             // handle exceptions
             if (value is string && type == typeof(Guid))
             {
-                return new Guid((string) value);
+                return new Guid((string)value);
             }
             if (type == typeof(object))
             {
@@ -377,5 +377,10 @@ namespace DotVVM.Framework.Utils
             member is TypeInfo type ? type.AsType() :
             throw new NotImplementedException($"Could not get return type of member {member.GetType().FullName}");
 
+        public static Type GetPublicBaseType(this Type type)
+        {
+            while (!(type.GetTypeInfo().IsPublic || type.GetTypeInfo().IsNestedPublic)) type = type.GetTypeInfo().BaseType;
+            return type;
+        }
     }
 }

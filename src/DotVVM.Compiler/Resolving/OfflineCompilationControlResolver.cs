@@ -1,20 +1,15 @@
-﻿using DotVVM.Framework.Configuration;
-using DotVVM.Framework.Runtime;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DotVVM.Compiler.Compilation;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Configuration;
 
-namespace DotVVM.Compiler
+namespace DotVVM.Compiler.Resolving
 {
     class OfflineCompilationControlResolver : DefaultControlResolver
     {
-        private ViewStaticCompilerCompiler compiler;
+        private ViewStaticCompiler compiler;
 
-        public OfflineCompilationControlResolver(DotvvmMarkupConfiguration config, IControlBuilderFactory controlBuilderFactory, ViewStaticCompilerCompiler compiler)
+        public OfflineCompilationControlResolver(DotvvmMarkupConfiguration config, IControlBuilderFactory controlBuilderFactory, ViewStaticCompiler compiler)
             : base(config, controlBuilderFactory)
         {
             this.compiler = compiler;

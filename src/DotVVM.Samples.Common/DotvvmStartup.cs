@@ -13,12 +13,15 @@ using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Samples.BasicSamples.Controls;
 using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Redirect;
 using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Serialization;
+using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand;
 using DotVVM.Samples.Common;
+using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.ServerSideStyles;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Samples.BasicSamples
 {
-    public class DotvvmStartup : IDotvvmStartup
+    public class DotvvmStartup : IDotvvmStartup, IDotvvmServiceConfigurator
     {
         public void Configure(DotvvmConfiguration config, string applicationPath)
         {
@@ -119,6 +122,14 @@ namespace DotVVM.Samples.BasicSamples
             config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/FeatureSamples/MarkupControl/"));
             config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/FeatureSamples/StaticCommand/"));
             config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/Errors/"));
+        }
+
+        public void ConfigureServices(IDotvvmServiceCollection services)
+        {
+            CommonConfiguration.ConfigureServices(services);
+            services.AddDefaultTempStorages("Temp");
+            services.AddScoped<ViewModelScopedDependency>();
+            services.AddSingleton<IGreetingComputationService, HelloGreetingComputationService>();
         }
     }
 }

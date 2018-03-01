@@ -25,11 +25,13 @@ namespace DotVVM.Framework.Binding
 
     public class BindingCompilationService
     {
+        private readonly IExpressionToDelegateCompiler expressionCompiler;
         private readonly Lazy<BindingCompilationService> noInitService;
 
-        public BindingCompilationService(IOptions<BindingCompilationOptions> options)
+        public BindingCompilationService(IOptions<BindingCompilationOptions> options, IExpressionToDelegateCompiler expressionCompiler)
         {
-            noInitService = new Lazy<BindingCompilationService>(() => new NoInitService(options));
+            this.expressionCompiler = expressionCompiler;
+            noInitService = new Lazy<BindingCompilationService>(() => new NoInitService(options, expressionCompiler));
             foreach (var p in GetDelegates(options.Value.TransformerClasses))
                 resolvers.AddDelegate(p);
         }
@@ -88,6 +90,13 @@ namespace DotVVM.Framework.Binding
                     value = postProcessor.ExceptionSafeDynamicInvoke(arguments) ?? value;
                 }
                 return value ?? new InvalidOperationException($"Could not resolve binding property '{type}'.");
+            }
+            if (typeof(Delegate).IsAssignableFrom(type))
+            {
+                var result = ComputeProperty(typeof(Expression<>).MakeGenericType(type), binding);
+                if (result is LambdaExpression lambda)
+                    return expressionCompiler.Compile(lambda);
+                else return result;
             }
             else return new InvalidOperationException($"Could not resolve binding property '{type}', resolver not found."); // don't throw the exception, since it creates noise for debugger
         }
@@ -152,9 +161,9 @@ namespace DotVVM.Framework.Binding
             select t is Delegate ? (Delegate)t : m.CreateDelegate(MethodGroupExpression.GetDelegateType(m), t)
         ).ToArray();
 
-        class NoInitService: BindingCompilationService
+        class NoInitService : BindingCompilationService
         {
-            public NoInitService(IOptions<BindingCompilationOptions> options) : base(options) { }
+            public NoInitService(IOptions<BindingCompilationOptions> options, IExpressionToDelegateCompiler expressionCompiler) : base(options, expressionCompiler) { }
 
             public override void InitializeBinding(IBinding binding, IEnumerable<BindingCompilationRequirementsAttribute> bindingRequirements = null)
             {

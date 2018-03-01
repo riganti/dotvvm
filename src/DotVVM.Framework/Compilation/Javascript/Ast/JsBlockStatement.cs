@@ -9,10 +9,10 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         public static JsTreeRole<JsStatement> BodyRole = new JsTreeRole<JsStatement>("Body");
         public JsNodeCollection<JsStatement> Body => new JsNodeCollection<JsStatement>(this, BodyRole);
 
-        public JsBlockStatement(params JsStatement[] statements) : this((IEnumerable<JsStatement>)statements) { }
-        public JsBlockStatement(IEnumerable<JsStatement> statements)
+        public JsBlockStatement(params JsStatement[] body) : this((IEnumerable<JsStatement>)body) { }
+        public JsBlockStatement(IEnumerable<JsStatement> body)
         {
-            foreach (var statement in statements) AddChild(statement, BodyRole);
+            foreach (var statement in body) AddChild(statement, BodyRole);
         }
 
         public override void AcceptVisitor(IJsNodeVisitor visitor) => visitor.VisitBlockStatement(this);
