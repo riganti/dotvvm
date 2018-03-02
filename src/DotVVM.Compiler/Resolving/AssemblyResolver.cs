@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Reflection;
 using System.Threading;
+using DotVVM.Compiler.Programs;
 
-namespace DotVVM.Compiler
+namespace DotVVM.Compiler.Resolving
 {
     public class AssemblyResolver
     {
@@ -26,7 +26,7 @@ namespace DotVVM.Compiler
                 if (r != null) return r;
                 Program2.WriteInfo($"Assembly `{args.Name}` resolve failed.");
 
-                //We cannot do typeof(sometyhing).Assembly, because besides the compiler there are no dlls, dointhat will try to load the dll from the disk
+                //We cannot do typeof(something).Assembly, because besides the compiler there are no dlls, doing that will try to load the dll from the disk
                 //which fails, so this event is called again call this event...
 
                 return null;
@@ -46,14 +46,14 @@ namespace DotVVM.Compiler
                 return Assembly.LoadFile(assemblyPath);
             }
 
-            var assemblyName = new AssemblyName(name);
-            var packages = packagesDlls.Where(s =>
-                string.Equals(s.PackageName, assemblyName.Name, StringComparison.OrdinalIgnoreCase) && assemblyName.Version == s.Version).ToList();
+            //var assemblyName = new AssemblyName(name);
+            //var packages = packagesDlls.Where(s =>
+            //    string.Equals(s.PackageName, assemblyName.Name, StringComparison.OrdinalIgnoreCase) && assemblyName.Version == s.Version).ToList();
 
-            if (packages.Any())
-            {
-                return Assembly.LoadFile(packages.First().Location);
-            }
+            //if (packages.Any())
+            //{
+            //    return Assembly.LoadFile(packages.First().Location);
+            //}
             return null;
         }
 
@@ -141,25 +141,15 @@ namespace DotVVM.Compiler
             return list;
         }
 
-        public static void LoadReferences(Assembly wsa)
+        public static void LoadReferencedAssemblies(Assembly wsa, bool recursive = false)
         {
             foreach (var referencedAssembly in wsa.GetReferencedAssemblies())
             {
                 if (AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(s => s.GetName().Name == referencedAssembly.Name) != null) continue;
                 var assembly = Assembly.Load(referencedAssembly);
-                LoadReferences(assembly);
+                if (recursive)
+                    LoadReferencedAssemblies(assembly);
             }
         }
-    }
-
-    internal class NugetDllMetadata
-    {
-        public Version Version { get; set; }
-        public string Location { get; set; }
-        public string TargetFramework { get; set; }
-        public string FileName { get; set; }
-        public List<string> DirectoryFragments { get; set; }
-        public string PackageName { get; set; }
-        public string PackageVersion { get; set; }
     }
 }

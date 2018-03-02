@@ -1,29 +1,31 @@
-﻿using DotVVM.Framework.Compilation;
-using DotVVM.Framework.Compilation.Binding;
-using DotVVM.Framework.Compilation.ControlTree;
-using DotVVM.Framework.Compilation.ControlTree.Resolved;
-using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
-using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
-using DotVVM.Framework.Compilation.Styles;
-using DotVVM.Framework.Compilation.Validation;
-using DotVVM.Framework.Configuration;
-using DotVVM.Framework.Hosting;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.Extensions.DependencyInjection;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Collections.Immutable;
-using DotVVM.Framework.Utils;
+using DotVVM.Compiler.Initialization;
+using DotVVM.Compiler.Programs;
+using DotVVM.Framework.Binding;
+using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
+using DotVVM.Framework.Compilation.Styles;
+using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Hosting;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace DotVVM.Compiler
+namespace DotVVM.Compiler.Compilation
 {
-    internal class ViewStaticCompilerCompiler
+
+    internal class ViewStaticCompiler
     {
+        private const string ObjectsClassName = "SerializedObjects";
+
         private static ConcurrentDictionary<string, Assembly> assemblyDictionary = new ConcurrentDictionary<string, Assembly>();
         private static ConcurrentDictionary<string, DotvvmConfiguration> cachedConfig = new ConcurrentDictionary<string, DotvvmConfiguration>();
 
@@ -44,10 +46,10 @@ namespace DotVVM.Compiler
             if (Options.BindingClassName == null) Options.BindingClassName = Options.BindingsAssemblyName + "." + "CompiledBindings";
         }
 
-        private DotvvmConfiguration GetCachedConfiguration(Assembly assembly, string webSitePath, Action<IServiceCollection> registerServices)
+        private DotvvmConfiguration GetCachedConfiguration(Assembly assembly, string webSitePath, Action<IServiceCollection> additionalServices)
         {
             return cachedConfig.GetOrAdd($"{assembly.GetName().Name}|{webSitePath}",
-                key => OwinInitializer.InitDotVVM(assembly, webSitePath, this, registerServices));
+                key => ConfigurationInitializer.InitDotVVM(assembly, webSitePath, this, additionalServices));
         }
 
         private void Init()
@@ -65,35 +67,38 @@ namespace DotVVM.Compiler
             }
 
             var wsa = assemblyDictionary.GetOrAdd(Options.WebSiteAssembly, _ => Assembly.LoadFile(Options.WebSiteAssembly));
-
-            AssemblyResolver.LoadReferences(wsa);
-
-
             configuration = GetCachedConfiguration(wsa, Options.WebSitePath,
-                 (services) =>
-                 {
-                     if (Options.FullCompile)
-                     {
-                         services.AddSingleton<IBindingCompiler>(s => bindingCompiler = new AssemblyBindingCompiler(Options.BindingsAssemblyName, Options.BindingClassName, Path.Combine(Options.OutputPath, Options.BindingsAssemblyName + ".dll"), s.GetRequiredService<DotvvmConfiguration>()));
-                     }
-                 });
-
-            if (Options.DothtmlFiles == null  || !Options.DothtmlFiles.Any())
-            {
-                Options.DothtmlFiles = configuration.RouteTable.Select(r => r.VirtualPath).ToArray();
-            }
-            
-            if (Options.FullCompile)
-            {
-                controlTreeResolver = configuration.ServiceProvider.GetRequiredService<IControlTreeResolver>();
-                fileLoader = configuration.ServiceProvider.GetRequiredService<IMarkupFileLoader>();
-                compiler = configuration.ServiceProvider.GetRequiredService<IViewCompiler>();
-                compilation = compiler.CreateCompilation(Options.AssemblyName);
-            }
-
+                (services) => {
+                    if (Options.FullCompile)
+                    {
+                        throw new NotImplementedException();
+                        //TODO: LAST PARAMETER | bindingCompiler = new AssemblyBindingCompiler(Options.BindingsAssemblyName, Options.BindingClassName, Path.Combine(Options.OutputPath, Options.BindingsAssemblyName + ".dll"), null);
+                        services.AddSingleton<IBindingCompiler>(bindingCompiler);
+                        services.AddSingleton<IExpressionToDelegateCompiler>(bindingCompiler.GetExpressionToDelegateCompiler());
+                    }
+                });
             if (Options.SerializeConfig)
             {
                 result.Configuration = configuration;
+            }
+
+            if (Options.DothtmlFiles == null)
+            {
+                Options.DothtmlFiles = configuration.RouteTable.Select(r => r.VirtualPath).Where(r => r != null).ToArray();
+            }
+
+
+            if (Options.FullCompile || Options.CheckBindingErrors)
+            {
+
+                controlTreeResolver = configuration.ServiceProvider.GetService<IControlTreeResolver>();
+                fileLoader = configuration.ServiceProvider.GetService<IMarkupFileLoader>();
+            }
+
+            if (Options.FullCompile)
+            {
+                compiler = configuration.ServiceProvider.GetService<IViewCompiler>();
+                compilation = compiler.CreateCompilation(Options.AssemblyName);
             }
         }
 
@@ -102,18 +107,30 @@ namespace DotVVM.Compiler
             if (Options.FullCompile)
             {
                 var bindingsAssemblyPath = bindingCompiler.OutputFileName;
+                var (builder, fields) = configuration.ServiceProvider.GetService<RefObjectSerializer>().CreateBuilder(configuration);
+                bindingCompiler.AddSerializedObjects(ObjectsClassName, builder, fields);
                 bindingCompiler.SaveAssembly();
 
                 Program2.WriteInfo($"Bindings saved to {bindingsAssemblyPath}.");
 
                 compilation = compilation.AddReferences(MetadataReference.CreateFromFile(Path.GetFullPath(bindingsAssemblyPath)));
-                var compiledViewsFileName = Path.Combine(Options.OutputPath, Options.AssemblyName + ".dll");
+                var compiledViewsFileName = Path.Combine(Options.OutputPath, Options.AssemblyName + "_Views" + ".dll");
 
                 var result = compilation.Emit(compiledViewsFileName);
                 if (!result.Success)
                 {
                     throw new Exception("The compilation failed!");
                 }
+                //TODO: merge emitted assemblies
+                //var merger = new ILMerging.ILMerge() {
+                //    OutputFile = Path.Combine(Options.OutputPath, Options.AssemblyName + ".dll"),
+                //};
+                //merger.SetInputAssemblies(new[] { compiledViewsFileName, bindingsAssemblyPath });
+                //merger.SetSearchDirectories(new[] { Path.GetDirectoryName(Options.WebSiteAssembly) });
+                //merger.Merge();
+                //File.Delete(compiledViewsFileName);
+                //File.Delete(bindingsAssemblyPath);
+
                 Program2.WriteInfo($"Compiled views saved to {compiledViewsFileName}.");
             }
         }
@@ -128,19 +145,21 @@ namespace DotVVM.Compiler
             {
                 try
                 {
-                    CompileFile(file);
+                    var viewCompilationResult = CompileFile(file);
                 }
                 catch (DotvvmCompilationException exception)
                 {
-                    result.Files.Add(file, new FileCompilationResult
-                    {
+                    result.Files.Add(file, new FileCompilationResult {
                         Errors = new List<Exception>() { exception }
                     });
                 }
             }
 
-            Program2.WriteInfo("Emitting assemblies...");
-            Save();
+            if (Options.FullCompile)
+            {
+                Program2.WriteInfo("Emitting assemblies...");
+                Save();
+            }
 
             Program2.WriteInfo("Building compilation results...");
             return result;
@@ -187,19 +206,20 @@ namespace DotVVM.Compiler
                 }
             }
 
+            var contextSpaceVisitor = new DataContextPropertyAssigningVisitor();
+            resolvedView.Accept(contextSpaceVisitor);
+
             var styleVisitor = new StylingVisitor(configuration);
             resolvedView.Accept(styleVisitor);
 
-            var validationVisitor = new ControlUsageValidationVisitor(new DefaultControlUsageValidator());
-            resolvedView.Accept(validationVisitor);
-            if (validationVisitor.Errors.Any())
-            {
-                var controlUsageError = validationVisitor.Errors.First();
-                throw new DotvvmCompilationException(controlUsageError.ErrorMessage, controlUsageError.Nodes.SelectMany(n => n.Tokens));
-            }
-
-            new LifecycleRequirementsAssigningVisitor().ApplyAction(resolvedView.Accept);
-
+            //TODO: fix usage validator
+            //var validationVisitor = new ControlUsageValidationVisitor(configuration);
+            //resolvedView.Accept(validationVisitor);
+            //if (validationVisitor.Errors.Any())
+            //{
+            //    var controlUsageError = validationVisitor.Errors.First();
+            //    throw new DotvvmCompilationException(controlUsageError.ErrorMessage, controlUsageError.Nodes.SelectMany(n => n.Tokens));
+            //}
 
             DefaultViewCompilerCodeEmitter emitter = null;
             string fullClassName = null;
@@ -208,8 +228,8 @@ namespace DotVVM.Compiler
                 var namespaceName = DefaultControlBuilderFactory.GetNamespaceFromFileName(file.FileName, file.LastWriteDateTimeUtc);
                 var className = DefaultControlBuilderFactory.GetClassFromFileName(file.FileName) + "ControlBuilder";
                 fullClassName = namespaceName + "." + className;
-                emitter = new DefaultViewCompilerCodeEmitter();
-                var compilingVisitor = new ViewCompilingVisitor(emitter, configuration.ServiceProvider.GetRequiredService<IBindingCompiler>(), className);
+                emitter = new CompileTimeCodeEmitter(configuration.ServiceProvider.GetService<RefObjectSerializer>(), ObjectsClassName);
+                var compilingVisitor = new ViewCompilingVisitor(emitter, configuration.ServiceProvider.GetService<IBindingCompiler>(), className);
 
                 resolvedView.Accept(compilingVisitor);
 
@@ -218,15 +238,14 @@ namespace DotVVM.Compiler
                     CompileFile(resolvedView.Directives["masterPage"].Single().Value);
 
                 compilation = compilation
-                    .AddSyntaxTrees(emitter.BuildTree(namespaceName, className, fileName)/*.Select(t => SyntaxFactory.ParseSyntaxTree(t.GetRoot().NormalizeWhitespace().ToString()))*/)
+                    .AddSyntaxTrees(emitter.BuildTree(namespaceName, className, fileName))
                     .AddReferences(emitter.UsedAssemblies
-                        .Select(a => CompiledAssemblyCache.Instance.GetAssemblyMetadata(a.Key).WithAliases(ImmutableArray.Create(a.Value))));
+                        .Select(a => CompiledAssemblyCache.Instance.GetAssemblyMetadata(a.Key)));
             }
 
             Program2.WriteInfo($"The view { fileName } compiled successfully.");
 
-            var res = new ViewCompilationResult
-            {
+            var res = new ViewCompilationResult {
                 BuilderClassName = fullClassName,
                 ControlType = resolvedView.Metadata.Type,
                 DataContextType = emitter?.BuilderDataContextType,
@@ -235,13 +254,5 @@ namespace DotVVM.Compiler
             BuildFileResult(fileName, res);
             return res;
         }
-    }
-
-    internal class ViewCompilationResult
-    {
-        public string BuilderClassName { get; set; }
-        public Type ControlType { get; set; }
-        public Type DataContextType { get; set; }
-        public ResolvedTreeRoot ResolvedTree { get; set; }
     }
 }

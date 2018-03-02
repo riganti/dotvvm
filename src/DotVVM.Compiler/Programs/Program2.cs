@@ -1,17 +1,17 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using DotVVM.Framework.Configuration;
+using DotVVM.Compiler.Compilation;
+using DotVVM.Compiler.Initialization;
+using DotVVM.Compiler.Resolving;
 using Newtonsoft.Json;
 
-namespace DotVVM.Compiler
+namespace DotVVM.Compiler.Programs
 {
 
     public class Program2
@@ -24,6 +24,8 @@ namespace DotVVM.Compiler
 
         public static void ContinueMain(string[] args)
         {
+            WriteTargetFramework();
+
             GetEnvironmentAssemblySearchPaths();
             AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolver.ResolveAssembly;
 
@@ -33,10 +35,14 @@ namespace DotVVM.Compiler
                 {
                     var optionsJson = ReadJsonFromStdin();
                     Options = GetCompilerOptions(optionsJson);
-                    DoCompile(Options);
+                    ProcessCompilationRequest(Options);
                 }
             }
-
+            if (args[0] == "-?")
+            {
+                WriteHelp();
+                Exit(0);
+            }
             if (args[0] == "--debugger")
             {
                 WaitForDbg();
@@ -48,9 +54,9 @@ namespace DotVVM.Compiler
                 var opt = string.Join(" ", args.Skip(1));
 
                 Options = GetCompilerOptions(opt);
-                if (!DoCompile(Options))
+                if (!ProcessCompilationRequest(Options))
                 {
-                    Environment.Exit(1);
+                    Exit(1);
                 }
             }
             else
@@ -58,9 +64,52 @@ namespace DotVVM.Compiler
                 var file = string.Join(" ", args);
                 if (!DoCompileFromFile(file))
                 {
-                    Environment.Exit(1);
+                    Exit(1);
                 }
             }
+
+        }
+
+        private static void WriteTargetFramework()
+        {
+#if NET461
+            WriteInfo("Target framework: .NET Framework 4.6");
+#elif NETCOREAPP2_0
+            WriteInfo("Target framework: .NET Standard 2.0");
+#endif
+        }
+
+        private static void WriteHelp()
+        {
+            Console.Write(@"
+DotVVM Compiler
+    --json      - Determines options for compiler
+    --debugger  - Waits as long as compiler is not attached
+
+
+JSON structure:
+        string[] DothtmlFiles           (null = build all, [] = build none)
+        string WebSiteAssembly          
+        bool OutputResolvedDothtmlMap   
+        string BindingsAssemblyName 
+        string BindingClassName 
+        string OutputPath 
+
+        string AssemblyName             
+        string WebSitePath              
+        bool FullCompile                (default: true)
+        bool CheckBindingErrors         
+        bool SerializeConfig            
+        string ConfigOutputPath
+
+");
+
+        }
+
+        private static void Exit(int exitCode)
+        {
+
+            Environment.Exit(1);
         }
 
         private static void GetEnvironmentAssemblySearchPaths()
@@ -93,14 +142,14 @@ namespace DotVVM.Compiler
         {
             var optionsJson = File.ReadAllText(file);
             var compilerOptions = GetCompilerOptions(optionsJson);
-            return DoCompile(compilerOptions);
+            return ProcessCompilationRequest(compilerOptions);
         }
 
-        private static bool DoCompile(CompilerOptions options)
+        private static bool ProcessCompilationRequest(CompilerOptions options)
         {
             InitStopwacher();
 
-            //Dont touch anything until the paths are filled we have to touch Json though
+            //Don't touch anything until the paths are filled we have to touch Json though
             try
             {
                 CompilationResult result;
@@ -108,7 +157,13 @@ namespace DotVVM.Compiler
                 {
                     // compile views
                     WriteInfo("Starting full compilation...");
-                    result = DoFullCompile(options);
+                    result = Compile(options);
+                }
+                else if (options.CheckBindingErrors)
+                {
+                    // check errors views
+                    WriteInfo("Starting error validation...");
+                    result = Compile(options);
                 }
                 else
                 {
@@ -147,16 +202,16 @@ namespace DotVVM.Compiler
             File.WriteAllText(file.FullName, serializedResult);
         }
 
-        private static CompilationResult DoFullCompile(CompilerOptions options)
+        private static CompilationResult Compile(CompilerOptions options)
         {
-            var compiler = new ViewStaticCompilerCompiler();
+            var compiler = new ViewStaticCompiler();
             compiler.Options = options;
             return compiler.Execute();
         }
         private static CompilationResult ExportConfiguration(CompilerOptions options)
         {
             var assembly = Assembly.LoadFile(options.WebSiteAssembly);
-            var config = OwinInitializer.InitDotVVM(assembly, options.WebSitePath, null, (s) => { });
+            var config = ConfigurationInitializer.InitDotVVM(assembly, options.WebSitePath, null, collection => { });
             return new CompilationResult() {
                 Configuration = config
             };

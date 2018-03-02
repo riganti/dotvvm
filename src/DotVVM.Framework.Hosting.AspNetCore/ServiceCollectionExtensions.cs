@@ -1,4 +1,5 @@
 ﻿using System;
+using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Security;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -12,8 +13,30 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Adds DotVVM services with authorization and data protection to the specified <see cref="IServiceCollection" />.
         /// </summary>
         /// <param name="services">The <see cref="IServiceCollection" /> to add services to.</param>
-        /// <param name="options">A method that can set additional DotVVM options, like temporary file stores, or replace default DotVVM components with custom ones.</param>
-        public static IServiceCollection AddDotVVM(this IServiceCollection services, Action<IDotvvmOptions> options = null)
+        public static IServiceCollection AddDotVVM<TServiceConfigurator>(this IServiceCollection services) where TServiceConfigurator : IDotvvmServiceConfigurator, new()
+        {
+            AddDotVVMServices(services);
+
+            var configurator = new TServiceConfigurator();
+            var serviceCollection = new DotvvmServiceCollection(services);
+            configurator.ConfigureServices(serviceCollection);
+
+            return services;
+        }
+
+
+
+        /// <summary>
+        /// Adds DotVVM services with authorization and data protection to the specified <see cref="IServiceCollection" />.
+        /// </summary>
+        /// <param name="services">The <see cref="IServiceCollection" /> to add services to.</param>
+        // ReSharper disable once InconsistentNaming
+        public static IServiceCollection AddDotVVM(this IServiceCollection services)
+        {
+            AddDotVVMServices(services);
+            return services;
+        }
+        private static void AddDotVVMServices(IServiceCollection services)
         {
             services
                 .AddAuthorization()
@@ -27,14 +50,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IEnvironmentNameProvider, DotvvmEnvironmentNameProvider>();
             services.TryAddScoped<DotvvmRequestContextStorage>(_ => new DotvvmRequestContextStorage());
             services.TryAddScoped<IDotvvmRequestContext>(s => s.GetRequiredService<DotvvmRequestContextStorage>().Context);
-
-            if (options != null)
-            {
-                var builder = new DotvvmOptions(services);
-                options(builder);
-            }
-
-            return services;
         }
     }
 }
