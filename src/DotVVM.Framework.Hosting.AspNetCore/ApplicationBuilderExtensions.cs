@@ -53,7 +53,7 @@ namespace Microsoft.AspNetCore.Builder
             var env = app.ApplicationServices.GetRequiredService<IHostingEnvironment>();
             var config = app.ApplicationServices.GetRequiredService<DotvvmConfiguration>();
 
-            new EnvironmentConfigurationInitializer().Initialize(config, debug ?? env.IsDevelopment());
+            new DotvvmConfigurationEnvironmentInitializer().Initialize(config, debug ?? env.IsDevelopment());
 
             config.ApplicationPhysicalPath = applicationRootPath ?? env.ContentRootPath;
 

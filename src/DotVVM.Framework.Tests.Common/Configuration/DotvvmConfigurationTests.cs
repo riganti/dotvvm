@@ -15,15 +15,15 @@ namespace DotVVM.Framework.Tests.Common.Configuration
         {
             var config1 = DotvvmTestHelper.CreateConfiguration();
 
-            new EnvironmentConfigurationInitializer().Initialize(config1, true);
+            new DotvvmConfigurationEnvironmentInitializer().Initialize(config1, true);
             Assert.ThrowsException<InvalidOperationException>(() => {
                 //another initialization need to throw exp.
-                new EnvironmentConfigurationInitializer().Initialize(config1, false);
+                new DotvvmConfigurationEnvironmentInitializer().Initialize(config1, false);
             });
 
             //another config 
             var config2 = DotvvmTestHelper.CreateConfiguration();
-            var initializer = new EnvironmentConfigurationInitializer();
+            var initializer = new DotvvmConfigurationEnvironmentInitializer();
             initializer.Initialize(config2, true);
 
             //another initialization need to throw exp.
