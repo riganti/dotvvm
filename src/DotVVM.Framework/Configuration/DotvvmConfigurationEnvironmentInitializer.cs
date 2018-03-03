@@ -6,16 +6,16 @@ using System.Text;
 
 namespace DotVVM.Framework.Configuration
 {
-    public class DotvvmConfigurationEnvironmentInitializer
+    public static class DotvvmConfigurationEnvironmentInitializer
     {
-        private static readonly ConcurrentBag<DotvvmConfiguration> initializedCofnigurations = new ConcurrentBag<DotvvmConfiguration>();
-        public void Initialize(DotvvmConfiguration config, bool debug)
+        private static readonly ConcurrentBag<DotvvmConfiguration> InitializedConfigurations = new ConcurrentBag<DotvvmConfiguration>();
+        public static void Initialize(DotvvmConfiguration config, bool debug)
         {
-            if (initializedCofnigurations.Any(s => object.ReferenceEquals(s, config)))
+            if (InitializedConfigurations.Any(s => object.ReferenceEquals(s, config)))
             {
                 throw new InvalidOperationException("DotvvmConfiguration can be initialized only once.");
             }
-            initializedCofnigurations.Add(config);
+            InitializedConfigurations.Add(config);
             config.Debug = debug;
         }
     }
