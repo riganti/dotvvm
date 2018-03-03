@@ -89,7 +89,7 @@ namespace DotVVM.Framework.Configuration
         /// Gets or sets whether the application should run in debug mode.
         /// </summary>
         [JsonProperty("debug", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public bool Debug { get; set; }
+        public bool Debug { get; internal set; }
 
         [JsonIgnore]
         public Dictionary<string, IRouteParameterConstraint> RouteConstraints { get; } = new Dictionary<string, IRouteParameterConstraint>();

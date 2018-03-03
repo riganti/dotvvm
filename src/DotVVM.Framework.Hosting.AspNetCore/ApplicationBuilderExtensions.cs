@@ -26,10 +26,11 @@ namespace Microsoft.AspNetCore.Builder
         /// A value indicating whether to show detailed error page if an exception occurs. It is enabled by default
         /// if <see cref="HostingEnvironmentExtensions.IsDevelopment" /> returns <c>true</c>.
         /// </param>
-        public static DotvvmConfiguration UseDotVVM<TStartup>(this IApplicationBuilder app, string applicationRootPath = null, bool? useErrorPages = null)
+        /// <param name="debug">A value indicating whether the application should run in debug mode.</param>
+        public static DotvvmConfiguration UseDotVVM<TStartup>(this IApplicationBuilder app, string applicationRootPath = null, bool? useErrorPages = null, bool? debug = null)
             where TStartup : IDotvvmStartup, new()
         {
-            var config = app.UseDotVVM(applicationRootPath, useErrorPages);
+            var config = app.UseDotVVM(applicationRootPath, useErrorPages, debug);
             new TStartup().Configure(config, applicationRootPath);
             return config;
         }
@@ -46,12 +47,14 @@ namespace Microsoft.AspNetCore.Builder
         /// A value indicating whether to show detailed error page if an exception occurs. It is enabled by default
         /// if <see cref="HostingEnvironmentExtensions.IsDevelopment" /> returns <c>true</c>.
         /// </param>
-        public static DotvvmConfiguration UseDotVVM(this IApplicationBuilder app, string applicationRootPath, bool? useErrorPages)
+        /// <param name="debug">A value indicating whether the application should run in debug mode.</param>
+        public static DotvvmConfiguration UseDotVVM(this IApplicationBuilder app, string applicationRootPath, bool? useErrorPages, bool? debug)
         {
             var env = app.ApplicationServices.GetRequiredService<IHostingEnvironment>();
             var config = app.ApplicationServices.GetRequiredService<DotvvmConfiguration>();
 
-            config.Debug = env.IsDevelopment();
+            new EnvironmentConfigurationInitializer().Initialize(config, debug ?? env.IsDevelopment());
+
             config.ApplicationPhysicalPath = applicationRootPath ?? env.ContentRootPath;
 
             if (useErrorPages ?? env.IsDevelopment())

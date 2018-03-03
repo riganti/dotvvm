@@ -69,7 +69,7 @@ namespace Owin
                 configurator?.ConfigureServices(new DotvvmServiceCollection(s));
             });
 
-            config.Debug = debug;
+            new EnvironmentConfigurationInitializer().Initialize(config, debug);
             config.ApplicationPhysicalPath = applicationRootPath;
 
             if (useErrorPages)
