@@ -1,0 +1,25 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.TextBox.TextBoxTypesViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <div class="container">
+        <h1>TextBox Types sample</h1>
+
+        <dot:TextBox Text="{value: Date}" Type="Date" data-ui="date-textbox" FormatString="G"/>
+        <br />
+        <dot:TextBox Text="{value: NullableDate}" Type="Date" data-ui="nullable-date-textbox" />
+        <br />
+        <dot:TextBox Text="{value: Number}" Type="Number" data-ui="number-textbox" FormatString="G"/>
+        <br />
+        <dot:TextBox Text="{value: NullableNumber}" Type="Number" data-ui="nullable-number-textbox" />
+    </div>
+</body>
+</html>
+
+

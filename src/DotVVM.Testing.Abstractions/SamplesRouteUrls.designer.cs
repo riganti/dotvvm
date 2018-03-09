@@ -103,6 +103,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_TextBox_TextBox_Format = "ControlSamples/TextBox/TextBox_Format";
         public const string ControlSamples_TextBox_TextBox_FormatDoubleProperty = "ControlSamples/TextBox/TextBox_FormatDoubleProperty";
         public const string ControlSamples_TextBox_TextBox_Format_Binding = "ControlSamples/TextBox/TextBox_Format_Binding";
+        public const string ControlSamples_TextBox_TextBox_Types = "ControlSamples/TextBox/TextBox_Types";
         public const string ControlSamples_UpdateProgress_UpdateProgress = "ControlSamples/UpdateProgress/UpdateProgress";
         public const string ControlSamples_UpdateProgress_UpdateProgressDelay = "ControlSamples/UpdateProgress/UpdateProgressDelay";
         public const string ControlSamples_ValidationSummary_IncludeErrorsFromTarget_PropertyPathNotNull = "ControlSamples/ValidationSummary/IncludeErrorsFromTarget_PropertyPathNotNull";
