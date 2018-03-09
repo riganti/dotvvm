@@ -125,11 +125,21 @@ namespace DotVVM.Framework.Controls
 
         protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
-            isFormattingRequired = !string.IsNullOrEmpty(FormatString) ||
-                #pragma warning disable
+            if (!string.IsNullOrEmpty(FormatString) && (Type == TextBoxType.Number || Type == TextBoxType.Date))
+            {
+                throw new NotSupportedException($"Property StringFormat cannot be used with Type set to '{ Type }'." +
+                    $" In this case browsers localize '{ Type }' themselves.");
+            }
+
+            // Don't format <input type="Number" ... browsers expect
+            // value in specific format and localization breaks it
+            isFormattingRequired =  Type != TextBoxType.Number &&
+                (!string.IsNullOrEmpty(FormatString) ||
+#pragma warning disable
                 ValueType != FormatValueType.Text ||
-                #pragma warning restore
-                NeedsFormatting(GetValueBinding(TextProperty));
+#pragma warning restore
+                NeedsFormatting(GetValueBinding(TextProperty)));
+
             if (isFormattingRequired)
             {
                 context.ResourceManager.AddCurrentCultureGlobalizationResource();
