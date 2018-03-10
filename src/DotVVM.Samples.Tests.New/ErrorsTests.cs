@@ -291,6 +291,23 @@ namespace DotVVM.Samples.Tests
             });
         }
 
+
+        /// <summary>
+        /// Tests whether exception contains information about filet that was not found.
+        /// The exception occurs in case that user has incorrectly registered route with incorrect path to dothtml file.
+        /// </summary>
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.Errors_Routing_NonExistingView))]
+        public void Errors_Routing_NonExistingView()
+        {
+            
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_Routing_NonExistingView);
+                AssertUI.InnerText(browser.First(".exceptionMessage"),
+                    s => s.Contains("Views/Errors/Routing/NonExistingView.dothml"),
+                    "Exception should contain information about file that was not found.");
+            });
+        }
         [Fact(Skip = "Test is not reliable.")]
         [SampleReference(nameof(SamplesRouteUrls.Errors_FieldInValueBinding))]
         public void Error_ExceptionWindow_GitHubRedirect()

@@ -51,7 +51,7 @@ namespace DotVVM.Framework.Compilation
         /// </summary>
         public (ControlBuilderDescriptor descriptor, Lazy<IControlBuilder> builder) GetControlBuilder(string virtualPath)
         {
-            var markupFile = markupFileLoader.GetMarkup(configuration, virtualPath);
+            var markupFile = markupFileLoader.GetMarkup(configuration, virtualPath) ?? throw  new DotvvmCompilationException($"File '{virtualPath}' was not found. This exception is possibly caused because of incorrect route registration.");
             return controlBuilders.GetOrAdd(markupFile, CreateControlBuilder);
         }
 
