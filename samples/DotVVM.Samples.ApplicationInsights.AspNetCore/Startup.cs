@@ -39,12 +39,7 @@ namespace DotVVM.Samples.ApplicationInsights.AspNetCore
 
         public static void ConfigureDotvvmServices(IServiceCollection services)
         {
-            services.AddDotVVM(options =>
-            {
-                options
-                    .AddDefaultTempStorages("Temp")
-                    .AddApplicationInsightsTracing();
-            });
+            services.AddDotVVM<DotvvmStartup>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

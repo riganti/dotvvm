@@ -1,8 +1,10 @@
 using DotVVM.Framework.Configuration;
+using DotVVM.Tracing.MiniProfiler.Owin;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Samples.MiniProfiler.Owin
 {
-    public class DotvvmStartup : IDotvvmStartup
+    public class DotvvmStartup : IDotvvmStartup, IDotvvmServiceConfigurator
     {
         // For more information about this class, visit https://dotvvm.com/docs/tutorials/basics-project-structure
         public void Configure(DotvvmConfiguration config, string applicationPath)
@@ -28,6 +30,14 @@ namespace DotVVM.Samples.MiniProfiler.Owin
         private void ConfigureResources(DotvvmConfiguration config, string applicationPath)
         {
             // register custom resources and adjust paths to the built-in resources
+        }
+
+        public void ConfigureServices(IDotvvmServiceCollection serviceCollection)
+        {
+            serviceCollection
+                    .AddDefaultTempStorages("temp")
+                    .AddMiniProfilerEventTracing();
+            
         }
     }
 }

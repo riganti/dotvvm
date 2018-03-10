@@ -27,15 +27,16 @@ namespace DotVVM.Samples.MiniProfiler.Owin
             StackExchange.Profiling.MiniProfiler.Settings.Results_List_Authorize = (r) => true;
 
             // use DotVVM
-            var dotvvmConfiguration = app.UseDotVVM<DotvvmStartup>(applicationPhysicalPath, options: options =>
-            {
-                options
-                    .AddDefaultTempStorages("temp")
-                    .AddMiniProfilerEventTracing();
-            });
+            var dotvvmConfiguration = app.UseDotVVM<DotvvmStartup>(applicationPhysicalPath, IsDebug());
+
+        }
+
+        private bool IsDebug()
+        {
 #if !DEBUG
-            dotvvmConfiguration.Debug = false;
+            return false;
 #endif
+            return true;
         }
     }
 }

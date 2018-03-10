@@ -11,10 +11,10 @@ namespace DotVVM.Tracing.ApplicationInsights.Owin
         /// </summary>
         /// <param name="options"></param>
         /// <returns></returns>
-        public static IDotvvmOptions AddApplicationInsightsTracing(this IDotvvmOptions options)
+        public static IDotvvmServiceCollection AddApplicationInsightsTracing(this IDotvvmServiceCollection options)
         {
             options.AddApplicationInsightsTracingInternal();
-            options.Services.AddTransient<IConfigureOptions<DotvvmConfiguration>, ApplicationInsightSetup>();
+            options.AddTransient<IConfigureOptions<DotvvmConfiguration>, ApplicationInsightSetup>();
 
             return options;
         }

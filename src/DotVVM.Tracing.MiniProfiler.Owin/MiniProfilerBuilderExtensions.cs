@@ -14,10 +14,10 @@ namespace DotVVM.Tracing.MiniProfiler.Owin
         /// </summary>
         /// <param name="options"></param>
         /// <returns></returns>
-        public static IDotvvmOptions AddMiniProfilerEventTracing(this IDotvvmOptions options)
+        public static IDotvvmServiceCollection AddMiniProfilerEventTracing(this IDotvvmServiceCollection options)
         {
-            options.Services.AddTransient<IRequestTracer, MiniProfilerTracer>();
-            options.Services.AddTransient<IConfigureOptions<DotvvmConfiguration>, MiniProfilerSetup>();
+            options.AddTransient<IRequestTracer, MiniProfilerTracer>();
+            options.AddTransient<IConfigureOptions<DotvvmConfiguration>, MiniProfilerSetup>();
 
             return options;
         }

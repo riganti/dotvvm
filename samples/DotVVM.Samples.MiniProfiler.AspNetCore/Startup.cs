@@ -18,13 +18,8 @@ namespace DotVVM.Samples.MiniProfiler.AspNetCore
             services.AddAuthorization();
             services.AddWebEncoders();
 
-            services.AddDotVVM(options =>
-            {
-                options
-                    .AddDefaultTempStorages("Temp")
-                    .AddMiniProfilerEventTracing();
-            });
-
+            services.AddDotVVM<DotvvmStartup>();
+    
             services.AddMemoryCache();
 
             services.AddMiniProfiler(options =>

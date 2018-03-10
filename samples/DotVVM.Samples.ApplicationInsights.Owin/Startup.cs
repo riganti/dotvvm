@@ -17,15 +17,16 @@ namespace DotVVM.Samples.ApplicationInsights.Owin
             var applicationPhysicalPath = HostingEnvironment.ApplicationPhysicalPath;
 
             // use DotVVM
-            var dotvvmConfiguration = app.UseDotVVM<DotvvmStartup>(applicationPhysicalPath, options: options =>
-            {
-                options
-                    .AddDefaultTempStorages("temp")
-                    .AddApplicationInsightsTracing();
-            });
+            var dotvvmConfiguration = app.UseDotVVM<DotvvmStartup>(applicationPhysicalPath, debug: IsDebug());
+
+        }
+
+        private bool IsDebug()
+        {
 #if !DEBUG
-            dotvvmConfiguration.Debug = false;
+          return  false;
 #endif
+            return true;
         }
     }
 }

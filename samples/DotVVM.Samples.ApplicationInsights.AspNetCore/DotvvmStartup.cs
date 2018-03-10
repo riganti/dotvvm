@@ -2,10 +2,12 @@ using DotVVM.Framework;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Routing;
 using DotVVM.Tracing.ApplicationInsights;
+using DotVVM.Tracing.ApplicationInsights.AspNetCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Samples.ApplicationInsights.AspNetCore
 {
-    public class DotvvmStartup : IDotvvmStartup
+    public class DotvvmStartup : IDotvvmStartup, IDotvvmServiceConfigurator
     {
         // For more information about this class, visit https://dotvvm.com/docs/tutorials/basics-project-structure
         public void Configure(DotvvmConfiguration config, string applicationPath)
@@ -35,6 +37,14 @@ namespace DotVVM.Samples.ApplicationInsights.AspNetCore
         private void ConfigureResources(DotvvmConfiguration config, string applicationPath)
         {
             // register custom resources and adjust paths to the built-in resources
+        }
+
+        public void ConfigureServices(IDotvvmServiceCollection serviceCollection)
+        {
+            serviceCollection
+                .AddDefaultTempStorages("Temp")
+                .AddApplicationInsightsTracing();
+
         }
     }
 }
