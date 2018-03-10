@@ -86,7 +86,9 @@ namespace DotVVM.Framework.Configuration
         public bool ClientSideValidation { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets whether the application should run in debug mode.
+        /// Gets whether the application should run in debug mode.
+        /// To set debug mode use parameter debug at IAppBuilder.UseDotVVM() or set environment variable ASPNETCORE_ENVIRONMENT.
+        /// For ASP.NET Core checkout <see cref="!:https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments" >https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments</see>   
         /// </summary>
         [JsonProperty("debug", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public bool Debug { get; internal set; }
@@ -148,11 +150,10 @@ namespace DotVVM.Framework.Configuration
         /// <param name="serviceProvider">The service provider to resolve services from.</param>
         public static DotvvmConfiguration CreateDefault(IServiceProvider serviceProvider)
         {
-            var config = new DotvvmConfiguration
-            {
-                #pragma warning disable
+            var config = new DotvvmConfiguration {
+#pragma warning disable
                 ServiceLocator = new ServiceLocator(serviceProvider),
-                #pragma warning restore
+#pragma warning restore
                 ServiceProvider = serviceProvider
             };
 
@@ -178,7 +179,7 @@ namespace DotVVM.Framework.Configuration
         }
 
         private static void ConfigureOptions<T>(T obj, IServiceProvider serviceProvider)
-            where T: class
+            where T : class
         {
             foreach (var conf in serviceProvider.GetServices<IConfigureOptions<T>>())
             {
@@ -199,22 +200,19 @@ namespace DotVVM.Framework.Configuration
             configuration.RouteConstraints.Add("posint", GenericRouteParameterType.Create<int>("[0-9]*?", Invariant.TryParse));
             configuration.RouteConstraints.Add("length", new GenericRouteParameterType(p => "[^/]{" + p + "}"));
             configuration.RouteConstraints.Add("long", GenericRouteParameterType.Create<long>("-?[0-9]*?", Invariant.TryParse));
-            configuration.RouteConstraints.Add("max", new GenericRouteParameterType(p => "-?[0-9.e]*?", (valueString, parameter) =>
-            {
+            configuration.RouteConstraints.Add("max", new GenericRouteParameterType(p => "-?[0-9.e]*?", (valueString, parameter) => {
                 double value;
                 if (!Invariant.TryParse(valueString, out value)) return ParameterParseResult.Failed;
                 if (double.Parse(parameter, CultureInfo.InvariantCulture) < value) return ParameterParseResult.Failed;
                 return ParameterParseResult.Create(value);
             }));
-            configuration.RouteConstraints.Add("min", new GenericRouteParameterType(p => "-?[0-9.e]*?", (valueString, parameter) =>
-            {
+            configuration.RouteConstraints.Add("min", new GenericRouteParameterType(p => "-?[0-9.e]*?", (valueString, parameter) => {
                 double value;
                 if (!Invariant.TryParse(valueString, out value)) return ParameterParseResult.Failed;
                 if (double.Parse(parameter, CultureInfo.InvariantCulture) > value) return ParameterParseResult.Failed;
                 return ParameterParseResult.Create(value);
             }));
-            configuration.RouteConstraints.Add("range", new GenericRouteParameterType(p => "-?[0-9.e]*?", (valueString, parameter) =>
-            {
+            configuration.RouteConstraints.Add("range", new GenericRouteParameterType(p => "-?[0-9.e]*?", (valueString, parameter) => {
                 double value;
                 if (!Invariant.TryParse(valueString, out value)) return ParameterParseResult.Failed;
                 var split = parameter.Split(',');
@@ -236,8 +234,7 @@ namespace DotVVM.Framework.Configuration
             configuration.Resources.Register(ResourceConstants.DotvvmResourceName + ".internal",
                 new ScriptResource(new EmbeddedResourceLocation(
                     typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
-                    "DotVVM.Framework.Resources.Scripts.DotVVM.min.js"))
-                {
+                    "DotVVM.Framework.Resources.Scripts.DotVVM.min.js")) {
                     Dependencies = new[] { ResourceConstants.KnockoutJSResourceName, ResourceConstants.PolyfillResourceName }
                 });
             configuration.Resources.Register(ResourceConstants.DotvvmResourceName,
@@ -248,8 +245,7 @@ namespace DotVVM.Framework.Configuration
             configuration.Resources.Register(ResourceConstants.DotvvmDebugResourceName,
                 new ScriptResource(new EmbeddedResourceLocation(
                     typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
-                    "DotVVM.Framework.Resources.Scripts.DotVVM.Debug.js"))
-                {
+                    "DotVVM.Framework.Resources.Scripts.DotVVM.Debug.js")) {
                     Dependencies = new[] { ResourceConstants.DotvvmResourceName }
                 });
 
