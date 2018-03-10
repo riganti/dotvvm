@@ -81,7 +81,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 
         /// Wraps the expression in `dotvvm.evaluator.wrapExpression` if needed
         public static JsExpression EnsureObservableWrapped(this JsExpression expression) =>
-            // It's not needed to wrap if none of the descendants return an observalbe
+            // It's not needed to wrap if none of the descendants return an observable
             !expression.DescendantNodes().Any(n => (n.HasAnnotation<ResultIsObservableAnnotation>() && !n.HasAnnotation<ShouldBeObservableAnnotation>()) || n.HasAnnotation<ObservableUnwrapInvocationAnnotation>()) ?
 
                 expression.WithAnnotation(ShouldBeObservableAnnotation.Instance) :
