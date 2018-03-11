@@ -12,11 +12,13 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection
     public class ViewModelScopedServiceViewModel : DotvvmViewModelBase
     {
         public int DependencyInstanceID { get; }
+        public int DependencyInstanceID2 { get; }
 
         public ViewModelScopedServiceViewModel(ViewModelScopedDependency dependency, IServiceProvider serviceProvider, DotvvmConfiguration configuration)
         {
             DependencyInstanceID = dependency.InstanceID;
             var v = serviceProvider.GetService<ViewModelScopedDependency>();
+            DependencyInstanceID2 = v.InstanceID;
             // Check that the IServiceProvider has the same service as the service injected into constructor
             Debug.Assert(dependency.InstanceID == v.InstanceID);
         }

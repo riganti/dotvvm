@@ -30,10 +30,7 @@ namespace Owin
             where TStartup : IDotvvmStartup, new()
             where TServiceConfigurator : IDotvvmServiceConfigurator, new()
         {
-            var serviceConfigurator = new TServiceConfigurator();
-            var config = app.UseDotVVM(applicationRootPath, useErrorPages, debug, serviceConfigurator);
-            new TStartup().Configure(config, applicationRootPath);
-            return config;
+            return app.UseDotVVM(applicationRootPath, useErrorPages, debug, new TServiceConfigurator(), new TStartup());
         }
 
         /// <summary>
@@ -50,13 +47,10 @@ namespace Owin
             where TStartup : IDotvvmStartup, new()
         {
             var startup = new TStartup();
-            var config = app.UseDotVVM(applicationRootPath, useErrorPages, debug, startup as IDotvvmServiceConfigurator);
-            startup.Configure(config, applicationRootPath);
-
-            return config;
+            return app.UseDotVVM(applicationRootPath, useErrorPages, debug, startup as IDotvvmServiceConfigurator, startup);
         }
 
-        private static DotvvmConfiguration UseDotVVM(this IAppBuilder app, string applicationRootPath, bool useErrorPages, bool debug, IDotvvmServiceConfigurator configurator)
+        private static DotvvmConfiguration UseDotVVM(this IAppBuilder app, string applicationRootPath, bool useErrorPages, bool debug, IDotvvmServiceConfigurator configurator, IDotvvmStartup startup)
         {
             var config = DotvvmConfiguration.CreateDefault(s => {
                 s.TryAddSingleton<IDataProtectionProvider>(p => new DefaultDataProtectionProvider(app));
@@ -68,9 +62,11 @@ namespace Owin
                 s.TryAddScoped<IDotvvmRequestContext>(services => services.GetRequiredService<DotvvmRequestContextStorage>().Context);
                 configurator?.ConfigureServices(new DotvvmServiceCollection(s));
             });
-
-            DotvvmConfigurationEnvironmentInitializer.Initialize(config, debug);
+            config.Debug = debug;
             config.ApplicationPhysicalPath = applicationRootPath;
+
+            startup.Configure(config, applicationRootPath);
+
 
             if (useErrorPages)
             {

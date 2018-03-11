@@ -29,12 +29,11 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Adds essential DotVVM services to the specified <see cref="IServiceCollection" />.
         /// </summary>
         /// <param name="services">The <see cref="IServiceCollection" /> to add services to.</param>
-        /// <param name="allowDebugServices">If the vs-diagnostics services should be registered</param>
-        public static IServiceCollection RegisterDotVVMServices(IServiceCollection services, bool allowDebugServices = true)
+        public static IServiceCollection RegisterDotVVMServices(IServiceCollection services)
         {
             services.AddOptions();
 
-            if (allowDebugServices) services.AddDiagnosticServices();
+            services.AddDiagnosticServices();
 
             services.TryAddSingleton<IDotvvmViewBuilder, DefaultDotvvmViewBuilder>();
             services.TryAddSingleton<IViewModelSerializer, DefaultViewModelSerializer>();
@@ -97,9 +96,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IDiagnosticsInformationSender, DiagnosticsInformationSender>();
 
             services.TryAddSingleton<IOutputRenderer, DiagnosticsRenderer>();
-            services.AddScoped<DiagnosticsRequestTracer>(s => {
-                return new DiagnosticsRequestTracer(s.GetRequiredService<IDiagnosticsInformationSender>());
-            });
+            services.AddScoped<DiagnosticsRequestTracer>(s => new DiagnosticsRequestTracer(s.GetRequiredService<IDiagnosticsInformationSender>()));
             services.AddScoped<IRequestTracer>(s => {
                 var config = s.GetRequiredService<DotvvmConfiguration>();
                 return (config.Debug ? (IRequestTracer)s.GetService<DiagnosticsRequestTracer>() : null) ?? new NullRequestTracer();

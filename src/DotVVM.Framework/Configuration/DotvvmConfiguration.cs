@@ -86,12 +86,11 @@ namespace DotVVM.Framework.Configuration
         public bool ClientSideValidation { get; set; } = true;
 
         /// <summary>
-        /// Gets whether the application should run in debug mode.
-        /// To set debug mode use parameter debug at IAppBuilder.UseDotVVM() or set environment variable ASPNETCORE_ENVIRONMENT.
+        /// Gets or sets whether the application should run in debug mode.
         /// For ASP.NET Core checkout <see cref="!:https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments" >https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments</see>   
         /// </summary>
         [JsonProperty("debug", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public bool Debug { get; internal set; }
+        public bool Debug { get; set; }
 
         [JsonIgnore]
         public Dictionary<string, IRouteParameterConstraint> RouteConstraints { get; } = new Dictionary<string, IRouteParameterConstraint>();

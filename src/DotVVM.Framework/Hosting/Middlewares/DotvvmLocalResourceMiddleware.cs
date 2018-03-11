@@ -13,13 +13,11 @@ namespace DotVVM.Framework.Hosting.Middlewares
     public class DotvvmLocalResourceMiddleware : IMiddleware
     {
         private readonly ILocalResourceUrlManager urlManager;
-        private readonly ConcurrentDictionary<string, string> alternateDirectories;
         private readonly DotvvmConfiguration config;
 
         public DotvvmLocalResourceMiddleware(ILocalResourceUrlManager urlManager, DotvvmConfiguration configuration)
         {
             this.urlManager = urlManager;
-            this.alternateDirectories = configuration.Debug ? new ConcurrentDictionary<string, string>() : null;
             this.config = configuration;
         }
 

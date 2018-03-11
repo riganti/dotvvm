@@ -9,24 +9,41 @@ namespace DotVVM.Framework.Diagnostics
 
     public class DotvvmDiagnosticsConfiguration
     {
-        public DotvvmDiagnosticsConfiguration()
-        {
-            LoadConfiguration();
-        }
+       
 
         private DiagnosticsServerConfiguration configuration;
+        private DateTime configurationLastWriteTimeUtc;
 
-        public string DiagnosticsServerHostname => configuration?.HostName;
+        public string DiagnosticsServerHostname
+        {
+            get
+            {
+                EnsureConfigurationValid();
+                return configuration?.HostName;
+            }
+        }
 
-        public int? DiagnosticsServerPort => configuration?.Port;
 
-        private void LoadConfiguration()
+
+        public int? DiagnosticsServerPort
+        {
+            get
+            {
+                EnsureConfigurationValid();
+                return configuration?.Port;
+            }
+        }
+
+        private void EnsureConfigurationValid()
         {
             try
             {
                 var path = DiagnosticsServerConfiguration.DiagnosticsFilePath;
-                if (path != null && File.Exists(path))
+                var info = new FileInfo(path);
+                if (info.Exists && configurationLastWriteTimeUtc != info.LastWriteTimeUtc)
                 {
+                    configurationLastWriteTimeUtc = info.LastWriteTimeUtc;
+
                     var diagnosticsJson = File.ReadAllText(path);
                     configuration = JsonConvert.DeserializeObject<DiagnosticsServerConfiguration>(diagnosticsJson);
                 }

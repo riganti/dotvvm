@@ -26,13 +26,10 @@ namespace Microsoft.AspNetCore.Builder
         /// A value indicating whether to show detailed error page if an exception occurs. It is enabled by default
         /// if <see cref="HostingEnvironmentExtensions.IsDevelopment" /> returns <c>true</c>.
         /// </param>
-        /// <param name="debug">A value indicating whether the application should run in debug mode.</param>
-        public static DotvvmConfiguration UseDotVVM<TStartup>(this IApplicationBuilder app, string applicationRootPath = null, bool? useErrorPages = null, bool? debug = null)
+        public static DotvvmConfiguration UseDotVVM<TStartup>(this IApplicationBuilder app, string applicationRootPath = null, bool? useErrorPages = null)
             where TStartup : IDotvvmStartup, new()
         {
-            var config = app.UseDotVVM(applicationRootPath, useErrorPages, debug);
-            new TStartup().Configure(config, applicationRootPath);
-            return config;
+            return app.UseDotVVM(applicationRootPath, useErrorPages, new TStartup());
         }
 
         /// <summary>
@@ -47,22 +44,27 @@ namespace Microsoft.AspNetCore.Builder
         /// A value indicating whether to show detailed error page if an exception occurs. It is enabled by default
         /// if <see cref="HostingEnvironmentExtensions.IsDevelopment" /> returns <c>true</c>.
         /// </param>
-        /// <param name="debug">A value indicating whether the application should run in debug mode.</param>
-        public static DotvvmConfiguration UseDotVVM(this IApplicationBuilder app, string applicationRootPath, bool? useErrorPages, bool? debug)
+        public static DotvvmConfiguration UseDotVVM(this IApplicationBuilder app, string applicationRootPath, bool? useErrorPages)
         {
+            return UseDotVVM(app, applicationRootPath, useErrorPages, null);
+        }
+
+        private static DotvvmConfiguration UseDotVVM(this IApplicationBuilder app, string applicationRootPath, bool? useErrorPages, IDotvvmStartup startup)
+        {
+
             var env = app.ApplicationServices.GetRequiredService<IHostingEnvironment>();
             var config = app.ApplicationServices.GetRequiredService<DotvvmConfiguration>();
-
-            DotvvmConfigurationEnvironmentInitializer.Initialize(config, debug ?? env.IsDevelopment());
-
+            config.Debug = env.IsDevelopment();
             config.ApplicationPhysicalPath = applicationRootPath ?? env.ContentRootPath;
+            startup.Configure(config, applicationRootPath);
 
             if (useErrorPages ?? env.IsDevelopment())
             {
                 app.UseMiddleware<DotvvmErrorPageMiddleware>();
             }
 
-            app.UseMiddleware<DotvvmMiddleware>(config, new List<IMiddleware> {
+            app.UseMiddleware<DotvvmMiddleware>(config, new List<IMiddleware>
+            {
                 ActivatorUtilities.CreateInstance<DotvvmLocalResourceMiddleware>(app.ApplicationServices),
                 DotvvmFileUploadMiddleware.TryCreate(app.ApplicationServices),
                 new DotvvmReturnedFileMiddleware(),
