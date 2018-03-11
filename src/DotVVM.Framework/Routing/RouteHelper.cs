@@ -8,10 +8,11 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Routing
 {
-    public static class RouteHelper
+    public static partial class RouteHelper
     {
         public static void AutoRegisterRoutes(this DotvvmRouteTable routeTable, DotvvmConfiguration configuration, string path = "", string pattern = "*.dothtml") =>
             routeTable.AutoRegisterRoutes(configuration, null, path, pattern);
@@ -35,5 +36,54 @@ namespace DotVVM.Framework.Routing
                 table.Add(route.RouteName, route);
             }
         }
+
+        public static void AssertConfigurationIsValid(this DotvvmConfiguration config)
+        {
+            var invalidRoutes = new List<DotvvmConfigurationAssertResult<RouteBase>>();
+            var invalidControls = new List<DotvvmConfigurationAssertResult<DotvvmControlConfiguration>>();
+            var loader = new AggregateMarkupFileLoader();
+            foreach (var route in config.RouteTable.Where(s => !string.IsNullOrWhiteSpace(s.VirtualPath)))
+            {
+                if (string.IsNullOrWhiteSpace(route.RouteName))
+                {
+                    invalidRoutes.Add(new DotvvmConfigurationAssertResult<RouteBase>(route, DotvvmConfigurationAssertReason.MissingRouteName));
+                }
+
+                var content = loader.GetMarkup(config, route.VirtualPath);
+                if (content == null)
+                {
+                    invalidRoutes.Add(new DotvvmConfigurationAssertResult<RouteBase>(route, DotvvmConfigurationAssertReason.MissingFile));
+                }
+            }
+            foreach (var control in config.Markup.Controls.Where(s => !string.IsNullOrWhiteSpace(s.Src)))
+            {
+                if (string.IsNullOrWhiteSpace(control.TagPrefix))
+                {
+                    invalidControls.Add(new DotvvmConfigurationAssertResult<DotvvmControlConfiguration>(control, DotvvmConfigurationAssertReason.MissingControlTagPrefix));
+                    break;
+                }
+
+                if (string.IsNullOrWhiteSpace(control.TagName) && !string.IsNullOrWhiteSpace(control.Src))
+                {
+                    invalidControls.Add(new DotvvmConfigurationAssertResult<DotvvmControlConfiguration>(control, DotvvmConfigurationAssertReason.MissingControlTagName));
+                    break;
+                }
+
+                var content = loader.GetMarkup(config, control.Src);
+                if (content == null)
+                {
+                    invalidControls.Add(new DotvvmConfigurationAssertResult<DotvvmControlConfiguration>(control, DotvvmConfigurationAssertReason.MissingFile));
+                }
+            }
+
+            if (invalidControls.Any() || invalidRoutes.Any())
+            {
+                throw new DotvvmConfigurationException(invalidRoutes, invalidControls);
+            }
+
+
+        }
+
+
     }
 }

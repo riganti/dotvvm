@@ -3,6 +3,7 @@ using System.Globalization;
 using System.IO;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Routing;
 using DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth;
 using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
