@@ -4,7 +4,6 @@
     {
         MissingFile,
         MissingRouteName,
-        MissingControlTagPrefix,
-        MissingControlTagName
+        InvalidCombination
     }
 }
