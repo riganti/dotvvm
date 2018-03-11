@@ -58,7 +58,7 @@ namespace Microsoft.AspNetCore.Builder
             config.ApplicationPhysicalPath = applicationRootPath ?? env.ContentRootPath;
             startup.Configure(config, applicationRootPath);
 
-            if (useErrorPages ?? env.IsDevelopment())
+            if (useErrorPages ?? config.Debug)
             {
                 app.UseMiddleware<DotvvmErrorPageMiddleware>();
             }
