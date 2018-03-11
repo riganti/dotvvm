@@ -9,32 +9,22 @@ namespace DotVVM.Framework.Diagnostics
 
     public class DotvvmDiagnosticsConfiguration
     {
-       
-
         private DiagnosticsServerConfiguration configuration;
         private DateTime configurationLastWriteTimeUtc;
 
-        public string DiagnosticsServerHostname
+        public string GetDiagnosticsServerHostname()
         {
-            get
-            {
-                EnsureConfigurationValid();
-                return configuration?.HostName;
-            }
+            RefreshConfiguration();
+            return configuration?.HostName;
         }
 
-
-
-        public int? DiagnosticsServerPort
+        public int? GetDiagnosticsServerPort()
         {
-            get
-            {
-                EnsureConfigurationValid();
-                return configuration?.Port;
-            }
+            RefreshConfiguration();
+            return configuration?.Port;
         }
 
-        private void EnsureConfigurationValid()
+        private void RefreshConfiguration()
         {
             try
             {

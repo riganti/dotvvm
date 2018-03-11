@@ -33,6 +33,8 @@ namespace DotVVM.Framework.Configuration
 {
     public class DotvvmConfiguration
     {
+        private bool isFrozen;
+        private bool debug;
         public const string DotvvmControlTagPrefix = "dot";
 
         /// <summary>
@@ -90,7 +92,29 @@ namespace DotVVM.Framework.Configuration
         /// For ASP.NET Core checkout <see cref="!:https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments" >https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments</see>   
         /// </summary>
         [JsonProperty("debug", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public bool Debug { get; set; }
+        public bool Debug
+        {
+            get => debug;
+            set
+            {
+                VerifyIsFrozen();
+                debug = value;
+            }
+        }
+
+        private void VerifyIsFrozen()
+        {
+            if (isFrozen)
+                throw new InvalidOperationException("DotvvmConfiguration cannot be modified after initialization by IDotvvmStartup.");
+        }
+        /// <summary>
+        /// Prevent from changes.
+        /// </summary>
+        public void Freeze()
+        {
+            isFrozen = true;
+        }
+
 
         [JsonIgnore]
         public Dictionary<string, IRouteParameterConstraint> RouteConstraints { get; } = new Dictionary<string, IRouteParameterConstraint>();

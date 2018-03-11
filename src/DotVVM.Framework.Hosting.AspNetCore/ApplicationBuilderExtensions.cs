@@ -70,7 +70,7 @@ namespace Microsoft.AspNetCore.Builder
                 new DotvvmReturnedFileMiddleware(),
                 new DotvvmRoutingMiddleware()
             }.Where(t => t != null).ToArray());
-
+            config.Freeze();
             return config;
         }
     }

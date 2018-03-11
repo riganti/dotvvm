@@ -79,7 +79,7 @@ namespace Owin
                 new DotvvmReturnedFileMiddleware(),
                 new DotvvmRoutingMiddleware()
             }.Where(t => t != null).ToArray());
-
+            config.Freeze();
             return config;
         }
     }

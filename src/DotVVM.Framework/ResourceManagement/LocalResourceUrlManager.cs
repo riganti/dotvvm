@@ -17,13 +17,15 @@ namespace DotVVM.Framework.ResourceManagement
         private readonly RouteBase resourceRoute;
         private readonly DotvvmResourceRepository resources;
         private readonly ConcurrentDictionary<string, string> alternateDirectories;
+        private readonly bool suppressVersionHash;
 
         public LocalResourceUrlManager(DotvvmConfiguration configuration, IResourceHashService hasher)
         {
             this.resourceRoute = new DotvvmRoute("dotvvmResource/{hash}/{name:regex(.*)}", null, null, null, configuration);
             this.hasher = hasher;
             this.resources = configuration.Resources;
-            this.alternateDirectories = new ConcurrentDictionary<string, string>();
+            this.alternateDirectories = configuration.Debug ? new ConcurrentDictionary<string, string>() : null;
+            this.suppressVersionHash = configuration.Debug;
         }
 
         public string GetResourceUrl(ILocalResourceLocation resource, IDotvvmRequestContext context, string name) =>
@@ -43,7 +45,7 @@ namespace DotVVM.Framework.ResourceManagement
         }
 
         protected virtual string GetVersionHash(ILocalResourceLocation location, IDotvvmRequestContext context, string name) =>
-            context.Configuration.Debug ? // don't generate the hash iff !Debug, as it clears breakpoints in debugger when url changes
+            suppressVersionHash ? // don't generate the hash iff !Debug, as it clears breakpoints in debugger when url changes
             EncodeResourceName(name) :
             hasher.GetVersionHash(location, context);
 
@@ -58,7 +60,7 @@ namespace DotVVM.Framework.ResourceManagement
                 var location = FindLocation(resource, out mimeType);
                 if (GetVersionHash(location, context, name) == hash) // check if the resource matches so that nobody can gues the url by chance
                 {
-                    if (!context.Configuration.Debug)
+                    if (alternateDirectories != null)
                         alternateDirectories.GetOrAdd(hash, _ => (location as IDebugFileLocalLocation)?.GetFilePath(context));
                     return location;
                 }
@@ -69,7 +71,7 @@ namespace DotVVM.Framework.ResourceManagement
 
         private ILocalResourceLocation TryLoadAlternativeFile(string name, string hash, IDotvvmRequestContext context)
         {
-            if (!context.Configuration.Debug && alternateDirectories.TryGetValue(hash, out string filePath) && filePath != null)
+            if (alternateDirectories != null && alternateDirectories.TryGetValue(hash, out string filePath) && filePath != null)
             {
                 var directory = Path.GetDirectoryName(Path.Combine(context.Configuration.ApplicationPhysicalPath, filePath));
                 if (directory != null)
