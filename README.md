@@ -93,7 +93,7 @@ How to Start
 
 How Does it Work
 ----------------
-DotVVM is no magic, so let's have a look at how it works. Or at least how would a simplified core work ;)
+DotVVM is no magic, so let's have a look at how it works. Or at least how would a simplified core work.
 
 ### Page Load
 
@@ -105,13 +105,9 @@ On the client side, after the page is loaded the ViewModel is deserialized and u
 
 We have two types of commands in DotVVM - the powerful and expansive `command` and its lighter counterpart `staticCommand`.
 
-When [`command`](https://www.dotvvm.com/docs/tutorials/basics-command-binding/latest) is invoked a "postback" is dispatched - the entire ViewModel is serialized and sent to the server. Here, the page is created again, ViewModel is deserialized, the expression in the binding is invoked, the ViewModel is serialized and sent back to the client. Note that you can control which parts of the ViewModel are sent using the [`Bind` attribute](https://www.dotvvm.com/docs/tutorials/basics-binding-direction/latest).
+When a [`command`](https://www.dotvvm.com/docs/tutorials/basics-command-binding/latest) is invoked a "postback" is dispatched - the entire ViewModel is serialized and sent to the server. Here, the page is created again, ViewModel is deserialized, the expression in the binding is invoked, the ViewModel is serialized and sent back to the client. Note that you can control which parts of the ViewModel are sent using the [`Bind` attribute](https://www.dotvvm.com/docs/tutorials/basics-binding-direction/latest).
 
-[`staticCommand`s](https://www.dotvvm.com/docs/tutorials/basics-static-command-binding/latest) are slightly different as the binding expression is not invoked on the server but is translated to Javascript and invoked on client-side. Only when you use a function that is not translatable to JS and it's marked with an `AllowStaticCommand` attribute the request to the server is dispatched. However, it's not the full postback - it will only contain the function's arguments. On the server, the function is simply going to be invoked (with the deserialized args) and only its result will be sent back to the client. When the response returns, the rest of the expression will be evaluated. If you'd have a look at the JS generated from your staticCommand, you will find an ugly expression that invokes some function on the server and processes the results in the callback.
-
-
-
-
+A [`staticCommand`](https://www.dotvvm.com/docs/tutorials/basics-static-command-binding/latest) is slightly different as the binding expression is not invoked on the server but instead is translated to Javascript and invoked client-side. Only when you use a function that is not translatable to JS and is marked with an `AllowStaticCommand` attribute the request to the server is dispatched. However, it is not the full postback - it will only contain the function's arguments. On the server, the function is going to be invoked (with the deserialized args) and only its result will be sent back to the client. When the response returns, the rest of the expression will be evaluated. If you'd have a look at the JS generated from your staticCommand, you would find an ugly expression that invokes some function on the server and processes the results in the callback.
 
 <br />
 
