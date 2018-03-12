@@ -16,7 +16,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            reader.Read();
             if (reader.Value == null)
             {
                 return objectType == typeof(T?) ? default(T?) : default(T);

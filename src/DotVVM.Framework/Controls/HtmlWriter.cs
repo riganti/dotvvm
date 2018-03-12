@@ -189,6 +189,7 @@ namespace DotVVM.Framework.Controls
             {
                 throw new InvalidOperationException("HtmlWriter cannot render tag, because tag name is empty.");
             }
+            AssertIsValidHtmlName(name);
             writer.Write(name);
 
             foreach (DictionaryEntry attr in dataBindAttributes)
@@ -233,9 +234,25 @@ namespace DotVVM.Framework.Controls
             return (string) value;
         }
 
+        /// Throws an exception if the specified string can't be a valid html name.
+        /// The point is not to validate according to specification, but to make XSS attacks
+        /// impossibe - it disables html control characters, but won't throw on digit at the start of the name.
+        private void AssertIsValidHtmlName(string name)
+        {
+            if (name.Length == 0) throw new ArgumentException("HTML name length can't be zero.");
+            foreach (var ch in name)
+            {
+                if (ch == '=' || ch == '"' || ch == '\'' || ch == '<' || ch == '>' || ch == '/' || ch == '&')
+                    throw new ArgumentException("HTML control characters are not enabled in names.");
+                if (char.IsWhiteSpace(ch))
+                    throw new ArgumentException("Whitespace is not allowed in HTML name.");
+            }
+        }
+
         public void WriteHtmlAttribute(string attributeName, string attributeValue)
         {
             WriteUnencodedText(" ");
+            AssertIsValidHtmlName(attributeName);
             WriteUnencodedText(attributeName);
             if (attributeValue != null)
             {

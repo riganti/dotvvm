@@ -225,6 +225,10 @@ class DotvvmValidation {
             this.events.validationErrorsChanged.trigger(args);
         });
 
+        dotvvm.events.spaNavigating.subscribe(args => {
+            this.clearValidationErrors(dotvvm.viewModelObservables[args.viewModelName]);
+        });
+
         // add knockout binding handler
         ko.bindingHandlers["dotvvmValidation"] = {
             init: (element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) => {

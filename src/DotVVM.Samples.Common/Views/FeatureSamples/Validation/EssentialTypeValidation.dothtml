@@ -9,31 +9,31 @@
 </head>
 <body>
     <p>
-        int <dot:TextBox Text="{value: IntegerProperty}" />
+        int <dot:TextBox Text="{value: IntegerProperty}" ValueType="Number" />
     </p>
     <p>
-        int? <dot:TextBox Text="{value: NullableIntegerProperty}" />
+        int? <dot:TextBox Text="{value: NullableIntegerProperty}" ValueType="Number" />
     </p>
     <p>
-        double <dot:TextBox Text="{value: FloatProperty}" />
+        double <dot:TextBox Text="{value: FloatProperty}" ValueType="Number"/>
     </p>
     <p>
-        double? <dot:TextBox Text="{value: NullableFloatProperty}" />
+        double? <dot:TextBox Text="{value: NullableFloatProperty}" ValueType="Number"/>
     </p>
 
     <div DataContext="{value: NestedVM}">
         <b>NestedVM</b>
         <p>
-            int <dot:TextBox Text="{value: IntegerProperty}" />
+            int <dot:TextBox Text="{value: IntegerProperty}" ValueType="Number" />
         </p>
         <p>
-            int? <dot:TextBox Text="{value: NullableIntegerProperty}" />
+            int? <dot:TextBox Text="{value: NullableIntegerProperty}" ValueType="Number"/>
         </p>
         <p>
-            double <dot:TextBox Text="{value: FloatProperty}" />
+            double <dot:TextBox Text="{value: FloatProperty}" ValueType="Number"/>
         </p>
         <p>
-            double? <dot:TextBox Text="{value: NullableFloatProperty}" />
+            double? <dot:TextBox Text="{value: NullableFloatProperty}"ValueType="Number" />
         </p>
     </div>
     <div>
@@ -41,16 +41,16 @@
             <div>
                 <b>Collection Item</b>
                 <p>
-                    int <dot:TextBox Text="{value: IntegerProperty}" />
+                    int <dot:TextBox Text="{value: IntegerProperty}" ValueType="Number" />
                 </p>
                 <p>
-                    int? <dot:TextBox Text="{value: NullableIntegerProperty}" />
+                    int? <dot:TextBox Text="{value: NullableIntegerProperty}" ValueType="Number"  />
                 </p>
                 <p>
-                    double <dot:TextBox Text="{value: FloatProperty}" />
+                    double <dot:TextBox Text="{value: FloatProperty}" ValueType="Number"  />
                 </p>
                 <p>
-                    double? <dot:TextBox Text="{value: NullableFloatProperty}" />
+                    double? <dot:TextBox Text="{value: NullableFloatProperty}"  ValueType="Number" />
                 </p>
             </div> 
         </dot:Repeater>
@@ -59,7 +59,7 @@
         <dot:Button Click="{command: AddNestedVMs()}" Text="Add nested VMs" Validation.Enabled="false" />
     </p>
     <p>
-        <dot:Button Click="{command: Postback()}" Validation.Enabled="true" Validation.Target="_root" Text="Postback with validation" />
+        <dot:Button Click="{command: Postback()}" Validation.Enabled="true" Validation.Target="{value:  _root}" Text="Postback with validation" />
         <dot:Button Click="{command: Postback()}" Validation.Enabled="false" Text="Postback without validation" />
     </p>
     <dot:ValidationSummary IncludeErrorsFromChildren="true" />

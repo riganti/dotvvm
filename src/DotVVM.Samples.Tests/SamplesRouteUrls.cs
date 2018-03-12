@@ -35,9 +35,9 @@ namespace Dotvvm.Samples.Tests{
 			public static string ControlSamples_Button_InputTypeButton_HtmlContentInside => "ControlSamples/Button/InputTypeButton_HtmlContentInside";
 			public static string ControlSamples_Button_InputTypeButton_TextContentInside => "ControlSamples/Button/InputTypeButton_TextContentInside";
 			public static string ControlSamples_CheckBox_CheckBox => "ControlSamples/CheckBox/CheckBox";
-			public static string ControlSamples_CheckBox_Indeterminate => "ControlSamples/CheckBox/Indeterminate";
 			public static string ControlSamples_CheckBox_CheckboxInRepeater => "ControlSamples/CheckBox/CheckboxInRepeater";
 			public static string ControlSamples_CheckBox_CheckBox_CheckedItems_NullCollection => "ControlSamples/CheckBox/CheckBox_CheckedItems_NullCollection";
+			public static string ControlSamples_CheckBox_Indeterminate => "ControlSamples/CheckBox/Indeterminate";
 			public static string ControlSamples_ClaimView_ClaimViewTest => "ControlSamples/ClaimView/ClaimViewTest";
 			public static string ControlSamples_ComboBox_ComboBox => "ControlSamples/ComboBox/ComboBox";
 			public static string ControlSamples_ComboBox_ComboBoxDelaySync => "ControlSamples/ComboBox/ComboBoxDelaySync";
@@ -70,6 +70,7 @@ namespace Dotvvm.Samples.Tests{
 			public static string ControlSamples_Literal_Literal_FormatString => "ControlSamples/Literal/Literal_FormatString";
 			public static string ControlSamples_RadioButton_RadioButton => "ControlSamples/RadioButton/RadioButton";
 			public static string ControlSamples_Repeater_NestedRepeater => "ControlSamples/Repeater/NestedRepeater";
+			public static string ControlSamples_Repeater_NestedRepeaterWithControl => "ControlSamples/Repeater/NestedRepeaterWithControl";
 			public static string ControlSamples_Repeater_RouteLink => "ControlSamples/Repeater/RouteLink";
 			public static string ControlSamples_Repeater_RouteLinkUrlSuffix => "ControlSamples/Repeater/RouteLinkUrlSuffix";
 			public static string ControlSamples_RepeaterWrapperTag_RepeaterWrapperTag => "ControlSamples/RepeaterWrapperTag/RepeaterWrapperTag";
@@ -150,14 +151,16 @@ namespace Dotvvm.Samples.Tests{
 			public static string FeatureSamples_Resources_CdnUnavailableResourceLoad => "FeatureSamples/Resources/CdnUnavailableResourceLoad";
 			public static string FeatureSamples_Resources_OnlineNonameResourceLoad => "FeatureSamples/Resources/OnlineNonameResourceLoad";
 			public static string FeatureSamples_ReturnedFile_ReturnedFileSample => "FeatureSamples/ReturnedFile/ReturnedFileSample";
+			public static string FeatureSamples_Serialization_EnumSerializationWithJsonConverter => "FeatureSamples/Serialization/EnumSerializationWithJsonConverter";
 			public static string FeatureSamples_Serialization_ObservableCollectionShouldContainObservables => "FeatureSamples/Serialization/ObservableCollectionShouldContainObservables";
 			public static string FeatureSamples_Serialization_Serialization => "FeatureSamples/Serialization/Serialization";
 			public static string FeatureSamples_ServerComments_ServerComments => "FeatureSamples/ServerComments/ServerComments";
 			public static string FeatureSamples_StaticCommand_StaticCommand => "FeatureSamples/StaticCommand/StaticCommand";
-            public static string FeatureSamples_StaticCommand_StaticCommand_NullBinding => "FeatureSamples/StaticCommand/StaticCommand_NullBinding";
-            public static string FeatureSamples_StaticCommand_StaticCommand_ComboBoxSelectionChanged => "FeatureSamples/StaticCommand/StaticCommand_ComboBoxSelectionChanged";
+			public static string FeatureSamples_StaticCommand_StaticCommand_ComboBoxSelectionChanged => "FeatureSamples/StaticCommand/StaticCommand_ComboBoxSelectionChanged";
 			public static string FeatureSamples_StaticCommand_StaticCommand_ComboBoxSelectionChanged_Objects => "FeatureSamples/StaticCommand/StaticCommand_ComboBoxSelectionChanged_Objects";
+			public static string FeatureSamples_StaticCommand_StaticCommand_NullBinding => "FeatureSamples/StaticCommand/StaticCommand_NullBinding";
 			public static string FeatureSamples_Validation_ClientSideValidationDisabling => "FeatureSamples/Validation/ClientSideValidationDisabling";
+			public static string FeatureSamples_Validation_CustomValidation => "FeatureSamples/Validation/CustomValidation";
 			public static string FeatureSamples_Validation_DateTimeValidation => "FeatureSamples/Validation/DateTimeValidation";
 			public static string FeatureSamples_Validation_DateTimeValidation_NullableDateTime => "FeatureSamples/Validation/DateTimeValidation_NullableDateTime";
 			public static string FeatureSamples_Validation_DynamicValidation => "FeatureSamples/Validation/DynamicValidation";

@@ -739,10 +739,15 @@ class DotVVM {
         return ko.unwrap(ko.unwrap(array));
     }
     public buildRouteUrl(routePath: string, params: any): string {
-        return routePath.replace(/\{([^\}]+?)\??(:(.+?))?\}/g, (s, paramName, hsjdhsj, type) => {
+        var url = routePath.replace(/\{([^\}]+?)\??(:(.+?))?\}/g, (s, paramName, hsjdhsj, type) => {
             if (!paramName) return "";
             return ko.unwrap(params[paramName.toLowerCase()]) || "";
         });
+
+        if (url.indexOf('/') === 0) {
+            return url.substring(1);
+        }
+        return url;
     }
 
     private isPostBackProhibited(element: HTMLElement) {
@@ -944,7 +949,8 @@ class DotVVM {
                 }, 0, obs.dotvvmMetadata.elementsMetadata, element);
 
 
-                dotvvm.domUtils.attachEvent(element, "blur", () => {
+                dotvvm.domUtils.attachEvent(element, "change", () => {
+                    if (!ko.isObservable(obs)) return;
 
                     // parse the value
                     var result, isEmpty, newValue;
@@ -974,10 +980,10 @@ class DotVVM {
                     }
 
                     if (obs() === newValue) {
-                        if ((<KnockoutObservable<number>>obs).valueHasMutated) {
-                            (<KnockoutObservable<number>>obs).valueHasMutated();
+                        if (obs.valueHasMutated) {
+                           obs.valueHasMutated();
                         } else {
-                            (<KnockoutObservable<number>>obs).notifySubscribers();
+                            obs.notifySubscribers();
                         }
                     } else {
                         obs(newValue);
