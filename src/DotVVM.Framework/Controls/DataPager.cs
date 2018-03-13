@@ -138,12 +138,12 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty EnabledProperty =
             DotvvmPropertyWithFallback.Register<bool, DataPager>(nameof(Enabled), FormControls.EnabledProperty);
 
-        private HtmlGenericControl content;
-        private HtmlGenericControl firstLi;
-        private HtmlGenericControl previousLi;
-        private PlaceHolder numbersPlaceHolder;
-        private HtmlGenericControl nextLi;
-        private HtmlGenericControl lastLi;
+        protected HtmlGenericControl content;
+        protected HtmlGenericControl firstLi;
+        protected HtmlGenericControl previousLi;
+        protected PlaceHolder numbersPlaceHolder;
+        protected HtmlGenericControl nextLi;
+        protected HtmlGenericControl lastLi;
 
         protected internal override void OnLoad(IDotvvmRequestContext context)
         {
@@ -156,12 +156,13 @@ namespace DotVVM.Framework.Controls
             DataBind(context);
             base.OnPreRender(context);
         }
-        private void CallGridViewDataSetRefreshRequest(IRefreshableGridViewDataSet gridViewDataSet)
+
+        protected virtual void CallGridViewDataSetRefreshRequest(IRefreshableGridViewDataSet gridViewDataSet)
         {
             gridViewDataSet.RequestRefresh();
         }
 
-        private void DataBind(Hosting.IDotvvmRequestContext context)
+        protected virtual void DataBind(Hosting.IDotvvmRequestContext context)
         {
             if (DataSet is IRefreshableGridViewDataSet refreshableDataSet)
             {
@@ -170,35 +171,22 @@ namespace DotVVM.Framework.Controls
 
             Children.Clear();
 
-            content = new HtmlGenericControl("ul");
             var dataContextType = DataContextStack.Create(typeof(IPageableGridViewDataSet), this.GetDataContextType());
-            content.SetDataContextType(dataContextType);
-            content.SetBinding(DataContextProperty, GetDataSetBinding());
+            content = CreateWrapperList(dataContextType);
             Children.Add(content);
 
             var bindings = context.Services.GetService<CommonBindings>();
 
-            object enabledValue = HasValueBinding(EnabledProperty) ?
-                    (object)ValueBindingExpression.CreateBinding<bool>(
-                        bindingService.WithoutInitialization(),
-                        h => (bool)GetValueBinding(EnabledProperty).Evaluate(this),
-                        new JsSymbolicParameter(JavascriptTranslator.KnockoutContextParameter).Member("$pagerEnabled")) :
-                    Enabled;
+            object enabledValue = (HasValueBinding(EnabledProperty) ?
+                (object)ValueBindingExpression.CreateBinding<bool>(
+                    bindingService.WithoutInitialization(),
+                    h => (bool)GetValueBinding(EnabledProperty).Evaluate(this),
+                    new JsSymbolicParameter(JavascriptTranslator.KnockoutContextParameter).Member("$pagerEnabled")) :
+                Enabled);
 
-            HtmlGenericControl AddButton(string text, ITemplate template, ICommandBinding clickCommandBindingExpression)
-            {
-                var li = new HtmlGenericControl("li");
-                var link = new LinkButton();
-                SetButtonContent(context, link, text, template);
-                link.SetBinding(ButtonBase.ClickProperty, clickCommandBindingExpression);
-                if (!true.Equals(enabledValue)) link.SetValue(LinkButton.EnabledProperty, enabledValue);
-                li.Children.Add(link);
-                content.Children.Add(li);
-                return li;
-            }
-
-            firstLi = AddButton("««", FirstPageTemplate, bindings.GoToFirstPageCommand);
-            previousLi = AddButton("«", PreviousPageTemplate, bindings.GoToPrevPageCommand);
+            
+            firstLi = AddNavigationButton("««", FirstPageTemplate,enabledValue, bindings.GoToFirstPageCommand,context);
+            previousLi = AddNavigationButton("«", PreviousPageTemplate,enabledValue, bindings.GoToPrevPageCommand,context);
 
             // number fields
             numbersPlaceHolder = new PlaceHolder();
@@ -226,11 +214,32 @@ namespace DotVVM.Framework.Controls
                 }
             }
 
-            nextLi = AddButton("»", NextPageTemplate, bindings.GoToNextPageCommand);
-            lastLi = AddButton("»»", LastPageTemplate, bindings.GoToLastPageCommand);
+            nextLi = AddNavigationButton("»", NextPageTemplate, enabledValue, bindings.GoToNextPageCommand, context);
+            lastLi = AddNavigationButton("»»", LastPageTemplate, enabledValue, bindings.GoToLastPageCommand, context);
         }
 
-        private void SetButtonContent(Hosting.IDotvvmRequestContext context, LinkButton button, string text, ITemplate contentTemplate)
+        protected virtual HtmlGenericControl CreateWrapperList(DataContextStack dataContext)
+        {
+            var list = new HtmlGenericControl("ul");
+            list.SetDataContextType(dataContext);
+            list.SetBinding(DataContextProperty, GetDataSetBinding());
+            return list;
+        }
+
+        protected virtual HtmlGenericControl AddNavigationButton(string defaultText, ITemplate userDefinedContentTemplate, object enabledValue, ICommandBinding clickCommandBindingExpression,IDotvvmRequestContext context)
+        {
+            var li = new HtmlGenericControl("li");
+            var link = new LinkButton();
+            SetButtonContent(context, link, defaultText, userDefinedContentTemplate);
+            link.SetBinding(ButtonBase.ClickProperty, clickCommandBindingExpression);
+            if (!true.Equals(enabledValue))
+                link.SetValue(LinkButton.EnabledProperty, enabledValue);
+            li.Children.Add(link);
+            content.Children.Add(li);
+            return li;
+        }
+
+        protected virtual void SetButtonContent(Hosting.IDotvvmRequestContext context, LinkButton button, string text, ITemplate contentTemplate)
         {
             if (contentTemplate != null)
             {
@@ -333,12 +342,28 @@ namespace DotVVM.Framework.Controls
 
             // render page number
             numbersPlaceHolder.Children.Clear();
+            var li = CreatePageNumberButton(writer, context);
+            li.Render(writer, context);
+
+            writer.WriteKnockoutDataBindEndComment();
+
+            AddItemCssClass(writer, context);
+            AddKnockoutDisabledCssDataBind(writer, context, "PagingOptions().IsLastPage()");
+            nextLi.Render(writer, context);
+
+            AddItemCssClass(writer, context);
+            AddKnockoutDisabledCssDataBind(writer, context, "PagingOptions().IsLastPage()");
+            lastLi.Render(writer, context);
+        }
+
+        protected virtual HtmlGenericControl CreatePageNumberButton(IHtmlWriter writer, IDotvvmRequestContext context)
+        {
             HtmlGenericControl li;
             var currentPageTextContext = DataContextStack.Create(typeof(int), numbersPlaceHolder.GetDataContextType());
             var currentPageTextBinding = ValueBindingExpression.CreateBinding(bindingService.WithoutInitialization(),
-                    vm => ((int)vm[0] + 1).ToString(),
-                    currentPageTextJs,
-                    currentPageTextContext);
+                vm => ((int) vm[0] + 1).ToString(),
+                currentPageTextJs,
+                currentPageTextContext);
 
             if (!RenderLinkForCurrentPage)
             {
@@ -367,24 +392,14 @@ namespace DotVVM.Framework.Controls
             link.SetDataContextType(currentPageTextContext);
             link.SetBinding(ButtonBase.TextProperty, currentPageTextBinding);
             link.SetBinding(ButtonBase.ClickProperty, commonBindings.GoToThisPageCommand);
-            object enabledValue = HasValueBinding(EnabledProperty) ?
-                (object)ValueBindingExpression.CreateBinding(bindingService.WithoutInitialization(),
+            object enabledValue = HasValueBinding(EnabledProperty)
+                ? (object) ValueBindingExpression.CreateBinding(bindingService.WithoutInitialization(),
                     h => GetValueBinding(EnabledProperty).Evaluate(this),
-                    new JsSymbolicParameter(JavascriptTranslator.KnockoutContextParameter).Member("$pagerEnabled")) :
-                Enabled;
+                    new JsSymbolicParameter(JavascriptTranslator.KnockoutContextParameter).Member("$pagerEnabled"))
+                : Enabled;
             if (!true.Equals(enabledValue)) link.SetValue(LinkButton.EnabledProperty, enabledValue);
             numbersPlaceHolder.Children.Add(li);
-            li.Render(writer, context);
-
-            writer.WriteKnockoutDataBindEndComment();
-
-            AddItemCssClass(writer, context);
-            AddKnockoutDisabledCssDataBind(writer, context, "PagingOptions().IsLastPage()");
-            nextLi.Render(writer, context);
-
-            AddItemCssClass(writer, context);
-            AddKnockoutDisabledCssDataBind(writer, context, "PagingOptions().IsLastPage()");
-            lastLi.Render(writer, context);
+            return li;
         }
 
         protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
