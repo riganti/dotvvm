@@ -289,9 +289,16 @@ namespace DotVVM.Framework.Binding
 
         public static DataContextStack GetDataContextType(this DotvvmProperty property, DotvvmBindableObject obj)
         {
-            if (obj.HasBinding(property))
+            var propertyBinding = obj.GetBinding(property);
+
+            if (propertyBinding != null)
             {
-                return obj.GetBinding(property).GetProperty<DataContextStack>();
+                var propertyValue = propertyBinding.GetProperty(typeof(DataContextStack), ErrorHandlingMode.ReturnException);
+
+                if(propertyValue == null || propertyValue is DataContextStack)
+                {
+                    return (DataContextStack)propertyValue;
+                }
             }
 
             var dataContextType = obj.GetDataContextType();
