@@ -128,21 +128,15 @@ namespace DotVVM.Framework.Controls
         {
             if (ButtonTagName == ButtonTagName.button)
             {
-                if (!HasValueBinding(TextProperty))
+                if (!HasValueBinding(TextProperty) && IsPropertySet(TextProperty))
                 {
                     // render contents inside
-                    if (IsPropertySet(TextProperty))
+                    if (!HasOnlyWhiteSpaceContent())
                     {
-                        if (!HasOnlyWhiteSpaceContent())
-                        {
-                            throw new DotvvmControlException(this, "Text property and inner content of the <dot:Button> control cannot be set at the same time!");
-                        }
-                        writer.WriteText(Text);
+                        throw new DotvvmControlException(this, "Text property and inner content of the <dot:Button> control cannot be set at the same time!");
                     }
-                    else
-                    {
-                        base.RenderContents(writer, context);
-                    }
+
+                    writer.WriteText(Text);
                 }
                 else
                 {
