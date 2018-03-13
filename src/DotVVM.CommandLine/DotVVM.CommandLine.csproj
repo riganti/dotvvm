@@ -3,13 +3,13 @@
   <PropertyGroup>
     <AssemblyTitle>DotVVM.CommandLine</AssemblyTitle>
     <AssemblyName>dotnet-dotvvm</AssemblyName>
-    <VersionPrefix>2.0.0-preview02-26143</VersionPrefix>
+    <VersionPrefix>2.0.0-preview02-26468</VersionPrefix>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>DotVVM.CommandLine</PackageId>
-    <PackageVersion>2.0.0-preview02-26143</PackageVersion>
+    <PackageVersion>2.0.0-preview02-26468</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>Command-line tools for DotVVM.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
