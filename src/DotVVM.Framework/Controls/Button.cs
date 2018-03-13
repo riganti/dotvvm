@@ -83,7 +83,6 @@ namespace DotVVM.Framework.Controls
         {
             writer.AddAttribute("type", IsSubmitButton ? "submit" : "button");
 
-
             if(ButtonTagName == ButtonTagName.input)
             {
                 writer.AddKnockoutDataBind("value", this, TextProperty, () =>
