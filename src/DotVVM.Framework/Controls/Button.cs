@@ -54,10 +54,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        /// <summary>
-        /// Adds all attributes that should be added to the control begin tag.
-        /// </summary>
-        protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
+        protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
             if ((HasBinding(TextProperty) || !string.IsNullOrEmpty(Text)) && !HasOnlyWhiteSpaceContent())
             {
@@ -67,15 +64,31 @@ namespace DotVVM.Framework.Controls
             if (ButtonTagName == ButtonTagName.button)
             {
                 TagName = "button";
+
+                if (HasBinding(TextProperty))
+                {
+                    var literal = new Literal { RenderSpanElement = false };
+                    literal.SetBinding(c => c.Text, GetBinding(TextProperty));
+                    Children.Add(literal);
+                }
             }
+
+            base.OnPreRender(context);
+        }
+
+        /// <summary>
+        /// Adds all attributes that should be added to the control begin tag.
+        /// </summary>
+        protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
+        {
             writer.AddAttribute("type", IsSubmitButton ? "submit" : "button");
 
 
-            writer.AddKnockoutDataBind(ButtonTagName == ButtonTagName.input ? "value" : "text", this, TextProperty, () =>
+            if(ButtonTagName == ButtonTagName.input)
             {
-                if (!HasOnlyWhiteSpaceContent())
+                writer.AddKnockoutDataBind("value", this, TextProperty, () =>
                 {
-                    if (ButtonTagName == ButtonTagName.input)
+                    if (!HasOnlyWhiteSpaceContent())
                     {
                         // if there is only a text content, extract it into the Text property; if there is HTML, we don't support it
                         string textContent;
@@ -85,13 +98,10 @@ namespace DotVVM.Framework.Controls
                         }
                         Text = textContent;
                     }
-                }
 
-                if (ButtonTagName == ButtonTagName.input)
-                {
                     writer.AddAttribute("value", Text);
-                }
-            });
+                });
+            }
 
             base.AddAttributesToRender(writer, context);
 
@@ -133,6 +143,10 @@ namespace DotVVM.Framework.Controls
                     {
                         base.RenderContents(writer, context);
                     }
+                }
+                else
+                {
+                    base.RenderContents(writer, context);
                 }
             }
         }
