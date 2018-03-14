@@ -4,6 +4,6 @@ namespace DotVVM.Framework.Configuration
 {
     public interface IDotvvmServiceConfigurator
     {
-        void ConfigureServices(IDotvvmServiceCollection serviceCollection);
+        void ConfigureServices(IDotvvmServiceCollection services);
     }
 }

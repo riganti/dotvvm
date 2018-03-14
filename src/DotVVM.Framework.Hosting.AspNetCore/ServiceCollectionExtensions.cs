@@ -18,8 +18,8 @@ namespace Microsoft.Extensions.DependencyInjection
             AddDotVVMServices(services);
 
             var configurator = new TServiceConfigurator();
-            var serviceCollection = new DotvvmServiceCollection(services);
-            configurator.ConfigureServices(serviceCollection);
+            var dotvvmServices = new DotvvmServiceCollection(services);
+            configurator.ConfigureServices(dotvvmServices);
 
             return services;
         }
