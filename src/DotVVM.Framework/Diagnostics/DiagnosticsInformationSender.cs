@@ -21,8 +21,8 @@ namespace DotVVM.Framework.Diagnostics
 
         public async Task SendInformationAsync(DiagnosticsInformation information)
         {
-            var hostname = configuration.DiagnosticsServerHostname;
-            var port = configuration.DiagnosticsServerPort;
+            var hostname = configuration.GetDiagnosticsServerHostname();
+            var port = configuration.GetDiagnosticsServerPort();
             if (hostname != null && port.HasValue)
             {
                 using (var client = new TcpClient())
