@@ -97,16 +97,17 @@ namespace DotVVM.Framework.Configuration
             get => debug;
             set
             {
-                VerifyIsFrozen();
+                ThrowIfFrozen();
                 debug = value;
             }
         }
 
-        private void VerifyIsFrozen()
+        private void ThrowIfFrozen()
         {
             if (isFrozen)
                 throw new InvalidOperationException("DotvvmConfiguration cannot be modified after initialization by IDotvvmStartup.");
         }
+
         /// <summary>
         /// Prevent from changes.
         /// </summary>
@@ -114,7 +115,6 @@ namespace DotVVM.Framework.Configuration
         {
             isFrozen = true;
         }
-
 
         [JsonIgnore]
         public Dictionary<string, IRouteParameterConstraint> RouteConstraints { get; } = new Dictionary<string, IRouteParameterConstraint>();
