@@ -77,7 +77,7 @@ function BuildPackages() {
 function PushPackages() {
 	foreach ($package in $packages) {
 		& .\Tools\nuget.exe push .\$($package.Directory)\bin\$configuration\$($package.Package).$version.nupkg -source $server -apiKey $apiKey | Out-Host
-		& .\Tools\nuget.exe push .\$($package.Directory)\bin\$configuration\$($package.Package).$version.symbols.nupkg -source $internalServer -apiKey $apiKeyInternal | Out-Host
+		& .\Tools\nuget.exe push .\$($package.Directory)\bin\Debug\$($package.Package).$version.symbols.nupkg -source $internalServer -apiKey $apiKeyInternal | Out-Host
 	}
 }
 
