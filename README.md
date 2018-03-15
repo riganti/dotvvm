@@ -17,6 +17,7 @@ It is open source, it supports both OWIN and ASP.NET Core and it runs on **.NET 
 
 It also offers a [free extension for Visual Studio 2015 and 2017](https://www.dotvvm.com/install) with IntelliSense and other useful features which make the development really easy and productive.  
 
+*Info: DotVVM for Visual Studio PRO v1.1.90.0 is compatible with Visual Studio 2017 v15.6 and newer.*
 <br />
 
 How To Use
