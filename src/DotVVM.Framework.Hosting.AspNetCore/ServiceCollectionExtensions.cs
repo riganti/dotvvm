@@ -13,13 +13,14 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Adds DotVVM services with authorization and data protection to the specified <see cref="IServiceCollection" />.
         /// </summary>
         /// <param name="services">The <see cref="IServiceCollection" /> to add services to.</param>
+        // ReSharper disable once InconsistentNaming
         public static IServiceCollection AddDotVVM<TServiceConfigurator>(this IServiceCollection services) where TServiceConfigurator : IDotvvmServiceConfigurator, new()
         {
             AddDotVVMServices(services);
 
             var configurator = new TServiceConfigurator();
-            var serviceCollection = new DotvvmServiceCollection(services);
-            configurator.ConfigureServices(serviceCollection);
+            var dotvvmServices = new DotvvmServiceCollection(services);
+            configurator.ConfigureServices(dotvvmServices);
 
             return services;
         }
@@ -36,6 +37,8 @@ namespace Microsoft.Extensions.DependencyInjection
             AddDotVVMServices(services);
             return services;
         }
+
+        // ReSharper disable once InconsistentNaming
         private static void AddDotVVMServices(IServiceCollection services)
         {
             services

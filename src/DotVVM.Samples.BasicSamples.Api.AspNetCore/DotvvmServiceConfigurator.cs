@@ -5,9 +5,9 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore
 {
     public class DotvvmServiceConfigurator : IDotvvmServiceConfigurator
     {
-        public void ConfigureServices(IDotvvmServiceCollection serviceCollection)
+        public void ConfigureServices(IDotvvmServiceCollection services)
         {
-            serviceCollection.AddDefaultTempStorages("temp");
+            services.AddDefaultTempStorages("temp");
         }
     }
 }

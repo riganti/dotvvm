@@ -221,8 +221,6 @@ namespace DotVVM.Framework.Compilation.Javascript
                     return new JsSymbolicParameter(JavascriptTranslator.KnockoutViewModelParameter).WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
                 else if (index == 1)
                     return contextParameter("$parent", 0, expression.Type);
-                else if (ContextMap.Count == index + 1)
-                    return contextParameter("$root", 0, expression.Type);
                 else return new JsSymbolicParameter(JavascriptTranslator.KnockoutContextParameter)
                         .Member("$parents").Indexer(new JsLiteral(index - 1))
                         .WithAnnotation(new ViewModelInfoAnnotation(expression.Type));

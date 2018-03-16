@@ -29,7 +29,7 @@ namespace DotVVM.Compiler.Resolving
             var method = startupType.GetMethod("ConfigureServices", new[] {typeof(IDotvvmServiceCollection)});
            if (method == null)
             {
-                throw new ConfigurationInitializationException("Missing method 'void ConfigureServices(IDotvvmServiceCollection serviceCollection)'.");
+                throw new ConfigurationInitializationException("Missing method 'void ConfigureServices(IDotvvmServiceCollection services)'.");
             }
             return method;
         }
