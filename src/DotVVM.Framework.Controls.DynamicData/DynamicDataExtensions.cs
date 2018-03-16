@@ -13,11 +13,10 @@ namespace DotVVM.Framework.Controls.DynamicData
 {
     public static class DynamicDataExtensions
     {
-
         /// <summary>
         /// Registers all services required by DotVVM Dynamic Data.
         /// </summary>
-        public static IDotvvmOptions AddDynamicData(this IDotvvmOptions options, DynamicDataConfiguration dynamicDataConfiguration = null)
+        public static IDotvvmServiceCollection AddDynamicData(this IDotvvmServiceCollection services, DynamicDataConfiguration dynamicDataConfiguration = null)
         {
             if (dynamicDataConfiguration == null)
             {
@@ -25,29 +24,29 @@ namespace DotVVM.Framework.Controls.DynamicData
             }
 
             // add the configuration of Dynamic Data to the service collection
-            options.Services.AddSingleton(serviceProvider => dynamicDataConfiguration);
+            services.AddSingleton(serviceProvider => dynamicDataConfiguration);
 
-            RegisterDefaultProviders(options, dynamicDataConfiguration);
+            RegisterDefaultProviders(services, dynamicDataConfiguration);
             if (dynamicDataConfiguration.UseLocalizationResourceFiles)
             {
-                RegisterResourceFileProviders(options, dynamicDataConfiguration);
+                RegisterResourceFileProviders(services, dynamicDataConfiguration);
             }
 
-            return options;
+            return services;
         }
 
-        private static void RegisterDefaultProviders(IDotvvmOptions options, DynamicDataConfiguration dynamicDataConfiguration)
+        private static void RegisterDefaultProviders(IDotvvmServiceCollection services, DynamicDataConfiguration dynamicDataConfiguration)
         {
-            options.Services.AddSingleton<IPropertyDisplayMetadataProvider>(
+            services.AddSingleton<IPropertyDisplayMetadataProvider>(
                 serviceProvider => new DataAnnotationsPropertyDisplayMetadataProvider()
             );
 
-            options.Services.AddSingleton<IEntityPropertyListProvider>(
+            services.AddSingleton<IEntityPropertyListProvider>(
                 serviceProvider => new DefaultEntityPropertyListProvider(serviceProvider.GetService<IPropertyDisplayMetadataProvider>())
             );
         }
 
-        private static void RegisterResourceFileProviders(IDotvvmOptions builder, DynamicDataConfiguration dynamicDataConfiguration)
+        private static void RegisterResourceFileProviders(IDotvvmServiceCollection services, DynamicDataConfiguration dynamicDataConfiguration)
         {
             if (dynamicDataConfiguration.PropertyDisplayNamesResourceFile == null)
             {
@@ -58,12 +57,12 @@ namespace DotVVM.Framework.Controls.DynamicData
                 throw new ArgumentException($"The {nameof(DynamicDataConfiguration)} must specify the {nameof(DynamicDataConfiguration.ErrorMessagesResourceFile)} resource class!");
             }
 
-            builder.Services.Decorate<IPropertyDisplayMetadataProvider>(
+            services.Decorate<IPropertyDisplayMetadataProvider>(
                 baseService => new ResourcePropertyDisplayMetadataProvider(
                     dynamicDataConfiguration.PropertyDisplayNamesResourceFile, baseService)
             );
 
-            builder.Services.Decorate<IViewModelValidationMetadataProvider>(
+            services.Decorate<IViewModelValidationMetadataProvider>(
                 (baseService, serviceProvider) => new ResourceViewModelValidationMetadataProvider(
                     dynamicDataConfiguration.ErrorMessagesResourceFile, 
                     serviceProvider.GetService<IPropertyDisplayMetadataProvider>(), 
@@ -78,7 +77,7 @@ namespace DotVVM.Framework.Controls.DynamicData
         public static DynamicDataConfiguration AddDynamicDataConfiguration(this DotvvmConfiguration config)
         {
             config.Markup.AddCodeControls("dd", typeof(DynamicDataExtensions).Namespace, typeof(DynamicDataExtensions).GetTypeInfo().Assembly.GetName().Name);
-            return config.ServiceLocator.GetService<DynamicDataConfiguration>();
+            return config.ServiceProvider.GetService<DynamicDataConfiguration>();
         }
         
     }
