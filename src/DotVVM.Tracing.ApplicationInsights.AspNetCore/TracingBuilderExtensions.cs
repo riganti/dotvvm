@@ -1,26 +1,28 @@
 ﻿using DotVVM.Framework.Configuration;
+using DotVVM.Tracing.ApplicationInsights;
+using DotVVM.Tracing.ApplicationInsights.AspNetCore;
 using Microsoft.ApplicationInsights.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 
-namespace DotVVM.Tracing.ApplicationInsights.AspNetCore
+namespace DotVVM.Framework.Configuration
 {
     public static class TracingBuilderExtensions
     {
         /// <summary>
         /// Registers ApplicationInsightsTracer
         /// </summary>
-        /// <param name="options"></param>
+        /// <param name="services"></param>
         /// <returns></returns>
-        public static IDotvvmOptions AddApplicationInsightsTracing(this IDotvvmOptions options)
+        public static IDotvvmServiceCollection AddApplicationInsightsTracing(this IDotvvmServiceCollection services)
         {
-            options.AddApplicationInsightsTracingInternal();
+            services.AddApplicationInsightsTracingInternal();
 
-            options.Services.TryAddSingleton<JavaScriptSnippet>();
-            options.Services.AddTransient<IConfigureOptions<DotvvmConfiguration>, ApplicationInsightSetup>();
+            services.TryAddSingleton<JavaScriptSnippet>();
+            services.AddTransient<IConfigureOptions<DotvvmConfiguration>, ApplicationInsightSetup>();
 
-            return options;
+            return services;
         }
     }
 

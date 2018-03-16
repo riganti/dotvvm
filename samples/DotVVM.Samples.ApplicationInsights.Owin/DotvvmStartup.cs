@@ -1,19 +1,25 @@
-using System.Web.Hosting;
-using Microsoft.Owin;
-using Microsoft.Owin.FileSystems;
-using Microsoft.Owin.StaticFiles;
-using Owin;
-using DotVVM.Framework;
 using DotVVM.Framework.Configuration;
-using DotVVM.Framework.Routing;
+using DotVVM.Tracing.ApplicationInsights.Owin;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Samples.ApplicationInsights.Owin
 {
-    public class DotvvmStartup : IDotvvmStartup
+    public class DotvvmStartup : IDotvvmStartup, IDotvvmServiceConfigurator
     {
+        public void ConfigureServices(IDotvvmServiceCollection services)
+        {
+            services
+                .AddDefaultTempStorages("temp")
+                .AddApplicationInsightsTracing();
+        }
+
         // For more information about this class, visit https://dotvvm.com/docs/tutorials/basics-project-structure
         public void Configure(DotvvmConfiguration config, string applicationPath)
         {
+#if !DEBUG
+            config.Debug = false;
+#endif
+
             ConfigureRoutes(config, applicationPath);
             ConfigureControls(config, applicationPath);
             ConfigureResources(config, applicationPath);

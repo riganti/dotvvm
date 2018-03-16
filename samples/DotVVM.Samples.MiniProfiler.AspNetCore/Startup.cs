@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Caching.Memory;
-using DotVVM.Tracing.MiniProfiler.AspNetCore;
 using StackExchange.Profiling;
 
 namespace DotVVM.Samples.MiniProfiler.AspNetCore
@@ -18,12 +17,7 @@ namespace DotVVM.Samples.MiniProfiler.AspNetCore
             services.AddAuthorization();
             services.AddWebEncoders();
 
-            services.AddDotVVM(options =>
-            {
-                options
-                    .AddDefaultTempStorages("Temp")
-                    .AddMiniProfilerEventTracing();
-            });
+            services.AddDotVVM<DotvvmStartup>();
 
             services.AddMemoryCache();
 
@@ -40,8 +34,7 @@ namespace DotVVM.Samples.MiniProfiler.AspNetCore
 
             app.UseMiniProfiler();
 
-            // use DotVVM
-            var dotvvmConfiguration = app.UseDotVVM<DotvvmStartup>(env.ContentRootPath);
+            app.UseDotVVM<DotvvmStartup>(env.ContentRootPath);
         }
     }
 }

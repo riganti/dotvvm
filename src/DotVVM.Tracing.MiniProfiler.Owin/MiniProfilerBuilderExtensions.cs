@@ -1,25 +1,24 @@
-﻿using System;
-using DotVVM.Framework.Configuration;
-using DotVVM.Framework.Runtime.Tracing;
+﻿using DotVVM.Framework.Runtime.Tracing;
+using DotVVM.Tracing.MiniProfiler.Owin;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using StackExchange.Profiling;
 
-namespace DotVVM.Tracing.MiniProfiler.Owin
+namespace DotVVM.Framework.Configuration
 {
     public static class MiniProfilerBuilderExtensions
     {
         /// <summary>
         /// Registers MiniProfiler tracer and MiniProfilerWidget
         /// </summary>
-        /// <param name="options"></param>
+        /// <param name="services"></param>
         /// <returns></returns>
-        public static IDotvvmOptions AddMiniProfilerEventTracing(this IDotvvmOptions options)
+        public static IDotvvmServiceCollection AddMiniProfilerEventTracing(this IDotvvmServiceCollection services)
         {
-            options.Services.AddTransient<IRequestTracer, MiniProfilerTracer>();
-            options.Services.AddTransient<IConfigureOptions<DotvvmConfiguration>, MiniProfilerSetup>();
+            services.AddTransient<IRequestTracer, MiniProfilerTracer>();
+            services.AddTransient<IConfigureOptions<DotvvmConfiguration>, MiniProfilerSetup>();
 
-            return options;
+            return services;
         }
     }
 
