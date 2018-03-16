@@ -215,10 +215,11 @@ namespace DotVVM.Framework.Controls
         private static string GenerateHandlerOptions(DotvvmBindableObject handler, Dictionary<string, object> options)
         {
             JsExpression optionsExpr = new JsObjectExpression(
-                options.Where(o => o.Value != null).Select(o => new JsObjectProperty(o.Key, o.Value is IValueBinding b ?
+                options.Where(o => o.Value != null).Select(o => new JsObjectProperty(o.Key,
+                    o.Value is IValueBinding b ?
                     (JsExpression)new JsIdentifierExpression(
                         JavascriptTranslator.FormatKnockoutScript(b.GetParametrizedKnockoutExpression(handler, unwrapped: true), new ParametrizedCode("c"), new ParametrizedCode("d"))) :
-                    new JsLiteral(o.Value)))
+                    new JsLiteral(o.Value is IBinding ? ((IStaticValueBinding)o.Value).Evaluate(handler) : o.Value)))
             );
             if (options.Any(o => o.Value is IValueBinding))
                 optionsExpr = new JsFunctionExpression(
