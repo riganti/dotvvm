@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Controls.DynamicData.Metadata;
@@ -14,7 +13,6 @@ namespace DotVVM.Framework.Controls.DynamicData
 {
     public class DynamicDataGridViewDecorator : Decorator 
     {
-
         /// <summary>
         /// Gets or sets the view name (e.g. Insert, Edit, ReadOnly). Some fields may have different metadata for each view.
         /// </summary>
@@ -63,7 +61,7 @@ namespace DotVVM.Framework.Controls.DynamicData
             };
 
             // generate columns
-            var entityPropertyListProvider = context.Configuration.ServiceLocator.GetService<IEntityPropertyListProvider>();
+            var entityPropertyListProvider = context.Configuration.ServiceProvider.GetService<IEntityPropertyListProvider>();
             var viewContext = dynamicDataContext.CreateViewContext(context);
             var entityProperties = entityPropertyListProvider.GetProperties(itemViewModelType, viewContext);
             

@@ -1,8 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Controls.DynamicData.Metadata;
 using DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors;
 
@@ -21,7 +20,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
 
         public override void BuildForm(DotvvmControl hostControl, DynamicDataContext dynamicDataContext)
         {
-            var entityPropertyListProvider = dynamicDataContext.RequestContext.Configuration.ServiceLocator.GetService<IEntityPropertyListProvider>();
+            var entityPropertyListProvider = dynamicDataContext.RequestContext.Configuration.ServiceProvider.GetService<IEntityPropertyListProvider>();
 
             // create the table
             var table = InitializeTable(hostControl, dynamicDataContext);
