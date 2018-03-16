@@ -93,7 +93,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
             return ReferenceEquals(this, stack) || hashCode == stack.hashCode
                 && DataContextType == stack.DataContextType
                 && NamespaceImports.SequenceEqual(stack.NamespaceImports)
-                && (ReferenceEquals(Parent, stack.Parent) || Parent?.Equals(stack.Parent) == true);
+                && ExtensionParameters.SequenceEqual(stack.ExtensionParameters)
+                && Equals(Parent, stack.Parent);
         }
 
         public override int GetHashCode()
@@ -106,12 +107,15 @@ namespace DotVVM.Framework.Compilation.ControlTree
             unchecked
             {
                 var hashCode = 0;
-                if (NamespaceImports != null)
+                foreach (var import in NamespaceImports)
                 {
-                    foreach (var import in NamespaceImports)
-                    {
-                        hashCode += (hashCode * 47) ^ import.GetHashCode();
-                    }
+                    hashCode += (hashCode * 47) ^ import.GetHashCode();
+                }
+
+                foreach (var parameter in ExtensionParameters)
+                {
+                    hashCode *= 17;
+                    hashCode += parameter.GetHashCode();
                 }
 
                 hashCode = (hashCode * 397) ^ (Parent?.GetHashCode() ?? 0);
