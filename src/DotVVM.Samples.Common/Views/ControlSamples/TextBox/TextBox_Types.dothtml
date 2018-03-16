@@ -11,11 +11,15 @@
     <div class="container">
         <h1>TextBox Types sample</h1>
 
-        <dot:TextBox Text="{value: Date}" Type="Date" data-ui="date-textbox" FormatString="G"/>
+        <dot:TextBox Text="{value: Date}" Type="Date" data-ui="date-textbox" />
         <br />
         <dot:TextBox Text="{value: NullableDate}" Type="Date" data-ui="nullable-date-textbox" />
         <br />
-        <dot:TextBox Text="{value: Number}" Type="Number" data-ui="number-textbox" FormatString="G"/>
+        <dot:TextBox Text="{value: Date}" Type="Time" data-ui="time-textbox" />
+        <br />
+        <dot:TextBox Text="{value: NullableDate}" Type="Time" data-ui="nullable-time-textbox" />
+        <br />
+        <dot:TextBox Text="{value: Number}" Type="Number" data-ui="number-textbox" />
         <br />
         <dot:TextBox Text="{value: NullableNumber}" Type="Number" data-ui="nullable-number-textbox" />
     </div>
