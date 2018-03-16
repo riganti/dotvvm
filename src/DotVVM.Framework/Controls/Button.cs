@@ -61,16 +61,11 @@ namespace DotVVM.Framework.Controls
                 throw new DotvvmControlException(this, "Text property and inner content of the <dot:Button> control cannot be set at the same time!");
             }
 
-            if (ButtonTagName == ButtonTagName.button)
+            if (ButtonTagName == ButtonTagName.button && HasBinding(TextProperty))
             {
-                TagName = "button";
-
-                if (HasBinding(TextProperty))
-                {
-                    var literal = new Literal { RenderSpanElement = false };
-                    literal.SetBinding(c => c.Text, GetBinding(TextProperty));
-                    Children.Add(literal);
-                }
+                var literal = new Literal { RenderSpanElement = false };
+                literal.SetBinding(c => c.Text, GetBinding(TextProperty));
+                Children.Add(literal);
             }
 
             base.OnPreRender(context);
@@ -83,10 +78,14 @@ namespace DotVVM.Framework.Controls
         {
             writer.AddAttribute("type", IsSubmitButton ? "submit" : "button");
 
-            if(ButtonTagName == ButtonTagName.input)
+            if (ButtonTagName == ButtonTagName.button)
             {
-                writer.AddKnockoutDataBind("value", this, TextProperty, () =>
-                {
+                TagName = "button";
+            }
+
+            if (ButtonTagName == ButtonTagName.input)
+            {
+                writer.AddKnockoutDataBind("value", this, TextProperty, () => {
                     if (!HasOnlyWhiteSpaceContent())
                     {
                         // if there is only a text content, extract it into the Text property; if there is HTML, we don't support it
@@ -155,7 +154,7 @@ namespace DotVVM.Framework.Controls
         [ControlUsageValidator]
         public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
         {
-            if(control.Properties.ContainsKey(TextProperty) && control.Content.Any(n => n.DothtmlNode.IsNotEmpty()))
+            if (control.Properties.ContainsKey(TextProperty) && control.Content.Any(n => n.DothtmlNode.IsNotEmpty()))
             {
                 yield return new ControlUsageError("Text property and inner content of the <dot:Button> control cannot be set at the same time!", control.DothtmlNode);
             }
