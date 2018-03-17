@@ -127,6 +127,19 @@
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
     <ProjectReference Include="..\EmbeddedResourceControls\EmbeddedResourceControls.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Resources\Resource.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resource.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\Resource.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resource.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
   <PropertyGroup Label="Configuration">
     <OutputPath>bin\Debug</OutputPath>
   </PropertyGroup>

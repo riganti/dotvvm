@@ -120,4 +120,7 @@
   <data name="DefaultDirectiveLocalization" xml:space="preserve">
     <value>Default from configuration</value>
   </data>
+  <data name="PostbackHandlers" xml:space="preserve">
+    <value>EnglishValue</value>
+  </data>
 </root>
