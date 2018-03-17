@@ -29,6 +29,15 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public abstract Expression GetServerEquivalent(Expression controlParameter);
         public abstract JsExpression GetJsTranslation(JsExpression dataContext);
+
+        public override bool Equals(object obj) =>
+            obj is BindingExtensionParameter other && Equals(other);
+
+        public bool Equals(BindingExtensionParameter other) =>
+            string.Equals(Identifier, other.Identifier) && Inherit == other.Inherit && ParameterType.IsEqualTo(other.ParameterType);
+
+        public override int GetHashCode() =>
+            unchecked(((Identifier?.GetHashCode() ?? 0) * 397) ^ (Inherit.GetHashCode() * 17) + ParameterType.FullName.GetHashCode());
     }
 
     public class CurrentMarkupControlExtensionParameter : BindingExtensionParameter
