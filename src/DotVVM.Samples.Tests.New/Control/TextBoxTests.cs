@@ -249,8 +249,14 @@ namespace DotVVM.Samples.Tests.Control
                 AssertUI.Value(browser.Single("input[data-ui='number-textbox']"), "42.42");
                 AssertUI.Value(browser.Single("input[data-ui='nullable-number-textbox']"), "42.42");
 
-                AssertUI.Value(browser.Single("input[data-ui='time-textbox']"), "08:10");
+                AssertUI.Value(browser.Single("input[data-ui='time-textbox']"), "08:08");
                 AssertUI.Value(browser.Single("input[data-ui='nullable-time-textbox']"), "20:10");
+
+                AssertUI.Value(browser.Single("input[data-ui='month-textbox']"), "2017-01");
+                AssertUI.Value(browser.Single("input[data-ui='nullable-month-textbox']"), "2017-01");
+
+                AssertUI.Value(browser.Single("input[data-ui='datetime-textbox']"), "2017-01-01T08:08");
+                AssertUI.Value(browser.Single("input[data-ui='nullable-datetime-textbox']"), "2017-01-01T20:10");
             });
         }
 

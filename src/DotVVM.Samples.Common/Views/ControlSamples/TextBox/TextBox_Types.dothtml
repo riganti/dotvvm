@@ -19,6 +19,14 @@
         <br />
         <dot:TextBox Text="{value: NullableDate}" Type="Time" data-ui="nullable-time-textbox" />
         <br />
+        <dot:TextBox Text="{value: Date}" Type="DateTimeLocal" data-ui="datetime-textbox" />
+        <br />
+        <dot:TextBox Text="{value: NullableDate}" Type="DateTimeLocal" data-ui="nullable-datetime-textbox" />
+        <br />
+        <dot:TextBox Text="{value: Date}" Type="Month" data-ui="month-textbox" />
+        <br />
+        <dot:TextBox Text="{value: NullableDate}" Type="Month" data-ui="nullable-month-textbox" />
+        <br />
         <dot:TextBox Text="{value: Number}" Type="Number" data-ui="number-textbox" />
         <br />
         <dot:TextBox Text="{value: NullableNumber}" Type="Number" data-ui="nullable-number-textbox" />

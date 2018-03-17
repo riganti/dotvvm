@@ -16,16 +16,6 @@ namespace DotVVM.Framework.Controls
     {
         private bool isFormattingRequired;
         private string implicitFormatString;
-        // Contains implicit format string for given TextBoxType.
-        // Null format string means value must not be formatted.
-        private static Dictionary<TextBoxType, string> implicitFormatStrings
-            = new Dictionary<TextBoxType, string> {
-                { TextBoxType.Date, "yyyy-MM-dd" },
-                { TextBoxType.Time, "HH:mm" },
-                // Don't format <input type="Number" ... browsers expect
-                // value in specific format and localization breaks it
-                { TextBoxType.Number, null }
-            };
 
         /// <summary>
         /// Gets or sets a value indicating whether the control is enabled and can be modified.
@@ -137,19 +127,21 @@ namespace DotVVM.Framework.Controls
 
         protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
-            var isTypeImplicitlyFormatted = implicitFormatStrings.TryGetValue(Type, out implicitFormatString);
+            var isTypeImplicitlyFormatted = Type.TryGetFormatString(out implicitFormatString);
             if (!string.IsNullOrEmpty(FormatString) && isTypeImplicitlyFormatted)
             {
                 throw new NotSupportedException($"Property FormatString cannot be used with Type set to '{ Type }'." +
                     $" In this case browsers localize '{ Type }' themselves.");
             }
 
-            isFormattingRequired = (isTypeImplicitlyFormatted && implicitFormatString != null) &&
-                (!string.IsNullOrEmpty(FormatString) ||
+            if (!isTypeImplicitlyFormatted || implicitFormatString != null)
+            {
+                isFormattingRequired = !string.IsNullOrEmpty(FormatString) ||
 #pragma warning disable
-                ValueType != FormatValueType.Text ||
+                    ValueType != FormatValueType.Text ||
 #pragma warning restore
-                NeedsFormatting(GetValueBinding(TextProperty)));
+                    NeedsFormatting(GetValueBinding(TextProperty));
+            }
 
             if (isFormattingRequired)
             {
