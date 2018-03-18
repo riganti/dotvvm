@@ -130,8 +130,8 @@ if ($versionWithoutPre.Contains("-")) {
 }
 
 CleanOldGeneratedPackages;
-GitCheckout;
+#GitCheckout;
 SetVersion;
 BuildPackages;
 PushPackages;
-GitPush;
+#GitPush;
