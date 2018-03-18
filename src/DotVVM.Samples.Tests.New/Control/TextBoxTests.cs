@@ -235,6 +235,31 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
+        [Theory]
+        [InlineData("cs-CZ")]
+        [InlineData("en-US")]
+        public void Control_TextBox_TextBox_Types(string localizationId)
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_TextBox_TextBox_Types + "?lang=" + localizationId);
+
+                AssertUI.Value(browser.Single("input[data-ui='date-textbox']"), "2017-01-01");
+                AssertUI.Value(browser.Single("input[data-ui='nullable-date-textbox']"), "2017-01-01");
+
+                AssertUI.Value(browser.Single("input[data-ui='number-textbox']"), "42.42");
+                AssertUI.Value(browser.Single("input[data-ui='nullable-number-textbox']"), "42.42");
+
+                AssertUI.Value(browser.Single("input[data-ui='time-textbox']"), "08:08");
+                AssertUI.Value(browser.Single("input[data-ui='nullable-time-textbox']"), "20:10");
+
+                AssertUI.Value(browser.Single("input[data-ui='month-textbox']"), "2017-01");
+                AssertUI.Value(browser.Single("input[data-ui='nullable-month-textbox']"), "2017-01");
+
+                AssertUI.Value(browser.Single("input[data-ui='datetime-textbox']"), "2017-01-01T08:08");
+                AssertUI.Value(browser.Single("input[data-ui='nullable-datetime-textbox']"), "2017-01-01T20:10");
+            });
+        }
+
         public TextBoxTests(ITestOutputHelper output) : base(output)
         {
         }
