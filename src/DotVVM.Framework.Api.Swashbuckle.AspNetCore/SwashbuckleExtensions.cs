@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore
             options.OperationFilter<RemoveBindNoneFromUriParametersOperationFilter>();
             options.OperationFilter<AddAsObjectOperationFilter>();
 
-            options.SchemaFilter<HandleDotvvmNameSchemaFilter>();
+            options.SchemaFilter<AddTypeToModelSchemaFilter>();
             options.DocumentFilter<HandleKnownTypesDocumentFilter>();
         }
     }

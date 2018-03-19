@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using DotVVM.Core.Common;
+using DotVVM.Framework.ViewModel;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -10,28 +12,57 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Filters
     public class HandleKnownTypesDocumentFilter : IDocumentFilter
     {
         private readonly IOptions<DotvvmApiOptions> apiOptions;
+        private readonly DefaultPropertySerialization propertySerialization;
 
         public HandleKnownTypesDocumentFilter(IOptions<DotvvmApiOptions> apiOptions)
         {
             this.apiOptions = apiOptions;
+            this.propertySerialization = new DefaultPropertySerialization();
         }
 
         public void Apply(SwaggerDocument swaggerDoc, DocumentFilterContext context)
         {
             var knownTypes = apiOptions.Value;
-            foreach (var definition in swaggerDoc.Definitions)
+            foreach (var schema in swaggerDoc.Definitions.Values)
             {
-                if (definition.Value.Extensions.TryGetValue(ApiConstants.DotvvmTypeKey, out var objType) && objType is Type underlayingType
-                    && knownTypes.IsKnownType(underlayingType))
+                if (schema.Extensions.TryGetValue(ApiConstants.DotvvmTypeKey, out var objType) && objType is Type underlayingType)
                 {
-                    var name = CreateProperName(underlayingType, swaggerDoc);
-                    definition.Value.Extensions.Add(ApiConstants.DotvvmKnownTypeKey, name);
+                    if (knownTypes.IsKnownType(underlayingType))
+                    {
+                        var name = CreateProperName(underlayingType, swaggerDoc);
+                        schema.Extensions.Add(ApiConstants.DotvvmKnownTypeKey, name);
+
+                        SetDotvvmNameToProperties(schema, underlayingType);
+                    }
                 }
             }
 
             foreach (var definition in swaggerDoc.Definitions)
             {
                 definition.Value.Extensions.Remove(ApiConstants.DotvvmTypeKey);
+            }
+        }
+
+        private void SetDotvvmNameToProperties(Schema schema, Type underlayingType)
+        {
+            if (schema.Properties == null)
+            {
+                return;
+            }
+
+            foreach (var property in schema.Properties)
+            {
+                SetDotvvmNameToProperty(underlayingType, property.Key, property.Value);
+            }
+        }
+
+        private void SetDotvvmNameToProperty(Type type, string propertyName, Schema targetSchema)
+        {
+            var propertyInfo = type.GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
+
+            if (propertyInfo != null)
+            {
+                targetSchema.Extensions.Add(ApiConstants.DotvvmNameKey, propertySerialization.ResolveName(propertyInfo));
             }
         }
 

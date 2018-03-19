@@ -88,7 +88,7 @@ namespace DotVVM.CommandLine.Commands.Logic
                 UseTransformOptionsMethod = true,
                 ClientBaseClass = "ClientBase",
                 TypeScriptGeneratorSettings = {
-                    PropertyNameGenerator = new CustomPropertyNameGenerator(c => ConversionUtilities.ConvertToLowerCamelCase(c, true)),
+                    PropertyNameGenerator = new CustomPropertyNameGenerator(c => c),
                     NullValue = TypeScriptNullValue.Null
                 }
             };

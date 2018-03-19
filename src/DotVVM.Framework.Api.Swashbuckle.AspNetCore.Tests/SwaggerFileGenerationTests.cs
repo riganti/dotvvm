@@ -61,7 +61,7 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Tests
 
             var schemaSettings = new SchemaRegistrySettings() {
                 SchemaFilters = {
-                    new HandleDotvvmNameSchemaFilter(knownTypesOptions)
+                    new AddTypeToModelSchemaFilter()
                 }
             };
 

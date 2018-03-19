@@ -19,7 +19,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore.Controllers
                 return Database.Instance
                     .Orders
                     .Where(o => o.CompanyId == companyId)
-                    .Skip(pageIndex)
+                    .Skip(pageIndex * pageSize)
                     .Take(pageSize)
                     .ToList();
             }

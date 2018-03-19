@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using System.Web.Http.Description;
 using DotVVM.Core.Common;
-using Microsoft.Extensions.Options;
+using DotVVM.Framework.ViewModel;
 using Swashbuckle.Swagger;
 
 namespace DotVVM.Framework.Api.Swashbuckle.Owin.Filters
@@ -10,27 +11,56 @@ namespace DotVVM.Framework.Api.Swashbuckle.Owin.Filters
     public class HandleKnownTypesDocumentFilter : IDocumentFilter
     {
         private readonly DotvvmApiOptions apiOptions;
+        private readonly IPropertySerialization propertySerialization;
 
-        public HandleKnownTypesDocumentFilter(DotvvmApiOptions apiOptions)
+        public HandleKnownTypesDocumentFilter(DotvvmApiOptions apiOptions, IPropertySerialization propertySerialization)
         {
             this.apiOptions = apiOptions;
+            this.propertySerialization = propertySerialization;
         }
 
         public void Apply(SwaggerDocument swaggerDoc, SchemaRegistry schemaRegistry, IApiExplorer apiExplorer)
         {
-            foreach (var definition in swaggerDoc.definitions)
+            foreach (var schema in swaggerDoc.definitions.Values)
             {
-                if (definition.Value.vendorExtensions.TryGetValue(ApiConstants.DotvvmTypeKey, out var objType) && objType is Type underlayingType
-                    && apiOptions.IsKnownType(underlayingType))
+                if (schema.vendorExtensions.TryGetValue(ApiConstants.DotvvmTypeKey, out var objType) && objType is Type underlayingType)
                 {
-                    var name = CreateProperName(underlayingType, swaggerDoc);
-                    definition.Value.vendorExtensions.Add(ApiConstants.DotvvmKnownTypeKey, name);
+                    if (apiOptions.IsKnownType(underlayingType))
+                    {
+                        var name = CreateProperName(underlayingType, swaggerDoc);
+                        schema.vendorExtensions.Add(ApiConstants.DotvvmKnownTypeKey, name);
+
+                        SetDotvvmNameToProperties(schema, underlayingType);
+                    }
                 }
             }
 
             foreach (var definition in swaggerDoc.definitions)
             {
                 definition.Value.vendorExtensions.Remove(ApiConstants.DotvvmTypeKey);
+            }
+        }
+
+        private void SetDotvvmNameToProperties(Schema schema, Type underlayingType)
+        {
+            if (schema.properties == null)
+            {
+                return;
+            }
+
+            foreach (var property in schema.properties)
+            {
+                SetDotvvmNameToProperty(underlayingType, property.Key, property.Value);
+            }
+        }
+
+        private void SetDotvvmNameToProperty(Type type, string propertyName, Schema targetSchema)
+        {
+            var propertyInfo = type.GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
+
+            if (propertyInfo != null)
+            {
+                targetSchema.vendorExtensions.Add(ApiConstants.DotvvmNameKey, propertySerialization.ResolveName(propertyInfo));
             }
         }
 

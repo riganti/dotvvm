@@ -977,7 +977,7 @@ namespace DotVVM.Samples.Common.Api.Owin {
         Id?: number;
         Number?: string;
         Date?: Date;
-        CompanyId?: number;
+        companyId?: number;
         OrderItems?: OrderItem[];
     
         constructor(data?: IOrder) {
@@ -994,7 +994,7 @@ namespace DotVVM.Samples.Common.Api.Owin {
                 this.Id = data["Id"] !== undefined ? data["Id"] : <any>null;
                 this.Number = data["Number"] !== undefined ? data["Number"] : <any>null;
                 this.Date = data["Date"] ? new Date(data["Date"].toString()) : <any>null;
-                this.CompanyId = data["CompanyId"] !== undefined ? data["CompanyId"] : <any>null;
+                this.companyId = data["companyId"] !== undefined ? data["companyId"] : <any>null;
                 if (data["OrderItems"] && data["OrderItems"].constructor === Array) {
                     this.OrderItems = [];
                     for (let item of data["OrderItems"])
@@ -1014,7 +1014,7 @@ namespace DotVVM.Samples.Common.Api.Owin {
             data["Id"] = this.Id !== undefined ? this.Id : <any>null;
             data["Number"] = this.Number !== undefined ? this.Number : <any>null;
             data["Date"] = this.Date ? this.Date.toISOString() : <any>null;
-            data["CompanyId"] = this.CompanyId !== undefined ? this.CompanyId : <any>null;
+            data["companyId"] = this.companyId !== undefined ? this.companyId : <any>null;
             if (this.OrderItems && this.OrderItems.constructor === Array) {
                 data["OrderItems"] = [];
                 for (let item of this.OrderItems)
@@ -1028,7 +1028,7 @@ namespace DotVVM.Samples.Common.Api.Owin {
         Id?: number;
         Number?: string;
         Date?: Date;
-        CompanyId?: number;
+        companyId?: number;
         OrderItems?: OrderItem[];
     }
     

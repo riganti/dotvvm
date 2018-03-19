@@ -19,8 +19,8 @@ namespace DotVVM.Framework.Api.Swashbuckle.Owin
 
             var propertySerialization = new DefaultPropertySerialization();
             options.OperationFilter(() => new AddAsObjectAnnotationOperationFilter(propertySerialization));
-            options.SchemaFilter(() => new HandleDotvvmNameSchemaFilter(apiOptions, propertySerialization));
-            options.DocumentFilter(() => new HandleKnownTypesDocumentFilter(apiOptions));
+            options.SchemaFilter(() => new AddTypeToModelSchemaFilter());
+            options.DocumentFilter(() => new HandleKnownTypesDocumentFilter(apiOptions, propertySerialization));
         }
     }
 }

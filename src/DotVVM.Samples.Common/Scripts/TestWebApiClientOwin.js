@@ -920,7 +920,7 @@ var DotVVM;
                                 this.Id = data["Id"] !== undefined ? data["Id"] : null;
                                 this.Number = data["Number"] !== undefined ? data["Number"] : null;
                                 this.Date = data["Date"] ? new Date(data["Date"].toString()) : null;
-                                this.CompanyId = data["CompanyId"] !== undefined ? data["CompanyId"] : null;
+                                this.companyId = data["companyId"] !== undefined ? data["companyId"] : null;
                                 if (data["OrderItems"] && data["OrderItems"].constructor === Array) {
                                     this.OrderItems = [];
                                     for (var _i = 0, _a = data["OrderItems"]; _i < _a.length; _i++) {
@@ -940,7 +940,7 @@ var DotVVM;
                             data["Id"] = this.Id !== undefined ? this.Id : null;
                             data["Number"] = this.Number !== undefined ? this.Number : null;
                             data["Date"] = this.Date ? this.Date.toISOString() : null;
-                            data["CompanyId"] = this.CompanyId !== undefined ? this.CompanyId : null;
+                            data["companyId"] = this.companyId !== undefined ? this.companyId : null;
                             if (this.OrderItems && this.OrderItems.constructor === Array) {
                                 data["OrderItems"] = [];
                                 for (var _i = 0, _a = this.OrderItems; _i < _a.length; _i++) {

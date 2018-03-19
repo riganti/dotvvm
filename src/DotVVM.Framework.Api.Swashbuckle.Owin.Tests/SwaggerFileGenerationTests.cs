@@ -49,8 +49,8 @@ namespace DotVVM.Framework.Api.Swashbuckle.Owin.Tests
 
                 // our custom filters
                 new AddAsObjectAnnotationOperationFilter(new DefaultPropertySerialization()),
-            }, schemaFilters: new[] { new HandleDotvvmNameSchemaFilter(apiOptions, new DefaultPropertySerialization())
-            }, documentFilters: new[] { new HandleKnownTypesDocumentFilter(apiOptions) });
+            }, schemaFilters: new[] { new AddTypeToModelSchemaFilter()
+            }, documentFilters: new[] { new HandleKnownTypesDocumentFilter(apiOptions, new DefaultPropertySerialization()) });
 
             var generator = new SwaggerGenerator(apiExplorer, settings, versions, options);
             document = generator.GetSwagger("http://localhost:61453/", "v1");
