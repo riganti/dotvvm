@@ -25,7 +25,7 @@
         <dot:Repeater DataSource="{value: SelectedCompanyId == -1 ? null : Api.RefreshOnChange(_api.Orders.Get(SelectedCompanyId, 0, 20), SelectedCompanyId)}">
             <p Visible="{value: _root.EditedOrderId == Id}">
                 OrderId: {{value: Id}} <br />
-                Date: <dot:TextBox Text="{value: Date.ToString('yyyy-MM-dd')}" Type="date" /> <br /> 
+                Date: <dot:TextBox Text="{value: Date}" Type="date" /> <br /> 
                 <dot:Button Click="{staticCommand: _api.Orders.Put(Id, _this)}" Text="Apply" />
                 <dot:Button Click="{staticCommand: _root.EditedOrderId = -1}" Text="Exit" />
             </p>
