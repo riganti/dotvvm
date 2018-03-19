@@ -59,6 +59,7 @@
 {% for operation in Operations -%}
 {%     if GenerateOptionalParameters == false -%}
     {% template Client.Method.Documentation %}
+    [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("{{ operation.HttpMethodUpper }}")]
     {{ operation.MethodAccessModifier }} {{ operation.ResultType }} {{ operation.ActualOperationName }}Async({% for parameter in operation.MethodParameters %}{{ parameter.Type }} {{ parameter.VariableName }}{% if GenerateOptionalParameters and parameter.IsOptional %} = null{% endif %}{% if parameter.IsLastMethodParameter == false %}, {% endif %}{% endfor %})
     {
         return {{ operation.ActualOperationName }}Async({% for parameter in operation.MethodParameters %}{{ parameter.VariableName }}, {% endfor %}System.Threading.CancellationToken.None);
@@ -67,6 +68,7 @@
 {%     endif -%}
 {%     if GenerateSyncMethods -%}
     {% template Client.Method.Documentation %}
+    [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("{{ operation.HttpMethodUpper }}")]
     {{ operation.MethodAccessModifier }} {{ operation.SyncResultType }} {{ operation.ActualOperationName }}({% for parameter in operation.MethodParameters %}{{ parameter.Type }} {{ parameter.VariableName }}{% if GenerateOptionalParameters and parameter.IsOptional %} = null{% endif %}{% if parameter.IsLastMethodParameter == false %}, {% endif %}{% endfor %})
     {
         {% if operation.HasResult %}return {% endif %}System.Threading.Tasks.Task.Run(async () => await {{ operation.ActualOperationName }}Async({% for parameter in operation.MethodParameters %}{{ parameter.VariableName }}, {% endfor %}System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
@@ -75,6 +77,7 @@
 {%     endif -%}
     {% template Client.Method.Documentation %}
     /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+    [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("{{ operation.HttpMethodUpper }}")]
     {{ operation.MethodAccessModifier }} async {{ operation.ResultType }} {{ operation.ActualOperationName }}Async({% for parameter in operation.MethodParameters %}{{ parameter.Type }} {{ parameter.VariableName }}{% if GenerateOptionalParameters and parameter.IsOptional %} = null{% endif %}, {% endfor %}System.Threading.CancellationToken cancellationToken{% if GenerateOptionalParameters %} = default(System.Threading.CancellationToken){% endif %})
     {
 {%     for parameter in operation.CustomInitializedParameters -%}

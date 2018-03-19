@@ -30,16 +30,6 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.PostBack
 
         public override Task Init()
         {
-            var lang = Context.Query["lang"];
-            if (lang != null)
-            {
-                var culture = CultureInfo.GetCultureInfo(lang);
-#if DotNetCore
-                CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = culture;
-#else
-                Thread.CurrentThread.CurrentUICulture = Thread.CurrentThread.CurrentCulture = culture;
-#endif
-            }
             return base.Init();
         }
 

@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DotVVM.Core.Common;
 using DotVVM.Framework.Api.Swashbuckle.AspNetCore;
+using DotVVM.Framework.Api.Swashbuckle.AspNetCore.Filters;
 using DotVVM.Samples.BasicSamples.Api.Common.DataStore;
 using DotVVM.Samples.BasicSamples.Api.Common.Model;
 using Microsoft.AspNetCore.Builder;
@@ -32,12 +34,11 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
-            services.AddMvc()
-                .AddJsonOptions(opt => {
-                    opt.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
-                });
+            services.AddMvc();
 
             services.AddDotVVM<DotvvmServiceConfigurator>();
+
+            services.Configure<DotvvmApiOptions>(opt => opt.AddKnownType(typeof(Company<string>)));
 
             services.AddSwaggerGen(options => {
                 options.SwaggerDoc("v1", new Info() { Title = "DotVVM Test API", Version = "v1" });
