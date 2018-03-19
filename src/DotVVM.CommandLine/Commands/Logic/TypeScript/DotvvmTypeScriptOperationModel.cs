@@ -10,7 +10,6 @@ namespace DotVVM.CommandLine.Commands.Logic
 {
     public class DotvvmTypeScriptOperationModel : TypeScriptOperationModel
     {
-
         public IEnumerable<DotvvmTypeScriptParameterModel> MethodParameters => Parameters.OfType<DotvvmTypeScriptParameterModel>().Where(p => string.IsNullOrEmpty(p.CustomInitializer));
 
         public IEnumerable<DotvvmTypeScriptParameterModel> CustomInitializedParameters => Parameters.OfType<DotvvmTypeScriptParameterModel>().Where(p => !string.IsNullOrEmpty(p.CustomInitializer));
@@ -21,7 +20,9 @@ namespace DotVVM.CommandLine.Commands.Logic
         {
             var parameters = operation.ActualParameters.ToList();
             if (settings.GenerateOptionalParameters)
+            {
                 parameters = parameters.OrderBy(p => !p.IsRequired).ToList();
+            }
 
             var newParameters = parameters.Select(parameter =>
                 new DotvvmTypeScriptParameterModel(parameter.Name, GetParameterVariableName(parameter, operation.Parameters),

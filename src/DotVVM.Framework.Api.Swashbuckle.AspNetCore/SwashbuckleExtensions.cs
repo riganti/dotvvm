@@ -1,5 +1,6 @@
 ﻿using System;
 using DotVVM.Framework.Api.Swashbuckle.AspNetCore.Filters;
+using DotVVM.Framework.Controls;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore
@@ -13,9 +14,10 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore
         {
             options.OperationFilter<RemoveReadOnlyFromUriParametersOperationFilter>();
             options.OperationFilter<RemoveBindNoneFromUriParametersOperationFilter>();
-            options.OperationFilter<AddAsObjectAnnotationOperationFilter>();
-            options.OperationFilter<HandleGridViewDataSetReturnType>();
-        }
+            options.OperationFilter<AddAsObjectOperationFilter>();
 
+            options.SchemaFilter<AddTypeToModelSchemaFilter>();
+            options.DocumentFilter<HandleKnownTypesDocumentFilter>();
+        }
     }
 }
