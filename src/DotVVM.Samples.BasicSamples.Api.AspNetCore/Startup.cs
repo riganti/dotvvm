@@ -36,9 +36,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore
             // Add framework services.
             services.AddMvc();
 
-            services.AddDotVVM(options => {
-                options.AddDefaultTempStorages("temp");
-            });
+            services.AddDotVVM<DotvvmServiceConfigurator>();
 
             services.Configure<DotvvmApiOptions>(opt => opt.AddKnownType(typeof(Company<string>)));
 
@@ -55,8 +53,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
-            app.UseCors(p =>
-            {
+            app.UseCors(p => {
                 p.AllowAnyOrigin();
                 p.AllowAnyMethod();
                 p.AllowAnyHeader();

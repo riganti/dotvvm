@@ -172,8 +172,6 @@ namespace DotVVM.Framework.Compilation.Binding
                 .Aggregate((a, b) => a.ApplySecond(b));
         }
 
-        public BindingDelegate Compile(Expression<BindingDelegate> expr) => expr.Compile();
-        public BindingUpdateDelegate Compile(Expression<BindingUpdateDelegate> expr) => expr.Compile();
 
         private ConditionalWeakTable<ResolvedTreeRoot, ConcurrentDictionary<DataContextStack, int>> bindingCounts = new ConditionalWeakTable<ResolvedTreeRoot, ConcurrentDictionary<DataContextStack, int>>();
 

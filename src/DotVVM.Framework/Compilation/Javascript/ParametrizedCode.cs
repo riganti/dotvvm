@@ -30,7 +30,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             if (stringParts == null)
                 this.evaluatedDefault = evaluatedDefault ?? throw new ArgumentNullException(nameof(stringParts), "Can't be null, unless evaluatedDefauls is set.");
             else if (stringParts.Length == 1)
-                evaluatedDefault = stringParts[0] ?? throw new ArgumentNullException(nameof(stringParts), "Can't be null, unless evaluatedDefauls is set.");
+                this.evaluatedDefault = stringParts[0] ?? throw new ArgumentNullException(nameof(stringParts), "Can't be null, unless evaluatedDefauls is set.");
             else
             {
                 this.stringParts = stringParts;
@@ -248,11 +248,11 @@ namespace DotVVM.Framework.Compilation.Javascript
         /// </summary>
         public readonly bool IsSafeMemberAccess;
 
-        public CodeParameterInfo(CodeSymbolicParameter parameter, byte operatorPrecence = 20, bool isMemberAccess = false, CodeParameterAssignment? assignment = null)
+        public CodeParameterInfo(CodeSymbolicParameter parameter, byte operatorPrecedence = 20, bool isSafeMemberAccess = false, CodeParameterAssignment? assignment = null)
         {
             this.Parameter = parameter;
-            this.OperatorPrecedence = operatorPrecence;
-            this.IsSafeMemberAccess = isMemberAccess;
+            this.OperatorPrecedence = operatorPrecedence;
+            this.IsSafeMemberAccess = isSafeMemberAccess;
             this.DefaultAssignment = assignment ?? parameter.DefaultAssignment;
         }
 

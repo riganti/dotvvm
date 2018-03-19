@@ -210,15 +210,9 @@ namespace DotVVM.Samples.Tests.New.Control
             });
         }
 
-        public static IEnumerable<object[]> GridViewInlineEditingData =>
-            new List<object[]>
-            {
-                new object[] { SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing, 0 },
-                new object[] { SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing, 1 },
-            };
-
         [Theory]
-        [MemberData(nameof(GridViewInlineEditingData))]
+        [InlineData(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing, 0)]
+        [InlineData(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing, 1)]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing))]
         public void Control_GridView_GridViewInlineEditing(string path, int tableID)
         {
@@ -260,15 +254,9 @@ namespace DotVVM.Samples.Tests.New.Control
             });
         }
 
-        public static IEnumerable<object[]> GridViewInlineEditingPagingWhenEditingData =>
-            new List<object[]>
-            {
-                new object[] { SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing, 0 },
-                new object[] { SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing, 1 },
-            };
-
         [Theory]
-        [MemberData(nameof(GridViewInlineEditingPagingWhenEditingData))]
+        [InlineData(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing, 0)]
+        [InlineData(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing, 1)]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing))]
         public void Control_GridView_GridViewInlineEditing_PagingWhenEditing(string path, int tableID)
         {
@@ -317,15 +305,9 @@ namespace DotVVM.Samples.Tests.New.Control
             });
         }
 
-        public static IEnumerable<object[]> GridViewPagingSortingData =>
-            new List<object[]>
-            {
-                new object[] { SamplesRouteUrls.ControlSamples_GridView_GridViewPagingSorting },
-                new object[] { SamplesRouteUrls.ControlSamples_GridView_GridViewServerRender },
-            };
-
         [Theory]
-        [MemberData(nameof(GridViewPagingSortingData))]
+        [InlineData(SamplesRouteUrls.ControlSamples_GridView_GridViewPagingSorting)]
+        [InlineData(SamplesRouteUrls.ControlSamples_GridView_GridViewServerRender)]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_GridView_GridViewPagingSorting))]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_GridView_GridViewServerRender))]
         public void Control_GridView_GridViewPagingSortingBase(string path)

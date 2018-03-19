@@ -2,11 +2,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using DotVVM.Framework.Binding;
-using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth;
 using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand;
-using DotVVM.Samples.Common;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
@@ -22,7 +20,7 @@ namespace DotVVM.Samples.BasicSamples
     {
         public class BindingTestResolvers
         {
-            
+
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -55,11 +53,7 @@ namespace DotVVM.Samples.BasicSamples
 
             services.AddLocalization(o => o.ResourcesPath = "Resources");
 
-            services.AddDotVVM(options =>
-            {
-                CommonConfiguration.ConfigureServices(options.Services);
-                options.AddDefaultTempStorages("Temp");
-            });
+            services.AddDotVVM<DotvvmServiceConfigurator>();
 
             services.Configure<BindingCompilationOptions>(o => {
                 o.TransformerClasses.Add(new BindingTestResolvers());

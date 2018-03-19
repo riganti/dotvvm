@@ -1,21 +1,33 @@
 ﻿
 using DotVVM.Testing.Abstractions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
 using Riganti.Selenium.Core;
+using Xunit;
+using Xunit.Abstractions;
 
-namespace DotVVM.Samples.Tests.Complex
+namespace DotVVM.Samples.Tests.New.Complex
 {
-    [TestClass]
     public class GridViewDataSetTests : AppSeleniumTest
     {
-        [TestMethod]
+        public GridViewDataSetTests(ITestOutputHelper output) : base(output)
+        {
+        }
+
+        [Fact]
         public void Complex_GridViewDataSet_GridViewDataSet()
         {
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_GridViewDataSet_GridViewDataSet);
                 browser.First(".GridView");
+
+                var buttonsInGridView = browser.FindElements(SelectByDataUiId("button-with-html-content"));
+
+                foreach (var button in buttonsInGridView)
+                {
+                    AssertUI.ContainsElement(button, "h4");
+                    AssertUI.InnerTextEquals(button, "Choose");
+                }
             });
         }
         
