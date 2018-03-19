@@ -600,10 +600,10 @@ var DotVVM;
                         }
                         CompanyOfBoolean.prototype.init = function (data) {
                             if (data) {
-                                this.id = data["id"] !== undefined ? data["id"] : null;
-                                this.name = data["name"] !== undefined ? data["name"] : null;
-                                this.owner = data["owner"] !== undefined ? data["owner"] : null;
-                                this.department = data["department"] !== undefined ? data["department"] : null;
+                                this.Id = data["id"] !== undefined ? data["id"] : null;
+                                this.Name = data["name"] !== undefined ? data["name"] : null;
+                                this.Owner = data["owner"] !== undefined ? data["owner"] : null;
+                                this.Department = data["department"] !== undefined ? data["department"] : null;
                             }
                         };
                         CompanyOfBoolean.fromJS = function (data) {
@@ -613,10 +613,10 @@ var DotVVM;
                         };
                         CompanyOfBoolean.prototype.toJSON = function (data) {
                             data = typeof data === 'object' ? data : {};
-                            data["id"] = this.id !== undefined ? this.id : null;
-                            data["name"] = this.name !== undefined ? this.name : null;
-                            data["owner"] = this.owner !== undefined ? this.owner : null;
-                            data["department"] = this.department !== undefined ? this.department : null;
+                            data["id"] = this.Id !== undefined ? this.Id : null;
+                            data["name"] = this.Name !== undefined ? this.Name : null;
+                            data["owner"] = this.Owner !== undefined ? this.Owner : null;
+                            data["department"] = this.Department !== undefined ? this.Department : null;
                             return data;
                         };
                         return CompanyOfBoolean;
@@ -801,15 +801,15 @@ var DotVVM;
                         }
                         Order.prototype.init = function (data) {
                             if (data) {
-                                this.id = data["id"] !== undefined ? data["id"] : null;
-                                this.number = data["number"] !== undefined ? data["number"] : null;
-                                this.date = data["date"] ? new Date(data["date"].toString()) : null;
-                                this.companyId = data["companyId"] !== undefined ? data["companyId"] : null;
+                                this.Id = data["id"] !== undefined ? data["id"] : null;
+                                this.Number = data["number"] !== undefined ? data["number"] : null;
+                                this.Date = data["date"] ? new Date(data["date"].toString()) : null;
+                                this.CompanyId = data["companyId"] !== undefined ? data["companyId"] : null;
                                 if (data["orderItems"] && data["orderItems"].constructor === Array) {
-                                    this.orderItems = [];
+                                    this.OrderItems = [];
                                     for (var _i = 0, _a = data["orderItems"]; _i < _a.length; _i++) {
                                         var item = _a[_i];
-                                        this.orderItems.push(OrderItem.fromJS(item));
+                                        this.OrderItems.push(OrderItem.fromJS(item));
                                     }
                                 }
                             }
@@ -821,13 +821,13 @@ var DotVVM;
                         };
                         Order.prototype.toJSON = function (data) {
                             data = typeof data === 'object' ? data : {};
-                            data["id"] = this.id !== undefined ? this.id : null;
-                            data["number"] = this.number !== undefined ? this.number : null;
-                            data["date"] = this.date ? this.date.toISOString() : null;
-                            data["companyId"] = this.companyId !== undefined ? this.companyId : null;
-                            if (this.orderItems && this.orderItems.constructor === Array) {
+                            data["id"] = this.Id !== undefined ? this.Id : null;
+                            data["number"] = this.Number !== undefined ? this.Number : null;
+                            data["date"] = this.Date ? this.Date.toISOString() : null;
+                            data["companyId"] = this.CompanyId !== undefined ? this.CompanyId : null;
+                            if (this.OrderItems && this.OrderItems.constructor === Array) {
                                 data["orderItems"] = [];
-                                for (var _i = 0, _a = this.orderItems; _i < _a.length; _i++) {
+                                for (var _i = 0, _a = this.OrderItems; _i < _a.length; _i++) {
                                     var item = _a[_i];
                                     data["orderItems"].push(item.toJSON());
                                 }
@@ -848,11 +848,11 @@ var DotVVM;
                         }
                         OrderItem.prototype.init = function (data) {
                             if (data) {
-                                this.id = data["id"] !== undefined ? data["id"] : null;
-                                this.text = data["text"] !== undefined ? data["text"] : null;
-                                this.amount = data["amount"] !== undefined ? data["amount"] : null;
-                                this.discount = data["discount"] !== undefined ? data["discount"] : null;
-                                this.isOnStock = data["isOnStock"] !== undefined ? data["isOnStock"] : null;
+                                this.Id = data["id"] !== undefined ? data["id"] : null;
+                                this.Text = data["text"] !== undefined ? data["text"] : null;
+                                this.Amount = data["amount"] !== undefined ? data["amount"] : null;
+                                this.Discount = data["discount"] !== undefined ? data["discount"] : null;
+                                this.IsOnStock = data["isOnStock"] !== undefined ? data["isOnStock"] : null;
                             }
                         };
                         OrderItem.fromJS = function (data) {
@@ -862,11 +862,11 @@ var DotVVM;
                         };
                         OrderItem.prototype.toJSON = function (data) {
                             data = typeof data === 'object' ? data : {};
-                            data["id"] = this.id !== undefined ? this.id : null;
-                            data["text"] = this.text !== undefined ? this.text : null;
-                            data["amount"] = this.amount !== undefined ? this.amount : null;
-                            data["discount"] = this.discount !== undefined ? this.discount : null;
-                            data["isOnStock"] = this.isOnStock !== undefined ? this.isOnStock : null;
+                            data["id"] = this.Id !== undefined ? this.Id : null;
+                            data["text"] = this.Text !== undefined ? this.Text : null;
+                            data["amount"] = this.Amount !== undefined ? this.Amount : null;
+                            data["discount"] = this.Discount !== undefined ? this.Discount : null;
+                            data["isOnStock"] = this.IsOnStock !== undefined ? this.IsOnStock : null;
                             return data;
                         };
                         return OrderItem;

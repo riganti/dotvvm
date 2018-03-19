@@ -29,9 +29,9 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Tests
         [ClassInitialize]
         public static void Init(TestContext testContext)
         {
-            var knownTypesOptions = Options.Create(new DotvvmApiOptions() {
-                KnownTypes = { typeof(Company<string>) }
-            });
+            var knownTypesOptions = Options.Create(new DotvvmApiOptions());
+
+            knownTypesOptions.Value.AddKnownType(typeof(Company<string>));
 
             var options = new SwaggerGeneratorSettings {
                 DocInclusionPredicate = (version, api) => true,

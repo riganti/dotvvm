@@ -37,9 +37,8 @@ namespace DotVVM.Framework.Api.Swashbuckle.Owin.Tests
                 { "v1", new Info() { version = "v1", title = "Test API" } }
             };
 
-            var apiOptions = new DotvvmApiOptions() {
-                KnownTypes = { typeof(Company<string>) }
-            };
+            var apiOptions = new DotvvmApiOptions();
+            apiOptions.AddKnownType(typeof(Company<string>));
 
             var options = new SwaggerGeneratorOptions(operationFilters: new IOperationFilter[] {
                 // default filters used by Swashbuckle

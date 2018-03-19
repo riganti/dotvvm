@@ -4,6 +4,7 @@ using WebActivatorEx;
 using DotVVM.Samples.BasicSamples.Api.Owin;
 using Swashbuckle.Application;
 using DotVVM.Samples.BasicSamples.Api.Common.Model;
+using DotVVM.Core.Common;
 
 namespace DotVVM.Samples.BasicSamples.Api.Owin
 {
@@ -177,7 +178,7 @@ namespace DotVVM.Samples.BasicSamples.Api.Owin
                         //
                         //c.CustomProvider((defaultProvider) => new CachingSwaggerProvider(defaultProvider));
 
-                        c.EnableDotvvmIntegration(opt => opt.KnownTypes.Add(typeof(Company<string>)));
+                        c.EnableDotvvmIntegration(opt => opt.AddKnownType(typeof(Company<string>)));
                     })
                 .EnableSwaggerUi(c =>
                     {

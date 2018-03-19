@@ -569,10 +569,10 @@ namespace DotVVM.Samples.Common.Api.AspNetCore {
     }
     
     export class CompanyOfBoolean implements ICompanyOfBoolean {
-        id?: number;
-        name?: string;
-        owner?: string;
-        department?: boolean;
+        Id?: number;
+        Name?: string;
+        Owner?: string;
+        Department?: boolean;
     
         constructor(data?: ICompanyOfBoolean) {
             if (data) {
@@ -585,10 +585,10 @@ namespace DotVVM.Samples.Common.Api.AspNetCore {
     
         init(data?: any) {
             if (data) {
-                this.id = data["id"] !== undefined ? data["id"] : <any>null;
-                this.name = data["name"] !== undefined ? data["name"] : <any>null;
-                this.owner = data["owner"] !== undefined ? data["owner"] : <any>null;
-                this.department = data["department"] !== undefined ? data["department"] : <any>null;
+                this.Id = data["id"] !== undefined ? data["id"] : <any>null;
+                this.Name = data["name"] !== undefined ? data["name"] : <any>null;
+                this.Owner = data["owner"] !== undefined ? data["owner"] : <any>null;
+                this.Department = data["department"] !== undefined ? data["department"] : <any>null;
             }
         }
     
@@ -600,19 +600,19 @@ namespace DotVVM.Samples.Common.Api.AspNetCore {
     
         toJSON(data?: any) {
             data = typeof data === 'object' ? data : {};
-            data["id"] = this.id !== undefined ? this.id : <any>null;
-            data["name"] = this.name !== undefined ? this.name : <any>null;
-            data["owner"] = this.owner !== undefined ? this.owner : <any>null;
-            data["department"] = this.department !== undefined ? this.department : <any>null;
+            data["id"] = this.Id !== undefined ? this.Id : <any>null;
+            data["name"] = this.Name !== undefined ? this.Name : <any>null;
+            data["owner"] = this.Owner !== undefined ? this.Owner : <any>null;
+            data["department"] = this.Department !== undefined ? this.Department : <any>null;
             return data; 
         }
     }
     
     export interface ICompanyOfBoolean {
-        id?: number;
-        name?: string;
-        owner?: string;
-        department?: boolean;
+        Id?: number;
+        Name?: string;
+        Owner?: string;
+        Department?: boolean;
     }
     
     export class IPagingOptions implements IIPagingOptions {
@@ -832,11 +832,11 @@ namespace DotVVM.Samples.Common.Api.AspNetCore {
     }
     
     export class Order implements IOrder {
-        id?: number;
-        number?: string;
-        date?: Date;
-        companyId?: number;
-        orderItems?: OrderItem[];
+        Id?: number;
+        Number?: string;
+        Date?: Date;
+        CompanyId?: number;
+        OrderItems?: OrderItem[];
     
         constructor(data?: IOrder) {
             if (data) {
@@ -849,14 +849,14 @@ namespace DotVVM.Samples.Common.Api.AspNetCore {
     
         init(data?: any) {
             if (data) {
-                this.id = data["id"] !== undefined ? data["id"] : <any>null;
-                this.number = data["number"] !== undefined ? data["number"] : <any>null;
-                this.date = data["date"] ? new Date(data["date"].toString()) : <any>null;
-                this.companyId = data["companyId"] !== undefined ? data["companyId"] : <any>null;
+                this.Id = data["id"] !== undefined ? data["id"] : <any>null;
+                this.Number = data["number"] !== undefined ? data["number"] : <any>null;
+                this.Date = data["date"] ? new Date(data["date"].toString()) : <any>null;
+                this.CompanyId = data["companyId"] !== undefined ? data["companyId"] : <any>null;
                 if (data["orderItems"] && data["orderItems"].constructor === Array) {
-                    this.orderItems = [];
+                    this.OrderItems = [];
                     for (let item of data["orderItems"])
-                        this.orderItems.push(OrderItem.fromJS(item));
+                        this.OrderItems.push(OrderItem.fromJS(item));
                 }
             }
         }
@@ -869,13 +869,13 @@ namespace DotVVM.Samples.Common.Api.AspNetCore {
     
         toJSON(data?: any) {
             data = typeof data === 'object' ? data : {};
-            data["id"] = this.id !== undefined ? this.id : <any>null;
-            data["number"] = this.number !== undefined ? this.number : <any>null;
-            data["date"] = this.date ? this.date.toISOString() : <any>null;
-            data["companyId"] = this.companyId !== undefined ? this.companyId : <any>null;
-            if (this.orderItems && this.orderItems.constructor === Array) {
+            data["id"] = this.Id !== undefined ? this.Id : <any>null;
+            data["number"] = this.Number !== undefined ? this.Number : <any>null;
+            data["date"] = this.Date ? this.Date.toISOString() : <any>null;
+            data["companyId"] = this.CompanyId !== undefined ? this.CompanyId : <any>null;
+            if (this.OrderItems && this.OrderItems.constructor === Array) {
                 data["orderItems"] = [];
-                for (let item of this.orderItems)
+                for (let item of this.OrderItems)
                     data["orderItems"].push(item.toJSON());
             }
             return data; 
@@ -883,19 +883,19 @@ namespace DotVVM.Samples.Common.Api.AspNetCore {
     }
     
     export interface IOrder {
-        id?: number;
-        number?: string;
-        date?: Date;
-        companyId?: number;
-        orderItems?: OrderItem[];
+        Id?: number;
+        Number?: string;
+        Date?: Date;
+        CompanyId?: number;
+        OrderItems?: OrderItem[];
     }
     
     export class OrderItem implements IOrderItem {
-        id?: number;
-        text?: string;
-        amount?: number;
-        discount?: number;
-        isOnStock?: boolean;
+        Id?: number;
+        Text?: string;
+        Amount?: number;
+        Discount?: number;
+        IsOnStock?: boolean;
     
         constructor(data?: IOrderItem) {
             if (data) {
@@ -908,11 +908,11 @@ namespace DotVVM.Samples.Common.Api.AspNetCore {
     
         init(data?: any) {
             if (data) {
-                this.id = data["id"] !== undefined ? data["id"] : <any>null;
-                this.text = data["text"] !== undefined ? data["text"] : <any>null;
-                this.amount = data["amount"] !== undefined ? data["amount"] : <any>null;
-                this.discount = data["discount"] !== undefined ? data["discount"] : <any>null;
-                this.isOnStock = data["isOnStock"] !== undefined ? data["isOnStock"] : <any>null;
+                this.Id = data["id"] !== undefined ? data["id"] : <any>null;
+                this.Text = data["text"] !== undefined ? data["text"] : <any>null;
+                this.Amount = data["amount"] !== undefined ? data["amount"] : <any>null;
+                this.Discount = data["discount"] !== undefined ? data["discount"] : <any>null;
+                this.IsOnStock = data["isOnStock"] !== undefined ? data["isOnStock"] : <any>null;
             }
         }
     
@@ -924,21 +924,21 @@ namespace DotVVM.Samples.Common.Api.AspNetCore {
     
         toJSON(data?: any) {
             data = typeof data === 'object' ? data : {};
-            data["id"] = this.id !== undefined ? this.id : <any>null;
-            data["text"] = this.text !== undefined ? this.text : <any>null;
-            data["amount"] = this.amount !== undefined ? this.amount : <any>null;
-            data["discount"] = this.discount !== undefined ? this.discount : <any>null;
-            data["isOnStock"] = this.isOnStock !== undefined ? this.isOnStock : <any>null;
+            data["id"] = this.Id !== undefined ? this.Id : <any>null;
+            data["text"] = this.Text !== undefined ? this.Text : <any>null;
+            data["amount"] = this.Amount !== undefined ? this.Amount : <any>null;
+            data["discount"] = this.Discount !== undefined ? this.Discount : <any>null;
+            data["isOnStock"] = this.IsOnStock !== undefined ? this.IsOnStock : <any>null;
             return data; 
         }
     }
     
     export interface IOrderItem {
-        id?: number;
-        text?: string;
-        amount?: number;
-        discount?: number;
-        isOnStock?: boolean;
+        Id?: number;
+        Text?: string;
+        Amount?: number;
+        Discount?: number;
+        IsOnStock?: boolean;
     }
     
     export class SwaggerException extends Error {

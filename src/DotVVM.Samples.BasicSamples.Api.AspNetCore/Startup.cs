@@ -40,7 +40,7 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore
                 options.AddDefaultTempStorages("temp");
             });
 
-            services.Configure<DotvvmApiOptions>(opt => opt.KnownTypes.Add(typeof(Company<string>)));
+            services.Configure<DotvvmApiOptions>(opt => opt.AddKnownType(typeof(Company<string>)));
 
             services.AddSwaggerGen(options => {
                 options.SwaggerDoc("v1", new Info() { Title = "DotVVM Test API", Version = "v1" });
