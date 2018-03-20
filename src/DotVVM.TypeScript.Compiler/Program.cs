@@ -10,19 +10,21 @@ namespace DotVVM.TypeScript.Compiler
 
         public static CompilerArguments ParseArguments(string[] args)
         {
-            if (args.Length != 1)
+            if (args.Length != 2)
             {
                 throw new MissingArgumentsException();
             }
 
             var filePath = args[0];
-            var projectFileInfo = new FileInfo(filePath);
-            if(!projectFileInfo.Exists)
-                throw new InvalidArgumentException("Project file does not exist.");
-            if(!projectFileInfo.Extension.Equals(".csproj", StringComparison.InvariantCultureIgnoreCase))
-                throw new InvalidArgumentException("Passed file is not valid csproj file.");
+            var solutionFileInfo = new FileInfo(filePath);
+            if(!solutionFileInfo.Exists)
+                throw new InvalidArgumentException("Solution file does not exist.");
+            if(!solutionFileInfo.Extension.Equals(".sln", StringComparison.InvariantCultureIgnoreCase))
+                throw new InvalidArgumentException("Passed file is not valid sln file.");
 
-            return new CompilerArguments {ProjectFile = projectFileInfo};
+            var projectName = args[1];
+
+            return new CompilerArguments {SolutionFile = solutionFileInfo, ProjectName = projectName};
         }
 
         static void Main(string[] args)
