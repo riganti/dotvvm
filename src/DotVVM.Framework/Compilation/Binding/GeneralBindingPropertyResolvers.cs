@@ -328,7 +328,7 @@ namespace DotVVM.Framework.Compilation.Binding
             return new SelectorItemBindingProperty(binding.DeriveBinding(
                 dataContext.Parent,
                 Expression.Lambda(expression.Expression.ReplaceAll(e =>
-                    e.GetParameterAnnotation() is BindingParameterAnnotation annotation &&
+                        e?.GetParameterAnnotation() is BindingParameterAnnotation annotation &&
                         annotation.DataContext == dataContext &&
                         annotation.ExtensionParameter == null ?
                    argument :
