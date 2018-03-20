@@ -42,6 +42,11 @@ namespace DotVVM.Framework.Controls
                 writer.AddKnockoutDataBind("optionsValue", "function (i) { return ko.unwrap(i)[" + KnockoutHelper.MakeStringLiteral(selector.ValueMember) + "]; }");
             }
             #pragma warning restore
+
+            if (selector.ItemTitleBinding != null)
+            {
+                writer.AddKnockoutDataBind("optionsTitle", selector.ItemTitleBinding.GetProperty<SelectorItemBindingProperty>().Expression, selector);
+            }
         }
 
         public static void RenderChangedEvent(IHtmlWriter writer, SelectorBase selector)
