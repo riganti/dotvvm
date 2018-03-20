@@ -198,7 +198,7 @@ class DotvvmValidation {
                     var context = ko.contextFor(options.sender);
                     var validationTarget = dotvvm.evaluator.evaluateOnViewModel(context, path);
 
-                    // validate the object
+                    this.errors([]);
                     this.clearValidationErrors(dotvvm.viewModelObservables[options.viewModelName || 'root']);
                     this.validateViewModel(validationTarget);
                     if (this.errors().length > 0) {
