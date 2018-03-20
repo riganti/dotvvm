@@ -93,7 +93,7 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<Command, SelectorBase>(t => t.SelectionChanged, null);
 
         /// <summary>
-        /// The expression of DataSource item that will be passed to the SelectedValue property when the item is selected.
+        /// The expression of DataSource item that will be placed into html title attribute.
         /// </summary>
         [ControlPropertyBindingDataContextChange(nameof(DataSource))]
         [CollectionElementDataContextChange(1)]
