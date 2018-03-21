@@ -12,7 +12,7 @@ namespace DotVVM.Samples.New.Tests.Feature
         }
 
         [Fact]
-        public void Feature_BindableStyleProperties_BindableStyleProperties()
+        public void Feature_BindableCssStyles_BindableCssStyles()
         {
             const string redColor = "rgba(255, 0, 0, 1)";
             const string greenColor = "rgba(0, 128, 0, 1)";
