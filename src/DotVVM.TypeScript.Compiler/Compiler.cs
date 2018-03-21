@@ -34,7 +34,7 @@ namespace DotVVM.TypeScript.Compiler
                     .GroupBy(m => m.ContainingType);
             foreach (var typeAndMembers in typesToTranslate)
             {
-                typeRegistry.RegisterType(typeAndMembers.Key, typeAndMembers);     
+                typeRegistry.RegisterType(typeAndMembers.Key, typeAndMembers);
             }
         }
 

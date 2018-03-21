@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using DotVVM.Framework.ViewModel;
+using Microsoft.CodeAnalysis;
 
 namespace DotVVM.TypeScript.Compiler.Symbols.Filters
 {
@@ -6,7 +7,8 @@ namespace DotVVM.TypeScript.Compiler.Symbols.Filters
     {
         public bool Matches(ISymbol symbol)
         {
-            return symbol is IMethodSymbol;
+            return symbol is IMethodSymbol
+                && symbol.HasAttribute<ClientSideMethodAttribute>();
         }
     }
 }

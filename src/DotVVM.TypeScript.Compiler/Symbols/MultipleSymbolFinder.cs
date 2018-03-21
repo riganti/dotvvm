@@ -20,7 +20,7 @@ namespace DotVVM.TypeScript.Compiler.Symbols
         public override List<ISymbol> VisitAssembly(IAssemblySymbol symbol)
         {
             base.VisitAssembly(symbol);
-            matches.AddRange(symbol.GlobalNamespace.Accept(this));
+            symbol.GlobalNamespace.Accept(this);
             return matches;
         }
 
