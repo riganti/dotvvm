@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
@@ -9,44 +8,41 @@ using Buildalyzer;
 using Buildalyzer.Workspaces;
 using DotVVM.TypeScript.Compiler.Symbols;
 using DotVVM.TypeScript.Compiler.Symbols.Filters;
+using DotVVM.TypeScript.Compiler.Symbols.Registries;
 using Microsoft.CodeAnalysis;
 
 namespace DotVVM.TypeScript.Compiler
 {
-    public struct CompilerArguments
-    {
-        public FileInfo SolutionFile { get; set; }
-        public string ProjectName { get; set; }
-    }
-
-    internal struct CompilerContext
-    {
-        public Workspace Workspace { get; set; }
-        public Compilation Compilation { get; set; }
-    }
-
     public class Compiler
     {
         private CompilerArguments compilerArguments;
-
+        private readonly TypeRegistry typeRegistry;
         public Compiler(CompilerArguments compilerArguments)
         {
             this.compilerArguments = compilerArguments;
+            this.typeRegistry = new TypeRegistry();
         }
 
 
         public async Task RunAsync()
         {
             var compilerContext = await CreateCompilerContext();
+             
             var visitor = new MultipleSymbolFinder(new ClientSideMethodFilter());
-            var methodsToTranslate = visitor.VisitAssembly(compilerContext.Compilation.Assembly);
+            var typesToTranslate = visitor
+                    .VisitAssembly(compilerContext.Compilation.Assembly)
+                    .GroupBy(m => m.ContainingType);
+            foreach (var typeAndMembers in typesToTranslate)
+            {
+                typeRegistry.RegisterType(typeAndMembers.Key, typeAndMembers);     
+            }
         }
 
         private async Task<CompilerContext> CreateCompilerContext()
         {
             var workspace = CreateWorkspace();
             var compilation = await CompileProject(workspace);
-            var compilerContext = new CompilerContext {Compilation = compilation, Workspace = workspace};
+            var compilerContext = new CompilerContext { Compilation = compilation, Workspace = workspace };
             return compilerContext;
         }
 

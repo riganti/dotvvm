@@ -27,13 +27,14 @@ namespace DotVVM.TypeScript.Compiler
             return new CompilerArguments {SolutionFile = solutionFileInfo, ProjectName = projectName};
         }
 
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
             try
             {
                 var compilerArguments = ParseArguments(args);
                 var compiler = new Compiler(compilerArguments);
                 compiler.RunAsync().GetAwaiter().GetResult();
+                return 0;
             }
             catch (InvalidArgumentException exception)
             {
@@ -48,6 +49,7 @@ namespace DotVVM.TypeScript.Compiler
             {
                 Console.WriteLine("An error occured during compilation: " + exception.Message);
             }
+            return 1;
         }
 
         private static void PrintHelp()
