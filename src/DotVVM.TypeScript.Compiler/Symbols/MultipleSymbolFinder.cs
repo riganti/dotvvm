@@ -27,14 +27,20 @@ namespace DotVVM.TypeScript.Compiler.Symbols
         public override List<ISymbol> VisitNamespace(INamespaceSymbol symbol)
         {
             base.VisitNamespace(symbol);
-            matches.AddRange(symbol.GetMembers().Where(s => s.Accept(this) != null));
+            foreach (var member in symbol.GetMembers())
+            {
+                member.Accept(this);
+            }
             return matches;
         }
 
         public override List<ISymbol> VisitNamedType(INamedTypeSymbol symbol)
         {
             base.VisitNamedType(symbol);
-            matches.AddRange(symbol.GetMembers().Where(s => s.Accept(this) != null));
+            foreach (var member in symbol.GetMembers())
+            {
+                member.Accept(this);
+            }
             return matches;
         }
 
