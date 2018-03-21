@@ -1,19 +1,12 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OpenQA.Selenium;
-using OpenQA.Selenium.Interactions;
-using Riganti.Selenium.Core;
-using System;
-using System.Globalization;
-using System.Linq;
-using System.Threading;
+﻿using Riganti.Selenium.Core;
 using DotVVM.Samples.Tests.New;
 using DotVVM.Testing.Abstractions;
 using Xunit;
 using Xunit.Abstractions;
 
-
 namespace DotVVM.Samples.Tests.Control
 {
+
     public class ComboBoxTests : AppSeleniumTest
     {
         public ComboBoxTests(ITestOutputHelper output) : base(output)
@@ -89,7 +82,6 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
-
         [Fact]
         public void Control_ComboBox_ComboBoxDelaySync3()
         {
@@ -104,6 +96,18 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
+        [Fact]
+        public void Control_ComboBox_ComboBoxTitle()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ComboBoxTitle);
 
+                AssertUI.InnerTextEquals(browser.ElementAt("select option", 0), "Too lo...");
+                AssertUI.InnerTextEquals(browser.ElementAt("select option", 1), "Text");
+
+                AssertUI.Attribute(browser.ElementAt("select option", 0), "title", "Nice title");
+                AssertUI.Attribute(browser.ElementAt("select option", 1), "title", "Even nicer title");
+            });
+        }
     }
 }

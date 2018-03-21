@@ -1,5 +1,9 @@
+using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.ResourceManagement;
+using DotVVM.Samples.BasicSamples;
+using DotVVM.Samples.Common.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Samples.Common
@@ -16,6 +20,12 @@ namespace DotVVM.Samples.Common
             });
 
             services.Configure<DotvvmResourceRepository>(RegisterResources);
+
+            services.Configure<JavascriptTranslatorConfiguration>(c => {
+                c.MethodCollection.AddMethodTranslator(typeof(JavaScriptUtils),
+                   nameof(JavaScriptUtils.LimitLength),
+                   new GenericMethodCompiler((a) => new JsIdentifierExpression("limitLength").Invoke(a)));
+            });
         }
 
         private static void RegisterResources(DotvvmResourceRepository resources)
