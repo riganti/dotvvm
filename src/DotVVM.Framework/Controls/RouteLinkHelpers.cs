@@ -37,7 +37,7 @@ namespace DotVVM.Framework.Controls
             var urlSuffix = GenerateUrlSuffixCore(control.GetValue(RouteLink.UrlSuffixProperty) as string, control);
             var coreUrl = GenerateRouteUrlCore(routeName, control, context) + urlSuffix;
 
-            if ((bool)control.GetValue(Internal.IsSpaPageProperty))
+            if ((bool)control.GetValue(Internal.IsSpaPageProperty) && !context.Configuration.UseHistoryApiSpaNavigation)
             {
                 return "#!/" + (coreUrl.StartsWith("~/") ? coreUrl.Substring(2) : coreUrl);
             }
@@ -79,7 +79,7 @@ namespace DotVVM.Framework.Controls
             var link = GenerateRouteLinkCore(routeName, control, context);
 
             var urlSuffix = GetUrlSuffixExpression(control);
-            if ((bool)control.GetValue(Internal.IsSpaPageProperty))
+            if ((bool)control.GetValue(Internal.IsSpaPageProperty) && !context.Configuration.UseHistoryApiSpaNavigation)
             {
                 return $"'#!/' + {link}{(urlSuffix == null ? "" : " + " + urlSuffix)}";
             }

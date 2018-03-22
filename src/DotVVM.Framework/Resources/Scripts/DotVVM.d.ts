@@ -5,6 +5,11 @@ declare class DotvvmDomUtils {
     onDocumentReady(callback: () => void): void;
     attachEvent(target: any, name: string, callback: (ev: PointerEvent) => any, useCapture?: boolean): void;
 }
+declare class DotvvmSpaHistory {
+    pushPage(url: string): void;
+    replacePage(url: string): void;
+    isSpaPage(state: any): boolean;
+}
 declare class DotvvmEvents {
     init: DotvvmEvent<DotvvmEventArgs>;
     beforePostback: DotvvmEvent<DotvvmBeforePostBackEventArgs>;
@@ -242,6 +247,7 @@ declare class DotVVM {
     private fakeRedirectAnchor;
     private resourceSigns;
     private isViewModelUpdating;
+    private spaHistory;
     viewModelObservables: {
         [name: string]: KnockoutObservable<IDotvvmViewModelInfo>;
     };
@@ -272,8 +278,11 @@ declare class DotVVM {
     fileUpload: DotvvmFileUpload;
     validation: DotvvmValidation;
     extensions: IDotvvmExtensions;
+    useHistoryApiSpaNavigation: boolean;
     isPostbackRunning: KnockoutObservable<boolean>;
-    init(viewModelName: string, culture: string): void;
+    init(viewModelName: string, culture: string, useHistoryApiSpaNavigation: boolean): void;
+    private handlePopState(viewModelName, event);
+    private handleHashChangeWithHistory(viewModelName, spaPlaceHolder, isInitialPageLoad);
     private handleHashChange(viewModelName, spaPlaceHolder, isInitialPageLoad);
     private persistViewModel(viewModelName);
     private backUpPostBackConter();
@@ -287,13 +296,14 @@ declare class DotVVM {
     private applyPostbackHandlersCore(callback, options, handlers?);
     applyPostbackHandlers(callback: (options: PostbackOptions) => Promise<PostbackCommitFunction | undefined>, sender: HTMLElement, handlers?: ClientFriendlyPostbackHandlerConfiguration[], args?: any[], context?: any, viewModel?: any, viewModelName?: string): Promise<DotvvmAfterPostBackEventArgs>;
     postbackCore(options: PostbackOptions, path: string[], command: string, controlUniqueId: string, context: any, commandArgs?: any[]): Promise<() => Promise<DotvvmAfterPostBackEventArgs>>;
+    handleSpaNavigation(url: string): boolean;
     postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, context?: any, handlers?: ClientFriendlyPostbackHandlerConfiguration[], commandArgs?: any[]): Promise<DotvvmAfterPostBackEventArgs>;
     private loadResourceList(resources, callback);
     private loadResourceElements(elements, offset, callback);
     private getSpaPlaceHolder();
-    private navigateCore(viewModelName, url);
+    private navigateCore(viewModelName, url, handlePageNavigating?);
     private handleRedirect(resultObject, viewModelName, replace?);
-    private performRedirect(url, replace);
+    private performRedirect(url, replace, useHistoryApiSpaRedirect?);
     private fixSpaUrlPrefix(url);
     private removeVirtualDirectoryFromUrl(url, viewModelName);
     private addLeadingSlash(url);

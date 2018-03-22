@@ -88,6 +88,12 @@ namespace DotVVM.Framework.Configuration
         public bool ClientSideValidation { get; set; } = true;
 
         /// <summary>
+        /// Gets or sets whether navigation in the SPA pages should use History API. Default value is <c>true</c>.
+        /// </summary>
+        [JsonProperty("useHistoryApiSpaNavigation", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public bool UseHistoryApiSpaNavigation { get; set; } = true;
+
+        /// <summary>
         /// Gets or sets whether the application should run in debug mode.
         /// For ASP.NET Core checkout <see cref="!:https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments" >https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments</see>   
         /// </summary>

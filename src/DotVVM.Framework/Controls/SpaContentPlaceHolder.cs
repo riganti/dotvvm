@@ -112,6 +112,11 @@ namespace DotVVM.Framework.Controls
             }
             writer.AddKnockoutDataBind("if", "dotvvm.isSpaReady");
 
+            if (Children.Count > 0)
+            {
+                writer.AddAttribute(HostingConstants.SpaContentAttributeName, "true");
+            }
+
             if (!string.IsNullOrEmpty(DefaultRouteName))
             {
                 var route = context.Configuration.RouteTable[DefaultRouteName];
