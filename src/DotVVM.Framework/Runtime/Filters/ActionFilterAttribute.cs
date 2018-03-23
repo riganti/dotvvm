@@ -9,7 +9,7 @@ namespace DotVVM.Framework.Runtime.Filters
     /// Allows to add custom logic before and after a command is executed on a ViewModel.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true)]
-    public abstract class ActionFilterAttribute : Attribute, IPageActionFilter, ICommandActionFilter, IViewModelActionFilter
+    public abstract class ActionFilterAttribute : Attribute, IPageActionFilter, ICommandActionFilter, IViewModelActionFilter, IPresenterActionFilter
     {
         /// <summary>
         /// Called after the viewmodel object is created.
@@ -58,6 +58,17 @@ namespace DotVVM.Framework.Runtime.Filters
         /// </summary>
         protected internal virtual Task OnPageLoadedAsync(IDotvvmRequestContext context)
             => TaskUtils.GetCompletedTask();
+
+        /// <inheritdoc cref="IPresenterActionFilter.OnPresenterExecutingAsync"/>
+        protected internal virtual Task OnPresenterExecutingAsync(IDotvvmRequestContext context) => TaskUtils.GetCompletedTask();
+        /// <inheritdoc cref="IPresenterActionFilter.OnPresenterExecutedAsync"/>
+        protected internal virtual Task OnPresenterExecutedAsync(IDotvvmRequestContext context) => TaskUtils.GetCompletedTask();
+        /// <inheritdoc cref="IPresenterActionFilter.OnPresenterExceptionAsync"/>
+        protected internal virtual Task OnPresenterExceptionAsync(IDotvvmRequestContext context, Exception exception) => TaskUtils.GetCompletedTask();
+
+        Task IPresenterActionFilter.OnPresenterExceptionAsync(IDotvvmRequestContext context, Exception exception) => OnPresenterExceptionAsync(context, exception);
+        Task IPresenterActionFilter.OnPresenterExecutingAsync(IDotvvmRequestContext context) => OnPresenterExecutingAsync(context);
+        Task IPresenterActionFilter.OnPresenterExecutedAsync(IDotvvmRequestContext context) => OnPresenterExecutedAsync(context);
 
         Task IPageActionFilter.OnPageExceptionAsync(IDotvvmRequestContext context, Exception exception) => OnPageExceptionAsync(context, exception);
         Task ICommandActionFilter.OnCommandExecutingAsync(IDotvvmRequestContext context, ActionInfo actionInfo) => OnCommandExecutingAsync(context, actionInfo);
