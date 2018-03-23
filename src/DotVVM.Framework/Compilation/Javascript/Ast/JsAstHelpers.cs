@@ -99,11 +99,11 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
                 if (expression.SatisfyResultCondition(n => n.HasAnnotation<ResultIsObservableAnnotation>()))
                 {
                     arguments.Add(new JsLiteral(true));
-                }
 
-                if (expression.SatisfyResultCondition(n => n.HasAnnotation<ResultIsObservableArrayAnnotation>()))
-                {
-                    arguments.Add(new JsLiteral(true));
+                    if (expression.SatisfyResultCondition(n => n.HasAnnotation<ResultIsObservableArrayAnnotation>()))
+                    {
+                        arguments.Add(new JsLiteral(true));
+                    }
                 }
 
                 return new JsIdentifierExpression("dotvvm").Member("evaluator").Member("wrapKnockoutExpression").Invoke(arguments)

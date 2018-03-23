@@ -49,8 +49,16 @@ namespace DotVVM.Framework.Compilation.Javascript
                 else if (propAnnotation.MemberInfo is FieldInfo)
                     throw new NotSupportedException($"Can not translate field '{propAnnotation.MemberInfo}' to Javascript");
 
-                if (containsObservables) node.AddAnnotation(ResultIsObservableAnnotation.Instance);
-                if (ViewModelJsonConverter.IsCollection(propertyType)) node.AddAnnotation(ResultIsObservableArrayAnnotation.Instance);
+                if (containsObservables)
+                {
+                    node.AddAnnotation(ResultIsObservableAnnotation.Instance);
+
+                    if (ViewModelJsonConverter.IsCollection(propertyType))
+                    {
+                        node.AddAnnotation(ResultIsObservableArrayAnnotation.Instance);
+                    }
+                }
+
                 node.AddAnnotation(new ViewModelInfoAnnotation(propertyType, containsObservables: containsObservables));
                 node.AddAnnotation(MayBeNullAnnotation.Instance);
             }
