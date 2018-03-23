@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -49,6 +50,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                     throw new NotSupportedException($"Can not translate field '{propAnnotation.MemberInfo}' to Javascript");
 
                 if (containsObservables) node.AddAnnotation(ResultIsObservableAnnotation.Instance);
+                if (ViewModelJsonConverter.IsCollection(propertyType)) node.AddAnnotation(ResultIsObservableArrayAnnotation.Instance);
                 node.AddAnnotation(new ViewModelInfoAnnotation(propertyType, containsObservables: containsObservables));
                 node.AddAnnotation(MayBeNullAnnotation.Instance);
             }
@@ -74,6 +76,11 @@ namespace DotVVM.Framework.Compilation.Javascript
     {
         private ResultIsObservableAnnotation() { }
         public static ResultIsObservableAnnotation Instance = new ResultIsObservableAnnotation();
+    }
+    public sealed class ResultIsObservableArrayAnnotation
+    {
+        private ResultIsObservableArrayAnnotation() { }
+        public static ResultIsObservableArrayAnnotation Instance = new ResultIsObservableArrayAnnotation();
     }
     public sealed class ResultMayBeObservableAnnotation
     {

@@ -2464,16 +2464,15 @@ var DotvvmEvaluator = /** @class */ (function () {
         }
         return false;
     };
-    DotvvmEvaluator.prototype.wrapKnockoutExpression = function (func) {
+    DotvvmEvaluator.prototype.wrapKnockoutExpression = function (func, isWriteable, isArray) {
         var _this = this;
         var wrapper;
-        var result = this.getExpressionResult(func), isWriteableObservable = ko.isWriteableObservable(result), isObservableArray = this.isObservableArray(result);
-        if (isWriteableObservable) {
+        if (isWriteable) {
             wrapper = ko.pureComputed({
                 read: function () { return ko.unwrap(_this.getExpressionResult(func)); },
                 write: function (value) { return _this.updateObservable(func, value); }
             });
-            if (isObservableArray) {
+            if (isArray) {
                 wrapper.push = function () {
                     var args = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
@@ -2563,7 +2562,7 @@ var DotvvmEvaluator = /** @class */ (function () {
         else {
             wrapper = ko.pureComputed(function () { return ko.unwrap(_this.getExpressionResult(func)); });
         }
-        if (isObservableArray) {
+        if (isArray) {
             wrapper = wrapper.extend({ trackArrayChanges: true }); // properly track changes in wrapped arrays
         }
         return wrapper.extend({ notify: "always" });

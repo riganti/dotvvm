@@ -421,7 +421,7 @@ declare class DotvvmEvaluator {
     getDataSourceItems(viewModel: any): any;
     tryEval(func: () => any): any;
     isObservableArray(instance: any): instance is KnockoutObservableArray<any>;
-    wrapKnockoutExpression(func: () => any): KnockoutComputed<any>;
+    wrapKnockoutExpression(func: () => any, isWriteable?: boolean, isArray?: boolean): KnockoutComputed<any>;
     private updateObservable(getObservable, value);
     private updateObservableArray(getObservableArray, fnName, args);
     private getExpressionResult(func);

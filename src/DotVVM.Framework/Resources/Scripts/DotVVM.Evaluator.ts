@@ -52,20 +52,16 @@
         return false;
     }
 
-    public wrapKnockoutExpression(func: () => any): KnockoutComputed<any> {
+    public wrapKnockoutExpression(func: () => any, isWriteable?: boolean, isArray?: boolean): KnockoutComputed<any> {
         let wrapper: KnockoutComputed<any>;
 
-        const result = this.getExpressionResult(func),
-            isWriteableObservable = ko.isWriteableObservable(result),
-            isObservableArray = this.isObservableArray(result);
-
-        if (isWriteableObservable) {
+        if (isWriteable) {
             wrapper = ko.pureComputed({
                 read: () => ko.unwrap(this.getExpressionResult(func)),
                 write: value => this.updateObservable(func, value)
             });
 
-            if (isObservableArray) {
+            if (isArray) {
                 wrapper.push = (...args) => this.updateObservableArray(func, "push", args);
                 wrapper.pop = (...args) => this.updateObservableArray(func, "pop", args);
                 wrapper.unshift = (...args) => this.updateObservableArray(func, "unshift", args);
@@ -84,7 +80,7 @@
             wrapper = ko.pureComputed(() => ko.unwrap(this.getExpressionResult(func)));
         }
 
-        if (isObservableArray) {
+        if (isArray) {
             wrapper = wrapper.extend({ trackArrayChanges: true }); // properly track changes in wrapped arrays
         }
 

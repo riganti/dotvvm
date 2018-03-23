@@ -79,17 +79,37 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             return node;
         }
 
-        /// Wraps the expression in `dotvvm.evaluator.wrapExpression` if needed
-        public static JsExpression EnsureObservableWrapped(this JsExpression expression) =>
+        /// Wraps the expression in `dotvvm.evaluator.wrapKnockoutExpression` if needed
+        public static JsExpression EnsureObservableWrapped(this JsExpression expression)
+        {
             // It's not needed to wrap if none of the descendants return an observable
-            !expression.DescendantNodes().Any(n => (n.HasAnnotation<ResultIsObservableAnnotation>() && !n.HasAnnotation<ShouldBeObservableAnnotation>()) || n.HasAnnotation<ObservableUnwrapInvocationAnnotation>()) ?
+            if (!expression.DescendantNodes().Any(n => (n.HasAnnotation<ResultIsObservableAnnotation>() && !n.HasAnnotation<ShouldBeObservableAnnotation>()) || n.HasAnnotation<ObservableUnwrapInvocationAnnotation>()))
+            {
+                return expression.WithAnnotation(ShouldBeObservableAnnotation.Instance);
+            }
+            else
+            {
+                var arguments = new List<JsExpression>(3);
 
-                expression.WithAnnotation(ShouldBeObservableAnnotation.Instance) :
-
-                new JsIdentifierExpression("dotvvm").Member("evaluator").Member("wrapKnockoutExpression").Invoke(new JsFunctionExpression(
+                arguments.Add(new JsFunctionExpression(
                     parameters: Enumerable.Empty<JsIdentifier>(),
-                    bodyBlock: new JsBlockStatement(new JsReturnStatement(expression))))
+                    bodyBlock: new JsBlockStatement(new JsReturnStatement(expression.WithAnnotation(ShouldBeObservableAnnotation.Instance)))
+                ));
+
+                if (expression.SatisfyResultCondition(n => n.HasAnnotation<ResultIsObservableAnnotation>()))
+                {
+                    arguments.Add(new JsLiteral(true));
+                }
+
+                if (expression.SatisfyResultCondition(n => n.HasAnnotation<ResultIsObservableArrayAnnotation>()))
+                {
+                    arguments.Add(new JsLiteral(true));
+                }
+
+                return new JsIdentifierExpression("dotvvm").Member("evaluator").Member("wrapKnockoutExpression").Invoke(arguments)
                     .WithAnnotation(ResultIsObservableAnnotation.Instance)
                     .WithAnnotation(ShouldBeObservableAnnotation.Instance);
+            }
+        }
     }
 }
