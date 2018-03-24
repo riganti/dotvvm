@@ -10,7 +10,7 @@ namespace DotVVM.TypeScript.Compiler.Symbols.Registries
     public class MembersRegistry
     {
         public INamedTypeSymbol Type { get; }
-
+        public bool WasResolved { get; set; }
         public IList<MemberInfo> Members { get;  }
 
 

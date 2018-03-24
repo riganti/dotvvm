@@ -9,6 +9,7 @@ using Buildalyzer.Workspaces;
 using DotVVM.TypeScript.Compiler.Symbols;
 using DotVVM.TypeScript.Compiler.Symbols.Filters;
 using DotVVM.TypeScript.Compiler.Symbols.Registries;
+using DotVVM.TypeScript.Compiler.Translators;
 using Microsoft.CodeAnalysis;
 
 namespace DotVVM.TypeScript.Compiler
@@ -32,9 +33,15 @@ namespace DotVVM.TypeScript.Compiler
             var typesToTranslate = visitor
                     .VisitAssembly(compilerContext.Compilation.Assembly)
                     .GroupBy(m => m.ContainingType);
-            foreach (var typeAndMembers in typesToTranslate)
+            foreach (var typeAndMethods in typesToTranslate)
             {
-                typeRegistry.RegisterType(typeAndMembers.Key, typeAndMembers);
+                typeRegistry.RegisterType(typeAndMethods.Key, typeAndMethods);
+            }
+
+            var typeTranslator = new TypeTranslator(typeRegistry);
+            foreach (var tsSyntaxTree in typeTranslator.Translate())
+            {
+                Console.WriteLine(tsSyntaxTree.RootNode.ToDisplayString());
             }
         }
 
