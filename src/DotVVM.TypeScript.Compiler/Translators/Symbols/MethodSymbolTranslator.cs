@@ -58,6 +58,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
             return input.DeclaredAccessibility.ToTsModifier();
         }
 
+        
         private TsIdentifierSyntax TranslateIdentifier(IMethodSymbol input)
         {
             return new TsIdentifierSyntax(input.Name, null);

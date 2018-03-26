@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using DotVVM.TypeScript.Compiler.Ast;
 using Microsoft.CodeAnalysis.Operations;
+using DotVVM.TypeScript.Compiler.Symbols;
 
 namespace DotVVM.TypeScript.Compiler.Translators.Operations
 {
@@ -33,6 +34,14 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
                 value = operation.ConstantValue.ToString();
             }
             return new TsLiteralExpressionSyntax(argument, value);
+        }
+
+        public override TsSyntaxNode VisitBinaryOperator(IBinaryOperation operation, TsSyntaxNode parent)
+        {
+            var left = operation.LeftOperand.Accept(this, parent) as TsExpressionSyntax;
+            var binaryOperator = operation.OperatorKind.ToTsBinaryOperator();
+            var right = operation.RightOperand.Accept(this, parent) as TsExpressionSyntax;
+            return new TsBinaryOperationSyntax(parent, left, right, binaryOperator);
         }
 
         public override TsSyntaxNode VisitSimpleAssignment(ISimpleAssignmentOperation operation, TsSyntaxNode parent)

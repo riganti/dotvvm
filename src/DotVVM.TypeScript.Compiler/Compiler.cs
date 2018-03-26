@@ -38,8 +38,6 @@ namespace DotVVM.TypeScript.Compiler
             var translatedViewModels = TranslateViewModels();
             translatedViewModels
                 .ForEach(t => Console.WriteLine(t.ToDisplayString()));
-            translatedViewModels
-                .ForEach();
         }
 
         private List<TsSyntaxNode> TranslateViewModels()

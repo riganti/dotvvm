@@ -11,11 +11,27 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
             return true;
         }
 
-        
-
         public TsSyntaxNode Translate(IPropertySymbol property)
         {
-            return new TsPropertyDeclarationSyntax(property.DeclaredAccessibility.ToTsModifier(), new TsIdentifierSyntax(property.Name, null), new TsTypeSyntax(property.Type, null), null);
+            var modifier = TranslateModifier(property);
+            var identifier = TranslateIdentifier(property);
+            var type = Translatetype(property);
+            return new TsPropertyDeclarationSyntax(modifier, identifier, type, null);
+        }
+
+        private TsTypeSyntax Translatetype(IPropertySymbol property)
+        {
+            return new TsTypeSyntax(property.Type, null);
+        }
+
+        private TsIdentifierSyntax TranslateIdentifier(IPropertySymbol property)
+        {
+            return new TsIdentifierSyntax(property.Name, null);
+        }
+
+        private TsModifier TranslateModifier(IPropertySymbol property)
+        {
+            return property.DeclaredAccessibility.ToTsModifier();
         }
     }
 }

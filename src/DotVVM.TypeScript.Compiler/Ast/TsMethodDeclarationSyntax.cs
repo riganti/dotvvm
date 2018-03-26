@@ -20,8 +20,8 @@ namespace DotVVM.TypeScript.Compiler.Ast
         public override string ToDisplayString()
         {
             return $"{Modifier.ToDisplayString()} {Identifier.ToDisplayString()}({Parameters.Select(p => p.ToDisplayString()).StringJoin(",")})" +
-                   "\t{\n" +
-                   $"\t{Body.ToDisplayString()}\n" +
+                   "{\n" +
+                   $"\t{Body.ToDisplayString()}" +
                    "\t}";
         }
 
