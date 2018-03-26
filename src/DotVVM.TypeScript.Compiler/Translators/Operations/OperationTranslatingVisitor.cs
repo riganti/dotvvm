@@ -13,7 +13,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
             foreach (var operation in blockOperation.Operations)
             {
                 var syntaxNode = operation.Accept(this, blockSyntax);
-                if(syntaxNode is TsStatementSyntax statementSyntax)
+                if (syntaxNode is TsStatementSyntax statementSyntax)
                 {
                     blockSyntax.AddStatement(statementSyntax);
                 }
@@ -46,7 +46,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
 
         public override TsSyntaxNode VisitSimpleAssignment(ISimpleAssignmentOperation operation, TsSyntaxNode parent)
         {
-            var identifier = operation.Target.Accept(this, parent) as TsIdentifierSyntax;
+            var identifier = operation.Target.Accept(this, parent) as TsIdentifierReferenceSyntax;
             var expression = operation.Value.Accept(this, parent) as TsExpressionSyntax;
             var assignment = new TsAssignmentSyntax(parent, identifier, expression);
             return assignment;
@@ -54,7 +54,8 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
 
         public override TsSyntaxNode VisitPropertyReference(IPropertyReferenceOperation operation, TsSyntaxNode parent)
         {
-            return new TsIdentifierSyntax(operation.Property.Name, parent);
+            var identifier = new TsIdentifierSyntax(operation.Property.Name, parent);
+            return new TsIdentifierReferenceSyntax(parent, identifier);
         }
 
     }

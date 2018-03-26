@@ -5,18 +5,18 @@ namespace DotVVM.TypeScript.Compiler.Ast
 {
     public class TsAssignmentSyntax : TsStatementSyntax
     {
-        public TsIdentifierSyntax Identifier { get;  }
+        public TsIdentifierReferenceSyntax Reference { get;  }
         public TsExpressionSyntax Expression { get; }
         
-        public TsAssignmentSyntax(TsSyntaxNode parent, TsIdentifierSyntax identifier, TsExpressionSyntax expression) : base(parent)
+        public TsAssignmentSyntax(TsSyntaxNode parent, TsIdentifierReferenceSyntax reference, TsExpressionSyntax expression) : base(parent)
         {
-            Identifier = identifier;
+            Reference = reference;
             Expression = expression;
         }
 
         public override string ToDisplayString()
         {
-            return $"{Identifier.ToDisplayString()} = {Expression.ToDisplayString()}";
+            return $"{Reference.ToDisplayString()} = {Expression.ToDisplayString()}";
         }
 
         public override IEnumerable<TsSyntaxNode> DescendantNodes()
