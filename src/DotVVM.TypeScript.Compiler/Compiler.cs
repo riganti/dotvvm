@@ -10,6 +10,7 @@ using DotVVM.TypeScript.Compiler.Symbols;
 using DotVVM.TypeScript.Compiler.Symbols.Filters;
 using DotVVM.TypeScript.Compiler.Symbols.Registries;
 using DotVVM.TypeScript.Compiler.Translators;
+using DotVVM.TypeScript.Compiler.Translators.Symbols;
 using Microsoft.CodeAnalysis;
 
 namespace DotVVM.TypeScript.Compiler
@@ -18,17 +19,19 @@ namespace DotVVM.TypeScript.Compiler
     {
         private CompilerArguments compilerArguments;
         private readonly TypeRegistry typeRegistry;
+        private readonly TranslatorsEvidence _translatorsEvidence;
         public Compiler(CompilerArguments compilerArguments)
         {
             this.compilerArguments = compilerArguments;
             this.typeRegistry = new TypeRegistry();
+            this._translatorsEvidence = new TranslatorsEvidence();
         }
 
 
         public async Task RunAsync()
         {
             var compilerContext = await CreateCompilerContext();
-             
+            RegisterTranslators();    
             var visitor = new MultipleSymbolFinder(new ClientSideMethodFilter());
             var typesToTranslate = visitor
                     .VisitAssembly(compilerContext.Compilation.Assembly)
@@ -38,11 +41,16 @@ namespace DotVVM.TypeScript.Compiler
                 typeRegistry.RegisterType(typeAndMethods.Key, typeAndMethods);
             }
 
-            var typeTranslator = new TypeTranslator(typeRegistry);
-            foreach (var tsSyntaxTree in typeTranslator.Translate())
-            {
-                Console.WriteLine(tsSyntaxTree.RootNode.ToDisplayString());
-            }
+            typeRegistry.Types.Select(t => _translatorsEvidence.ResolveTranslator(t.Type).Translate(t.Type)).ToList()
+                .ForEach(t => Console.WriteLine(t.ToDisplayString()));
+        }
+
+        public void RegisterTranslators()
+        {
+            _translatorsEvidence.RegisterTranslator(() => new MethodSymbolTranslator(_translatorsEvidence));
+            _translatorsEvidence.RegisterTranslator(() => new PropertySymbolTranslator());
+            _translatorsEvidence.RegisterTranslator(() => new ParameterSymbolTranslator());
+            _translatorsEvidence.RegisterTranslator(() => new TypeSymbolTranslator(_translatorsEvidence));
         }
 
         private async Task<CompilerContext> CreateCompilerContext()

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using DotVVM.Framework.Compilation.Binding;
 using DotVVM.TypeScript.Compiler.Exceptions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.TypeScript.Compiler
 {
@@ -45,10 +47,10 @@ namespace DotVVM.TypeScript.Compiler
                 Console.WriteLine("Some arguments are missing.");
                 PrintHelp();
             }
-            catch (Exception exception)
-            {
-                Console.WriteLine("An error occured during compilation: " + exception.Message);
-            }
+            //catch (Exception exception)
+            //{
+            //    Console.WriteLine("An error occured during compilation: " + exception.Message);
+            //}
             return 1;
         }
 
