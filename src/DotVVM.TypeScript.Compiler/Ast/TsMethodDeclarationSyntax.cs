@@ -20,9 +20,9 @@ namespace DotVVM.TypeScript.Compiler.Ast
         public override string ToDisplayString()
         {
             return $"{Modifier.ToDisplayString()} {Identifier.ToDisplayString()}({Parameters.Select(p => p.ToDisplayString()).StringJoin(",")})" +
-                   "{\n" +
-                   $"{Body.ToDisplayString()}\n" +
-                   "}";
+                   "\t{\n" +
+                   $"\t{Body.ToDisplayString()}\n" +
+                   "\t}";
         }
 
         public override IEnumerable<TsSyntaxNode> DescendantNodes()

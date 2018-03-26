@@ -2,7 +2,7 @@
 
 namespace DotVVM.TypeScript.Compiler
 {
-    internal struct CompilerContext
+    public struct CompilerContext
     {
         public Workspace Workspace { get; set; }
         public Compilation Compilation { get; set; }

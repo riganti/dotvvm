@@ -2,6 +2,7 @@
 using System.Linq;
 using DotVVM.TypeScript.Compiler.Ast;
 using DotVVM.TypeScript.Compiler.Symbols;
+using DotVVM.TypeScript.Compiler.Translators.Operations;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -41,9 +42,13 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
         {
             if (input.DeclaringSyntaxReferences.Any())
             {
-                //var syntaxReference = input.DeclaringSyntaxReferences.First().GetSyntax() as MethodDeclarationSyntax;
-                //var operation = _context.Compilation.GetSemanticModel(syntaxReference.SyntaxTree).GetOperation(syntaxReference.Body);
-                //operation.Accept()
+                var syntaxReference = input.DeclaringSyntaxReferences.First().GetSyntax() as MethodDeclarationSyntax;
+                var operation = _context.Compilation.GetSemanticModel(syntaxReference.SyntaxTree).GetOperation(syntaxReference.Body);
+                var operationTranslatingVisitor = new OperationTranslatingVisitor();
+                if (operation.Accept(operationTranslatingVisitor, null) is TsBlockSyntax blockSyntax)
+                {
+                    return blockSyntax;
+                }
             }
             return new TsBlockSyntax(null, new List<TsStatementSyntax>());
         }

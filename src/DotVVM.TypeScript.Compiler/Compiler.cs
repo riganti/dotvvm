@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Buildalyzer;
 using Buildalyzer.Workspaces;
+using DotVVM.TypeScript.Compiler.Ast;
 using DotVVM.TypeScript.Compiler.Symbols;
 using DotVVM.TypeScript.Compiler.Symbols.Filters;
 using DotVVM.TypeScript.Compiler.Symbols.Registries;
@@ -31,23 +32,36 @@ namespace DotVVM.TypeScript.Compiler
         public async Task RunAsync()
         {
             var compilerContext = await CreateCompilerContext();
-            RegisterTranslators();    
+            RegisterTranslators(compilerContext);    
+            FindTranslatableViewModels(compilerContext);
+
+            var translatedViewModels = TranslateViewModels();
+            translatedViewModels
+                .ForEach(t => Console.WriteLine(t.ToDisplayString()));
+            translatedViewModels
+                .ForEach();
+        }
+
+        private List<TsSyntaxNode> TranslateViewModels()
+        {
+            return typeRegistry.Types.Select(t => _translatorsEvidence.ResolveTranslator(t.Type).Translate(t.Type)).ToList();
+        }
+
+        private void FindTranslatableViewModels(CompilerContext compilerContext)
+        {
             var visitor = new MultipleSymbolFinder(new ClientSideMethodFilter());
             var typesToTranslate = visitor
-                    .VisitAssembly(compilerContext.Compilation.Assembly)
-                    .GroupBy(m => m.ContainingType);
+                .VisitAssembly(compilerContext.Compilation.Assembly)
+                .GroupBy(m => m.ContainingType);
             foreach (var typeAndMethods in typesToTranslate)
             {
                 typeRegistry.RegisterType(typeAndMethods.Key, typeAndMethods);
             }
-
-            typeRegistry.Types.Select(t => _translatorsEvidence.ResolveTranslator(t.Type).Translate(t.Type)).ToList()
-                .ForEach(t => Console.WriteLine(t.ToDisplayString()));
         }
 
-        public void RegisterTranslators()
+        public void RegisterTranslators(CompilerContext compilerContext)
         {
-            _translatorsEvidence.RegisterTranslator(() => new MethodSymbolTranslator(_translatorsEvidence));
+            _translatorsEvidence.RegisterTranslator(() => new MethodSymbolTranslator(_translatorsEvidence, compilerContext));
             _translatorsEvidence.RegisterTranslator(() => new PropertySymbolTranslator());
             _translatorsEvidence.RegisterTranslator(() => new ParameterSymbolTranslator());
             _translatorsEvidence.RegisterTranslator(() => new TypeSymbolTranslator(_translatorsEvidence));

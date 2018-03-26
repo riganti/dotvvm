@@ -25,7 +25,10 @@ namespace DotVVM.TypeScript.Compiler.Ast
                 output += $"extends {BaseClasses.Select(i => i.ToDisplayString()).StringJoin(",")}";
             }
             output += " {\n";
-            output += $"\t{Members.Select(m => m.ToDisplayString()).StringJoin("\n")}";
+            foreach (var member in Members)
+            {
+                output += $"\t{member.ToDisplayString()}\n";
+            }
             output += "\n}";
             return output;
         }

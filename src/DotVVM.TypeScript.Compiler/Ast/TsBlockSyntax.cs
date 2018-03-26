@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Utils;
 
@@ -15,9 +16,19 @@ namespace DotVVM.TypeScript.Compiler.Ast
             Statements = statements;
         }
 
+        public void AddStatement(TsStatementSyntax statement)
+        {
+            Statements.Add(statement);
+        }
+
         public override string ToDisplayString()
         {
-            return $"\t{Statements.Select(s => s.ToDisplayString()).StringJoin(";\n")}";
+            var output = string.Empty;
+            foreach (var statement in Statements)
+            {
+                output += $"\t{statement.ToDisplayString()};\n";
+            }
+            return output;
         }
 
         public override IEnumerable<TsSyntaxNode> DescendantNodes()

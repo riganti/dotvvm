@@ -7,6 +7,9 @@ namespace DotVVM.TypeScript.Compiler.Ast
     {
         public TsTypeSyntax Type { get; }
 
+        public override TsModifier Modifier { get; protected set; }
+        public override TsIdentifierSyntax Identifier { get; set; }
+
         public TsPropertyDeclarationSyntax(TsModifier modifier, TsIdentifierSyntax identifier, TsTypeSyntax type, TsSyntaxNode parent) : base(modifier, identifier, parent)
         {
             Type = type;
@@ -21,8 +24,5 @@ namespace DotVVM.TypeScript.Compiler.Ast
         {
             return Enumerable.Empty<TsSyntaxNode>();
         }
-
-        public override TsModifier Modifier { get; protected set; }
-        public override TsIdentifierSyntax Identifier { get; set; }
     }
 }
