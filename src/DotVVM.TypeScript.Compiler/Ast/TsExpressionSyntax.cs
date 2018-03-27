@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 namespace DotVVM.TypeScript.Compiler.Ast
 {
@@ -10,24 +9,35 @@ namespace DotVVM.TypeScript.Compiler.Ast
         }
     }
 
-    public class TsIdentifierReferenceSyntax : TsExpressionSyntax
+    public enum TsUnaryOperator
     {
-        public TsIdentifierSyntax Identifier { get; }
-        
+        BitwiseNegation,
+        Not,
+        Plus,
+        Minus,
+        True,
+        False
+    }
 
-        public TsIdentifierReferenceSyntax(TsSyntaxNode parent, TsIdentifierSyntax identifier) : base(parent)
+    public class TsUnaryOperationSyntax : TsExpressionSyntax
+    {
+        TsExpressionSyntax Operand { get; }
+        TsUnaryOperator Opeator { get;  }
+
+        public TsUnaryOperationSyntax(TsSyntaxNode parent, TsExpressionSyntax operand, TsUnaryOperator opeator) : base(parent)
         {
-            Identifier = identifier;
+            Operand = operand;
+            Opeator = opeator;
         }
 
         public override string ToDisplayString()
         {
-            return $"{Identifier.ToDisplayString()}";
+            throw new System.NotImplementedException();
         }
 
         public override IEnumerable<TsSyntaxNode> DescendantNodes()
         {
-            return Enumerable.Empty<TsSyntaxNode>();
+            throw new System.NotImplementedException();
         }
     }
 }

@@ -72,6 +72,27 @@ namespace DotVVM.TypeScript.Compiler.Symbols
             }
         }
 
+        public static TsUnaryOperator ToTsUnaryOperator(this UnaryOperatorKind unaryOperator)
+        {
+            switch (unaryOperator)
+            {
+                case UnaryOperatorKind.BitwiseNegation:
+                    return TsUnaryOperator.BitwiseNegation;
+                case UnaryOperatorKind.Not:
+                    return TsUnaryOperator.Not;
+                case UnaryOperatorKind.Plus:
+                    return TsUnaryOperator.Plus;
+                case UnaryOperatorKind.Minus:
+                    return TsUnaryOperator.Minus;
+                case UnaryOperatorKind.True:
+                    return TsUnaryOperator.True;
+                case UnaryOperatorKind.False:
+                    return TsUnaryOperator.False;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(unaryOperator), unaryOperator, null);
+            }
+        }
+
         public static TsModifier ToTsModifier(this Accessibility accessibility)
         {
             switch (accessibility)

@@ -2,6 +2,7 @@
 using DotVVM.TypeScript.Compiler.Ast;
 using Microsoft.CodeAnalysis.Operations;
 using DotVVM.TypeScript.Compiler.Symbols;
+using Microsoft.CodeAnalysis;
 
 namespace DotVVM.TypeScript.Compiler.Translators.Operations
 {
@@ -34,6 +35,13 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
                 value = operation.ConstantValue.ToString();
             }
             return new TsLiteralExpressionSyntax(argument, value);
+        }
+        
+        public override TsSyntaxNode VisitUnaryOperator(IUnaryOperation operation, TsSyntaxNode argument)
+        {
+            var operand = operation.Operand.Accept(this, argument) as TsExpressionSyntax;
+            var unaryOperator = operation.OperatorKind.ToTsUnaryOperator();
+            return new TsUnaryOperationSyntax(argument, operand, unaryOperator);
         }
 
         public override TsSyntaxNode VisitBinaryOperator(IBinaryOperation operation, TsSyntaxNode parent)

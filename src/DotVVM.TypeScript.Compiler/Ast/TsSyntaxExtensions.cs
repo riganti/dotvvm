@@ -63,5 +63,26 @@ namespace DotVVM.TypeScript.Compiler.Ast
                     throw new ArgumentOutOfRangeException(nameof(binaryOperator), binaryOperator, null);
             }
         }
+
+        private static string ToDisplayString(this TsUnaryOperator unaryOperator)
+        {
+            switch (unaryOperator)
+            {
+                case TsUnaryOperator.BitwiseNegation:
+                    return "~";
+                case TsUnaryOperator.Not:
+                    return "!";
+                case TsUnaryOperator.Plus:
+                    return "+";
+                case TsUnaryOperator.Minus:
+                    return "-";
+                case TsUnaryOperator.True:
+                    return "true";
+                case TsUnaryOperator.False:
+                    return "false";
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(unaryOperator), unaryOperator, null);
+            }
+        }
     }
 }
