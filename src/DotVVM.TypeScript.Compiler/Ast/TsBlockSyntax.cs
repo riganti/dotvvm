@@ -5,7 +5,7 @@ using DotVVM.Framework.Utils;
 
 namespace DotVVM.TypeScript.Compiler.Ast
 {
-    public class TsBlockSyntax : TsSyntaxNode
+    public class TsBlockSyntax : TsStatementSyntax
     {
 
         public IList<TsStatementSyntax> Statements { get; }
