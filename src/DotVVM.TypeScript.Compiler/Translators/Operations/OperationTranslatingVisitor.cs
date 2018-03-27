@@ -37,6 +37,14 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
             return new TsLiteralExpressionSyntax(argument, value);
         }
         
+        public override TsSyntaxNode VisitSimpleAssignment(ISimpleAssignmentOperation operation, TsSyntaxNode parent)
+        {
+            var identifier = operation.Target.Accept(this, parent) as TsIdentifierReferenceSyntax;
+            var expression = operation.Value.Accept(this, parent) as TsExpressionSyntax;
+            var assignment = new TsAssignmentSyntax(parent, identifier, expression);
+            return assignment;
+        }
+
         public override TsSyntaxNode VisitUnaryOperator(IUnaryOperation operation, TsSyntaxNode argument)
         {
             var operand = operation.Operand.Accept(this, argument) as TsExpressionSyntax;
@@ -52,12 +60,9 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
             return new TsBinaryOperationSyntax(parent, left, right, binaryOperator);
         }
 
-        public override TsSyntaxNode VisitSimpleAssignment(ISimpleAssignmentOperation operation, TsSyntaxNode parent)
+        public override TsSyntaxNode VisitLocalReference(ILocalReferenceOperation operation, TsSyntaxNode argument)
         {
-            var identifier = operation.Target.Accept(this, parent) as TsIdentifierReferenceSyntax;
-            var expression = operation.Value.Accept(this, parent) as TsExpressionSyntax;
-            var assignment = new TsAssignmentSyntax(parent, identifier, expression);
-            return assignment;
+            return new TsIdentifierSyntax(operation.Local.Name, argument);
         }
 
         public override TsSyntaxNode VisitPropertyReference(IPropertyReferenceOperation operation, TsSyntaxNode parent)
