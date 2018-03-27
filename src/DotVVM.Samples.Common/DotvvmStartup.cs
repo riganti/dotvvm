@@ -18,6 +18,9 @@ using DotVVM.Samples.Common;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.ServerSideStyles;
 using Microsoft.Extensions.DependencyInjection;
+using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Compilation.Javascript.Ast;
+using DotVVM.Samples.Common.Utilities;
 
 namespace DotVVM.Samples.BasicSamples
 {
@@ -133,9 +136,6 @@ namespace DotVVM.Samples.BasicSamples
         public void ConfigureServices(IDotvvmServiceCollection services)
         {
             CommonConfiguration.ConfigureServices(services);
-            services.AddDefaultTempStorages("Temp");
-            services.AddScoped<ViewModelScopedDependency>();
-            services.AddSingleton<IGreetingComputationService, HelloGreetingComputationService>();
         }
     }
 }

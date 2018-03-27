@@ -1,13 +1,20 @@
+using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.ResourceManagement;
+using DotVVM.Samples.BasicSamples;
+using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand;
+using DotVVM.Samples.Common.Utilities;
+using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Samples.Common
 {
     public static class CommonConfiguration
     {
-        public static void ConfigureServices(IServiceCollection services)
+        public static void ConfigureServices(IDotvvmServiceCollection dotvvmServices)
         {
+            var services = dotvvmServices.Services;
             // normally, you'd put that to DotvvmStartup, but I need to test both options
             services.Configure<DotvvmMarkupConfiguration>(config => {
                 // import namespaces
@@ -16,6 +23,16 @@ namespace DotVVM.Samples.Common
             });
 
             services.Configure<DotvvmResourceRepository>(RegisterResources);
+
+            services.Configure<JavascriptTranslatorConfiguration>(c => {
+                c.MethodCollection.AddMethodTranslator(typeof(JavaScriptUtils),
+                   nameof(JavaScriptUtils.LimitLength),
+                   new GenericMethodCompiler((a) => new JsIdentifierExpression("limitLength").Invoke(a)));
+            });
+
+            dotvvmServices.AddDefaultTempStorages("Temp");
+            services.AddScoped<ViewModelScopedDependency>();
+            services.AddSingleton<IGreetingComputationService, HelloGreetingComputationService>();
         }
 
         private static void RegisterResources(DotvvmResourceRepository resources)

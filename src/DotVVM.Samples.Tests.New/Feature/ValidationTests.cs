@@ -697,6 +697,24 @@ namespace DotVVM.Samples.Tests.New.Feature
             });
         }
 
+        [Fact]
+        public void Feature_Validation_EncryptedData()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_EncryptedData);
+
+                var counterButton = browser.Single("[data-ui=counter-button]");
+                var result = browser.First("[data-ui=result]");
+
+                AssertUI.InnerTextEquals(result, "0");
+
+                counterButton.Click();
+                AssertUI.InnerTextEquals(result, "1");
+                counterButton.Click();
+                AssertUI.InnerTextEquals(result, "2");
+            });
+        }
+
         public ValidationTests(ITestOutputHelper output) : base(output)
         {
         }

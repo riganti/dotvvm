@@ -102,8 +102,7 @@ namespace DotVVM.Framework.Configuration
 
                     if (registerJS)
                     {
-                        var httpMethod = method.GetCustomAttribute<HttpMethodAttribute>()?.Method ?? "Get";
-                        var isRead = httpMethod == "Get" || httpMethod == "Head";
+                        var isRead = IsHttpReadMethod(method);
 
                         config.Markup.JavascriptTranslator.MethodCollection.AddMethodTranslator(method, new GenericMethodCompiler(
                             a => new JsIdentifierExpression("dotvvm").Member("invokeApiFn").Invoke(
@@ -195,6 +194,22 @@ namespace DotVVM.Framework.Configuration
                 prop.JsExpression.AddAnnotation(new RequiredRuntimeResourcesBindingProperty(ImmutableArray.Create("apiInit" + identifier)));
                 RegisterJsTranslation(prop.JsExpression, prop.Type, configuration);
             }
+        }
+
+        private const string HttpGetVerb = "Get";
+        private const string HttpHeadVerb = "Head";
+        private static bool IsHttpReadMethod(MethodInfo method)
+        {
+            var httpMethod = method.GetCustomAttribute<HttpMethodAttribute>()?.Method;
+
+            if (httpMethod != null)
+            {
+                return httpMethod.Equals(HttpGetVerb, StringComparison.OrdinalIgnoreCase)
+                    || httpMethod.Equals(HttpHeadVerb, StringComparison.OrdinalIgnoreCase);
+            }
+
+            return method.Name.StartsWith(HttpGetVerb, StringComparison.OrdinalIgnoreCase)
+                || method.Name.StartsWith(HttpHeadVerb, StringComparison.OrdinalIgnoreCase);
         }
 
         public class ApiGroupDescriptor

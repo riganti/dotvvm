@@ -73,7 +73,7 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [Fact]
-        public void Feature_PostBack_PostBackHandlers()
+        public void Feature_PostBack_PostBackHandlers_Localization()
         {
             RunInAllBrowsers(browser => {
 

@@ -47,6 +47,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_ComboBox_ComboBoxDelaySync = "ControlSamples/ComboBox/ComboBoxDelaySync";
         public const string ControlSamples_ComboBox_ComboBoxDelaySync2 = "ControlSamples/ComboBox/ComboBoxDelaySync2";
         public const string ControlSamples_ComboBox_ComboBoxDelaySync3 = "ControlSamples/ComboBox/ComboBoxDelaySync3";
+        public const string ControlSamples_ComboBox_ComboBoxTitle = "ControlSamples/ComboBox/ComboBoxTitle";
         public const string ControlSamples_ContentPlaceHolder_ContentPlaceHolderPage = "ControlSamples/ContentPlaceHolder/ContentPlaceHolderPage";
         public const string ControlSamples_ContentPlaceHolder_ContentPlaceHolderPage_ContentTest = "ControlSamples/ContentPlaceHolder/ContentPlaceHolderPage_ContentTest";
         public const string ControlSamples_ContentPlaceHolder_DoubleContentPlaceHolderPage_ContentTest = "ControlSamples/ContentPlaceHolder/DoubleContentPlaceHolderPage_ContentTest";
@@ -70,6 +71,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_IncludeInPageProperty_IncludeInPage = "ControlSamples/IncludeInPageProperty/IncludeInPage";
         public const string ControlSamples_LinkButton_LinkButton = "ControlSamples/LinkButton/LinkButton";
         public const string ControlSamples_LinkButton_LinkButtonOnclick = "ControlSamples/LinkButton/LinkButtonOnclick";
+        public const string ControlSamples_ListBox_ListBox = "ControlSamples/ListBox/ListBox";
         public const string ControlSamples_Literal_Literal = "ControlSamples/Literal/Literal";
         public const string ControlSamples_Literal_Literal_ArrayLength = "ControlSamples/Literal/Literal_ArrayLength";
         public const string ControlSamples_Literal_Literal_CollectionLength = "ControlSamples/Literal/Literal_CollectionLength";
@@ -203,6 +205,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Validation_DateTimeValidation = "FeatureSamples/Validation/DateTimeValidation";
         public const string FeatureSamples_Validation_DateTimeValidation_NullableDateTime = "FeatureSamples/Validation/DateTimeValidation_NullableDateTime";
         public const string FeatureSamples_Validation_DynamicValidation = "FeatureSamples/Validation/DynamicValidation";
+        public const string FeatureSamples_Validation_EncryptedData = "FeatureSamples/Validation/EncryptedData";
         public const string FeatureSamples_Validation_EssentialTypeValidation = "FeatureSamples/Validation/EssentialTypeValidation";
         public const string FeatureSamples_Validation_Localization = "FeatureSamples/Validation/Localization";
         public const string FeatureSamples_Validation_ModelStateErrors = "FeatureSamples/Validation/ModelStateErrors";

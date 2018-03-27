@@ -15,6 +15,7 @@ namespace DotVVM.Samples.Tests.New.Feature
         [Theory]
         [InlineData("input[data-ui=long-action-button]")]
         [InlineData("input[data-ui=long-static-action-button]")]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_PostbackConcurrency_PostbackConcurrencyMode))]
         public void Feature_PostbackConcurrency_UpdateProgressControl(string longActionSelector)
         {
             RunInAllBrowsers(browser => {

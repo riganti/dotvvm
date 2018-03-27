@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using DotVVM.Framework.Configuration;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
