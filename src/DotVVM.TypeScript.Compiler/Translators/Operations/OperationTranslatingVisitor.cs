@@ -94,12 +94,13 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
 
         public override TsSyntaxNode VisitLocalReference(ILocalReferenceOperation operation, TsSyntaxNode argument)
         {
-            return new TsIdentifierSyntax(operation.Local.Name, argument);
+            var identifier = new TsIdentifierSyntax(operation.Local.Name, argument);
+            return new TsIdentifierReferenceSyntax(argument, identifier);
         }
 
         public override TsSyntaxNode VisitPropertyReference(IPropertyReferenceOperation operation, TsSyntaxNode parent)
         {
-            var identifier = new TsIdentifierSyntax(operation.Property.Name, parent);
+            var identifier = new TsIdentifierSyntax($"this.{operation.Property.Name}", parent);
             return new TsIdentifierReferenceSyntax(parent, identifier);
         }
 

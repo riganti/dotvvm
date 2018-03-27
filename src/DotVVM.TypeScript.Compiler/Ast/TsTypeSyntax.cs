@@ -15,6 +15,10 @@ namespace DotVVM.TypeScript.Compiler.Ast
 
         public override string ToDisplayString()
         {
+            if (EquivalentSymbol.IsValueType)
+            {
+                return "number";
+            }
             return EquivalentSymbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
         }
 

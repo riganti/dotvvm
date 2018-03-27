@@ -1,17 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading.Tasks;
 using Buildalyzer;
 using Buildalyzer.Workspaces;
+using DotVVM.Framework.Utils;
 using DotVVM.TypeScript.Compiler.Ast;
 using DotVVM.TypeScript.Compiler.Symbols;
 using DotVVM.TypeScript.Compiler.Symbols.Filters;
 using DotVVM.TypeScript.Compiler.Symbols.Registries;
 using DotVVM.TypeScript.Compiler.Translators;
 using DotVVM.TypeScript.Compiler.Translators.Symbols;
+using DotVVM.TypeScript.Compiler.Utils;
 using Microsoft.CodeAnalysis;
 
 namespace DotVVM.TypeScript.Compiler
@@ -21,9 +25,13 @@ namespace DotVVM.TypeScript.Compiler
         private CompilerArguments compilerArguments;
         private readonly TypeRegistry typeRegistry;
         private readonly TranslatorsEvidence _translatorsEvidence;
-        public Compiler(CompilerArguments compilerArguments)
+        private readonly IFileStore _fileStore;
+        private CompilerContext _compilerContext;
+
+        public Compiler(CompilerArguments compilerArguments, IFileStore fileStore)
         {
             this.compilerArguments = compilerArguments;
+            _fileStore = fileStore;
             this.typeRegistry = new TypeRegistry();
             this._translatorsEvidence = new TranslatorsEvidence();
         }
@@ -31,13 +39,57 @@ namespace DotVVM.TypeScript.Compiler
 
         public async Task RunAsync()
         {
-            var compilerContext = await CreateCompilerContext();
-            RegisterTranslators(compilerContext);    
-            FindTranslatableViewModels(compilerContext);
+            _compilerContext = await CreateCompilerContext();
+            RegisterTranslators(_compilerContext);    
+            FindTranslatableViewModels(_compilerContext);
 
             var translatedViewModels = TranslateViewModels();
-            translatedViewModels
-                .ForEach(t => Console.WriteLine(t.ToDisplayString()));
+
+            var typescriptViewModels = await StoreViewModels(translatedViewModels);
+            var outputFilePath = CompileTypescript(typescriptViewModels);
+        }
+
+        private string CompileTypescript(IEnumerable<string> typescriptViewModels)
+        {
+            var basePath = FindProjectBasePath();
+            var arguments = $" {typescriptViewModels.StringJoin(" ")} --outfile {basePath}\\dotvvm.viewmodels.generated.js";
+            Process.Start(new ProcessStartInfo() {
+                FileName = "tsc",
+                Arguments = arguments,
+                UseShellExecute = true,
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden
+            }).WaitForExit();
+            return string.Empty;
+        }
+
+        private async Task<IEnumerable<string>> StoreViewModels(List<TsSyntaxNode> translatedViewModels)
+        {
+            var filesList = new List<string>();
+            var basePath = FindProjectBasePath();
+            foreach (var viewModel in translatedViewModels)
+            {
+                if (viewModel is TsClassDeclarationSyntax @class)
+                {
+                    var filePath = Path.Combine(basePath, $"{@class.Identifier.Value}.ts");
+                    await _fileStore.StoreFileAsync(filePath, viewModel.ToDisplayString());
+                    filesList.Add(filePath);
+                }
+            }
+            return filesList;
+        }
+
+        private string FindProjectBasePath()
+        {
+            var projectPath = FindProject(_compilerContext.Workspace).FilePath;
+            var projectDirectory = new FileInfo(projectPath).Directory;
+            var basePath = projectDirectory.FullName;
+            if (projectDirectory.GetDirectories().Any(d => d.Name == "wwwroot"))
+            {
+                basePath = Path.Combine(basePath, "wwwroot");
+            }
+
+            return basePath;
         }
 
         private List<TsSyntaxNode> TranslateViewModels()
@@ -75,10 +127,15 @@ namespace DotVVM.TypeScript.Compiler
 
         private async Task<Compilation> CompileProject(Workspace workspace)
         {
-            return await workspace.CurrentSolution
-                .Projects
-                .First(p => p.Name == compilerArguments.ProjectName)
+            return await FindProject(workspace)
                 .GetCompilationAsync();
+        }
+
+        private Project FindProject(Workspace workspace)
+        {
+            return workspace.CurrentSolution
+                .Projects
+                .First(p => p.Name == compilerArguments.ProjectName);
         }
 
         private Workspace CreateWorkspace()

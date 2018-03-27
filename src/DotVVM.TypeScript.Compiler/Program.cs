@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.TypeScript.Compiler.Exceptions;
+using DotVVM.TypeScript.Compiler.Utils;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.TypeScript.Compiler
@@ -34,7 +35,7 @@ namespace DotVVM.TypeScript.Compiler
             try
             {
                 var compilerArguments = ParseArguments(args);
-                var compiler = new Compiler(compilerArguments);
+                var compiler = new Compiler(compilerArguments, new LocalFileStore());
                 compiler.RunAsync().GetAwaiter().GetResult();
                 return 0;
             }

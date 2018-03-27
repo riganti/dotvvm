@@ -21,6 +21,7 @@ using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.ViewModel.Validation;
 using System.Globalization;
+using System.IO;
 using System.Reflection;
 using DotVVM.Framework.Hosting.Middlewares;
 using DotVVM.Framework.Utils;
@@ -276,9 +277,16 @@ namespace DotVVM.Framework.Configuration
                 new StylesheetResource(new EmbeddedResourceLocation(
                     typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
                     "DotVVM.Framework.Resources.Scripts.DotVVM.FileUpload.css")));
-
+            RegisterGeneratedViewModels(configuration);
             RegisterGlobalizeResources(configuration);
             RegisterPolyfillResources(configuration);
+        }
+
+        private static void RegisterGeneratedViewModels(DotvvmConfiguration configuration)
+        {
+            configuration.Resources.Register("dotvvm.viewmodels.generated",
+                new ScriptResource(
+                    new FileResourceLocation("./dotvvm.viewmodels.generated.js")));
         }
 
         private static void RegisterGlobalizeResources(DotvvmConfiguration configuration)

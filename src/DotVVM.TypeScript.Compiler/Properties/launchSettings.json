@@ -2,7 +2,7 @@
   "profiles": {
     "DotVVM.TypeScript.Compiler": {
       "commandName": "Project",
-      "commandLineArgs": "C:\\Users\\micha\\source\\repos\\DotvvmApplication2\\DotvvmApplication2.sln DotvvmApplication2"
+      "commandLineArgs": "C:\\Development\\Test\\DotvvmJsTranslation.Sample\\DotvvmJsTranslation.Sample.sln DotvvmJsTranslation.Sample"
     }
   }
 }
