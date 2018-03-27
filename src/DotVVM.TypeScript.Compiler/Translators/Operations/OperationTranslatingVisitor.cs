@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using DotVVM.TypeScript.Compiler.Ast;
 using Microsoft.CodeAnalysis.Operations;
 using DotVVM.TypeScript.Compiler.Symbols;
@@ -25,6 +26,37 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
         public override TsSyntaxNode VisitExpressionStatement(IExpressionStatementOperation operation, TsSyntaxNode argument)
         {
             return operation.Operation.Accept(this, argument);
+        }
+
+        public override TsSyntaxNode VisitVariableDeclaration(IVariableDeclarationOperation operation, TsSyntaxNode argument)
+        {
+            var declarators = new List<TsVariableDeclaratorSyntax>();
+            foreach (var declarator in operation.Declarators)
+            {
+                var syntax = declarator.Accept(this, argument);
+                if (syntax is TsVariableDeclaratorSyntax declaratorSyntax)
+                {
+                    declarators.Add(declaratorSyntax);
+                }
+            }
+            return new TsLocalVariableDeclarationSyntax(argument, declarators);
+        }
+
+        public override TsSyntaxNode VisitVariableDeclarator(IVariableDeclaratorOperation operation, TsSyntaxNode argument)
+        {
+            var identifier = new TsIdentifierSyntax(operation.Symbol.Name, argument);
+            var expression = operation.Initializer?.Accept(this, argument);
+            return new TsVariableDeclaratorSyntax(argument, expression as TsExpressionSyntax, identifier);
+        }
+
+        public override TsSyntaxNode VisitVariableInitializer(IVariableInitializerOperation operation, TsSyntaxNode argument)
+        {
+            return operation.Value?.Accept(this, argument);
+        }
+
+        public override TsSyntaxNode VisitVariableDeclarationGroup(IVariableDeclarationGroupOperation operation, TsSyntaxNode argument)
+        {
+            return operation.Declarations.Single().Accept(this, argument);
         }
 
         public override TsSyntaxNode VisitLiteral(ILiteralOperation operation, TsSyntaxNode argument)
