@@ -53,14 +53,8 @@ namespace DotVVM.Samples.Tests.Control
             void checkNavigatedUrl(string selector, string relativeUrl)
             {
                 var href = browser.Single(selector).GetAttribute("href");
-                if (isSpaLink)
-                {
-                    Assert.AreEqual("#!" + relativeUrl, new Uri(href).Fragment);
-                }
-                else
-                {
-                    Assert.AreEqual(relativeUrl, new Uri(href).AbsolutePath);
-                }
+
+                Assert.AreEqual(relativeUrl, new Uri(href).AbsolutePath);
             }
 
             checkNavigatedUrl("a[data-ui='optional-parameter-client']", "/ControlSamples/Repeater/RouteLink");

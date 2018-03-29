@@ -11,7 +11,6 @@ namespace DotVVM.Samples.Tests.Control
     [TestClass]
     public class SpaContentPlaceHolderTests : AppSeleniumTest
     {
-
         [TestMethod]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_Default))]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageA))]
@@ -263,6 +262,5 @@ namespace DotVVM.Samples.Tests.Control
                 browser.CheckUrlEquals(browser.BaseUrl + SamplesRouteUrls.ComplexSamples_TaskList_ServerRenderedTaskList);
             });
         }
-
     }
 }
