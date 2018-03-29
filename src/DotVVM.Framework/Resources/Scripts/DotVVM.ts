@@ -715,11 +715,10 @@ class DotVVM {
         }
 
         var virtualDirectory = this.viewModels[viewModelName].virtualDirectory || "";
-        var niceUrl = this.addLeadingSlash(this.concatUrl(virtualDirectory, this.addLeadingSlash(url)));
 
         // add virtual directory prefix
-        url = "/___dotvvm-spa___" + this.addLeadingSlash(url);
-        var fullUrl = this.addLeadingSlash(this.concatUrl(virtualDirectory, url));
+        var spaUrl = "/___dotvvm-spa___" + this.addLeadingSlash(url);
+        var fullUrl = this.addLeadingSlash(this.concatUrl(virtualDirectory, spaUrl));
 
         // find SPA placeholder
         var spaPlaceHolder = this.getSpaPlaceHolder();
@@ -729,7 +728,8 @@ class DotVVM {
         }
 
         if (handlePageNavigating) {
-            handlePageNavigating(niceUrl);
+            handlePageNavigating(
+                this.addLeadingSlash(this.concatUrl(virtualDirectory, this.addLeadingSlash(url))));
         }
 
         // send the request

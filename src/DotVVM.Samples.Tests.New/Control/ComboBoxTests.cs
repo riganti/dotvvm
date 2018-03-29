@@ -30,13 +30,13 @@ namespace DotVVM.Samples.Tests.Control
                 // select third option from combobox
                 browser.First("select").Select(2);
                 browser.WaitFor(() => {
-                    AssertUI.InnerTextEquals(browser.First("span"), "3"); ;
+                    AssertUI.InnerTextEquals(browser.First("span"), "3");
                 }, 1000, 30);
 
                 // select fourth option from combobox
                 browser.First("select").Select(3);
                 browser.WaitFor(() => {
-                    AssertUI.InnerTextEquals(browser.First("span"), "4"); ;
+                    AssertUI.InnerTextEquals(browser.First("span"), "4"); 
                 }, 1000, 30);
             });
         }
