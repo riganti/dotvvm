@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace DotVVM.TypeScript.Compiler.Utils
@@ -7,6 +8,7 @@ namespace DotVVM.TypeScript.Compiler.Utils
     {
         public void StoreFile(string path, string content)
         {
+            EnsureDirectoryExists(path);
             using (var fileStream = File.Open(path, FileMode.Create))
             {
                 using (var streamWriter = new StreamWriter(fileStream))
@@ -18,6 +20,7 @@ namespace DotVVM.TypeScript.Compiler.Utils
 
         public async Task StoreFileAsync(string path, string content)
         {
+            EnsureDirectoryExists(path);
             using (var fileStream = File.Open(path, FileMode.Create))
             {
                 using (var streamWriter = new StreamWriter(fileStream))
@@ -25,6 +28,13 @@ namespace DotVVM.TypeScript.Compiler.Utils
                     await streamWriter.WriteAsync(content);
                 }
             }
+        }
+
+        private void EnsureDirectoryExists(string path)
+        {
+            var fileInfo = new FileInfo(path);
+            var directoryPath = fileInfo.Directory.FullName;
+            Directory.CreateDirectory(directoryPath);
         }
     }
 }
