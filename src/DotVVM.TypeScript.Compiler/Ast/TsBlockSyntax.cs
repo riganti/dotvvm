@@ -23,11 +23,12 @@ namespace DotVVM.TypeScript.Compiler.Ast
 
         public override string ToDisplayString()
         {
-            var output = string.Empty;
+            var output = "{";
             foreach (var statement in Statements)
             {
-                output += $"{{\n\t{statement.ToDisplayString()};\n}}";
+                output += $"\n\t{statement.ToDisplayString()};\n";
             }
+            output += "}";
             return output;
         }
 
