@@ -52,14 +52,15 @@ namespace DotVVM.TypeScript.Compiler
         private string CompileTypescript(IEnumerable<string> typescriptViewModels)
         {
             var basePath = FindProjectBasePath();
-            var arguments = $" {typescriptViewModels.StringJoin(" ")} --outfile {basePath}\\dotvvm.viewmodels.generated.js";
+            var outputPath = Path.Combine(basePath, "dotvvm.viewmodels.generated.js");
+            var arguments = $" {typescriptViewModels.StringJoin(" ")} --outfile {outputPath}";
             Process.Start(new ProcessStartInfo() {
                 FileName = "tsc",
                 Arguments = arguments,
                 UseShellExecute = true,
                 CreateNoWindow = true,
                 WindowStyle = ProcessWindowStyle.Hidden
-            }).WaitForExit();
+            })?.WaitForExit();
             return string.Empty;
         }
 
@@ -88,7 +89,7 @@ namespace DotVVM.TypeScript.Compiler
             {
                 basePath = Path.Combine(basePath, "wwwroot");
             }
-
+            basePath = Path.Combine(basePath, "Scripts");
             return basePath;
         }
 
