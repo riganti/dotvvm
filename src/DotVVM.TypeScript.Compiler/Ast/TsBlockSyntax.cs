@@ -26,7 +26,7 @@ namespace DotVVM.TypeScript.Compiler.Ast
             var output = string.Empty;
             foreach (var statement in Statements)
             {
-                output += $"\t{statement.ToDisplayString()};\n";
+                output += $"{{\n\t{statement.ToDisplayString()};\n}}";
             }
             return output;
         }
