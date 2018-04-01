@@ -1,4 +1,6 @@
-﻿namespace DotVVM.TypeScript.Compiler.Ast
+﻿using System;
+
+namespace DotVVM.TypeScript.Compiler.Ast
 {
     public abstract class TsStatementSyntax : TsSyntaxNode
     {

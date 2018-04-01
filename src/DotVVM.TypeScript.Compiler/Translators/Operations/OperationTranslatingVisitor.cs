@@ -59,6 +59,11 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
             return operation.Declarations.Single().Accept(this, argument);
         }
 
+        public override TsSyntaxNode VisitReturn(IReturnOperation operation, TsSyntaxNode argument)
+        {
+            var expression = operation.ReturnedValue?.Accept(this, argument) as TsExpressionSyntax;
+            return new TsReturnStatementSyntax(argument, expression);
+        }
 
         public override TsSyntaxNode VisitIncrementOrDecrement(IIncrementOrDecrementOperation operation, TsSyntaxNode argument)
         {
