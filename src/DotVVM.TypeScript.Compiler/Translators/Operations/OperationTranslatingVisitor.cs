@@ -59,6 +59,33 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
             return operation.Declarations.Single().Accept(this, argument);
         }
 
+        public override TsSyntaxNode VisitParenthesized(IParenthesizedOperation operation, TsSyntaxNode argument)
+        {
+            return base.VisitParenthesized(operation, argument);
+        }
+
+        public override TsSyntaxNode VisitConditional(IConditionalOperation operation, TsSyntaxNode argument)
+        {
+            var expression = operation.Condition.Accept(this, argument) as TsExpressionSyntax;
+            var trueStatement = operation.WhenTrue.Accept(this, argument);
+            var falseStatement = operation.WhenFalse?.Accept(this, argument);
+
+            if (operation.Type == null)
+            {
+                return new TsIfStatementSyntax(argument,
+                    expression,
+                    trueStatement as TsStatementSyntax,
+                    falseStatement as TsStatementSyntax);
+            }
+            else
+            {
+                return new TsConditionalExpressionSyntax(argument,
+                    expression,
+                    trueStatement as TsExpressionSyntax,
+                    falseStatement as TsExpressionSyntax);
+            }
+        }
+
         public override TsSyntaxNode VisitLiteral(ILiteralOperation operation, TsSyntaxNode argument)
         {
             string value = "";
@@ -106,3 +133,4 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
 
     }
 }
+
