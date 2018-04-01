@@ -1,8 +1,7 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Threading.Tasks;
 
-namespace DotVVM.TypeScript.Compiler.Utils
+namespace DotVVM.TypeScript.Compiler.Utils.IO
 {
     public class LocalFileStore : IFileStore
     {

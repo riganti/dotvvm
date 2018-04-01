@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
-namespace DotVVM.TypeScript.Compiler.Utils
+namespace DotVVM.TypeScript.Compiler.Utils.IO
 {
     public interface IFileStore
     {

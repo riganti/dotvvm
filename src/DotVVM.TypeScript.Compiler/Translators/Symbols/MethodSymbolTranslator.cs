@@ -3,6 +3,8 @@ using System.Linq;
 using DotVVM.TypeScript.Compiler.Ast;
 using DotVVM.TypeScript.Compiler.Symbols;
 using DotVVM.TypeScript.Compiler.Translators.Operations;
+using DotVVM.TypeScript.Compiler.Utils;
+using DotVVM.TypeScript.Compiler.Utils.Logging;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -10,11 +12,14 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
 {
     internal class MethodSymbolTranslator : ISymbolTranslator<IMethodSymbol>
     {
+        private readonly ILogger _logger;
         private readonly TranslatorsEvidence _translatorsEvidence;
         private readonly CompilerContext _context;
 
-        public MethodSymbolTranslator(TranslatorsEvidence translatorsEvidence, CompilerContext context)
+        public MethodSymbolTranslator(ILogger logger, TranslatorsEvidence translatorsEvidence,
+            CompilerContext context)
         {
+            _logger = logger;
             _translatorsEvidence = translatorsEvidence;
             _context = context;
         }
@@ -30,6 +35,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
             var identifier = TranslateIdentifier(input);
             var modifier = TranslateModifier(input);
             var bodyBlock = TranslateBody(input);
+            _logger.LogInfo("Symbols", $"Translating method {input.Name}");
             return new TsMethodDeclarationSyntax(modifier,
                 identifier,
                 null,
@@ -44,7 +50,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
             {
                 var syntaxReference = input.DeclaringSyntaxReferences.First().GetSyntax() as MethodDeclarationSyntax;
                 var operation = _context.Compilation.GetSemanticModel(syntaxReference.SyntaxTree).GetOperation(syntaxReference.Body);
-                var operationTranslatingVisitor = new OperationTranslatingVisitor();
+                var operationTranslatingVisitor = new OperationTranslatingVisitor(_logger);
                 if (operation.Accept(operationTranslatingVisitor, null) is TsBlockSyntax blockSyntax)
                 {
                     return blockSyntax;

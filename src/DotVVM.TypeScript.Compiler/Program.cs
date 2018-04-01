@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.TypeScript.Compiler.Exceptions;
 using DotVVM.TypeScript.Compiler.Utils;
+using DotVVM.TypeScript.Compiler.Utils.IO;
+using DotVVM.TypeScript.Compiler.Utils.Logging;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.TypeScript.Compiler
@@ -32,20 +34,22 @@ namespace DotVVM.TypeScript.Compiler
 
         static int Main(string[] args)
         {
+            var logger = new ConsoleLogger();
+            var fileStore = new LocalFileStore();
             try
             {
                 var compilerArguments = ParseArguments(args);
-                var compiler = new Compiler(compilerArguments, new LocalFileStore());
+                var compiler = new Compiler(compilerArguments, fileStore, logger);
                 compiler.RunAsync().GetAwaiter().GetResult();
                 return 0;
             }
             catch (InvalidArgumentException exception)
             {
-                Console.WriteLine(exception.Message);
+                logger.LogError("Arguments", exception.Message);
             }
             catch (MissingArgumentsException)
             {
-                Console.WriteLine("Some arguments are missing.");
+                logger.LogError("Arguments", "Some arguments are missing.");
                 PrintHelp();
             }
             //catch (Exception exception)
