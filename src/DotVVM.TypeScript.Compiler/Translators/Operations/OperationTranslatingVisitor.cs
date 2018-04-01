@@ -138,6 +138,11 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
             }
         }
 
+        public override TsSyntaxNode VisitParenthesized(IParenthesizedOperation operation, TsSyntaxNode argument)
+        {
+            return base.VisitParenthesized(operation, argument);
+        }
+
         public override TsSyntaxNode VisitLiteral(ILiteralOperation operation, TsSyntaxNode argument)
         {
             string value = "";
@@ -169,8 +174,16 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
         {
             _logger.LogDebug("Operations", "Translating binary operation.");
             var left = operation.LeftOperand.Accept(this, parent) as TsExpressionSyntax;
+            if (operation.LeftOperand is IBinaryOperation)
+            {
+                left = new TsParenthesizedExpressionSyntax(parent, left);
+            }
             var binaryOperator = operation.OperatorKind.ToTsBinaryOperator();
             var right = operation.RightOperand.Accept(this, parent) as TsExpressionSyntax;
+            if (operation.RightOperand is IBinaryOperation)
+            {
+                right = new TsParenthesizedExpressionSyntax(parent, right);
+            }
             return new TsBinaryOperationSyntax(parent, left, right, binaryOperator);
         }
 
