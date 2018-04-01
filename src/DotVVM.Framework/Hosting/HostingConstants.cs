@@ -20,6 +20,7 @@
         public const string SpaContentPlaceHolderDefaultRouteDataAttributeName = "data-dotvvm-spacontentplaceholder-defaultroute";
         public const string SpaUrlPrefixAttributeName = "data-dotvvm-spacontentplaceholder-urlprefix";
         public const string SpaContentAttributeName = "data-dotvvm-spacontentplaceholder-content";
+        public const string SpaUseHistoryApiAttributeName = "data-dotvvm-spacontentplaceholder-usehistoryapi";
 
         public const string DotvvmFileUploadAsyncHeaderName = "X-DotVVM-AsyncUpload";
 

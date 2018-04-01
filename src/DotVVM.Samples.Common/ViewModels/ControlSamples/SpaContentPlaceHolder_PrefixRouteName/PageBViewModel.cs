@@ -6,7 +6,6 @@ using DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.SpaContentPlaceHolde
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.SpaContentPlaceHolder_PrefixRouteName
 {
-    [TurnHistoryApiOffActionFilter]
     public class PageBViewModel : SpaMasterViewModel
 	{
         public TaskListViewModel Sample1 { get; set; } = new TaskListViewModel();

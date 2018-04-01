@@ -122,7 +122,7 @@ namespace DotVVM.Framework.Controls
 
         protected virtual void WriteOnClickAttribute(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            if ((bool)GetValue(Internal.IsSpaPageProperty) && context.Configuration.UseHistoryApiSpaNavigation)
+            if ((bool)GetValue(Internal.IsSpaPageProperty) && (bool)GetValue(Internal.UseHistoryApiSpaNavigationProperty))
             {
                 writer.AddAttribute("onclick", "return !this.hasAttribute('disabled') && dotvvm.handleSpaNavigation(this.getAttribute('href'));");
             }

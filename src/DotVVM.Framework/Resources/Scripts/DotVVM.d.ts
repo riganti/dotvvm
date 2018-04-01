@@ -280,7 +280,7 @@ declare class DotVVM {
     extensions: IDotvvmExtensions;
     useHistoryApiSpaNavigation: boolean;
     isPostbackRunning: KnockoutObservable<boolean>;
-    init(viewModelName: string, culture: string, useHistoryApiSpaNavigation: boolean): void;
+    init(viewModelName: string, culture: string): void;
     private handlePopState(viewModelName, event);
     private handleHashChangeWithHistory(viewModelName, spaPlaceHolder, isInitialPageLoad);
     private handleHashChange(viewModelName, spaPlaceHolder, isInitialPageLoad);

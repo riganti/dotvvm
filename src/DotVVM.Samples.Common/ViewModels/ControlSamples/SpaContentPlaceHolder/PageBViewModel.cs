@@ -5,7 +5,6 @@ using DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.TaskList;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.SpaContentPlaceHolder
 {
-    [TurnHistoryApiOffActionFilter]
 	public class PageBViewModel : SpaMasterViewModel
 	{
         public TaskListViewModel Sample1 { get; set; } = new TaskListViewModel();

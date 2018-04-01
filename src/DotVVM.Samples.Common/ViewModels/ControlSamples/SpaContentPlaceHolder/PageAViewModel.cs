@@ -4,7 +4,6 @@ using System.Linq;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.SpaContentPlaceHolder
 {
-    [TurnHistoryApiOffActionFilter]
     public class PageAViewModel : SpaMasterViewModel
 	{
         public PageAViewModel()

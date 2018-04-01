@@ -910,7 +910,7 @@ var DotVVM = /** @class */ (function () {
             this.postbackQueues[name] = { queue: [], noRunning: 0 };
         return this.postbackQueues[name];
     };
-    DotVVM.prototype.init = function (viewModelName, culture, useHistoryApiSpaNavigation) {
+    DotVVM.prototype.init = function (viewModelName, culture) {
         var _this = this;
         this.addKnockoutBindingHandlers();
         // load the viewmodel
@@ -927,7 +927,6 @@ var DotVVM = /** @class */ (function () {
         var viewModel = thisViewModel.viewModel = this.serialization.deserialize(this.viewModels[viewModelName].viewModel, {}, true);
         // initialize services
         this.culture = culture;
-        this.useHistoryApiSpaNavigation = useHistoryApiSpaNavigation;
         this.validation = new DotvvmValidation(this);
         // wrap it in the observable
         this.viewModelObservables[viewModelName] = ko.observable(viewModel);
@@ -938,6 +937,7 @@ var DotVVM = /** @class */ (function () {
         var spaPlaceHolder = this.getSpaPlaceHolder();
         if (spaPlaceHolder != null) {
             var hashChangeHandler = function (initialLoad) { return _this.handleHashChange(viewModelName, spaPlaceHolder, initialLoad); };
+            this.useHistoryApiSpaNavigation = JSON.parse(spaPlaceHolder.getAttribute("data-dotvvm-spacontentplaceholder-usehistoryapi"));
             if (this.useHistoryApiSpaNavigation) {
                 hashChangeHandler = function (initialLoad) { return _this.handleHashChangeWithHistory(viewModelName, spaPlaceHolder, initialLoad); };
                 window.addEventListener('popstate', function (event) { return _this.handlePopState(viewModelName, event); });

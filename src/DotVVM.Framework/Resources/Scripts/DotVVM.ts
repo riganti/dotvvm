@@ -205,7 +205,7 @@ class DotVVM {
     public useHistoryApiSpaNavigation: boolean;
     public isPostbackRunning = ko.observable(false);
 
-    public init(viewModelName: string, culture: string, useHistoryApiSpaNavigation: boolean): void {
+    public init(viewModelName: string, culture: string): void {
         this.addKnockoutBindingHandlers();
 
         // load the viewmodel
@@ -223,7 +223,6 @@ class DotVVM {
 
         // initialize services
         this.culture = culture;
-        this.useHistoryApiSpaNavigation = useHistoryApiSpaNavigation;
         this.validation = new DotvvmValidation(this);
 
         // wrap it in the observable
@@ -238,6 +237,7 @@ class DotVVM {
         if (spaPlaceHolder != null) {
             var hashChangeHandler = (initialLoad: boolean) => this.handleHashChange(viewModelName, spaPlaceHolder, initialLoad);
 
+            this.useHistoryApiSpaNavigation = <boolean>JSON.parse(<string>spaPlaceHolder.getAttribute("data-dotvvm-spacontentplaceholder-usehistoryapi"));
             if (this.useHistoryApiSpaNavigation) {
                 hashChangeHandler = (initialLoad: boolean) => this.handleHashChangeWithHistory(viewModelName, spaPlaceHolder, initialLoad);
                 window.addEventListener('popstate', (event) => this.handlePopState(viewModelName, event));
