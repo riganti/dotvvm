@@ -1,6 +1,6 @@
 ﻿namespace DotVVM.TypeScript.Compiler.Ast
 {
-    public abstract class TsExpressionSyntax : TsSyntaxNode
+    public abstract class TsExpressionSyntax : TsStatementSyntax
     {
         protected TsExpressionSyntax(TsSyntaxNode parent) : base(parent)
         {

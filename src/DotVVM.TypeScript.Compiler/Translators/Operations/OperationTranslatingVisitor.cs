@@ -59,9 +59,38 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
             return operation.Declarations.Single().Accept(this, argument);
         }
 
-        public override TsSyntaxNode VisitParenthesized(IParenthesizedOperation operation, TsSyntaxNode argument)
+
+        public override TsSyntaxNode VisitIncrementOrDecrement(IIncrementOrDecrementOperation operation, TsSyntaxNode argument)
         {
-            return base.VisitParenthesized(operation, argument);
+            var target = operation.Target.Accept(this, argument) as TsExpressionSyntax;
+            var isIncrement = operation.Kind == OperationKind.Increment;
+            return new TsIncrementOrDecrementSyntax(argument,
+                target,
+                operation.IsPostfix,
+                isIncrement);
+        }
+
+        public override TsSyntaxNode VisitForLoop(IForLoopOperation operation, TsSyntaxNode argument)
+        {
+            var beforeStatement = operation.Before.FirstOrDefault().Accept(this, argument) as TsStatementSyntax;
+            var condition = operation.Condition.Accept(this, argument) as TsExpressionSyntax;
+            var afterStatement = operation.AtLoopBottom.First().Accept(this, argument) as TsStatementSyntax;
+            var body = operation.Body.Accept(this, argument) as TsStatementSyntax;
+            return new TsForStatementSyntax(argument,
+                beforeStatement,
+                condition,
+                afterStatement,
+                body);
+        }
+
+        public override TsSyntaxNode VisitWhileLoop(IWhileLoopOperation operation, TsSyntaxNode argument)
+        {
+            var condition = operation.Condition.Accept(this, argument) as TsExpressionSyntax;
+            var body = operation.Body.Accept(this, argument) as TsStatementSyntax;
+            if(operation.ConditionIsTop)
+                return new TsWhileStatementSyntax(argument, condition, body);
+            else
+                return new TsDoWhileStatementSyntax(argument, condition, body);
         }
 
         public override TsSyntaxNode VisitConditional(IConditionalOperation operation, TsSyntaxNode argument)
