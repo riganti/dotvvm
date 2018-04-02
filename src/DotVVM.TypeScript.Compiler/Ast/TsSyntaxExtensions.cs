@@ -64,7 +64,7 @@ namespace DotVVM.TypeScript.Compiler.Ast
             }
         }
 
-        private static string ToDisplayString(this TsUnaryOperator unaryOperator)
+        public static string ToDisplayString(this TsUnaryOperator unaryOperator)
         {
             switch (unaryOperator)
             {

@@ -4,13 +4,13 @@ namespace DotVVM.TypeScript.Compiler.Ast
 {
     public class TsUnaryOperationSyntax : TsExpressionSyntax
     {
-        TsExpressionSyntax Operand { get; }
-        TsUnaryOperator Opeator { get;  }
+        public TsExpressionSyntax Operand { get; }
+        public TsUnaryOperator Operator { get;  }
 
-        public TsUnaryOperationSyntax(TsSyntaxNode parent, TsExpressionSyntax operand, TsUnaryOperator opeator) : base(parent)
+        public TsUnaryOperationSyntax(TsSyntaxNode parent, TsExpressionSyntax operand, TsUnaryOperator @operator) : base(parent)
         {
             Operand = operand;
-            Opeator = opeator;
+            Operator = @operator;
         }
 
         public override string ToDisplayString()
@@ -21,6 +21,11 @@ namespace DotVVM.TypeScript.Compiler.Ast
         public override IEnumerable<TsSyntaxNode> DescendantNodes()
         {
             throw new System.NotImplementedException();
+        }
+
+        public override void AcceptVisitor(ITsNodeVisitor visitor)
+        {
+            visitor.VisitUnaryOperation(this);
         }
     }
 }

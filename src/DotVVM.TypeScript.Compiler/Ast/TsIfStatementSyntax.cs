@@ -32,5 +32,10 @@ namespace DotVVM.TypeScript.Compiler.Ast
         {
             throw new System.NotImplementedException();
         }
+
+        public override void AcceptVisitor(ITsNodeVisitor visitor)
+        {
+            visitor.VisitIfStatement(this);
+        }
     }
 }

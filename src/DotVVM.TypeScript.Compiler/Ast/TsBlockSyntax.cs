@@ -36,5 +36,10 @@ namespace DotVVM.TypeScript.Compiler.Ast
         {
             return Statements;
         }
+
+        public override void AcceptVisitor(ITsNodeVisitor visitor)
+        {
+            visitor.VisitBlockStatement(this);
+        }
     }
 }

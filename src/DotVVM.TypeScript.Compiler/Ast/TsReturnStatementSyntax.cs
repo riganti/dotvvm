@@ -2,7 +2,7 @@
 
 namespace DotVVM.TypeScript.Compiler.Ast
 {
-    class TsReturnStatementSyntax : TsStatementSyntax
+    public class TsReturnStatementSyntax : TsStatementSyntax
     {
         public TsExpressionSyntax Expression { get; }
 
@@ -22,6 +22,11 @@ namespace DotVVM.TypeScript.Compiler.Ast
         public override IEnumerable<TsSyntaxNode> DescendantNodes()
         {
             throw new System.NotImplementedException();
+        }
+
+        public override void AcceptVisitor(ITsNodeVisitor visitor)
+        {
+            visitor.VisitReturnStatement(this);
         }
     }
 }

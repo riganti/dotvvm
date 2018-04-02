@@ -5,7 +5,7 @@ namespace DotVVM.TypeScript.Compiler.Ast
 {
     public class TsLiteralExpressionSyntax : TsExpressionSyntax
     {
-        string Value { get; }
+        public string Value { get; }
 
         public TsLiteralExpressionSyntax(TsSyntaxNode parent, string value) : base(parent)
         {
@@ -20,6 +20,11 @@ namespace DotVVM.TypeScript.Compiler.Ast
         public override IEnumerable<TsSyntaxNode> DescendantNodes()
         {
             return Enumerable.Empty<TsSyntaxNode>();
+        }
+
+        public override void AcceptVisitor(ITsNodeVisitor visitor)
+        {
+            visitor.VisitLiteral(this);
         }
     }
 }

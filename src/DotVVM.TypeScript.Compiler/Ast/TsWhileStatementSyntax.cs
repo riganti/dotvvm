@@ -23,5 +23,10 @@ namespace DotVVM.TypeScript.Compiler.Ast
         {
             yield return Body;
         }
+
+        public override void AcceptVisitor(ITsNodeVisitor visitor)
+        {
+            visitor.VisitWhileStatement(this);
+        }
     }
 }

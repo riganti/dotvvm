@@ -22,5 +22,10 @@ namespace DotVVM.TypeScript.Compiler.Ast
         {
             return Declarators;
         }
+
+        public override void AcceptVisitor(ITsNodeVisitor visitor)
+        {
+            visitor.VisitLocalVariableDeclaration(this);
+        }
     }
 }

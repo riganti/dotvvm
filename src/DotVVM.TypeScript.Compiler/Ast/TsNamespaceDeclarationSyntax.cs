@@ -31,5 +31,10 @@ namespace DotVVM.TypeScript.Compiler.Ast
         {
             return Types;
         }
+
+        public override void AcceptVisitor(ITsNodeVisitor visitor)
+        {
+            visitor.VisitNamespaceDeclaration(this);
+        }
     }
 }

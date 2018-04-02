@@ -38,6 +38,11 @@ namespace DotVVM.TypeScript.Compiler.Ast
             return Members;
         }
 
+        public override void AcceptVisitor(ITsNodeVisitor visitor)
+        {
+            visitor.VisitClassDeclaration(this);
+        }
+
         public void AddMember(TsMemberDeclarationSyntax member)
         {
             Members.Add(member);

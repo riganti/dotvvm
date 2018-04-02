@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace DotVVM.TypeScript.Compiler.Ast
 {
@@ -23,7 +24,12 @@ namespace DotVVM.TypeScript.Compiler.Ast
 
         public override IEnumerable<TsSyntaxNode> DescendantNodes()
         {
-            throw new System.NotImplementedException();
+            return Enumerable.Empty<TsSyntaxNode>();
+        }
+
+        public override void AcceptVisitor(ITsNodeVisitor visitor)
+        {
+            visitor.VisitBinaryOperation(this);
         }
     }
 }

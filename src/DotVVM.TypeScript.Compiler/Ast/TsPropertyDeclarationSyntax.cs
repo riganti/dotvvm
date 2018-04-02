@@ -24,5 +24,10 @@ namespace DotVVM.TypeScript.Compiler.Ast
         {
             return Enumerable.Empty<TsSyntaxNode>();
         }
+
+        public override void AcceptVisitor(ITsNodeVisitor visitor)
+        {
+            visitor.VisitPropertyDeclaration(this);
+        }
     }
 }

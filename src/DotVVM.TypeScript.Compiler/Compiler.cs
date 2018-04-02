@@ -76,8 +76,10 @@ namespace DotVVM.TypeScript.Compiler
             {
                 if (viewModel is TsClassDeclarationSyntax @class)
                 {
-                    var filePath = Path.Combine(basePath, $"{@class.Identifier.Value}.ts");
-                    await _fileStore.StoreFileAsync(filePath, viewModel.ToDisplayString());
+                    var filePath = Path.Combine(basePath, $"{@class.Identifier.Value}.generated.ts");
+                    var formattingVisitor = new TsFormattingVisitor();
+                    viewModel.AcceptVisitor(formattingVisitor);
+                    await _fileStore.StoreFileAsync(filePath, formattingVisitor.GetOutput());
                     filesList.Add(filePath);
                 }
             }

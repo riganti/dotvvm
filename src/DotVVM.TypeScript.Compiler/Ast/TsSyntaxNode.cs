@@ -15,6 +15,7 @@ namespace DotVVM.TypeScript.Compiler.Ast
 
         public abstract string ToDisplayString();
         public abstract IEnumerable<TsSyntaxNode> DescendantNodes();
+        public abstract void AcceptVisitor(ITsNodeVisitor visitor);
 
         public override string ToString()
         {
