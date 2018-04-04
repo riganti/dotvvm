@@ -116,6 +116,7 @@ namespace DotVVM.Samples.BasicSamples
             config.Markup.AddMarkupControl("sample", "ControlCommandBinding", "Views/FeatureSamples/MarkupControl/ControlCommandBinding.dotcontrol");
             config.Markup.AddMarkupControl("sample", "ControlValueBindingWithCommand", "Views/FeatureSamples/MarkupControl/ControlValueBindingWithCommand.dotcontrol");
             config.Markup.AddMarkupControl("sample", "ControlWithButton", "Views/ControlSamples/Repeater/SampleControl/ControlWithButton.dotcontrol");
+            config.Markup.AddMarkupControl("sample", "ControlWithButton2", "Views/ControlSamples/Repeater/SampleControl/ControlWithButton2.dotcontrol");
             config.Markup.AddMarkupControl("sample", "ControlControlCommandInvokeAction", "Views/FeatureSamples/MarkupControl/ControlControlCommandInvokeAction.dotcontrol");
             
 
@@ -130,9 +131,6 @@ namespace DotVVM.Samples.BasicSamples
         public void ConfigureServices(IDotvvmServiceCollection services)
         {
             CommonConfiguration.ConfigureServices(services);
-            services.AddDefaultTempStorages("Temp");
-            services.AddScoped<ViewModelScopedDependency>();
-            services.AddSingleton<IGreetingComputationService, HelloGreetingComputationService>();
         }
     }
 }
