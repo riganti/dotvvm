@@ -32,7 +32,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
             var id = Guid.Parse(context.Request.Query["id"]);
             using (var stream = returnedFileStorage.GetFile(id, out metadata))
             {
-                context.Response.Headers["Content-Disposition"] = "attachment; filename=" + metadata.FileName;
+                context.Response.Headers["Content-Disposition"] = "attachment; filename=\"" + metadata.FileName + "\"";
                 context.Response.ContentType = metadata.MimeType;
                 if (metadata.AdditionalHeaders != null)
                 {
