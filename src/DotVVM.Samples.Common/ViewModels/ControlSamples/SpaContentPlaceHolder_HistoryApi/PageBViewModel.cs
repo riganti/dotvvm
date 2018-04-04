@@ -14,9 +14,14 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.SpaContentPlaceH
             HeaderText = "Task List";
         }
 
-        public void Redirect()
+        public void RedirectInside()
         {
             Context.RedirectToRoute("ControlSamples_SpaContentPlaceHolder_HistoryApi_PageA", new { Id = 15 });
+        }
+
+        public void RedirectOutside()
+        {
+            Context.RedirectToRoute("Default");
         }
     }
 }

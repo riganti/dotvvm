@@ -83,7 +83,7 @@ namespace DotVVM.Samples.Tests.New.Control
 
                 // test the redirect inside SPA
                 browser.FindElements(".table tr").ThrowIfDifferentCountThan(3);
-                browser.Last("input[type=button]").Click();
+                browser.First("input[data-ui=redirect-inside-spa]").Click();
                 browser.Wait(2000);
                 AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_HistoryApi_PageA + "/15");
 
@@ -92,6 +92,54 @@ namespace DotVVM.Samples.Tests.New.Control
                 browser.FindElements("a").Single(l => l.GetText().Contains("Exit SPA")).Click();
                 browser.Wait();
                 AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ComplexSamples_TaskList_ServerRenderedTaskList);
+
+                browser.NavigateBack();
+                browser.Wait();
+
+                AssertUI.AlertTextContains(browser, "javascript 2 resource loaded!");
+                browser.ConfirmAlert();
+                browser.Wait(2000);
+
+                AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_HistoryApi_PageA + "/15");
+            });
+        }
+
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_HistoryApi_PageB))]
+        [SampleReference(nameof(SamplesRouteUrls.Default))]
+        public void Control_SpaContentPlaceHolder_SpaContentPlaceHolder_HistoryApi_Navigation()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_HistoryApi_PageB);
+                browser.Wait();
+
+                AssertUI.AlertTextContains(browser, "javascript resource loaded!");
+                browser.ConfirmAlert();
+                browser.Wait();
+                AssertUI.AlertTextContains(browser, "javascript 2 resource loaded!");
+                browser.ConfirmAlert();
+
+                AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_HistoryApi_PageB);
+
+                browser.First("input[data-ui=redirect-outside-spa]").Click();
+                browser.Wait();
+                AssertUI.UrlEquals(browser, browser.BaseUrl);
+
+                browser.NavigateBack();
+                browser.Wait();
+
+                AssertUI.AlertTextContains(browser, "javascript resource loaded!");
+                browser.ConfirmAlert();
+                browser.Wait();
+                AssertUI.AlertTextContains(browser, "javascript 2 resource loaded!");
+                browser.ConfirmAlert();
+
+                AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_HistoryApi_PageB);
+
+                browser.NavigateForward();
+                browser.Wait();
+
+                AssertUI.UrlEquals(browser, browser.BaseUrl);
             });
         }
     }

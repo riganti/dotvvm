@@ -43,17 +43,27 @@ var DotvvmDomUtils = /** @class */ (function () {
     };
     return DotvvmDomUtils;
 }());
+var HistoryRecord = /** @class */ (function () {
+    function HistoryRecord(navigationType, url) {
+        this.navigationType = navigationType;
+        this.url = url;
+    }
+    return HistoryRecord;
+}());
 var DotvvmSpaHistory = /** @class */ (function () {
     function DotvvmSpaHistory() {
     }
     DotvvmSpaHistory.prototype.pushPage = function (url) {
-        history.pushState({ navigationType: 'SPA', url: url }, '', url);
+        history.pushState(new HistoryRecord('SPA', url), '', url);
     };
     DotvvmSpaHistory.prototype.replacePage = function (url) {
-        history.replaceState({ navigationType: 'SPA', url: url }, '', url);
+        history.replaceState(new HistoryRecord('SPA', url), '', url);
     };
     DotvvmSpaHistory.prototype.isSpaPage = function (state) {
         return state && state.navigationType == 'SPA';
+    };
+    DotvvmSpaHistory.prototype.getHistoryRecord = function (state) {
+        return state;
     };
     return DotvvmSpaHistory;
 }());
@@ -940,12 +950,12 @@ var DotVVM = /** @class */ (function () {
             this.useHistoryApiSpaNavigation = JSON.parse(spaPlaceHolder.getAttribute("data-dotvvm-spacontentplaceholder-usehistoryapi"));
             if (this.useHistoryApiSpaNavigation) {
                 hashChangeHandler = function (initialLoad) { return _this.handleHashChangeWithHistory(viewModelName, spaPlaceHolder, initialLoad); };
-                window.addEventListener('popstate', function (event) { return _this.handlePopState(viewModelName, event); });
             }
             var spaChangedHandler = function () { return hashChangeHandler(false); };
             this.domUtils.attachEvent(window, "hashchange", spaChangedHandler);
             hashChangeHandler(true);
         }
+        window.addEventListener('popstate', function (event) { return _this.handlePopState(viewModelName, event, spaPlaceHolder != null); });
         this.isViewModelUpdating = false;
         if (idFragment) {
             if (spaPlaceHolder) {
@@ -961,9 +971,13 @@ var DotVVM = /** @class */ (function () {
             _this.persistViewModel(viewModelName);
         });
     };
-    DotVVM.prototype.handlePopState = function (viewModelName, event) {
+    DotVVM.prototype.handlePopState = function (viewModelName, event, inSpaPage) {
         if (this.spaHistory.isSpaPage(event.state)) {
-            this.navigateCore(viewModelName, event.state.url);
+            var historyRecord = this.spaHistory.getHistoryRecord(event.state);
+            if (inSpaPage)
+                this.navigateCore(viewModelName, historyRecord.url);
+            else
+                this.performRedirect(historyRecord.url, true);
             event.preventDefault();
         }
     };
@@ -975,7 +989,7 @@ var DotVVM = /** @class */ (function () {
         }
         else {
             var defaultUrl = spaPlaceHolder.getAttribute("data-dotvvm-spacontentplaceholder-defaultroute");
-            var containsContent = spaPlaceHolder.getAttribute("data-dotvvm-spacontentplaceholder-content");
+            var containsContent = spaPlaceHolder.hasAttribute("data-dotvvm-spacontentplaceholder-content");
             if (!containsContent && defaultUrl) {
                 this.navigateCore(viewModelName, "/" + defaultUrl, function (url) { return _this.spaHistory.replacePage(url); });
             }

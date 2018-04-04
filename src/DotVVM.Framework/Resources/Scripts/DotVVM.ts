@@ -240,13 +240,14 @@ class DotVVM {
             this.useHistoryApiSpaNavigation = <boolean>JSON.parse(<string>spaPlaceHolder.getAttribute("data-dotvvm-spacontentplaceholder-usehistoryapi"));
             if (this.useHistoryApiSpaNavigation) {
                 hashChangeHandler = (initialLoad: boolean) => this.handleHashChangeWithHistory(viewModelName, spaPlaceHolder, initialLoad);
-                window.addEventListener('popstate', (event) => this.handlePopState(viewModelName, event));
             }
 
             var spaChangedHandler = () => hashChangeHandler(false)
             this.domUtils.attachEvent(window, "hashchange", spaChangedHandler);
             hashChangeHandler(true);         
         }
+
+        window.addEventListener('popstate', (event) => this.handlePopState(viewModelName, event, spaPlaceHolder != null));
 
         this.isViewModelUpdating = false;
 
@@ -264,9 +265,14 @@ class DotVVM {
         });
     }
 
-    private handlePopState(viewModelName: string, event: PopStateEvent) {
+    private handlePopState(viewModelName: string, event: PopStateEvent, inSpaPage: boolean) {
         if (this.spaHistory.isSpaPage(event.state)) {
-            this.navigateCore(viewModelName, event.state.url);
+            var historyRecord = this.spaHistory.getHistoryRecord(event.state);
+            if (inSpaPage)
+                this.navigateCore(viewModelName, historyRecord.url);
+            else
+                this.performRedirect(historyRecord.url, true);
+
             event.preventDefault();
         }
     }
@@ -279,7 +285,7 @@ class DotVVM {
 
         } else {
             var defaultUrl = spaPlaceHolder.getAttribute("data-dotvvm-spacontentplaceholder-defaultroute");
-            var containsContent = spaPlaceHolder.getAttribute("data-dotvvm-spacontentplaceholder-content");
+            var containsContent = spaPlaceHolder.hasAttribute("data-dotvvm-spacontentplaceholder-content");
 
             if (!containsContent && defaultUrl) {
                 this.navigateCore(viewModelName, "/" + defaultUrl, (url) => this.spaHistory.replacePage(url));

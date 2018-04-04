@@ -5,10 +5,16 @@ declare class DotvvmDomUtils {
     onDocumentReady(callback: () => void): void;
     attachEvent(target: any, name: string, callback: (ev: PointerEvent) => any, useCapture?: boolean): void;
 }
+declare class HistoryRecord {
+    navigationType: string;
+    url: string;
+    constructor(navigationType: string, url: string);
+}
 declare class DotvvmSpaHistory {
     pushPage(url: string): void;
     replacePage(url: string): void;
     isSpaPage(state: any): boolean;
+    getHistoryRecord(state: any): HistoryRecord;
 }
 declare class DotvvmEvents {
     init: DotvvmEvent<DotvvmEventArgs>;
@@ -281,7 +287,7 @@ declare class DotVVM {
     useHistoryApiSpaNavigation: boolean;
     isPostbackRunning: KnockoutObservable<boolean>;
     init(viewModelName: string, culture: string): void;
-    private handlePopState(viewModelName, event);
+    private handlePopState(viewModelName, event, inSpaPage);
     private handleHashChangeWithHistory(viewModelName, spaPlaceHolder, isInitialPageLoad);
     private handleHashChange(viewModelName, spaPlaceHolder, isInitialPageLoad);
     private persistViewModel(viewModelName);
