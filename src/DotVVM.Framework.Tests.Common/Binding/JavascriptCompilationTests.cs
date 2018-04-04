@@ -255,7 +255,7 @@ namespace DotVVM.Framework.Tests.Binding
             var result = CompileValueBinding("TestViewModel2.SomeString", new[] { typeof(TestViewModel) }, typeof(object));
             Assert.AreEqual("TestViewModel2()&&TestViewModel2().SomeString()", FormatKnockoutScript(result.UnwrappedKnockoutExpression));
             Assert.AreEqual("(TestViewModel2()||{}).SomeString", FormatKnockoutScript(result.KnockoutExpression));
-            Assert.AreEqual("dotvvm.evaluator.wrapKnockoutExpression(function(){return TestViewModel2()&&TestViewModel2().SomeString;},true)", FormatKnockoutScript(result.WrappedKnockoutExpression));
+            Assert.AreEqual("dotvvm.evaluator.wrapObservable(function(){return TestViewModel2()&&TestViewModel2().SomeString;})", FormatKnockoutScript(result.WrappedKnockoutExpression));
         }
 
         [TestMethod]
@@ -264,7 +264,7 @@ namespace DotVVM.Framework.Tests.Binding
             var result = CompileValueBinding("TestViewModel2.Collection", new[] { typeof(TestViewModel) }, typeof(object));
             Assert.AreEqual("TestViewModel2()&&TestViewModel2().Collection()", FormatKnockoutScript(result.UnwrappedKnockoutExpression));
             Assert.AreEqual("(TestViewModel2()||{}).Collection", FormatKnockoutScript(result.KnockoutExpression));
-            Assert.AreEqual("dotvvm.evaluator.wrapKnockoutExpression(function(){return TestViewModel2()&&TestViewModel2().Collection;},true,true)", FormatKnockoutScript(result.WrappedKnockoutExpression));
+            Assert.AreEqual("dotvvm.evaluator.wrapObservable(function(){return TestViewModel2()&&TestViewModel2().Collection;},true)", FormatKnockoutScript(result.WrappedKnockoutExpression));
         }
 
         [TestMethod]
@@ -273,7 +273,7 @@ namespace DotVVM.Framework.Tests.Binding
             var result = CompileValueBinding("!Value", new[] { typeof(Something) }, typeof(object));
             Assert.AreEqual("!Value()", FormatKnockoutScript(result.UnwrappedKnockoutExpression));
             Assert.AreEqual("!Value()", FormatKnockoutScript(result.KnockoutExpression));
-            Assert.AreEqual("dotvvm.evaluator.wrapKnockoutExpression(function(){return !Value();})", FormatKnockoutScript(result.WrappedKnockoutExpression));
+            Assert.AreEqual("ko.pureComputed(function(){return !Value();})", FormatKnockoutScript(result.WrappedKnockoutExpression));
         }
 
         [TestMethod]
@@ -282,7 +282,7 @@ namespace DotVVM.Framework.Tests.Binding
             var result = CompileValueBinding("StringProp.Length + 43", new [] {typeof(TestViewModel) }, typeof(object));
             Assert.AreEqual("(StringProp()==null?null:StringProp().length)+43", FormatKnockoutScript(result.UnwrappedKnockoutExpression));
             Assert.AreEqual("(StringProp()==null?null:StringProp().length)+43", FormatKnockoutScript(result.KnockoutExpression));
-            Assert.AreEqual("dotvvm.evaluator.wrapKnockoutExpression(function(){return (StringProp()==null?null:StringProp().length)+43;})", FormatKnockoutScript(result.WrappedKnockoutExpression));
+            Assert.AreEqual("ko.pureComputed(function(){return (StringProp()==null?null:StringProp().length)+43;})", FormatKnockoutScript(result.WrappedKnockoutExpression));
         }
 
         [TestMethod]

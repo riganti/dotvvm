@@ -52,36 +52,26 @@
         return false;
     }
 
-    public wrapKnockoutExpression(func: () => any, isWriteable?: boolean, isArray?: boolean): KnockoutComputed<any> {
-        let wrapper: KnockoutComputed<any>;
-
-        if (isWriteable) {
-            wrapper = ko.pureComputed({
-                read: () => ko.unwrap(this.getExpressionResult(func)),
-                write: value => this.updateObservable(func, value)
-            });
-
-            if (isArray) {
-                wrapper.push = (...args) => this.updateObservableArray(func, "push", args);
-                wrapper.pop = (...args) => this.updateObservableArray(func, "pop", args);
-                wrapper.unshift = (...args) => this.updateObservableArray(func, "unshift", args);
-                wrapper.shift = (...args) => this.updateObservableArray(func, "shift", args);
-                wrapper.reverse = (...args) => this.updateObservableArray(func, "reverse", args);
-                wrapper.sort = (...args) => this.updateObservableArray(func, "sort", args);
-                wrapper.splice = (...args) => this.updateObservableArray(func, "splice", args);
-                wrapper.slice = (...args) => this.updateObservableArray(func, "slice", args);
-                wrapper.replace = (...args) => this.updateObservableArray(func, "replace", args);
-                wrapper.indexOf = (...args) => this.updateObservableArray(func, "indexOf", args);
-                wrapper.remove = (...args) => this.updateObservableArray(func, "remove", args);
-                wrapper.removeAll = (...args) => this.updateObservableArray(func, "removeAll", args);
-            }
-        }
-        else {
-            wrapper = ko.pureComputed(() => ko.unwrap(this.getExpressionResult(func)));
-        }
+    public wrapObservable(func: () => any, isArray?: boolean): KnockoutComputed<any> {
+        let wrapper = ko.pureComputed({
+            read: () => ko.unwrap(this.getExpressionResult(func)),
+            write: value => this.updateObservable(func, value)
+        });
 
         if (isArray) {
-            wrapper = wrapper.extend({ trackArrayChanges: true }); // properly track changes in wrapped arrays
+            wrapper.push = (...args) => this.updateObservableArray(func, "push", args);
+            wrapper.pop = (...args) => this.updateObservableArray(func, "pop", args);
+            wrapper.unshift = (...args) => this.updateObservableArray(func, "unshift", args);
+            wrapper.shift = (...args) => this.updateObservableArray(func, "shift", args);
+            wrapper.reverse = (...args) => this.updateObservableArray(func, "reverse", args);
+            wrapper.sort = (...args) => this.updateObservableArray(func, "sort", args);
+            wrapper.splice = (...args) => this.updateObservableArray(func, "splice", args);
+            wrapper.slice = (...args) => this.updateObservableArray(func, "slice", args);
+            wrapper.replace = (...args) => this.updateObservableArray(func, "replace", args);
+            wrapper.indexOf = (...args) => this.updateObservableArray(func, "indexOf", args);
+            wrapper.remove = (...args) => this.updateObservableArray(func, "remove", args);
+            wrapper.removeAll = (...args) => this.updateObservableArray(func, "removeAll", args);
+            wrapper = wrapper.extend({ trackArrayChanges: true });
         }
 
         return wrapper.extend({ notify: "always" });
@@ -91,20 +81,22 @@
         const result = this.getExpressionResult(getObservable);
 
         if (!ko.isWriteableObservable(result)) {
-            throw Error(`Cannot write a value to ko.computed because the expression '${getObservable}' does not return a writable observable.`);
+            console.error(`Cannot write a value to ko.computed because the expression '${getObservable}' does not return a writable observable.`);
         }
-
-        result(value);
+        else {
+            result(value);
+        }
     }
 
     private updateObservableArray(getObservableArray: () => KnockoutObservableArray<any>, fnName: string, args: any[]) {
         const result = this.getExpressionResult(getObservableArray);
 
         if (!this.isObservableArray(result)) {
-            throw Error(`Cannot execute '${fnName}' function on ko.computed because the '${getObservableArray}' does not return an observable array.`);
+            console.error(`Cannot execute '${fnName}' function on ko.computed because the expression '${getObservableArray}' does not return an observable array.`);
         }
-
-        result[fnName].apply(result, args);
+        else {
+            result[fnName].apply(result, args);
+        }
     }
 
     private getExpressionResult(func: () => any) {
