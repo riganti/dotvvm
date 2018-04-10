@@ -1,0 +1,20 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethods.MathematicalOperationsViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Client side methods - Mathematical operations</title>
+</head>
+<body>
+    Left operand: <dot:TextBox Text="{value: Left}" /> <br />
+    Right operand: <dot:TextBox Text="{value: Right}" /> <br />
+
+    <dot:Literal Text="{value: Result}" /> <br/>
+
+    <dot:Button Click="{command: Sum()}" Text="Sum" />
+    <dot:Button Click="{command: Divide()}" Text="Divide" />
+    <dot:Button Click="{command: Fibonacci()}" Text="Fibonacci" />
+</body>
+</html>
