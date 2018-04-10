@@ -40,8 +40,11 @@ namespace DotVVM.Framework.Hosting.Middlewares
                 contentDispositionValue.SetHttpFileName(metadata.FileName);
                 context.Response.Headers[HeaderNames.ContentDisposition] = contentDispositionValue.ToString();
 #else
-                var contentDispositionValue = new ContentDispositionHeaderValue(attachmentDispositionType);
-                contentDispositionValue.FileName = metadata.FileName;
+                var contentDispositionValue = new ContentDispositionHeaderValue(attachmentDispositionType)
+                {
+                    FileName = metadata.FileName,
+                    FileNameStar = metadata.FileName
+                };
                 context.Response.Headers["Content-Disposition"] = contentDispositionValue.ToString();
 #endif
                 context.Response.ContentType = metadata.MimeType;
