@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Runtime;
 using Newtonsoft.Json;
 using DotVVM.Framework.Hosting;
@@ -11,6 +13,7 @@ using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.Utils;
+using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Framework.Controls
 {
@@ -139,6 +142,21 @@ namespace DotVVM.Framework.Controls
                 );
             }
             string generatedPostbackHandlers = null;
+
+            var parsedExpresion = expression.GetProperty<ParsedExpressionBindingProperty>();
+            if (parsedExpresion != null && parsedExpresion.Expression.NodeType == ExpressionType.Call)
+            {
+                var methodCallExpression = parsedExpresion.Expression as MethodCallExpression;
+                if (methodCallExpression.Method.GetCustomAttributes(false).Any(a => a is ClientSideMethodAttribute))
+                {
+                    var viewModelAccess = new ParametrizedCode.Builder {
+                        "ko.contextFor(",
+                        options.ElementAccessor.Code,
+                        ").$root"
+                    }.Build(OperatorPrecedence.Max).ToDefaultString();
+                    return $"{viewModelAccess}.{methodCallExpression.Method.Name}()";
+                }
+            }
 
             var adjustedExpression = expression.GetParametrizedCommandJavascript(control);
             // when the expression changes the dataContext, we need to override the default knockout context fo the command binding.

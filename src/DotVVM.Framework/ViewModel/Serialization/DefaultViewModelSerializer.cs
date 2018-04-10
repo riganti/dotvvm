@@ -91,6 +91,12 @@ namespace DotVVM.Framework.ViewModel.Serialization
             // create result object
             var result = new JObject();
             result["viewModel"] = writer.Token;
+            if (context.ViewModel.GetType().GetMembers()
+                .Any(m => m.GetCustomAttribute<ClientSideMethodAttribute>() != null))
+            {
+                result["viewModel"]["$class"] = context.ViewModel.GetType().Name;
+            }
+
             result["url"] = context.HttpContext?.Request?.Url?.PathAndQuery;
             result["virtualDirectory"] = context.HttpContext?.Request?.PathBase?.Value?.Trim('/') ?? "";
             if (context.ResultIdFragment != null)

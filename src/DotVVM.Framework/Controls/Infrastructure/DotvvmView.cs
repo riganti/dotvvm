@@ -44,6 +44,7 @@ namespace DotVVM.Framework.Controls.Infrastructure
             {
                 context.ResourceManager.AddRequiredResource(ResourceConstants.DotvvmDebugResourceName);
             }
+            context.ResourceManager.AddRequiredResource(ResourceConstants.DotvvmGeneratedViewModels);
             base.OnPreRender(context);
         }
     }

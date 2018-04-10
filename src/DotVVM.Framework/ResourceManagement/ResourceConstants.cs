@@ -16,6 +16,8 @@ namespace DotVVM.Framework.ResourceManagement
         public const string PolyfillBundleResourceName = "dotvvm.polyfill.bundle";
         public const string PolyfillResourceName = "dotvvm.polyfill";
 
+        public const string DotvvmGeneratedViewModels = "dotvvm.viewmodels.generated";
+
         public const string DotvvmFileUploadCssResourceName = "dotvvm.fileUpload-css";
     }
 }

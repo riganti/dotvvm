@@ -284,9 +284,9 @@ namespace DotVVM.Framework.Configuration
 
         private static void RegisterGeneratedViewModels(DotvvmConfiguration configuration)
         {
-            configuration.Resources.Register("dotvvm.viewmodels.generated",
+            configuration.Resources.Register(ResourceConstants.DotvvmGeneratedViewModels,
                 new ScriptResource(
-                    new FileResourceLocation("./dotvvm.viewmodels.generated.js")));
+                    new UrlResourceLocation("~/Scripts/dotvvm.viewmodels.generated.js")));
         }
 
         private static void RegisterGlobalizeResources(DotvvmConfiguration configuration)
