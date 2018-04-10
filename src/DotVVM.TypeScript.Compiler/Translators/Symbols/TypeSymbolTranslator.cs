@@ -7,6 +7,7 @@ using DotVVM.TypeScript.Compiler.Symbols;
 using DotVVM.TypeScript.Compiler.Utils;
 using DotVVM.TypeScript.Compiler.Utils.Logging;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace DotVVM.TypeScript.Compiler.Translators.Symbols
 {
@@ -45,5 +46,14 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
         }
 
 
+        void Test()
+        {
+            var strin = "";
+            var syntaxTree = CSharpSyntaxTree.ParseText(strin)
+                .GetRoot()
+                .NormalizeWhitespace()
+                .SyntaxTree;
+            
+        }
     }
 }

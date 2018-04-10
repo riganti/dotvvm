@@ -250,7 +250,17 @@ namespace DotVVM.TypeScript.Compiler.Ast
 
         public void VisitNamespaceDeclaration(TsNamespaceDeclarationSyntax namespaceDeclaration)
         {
-            throw new NotImplementedException();
+            Append("namespace");
+            AppendSpace();
+            namespaceDeclaration.Identifier.AcceptVisitor(this);
+            AppendOperator("{");
+            AppendNewline();
+            foreach (var tsClassDeclarationSyntax in namespaceDeclaration.Types)
+            {
+                tsClassDeclarationSyntax.AcceptVisitor(this);
+            }
+            AppendNewline();
+            AppendOperator("}");
         }
 
         public void VisitParameter(TsParameterSyntax parameter)

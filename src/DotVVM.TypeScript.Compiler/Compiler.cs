@@ -74,9 +74,11 @@ namespace DotVVM.TypeScript.Compiler
             var basePath = FindProjectBasePath();
             foreach (var viewModel in translatedViewModels)
             {
-                if (viewModel is TsClassDeclarationSyntax @class)
+                if (viewModel is TsNamespaceDeclarationSyntax namespaceDeclaration)
                 {
-                    var filePath = Path.Combine(basePath, $"{@class.Identifier.Value}.generated.ts");
+                    var @class = namespaceDeclaration.Types.First();
+                    
+                    var filePath = Path.Combine(basePath, $"{namespaceDeclaration.Identifier.ToDisplayString()}.{@class.Identifier.ToDisplayString()}.generated.ts");
                     var formattingVisitor = new TsFormattingVisitor();
                     viewModel.AcceptVisitor(formattingVisitor);
                     await _fileStore.StoreFileAsync(filePath, formattingVisitor.GetOutput());
@@ -101,7 +103,14 @@ namespace DotVVM.TypeScript.Compiler
 
         private List<TsSyntaxNode> TranslateViewModels()
         {
-            return typeRegistry.Types.Select(t => _translatorsEvidence.ResolveTranslator(t.Type).Translate(t.Type)).ToList();
+            return typeRegistry.Types.Select(t
+                => {
+                var ns = _translatorsEvidence.ResolveTranslator(t.Type.ContainingNamespace)
+                    .Translate(t.Type.ContainingNamespace);
+                var @class = _translatorsEvidence.ResolveTranslator(t.Type).Translate(t.Type);
+                (ns as TsNamespaceDeclarationSyntax)?.AddClass(@class as TsClassDeclarationSyntax);
+                return ns;
+            }).ToList();
         }
 
         private void FindTranslatableViewModels(CompilerContext compilerContext)
@@ -122,6 +131,7 @@ namespace DotVVM.TypeScript.Compiler
             _translatorsEvidence.RegisterTranslator(() => new PropertySymbolTranslator(_logger));
             _translatorsEvidence.RegisterTranslator(() => new ParameterSymbolTranslator(_logger));
             _translatorsEvidence.RegisterTranslator(() => new TypeSymbolTranslator(_logger, _translatorsEvidence));
+            _translatorsEvidence.RegisterTranslator(() => new NamespaceSymbolTranslator());
         }
 
         private async Task<CompilerContext> CreateCompilerContext()
@@ -138,8 +148,17 @@ namespace DotVVM.TypeScript.Compiler
 
         private async Task<Compilation> CompileProject(Workspace workspace)
         {
-            return await FindProject(workspace)
+            var compilation = await FindProject(workspace)
                 .GetCompilationAsync();
+            if (compilation.GetDiagnostics().Any(d => d.Severity == DiagnosticSeverity.Error))
+            {
+                foreach (var diagnostic in compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error))
+                {
+                    _logger.LogError("Compilation", $"An error occured during compilation: {diagnostic.ToString()}");
+                }
+                return null;
+            }
+            return compilation;
         }
 
         private Project FindProject(Workspace workspace)
