@@ -5,10 +5,10 @@ namespace DotVVM.TypeScript.Compiler.Ast
 {
     public class TsAssignmentSyntax : TsStatementSyntax
     {
-        public TsIdentifierReferenceSyntax Reference { get;  }
+        public TsExpressionSyntax Reference { get;  }
         public TsExpressionSyntax Expression { get; }
         
-        public TsAssignmentSyntax(TsSyntaxNode parent, TsIdentifierReferenceSyntax reference, TsExpressionSyntax expression) : base(parent)
+        public TsAssignmentSyntax(TsSyntaxNode parent, TsExpressionSyntax reference, TsExpressionSyntax expression) : base(parent)
         {
             Reference = reference;
             Expression = expression;

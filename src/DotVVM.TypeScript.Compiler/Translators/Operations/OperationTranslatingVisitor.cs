@@ -138,11 +138,6 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
             }
         }
 
-        public override TsSyntaxNode VisitParenthesized(IParenthesizedOperation operation, TsSyntaxNode argument)
-        {
-            return base.VisitParenthesized(operation, argument);
-        }
-
         public override TsSyntaxNode VisitLiteral(ILiteralOperation operation, TsSyntaxNode argument)
         {
             string value = "";
@@ -156,7 +151,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
         public override TsSyntaxNode VisitSimpleAssignment(ISimpleAssignmentOperation operation, TsSyntaxNode parent)
         {
             _logger.LogDebug("Operations", "Translating simple assignment operation.");
-            var identifier = operation.Target.Accept(this, parent) as TsIdentifierReferenceSyntax;
+            var identifier = operation.Target.Accept(this, parent) as TsExpressionSyntax;
             var expression = operation.Value.Accept(this, parent) as TsExpressionSyntax;
             var assignment = new TsAssignmentSyntax(parent, identifier, expression);
             return assignment;
@@ -198,7 +193,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
         {
             _logger.LogDebug("Operations", "Translating property reference operation.");
             var identifier = new TsIdentifierSyntax($"this.{operation.Property.Name}", parent);
-            return new TsIdentifierReferenceSyntax(parent, identifier);
+            return new TsPropertyReferenceSyntax(parent, identifier);
         }
 
     }

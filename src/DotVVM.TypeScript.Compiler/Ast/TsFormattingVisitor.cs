@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
+using DotVVM.TypeScript.Compiler.Translators.Operations;
 
 namespace DotVVM.TypeScript.Compiler.Ast
 {
@@ -73,9 +74,21 @@ namespace DotVVM.TypeScript.Compiler.Ast
         public void VisitAssignmentStatement(TsAssignmentSyntax assignment)
         {
             Indent();
-            assignment.Reference.AcceptVisitor(this);
-            AppendOperator("=");
+            if (assignment.Reference is TsPropertyReferenceSyntax propertyReference)
+            {
+                propertyReference.Identifier.AcceptVisitor(this);
+                AppendOperator("(", false ,false);
+            }
+            else
+            {
+                assignment.Reference.AcceptVisitor(this);
+                AppendOperator("=");
+            }
             assignment.Expression.AcceptVisitor(this);
+            if (assignment.Reference is TsPropertyReferenceSyntax)
+            {
+                AppendOperator(")", false , false);
+            }
             EndStatement();
         }
 
@@ -285,7 +298,9 @@ namespace DotVVM.TypeScript.Compiler.Ast
             propertyDeclaration.Identifier.AcceptVisitor(this);
             Append(":");
             AppendSpace();
+            Append("KnockoutObservable<");
             propertyDeclaration.Type.AcceptVisitor(this);
+            Append(">");
             EndStatement();
         }
 
@@ -330,6 +345,13 @@ namespace DotVVM.TypeScript.Compiler.Ast
             IncreaseIndent();
             whileStatement.Body.AcceptVisitor(this);
             DecreaseIndent();
+        }
+
+        public void VisitPropertyReference(TsPropertyReferenceSyntax tsPropertyReferenceSyntax)
+        {
+            tsPropertyReferenceSyntax.Identifier.AcceptVisitor(this);
+            Append("(");
+            Append(")");
         }
     }
 }

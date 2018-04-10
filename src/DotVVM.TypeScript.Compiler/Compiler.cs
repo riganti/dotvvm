@@ -80,7 +80,7 @@ namespace DotVVM.TypeScript.Compiler
                     
                     var filePath = Path.Combine(basePath, $"{namespaceDeclaration.Identifier.ToDisplayString()}.{@class.Identifier.ToDisplayString()}.generated.ts");
                     var formattingVisitor = new TsFormattingVisitor();
-                    viewModel.AcceptVisitor(formattingVisitor);
+                    @class.AcceptVisitor(formattingVisitor);
                     await _fileStore.StoreFileAsync(filePath, formattingVisitor.GetOutput());
                     filesList.Add(filePath);
                 }

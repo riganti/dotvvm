@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using DotVVM.TypeScript.Compiler.Translators.Operations;
 
 namespace DotVVM.TypeScript.Compiler.Ast
 {
@@ -27,6 +28,7 @@ namespace DotVVM.TypeScript.Compiler.Ast
         void VisitUnaryOperation(TsUnaryOperationSyntax unaryOperation);
         void VisitVariableDeclarator(TsVariableDeclaratorSyntax variableDeclarator);
         void VisitWhileStatement(TsWhileStatementSyntax whileStatement);
+        void VisitPropertyReference(TsPropertyReferenceSyntax tsPropertyReferenceSyntax);
     }
 
     class TsNodeVisitor : ITsNodeVisitor
@@ -144,6 +146,11 @@ namespace DotVVM.TypeScript.Compiler.Ast
         public void VisitWhileStatement(TsWhileStatementSyntax whileStatement)
         {
             DefaultVisit(whileStatement);
+        }
+
+        public void VisitPropertyReference(TsPropertyReferenceSyntax tsPropertyReferenceSyntax)
+        {
+            DefaultVisit(tsPropertyReferenceSyntax);
         }
 
         protected void DefaultVisit(TsSyntaxNode node)
