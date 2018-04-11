@@ -152,7 +152,7 @@ namespace DotVVM.Framework.Controls
                     var viewModelAccess = new ParametrizedCode.Builder {
                         "ko.contextFor(",
                         options.ElementAccessor.Code,
-                        ").$root"
+                        ").$data"
                     }.Build(OperatorPrecedence.Max).ToDefaultString();
                     return $"{viewModelAccess}.{methodCallExpression.Method.Name}()";
                 }
