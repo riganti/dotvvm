@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using DotVVM.TypeScript.Compiler.Ast;
 using Microsoft.CodeAnalysis.Operations;
@@ -153,6 +154,12 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
             _logger.LogDebug("Operations", "Translating simple assignment operation.");
             var identifier = operation.Target.Accept(this, parent) as TsExpressionSyntax;
             var expression = operation.Value.Accept(this, parent) as TsExpressionSyntax;
+            if (operation.Type.IsIntegerType())
+            {
+                var methodIdentifier = new TsIdentifierSyntax("Math.floor", parent);
+                var parameters = new List<TsExpressionSyntax> {expression};
+                expression = new TsMethodCallSyntax(parent,methodIdentifier , parameters.ToImmutableList());
+            }
             var assignment = new TsAssignmentSyntax(parent, identifier, expression);
             return assignment;
         }
@@ -161,7 +168,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
         {
             _logger.LogDebug("Operations", "Translating unary operation.");
             var operand = operation.Operand.Accept(this, argument) as TsExpressionSyntax;
-            var unaryOperator = operation.OperatorKind.ToTsUnaryOperator();
+            var unaryOperator = operation.OperatorKind.ToTsUnaryOperator(); 
             return new TsUnaryOperationSyntax(argument, operand, unaryOperator);
         }
 

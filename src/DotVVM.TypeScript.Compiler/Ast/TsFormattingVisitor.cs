@@ -353,5 +353,16 @@ namespace DotVVM.TypeScript.Compiler.Ast
             Append("(");
             Append(")");
         }
+
+        public void AcceptMethodCall(TsMethodCallSyntax methodCall)
+        {
+            methodCall.Name.AcceptVisitor(this);
+            Append("(");
+            foreach (var parameter in methodCall.Parameters)
+            {
+                parameter.AcceptVisitor(this);
+            }
+            Append(")");
+        }
     }
 }

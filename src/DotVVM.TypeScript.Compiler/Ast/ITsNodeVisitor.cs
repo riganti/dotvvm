@@ -29,6 +29,7 @@ namespace DotVVM.TypeScript.Compiler.Ast
         void VisitVariableDeclarator(TsVariableDeclaratorSyntax variableDeclarator);
         void VisitWhileStatement(TsWhileStatementSyntax whileStatement);
         void VisitPropertyReference(TsPropertyReferenceSyntax tsPropertyReferenceSyntax);
+        void AcceptMethodCall(TsMethodCallSyntax methodCall);
     }
 
     class TsNodeVisitor : ITsNodeVisitor
@@ -151,6 +152,11 @@ namespace DotVVM.TypeScript.Compiler.Ast
         public void VisitPropertyReference(TsPropertyReferenceSyntax tsPropertyReferenceSyntax)
         {
             DefaultVisit(tsPropertyReferenceSyntax);
+        }
+
+        public void AcceptMethodCall(TsMethodCallSyntax methodCall)
+        {
+            DefaultVisit(methodCall);
         }
 
         protected void DefaultVisit(TsSyntaxNode node)

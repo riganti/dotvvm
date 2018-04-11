@@ -16,6 +16,33 @@ namespace DotVVM.TypeScript.Compiler.Symbols
             return symbol.GetAttributes().Any(a => a.AttributeClass.ToString().Equals(attributeType.FullName));
         }
 
+        public static string GetTypescriptEquivalent(this ITypeSymbol symbol)
+        {
+            if (symbol.IsIntegerType())
+                return "number";
+            return null;
+        }
+
+        public static bool IsIntegerType(this ITypeSymbol symbol)
+        {
+            return symbol.IsEquivalentTo(typeof(short))
+                || symbol.IsEquivalentTo(typeof(int))
+                || symbol.IsEquivalentTo(typeof(long))
+                || symbol.IsEquivalentTo(typeof(ushort))
+                || symbol.IsEquivalentTo(typeof(uint))
+                || symbol.IsEquivalentTo(typeof(ulong));
+        }
+
+        public static bool IsEquivalentTo(this ISymbol symbol, Type type)
+        {
+            return symbol.GetFullName() == type.FullName;
+        }
+
+        public static string GetFullName(this ISymbol symbol)
+        {
+            return $"{symbol.ContainingNamespace.ToString()}.{symbol.Name}";
+        }
+
         public static TsBinaryOperator ToTsBinaryOperator(this BinaryOperatorKind binaryOperator)
         {
             switch (binaryOperator)
