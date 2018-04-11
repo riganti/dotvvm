@@ -28,7 +28,7 @@ namespace DotVVM.TypeScript.Compiler.Ast
 
         public override void AcceptVisitor(ITsNodeVisitor visitor)
         {
-            visitor.AcceptMethodCall(this);
+            visitor.VisitMethodCall(this);
         }
     }
 }
