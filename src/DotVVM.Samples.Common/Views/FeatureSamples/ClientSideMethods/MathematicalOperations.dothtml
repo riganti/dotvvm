@@ -8,13 +8,20 @@
     <title>Client side methods - Mathematical operations</title>
 </head>
 <body>
+    <h1>Client side methods - basic mathematical operations</h1>
+
     Left operand: <dot:TextBox Text="{value: Left}" /> <br />
     Right operand: <dot:TextBox Text="{value: Right}" /> <br />
 
-    <dot:Literal Text="{value: Result}" /> <br/>
+    <dot:Literal Text="{value: Result}" /> <br />
 
+    <h2>Client side methods</h2>
     <dot:Button Click="{command: Sum()}" Text="Sum" />
     <dot:Button Click="{command: Divide()}" Text="Divide" />
     <dot:Button Click="{command: Fibonacci()}" Text="Fibonacci" />
+    <h2>Server side methods</h2>
+    <dot:Button Click="{command: SumOnServer()}" Text="Sum" />
+    <dot:Button Click="{command: DivideOnServer()}" Text="Divide" />
+    <dot:Button Click="{command: FibonacciOnServer()}" Text="Fibonacci" />
 </body>
 </html>
