@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Controls.DynamicData
         /// <summary>
         /// Registers all services required by DotVVM Dynamic Data.
         /// </summary>
-        public static IDotvvmServiceCollection AddDynamicData(this IDotvvmServiceCollection services, DynamicDataConfiguration dynamicDataConfiguration = null)
+        public static IServiceCollection AddDynamicData(this IServiceCollection services, DynamicDataConfiguration dynamicDataConfiguration = null)
         {
             if (dynamicDataConfiguration == null)
             {
@@ -35,7 +35,7 @@ namespace DotVVM.Framework.Controls.DynamicData
             return services;
         }
 
-        private static void RegisterDefaultProviders(IDotvvmServiceCollection services, DynamicDataConfiguration dynamicDataConfiguration)
+        private static void RegisterDefaultProviders(IServiceCollection services, DynamicDataConfiguration dynamicDataConfiguration)
         {
             services.AddSingleton<IPropertyDisplayMetadataProvider>(
                 serviceProvider => new DataAnnotationsPropertyDisplayMetadataProvider()
@@ -46,7 +46,7 @@ namespace DotVVM.Framework.Controls.DynamicData
             );
         }
 
-        private static void RegisterResourceFileProviders(IDotvvmServiceCollection services, DynamicDataConfiguration dynamicDataConfiguration)
+        private static void RegisterResourceFileProviders(IServiceCollection services, DynamicDataConfiguration dynamicDataConfiguration)
         {
             if (dynamicDataConfiguration.PropertyDisplayNamesResourceFile == null)
             {
