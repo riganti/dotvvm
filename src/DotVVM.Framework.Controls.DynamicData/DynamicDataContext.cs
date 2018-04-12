@@ -67,7 +67,6 @@ namespace DotVVM.Framework.Controls.DynamicData
 
             var bindingOptions = BindingParserOptions.Create<ValueBindingExpression>();
 
-
             var properties = new object[]
             {
                 new BindingParserOptions(typeof(ValueBindingExpression)),
@@ -75,7 +74,7 @@ namespace DotVVM.Framework.Controls.DynamicData
                 new OriginalStringBindingProperty(expression)
             };
 
-            return new ValueBindingExpression(BindingCompilationService, properties);
+            return BindingCompilationService.CreateBinding(bindingOptions.BindingType, properties) as ValueBindingExpression;
         }
 
         public CommandBindingExpression CreateCommandBinding(string expression, params Type[] nestedDataContextTypes)
@@ -97,7 +96,7 @@ namespace DotVVM.Framework.Controls.DynamicData
                 new IdBindingProperty(bindingId)
             };
 
-            return new CommandBindingExpression(BindingCompilationService, properties);
+            return BindingCompilationService.CreateBinding(bindingOptions.BindingType, properties) as CommandBindingExpression;
         }
 
         private DataContextStack CreateDataContextStack(DataContextStack dataContextStack, Type[] nestedDataContextTypes)
