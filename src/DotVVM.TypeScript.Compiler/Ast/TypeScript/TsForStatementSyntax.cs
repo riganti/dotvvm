@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
 {
@@ -9,12 +10,13 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
         public IStatementSyntax AfterExpression { get; }
         public IStatementSyntax Body { get; }
 
-        public TsForStatementSyntax(ISyntaxNode parent, IStatementSyntax beforeStatement, IExpressionSyntax condition, IStatementSyntax afterExpression, IStatementSyntax body) : base(parent)
+        public TsForStatementSyntax(ISyntaxNode parent, IStatementSyntax beforeStatement, IExpressionSyntax condition,
+            IStatementSyntax afterExpression, IStatementSyntax body) : base(parent)
         {
-            BeforeStatement = beforeStatement;
-            Condition = condition;
-            AfterExpression = afterExpression;
-            Body = body;
+            BeforeStatement = beforeStatement ?? throw new ArgumentNullException(nameof(beforeStatement));
+            Condition = condition ?? throw new ArgumentNullException(nameof(condition));
+            AfterExpression = afterExpression ?? throw new ArgumentNullException(nameof(afterExpression));
+            Body = body ?? throw new ArgumentNullException(nameof(body));
         }
 
         public override string ToDisplayString()

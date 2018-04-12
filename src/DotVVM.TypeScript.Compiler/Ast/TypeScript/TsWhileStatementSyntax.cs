@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
 {
@@ -7,10 +8,11 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
         public IExpressionSyntax Condition { get; }
         public IStatementSyntax Body { get; }
 
-        public TsWhileStatementSyntax(ISyntaxNode parent, IExpressionSyntax condition, IStatementSyntax body) : base(parent)
+        public TsWhileStatementSyntax(ISyntaxNode parent, IExpressionSyntax condition, IStatementSyntax body) :
+            base(parent)
         {
-            Condition = condition;
-            Body = body;
+            Condition = condition ?? throw new ArgumentNullException(nameof(condition));
+            Body = body ?? throw new ArgumentNullException(nameof(body));
         }
 
         public override string ToDisplayString()

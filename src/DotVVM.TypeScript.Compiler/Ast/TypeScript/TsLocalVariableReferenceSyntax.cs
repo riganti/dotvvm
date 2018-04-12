@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
@@ -7,7 +8,7 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
     {
         public TsLocalVariableReferenceSyntax(ISyntaxNode argument, IIdentifierSyntax identifier) : base(argument)
         {
-            Identifier = identifier;
+            Identifier = identifier ?? throw new ArgumentNullException(nameof(identifier));
         }
 
         public override string ToDisplayString()

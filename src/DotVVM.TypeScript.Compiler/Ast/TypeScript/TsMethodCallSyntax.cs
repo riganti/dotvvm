@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using DotVVM.Framework.Utils;
@@ -10,10 +11,11 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
         public IIdentifierSyntax Name { get; }
         public ImmutableList<IExpressionSyntax> Parameters { get;  }
 
-        public TsMethodCallSyntax(ISyntaxNode parent, IIdentifierSyntax name, ImmutableList<IExpressionSyntax> parameters) : base(parent)
+        public TsMethodCallSyntax(ISyntaxNode parent, IIdentifierSyntax name,
+            ImmutableList<IExpressionSyntax> parameters) : base(parent)
         {
-            Name = name;
-            Parameters = parameters;
+            Name = name ?? throw new ArgumentNullException(nameof(name));
+            Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
         }
 
         public override string ToDisplayString()

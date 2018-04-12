@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
 {
@@ -8,7 +9,7 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
 
         public TsReturnStatementSyntax(ISyntaxNode parent, IExpressionSyntax expression) : base(parent)
         {
-            Expression = expression;
+            Expression = expression ?? throw new ArgumentNullException(nameof(expression));
         }
 
         public override string ToDisplayString()

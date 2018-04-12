@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 
@@ -10,7 +11,7 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
 
         public TsTypeSyntax(ITypeSymbol equivalentSymbol, ISyntaxNode parent) : base(parent)
         {
-            EquivalentSymbol = equivalentSymbol;
+            EquivalentSymbol = equivalentSymbol ?? throw new ArgumentNullException(nameof(equivalentSymbol));
         }
 
         public override string ToDisplayString()

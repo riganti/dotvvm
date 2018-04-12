@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Utils;
 
@@ -7,15 +8,16 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
     public class TsNamespaceDeclarationSyntax : TsSyntaxNode, INamespaceDeclarationSyntax
     {
         public IIdentifierSyntax Identifier { get; }
-        public IList<IMemberDeclarationSyntax> Types { get; }
+        public IList<IClassDeclarationSyntax> Types { get; }
 
-        public TsNamespaceDeclarationSyntax(ISyntaxNode parent, IIdentifierSyntax identifier, IList<IMemberDeclarationSyntax> types) : base(parent)
+        public TsNamespaceDeclarationSyntax(ISyntaxNode parent, IIdentifierSyntax identifier,
+            IList<IClassDeclarationSyntax> types) : base(parent)
         {
-            Identifier = identifier;
-            Types = types;
+            Identifier = identifier ?? throw new ArgumentNullException(nameof(identifier));
+            Types = types ?? throw new ArgumentNullException(nameof(types));
         }
 
-        public void AddClass(IMemberDeclarationSyntax @class)
+        public void AddClass(IClassDeclarationSyntax @class)
         {
             Types.Add(@class);
         }

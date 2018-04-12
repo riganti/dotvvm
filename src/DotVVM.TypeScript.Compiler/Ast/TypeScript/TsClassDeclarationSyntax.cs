@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Utils;
 
@@ -6,16 +7,16 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
 {
     public class TsClassDeclarationSyntax : TsSyntaxNode, IClassDeclarationSyntax
     {
-        public TsModifier Modifier { get; }
         public IIdentifierSyntax Identifier { get; set; }
         public IList<IMemberDeclarationSyntax> Members { get; }
         public IList<IIdentifierSyntax> BaseClasses { get; }
 
-        public TsClassDeclarationSyntax(IIdentifierSyntax identifier, IList<IMemberDeclarationSyntax> members, IList<IIdentifierSyntax> baseClasses, ISyntaxNode parent) : base(parent)
+
+        public TsClassDeclarationSyntax(ISyntaxNode parent, IIdentifierSyntax identifier, IList<IMemberDeclarationSyntax> members, IList<IIdentifierSyntax> baseClasses) : base(parent)
         {
-            Identifier = identifier;
-            Members = members;
-            BaseClasses = baseClasses;
+            Identifier = identifier ?? throw new ArgumentNullException(nameof(identifier));
+            Members = members ?? throw new ArgumentNullException(nameof(members));
+            BaseClasses = baseClasses ?? throw new ArgumentNullException(nameof(baseClasses));
         }
 
         public override string ToDisplayString()

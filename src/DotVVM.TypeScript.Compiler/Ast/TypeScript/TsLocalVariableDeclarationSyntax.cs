@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Utils;
 
@@ -8,9 +9,10 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
     {
         public IList<IVariableDeclaratorSyntax> Declarators { get; }
 
-        public TsLocalVariableDeclarationSyntax(ISyntaxNode parent, IList<IVariableDeclaratorSyntax> declarators) : base(parent)
+        public TsLocalVariableDeclarationSyntax(ISyntaxNode parent, IList<IVariableDeclaratorSyntax> declarators) :
+            base(parent)
         {
-            Declarators = declarators;
+            Declarators = declarators ?? throw new ArgumentNullException(nameof(declarators));
         }
 
         public override string ToDisplayString()

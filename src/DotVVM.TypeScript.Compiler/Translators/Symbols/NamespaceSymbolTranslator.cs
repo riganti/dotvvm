@@ -17,7 +17,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
         public ISyntaxNode Translate(INamespaceSymbol input)
         {
             var identifier = new TsIdentifierSyntax(input.ToDisplayString(), null);
-            var types = new List<IMemberDeclarationSyntax>();
+            var types = new List<IClassDeclarationSyntax>();
             return new TsNamespaceDeclarationSyntax(null, identifier, types);
         }
     }

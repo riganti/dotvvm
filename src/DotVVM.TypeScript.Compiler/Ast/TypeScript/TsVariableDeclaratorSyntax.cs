@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
@@ -7,11 +8,12 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
     {
         public IExpressionSyntax Expression { get; }
         public IIdentifierSyntax Identifier { get; }
-        
-        public TsVariableDeclaratorSyntax(ISyntaxNode parent, IExpressionSyntax expression, IIdentifierSyntax identifier) : base(parent)
+
+        public TsVariableDeclaratorSyntax(ISyntaxNode parent, IExpressionSyntax expression,
+            IIdentifierSyntax identifier) : base(parent)
         {
-            Expression = expression;
-            Identifier = identifier;
+            Expression = expression ?? throw new ArgumentNullException(nameof(expression));
+            Identifier = identifier ?? throw new ArgumentNullException(nameof(identifier));
         }
 
         public override string ToDisplayString()

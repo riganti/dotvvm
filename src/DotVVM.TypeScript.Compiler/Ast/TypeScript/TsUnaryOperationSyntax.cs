@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
 {
@@ -7,9 +8,10 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
         public IExpressionSyntax Operand { get; }
         public UnaryOperator Operator { get;  }
 
-        public TsUnaryOperationSyntax(ISyntaxNode parent, IExpressionSyntax operand, UnaryOperator @operator) : base(parent)
+        public TsUnaryOperationSyntax(ISyntaxNode parent, IExpressionSyntax operand, UnaryOperator @operator) :
+            base(parent)
         {
-            Operand = operand;
+            Operand = operand ?? throw new ArgumentNullException(nameof(operand));
             Operator = @operator;
         }
 

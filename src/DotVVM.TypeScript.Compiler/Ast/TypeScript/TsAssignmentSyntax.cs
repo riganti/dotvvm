@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
@@ -10,8 +11,8 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
         
         public TsAssignmentSyntax(ISyntaxNode parent, IReferenceSyntax reference, IExpressionSyntax expression) : base(parent)
         {
-            Reference = reference;
-            Expression = expression;
+            Reference = reference ?? throw new ArgumentNullException(nameof(reference));
+            Expression = expression ?? throw new ArgumentNullException(nameof(expression));
         }
 
         public override string ToDisplayString()

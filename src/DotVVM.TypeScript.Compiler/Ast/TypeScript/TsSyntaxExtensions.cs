@@ -4,15 +4,15 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
 {
     public static class TsSyntaxExtensions
     {
-        public static string ToDisplayString(this TsModifier modifier)
+        public static string ToDisplayString(this AccessModifier modifier)
         {
             switch (modifier)
             {
-                case TsModifier.Public:
+                case AccessModifier.Public:
                     return "public";
-                case TsModifier.Private:
+                case AccessModifier.Private:
                     return "private";
-                case TsModifier.Protected:
+                case AccessModifier.Protected:
                     return "protected";
                 default:
                     return string.Empty;

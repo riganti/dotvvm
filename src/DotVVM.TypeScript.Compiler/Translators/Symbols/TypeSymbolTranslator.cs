@@ -43,7 +43,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
                 .OfType<IMemberDeclarationSyntax>();
             members = members.Concat(methods);
             _logger.LogInfo("Symbols", $"Translating class {input.Name}");
-            return new TsClassDeclarationSyntax(new TsIdentifierSyntax(input.Name, null), members.ToList(), new List<IIdentifierSyntax>(), null);
+            return new TsClassDeclarationSyntax(null, new TsIdentifierSyntax(input.Name, null), members.ToList(), new List<IIdentifierSyntax>());
         }
     }
 }

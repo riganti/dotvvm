@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
@@ -9,7 +10,7 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
 
         public TsIdentifierSyntax(string value, ISyntaxNode parent) : base(parent)
         {
-            Value = value;
+            Value = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         public override string ToDisplayString()

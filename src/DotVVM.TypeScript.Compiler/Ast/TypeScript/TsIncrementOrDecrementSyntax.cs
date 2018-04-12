@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
@@ -9,9 +10,10 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
         public bool IsPostfix { get; }
         public bool IsIncrement { get; }
 
-        public TsIncrementOrDecrementSyntax(ISyntaxNode parent, IExpressionSyntax target, bool isPostfix, bool isIncrement) : base(parent)
+        public TsIncrementOrDecrementSyntax(ISyntaxNode parent, IExpressionSyntax target, bool isPostfix,
+            bool isIncrement) : base(parent)
         {
-            Target = target;
+            Target = target ?? throw new ArgumentNullException(nameof(target));
             IsPostfix = isPostfix;
             IsIncrement = isIncrement;
         }

@@ -40,7 +40,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
             return new TsIdentifierSyntax(property.Name, null);
         }
 
-        private TsModifier TranslateModifier(IPropertySymbol property)
+        private AccessModifier TranslateModifier(IPropertySymbol property)
         {
             return property.DeclaredAccessibility.ToTsModifier();
         }

@@ -121,17 +121,17 @@ namespace DotVVM.TypeScript.Compiler.Symbols
             }
         }
 
-        public static TsModifier ToTsModifier(this Accessibility accessibility)
+        public static AccessModifier ToTsModifier(this Accessibility accessibility)
         {
             switch (accessibility)
             {
                 case Accessibility.Private:
-                    return TsModifier.Private;
+                    return AccessModifier.Private;
                 case Accessibility.Protected:
-                    return TsModifier.Protected;
+                    return AccessModifier.Protected;
                 case Accessibility.Public:
                 default:
-                    return TsModifier.Public;
+                    return AccessModifier.Public;
             }
         }
     }

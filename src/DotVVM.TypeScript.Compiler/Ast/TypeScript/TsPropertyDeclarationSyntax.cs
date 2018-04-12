@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
@@ -7,12 +8,13 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
     {
         public ITypeSyntax Type { get; }
 
-        public override TsModifier Modifier { get; protected set; }
-        public override IIdentifierSyntax Identifier { get; set; }
+        public override AccessModifier Modifier { get; protected set; }
+        public override IIdentifierSyntax Identifier { get; protected set; }
 
-        public TsPropertyDeclarationSyntax(TsModifier modifier, IIdentifierSyntax identifier, ITypeSyntax type, ISyntaxNode parent) : base(modifier, identifier, parent)
+        public TsPropertyDeclarationSyntax(AccessModifier modifier, IIdentifierSyntax identifier, ISyntaxNode parent,
+            ITypeSyntax type) : base(modifier, identifier, parent)
         {
-            Type = type;
+            Type = type ?? throw new ArgumentNullException(nameof(type));
         }
 
         public override string ToDisplayString()

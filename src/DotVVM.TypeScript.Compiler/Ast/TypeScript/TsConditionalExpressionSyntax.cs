@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
@@ -9,13 +10,14 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
         public IExpressionSyntax WhenTrue { get; }
         public IExpressionSyntax WhenFalse { get; }
 
-        public TsConditionalExpressionSyntax(ISyntaxNode parent, IExpressionSyntax condition, IExpressionSyntax whenTrue, IExpressionSyntax whenFalse) : base(parent)
+        public TsConditionalExpressionSyntax(ISyntaxNode parent, IExpressionSyntax condition,
+            IExpressionSyntax whenTrue, IExpressionSyntax whenFalse) : base(parent)
         {
-            Condition = condition;
-            WhenTrue = whenTrue;
-            WhenFalse = whenFalse;
+            Condition = condition ?? throw new ArgumentNullException(nameof(condition));
+            WhenTrue = whenTrue ?? throw new ArgumentNullException(nameof(whenTrue));
+            WhenFalse = whenFalse ?? throw new ArgumentNullException(nameof(whenFalse));
         }
-
+        
         public override string ToDisplayString()
         {
             return $"{Condition.ToDisplayString()} ? {WhenTrue.ToDisplayString()} : {WhenFalse.ToDisplayString()}";

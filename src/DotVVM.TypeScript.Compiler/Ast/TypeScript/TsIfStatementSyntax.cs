@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
 {
@@ -9,11 +10,13 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
         public IStatementSyntax FalseStatement { get;  }
 
 
-        public TsIfStatementSyntax(ISyntaxNode parent, IExpressionSyntax conditionalExpression, IStatementSyntax trueStatement, IStatementSyntax falseStatement) : base(parent)
+        public TsIfStatementSyntax(ISyntaxNode parent, IExpressionSyntax conditionalExpression,
+            IStatementSyntax trueStatement, IStatementSyntax falseStatement) : base(parent)
         {
-            ConditionalExpression = conditionalExpression;
-            TrueStatement = trueStatement;
-            FalseStatement = falseStatement;
+            ConditionalExpression =
+                conditionalExpression ?? throw new ArgumentNullException(nameof(conditionalExpression));
+            TrueStatement = trueStatement ?? throw new ArgumentNullException(nameof(trueStatement));
+            FalseStatement = falseStatement ?? throw new ArgumentNullException(nameof(falseStatement));
         }
 
         public override string ToDisplayString()

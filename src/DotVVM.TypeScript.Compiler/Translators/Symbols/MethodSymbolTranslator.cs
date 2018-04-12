@@ -41,8 +41,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
                 identifier,
                 null,
                 bodyBlock,
-                parameters.ToList(),
-                null);
+                parameters.ToList());
         }
 
         private IBlockSyntax TranslateBody(IMethodSymbol input)
@@ -60,7 +59,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
             return new TsBlockSyntax(null, new List<IStatementSyntax>());
         }
 
-        private TsModifier TranslateModifier(IMethodSymbol input)
+        private AccessModifier TranslateModifier(IMethodSymbol input)
         {
             return input.DeclaredAccessibility.ToTsModifier();
         }

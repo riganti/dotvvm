@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
@@ -9,13 +10,16 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
         public BinaryOperator Operator { get;  }
         public IExpressionSyntax RightExpression { get; }
 
-        public TsBinaryOperationSyntax(ISyntaxNode parent, IExpressionSyntax leftExpression, IExpressionSyntax rightExpression, BinaryOperator @operator) : base(parent)
+        public TsBinaryOperationSyntax(ISyntaxNode parent,
+            IExpressionSyntax leftExpression,
+            BinaryOperator @operator,
+            IExpressionSyntax rightExpression) : base(parent)
         {
-            LeftExpression = leftExpression;
-            RightExpression = rightExpression;
+            LeftExpression = leftExpression ?? throw new ArgumentNullException(nameof(leftExpression));
             Operator = @operator;
+            RightExpression = rightExpression ?? throw new ArgumentNullException(nameof(rightExpression));
         }
-
+        
         public override string ToDisplayString()
         {
             return

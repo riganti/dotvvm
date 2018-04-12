@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
 {
@@ -6,13 +7,12 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
     {
 
         public IList<IStatementSyntax> Statements { get; }
-        
 
         public TsBlockSyntax(ISyntaxNode parent, IList<IStatementSyntax> statements) : base(parent)
         {
-            Statements = statements;
+            Statements = statements ?? throw new ArgumentNullException(nameof(statements));
         }
-
+        
         public void AddStatement(IStatementSyntax statement)
         {
             Statements.Add(statement);

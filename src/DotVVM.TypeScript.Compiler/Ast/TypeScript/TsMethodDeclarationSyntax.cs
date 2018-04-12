@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Utils;
 
@@ -8,13 +9,16 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
     {
         public IBlockSyntax Body { get; }
         public IList<IParameterSyntax> Parameters { get; }
-        public override TsModifier Modifier { get; protected set; }
-        public override IIdentifierSyntax Identifier { get; set; }
+        public override AccessModifier Modifier { get; protected set; }
+        public override IIdentifierSyntax Identifier { get; protected set; }
 
-        public TsMethodDeclarationSyntax(TsModifier modifier, IIdentifierSyntax identifier, ISyntaxNode parent, IBlockSyntax body, IList<IParameterSyntax> parameters, ITypeSyntax type) : base(modifier, identifier, parent)
+        public TsMethodDeclarationSyntax(AccessModifier modifier, IIdentifierSyntax identifier, ISyntaxNode parent,
+            IBlockSyntax body, IList<IParameterSyntax> parameters) : base(modifier, identifier, parent)
         {
-            Body = body;
-            Parameters = parameters;
+            Body = body ?? throw new ArgumentNullException(nameof(body));
+            Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
+            Modifier = modifier;
+            Identifier = identifier ?? throw new ArgumentNullException(nameof(identifier));
         }
         
         public override string ToDisplayString()

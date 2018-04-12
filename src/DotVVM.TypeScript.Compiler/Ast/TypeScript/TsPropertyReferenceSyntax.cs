@@ -1,13 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
 {
     public class TsPropertyReferenceSyntax : TsReferenceSyntax, IPropertyReferenceSyntax
     {
+
+
         public TsPropertyReferenceSyntax(ISyntaxNode parent, IIdentifierSyntax identifier) : base(parent)
         {
-            Identifier = identifier;
+            Identifier = identifier ?? throw new ArgumentNullException(nameof(identifier));
         }
 
         public override string ToDisplayString()

@@ -6,6 +6,6 @@ namespace DotVVM.TypeScript.Compiler.Ast
     public interface INamespaceDeclarationSyntax : ISyntaxNode
     {
         IIdentifierSyntax Identifier { get; }
-        IList<IMemberDeclarationSyntax> Types { get; }
+        IList<IClassDeclarationSyntax> Types { get; }
     }
 }

@@ -23,7 +23,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
         public ISyntaxNode Translate(IParameterSymbol input)
         {
             _logger.LogInfo("Symbols", $"Translating method parameter {input.Name}");
-            return new TsParameterSyntax(null, new TsTypeSyntax(input.Type, null), new TsIdentifierSyntax(input.Name, null) );
+            return new TsParameterSyntax(null, new TsIdentifierSyntax(input.Name, null), new TsTypeSyntax(input.Type, null));
         }
     }
 }

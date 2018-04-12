@@ -4,7 +4,7 @@ namespace DotVVM.TypeScript.Compiler.Ast
 {
     public interface IMemberDeclarationSyntax : ISyntaxNode
     {
-        TsModifier Modifier { get; }
-        IIdentifierSyntax Identifier { get; set; }
+        AccessModifier Modifier { get; }
+        IIdentifierSyntax Identifier { get; }
     }
 }
