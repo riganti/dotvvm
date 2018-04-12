@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Text;
 using DotVVM.TypeScript.Compiler.Ast.TypeScript;
+using DotVVM.TypeScript.Compiler.Symbols;
 
 namespace DotVVM.TypeScript.Compiler.Ast.Visitors
 {
@@ -311,10 +312,7 @@ namespace DotVVM.TypeScript.Compiler.Ast.Visitors
 
         public void VisitType(ITypeSyntax typeSyntax)
         {
-            if(typeSyntax.EquivalentSymbol.IsValueType)
-                Append("number");
-            else
-                Append(typeSyntax.EquivalentSymbol.Name);
+            Append(typeSyntax.EquivalentSymbol.GetTypescriptEquivalent());
         }
 
         public void VisitUnaryOperation(IUnaryOperationSyntax unaryOperation)
