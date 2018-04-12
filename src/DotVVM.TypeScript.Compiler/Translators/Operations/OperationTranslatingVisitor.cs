@@ -91,6 +91,15 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
         {
             _logger.LogDebug("Operations", "Translating increment or decrement operation.");
             var target = operation.Target.Accept(this, parent) as IExpressionSyntax;
+            if (target is IPropertyReferenceSyntax)
+            {
+                var @operator = operation.Kind == OperationKind.Increment
+                    ? BinaryOperator.Add
+                    : BinaryOperator.Subtract;
+                var literal = _factory.CreateLiteralExpression("1", parent);
+                var binaryOperation = _factory.CreateBinaryOperation(target, @operator, literal, parent);
+                return _factory.CreateAssignment(target as IReferenceSyntax, binaryOperation, parent);
+            }
             var isIncrement = operation.Kind == OperationKind.Increment;
             return _factory.CreateIncrementOrDecrement(target, operation.IsPostfix, isIncrement, parent);
         }
@@ -137,6 +146,18 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
             if (operation.Type.IsEquivalentTo(typeof(string)))
             {
                 value = $"'{value}'";
+            }
+
+            if (operation.Type.IsEquivalentTo(typeof(bool)))
+            {
+                if ((bool)operation.ConstantValue.Value)
+                {
+                    value = "true";
+                }
+                else
+                {
+                    value = "false";
+                }
             }
             return _factory.CreateLiteralExpression(value, parent);
         }

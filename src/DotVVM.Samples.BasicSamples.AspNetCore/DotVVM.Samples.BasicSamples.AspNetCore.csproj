@@ -3,9 +3,11 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <OutputType>Exe</OutputType>
+    <TypeScriptToolsVersion>2.8</TypeScriptToolsVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="wwwroot\" />
+    <Content Remove="wwwroot\Scripts\DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethods.MathematicalOperationsViewModel.generated.ts" />
+    <Content Remove="wwwroot\Scripts\DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethods.MultipleTypeOperations.generated.ts" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DotVVM.Framework.Hosting.AspNetCore\DotVVM.Framework.Hosting.AspNetCore.csproj" />
@@ -22,6 +24,10 @@
   </ItemGroup>
   <ItemGroup>
     <DotNetCliToolReference Include="DotVVM.Compiler.Light" Version="1.1.0.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <TypeScriptCompile Include="wwwroot\Scripts\DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethods.MathematicalOperationsViewModel.generated.ts" />
+    <TypeScriptCompile Include="wwwroot\Scripts\DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethods.MultipleTypeOperations.generated.ts" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>
