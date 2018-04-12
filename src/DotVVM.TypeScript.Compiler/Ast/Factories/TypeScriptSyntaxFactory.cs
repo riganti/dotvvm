@@ -63,6 +63,11 @@ namespace DotVVM.TypeScript.Compiler.Ast.Factories
             return new TsIncrementOrDecrementSyntax(parent, target, isPostfix, isIncrement);
         }
 
+        public IInstanceReferenceSyntax CreateInstanceReference(ISyntaxNode parent)
+        {
+            return new TsInstanceReferenceSyntax(parent);
+        }
+
         public ILiteralExpressionSyntax CreateLiteralExpression(string value, ISyntaxNode parent)
         {
             return new TsLiteralExpressionSyntax(parent, value);
@@ -78,15 +83,20 @@ namespace DotVVM.TypeScript.Compiler.Ast.Factories
             return new TsLocalVariableDeclarationSyntax(parent, declarators);
         }
 
+        public IRawSyntaxNode CreateParametrizedSyntaxNode(string value, ISyntaxNode parent)
+        {
+            return new TsRawSyntaxNode(parent, value);
+        }
+
         public IMethodDeclarationSyntax CreateMethodDeclaration(AccessModifier modifier, IIdentifierSyntax identifier,
             ISyntaxNode parent, IBlockSyntax body, IList<IParameterSyntax> parameters)
         {
             return new TsMethodDeclarationSyntax(modifier, identifier, parent, body, parameters);
         }
 
-        public IMethodCallSyntax CreateMethodCall(IIdentifierSyntax name, ImmutableList<IExpressionSyntax> parameters, ISyntaxNode parent)
+        public IMethodCallSyntax CreateMethodCall(IReferenceSyntax @object, IIdentifierSyntax name, ImmutableList<IExpressionSyntax> parameters, ISyntaxNode parent)
         {
-            return new TsMethodCallSyntax(parent, name, parameters);
+            return new TsMethodCallSyntax( parent, name, parameters, @object);
         }
 
         public INamespaceDeclarationSyntax CreateNamespaceDeclaration(IIdentifierSyntax identifier, IList<IClassDeclarationSyntax> classes, ISyntaxNode parent)

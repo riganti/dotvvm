@@ -297,7 +297,14 @@ namespace DotVVM.TypeScript.Compiler.Ast.Visitors
             propertyDeclaration.Identifier.AcceptVisitor(this);
             Append(":");
             AppendSpace();
-            Append("KnockoutObservable<");
+            if (propertyDeclaration.Type.EquivalentSymbol.IsArrayType())
+            {
+                Append("KnockoutObservableArray<");
+            }
+            else
+            {
+                Append("KnockoutObservable<");
+            }
             propertyDeclaration.Type.AcceptVisitor(this);
             Append(">");
             EndStatement();
@@ -351,13 +358,28 @@ namespace DotVVM.TypeScript.Compiler.Ast.Visitors
 
         public void VisitMethodCall(IMethodCallSyntax methodCall)
         {
+            if (methodCall.Object != null)
+            {
+                methodCall.Object?.AcceptVisitor(this);
+                Append(".");
+            }
             methodCall.Name.AcceptVisitor(this);
             Append("(");
-            foreach (var parameter in methodCall.Parameters)
+            foreach (var parameter in methodCall.Arguments) 
             {
                 parameter.AcceptVisitor(this);
             }
             Append(")");
+        }
+
+        public void VisitInstanceReference(IInstanceReferenceSyntax instanceReference)
+        {
+            instanceReference.Identifier.AcceptVisitor(this);
+        }
+
+        public void VisitParametrizedSyntaxNode(IRawSyntaxNode rawSyntaxNode)
+        {
+            Append(rawSyntaxNode.Value);
         }
     }
 }

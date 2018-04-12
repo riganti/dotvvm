@@ -18,14 +18,16 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
         private readonly TranslatorsEvidence _translatorsEvidence;
         private readonly CompilerContext _context;
         private readonly ISyntaxFactory _factory;
+        private readonly IBuiltinMethodTranslatorRegistry _methodTranslatorRegistry;
 
         public MethodSymbolTranslator(ILogger logger, TranslatorsEvidence translatorsEvidence,
-            CompilerContext context, ISyntaxFactory factory)
+            CompilerContext context, ISyntaxFactory factory, IBuiltinMethodTranslatorRegistry methodTranslatorRegistry)
         {
             _logger = logger;
             _translatorsEvidence = translatorsEvidence;
             _context = context;
             _factory = factory;
+            _methodTranslatorRegistry = methodTranslatorRegistry;
         }
 
         public bool CanTranslate(IMethodSymbol input)
@@ -49,7 +51,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
             {
                 var syntaxReference = input.DeclaringSyntaxReferences.First().GetSyntax() as MethodDeclarationSyntax;
                 var operation = _context.Compilation.GetSemanticModel(syntaxReference.SyntaxTree).GetOperation(syntaxReference.Body);
-                var operationTranslatingVisitor = new OperationTranslatingVisitor(_logger, _factory);
+                var operationTranslatingVisitor = new OperationTranslatingVisitor(_logger, _factory, _methodTranslatorRegistry);
                 if (operation.Accept(operationTranslatingVisitor, null) is TsBlockSyntax blockSyntax)
                 {
                     return blockSyntax;

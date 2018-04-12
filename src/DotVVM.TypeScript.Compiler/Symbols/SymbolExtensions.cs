@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using DotVVM.Framework.Controls;
+using DotVVM.Framework.Utils;
 using DotVVM.TypeScript.Compiler.Ast;
 using DotVVM.TypeScript.Compiler.Ast.TypeScript;
 using Microsoft.CodeAnalysis;
@@ -25,7 +29,16 @@ namespace DotVVM.TypeScript.Compiler.Symbols
                 return "boolean";
             if (symbol.IsEquivalentTo(typeof(string)))
                 return "string";
+            if (symbol.IsArrayType() && symbol is INamedTypeSymbol namedType)
+            {
+                return namedType.TypeArguments.Select(t => t.GetTypescriptEquivalent()).StringJoin(",");
+            }
             return symbol.Name;
+        }
+
+        public static bool IsArrayType(this ITypeSymbol symbol)
+        {
+            return symbol.Interfaces.Any(i => i.IsEquivalentTo(typeof(IEnumerable)) || i.IsEquivalentTo(typeof(IGridViewDataSet)));
         }
 
         public static bool IsFloatingNumberType(this ITypeSymbol symbol)
@@ -47,7 +60,12 @@ namespace DotVVM.TypeScript.Compiler.Symbols
 
         public static bool IsEquivalentTo(this ISymbol symbol, Type type)
         {
-            return symbol.GetFullName() == type.FullName;
+            var typeName = type.FullName;
+            if (typeName.Contains("`"))
+            {
+                typeName = typeName.Remove(type.FullName.IndexOf('`'));
+            }
+            return symbol.GetFullName() == typeName;
         }
 
         public static string GetFullName(this ISymbol symbol)
@@ -130,6 +148,28 @@ namespace DotVVM.TypeScript.Compiler.Symbols
                 default:
                     throw new ArgumentOutOfRangeException(nameof(unaryOperator), unaryOperator, null);
             }
+        }
+
+        public static bool IsEquivalentToMethod(this IMethodSymbol symbol, MethodInfo methodInfo)
+        {
+            if (symbol.ContainingType.IsEquivalentTo(methodInfo.DeclaringType))
+            {
+                if (symbol.Parameters.Length == methodInfo.GetParameters().Length)
+                {
+                    //for (int i = 0; i < symbol.Parameters.Length; i++)
+                    //{
+                    //    var symbolParameter = symbol.Parameters[i];
+                    //    var parameterInfo = methodInfo.GetParameters()[i];
+                    //    if (symbolParameter.Type.IsEquivalentTo(parameterInfo.ParameterType) == false)
+                    //    {
+                    //        return false;
+                    //    }
+                    //}
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public static AccessModifier ToTsModifier(this Accessibility accessibility)

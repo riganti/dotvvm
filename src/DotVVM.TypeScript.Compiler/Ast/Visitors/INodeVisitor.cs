@@ -1,4 +1,6 @@
-﻿namespace DotVVM.TypeScript.Compiler.Ast.Visitors
+﻿using DotVVM.TypeScript.Compiler.Ast.TypeScript;
+
+namespace DotVVM.TypeScript.Compiler.Ast.Visitors
 {
     public interface INodeVisitor
     {
@@ -27,6 +29,8 @@
         void VisitWhileStatement(IWhileStatementSyntax whileStatement);
         void VisitPropertyReference(IPropertyReferenceSyntax tsPropertyReferenceSyntax);
         void VisitMethodCall(IMethodCallSyntax methodCall);
+        void VisitInstanceReference(IInstanceReferenceSyntax instanceReference);
+        void VisitParametrizedSyntaxNode(IRawSyntaxNode rawSyntaxNode);
     }
 
     class NodeVisitor : INodeVisitor
@@ -154,6 +158,16 @@
         public void VisitMethodCall(IMethodCallSyntax methodCall)
         {
             DefaultVisit(methodCall);
+        }
+
+        public void VisitInstanceReference(IInstanceReferenceSyntax instanceReference)
+        {
+            DefaultVisit(instanceReference);
+        }
+
+        public void VisitParametrizedSyntaxNode(IRawSyntaxNode rawSyntaxNode)
+        {
+            DefaultVisit(rawSyntaxNode);
         }
 
         protected void DefaultVisit(ISyntaxNode node)

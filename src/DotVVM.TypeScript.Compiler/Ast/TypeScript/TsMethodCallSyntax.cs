@@ -9,19 +9,25 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
 {
     public class TsMethodCallSyntax : TsExpressionSyntax, IMethodCallSyntax
     {
+        public IReferenceSyntax Object { get; set; }
         public IIdentifierSyntax Name { get; }
-        public ImmutableList<IExpressionSyntax> Parameters { get;  }
+        public ImmutableList<IExpressionSyntax> Arguments { get; private set; }
+        public void SetArguments(ImmutableList<IExpressionSyntax> arguments)
+        {
+            Arguments = arguments;
+        }
 
         public TsMethodCallSyntax(ISyntaxNode parent, IIdentifierSyntax name,
-            ImmutableList<IExpressionSyntax> parameters) : base(parent)
+            ImmutableList<IExpressionSyntax> parameters, IReferenceSyntax @object) : base(parent)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
-            Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
+            Arguments = parameters ?? throw new ArgumentNullException(nameof(parameters));
+            Object = @object;
         }
 
         public override string ToDisplayString()
         {
-            return $"{Name.ToDisplayString()}({Parameters.Select(p => p.ToDisplayString()).StringJoin(",")})";
+            return $"{Name.ToDisplayString()}({Arguments.Select(p => p.ToDisplayString()).StringJoin(",")})";
         }
 
         public override IEnumerable<ISyntaxNode> DescendantNodes()

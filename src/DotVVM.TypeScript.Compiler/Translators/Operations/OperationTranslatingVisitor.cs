@@ -17,11 +17,13 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
     {
         private readonly ILogger _logger;
         private readonly ISyntaxFactory _factory;
+        private readonly IBuiltinMethodTranslatorRegistry _methodTranslatorRegistry;
 
-        public OperationTranslatingVisitor(ILogger logger, ISyntaxFactory factory)
+        public OperationTranslatingVisitor(ILogger logger, ISyntaxFactory factory, IBuiltinMethodTranslatorRegistry methodTranslatorRegistry)
         {
             _logger = logger;
             _factory = factory;
+            _methodTranslatorRegistry = methodTranslatorRegistry;
         }
 
         public override ISyntaxNode VisitBlock(IBlockOperation blockOperation, ISyntaxNode parent)
@@ -165,20 +167,37 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
         public override ISyntaxNode VisitInvocation(IInvocationOperation operation, ISyntaxNode parent)
         {
             var method = operation.TargetMethod;
+            var arguments = new List<IExpressionSyntax>();
+            var reference = operation.Instance.Accept(this, parent) as IReferenceSyntax;
+            foreach (var argument in operation.Arguments)
+            {
+                arguments.Add(argument.Accept(this, parent) as IExpressionSyntax);
+            }
             if (method.HasAttribute<ClientSideMethodAttribute>())
             {
-                var identifier = _factory.CreateIdentifier($"this.{method.Name}", parent);
-                var parameters = new List<IExpressionSyntax>();
-                foreach (var argument in operation.Arguments)
-                {
-                    parameters.Add(argument.Accept(this, parent) as IExpressionSyntax);
-                }
-                return _factory.CreateMethodCall(identifier, parameters.ToImmutableList(), parent);
+                var identifier = _factory.CreateIdentifier($"{method.Name}", parent);
+                return _factory.CreateMethodCall(reference, identifier, arguments.ToImmutableList(), parent);
             }
             else
             {
+                var methodTranslator = _methodTranslatorRegistry.FindRegisteredMethod(operation.TargetMethod);
+                if (methodTranslator != null)
+                {
+                    return methodTranslator.Translate(operation, arguments, reference, parent);
+                }
                 throw new InvalidOperationException("You can't call methods without ClientSideMethod attribute");
             }
+        }
+
+        public override ISyntaxNode VisitParameterReference(IParameterReferenceOperation operation, ISyntaxNode parent)
+        {
+            var identifier = _factory.CreateIdentifier(operation.Parameter.Name, parent);
+            return _factory.CreateLocalVariableReference(identifier, parent);
+        }
+
+        public override ISyntaxNode VisitInstanceReference(IInstanceReferenceOperation operation, ISyntaxNode parent)
+        {
+            return _factory.CreateInstanceReference(parent);
         }
 
         public override ISyntaxNode VisitArgument(IArgumentOperation operation, ISyntaxNode parent)
@@ -195,7 +214,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
             {
                 var methodIdentifier = new TsIdentifierSyntax("Math.floor", parent);
                 var parameters = new List<IExpressionSyntax> {expression};
-                expression = new TsMethodCallSyntax(parent, methodIdentifier, parameters.ToImmutableList());
+                expression = new TsMethodCallSyntax( parent, methodIdentifier, parameters.ToImmutableList(), null);
             }
 
             var assignment = _factory.CreateAssignment(identifier, expression, parent);
