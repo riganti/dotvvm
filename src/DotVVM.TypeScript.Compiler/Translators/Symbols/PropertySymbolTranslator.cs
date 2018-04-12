@@ -1,4 +1,5 @@
 ﻿using DotVVM.TypeScript.Compiler.Ast;
+using DotVVM.TypeScript.Compiler.Ast.TypeScript;
 using DotVVM.TypeScript.Compiler.Symbols;
 using DotVVM.TypeScript.Compiler.Utils;
 using DotVVM.TypeScript.Compiler.Utils.Logging;
@@ -20,7 +21,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
             return true;
         }
 
-        public TsSyntaxNode Translate(IPropertySymbol property)
+        public ISyntaxNode Translate(IPropertySymbol property)
         {
             var modifier = TranslateModifier(property);
             var identifier = TranslateIdentifier(property);

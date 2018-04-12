@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
+using DotVVM.TypeScript.Compiler.Ast.TypeScript;
 using DotVVM.TypeScript.Compiler.Translators.Operations;
 
 namespace DotVVM.TypeScript.Compiler.Ast
 {
-    public class TsFormattingVisitor : ITsNodeVisitor
+    public class TsFormattingVisitor : INodeVisitor
     {
         public char IndentationCharacter { get; }
         public int IndentStep { get; }
@@ -71,10 +72,10 @@ namespace DotVVM.TypeScript.Compiler.Ast
             return output.ToString();
         }
 
-        public void VisitAssignmentStatement(TsAssignmentSyntax assignment)
+        public void VisitAssignmentStatement(IAssignmentSyntax assignment)
         {
             Indent();
-            if (assignment.Reference is TsPropertyReferenceSyntax propertyReference)
+            if (assignment.Reference is IPropertyReferenceSyntax propertyReference)
             {
                 propertyReference.Identifier.AcceptVisitor(this);
                 AppendOperator("(", false ,false);
@@ -85,21 +86,21 @@ namespace DotVVM.TypeScript.Compiler.Ast
                 AppendOperator("=");
             }
             assignment.Expression.AcceptVisitor(this);
-            if (assignment.Reference is TsPropertyReferenceSyntax)
+            if (assignment.Reference is IPropertyReferenceSyntax)
             {
                 AppendOperator(")", false , false);
             }
             EndStatement();
         }
 
-        public void VisitBinaryOperation(TsBinaryOperationSyntax binaryOperation)
+        public void VisitBinaryOperation(IBinaryOperationSyntax binaryOperation)
         {
             binaryOperation.LeftExpression.AcceptVisitor(this);
             AppendOperator(binaryOperation.Operator.ToDisplayString());
             binaryOperation.RightExpression.AcceptVisitor(this);
         }
 
-        public void VisitBlockStatement(TsBlockSyntax block)
+        public void VisitBlockStatement(IBlockSyntax block)
         {
             Indent();
             Append("{");
@@ -113,7 +114,7 @@ namespace DotVVM.TypeScript.Compiler.Ast
             AppendNewline();
         }
 
-        public void VisitClassDeclaration(TsClassDeclarationSyntax classDeclaration)
+        public void VisitClassDeclaration(IClassDeclarationSyntax classDeclaration)
         {
             Indent();
             Append("class");
@@ -133,7 +134,7 @@ namespace DotVVM.TypeScript.Compiler.Ast
             AppendNewline();
         }
 
-        public void VisitConditionalExpression(TsConditionalExpressionSyntax conditionalExpression)
+        public void VisitConditionalExpression(IConditionalExpressionSyntax conditionalExpression)
         {
             conditionalExpression.Condition.AcceptVisitor(this);
             AppendOperator("?");
@@ -142,7 +143,7 @@ namespace DotVVM.TypeScript.Compiler.Ast
             conditionalExpression.WhenFalse.AcceptVisitor(this);
         }
 
-        public void VisitDoWhileStatement(TsDoWhileStatementSyntax doWhileStatement)
+        public void VisitDoWhileStatement(IDoWhileStatementSyntax doWhileStatement)
         {
             Indent();
             Append("do");
@@ -157,7 +158,7 @@ namespace DotVVM.TypeScript.Compiler.Ast
             EndStatement();
         }
 
-        public void VisitForStatement(TsForStatementSyntax forStatement)
+        public void VisitForStatement(IForStatementSyntax forStatement)
         {
             Indent();
             var indent = currentIndent;
@@ -176,17 +177,17 @@ namespace DotVVM.TypeScript.Compiler.Ast
             DecreaseIndent();
         }
 
-        public void VisitIdentifierReference(TsIdentifierReferenceSyntax reference)
+        public void VisitIdentifierReference(ILocalVariableReferenceSyntax reference)
         {
             reference.Identifier.AcceptVisitor(this);
         }
 
-        public void VisitIdentifier(TsIdentifierSyntax identifier)
+        public void VisitIdentifier(IIdentifierSyntax identifier)
         {
             Append(identifier.Value);
         }
 
-        public void VisitIfStatement(TsIfStatementSyntax ifStatement)
+        public void VisitIfStatement(IIfStatementSyntax ifStatement)
         {
             Indent();
             Append("if (");
@@ -207,7 +208,7 @@ namespace DotVVM.TypeScript.Compiler.Ast
             }
         }
 
-        public void VisitIncrementOrDecrementOperation(TsIncrementOrDecrementSyntax incrementOrDecrement)
+        public void VisitIncrementOrDecrementOperation(IIncrementOrDecrementSyntax incrementOrDecrement)
         {
             var @operator = incrementOrDecrement.IsIncrement ? "++" : "--";
             if (incrementOrDecrement.IsPostfix)
@@ -222,12 +223,12 @@ namespace DotVVM.TypeScript.Compiler.Ast
             }
         }
 
-        public void VisitLiteral(TsLiteralExpressionSyntax literal)
+        public void VisitLiteral(ILiteralExpressionSyntax literal)
         {
             Append(literal.Value);
         }
 
-        public void VisitLocalVariableDeclaration(TsLocalVariableDeclarationSyntax declaration)
+        public void VisitLocalVariableDeclaration(ILocalVariableDeclarationSyntax declaration)
         {
             Indent();
             Append("let");
@@ -241,7 +242,7 @@ namespace DotVVM.TypeScript.Compiler.Ast
             EndStatement();
         }
 
-        public void VisitMethodDeclaration(TsMethodDeclarationSyntax methodDeclaration)
+        public void VisitMethodDeclaration(IMethodDeclarationSyntax methodDeclaration)
         {
             Indent();
             Append(methodDeclaration.Modifier.ToDisplayString());
@@ -261,7 +262,7 @@ namespace DotVVM.TypeScript.Compiler.Ast
             DecreaseIndent();
         }
 
-        public void VisitNamespaceDeclaration(TsNamespaceDeclarationSyntax namespaceDeclaration)
+        public void VisitNamespaceDeclaration(INamespaceDeclarationSyntax namespaceDeclaration)
         {
             Append("namespace");
             AppendSpace();
@@ -276,21 +277,21 @@ namespace DotVVM.TypeScript.Compiler.Ast
             AppendOperator("}");
         }
 
-        public void VisitParameter(TsParameterSyntax parameter)
+        public void VisitParameter(IParameterSyntax parameter)
         {
             parameter.Identifier.AcceptVisitor(this);
             AppendOperator(":");
             parameter.Type.AcceptVisitor(this);
         }
 
-        public void VisitParenthesizedExpression(TsParenthesizedExpressionSyntax expression)
+        public void VisitParenthesizedExpression(IParenthesizedExpressionSyntax expression)
         {
             Append("(");
             expression.Expression.AcceptVisitor(this);
             Append(")");
         }
 
-        public void VisitPropertyDeclaration(TsPropertyDeclarationSyntax propertyDeclaration)
+        public void VisitPropertyDeclaration(IPropertyDeclarationSyntax propertyDeclaration)
         {
             Indent();
             Append(propertyDeclaration.Modifier.ToDisplayString());
@@ -304,7 +305,7 @@ namespace DotVVM.TypeScript.Compiler.Ast
             EndStatement();
         }
 
-        public void VisitReturnStatement(TsReturnStatementSyntax returnStatement)
+        public void VisitReturnStatement(IReturnStatementSyntax returnStatement)
         {
             Indent();
             Append("return");
@@ -312,7 +313,7 @@ namespace DotVVM.TypeScript.Compiler.Ast
             EndStatement();
         }
 
-        public void VisitType(TsTypeSyntax typeSyntax)
+        public void VisitType(ITypeSyntax typeSyntax)
         {
             if(typeSyntax.EquivalentSymbol.IsValueType)
                 Append("number");
@@ -320,13 +321,13 @@ namespace DotVVM.TypeScript.Compiler.Ast
                 Append(typeSyntax.EquivalentSymbol.Name);
         }
 
-        public void VisitUnaryOperation(TsUnaryOperationSyntax unaryOperation)
+        public void VisitUnaryOperation(IUnaryOperationSyntax unaryOperation)
         {
             AppendOperator(unaryOperation.Operator.ToDisplayString(), true, false);
             unaryOperation.Operand.AcceptVisitor(this);
         }
 
-        public void VisitVariableDeclarator(TsVariableDeclaratorSyntax variableDeclarator)
+        public void VisitVariableDeclarator(IVariableDeclaratorSyntax variableDeclarator)
         {
             variableDeclarator.Identifier.AcceptVisitor(this);
             if (variableDeclarator.Expression != null)
@@ -336,7 +337,7 @@ namespace DotVVM.TypeScript.Compiler.Ast
             }
         }
 
-        public void VisitWhileStatement(TsWhileStatementSyntax whileStatement)
+        public void VisitWhileStatement(IWhileStatementSyntax whileStatement)
         {
             Indent();
             Append("while (");
@@ -347,14 +348,14 @@ namespace DotVVM.TypeScript.Compiler.Ast
             DecreaseIndent();
         }
 
-        public void VisitPropertyReference(TsPropertyReferenceSyntax tsPropertyReferenceSyntax)
+        public void VisitPropertyReference(IPropertyReferenceSyntax tsPropertyReferenceSyntax)
         {
             tsPropertyReferenceSyntax.Identifier.AcceptVisitor(this);
             Append("(");
             Append(")");
         }
 
-        public void VisitMethodCall(TsMethodCallSyntax methodCall)
+        public void VisitMethodCall(IMethodCallSyntax methodCall)
         {
             methodCall.Name.AcceptVisitor(this);
             Append("(");

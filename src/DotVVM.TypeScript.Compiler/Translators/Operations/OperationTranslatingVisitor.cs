@@ -2,6 +2,7 @@
 using System.Collections.Immutable;
 using System.Linq;
 using DotVVM.TypeScript.Compiler.Ast;
+using DotVVM.TypeScript.Compiler.Ast.TypeScript;
 using Microsoft.CodeAnalysis.Operations;
 using DotVVM.TypeScript.Compiler.Symbols;
 using DotVVM.TypeScript.Compiler.Utils;
@@ -10,7 +11,7 @@ using Microsoft.CodeAnalysis;
 
 namespace DotVVM.TypeScript.Compiler.Translators.Operations
 {
-    class OperationTranslatingVisitor : OperationVisitor<TsSyntaxNode, TsSyntaxNode>
+    class OperationTranslatingVisitor : OperationVisitor<ISyntaxNode, ISyntaxNode>
     {
         private readonly ILogger _logger;
 
@@ -19,10 +20,10 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
             _logger = logger;
         }
 
-        public override TsSyntaxNode VisitBlock(IBlockOperation blockOperation, TsSyntaxNode parent)
+        public override ISyntaxNode VisitBlock(IBlockOperation blockOperation, ISyntaxNode parent)
         {
             _logger.LogDebug("Operations", "Translating block operation.");
-            var blockSyntax = new TsBlockSyntax(parent, new List<TsStatementSyntax>());
+            var blockSyntax = new TsBlockSyntax(parent, new List<IStatementSyntax>());
             foreach (var operation in blockOperation.Operations)
             {
                 var syntaxNode = operation.Accept(this, blockSyntax);
@@ -34,16 +35,16 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
             return blockSyntax;
         }
 
-        public override TsSyntaxNode VisitExpressionStatement(IExpressionStatementOperation operation, TsSyntaxNode argument)
+        public override ISyntaxNode VisitExpressionStatement(IExpressionStatementOperation operation, ISyntaxNode argument)
         {
             _logger.LogDebug("Operations", "Translating expression operation.");
             return operation.Operation.Accept(this, argument);
         }
 
-        public override TsSyntaxNode VisitVariableDeclaration(IVariableDeclarationOperation operation, TsSyntaxNode argument)
+        public override ISyntaxNode VisitVariableDeclaration(IVariableDeclarationOperation operation, ISyntaxNode argument)
         {
             _logger.LogDebug("Operations", "Translating variable declaration operation.");
-            var declarators = new List<TsVariableDeclaratorSyntax>();
+            var declarators = new List<IVariableDeclaratorSyntax>();
             foreach (var declarator in operation.Declarators)
             {
                 var syntax = declarator.Accept(this, argument);
@@ -55,7 +56,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
             return new TsLocalVariableDeclarationSyntax(argument, declarators);
         }
 
-        public override TsSyntaxNode VisitVariableDeclarator(IVariableDeclaratorOperation operation, TsSyntaxNode argument)
+        public override ISyntaxNode VisitVariableDeclarator(IVariableDeclaratorOperation operation, ISyntaxNode argument)
         {
             _logger.LogDebug("Operations", "Translating variable declarator operation.");
             var identifier = new TsIdentifierSyntax(operation.Symbol.Name, argument);
@@ -63,24 +64,24 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
             return new TsVariableDeclaratorSyntax(argument, expression as TsExpressionSyntax, identifier);
         }
 
-        public override TsSyntaxNode VisitVariableInitializer(IVariableInitializerOperation operation, TsSyntaxNode argument)
+        public override ISyntaxNode VisitVariableInitializer(IVariableInitializerOperation operation, ISyntaxNode argument)
         {
             return operation.Value?.Accept(this, argument);
         }
 
-        public override TsSyntaxNode VisitVariableDeclarationGroup(IVariableDeclarationGroupOperation operation, TsSyntaxNode argument)
+        public override ISyntaxNode VisitVariableDeclarationGroup(IVariableDeclarationGroupOperation operation, ISyntaxNode argument)
         {
             return operation.Declarations.Single().Accept(this, argument);
         }
 
-        public override TsSyntaxNode VisitReturn(IReturnOperation operation, TsSyntaxNode argument)
+        public override ISyntaxNode VisitReturn(IReturnOperation operation, ISyntaxNode argument)
         {
             _logger.LogDebug("Operations", "Translating return operation.");
             var expression = operation.ReturnedValue?.Accept(this, argument) as TsExpressionSyntax;
             return new TsReturnStatementSyntax(argument, expression);
         }
 
-        public override TsSyntaxNode VisitIncrementOrDecrement(IIncrementOrDecrementOperation operation, TsSyntaxNode argument)
+        public override ISyntaxNode VisitIncrementOrDecrement(IIncrementOrDecrementOperation operation, ISyntaxNode argument)
         {
             _logger.LogDebug("Operations", "Translating increment or decrement operation.");
             var target = operation.Target.Accept(this, argument) as TsExpressionSyntax;
@@ -91,7 +92,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
                 isIncrement);
         }
 
-        public override TsSyntaxNode VisitForLoop(IForLoopOperation operation, TsSyntaxNode argument)
+        public override ISyntaxNode VisitForLoop(IForLoopOperation operation, ISyntaxNode argument)
         {
             _logger.LogDebug("Operations", "Translating for loop operation.");
             var beforeStatement = operation.Before.FirstOrDefault().Accept(this, argument) as TsStatementSyntax;
@@ -105,7 +106,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
                 body);
         }
 
-        public override TsSyntaxNode VisitWhileLoop(IWhileLoopOperation operation, TsSyntaxNode argument)
+        public override ISyntaxNode VisitWhileLoop(IWhileLoopOperation operation, ISyntaxNode argument)
         {
             _logger.LogDebug("Operations", "Translating while loop operation.");
             var condition = operation.Condition.Accept(this, argument) as TsExpressionSyntax;
@@ -116,7 +117,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
                 return new TsDoWhileStatementSyntax(argument, condition, body);
         }
 
-        public override TsSyntaxNode VisitConditional(IConditionalOperation operation, TsSyntaxNode argument)
+        public override ISyntaxNode VisitConditional(IConditionalOperation operation, ISyntaxNode argument)
         {
             _logger.LogDebug("Operations", "Translating conditional operation.");
             var expression = operation.Condition.Accept(this, argument) as TsExpressionSyntax;
@@ -139,7 +140,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
             }
         }
 
-        public override TsSyntaxNode VisitLiteral(ILiteralOperation operation, TsSyntaxNode argument)
+        public override ISyntaxNode VisitLiteral(ILiteralOperation operation, ISyntaxNode argument)
         {
             string value = "";
             if (operation.ConstantValue.HasValue)
@@ -149,22 +150,22 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
             return new TsLiteralExpressionSyntax(argument, value);
         }
         
-        public override TsSyntaxNode VisitSimpleAssignment(ISimpleAssignmentOperation operation, TsSyntaxNode parent)
+        public override ISyntaxNode VisitSimpleAssignment(ISimpleAssignmentOperation operation, ISyntaxNode parent)
         {
             _logger.LogDebug("Operations", "Translating simple assignment operation.");
-            var identifier = operation.Target.Accept(this, parent) as TsExpressionSyntax;
-            var expression = operation.Value.Accept(this, parent) as TsExpressionSyntax;
+            var identifier = operation.Target.Accept(this, parent) as IReferenceSyntax;
+            var expression = operation.Value.Accept(this, parent) as IExpressionSyntax;
             if (operation.Type.IsIntegerType())
             {
                 var methodIdentifier = new TsIdentifierSyntax("Math.floor", parent);
-                var parameters = new List<TsExpressionSyntax> {expression};
+                var parameters = new List<IExpressionSyntax> {expression};
                 expression = new TsMethodCallSyntax(parent,methodIdentifier , parameters.ToImmutableList());
             }
             var assignment = new TsAssignmentSyntax(parent, identifier, expression);
             return assignment;
         }
 
-        public override TsSyntaxNode VisitUnaryOperator(IUnaryOperation operation, TsSyntaxNode argument)
+        public override ISyntaxNode VisitUnaryOperator(IUnaryOperation operation, ISyntaxNode argument)
         {
             _logger.LogDebug("Operations", "Translating unary operation.");
             var operand = operation.Operand.Accept(this, argument) as TsExpressionSyntax;
@@ -172,7 +173,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
             return new TsUnaryOperationSyntax(argument, operand, unaryOperator);
         }
 
-        public override TsSyntaxNode VisitBinaryOperator(IBinaryOperation operation, TsSyntaxNode parent)
+        public override ISyntaxNode VisitBinaryOperator(IBinaryOperation operation, ISyntaxNode parent)
         {
             _logger.LogDebug("Operations", "Translating binary operation.");
             var left = operation.LeftOperand.Accept(this, parent) as TsExpressionSyntax;
@@ -189,14 +190,14 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
             return new TsBinaryOperationSyntax(parent, left, right, binaryOperator);
         }
 
-        public override TsSyntaxNode VisitLocalReference(ILocalReferenceOperation operation, TsSyntaxNode argument)
+        public override ISyntaxNode VisitLocalReference(ILocalReferenceOperation operation, ISyntaxNode argument)
         {
             _logger.LogDebug("Operations", "Translating local reference operation.");
             var identifier = new TsIdentifierSyntax(operation.Local.Name, argument);
-            return new TsIdentifierReferenceSyntax(argument, identifier);
+            return new TsLocalVariableReferenceSyntax(argument, identifier);
         }
 
-        public override TsSyntaxNode VisitPropertyReference(IPropertyReferenceOperation operation, TsSyntaxNode parent)
+        public override ISyntaxNode VisitPropertyReference(IPropertyReferenceOperation operation, ISyntaxNode parent)
         {
             _logger.LogDebug("Operations", "Translating property reference operation.");
             var identifier = new TsIdentifierSyntax($"this.{operation.Property.Name}", parent);

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using DotVVM.TypeScript.Compiler.Ast;
+using DotVVM.TypeScript.Compiler.Ast.TypeScript;
 using Microsoft.CodeAnalysis;
 
 namespace DotVVM.TypeScript.Compiler.Translators.Symbols
@@ -13,10 +14,10 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
             return true;
         }
 
-        public TsSyntaxNode Translate(INamespaceSymbol input)
+        public ISyntaxNode Translate(INamespaceSymbol input)
         {
             var identifier = new TsIdentifierSyntax(input.ToDisplayString(), null);
-            var types = new List<TsClassDeclarationSyntax>();
+            var types = new List<IMemberDeclarationSyntax>();
             return new TsNamespaceDeclarationSyntax(null, identifier, types);
         }
     }

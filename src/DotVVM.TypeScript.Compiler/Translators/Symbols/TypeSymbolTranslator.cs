@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.ViewModel;
 using DotVVM.TypeScript.Compiler.Ast;
+using DotVVM.TypeScript.Compiler.Ast.TypeScript;
 using DotVVM.TypeScript.Compiler.Symbols;
 using DotVVM.TypeScript.Compiler.Utils;
 using DotVVM.TypeScript.Compiler.Utils.Logging;
@@ -27,33 +28,22 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
             throw new NotImplementedException();
         }
 
-        public TsSyntaxNode Translate(INamedTypeSymbol input)
+        public ISyntaxNode Translate(INamedTypeSymbol input)
         {
             var propertySymbols = input.GetMembers().OfType<IPropertySymbol>();
             var members = propertySymbols
                 .Where(p => _translatorsEvidence.ResolveTranslator(p).CanTranslate(p))
                 .Select(p => _translatorsEvidence.ResolveTranslator(p).Translate(p))
-                .OfType<TsMemberDeclarationSyntax>();
+                .OfType<IMemberDeclarationSyntax>();
             var methods = input.GetMembers()
                 .OfType<IMethodSymbol>()
                 .Where(m => m.HasAttribute<ClientSideMethodAttribute>())
                 .Where(p => _translatorsEvidence.ResolveTranslator(p).CanTranslate(p))
                 .Select(p => _translatorsEvidence.ResolveTranslator(p).Translate(p))
-                .OfType<TsMemberDeclarationSyntax>();
+                .OfType<IMemberDeclarationSyntax>();
             members = members.Concat(methods);
             _logger.LogInfo("Symbols", $"Translating class {input.Name}");
-            return new TsClassDeclarationSyntax(new TsIdentifierSyntax(input.Name, null), members.ToList(), new List<TsIdentifierSyntax>(), null);
-        }
-
-
-        void Test()
-        {
-            var strin = "";
-            var syntaxTree = CSharpSyntaxTree.ParseText(strin)
-                .GetRoot()
-                .NormalizeWhitespace()
-                .SyntaxTree;
-            
+            return new TsClassDeclarationSyntax(new TsIdentifierSyntax(input.Name, null), members.ToList(), new List<IIdentifierSyntax>(), null);
         }
     }
 }

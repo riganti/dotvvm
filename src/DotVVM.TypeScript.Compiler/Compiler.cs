@@ -10,6 +10,7 @@ using Buildalyzer;
 using Buildalyzer.Workspaces;
 using DotVVM.Framework.Utils;
 using DotVVM.TypeScript.Compiler.Ast;
+using DotVVM.TypeScript.Compiler.Ast.TypeScript;
 using DotVVM.TypeScript.Compiler.Symbols;
 using DotVVM.TypeScript.Compiler.Symbols.Filters;
 using DotVVM.TypeScript.Compiler.Symbols.Registries;
@@ -68,13 +69,13 @@ namespace DotVVM.TypeScript.Compiler
             return string.Empty;
         }
 
-        private async Task<IEnumerable<string>> StoreViewModels(List<TsSyntaxNode> translatedViewModels)
+        private async Task<IEnumerable<string>> StoreViewModels(List<ISyntaxNode> translatedViewModels)
         {
             var filesList = new List<string>();
             var basePath = FindProjectBasePath();
             foreach (var viewModel in translatedViewModels)
             {
-                if (viewModel is TsNamespaceDeclarationSyntax namespaceDeclaration)
+                if (viewModel is INamespaceDeclarationSyntax namespaceDeclaration)
                 {
                     var @class = namespaceDeclaration.Types.First();
                     
@@ -101,7 +102,7 @@ namespace DotVVM.TypeScript.Compiler
             return basePath;
         }
 
-        private List<TsSyntaxNode> TranslateViewModels()
+        private List<ISyntaxNode> TranslateViewModels()
         {
             return typeRegistry.Types.Select(t
                 => {

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using DotVVM.TypeScript.Compiler.Ast;
+using DotVVM.TypeScript.Compiler.Ast.TypeScript;
 using DotVVM.TypeScript.Compiler.Symbols;
 using DotVVM.TypeScript.Compiler.Translators.Operations;
 using DotVVM.TypeScript.Compiler.Utils;
@@ -29,7 +30,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
             return true;
         }
 
-        public TsSyntaxNode Translate(IMethodSymbol input)
+        public ISyntaxNode Translate(IMethodSymbol input)
         {
             var parameters = TranslateParameters(input);
             var identifier = TranslateIdentifier(input);
@@ -44,7 +45,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
                 null);
         }
 
-        private TsBlockSyntax TranslateBody(IMethodSymbol input)
+        private IBlockSyntax TranslateBody(IMethodSymbol input)
         {
             if (input.DeclaringSyntaxReferences.Any())
             {
@@ -56,7 +57,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
                     return blockSyntax;
                 }
             }
-            return new TsBlockSyntax(null, new List<TsStatementSyntax>());
+            return new TsBlockSyntax(null, new List<IStatementSyntax>());
         }
 
         private TsModifier TranslateModifier(IMethodSymbol input)
@@ -65,12 +66,12 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
         }
 
         
-        private TsIdentifierSyntax TranslateIdentifier(IMethodSymbol input)
+        private IIdentifierSyntax TranslateIdentifier(IMethodSymbol input)
         {
             return new TsIdentifierSyntax(input.Name, null);
         }
 
-        private IEnumerable<TsParameterSyntax> TranslateParameters(IMethodSymbol input)
+        private IEnumerable<IParameterSyntax> TranslateParameters(IMethodSymbol input)
         {
             return input.Parameters.Select(p => _translatorsEvidence.ResolveTranslator(p).Translate(p)).OfType<TsParameterSyntax>();
         }

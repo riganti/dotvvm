@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using DotVVM.TypeScript.Compiler.Ast;
+using DotVVM.TypeScript.Compiler.Ast.TypeScript;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Operations;
 
@@ -43,21 +44,21 @@ namespace DotVVM.TypeScript.Compiler.Symbols
             return $"{symbol.ContainingNamespace.ToString()}.{symbol.Name}";
         }
 
-        public static TsBinaryOperator ToTsBinaryOperator(this BinaryOperatorKind binaryOperator)
+        public static BinaryOperator ToTsBinaryOperator(this BinaryOperatorKind binaryOperator)
         {
             switch (binaryOperator)
             {
                 case BinaryOperatorKind.Add:
-                    return TsBinaryOperator.Add;
+                    return BinaryOperator.Add;
                 case BinaryOperatorKind.Subtract:
-                    return TsBinaryOperator.Subtract;
+                    return BinaryOperator.Subtract;
                 case BinaryOperatorKind.Multiply:
-                    return TsBinaryOperator.Multiply;
+                    return BinaryOperator.Multiply;
                 case BinaryOperatorKind.Divide:
                 case BinaryOperatorKind.IntegerDivide:
-                    return TsBinaryOperator.Divide;
+                    return BinaryOperator.Divide;
                 case BinaryOperatorKind.Remainder:
-                    return TsBinaryOperator.Remainder;
+                    return BinaryOperator.Remainder;
                 case BinaryOperatorKind.Power:
                     throw new NotSupportedException("Operator Power is not supported.");
                 case BinaryOperatorKind.LeftShift:
@@ -65,33 +66,33 @@ namespace DotVVM.TypeScript.Compiler.Symbols
                 case BinaryOperatorKind.RightShift:
                     throw new NotSupportedException("Operator right shift is not supported.");
                 case BinaryOperatorKind.And:
-                    return TsBinaryOperator.And;
+                    return BinaryOperator.And;
                 case BinaryOperatorKind.Or:
-                    return TsBinaryOperator.Or;
+                    return BinaryOperator.Or;
                 case BinaryOperatorKind.ExclusiveOr:
-                    return TsBinaryOperator.ExclusiveOr;
+                    return BinaryOperator.ExclusiveOr;
                 case BinaryOperatorKind.ConditionalAnd:
-                    return TsBinaryOperator.ConditionalAnd;
+                    return BinaryOperator.ConditionalAnd;
                 case BinaryOperatorKind.ConditionalOr:
-                    return TsBinaryOperator.ConditionalOr;
+                    return BinaryOperator.ConditionalOr;
                 case BinaryOperatorKind.Concatenate:
-                    return TsBinaryOperator.Add;
+                    return BinaryOperator.Add;
                 case BinaryOperatorKind.Equals:
-                    return TsBinaryOperator.Equals;
+                    return BinaryOperator.Equals;
                 case BinaryOperatorKind.ObjectValueEquals:
-                    return TsBinaryOperator.ObjectValueEquals;
+                    return BinaryOperator.ObjectValueEquals;
                 case BinaryOperatorKind.NotEquals:
-                    return TsBinaryOperator.NotEquals;
+                    return BinaryOperator.NotEquals;
                 case BinaryOperatorKind.ObjectValueNotEquals:
-                    return TsBinaryOperator.ObjectValueNotEquals;
+                    return BinaryOperator.ObjectValueNotEquals;
                 case BinaryOperatorKind.LessThan:
-                    return TsBinaryOperator.LessThan;
+                    return BinaryOperator.LessThan;
                 case BinaryOperatorKind.LessThanOrEqual:
-                    return TsBinaryOperator.LessThanOrEqual;
+                    return BinaryOperator.LessThanOrEqual;
                 case BinaryOperatorKind.GreaterThanOrEqual:
-                    return TsBinaryOperator.GreaterThanOrEqual;
+                    return BinaryOperator.GreaterThanOrEqual;
                 case BinaryOperatorKind.GreaterThan:
-                    return TsBinaryOperator.GreaterThan;
+                    return BinaryOperator.GreaterThan;
                 case BinaryOperatorKind.Like:
                     throw new NotSupportedException("Operator like is not currently supported");
                 default:
@@ -99,22 +100,22 @@ namespace DotVVM.TypeScript.Compiler.Symbols
             }
         }
 
-        public static TsUnaryOperator ToTsUnaryOperator(this UnaryOperatorKind unaryOperator)
+        public static UnaryOperator ToTsUnaryOperator(this UnaryOperatorKind unaryOperator)
         {
             switch (unaryOperator)
             {
                 case UnaryOperatorKind.BitwiseNegation:
-                    return TsUnaryOperator.BitwiseNegation;
+                    return UnaryOperator.BitwiseNegation;
                 case UnaryOperatorKind.Not:
-                    return TsUnaryOperator.Not;
+                    return UnaryOperator.Not;
                 case UnaryOperatorKind.Plus:
-                    return TsUnaryOperator.Plus;
+                    return UnaryOperator.Plus;
                 case UnaryOperatorKind.Minus:
-                    return TsUnaryOperator.Minus;
+                    return UnaryOperator.Minus;
                 case UnaryOperatorKind.True:
-                    return TsUnaryOperator.True;
+                    return UnaryOperator.True;
                 case UnaryOperatorKind.False:
-                    return TsUnaryOperator.False;
+                    return UnaryOperator.False;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(unaryOperator), unaryOperator, null);
             }

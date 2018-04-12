@@ -1,4 +1,5 @@
 ﻿using DotVVM.TypeScript.Compiler.Ast;
+using DotVVM.TypeScript.Compiler.Ast.TypeScript;
 using DotVVM.TypeScript.Compiler.Utils;
 using DotVVM.TypeScript.Compiler.Utils.Logging;
 using Microsoft.CodeAnalysis;
@@ -19,7 +20,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
             return true;
         }
 
-        public TsSyntaxNode Translate(IParameterSymbol input)
+        public ISyntaxNode Translate(IParameterSymbol input)
         {
             _logger.LogInfo("Symbols", $"Translating method parameter {input.Name}");
             return new TsParameterSyntax(null, new TsTypeSyntax(input.Type, null), new TsIdentifierSyntax(input.Name, null) );
