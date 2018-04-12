@@ -5,21 +5,21 @@ class MathematicalOperationsViewModel {
     public Result: KnockoutObservable<number>;
     public Sum() {
         let result = this.Left() + this.Right();
-        this.Result(result);
+        this.Result(Math.floor(result));
     }
     public Divide() {
         if (this.Right() == 0)
             return;
-        this.Result(this.Left() / this.Right());
+        this.Result(Math.floor(this.Left() / this.Right()));
     }
     public Fibonacci() {
         let a = 0;
         let b = 1;
         for (let i = 0; i < this.Right(); i++) {
             let temp = a;
-            a = b;
-            b = temp + b;
+            a = Math.floor(b);
+            b = Math.floor(temp + b);
         }
-        this.Result(a);
+        this.Result(Math.floor(a));
     }
 }

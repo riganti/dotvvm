@@ -1,0 +1,27 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethods.MultipleTypeOperationsViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Client side methods - Multiple type operations</title>
+</head>
+<body>
+    <dot:Literal Text="{value: Title}" /><br />
+    <dot:Literal Text="{value: Number}" /><br />
+    <dot:Button Text="Increase" Click="{command: Increase()}" />
+    <dot:Button Text="Decrease" Click="{command: Decrease()}" />
+    <dot:Button Text="Reset" Click="{command: Reset()}" />
+    <hr/>
+
+
+    <div Visible="{value: IsVisible}">
+        Hide me!
+    </div>
+    
+    <dot:Button Text="Hide" Click="{command: Hide()}" />
+    <dot:Button Text="Show me!" Click="{command: Show()}" />
+</body>
+</html>
+
