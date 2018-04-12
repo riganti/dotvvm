@@ -88,7 +88,6 @@ namespace DotVVM.TypeScript.Compiler.Ast.Visitors
             {
                 AppendOperator(")", false , false);
             }
-            EndStatement();
         }
 
         public void VisitBinaryOperation(IBinaryOperationSyntax binaryOperation)
@@ -106,6 +105,7 @@ namespace DotVVM.TypeScript.Compiler.Ast.Visitors
             foreach (var statement in block.Statements)
             {
                 statement.AcceptVisitor(this);
+                EndStatement();
             }
             Indent();
             Append("}");
@@ -153,7 +153,6 @@ namespace DotVVM.TypeScript.Compiler.Ast.Visitors
             Append("while(");
             doWhileStatement.Condition.AcceptVisitor(this);
             Append(")");
-            EndStatement();
         }
 
         public void VisitForStatement(IForStatementSyntax forStatement)
@@ -164,8 +163,9 @@ namespace DotVVM.TypeScript.Compiler.Ast.Visitors
             appendNewLines = false;
             Append("for(");
             forStatement.BeforeStatement.AcceptVisitor(this);
+            Append(";");
             forStatement.Condition.AcceptVisitor(this);
-            EndStatement();
+            Append(";");
             forStatement.AfterExpression.AcceptVisitor(this);
             Append(")");
             appendNewLines = true;
@@ -237,7 +237,6 @@ namespace DotVVM.TypeScript.Compiler.Ast.Visitors
                 if(declarator != declaration.Declarators.Last())
                     AppendOperator(",");
             }
-            EndStatement();
         }
 
         public void VisitMethodDeclaration(IMethodDeclarationSyntax methodDeclaration)
@@ -308,7 +307,6 @@ namespace DotVVM.TypeScript.Compiler.Ast.Visitors
             Indent();
             Append("return");
             returnStatement.Expression?.AcceptVisitor(this);
-            EndStatement();
         }
 
         public void VisitType(ITypeSyntax typeSyntax)

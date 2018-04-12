@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using DotVVM.Framework.ViewModel;
 using DotVVM.TypeScript.Compiler.Ast;
 using DotVVM.TypeScript.Compiler.Ast.Factories;
 using DotVVM.TypeScript.Compiler.Ast.TypeScript;
@@ -132,7 +134,35 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
         {
             var value = "";
             if (operation.ConstantValue.HasValue) value = operation.ConstantValue.ToString();
+            if (operation.Type.IsEquivalentTo(typeof(string)))
+            {
+                value = $"'{value}'";
+            }
             return _factory.CreateLiteralExpression(value, parent);
+        }
+
+        public override ISyntaxNode VisitInvocation(IInvocationOperation operation, ISyntaxNode parent)
+        {
+            var method = operation.TargetMethod;
+            if (method.HasAttribute<ClientSideMethodAttribute>())
+            {
+                var identifier = _factory.CreateIdentifier($"this.{method.Name}", parent);
+                var parameters = new List<IExpressionSyntax>();
+                foreach (var argument in operation.Arguments)
+                {
+                    parameters.Add(argument.Accept(this, parent) as IExpressionSyntax);
+                }
+                return _factory.CreateMethodCall(identifier, parameters.ToImmutableList(), parent);
+            }
+            else
+            {
+                throw new InvalidOperationException("You can't call methods without ClientSideMethod attribute");
+            }
+        }
+
+        public override ISyntaxNode VisitArgument(IArgumentOperation operation, ISyntaxNode parent)
+        {
+            return operation.Value.Accept(this, parent);
         }
 
         public override ISyntaxNode VisitSimpleAssignment(ISimpleAssignmentOperation operation, ISyntaxNode parent)
@@ -170,6 +200,11 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
             return _factory.CreateBinaryOperation(left, binaryOperator, right, parent);
         }
 
+        public override ISyntaxNode VisitConversion(IConversionOperation operation, ISyntaxNode argument)
+        {
+            return operation.Operand.Accept(this, argument);
+        }
+
         public override ISyntaxNode VisitLocalReference(ILocalReferenceOperation operation, ISyntaxNode parent)
         {
             _logger.LogDebug("Operations", "Translating local reference operation.");
@@ -180,7 +215,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
         public override ISyntaxNode VisitPropertyReference(IPropertyReferenceOperation operation, ISyntaxNode parent)
         {
             _logger.LogDebug("Operations", "Translating property reference operation.");
-            var identifier = _factory.CreateIdentifier(operation.Property.Name, parent);
+            var identifier = _factory.CreateIdentifier($"this.{operation.Property.Name}", parent);
             return _factory.CreatePropertyReferenceSyntax(identifier, parent);
         }
     }

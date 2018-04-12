@@ -19,9 +19,20 @@ namespace DotVVM.TypeScript.Compiler.Symbols
 
         public static string GetTypescriptEquivalent(this ITypeSymbol symbol)
         {
-            if (symbol.IsIntegerType())
+            if (symbol.IsIntegerType() || symbol.IsFloatingNumberType())
                 return "number";
-            return null;
+            if (symbol.IsEquivalentTo(typeof(bool)))
+                return "boolean";
+            if (symbol.IsEquivalentTo(typeof(string)))
+                return "string";
+            return symbol.Name;
+        }
+
+        public static bool IsFloatingNumberType(this ITypeSymbol symbol)
+        {
+            return symbol.IsEquivalentTo(typeof(float))
+                   || symbol.IsEquivalentTo(typeof(double))
+                   || symbol.IsEquivalentTo(typeof(decimal));
         }
 
         public static bool IsIntegerType(this ITypeSymbol symbol)
