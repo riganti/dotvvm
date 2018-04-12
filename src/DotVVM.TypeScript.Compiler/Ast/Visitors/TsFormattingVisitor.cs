@@ -1,10 +1,8 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Text;
 using DotVVM.TypeScript.Compiler.Ast.TypeScript;
-using DotVVM.TypeScript.Compiler.Translators.Operations;
 
-namespace DotVVM.TypeScript.Compiler.Ast
+namespace DotVVM.TypeScript.Compiler.Ast.Visitors
 {
     public class TsFormattingVisitor : INodeVisitor
     {

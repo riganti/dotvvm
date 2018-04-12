@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using DotVVM.TypeScript.Compiler.Ast.TypeScript;
-using DotVVM.TypeScript.Compiler.Translators.Operations;
-
-namespace DotVVM.TypeScript.Compiler.Ast
+﻿namespace DotVVM.TypeScript.Compiler.Ast.Visitors
 {
     public interface INodeVisitor
     {

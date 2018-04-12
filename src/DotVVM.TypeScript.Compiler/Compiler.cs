@@ -10,7 +10,9 @@ using Buildalyzer;
 using Buildalyzer.Workspaces;
 using DotVVM.Framework.Utils;
 using DotVVM.TypeScript.Compiler.Ast;
+using DotVVM.TypeScript.Compiler.Ast.Factories;
 using DotVVM.TypeScript.Compiler.Ast.TypeScript;
+using DotVVM.TypeScript.Compiler.Ast.Visitors;
 using DotVVM.TypeScript.Compiler.Symbols;
 using DotVVM.TypeScript.Compiler.Symbols.Filters;
 using DotVVM.TypeScript.Compiler.Symbols.Registries;
@@ -30,6 +32,7 @@ namespace DotVVM.TypeScript.Compiler
         private readonly TranslatorsEvidence _translatorsEvidence;
         private readonly IFileStore _fileStore;
         private readonly ILogger _logger;
+        private readonly ISyntaxFactory _factory;
         private CompilerContext _compilerContext;
 
         public Compiler(CompilerArguments compilerArguments, IFileStore fileStore, ILogger logger)
@@ -37,6 +40,7 @@ namespace DotVVM.TypeScript.Compiler
             this.compilerArguments = compilerArguments;
             _fileStore = fileStore;
             _logger = logger;
+            _factory = new TypeScriptSyntaxFactory();
             this.typeRegistry = new TypeRegistry();
             this._translatorsEvidence = new TranslatorsEvidence(_logger);
         }
@@ -128,11 +132,11 @@ namespace DotVVM.TypeScript.Compiler
 
         public void RegisterTranslators(CompilerContext compilerContext)
         {
-            _translatorsEvidence.RegisterTranslator(() => new MethodSymbolTranslator(_logger, _translatorsEvidence, compilerContext));
-            _translatorsEvidence.RegisterTranslator(() => new PropertySymbolTranslator(_logger));
-            _translatorsEvidence.RegisterTranslator(() => new ParameterSymbolTranslator(_logger));
-            _translatorsEvidence.RegisterTranslator(() => new TypeSymbolTranslator(_logger, _translatorsEvidence));
-            _translatorsEvidence.RegisterTranslator(() => new NamespaceSymbolTranslator());
+            _translatorsEvidence.RegisterTranslator(() => new MethodSymbolTranslator(_logger, _translatorsEvidence, compilerContext, _factory));
+            _translatorsEvidence.RegisterTranslator(() => new PropertySymbolTranslator(_logger, _factory));
+            _translatorsEvidence.RegisterTranslator(() => new ParameterSymbolTranslator(_logger, _factory));
+            _translatorsEvidence.RegisterTranslator(() => new TypeSymbolTranslator(_logger, _translatorsEvidence, _factory));
+            _translatorsEvidence.RegisterTranslator(() => new NamespaceSymbolTranslator(_factory));
         }
 
         private async Task<CompilerContext> CreateCompilerContext()

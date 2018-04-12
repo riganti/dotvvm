@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotVVM.TypeScript.Compiler.Ast.Visitors;
 using Microsoft.CodeAnalysis;
 
 namespace DotVVM.TypeScript.Compiler.Ast.TypeScript

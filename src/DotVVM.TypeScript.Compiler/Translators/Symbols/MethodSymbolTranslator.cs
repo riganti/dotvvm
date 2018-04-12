@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using DotVVM.TypeScript.Compiler.Ast;
+using DotVVM.TypeScript.Compiler.Ast.Factories;
 using DotVVM.TypeScript.Compiler.Ast.TypeScript;
 using DotVVM.TypeScript.Compiler.Symbols;
 using DotVVM.TypeScript.Compiler.Translators.Operations;
@@ -16,13 +17,15 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
         private readonly ILogger _logger;
         private readonly TranslatorsEvidence _translatorsEvidence;
         private readonly CompilerContext _context;
+        private readonly ISyntaxFactory _factory;
 
         public MethodSymbolTranslator(ILogger logger, TranslatorsEvidence translatorsEvidence,
-            CompilerContext context)
+            CompilerContext context, ISyntaxFactory factory)
         {
             _logger = logger;
             _translatorsEvidence = translatorsEvidence;
             _context = context;
+            _factory = factory;
         }
 
         public bool CanTranslate(IMethodSymbol input)
@@ -37,11 +40,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
             var modifier = TranslateModifier(input);
             var bodyBlock = TranslateBody(input);
             _logger.LogInfo("Symbols", $"Translating method {input.Name}");
-            return new TsMethodDeclarationSyntax(modifier,
-                identifier,
-                null,
-                bodyBlock,
-                parameters.ToList());
+            return _factory.CreateMethodDeclaration(modifier, identifier, null, bodyBlock, parameters.ToList());
         }
 
         private IBlockSyntax TranslateBody(IMethodSymbol input)
@@ -50,7 +49,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
             {
                 var syntaxReference = input.DeclaringSyntaxReferences.First().GetSyntax() as MethodDeclarationSyntax;
                 var operation = _context.Compilation.GetSemanticModel(syntaxReference.SyntaxTree).GetOperation(syntaxReference.Body);
-                var operationTranslatingVisitor = new OperationTranslatingVisitor(_logger);
+                var operationTranslatingVisitor = new OperationTranslatingVisitor(_logger, _factory);
                 if (operation.Accept(operationTranslatingVisitor, null) is TsBlockSyntax blockSyntax)
                 {
                     return blockSyntax;
@@ -67,7 +66,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
         
         private IIdentifierSyntax TranslateIdentifier(IMethodSymbol input)
         {
-            return new TsIdentifierSyntax(input.Name, null);
+            return _factory.CreateIdentifier(input.Name, null);
         }
 
         private IEnumerable<IParameterSyntax> TranslateParameters(IMethodSymbol input)

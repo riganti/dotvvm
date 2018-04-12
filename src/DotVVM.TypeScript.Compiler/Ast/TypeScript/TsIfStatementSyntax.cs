@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using DotVVM.TypeScript.Compiler.Ast.Visitors;
 
 namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
 {
@@ -16,7 +17,7 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
             ConditionalExpression =
                 conditionalExpression ?? throw new ArgumentNullException(nameof(conditionalExpression));
             TrueStatement = trueStatement ?? throw new ArgumentNullException(nameof(trueStatement));
-            FalseStatement = falseStatement ?? throw new ArgumentNullException(nameof(falseStatement));
+            FalseStatement = falseStatement;
         }
 
         public override string ToDisplayString()
