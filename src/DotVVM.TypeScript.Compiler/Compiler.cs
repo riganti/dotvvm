@@ -36,6 +36,7 @@ namespace DotVVM.TypeScript.Compiler
         private readonly ILogger _logger;
         private readonly ISyntaxFactory _factory;
         private readonly IBuiltinMethodTranslatorRegistry _methodTranslatorRegistry;
+        private readonly IBuiltinPropertyTranslatorRegistry _propertyTranslatorRegistry;
         private CompilerContext _compilerContext;
 
         public Compiler(CompilerArguments compilerArguments, IFileStore fileStore, ILogger logger)
@@ -45,6 +46,7 @@ namespace DotVVM.TypeScript.Compiler
             _logger = logger;
             _factory = new TypeScriptSyntaxFactory();
             _methodTranslatorRegistry = new BuiltinMethodTranslatorRegistry();
+            _propertyTranslatorRegistry = new BuiltinPropertyTranslatorRegistry();
             this.typeRegistry = new TypeRegistry();
             this._translatorsEvidence = new TranslatorsEvidence(_logger);
         }
@@ -55,6 +57,7 @@ namespace DotVVM.TypeScript.Compiler
             _compilerContext = await CreateCompilerContext();
             RegisterTranslators(_compilerContext);
             RegisterBuiltinMethods();
+            RegisterBuiltinProperties();
             FindTranslatableViewModels(_compilerContext);
 
             TranslateViewModels();
@@ -63,11 +66,15 @@ namespace DotVVM.TypeScript.Compiler
             var outputFilePath = CompileTypescript(typescriptViewModels);
         }
 
+        private void RegisterBuiltinProperties()
+        {
+        }
+
         private void RegisterBuiltinMethods()
         {
-            _methodTranslatorRegistry.RegisterMethod(typeof(List<>).GetMethod("Remove"), new ListRemoveMethodTranslator(_factory));
-            _methodTranslatorRegistry.RegisterMethod(typeof(List<>).GetMethod("Add"), new ListAddMethodTranslator(_factory));
-            _methodTranslatorRegistry.RegisterMethod(typeof(List<>).GetMethod("Clear"), new ListClearMethodTranslator(_factory));
+            _methodTranslatorRegistry.RegisterTranslator(typeof(List<>).GetMethod("Remove"), new ListRemoveMethodTranslator(_factory));
+            _methodTranslatorRegistry.RegisterTranslator(typeof(List<>).GetMethod("Add"), new ListAddMethodTranslator(_factory));
+            _methodTranslatorRegistry.RegisterTranslator(typeof(List<>).GetMethod("Clear"), new ListClearMethodTranslator(_factory));
         }
 
         public void RegisterTranslators(CompilerContext compilerContext)

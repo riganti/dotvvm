@@ -208,6 +208,19 @@ namespace DotVVM.TypeScript.Compiler.Symbols
             return false;
         }
 
+        public static bool IsEquivalentToProperty(this IPropertySymbol symbol, PropertyInfo propertyInfo)
+        {
+            if (symbol.Name == propertyInfo.Name)
+            {
+                if (symbol.ContainingType.IsEquivalentTo(propertyInfo.DeclaringType))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public static AccessModifier ToTsModifier(this Accessibility accessibility)
         {
             switch (accessibility)

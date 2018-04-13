@@ -180,7 +180,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
             }
             else
             {
-                var methodTranslator = _methodTranslatorRegistry.FindRegisteredMethod(operation.TargetMethod);
+                var methodTranslator = _methodTranslatorRegistry.FindRegisteredTranslator(operation.TargetMethod);
                 if (methodTranslator != null)
                 {
                     return methodTranslator.Translate(operation, arguments, reference, parent);

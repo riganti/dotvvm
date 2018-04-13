@@ -10,7 +10,7 @@ namespace DotVVM.TypeScript.Compiler.Translators
     {
         private readonly Dictionary<MethodInfo, IMethodCallTranslator> _registeredMethods = new Dictionary<MethodInfo, IMethodCallTranslator>();
 
-        public IMethodCallTranslator FindRegisteredMethod(IMethodSymbol methodSymbol)
+        public IMethodCallTranslator FindRegisteredTranslator(IMethodSymbol methodSymbol)
         {
             var result = _registeredMethods.Where(pair => methodSymbol.IsEquivalentToMethod(pair.Key))
                 .Select(e => (KeyValuePair<MethodInfo, IMethodCallTranslator>?)e)
@@ -19,7 +19,7 @@ namespace DotVVM.TypeScript.Compiler.Translators
             return result?.Value;
         }
         
-        public void RegisterMethod(MethodInfo methodInfo, IMethodCallTranslator equivalent)
+        public void RegisterTranslator(MethodInfo methodInfo, IMethodCallTranslator equivalent)
         {
             _registeredMethods.Add(methodInfo, equivalent);
         }

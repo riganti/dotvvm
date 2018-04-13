@@ -6,7 +6,7 @@ namespace DotVVM.TypeScript.Compiler.Translators
 {
     interface IBuiltinMethodTranslatorRegistry
     {
-        IMethodCallTranslator FindRegisteredMethod(IMethodSymbol methodSymbol);
-        void RegisterMethod(MethodInfo methodInfo, IMethodCallTranslator equivalent);
+        IMethodCallTranslator FindRegisteredTranslator(IMethodSymbol methodSymbol);
+        void RegisterTranslator(MethodInfo methodInfo, IMethodCallTranslator equivalent);
     }
 }
