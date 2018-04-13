@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using DotVVM.TypeScript.Compiler.Ast;
 using DotVVM.TypeScript.Compiler.Ast.Factories;
 using Microsoft.CodeAnalysis.Operations;
@@ -20,7 +21,7 @@ namespace DotVVM.TypeScript.Compiler.Translators
         public ISyntaxNode Translate(IInvocationOperation operation, List<IExpressionSyntax> arguments, IReferenceSyntax reference, ISyntaxNode parent)
         {
             var format = $"{reference.ToDisplayString()}.push(ko.observable({arguments.Single().ToDisplayString()}))";
-            return _factory.CreateParametrizedSyntaxNode(format, parent);
+            return _factory.CreateRawSyntaxNode(format, parent);
         }
     }
 }

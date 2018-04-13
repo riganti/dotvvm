@@ -19,7 +19,7 @@ namespace DotVVM.TypeScript.Compiler.Translators
         public ISyntaxNode Translate(IInvocationOperation operation, List<IExpressionSyntax> arguments, IReferenceSyntax reference, ISyntaxNode parent)
         {
             var format = $"{reference.ToDisplayString()}.remove(function (item) {{ var rawItem = ko.unwrap(item); return rawItem == {arguments.Single().ToDisplayString()};}})";
-            return _factory.CreateParametrizedSyntaxNode(format, parent);
+            return _factory.CreateRawSyntaxNode(format, parent);
         }
     }
 }

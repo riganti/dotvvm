@@ -31,7 +31,7 @@ namespace DotVVM.TypeScript.Compiler.Ast.Factories
         ILocalVariableReferenceSyntax CreateLocalVariableReference(IIdentifierSyntax identififer, ISyntaxNode parent);
         ILocalVariableDeclarationSyntax CreateLocalVariableDeclaration(IList<IVariableDeclaratorSyntax> declarators,
             ISyntaxNode parent);
-        IRawSyntaxNode CreateParametrizedSyntaxNode(string value, ISyntaxNode parent);
+        IRawSyntaxNode CreateRawSyntaxNode(string value, ISyntaxNode parent);
         IMethodDeclarationSyntax CreateMethodDeclaration(AccessModifier modifier, IIdentifierSyntax identifier,
             ISyntaxNode parent, IBlockSyntax body, IList<IParameterSyntax> parameters);
         IMethodCallSyntax CreateMethodCall(IReferenceSyntax @object, IIdentifierSyntax name, ImmutableList<IExpressionSyntax> parameters,

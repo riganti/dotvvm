@@ -83,7 +83,7 @@ namespace DotVVM.TypeScript.Compiler.Ast.Factories
             return new TsLocalVariableDeclarationSyntax(parent, declarators);
         }
 
-        public IRawSyntaxNode CreateParametrizedSyntaxNode(string value, ISyntaxNode parent)
+        public IRawSyntaxNode CreateRawSyntaxNode(string value, ISyntaxNode parent)
         {
             return new TsRawSyntaxNode(parent, value);
         }
