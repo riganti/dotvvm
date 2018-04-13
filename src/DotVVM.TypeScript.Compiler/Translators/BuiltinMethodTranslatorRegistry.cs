@@ -8,7 +8,7 @@ namespace DotVVM.TypeScript.Compiler.Translators
 {
     class BuiltinMethodTranslatorRegistry : IBuiltinMethodTranslatorRegistry
     {
-        private Dictionary<MethodInfo, IMethodCallTranslator> _registeredMethods = new Dictionary<MethodInfo, IMethodCallTranslator>();
+        private readonly Dictionary<MethodInfo, IMethodCallTranslator> _registeredMethods = new Dictionary<MethodInfo, IMethodCallTranslator>();
 
         public IMethodCallTranslator FindRegisteredMethod(IMethodSymbol methodSymbol)
         {
@@ -18,7 +18,7 @@ namespace DotVVM.TypeScript.Compiler.Translators
 
             return result?.Value;
         }
-
+        
         public void RegisterMethod(MethodInfo methodInfo, IMethodCallTranslator equivalent)
         {
             _registeredMethods.Add(methodInfo, equivalent);

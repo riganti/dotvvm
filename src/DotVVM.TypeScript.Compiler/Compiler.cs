@@ -57,9 +57,9 @@ namespace DotVVM.TypeScript.Compiler
             RegisterBuiltinMethods();
             FindTranslatableViewModels(_compilerContext);
 
-            var translatedViewModels = TranslateViewModels();
+            TranslateViewModels();
 
-            var typescriptViewModels = await StoreViewModels(translatedViewModels);
+            var typescriptViewModels = await StoreViewModels();
             var outputFilePath = CompileTypescript(typescriptViewModels);
         }
 
@@ -71,7 +71,7 @@ namespace DotVVM.TypeScript.Compiler
         public void RegisterTranslators(CompilerContext compilerContext)
         {
             _translatorsEvidence.RegisterTranslator(() => new MethodSymbolTranslator(_logger, _translatorsEvidence, compilerContext, _factory, _methodTranslatorRegistry));
-            _translatorsEvidence.RegisterTranslator(() => new PropertySymbolTranslator(_logger, _factory));
+            _translatorsEvidence.RegisterTranslator(() => new PropertySymbolTranslator(_logger, _factory, typeRegistry));
             _translatorsEvidence.RegisterTranslator(() => new ParameterSymbolTranslator(_logger, _factory));
             _translatorsEvidence.RegisterTranslator(() => new TypeSymbolTranslator(_logger, _translatorsEvidence, _factory));
             _translatorsEvidence.RegisterTranslator(() => new NamespaceSymbolTranslator(_factory));
@@ -92,11 +92,11 @@ namespace DotVVM.TypeScript.Compiler
             return string.Empty;
         }
 
-        private async Task<IEnumerable<string>> StoreViewModels(List<ISyntaxNode> translatedViewModels)
+        private async Task<IEnumerable<string>> StoreViewModels()
         {
             var filesList = new List<string>();
             var basePath = FindProjectBasePath();
-            foreach (var viewModel in translatedViewModels)
+            foreach (var viewModel in typeRegistry.ResolvedTypes.Values)
             {
                 if (viewModel is INamespaceDeclarationSyntax namespaceDeclaration)
                 {
@@ -125,16 +125,23 @@ namespace DotVVM.TypeScript.Compiler
             return basePath;
         }
 
-        private List<ISyntaxNode> TranslateViewModels()
+        private void TranslateViewModels()
         {
-            return typeRegistry.Types.Select(t
-                => {
-                var ns = _translatorsEvidence.ResolveTranslator(t.Type.ContainingNamespace)
-                    .Translate(t.Type.ContainingNamespace);
-                var @class = _translatorsEvidence.ResolveTranslator(t.Type).Translate(t.Type);
-                (ns as TsNamespaceDeclarationSyntax)?.AddClass(@class as TsClassDeclarationSyntax);
-                return ns;
-            }).ToList();
+            var viewModel = typeRegistry.UnresolvedTypes.FirstOrDefault();
+            while (viewModel != null)
+            {
+                var node = TranslateType(viewModel);
+                typeRegistry.MarkResolved(viewModel, node);
+                viewModel = typeRegistry.UnresolvedTypes.FirstOrDefault();
+            }
+        }
+
+        private ISyntaxNode TranslateType(ITypeSymbol viewModel)
+        {
+            var ns = _translatorsEvidence.ResolveTranslator(viewModel.ContainingNamespace).Translate(viewModel.ContainingNamespace) as INamespaceDeclarationSyntax;
+            var @class = _translatorsEvidence.ResolveTranslator(viewModel).Translate(viewModel) as IClassDeclarationSyntax;
+            ns.Types.Add(@class);
+            return ns;
         }
 
         private void FindTranslatableViewModels(CompilerContext compilerContext)
@@ -145,7 +152,7 @@ namespace DotVVM.TypeScript.Compiler
                 .GroupBy(m => m.ContainingType);
             foreach (var typeAndMethods in typesToTranslate)
             {
-                typeRegistry.RegisterType(typeAndMethods.Key, typeAndMethods);
+                typeRegistry.RegisterType(typeAndMethods.Key);
             }
         }
 

@@ -13,7 +13,7 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace DotVVM.TypeScript.Compiler.Translators.Symbols
 {
-    public class TypeSymbolTranslator : ISymbolTranslator<INamedTypeSymbol>
+    public class TypeSymbolTranslator : ISymbolTranslator<ITypeSymbol>
     {
         private readonly ILogger _logger;
         private readonly TranslatorsEvidence _translatorsEvidence;
@@ -26,12 +26,12 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
             _factory = factory;
         }
 
-        public bool CanTranslate(INamedTypeSymbol input)
+        public bool CanTranslate(ITypeSymbol input)
         {
             throw new NotImplementedException();
         }
 
-        public ISyntaxNode Translate(INamedTypeSymbol input)
+        public ISyntaxNode Translate(ITypeSymbol input)
         {
             _logger.LogInfo("Symbols", $"Translating class {input.Name}");
             var members = TranslateProperties(input);
@@ -41,7 +41,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
             return _factory.CreateClassDeclaration(identifier, members.ToList(), new List<IIdentifierSyntax>(), null);
         }
 
-        private IEnumerable<IMemberDeclarationSyntax> TranslateMethods(INamedTypeSymbol input)
+        private IEnumerable<IMemberDeclarationSyntax> TranslateMethods(ITypeSymbol input)
         {
             return input.GetMembers()
                 .OfType<IMethodSymbol>()
@@ -51,7 +51,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
                 .OfType<IMemberDeclarationSyntax>();
         }
 
-        private IEnumerable<IMemberDeclarationSyntax> TranslateProperties(INamedTypeSymbol input)
+        private IEnumerable<IMemberDeclarationSyntax> TranslateProperties(ITypeSymbol input)
         {
             var propertySymbols = input.GetMembers().OfType<IPropertySymbol>();
             var members = propertySymbols
@@ -61,7 +61,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
             return members;
         }
 
-        private IIdentifierSyntax TranslateIdentifier(INamedTypeSymbol input)
+        private IIdentifierSyntax TranslateIdentifier(ITypeSymbol input)
         {
             return new TsIdentifierSyntax(input.Name, null);
         }

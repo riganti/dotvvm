@@ -255,8 +255,9 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
         public override ISyntaxNode VisitPropertyReference(IPropertyReferenceOperation operation, ISyntaxNode parent)
         {
             _logger.LogDebug("Operations", "Translating property reference operation.");
-            var identifier = _factory.CreateIdentifier($"this.{operation.Property.Name}", parent);
-            return _factory.CreatePropertyReferenceSyntax(identifier, parent);
+            var reference = operation.Instance.Accept(this, parent) as IReferenceSyntax;
+            var identifier = _factory.CreateIdentifier(operation.Property.Name, parent);
+            return _factory.CreatePropertyReferenceSyntax(reference, identifier, parent);
         }
     }
 }

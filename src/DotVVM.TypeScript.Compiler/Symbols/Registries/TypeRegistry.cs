@@ -1,27 +1,38 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using DotVVM.TypeScript.Compiler.Ast;
 using Microsoft.CodeAnalysis;
 
 namespace DotVVM.TypeScript.Compiler.Symbols.Registries
 {
     public class TypeRegistry
     {
-        public IList<MembersRegistry> Types { get; }
+        public IList<ITypeSymbol> UnresolvedTypes { get; }
+        public IDictionary<ITypeSymbol, ISyntaxNode> ResolvedTypes { get; }        
 
         public TypeRegistry()
         {
-            Types = new List<MembersRegistry>();
+            UnresolvedTypes = new List<ITypeSymbol>();
+            ResolvedTypes = new Dictionary<ITypeSymbol, ISyntaxNode>();
         }
 
-        public void RegisterType(INamedTypeSymbol type)
+        public void RegisterType(ITypeSymbol type)
         {
-            Types.Add(new MembersRegistry(type));
+            if (UnresolvedTypes.Contains(type) || ResolvedTypes.ContainsKey(type))
+                return;
+            foreach (var generics in type.UnwrapGeneric().OfType<INamedTypeSymbol>())
+            {
+                RegisterType(generics);
+            }
+            if (type.IsBuiltinType())
+                return;
+            UnresolvedTypes.Add(type);
         }
 
-        public void RegisterType(INamedTypeSymbol type, IEnumerable<ISymbol> members)
+        public void MarkResolved(ITypeSymbol type, ISyntaxNode node)
         {
-            var memberInfos = members.Select(m => new MemberInfo(m));
-            Types.Add(new MembersRegistry(type, memberInfos));
+            UnresolvedTypes.Remove(type);
+            ResolvedTypes.Add(type, node);
         }
 
     }

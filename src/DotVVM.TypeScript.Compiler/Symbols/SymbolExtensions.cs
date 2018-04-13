@@ -25,9 +25,9 @@ namespace DotVVM.TypeScript.Compiler.Symbols
         {
             if (symbol.IsIntegerType() || symbol.IsFloatingNumberType())
                 return "number";
-            if (symbol.IsEquivalentTo(typeof(bool)))
+            if (symbol.IsBoolType())
                 return "boolean";
-            if (symbol.IsEquivalentTo(typeof(string)))
+            if (symbol.IsStringType())
                 return "string";
             if (symbol.IsArrayType() && symbol is INamedTypeSymbol namedType)
             {
@@ -56,6 +56,40 @@ namespace DotVVM.TypeScript.Compiler.Symbols
                 || symbol.IsEquivalentTo(typeof(ushort))
                 || symbol.IsEquivalentTo(typeof(uint))
                 || symbol.IsEquivalentTo(typeof(ulong));
+        }
+
+        public static bool IsObject(this ITypeSymbol symbol)
+        {
+            return !IsBuiltinType(symbol);
+        }
+
+        public static bool IsStringType(this ITypeSymbol symbol)
+        {
+            return symbol.IsEquivalentTo(typeof(string));
+        }
+
+        public static bool IsBoolType(this ITypeSymbol symbol)
+        {
+            return symbol.IsEquivalentTo(typeof(bool));
+        }
+
+        public static bool IsBuiltinType(this ITypeSymbol symbol)
+        {
+            return symbol.IsFloatingNumberType() ||
+                    symbol.IsIntegerType() ||
+                    symbol.IsStringType() ||
+                    symbol.IsBoolType() ||
+                    symbol.IsArrayType();
+        }
+
+        public static IEnumerable<ITypeSymbol> UnwrapGeneric(this ITypeSymbol type)
+        {
+            if (type is INamedTypeSymbol namedType)
+            {
+                return namedType.TypeArguments;
+            }
+
+            return Enumerable.Empty<ITypeSymbol>();
         }
 
         public static bool IsEquivalentTo(this ISymbol symbol, Type type)

@@ -76,6 +76,8 @@ namespace DotVVM.TypeScript.Compiler.Ast.Visitors
             Indent();
             if (assignment.Reference is IPropertyReferenceSyntax propertyReference)
             {
+                propertyReference.Instance.AcceptVisitor(this);
+                Append(".");
                 propertyReference.Identifier.AcceptVisitor(this);
                 AppendOperator("(", false ,false);
             }
@@ -297,7 +299,7 @@ namespace DotVVM.TypeScript.Compiler.Ast.Visitors
             propertyDeclaration.Identifier.AcceptVisitor(this);
             Append(":");
             AppendSpace();
-            if (propertyDeclaration.Type.EquivalentSymbol.IsArrayType())
+            if (propertyDeclaration.Type.EquivalentSymbol.IsArrayType() && !propertyDeclaration.Type.EquivalentSymbol.IsStringType())
             {
                 Append("KnockoutObservableArray<");
             }
@@ -351,6 +353,8 @@ namespace DotVVM.TypeScript.Compiler.Ast.Visitors
 
         public void VisitPropertyReference(IPropertyReferenceSyntax tsPropertyReferenceSyntax)
         {
+            tsPropertyReferenceSyntax.Instance.AcceptVisitor(this);
+            Append(".");
             tsPropertyReferenceSyntax.Identifier.AcceptVisitor(this);
             Append("(");
             Append(")");

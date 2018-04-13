@@ -7,10 +7,12 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
 {
     public class TsPropertyReferenceSyntax : TsReferenceSyntax, IPropertyReferenceSyntax
     {
+        public IReferenceSyntax Instance { get; }
 
 
-        public TsPropertyReferenceSyntax(ISyntaxNode parent, IIdentifierSyntax identifier) : base(parent)
+        public TsPropertyReferenceSyntax(ISyntaxNode parent, IIdentifierSyntax identifier, IReferenceSyntax instance) : base(parent)
         {
+            Instance = instance;
             Identifier = identifier ?? throw new ArgumentNullException(nameof(identifier));
         }
 
@@ -28,5 +30,6 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
         {
             visitor.VisitPropertyReference(this);
         }
+
     }
 }

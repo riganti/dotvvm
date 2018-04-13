@@ -4,5 +4,6 @@ namespace DotVVM.TypeScript.Compiler.Ast
 {
     public interface IPropertyReferenceSyntax : IReferenceSyntax
     {
+        IReferenceSyntax Instance { get; }
     }
 }
