@@ -1,4 +1,4 @@
-﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.ClientSideMethods.ListOperationsViewModel, DotVVM.Samples.Common
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethods.ListOperationsViewModel, DotVVM.Samples.Common
 
 <!DOCTYPE html>
 
@@ -12,14 +12,25 @@
 
     <h2>Repeater</h2>
     <dot:Repeater DataSource="{value: NamesList}">
-        <dot:Literal Text="{value: _this}"/>
+        <dot:Literal Text="{value: _this}" />
     </dot:Repeater>
 
     <h2>GridView</h2>
-    <dot:GridView DataSource="{value: NamesList}">
-        <dot:GridViewTextColumn ValueBinding="{value:  _this}"/>
+    <dot:GridView DataSource="{value: _root.NamesList}">
+        <dot:GridViewTextColumn ValueBinding="{value:  _this}" />
+        <dot:GridViewTemplateColumn>
+            <ContentTemplate>
+                <dot:Button Text="Remove" Click="{command: _parent.Remove(_this)}">
+                    <PostBack.Handlers>
+                        <dot:ConfirmPostBackHandler Message="Do you really want to delete this item?" />
+                    </PostBack.Handlers>
+                </dot:Button>
+            </ContentTemplate>
+        </dot:GridViewTemplateColumn>
     </dot:GridView>
-
-    <dot:Button Text="Remove test item" Click="{command: RemoveTest()}"/>
+    <br />
+    <br />
+    <dot:Button Text="Add new item" Click="{command: Add()}"/>
+    <dot:Button Text="Remove test item" Click="{command: Remove("test")}" />
 </body>
 </html>

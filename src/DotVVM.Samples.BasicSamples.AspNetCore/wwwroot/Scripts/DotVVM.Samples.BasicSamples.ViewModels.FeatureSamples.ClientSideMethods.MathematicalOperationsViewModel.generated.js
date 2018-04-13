@@ -19,6 +19,7 @@ var MathematicalOperationsViewModel = /** @class */ (function () {
             a = Math.floor(b);
             b = Math.floor(temp + b);
         }
+        ;
         this.Result(Math.floor(a));
     };
     return MathematicalOperationsViewModel;

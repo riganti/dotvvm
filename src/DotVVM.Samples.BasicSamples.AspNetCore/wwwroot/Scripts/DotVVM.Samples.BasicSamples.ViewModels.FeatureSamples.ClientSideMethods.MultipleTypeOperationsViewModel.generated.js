@@ -24,4 +24,4 @@ var MultipleTypeOperationsViewModel = /** @class */ (function () {
     };
     return MultipleTypeOperationsViewModel;
 }());
-//# sourceMappingURL=DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethods.MultipleTypeOperations.generated.js.map
+//# sourceMappingURL=DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethods.MultipleTypeOperationsViewModel.generated.js.map

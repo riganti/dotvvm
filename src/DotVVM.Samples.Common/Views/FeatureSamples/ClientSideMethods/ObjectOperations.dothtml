@@ -1,0 +1,24 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethods.ObjectOperationsViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Client side methods - Object operations</title>
+</head>
+<body>
+    <h1>Client side methods - Object operations</h1>
+    <h2>Object values</h2>
+    <div style="border:2px dotted black; width: auto;" DataContext="{value: Person}">
+        <div>
+            Name: {{value: Name}}
+        </div>
+        <div>
+            Age: {{value: Age}}
+        </div>
+    </div>
+    
+    <dot:Button Text="Set persons age to 1" Click="{command: UpdatePersonsAge()}"/>
+</body>
+</html>

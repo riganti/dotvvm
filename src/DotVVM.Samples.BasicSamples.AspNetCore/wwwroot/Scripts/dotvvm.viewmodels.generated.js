@@ -1,6 +1,10 @@
 var ListOperationsViewModel = /** @class */ (function () {
     function ListOperationsViewModel() {
     }
+    ListOperationsViewModel.prototype.Add = function () {
+        this.NamesList.push(ko.observable('test' + this.Index));
+        this.Index(this.Index() + 1);
+    };
     ListOperationsViewModel.prototype.RemoveTest = function () {
         this.Remove('test');
     };
@@ -58,4 +62,17 @@ var MultipleTypeOperationsViewModel = /** @class */ (function () {
         this.IsVisible(false);
     };
     return MultipleTypeOperationsViewModel;
+}());
+var ObjectOperationsViewModel = /** @class */ (function () {
+    function ObjectOperationsViewModel() {
+    }
+    ObjectOperationsViewModel.prototype.UpdatePersonsAge = function () {
+        this.Person().Age(Math.floor(1));
+    };
+    return ObjectOperationsViewModel;
+}());
+var PersonDto = /** @class */ (function () {
+    function PersonDto() {
+    }
+    return PersonDto;
 }());
