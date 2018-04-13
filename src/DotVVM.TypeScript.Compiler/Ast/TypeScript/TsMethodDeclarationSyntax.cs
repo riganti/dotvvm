@@ -22,12 +22,6 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
             Identifier = identifier ?? throw new ArgumentNullException(nameof(identifier));
         }
         
-        public override string ToDisplayString()
-        {
-            return $"{Modifier.ToDisplayString()} {Identifier.ToDisplayString()}({Parameters.Select(p => p.ToDisplayString()).StringJoin(",")})" +
-                    $"\t{Body.ToDisplayString()}";
-        }
-
         public override IEnumerable<ISyntaxNode> DescendantNodes()
         {
             yield return Body;

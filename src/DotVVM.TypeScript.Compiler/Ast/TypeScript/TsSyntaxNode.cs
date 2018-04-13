@@ -13,7 +13,13 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
 
         public ISyntaxNode Parent { get; }
 
-        public abstract string ToDisplayString();
+        public string ToDisplayString()
+        {
+            var visitor = new TsFormattingVisitor();
+            AcceptVisitor(visitor);
+            return visitor.GetOutput();
+        }
+
         public abstract IEnumerable<ISyntaxNode> DescendantNodes();
         public abstract void AcceptVisitor(INodeVisitor visitor);
 

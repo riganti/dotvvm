@@ -14,16 +14,6 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
         {
             EquivalentSymbol = equivalentSymbol ?? throw new ArgumentNullException(nameof(equivalentSymbol));
         }
-
-        public override string ToDisplayString()
-        {
-            if (EquivalentSymbol.IsValueType)
-            {
-                return "number";
-            }
-            return EquivalentSymbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
-        }
-
         public override IEnumerable<ISyntaxNode> DescendantNodes()
         {
             return Enumerable.Empty<TsSyntaxNode>();

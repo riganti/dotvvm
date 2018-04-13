@@ -15,12 +15,7 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
         {
             Declarators = declarators ?? throw new ArgumentNullException(nameof(declarators));
         }
-
-        public override string ToDisplayString()
-        {
-            return $"let {Declarators.Select(d => d.ToDisplayString()).StringJoin(",")}";
-        }
-
+        
         public override IEnumerable<ISyntaxNode> DescendantNodes()
         {
             return Declarators;

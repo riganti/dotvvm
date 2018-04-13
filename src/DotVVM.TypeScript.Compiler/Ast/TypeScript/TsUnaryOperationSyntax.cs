@@ -16,11 +16,6 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
             Operator = @operator;
         }
 
-        public override string ToDisplayString()
-        {
-            throw new System.NotImplementedException();
-        }
-
         public override IEnumerable<ISyntaxNode> DescendantNodes()
         {
             throw new System.NotImplementedException();

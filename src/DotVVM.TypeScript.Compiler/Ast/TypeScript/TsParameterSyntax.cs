@@ -17,11 +17,6 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
             Type = type ?? throw new ArgumentNullException(nameof(type));
         }
 
-        public override string ToDisplayString()
-        {
-            return $"{Identifier.ToDisplayString()}: {Type.ToDisplayString()}";
-        }
-
         public override IEnumerable<ISyntaxNode> DescendantNodes()
         {
             return Enumerable.Empty<TsSyntaxNode>();

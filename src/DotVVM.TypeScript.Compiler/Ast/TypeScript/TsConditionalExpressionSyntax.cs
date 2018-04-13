@@ -19,11 +19,6 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
             WhenFalse = whenFalse ?? throw new ArgumentNullException(nameof(whenFalse));
         }
         
-        public override string ToDisplayString()
-        {
-            return $"{Condition.ToDisplayString()} ? {WhenTrue.ToDisplayString()} : {WhenFalse.ToDisplayString()}";
-        }
-
         public override IEnumerable<ISyntaxNode> DescendantNodes()
         {
             return Enumerable.Empty<TsSyntaxNode>();

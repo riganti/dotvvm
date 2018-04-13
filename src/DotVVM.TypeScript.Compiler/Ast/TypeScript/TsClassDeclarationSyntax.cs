@@ -19,23 +19,7 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
             Members = members ?? throw new ArgumentNullException(nameof(members));
             BaseClasses = baseClasses ?? throw new ArgumentNullException(nameof(baseClasses));
         }
-
-        public override string ToDisplayString()
-        {
-            var output = $"class {Identifier} ";
-            if (BaseClasses.Any())
-            {
-                output += $"extends {BaseClasses.Select(i => i.ToDisplayString()).StringJoin(",")}";
-            }
-            output += " {\n";
-            foreach (var member in Members)
-            {
-                output += $"\t{member.ToDisplayString()}\n";
-            }
-            output += "\n}";
-            return output;
-        }
-
+        
         public override IEnumerable<ISyntaxNode> DescendantNodes()
         {
             return Members;

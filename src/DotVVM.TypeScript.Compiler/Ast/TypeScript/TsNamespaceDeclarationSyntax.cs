@@ -22,14 +22,7 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
         {
             Types.Add(@class);
         }
-
-        public override string ToDisplayString()
-        {
-            return $"namespace {Identifier.ToDisplayString()} {{" +
-                   $"{Types.Select(t => t.ToDisplayString()).StringJoin("\n")}" +
-                   $"\n}}";
-        }
-
+        
         public override IEnumerable<ISyntaxNode> DescendantNodes()
         {
             return Types;

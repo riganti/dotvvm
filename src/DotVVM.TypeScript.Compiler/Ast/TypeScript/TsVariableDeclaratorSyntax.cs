@@ -17,18 +17,6 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
             Identifier = identifier ?? throw new ArgumentNullException(nameof(identifier));
         }
 
-        public override string ToDisplayString()
-        {
-            if (Expression != null)
-            {
-                return $"{Identifier.ToDisplayString()} = {Expression.ToDisplayString()}";
-            }
-            else
-            {
-                return Identifier.ToDisplayString();
-            }
-        }
-
         public override IEnumerable<ISyntaxNode> DescendantNodes()
         {
             return Enumerable.Empty<TsSyntaxNode>();

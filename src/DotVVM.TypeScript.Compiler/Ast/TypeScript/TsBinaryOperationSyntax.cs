@@ -21,12 +21,7 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
             RightExpression = rightExpression ?? throw new ArgumentNullException(nameof(rightExpression));
         }
         
-        public override string ToDisplayString()
-        {
-            return
-                $"{LeftExpression.ToDisplayString()} {Operator.ToDisplayString()} {RightExpression.ToDisplayString()}";
-        }
-
+        
         public override IEnumerable<ISyntaxNode> DescendantNodes()
         {
             return Enumerable.Empty<TsSyntaxNode>();

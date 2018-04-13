@@ -19,16 +19,7 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
             AfterExpression = afterExpression ?? throw new ArgumentNullException(nameof(afterExpression));
             Body = body ?? throw new ArgumentNullException(nameof(body));
         }
-
-        public override string ToDisplayString()
-        {
-            return
-                $"for({BeforeStatement.ToDisplayString()}; " +
-                $"{Condition.ToDisplayString()}; " +
-                $"{AfterExpression.ToDisplayString()})\n" +
-                $"{Body.ToDisplayString()}";
-        }
-
+        
         public override IEnumerable<ISyntaxNode> DescendantNodes()
         {
             yield return Body;

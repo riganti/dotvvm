@@ -13,11 +13,6 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
             Identifier = new TsIdentifierSyntax("this", parent);
         }
 
-        public override string ToDisplayString()
-        {
-            return Identifier.ToDisplayString();
-        }
-
         public override IEnumerable<ISyntaxNode> DescendantNodes()
         {
             return Enumerable.Empty<ISyntaxNode>();

@@ -20,18 +20,6 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
             FalseStatement = falseStatement;
         }
 
-        public override string ToDisplayString()
-        {
-            var output = $"if({ConditionalExpression.ToDisplayString()})\n";
-            output += $"{TrueStatement.ToDisplayString()}";
-            if (FalseStatement != null)
-            {
-                output += "else\n";
-                output += $"{FalseStatement.ToDisplayString()}";
-            }
-            return output;
-        }
-
         public override IEnumerable<ISyntaxNode> DescendantNodes()
         {
             throw new System.NotImplementedException();

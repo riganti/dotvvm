@@ -16,14 +16,7 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
             Condition = condition ?? throw new ArgumentNullException(nameof(condition));
             Body = body ?? throw new ArgumentNullException(nameof(body));
         }
-
-        public override string ToDisplayString()
-        {
-            return $"do \n" +
-                   $"\t{Body.ToDisplayString()}\n" +
-                   $"while({Condition.ToDisplayString()})";
-        }
-
+        
         public override IEnumerable<ISyntaxNode> DescendantNodes()
         {
             yield return Body;

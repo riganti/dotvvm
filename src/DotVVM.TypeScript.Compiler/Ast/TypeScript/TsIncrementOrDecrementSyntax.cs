@@ -19,19 +19,6 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
             IsIncrement = isIncrement;
         }
 
-        public override string ToDisplayString()
-        {
-            string @operator = GetOperatorString();
-            if (IsPostfix)
-            {
-                return $"{Target.ToDisplayString()}{@operator}";
-            }
-            else
-            {
-                return $"{@operator}{Target.ToDisplayString()}";
-            }
-        }
-
         private string GetOperatorString()
         {
             return IsIncrement ? "++" : "--";

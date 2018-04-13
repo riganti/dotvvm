@@ -24,12 +24,7 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
             Arguments = parameters ?? throw new ArgumentNullException(nameof(parameters));
             Object = @object;
         }
-
-        public override string ToDisplayString()
-        {
-            return $"{Name.ToDisplayString()}({Arguments.Select(p => p.ToDisplayString()).StringJoin(",")})";
-        }
-
+        
         public override IEnumerable<ISyntaxNode> DescendantNodes()
         {
             return Enumerable.Empty<TsSyntaxNode>();

@@ -12,15 +12,10 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
 
         public TsPropertyReferenceSyntax(ISyntaxNode parent, IIdentifierSyntax identifier, IReferenceSyntax instance) : base(parent)
         {
-            Instance = instance;
+            Instance = instance ?? throw new ArgumentNullException(nameof(instance));
             Identifier = identifier ?? throw new ArgumentNullException(nameof(identifier));
         }
-
-        public override string ToDisplayString()
-        {
-            return $"{Identifier.ToDisplayString()}";
-        }
-
+        
         public override IEnumerable<ISyntaxNode> DescendantNodes()
         {
             return Enumerable.Empty<TsSyntaxNode>();

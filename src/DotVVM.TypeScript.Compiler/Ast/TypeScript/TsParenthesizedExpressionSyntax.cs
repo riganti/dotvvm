@@ -14,11 +14,6 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
             Expression = expression ?? throw new ArgumentNullException(nameof(expression));
         }
         
-        public override string ToDisplayString()
-        {
-            return $"({Expression.ToDisplayString()})";
-        }
-
         public override IEnumerable<ISyntaxNode> DescendantNodes()
         {
             return Enumerable.Empty<TsSyntaxNode>();

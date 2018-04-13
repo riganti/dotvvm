@@ -18,18 +18,7 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
         {
             Statements.Add(statement);
         }
-
-        public override string ToDisplayString()
-        {
-            var output = "{";
-            foreach (var statement in Statements)
-            {
-                output += $"\n\t{statement.ToDisplayString()};\n";
-            }
-            output += "}";
-            return output;
-        }
-
+        
         public override IEnumerable<ISyntaxNode> DescendantNodes()
         {
             return Statements;
