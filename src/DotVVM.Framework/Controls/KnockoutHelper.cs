@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -143,20 +144,7 @@ namespace DotVVM.Framework.Controls
             }
             string generatedPostbackHandlers = null;
 
-            var parsedExpresion = expression.GetProperty<ParsedExpressionBindingProperty>();
-            if (parsedExpresion != null && parsedExpresion.Expression.NodeType == ExpressionType.Call)
-            {
-                var methodCallExpression = parsedExpresion.Expression as MethodCallExpression;
-                if (methodCallExpression.Method.GetCustomAttributes(false).Any(a => a is ClientSideMethodAttribute))
-                {
-                    var viewModelAccess = new ParametrizedCode.Builder {
-                        "ko.contextFor(",
-                        options.ElementAccessor.Code,
-                        ").$data"
-                    }.Build(OperatorPrecedence.Max).ToDefaultString();
-                    return $"{viewModelAccess}.{methodCallExpression.Method.Name}()";
-                }
-            }
+            
 
             var adjustedExpression = expression.GetParametrizedCommandJavascript(control);
             // when the expression changes the dataContext, we need to override the default knockout context fo the command binding.
@@ -165,23 +153,105 @@ namespace DotVVM.Framework.Controls
                 new CodeParameterAssignment(new ParametrizedCode.Builder { "ko.contextFor(", options.ElementAccessor.Code, ")" }.Build(OperatorPrecedence.Max)) :
                 default);
 
-            var call = adjustedExpression.ToString(p =>
-                p == CommandBindingExpression.ViewModelNameParameter ? new CodeParameterAssignment("\"root\"", OperatorPrecedence.Max) :
-                p == CommandBindingExpression.SenderElementParameter ? options.ElementAccessor :
-                p == CommandBindingExpression.CurrentPathParameter ? new CodeParameterAssignment(
-                    getContextPath(control),
-                    OperatorPrecedence.Max) :
-                p == CommandBindingExpression.ControlUniqueIdParameter ? new CodeParameterAssignment(
-                    (uniqueControlId is IValueBinding ? "{ expr: " + JsonConvert.ToString(((IValueBinding)uniqueControlId).GetKnockoutBindingExpression(control)) + "}" : '"' + (string)uniqueControlId + '"'), OperatorPrecedence.Max) :
-                p == JavascriptTranslator.KnockoutContextParameter ? knockoutContext :
-                p == CommandBindingExpression.CommandArgumentsParameter ? options.CommandArgs ?? default :
-                p == CommandBindingExpression.PostbackHandlersParameter ? new CodeParameterAssignment(generatedPostbackHandlers ?? (generatedPostbackHandlers = getHandlerScript()), OperatorPrecedence.Max) :
-                default(CodeParameterAssignment)
-            );
+            var call = string.Empty;
+
+            var parsedExpresion = expression.GetProperty<ParsedExpressionBindingProperty>();
+            if (parsedExpresion != null && parsedExpresion.Expression.NodeType == ExpressionType.Call)
+            {
+                var methodCallExpression = parsedExpresion.Expression as MethodCallExpression;
+                if (methodCallExpression.Method.GetCustomAttributes(false).Any(a => a is ClientSideMethodAttribute))
+                {
+                    var knockouDataContextParamers = ToKnockouDataContextParamers(methodCallExpression.Object);
+                    var knockoutArguments = ToKnockoutArguments(methodCallExpression.Arguments);
+                    var viewModelAccess = new ParametrizedCode.Builder {
+                        "ko.contextFor(",
+                        options.ElementAccessor.Code,
+                        $").{knockouDataContextParamers}"
+                    }.Build(OperatorPrecedence.Max).ToDefaultString();
+                    call = $"{viewModelAccess}.{methodCallExpression.Method.Name}({knockoutArguments})";
+                }
+            }
+            else
+            {
+                call = adjustedExpression.ToString(p =>
+                    p == CommandBindingExpression.ViewModelNameParameter ? new CodeParameterAssignment("\"root\"", OperatorPrecedence.Max) :
+                    p == CommandBindingExpression.SenderElementParameter ? options.ElementAccessor :
+                    p == CommandBindingExpression.CurrentPathParameter ? new CodeParameterAssignment(
+                        getContextPath(control),
+                        OperatorPrecedence.Max) :
+                    p == CommandBindingExpression.ControlUniqueIdParameter ? new CodeParameterAssignment(
+                        (uniqueControlId is IValueBinding ? "{ expr: " + JsonConvert.ToString(((IValueBinding)uniqueControlId).GetKnockoutBindingExpression(control)) + "}" : '"' + (string)uniqueControlId + '"'), OperatorPrecedence.Max) :
+                    p == JavascriptTranslator.KnockoutContextParameter ? knockoutContext :
+                    p == CommandBindingExpression.CommandArgumentsParameter ? options.CommandArgs ?? default :
+                    p == CommandBindingExpression.PostbackHandlersParameter ? new CodeParameterAssignment(generatedPostbackHandlers ?? (generatedPostbackHandlers = getHandlerScript()), OperatorPrecedence.Max) :
+                    default(CodeParameterAssignment)
+                );
+            }
+
             if (generatedPostbackHandlers == null && options.AllowPostbackHandlers)
                 return $"dotvvm.applyPostbackHandlers(function(){{return {call}}}.bind(this),{options.ElementAccessor.Code.ToString(e => default(CodeParameterAssignment))},{getHandlerScript()})";
             else return call;
         }
+
+        private static string ToKnockoutArguments(this ReadOnlyCollection<Expression> arguments)
+        {
+            return arguments.Select(a => a.ToKnockoutArgument()).StringJoin(",");
+        }
+
+        private static string ToKnockoutArgument(this Expression argument)
+        {
+            var path = argument.ToString();
+            var accessors = path.Split('.');
+            var output = string.Empty;
+            foreach (var accessor in accessors)
+            {
+                if (accessor == "_this")
+                {
+                    output += "ko.contextFor(this).$data";
+                }
+                else if (accessor == "_root")
+                {
+                    output += "ko.contextFor(this).$root";
+                }
+                else if (accessor == "_parent")
+                {
+                    output += "ko.contextFor(this).$parent";
+                }
+                else
+                {
+                    output += accessor;
+                }
+
+                if (accessors.Last() != accessor)
+                {
+                    output += ".";
+                }
+            }
+
+            return output;
+        }
+
+        public static string ToKnockouDataContextParamers(this Expression objectExpression)
+        {
+            var objectAccessor = objectExpression.ToString();
+            if (objectAccessor == "_this")
+            {
+                return "$data";
+            }
+            else if (objectAccessor == "_root")
+            {
+                return "$root";
+            }
+            else if (objectAccessor == "_parent")
+            {
+                return "$parent";
+            }
+            else
+            {
+                return objectAccessor;
+            }
+        }
+
 
         /// <summary>
         /// Generates a list of postback update handlers.
@@ -194,23 +264,23 @@ namespace DotVVM.Framework.Controls
             var sb = new StringBuilder();
             sb.Append('[');
             if (handlers != null) foreach (var handler in handlers)
-            {
-                if (!string.IsNullOrEmpty(handler.EventName) && handler.EventName != eventName) continue;
-
-                var options = handler.GetHandlerOptions();
-                var name = handler.ClientHandlerName;
-
-                if (handler.GetValueBinding(PostBackHandler.EnabledProperty) is IValueBinding binding) options.Add("enabled", binding);
-                else if (!handler.Enabled) continue;
-
-                if (sb.Length > 1)
-                    sb.Append(',');
-
-                if (options.Count == 0)
                 {
-                    sb.Append(JsonConvert.ToString(name));
-                }
-                else
+                    if (!string.IsNullOrEmpty(handler.EventName) && handler.EventName != eventName) continue;
+
+                    var options = handler.GetHandlerOptions();
+                    var name = handler.ClientHandlerName;
+
+                    if (handler.GetValueBinding(PostBackHandler.EnabledProperty) is IValueBinding binding) options.Add("enabled", binding);
+                    else if (!handler.Enabled) continue;
+
+                    if (sb.Length > 1)
+                        sb.Append(',');
+
+                    if (options.Count == 0)
+                    {
+                        sb.Append(JsonConvert.ToString(name));
+                    }
+                    else
                     {
                         string script = GenerateHandlerOptions(handler, options);
 
@@ -221,11 +291,12 @@ namespace DotVVM.Framework.Controls
                         sb.Append("]");
                     }
                 }
-            if (moreHandlers != null) foreach (var h in moreHandlers) if (h != null) {
-                if (sb.Length > 1)
-                    sb.Append(',');
-                sb.Append(h);
-            }
+            if (moreHandlers != null) foreach (var h in moreHandlers) if (h != null)
+                    {
+                        if (sb.Length > 1)
+                            sb.Append(',');
+                        sb.Append(h);
+                    }
             sb.Append(']');
             return sb.ToString();
         }
