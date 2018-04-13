@@ -1,7 +1,7 @@
 ﻿using DotVVM.TypeScript.Compiler.Ast;
 using Microsoft.CodeAnalysis;
 
-namespace DotVVM.TypeScript.Compiler.Translators
+namespace DotVVM.TypeScript.Compiler.Translators.Builtin
 {
     interface IPropertyTranslator
     {

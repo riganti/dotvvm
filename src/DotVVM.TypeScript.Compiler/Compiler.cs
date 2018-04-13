@@ -19,6 +19,7 @@ using DotVVM.TypeScript.Compiler.Symbols;
 using DotVVM.TypeScript.Compiler.Symbols.Filters;
 using DotVVM.TypeScript.Compiler.Symbols.Registries;
 using DotVVM.TypeScript.Compiler.Translators;
+using DotVVM.TypeScript.Compiler.Translators.Builtin;
 using DotVVM.TypeScript.Compiler.Translators.Symbols;
 using DotVVM.TypeScript.Compiler.Utils;
 using DotVVM.TypeScript.Compiler.Utils.IO;

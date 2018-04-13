@@ -4,7 +4,7 @@ using System.Reflection;
 using DotVVM.TypeScript.Compiler.Symbols;
 using Microsoft.CodeAnalysis;
 
-namespace DotVVM.TypeScript.Compiler.Translators
+namespace DotVVM.TypeScript.Compiler.Translators.Builtin
 {
     class BuiltinMethodTranslatorRegistry : IBuiltinMethodTranslatorRegistry
     {

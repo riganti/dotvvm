@@ -1,8 +1,7 @@
 ﻿using System.Reflection;
-using System.Text;
 using Microsoft.CodeAnalysis;
 
-namespace DotVVM.TypeScript.Compiler.Translators
+namespace DotVVM.TypeScript.Compiler.Translators.Builtin
 {
     interface IBuiltinMethodTranslatorRegistry
     {

@@ -2,7 +2,7 @@
 using DotVVM.TypeScript.Compiler.Ast;
 using Microsoft.CodeAnalysis.Operations;
 
-namespace DotVVM.TypeScript.Compiler.Translators
+namespace DotVVM.TypeScript.Compiler.Translators.Builtin
 {
     public interface IMethodCallTranslator
     {

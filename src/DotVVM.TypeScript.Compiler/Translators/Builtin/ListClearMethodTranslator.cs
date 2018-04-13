@@ -1,18 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
 using DotVVM.TypeScript.Compiler.Ast;
 using DotVVM.TypeScript.Compiler.Ast.Factories;
 using Microsoft.CodeAnalysis.Operations;
 
-namespace DotVVM.TypeScript.Compiler.Translators
+namespace DotVVM.TypeScript.Compiler.Translators.Builtin
 {
-    public class ListAddMethodTranslator : IMethodCallTranslator
+    public class ListClearMethodTranslator : IMethodCallTranslator
     {
         private readonly ISyntaxFactory _factory;
 
-        public ListAddMethodTranslator(ISyntaxFactory factory)
+        public ListClearMethodTranslator(ISyntaxFactory factory)
         {
             _factory = factory ?? throw new ArgumentNullException(nameof(factory));
         }
@@ -20,7 +18,7 @@ namespace DotVVM.TypeScript.Compiler.Translators
 
         public ISyntaxNode Translate(IInvocationOperation operation, List<IExpressionSyntax> arguments, IReferenceSyntax reference, ISyntaxNode parent)
         {
-            var format = $"{reference.ToDisplayString()}.push(ko.observable({arguments.Single().ToDisplayString()}))";
+            var format = $"{reference.ToDisplayString()}.removeAll()";
             return _factory.CreateRawSyntaxNode(format, parent);
         }
     }

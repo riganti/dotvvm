@@ -5,7 +5,7 @@ using DotVVM.TypeScript.Compiler.Ast;
 using DotVVM.TypeScript.Compiler.Ast.Factories;
 using Microsoft.CodeAnalysis.Operations;
 
-namespace DotVVM.TypeScript.Compiler.Translators
+namespace DotVVM.TypeScript.Compiler.Translators.Builtin
 {
     public class ListRemoveMethodTranslator : IMethodCallTranslator
     {

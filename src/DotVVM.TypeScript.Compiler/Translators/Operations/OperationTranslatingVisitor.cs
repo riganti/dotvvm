@@ -7,6 +7,7 @@ using DotVVM.TypeScript.Compiler.Ast;
 using DotVVM.TypeScript.Compiler.Ast.Factories;
 using DotVVM.TypeScript.Compiler.Ast.TypeScript;
 using DotVVM.TypeScript.Compiler.Symbols;
+using DotVVM.TypeScript.Compiler.Translators.Builtin;
 using DotVVM.TypeScript.Compiler.Utils.Logging;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Operations;
