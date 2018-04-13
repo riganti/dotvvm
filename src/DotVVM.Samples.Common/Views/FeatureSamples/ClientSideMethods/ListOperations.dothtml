@@ -32,5 +32,7 @@
     <br />
     <dot:Button Text="Add new item" Click="{command: Add()}"/>
     <dot:Button Text="Remove test item" Click="{command: Remove("test")}" />
+    <dot:Button Text="Clear list" Click="{command: Clear()}"/>
+    <dot:Button Text="Save" Click="{command:  SaveViaPostback()}"/>
 </body>
 </html>

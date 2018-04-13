@@ -11,6 +11,9 @@ var ListOperationsViewModel = /** @class */ (function () {
     ListOperationsViewModel.prototype.Remove = function (name) {
         this.NamesList.remove(function (item) { var rawItem = ko.unwrap(item); return rawItem == name; });
     };
+    ListOperationsViewModel.prototype.Clear = function () {
+        this.NamesList.removeAll();
+    };
     return ListOperationsViewModel;
 }());
 var MathematicalOperationsViewModel = /** @class */ (function () {

@@ -29,5 +29,19 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethod
         {
             NamesList.Remove(name);
         }
+
+        [ClientSideMethod]
+        public void Clear()
+        {
+            NamesList.Clear();
+        }
+
+        public void SaveViaPostback()
+        {
+            for (var i = 0; i < NamesList.Count; i++)
+            {
+                NamesList[i] += " saved";
+            }
+        }
     }
 }

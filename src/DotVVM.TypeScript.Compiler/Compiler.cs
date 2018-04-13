@@ -67,6 +67,7 @@ namespace DotVVM.TypeScript.Compiler
         {
             _methodTranslatorRegistry.RegisterMethod(typeof(List<>).GetMethod("Remove"), new ListRemoveMethodTranslator(_factory));
             _methodTranslatorRegistry.RegisterMethod(typeof(List<>).GetMethod("Add"), new ListAddMethodTranslator(_factory));
+            _methodTranslatorRegistry.RegisterMethod(typeof(List<>).GetMethod("Clear"), new ListClearMethodTranslator(_factory));
         }
 
         public void RegisterTranslators(CompilerContext compilerContext)
