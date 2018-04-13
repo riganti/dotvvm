@@ -257,7 +257,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
             _logger.LogDebug("Operations", "Translating property reference operation.");
             var reference = operation.Instance.Accept(this, parent) as IReferenceSyntax;
             var identifier = _factory.CreateIdentifier(operation.Property.Name, parent);
-            return _factory.CreatePropertyReferenceSyntax(reference, identifier, parent);
+            return _factory.CreatePropertyReferenceSyntax(reference, identifier, parent, operation.Property.Type);
         }
     }
 }

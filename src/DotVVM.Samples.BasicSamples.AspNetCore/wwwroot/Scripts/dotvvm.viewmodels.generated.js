@@ -2,7 +2,7 @@ var ListOperationsViewModel = /** @class */ (function () {
     function ListOperationsViewModel() {
     }
     ListOperationsViewModel.prototype.Add = function () {
-        this.NamesList.push(ko.observable('test' + this.Index));
+        this.NamesList.push(ko.observable('test' + this.Index()));
         this.Index(this.Index() + 1);
     };
     ListOperationsViewModel.prototype.RemoveTest = function () {

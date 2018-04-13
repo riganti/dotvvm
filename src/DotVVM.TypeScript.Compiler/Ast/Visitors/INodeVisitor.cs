@@ -27,7 +27,7 @@ namespace DotVVM.TypeScript.Compiler.Ast.Visitors
         void VisitUnaryOperation(IUnaryOperationSyntax unaryOperation);
         void VisitVariableDeclarator(IVariableDeclaratorSyntax variableDeclarator);
         void VisitWhileStatement(IWhileStatementSyntax whileStatement);
-        void VisitPropertyReference(IPropertyReferenceSyntax tsPropertyReferenceSyntax);
+        void VisitPropertyReference(IPropertyReferenceSyntax propertyReference);
         void VisitMethodCall(IMethodCallSyntax methodCall);
         void VisitInstanceReference(IInstanceReferenceSyntax instanceReference);
         void VisitParametrizedSyntaxNode(IRawSyntaxNode rawSyntaxNode);
@@ -150,9 +150,9 @@ namespace DotVVM.TypeScript.Compiler.Ast.Visitors
             DefaultVisit(whileStatement);
         }
 
-        public void VisitPropertyReference(IPropertyReferenceSyntax tsPropertyReferenceSyntax)
+        public void VisitPropertyReference(IPropertyReferenceSyntax propertyReference)
         {
-            DefaultVisit(tsPropertyReferenceSyntax);
+            DefaultVisit(propertyReference);
         }
 
         public void VisitMethodCall(IMethodCallSyntax methodCall)

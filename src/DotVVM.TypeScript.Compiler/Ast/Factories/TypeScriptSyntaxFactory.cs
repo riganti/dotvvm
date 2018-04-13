@@ -121,9 +121,10 @@ namespace DotVVM.TypeScript.Compiler.Ast.Factories
             return new TsPropertyDeclarationSyntax(modifier, identifier, parent, type);
         }
 
-        public IPropertyReferenceSyntax CreatePropertyReferenceSyntax(IReferenceSyntax instance, IIdentifierSyntax identifier, ISyntaxNode parent)
+        public IPropertyReferenceSyntax CreatePropertyReferenceSyntax(IReferenceSyntax instance,
+            IIdentifierSyntax identifier, ISyntaxNode parent, ITypeSymbol type)
         {
-            return new TsPropertyReferenceSyntax(parent, identifier, instance);
+            return new TsPropertyReferenceSyntax(parent, identifier, instance, type);
         }
 
         public IReturnStatementSyntax CreateReturnStatement(IExpressionSyntax expression, ISyntaxNode parent)

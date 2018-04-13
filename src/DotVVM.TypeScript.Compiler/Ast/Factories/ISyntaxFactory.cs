@@ -42,7 +42,8 @@ namespace DotVVM.TypeScript.Compiler.Ast.Factories
         IParenthesizedExpressionSyntax CreateParenthesizedExpression(IExpressionSyntax expresion, ISyntaxNode parent);
         IPropertyDeclarationSyntax CreatePropertyDeclarationSyntax(AccessModifier modifier,
             IIdentifierSyntax identifier, ITypeSyntax type, ISyntaxNode parent);
-        IPropertyReferenceSyntax CreatePropertyReferenceSyntax(IReferenceSyntax instance, IIdentifierSyntax identifier, ISyntaxNode parent);
+        IPropertyReferenceSyntax CreatePropertyReferenceSyntax(IReferenceSyntax instance, IIdentifierSyntax identifier,
+            ISyntaxNode parent, ITypeSymbol type);
         IReturnStatementSyntax CreateReturnStatement(IExpressionSyntax expression, ISyntaxNode parent);
         IUnaryOperationSyntax CreateUnaryOperation(IExpressionSyntax operand, UnaryOperator @operator,
             ISyntaxNode parent);

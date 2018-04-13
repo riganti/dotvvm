@@ -351,13 +351,16 @@ namespace DotVVM.TypeScript.Compiler.Ast.Visitors
             DecreaseIndent();
         }
 
-        public void VisitPropertyReference(IPropertyReferenceSyntax tsPropertyReferenceSyntax)
+        public void VisitPropertyReference(IPropertyReferenceSyntax propertyReference)
         {
-            tsPropertyReferenceSyntax.Instance.AcceptVisitor(this);
+            propertyReference.Instance.AcceptVisitor(this);
             Append(".");
-            tsPropertyReferenceSyntax.Identifier.AcceptVisitor(this);
-            Append("(");
-            Append(")");
+            propertyReference.Identifier.AcceptVisitor(this);
+            if (propertyReference.Type.IsArrayType() == false)
+            {
+                Append("(");
+                Append(")");
+            }
         }
 
         public void VisitMethodCall(IMethodCallSyntax methodCall)
