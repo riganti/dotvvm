@@ -186,23 +186,25 @@ namespace DotVVM.TypeScript.Compiler.Symbols
 
         public static bool IsEquivalentToMethod(this IMethodSymbol symbol, MethodInfo methodInfo)
         {
-            if (symbol.ContainingType.IsEquivalentTo(methodInfo.DeclaringType))
+            if (symbol.Name == methodInfo.Name)
             {
-                if (symbol.Parameters.Length == methodInfo.GetParameters().Length)
+                if (symbol.ContainingType.IsEquivalentTo(methodInfo.DeclaringType))
                 {
-                    //for (int i = 0; i < symbol.Parameters.Length; i++)
-                    //{
-                    //    var symbolParameter = symbol.Parameters[i];
-                    //    var parameterInfo = methodInfo.GetParameters()[i];
-                    //    if (symbolParameter.Type.IsEquivalentTo(parameterInfo.ParameterType) == false)
-                    //    {
-                    //        return false;
-                    //    }
-                    //}
-                    return true;
+                    if (symbol.Parameters.Length == methodInfo.GetParameters().Length)
+                    {
+                        //for (int i = 0; i < symbol.Parameters.Length; i++)
+                        //{
+                        //    var symbolParameter = symbol.Parameters[i];
+                        //    var parameterInfo = methodInfo.GetParameters()[i];
+                        //    if (symbolParameter.Type.IsEquivalentTo(parameterInfo.ParameterType) == false)
+                        //    {
+                        //        return false;
+                        //    }
+                        //}
+                        return true;
+                    }
                 }
             }
-
             return false;
         }
 
