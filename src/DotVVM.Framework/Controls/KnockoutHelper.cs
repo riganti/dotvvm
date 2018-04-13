@@ -171,7 +171,7 @@ namespace DotVVM.Framework.Controls
                     call = $"{viewModelAccess}.{methodCallExpression.Method.Name}({knockoutArguments})";
                 }
             }
-            else
+            if(string.IsNullOrEmpty(call))
             {
                 call = adjustedExpression.ToString(p =>
                     p == CommandBindingExpression.ViewModelNameParameter ? new CodeParameterAssignment("\"root\"", OperatorPrecedence.Max) :
@@ -187,7 +187,6 @@ namespace DotVVM.Framework.Controls
                     default(CodeParameterAssignment)
                 );
             }
-
             if (generatedPostbackHandlers == null && options.AllowPostbackHandlers)
                 return $"dotvvm.applyPostbackHandlers(function(){{return {call}}}.bind(this),{options.ElementAccessor.Code.ToString(e => default(CodeParameterAssignment))},{getHandlerScript()})";
             else return call;
