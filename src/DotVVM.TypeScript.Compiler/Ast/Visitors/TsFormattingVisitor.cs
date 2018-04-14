@@ -81,6 +81,18 @@ namespace DotVVM.TypeScript.Compiler.Ast.Visitors
                 propertyReference.Identifier.AcceptVisitor(this);
                 AppendOperator("(", false ,false);
             }
+            else if (assignment.Reference is IArrayElementReferenceSyntax arrayElementReferenceSyntax)
+            {
+                arrayElementReferenceSyntax.ArrayReference.AcceptVisitor(this);
+                if (arrayElementReferenceSyntax.ArrayReference is IPropertyReferenceSyntax)
+                {
+                    Append("()");
+                }
+                Append("[");
+                arrayElementReferenceSyntax.ItemExpression.AcceptVisitor(this);
+                Append("]");
+                Append("(");
+            }
             else
             {
                 assignment.Reference.AcceptVisitor(this);
@@ -387,6 +399,23 @@ namespace DotVVM.TypeScript.Compiler.Ast.Visitors
         public void VisitParametrizedSyntaxNode(IRawSyntaxNode rawSyntaxNode)
         {
             Append(rawSyntaxNode.Value);
+        }
+
+        public void VisitArrayElementReference(IArrayElementReferenceSyntax arrayElementReferenceSyntax)
+        {
+            
+            arrayElementReferenceSyntax.ArrayReference.AcceptVisitor(this);
+            if (arrayElementReferenceSyntax.ArrayReference is IPropertyReferenceSyntax)
+            {
+                Append("()");
+            }
+            Append("[");
+            arrayElementReferenceSyntax.ItemExpression.AcceptVisitor(this);
+            Append("]");
+            if (arrayElementReferenceSyntax.ArrayReference is IPropertyReferenceSyntax)
+            {
+                Append("()");
+            }
         }
     }
 }

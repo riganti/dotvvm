@@ -259,11 +259,21 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
         {
             _logger.LogDebug("Operations", "Translating property reference operation.");
             var reference = operation.Instance.Accept(this, parent) as IReferenceSyntax;
+            var arguments = new List<IExpressionSyntax>();
+            foreach (var argument in operation.Arguments)
+            {
+                var argumentExpression = argument.Accept(this, parent) as IExpressionSyntax;
+                arguments.Add(argumentExpression);
+            }
             var identifier = _factory.CreateIdentifier(operation.Property.Name, parent);
             var translator = _propertyTranslatorRegistry.FindRegisteredTranslator(operation.Property);
             if (translator != null)
             {
-                return translator.Translate(reference, operation.Property, parent);
+                return translator.Translate(reference, operation.Property, parent, arguments);
+            }
+            else if (operation.Property.IsIndexer)
+            {
+                return _factory.CreateArrayElementReference(reference, arguments.Single(), parent);
             }
             else
             {

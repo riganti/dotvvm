@@ -31,6 +31,7 @@ namespace DotVVM.TypeScript.Compiler.Ast.Visitors
         void VisitMethodCall(IMethodCallSyntax methodCall);
         void VisitInstanceReference(IInstanceReferenceSyntax instanceReference);
         void VisitParametrizedSyntaxNode(IRawSyntaxNode rawSyntaxNode);
+        void VisitArrayElementReference(IArrayElementReferenceSyntax arrayElementReferenceSyntax);
     }
 
     class NodeVisitor : INodeVisitor
@@ -168,6 +169,11 @@ namespace DotVVM.TypeScript.Compiler.Ast.Visitors
         public void VisitParametrizedSyntaxNode(IRawSyntaxNode rawSyntaxNode)
         {
             DefaultVisit(rawSyntaxNode);
+        }
+
+        public void VisitArrayElementReference(IArrayElementReferenceSyntax arrayElementReferenceSyntax)
+        {
+            DefaultVisit(arrayElementReferenceSyntax);
         }
 
         protected void DefaultVisit(ISyntaxNode node)

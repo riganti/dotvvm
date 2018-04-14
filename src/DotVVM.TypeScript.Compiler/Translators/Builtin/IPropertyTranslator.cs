@@ -1,10 +1,12 @@
-﻿using DotVVM.TypeScript.Compiler.Ast;
+﻿using System.Collections.Generic;
+using DotVVM.TypeScript.Compiler.Ast;
 using Microsoft.CodeAnalysis;
 
 namespace DotVVM.TypeScript.Compiler.Translators.Builtin
 {
     interface IPropertyTranslator
     {
-        ISyntaxNode Translate(IReferenceSyntax instanceReference, IPropertySymbol property, ISyntaxNode parent);
+        ISyntaxNode Translate(IReferenceSyntax instanceReference, IPropertySymbol property, ISyntaxNode parent,
+            List<IExpressionSyntax> arguments);
     }
 }

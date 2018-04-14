@@ -152,5 +152,11 @@ namespace DotVVM.TypeScript.Compiler.Ast.Factories
         {
             return new TsTypeSyntax(type, parent);
         }
+
+        public IArrayElementReferenceSyntax CreateArrayElementReference(IReferenceSyntax arrayReference,
+            IExpressionSyntax itemReference, ISyntaxNode parent)
+        {
+            return new TsArrayElementReferenceSyntax(parent, arrayReference, itemReference);
+        }
     }
 }

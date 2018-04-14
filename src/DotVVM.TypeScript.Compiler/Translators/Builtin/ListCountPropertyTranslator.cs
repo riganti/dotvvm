@@ -1,4 +1,5 @@
-﻿using DotVVM.TypeScript.Compiler.Ast;
+﻿using System.Collections.Generic;
+using DotVVM.TypeScript.Compiler.Ast;
 using DotVVM.TypeScript.Compiler.Ast.Factories;
 using Microsoft.CodeAnalysis;
 
@@ -14,7 +15,8 @@ namespace DotVVM.TypeScript.Compiler.Translators.Builtin
             _factory = factory;
         }
 
-        public ISyntaxNode Translate(IReferenceSyntax instanceReference, IPropertySymbol property, ISyntaxNode parent)
+        public ISyntaxNode Translate(IReferenceSyntax instanceReference, IPropertySymbol property, ISyntaxNode parent,
+            List<IExpressionSyntax> arguments)
         {
             var access = "";
             if (instanceReference is IPropertyReferenceSyntax propertyReference)
