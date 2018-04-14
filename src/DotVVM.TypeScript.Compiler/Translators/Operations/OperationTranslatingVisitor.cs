@@ -19,12 +19,14 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
         private readonly ILogger _logger;
         private readonly ISyntaxFactory _factory;
         private readonly IBuiltinMethodTranslatorRegistry _methodTranslatorRegistry;
+        private readonly IBuiltinPropertyTranslatorRegistry _propertyTranslatorRegistry;
 
-        public OperationTranslatingVisitor(ILogger logger, ISyntaxFactory factory, IBuiltinMethodTranslatorRegistry methodTranslatorRegistry)
+        public OperationTranslatingVisitor(ILogger logger, ISyntaxFactory factory, IBuiltinMethodTranslatorRegistry methodTranslatorRegistry, IBuiltinPropertyTranslatorRegistry propertyTranslatorRegistry)
         {
             _logger = logger;
             _factory = factory;
             _methodTranslatorRegistry = methodTranslatorRegistry;
+            _propertyTranslatorRegistry = propertyTranslatorRegistry;
         }
 
         public override ISyntaxNode VisitBlock(IBlockOperation blockOperation, ISyntaxNode parent)
@@ -258,7 +260,15 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
             _logger.LogDebug("Operations", "Translating property reference operation.");
             var reference = operation.Instance.Accept(this, parent) as IReferenceSyntax;
             var identifier = _factory.CreateIdentifier(operation.Property.Name, parent);
-            return _factory.CreatePropertyReferenceSyntax(reference, identifier, parent, operation.Property.Type);
+            var translator = _propertyTranslatorRegistry.FindRegisteredTranslator(operation.Property);
+            if (translator != null)
+            {
+                return translator.Translate(reference, operation.Property, parent);
+            }
+            else
+            {
+                return _factory.CreatePropertyReferenceSyntax(reference, identifier, parent, operation.Property.Type);
+            }
         }
     }
 }

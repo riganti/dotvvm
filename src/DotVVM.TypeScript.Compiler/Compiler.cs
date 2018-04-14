@@ -69,6 +69,7 @@ namespace DotVVM.TypeScript.Compiler
 
         private void RegisterBuiltinProperties()
         {
+            _propertyTranslatorRegistry.RegisterTranslator(typeof(List<>).GetProperty("Count"), new ListCountPropertyTranslator(_factory));
         }
 
         private void RegisterBuiltinMethods()
@@ -80,7 +81,7 @@ namespace DotVVM.TypeScript.Compiler
 
         public void RegisterTranslators(CompilerContext compilerContext)
         {
-            _translatorsEvidence.RegisterTranslator(() => new MethodSymbolTranslator(_logger, _translatorsEvidence, compilerContext, _factory, _methodTranslatorRegistry));
+            _translatorsEvidence.RegisterTranslator(() => new MethodSymbolTranslator(_logger, _translatorsEvidence, compilerContext, _factory, _methodTranslatorRegistry, _propertyTranslatorRegistry));
             _translatorsEvidence.RegisterTranslator(() => new PropertySymbolTranslator(_logger, _factory, typeRegistry));
             _translatorsEvidence.RegisterTranslator(() => new ParameterSymbolTranslator(_logger, _factory));
             _translatorsEvidence.RegisterTranslator(() => new TypeSymbolTranslator(_logger, _translatorsEvidence, _factory));
