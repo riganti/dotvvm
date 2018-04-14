@@ -14,6 +14,13 @@ var ListOperationsViewModel = /** @class */ (function () {
     ListOperationsViewModel.prototype.Clear = function () {
         this.NamesList.removeAll();
     };
+    ListOperationsViewModel.prototype.Iterate = function () {
+        for (var i = 0; i < this.NamesList().length; i++) {
+            var name_1 = this.NamesList()[i]();
+            this.NamesList()[i](name_1 + ' iterated');
+        }
+        ;
+    };
     return ListOperationsViewModel;
 }());
 var MathematicalOperationsViewModel = /** @class */ (function () {

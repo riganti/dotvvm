@@ -36,6 +36,16 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethod
             NamesList.Clear();
         }
 
+        [ClientSideMethod]
+        public void Iterate()
+        {
+            for (int i = 0; i < NamesList.Count; i++)
+            {
+                var name = NamesList[i];
+                NamesList[i] = name + " iterated";
+            }
+        }
+
         public void SaveViaPostback()
         {
             for (var i = 0; i < NamesList.Count; i++)
