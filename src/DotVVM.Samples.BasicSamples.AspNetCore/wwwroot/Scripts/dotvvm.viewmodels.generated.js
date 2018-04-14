@@ -17,7 +17,8 @@ var ListOperationsViewModel = /** @class */ (function () {
     ListOperationsViewModel.prototype.Iterate = function () {
         for (var i = 0; i < this.NamesList().length; i++) {
             var name_1 = this.NamesList()[i]();
-            this.NamesList()[i](name_1 + ' iterated');
+            if (!(name_1.indexOf('iterated') !== -1))
+                this.NamesList()[i](name_1 + ' iterated');
         }
         ;
     };

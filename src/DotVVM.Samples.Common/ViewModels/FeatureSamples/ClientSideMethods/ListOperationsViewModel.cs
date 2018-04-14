@@ -42,7 +42,8 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethod
             for (int i = 0; i < NamesList.Count; i++)
             {
                 var name = NamesList[i];
-                NamesList[i] = name + " iterated";
+                if (!name.Contains("iterated"))
+                    NamesList[i] = name + " iterated";
             }
         }
 
