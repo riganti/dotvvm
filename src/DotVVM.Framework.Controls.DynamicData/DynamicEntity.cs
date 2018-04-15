@@ -8,7 +8,6 @@ namespace DotVVM.Framework.Controls.DynamicData
 {
     public class DynamicEntity : HtmlGenericControl
     {
-
         /// <summary>
         /// Gets or sets the custom layout of the form.
         /// </summary>
