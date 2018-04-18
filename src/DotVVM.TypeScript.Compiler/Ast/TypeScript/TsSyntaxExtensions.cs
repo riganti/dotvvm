@@ -14,6 +14,7 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
                     return "private";
                 case AccessModifier.Protected:
                     return "protected";
+                case AccessModifier.None:
                 default:
                     return string.Empty;
             }

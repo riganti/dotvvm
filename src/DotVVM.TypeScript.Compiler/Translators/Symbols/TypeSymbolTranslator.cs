@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using DotVVM.Framework.ViewModel;
 using DotVVM.TypeScript.Compiler.Ast;
@@ -34,11 +35,50 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
         public ISyntaxNode Translate(ITypeSymbol input)
         {
             _logger.LogInfo("Symbols", $"Translating class {input.Name}");
-            var members = TranslateProperties(input);
+            var properties = TranslateProperties(input);
             var methods = TranslateMethods(input);
-            members = members.Concat(methods);
+            var constructors = TranslateConstructors(input);
+            var members = properties.Concat(methods).Concat(constructors);
             var identifier = TranslateIdentifier(input);
             return _factory.CreateClassDeclaration(identifier, members.ToList(), new List<IIdentifierSyntax>(), null);
+        }
+
+        private IEnumerable<IMemberDeclarationSyntax> TranslateConstructors(ITypeSymbol input)
+        {
+            if (input is INamedTypeSymbol namedType)
+            {
+                if (!namedType.Constructors.Any(c => c.Parameters.IsEmpty && !c.IsImplicitlyDeclared))
+                {
+                    yield return CreateEmptyConstructor(input);
+                }
+            }
+        }
+
+        private IMemberDeclarationSyntax CreateEmptyConstructor(ITypeSymbol input)
+        {
+            var identifier = _factory.CreateIdentifier("constructor", null);
+            var body = _factory.CreateBlock(new List<IStatementSyntax>(), null);
+            foreach (var propertySymbol in input.GetMembers().OfType<IPropertySymbol>())
+            {
+                var propertyIdentifier = _factory.CreateIdentifier($"this.{propertySymbol.Name}", null);
+                var propertyReference = _factory.CreateLocalVariableReference(propertyIdentifier, null);
+                IExpressionSyntax expression;
+                if (propertySymbol.Type.IsArrayType() && !propertySymbol.Type.IsStringType())
+                {
+                    var koVariableReference = _factory.CreateLocalVariableReference(_factory.CreateIdentifier("ko", null), null);
+                    expression = _factory.CreateMethodCall(koVariableReference, _factory.CreateIdentifier("observableArray", null),
+                        ImmutableList<IExpressionSyntax>.Empty, null);
+                }
+                else
+                {
+                    var koVariableReference = _factory.CreateLocalVariableReference(_factory.CreateIdentifier("ko", null), null);
+                    expression = _factory.CreateMethodCall(koVariableReference, _factory.CreateIdentifier("observable", null),
+                        ImmutableList<IExpressionSyntax>.Empty, null);
+                }
+                var assignment = _factory.CreateAssignment(propertyReference,expression, null);
+                body.AddStatement(assignment);
+            }
+            return _factory.CreateMethodDeclaration(AccessModifier.None, identifier, null, body, new List<IParameterSyntax>());
         }
 
         private IEnumerable<IMemberDeclarationSyntax> TranslateMethods(ITypeSymbol input)
