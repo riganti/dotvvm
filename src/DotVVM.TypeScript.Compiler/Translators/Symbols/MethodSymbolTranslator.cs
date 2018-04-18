@@ -55,12 +55,12 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
                 var syntaxReference = input.DeclaringSyntaxReferences.First().GetSyntax() as MethodDeclarationSyntax;
                 var operation = _context.Compilation.GetSemanticModel(syntaxReference.SyntaxTree).GetOperation(syntaxReference.Body);
                 var operationTranslatingVisitor = new OperationTranslatingVisitor(_logger, _factory, _methodTranslatorRegistry, _propertyTranslatorRegistry);
-                if (operation.Accept(operationTranslatingVisitor, null) is TsBlockSyntax blockSyntax)
+                if (operation.Accept(operationTranslatingVisitor, null) is IBlockSyntax blockSyntax)
                 {
                     return blockSyntax;
                 }
             }
-            return new TsBlockSyntax(null, new List<IStatementSyntax>());
+            return _factory.CreateBlock(new List<IStatementSyntax>(),null);
         }
 
         private AccessModifier TranslateModifier(IMethodSymbol input)
@@ -71,12 +71,15 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
         
         private IIdentifierSyntax TranslateIdentifier(IMethodSymbol input)
         {
-            return _factory.CreateIdentifier(input.Name, null);
+            if (input.MethodKind == MethodKind.Constructor)
+                return _factory.CreateIdentifier("constructor", null);
+            else 
+                return _factory.CreateIdentifier(input.Name, null);
         }
 
         private IEnumerable<IParameterSyntax> TranslateParameters(IMethodSymbol input)
         {
-            return input.Parameters.Select(p => _translatorsEvidence.ResolveTranslator(p).Translate(p)).OfType<TsParameterSyntax>();
+            return input.Parameters.Select(p => _translatorsEvidence.ResolveTranslator(p).Translate(p)).OfType<IParameterSyntax>();
         }
     }
 }

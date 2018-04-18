@@ -280,5 +280,16 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
                 return _factory.CreatePropertyReferenceSyntax(reference, identifier, parent, operation.Property.Type);
             }
         }
+
+        public override ISyntaxNode VisitObjectCreation(IObjectCreationOperation operation, ISyntaxNode parent)
+        {
+            var typeSyntax = _factory.CreateType(operation.Type, parent);
+            var arguments = new List<IExpressionSyntax>();
+            foreach (var operationArgument in operation.Arguments)
+            {
+                arguments.Add(operationArgument.Accept(this, parent) as IExpressionSyntax);
+            }
+            return _factory.CreateObjectCreationExpression(typeSyntax, arguments, parent);
+        }
     }
 }

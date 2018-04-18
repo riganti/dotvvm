@@ -417,5 +417,21 @@ namespace DotVVM.TypeScript.Compiler.Ast.Visitors
                 Append("()");
             }
         }
+
+        public void VisitObjectCreationExpresion(IObjectCreationExpressionSyntax objectCreation)
+        {
+            Append("new ");
+            objectCreation.ObjectType.AcceptVisitor(this);
+            Append("(");
+            foreach (var argument in objectCreation.Arguments)
+            {
+                argument.AcceptVisitor(this);
+                if (argument != objectCreation.Arguments.Last())
+                {
+                    Append(",");
+                }
+            }
+            Append(")");
+        }
     }
 }
