@@ -57,5 +57,8 @@ namespace DotVVM.TypeScript.Compiler.Ast.Factories
 
         IArrayElementReferenceSyntax CreateArrayElementReference(IReferenceSyntax arrayReference,
             IExpressionSyntax itemReference, ISyntaxNode parent);
+
+        IObjectCreationExpressionSyntax CreateObjectCreationExpression(ITypeSyntax type,
+            IList<IExpressionSyntax> arguments, ISyntaxNode parent);
     }
 }
