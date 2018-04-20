@@ -288,6 +288,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public bool RequiredTypeField() =>
             this.Properties.Any(p => p.ClientValidationRules.Any()); // it is required for validation
 
+        private bool RequireClassField()
+        {
+            return this.Type.GetMethods().Any(m => m.GetCustomAttributes(typeof(ClientSideMethodAttribute), false).Any());
+        }
+
         /// <summary>
         /// Creates the writer factory.
         /// </summary>
@@ -318,6 +323,15 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
                 // serializer.Serialize(writer, value.GetType().FullName)
                 block.Add(ExpressionUtils.Replace((JsonSerializer s, JsonWriter w, string t) => w.WriteValue(t), serializer, writer, Expression.Constant(Type.GetTypeHash())));
+            }
+
+            if (this.RequireClassField())
+            {
+                //writer.WritePropertyName("$class");
+                block.Add(ExpressionUtils.Replace((JsonWriter w) => w.WritePropertyName("$class"), writer));
+
+                //serializer.Serialize(writer, value.GetType().Name);
+                block.Add(ExpressionUtils.Replace((JsonSerializer s, JsonWriter w, string t) => w.WriteValue(t), serializer, writer, Expression.Constant(Type.Name)));
             }
 
             // go through all properties that should be serialized
