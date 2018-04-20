@@ -208,6 +208,17 @@ namespace DotVVM.TypeScript.Compiler.Symbols
             return false;
         }
 
+        public static IEnumerable<ITypeSymbol> GetBaseTypesIncludingSelfUntil(this ITypeSymbol symbol, Type until)
+        {
+            yield return symbol;
+            ITypeSymbol baseType = symbol.BaseType;
+            while (baseType != null && !baseType.IsEquivalentTo(until))
+            {
+                yield return baseType;
+                baseType = baseType.BaseType;
+            }
+        }
+
         public static bool IsEquivalentToProperty(this IPropertySymbol symbol, PropertyInfo propertyInfo)
         {
             if (symbol.Name == propertyInfo.Name)

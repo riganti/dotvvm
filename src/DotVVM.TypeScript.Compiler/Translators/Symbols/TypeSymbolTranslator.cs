@@ -83,7 +83,8 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
 
         private IEnumerable<IMemberDeclarationSyntax> TranslateMethods(ITypeSymbol input)
         {
-            return input.GetMembers()
+            return input.GetBaseTypesIncludingSelfUntil(typeof(DotvvmViewModelBase))
+                .SelectMany(t => t.GetMembers())
                 .OfType<IMethodSymbol>()
                 .Where(m => m.HasAttribute<ClientSideMethodAttribute>())
                 .Where(p => _translatorsEvidence.ResolveTranslator(p).CanTranslate(p))
@@ -93,7 +94,9 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
 
         private IEnumerable<IMemberDeclarationSyntax> TranslateProperties(ITypeSymbol input)
         {
-            var propertySymbols = input.GetMembers().OfType<IPropertySymbol>();
+            var propertySymbols = input.GetBaseTypesIncludingSelfUntil(typeof(DotvvmViewModelBase))
+                .SelectMany(t => t.GetMembers())
+                .OfType<IPropertySymbol>();
             var members = propertySymbols
                 .Where(p => _translatorsEvidence.ResolveTranslator(p).CanTranslate(p))
                 .Select(p => _translatorsEvidence.ResolveTranslator(p).Translate(p))
