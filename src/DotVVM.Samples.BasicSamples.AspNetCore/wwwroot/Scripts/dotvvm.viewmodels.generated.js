@@ -1,5 +1,16 @@
+var MasterPageViewModel = /** @class */ (function () {
+    function MasterPageViewModel() {
+        this.Title = ko.observable();
+    }
+    MasterPageViewModel.prototype.SetTitleToEmpty = function () {
+        this.Title('');
+    };
+    return MasterPageViewModel;
+}());
 var ListOperationsViewModel = /** @class */ (function () {
     function ListOperationsViewModel() {
+        this.NamesList = ko.observableArray();
+        this.Index = ko.observable();
     }
     ListOperationsViewModel.prototype.Add = function () {
         this.NamesList.push(ko.observable('test' + this.Index()));
@@ -22,10 +33,16 @@ var ListOperationsViewModel = /** @class */ (function () {
         }
         ;
     };
+    ListOperationsViewModel.prototype.SetTitleToEmpty = function () {
+        this.Title('');
+    };
     return ListOperationsViewModel;
 }());
 var MathematicalOperationsViewModel = /** @class */ (function () {
     function MathematicalOperationsViewModel() {
+        this.Left = ko.observable();
+        this.Right = ko.observable();
+        this.Result = ko.observable();
     }
     MathematicalOperationsViewModel.prototype.Sum = function () {
         var result = this.Left() + this.Right();
@@ -47,10 +64,16 @@ var MathematicalOperationsViewModel = /** @class */ (function () {
         ;
         this.Result(Math.floor(a));
     };
+    MathematicalOperationsViewModel.prototype.SetTitleToEmpty = function () {
+        this.Title('');
+    };
     return MathematicalOperationsViewModel;
 }());
 var MultipleTypeOperationsViewModel = /** @class */ (function () {
     function MultipleTypeOperationsViewModel() {
+        this.Title = ko.observable();
+        this.Number = ko.observable();
+        this.IsVisible = ko.observable();
     }
     MultipleTypeOperationsViewModel.prototype.Increase = function () {
         this.Number(this.Number() + 1);
@@ -72,18 +95,32 @@ var MultipleTypeOperationsViewModel = /** @class */ (function () {
     MultipleTypeOperationsViewModel.prototype.Hide = function () {
         this.IsVisible(false);
     };
+    MultipleTypeOperationsViewModel.prototype.SetTitleToEmpty = function () {
+        this.Title('');
+    };
     return MultipleTypeOperationsViewModel;
 }());
 var ObjectOperationsViewModel = /** @class */ (function () {
     function ObjectOperationsViewModel() {
+        this.Person = ko.observable();
     }
     ObjectOperationsViewModel.prototype.UpdatePersonsAge = function () {
         this.Person().Age(Math.floor(1));
     };
+    ObjectOperationsViewModel.prototype.CreateNewPerson = function () {
+        this.Person(new PersonDto('Karel', 27));
+    };
+    ObjectOperationsViewModel.prototype.SetTitleToEmpty = function () {
+        this.Title('');
+    };
     return ObjectOperationsViewModel;
 }());
 var PersonDto = /** @class */ (function () {
-    function PersonDto() {
+    function PersonDto(name, age) {
+        this.Name = ko.observable();
+        this.Age = ko.observable();
+        this.Name(name);
+        this.Age(Math.floor(age));
     }
     return PersonDto;
 }());

@@ -6,8 +6,11 @@
     <TypeScriptToolsVersion>2.8</TypeScriptToolsVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Content Remove="wwwroot\Scripts\DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethods.ListOperationsViewModel.generated.ts" />
     <Content Remove="wwwroot\Scripts\DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethods.MathematicalOperationsViewModel.generated.ts" />
-    <Content Remove="wwwroot\Scripts\DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethods.MultipleTypeOperations.generated.ts" />
+    <Content Remove="wwwroot\Scripts\DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethods.MultipleTypeOperationsViewModel.generated.ts" />
+    <Content Remove="wwwroot\Scripts\DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethods.ObjectOperationsViewModel.generated.ts" />
+    <Content Remove="wwwroot\Scripts\DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethods.PersonDto.generated.ts" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DotVVM.Framework.Hosting.AspNetCore\DotVVM.Framework.Hosting.AspNetCore.csproj" />
@@ -26,8 +29,11 @@
     <DotNetCliToolReference Include="DotVVM.Compiler.Light" Version="1.1.0.1" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="wwwroot\Scripts\DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethods.ListOperationsViewModel.generated.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethods.MathematicalOperationsViewModel.generated.ts" />
-    <TypeScriptCompile Include="wwwroot\Scripts\DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethods.MultipleTypeOperations.generated.ts" />
+    <TypeScriptCompile Include="wwwroot\Scripts\DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethods.MultipleTypeOperationsViewModel.generated.ts" />
+    <TypeScriptCompile Include="wwwroot\Scripts\DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethods.ObjectOperationsViewModel.generated.ts" />
+    <TypeScriptCompile Include="wwwroot\Scripts\DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethods.PersonDto.generated.ts" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>

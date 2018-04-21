@@ -20,5 +20,6 @@
     </div>
     
     <dot:Button Text="Set persons age to 1" Click="{command: UpdatePersonsAge()}"/>
+    <dot:Button Text="Create new Person" Click="{command: CreateNewPerson()}"/>
 </body>
 </html>
