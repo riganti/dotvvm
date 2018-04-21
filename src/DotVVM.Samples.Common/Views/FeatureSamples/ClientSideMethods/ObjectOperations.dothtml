@@ -18,8 +18,25 @@
             Age: {{value: Age}}
         </div>
     </div>
-    
+
     <dot:Button Text="Set persons age to 1" Click="{command: UpdatePersonsAge()}"/>
     <dot:Button Text="Create new Person" Click="{command: CreateNewPerson()}"/>
+
+    <dot:GridView DataSource="{value: Persons}">
+        <dot:GridViewTextColumn ValueBinding="{value:  Name}" />
+        <dot:GridViewTextColumn ValueBinding="{value: Age}" />
+        <dot:GridViewTemplateColumn>
+            <ContentTemplate>
+                <dot:Button Text="Remove" Click="{command: _parent.RemovePerson(_this)}">
+                    <PostBack.Handlers>
+                        <dot:ConfirmPostBackHandler Message="Do you really want to remove this item?" />
+                    </PostBack.Handlers>
+                </dot:Button>
+            </ContentTemplate>
+        </dot:GridViewTemplateColumn>
+    </dot:GridView>
+    Name: <dot:TextBox Text="{value: Name}"/>
+    Age: <dot:TextBox Text="{value: Age}"/>
+    <dot:Button Text="Add Person" Click="{command: AddPerson(Name, Age)}"/>
 </body>
 </html>

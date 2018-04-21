@@ -103,12 +103,21 @@ var MultipleTypeOperationsViewModel = /** @class */ (function () {
 var ObjectOperationsViewModel = /** @class */ (function () {
     function ObjectOperationsViewModel() {
         this.Person = ko.observable();
+        this.Name = ko.observable();
+        this.Age = ko.observable();
+        this.Persons = ko.observableArray();
     }
     ObjectOperationsViewModel.prototype.UpdatePersonsAge = function () {
         this.Person().Age(Math.floor(1));
     };
     ObjectOperationsViewModel.prototype.CreateNewPerson = function () {
         this.Person(new PersonDto('Karel', 27));
+    };
+    ObjectOperationsViewModel.prototype.AddPerson = function (name, age) {
+        this.Persons.push(ko.observable(new PersonDto(name, age)));
+    };
+    ObjectOperationsViewModel.prototype.RemovePerson = function (dto) {
+        this.Persons.remove(function (item) { var rawItem = ko.unwrap(item); return rawItem == dto; });
     };
     ObjectOperationsViewModel.prototype.SetTitleToEmpty = function () {
         this.Title('');

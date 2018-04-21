@@ -8,9 +8,14 @@ using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethods
 {
-    public class ObjectOperationsViewModel : MasterPageViewModel
+    public class ObjectOperationsViewModel : DotvvmViewModelBase
     {
         public PersonDto Person { get; set; } = new PersonDto();
+
+        public string Name { get; set; }
+        public int Age { get; set; }
+
+        public List<PersonDto> Persons { get; set; } = new List<PersonDto>();
 
         [ClientSideMethod]
         public void UpdatePersonsAge()
@@ -23,6 +28,19 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethod
         {
             Person = new PersonDto("Karel", 27);
         }
+
+        [ClientSideMethod]
+        public void AddPerson(string name, int age)
+        {
+            Persons.Add(new PersonDto(Name, Age));
+        }
+
+        [ClientSideMethod]
+        public void RemovePerson(PersonDto dto)
+        {
+            Persons.Remove(dto);
+        }
+
     }
 
     public class PersonDto
