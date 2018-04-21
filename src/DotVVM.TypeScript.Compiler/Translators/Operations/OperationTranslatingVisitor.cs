@@ -14,6 +14,7 @@ using Microsoft.CodeAnalysis.Operations;
 
 namespace DotVVM.TypeScript.Compiler.Translators.Operations
 {
+    
     internal class OperationTranslatingVisitor : OperationVisitor<ISyntaxNode, ISyntaxNode>
     {
         private readonly ILogger _logger;

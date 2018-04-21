@@ -32,7 +32,7 @@ namespace DotVVM.TypeScript.Compiler
             return new CompilerArguments {SolutionFile = solutionFileInfo, ProjectName = projectName};
         }
 
-        static int Main(string[] args)
+        static async Task<int> Main(string[] args)
         {
             var logger = new ConsoleLogger();
             var fileStore = new LocalFileStore();
@@ -40,7 +40,7 @@ namespace DotVVM.TypeScript.Compiler
             {
                 var compilerArguments = ParseArguments(args);
                 var compiler = new Compiler(compilerArguments, fileStore, logger);
-                compiler.RunAsync().GetAwaiter().GetResult();
+                await compiler.RunAsync();
                 return 0;
             }
             catch (InvalidArgumentException exception)

@@ -290,7 +290,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         private bool RequireClassField()
         {
-            return this.Type.GetMethods().Any(m => m.GetCustomAttributes(typeof(ClientSideMethodAttribute), false).Any());
+            return this.Type.GetMethods().Any(m => m.GetCustomAttributes(typeof(ClientSideMethodAttribute), false).Any())
+                || this.Type.GetConstructors().Any(c => c.GetCustomAttributes(typeof(ClientSideConstructorAttribute), false).Any());
         }
 
         /// <summary>

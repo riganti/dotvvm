@@ -73,7 +73,8 @@ class DotvvmSerialization {
         }
         var result = ko.unwrap(target);
         var updateTarget = false;
-        if (Object.keys(result).length === 0
+        if (result != null
+            && Object.keys(result).length === 0
             && result.constructor === Object
             && typeof viewModel["$class"] !== "undefined") {
             result = eval("new " + viewModel["$class"] + "()");

@@ -460,7 +460,8 @@ var DotvvmSerialization = /** @class */ (function () {
         }
         var result = ko.unwrap(target);
         var updateTarget = false;
-        if (Object.keys(result).length === 0
+        if (result != null
+            && Object.keys(result).length === 0
             && result.constructor === Object
             && typeof viewModel["$class"] !== "undefined") {
             result = eval("new " + viewModel["$class"] + "()");
@@ -2056,13 +2057,16 @@ var DotvvmEnforceClientFormatValidator = /** @class */ (function (_super) {
     DotvvmEnforceClientFormatValidator.prototype.isValid = function (context, property) {
         // parameters order: AllowNull, AllowEmptyString, AllowEmptyStringOrWhitespaces
         var valid = true;
-        if (!context.parameters[0] && context.valueToValidate == null) {
+        if (!context.parameters[0] && context.valueToValidate == null) // AllowNull
+         {
             valid = false;
         }
-        if (!context.parameters[1] && context.valueToValidate.length === 0) {
+        if (!context.parameters[1] && context.valueToValidate.length === 0) // AllowEmptyString
+         {
             valid = false;
         }
-        if (!context.parameters[2] && this.isEmpty(context.valueToValidate)) {
+        if (!context.parameters[2] && this.isEmpty(context.valueToValidate)) // AllowEmptyStringOrWhitespaces
+         {
             valid = false;
         }
         var metadata = this.getValidationMetadata(property);

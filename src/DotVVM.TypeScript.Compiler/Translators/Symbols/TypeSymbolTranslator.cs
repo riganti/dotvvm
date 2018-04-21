@@ -47,7 +47,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
         {
             if (input is INamedTypeSymbol namedType)
             {
-                if (!namedType.Constructors.Any(c => c.Parameters.IsEmpty && !c.IsImplicitlyDeclared))
+                if (!namedType.Constructors.Any(c => c.HasAttribute<ClientSideConstructorAttribute>()))
                 {
                     yield return CreateEmptyConstructor(input);
                 }
@@ -86,7 +86,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Symbols
             return input.GetBaseTypesIncludingSelfUntil(typeof(DotvvmViewModelBase))
                 .SelectMany(t => t.GetMembers())
                 .OfType<IMethodSymbol>()
-                .Where(m => m.HasAttribute<ClientSideMethodAttribute>())
+                .Where(m => m.HasAttribute<ClientSideMethodAttribute>() || m.HasAttribute<ClientSideConstructorAttribute>())
                 .Where(p => _translatorsEvidence.ResolveTranslator(p).CanTranslate(p))
                 .Select(p => _translatorsEvidence.ResolveTranslator(p).Translate(p))
                 .OfType<IMemberDeclarationSyntax>();
