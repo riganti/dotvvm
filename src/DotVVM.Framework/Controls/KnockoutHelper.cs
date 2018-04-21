@@ -225,6 +225,10 @@ namespace DotVVM.Framework.Controls
                 {
                     output += ".";
                 }
+                else if(accessor.StartsWith("_") == false)
+                {
+                    output += "()";
+                }
             }
 
             return output;
