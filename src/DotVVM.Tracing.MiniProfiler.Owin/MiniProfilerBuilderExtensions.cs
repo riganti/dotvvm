@@ -15,8 +15,8 @@ namespace DotVVM.Framework.Configuration
         /// <returns></returns>
         public static IDotvvmServiceCollection AddMiniProfilerEventTracing(this IDotvvmServiceCollection services)
         {
-            services.AddTransient<IRequestTracer, MiniProfilerTracer>();
-            services.AddTransient<IConfigureOptions<DotvvmConfiguration>, MiniProfilerSetup>();
+            services.Services.AddTransient<IRequestTracer, MiniProfilerTracer>();
+            services.Services.AddTransient<IConfigureOptions<DotvvmConfiguration>, MiniProfilerSetup>();
 
             return services;
         }
@@ -24,15 +24,15 @@ namespace DotVVM.Framework.Configuration
 
     internal class MiniProfilerSetup : IConfigureOptions<DotvvmConfiguration>
     {
-        public void Configure(DotvvmConfiguration config)
+        public void Configure(DotvvmConfiguration options)
         {
-            config.Markup.AddCodeControls("dot", typeof(MiniProfilerWidget));
-            config.Runtime.GlobalFilters.Add(new MiniProfilerActionFilter());
+            options.Markup.AddCodeControls("dot", typeof(MiniProfilerWidget));
+            options.Runtime.GlobalFilters.Add(new MiniProfilerActionFilter());
 
-            var currentProfiler = StackExchange.Profiling.MiniProfiler.Settings.ProfilerProvider
+            var currentProfiler = MiniProfiler.Settings.ProfilerProvider
                 ?? new WebRequestProfilerProvider();
 
-            StackExchange.Profiling.MiniProfiler.Settings.ProfilerProvider = new DotVVMProfilerProvider(currentProfiler);
+            MiniProfiler.Settings.ProfilerProvider = new DotVVMProfilerProvider(currentProfiler);
         }
     }
 

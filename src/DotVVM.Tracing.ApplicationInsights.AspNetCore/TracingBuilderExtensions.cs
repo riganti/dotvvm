@@ -19,8 +19,8 @@ namespace DotVVM.Framework.Configuration
         {
             services.AddApplicationInsightsTracingInternal();
 
-            services.TryAddSingleton<JavaScriptSnippet>();
-            services.AddTransient<IConfigureOptions<DotvvmConfiguration>, ApplicationInsightSetup>();
+            services.Services.TryAddSingleton<JavaScriptSnippet>();
+            services.Services.AddTransient<IConfigureOptions<DotvvmConfiguration>, ApplicationInsightSetup>();
 
             return services;
         }
@@ -28,9 +28,9 @@ namespace DotVVM.Framework.Configuration
 
     internal class ApplicationInsightSetup : IConfigureOptions<DotvvmConfiguration>
     {
-        public void Configure(DotvvmConfiguration config)
+        public void Configure(DotvvmConfiguration options)
         {
-            config.Markup.AddCodeControls("dot", typeof(ApplicationInsightsJavascript));
+            options.Markup.AddCodeControls("dot", typeof(ApplicationInsightsJavascript));
         }
     }
 }

@@ -19,8 +19,8 @@ namespace DotVVM.Tracing.ApplicationInsights
             builder.Use((next) => new RequestTelemetryFilter(next));
             builder.Build();
 
-            services.TryAddSingleton<TelemetryClient>();         
-            services.AddTransient<IRequestTracer, ApplicationInsightsTracer>();
+            services.Services.TryAddSingleton<TelemetryClient>();
+            services.Services.AddTransient<IRequestTracer, ApplicationInsightsTracer>();
 
             return services;
         }

@@ -17,14 +17,14 @@ namespace DotVVM.Framework.Configuration
         /// <returns></returns>
         public static IDotvvmServiceCollection AddMiniProfilerEventTracing(this IDotvvmServiceCollection services)
         {
-            services.AddTransient<IRequestTracer, MiniProfilerTracer>();
+            services.Services.AddTransient<IRequestTracer, MiniProfilerTracer>();
 
-            services.Configure((MiniProfilerOptions opt) =>
+            services.Services.Configure((MiniProfilerOptions opt) =>
             {
                 opt.IgnoredPaths.Add("/dotvvmResource/");
             });
 
-            services.Configure((DotvvmConfiguration conf) =>
+            services.Services.Configure((DotvvmConfiguration conf) =>
             {
                 conf.Markup.AddCodeControls("dot", typeof(MiniProfilerWidget));
                 conf.Runtime.GlobalFilters.Add(
