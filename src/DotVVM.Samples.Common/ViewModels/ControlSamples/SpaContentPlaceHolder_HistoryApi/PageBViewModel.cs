@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.TaskList;
 
-namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.SpaContentPlaceHolder
+namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.SpaContentPlaceHolder_HistoryApi
 {
 	public class PageBViewModel : SpaMasterViewModel
 	{
@@ -14,9 +14,14 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.SpaContentPlaceH
             HeaderText = "Task List";
         }
 
-        public void Redirect()
+        public void RedirectInside()
         {
-            Context.RedirectToRoute("ControlSamples_SpaContentPlaceHolder_PageA", new { Id = 15 });
+            Context.RedirectToRoute("ControlSamples_SpaContentPlaceHolder_HistoryApi_PageA", new { Id = 15 });
+        }
+
+        public void RedirectOutside()
+        {
+            Context.RedirectToRoute("Default");
         }
     }
 }

@@ -4,7 +4,6 @@ using DotVVM.Testing.Abstractions;
 using Xunit;
 using Xunit.Abstractions;
 
-
 namespace DotVVM.Samples.Tests.Control
 {
     public class ListBoxTests : AppSeleniumTest
@@ -34,7 +33,7 @@ namespace DotVVM.Samples.Tests.Control
 
                 var secondOption = browser.ElementAt("select option", 1);
 
-                AssertUI.InnerTextEquals(secondOption, "Text");
+                AssertUI.InnerTextEquals(secondOption, "Text1");
                 AssertUI.Attribute(secondOption, "title", "Even nicer title");
 
                 secondOption.Click();

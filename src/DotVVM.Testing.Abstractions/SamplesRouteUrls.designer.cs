@@ -95,6 +95,9 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_SpaContentPlaceHolder_Default = "ControlSamples/SpaContentPlaceHolder/Default";
         public const string ControlSamples_SpaContentPlaceHolder_PageA = "ControlSamples/SpaContentPlaceHolder/PageA";
         public const string ControlSamples_SpaContentPlaceHolder_PageB = "ControlSamples/SpaContentPlaceHolder/PageB";
+        public const string ControlSamples_SpaContentPlaceHolder_HistoryApi_Default = "ControlSamples/SpaContentPlaceHolder_HistoryApi/Default";
+        public const string ControlSamples_SpaContentPlaceHolder_HistoryApi_PageA = "ControlSamples/SpaContentPlaceHolder_HistoryApi/PageA";
+        public const string ControlSamples_SpaContentPlaceHolder_HistoryApi_PageB = "ControlSamples/SpaContentPlaceHolder_HistoryApi/PageB";
         public const string ControlSamples_SpaContentPlaceHolder_PrefixRouteName_Default = "ControlSamples/SpaContentPlaceHolder_PrefixRouteName/Default";
         public const string ControlSamples_SpaContentPlaceHolder_PrefixRouteName_PageA = "ControlSamples/SpaContentPlaceHolder_PrefixRouteName/PageA";
         public const string ControlSamples_SpaContentPlaceHolder_PrefixRouteName_PageB = "ControlSamples/SpaContentPlaceHolder_PrefixRouteName/PageB";

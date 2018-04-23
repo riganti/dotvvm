@@ -8,10 +8,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.SpaContentPlaceH
 {
 	public class SpaMasterViewModel : DotvvmViewModelBase
 	{
-
         public string HeaderText { get; set; }
-
-
     }
 }
 

@@ -1,11 +1,5 @@
-using System.Linq;
-using System.Reflection;
-using DotVVM.Framework.Binding;
-using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Configuration;
-using DotVVM.Framework.Controls;
-using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ViewModel;
@@ -18,9 +12,6 @@ using DotVVM.Samples.Common;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.ServerSideStyles;
 using Microsoft.Extensions.DependencyInjection;
-using DotVVM.Framework.Compilation.Javascript;
-using DotVVM.Framework.Compilation.Javascript.Ast;
-using DotVVM.Samples.Common.Utilities;
 
 namespace DotVVM.Samples.BasicSamples
 {
@@ -29,6 +20,7 @@ namespace DotVVM.Samples.BasicSamples
         public void Configure(DotvvmConfiguration config, string applicationPath)
         {
             config.DefaultCulture = "en-US";
+            config.UseHistoryApiSpaNavigation = true;
 
             AddControls(config);
             AddStyles(config);
@@ -87,6 +79,8 @@ namespace DotVVM.Samples.BasicSamples
             config.RouteTable.Add("ComplexSamples_SPARedirect_home", "ComplexSamples/SPARedirect", "Views/ComplexSamples/SPARedirect/home.dothtml");
             config.RouteTable.Add("ControlSamples_SpaContentPlaceHolder_PageA", "ControlSamples/SpaContentPlaceHolder/PageA/{Id}", "Views/ControlSamples/SpaContentPlaceHolder/PageA.dothtml", new { Id = 0 });
             config.RouteTable.Add("ControlSamples_SpaContentPlaceHolder_PrefixRouteName_PageA", "ControlSamples/SpaContentPlaceHolder_PrefixRouteName/PageA/{Id}", "Views/ControlSamples/SpaContentPlaceHolder_PrefixRouteName/PageA.dothtml", new { Id = 0 });
+            config.RouteTable.Add("ControlSamples_SpaContentPlaceHolder_HistoryApi_PageA", "ControlSamples/SpaContentPlaceHolder_HistoryApi/PageA/{Id}", "Views/ControlSamples/SpaContentPlaceHolder_HistoryApi/PageA.dothtml", new { Id = 0 });
+            config.RouteTable.Add("ControlSamples_SpaContentPlaceHolder_HistoryApi", "ControlSamples/SpaContentPlaceHolder_HistoryApi", "Views/ControlSamples/SpaContentPlaceHolder_HistoryApi/SpaMaster.dotmaster");
             config.RouteTable.Add("FeatureSamples_ParameterBinding_ParameterBinding", "FeatureSamples/ParameterBinding/ParameterBinding/{A}", "Views/FeatureSamples/ParameterBinding/ParameterBinding.dothtml", new { A = 123 });
             config.RouteTable.Add("FeatureSamples-Localization", "FeatureSamples/Localization", "Views/FeatureSamples/Localization/Localization.dothtml", presenterFactory: LocalizablePresenter.BasedOnQuery("lang"));
             config.RouteTable.Add("FeatureSamples-Localization-Localization_NestedPage_Type", "FeatureSamples/Localization/Localization_NestedPage_Type", "Views/FeatureSamples/Localization/Localization_NestedPage_Type.dothtml", presenterFactory: LocalizablePresenter.BasedOnQuery("lang"));
