@@ -8,16 +8,16 @@ Next planned version:   **2.0**
 
 ### DotVVM 2.0
 
-**DotVVM 2.0** (originally named 1.2) is planned to be shipped by the end of year 2017.
+**DotVVM 2.0** (originally named 1.2) final release is planned for May 2018.
 Most of the features are implemented and need to be tested in real projects.
 
 | Feature                                                                                         | Status      |
 |-------------------------------------------------------------------------------------------------|-------------|
 | REST API bindings [#282](https://github.com/riganti/dotvvm/issues/282)                          | implemented |
 | Server Side Styles [#399](https://github.com/riganti/dotvvm/issues/399)                         | implemented |
-| Javascript Events and client-side API [#390](https://github.com/riganti/dotvvm/issues/390)      | in progress |
+| Javascript Events and client-side API [#390](https://github.com/riganti/dotvvm/issues/390)      | implemented |
 | Dependency Injection in controls [#266](https://github.com/riganti/dotvvm/issues/266)           | implemented |
-| PostBack.ConcurrencyMode [#283](https://github.com/riganti/dotvvm/issues/283)                   | in progress |
+| PostBack.ConcurrencyMode [#283](https://github.com/riganti/dotvvm/issues/283)                   | implemented |
 | Static Command Services [#281](https://github.com/riganti/dotvvm/issues/281)                    | implemented |
 | _collection Variable [#205](https://github.com/riganti/dotvvm/issues/205)                       | implemented |
 | Embedding of Markup Controls in DLL [#151](https://github.com/riganti/dotvvm/issues/151)        | implemented |

@@ -7,15 +7,13 @@ using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Binding
 {
-    public class ControlPropertyBindingDataContextChangeAttribute : DataContextChangeAttribute
+    public class ControlPropertyTypeDataContextChangeAttribute : DataContextChangeAttribute
     {
         public string PropertyName { get; set; }
 
         public override int Order { get; }
 
-        public bool AllowMissingProperty { get; set; }
-
-        public ControlPropertyBindingDataContextChangeAttribute(string propertyName, int order = 0)
+        public ControlPropertyTypeDataContextChangeAttribute(string propertyName, int order = 0)
         {
             PropertyName = propertyName;
             Order = order;
@@ -28,19 +26,12 @@ namespace DotVVM.Framework.Binding
                 throw new Exception($"The property '{PropertyName}' was not found on control '{control.Metadata.Type}'!");
             }
 
-            if (control.TryGetProperty(controlProperty, out var setter))
+            if (control.TryGetProperty(controlProperty, out var setter) && setter is IAbstractPropertyBinding binding)
             {
-                return setter is IAbstractPropertyBinding binding
-                    ? binding.Binding.ResultType
-                    : dataContext;
+                return binding.Binding.ResultType;
             }
 
-            if (AllowMissingProperty)
-            {
-                return dataContext;
-            }
-
-            throw new Exception($"Property '{PropertyName}' is required on '{control.Metadata.Type.Name}'.");
+            return controlProperty.PropertyType;
         }
 
         public override Type GetChildDataContextType(Type dataContext, DataContextStack controlContextStack, DotvvmBindableObject control, DotvvmProperty property = null)
@@ -54,21 +45,12 @@ namespace DotVVM.Framework.Binding
                 throw new Exception($"The property '{PropertyName}' was not found on control '{controlType}'!");
             }
 
-            if (control.Properties.ContainsKey(controlProperty))
+            if (control.Properties.ContainsKey(controlProperty) && control.HasValueBinding(controlProperty))
             {
-                return control.HasValueBinding(controlProperty)
-                    ? control.GetValueBinding(controlProperty).ResultType
-                    : dataContext;
+                return control.GetValueBinding(controlProperty).ResultType;
             }
 
-            if (AllowMissingProperty)
-            {
-                return dataContext;
-            }
-
-            throw new Exception($"Property '{PropertyName}' is required on '{controlType.Name}'.");
+            return controlProperty.PropertyType;
         }
-
-        public override IEnumerable<string> PropertyDependsOn => new[] { PropertyName };
     }
 }

@@ -64,6 +64,11 @@ namespace DotVVM.Framework.Runtime.Filters
 
         private async Task Authorize(IDotvvmRequestContext context, object appliedOn)
         {
+            if (!CanBeAuthorized(appliedOn ?? context.ViewModel))
+            {
+                return;
+            }
+
             var policy = await GetAuthorizationPolicy(context);
 
             if (policy == null)
@@ -114,6 +119,14 @@ namespace DotVVM.Framework.Runtime.Filters
                 }
             }
         }
+
+        private static readonly ConcurrentDictionary<Type, bool> canBeAuthorizedCache = new ConcurrentDictionary<Type, bool>();
+        /// <summary>
+        /// Returns whether the view model does require authorization.
+        /// </summary>
+        /// <param name="viewModel">The view model.</param>
+        protected bool CanBeAuthorized(object viewModel)
+            => viewModel == null || canBeAuthorizedCache.GetOrAdd(viewModel.GetType(), t => !t.GetTypeInfo().IsDefined(typeof(NotAuthorizedAttribute)));
 
         private async Task<AuthorizationPolicy> GetAuthorizationPolicy(IDotvvmRequestContext context)
         {

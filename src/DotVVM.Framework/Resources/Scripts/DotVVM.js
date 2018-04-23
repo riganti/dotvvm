@@ -2547,123 +2547,118 @@ var DotvvmEvaluator = /** @class */ (function () {
         }
         return false;
     };
-    DotvvmEvaluator.prototype.wrapKnockoutExpression = function (func) {
+    DotvvmEvaluator.prototype.wrapObservable = function (func, isArray) {
         var _this = this;
-        var wrapper;
-        var result = this.getExpressionResult(func), isWriteableObservable = ko.isWriteableObservable(result), isObservableArray = this.isObservableArray(result);
-        if (isWriteableObservable) {
-            wrapper = ko.pureComputed({
-                read: function () { return ko.unwrap(_this.getExpressionResult(func)); },
-                write: function (value) { return _this.updateObservable(func, value); }
-            });
-            if (isObservableArray) {
-                wrapper.push = function () {
-                    var args = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
-                    }
-                    return _this.updateObservableArray(func, "push", args);
-                };
-                wrapper.pop = function () {
-                    var args = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
-                    }
-                    return _this.updateObservableArray(func, "pop", args);
-                };
-                wrapper.unshift = function () {
-                    var args = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
-                    }
-                    return _this.updateObservableArray(func, "unshift", args);
-                };
-                wrapper.shift = function () {
-                    var args = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
-                    }
-                    return _this.updateObservableArray(func, "shift", args);
-                };
-                wrapper.reverse = function () {
-                    var args = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
-                    }
-                    return _this.updateObservableArray(func, "reverse", args);
-                };
-                wrapper.sort = function () {
-                    var args = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
-                    }
-                    return _this.updateObservableArray(func, "sort", args);
-                };
-                wrapper.splice = function () {
-                    var args = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
-                    }
-                    return _this.updateObservableArray(func, "splice", args);
-                };
-                wrapper.slice = function () {
-                    var args = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
-                    }
-                    return _this.updateObservableArray(func, "slice", args);
-                };
-                wrapper.replace = function () {
-                    var args = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
-                    }
-                    return _this.updateObservableArray(func, "replace", args);
-                };
-                wrapper.indexOf = function () {
-                    var args = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
-                    }
-                    return _this.updateObservableArray(func, "indexOf", args);
-                };
-                wrapper.remove = function () {
-                    var args = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
-                    }
-                    return _this.updateObservableArray(func, "remove", args);
-                };
-                wrapper.removeAll = function () {
-                    var args = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
-                    }
-                    return _this.updateObservableArray(func, "removeAll", args);
-                };
-            }
-        }
-        else {
-            wrapper = ko.pureComputed(function () { return ko.unwrap(_this.getExpressionResult(func)); });
-        }
-        if (isObservableArray) {
-            wrapper = wrapper.extend({ trackArrayChanges: true }); // properly track changes in wrapped arrays
+        var wrapper = ko.pureComputed({
+            read: function () { return ko.unwrap(_this.getExpressionResult(func)); },
+            write: function (value) { return _this.updateObservable(func, value); }
+        });
+        if (isArray) {
+            wrapper.push = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                return _this.updateObservableArray(func, "push", args);
+            };
+            wrapper.pop = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                return _this.updateObservableArray(func, "pop", args);
+            };
+            wrapper.unshift = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                return _this.updateObservableArray(func, "unshift", args);
+            };
+            wrapper.shift = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                return _this.updateObservableArray(func, "shift", args);
+            };
+            wrapper.reverse = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                return _this.updateObservableArray(func, "reverse", args);
+            };
+            wrapper.sort = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                return _this.updateObservableArray(func, "sort", args);
+            };
+            wrapper.splice = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                return _this.updateObservableArray(func, "splice", args);
+            };
+            wrapper.slice = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                return _this.updateObservableArray(func, "slice", args);
+            };
+            wrapper.replace = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                return _this.updateObservableArray(func, "replace", args);
+            };
+            wrapper.indexOf = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                return _this.updateObservableArray(func, "indexOf", args);
+            };
+            wrapper.remove = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                return _this.updateObservableArray(func, "remove", args);
+            };
+            wrapper.removeAll = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                return _this.updateObservableArray(func, "removeAll", args);
+            };
+            wrapper = wrapper.extend({ trackArrayChanges: true });
         }
         return wrapper.extend({ notify: "always" });
     };
     DotvvmEvaluator.prototype.updateObservable = function (getObservable, value) {
         var result = this.getExpressionResult(getObservable);
         if (!ko.isWriteableObservable(result)) {
-            throw Error("Cannot write a value to ko.computed because the expression '" + getObservable + "' does not return a writable observable.");
+            console.error("Cannot write a value to ko.computed because the expression '" + getObservable + "' does not return a writable observable.");
         }
-        result(value);
+        else {
+            result(value);
+        }
     };
     DotvvmEvaluator.prototype.updateObservableArray = function (getObservableArray, fnName, args) {
         var result = this.getExpressionResult(getObservableArray);
         if (!this.isObservableArray(result)) {
-            throw Error("Cannot execute '" + fnName + "' function on ko.computed because the '" + getObservableArray + "' does not return an observable array.");
+            console.error("Cannot execute '" + fnName + "' function on ko.computed because the expression '" + getObservableArray + "' does not return an observable array.");
         }
-        result[fnName].apply(result, args);
+        else {
+            result[fnName].apply(result, args);
+        }
     };
     DotvvmEvaluator.prototype.getExpressionResult = function (func) {
         var result = func();

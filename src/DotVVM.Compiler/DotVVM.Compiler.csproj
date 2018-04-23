@@ -20,25 +20,8 @@
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
+    <StartupObject>DotVVM.Compiler.Programs.Program</StartupObject>
   </PropertyGroup>
- 
-  <!--
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-      <PackageReference Include="System.Collections.Specialized" Version="4.3.0" />
-      <PackageReference Include="System.Diagnostics.Contracts" Version="4.3.0" />
-      <PackageReference Include="System.Diagnostics.Process" Version="4.3.0" />
-      <PackageReference Include="System.Diagnostics.StackTrace" Version="4.3.0" />
-      <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
-      <PackageReference Include="System.Security.Claims" Version="4.3.0" />
-      <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
-      <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="2.6.1" />
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.0.0" />
-      <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="2.0.0" />
-      <PackageReference Include="Microsoft.Extensions.Options" Version="2.0.0" />
-  </ItemGroup>
-  -->
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="1.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="1.1.1" />

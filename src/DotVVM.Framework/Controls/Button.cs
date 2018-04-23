@@ -56,12 +56,12 @@ namespace DotVVM.Framework.Controls
 
         protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
-            if ((HasBinding(TextProperty) || !string.IsNullOrEmpty(Text)) && !HasOnlyWhiteSpaceContent())
+            if ((HasValueBinding(TextProperty) || !string.IsNullOrEmpty(Text)) && !HasOnlyWhiteSpaceContent())
             {
                 throw new DotvvmControlException(this, "Text property and inner content of the <dot:Button> control cannot be set at the same time!");
             }
 
-            if (ButtonTagName == ButtonTagName.button && HasBinding(TextProperty))
+            if (ButtonTagName == ButtonTagName.button && HasValueBinding(TextProperty))
             {
                 var literal = new Literal { RenderSpanElement = false };
                 literal.SetBinding(c => c.Text, GetBinding(TextProperty));
