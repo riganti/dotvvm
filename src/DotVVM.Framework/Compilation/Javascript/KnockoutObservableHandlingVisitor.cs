@@ -60,7 +60,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 else
                 {
                     if (resultType.Type == typeof(DateTime) || resultType.Type == typeof(DateTime?))
-                        value = new JsIdentifierExpression("dotvvm").Member("serialization").Member("serializeDate").Invoke(value);
+                        value = new JsIdentifierExpression("dotvvm").Member("serialization").Member("serializeDate").Invoke(value, new JsLiteral(false));
 
                     // A = B -> A(B)
                     assignee.RemoveAnnotations<MayBeNullAnnotation>();
