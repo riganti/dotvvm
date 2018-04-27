@@ -22,10 +22,10 @@ namespace DotVVM.Framework.Controls
             var expression = control.GetValueBinding(property);
             if (expression != null && (!control.RenderOnServer || renderEvenInServerRenderingMode))
             {
-                writer.AddKnockoutDataBind("data-bind", name + ": " + expression.GetKnockoutBindingExpression(control));
+                writer.AddKnockoutDataBind(name, expression.GetKnockoutBindingExpression(control));
                 if (valueUpdate != null)
                 {
-                    writer.AddKnockoutDataBind("data-bind", "valueUpdate: '" + valueUpdate + "'");
+                    writer.AddKnockoutDataBind("valueUpdate", $"'{valueUpdate}'");
                 }
             }
             else
@@ -48,7 +48,7 @@ namespace DotVVM.Framework.Controls
 
         public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, IEnumerable<KeyValuePair<string, IValueBinding>> expressions, DotvvmBindableObject control, DotvvmProperty property)
         {
-            writer.AddAttribute("data-bind", name + ": {" + String.Join(",", expressions.Select(e => "'" + e.Key + "': " + e.Value.GetKnockoutBindingExpression(control))) + "}", true, ", ");
+            writer.AddKnockoutDataBind(name, $"{{{String.Join(",", expressions.Select(e => "'" + e.Key + "': " + e.Value.GetKnockoutBindingExpression(control)))}}}");
         }
 
         public static void WriteKnockoutForeachComment(this IHtmlWriter writer, string binding)
