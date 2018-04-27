@@ -1,7 +1,7 @@
 ﻿class DotvvmGlobalize {
 
-    public format(format: string, ...values: string[]) {
-        return format.replace(/\{([1-9]?[0-9]+)(:[^}])?\}/g, (match, group0, group1) => {
+    public format(format: string, ...values: any[]) {
+        return format.replace(/\{([1-9]?[0-9]+)(:[^}]+)?\}/g, (match, group0, group1) => {
             var value = values[parseInt(group0)];
             if (group1) {
                 return this.formatString(group1, value);

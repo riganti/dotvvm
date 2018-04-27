@@ -148,7 +148,7 @@ declare class DotvvmFileSize {
     FormattedText: KnockoutObservable<string>;
 }
 declare class DotvvmGlobalize {
-    format(format: string, ...values: string[]): string;
+    format(format: string, ...values: any[]): string;
     formatString(format: string, value: any): string;
     parseDotvvmDate(value: string): Date | null;
     parseNumber(value: string): number;
