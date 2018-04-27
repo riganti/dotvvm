@@ -22,10 +22,10 @@ namespace DotVVM.Framework.Controls
             var expression = control.GetValueBinding(property);
             if (expression != null && (!control.RenderOnServer || renderEvenInServerRenderingMode))
             {
-                writer.AddAttribute("data-bind", name + ": " + expression.GetKnockoutBindingExpression(control), true, ", ");
+                writer.AddKnockoutDataBind("data-bind", name + ": " + expression.GetKnockoutBindingExpression(control));
                 if (valueUpdate != null)
                 {
-                    writer.AddAttribute("data-bind", "valueUpdate: '" + valueUpdate + "'", true, ", ");
+                    writer.AddKnockoutDataBind("data-bind", "valueUpdate: '" + valueUpdate + "'");
                 }
             }
             else
