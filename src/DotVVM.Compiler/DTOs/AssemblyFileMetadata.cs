@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DotVVM.Compiler
 {
-    internal class NugetDllMetadata
+    internal class AssemblyFileMetadata
     {
         public Version Version { get; set; }
         public string Location { get; set; }

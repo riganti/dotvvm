@@ -7,13 +7,13 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using DotVVM.Compiler.Compilation;
+using DotVVM.Compiler.DTOs;
 using DotVVM.Compiler.Initialization;
 using DotVVM.Compiler.Resolving;
 using Newtonsoft.Json;
 
 namespace DotVVM.Compiler.Programs
 {
-
     public class Program2
     {
 
@@ -21,13 +21,16 @@ namespace DotVVM.Compiler.Programs
         internal static CompilerOptions Options { get; private set; }
         internal static HashSet<string> assemblySearchPaths { get; private set; } = new HashSet<string>();
         private static Stopwatch stopwatcher;
-
         public static void ContinueMain(string[] args)
         {
             WriteTargetFramework();
 
             GetEnvironmentAssemblySearchPaths();
+#if NETCOREAPP2_0
+            AssemblyResolver.DotNetCliInfo = DotNetCliInfoResolver.GetInfo();
+#endif
             AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolver.ResolveAssembly;
+
 
             if (args.Length == 0)
             {
@@ -109,7 +112,7 @@ JSON structure:
         private static void Exit(int exitCode)
         {
 
-            Environment.Exit(1);
+            Environment.Exit(exitCode);
         }
 
         private static void GetEnvironmentAssemblySearchPaths()
@@ -172,9 +175,11 @@ JSON structure:
                     result = ExportConfiguration(options);
                 }
 
+                ConfigurationSerialization.PreInit();
+
                 var serializedResult = JsonConvert.SerializeObject(result, Formatting.Indented,
                     new JsonSerializerSettings {
-                        TypeNameHandling = TypeNameHandling.Auto
+                        TypeNameHandling = TypeNameHandling.Auto,
                     });
                 Console.WriteLine(serializedResult);
                 WriteConfigurationOutput(serializedResult);

@@ -84,7 +84,7 @@ namespace DotVVM.Compiler.Compilation
 
             if (Options.DothtmlFiles == null)
             {
-                Options.DothtmlFiles = configuration.RouteTable.Select(r => r.VirtualPath).Where(r => r != null).ToArray();
+                Options.DothtmlFiles = configuration.RouteTable.Select(r => r.VirtualPath).Where(r => !string.IsNullOrWhiteSpace(r)).ToArray();
             }
 
 
