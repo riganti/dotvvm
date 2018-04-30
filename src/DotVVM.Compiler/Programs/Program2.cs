@@ -51,6 +51,11 @@ namespace DotVVM.Compiler.Programs
                 WaitForDbg();
                 args = args.Skip(1).ToArray();
             }
+            if (args[0] == "--debugger-break")
+            {
+                WaitForDbg(true);
+                args = args.Skip(1).ToArray();
+            }
 
             if (args[0] == "--json")
             {
@@ -117,17 +122,21 @@ JSON structure:
 
         private static void GetEnvironmentAssemblySearchPaths()
         {
-            assemblySearchPaths.Add(Environment.CurrentDirectory);
             foreach (var path in Environment.GetEnvironmentVariable("assemblySearchPath")?.Split(',') ?? new string[0])
             {
                 assemblySearchPaths.Add(path);
             }
+            assemblySearchPaths.Add(Environment.CurrentDirectory);
         }
 
-        private static void WaitForDbg()
+        private static void WaitForDbg(bool _break = false)
         {
             WriteInfo("Process ID: " + Process.GetCurrentProcess().Id);
             while (!Debugger.IsAttached) Thread.Sleep(10);
+            if (_break)
+            {
+                Debugger.Break();
+            }
         }
 
 

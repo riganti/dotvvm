@@ -10,6 +10,7 @@
     <PackageIconUrl>https://dotvvm.com/Content/images/icons/icon-blue-64x64.png</PackageIconUrl>
     <PackageLicenseUrl>https://github.com/riganti/dotvvm/blob/master/LICENSE</PackageLicenseUrl>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
@@ -49,9 +50,11 @@
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>true</Private>
     </Reference>
     <Reference Include="NJsonSchema">
       <HintPath>..\..\..\..\Users\sesta\.nuget\packages\njsonschema\9.4.5\lib\netstandard1.0\NJsonSchema.dll</HintPath>
+      <Private>true</Private>
     </Reference>
   </ItemGroup>
 </Project>

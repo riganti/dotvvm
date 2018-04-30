@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Threading;
 using DotVVM.Compiler.DTOs;
 using DotVVM.Compiler.Programs;
-using DotVVM.Framework.Utils;
+
 #if NETCOREAPP2_0
 using Microsoft.Extensions.DependencyModel;
 using System.Runtime.Loader;
@@ -86,12 +86,15 @@ namespace DotVVM.Compiler.Resolving
         {
             foreach (var path in Program2.assemblySearchPaths)
             {
+                Program2.WriteInfo($"Searching in {path}");
                 var assemblyPath = Path.Combine(path, new AssemblyName(name).Name);
 
                 if (File.Exists(assemblyPath + ".dll"))
                 {
                     {
                         loadAssemblyFromFile = LoadAssemblyFromFile(assemblyPath + ".dll");
+                        Program2.WriteInfo($"Assembly found at {assemblyPath + ".dll"}");
+
                         return true;
                     }
                 }
@@ -100,6 +103,7 @@ namespace DotVVM.Compiler.Resolving
                 {
                     {
                         loadAssemblyFromFile = LoadAssemblyFromFile(assemblyPath + ".exe");
+                        Program2.WriteInfo($"Assembly found at {assemblyPath + ".exe"}");
                         return true;
                     }
                 }
@@ -112,7 +116,6 @@ namespace DotVVM.Compiler.Resolving
         private static Assembly LoadAssemblyFromFile(string assemblyPath)
         {
             return AssemblyLoader.LoadFile(assemblyPath);
-
         }
 
         private static void LoadDotNetStoreAssemblies()
