@@ -47,7 +47,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var allTypes = ReflectionUtils.GetAllAssemblies()
                 .Where(a => a.GetReferencedAssemblies().Any(r => r.Name == dotvvmAssembly))
                 .Concat(new[] { typeof(DotvvmControl).GetTypeInfo().Assembly })
-                .SelectMany(a => a.GetTypes()).Where(t => t.GetTypeInfo().IsClass).ToList();
+                .SelectMany(a => a.GetLoadableTypes()).Where(t => t.GetTypeInfo().IsClass).ToList();
             foreach (var type in allTypes)
             {
                 if (type.GetTypeInfo().GetCustomAttribute<ContainsDotvvmPropertiesAttribute>(true) != null)
