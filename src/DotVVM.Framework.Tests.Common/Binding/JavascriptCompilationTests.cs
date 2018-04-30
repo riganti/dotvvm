@@ -221,7 +221,7 @@ namespace DotVVM.Framework.Tests.Binding
             var result = CompileBinding("_api.GetCurrentTime('test')");
             Assert.AreEqual("dotvvm.invokeApiFn(function(){return dotvvm.api._api.getCurrentTime(\"test\");},[dotvvm.eventHub.get(\"dotvvm.api._api\")],[])", result);
             var assignment = CompileBinding("DateFrom = _api.GetCurrentTime('test')", typeof(TestViewModel));
-            Assert.AreEqual("DateFrom(dotvvm.serialization.serializeDate(dotvvm.invokeApiFn(function(){return dotvvm.api._api.getCurrentTime(\"test\");},[dotvvm.eventHub.get(\"dotvvm.api._api\")],[])())).DateFrom()", assignment);
+            Assert.AreEqual("DateFrom(dotvvm.serialization.serializeDate(dotvvm.invokeApiFn(function(){return dotvvm.api._api.getCurrentTime(\"test\");},[dotvvm.eventHub.get(\"dotvvm.api._api\")],[])(),false)).DateFrom()", assignment);
         }
 
         [TestMethod]
