@@ -12,7 +12,6 @@ using DotVVM.Framework.Utils;
 using Microsoft.Extensions.DependencyModel;
 using System.Runtime.Loader;
 #endif
-using NJsonSchema.Infrastructure;
 
 namespace DotVVM.Compiler.Resolving
 {
