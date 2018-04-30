@@ -121,7 +121,7 @@ namespace DotVVM.Framework.Hosting
 
             foreach (var f in requestFilters)
             {
-                await f.OnPageLoadingAsync(context);
+                await f.OnPageInitializedAsync(context);
             }
             try
             {
@@ -255,7 +255,7 @@ namespace DotVVM.Framework.Hosting
                 }
                 await requestTracer.TraceEvent(RequestTracingConstants.OutputRendered, context);
 
-                foreach (var f in requestFilters) await f.OnPageLoadedAsync(context);
+                foreach (var f in requestFilters) await f.OnPageRenderedAsync(context);
             }
             catch (DotvvmInterruptRequestExecutionException) { throw; }
             catch (DotvvmHttpException) { throw; }

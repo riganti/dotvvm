@@ -51,7 +51,7 @@ namespace DotVVM.Framework.Runtime.Filters
         }
 
         /// <inheritdoc />
-        protected override Task OnPageLoadingAsync(IDotvvmRequestContext context)
+        protected override Task OnPresenterExecutingAsync(IDotvvmRequestContext context)
         {
             Authorize(context, context.Presenter);
             return TaskUtils.GetCompletedTask();

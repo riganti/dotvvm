@@ -59,7 +59,7 @@ namespace DotVVM.Framework.Runtime.Filters
         protected override Task OnCommandExecutingAsync(IDotvvmRequestContext context, ActionInfo actionInfo)
             => Authorize(context, null);
 
-        protected override Task OnPageLoadingAsync(IDotvvmRequestContext context)
+        protected override Task OnPresenterExecutingAsync(IDotvvmRequestContext context)
             => Authorize(context, context.Presenter);
 
         private async Task Authorize(IDotvvmRequestContext context, object appliedOn)
