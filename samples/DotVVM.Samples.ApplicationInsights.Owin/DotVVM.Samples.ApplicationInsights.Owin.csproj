@@ -48,13 +48,13 @@
       <HintPath>..\..\packages\Ben.Demystifier.0.1.0\lib\net45\Ben.Demystifier.dll</HintPath>
     </Reference>
     <Reference Include="DotVVM.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=23f3607db32275da, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\DotVVM.Core.2.0.0-preview06-final\lib\net451\DotVVM.Core.dll</HintPath>
+      <HintPath>..\..\packages\DotVVM.Core.2.0.0-preview07-27755\lib\net451\DotVVM.Core.dll</HintPath>
     </Reference>
     <Reference Include="DotVVM.Framework, Version=2.0.0.0, Culture=neutral, PublicKeyToken=23f3607db32275da, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\DotVVM.2.0.0-preview06-final\lib\net451\DotVVM.Framework.dll</HintPath>
+      <HintPath>..\..\packages\DotVVM.2.0.0-preview07-27755\lib\net451\DotVVM.Framework.dll</HintPath>
     </Reference>
     <Reference Include="DotVVM.Framework.Hosting.Owin, Version=2.0.0.0, Culture=neutral, PublicKeyToken=23f3607db32275da, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\DotVVM.Owin.2.0.0-preview06-final\lib\net451\DotVVM.Framework.Hosting.Owin.dll</HintPath>
+      <HintPath>..\..\packages\DotVVM.Owin.2.0.0-preview07-27755\lib\net451\DotVVM.Framework.Hosting.Owin.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.ApplicationInsights, Version=2.5.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.ApplicationInsights.2.5.1\lib\net46\Microsoft.ApplicationInsights.dll</HintPath>
@@ -112,6 +112,7 @@
       <HintPath>..\..\packages\System.Diagnostics.DiagnosticSource.4.4.0\lib\net46\System.Diagnostics.DiagnosticSource.dll</HintPath>
     </Reference>
     <Reference Include="System.Net" />
+    <Reference Include="System.Net.Http, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="System.Reflection.Metadata, Version=1.4.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\System.Reflection.Metadata.1.5.0\lib\netstandard2.0\System.Reflection.Metadata.dll</HintPath>
     </Reference>

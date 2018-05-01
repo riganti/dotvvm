@@ -14,13 +14,13 @@
 	  <Content Include="Views\default.dotmaster" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="DotVVM.AspNetCore" Version="2.0.0-preview06-final" />
+		<PackageReference Include="DotVVM.AspNetCore" Version="2.0.0-preview07-27755" />
 		<PackageReference Include="Microsoft.AspNetCore" Version="2.0.2" />
 		<PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.2" />
 		<PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="2.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.0.0" />
-		<PackageReference Include="MiniProfiler.AspNetCore.Mvc" Version="4.0.0-alpha9-00206" />
-		<PackageReference Include="MiniProfiler.EntityFrameworkCore" Version="4.0.0-alpha9-00206" />
+		<PackageReference Include="MiniProfiler.AspNetCore.Mvc" Version="4.0.0-beta.50" />
+		<PackageReference Include="MiniProfiler.EntityFrameworkCore" Version="4.0.0-beta.50" />
 	</ItemGroup>
   <ItemGroup>
     <DotNetCliToolReference Include="DotVVM.Compiler.Light" Version="1.1.0.1" />

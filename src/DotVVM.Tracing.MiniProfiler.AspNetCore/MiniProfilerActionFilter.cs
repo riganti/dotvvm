@@ -20,7 +20,7 @@ namespace DotVVM.Tracing.MiniProfiler.AspNetCore
             this.resultsLink = minipProfilerOptions.Value.RouteBasePath.Add(new PathString("/results-index"));
         }
 
-        protected override Task OnPageLoadedAsync(IDotvvmRequestContext context)
+        protected override Task OnPresenterExecutingAsync(IDotvvmRequestContext context)
         {
             // Naming for PostBack occurs in method OnCommandExecutingAsync
             // We don't want to override it with less information
@@ -29,7 +29,7 @@ namespace DotVVM.Tracing.MiniProfiler.AspNetCore
                 AddMiniProfilerName(context, context.HttpContext.Request.Url.AbsoluteUri);
             }
 
-            return base.OnPageLoadedAsync(context);
+            return base.OnPresenterExecutingAsync(context);
         }
 
         protected override Task OnCommandExecutingAsync(IDotvvmRequestContext context, ActionInfo actionInfo)

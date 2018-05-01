@@ -35,5 +35,11 @@ namespace DotVVM.Samples.MiniProfiler.AspNetCore.ViewModels
         public void Command()
         {
         }
+
+        [AllowStaticCommand]
+        public static void StaticCommand()
+        {
+
+        }
     }
 }
