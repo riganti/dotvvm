@@ -82,6 +82,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_Repeater_NestedRepeaterWithControl = "ControlSamples/Repeater/NestedRepeaterWithControl";
         public const string ControlSamples_Repeater_RepeaterAsSeparator = "ControlSamples/Repeater/RepeaterAsSeparator";
         public const string ControlSamples_Repeater_RepeaterWrapperTag = "ControlSamples/Repeater/RepeaterWrapperTag";
+        public const string ControlSamples_Repeater_RequiredResource = "ControlSamples/Repeater/RequiredResource";
         public const string ControlSamples_Repeater_RouteLink = "ControlSamples/Repeater/RouteLink";
         public const string ControlSamples_Repeater_RouteLinkQuery = "ControlSamples/Repeater/RouteLinkQuery";
         public const string ControlSamples_Repeater_RouteLinkUrlSuffix = "ControlSamples/Repeater/RouteLinkUrlSuffix";

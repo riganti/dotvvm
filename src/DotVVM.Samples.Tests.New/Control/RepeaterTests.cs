@@ -254,6 +254,21 @@ namespace DotVVM.Samples.Tests.New
             });
         }
 
+        [Fact]
+        public void Control_Repeater_RequiredResource()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_RequiredResource);
+                browser.Wait();
+
+                var clientRepeater = browser.Single("client-repeater", this.SelectByDataUi);
+                var serverRepeater = browser.Single("server-repeater", this.SelectByDataUi);
+
+                Assert.Equal(0, clientRepeater.Children.Count);
+                Assert.Equal(0, serverRepeater.Children.Count);
+            });
+        }
+
         private void CheckSeparators(IBrowserWrapper browser, string repeaterDataUi)
         {
             var repeater = browser.Single(repeaterDataUi, this.SelectByDataUi);
