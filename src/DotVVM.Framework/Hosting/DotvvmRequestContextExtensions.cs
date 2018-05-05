@@ -183,6 +183,13 @@ public static class DotvvmRequestContextExtensions
     public static void ReturnFile(this IDotvvmRequestContext context, Stream stream, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>> additionalHeaders = null)
     {
         var returnedFileStorage = context.Services.GetService<IReturnedFileStorage>();
+
+        if (returnedFileStorage == null)
+        {
+            throw new DotvvmFileStorageMissingException($"Unable to resolve service for type '{typeof(IReturnedFileStorage).Name}'. " +
+                $"Visit https://www.dotvvm.com/docs/tutorials/advanced-returning-files for more details!");
+        }
+
         var metadata = new ReturnedFileMetadata()
         {
             FileName = fileName,
