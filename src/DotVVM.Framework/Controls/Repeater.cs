@@ -2,6 +2,8 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.ResourceManagement;
+using System.IO;
 using System.Linq;
 
 namespace DotVVM.Framework.Controls
@@ -116,16 +118,13 @@ namespace DotVVM.Framework.Controls
 
             if (!RenderOnServer)
             {
-
                 if (RenderWrapperTag)
                 {
-                    //writer.AddKnockoutForeachDataBind(javascriptDataSourceExpression);
-
-                    writer.AddKnockoutDataBind("foreach", GetForeachKnockoutBindingGroup());
+                    writer.AddKnockoutDataBind("template", GetForeachKnockoutBindingGroup(context));
                 }
                 else
                 {
-                    writer.WriteKnockoutDataBindComment("foreach", GetForeachKnockoutBindingGroup().ToString());
+                    writer.WriteKnockoutDataBindComment("template", GetForeachKnockoutBindingGroup(context).ToString());
                 }
             }
 
@@ -135,14 +134,24 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private KnockoutBindingGroup GetForeachKnockoutBindingGroup()
+        private KnockoutBindingGroup GetForeachKnockoutBindingGroup(IDotvvmRequestContext context)
         {
+            var itemContainer = GetItem(context);
+            Children.Add(itemContainer);
+
+            var itemTemplateId = context.ResourceManager.AddTemplateResource(context, itemContainer);
+
             var javascriptDataSourceExpression = GetForeachDataBindExpression().GetKnockoutBindingExpression(this);
-            var group = new KnockoutBindingGroup();
-            group.Add("data", javascriptDataSourceExpression);
+            var group = new KnockoutBindingGroup {
+                { "name", itemTemplateId, true },
+                { "foreach", javascriptDataSourceExpression }
+            };
+
             if (SeparatorTemplate != null)
             {
-                group.Add("separatorTemplate", GetValueRaw(Internal.UniqueIDProperty) + "_separator", true);
+                var separatorTemplateId = context.ResourceManager.AddTemplateResource(context, GetSeparator(context));
+
+                group.Add("separatorTemplate", separatorTemplateId, true);
             }
             return group;
         }
@@ -160,14 +169,6 @@ namespace DotVVM.Framework.Controls
                     child.Render(writer, context);
                 }
             }
-            else
-            {
-                // render on client
-                var itemContainer = GetItem(context);
-                Children.Add(itemContainer);
-                itemContainer.Render(writer, context);
-
-            }
         }
 
         protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
@@ -180,17 +181,6 @@ namespace DotVVM.Framework.Controls
             if (!RenderOnServer && !RenderWrapperTag)
             {
                 writer.WriteKnockoutDataBindEndComment();
-            }
-
-            if (!RenderOnServer && SeparatorTemplate != null)
-            {
-                writer.AddAttribute("type", "text/html");
-                writer.AddAttribute("id", GetValueRaw(Internal.UniqueIDProperty) + "_separator");
-                var unique = GetValueRaw(Internal.UniqueIDProperty);
-                var id = GetValueRaw(Internal.ClientIDFragmentProperty);
-                writer.RenderBeginTag("script");
-                GetSeparator(context).Render(writer, context);
-                writer.RenderEndTag();
             }
 
             emptyDataContainer?.Render(writer, context);
@@ -231,6 +221,7 @@ namespace DotVVM.Framework.Controls
         private DotvvmControl GetSeparator(IDotvvmRequestContext context)
         {
             var placeholder = new PlaceHolder();
+            placeholder.SetDataContextType(this.GetDataContextType());
             SeparatorTemplate.BuildContent(context, placeholder);
             return placeholder;
         }

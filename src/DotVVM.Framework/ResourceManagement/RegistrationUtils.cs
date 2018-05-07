@@ -1,6 +1,9 @@
-﻿using DotVVM.Framework.Utils;
+﻿using DotVVM.Framework.Controls;
+using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Utils;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,6 +19,18 @@ namespace DotVVM.Framework.ResourceManagement
         {
             var location = repo.FindResource(resourceName).As<ILinkResource>()?.GetLocations()?.OfType<EmbeddedResourceLocation>()?.FirstOrDefault();
             if (location != null) location.DebugFilePath = filePath;
+        }
+    }
+
+    public static class ResourceUtils
+    {
+        public static string AddTemplateResource(this ResourceManager manager, IDotvvmRequestContext context, DotvvmControl control)
+        {
+            using (var text = new StringWriter())
+            {
+                control.Render(new HtmlWriter(text, context), context);
+                return manager.AddTemplateResource(text.ToString());
+            }
         }
     }
 }
