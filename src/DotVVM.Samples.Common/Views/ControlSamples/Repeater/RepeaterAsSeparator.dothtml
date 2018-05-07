@@ -25,7 +25,7 @@
                             <dot:Button Click="{command: _root.Increment()}" Text="Increment" data-ui="increment-button" />
                         </ItemTemplate>
                         <SeparatorTemplate>
-                            WTF
+                            Separator Text
                         </SeparatorTemplate>
                     </dot:Repeater>
                 </div>

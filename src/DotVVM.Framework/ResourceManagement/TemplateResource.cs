@@ -9,14 +9,26 @@ namespace DotVVM.Framework.ResourceManagement
 {
     public class TemplateResource : IResource
     {
-        private readonly string _template;
-
         public ResourceRenderPosition RenderPosition => ResourceRenderPosition.Body;
         public string[] Dependencies { get; } = new string[0];
 
+        private string _template;
+        public string Template
+        {
+            get => _template;
+            set
+            {
+                if (value?.IndexOf("</script", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    throw new Exception($"Inline script can't contain `</script>`.");
+                }
+                _template = value;
+            }
+        }
+
         public TemplateResource(string template)
         {
-            _template = template;
+            Template = template;
         }
 
         public void Render(IHtmlWriter writer, IDotvvmRequestContext context, string resourceName)
@@ -24,7 +36,7 @@ namespace DotVVM.Framework.ResourceManagement
             writer.AddAttribute("type", "text/html");
             writer.AddAttribute("id", resourceName);
             writer.RenderBeginTag("script");
-            writer.WriteUnencodedText(_template);
+            writer.WriteUnencodedText(Template);
             writer.RenderEndTag();
         }
     }
