@@ -14,11 +14,9 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     public class ComboBox : SelectHtmlControlBase
     {
-        public ComboBox()
-        {
-
-        }
-
+        /// <summary>
+        /// Text displayed when no value is selected.
+        /// </summary>
         public string EmptyItemText
         {
             get { return (string) GetValue(EmptyItemTextProperty); }
