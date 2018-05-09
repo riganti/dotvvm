@@ -170,7 +170,8 @@ class DotvvmValidation {
             if (errorMessages.length > 0) {
                 element.className += " " + className;
             } else {
-                element.className = element.className.split(' ').filter(c => c != className).join(' ');
+                var classNames = className.split(' ');
+                element.className = element.className.split(' ').filter(c => classNames.indexOf(c) < 0).join(' ');
             }
         },
 

@@ -2230,7 +2230,8 @@ var DotvvmValidation = /** @class */ (function () {
                     element.className += " " + className;
                 }
                 else {
-                    element.className = element.className.split(' ').filter(function (c) { return c != className; }).join(' ');
+                    var classNames = className.split(' ');
+                    element.className = element.className.split(' ').filter(function (c) { return classNames.indexOf(c) < 0; }).join(' ');
                 }
             },
             // sets the error message as the title attribute
