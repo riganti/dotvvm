@@ -231,6 +231,7 @@ namespace DotVVM.Framework.Controls
         private DotvvmControl GetSeparator(IDotvvmRequestContext context)
         {
             var placeholder = new PlaceHolder();
+            placeholder.SetDataContextType(this.GetDataContextType());
             SeparatorTemplate.BuildContent(context, placeholder);
             return placeholder;
         }
