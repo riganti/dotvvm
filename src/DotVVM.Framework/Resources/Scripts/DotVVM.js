@@ -2128,16 +2128,13 @@ var DotvvmEnforceClientFormatValidator = /** @class */ (function (_super) {
     DotvvmEnforceClientFormatValidator.prototype.isValid = function (context, property) {
         // parameters order: AllowNull, AllowEmptyString, AllowEmptyStringOrWhitespaces
         var valid = true;
-        if (!context.parameters[0] && context.valueToValidate == null) // AllowNull
-         {
+        if (!context.parameters[0] && context.valueToValidate == null) {
             valid = false;
         }
-        if (!context.parameters[1] && context.valueToValidate.length === 0) // AllowEmptyString
-         {
+        if (!context.parameters[1] && context.valueToValidate.length === 0) {
             valid = false;
         }
-        if (!context.parameters[2] && this.isEmpty(context.valueToValidate)) // AllowEmptyStringOrWhitespaces
-         {
+        if (!context.parameters[2] && this.isEmpty(context.valueToValidate)) {
             valid = false;
         }
         var metadata = this.getValidationMetadata(property);

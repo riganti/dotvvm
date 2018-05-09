@@ -18,16 +18,8 @@ namespace DotVVM.Compiler.Resolving
     public class AssemblyResolver
     {
 
-        static object nugetPakckagesLock = new object();
-        static object dotnetStorePackagesLock = new object();
-        internal static bool nugetPackagesDllsInited = false;
-        internal static bool storeDllsInited = false;
-        internal static ConcurrentBag<AssemblyFileMetadata> nugetPackagesDlls;
-        internal static ConcurrentBag<AssemblyFileMetadata> dotnetStorePackagesDlls;
+      
         internal static int isResolveRunning = 0;
-        internal static readonly string[] supportedFrameworks = new[] { "\\net45\\", "\\net451\\", "\\net452\\", "\\net46\\", "\\net461\\", "\\net462\\", "\\net47\\" };
-        internal static readonly string[] supportedFrameworksFragments = new[] { "net45", "net451", "net452", "net46", "net461", "net462", "net47" };
-        public static DotNetCliInfo DotNetCliInfo { get; set; }
 
         internal static Assembly ResolveAssembly(object sender, ResolveEventArgs args)
         {
@@ -55,28 +47,6 @@ namespace DotVVM.Compiler.Resolving
         {
             if (TryLoadAssemblyFromUserFolders(name, out var loadAssemblyFromFile)) return loadAssemblyFromFile;
 
-
-#if NETCOREAPP2_0
-            if (nugetPackagesDllsInited == false) LoadDotNetCoreNugetAssemblies();
-
-            var assemblyName = new AssemblyName(name);
-            var packages = nugetPackagesDlls.Where(s =>
-                string.Equals(s.PackageName, assemblyName.Name, StringComparison.OrdinalIgnoreCase) && assemblyName.Version == s.Version).ToList();
-
-            if (packages.Any())
-            {
-                return LoadAssemblyFromFile(packages.First().Location);
-            }
-
-            if (storeDllsInited == false) LoadDotNetStoreAssemblies();
-            var storePackages = dotnetStorePackagesDlls.Where(s =>
-                string.Equals(s.PackageName, assemblyName.Name, StringComparison.OrdinalIgnoreCase) && assemblyName.Version == s.Version).ToList();
-
-            if (storePackages.Any())
-            {
-                return LoadAssemblyFromFile(storePackages.First().Location);
-            }
-#endif
             return null;
         }
         /// <summary>
@@ -118,84 +88,10 @@ namespace DotVVM.Compiler.Resolving
             return AssemblyLoader.LoadFile(assemblyPath);
         }
 
-        private static void LoadDotNetStoreAssemblies()
-        {
-            lock (dotnetStorePackagesLock)
-            {
-                if (storeDllsInited)
-                {
-                    return;
-                }
-
-                storeDllsInited = true;
-                if (DotNetCliInfo == null)
-                {
-                    dotnetStorePackagesDlls = new ConcurrentBag<AssemblyFileMetadata>();
-                    return;
-                }
-
-                var storePath = Path.Combine(DotNetCliInfo.Store, DetermineStoreTargetFrameworkFolderName());
-                var storeDir = new DirectoryInfo(storePath);
-
-                if (!storeDir.Exists) return;
-
-                var dlls = storeDir.GetFiles("*.dll", SearchOption.AllDirectories);
-                dotnetStorePackagesDlls = new ConcurrentBag<AssemblyFileMetadata>(dlls.Select(s => GetDotnetStoreMetadata(storeDir, s)).Where(s => s != null).ToList());
-            }
-        }
-
-        private static string DetermineStoreTargetFrameworkFolderName()
-        {
-            //TODO: this should be resolved from deps.json file
-            return "netcoreapp2.0";
-        }
+      
 
 
-        private static void LoadDotNetCoreNugetAssemblies()
-        {
-            lock (nugetPakckagesLock)
-            {
-                if (nugetPackagesDllsInited)
-                {
-                    return;
-                }
-
-                nugetPackagesDllsInited = true;
-                var pathNuget = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".nuget");
-                var nugetCacheDir = new DirectoryInfo(pathNuget);
-
-                if (!nugetCacheDir.Exists)
-                    throw new Exception("Nuget cache folder not found.");
-
-                var dlls = nugetCacheDir.GetFiles("*.dll", SearchOption.AllDirectories);
-                nugetPackagesDlls = new ConcurrentBag<AssemblyFileMetadata>(dlls.Where(s => supportedFrameworks.Any(b => s.FullName.Contains(b))).Select(fileInfo => GetNugetMetadata(fileInfo)).Where(s => s != null).ToList());
-            }
-        }
-
-
-        private static AssemblyFileMetadata GetNugetMetadata(FileInfo fileInfo)
-        {
-
-            if (!fileInfo.Exists)
-                return null;
-
-            var meta = new AssemblyFileMetadata {
-                Location = fileInfo.FullName,
-                FileName = fileInfo.Name,
-                DirectoryFragments = GetDirectoryFragments(fileInfo.Directory)
-            };
-
-
-            var fromPackages = meta.DirectoryFragments.TakeWhile(b => !b.Contains("packages")).ToList();
-            meta.PackageName = fromPackages.Last();
-            meta.PackageVersion = fromPackages[fromPackages.Count - 2];
-
-            //assembly version 
-            meta.Version = GetPackageVersion(meta);
-
-            meta.TargetFramework = supportedFrameworksFragments.FirstOrDefault(s => fromPackages.Any(b => b == s));
-            return meta;
-        }
+     
         /// <summary>
         /// Try to parse package verion (from path/PackageVersion)
         /// </summary>
@@ -233,46 +129,7 @@ namespace DotVVM.Compiler.Resolving
             return new Version(version);
         }
 
-        /// <summary>
-        /// Get all packages in dotnet core store 
-        /// </summary>
-        private static AssemblyFileMetadata GetDotnetStoreMetadata(DirectoryInfo storeDir, FileInfo fileInfo)
-        {
-
-            if (!fileInfo.Exists)
-                return null;
-
-            var meta = new AssemblyFileMetadata {
-                Location = fileInfo.FullName,
-                FileName = fileInfo.Name,
-                DirectoryFragments = GetDirectoryFragments(fileInfo.Directory, storeDir)
-            };
-
-
-            meta.PackageName = meta.DirectoryFragments.Last();
-            meta.PackageVersion = meta.DirectoryFragments[meta.DirectoryFragments.Count - 2];
-
-            //assembly version 
-            meta.Version = GetPackageVersion(meta);
-
-            //TODO: this should be only mark that this assembly is for netcore
-            meta.TargetFramework = "netstandard2.0";
-            return meta;
-        }
-        private static List<string> GetDirectoryFragments(DirectoryInfo fileInfoDirectory, DirectoryInfo baseDir = null)
-        {
-            var list = new List<string>();
-
-            void getDirectoryInfos(DirectoryInfo dir)
-            {
-                if (dir.Parent == null || (dir.Parent != null && dir.Parent.Parent == null) || dir.Parent.FullName == baseDir?.FullName) return;
-                list.Add(dir.Parent.Name);
-                getDirectoryInfos(dir.Parent);
-            }
-            list.Add(fileInfoDirectory.Name);
-            getDirectoryInfos(fileInfoDirectory);
-            return list;
-        }
+     
 
         public static void LoadReferencedAssemblies(Assembly wsa, bool recursive = false)
         {
@@ -284,5 +141,74 @@ namespace DotVVM.Compiler.Resolving
                     LoadReferencedAssemblies(assembly);
             }
         }
+#if NETCOREAPP2_0
+        public static void ResolverNetstandard(string webSiteAssemblyPath)
+        {
+            var dependencyContext = DependencyContext.Load(AssemblyLoader.LoadFile(webSiteAssemblyPath));
+            var assemblyNames = ResolveAssemblies(dependencyContext);
+
+            AssemblyLoadContext.Default.Resolving += (context, name) => {
+                // find potential assemblies
+                var assembly = assemblyNames
+                    .Where(a => string.Equals(a.AssemblyFileName, name.Name, StringComparison.CurrentCultureIgnoreCase))
+                    .Select(a => new { AssemblyData = a, AssemblyName = AssemblyLoadContext.GetAssemblyName(a.AssemblyFullPath) })
+                    .FirstOrDefault(a => a.AssemblyName.Name == name.Name && a.AssemblyName.Version == name.Version);
+
+                if (assembly == null)
+                {
+                    return null;
+                }
+                else
+                {
+                    return AssemblyLoadContext.Default.LoadFromAssemblyPath(assembly.AssemblyData.AssemblyFullPath);
+                }
+            };
+        }
+        private static ConcurrentBag<AssemblyData> ResolveAssemblies(DependencyContext dependencyContext)
+        {
+
+            return new ConcurrentBag<AssemblyData>(dependencyContext.CompileLibraries
+                .SelectMany(l => {
+                    try
+                    {
+                        var paths = l.ResolveReferencePaths();
+                        return paths.Select(p => new AssemblyData {
+                            Library = l,
+                            AssemblyFullPath = p,
+                            AssemblyFileName = Path.GetFileNameWithoutExtension(p)
+                        });
+                    }
+                    catch (Exception)
+                    {
+                        try
+                        {
+                            Assembly a;
+                            if (TryLoadAssemblyFromUserFolders(l.Name, out a))
+                            {
+                                return new List<AssemblyData>(){ new AssemblyData {
+                                    Library = l,
+                                    AssemblyFullPath = a.Location,
+                                    AssemblyFileName = Path.GetFileNameWithoutExtension(a.Location)
+                                } };
+                            }
+                            return Enumerable.Empty<AssemblyData>();
+                        }
+                        catch (Exception e)
+                        {
+                            return Enumerable.Empty<AssemblyData>();
+                        }
+
+                    }
+                })
+                .ToList());
+        }
+    }
+    internal class AssemblyData
+    {
+        public CompilationLibrary Library { get; set; }
+        public string AssemblyFullPath { get; set; }
+        public string AssemblyFileName { get; set; }
+
+#endif
     }
 }

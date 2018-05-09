@@ -17,7 +17,6 @@ namespace DotVVM.Framework.Controls
         {
         }
 
-
         /// <summary>
         /// Gets or sets the value of the selected item.
         /// </summary>
@@ -29,6 +28,5 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty SelectedValueProperty =
             DotvvmProperty.Register<object, Selector>(t => t.SelectedValue);
-
     }
 }
