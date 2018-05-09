@@ -25,12 +25,12 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.InnerTextEquals(browser.Single(".result"), "no error");
 
                 browser.ElementAt("input[type=button]", 0).Click();
-
                 browser.WaitForPostback();
                 AssertUI.IsNotDisplayed(browser.Single("iframe"));
                 AssertUI.InnerTextEquals(browser.Single(".result"), "error was handled");
 
                 browser.ElementAt("input[type=button]", 1).Click();
+                browser.WaitForPostback();
                 AssertUI.IsDisplayed(browser.Single("iframe"));
             });
         }
