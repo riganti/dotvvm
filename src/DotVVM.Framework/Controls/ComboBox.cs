@@ -19,20 +19,17 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public string EmptyItemText
         {
-            get { return (string) GetValue(EmptyItemTextProperty); }
+            get { return (string)GetValue(EmptyItemTextProperty); }
             set { SetValue(EmptyItemTextProperty, value); }
         }
-        public static readonly DotvvmProperty EmptyItemTextProperty 
+        public static readonly DotvvmProperty EmptyItemTextProperty
             = DotvvmProperty.Register<string, ComboBox>(c => c.EmptyItemText, string.Empty);
 
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            if (!RenderOnServer)
+            if (IsPropertySet(EmptyItemTextProperty))
             {
-                if (IsPropertySet(EmptyItemTextProperty))
-                {
-                    writer.AddKnockoutDataBind("optionsCaption", this.GetKnockoutBindingExpression(EmptyItemTextProperty));
-                }
+                writer.AddKnockoutDataBind("optionsCaption", this.GetKnockoutBindingExpression(EmptyItemTextProperty));
             }
 
             base.AddAttributesToRender(writer, context);
