@@ -274,7 +274,14 @@ namespace DotVVM.Framework.Controls
 
         private void AddTextPropertyToRender(IHtmlWriter writer)
         {
-            writer.AddKnockoutDataBind("text", this, InnerTextProperty, () => {
+            var expression = GetValueBinding(InnerTextProperty);
+            if (expression != null)
+            {
+                writer.AddKnockoutDataBind("text", expression.GetKnockoutBindingExpression(this));
+            }
+
+            if (expression == null || RenderOnServer)
+            {
                 // inner Text is rendered as attribute only if contains binding
                 // otherwise it is rendered directly as encoded content
                 if (!string.IsNullOrWhiteSpace(InnerText))
@@ -282,7 +289,7 @@ namespace DotVVM.Framework.Controls
                     Children.Clear();
                     Children.Add(new Literal(InnerText));
                 }
-            }, renderEvenInServerRenderingMode: true);
+            }
         }
 
         /// <summary>
