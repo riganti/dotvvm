@@ -44,6 +44,10 @@
         <dot:Button class="action" Text="Iterate over items" Click="{command: Iterate()}" />
         <script src="https://gist.github.com/Mrnda/3d659963c62e40d15630edac3b98b109.js"></script>
     </div>
+    <div class="sample">
+        <dot:Button class="action" Text="Print items to log" Click="{command: PrintNames()}" />
+        <script src="https://gist.github.com/Mrnda/3d659963c62e40d15630edac3b98b109.js"></script>
+    </div>
     <h2>Server side commands</h2>
     <dot:Button Text="Save" Click="{command:  SaveViaPostback()}" />
 

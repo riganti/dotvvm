@@ -33,6 +33,15 @@ var ListOperationsViewModel = /** @class */ (function () {
         }
         ;
     };
+    ListOperationsViewModel.prototype.PrintNames = function () {
+        this.NamesList().forEach(function ($name) {
+            var name = ko.unwrap($name);
+            {
+                console.log(name);
+                ;
+            }
+        });
+    };
     ListOperationsViewModel.prototype.SetTitleToEmpty = function () {
         this.Title('');
     };
@@ -46,6 +55,7 @@ var MathematicalOperationsViewModel = /** @class */ (function () {
     }
     MathematicalOperationsViewModel.prototype.Sum = function () {
         var result = this.Left() + this.Right();
+        result = Math.floor(this.Left() + 2147483647);
         this.Result(Math.floor(result));
     };
     MathematicalOperationsViewModel.prototype.Divide = function () {

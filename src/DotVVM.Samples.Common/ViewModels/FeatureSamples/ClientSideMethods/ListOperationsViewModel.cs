@@ -47,6 +47,15 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethod
             }
         }
 
+        [ClientSideMethod]
+        public void PrintNames()
+        {
+            foreach (var name in NamesList)
+            {
+                Console.WriteLine(name);
+            }
+        }
+
         public void SaveViaPostback()
         {
             for (var i = 0; i < NamesList.Count; i++)
