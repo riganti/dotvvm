@@ -5,7 +5,7 @@ using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethods
 {
-    public class ListOperationsViewModel : DotvvmViewModelBase
+    public class ListOperationsViewModel : MasterpageViewModel
     {
         public List<string> NamesList { get; set; } = new List<string> { "test", "test1" };
 

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethods
 {
-    public class MathematicalOperationsViewModel : DotvvmViewModelBase
+    public class MathematicalOperationsViewModel : MasterpageViewModel
     {
         public int Left { get; set; }
         public int Right { get; set; }

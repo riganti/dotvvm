@@ -8,7 +8,7 @@ using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethods
 {
-    public class ObjectOperationsViewModel : DotvvmViewModelBase
+    public class ObjectOperationsViewModel : MasterpageViewModel
     {
         public PersonDto Person { get; set; } = new PersonDto();
 

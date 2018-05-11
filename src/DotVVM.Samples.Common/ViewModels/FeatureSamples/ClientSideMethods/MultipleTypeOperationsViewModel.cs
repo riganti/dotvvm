@@ -6,7 +6,7 @@ using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethods
 {
-    public class MultipleTypeOperationsViewModel : DotvvmViewModelBase
+    public class MultipleTypeOperationsViewModel : MasterpageViewModel
     {
         public string Title { get; set; }
         public int Number { get; set; }

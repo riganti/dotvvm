@@ -1,27 +1,49 @@
 ﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethods.MultipleTypeOperationsViewModel, DotVVM.Samples.Common
+@masterPage Views/FeatureSamples/ClientSideMethods/Masterpage.dotmaster
 
-<!DOCTYPE html>
 
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <title>Client side methods - Multiple type operations</title>
-</head>
-<body>
-    <dot:Literal Text="{value: Title}" /><br />
-    <dot:Literal Text="{value: Number}" /><br />
-    <dot:Button Text="Increase" Click="{command: Increase()}" />
-    <dot:Button Text="Decrease" Click="{command: Decrease()}" />
-    <dot:Button Text="Reset" Click="{command: Reset()}" />
-    <hr/>
+<dot:Content ContentPlaceHolderID="MainContent">
+    <h1>Client side methods - Types support</h1>
+
+    <dot:Literal Text="{value: Title}" />
+    <br />
+    <dot:Literal Text="{value: Number}" />
+    <br />
+
+    <h2>Common</h2>
+
+    <script src="https://gist.github.com/Mrnda/ccb9c620c9e81f6293b7c1bb482dbfaf.js"></script>
+
+
+
+    <div class="sample">
+        <dot:Button class="action" Text="Increase" Click="{command: Increase()}" />
+        <script src="https://gist.github.com/Mrnda/bfe86e3ab15b98db1d6673f060e3f80f.js"></script>
+    </div>
+
+    <div class="sample">
+        <dot:Button class="action" Text="Decrease" Click="{command: Decrease()}" />
+        <script src="https://gist.github.com/Mrnda/c856069a69f3baf65255d8d23cdebe9f.js"></script>
+    </div>
+
+    <div class="sample">
+        <dot:Button class="action" Text="Reset" Click="{command: Reset()}" />
+        <script src="https://gist.github.com/Mrnda/6e72e2daff93ab15dd5c482432dc3d81.js"></script>
+    </div>
+    <hr />
 
 
     <div Visible="{value: IsVisible}">
         Hide me!
     </div>
-    
-    <dot:Button Text="Hide" Click="{command: Hide()}" />
-    <dot:Button Text="Show me!" Click="{command: Show()}" />
-</body>
-</html>
+
+    <div class="sample">
+        <dot:Button class="action" Text="Hide" Click="{command: Hide()}" />
+        <script src="https://gist.github.com/Mrnda/58e7a62ad033f48e795c8f9cd15c8152.js"></script>
+    </div>
+    <div class="sample">
+        <dot:Button class="action" Text="Show me!" Click="{command: Show()}" />
+        <script src="https://gist.github.com/Mrnda/63b0ba8e0a851dc977ca8f4f834444f0.js"></script>
+    </div>
+</dot:Content>
 

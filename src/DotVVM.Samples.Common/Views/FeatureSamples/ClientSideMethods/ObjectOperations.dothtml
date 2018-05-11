@@ -1,15 +1,13 @@
 ﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethods.ObjectOperationsViewModel, DotVVM.Samples.Common
+@masterPage Views/FeatureSamples/ClientSideMethods/Masterpage.dotmaster
 
-<!DOCTYPE html>
-
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <title>Client side methods - Object operations</title>
-</head>
-<body>
+<dot:Content ContentPlaceHolderID="MainContent">
     <h1>Client side methods - Object operations</h1>
+
     <h2>Object values</h2>
+
+    <h3>Common</h3>
+    <script src="https://gist.github.com/Mrnda/3e76bcd0525bc1a9bc069108bc8b79a0.js"></script>
     <div style="border:2px dotted black; width: auto;" DataContext="{value: Person}">
         <div>
             Name: {{value: Name}}
@@ -19,12 +17,23 @@
         </div>
     </div>
 
-    <dot:Button Text="Set persons age to 1" Click="{command: UpdatePersonsAge()}"/>
-    <dot:Button Text="Create new Person" Click="{command: CreateNewPerson()}"/>
+    <div class="sample">
+        <dot:Button class="action" Text="Set persons age to 1" Click="{command: UpdatePersonsAge()}" />
+        <script src="https://gist.github.com/Mrnda/e447d62a817567e89eeb1497e7156d4b.js"></script>
+    </div>
 
-    <dot:GridView DataSource="{value: Persons}">
-        <dot:GridViewTextColumn ValueBinding="{value:  Name}" />
-        <dot:GridViewTextColumn ValueBinding="{value: Age}" />
+    <div class="sample">
+        <dot:Button class="action" Text="Create new Person" Click="{command: CreateNewPerson()}" />
+        <script src="https://gist.github.com/Mrnda/5457cd23c70b55aef2f4562f407fb295.js"></script>
+    </div>
+
+    <h2>Objects in lists</h2>
+
+    <h3>Common</h3>
+    <script src="https://gist.github.com/Mrnda/fe943897a8316e8853c2114c5855816c.js"></script>
+    <dot:GridView DataSource="{value: Persons}" ShowHeaderWhenNoData="true">
+        <dot:GridViewTextColumn HeaderText="Name"  ValueBinding="{value:  Name}" />
+        <dot:GridViewTextColumn HeaderText="Age" ValueBinding="{value: Age}" />
         <dot:GridViewTemplateColumn>
             <ContentTemplate>
                 <dot:Button Text="Remove" Click="{command: _parent.RemovePerson(_this)}">
@@ -35,8 +44,12 @@
             </ContentTemplate>
         </dot:GridViewTemplateColumn>
     </dot:GridView>
-    Name: <dot:TextBox Text="{value: Name}"/>
-    Age: <dot:TextBox Text="{value: Age}"/>
-    <dot:Button Text="Add Person" Click="{command: AddPerson(Name, Age)}"/>
-</body>
-</html>
+    Name:
+    <dot:TextBox Text="{value: Name}" />
+    Age:
+    <dot:TextBox Text="{value: Age}" />
+    <div class="sample">
+        <dot:Button  class="action" Text="Add Person" Click="{command: AddPerson(Name, Age)}" />
+        <script src="https://gist.github.com/Mrnda/c234cb2c96e8262067ee7974420e784a.js"></script>s
+    </div>
+</dot:Content>

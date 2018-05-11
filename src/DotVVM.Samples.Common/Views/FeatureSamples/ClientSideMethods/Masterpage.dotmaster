@@ -1,0 +1,40 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethods.MasterpageViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+
+    <style>
+        .sample {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .action {
+            width: 100%;
+            height: 30px;
+            margin: 10px;
+        }
+
+    </style>
+</head>
+<body>
+
+    Samples list:
+    <ul>
+        <li><dot:RouteLink RouteName="FeatureSamples_ClientSideMethods_ListOperations">List operations</dot:RouteLink></li>
+        <li><dot:RouteLink RouteName="FeatureSamples_ClientSideMethods_MathematicalOperations">Mathematical operations</dot:RouteLink></li>
+        <li><dot:RouteLink RouteName="FeatureSamples_ClientSideMethods_MultipleTypeOperations">Multiple type operations</dot:RouteLink></li>
+        <li><dot:RouteLink RouteName="FeatureSamples_ClientSideMethods_ObjectOperations">Object operations</dot:RouteLink></li>
+    </ul>
+ 
+    <dot:ContentPlaceHolder ID="MainContent" />
+
+</body>
+</html>
+
+

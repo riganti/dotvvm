@@ -38,6 +38,7 @@
     <None Remove="Views\FeatureSamples\Api\GridViewDataSetAspNetCore.dothtml" />
     <None Remove="Views\FeatureSamples\Api\GridViewDataSetOwin.dothtml" />
     <None Remove="Views\FeatureSamples\BindingContexts\CollectionContext.dothtml" />
+    <None Remove="Views\FeatureSamples\ClientSideMethods\Masterpage.dotmaster" />
     <None Remove="Views\FeatureSamples\ClientSideMethods\MathematicalOperations.dothtml" />
     <None Remove="Views\FeatureSamples\ClientSideMethods\MultipleTypeOperations.dothtml" />
     <None Remove="Views\FeatureSamples\ClientSideMethods\ObjectOperations.dothtml" />
@@ -97,6 +98,7 @@
     <Content Include="Views\FeatureSamples\Api\GridViewDataSetAspNetCore.dothtml" />
     <Content Include="Views\FeatureSamples\Api\GridViewDataSetOwin.dothtml" />
     <Content Include="Views\FeatureSamples\BindingContexts\CollectionContext.dothtml" />
+    <Content Include="Views\FeatureSamples\ClientSideMethods\Masterpage.dotmaster" />
     <Content Include="Views\FeatureSamples\ClientSideMethods\MathematicalOperations.dothtml" />
     <Content Include="Views\FeatureSamples\ClientSideMethods\MultipleTypeOperations.dothtml" />
     <Content Include="Views\FeatureSamples\ClientSideMethods\ObjectOperations.dothtml" />

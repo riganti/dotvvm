@@ -1,27 +1,38 @@
 ﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ClientSideMethods.MathematicalOperationsViewModel, DotVVM.Samples.Common
+@masterPage Views/FeatureSamples/ClientSideMethods/Masterpage.dotmaster
 
-<!DOCTYPE html>
-
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <title>Client side methods - Mathematical operations</title>
-</head>
-<body>
+<dot:Content ContentPlaceHolderID="MainContent">
     <h1>Client side methods - basic mathematical operations</h1>
 
-    Left operand: <dot:TextBox Text="{value: Left}" /> <br />
-    Right operand: <dot:TextBox Text="{value: Right}" /> <br />
+    Left operand:
+    <dot:TextBox Text="{value: Left}" />
+    <br />
+    Right operand:
+    <dot:TextBox Text="{value: Right}" />
+    <br />
 
-    <dot:Literal Text="{value: Result}" /> <br />
+    <dot:Literal Text="{value: Result}" />
+    <br />
+
+    <h2>Properties</h2>
+    <script src="https://gist.github.com/Mrnda/04cfb7f3b9c83e4243da556317574248.js"></script>
+
 
     <h2>Client side methods</h2>
-    <dot:Button Click="{command: Sum()}" Text="Sum" />
-    <dot:Button Click="{command: Divide()}" Text="Divide" />
-    <dot:Button Click="{command: Fibonacci()}" Text="Fibonacci" />
+    <div class="sample">
+        <dot:Button class="action" Click="{command: Sum()}" Text="Sum" />
+        <script src="https://gist.github.com/Mrnda/d721679f7f802f04efd1e5dc0dbb5a5c.js"></script>
+    </div>
+    <div class="sample">
+        <dot:Button class="action" Click="{command: Divide()}" Text="Divide" />
+        <script src="https://gist.github.com/Mrnda/adc6904bf91762dd59296863ab82ffdf.js"></script>
+    </div>
+    <div class="sample">
+        <dot:Button class="action" Click="{command: Fibonacci()}" Text="Fibonacci" />
+        <script src="https://gist.github.com/Mrnda/e8a2f501a94a8ebeb38a138075b73e48.js"></script>
+    </div>
     <h2>Server side methods</h2>
     <dot:Button Click="{command: SumOnServer()}" Text="Sum" />
     <dot:Button Click="{command: DivideOnServer()}" Text="Divide" />
     <dot:Button Click="{command: FibonacciOnServer()}" Text="Fibonacci" />
-</body>
-</html>
+</dot:Content>
