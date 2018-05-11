@@ -172,7 +172,7 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
         {
             var method = operation.TargetMethod;
             var arguments = new List<IExpressionSyntax>();
-            var reference = operation.Instance.Accept(this, parent) as IReferenceSyntax;
+            var reference = operation.Instance?.Accept(this, parent) as IReferenceSyntax;
             foreach (var argument in operation.Arguments)
             {
                 arguments.Add(argument.Accept(this, parent) as IExpressionSyntax);
@@ -291,6 +291,29 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
                 arguments.Add(operationArgument.Accept(this, parent) as IExpressionSyntax);
             }
             return _factory.CreateObjectCreationExpression(typeSyntax, arguments, parent);
+        }
+
+        public override ISyntaxNode VisitForEachLoop(IForEachLoopOperation operation, ISyntaxNode parent)
+        {
+            var variable = operation.LoopControlVariable.Accept(this, parent) as IExpressionSyntax;
+            var collection = operation.Collection.Accept(this, parent) as IReferenceSyntax;
+            var body = operation.Body.Accept(this, parent) as IStatementSyntax;
+            return _factory.CreateForEachLoopStatement(variable, collection, body, parent);
+        }
+
+
+        public override ISyntaxNode Visit(IOperation operation, ISyntaxNode argument)
+        {
+            var syntaxNode = base.Visit(operation, argument);
+            if (syntaxNode == null) throw new NotSupportedOperationException(operation.Kind.ToString());
+            return syntaxNode;
+        }
+    }
+
+    internal class NotSupportedOperationException : Exception
+    {
+        public NotSupportedOperationException(string operationName) : base(operationName)
+        {
         }
     }
 }

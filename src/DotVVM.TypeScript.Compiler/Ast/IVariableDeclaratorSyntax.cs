@@ -2,7 +2,7 @@
 
 namespace DotVVM.TypeScript.Compiler.Ast
 {
-    public interface IVariableDeclaratorSyntax : ISyntaxNode
+    public interface IVariableDeclaratorSyntax : IExpressionSyntax
     {
         IExpressionSyntax Expression { get; }
         IIdentifierSyntax Identifier { get; }

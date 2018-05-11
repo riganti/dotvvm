@@ -13,7 +13,7 @@ namespace DotVVM.TypeScript.Compiler.Ast.TypeScript
         public TsVariableDeclaratorSyntax(ISyntaxNode parent, IExpressionSyntax expression,
             IIdentifierSyntax identifier) : base(parent)
         {
-            Expression = expression ?? throw new ArgumentNullException(nameof(expression));
+            Expression = expression;
             Identifier = identifier ?? throw new ArgumentNullException(nameof(identifier));
         }
 

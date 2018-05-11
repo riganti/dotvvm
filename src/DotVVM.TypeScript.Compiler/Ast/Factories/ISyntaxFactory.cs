@@ -60,5 +60,7 @@ namespace DotVVM.TypeScript.Compiler.Ast.Factories
 
         IObjectCreationExpressionSyntax CreateObjectCreationExpression(ITypeSyntax type,
             IList<IExpressionSyntax> arguments, ISyntaxNode parent);
+
+        IForEachLoopSyntax CreateForEachLoopStatement(IStatementSyntax variable, IReferenceSyntax collection, IStatementSyntax body, ISyntaxNode parent);
     }
 }

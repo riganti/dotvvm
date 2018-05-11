@@ -433,5 +433,32 @@ namespace DotVVM.TypeScript.Compiler.Ast.Visitors
             }
             Append(")");
         }
+
+        public void VisitForEachLoop(IForEachLoopSyntax forEachLoopSyntax)
+        {
+            Indent();
+            if (forEachLoopSyntax.Collection is IPropertyReferenceSyntax)
+            {
+                Append("this.");
+                forEachLoopSyntax.Collection.Identifier.AcceptVisitor(this);
+                Append("()");
+            }
+            else
+            {
+                forEachLoopSyntax.Collection.AcceptVisitor(this);
+            }
+
+            Append($".forEach(function($");
+            forEachLoopSyntax.Variable.AcceptVisitor(this);
+            Append(") {");
+            Append("var ");
+            forEachLoopSyntax.Variable.AcceptVisitor(this);
+            Append(" = ko.unwrap($");
+            forEachLoopSyntax.Variable.AcceptVisitor(this);
+            Append(")");
+            EndStatement();
+            forEachLoopSyntax.Body.AcceptVisitor(this);
+            Append(")");
+        }
     }
 }

@@ -163,5 +163,11 @@ namespace DotVVM.TypeScript.Compiler.Ast.Factories
         {
             return new TsObjectCreationExpressionSyntax(parent, arguments, type);
         }
+
+        public IForEachLoopSyntax CreateForEachLoopStatement(IStatementSyntax variable, IReferenceSyntax collection,
+            IStatementSyntax body, ISyntaxNode parent)
+        {
+            return new TsForEachLoopSyntax(parent, body, collection, variable);
+        }
     }
 }
