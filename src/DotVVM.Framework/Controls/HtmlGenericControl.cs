@@ -280,15 +280,11 @@ namespace DotVVM.Framework.Controls
                 writer.AddKnockoutDataBind("text", expression.GetKnockoutBindingExpression(this));
             }
 
-            if (expression == null || RenderOnServer)
+            if ((expression == null && !string.IsNullOrWhiteSpace(InnerText))
+                || (RenderOnServer && InnerText != null))
             {
-                // inner Text is rendered as attribute only if contains binding
-                // otherwise it is rendered directly as encoded content
-                if (!string.IsNullOrWhiteSpace(InnerText))
-                {
-                    Children.Clear();
-                    Children.Add(new Literal(InnerText));
-                }
+                Children.Clear();
+                Children.Add(new Literal(InnerText));
             }
         }
 
