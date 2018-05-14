@@ -302,7 +302,8 @@ declare class DotVVM {
     private applyPostbackHandlersCore(callback, options, handlers?);
     applyPostbackHandlers(callback: (options: PostbackOptions) => Promise<PostbackCommitFunction | undefined>, sender: HTMLElement, handlers?: ClientFriendlyPostbackHandlerConfiguration[], args?: any[], context?: any, viewModel?: any, viewModelName?: string): Promise<DotvvmAfterPostBackEventArgs>;
     postbackCore(options: PostbackOptions, path: string[], command: string, controlUniqueId: string, context: any, commandArgs?: any[]): Promise<() => Promise<DotvvmAfterPostBackEventArgs>>;
-    handleSpaNavigation(url: string): boolean;
+    handleSpaNavigation(element: HTMLElement): boolean;
+    handleSpaNavigationCore(url: string | null): boolean;
     postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, context?: any, handlers?: ClientFriendlyPostbackHandlerConfiguration[], commandArgs?: any[]): Promise<DotvvmAfterPostBackEventArgs>;
     private loadResourceList(resources, callback);
     private loadResourceElements(elements, offset, callback);

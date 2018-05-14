@@ -124,7 +124,7 @@ namespace DotVVM.Framework.Controls
         {
             if ((bool)GetValue(Internal.IsSpaPageProperty) && (bool)GetValue(Internal.UseHistoryApiSpaNavigationProperty))
             {
-                writer.AddAttribute("onclick", "return !this.hasAttribute('disabled') && dotvvm.handleSpaNavigation(this.getAttribute('href'));");
+                writer.AddAttribute("onclick", "return !this.hasAttribute('disabled') && dotvvm.handleSpaNavigation(this);");
             }
             else
             {

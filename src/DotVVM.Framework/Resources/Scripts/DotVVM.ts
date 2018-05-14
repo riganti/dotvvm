@@ -244,7 +244,7 @@ class DotVVM {
 
             var spaChangedHandler = () => hashChangeHandler(false)
             this.domUtils.attachEvent(window, "hashchange", spaChangedHandler);
-            hashChangeHandler(true);         
+            hashChangeHandler(true);
         }
 
         window.addEventListener('popstate', (event) => this.handlePopState(viewModelName, event, spaPlaceHolder != null));
@@ -572,8 +572,18 @@ class DotVVM {
         });
     }
 
-    public handleSpaNavigation(url: string) {
-        if (url.indexOf("/") === 0) {
+    public handleSpaNavigation(element: HTMLElement): boolean {
+        var target = element.getAttribute('target');
+
+        if (target == "_blank") {
+            return true;
+        }
+
+        return this.handleSpaNavigationCore(element.getAttribute('href'));
+    }
+
+    public handleSpaNavigationCore(url: string | null): boolean {
+       if (url && url.indexOf("/") === 0) {
             var viewModelName = "root"
 
             url = this.removeVirtualDirectoryFromUrl(url, viewModelName);
@@ -833,7 +843,7 @@ class DotVVM {
             location.replace(url);
         }
         else if (useHistoryApiSpaRedirect) {
-            this.handleSpaNavigation(url);
+            this.handleSpaNavigationCore(url);
         }
         else {
             var fakeAnchor = this.fakeRedirectAnchor;

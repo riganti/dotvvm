@@ -1272,9 +1272,16 @@ var DotVVM = /** @class */ (function () {
             });
         });
     };
-    DotVVM.prototype.handleSpaNavigation = function (url) {
+    DotVVM.prototype.handleSpaNavigation = function (element) {
+        var target = element.getAttribute('target');
+        if (target == "_blank") {
+            return true;
+        }
+        return this.handleSpaNavigationCore(element.getAttribute('href'));
+    };
+    DotVVM.prototype.handleSpaNavigationCore = function (url) {
         var _this = this;
-        if (url.indexOf("/") === 0) {
+        if (url && url.indexOf("/") === 0) {
             var viewModelName = "root";
             url = this.removeVirtualDirectoryFromUrl(url, viewModelName);
             this.navigateCore(viewModelName, url, function (navigatedUrl) {
@@ -1505,7 +1512,7 @@ var DotVVM = /** @class */ (function () {
             location.replace(url);
         }
         else if (useHistoryApiSpaRedirect) {
-            this.handleSpaNavigation(url);
+            this.handleSpaNavigationCore(url);
         }
         else {
             var fakeAnchor = this.fakeRedirectAnchor;
