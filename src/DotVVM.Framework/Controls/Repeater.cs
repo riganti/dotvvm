@@ -15,8 +15,6 @@ namespace DotVVM.Framework.Controls
     public class Repeater : ItemsControl
     {
         private EmptyData emptyDataContainer;
-        private string _itemTemplateId;
-        private string _separatorTemplateId;
 
         public Repeater(bool allowImplicitLifecycleRequirements = true)
         {
@@ -111,30 +109,6 @@ namespace DotVVM.Framework.Controls
         protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
             SetChildren(context);     // TODO: we should handle observable collection operations to persist controlstate of controls inside the Repeater
-
-            if (!RenderOnServer)
-            {
-                // TODO: find nicer way to invoke OnPreRender sooner than Render
-                var itemContainer = GetItem(context);
-                Children.Add(itemContainer);
-                DotvvmControlCollection.InvokePageLifeCycleEventRecursive(itemContainer, LifeCycleEventType.PreRender);
-                _itemTemplateId = context.ResourceManager.AddTemplateResource(context, itemContainer);
-                // TODO: find better way
-                Children.Remove(itemContainer);
-
-                if (SeparatorTemplate != null)
-                {
-                    // TODO: find nicer way to invoke OnPreRender soonner than Render
-                    var separator = GetSeparator(context);
-                    Children.Add(separator);
-                    DotvvmControlCollection.InvokePageLifeCycleEventRecursive(separator, LifeCycleEventType.PreRender);
-
-                    _separatorTemplateId = context.ResourceManager.AddTemplateResource(context, separator);
-                    // TODO: find better way
-                    Children.Remove(separator);
-                }
-            }
-
             base.OnPreRender(context);
         }
 
@@ -162,17 +136,23 @@ namespace DotVVM.Framework.Controls
 
         private KnockoutBindingGroup GetForeachKnockoutBindingGroup(IDotvvmRequestContext context)
         {
+            var itemContainer = GetItem(context);
+            Children.Add(itemContainer);
+
+            var itemTemplateId = context.ResourceManager.AddTemplateResource(context, itemContainer);
+
             var javascriptDataSourceExpression = GetForeachDataBindExpression().GetKnockoutBindingExpression(this);
             var group = new KnockoutBindingGroup {
-                { "name", _itemTemplateId, true },
+                { "name", itemTemplateId, true },
                 { "foreach", javascriptDataSourceExpression }
             };
 
-            if (_separatorTemplateId != null)
+            if (SeparatorTemplate != null)
             {
-                group.Add("separatorTemplate", _separatorTemplateId, true);
-            }
+                var separatorTemplateId = context.ResourceManager.AddTemplateResource(context, GetSeparator(context));
 
+                group.Add("separatorTemplate", separatorTemplateId, true);
+            }
             return group;
         }
 

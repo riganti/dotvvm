@@ -89,7 +89,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 null;
 
             // create result object
-            var result = new JObject();
+            var result = context.ViewModelJson ?? new JObject();
             result["viewModel"] = writer.Token;
             result["url"] = context.HttpContext?.Request?.Url?.PathAndQuery;
             result["virtualDirectory"] = context.HttpContext?.Request?.PathBase?.Value?.Trim('/') ?? "";
@@ -288,6 +288,12 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 result[controlId] = JValue.CreateString(html);
             }
+
+            if (context.ViewModelJson == null)
+            {
+                context.ViewModelJson = new JObject();
+            }
+
             context.ViewModelJson["updatedControls"] = result;
         }
     }
