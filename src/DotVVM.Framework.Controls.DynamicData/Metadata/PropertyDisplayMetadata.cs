@@ -26,5 +26,6 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
         public IVisibilityFilter[] VisibilityFilters { get; set; }
 
         public StyleAttribute Styles { get; set; }
+        public bool IsEditAllowed { get; set; }
     }
 }

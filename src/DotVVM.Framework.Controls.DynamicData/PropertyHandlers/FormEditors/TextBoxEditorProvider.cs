@@ -21,6 +21,15 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
 
         public override void CreateControl(DotvvmControl container, PropertyDisplayMetadata property, DynamicDataContext context)
         {
+            if (!property.IsEditAllowed)
+            {
+                var literal = new Literal();
+                container.Children.Add(literal);
+                literal.SetBinding(Literal.TextProperty, context.CreateValueBinding(property.PropertyInfo.Name));
+
+                return;
+            }
+
             var textBox = new TextBox();
             container.Children.Add(textBox);
 

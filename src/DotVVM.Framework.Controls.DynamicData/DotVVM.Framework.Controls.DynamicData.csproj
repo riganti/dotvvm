@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net451</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net451;netcoreapp2.0</TargetFrameworks>
     <PackageId>DotVVM.DynamicData</PackageId>
     <PackageVersion>2.0.0-preview06-3</PackageVersion>
     <VersionPrefix>2.0.0-preview06-3</VersionPrefix>
@@ -32,7 +32,7 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="DotVVM" Version="2.0.0-preview06-final" />
+    <PackageReference Include="DotVVM" Version="2.0.0-preview09-28091" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DotVVM.Framework.Controls.DynamicData.Annotations\DotVVM.Framework.Controls.DynamicData.Annotations.csproj" />

@@ -16,6 +16,7 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.GridColumns
             column.ValueType = TextBoxHelper.GetValueType(property.PropertyInfo);
             column.FormatString = property.FormatString;
             column.SetBinding(GridViewTextColumn.ValueBindingProperty, context.CreateValueBinding(property.PropertyInfo.Name));
+            column.IsEditable = property.IsEditAllowed;
             return column;
         }
     }

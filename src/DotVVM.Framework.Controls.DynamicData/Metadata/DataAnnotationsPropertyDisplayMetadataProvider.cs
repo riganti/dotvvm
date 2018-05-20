@@ -31,6 +31,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
             var dataTypeAttribute = pair.PropertyInfo.GetCustomAttribute<DataTypeAttribute>();
             var styleAttribute = pair.PropertyInfo.GetCustomAttribute<StyleAttribute>();
             var visibilityFilters = pair.PropertyInfo.GetCustomAttributes().OfType<IVisibilityFilter>().ToArray();
+            var editableFilter = pair.PropertyInfo.GetCustomAttribute<EditableAttribute>();
 
             return new PropertyDisplayMetadata()
             {
@@ -43,7 +44,8 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
                 AutoGenerateField = displayAttribute?.GetAutoGenerateField() ?? true,
                 DataType = dataTypeAttribute?.DataType,
                 VisibilityFilters = visibilityFilters,
-                Styles = styleAttribute
+                Styles = styleAttribute,
+                IsEditAllowed = editableFilter?.AllowEdit != false
             };
         }
 

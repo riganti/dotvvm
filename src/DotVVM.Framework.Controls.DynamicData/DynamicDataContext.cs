@@ -128,9 +128,9 @@ namespace DotVVM.Framework.Controls.DynamicData
 
             public BindingDescriptor(string expression, Type bindingType, DataContextStack dataContextStack)
             {
-                Expression = expression;
-                BindingType = bindingType;
-                DataContextStack = dataContextStack;
+                Expression = expression ?? throw new ArgumentNullException(nameof(expression));
+                BindingType = bindingType ?? throw new ArgumentNullException(nameof(bindingType));
+                DataContextStack = dataContextStack ?? throw new ArgumentNullException(nameof(dataContextStack)); ;
             }
 
             public override bool Equals(object obj)
@@ -142,9 +142,9 @@ namespace DotVVM.Framework.Controls.DynamicData
                     return false;
                 }
 
-                return DataContextStack == descriptor.DataContextStack
-                    && Expression == descriptor.Expression
-                    && BindingType == descriptor.BindingType;
+                return DataContextStack.Equals(descriptor.DataContextStack)
+                    && Expression.Equals(descriptor.Expression)
+                    && BindingType.Equals(descriptor.BindingType);
             }
 
             public override int GetHashCode()
