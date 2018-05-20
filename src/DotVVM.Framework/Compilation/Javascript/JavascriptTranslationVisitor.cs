@@ -20,16 +20,18 @@ namespace DotVVM.Framework.Compilation.Javascript
     public class JavascriptTranslationVisitor
     {
         private readonly IJavascriptMethodTranslator Translator;
+        private readonly JsViewModelPropertyAdjuster jsViewModelPropertyAdjuster;
 
         public DataContextStack DataContext { get; }
 
         private readonly Dictionary<DataContextStack, int> ContextMap;
         public bool WriteUnknownParameters { get; set; } = true;
-        public JavascriptTranslationVisitor(DataContextStack dataContext, IJavascriptMethodTranslator translator)
+        public JavascriptTranslationVisitor(DataContextStack dataContext, IJavascriptMethodTranslator translator, JsViewModelPropertyAdjuster jsViewModelPropertyAdjuster = null)
         {
             this.ContextMap = dataContext.EnumerableItems().Select((a, i) => (a, i)).ToDictionary(a => a.Item1, a => a.Item2);
             this.DataContext = dataContext;
             this.Translator = translator;
+            this.jsViewModelPropertyAdjuster = jsViewModelPropertyAdjuster;
         }
         public JsExpression Translate(Expression expression)
         {
@@ -186,7 +188,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
 
         private JsExpression SetProperty(JsExpression target, PropertyInfo property, JsExpression value) =>
-            new JsAssignmentExpression(TranslateViewModelProperty(target, property), value);
+            new JsAssignmentExpression(TranslateViewModelProperty(target, property).AdjustJsViewModelProperties(jsViewModelPropertyAdjuster), value);
 
         public JsExpression TranslateConditional(ConditionalExpression expression) =>
             new JsConditionalExpression(
@@ -360,12 +362,14 @@ namespace DotVVM.Framework.Compilation.Javascript
             else
             {
                 return TryTranslateMethodCall(getter, expression.Expression, new Expression[0]) ??
-                    TranslateViewModelProperty(Translate(expression.Expression), expression.Member);
+                    TranslateViewModelProperty(Translate(expression.Expression), expression.Member).AdjustJsViewModelProperties(jsViewModelPropertyAdjuster);
             }
         }
 
         public static JsExpression TranslateViewModelProperty(JsExpression context, MemberInfo propInfo, string name = null) =>
-            new JsMemberAccessExpression(context, name ?? propInfo.Name).WithAnnotation(new VMPropertyInfoAnnotation { MemberInfo = propInfo }).WithAnnotation(new ViewModelInfoAnnotation(propInfo.GetResultType()));
+            new JsMemberAccessExpression(context, name ?? propInfo.Name)
+                .WithAnnotation(new VMPropertyInfoAnnotation { MemberInfo = propInfo })
+                .WithAnnotation(new ViewModelInfoAnnotation(propInfo.GetResultType()));
 
         public JsExpression TryTranslateMethodCall(MethodInfo methodInfo, Expression target, IEnumerable<Expression> arguments) =>
             Translator.TryTranslateCall(

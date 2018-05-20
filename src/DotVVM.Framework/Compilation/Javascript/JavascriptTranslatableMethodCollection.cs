@@ -112,28 +112,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 new GenericMethodCompiler(args => new JsBinaryExpression(args[0], BinaryOperatorType.NotEqual, new JsLiteral(null))));
             //AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Count), lengthMethod, new[] { typeof(IEnumerable) });
 
-            AddMethodTranslator(typeof(Api), nameof(Api.RefreshOnChange),
-                new GenericMethodCompiler(a =>
-                    new JsIdentifierExpression("dotvvm").Member("apiRefreshOn").Invoke(
-                        a[1].WithAnnotation(ShouldBeObservableAnnotation.Instance),
-                        a[2].EnsureObservableWrapped())
-                        .WithAnnotation(a[1].Annotation<ResultIsObservableAnnotation>())
-                        .WithAnnotation(a[1].Annotation<ViewModelInfoAnnotation>())
-                        .WithAnnotation(a[1].Annotation<MayBeNullAnnotation>())
-                ));
-            AddMethodTranslator(typeof(Api), nameof(Api.RefreshOnEvent),
-                new GenericMethodCompiler(a =>
-                    new JsIdentifierExpression("dotvvm").Member("apiRefreshOn").Invoke(
-                        a[1].WithAnnotation(ShouldBeObservableAnnotation.Instance),
-                        new JsIdentifierExpression("dotvvm").Member("eventHub").Member("get").Invoke(a[2]))
-                    .WithAnnotation(a[1].Annotation<ResultIsObservableAnnotation>())
-                    .WithAnnotation(a[1].Annotation<ViewModelInfoAnnotation>())
-                    .WithAnnotation(a[1].Annotation<MayBeNullAnnotation>())
-                ));
-            AddMethodTranslator(typeof(Api), nameof(Api.PushEvent),
-                new GenericMethodCompiler(a =>
-                    new JsIdentifierExpression("dotvvm").Member("eventHub").Member("notify").Invoke(a[1])
-                ));
+            BindingApi.RegisterJavascriptTranslations(this);
             BindingPageInfo.RegisterJavascriptTranslations(this);
             BindingCollectionInfo.RegisterJavascriptTranslations(this);
 
