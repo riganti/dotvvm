@@ -234,9 +234,9 @@ namespace DotVVM.Framework.Controls
 
         static string GenerateConcurrencyModeHandler(DotvvmBindableObject obj)
         {
-            var mode = (obj.GetValue(PostBack.ConcurrencyProperty) as PostbackConcurrencyMode?) ?? PostbackConcurrencyMode.None;
+            var mode = (obj.GetValue(PostBack.ConcurrencyProperty) as PostbackConcurrencyMode?) ?? PostbackConcurrencyMode.Default;
             var queueName = obj.GetValueRaw(PostBack.ConcurrencyQueueProperty) ?? "default";
-            if (mode == PostbackConcurrencyMode.None && "default".Equals(queueName)) return null;
+            if (mode == PostbackConcurrencyMode.Default && "default".Equals(queueName)) return null;
             var handlerName = $"concurrency-{mode.ToString().ToLower()}";
             if ("default".Equals(queueName)) return JsonConvert.ToString(handlerName);
             return $"[{JsonConvert.ToString(handlerName)},{GenerateHandlerOptions(obj, new Dictionary<string, object> { ["q"] = queueName })}]";
