@@ -785,8 +785,8 @@ var DotVVM = /** @class */ (function () {
         this.postbackHandlers = {
             confirm: function (options) { return new ConfirmPostBackHandler(options.message); },
             timeout: function (options) { return options.time ? _this.createWindowSetTimeoutHandler(options.time) : _this.windowSetTimeoutHandler; },
-            "concurrency-none": function (o) { return ({
-                name: "concurrency-none",
+            "concurrency-default": function (o) { return ({
+                name: "concurrency-default",
                 before: ["setIsPostackRunning"],
                 execute: function (callback, options) {
                     return _this.commonConcurrencyHandler(callback(), options, o.q || "default");
@@ -818,7 +818,7 @@ var DotVVM = /** @class */ (function () {
             }); },
             "suppressOnUpdating": function (options) { return ({
                 name: "suppressOnUpdating",
-                before: ["setIsPostackRunning", "concurrency-none", "concurrency-queue", "concurrency-deny"],
+                before: ["setIsPostackRunning", "concurrency-default", "concurrency-queue", "concurrency-deny"],
                 execute: function (callback, options) {
                     if (dotvvm.isViewModelUpdating)
                         return Promise.reject({ type: "handler", handler: this, message: "ViewModel is updating, so it's probably false onchange event" });
@@ -877,7 +877,7 @@ var DotVVM = /** @class */ (function () {
                 return Promise.reject(error);
             });
         };
-        this.defaultConcurrencyPostbackHandler = this.postbackHandlers["concurrency-none"]({});
+        this.defaultConcurrencyPostbackHandler = this.postbackHandlers["concurrency-default"]({});
         this.postbackQueues = {};
         this.postbackHandlersStartedEventHandler = {
             name: "eventInvoke-postbackHandlersStarted",

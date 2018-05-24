@@ -57,8 +57,8 @@ class DotVVM {
     public postbackHandlers: IDotvvmPostbackHandlerCollection = {
         confirm: (options: any) => new ConfirmPostBackHandler(options.message),
         timeout: (options: any) => options.time ? this.createWindowSetTimeoutHandler(options.time) : this.windowSetTimeoutHandler,
-        "concurrency-none": (o: any) => ({
-            name: "concurrency-none",
+        "concurrency-default": (o: any) => ({
+            name: "concurrency-default",
             before: ["setIsPostackRunning"],
             execute: (callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions) => {
                 return this.commonConcurrencyHandler(callback(), options, o.q || "default")
@@ -91,7 +91,7 @@ class DotVVM {
         }),
         "suppressOnUpdating": (options: any) => ({
             name: "suppressOnUpdating",
-            before: ["setIsPostackRunning", "concurrency-none", "concurrency-queue", "concurrency-deny"],
+            before: ["setIsPostackRunning", "concurrency-default", "concurrency-queue", "concurrency-deny"],
             execute(callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions) {
                 if (dotvvm.isViewModelUpdating) return Promise.reject({ type: "handler", handler: this, message: "ViewModel is updating, so it's probably false onchange event" })
                 else return callback()
@@ -166,7 +166,7 @@ class DotVVM {
         });
     }
 
-    private defaultConcurrencyPostbackHandler: DotvvmPostbackHandler = this.postbackHandlers["concurrency-none"]({})
+    private defaultConcurrencyPostbackHandler: DotvvmPostbackHandler = this.postbackHandlers["concurrency-default"]({})
 
     private postbackQueues: { [name: string]: { queue: (() => void)[], noRunning: number } } = {}
     public getPostbackQueue(name = "default") {
