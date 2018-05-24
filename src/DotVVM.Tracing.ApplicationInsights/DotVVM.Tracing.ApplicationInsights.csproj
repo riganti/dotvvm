@@ -27,7 +27,7 @@
     <PreserveCompilationContext>true</PreserveCompilationContext>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="DotVVM" Version="2.0.0-preview07-27755" />
+    <PackageReference Include="DotVVM" Version="2.0.0-preview08-final" />
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.5.1" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net451' ">

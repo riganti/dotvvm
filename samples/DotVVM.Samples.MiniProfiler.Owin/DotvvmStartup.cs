@@ -5,9 +5,9 @@ namespace DotVVM.Samples.MiniProfiler.Owin
 {
     public class DotvvmStartup : IDotvvmStartup, IDotvvmServiceConfigurator
     {
-        public void ConfigureServices(IDotvvmServiceCollection services)
+        public void ConfigureServices(IDotvvmServiceCollection options)
         {
-            services
+            options
                 .AddDefaultTempStorages("Temp")
                 .AddMiniProfilerEventTracing();
         }
@@ -15,10 +15,6 @@ namespace DotVVM.Samples.MiniProfiler.Owin
         // For more information about this class, visit https://dotvvm.com/docs/tutorials/basics-project-structure
         public void Configure(DotvvmConfiguration config, string applicationPath)
         {
-#if !DEBUG
-            config.Debug = false;
-#endif
-
             ConfigureRoutes(config, applicationPath);
             ConfigureControls(config, applicationPath);
             ConfigureResources(config, applicationPath);

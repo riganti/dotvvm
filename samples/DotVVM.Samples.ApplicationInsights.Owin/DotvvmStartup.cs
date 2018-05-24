@@ -1,14 +1,13 @@
 using DotVVM.Framework.Configuration;
-using DotVVM.Tracing.ApplicationInsights.Owin;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Samples.ApplicationInsights.Owin
 {
     public class DotvvmStartup : IDotvvmStartup, IDotvvmServiceConfigurator
     {
-        public void ConfigureServices(IDotvvmServiceCollection services)
+        public void ConfigureServices(IDotvvmServiceCollection options)
         {
-            services
+            options
                 .AddDefaultTempStorages("temp")
                 .AddApplicationInsightsTracing();
         }
@@ -16,10 +15,6 @@ namespace DotVVM.Samples.ApplicationInsights.Owin
         // For more information about this class, visit https://dotvvm.com/docs/tutorials/basics-project-structure
         public void Configure(DotvvmConfiguration config, string applicationPath)
         {
-#if !DEBUG
-            config.Debug = false;
-#endif
-
             ConfigureRoutes(config, applicationPath);
             ConfigureControls(config, applicationPath);
             ConfigureResources(config, applicationPath);

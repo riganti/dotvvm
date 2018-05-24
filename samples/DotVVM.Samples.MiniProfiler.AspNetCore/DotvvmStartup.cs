@@ -6,9 +6,9 @@ namespace DotVVM.Samples.MiniProfiler.AspNetCore
 {
     public class DotvvmStartup : IDotvvmStartup, IDotvvmServiceConfigurator
     {
-        public void ConfigureServices(IDotvvmServiceCollection services)
+        public void ConfigureServices(IDotvvmServiceCollection options)
         {
-            services
+            options
                 .AddDefaultTempStorages("temp")
                 .AddMiniProfilerEventTracing();
         }
