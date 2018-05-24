@@ -2786,18 +2786,6 @@ function basicAuthenticatedFetch(input, init) {
         });
         return value;
     };
-    DotVVM.prototype.apiStore = function (value, targetProperty) {
-        value.subscribe(function (newValue) {
-            if (newValue) {
-                targetProperty(newValue);
-            }
-        });
-        var currentValue = ko.unwrap(value);
-        if (currentValue) {
-            targetProperty(currentValue);
-        }
-        return targetProperty;
-    };
     DotVVM.prototype.api = {};
     DotVVM.prototype.eventHub = new DotvvmEventHub();
 }());

@@ -107,20 +107,6 @@ function basicAuthenticatedFetch(input: RequestInfo, init: RequestInit) {
         });
         return value;
     }
-    DotVVM.prototype.apiStore = function <T>(value: KnockoutObservable<T>, targetProperty: KnockoutObservable<any>) {
-        value.subscribe(newValue => {
-            if (newValue) {
-                targetProperty(newValue);
-            }
-        });
-
-        var currentValue = ko.unwrap(value);
-        if (currentValue) {
-            targetProperty(currentValue);
-        }
-
-        return targetProperty;
-    }
     DotVVM.prototype.api = {}
     
     DotVVM.prototype.eventHub = new DotvvmEventHub();

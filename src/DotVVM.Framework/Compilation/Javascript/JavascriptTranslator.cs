@@ -43,8 +43,9 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public JsExpression CompileToJavascript(Expression binding, DataContextStack dataContext)
         {
-            var translator = new JavascriptTranslationVisitor(dataContext, DefaultMethodTranslator, new JsViewModelPropertyAdjuster(mapper));
+            var translator = new JavascriptTranslationVisitor(dataContext, DefaultMethodTranslator);
             var script = translator.Translate(binding);
+            script.AcceptVisitor(new JsViewModelPropertyAdjuster(mapper));
             return script;
         }
 

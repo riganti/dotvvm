@@ -61,15 +61,5 @@ namespace DotVVM.Framework.Compilation.Javascript
                 node.Role == JsConditionalExpression.TrueRole
             ) && node.Parent.SatisfyResultCondition(predicate);
 
-
-
-        public static TNode AdjustJsViewModelProperties<TNode>(this TNode node, JsViewModelPropertyAdjuster adjuster) where TNode : JsNode
-        {
-            if (adjuster != null)
-            {
-                node.AcceptVisitor(adjuster);
-            }
-            return node;
-        }
     }
 }

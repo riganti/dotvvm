@@ -16,15 +16,6 @@ namespace DotVVM.Framework.Binding.HelperNamespace
 
         public void PushEvent(string eventName) { }
 
-        public T Store<T>(T obj, T target)
-        {
-            if (!Equals(obj, default(T)))
-            {
-                target = obj;
-            }
-            return target;
-        }
-
         public static void RegisterJavascriptTranslations(JavascriptTranslatableMethodCollection methods)
         {
             methods.AddMethodTranslator(typeof(BindingApi), nameof(RefreshOnChange),
@@ -48,16 +39,6 @@ namespace DotVVM.Framework.Binding.HelperNamespace
             methods.AddMethodTranslator(typeof(BindingApi), nameof(PushEvent),
                 new GenericMethodCompiler(a =>
                     new JsIdentifierExpression("dotvvm").Member("eventHub").Member("notify").Invoke(a[1])
-                ));
-            methods.AddMethodTranslator(typeof(BindingApi), nameof(Store),
-                new GenericMethodCompiler(a =>
-                    new JsIdentifierExpression("dotvvm").Member("apiStore").Invoke(
-                        a[1].WithAnnotation(ShouldBeObservableAnnotation.Instance),
-                        a[2].WithAnnotation(ShouldBeObservableAnnotation.Instance)
-                    )
-                    .WithAnnotation(a[1].Annotation<ResultIsObservableAnnotation>())
-                    .WithAnnotation(a[1].Annotation<ViewModelInfoAnnotation>())
-                    .WithAnnotation(a[1].Annotation<MayBeNullAnnotation>())
                 ));
         }
     }

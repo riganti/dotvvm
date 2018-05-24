@@ -56,8 +56,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 assignee.RemoveAnnotations<ResultIsObservableAnnotation>();
                 var resultType = value.GetResultType() ?? assignee.GetResultType();
                 if (value.IsComplexType() || assignee.IsComplexType())
-                    assignmentExpression.ReplaceWith(_ => new JsIdentifierExpression("dotvvm").Member("serialization").Member("deserialize").Invoke(value, assignee))
-                        .WithAnnotations(value.Annotations);
+                    assignmentExpression.ReplaceWith(_ => new JsIdentifierExpression("dotvvm").Member("serialization").Member("deserialize").Invoke(value, assignee));
                 else
                 {
                     if (resultType.Type == typeof(DateTime) || resultType.Type == typeof(DateTime?))

@@ -129,7 +129,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public override JsExpression GetJsTranslation(JsExpression dataContext)
         {
-            throw new InvalidOperationException($"Can't use injected services in javascript-translated bindings");
+            throw new InvalidOperationException($"Can't use injected services in javascript-translated bindings.");
         }
     }
 
@@ -147,12 +147,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public override JsExpression GetJsTranslation(JsExpression dataContext)
         {
-            return new JsObjectExpression(
-                new JsObjectProperty(nameof(BindingApi.RefreshOnChange), new JsIdentifierExpression("dotvvm").Member("apiRefreshOn")),
-                new JsObjectProperty(nameof(BindingApi.RefreshOnEvent), new JsIdentifierExpression("dotvvm").Member("apiRefreshOn")),
-                new JsObjectProperty(nameof(BindingApi.Store), new JsIdentifierExpression("dotvvm").Member("apiStore")),
-                new JsObjectProperty(nameof(BindingApi.PushEvent), new JsIdentifierExpression("dotvvm").Member("eventHub").Member("notify"))
-            );
+            return new JsObjectExpression();
         }
     }
 }
