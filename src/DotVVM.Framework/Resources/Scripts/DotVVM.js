@@ -1791,10 +1791,11 @@ var DotVVM = /** @class */ (function () {
         return ko.unwrap(ko.unwrap(array));
     };
     DotVVM.prototype.buildRouteUrl = function (routePath, params) {
-        var url = routePath.replace(/\{([^\}]+?)\??(:(.+?))?\}/g, function (s, paramName, hsjdhsj, type) {
+        var url = routePath.replace(/\{([^\}]+?)\??(:(.+?))?\}/g, function (s, paramName, _, type) {
             if (!paramName)
                 return "";
-            return ko.unwrap(params[paramName.toLowerCase()]) || "";
+            var paramValue = ko.unwrap(params[paramName.toLowerCase()]);
+            return paramValue == null ? "" : paramValue;
         });
         if (url.indexOf('/') === 0) {
             return url.substring(1);
