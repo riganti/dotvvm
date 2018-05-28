@@ -46,6 +46,7 @@ namespace DotVVM.Framework.Compilation
             var pageName = emitter.EmitCreateObject(wrapperClassName);
             emitter.EmitSetDotvvmProperty(pageName, Internal.UniqueIDProperty, pageName);
             emitter.EmitSetDotvvmProperty(pageName, Internal.MarkupFileNameProperty, view.Metadata.VirtualPath);
+            emitter.EmitSetDotvvmProperty(pageName, Internal.DataContextTypeProperty, emitter.EmitValue(view.DataContextTypeStack));
             if (typeof(DotvvmView).IsAssignableFrom(view.Metadata.Type))
                 emitter.EmitSetProperty(pageName, nameof(DotvvmView.ViewModelType),
                     emitter.EmitValue(view.DataContextTypeStack.DataContextType));

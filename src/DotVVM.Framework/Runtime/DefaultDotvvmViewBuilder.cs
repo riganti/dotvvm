@@ -130,14 +130,18 @@ namespace DotVVM.Framework.Runtime
                 }
 
                 // replace the contents
+                var contentPlaceHolder = new PlaceHolder();
+                contentPlaceHolder.SetDataContextType(content.Parent.GetDataContextType());
                 (content.Parent as DotvvmControl)?.Children.Remove(content);
+
                 placeHolder.Children.Clear();
-                placeHolder.Children.Add(content);
+                placeHolder.Children.Add(contentPlaceHolder);
+
+                contentPlaceHolder.Children.Add(content);
                 content.SetValue(Internal.IsMasterPageCompositionFinishedProperty, true);
                 content.SetValue(DotvvmView.DirectivesProperty, childPage.Directives);
                 content.SetValue(Internal.MarkupFileNameProperty, childPage.GetValue(Internal.MarkupFileNameProperty));
             }
-
 
             // copy the directives from content page to the master page (except the @masterpage)
             masterPage.ViewModelType = childPage.ViewModelType;
