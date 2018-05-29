@@ -213,6 +213,11 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected virtual void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
         {
+            if (HasBinding<ResourceBindingExpression>(IncludeInPageProperty) && !IncludeInPage)
+            {
+                return;
+            }
+
             RenderBeginWithDataBindAttribute(writer);
 
             foreach (var item in properties)
@@ -240,7 +245,7 @@ namespace DotVVM.Framework.Controls
             }
 
             // if the IncludeInPage has binding, render the "if" binding
-            if (HasBinding(IncludeInPageProperty))
+            if (HasValueBinding(IncludeInPageProperty))
             {
                 writer.WriteKnockoutDataBindComment("if", this, IncludeInPageProperty);
             }
