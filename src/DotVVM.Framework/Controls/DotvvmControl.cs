@@ -253,7 +253,7 @@ namespace DotVVM.Framework.Controls
 
         private void RenderEndWithDataBindAttribute(IHtmlWriter writer)
         {
-            if (HasBinding(IncludeInPageProperty))
+            if (HasValueBinding(IncludeInPageProperty))
             {
                 writer.WriteKnockoutDataBindEndComment();
             }
