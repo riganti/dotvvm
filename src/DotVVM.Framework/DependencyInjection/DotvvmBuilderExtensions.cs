@@ -1,6 +1,9 @@
 ﻿using System;
 using System.IO;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Diagnostics;
+using DotVVM.Framework.Runtime;
+using DotVVM.Framework.Runtime.Tracing;
 using DotVVM.Framework.Storage;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -47,7 +50,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="autoDeleteInterval">The interval to delete the temporary files after.</param>
         public static IDotvvmServiceCollection AddUploadedFileStorage(this IDotvvmServiceCollection services, string tempPath, TimeSpan autoDeleteInterval)
         {
-            services.Services.AddDiagnosticServices().TryAddSingleton<IUploadedFileStorage>(s =>
+            services.Services.TryAddSingleton<IUploadedFileStorage>(s =>
             {
                 var fullPath = Path.Combine(s.GetService<DotvvmConfiguration>().ApplicationPhysicalPath, tempPath);
                 return new FileSystemUploadedFileStorage(fullPath, autoDeleteInterval);
@@ -79,5 +82,24 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
+        /// <summary>
+        /// Adds diagnostic services required for DotVVM Diagnostic Window to work
+        /// </summary>
+        /// <param name="services">The <see cref="IDotvvmServiceCollection" /> instance.</param>
+        /// <returns></returns>
+        public static IDotvvmServiceCollection AddDiagnosticServices(this IDotvvmServiceCollection services)
+        {
+            services.Services.TryAddSingleton<DotvvmDiagnosticsConfiguration>();
+            services.Services.TryAddSingleton<IDiagnosticsInformationSender, DiagnosticsInformationSender>();
+
+            services.Services.TryAddSingleton<IOutputRenderer, DiagnosticsRenderer>();
+            services.Services.AddScoped<DiagnosticsRequestTracer>(s => new DiagnosticsRequestTracer(s.GetRequiredService<IDiagnosticsInformationSender>()));
+            services.Services.AddScoped<IRequestTracer>(s => {
+                var config = s.GetRequiredService<DotvvmConfiguration>();
+                return (config.Debug ? (IRequestTracer)s.GetService<DiagnosticsRequestTracer>() : null) ?? new NullRequestTracer();
+            });
+
+            return services;
+        }
     }
 }
