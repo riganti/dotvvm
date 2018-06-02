@@ -26,7 +26,7 @@ namespace DotVVM.Framework.Configuration
     {
         public void Configure(DotvvmConfiguration options)
         {
-            options.Markup.AddCodeControls("dot", typeof(MiniProfilerWidget));
+            options.Markup.AddCodeControls(DotvvmConfiguration.DotvvmControlTagPrefix, typeof(MiniProfilerWidget));
             options.Runtime.GlobalFilters.Add(new MiniProfilerActionFilter());
 
             var currentProfiler = MiniProfiler.Settings.ProfilerProvider
@@ -35,5 +35,4 @@ namespace DotVVM.Framework.Configuration
             MiniProfiler.Settings.ProfilerProvider = new DotVVMProfilerProvider(currentProfiler);
         }
     }
-
 }

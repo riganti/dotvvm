@@ -26,7 +26,7 @@ namespace DotVVM.Framework.Configuration
 
             services.Services.Configure((DotvvmConfiguration conf) =>
             {
-                conf.Markup.AddCodeControls("dot", typeof(MiniProfilerWidget));
+                conf.Markup.AddCodeControls(DotvvmConfiguration.DotvvmControlTagPrefix, typeof(MiniProfilerWidget));
                 conf.Runtime.GlobalFilters.Add(
                     new MiniProfilerActionFilter(conf.ServiceProvider.GetService<IOptions<MiniProfilerOptions>>()));
             });
@@ -34,7 +34,4 @@ namespace DotVVM.Framework.Configuration
             return services;
         }
     }
-
-
-
 }

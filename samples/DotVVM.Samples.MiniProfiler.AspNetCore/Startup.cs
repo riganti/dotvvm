@@ -2,8 +2,9 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Caching.Memory;
 using StackExchange.Profiling;
+using DotVVM.Samples.MiniProfiler.AspNetCore.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace DotVVM.Samples.MiniProfiler.AspNetCore
 {
@@ -19,6 +20,7 @@ namespace DotVVM.Samples.MiniProfiler.AspNetCore
 
             services.AddDotVVM<DotvvmStartup>();
 
+            services.AddDbContext<SampleContext>(c => c.UseSqlite("Data Source=sample.db;"));
             services.AddMemoryCache();
 
             services.AddMiniProfiler(options =>
@@ -28,13 +30,20 @@ namespace DotVVM.Samples.MiniProfiler.AspNetCore
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, IMemoryCache cache)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             loggerFactory.AddConsole();
 
             app.UseMiniProfiler();
 
             app.UseDotVVM<DotvvmStartup>(env.ContentRootPath);
+
+            var serviceScopeFactory = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>();
+            using (var serviceScope = serviceScopeFactory.CreateScope())
+            {
+                var dbContext = serviceScope.ServiceProvider.GetService<SampleContext>();
+                dbContext.Database.EnsureCreated();
+            }
         }
     }
 }
