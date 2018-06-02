@@ -38,6 +38,7 @@ declare class DotvvmEvents {
         args: any[];
         command: string;
         result: any;
+        xhr: XMLHttpRequest;
     }>;
     staticCommandMethodFailed: DotvvmEvent<{
         args: any[];

@@ -1066,7 +1066,7 @@ var DotVVM = /** @class */ (function () {
             try {
                 _this.isViewModelUpdating = true;
                 var result = JSON.parse(response.responseText);
-                dotvvm.events.staticCommandMethodInvoked.trigger(__assign({}, data, { result: result }));
+                dotvvm.events.staticCommandMethodInvoked.trigger(__assign({}, data, { result: result, xhr: response }));
                 callback(result);
             }
             catch (error) {

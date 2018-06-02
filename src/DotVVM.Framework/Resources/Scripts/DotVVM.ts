@@ -366,7 +366,7 @@ class DotVVM {
             try {
                 this.isViewModelUpdating = true;
                 const result = JSON.parse(response.responseText);
-                dotvvm.events.staticCommandMethodInvoked.trigger({ ...data, result });
+                dotvvm.events.staticCommandMethodInvoked.trigger({ ...data, result, xhr: response });
                 callback(result);
             } catch (error) {
                 dotvvm.events.staticCommandMethodFailed.trigger({ ...data, xhr: response, error: error })

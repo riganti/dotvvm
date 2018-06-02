@@ -83,10 +83,10 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
-        /// Adds diagnostic services required for DotVVM Diagnostic Window to work
+        /// Adds diagnostic services required for DotVVM Diagnostic Window to work.
+        /// DotVVM Diagnostic Window helps with debugging postbacks and highlighting requests with potential issues during development time. 
         /// </summary>
         /// <param name="services">The <see cref="IDotvvmServiceCollection" /> instance.</param>
-        /// <returns></returns>
         public static IDotvvmServiceCollection AddDiagnosticServices(this IDotvvmServiceCollection services)
         {
             services.Services.TryAddSingleton<DotvvmDiagnosticsConfiguration>();
