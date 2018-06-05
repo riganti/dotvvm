@@ -139,6 +139,29 @@
             </EmptyDataTemplate>
         </dot:GridView>
     </div>
+
+    <div class="block">
+        <h2>Resource binding</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>#0</th>
+                    <th>#1</th>
+                    <th>#2</th>
+                    <th>#3</th>
+                </tr>
+            </thead>
+            <dot:Repeater WrapperTagName="tbody"
+                          DataSource="{value: Rows}">
+                <dot:Repeater WrapperTagName="tr"
+                              DataSource="{value: _this}"
+                              IncludeInPage="{resource: _root.IncludeInPage}"
+                              data-ui="repeater-second">
+                    <td>{{value: _this}}</td>
+                </dot:Repeater>
+            </dot:Repeater>
+        </table>
+    </div>
     <div class="switch">
         <dot:Button Click="{command: IncludeInPage = !IncludeInPage}"
                     data-ui="switch-includeInPage">
