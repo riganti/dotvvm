@@ -23,6 +23,7 @@ using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Runtime.Tracing;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Security;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -188,8 +189,15 @@ namespace DotVVM.Framework.Hosting
                     }
                     await requestTracer.TraceEvent(RequestTracingConstants.ViewModelDeserialized, context);
 
-                    // validate CSRF token 
-                    CsrfProtector.VerifyToken(context, context.CsrfToken);
+                    // validate CSRF token
+                    try
+                    {
+                        CsrfProtector.VerifyToken(context, context.CsrfToken);
+                    }
+                    catch (SecurityException exc)
+                    {
+                        await context.InterruptRequestAsync(HttpStatusCode.BadRequest, exc.Message);
+                    }
 
                     if (context.ViewModel is IDotvvmViewModel)
                     {
