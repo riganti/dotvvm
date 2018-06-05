@@ -33,6 +33,7 @@ namespace DotVVM.Framework.Security
             this.cookieManager = cookieManager;
         }
 
+        /// <inheritdoc />
         public string GenerateToken(IDotvvmRequestContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
@@ -50,6 +51,7 @@ namespace DotVVM.Framework.Security
             return Convert.ToBase64String(tokenData);
         }
 
+        /// <inheritdoc />
         public void VerifyToken(IDotvvmRequestContext context, string token)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
