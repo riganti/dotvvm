@@ -325,11 +325,8 @@ namespace DotVVM.Framework.Hosting
 
             var result = await ExecuteCommand(actionInfo, context, filters);
 
-            using (var writer = new StreamWriter(context.HttpContext.Response.Body))
-            {
-                var json = ViewModelSerializer.BuildStaticCommandResponse(context, result);
-                writer.WriteLine(json);
-            }
+            await OutputRenderer.WriteStaticCommandResponse(context,
+                ViewModelSerializer.BuildStaticCommandResponse(context, result));
         }
 
         protected async Task<object> ExecuteCommand(ActionInfo action, IDotvvmRequestContext context, IEnumerable<ICommandActionFilter> methodFilters)
