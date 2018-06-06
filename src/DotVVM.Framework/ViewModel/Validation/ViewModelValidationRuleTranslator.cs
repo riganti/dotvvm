@@ -16,6 +16,11 @@ namespace DotVVM.Framework.ViewModel.Validation
             {
                 var validationRule = new ViewModelPropertyValidationRule(sourceValidationAttribute: attribute, propertyName: property.Name);
                 // TODO: extensibility
+
+                var displayAttribute = property.GetCustomAttribute<DisplayAttribute>();
+                if (displayAttribute != null)
+                    validationRule.PropertyName = displayAttribute.GetName();
+
                 if (attribute is RequiredAttribute)
                 {
                     validationRule.ClientRuleName = "required";
