@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using Newtonsoft.Json;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 
@@ -11,10 +9,12 @@ namespace DotVVM.Framework.ResourceManagement
     /// <summary>
     /// Reference to a javascript file.
     /// </summary>
-    [ResourceConfigurationCollectionName("scripts")]    
-    public class ScriptResource : LinkResourceBase
+    [ResourceConfigurationCollectionName("scripts")] 
+    public class ScriptResource : LinkResourceBase, IPreloadResource
     {
         private const string CdnFallbackScript = "if (typeof {0} === 'undefined') {{ document.write(\"<script src='{1}' type='text/javascript'><\\/script>\"); }}";
+
+        public string ContentType => "script";
 
         public ScriptResource(IResourceLocation location)
             : base(ResourceRenderPosition.Body, "text/javascript", location)
@@ -32,5 +32,8 @@ namespace DotVVM.Framework.ResourceManagement
             writer.RenderBeginTag("script");
             writer.RenderEndTag();
         }
+
+        public string GetUrlLocation(IDotvvmRequestContext context, string resourceName)
+            => Location.GetUrl(context, resourceName);
     }
 }
