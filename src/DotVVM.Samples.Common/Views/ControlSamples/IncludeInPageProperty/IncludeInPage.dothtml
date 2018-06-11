@@ -155,8 +155,7 @@
                           DataSource="{value: Rows}">
                 <dot:Repeater WrapperTagName="tr"
                               DataSource="{value: _this}"
-                              IncludeInPage="{resource: _root.IncludeInPage}"
-                              data-ui="repeater-second">
+                              IncludeInPage="{resource: _root.IncludeInPage}">
                     <td>{{value: _this}}</td>
                 </dot:Repeater>
             </dot:Repeater>
