@@ -14,8 +14,6 @@ namespace DotVVM.Framework.ResourceManagement
     {
         private const string CdnFallbackScript = "if (typeof {0} === 'undefined') {{ document.write(\"<script src='{1}' type='text/javascript'><\\/script>\"); }}";
 
-        public string ContentType => "script";
-
         public ScriptResource(IResourceLocation location)
             : base(ResourceRenderPosition.Body, "text/javascript", location)
         { }
@@ -33,7 +31,14 @@ namespace DotVVM.Framework.ResourceManagement
             writer.RenderEndTag();
         }
 
-        public string GetUrlLocation(IDotvvmRequestContext context, string resourceName)
-            => Location.GetUrl(context, resourceName);
+        public void RenderPreloadLink(IHtmlWriter writer, IDotvvmRequestContext context, string resourceName)
+        {
+            writer.AddAttribute("rel", "preload");
+            writer.AddAttribute("href", Location.GetUrl(context, resourceName));
+            writer.AddAttribute("as", "script");
+
+            writer.RenderBeginTag("link");
+            writer.RenderEndTag();
+        }
     }
 }

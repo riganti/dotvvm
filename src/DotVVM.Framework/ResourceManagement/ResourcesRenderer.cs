@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -23,16 +22,6 @@ namespace DotVVM.Framework.ResourceManagement
             context.Configuration.Debug ?
             RenderToString(resource, context) :
             renderedCache.GetValue(resource.Resource, _ => RenderToString(resource, context));
-
-        public static void RenderPreload(this IPreloadResource resource, string resourceName, IHtmlWriter writer, IDotvvmRequestContext context)
-        {
-            writer.AddAttribute("rel", "preload");
-            writer.AddAttribute("href", resource.GetUrlLocation(context, resourceName));
-            writer.AddAttribute("as", resource.ContentType);
-
-            writer.RenderBeginTag("link");
-            writer.RenderEndTag();
-        }
 
         private static string RenderToString(NamedResource resource, IDotvvmRequestContext context)
         {
