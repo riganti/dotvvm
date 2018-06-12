@@ -83,19 +83,39 @@ namespace DotVVM.Tracing.MiniProfiler.AspNetCore
         protected override void OnPreRender(IDotvvmRequestContext context)
         {
             context.ResourceManager.AddStartupScript("DotVVM-MiniProfiler-Integration",
-                @"(function() {
-                    var miniProfilerUpdate = function(arg) { 
-                        if(arg.xhr && arg.xhr.getResponseHeader) { 
-                            var jsonIds = arg.xhr.getResponseHeader('X-MiniProfiler-Ids'); 
-                            if (jsonIds) {
-                                var ids = JSON.parse(jsonIds);
-                                MiniProfiler.fetchResults(ids);
-                            }
-                        }
-                    };
-                    dotvvm.events.afterPostback.subscribe(miniProfilerUpdate);
-                    dotvvm.events.spaNavigated.subscribe(miniProfilerUpdate);
-                })()", "dotvvm");
+                @"
+(function() {
+    var miniProfilerUpdate = function(arg) { 
+        if(arg.xhr && arg.xhr.getResponseHeader) { 
+            var jsonIds = arg.xhr.getResponseHeader('X-MiniProfiler-Ids'); 
+            if (jsonIds) {
+                var ids = JSON.parse(jsonIds);
+                MiniProfiler.fetchResults(ids);
+            }
+        }
+    };
+    dotvvm.events.afterPostback.subscribe(miniProfilerUpdate);
+    dotvvm.events.spaNavigated.subscribe(miniProfilerUpdate);
+
+    if(!window.performance || !window.performance.timing) return;
+
+    var dotvvmInitialized = false;
+    dotvvm.events.init.subscribe(function () {
+        window.performance.timing['DotVVM init Completed'] = Math.floor(window.performance.timeOrigin + performance.now());
+        dotvvmInitialized = true;
+    });
+
+    window.dotvvm.domUtils.onDocumentReady(function () {
+        window.performance.timing['DotVVM init'] = Math.floor(window.performance.timeOrigin + performance.now());
+    });
+
+    window.document.getElementById('mini-profiler').addEventListener('load', function () {
+        window.MiniProfiler.initCondition = function() {return dotvvmInitialized;};
+
+        window.MiniProfiler.clientPerfTimings.push({ name: 'DotVVM init' });
+        window.MiniProfiler.clientPerfTimings.push({ name: 'DotVVM init Completed', point: true });
+    }); 
+})()", "dotvvm");
 
             base.OnPreRender(context);
         }

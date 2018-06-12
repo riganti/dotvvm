@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Samples.MiniProfiler.AspNetCore.Models;
+using StackExchange.Profiling;
 
 namespace DotVVM.Samples.MiniProfiler.AspNetCore.ViewModels
 {
@@ -34,20 +35,27 @@ namespace DotVVM.Samples.MiniProfiler.AspNetCore.ViewModels
         public override Task PreRender()
         {
             _sampleContext.Users.ToList();
-
-            Thread.Sleep(200);
             return base.PreRender();
         }
 
         public void Command()
         {
             _sampleContext.Users.Add(new User { Id = Guid.NewGuid(), UserName = "username" });
+            _sampleContext.SaveChanges();
         }
 
         [AllowStaticCommand]
         public static void StaticCommand()
         {
+            using (StackExchange.Profiling.MiniProfiler.Current.Step("InitUser"))
+            {
+                Thread.Sleep(200);
 
+                using (StackExchange.Profiling.MiniProfiler.Current.Step("InitUser2"))
+                {
+                    Thread.Sleep(200);
+                }
+            }
         }
     }
 }

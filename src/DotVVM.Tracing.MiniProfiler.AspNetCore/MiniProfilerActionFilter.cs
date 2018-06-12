@@ -37,8 +37,9 @@ namespace DotVVM.Tracing.MiniProfiler.AspNetCore
             var commandCode = actionInfo.Binding
                 ?.GetProperty<OriginalStringBindingProperty>(Framework.Binding.Expressions.ErrorHandlingMode.ReturnNull)?.Code;
 
-            AddMiniProfilerName(context, context.HttpContext.Request.Url.AbsoluteUri,
-                $"(PostBack {commandCode})");
+            var postbackSuffix = commandCode != null ? $"(PostBack {commandCode})" : "(StaticCommand)";
+
+            AddMiniProfilerName(context, context.HttpContext.Request.Url.AbsoluteUri, postbackSuffix);
 
             return base.OnCommandExecutingAsync(context, actionInfo);
         }
@@ -46,10 +47,9 @@ namespace DotVVM.Tracing.MiniProfiler.AspNetCore
         private void AddMiniProfilerName(IDotvvmRequestContext context, params string[] nameParts)
         {
             var currentMiniProfiler = StackExchange.Profiling.MiniProfiler.Current;
-            
+ 
             if (currentMiniProfiler != null)
             {
-                currentMiniProfiler.AddCustomLink("results", resultsLink);
                 currentMiniProfiler.Name = string.Join(" ", nameParts);
             }
         }
