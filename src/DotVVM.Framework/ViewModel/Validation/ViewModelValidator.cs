@@ -11,13 +11,11 @@ namespace DotVVM.Framework.ViewModel.Validation
     public class ViewModelValidator : IViewModelValidator
     {
         private readonly IViewModelSerializationMapper viewModelSerializationMapper;
-        private readonly Func<IServiceProvider> serviceProviderFactory;
         private readonly Dictionary<object, object> validationItems;
 
         public ViewModelValidator(IViewModelSerializationMapper viewModelMapper, DotvvmConfiguration dotvvmConfiguration)
         {
             this.viewModelSerializationMapper = viewModelMapper;
-            this.serviceProviderFactory = serviceProviderFactory;
             this.validationItems = new Dictionary<object, object> { { typeof(DotvvmConfiguration), dotvvmConfiguration} };
         }
 
