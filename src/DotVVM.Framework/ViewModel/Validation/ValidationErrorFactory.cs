@@ -39,11 +39,22 @@ namespace DotVVM.Framework.ViewModel.Validation
             where T : IDotvvmViewModel =>
             CreateValidationResult(vm.Context.Configuration, error, expressions);
 
+        public static ValidationResult CreateValidationResult<T>(ValidationContext validationContext, string error, params Expression<Func<T, object>>[] expressions)
+        {
+            if (validationContext.Items.TryGetValue(typeof(DotvvmConfiguration), out var obj) && obj is DotvvmConfiguration DotvvmConfiguration)
+            {
+                return CreateValidationResult(DotvvmConfiguration, error, (LambdaExpression[])expressions);
+            }
+
+            throw new ArgumentException("The validationContext parameter doesn't contain the DotvvmConfiguration in Items property. ", nameof(validationContext));
+        }
+
         public static ViewModelValidationError CreateModelError<T, TProp>(DotvvmConfiguration config, Expression<Func<T, TProp>> expr, string error) =>
             CreateModelError(config, (LambdaExpression)expr, error);
 
         public static ValidationResult CreateValidationResult<T>(DotvvmConfiguration config, string error, params Expression<Func<T, object>>[] expressions) =>
             CreateValidationResult(config, error, (LambdaExpression[])expressions);
+
         public static ViewModelValidationError CreateModelError(DotvvmConfiguration config, LambdaExpression expr, string error) =>
             new ViewModelValidationError {
                 ErrorMessage = error,
@@ -58,6 +69,7 @@ namespace DotVVM.Framework.ViewModel.Validation
 
         private static ConcurrentDictionary<(DotvvmConfiguration config, LambdaExpression expression), string> exprCache =
             new ConcurrentDictionary<(DotvvmConfiguration, LambdaExpression), string>(new TupleComparer<DotvvmConfiguration, LambdaExpression>(null, ExpressionComparer.Instance));
+
         public static string GetPathFromExpression(DotvvmConfiguration config, LambdaExpression expr) =>
             exprCache.GetOrAdd((config, expr), e => {
                 var dataContext = DataContextStack.Create(e.expression.Parameters.Single().Type);
