@@ -270,7 +270,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// </summary>
         private IAbstractControl ProcessObjectElement(DothtmlElementNode element, IDataContextStack dataContext)
         {
-
             // build control
             var controlMetadata = controlResolver.ResolveControl(element.TagPrefix, element.TagName, out var constructorParameters);
             if (controlMetadata == null)
@@ -325,6 +324,13 @@ namespace DotVVM.Framework.Compilation.ControlTree
             {
                 element.AddError($"The control '{ control.Metadata.Type.FullName }' is missing required properties: { string.Join(", ", missingProperties.Select(p => "'" + p.Name + "'")) }.");
             }
+
+            var unknownContent = control.Content.Where(c => !c.Metadata.Type.IsAssignableTo(new ResolvedTypeDescriptor(typeof(DotvvmControl))));
+            if (unknownContent.Any())
+            {
+                element.AddError($"The control '{ control.Metadata.Type.FullName }' has content which not inherit from DotvvmControl: { string.Join(", ", unknownContent.Select(p => "'" + p.DothtmlNode + "'")) }.");
+            }
+
             return control;
         }
 

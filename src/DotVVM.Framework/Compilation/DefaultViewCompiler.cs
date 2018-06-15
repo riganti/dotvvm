@@ -143,7 +143,7 @@ namespace DotVVM.Framework.Compilation
             {
                 // netstandard assembly is required for netstandard 2.0 and in some cases
                 // for netframework461 and newer. netstandard is not included in netframework452
-                // and will trow FileNotFoundException. Instead of detecting current netframework
+                // and will throw FileNotFoundException. Instead of detecting current netframework
                 // version, the exception is swallowed.
                 references = references.Concat(new[] { Assembly.Load(new AssemblyName("netstandard")) });
             }
