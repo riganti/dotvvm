@@ -13,6 +13,7 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace DotVVM.Framework.ViewModel.Validation
 {
@@ -39,14 +40,20 @@ namespace DotVVM.Framework.ViewModel.Validation
             where T : IDotvvmViewModel =>
             CreateValidationResult(vm.Context.Configuration, error, expressions);
 
+
+        private static JavascriptTranslator defaultJavaScriptTranslator = new JavascriptTranslator(
+            Options.Create(new JavascriptTranslatorConfiguration()),
+            new ViewModelSerializationMapper(new ViewModelValidationRuleTranslator(), new AttributeViewModelValidationMetadataProvider(), new DefaultPropertySerialization()));
+
         public static ValidationResult CreateValidationResult<T>(ValidationContext validationContext, string error, params Expression<Func<T, object>>[] expressions)
         {
-            if (validationContext.Items.TryGetValue(typeof(DotvvmConfiguration), out var obj) && obj is DotvvmConfiguration DotvvmConfiguration)
+            if (validationContext.Items.TryGetValue(typeof(DotvvmConfiguration), out var obj) && obj is DotvvmConfiguration dotvvmConfiguration)
             {
-                return CreateValidationResult(DotvvmConfiguration, error, (LambdaExpression[])expressions);
+                return CreateValidationResult(dotvvmConfiguration, error, (LambdaExpression[])expressions);
             }
 
-            throw new ArgumentException("The validationContext parameter doesn't contain the DotvvmConfiguration in Items property. ", nameof(validationContext));
+            // Fallback to default version of JavaScriptTranslator
+            return new ValidationResult ( error, expressions.Select(expr => GetPathFromExpression(defaultJavaScriptTranslator, expr)) );
         }
 
         public static ViewModelValidationError CreateModelError<T, TProp>(DotvvmConfiguration config, Expression<Func<T, TProp>> expr, string error) =>
@@ -67,15 +74,18 @@ namespace DotVVM.Framework.ViewModel.Validation
                 expr.Select(e => GetPathFromExpression(config, e)).ToArray()
             );
 
-        private static ConcurrentDictionary<(DotvvmConfiguration config, LambdaExpression expression), string> exprCache =
-            new ConcurrentDictionary<(DotvvmConfiguration, LambdaExpression), string>(new TupleComparer<DotvvmConfiguration, LambdaExpression>(null, ExpressionComparer.Instance));
+        private static ConcurrentDictionary<(JavascriptTranslator translator, LambdaExpression expression), string> exprCache =
+            new ConcurrentDictionary<(JavascriptTranslator, LambdaExpression), string>(new TupleComparer<JavascriptTranslator, LambdaExpression>(null, ExpressionComparer.Instance));
 
         public static string GetPathFromExpression(DotvvmConfiguration config, LambdaExpression expr) =>
-            exprCache.GetOrAdd((config, expr), e => {
+            GetPathFromExpression(config.ServiceProvider.GetRequiredService<JavascriptTranslator>(), expr, config.Debug);
+
+        public static string GetPathFromExpression(JavascriptTranslator translator, LambdaExpression expr, bool isDebug = false) =>
+            exprCache.GetOrAdd((translator, expr), e => {
                 var dataContext = DataContextStack.Create(e.expression.Parameters.Single().Type);
                 var expression = ExpressionUtils.Replace(e.expression, BindingExpressionBuilder.GetParameters(dataContext).First(p => p.Name == "_this"));
-                var jsast = config.ServiceProvider.GetRequiredService<JavascriptTranslator>().CompileToJavascript(expression, dataContext);
-                var pcode = BindingPropertyResolvers.FormatJavascript(jsast, niceMode: e.config.Debug, nullChecks: false);
+                var jsast = translator.CompileToJavascript(expression, dataContext);
+                var pcode = BindingPropertyResolvers.FormatJavascript(jsast, niceMode: isDebug, nullChecks: false);
                 return JavascriptTranslator.FormatKnockoutScript(pcode, allowDataGlobal: true);
             });
     }
