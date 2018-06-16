@@ -326,9 +326,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
 
             var unknownContent = control.Content.Where(c => !c.Metadata.Type.IsAssignableTo(new ResolvedTypeDescriptor(typeof(DotvvmControl))));
-            if (unknownContent.Any())
+            foreach (var unknownControl in unknownContent)
             {
-                element.AddError($"The control '{ control.Metadata.Type.FullName }' has content which not inherit from DotvvmControl: { string.Join(", ", unknownContent.Select(p => "'" + p.DothtmlNode + "'")) }.");
+                unknownControl.DothtmlNode.AddError($"The control '{ unknownControl.Metadata.Type.FullName }' does not inherit from DotvvmControl and thus cannot be used in content.");
             }
 
             return control;

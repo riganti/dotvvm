@@ -316,8 +316,8 @@ namespace DotVVM.Samples.Tests
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_UnknownInnerControl);
 
-                AssertUI.InnerText(browser.First("p.summary"), s => s.Contains("has content which not inherit from DotvvmControl"));
-                AssertUI.InnerText(browser.First("[class='errorUnderline']"), s => s.Contains("<body>"));
+                AssertUI.InnerText(browser.First("p.summary"), s => s.Contains("does not inherit from DotvvmControl and thus cannot be used in content"));
+                AssertUI.InnerText(browser.First("[class='errorUnderline']"), s => s.Contains("<dot:ConfirmPostBackHandler Message=\"Confirmation 1\" />"));
             });
         }
 
