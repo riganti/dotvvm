@@ -368,7 +368,8 @@ namespace DotVVM.TypeScript.Compiler.Ast.Visitors
             propertyReference.Instance.AcceptVisitor(this);
             Append(".");
             propertyReference.Identifier.AcceptVisitor(this);
-            if (propertyReference.Type.IsArrayType() == false)
+            if (propertyReference.Type.IsArrayType() == false
+                || propertyReference.Type.IsStringType())
             {
                 Append("(");
                 Append(")");
