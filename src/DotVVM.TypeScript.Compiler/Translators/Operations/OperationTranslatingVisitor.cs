@@ -6,11 +6,13 @@ using DotVVM.Framework.ViewModel;
 using DotVVM.TypeScript.Compiler.Ast;
 using DotVVM.TypeScript.Compiler.Ast.Factories;
 using DotVVM.TypeScript.Compiler.Ast.TypeScript;
+using DotVVM.TypeScript.Compiler.Exceptions;
 using DotVVM.TypeScript.Compiler.Symbols;
 using DotVVM.TypeScript.Compiler.Translators.Builtin;
 using DotVVM.TypeScript.Compiler.Utils.Logging;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Operations;
+using Microsoft.CodeAnalysis.Shared.Extensions;
 
 namespace DotVVM.TypeScript.Compiler.Translators.Operations
 {
@@ -301,19 +303,401 @@ namespace DotVVM.TypeScript.Compiler.Translators.Operations
             return _factory.CreateForEachLoopStatement(variable, collection, body, parent);
         }
 
-
-        public override ISyntaxNode Visit(IOperation operation, ISyntaxNode argument)
+        private void ThrowUnsupportedException(IOperation operation)
         {
-            var syntaxNode = base.Visit(operation, argument);
-            if (syntaxNode == null) throw new NotSupportedOperationException(operation.Kind.ToString());
-            return syntaxNode;
+            var linePositionSpan = operation.Syntax.SyntaxTree.GetLineSpan(operation.Syntax.Span);
+            var filePath = operation.Syntax.SyntaxTree.FilePath;
+            throw new NotSupportedOperationException(filePath, linePositionSpan, operation.Kind);
         }
-    }
 
-    internal class NotSupportedOperationException : Exception
-    {
-        public NotSupportedOperationException(string operationName) : base(operationName)
+        public override ISyntaxNode VisitSwitch(ISwitchOperation operation, ISyntaxNode argument)
         {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitSwitchCase(ISwitchCaseOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitSingleValueCaseClause(ISingleValueCaseClauseOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitRelationalCaseClause(IRelationalCaseClauseOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitRangeCaseClause(IRangeCaseClauseOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitDefaultCaseClause(IDefaultCaseClauseOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitForToLoop(IForToLoopOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitLabeled(ILabeledOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitBranch(IBranchOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitEmpty(IEmptyOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitLock(ILockOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitTry(ITryOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitCatchClause(ICatchClauseOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitUsing(IUsingOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitStop(IStopOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitEnd(IEndOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitOmittedArgument(IOmittedArgumentOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitArrayElementReference(IArrayElementReferenceOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitFieldReference(IFieldReferenceOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitMethodReference(IMethodReferenceOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitEventReference(IEventReferenceOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitEventAssignment(IEventAssignmentOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitConditionalAccess(IConditionalAccessOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitConditionalAccessInstance(IConditionalAccessInstanceOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitCoalesce(ICoalesceOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitIsType(IIsTypeOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitSizeOf(ISizeOfOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitTypeOf(ITypeOfOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitAnonymousFunction(IAnonymousFunctionOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitDelegateCreation(IDelegateCreationOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitAwait(IAwaitOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitNameOf(INameOfOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitThrow(IThrowOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitAddressOf(IAddressOfOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitAnonymousObjectCreation(IAnonymousObjectCreationOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitDynamicObjectCreation(IDynamicObjectCreationOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitDynamicInvocation(IDynamicInvocationOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitDynamicIndexerAccess(IDynamicIndexerAccessOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitObjectOrCollectionInitializer(IObjectOrCollectionInitializerOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitMemberInitializer(IMemberInitializerOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitCollectionElementInitializer(ICollectionElementInitializerOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitFieldInitializer(IFieldInitializerOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitPropertyInitializer(IPropertyInitializerOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitParameterInitializer(IParameterInitializerOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitArrayCreation(IArrayCreationOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitArrayInitializer(IArrayInitializerOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitDeconstructionAssignment(IDeconstructionAssignmentOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitDeclarationExpression(IDeclarationExpressionOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitCompoundAssignment(ICompoundAssignmentOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitParenthesized(IParenthesizedOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitDynamicMemberReference(IDynamicMemberReferenceOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitDefaultValue(IDefaultValueOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitTypeParameterObjectCreation(ITypeParameterObjectCreationOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitInvalid(IInvalidOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitLocalFunction(ILocalFunctionOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitInterpolatedString(IInterpolatedStringOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitInterpolatedStringText(IInterpolatedStringTextOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitInterpolation(IInterpolationOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitIsPattern(IIsPatternOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitConstantPattern(IConstantPatternOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitDeclarationPattern(IDeclarationPatternOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitPatternCaseClause(IPatternCaseClauseOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitTuple(ITupleOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitTranslatedQuery(ITranslatedQueryOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
+        }
+
+        public override ISyntaxNode VisitRaiseEvent(IRaiseEventOperation operation, ISyntaxNode argument)
+        {
+            ThrowUnsupportedException(operation);
+            return null;
         }
     }
 }

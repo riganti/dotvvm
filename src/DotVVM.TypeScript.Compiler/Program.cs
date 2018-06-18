@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.TypeScript.Compiler.Exceptions;
+using DotVVM.TypeScript.Compiler.Translators.Operations;
 using DotVVM.TypeScript.Compiler.Utils;
 using DotVVM.TypeScript.Compiler.Utils.IO;
 using DotVVM.TypeScript.Compiler.Utils.Logging;
@@ -52,16 +53,22 @@ namespace DotVVM.TypeScript.Compiler
                 logger.LogError("Arguments", "Some arguments are missing.");
                 PrintHelp();
             }
-            //catch (Exception exception)
-            //{
-            //    Console.WriteLine("An error occured during compilation: " + exception.Message);
-            //}
+            catch (NotSupportedOperationException exception)
+            {
+                logger.LogError("Operation","Unsupported operation used");
+                logger.LogError("Operation", exception.Message);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine("An error occured during compilation: " + exception.Message);
+            }
             return 1;
         }
 
         private static void PrintHelp()
         {
-            
+            Console.WriteLine("Typescript translator");
+            Console.WriteLine("Usage: dotnet dotvvm-typescript PATH_TO_SOLUTION PROJECT_NAME");
         }
     }
 }
