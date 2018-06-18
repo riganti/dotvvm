@@ -131,7 +131,9 @@ namespace DotVVM.Framework.ResourceManagement
             var resources = value as DotvvmResourceRepository ?? throw new NotSupportedException();
             foreach (var group in resources.Resources.GroupBy(k => k.Value.GetType()))
             {
-                var name = GetResourceTypeNames().First(k => k.Value == group.Key).Key;
+                var name = GetResourceTypeNames().FirstOrDefault(k => k.Value == group.Key).Key;
+                if (name == null) continue;
+
                 writer.WritePropertyName(name);
                 writer.WriteStartObject();
                 foreach (var resource in group)
