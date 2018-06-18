@@ -15,14 +15,22 @@ namespace DotVVM.Framework.Controls
     {
         protected override void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            // render resource links
             var resourceManager = context.ResourceManager;
             if (resourceManager.HeadRendered) return;
-            resourceManager.HeadRendered = true; // set the flag before the resources are rendered, so they can't add more resources to the list during the render
+            // set the flag before the resources are rendered, so they can't add more resources to the list during the render
+            resourceManager.HeadRendered = true;
+
+            // render resource links and preloads
             foreach (var resource in resourceManager.GetNamedResourcesInOrder())
             {
                 if (resource.Resource.RenderPosition == ResourceRenderPosition.Head)
+                {
                     resource.RenderResourceCached(writer, context);
+                }
+                else if (resource.Resource is IPreloadResource preloadResource)
+                {
+                    preloadResource.RenderPreloadLink(writer, context, resource.Name);
+                }
             }
         }
     }
