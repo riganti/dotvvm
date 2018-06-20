@@ -43,6 +43,7 @@ class DotVVM {
     private fakeRedirectAnchor: HTMLAnchorElement;
     private resourceSigns: { [name: string]: boolean } = {}
     private isViewModelUpdating: boolean = true;
+    private spaHistory = new DotvvmSpaHistory();
 
     // warning this property is referenced in ModelState.cs and KnockoutHelper.cs
     public viewModelObservables: {
@@ -56,8 +57,8 @@ class DotVVM {
     public postbackHandlers: IDotvvmPostbackHandlerCollection = {
         confirm: (options: any) => new ConfirmPostBackHandler(options.message),
         timeout: (options: any) => options.time ? this.createWindowSetTimeoutHandler(options.time) : this.windowSetTimeoutHandler,
-        "concurrency-none": (o: any) => ({
-            name: "concurrency-none",
+        "concurrency-default": (o: any) => ({
+            name: "concurrency-default",
             before: ["setIsPostackRunning"],
             execute: (callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions) => {
                 return this.commonConcurrencyHandler(callback(), options, o.q || "default")
@@ -90,7 +91,7 @@ class DotVVM {
         }),
         "suppressOnUpdating": (options: any) => ({
             name: "suppressOnUpdating",
-            before: ["setIsPostackRunning", "concurrency-none", "concurrency-queue", "concurrency-deny"],
+            before: ["setIsPostackRunning", "concurrency-default", "concurrency-queue", "concurrency-deny"],
             execute(callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions) {
                 if (dotvvm.isViewModelUpdating) return Promise.reject({ type: "handler", handler: this, message: "ViewModel is updating, so it's probably false onchange event" })
                 else return callback()
@@ -165,7 +166,7 @@ class DotVVM {
         });
     }
 
-    private defaultConcurrencyPostbackHandler: DotvvmPostbackHandler = this.postbackHandlers["concurrency-none"]({})
+    private defaultConcurrencyPostbackHandler: DotvvmPostbackHandler = this.postbackHandlers["concurrency-default"]({})
 
     private postbackQueues: { [name: string]: { queue: (() => void)[], noRunning: number } } = {}
     public getPostbackQueue(name = "default") {
@@ -201,6 +202,7 @@ class DotVVM {
     public validation: DotvvmValidation;
     public extensions: IDotvvmExtensions = {};
 
+    public useHistoryApiSpaNavigation: boolean;
     public isPostbackRunning = ko.observable(false);
 
     public init(viewModelName: string, culture: string): void {
@@ -233,9 +235,20 @@ class DotVVM {
         // handle SPA requests
         const spaPlaceHolder = this.getSpaPlaceHolder();
         if (spaPlaceHolder != null) {
-            this.domUtils.attachEvent(window, "hashchange", () => this.handleHashChange(viewModelName, spaPlaceHolder, false));
-            this.handleHashChange(viewModelName, spaPlaceHolder, true);
+            var hashChangeHandler = (initialLoad: boolean) => this.handleHashChange(viewModelName, spaPlaceHolder, initialLoad);
+
+            this.useHistoryApiSpaNavigation = <boolean>JSON.parse(<string>spaPlaceHolder.getAttribute("data-dotvvm-spacontentplaceholder-usehistoryapi"));
+            if (this.useHistoryApiSpaNavigation) {
+                hashChangeHandler = (initialLoad: boolean) => this.handleHashChangeWithHistory(viewModelName, spaPlaceHolder, initialLoad);
+            }
+
+            var spaChangedHandler = () => hashChangeHandler(false)
+            this.domUtils.attachEvent(window, "hashchange", spaChangedHandler);
+            hashChangeHandler(true);
         }
+
+        window.addEventListener('popstate', (event) => this.handlePopState(viewModelName, event, spaPlaceHolder != null));
+
         this.isViewModelUpdating = false;
 
         if (idFragment) {
@@ -252,6 +265,40 @@ class DotVVM {
         });
     }
 
+    private handlePopState(viewModelName: string, event: PopStateEvent, inSpaPage: boolean) {
+        if (this.spaHistory.isSpaPage(event.state)) {
+            var historyRecord = this.spaHistory.getHistoryRecord(event.state);
+            if (inSpaPage)
+                this.navigateCore(viewModelName, historyRecord.url);
+            else
+                this.performRedirect(historyRecord.url, true);
+
+            event.preventDefault();
+        }
+    }
+
+    private handleHashChangeWithHistory(viewModelName: string, spaPlaceHolder: HTMLElement, isInitialPageLoad: boolean) {
+        if (document.location.hash.indexOf("#!/") === 0) {
+            // the user requested navigation to another SPA page
+            this.navigateCore(viewModelName, document.location.hash.substring(2),
+                (url) => { this.spaHistory.replacePage(url); });
+
+        } else {
+            var defaultUrl = spaPlaceHolder.getAttribute("data-dotvvm-spacontentplaceholder-defaultroute");
+            var containsContent = spaPlaceHolder.hasAttribute("data-dotvvm-spacontentplaceholder-content");
+
+            if (!containsContent && defaultUrl) {
+                this.navigateCore(viewModelName, "/" + defaultUrl, (url) => this.spaHistory.replacePage(url));
+            } else {
+                this.isSpaReady(true);
+                spaPlaceHolder.style.display = "";
+
+                var currentRelativeUrl = location.pathname + location.search + location.hash
+                this.spaHistory.replacePage(currentRelativeUrl);
+            }
+        }
+    }
+
     private handleHashChange(viewModelName: string, spaPlaceHolder: HTMLElement, isInitialPageLoad: boolean) {
         if (document.location.hash.indexOf("#!/") === 0) {
             // the user requested navigation to another SPA page
@@ -259,6 +306,7 @@ class DotVVM {
 
         } else {
             var url = spaPlaceHolder.getAttribute("data-dotvvm-spacontentplaceholder-defaultroute");
+
             if (url) {
                 // perform redirect to default page
                 url = "#!/" + url;
@@ -318,7 +366,7 @@ class DotVVM {
             try {
                 this.isViewModelUpdating = true;
                 const result = JSON.parse(response.responseText);
-                dotvvm.events.staticCommandMethodInvoked.trigger({ ...data, result });
+                dotvvm.events.staticCommandMethodInvoked.trigger({ ...data, result, xhr: response });
                 callback(result);
             } catch (error) {
                 dotvvm.events.staticCommandMethodFailed.trigger({ ...data, xhr: response, error: error })
@@ -524,7 +572,32 @@ class DotVVM {
         });
     }
 
+    public handleSpaNavigation(element: HTMLElement): boolean {
+        var target = element.getAttribute('target');
 
+        if (target == "_blank") {
+            return true;
+        }
+
+        return this.handleSpaNavigationCore(element.getAttribute('href'));
+    }
+
+    public handleSpaNavigationCore(url: string | null): boolean {
+       if (url && url.indexOf("/") === 0) {
+            var viewModelName = "root"
+
+            url = this.removeVirtualDirectoryFromUrl(url, viewModelName);
+            this.navigateCore(viewModelName, url, (navigatedUrl) => {
+                if (!history.state || history.state.url != navigatedUrl) {
+                    this.spaHistory.pushPage(navigatedUrl);
+                }
+            });
+
+            return false;
+        }
+
+        return true;
+    }
 
     public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, context?: any, handlers?: ClientFriendlyPostbackHandlerConfiguration[], commandArgs?: any[]): Promise<DotvvmAfterPostBackEventArgs> {
         if (this.isPostBackProhibited(sender)) {
@@ -644,7 +717,7 @@ class DotVVM {
         return null;
     }
 
-    private navigateCore(viewModelName: string, url: string) {
+    private navigateCore(viewModelName: string, url: string, handlePageNavigating?: (url: string) => void) {
         var viewModel = this.viewModels[viewModelName].viewModel;
 
         // prevent double postbacks
@@ -657,15 +730,22 @@ class DotVVM {
             return;
         }
 
+        var virtualDirectory = this.viewModels[viewModelName].virtualDirectory || "";
+
         // add virtual directory prefix
-        url = "/___dotvvm-spa___" + this.addLeadingSlash(url);
-        var fullUrl = this.addLeadingSlash(this.concatUrl(this.viewModels[viewModelName].virtualDirectory || "", url));
+        var spaUrl = "/___dotvvm-spa___" + this.addLeadingSlash(url);
+        var fullUrl = this.addLeadingSlash(this.concatUrl(virtualDirectory, spaUrl));
 
         // find SPA placeholder
         var spaPlaceHolder = this.getSpaPlaceHolder();
         if (!spaPlaceHolder) {
             document.location.href = fullUrl;
             return;
+        }
+
+        if (handlePageNavigating) {
+            handlePageNavigating(
+                this.addLeadingSlash(this.concatUrl(virtualDirectory, this.addLeadingSlash(url))));
         }
 
         // send the request
@@ -714,6 +794,7 @@ class DotVVM {
                 // trigger spaNavigated event
                 var spaNavigatedArgs = new DotvvmSpaNavigatedEventArgs(viewModel, viewModelName, resultObject, result);
                 this.events.spaNavigated.trigger(spaNavigatedArgs);
+
                 if (!isSuccess && !spaNavigatedArgs.isHandled) {
                     throw "Invalid response from server!";
                 }
@@ -735,7 +816,7 @@ class DotVVM {
         if (resultObject.replace != null) replace = resultObject.replace;
         var url;
         // redirect
-        if (this.getSpaPlaceHolder() && resultObject.url.indexOf("//") < 0 && resultObject.allowSpa) {
+        if (this.getSpaPlaceHolder() && !this.useHistoryApiSpaNavigation && resultObject.url.indexOf("//") < 0 && resultObject.allowSpa) {
             // relative URL - keep in SPA mode, but remove the virtual directory
             url = "#!" + this.removeVirtualDirectoryFromUrl(resultObject.url, viewModelName);
             if (url === "#!") {
@@ -754,12 +835,15 @@ class DotVVM {
         var redirectArgs = new DotvvmRedirectEventArgs(dotvvm.viewModels[viewModelName], viewModelName, url, replace);
         this.events.redirect.trigger(redirectArgs);
 
-        this.performRedirect(url, replace);
+        this.performRedirect(url, replace, resultObject.allowSpa && this.useHistoryApiSpaNavigation);
     }
 
-    private performRedirect(url: string, replace: boolean) {
+    private performRedirect(url: string, replace: boolean, useHistoryApiSpaRedirect?: boolean) {
         if (replace) {
             location.replace(url);
+        }
+        else if (useHistoryApiSpaRedirect) {
+            this.handleSpaNavigationCore(url);
         }
         else {
             var fakeAnchor = this.fakeRedirectAnchor;

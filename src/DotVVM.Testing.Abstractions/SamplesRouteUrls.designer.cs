@@ -82,6 +82,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_Repeater_NestedRepeaterWithControl = "ControlSamples/Repeater/NestedRepeaterWithControl";
         public const string ControlSamples_Repeater_RepeaterAsSeparator = "ControlSamples/Repeater/RepeaterAsSeparator";
         public const string ControlSamples_Repeater_RepeaterWrapperTag = "ControlSamples/Repeater/RepeaterWrapperTag";
+        public const string ControlSamples_Repeater_RequiredResource = "ControlSamples/Repeater/RequiredResource";
         public const string ControlSamples_Repeater_RouteLink = "ControlSamples/Repeater/RouteLink";
         public const string ControlSamples_Repeater_RouteLinkQuery = "ControlSamples/Repeater/RouteLinkQuery";
         public const string ControlSamples_Repeater_RouteLinkUrlSuffix = "ControlSamples/Repeater/RouteLinkUrlSuffix";
@@ -95,6 +96,9 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_SpaContentPlaceHolder_Default = "ControlSamples/SpaContentPlaceHolder/Default";
         public const string ControlSamples_SpaContentPlaceHolder_PageA = "ControlSamples/SpaContentPlaceHolder/PageA";
         public const string ControlSamples_SpaContentPlaceHolder_PageB = "ControlSamples/SpaContentPlaceHolder/PageB";
+        public const string ControlSamples_SpaContentPlaceHolder_HistoryApi_Default = "ControlSamples/SpaContentPlaceHolder_HistoryApi/Default";
+        public const string ControlSamples_SpaContentPlaceHolder_HistoryApi_PageA = "ControlSamples/SpaContentPlaceHolder_HistoryApi/PageA";
+        public const string ControlSamples_SpaContentPlaceHolder_HistoryApi_PageB = "ControlSamples/SpaContentPlaceHolder_HistoryApi/PageB";
         public const string ControlSamples_SpaContentPlaceHolder_PrefixRouteName_Default = "ControlSamples/SpaContentPlaceHolder_PrefixRouteName/Default";
         public const string ControlSamples_SpaContentPlaceHolder_PrefixRouteName_PageA = "ControlSamples/SpaContentPlaceHolder_PrefixRouteName/PageA";
         public const string ControlSamples_SpaContentPlaceHolder_PrefixRouteName_PageB = "ControlSamples/SpaContentPlaceHolder_PrefixRouteName/PageB";
@@ -127,6 +131,7 @@ namespace DotVVM.Testing.Abstractions
         public const string Errors_NonExistingControl = "Errors/NonExistingControl";
         public const string Errors_NonExistingProperty = "Errors/NonExistingProperty";
         public const string Errors_NotAllowedHardCodedPropertyValue = "Errors/NotAllowedHardCodedPropertyValue";
+        public const string Errors_UnknownInnerControl = "Errors/UnknownInnerControl";
         public const string Errors_WrongPropertyValue = "Errors/WrongPropertyValue";
         public const string FeatureSamples_ActionFilterErrorHandling_ActionFilterErrorHandling = "FeatureSamples/ActionFilterErrorHandling/ActionFilterErrorHandling";
         public const string FeatureSamples_ActionFilterErrorHandling_ActionFilterPageErrorHandling = "FeatureSamples/ActionFilterErrorHandling/ActionFilterPageErrorHandling";

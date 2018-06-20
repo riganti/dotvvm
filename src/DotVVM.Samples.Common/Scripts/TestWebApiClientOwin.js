@@ -490,7 +490,7 @@ var DotVVM;
                         /**
                          * @return No Content
                          */
-                        OrdersClient.prototype["delete"] = function (orderId) {
+                        OrdersClient.prototype.delete = function (orderId) {
                             var _this = this;
                             var url_ = this.baseUrl + "/api/orders/delete/{orderId}";
                             if (orderId === undefined || orderId === null)
@@ -500,7 +500,7 @@ var DotVVM;
                             var options_ = {
                                 method: "DELETE",
                                 headers: new Headers({
-                                    "Content-Type": "application/json"
+                                    "Content-Type": "application/json",
                                 })
                             };
                             return this.transformOptions(options_).then(function (transformedOptions_) {
@@ -1017,3 +1017,4 @@ var DotVVM;
         })(Common = Samples.Common || (Samples.Common = {}));
     })(Samples = DotVVM.Samples || (DotVVM.Samples = {}));
 })(DotVVM || (DotVVM = {}));
+//# sourceMappingURL=TestWebApiClientOwin.js.map

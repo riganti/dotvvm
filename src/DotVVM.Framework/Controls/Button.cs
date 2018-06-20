@@ -61,7 +61,7 @@ namespace DotVVM.Framework.Controls
                 throw new DotvvmControlException(this, "Text property and inner content of the <dot:Button> control cannot be set at the same time!");
             }
 
-            if (ButtonTagName == ButtonTagName.button && HasBinding(TextProperty))
+            if (ButtonTagName == ButtonTagName.button && HasValueBinding(TextProperty))
             {
                 var literal = new Literal { RenderSpanElement = false };
                 literal.SetBinding(c => c.Text, GetBinding(TextProperty));

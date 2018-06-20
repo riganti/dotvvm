@@ -11,5 +11,12 @@ namespace DotVVM.Samples.Common.ViewModels.ControlSamples.Repeater
             "Second separator",
             "Third separator"
         };
+
+        public int Counter { get; set; }
+
+        public void Increment()
+        {
+            Counter++;
+        }
     }
 }

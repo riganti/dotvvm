@@ -17,7 +17,7 @@
             <div DataContext="{value: Entry}">
                 <dot:Repeater DataSource="{value: Children}" WrapperTagName="ul">
                     <dot:Button ID="test" Text="YYY" Click="{command: _root.IncrementCounter()}" />
-                    <sample:ControlWithButton GoToDetailAction="{command: _root.IncrementCounter()}" />
+                    <sample:ControlWithButton GoToDetailAction="{command: _root.IncrementCounter()}" DataContext="{value: Children}"/>
                     <li>
                         {{value: Name}}
                         <dot:LinkButton Click="{command: _root.Click(_parent.Name, Name)}" Text="Select 1" />

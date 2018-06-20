@@ -6,6 +6,7 @@
     public spaNavigating = new DotvvmEvent<DotvvmSpaNavigatingEventArgs>("dotvvm.events.spaNavigating");
     public spaNavigated = new DotvvmEvent<DotvvmSpaNavigatedEventArgs>("dotvvm.events.spaNavigated");
     public redirect = new DotvvmEvent<DotvvmRedirectEventArgs>("dotvvm.events.redirect");
+
     public postbackHandlersStarted = new DotvvmEvent<{}>("dotvvm.events.postbackHandlersStarted")
     public postbackHandlersCompleted = new DotvvmEvent<{}>("dotvvm.events.postbackHandlersCompleted")
     public postbackResponseReceived = new DotvvmEvent<{}>("dotvvm.events.postbackResponseReceived")
@@ -14,7 +15,7 @@
     public postbackRejected = new DotvvmEvent<{}>("dotvvm.events.postbackRejected")
 
     public staticCommandMethodInvoking = new DotvvmEvent<{args: any[], command: string}>("dotvvm.events.staticCommandMethodInvoking")
-    public staticCommandMethodInvoked = new DotvvmEvent<{args: any[], command: string, result: any}>("dotvvm.events.staticCommandMethodInvoked")
+    public staticCommandMethodInvoked = new DotvvmEvent<{args: any[], command: string, result: any, xhr: XMLHttpRequest}>("dotvvm.events.staticCommandMethodInvoked")
     public staticCommandMethodFailed = new DotvvmEvent<{args: any[], command: string, xhr: XMLHttpRequest, error?: any}>("dotvvm.events.staticCommandMethodInvoked")
 }
 

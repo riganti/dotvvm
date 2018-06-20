@@ -26,10 +26,10 @@ namespace DotVVM.Framework.Controls
             var expression = control.GetValueBinding(property);
             if (expression != null && (!control.RenderOnServer || renderEvenInServerRenderingMode))
             {
-                writer.AddAttribute("data-bind", name + ": " + expression.GetKnockoutBindingExpression(control), true, ", ");
+                writer.AddKnockoutDataBind(name, expression.GetKnockoutBindingExpression(control));
                 if (valueUpdate != null)
                 {
-                    writer.AddAttribute("data-bind", "valueUpdate: '" + valueUpdate + "'", true, ", ");
+                    writer.AddKnockoutDataBind("valueUpdate", $"'{valueUpdate}'");
                 }
             }
             else
@@ -52,7 +52,7 @@ namespace DotVVM.Framework.Controls
 
         public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, IEnumerable<KeyValuePair<string, IValueBinding>> expressions, DotvvmBindableObject control, DotvvmProperty property)
         {
-            writer.AddAttribute("data-bind", name + ": {" + String.Join(",", expressions.Select(e => "'" + e.Key + "': " + e.Value.GetKnockoutBindingExpression(control))) + "}", true, ", ");
+            writer.AddKnockoutDataBind(name, $"{{{String.Join(",", expressions.Select(e => "'" + e.Key + "': " + e.Value.GetKnockoutBindingExpression(control)))}}}");
         }
 
         public static void WriteKnockoutForeachComment(this IHtmlWriter writer, string binding)
@@ -326,9 +326,9 @@ namespace DotVVM.Framework.Controls
 
         static string GenerateConcurrencyModeHandler(DotvvmBindableObject obj)
         {
-            var mode = (obj.GetValue(PostBack.ConcurrencyProperty) as PostbackConcurrencyMode?) ?? PostbackConcurrencyMode.None;
+            var mode = (obj.GetValue(PostBack.ConcurrencyProperty) as PostbackConcurrencyMode?) ?? PostbackConcurrencyMode.Default;
             var queueName = obj.GetValueRaw(PostBack.ConcurrencyQueueProperty) ?? "default";
-            if (mode == PostbackConcurrencyMode.None && "default".Equals(queueName)) return null;
+            if (mode == PostbackConcurrencyMode.Default && "default".Equals(queueName)) return null;
             var handlerName = $"concurrency-{mode.ToString().ToLower()}";
             if ("default".Equals(queueName)) return JsonConvert.ToString(handlerName);
             return $"[{JsonConvert.ToString(handlerName)},{GenerateHandlerOptions(obj, new Dictionary<string, object> { ["q"] = queueName })}]";

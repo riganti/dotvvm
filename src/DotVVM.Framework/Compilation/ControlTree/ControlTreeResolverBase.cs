@@ -70,7 +70,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
             var dataContextTypeStack = CreateDataContextTypeStack(viewModelType, null, namespaceImports, new BindingExtensionParameter[] {
                 new CurrentMarkupControlExtensionParameter(wrapperType),
-                new BindingPageInfoExtensionParameter()
+                new BindingPageInfoExtensionParameter(),
+                new BindingApiExtensionParameter()
             }.Concat(injectedServices).ToArray());
 
             var view = treeBuilder.BuildTreeRoot(this, viewMetadata, root, dataContextTypeStack, directives);
@@ -269,7 +270,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// </summary>
         private IAbstractControl ProcessObjectElement(DothtmlElementNode element, IDataContextStack dataContext)
         {
-
             // build control
             var controlMetadata = controlResolver.ResolveControl(element.TagPrefix, element.TagName, out var constructorParameters);
             if (controlMetadata == null)
@@ -324,6 +324,13 @@ namespace DotVVM.Framework.Compilation.ControlTree
             {
                 element.AddError($"The control '{ control.Metadata.Type.FullName }' is missing required properties: { string.Join(", ", missingProperties.Select(p => "'" + p.Name + "'")) }.");
             }
+
+            var unknownContent = control.Content.Where(c => !c.Metadata.Type.IsAssignableTo(new ResolvedTypeDescriptor(typeof(DotvvmControl))));
+            foreach (var unknownControl in unknownContent)
+            {
+                unknownControl.DothtmlNode.AddError($"The control '{ unknownControl.Metadata.Type.FullName }' does not inherit from DotvvmControl and thus cannot be used in content.");
+            }
+
             return control;
         }
 

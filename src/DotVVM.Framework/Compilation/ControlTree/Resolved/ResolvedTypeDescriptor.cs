@@ -17,8 +17,11 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         }
 
         public string Name => Type.Name;
+
         public string Namespace => Type.Namespace;
+
         public string Assembly => Type.AssemblyQualifiedName;
+
         public string FullName => string.IsNullOrEmpty(Namespace) ? Name : (Namespace + "." + Name);
 
         public bool IsAssignableTo(ITypeDescriptor typeDescriptor)
@@ -82,16 +85,24 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             }
             return null;
         }
-        
-        public override string ToString() => Type.ToString();
 
+        public ITypeDescriptor MakeGenericType(params ITypeDescriptor[] typeArguments)
+        {
+            var genericType = Type.MakeGenericType(typeArguments
+                .Cast<ResolvedTypeDescriptor>().Select(t => t.Type)
+                .ToArray());
+
+            return new ResolvedTypeDescriptor(genericType);
+        }
+
+        public override string ToString() => Type.ToString();
 
         public static Type ToSystemType(ITypeDescriptor typeDescriptor)
         {
             if (typeDescriptor == null) return null;
             else if (typeDescriptor is ResolvedTypeDescriptor)
             {
-                return ((ResolvedTypeDescriptor) typeDescriptor).Type;
+                return ((ResolvedTypeDescriptor)typeDescriptor).Type;
             }
             else
             {

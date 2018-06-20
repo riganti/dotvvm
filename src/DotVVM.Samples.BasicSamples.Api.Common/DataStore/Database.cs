@@ -51,7 +51,7 @@ namespace DotVVM.Samples.BasicSamples.Api.Common.DataStore
                 .RuleFor(o => o.Number, f => f.Random.AlphaNumeric(8))
                 .RuleFor(o => o.OrderItems, f => orderItemsFaker.Generate(f.Random.Number(1, 10)));
 
-            Companies = companiesFaker.Generate(10).ToList();
+            Companies = companiesFaker.Generate(35).ToList();
             Orders = ordersFaker.Generate(300).ToList();
         }
     }

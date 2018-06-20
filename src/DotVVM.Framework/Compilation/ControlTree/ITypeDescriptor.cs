@@ -4,7 +4,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
 {
     public interface ITypeDescriptor
     {
-
         string Name { get; }
 
         string Namespace { get; }
@@ -24,6 +23,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         ITypeDescriptor TryGetArrayElementOrIEnumerableType();
 
         ITypeDescriptor TryGetPropertyType(string propertyName);
-        
+
+        ITypeDescriptor MakeGenericType(params ITypeDescriptor[] typeArguments);
     }
 }

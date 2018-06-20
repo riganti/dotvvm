@@ -5415,7 +5415,7 @@ ko.exportSymbol('__tr_ambtns', ko.templateRewriting.applyMemoizedBindingsToNextS
                 preprocessNode = provider['preprocessNode'];
 
             if (preprocessNode) {
-                invokeForEachNodeInContinuousRange(firstNode, lastNode, function(node, nextNodeInRange) {
+                invokeForEachNodeInContinuousRange(firstNode, lastNode, function (node, nextNodeInRange) {
                     var nodePreviousSibling = node.previousSibling;
                     var newNodes = preprocessNode.call(provider, node);
                     if (newNodes) {
@@ -5443,11 +5443,11 @@ ko.exportSymbol('__tr_ambtns', ko.templateRewriting.applyMemoizedBindingsToNextS
 
             // Need to applyBindings *before* unmemoziation, because unmemoization might introduce extra nodes (that we don't want to re-bind)
             // whereas a regular applyBindings won't introduce new memoized nodes
-            invokeForEachNodeInContinuousRange(firstNode, lastNode, function(node) {
+            invokeForEachNodeInContinuousRange(firstNode, lastNode, function (node) {
                 if (node.nodeType === 1 || node.nodeType === 8)
                     ko.applyBindings(bindingContext, node);
             });
-            invokeForEachNodeInContinuousRange(firstNode, lastNode, function(node) {
+            invokeForEachNodeInContinuousRange(firstNode, lastNode, function (node) {
                 if (node.nodeType === 1 || node.nodeType === 8)
                     ko.memoization.unmemoizeDomNodeAndDescendants(node, [bindingContext]);
             });
@@ -5562,13 +5562,13 @@ ko.exportSymbol('__tr_ambtns', ko.templateRewriting.applyMemoizedBindingsToNextS
             var hierarchyRole = options["hierarchyRole"];
 
             // Support selecting template as a function of the data being rendered
-            if(hierarchyRole) {
+            if (hierarchyRole) {
                 var indexPath = [index];
                 var hierarchyLevel = 0;
                 var alias = "$" + (options["as"] || "item");
                 var contextProperties = {};
 
-                if(hierarchyRole === "Child") {
+                if (hierarchyRole === "Child") {
                     indexPath = parentBindingContext["$indexPath"].concat(indexPath);
                     hierarchyLevel = parentBindingContext["$hierarchyLevel"] + 1;
                 }
@@ -5580,7 +5580,7 @@ ko.exportSymbol('__tr_ambtns', ko.templateRewriting.applyMemoizedBindingsToNextS
 
                 arrayItemContext = parentBindingContext['extend'](contextProperties);
             } else {
-                arrayItemContext = parentBindingContext['createChildContext'](arrayValue, options['as'], function(context) {
+                arrayItemContext = parentBindingContext['createChildContext'](arrayValue, options['as'], function (context) {
                     context['$index'] = index;
                 });
             }
@@ -5599,12 +5599,17 @@ ko.exportSymbol('__tr_ambtns', ko.templateRewriting.applyMemoizedBindingsToNextS
         }
 
         // This will be called whenever setDomNodeChildrenFromArrayMapping has added nodes to targetNode
-        var activateBindingsCallback = function(arrayValue, addedNodesArray, index) {
+        var activateBindingsCallback = function (arrayValue, addedNodesArray, index) {
+            var itemNodes = addedNodesArray;
             if (separatorElementsCount !== undefined) {
-                activateBindingsOnContinuousNodeArray(addedNodesArray.splice(0, separatorElementsCount), parentBindingContext);
+                // Use slice function instead of splice - DO NOT modify original array
+                // because it is used to track array item nodes
+                var separatorNodes = addedNodesArray.slice(0, separatorElementsCount);
+                activateBindingsOnContinuousNodeArray(separatorNodes, parentBindingContext);
+                itemNodes = addedNodesArray.slice(separatorElementsCount);
             }
 
-            activateBindingsOnContinuousNodeArray(addedNodesArray, arrayItemContext);
+            activateBindingsOnContinuousNodeArray(itemNodes, arrayItemContext);
             if (options['afterRender'])
                 options['afterRender'](addedNodesArray, arrayValue);
 
@@ -5619,7 +5624,7 @@ ko.exportSymbol('__tr_ambtns', ko.templateRewriting.applyMemoizedBindingsToNextS
                 unwrappedArray = [unwrappedArray];
 
             // Filter out any entries marked as destroyed
-            var filteredArray = ko.utils.arrayFilter(unwrappedArray, function(item) {
+            var filteredArray = ko.utils.arrayFilter(unwrappedArray, function (item) {
                 return options['includeDestroyed'] || item === undefined || item === null || !ko.utils.unwrapObservable(item['_destroy']);
             });
 
@@ -5633,13 +5638,13 @@ ko.exportSymbol('__tr_ambtns', ko.templateRewriting.applyMemoizedBindingsToNextS
     var templateComputedDomDataKey = ko.utils.domData.nextKey();
     function disposeOldComputedAndStoreNewOne(element, newComputed) {
         var oldComputed = ko.utils.domData.get(element, templateComputedDomDataKey);
-        if (oldComputed && (typeof(oldComputed.dispose) == 'function'))
+        if (oldComputed && (typeof (oldComputed.dispose) == 'function'))
             oldComputed.dispose();
         ko.utils.domData.set(element, templateComputedDomDataKey, (newComputed && newComputed.isActive()) ? newComputed : undefined);
     }
 
     ko.bindingHandlers['template'] = {
-        'init': function(element, valueAccessor) {
+        'init': function (element, valueAccessor) {
             // Support anonymous templates
             var bindingValue = ko.utils.unwrapObservable(valueAccessor());
             if (typeof bindingValue == "string" || bindingValue['name']) {
@@ -5704,7 +5709,7 @@ ko.exportSymbol('__tr_ambtns', ko.templateRewriting.applyMemoizedBindingsToNextS
     };
 
     // Anonymous templates can't be rewritten. Give a nice error message if you try to do it.
-    ko.expressionRewriting.bindingRewriteValidators['template'] = function(bindingValue) {
+    ko.expressionRewriting.bindingRewriteValidators['template'] = function (bindingValue) {
         var parsedBindingValue = ko.expressionRewriting.parseObjectLiteral(bindingValue);
 
         if ((parsedBindingValue.length == 1) && parsedBindingValue[0]['unknown'])

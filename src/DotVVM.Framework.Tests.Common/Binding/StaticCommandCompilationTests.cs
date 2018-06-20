@@ -122,14 +122,14 @@ namespace DotVVM.Framework.Tests.Binding
         public void StaticCommandCompilation_DateTimeResultAssignment()
         {
             var result = CompileBinding("DateFrom = StaticCommands.GetDate()", typeof(TestViewModel));
-            Assert.AreEqual("(function(a,b){return new Promise(function(resolve){dotvvm.staticCommandPostback(\"root\",a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuU3RhdGljQ29tbWFuZHMsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMuQ29tbW9uIiwiR2V0RGF0ZSIsIiJd\",[],function(r_0){resolve(b.$data.DateFrom(dotvvm.serialization.serializeDate(r_0)).DateFrom());});});}(this,ko.contextFor(this)))", result);
+            Assert.AreEqual("(function(a,b){return new Promise(function(resolve){dotvvm.staticCommandPostback(\"root\",a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuU3RhdGljQ29tbWFuZHMsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMuQ29tbW9uIiwiR2V0RGF0ZSIsIiJd\",[],function(r_0){resolve(b.$data.DateFrom(dotvvm.serialization.serializeDate(r_0,false)).DateFrom());});});}(this,ko.contextFor(this)))", result);
         }
 
         [TestMethod]
         public void StaticCommandCompilation_DateTimeAssignment()
         {
             var result = CompileBinding("DateFrom = DateTo", typeof(TestViewModel));
-            Assert.AreEqual("(function(a){return Promise.resolve(a.$data.DateFrom(dotvvm.serialization.serializeDate(a.$data.DateTo())).DateFrom());}(ko.contextFor(this)))", result);
+            Assert.AreEqual("(function(a){return Promise.resolve(a.$data.DateFrom(dotvvm.serialization.serializeDate(a.$data.DateTo(),false)).DateFrom());}(ko.contextFor(this)))", result);
         }
 
         [TestMethod]

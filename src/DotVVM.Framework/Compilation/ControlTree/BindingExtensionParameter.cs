@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.HelperNamespace;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
@@ -128,7 +129,25 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public override JsExpression GetJsTranslation(JsExpression dataContext)
         {
-            throw new InvalidOperationException($"Can't use injected services in javascript-translated bindings");
+            throw new InvalidOperationException($"Can't use injected services in javascript-translated bindings.");
+        }
+    }
+
+    public class BindingApiExtensionParameter : BindingExtensionParameter
+    {
+        public BindingApiExtensionParameter() : base("_api", new ResolvedTypeDescriptor(typeof(BindingApi)), true)
+        {
+
+        }
+
+        public override Expression GetServerEquivalent(Expression controlParameter)
+        {
+            return Expression.New(typeof(BindingApi));
+        }
+
+        public override JsExpression GetJsTranslation(JsExpression dataContext)
+        {
+            return new JsObjectExpression();
         }
     }
 }

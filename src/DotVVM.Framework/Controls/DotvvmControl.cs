@@ -213,6 +213,11 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected virtual void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
         {
+            if (HasBinding<ResourceBindingExpression>(IncludeInPageProperty) && !IncludeInPage)
+            {
+                return;
+            }
+
             RenderBeginWithDataBindAttribute(writer);
 
             foreach (var item in properties)
@@ -240,7 +245,7 @@ namespace DotVVM.Framework.Controls
             }
 
             // if the IncludeInPage has binding, render the "if" binding
-            if (HasBinding(IncludeInPageProperty))
+            if (HasValueBinding(IncludeInPageProperty))
             {
                 writer.WriteKnockoutDataBindComment("if", this, IncludeInPageProperty);
             }
@@ -248,7 +253,7 @@ namespace DotVVM.Framework.Controls
 
         private void RenderEndWithDataBindAttribute(IHtmlWriter writer)
         {
-            if (HasBinding(IncludeInPageProperty))
+            if (HasValueBinding(IncludeInPageProperty))
             {
                 writer.WriteKnockoutDataBindEndComment();
             }
@@ -466,7 +471,7 @@ namespace DotVVM.Framework.Controls
                     else result.Add(JavascriptCompilationHelper.CompileConstant(f));
                 }
                 if (service == null) throw new NotSupportedException();
-                return ValueBindingExpression.CreateBinding<string>(service.WithoutInitialization(), h => null, result.Build(new OperatorPrecedence()));
+                return ValueBindingExpression.CreateBinding<string>(service.WithoutInitialization(), h => null, result.Build(new OperatorPrecedence()), this.GetDataContextType());
             }
         }
 

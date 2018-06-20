@@ -655,7 +655,7 @@ test";
                 .Content[0].CastTo<DothtmlNodeWithContent>()
                 .Content[0].CastTo<DothtmlElementNode>();
 
-            Assert.AreEqual("p", pNode.TagName, "Tree is differen as expected, second tier should be p.");
+            Assert.AreEqual("p", pNode.TagName, "Tree is different as expected, second tier should be p.");
             Assert.AreEqual(1, pNode.NodeErrors.Count(), "There should have been an error about file ending");
             Assert.AreEqual(true, pNode.NodeErrors.Any(w => w.Contains("not closed")));
         }
@@ -670,10 +670,11 @@ test";
                 .Content[0].CastTo<DothtmlNodeWithContent>()
                 .Content[0].CastTo<DothtmlElementNode>();
 
-            Assert.AreEqual("p", pNode.TagName, "Tree is differen as expected, second tier should be p.");
+            Assert.AreEqual("p", pNode.TagName, "Tree is different as expected, second tier should be p.");
             Assert.AreEqual(1, pNode.NodeWarnings.Count(), "There should have been a warning about implicitly closing p element.");
             Assert.AreEqual(true, pNode.NodeWarnings.Any(w=> w.Contains("implicitly closed")));
         }
+
         [TestMethod]
         public void DothtmlParser_AngleCharsInsideBinding()
         {

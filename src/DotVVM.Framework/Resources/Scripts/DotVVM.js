@@ -43,6 +43,30 @@ var DotvvmDomUtils = /** @class */ (function () {
     };
     return DotvvmDomUtils;
 }());
+var HistoryRecord = /** @class */ (function () {
+    function HistoryRecord(navigationType, url) {
+        this.navigationType = navigationType;
+        this.url = url;
+    }
+    return HistoryRecord;
+}());
+var DotvvmSpaHistory = /** @class */ (function () {
+    function DotvvmSpaHistory() {
+    }
+    DotvvmSpaHistory.prototype.pushPage = function (url) {
+        history.pushState(new HistoryRecord('SPA', url), '', url);
+    };
+    DotvvmSpaHistory.prototype.replacePage = function (url) {
+        history.replaceState(new HistoryRecord('SPA', url), '', url);
+    };
+    DotvvmSpaHistory.prototype.isSpaPage = function (state) {
+        return state && state.navigationType == 'SPA';
+    };
+    DotvvmSpaHistory.prototype.getHistoryRecord = function (state) {
+        return state;
+    };
+    return DotvvmSpaHistory;
+}());
 var DotvvmEvents = /** @class */ (function () {
     function DotvvmEvents() {
         this.init = new DotvvmEvent("dotvvm.events.init", true);
@@ -268,7 +292,7 @@ var DotvvmGlobalize = /** @class */ (function () {
         for (var _i = 1; _i < arguments.length; _i++) {
             values[_i - 1] = arguments[_i];
         }
-        return format.replace(/\{([1-9]?[0-9]+)(:[^}])?\}/g, function (match, group0, group1) {
+        return format.replace(/\{([1-9]?[0-9]+)(:[^}]+)?\}/g, function (match, group0, group1) {
             var value = values[parseInt(group0)];
             if (group1) {
                 return _this.formatString(group1, value);
@@ -764,6 +788,7 @@ var DotVVM = /** @class */ (function () {
         this.lastStartedPostack = 0;
         this.resourceSigns = {};
         this.isViewModelUpdating = true;
+        this.spaHistory = new DotvvmSpaHistory();
         // warning this property is referenced in ModelState.cs and KnockoutHelper.cs
         this.viewModelObservables = {};
         this.isSpaReady = ko.observable(false);
@@ -772,8 +797,8 @@ var DotVVM = /** @class */ (function () {
         this.postbackHandlers = {
             confirm: function (options) { return new ConfirmPostBackHandler(options.message); },
             timeout: function (options) { return options.time ? _this.createWindowSetTimeoutHandler(options.time) : _this.windowSetTimeoutHandler; },
-            "concurrency-none": function (o) { return ({
-                name: "concurrency-none",
+            "concurrency-default": function (o) { return ({
+                name: "concurrency-default",
                 before: ["setIsPostackRunning"],
                 execute: function (callback, options) {
                     return _this.commonConcurrencyHandler(callback(), options, o.q || "default");
@@ -805,7 +830,7 @@ var DotVVM = /** @class */ (function () {
             }); },
             "suppressOnUpdating": function (options) { return ({
                 name: "suppressOnUpdating",
-                before: ["setIsPostackRunning", "concurrency-none", "concurrency-queue", "concurrency-deny"],
+                before: ["setIsPostackRunning", "concurrency-default", "concurrency-queue", "concurrency-deny"],
                 execute: function (callback, options) {
                     if (dotvvm.isViewModelUpdating)
                         return Promise.reject({ type: "handler", handler: this, message: "ViewModel is updating, so it's probably false onchange event" });
@@ -864,7 +889,7 @@ var DotVVM = /** @class */ (function () {
                 return Promise.reject(error);
             });
         };
-        this.defaultConcurrencyPostbackHandler = this.postbackHandlers["concurrency-none"]({});
+        this.defaultConcurrencyPostbackHandler = this.postbackHandlers["concurrency-default"]({});
         this.postbackQueues = {};
         this.postbackHandlersStartedEventHandler = {
             name: "eventInvoke-postbackHandlersStarted",
@@ -933,9 +958,16 @@ var DotVVM = /** @class */ (function () {
         // handle SPA requests
         var spaPlaceHolder = this.getSpaPlaceHolder();
         if (spaPlaceHolder != null) {
-            this.domUtils.attachEvent(window, "hashchange", function () { return _this.handleHashChange(viewModelName, spaPlaceHolder, false); });
-            this.handleHashChange(viewModelName, spaPlaceHolder, true);
+            var hashChangeHandler = function (initialLoad) { return _this.handleHashChange(viewModelName, spaPlaceHolder, initialLoad); };
+            this.useHistoryApiSpaNavigation = JSON.parse(spaPlaceHolder.getAttribute("data-dotvvm-spacontentplaceholder-usehistoryapi"));
+            if (this.useHistoryApiSpaNavigation) {
+                hashChangeHandler = function (initialLoad) { return _this.handleHashChangeWithHistory(viewModelName, spaPlaceHolder, initialLoad); };
+            }
+            var spaChangedHandler = function () { return hashChangeHandler(false); };
+            this.domUtils.attachEvent(window, "hashchange", spaChangedHandler);
+            hashChangeHandler(true);
         }
+        window.addEventListener('popstate', function (event) { return _this.handlePopState(viewModelName, event, spaPlaceHolder != null); });
         this.isViewModelUpdating = false;
         if (idFragment) {
             if (spaPlaceHolder) {
@@ -950,6 +982,36 @@ var DotVVM = /** @class */ (function () {
         this.domUtils.attachEvent(window, "beforeunload", function (e) {
             _this.persistViewModel(viewModelName);
         });
+    };
+    DotVVM.prototype.handlePopState = function (viewModelName, event, inSpaPage) {
+        if (this.spaHistory.isSpaPage(event.state)) {
+            var historyRecord = this.spaHistory.getHistoryRecord(event.state);
+            if (inSpaPage)
+                this.navigateCore(viewModelName, historyRecord.url);
+            else
+                this.performRedirect(historyRecord.url, true);
+            event.preventDefault();
+        }
+    };
+    DotVVM.prototype.handleHashChangeWithHistory = function (viewModelName, spaPlaceHolder, isInitialPageLoad) {
+        var _this = this;
+        if (document.location.hash.indexOf("#!/") === 0) {
+            // the user requested navigation to another SPA page
+            this.navigateCore(viewModelName, document.location.hash.substring(2), function (url) { _this.spaHistory.replacePage(url); });
+        }
+        else {
+            var defaultUrl = spaPlaceHolder.getAttribute("data-dotvvm-spacontentplaceholder-defaultroute");
+            var containsContent = spaPlaceHolder.hasAttribute("data-dotvvm-spacontentplaceholder-content");
+            if (!containsContent && defaultUrl) {
+                this.navigateCore(viewModelName, "/" + defaultUrl, function (url) { return _this.spaHistory.replacePage(url); });
+            }
+            else {
+                this.isSpaReady(true);
+                spaPlaceHolder.style.display = "";
+                var currentRelativeUrl = location.pathname + location.search + location.hash;
+                this.spaHistory.replacePage(currentRelativeUrl);
+            }
+        }
     };
     DotVVM.prototype.handleHashChange = function (viewModelName, spaPlaceHolder, isInitialPageLoad) {
         if (document.location.hash.indexOf("#!/") === 0) {
@@ -1016,7 +1078,7 @@ var DotVVM = /** @class */ (function () {
             try {
                 _this.isViewModelUpdating = true;
                 var result = JSON.parse(response.responseText);
-                dotvvm.events.staticCommandMethodInvoked.trigger(__assign({}, data, { result: result }));
+                dotvvm.events.staticCommandMethodInvoked.trigger(__assign({}, data, { result: result, xhr: response }));
                 callback(result);
             }
             catch (error) {
@@ -1222,6 +1284,27 @@ var DotVVM = /** @class */ (function () {
             });
         });
     };
+    DotVVM.prototype.handleSpaNavigation = function (element) {
+        var target = element.getAttribute('target');
+        if (target == "_blank") {
+            return true;
+        }
+        return this.handleSpaNavigationCore(element.getAttribute('href'));
+    };
+    DotVVM.prototype.handleSpaNavigationCore = function (url) {
+        var _this = this;
+        if (url && url.indexOf("/") === 0) {
+            var viewModelName = "root";
+            url = this.removeVirtualDirectoryFromUrl(url, viewModelName);
+            this.navigateCore(viewModelName, url, function (navigatedUrl) {
+                if (!history.state || history.state.url != navigatedUrl) {
+                    _this.spaHistory.pushPage(navigatedUrl);
+                }
+            });
+            return false;
+        }
+        return true;
+    };
     DotVVM.prototype.postBack = function (viewModelName, sender, path, command, controlUniqueId, context, handlers, commandArgs) {
         var _this = this;
         if (this.isPostBackProhibited(sender)) {
@@ -1331,7 +1414,7 @@ var DotVVM = /** @class */ (function () {
         }
         return null;
     };
-    DotVVM.prototype.navigateCore = function (viewModelName, url) {
+    DotVVM.prototype.navigateCore = function (viewModelName, url, handlePageNavigating) {
         var _this = this;
         var viewModel = this.viewModels[viewModelName].viewModel;
         // prevent double postbacks
@@ -1342,14 +1425,18 @@ var DotVVM = /** @class */ (function () {
         if (spaNavigatingArgs.cancel) {
             return;
         }
+        var virtualDirectory = this.viewModels[viewModelName].virtualDirectory || "";
         // add virtual directory prefix
-        url = "/___dotvvm-spa___" + this.addLeadingSlash(url);
-        var fullUrl = this.addLeadingSlash(this.concatUrl(this.viewModels[viewModelName].virtualDirectory || "", url));
+        var spaUrl = "/___dotvvm-spa___" + this.addLeadingSlash(url);
+        var fullUrl = this.addLeadingSlash(this.concatUrl(virtualDirectory, spaUrl));
         // find SPA placeholder
         var spaPlaceHolder = this.getSpaPlaceHolder();
         if (!spaPlaceHolder) {
             document.location.href = fullUrl;
             return;
+        }
+        if (handlePageNavigating) {
+            handlePageNavigating(this.addLeadingSlash(this.concatUrl(virtualDirectory, this.addLeadingSlash(url))));
         }
         // send the request
         var spaPlaceHolderUniqueId = spaPlaceHolder.attributes["data-dotvvm-spacontentplaceholder"].value;
@@ -1414,7 +1501,7 @@ var DotVVM = /** @class */ (function () {
             replace = resultObject.replace;
         var url;
         // redirect
-        if (this.getSpaPlaceHolder() && resultObject.url.indexOf("//") < 0 && resultObject.allowSpa) {
+        if (this.getSpaPlaceHolder() && !this.useHistoryApiSpaNavigation && resultObject.url.indexOf("//") < 0 && resultObject.allowSpa) {
             // relative URL - keep in SPA mode, but remove the virtual directory
             url = "#!" + this.removeVirtualDirectoryFromUrl(resultObject.url, viewModelName);
             if (url === "#!") {
@@ -1430,11 +1517,14 @@ var DotVVM = /** @class */ (function () {
         // trigger redirect event
         var redirectArgs = new DotvvmRedirectEventArgs(dotvvm.viewModels[viewModelName], viewModelName, url, replace);
         this.events.redirect.trigger(redirectArgs);
-        this.performRedirect(url, replace);
+        this.performRedirect(url, replace, resultObject.allowSpa && this.useHistoryApiSpaNavigation);
     };
-    DotVVM.prototype.performRedirect = function (url, replace) {
+    DotVVM.prototype.performRedirect = function (url, replace, useHistoryApiSpaRedirect) {
         if (replace) {
             location.replace(url);
+        }
+        else if (useHistoryApiSpaRedirect) {
+            this.handleSpaNavigationCore(url);
         }
         else {
             var fakeAnchor = this.fakeRedirectAnchor;
@@ -2162,7 +2252,8 @@ var DotvvmValidation = /** @class */ (function () {
                     element.className += " " + className;
                 }
                 else {
-                    element.className = element.className.split(' ').filter(function (c) { return c != className; }).join(' ');
+                    var classNames = className.split(' ');
+                    element.className = element.className.split(' ').filter(function (c) { return classNames.indexOf(c) < 0; }).join(' ');
                 }
             },
             // sets the error message as the title attribute
@@ -2479,123 +2570,118 @@ var DotvvmEvaluator = /** @class */ (function () {
         }
         return false;
     };
-    DotvvmEvaluator.prototype.wrapKnockoutExpression = function (func) {
+    DotvvmEvaluator.prototype.wrapObservable = function (func, isArray) {
         var _this = this;
-        var wrapper;
-        var result = this.getExpressionResult(func), isWriteableObservable = ko.isWriteableObservable(result), isObservableArray = this.isObservableArray(result);
-        if (isWriteableObservable) {
-            wrapper = ko.pureComputed({
-                read: function () { return ko.unwrap(_this.getExpressionResult(func)); },
-                write: function (value) { return _this.updateObservable(func, value); }
-            });
-            if (isObservableArray) {
-                wrapper.push = function () {
-                    var args = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
-                    }
-                    return _this.updateObservableArray(func, "push", args);
-                };
-                wrapper.pop = function () {
-                    var args = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
-                    }
-                    return _this.updateObservableArray(func, "pop", args);
-                };
-                wrapper.unshift = function () {
-                    var args = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
-                    }
-                    return _this.updateObservableArray(func, "unshift", args);
-                };
-                wrapper.shift = function () {
-                    var args = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
-                    }
-                    return _this.updateObservableArray(func, "shift", args);
-                };
-                wrapper.reverse = function () {
-                    var args = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
-                    }
-                    return _this.updateObservableArray(func, "reverse", args);
-                };
-                wrapper.sort = function () {
-                    var args = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
-                    }
-                    return _this.updateObservableArray(func, "sort", args);
-                };
-                wrapper.splice = function () {
-                    var args = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
-                    }
-                    return _this.updateObservableArray(func, "splice", args);
-                };
-                wrapper.slice = function () {
-                    var args = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
-                    }
-                    return _this.updateObservableArray(func, "slice", args);
-                };
-                wrapper.replace = function () {
-                    var args = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
-                    }
-                    return _this.updateObservableArray(func, "replace", args);
-                };
-                wrapper.indexOf = function () {
-                    var args = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
-                    }
-                    return _this.updateObservableArray(func, "indexOf", args);
-                };
-                wrapper.remove = function () {
-                    var args = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
-                    }
-                    return _this.updateObservableArray(func, "remove", args);
-                };
-                wrapper.removeAll = function () {
-                    var args = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i] = arguments[_i];
-                    }
-                    return _this.updateObservableArray(func, "removeAll", args);
-                };
-            }
-        }
-        else {
-            wrapper = ko.pureComputed(function () { return ko.unwrap(_this.getExpressionResult(func)); });
-        }
-        if (isObservableArray) {
-            wrapper = wrapper.extend({ trackArrayChanges: true }); // properly track changes in wrapped arrays
+        var wrapper = ko.pureComputed({
+            read: function () { return ko.unwrap(_this.getExpressionResult(func)); },
+            write: function (value) { return _this.updateObservable(func, value); }
+        });
+        if (isArray) {
+            wrapper.push = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                return _this.updateObservableArray(func, "push", args);
+            };
+            wrapper.pop = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                return _this.updateObservableArray(func, "pop", args);
+            };
+            wrapper.unshift = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                return _this.updateObservableArray(func, "unshift", args);
+            };
+            wrapper.shift = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                return _this.updateObservableArray(func, "shift", args);
+            };
+            wrapper.reverse = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                return _this.updateObservableArray(func, "reverse", args);
+            };
+            wrapper.sort = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                return _this.updateObservableArray(func, "sort", args);
+            };
+            wrapper.splice = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                return _this.updateObservableArray(func, "splice", args);
+            };
+            wrapper.slice = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                return _this.updateObservableArray(func, "slice", args);
+            };
+            wrapper.replace = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                return _this.updateObservableArray(func, "replace", args);
+            };
+            wrapper.indexOf = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                return _this.updateObservableArray(func, "indexOf", args);
+            };
+            wrapper.remove = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                return _this.updateObservableArray(func, "remove", args);
+            };
+            wrapper.removeAll = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                return _this.updateObservableArray(func, "removeAll", args);
+            };
+            wrapper = wrapper.extend({ trackArrayChanges: true });
         }
         return wrapper.extend({ notify: "always" });
     };
     DotvvmEvaluator.prototype.updateObservable = function (getObservable, value) {
         var result = this.getExpressionResult(getObservable);
         if (!ko.isWriteableObservable(result)) {
-            throw Error("Cannot write a value to ko.computed because the expression '" + getObservable + "' does not return a writable observable.");
+            console.error("Cannot write a value to ko.computed because the expression '" + getObservable + "' does not return a writable observable.");
         }
-        result(value);
+        else {
+            result(value);
+        }
     };
     DotvvmEvaluator.prototype.updateObservableArray = function (getObservableArray, fnName, args) {
         var result = this.getExpressionResult(getObservableArray);
         if (!this.isObservableArray(result)) {
-            throw Error("Cannot execute '" + fnName + "' function on ko.computed because the '" + getObservableArray + "' does not return an observable array.");
+            console.error("Cannot execute '" + fnName + "' function on ko.computed because the expression '" + getObservableArray + "' does not return an observable array.");
         }
-        result[fnName].apply(result, args);
+        else {
+            result[fnName].apply(result, args);
+        }
     };
     DotvvmEvaluator.prototype.getExpressionResult = function (func) {
         var result = func();

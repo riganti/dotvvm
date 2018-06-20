@@ -27,6 +27,7 @@
     <None Remove="Views\ControlSamples\LinkButton\LinkButtonOnclick.dothtml" />
     <None Remove="Views\ControlSamples\ListBox\ListBox.dothtml" />
     <None Remove="Views\ControlSamples\Repeater\DataSourceNull.dothtml" />
+    <None Remove="Views\ControlSamples\Repeater\RequiredResource.dothtml" />
     <None Remove="Views\ControlSamples\Repeater\SeparatorMaster.dotmaster" />
     <None Remove="Views\ControlSamples\TextBox\SelectAllOnFocus.dothtml" />
     <None Remove="Views\ControlSamples\TextBox\TextBox_Types.dothtml" />
@@ -79,6 +80,7 @@
     <Content Include="Views\ControlSamples\ContentPlaceHolder\DoubleContentPlaceHolderMasterPage.dotmaster" />
     <Content Include="Views\ControlSamples\ContentPlaceHolder\DoubleContentPlaceHolderPage_ContentTest.dothtml" />
     <Content Include="Views\ControlSamples\ListBox\ListBox.dothtml" />
+    <Content Include="Views\ControlSamples\Repeater\RequiredResource.dothtml" />
     <Content Include="Views\ControlSamples\TextBox\TextBox_Types.dothtml" />
     <Content Include="Views\ControlSamples\ValidationSummary\master.dotmaster" />
     <Content Include="Views\ControlSamples\ValidationSummary\IncludeErrorsFromTarget_PropertyPathNull.dothtml" />

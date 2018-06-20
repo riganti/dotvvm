@@ -308,6 +308,19 @@ namespace DotVVM.Samples.Tests
                     "Exception should contain information about file that was not found.");
             });
         }
+
+
+        [Fact]
+        public void Error_UnknownInnerControl()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_UnknownInnerControl);
+
+                AssertUI.InnerText(browser.First("p.summary"), s => s.Contains("does not inherit from DotvvmControl and thus cannot be used in content"));
+                AssertUI.InnerText(browser.First("[class='errorUnderline']"), s => s.Contains("<dot:ConfirmPostBackHandler Message=\"Confirmation 1\" />"));
+            });
+        }
+
         [Fact(Skip = "Test is not reliable.")]
         [SampleReference(nameof(SamplesRouteUrls.Errors_FieldInValueBinding))]
         public void Error_ExceptionWindow_GitHubRedirect()
