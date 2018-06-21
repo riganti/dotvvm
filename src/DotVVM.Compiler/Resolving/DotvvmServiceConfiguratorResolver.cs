@@ -21,7 +21,7 @@ namespace DotVVM.Compiler.Resolving
                     $"Assembly '{assembly.FullName}' contains more the one implementaion of IDotvvmServiceConfigurator.");
             }
 
-            return resultTypes.Single();
+            return resultTypes.FirstOrDefault();
         }
 
         private MethodInfo ResolveConfigureServicesMethods(Type startupType)
