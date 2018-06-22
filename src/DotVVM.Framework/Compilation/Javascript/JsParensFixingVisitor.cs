@@ -37,6 +37,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 case JsInvocationExpression _:
                 case JsIndexerExpression _:
                 case JsIdentifierExpression _:
+                case JsExpressionInString _:
                 case JsLiteral _:
                 case JsSymbolicParameter _:
                 case JsFunctionExpression _:
