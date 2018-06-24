@@ -1,6 +1,5 @@
 ﻿{
   "factories": {
-    "edge:fast": {},
     "ie:fast": {},
     "chrome:fast": {},
     "firefox:fast": {}
