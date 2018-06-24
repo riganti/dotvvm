@@ -2,11 +2,15 @@
 {
     public class JsExpressionInString : JsExpression
     {
-        public string Expression { get; set; }
+        private readonly ParametrizedCode parametrizedCode;
 
-        public JsExpressionInString(string expressions)
+        public string Expression => parametrizedCode.ToDefaultString();
+        public byte OperatorPrecedence => parametrizedCode.OperatorPrecedence.Precedence;
+        public bool IsPreferedSide => parametrizedCode.OperatorPrecedence.IsPreferedSide;
+
+        public JsExpressionInString(ParametrizedCode parametrizedCode)
         {
-            this.Expression = expressions;
+            this.parametrizedCode = parametrizedCode;
         }
 
         public override void AcceptVisitor(IJsNodeVisitor visitor) => visitor.VisitJsExpressionInString(this);

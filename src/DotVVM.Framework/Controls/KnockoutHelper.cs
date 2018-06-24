@@ -242,7 +242,9 @@ namespace DotVVM.Framework.Controls
                 case IStaticValueBinding staticValueBinding:
                     return new JsLiteral(staticValueBinding.Evaluate(handler));
                 case JsExpression expression:
-                    return expression;
+                    return expression.Clone();
+                case IBinding _:
+                    throw new ArgumentException("Option value can contains only IValueBinding or IStaticValueBinding. Other bindings are not support.");
                 default:
                     return new JsLiteral(optionValue);
             }

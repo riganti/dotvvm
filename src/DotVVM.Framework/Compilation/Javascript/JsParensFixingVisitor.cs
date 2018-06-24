@@ -37,7 +37,6 @@ namespace DotVVM.Framework.Compilation.Javascript
                 case JsInvocationExpression _:
                 case JsIndexerExpression _:
                 case JsIdentifierExpression _:
-                case JsExpressionInString _:
                 case JsLiteral _:
                 case JsSymbolicParameter _:
                 case JsFunctionExpression _:
@@ -91,6 +90,8 @@ namespace DotVVM.Framework.Compilation.Javascript
                     return 4;
                 case JsAssignmentExpression ae:
                     return 3;
+                case JsExpressionInString expressionInString:
+                    return expressionInString.OperatorPrecedence;
                 case null:
                     return 0;
                 default: throw new NotSupportedException();
@@ -99,18 +100,23 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public static bool IsPreferedSide(JsExpression expression)
         {
-            if (expression is JsBinaryExpression) {
-                // asociativity, it is important to avoid common string concat patterns (((a+b)+c)+d)+e). Be aware JS + is not asociative - (""+3+5)==="35" vs (""+(3+5))==="8"
-                // all binary operators are currently left-to-right - a+b+c === (a+b)+c
-                // include parens when the expression is on the right side
-                return expression.Role == JsBinaryExpression.LeftRole;
-            } else if (expression is JsAssignmentExpression) {
-                return expression.Role == JsAssignmentExpression.RightRole;
-            } else if (expression is JsConditionalExpression) {
-                // these are right-to-left asociative
-                return expression.Role != JsConditionalExpression.ConditionRole;
+            switch (expression)
+            {
+                case JsBinaryExpression _:
+                    // asociativity, it is important to avoid common string concat patterns (((a+b)+c)+d)+e). Be aware JS + is not asociative - (""+3+5)==="35" vs (""+(3+5))==="8"
+                    // all binary operators are currently left-to-right - a+b+c === (a+b)+c
+                    // include parens when the expression is on the right side
+                    return expression.Role == JsBinaryExpression.LeftRole;
+                case JsAssignmentExpression _:
+                    return expression.Role == JsAssignmentExpression.RightRole;
+                case JsConditionalExpression _:
+                    // these are right-to-left asociative
+                    return expression.Role != JsConditionalExpression.ConditionRole;
+                case JsExpressionInString expressionInString:
+                    return expressionInString.IsPreferedSide;
+                default:
+                    return true;
             }
-            return true;
         }
 
         public static OperatorPrecedence GetOperatorPrecedence(JsExpression expression)
