@@ -1,6 +1,9 @@
 ﻿{
   "factories": {
-    "chrome:fast": {}
+    "edge:fast": {},
+    "ie:fast": {},
+    "chrome:fast": {},
+    "firefox:fast": {}
   },
   "baseUrls": [
     "http://localhost:16018/"

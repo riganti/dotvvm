@@ -16,36 +16,46 @@ namespace DotVVM.Samples.Tests.Feature
         [TestMethod]
         public void Feature_MarkupControl_CommandBindingInRepeater()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_MarkupControl_CommandBindingInRepeater);
                 browser.First("span[data-uitest=result]").CheckIfInnerTextEquals("Hello from DotVVM!");
 
-                browser.ElementAt("input[type=button]", 0).Click().Wait();
-                browser.First("span[data-uitest=result]").CheckIfInnerTextEquals("Action1 - Item 1");
+                browser.ElementAt("input[type=button]", 0).Click();
+                browser.WaitFor(() => {
+                    browser.First("span[data-uitest=result]").CheckIfInnerTextEquals("Action1 - Item 1");
+                }, 1000, 30);
 
-                browser.ElementAt("input[type=button]", 1).Click().Wait();
-                browser.First("span[data-uitest=result]").CheckIfInnerTextEquals("Action2 - Item 1");
+                browser.ElementAt("input[type=button]", 1).Click();
+                browser.WaitFor(() => {
+                    browser.First("span[data-uitest=result]").CheckIfInnerTextEquals("Action2 - Item 1");
+                }, 1000, 30);
 
-                browser.ElementAt("input[type=button]", 2).Click().Wait();
-                browser.First("span[data-uitest=result]").CheckIfInnerTextEquals("Action1 - Item 2");
+                browser.ElementAt("input[type=button]", 2).Click();
+                browser.WaitFor(() => {
+                    browser.First("span[data-uitest=result]").CheckIfInnerTextEquals("Action1 - Item 2");
+                }, 1000, 30);
 
-                browser.ElementAt("input[type=button]", 3).Click().Wait();
-                browser.First("span[data-uitest=result]").CheckIfInnerTextEquals("Action2 - Item 2");
+                browser.ElementAt("input[type=button]", 3).Click();
+                browser.WaitFor(() => {
+                    browser.First("span[data-uitest=result]").CheckIfInnerTextEquals("Action2 - Item 2");
+                }, 1000, 30);
 
-                browser.ElementAt("input[type=button]", 4).Click().Wait();
-                browser.First("span[data-uitest=result]").CheckIfInnerTextEquals("Action1 - Item 3");
+                browser.ElementAt("input[type=button]", 4).Click();
+                browser.WaitFor(() => {
+                    browser.First("span[data-uitest=result]").CheckIfInnerTextEquals("Action1 - Item 3");
+                }, 1000, 30);
 
-                browser.ElementAt("input[type=button]", 5).Click().Wait();
-                browser.First("span[data-uitest=result]").CheckIfInnerTextEquals("Action2 - Item 3");
+                browser.ElementAt("input[type=button]", 5).Click();
+                browser.WaitFor(() => {
+                    browser.First("span[data-uitest=result]").CheckIfInnerTextEquals("Action2 - Item 3");
+                }, 1000, 30);
             });
         }
 
         [TestMethod]
         public void Feature_MarkupControl_CommandBindingInDataContextWithControlProperty()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_MarkupControl_CommandBindingInDataContextWithControlProperty);
 
                 browser.First("span[data-uitest=result1]").CheckIfInnerTextEquals("Init");
@@ -64,8 +74,7 @@ namespace DotVVM.Samples.Tests.Feature
         [TestMethod]
         public void Feature_MarkupControl_ControlPropertyUpdatedByServer()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_MarkupControl_ControlPropertyUpdatedByServer);
 
                 browser.ElementAt("input[data-uitest=editor]", 0).CheckIfValue("false");
@@ -87,8 +96,7 @@ namespace DotVVM.Samples.Tests.Feature
         [TestMethod]
         public void Feature_MarkupControl_ControlPropertyUpdating()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_MarkupControl_ControlPropertyUpdating);
 
                 browser.ElementAt("input[type=text]", 0).CheckIfValue("TEST 123");
@@ -102,8 +110,7 @@ namespace DotVVM.Samples.Tests.Feature
         [TestMethod]
         public void Feature_MarkupControl_ControlPropertyValidationPage()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_MarkupControl_ControlPropertyValidationPage);
 
                 browser.Single("input[type=button]").Click().Wait();
@@ -135,8 +142,7 @@ namespace DotVVM.Samples.Tests.Feature
         [TestMethod]
         public void Feature_MarkupControl_MarkupControlRegistration()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_MarkupControl_MarkupControlRegistration);
 
                 browser.ElementAt("h2", 0).CheckIfInnerTextEquals("First Control");
@@ -164,8 +170,7 @@ namespace DotVVM.Samples.Tests.Feature
         [TestMethod]
         public void Feature_MarkupControl_MultiControlHierarchy()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_MarkupControl_MultiControlHierarchy);
 
                 var ul = browser.First("ul", By.CssSelector);
