@@ -61,8 +61,8 @@ namespace DotVVM.Framework.Compilation.Binding
                 {
                     var nonGenericType = (TypeInfo)members[0];
                     return isGeneric 
-                        ? Expression.Constant(null, nonGenericType.UnderlyingSystemType)
-                        : Expression.Constant(null, nonGenericType.MakeGenericType(typeArguments));
+                        ? Expression.Constant(null, nonGenericType.MakeGenericType(typeArguments))
+                        : Expression.Constant(null, nonGenericType.UnderlyingSystemType);
                 }
             }
             return new MethodGroupExpression() { MethodName = name, Target = target, TypeArgs = typeArguments };
