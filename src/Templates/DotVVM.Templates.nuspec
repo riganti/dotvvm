@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>DotVVM.Templates</id>
-    <version>2.0.1-preview03-final</version>
+    <version>2.0.1-preview04-29341</version>
     <authors>RIGANTI</authors>
     <description>DotVVM Project Templates</description>
     <language>en-US</language>
