@@ -231,7 +231,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_IntLiteral_Valid()
         {
-            var result = (LiteralExpressionBindingParserNode) bindingParserNodeFactory.Parse("12");
+            var result = (LiteralExpressionBindingParserNode)bindingParserNodeFactory.Parse("12");
             Assert.IsInstanceOfType(result.Value, typeof(int));
             Assert.AreEqual(result.Value, 12);
         }
@@ -239,7 +239,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_DoubleLiteral_Valid()
         {
-            var result = (LiteralExpressionBindingParserNode) bindingParserNodeFactory.Parse("12.45");
+            var result = (LiteralExpressionBindingParserNode)bindingParserNodeFactory.Parse("12.45");
             Assert.IsInstanceOfType(result.Value, typeof(double));
             Assert.AreEqual(result.Value, 12.45);
         }
@@ -247,7 +247,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_FloatLiteral_Valid()
         {
-            var result = (LiteralExpressionBindingParserNode) bindingParserNodeFactory.Parse("42f");
+            var result = (LiteralExpressionBindingParserNode)bindingParserNodeFactory.Parse("42f");
             Assert.IsInstanceOfType(result.Value, typeof(float));
             Assert.AreEqual(result.Value, 42f);
         }
@@ -255,7 +255,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_LongLiteral_Valid()
         {
-            var result = (LiteralExpressionBindingParserNode) bindingParserNodeFactory.Parse(long.MaxValue.ToString());
+            var result = (LiteralExpressionBindingParserNode)bindingParserNodeFactory.Parse(long.MaxValue.ToString());
             Assert.IsInstanceOfType(result.Value, typeof(long));
             Assert.AreEqual(result.Value, long.MaxValue);
         }
@@ -263,7 +263,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_LongForcedLiteral_Valid()
         {
-            var result = (LiteralExpressionBindingParserNode) bindingParserNodeFactory.Parse("42L");
+            var result = (LiteralExpressionBindingParserNode)bindingParserNodeFactory.Parse("42L");
             Assert.IsInstanceOfType(result.Value, typeof(long));
             Assert.AreEqual(result.Value, 42L);
         }
@@ -271,7 +271,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_MethodInvokeOnValue_Valid()
         {
-            var result = (FunctionCallBindingParserNode) bindingParserNodeFactory.Parse("42.ToString()");
+            var result = (FunctionCallBindingParserNode)bindingParserNodeFactory.Parse("42.ToString()");
             var memberAccess = (MemberAccessBindingParserNode)result.TargetExpression;
             Assert.AreEqual(memberAccess.MemberNameExpression.Name, "ToString");
             Assert.AreEqual(((LiteralExpressionBindingParserNode)memberAccess.TargetExpression).Value, 42);
@@ -281,7 +281,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_AssignOperator_Valid()
         {
-            var result = (BinaryOperatorBindingParserNode) bindingParserNodeFactory.Parse("a = b");
+            var result = (BinaryOperatorBindingParserNode)bindingParserNodeFactory.Parse("a = b");
             Assert.AreEqual(BindingTokenType.AssignOperator, result.Operator);
 
             var first = (IdentifierNameBindingParserNode)result.FirstExpression;
@@ -294,7 +294,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_AssignOperator_Incomplete()
         {
-            var result = (BinaryOperatorBindingParserNode) bindingParserNodeFactory.Parse("a = ");
+            var result = (BinaryOperatorBindingParserNode)bindingParserNodeFactory.Parse("a = ");
             Assert.AreEqual(BindingTokenType.AssignOperator, result.Operator);
 
             var first = (IdentifierNameBindingParserNode)result.FirstExpression;
@@ -307,7 +307,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_AssignOperator_Incomplete1()
         {
-            var result = (BinaryOperatorBindingParserNode) bindingParserNodeFactory.Parse("=");
+            var result = (BinaryOperatorBindingParserNode)bindingParserNodeFactory.Parse("=");
             Assert.AreEqual(BindingTokenType.AssignOperator, result.Operator);
 
             var first = (IdentifierNameBindingParserNode)result.FirstExpression;
@@ -724,6 +724,26 @@ namespace DotVVM.Framework.Tests.Parser.Binding
 
             Assert.IsTrue(node.CastTo<BinaryOperatorBindingParserNode>().SecondExpression
                 .As<IdentifierNameBindingParserNode>().Name == "");
+        }
+
+        [TestMethod]
+        public void BindingParser_MultiblockExpression_TreeCorrect()
+        {
+            var originalString = "StringProp = StringProp + 1; SetStringProp2(StringProp + 7); StringProp = 5; StringProp2 + 4 + StringProp";
+            var parser = bindingParserNodeFactory.SetupParser(originalString);
+            var node = parser.ReadExpression();
+
+            var lastExpressionIdentifier = node.As<BlockBindingParserNode>()?.SecondExpression
+                ?.As<BlockBindingParserNode>()?.SecondExpression
+                ?.As<BlockBindingParserNode>()?.SecondExpression
+                ?.As<BinaryOperatorBindingParserNode>()?.FirstExpression
+                ?.As<BinaryOperatorBindingParserNode>()?.FirstExpression
+                ?.As<IdentifierNameBindingParserNode>();
+
+            Assert.IsNotNull(lastExpressionIdentifier, "Expected path was not found in the expression tree.");
+            Assert.AreEqual("StringProp2", lastExpressionIdentifier.Name);
+
+            Assert.AreEqual(originalString, node.ToDisplayString());
         }
 
         private static void CheckTokenTypes(IEnumerable<BindingToken> bindingTokens, IEnumerable<BindingTokenType> expectedTokenTypes)
