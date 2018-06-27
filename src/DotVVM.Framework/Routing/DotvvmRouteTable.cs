@@ -17,6 +17,7 @@ namespace DotVVM.Framework.Routing
     public class DotvvmRouteTable : IEnumerable<RouteBase>
     {
         private readonly DotvvmConfiguration configuration;
+        private readonly Action<string, DotvvmRouteTable> addToParentRouteTable;
 
         private List<KeyValuePair<string, RouteBase>> list = new List<KeyValuePair<string, RouteBase>>();
 
@@ -41,6 +42,15 @@ namespace DotVVM.Framework.Routing
         public DotvvmRouteTable(DotvvmConfiguration configuration)
         {
             this.configuration = configuration;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of nested <see cref="DotvvmRouteTable"/> class.
+        /// </summary>
+        private DotvvmRouteTable(DotvvmConfiguration configuration, Action<string, DotvvmRouteTable> addToParentRouteTable)
+            :this(configuration)
+        {
+            this.addToParentRouteTable = addToParentRouteTable;
         }
 
         /// <summary>
@@ -69,18 +79,29 @@ namespace DotVVM.Framework.Routing
             {
                 throw new ArgumentNullException("Name of the group cannot be null or empty!");
             }
+            urlPrefix = CombinePath(group?.UrlPrefix, urlPrefix);
+            virtualPathPrefix = CombinePath(group?.VirtualPathPrefix, virtualPathPrefix);
+
+            var newGroup = new DotvvmRouteTable(configuration, AddGroup);
+            newGroup.group = new RouteTableGroup(groupName, group?.RouteNamePrefix + groupName + "_", urlPrefix, virtualPathPrefix, Add);
+
+            content(newGroup);
+            AddGroup(groupName, newGroup);
+        }
+
+        private void AddGroup(string groupName, DotvvmRouteTable routeTable)
+        {
+            if (string.IsNullOrEmpty(groupName))
+            {
+                throw new ArgumentNullException("Name of the group cannot be null or empty!");
+            }
             if (routeTableGroups.ContainsKey(groupName))
             {
                 throw new InvalidOperationException($"The group with name '{groupName}' has already been registered!");
             }
-            urlPrefix = CombinePath(group?.UrlPrefix, urlPrefix);
-            virtualPathPrefix = CombinePath(group?.VirtualPathPrefix, virtualPathPrefix);
 
-            var newGroup = new DotvvmRouteTable(configuration);
-            newGroup.group = new RouteTableGroup(groupName, group?.RouteNamePrefix + groupName + "_", urlPrefix, virtualPathPrefix, Add);
-
-            content(newGroup);
-            routeTableGroups.Add(groupName, newGroup);
+            routeTableGroups.Add(groupName, routeTable);
+            addToParentRouteTable?.Invoke(groupName, routeTable);
         }
 
         /// <summary>
