@@ -96,24 +96,22 @@ namespace DotVVM.Tracing.MiniProfiler.AspNetCore
     };
     dotvvm.events.afterPostback.subscribe(miniProfilerUpdate);
     dotvvm.events.spaNavigated.subscribe(miniProfilerUpdate);
+    dotvvm.events.staticCommandMethodInvoked.subscribe(miniProfilerUpdate);
 
     if(!window.performance || !window.performance.timing) return;
 
     var dotvvmInitialized = false;
     dotvvm.events.init.subscribe(function () {
-        window.performance.timing['DotVVM init Completed'] = Math.floor(window.performance.timeOrigin + performance.now());
+        mPt.end('DotVVM init');
         dotvvmInitialized = true;
     });
 
     window.dotvvm.domUtils.onDocumentReady(function () {
-        window.performance.timing['DotVVM init'] = Math.floor(window.performance.timeOrigin + performance.now());
+        mPt.start('DotVVM init');
     });
 
     window.document.getElementById('mini-profiler').addEventListener('load', function () {
         window.MiniProfiler.initCondition = function() {return dotvvmInitialized;};
-
-        window.MiniProfiler.clientPerfTimings.push({ name: 'DotVVM init' });
-        window.MiniProfiler.clientPerfTimings.push({ name: 'DotVVM init Completed', point: true });
     }); 
 })()", "dotvvm");
 
@@ -131,6 +129,7 @@ namespace DotVVM.Tracing.MiniProfiler.AspNetCore
                 showControls: ShowControls,
                 startHidden: StartHidden);
 
+            writer.WriteUnencodedText(ClientTimingHelper.InitScript);
             writer.WriteUnencodedText(html.ToString());
 
             base.RenderControl(writer, context);
