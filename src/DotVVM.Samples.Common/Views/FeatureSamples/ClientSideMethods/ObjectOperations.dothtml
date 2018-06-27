@@ -18,12 +18,12 @@
     </div>
 
     <div class="sample">
-        <dot:Button class="action" Text="Set persons age to 1" Click="{command: UpdatePersonsAge()}" />
+        <dot:Button class="action" Text="Set persons age to 1" Click="{staticCommand:  UpdatePersonsAge()}" />
         <script src="https://gist.github.com/Mrnda/e447d62a817567e89eeb1497e7156d4b.js"></script>
     </div>
 
     <div class="sample">
-        <dot:Button class="action" Text="Create new Person" Click="{command: CreateNewPerson()}" />
+        <dot:Button class="action" Text="Create new Person" Click="{staticCommand:  CreateNewPerson()}" />
         <script src="https://gist.github.com/Mrnda/5457cd23c70b55aef2f4562f407fb295.js"></script>
     </div>
 
@@ -36,7 +36,7 @@
         <dot:GridViewTextColumn HeaderText="Age" ValueBinding="{value: Age}" />
         <dot:GridViewTemplateColumn>
             <ContentTemplate>
-                <dot:Button Text="Remove" Click="{command: _parent.RemovePerson(_this)}">
+                <dot:Button Text="Remove" Click="{staticCommand:  _parent.RemovePerson(_this)}">
                     <PostBack.Handlers>
                         <dot:ConfirmPostBackHandler Message="Do you really want to remove this item?" />
                     </PostBack.Handlers>
@@ -49,7 +49,7 @@
     Age:
     <dot:TextBox Text="{value: Age}" />
     <div class="sample">
-        <dot:Button  class="action" Text="Add Person" Click="{command: AddPerson(Name, Age)}" />
+        <dot:Button  class="action" Text="Add Person" Click="{staticCommand: AddPerson(Name, Age)}" />
         <script src="https://gist.github.com/Mrnda/c234cb2c96e8262067ee7974420e784a.js"></script>s
     </div>
 </dot:Content>

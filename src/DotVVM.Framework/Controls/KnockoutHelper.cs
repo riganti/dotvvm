@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Text;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
@@ -144,7 +142,7 @@ namespace DotVVM.Framework.Controls
             }
             string generatedPostbackHandlers = null;
 
-            
+
 
             var adjustedExpression = expression.GetParametrizedCommandJavascript(control);
             // when the expression changes the dataContext, we need to override the default knockout context fo the command binding.
@@ -153,27 +151,7 @@ namespace DotVVM.Framework.Controls
                 new CodeParameterAssignment(new ParametrizedCode.Builder { "ko.contextFor(", options.ElementAccessor.Code, ")" }.Build(OperatorPrecedence.Max)) :
                 default);
 
-            var call = string.Empty;
-
-            var parsedExpresion = expression.GetProperty<ParsedExpressionBindingProperty>();
-            if (parsedExpresion != null && parsedExpresion.Expression.NodeType == ExpressionType.Call)
-            {
-                var methodCallExpression = parsedExpresion.Expression as MethodCallExpression;
-                if (methodCallExpression.Method.GetCustomAttributes(false).Any(a => a is ClientSideMethodAttribute))
-                {
-                    var knockouDataContextParamers = ToKnockouDataContextParamers(methodCallExpression.Object);
-                    var knockoutArguments = ToKnockoutArguments(methodCallExpression.Arguments);
-                    var viewModelAccess = new ParametrizedCode.Builder {
-                        "ko.contextFor(",
-                        options.ElementAccessor.Code,
-                        $").{knockouDataContextParamers}"
-                    }.Build(OperatorPrecedence.Max).ToDefaultString();
-                    call = $"{viewModelAccess}.{methodCallExpression.Method.Name}({knockoutArguments})";
-                }
-            }
-            if(string.IsNullOrEmpty(call))
-            {
-                call = adjustedExpression.ToString(p =>
+            var call = adjustedExpression.ToString(p =>
                     p == CommandBindingExpression.ViewModelNameParameter ? new CodeParameterAssignment("\"root\"", OperatorPrecedence.Max) :
                     p == CommandBindingExpression.SenderElementParameter ? options.ElementAccessor :
                     p == CommandBindingExpression.CurrentPathParameter ? new CodeParameterAssignment(
@@ -186,73 +164,9 @@ namespace DotVVM.Framework.Controls
                     p == CommandBindingExpression.PostbackHandlersParameter ? new CodeParameterAssignment(generatedPostbackHandlers ?? (generatedPostbackHandlers = getHandlerScript()), OperatorPrecedence.Max) :
                     default(CodeParameterAssignment)
                 );
-            }
             if (generatedPostbackHandlers == null && options.AllowPostbackHandlers)
                 return $"dotvvm.applyPostbackHandlers(function(){{return {call}}}.bind(this),{options.ElementAccessor.Code.ToString(e => default(CodeParameterAssignment))},{getHandlerScript()})";
             else return call;
-        }
-
-        private static string ToKnockoutArguments(this ReadOnlyCollection<Expression> arguments)
-        {
-            return arguments.Select(a => a.ToKnockoutArgument()).StringJoin(",");
-        }
-
-        private static string ToKnockoutArgument(this Expression argument)
-        {
-            var path = argument.ToString();
-            var accessors = path.Split('.');
-            var output = string.Empty;
-            foreach (var accessor in accessors)
-            {
-                if (accessor == "_this")
-                {
-                    output += "ko.contextFor(this).$data";
-                }
-                else if (accessor == "_root")
-                {
-                    output += "ko.contextFor(this).$root";
-                }
-                else if (accessor == "_parent")
-                {
-                    output += "ko.contextFor(this).$parent";
-                }
-                else
-                {
-                    output += accessor;
-                }
-
-                if (accessors.Last() != accessor)
-                {
-                    output += ".";
-                }
-                else if(accessor.StartsWith("_") == false)
-                {
-                    output += "()";
-                }
-            }
-
-            return output;
-        }
-
-        public static string ToKnockouDataContextParamers(this Expression objectExpression)
-        {
-            var objectAccessor = objectExpression.ToString();
-            if (objectAccessor == "_this")
-            {
-                return "$data";
-            }
-            else if (objectAccessor == "_root")
-            {
-                return "$root";
-            }
-            else if (objectAccessor == "_parent")
-            {
-                return "$parent";
-            }
-            else
-            {
-                return objectAccessor;
-            }
         }
 
 

@@ -20,15 +20,15 @@
 
     <h2>Client side methods</h2>
     <div class="sample">
-        <dot:Button class="action" Click="{command: Sum()}" Text="Sum" />
+        <dot:Button class="action" Click="{staticCommand:  Sum()}" Text="Sum" />
         <script src="https://gist.github.com/Mrnda/d721679f7f802f04efd1e5dc0dbb5a5c.js"></script>
     </div>
     <div class="sample">
-        <dot:Button class="action" Click="{command: Divide()}" Text="Divide" />
+        <dot:Button class="action" Click="{staticCommand: Divide()}" Text="Divide" />
         <script src="https://gist.github.com/Mrnda/adc6904bf91762dd59296863ab82ffdf.js"></script>
     </div>
     <div class="sample">
-        <dot:Button class="action" Click="{command: Fibonacci()}" Text="Fibonacci" />
+        <dot:Button class="action" Click="{staticCommand: Fibonacci()}" Text="Fibonacci" />
         <script src="https://gist.github.com/Mrnda/e8a2f501a94a8ebeb38a138075b73e48.js"></script>
     </div>
     <h2>Server side methods</h2>
