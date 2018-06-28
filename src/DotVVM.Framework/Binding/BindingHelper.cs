@@ -229,6 +229,19 @@ namespace DotVVM.Framework.Binding
             JavascriptTranslator.AdjustKnockoutScriptContext(binding.CommandJavascript,
                 dataContextLevel: FindDataContextTarget(binding, control).stepsUp);
 
+        public static object GetBindingValue(this IBinding binding, DotvvmBindableObject control)
+        {
+            if (binding is IStaticValueBinding valueBinding)
+            {
+                return valueBinding.Evaluate(control);
+            }
+            else if (binding is ICommandBinding command)
+            {
+                return command.GetCommandDelegate(control);
+            }
+            else throw new NotSupportedException();
+        }
+
         /// <summary>
         /// Creates new `TBinding` with the original DataContextStack, LocationInfo, AdditionalResolvers and BindingCompilationService. 
         /// </summary>

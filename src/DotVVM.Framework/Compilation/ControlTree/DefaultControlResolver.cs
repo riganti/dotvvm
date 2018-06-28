@@ -121,7 +121,36 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     }
                 }
             }
-        }
+            //TODO: MERGE CONFLICT
+            //private static void InvokeStaticConstructorsOnAllControls()
+            //{
+            //    // PERF: too many allocations - type.GetCustomAttribute<T> does ~220k allocs -> 4MB, get all types allocates additional 1.5MB
+            //    var dotvvmAssembly = typeof(DotvvmControl).GetTypeInfo().Assembly.GetName().Name;
+            //    var allTypes = ReflectionUtils.GetAllAssemblies()
+            //        .Where(a => a.GetReferencedAssemblies().Any(r => r.Name == dotvvmAssembly))
+            //        .Concat(new[] { typeof(DotvvmControl).GetTypeInfo().Assembly })
+            //        .SelectMany(a => a.GetLoadableTypes()).Where(t => t.GetTypeInfo().IsClass).ToList();
+            //    foreach (var type in allTypes)
+            //    {
+            //        if (type.GetTypeInfo().GetCustomAttribute<ContainsDotvvmPropertiesAttribute>(true) != null)
+            //        {
+            //            var tt = type;
+            //            do
+            //            {
+            //                RuntimeHelpers.RunClassConstructor(tt.TypeHandle);
+            //                tt = tt.GetTypeInfo().BaseType;
+            //            }
+            //            while (tt != null && tt.GetTypeInfo().IsGenericType);
+
+            //            if (!type.IsAbstract && typeof(EpicCoolControl).IsAssignableFrom(type))
+            //            {
+            //                EpicCoolControl.RegisterProperties(type);
+            //            }
+            //        }
+            //    }
+
+
+            //}
 
         /// <summary>
         /// Resolves the control metadata for specified type.

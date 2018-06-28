@@ -85,7 +85,7 @@ namespace DotVVM.Framework.Controls
         internal object? EvalPropertyValue(DotvvmProperty property, object? value)
         {
             if (property.IsBindingProperty) return value;
-            if (value is IBinding)
+            while (value is IBinding binding) //TODO: MERGE CONFLICT
             {
                 DotvvmBindableObject control = this;
                 // DataContext is always bound to it's parent, setting it right here is a bit faster
@@ -135,11 +135,23 @@ namespace DotVVM.Framework.Controls
                 this.SetBinding(property, valueOrBinding.BindingOrDefault);
         }
 
+        public ValueOrBinding<T> GetValueOrBinding<T>(DotvvmProperty property, bool inherit = true)
+        {
+            var value = this.GetValueRaw(property, inherit);
+            if (value is IBinding binding)
+                return new ValueOrBinding<T>(binding);
+            else return new ValueOrBinding<T>((T)value);
+        }
+
         /// <summary>
         /// Sets the value of a specified property.
         /// </summary>
         public virtual void SetValue(DotvvmProperty property, object? value)
         {
+            // "unbox" ValueOrBinding instances
+            if (value is ValueOrBinding valueOrBinding)
+                value = valueOrBinding.BindingOrDefault ?? valueOrBinding.BoxedValue;
+
             var originalValue = GetValueRaw(property, false);
             // TODO: really do we want to update the value binding only if it's not a binding
             if (originalValue is IUpdatableValueBinding && !(value is BindingExpression))

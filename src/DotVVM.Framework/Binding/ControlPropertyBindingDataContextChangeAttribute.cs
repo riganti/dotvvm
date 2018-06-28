@@ -71,6 +71,6 @@ namespace DotVVM.Framework.Binding
             throw new Exception($"Property '{PropertyName}' is required on '{controlType.Name}'.");
         }
 
-        public override IEnumerable<string> PropertyDependsOn => new[] { PropertyName };
+        public override IEnumerable<string> PropertyDependsOn => new [] { PropertyName };
     }
 }

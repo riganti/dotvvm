@@ -24,8 +24,8 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public string Text
         {
-            get { return (string)GetValue(TextProperty)!; }
-            set { SetValue(TextProperty, value ?? throw new ArgumentNullException(nameof(value))); }
+            get { return GetValue(TextProperty)?.ToString(); }
+            set { SetValue(TextProperty, value); }
         }
 
         public static readonly DotvvmProperty TextProperty =
@@ -90,15 +90,20 @@ namespace DotVVM.Framework.Controls
             if (allowImplicitLifecycleRequirements) LifecycleRequirements = ControlLifecycleRequirements.None;
         }
 
-        public static bool NeedsFormatting(IValueBinding? binding)
+        public Literal(ValueOrBinding text, bool renderSpan = false): this()
         {
-            bool isFormattedType(Type? type) =>
-                type != null && (type == typeof(float) || type == typeof(double) || type == typeof(decimal) || type == typeof(DateTime) || isFormattedType(Nullable.GetUnderlyingType(type)));
-
-            bool isFormattedTypeOrObj(Type? type) => type == typeof(object) || isFormattedType(type);
-
-            return isFormattedType(binding?.ResultType) && isFormattedTypeOrObj(binding?.GetProperty<ExpectedTypeBindingProperty>(ErrorHandlingMode.ReturnNull)?.Type);
+            SetValue(TextProperty, text);
+            RenderSpanElement = renderSpan;
         }
+
+        public Literal(IStaticValueBinding text, bool renderSpan = false): this()
+        {
+            SetBinding(TextProperty, text);
+            RenderSpanElement = renderSpan;
+        }
+
+        public static bool NeedsFormatting(IValueBinding binding) => binding != null && (binding.ResultType == typeof(DateTime) || binding.ResultType == typeof(DateTime?)
+            || binding.ResultType.IsNumericType() || Nullable.GetUnderlyingType(binding.ResultType).IsNumericType());
 
         protected override bool RendersHtmlTag => RenderSpanElement;
 

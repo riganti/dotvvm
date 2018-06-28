@@ -359,11 +359,17 @@ namespace DotVVM.Framework.Compilation
                 }
                 return SyntaxFactory.ParseName(fieldName);
             }
-            else
+            else if (property.DeclaringType.GetField(property.Name + "Property", BindingFlags.Static | BindingFlags.Public) != null)
             {
                 return SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
                     ParseTypeName(property.DeclaringType),
                     SyntaxFactory.IdentifierName(property.Name + "Property"));
+            }
+            else
+            {
+                return SyntaxFactory.CastExpression(
+                    this.ParseTypeName(typeof(DotvvmProperty)),
+                    this.EmitValueReference(property));
             }
         }
 
