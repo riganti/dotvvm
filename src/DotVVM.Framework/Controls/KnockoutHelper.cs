@@ -46,7 +46,8 @@ namespace DotVVM.Framework.Controls
             writer.AddKnockoutDataBind(name, valueBinding.GetKnockoutBindingExpression(control));
         }
 
-        public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, IEnumerable<KeyValuePair<string, IValueBinding>> expressions, DotvvmBindableObject control, DotvvmProperty property)
+        /// <param name="property">This parameter is here for historical reasons, it's not useful for anything</param>
+        public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, IEnumerable<KeyValuePair<string, IValueBinding>> expressions, DotvvmBindableObject control, DotvvmProperty property = null)
         {
             writer.AddKnockoutDataBind(name, $"{{{String.Join(",", expressions.Select(e => "'" + e.Key + "': " + e.Value.GetKnockoutBindingExpression(control)))}}}");
         }
