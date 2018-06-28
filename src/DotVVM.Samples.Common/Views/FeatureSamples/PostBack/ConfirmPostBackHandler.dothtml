@@ -1,4 +1,4 @@
-﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.PostBack.PostBackHandlersViewModel, DotVVM.Samples.Common
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.PostBack.ConfirmPostBackHandlerViewModel, DotVVM.Samples.Common
 
 
 <!DOCTYPE html>

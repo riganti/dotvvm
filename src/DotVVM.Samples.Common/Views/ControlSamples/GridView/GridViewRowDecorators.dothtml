@@ -27,7 +27,11 @@
         <dot:GridView DataSource="{value: CustomersDataSet}" class="table table-bordered">
 			<RowDecorators>
 				<dot:Decorator Events.Click="{command: _root.SelectCustomer(CustomerId)}"
-							   class="{value: _root.SelectedRowId == CustomerId ? 'selected' : ''}" />
+							   class="{value: _root.SelectedRowId == CustomerId ? 'selected' : ''}" >
+                    <PostBack.Handlers>
+                        <dot:SuppressPostBackHandler Suppress="{value:_root.SelectedRowId != null}"/>
+                    </PostBack.Handlers>
+                    </dot:Decorator>
 			</RowDecorators>
             <Columns>
                 <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" AllowSorting="True" />
