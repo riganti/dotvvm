@@ -26,15 +26,18 @@ public static class DotvvmRequestContextExtensions
         return DotvvmPresenter.DetermineSpaContentPlaceHolderUniqueId(context.HttpContext);
     }
 
+
     /// <summary>
     /// Changes the current culture of this HTTP request.
     /// </summary>
+    [Obsolete("This method only assigns CultureInfo.CurrentCulture, which is not preserved in async methods. You should assign it manually, or use RequestLocalization middleware or LocalizablePresenter.")]
     public static void ChangeCurrentCulture(this IDotvvmRequestContext context, string cultureName)
         => context.ChangeCurrentCulture(cultureName, cultureName);
 
     /// <summary>
     /// Changes the current culture of this HTTP request.
     /// </summary>
+    [Obsolete("This method only assigns CultureInfo.CurrentCulture, which is not preserved in async methods. You should assign it manually, or use RequestLocalization middleware or LocalizablePresenter.")]
     public static void ChangeCurrentCulture(this IDotvvmRequestContext context, string cultureName, string uiCultureName)
     {
 #if DotNetCore
@@ -180,6 +183,13 @@ public static class DotvvmRequestContextExtensions
     public static void ReturnFile(this IDotvvmRequestContext context, Stream stream, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>> additionalHeaders = null)
     {
         var returnedFileStorage = context.Services.GetService<IReturnedFileStorage>();
+
+        if (returnedFileStorage == null)
+        {
+            throw new DotvvmFileStorageMissingException($"Unable to resolve service for type '{typeof(IReturnedFileStorage).Name}'. " +
+                $"Visit https://www.dotvvm.com/docs/tutorials/advanced-returning-files for more details!");
+        }
+
         var metadata = new ReturnedFileMetadata()
         {
             FileName = fileName,

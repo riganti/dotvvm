@@ -34,9 +34,29 @@ namespace DotVVM.Framework.Compilation.Binding
             this.javascriptTranslator = javascriptTranslator;
         }
 
+        /// Replaces delegate arguments with commandArgs reference
+        private static Expression ReplaceCommandArgs(Expression expression) =>
+            expression.ReplaceAll(e =>
+                e?.GetParameterAnnotation()?.ExtensionParameter is TypeConversion.MagicLambdaConversionExtensionParameter extensionParam ?
+                    Expression.Parameter(ResolvedTypeDescriptor.ToSystemType(extensionParam.ParameterType), $"commandArgs.['{extensionParam.Identifier}']")
+                    .AddParameterAnnotation(new BindingParameterAnnotation(extensionParameter: new JavascriptTranslationVisitor.FakeExtensionParameter(
+                        _ => new JsSymbolicParameter(CommandBindingExpression.CommandArgumentsParameter)
+                             .Indexer(new JsLiteral(extensionParam.ArgumentIndex))
+                    ))) :
+                e
+            );
+
         public JsExpression CompileToJavascript(DataContextStack dataContext, Expression expression)
         {
-            var currentContextVariable = new JsTemporaryVariableParameter(new JsIdentifierExpression("ko").Member("contextFor").Invoke(new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter)));
+            expression = ReplaceCommandArgs(expression);
+
+            var knockoutContext =
+                new JsSymbolicParameter(
+                    JavascriptTranslator.KnockoutContextParameter,
+                    defaultAssignment: new JsIdentifierExpression("ko").Member("contextFor").Invoke(new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter)).FormatParametrizedScript()
+                );
+
+            var currentContextVariable = new JsTemporaryVariableParameter(knockoutContext);
             // var resultPromiseVariable = new JsNewExpression("DotvvmPromise"));
             var senderVariable = new JsTemporaryVariableParameter(new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter));
             var visitor = new ExtractExpressionVisitor(ex => {
@@ -57,9 +77,60 @@ namespace DotVVM.Framework.Compilation.Binding
             foreach (var param in visitor.ParameterOrder.Reverse<ParameterExpression>())
             {
                 js = js ?? new JsIdentifierExpression("resolve").Invoke(new JsIdentifierExpression(param.Name));
+                var replacedNode = js.DescendantNodes().SingleOrDefault(n => n is JsIdentifierExpression identifier && identifier.Identifier == param.Name);
                 var callback = new JsFunctionExpression(new[] { new JsIdentifier(param.Name) }, new JsBlockStatement(new JsExpressionStatement(js)));
                 var method = visitor.Replaced[param] as MethodCallExpression;
-                js = CompileMethodCall(method, dataContext, callback);
+                var methodInvocation = CompileMethodCall(method, dataContext, callback);
+
+                var invocationExpressions =
+                    methodInvocation is JsInvocationExpression invocation && invocation.Target.ToString() == "dotvvm.staticCommandPostback" ?
+                    (JsArrayExpression)invocation.Arguments.ElementAt(3) :
+                    methodInvocation;
+                var preCommandExpressions = new List<(CodeSymbolicParameter parameter, JsNode node)>();
+                if (replacedNode != null)
+                {
+                    var siblings = replacedNode
+                        .AncestorsAndSelf.TakeWhile(n => n != callback)
+                        .SelectMany(n => n.Parent.Children.TakeWhile(c => c != n))
+                        .ToArray();
+                    var reorderBlockingNodes = new HashSet<JsNode>(siblings);
+                    reorderBlockingNodes.Add(invocationExpressions);
+                    foreach (var sibling in siblings)
+                    {
+                        reorderBlockingNodes.Remove(sibling);
+                        if (SideEffectAnalyzer.MayReorder(sibling, reorderBlockingNodes))
+                            continue;
+
+                        var tmpVar = sibling is JsExpression ? new JsTemporaryVariableParameter() : null;
+                        preCommandExpressions.Add((tmpVar, sibling));
+                        if (sibling is JsExpression)
+                            sibling.ReplaceWith(new JsSymbolicParameter(tmpVar));
+                        else if (sibling.Parent is JsBlockStatement)
+                            sibling.Remove();
+                        else
+                            sibling.ReplaceWith(new JsBlockStatement());
+                    }
+                }
+                if (preCommandExpressions.All(e => e.node is JsExpression))
+                {
+                    js = methodInvocation;
+                    foreach (var (p, node) in Enumerable.Reverse(preCommandExpressions))
+                        js = new JsBinaryExpression(
+                            new JsAssignmentExpression(new JsSymbolicParameter(p), (JsExpression)node),
+                            BinaryOperatorType.Sequence,
+                            js
+                        );
+                }
+                else
+                {
+                    js = JsFunctionExpression.CreateIIFE(
+                        new JsBlockStatement(
+                            preCommandExpressions.Select(c =>
+                                c.parameter == null ? (JsStatement)c.node : new JsExpressionStatement(new JsAssignmentExpression(new JsSymbolicParameter(c.parameter), (JsExpression)c.node))
+                            ).Concat(new[] { new JsExpressionStatement(methodInvocation) })
+                        )
+                    );
+                }
             }
             foreach (var sp in js.Descendants.OfType<JsSymbolicParameter>())
             {
@@ -68,18 +139,20 @@ namespace DotVVM.Framework.Compilation.Binding
                 else if (sp.Symbol == CommandBindingExpression.SenderElementParameter) sp.Symbol = senderVariable;
             }
 
-            if (js is JsInvocationExpression invocation && invocation.Target is JsIdentifierExpression identifier && identifier.Identifier == "resolve")
             {
-                // optimize `new Promise(function (resolve) { resolve(x) })` to `Promise.resolve(x)`
-                identifier.ReplaceWith(new JsIdentifierExpression("Promise").Member("resolve"));
-                return js;
-            }
-            else
-            {
-                return new JsNewExpression(new JsIdentifierExpression("Promise"), new JsFunctionExpression(
-                    new [] { new JsIdentifier("resolve") },
-                    new JsBlockStatement(new JsExpressionStatement(js))
-                ));
+                if (js is JsInvocationExpression invocation && invocation.Target is JsIdentifierExpression identifier && identifier.Identifier == "resolve")
+                {
+                    // optimize `new Promise(function (resolve) { resolve(x) })` to `Promise.resolve(x)`
+                    identifier.ReplaceWith(new JsIdentifierExpression("Promise").Member("resolve"));
+                    return js;
+                }
+                else
+                {
+                    return new JsNewExpression(new JsIdentifierExpression("Promise"), new JsFunctionExpression(
+                        new [] { new JsIdentifier("resolve") },
+                        new JsBlockStatement(new JsExpressionStatement(js))
+                    ));
+                }
             }
         }
 
@@ -186,10 +259,12 @@ namespace DotVVM.Framework.Compilation.Binding
             return new StaticCommandInvocationPlan(method, args);
         }
 
+        private static string GetTypeFullName(Type type) => $"{type.FullName}, {type.Assembly.GetName().Name}";
+
         public static JToken SerializePlan(StaticCommandInvocationPlan plan)
         {
             var array = new JArray(
-                new JValue(plan.Method.DeclaringType.AssemblyQualifiedName),
+                new JValue(GetTypeFullName(plan.Method.DeclaringType)),
                 new JValue(plan.Method.Name),
                 JToken.FromObject(plan.Arguments.Select(a => (byte)a.Type).ToArray())
             );
@@ -201,7 +276,7 @@ namespace DotVVM.Framework.Compilation.Binding
                     if ((parameter?.ParameterType ?? plan.Method.DeclaringType).Equals(arg.Arg))
                         array.Add(JValue.CreateNull());
                     else
-                        array.Add(new JValue(arg.Arg.CastTo<Type>().AssemblyQualifiedName));
+                        array.Add(new JValue(arg.Arg.CastTo<Type>().Apply(GetTypeFullName)));
                 }
                 else if (arg.Type == StaticCommandParameterType.Constant)
                 {
@@ -216,7 +291,7 @@ namespace DotVVM.Framework.Compilation.Binding
                     if ((parameter?.ParameterType ?? plan.Method.DeclaringType).Equals(arg.Arg))
                         array.Add(JValue.CreateNull());
                     else
-                        array.Add(new JValue(arg.Arg.CastTo<Type>().AssemblyQualifiedName));
+                        array.Add(new JValue(arg.Arg.CastTo<Type>().Apply(GetTypeFullName)));
                 }
                 else if (arg.Type == StaticCommandParameterType.Invocation)
                 {

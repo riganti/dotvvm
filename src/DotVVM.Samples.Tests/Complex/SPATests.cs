@@ -32,7 +32,7 @@ namespace DotVVM.Samples.Tests.Complex
 
                 // check url and page contents
                 browser.Single("h2").CheckIfTextEquals("Test");
-                browser.CheckUrl(s => s.Contains("ComplexSamples/SPA/default#!/ComplexSamples/SPA/test"));
+                browser.CheckUrl(s => s.Contains("ComplexSamples/SPA/test"));
 
                 // use the back button
                 browser.NavigateBack();
@@ -60,14 +60,14 @@ namespace DotVVM.Samples.Tests.Complex
 
                 // check url and page contents
                 browser.Single("h2").CheckIfTextEquals("Test");
-                browser.CheckUrl(s => s.Contains("ComplexSamples/SPA/default#!/ComplexSamples/SPA/test"));
+                browser.CheckUrl(s => s.Contains("ComplexSamples/SPA/test"));
 
                 // open the default page
                 browser.ElementAt("a", 0).Click().Wait();
 
                 // check url and page contents
                 browser.Single("h2").CheckIfTextEquals("Default");
-                browser.CheckUrl(s => s.Contains("ComplexSamples/SPA/default#!/ComplexSamples/SPA/default"));
+                browser.CheckUrl(s => s.Contains("ComplexSamples/SPA/default"));
 
                 // go back to the test page
                 browser.NavigateBack();
@@ -75,7 +75,7 @@ namespace DotVVM.Samples.Tests.Complex
 
                 // check url and page contents
                 browser.Single("h2").CheckIfTextEquals("Test");
-                browser.CheckUrl(s => s.Contains("ComplexSamples/SPA/default#!/ComplexSamples/SPA/test"));
+                browser.CheckUrl(s => s.Contains("ComplexSamples/SPA/test"));
                 
                 // go back to the default page
                 browser.NavigateBack();

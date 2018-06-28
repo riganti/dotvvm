@@ -8,7 +8,7 @@
     <title></title>
 </head>
 <body>
-	<dot:Button id="Click1" Text="Click test" Click="{command: IncreaseCount()}" />
+    <dot:Button id="Click1" Text="Click test" Click="{command: IncreaseCount()}" />
 
     <span class="result">{{value: Count}}</span>
 </body>

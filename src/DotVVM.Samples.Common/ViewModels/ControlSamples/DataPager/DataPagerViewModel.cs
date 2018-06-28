@@ -38,7 +38,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.DataPager
 
         public void Populate()
         {
-            ItemsInDatabaseCount = 20;
+            ItemsInDatabaseCount = 50;
             DataSet.RequestRefresh();
         }
 

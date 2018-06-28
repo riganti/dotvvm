@@ -6,24 +6,31 @@ using DotVVM.Framework.Runtime;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Hosting;
 
-namespace DotVVM.Framework.Controls.Infrastructure
+namespace DotVVM.Framework.Controls
 {
     /// <summary>
-    /// Renders the stylesheet links. This control must be on every page just before the end of head element.
+    /// Renders the resource links with RenderPosition = Head. This control must be on every page, usually just before the end of head element.
     /// </summary>
     public class HeadResourceLinks : DotvvmControl
     {
-
-        /// <summary>
-        /// Renders the control into the specified writer.
-        /// </summary>
         protected override void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            // render resource links
-            var resources = context.ResourceManager.GetNamedResourcesInOrder().Where(r => r.Resource.RenderPosition == ResourceRenderPosition.Head);
-            foreach (var resource in resources)
+            var resourceManager = context.ResourceManager;
+            if (resourceManager.HeadRendered) return;
+            // set the flag before the resources are rendered, so they can't add more resources to the list during the render
+            resourceManager.HeadRendered = true;
+
+            // render resource links and preloads
+            foreach (var resource in resourceManager.GetNamedResourcesInOrder())
             {
-                resource.RenderResourceCached(writer, context);
+                if (resource.Resource.RenderPosition == ResourceRenderPosition.Head)
+                {
+                    resource.RenderResourceCached(writer, context);
+                }
+                else if (resource.Resource is IPreloadResource preloadResource)
+                {
+                    preloadResource.RenderPreloadLink(writer, context, resource.Name);
+                }
             }
         }
     }

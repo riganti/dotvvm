@@ -1,4 +1,4 @@
-param([String]$version, [String]$apiKey, [String]$server, [String]$branchName, [String]$repoUrl, [String]$nugetRestoreAltSource = "", [bool]$pushTag)
+param([String]$version, [String]$apiKey, [String]$server, [String]$branchName, [String]$repoUrl, [String]$nugetRestoreAltSource = "", [bool]$pushTag, [String]$configuration, [String]$apiKeyInternal, [String]$internalServer)
 
 
 ### Helper Functions
@@ -35,7 +35,7 @@ $LASTEXITCODE
 
 function CleanOldGeneratedPackages() {
 	foreach ($package in $packages) {
-		del .\$($package.Directory)\bin\debug\*.nupkg -ErrorAction SilentlyContinue
+		del .\$($package.Directory)\bin\$configuration\*.nupkg -ErrorAction SilentlyContinue
 	}
 }
 
@@ -68,14 +68,15 @@ function BuildPackages() {
 			& dotnet restore --source $nugetRestoreAltSource --source https://nuget.org/api/v2/ | Out-Host
 		}
 		
-		& dotnet pack --configuration Release | Out-Host
+		& dotnet pack -c $configuration --include-symbols | Out-Host
 		cd ..
 	}
 }
 
 function PushPackages() {
 	foreach ($package in $packages) {
-		& .\Tools\nuget.exe push .\$($package.Directory)\bin\Release\$($package.Package).$version.nupkg -source $server -apiKey $apiKey | Out-Host
+		& .\Tools\nuget.exe push .\$($package.Directory)\bin\$configuration\$($package.Package).$version.symbols.nupkg -source $server -apiKey $apiKey | Out-Host
+		#& .\Tools\nuget.exe push .\$($package.Directory)\bin\$configuration\$($package.Package).$version.symbols.nupkg -source $internalServer -apiKey $apiKeyInternal | Out-Host
 	}
 }
 
@@ -103,7 +104,9 @@ $packages = @(
 	[pscustomobject]@{ Package = "DotVVM.Owin"; Directory = "DotVVM.Framework.Hosting.Owin" },
 	[pscustomobject]@{ Package = "DotVVM.AspNetCore"; Directory = "DotVVM.Framework.Hosting.AspNetCore" },
 	[pscustomobject]@{ Package = "DotVVM.CommandLine"; Directory = "DotVVM.CommandLine" },
-	[pscustomobject]@{ Package = "DotVVM.Compiler.Light"; Directory = "DotVVM.Compiler.Light" }
+	[pscustomobject]@{ Package = "DotVVM.Compiler.Light"; Directory = "DotVVM.Compiler.Light" },
+	[pscustomobject]@{ Package = "DotVVM.Api.Swashbuckle.AspNetCore"; Directory = "DotVVM.Framework.Api.Swashbuckle.AspNetCore" },
+	[pscustomobject]@{ Package = "DotVVM.Api.Swashbuckle.Owin"; Directory = "DotVVM.Framework.Api.Swashbuckle.Owin" }
 )
 
 function PublishTemplates() {

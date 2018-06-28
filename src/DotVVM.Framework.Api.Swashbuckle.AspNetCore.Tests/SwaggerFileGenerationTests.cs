@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using DotVVM.Core.Common;
 using DotVVM.Framework.Api.Swashbuckle.AspNetCore.Filters;
 using DotVVM.Samples.BasicSamples.Api.AspNetCore.Controllers;
+using DotVVM.Samples.BasicSamples.Api.Common.Model;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Internal;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
@@ -11,6 +13,7 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.ObjectPool;
+using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Swagger;
@@ -21,52 +24,97 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Tests
     [TestClass]
     public class SwaggerFileGenerationTests
     {
-
         private static SwaggerDocument document;
 
         [ClassInitialize]
         public static void Init(TestContext testContext)
         {
-            var options = new SwaggerGeneratorSettings();
-            options.DocInclusionPredicate = (version, api) => true;
-            options.OperationFilters.Add(new RemoveReadOnlyFromUriParametersOperationFilter());
-            options.OperationFilters.Add(new RemoveBindNoneFromUriParametersOperationFilter());
-            options.OperationFilters.Add(new AddAsObjectAnnotationOperationFilter());
-            options.OperationFilters.Add(new HandleGridViewDataSetReturnType());
-            options.SwaggerDocs.Add("v1", new Info() { Title = "Test API", Version = "v1" });
+            var knownTypesOptions = Options.Create(new DotvvmApiOptions());
+
+            knownTypesOptions.Value.AddKnownType(typeof(Company<string>));
+
+            var options = new SwaggerGeneratorSettings {
+                DocInclusionPredicate = (version, api) => true,
+                OperationFilters = {
+                    new RemoveReadOnlyFromUriParametersOperationFilter(),
+                    new RemoveBindNoneFromUriParametersOperationFilter(),
+                    new AddAsObjectOperationFilter(knownTypesOptions)
+                },
+                DocumentFilters = {
+                    new HandleKnownTypesDocumentFilter(knownTypesOptions)
+                },
+                SwaggerDocs = {
+                    { "v1", new Info() { Title = "Test API", Version = "v1" }}
+                }
+            };
 
             var serviceCollection = new ServiceCollection()
                 .AddSingleton<ObjectPoolProvider, DefaultObjectPoolProvider>()
                 .AddSingleton<IHostingEnvironment, HostingEnvironment>()
                 .AddLogging();
 
-            serviceCollection.AddMvc(setup => {
-                    setup.Conventions.Add(new ApiExplorerVisibilityEnabledConvention());
-                })
+            serviceCollection.AddMvc(setup => setup.Conventions.Add(new ApiExplorerVisibilityEnabledConvention()))
                 .AddApplicationPart(typeof(CompaniesController).Assembly);
-                
+
             var serviceProvider = serviceCollection.BuildServiceProvider();
-            
             var apiDescriptionGroupCollectionProvider = serviceProvider.GetService<IApiDescriptionGroupCollectionProvider>();
-            
-            var schemaRegistryFactory = new SchemaRegistryFactory(new JsonSerializerSettings(), new SchemaRegistrySettings());
+
+            var schemaSettings = new SchemaRegistrySettings() {
+                SchemaFilters = {
+                    new AddTypeToModelSchemaFilter()
+                }
+            };
+
+            var schemaRegistryFactory = new SchemaRegistryFactory(new JsonSerializerSettings(), schemaSettings);
             var generator = new SwaggerGenerator(apiDescriptionGroupCollectionProvider, schemaRegistryFactory, options);
             document = generator.GetSwagger("v1");
         }
 
-
         [TestMethod]
-        public void Swashbuckle_AspNetCore_ReturnsDataSetAnnotation_NotAdded()
+        public void Swashbuckle_AspNetCore_NameAndKnownTypeAnnotation_Added()
         {
-            var operation = document.Paths["/api/Companies"].Get;
-            Assert.IsFalse(operation.Extensions.ContainsKey("x-dotvvm-returnsDataSet"));
+            var definition = document.Definitions["IPagingOptions"];
+
+            Assert.AreEqual("DotVVM.Framework.Controls.IPagingOptions", definition.Extensions[ApiConstants.DotvvmKnownTypeKey]);
+            Assert.AreEqual("PageIndex", definition.Properties["PageIndex"].Extensions[ApiConstants.DotvvmNameKey]);
+            Assert.AreEqual("PageSize", definition.Properties["PageSize"].Extensions[ApiConstants.DotvvmNameKey]);
         }
 
         [TestMethod]
-        public void Swashbuckle_AspNetCore_ReturnsDataSetAnnotation_Added()
+        public void Swashbuckle_AspNetCore_GenericNameAndKnownTypeAnnotation_Added()
         {
-            var operation = document.Paths["/api/Companies/sorted"].Get;
-            Assert.AreEqual("true", operation.Extensions["x-dotvvm-returnsDataSet"].ToString());
+            var definition = document.Definitions["GridViewDataSet[Company[String]]"];
+
+            Assert.AreEqual("DotVVM.Framework.Controls.GridViewDataSet<Company[String]>",
+                definition.Extensions[ApiConstants.DotvvmKnownTypeKey]);
+
+            Assert.AreEqual("IsRefreshRequired", definition.Properties["IsRefreshRequired"].Extensions[ApiConstants.DotvvmNameKey]);
+            Assert.AreEqual("Items", definition.Properties["Items"].Extensions[ApiConstants.DotvvmNameKey]);
+        }
+
+        [TestMethod]
+        public void Swashbuckle_AspNetCore_GenericKnownTypeAnnotation_FullNameParameter()
+        {
+            var definition = document.Definitions["Company[String]"];
+
+            Assert.AreEqual("DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>",
+                definition.Extensions[ApiConstants.DotvvmKnownTypeKey]);
+        }
+
+        [TestMethod]
+        public void Swashbuckle_AspNetCore_MixedGenericKnownTypeAnnotation_Exist()
+        {
+            var definition = document.Definitions["GridViewDataSet[Company[Boolean]]"];
+
+            Assert.AreEqual("DotVVM.Framework.Controls.GridViewDataSet<Company[Boolean]>", definition.Extensions[ApiConstants.DotvvmKnownTypeKey]);
+        }
+
+        [TestMethod]
+        public void Swashbuckle_AspNetCore_KnownTypeAnnotation_NotAdded()
+        {
+            var definition = document.Definitions["Order"];
+
+            Assert.IsFalse(definition.Extensions.ContainsKey(ApiConstants.DotvvmKnownTypeKey));
         }
 
         [TestMethod]
@@ -95,7 +143,7 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Tests
             Assert.IsFalse(param.Extensions.ContainsKey("x-dotvvm-wrapperType"));
         }
     }
-    
+
     public class ApiExplorerVisibilityEnabledConvention : IApplicationModelConvention
     {
         public void Apply(ApplicationModel application)

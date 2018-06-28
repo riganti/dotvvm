@@ -15,10 +15,11 @@ namespace DotVVM.Samples.Tests.New.Feature
         [Theory]
         [InlineData("input[data-ui=long-action-button]")]
         [InlineData("input[data-ui=long-static-action-button]")]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_PostbackConcurrency_PostbackConcurrencyMode))]
         public void Feature_PostbackConcurrency_UpdateProgressControl(string longActionSelector)
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostbackConcurrency_NoneMode);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostbackConcurrency_DefaultMode);
 
                 // test update progress control
                 AssertUI.IsNotDisplayed(browser, "div[data-ui=update-progress]");
@@ -31,10 +32,10 @@ namespace DotVVM.Samples.Tests.New.Feature
 
         [Theory]
         [InlineData("input[data-ui=long-action-button]", "input[data-ui=short-action-button]")]
-        public void Feature_PostbackConcurrency_NoneMode(string longActionSelector, string shortActionSelector)
+        public void Feature_PostbackConcurrency_DefaultMode(string longActionSelector, string shortActionSelector)
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostbackConcurrency_NoneMode);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostbackConcurrency_DefaultMode);
 
                 // try the long action interrupted by the short one
                 browser.Single(longActionSelector).Click();

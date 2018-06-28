@@ -66,31 +66,31 @@ namespace DotVVM.Framework.Binding.Expressions
 
         #region Helpers
 
-        public static ValueBindingExpression CreateThisBinding<T>(BindingCompilationService service, DataContextStack dataContext) =>
+        public static ValueBindingExpression<T> CreateThisBinding<T>(BindingCompilationService service, DataContextStack dataContext) =>
             CreateBinding<T>(service, o => (T)o[0], dataContext);
 
-        public static ValueBindingExpression CreateBinding<T>(BindingCompilationService service, Func<object[], T> func, JsExpression expression, DataContextStack dataContext = null) =>
-            new ValueBindingExpression(service, new object[] {
+        public static ValueBindingExpression<T> CreateBinding<T>(BindingCompilationService service, Func<object[], T> func, JsExpression expression, DataContextStack dataContext = null) =>
+            new ValueBindingExpression<T>(service, new object[] {
                 new BindingDelegate((o, c) => func(o)),
                 new ResultTypeBindingProperty(typeof(T)),
                 new KnockoutJsExpressionBindingProperty(expression),
                 dataContext
             });
 
-        public static ValueBindingExpression CreateBinding<T>(BindingCompilationService service, Func<object[], T> func, ParametrizedCode expression, DataContextStack dataContext = null) =>
-            new ValueBindingExpression(service, new object[] {
+        public static ValueBindingExpression<T> CreateBinding<T>(BindingCompilationService service, Func<object[], T> func, ParametrizedCode expression, DataContextStack dataContext = null) =>
+            new ValueBindingExpression<T>(service, new object[] {
                 new BindingDelegate((o, c) => func(o)),
                 new ResultTypeBindingProperty(typeof(T)),
                 new KnockoutExpressionBindingProperty(expression, expression, expression),
                 dataContext
             });
 
-        public static ValueBindingExpression CreateBinding<T>(BindingCompilationService service, Expression<Func<object[], T>> expr, DataContextStack dataContext)
+        public static ValueBindingExpression<T> CreateBinding<T>(BindingCompilationService service, Expression<Func<object[], T>> expr, DataContextStack dataContext)
         {
             var visitor = new ViewModelAccessReplacer(expr.Parameters.Single());
             var expression = visitor.Visit(expr.Body);
             dataContext = dataContext ?? visitor.GetDataContext();
-            return new ValueBindingExpression(service, new object[] {
+            return new ValueBindingExpression<T>(service, new object[] {
                 new ParsedExpressionBindingProperty(BindingHelper.AnnotateStandardContextParams(expression, dataContext).OptimizeConstants()),
                 new ResultTypeBindingProperty(typeof(T)),
                 dataContext

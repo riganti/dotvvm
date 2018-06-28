@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Routing
         private List<KeyValuePair<string, RouteBase>> list = new List<KeyValuePair<string, RouteBase>>();
 
         /// <summary>
-        /// Dictionary for faster checking of duplicate entries when adding. 
+        /// Dictionary for faster checking of duplicate entries when adding.
         /// </summary>
         private Dictionary<string, RouteBase> dictionary = new Dictionary<string, RouteBase>(StringComparer.OrdinalIgnoreCase);
 
@@ -65,14 +65,17 @@ namespace DotVVM.Framework.Routing
         /// <param name="content">Contains routes to be added</param>
         public void AddGroup(string groupName, string urlPrefix, string virtualPathPrefix, Action<DotvvmRouteTable> content)
         {
-            if (groupName == null || groupName == "")
+            if (string.IsNullOrEmpty(groupName))
+            {
                 throw new ArgumentNullException("Name of the group cannot be null or empty!");
+            }
             if (routeTableGroups.ContainsKey(groupName))
             {
                 throw new InvalidOperationException($"The group with name '{groupName}' has already been registered!");
             }
-            urlPrefix = group?.UrlPrefix + ((urlPrefix == null || urlPrefix == "") ? "" : urlPrefix + "/");
-            virtualPathPrefix = group?.VirtualPathPrefix + ((virtualPathPrefix == null || virtualPathPrefix == "") ? "" : virtualPathPrefix + "/");
+            urlPrefix = CombinePath(group?.UrlPrefix, urlPrefix);
+            virtualPathPrefix = CombinePath(group?.VirtualPathPrefix, virtualPathPrefix);
+
             var newGroup = new DotvvmRouteTable(configuration);
             newGroup.group = new RouteTableGroup(groupName, group?.RouteNamePrefix + groupName + "_", urlPrefix, virtualPathPrefix, Add);
 
@@ -93,9 +96,9 @@ namespace DotVVM.Framework.Routing
         /// <param name="url">The URL.</param>
         /// <param name="virtualPath">The virtual path of the Dothtml file.</param>
         /// <param name="defaultValues">The default values.</param>
-        public void Add(string routeName, string url, string virtualPath, object defaultValues = null)
+        public void Add(string routeName, string url, string virtualPath, object defaultValues = null, Func<IServiceProvider, IDotvvmPresenter> presenterFactory = null)
         {
-            Add(group?.RouteNamePrefix + routeName, new DotvvmRoute(group?.UrlPrefix + url, group?.VirtualPathPrefix + virtualPath, defaultValues, GetDefaultPresenter, configuration));
+            Add(group?.RouteNamePrefix + routeName, new DotvvmRoute(CombinePath(group?.UrlPrefix, url), CombinePath(group?.VirtualPathPrefix, virtualPath), defaultValues, presenterFactory ?? GetDefaultPresenter, configuration));
         }
 
 
@@ -108,8 +111,7 @@ namespace DotVVM.Framework.Routing
         /// <param name="presenterFactory">The presenter factory.</param>
         public void Add(string routeName, string url, Func<IServiceProvider, IDotvvmPresenter> presenterFactory, object defaultValues = null)
         {
-
-            Add(group?.RouteNamePrefix + routeName, new DotvvmRoute(group?.UrlPrefix + url, group?.VirtualPathPrefix, defaultValues, presenterFactory, configuration));
+            Add(group?.RouteNamePrefix + routeName, new DotvvmRoute(CombinePath(group?.UrlPrefix, url), group?.VirtualPathPrefix, defaultValues, presenterFactory, configuration));
         }
 
 
@@ -158,8 +160,7 @@ namespace DotVVM.Framework.Routing
         {
             get
             {
-                var route = list.FirstOrDefault(r => string.Equals(r.Key, routeName, StringComparison.OrdinalIgnoreCase)).Value;
-                if (route == null)
+                if (!dictionary.TryGetValue(routeName, out var route))
                 {
                     throw new ArgumentException($"The route with name '{routeName}' does not exist!");
                 }
@@ -181,6 +182,21 @@ namespace DotVVM.Framework.Routing
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        private string CombinePath(string prefix, string appendedPath)
+        {
+            if (string.IsNullOrEmpty(prefix))
+            {
+                return appendedPath;
+            }
+
+            if (string.IsNullOrEmpty(appendedPath))
+            {
+                return prefix;
+            }
+
+            return $"{prefix}/{appendedPath}";
         }
     }
 }

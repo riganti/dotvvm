@@ -32,7 +32,7 @@ namespace DotVVM.Samples.Tests.CompletenessChecker
                 .ToList();
 
             // get a list of samples from the web app
-            var allSamples = typeof(SamplesRouteUrls).GetProperties(BindingFlags.Public | BindingFlags.Static)
+            var allSamples = typeof(SamplesRouteUrls).GetFields(BindingFlags.Public | BindingFlags.Static)
                 .Where(p => p.Name != "Default")
                 .Select(p => FixSampleName(p.Name))
                 .OrderBy(p => p)

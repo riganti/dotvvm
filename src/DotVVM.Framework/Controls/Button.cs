@@ -54,28 +54,39 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        /// <summary>
-        /// Adds all attributes that should be added to the control begin tag.
-        /// </summary>
-        protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
+        protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
             if ((HasBinding(TextProperty) || !string.IsNullOrEmpty(Text)) && !HasOnlyWhiteSpaceContent())
             {
                 throw new DotvvmControlException(this, "Text property and inner content of the <dot:Button> control cannot be set at the same time!");
             }
 
+            if (ButtonTagName == ButtonTagName.button && HasValueBinding(TextProperty))
+            {
+                var literal = new Literal { RenderSpanElement = false };
+                literal.SetBinding(c => c.Text, GetBinding(TextProperty));
+                Children.Add(literal);
+            }
+
+            base.OnPreRender(context);
+        }
+
+        /// <summary>
+        /// Adds all attributes that should be added to the control begin tag.
+        /// </summary>
+        protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
+        {
+            writer.AddAttribute("type", IsSubmitButton ? "submit" : "button");
+
             if (ButtonTagName == ButtonTagName.button)
             {
                 TagName = "button";
             }
-            writer.AddAttribute("type", IsSubmitButton ? "submit" : "button");
 
-
-            writer.AddKnockoutDataBind(ButtonTagName == ButtonTagName.input ? "value" : "text", this, TextProperty, () =>
+            if (ButtonTagName == ButtonTagName.input)
             {
-                if (!HasOnlyWhiteSpaceContent())
-                {
-                    if (ButtonTagName == ButtonTagName.input)
+                writer.AddKnockoutDataBind("value", this, TextProperty, () => {
+                    if (!HasOnlyWhiteSpaceContent())
                     {
                         // if there is only a text content, extract it into the Text property; if there is HTML, we don't support it
                         string textContent;
@@ -85,13 +96,10 @@ namespace DotVVM.Framework.Controls
                         }
                         Text = textContent;
                     }
-                }
 
-                if (ButtonTagName == ButtonTagName.input)
-                {
                     writer.AddAttribute("value", Text);
-                }
-            });
+                });
+            }
 
             base.AddAttributesToRender(writer, context);
 
@@ -118,21 +126,19 @@ namespace DotVVM.Framework.Controls
         {
             if (ButtonTagName == ButtonTagName.button)
             {
-                if (!HasValueBinding(TextProperty))
+                if (!HasValueBinding(TextProperty) && IsPropertySet(TextProperty))
                 {
                     // render contents inside
-                    if (IsPropertySet(TextProperty))
+                    if (!HasOnlyWhiteSpaceContent())
                     {
-                        if (!HasOnlyWhiteSpaceContent())
-                        {
-                            throw new DotvvmControlException(this, "Text property and inner content of the <dot:Button> control cannot be set at the same time!");
-                        }
-                        writer.WriteText(Text);
+                        throw new DotvvmControlException(this, "Text property and inner content of the <dot:Button> control cannot be set at the same time!");
                     }
-                    else
-                    {
-                        base.RenderContents(writer, context);
-                    }
+
+                    writer.WriteText(Text);
+                }
+                else
+                {
+                    base.RenderContents(writer, context);
                 }
             }
         }
@@ -148,7 +154,7 @@ namespace DotVVM.Framework.Controls
         [ControlUsageValidator]
         public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
         {
-            if(control.Properties.ContainsKey(TextProperty) && control.Content.Any(n => n.DothtmlNode.IsNotEmpty()))
+            if (control.Properties.ContainsKey(TextProperty) && control.Content.Any(n => n.DothtmlNode.IsNotEmpty()))
             {
                 yield return new ControlUsageError("Text property and inner content of the <dot:Button> control cannot be set at the same time!", control.DothtmlNode);
             }

@@ -26,8 +26,11 @@ namespace DotVVM.Framework.Controls
         /// <param name="pagingOptions">The settings for paging.</param>
         public IList<int> GetIndexes(IPagingOptions pagingOptions)
         {
+            var firstIndex = Math.Max(pagingOptions.PageIndex - distance, 0);
+            var lastIndex = Math.Min(pagingOptions.PageIndex + distance + 1, pagingOptions.PagesCount);
+
             return Enumerable
-                .Range(Math.Max(pagingOptions.PageIndex - distance, 0), Math.Min(pagingOptions.PageIndex + distance + 1, pagingOptions.PagesCount))
+                .Range(firstIndex, lastIndex - firstIndex)
                 .ToList();
         }
     }

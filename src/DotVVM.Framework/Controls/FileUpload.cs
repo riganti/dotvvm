@@ -213,7 +213,7 @@ namespace DotVVM.Framework.Controls
             writer.AddAttribute("href", "#");
             writer.AddAttribute("onclick", "dotvvm.fileUpload.showUploadDialog(this); return false;");
             writer.RenderBeginTag("a");
-            writer.WriteUnencodedText(UploadButtonText);
+            writer.WriteText(UploadButtonText);
             writer.RenderEndTag();
             writer.RenderEndTag();
         }

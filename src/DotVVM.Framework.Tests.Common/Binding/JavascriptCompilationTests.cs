@@ -45,7 +45,10 @@ namespace DotVVM.Framework.Tests.Binding
                 context = DataContextStack.Create(contexts[i], context);
             }
             var parser = new BindingExpressionBuilder();
-            var expressionTree = TypeConversion.ImplicitConversion(parser.Parse(expression, context, BindingParserOptions.Create<ValueBindingExpression>()), expectedType, true, true);
+            var parsedExpression = parser.ParseWithLambdaConversion(expression, context, BindingParserOptions.Create<ValueBindingExpression>(), expectedType);
+            var expressionTree =
+                TypeConversion.MagicLambdaConversion(parsedExpression, expectedType) ??
+                TypeConversion.ImplicitConversion(parsedExpression, expectedType, true, true);
             var jsExpression = new JsParenthesizedExpression(configuration.ServiceProvider.GetRequiredService<JavascriptTranslator>().CompileToJavascript(expressionTree, context));
             jsExpression.AcceptVisitor(new KnockoutObservableHandlingVisitor(true));
             JsTemporaryVariableResolver.ResolveVariables(jsExpression);
@@ -108,7 +111,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_ToString()
         {
             var js = CompileBinding("MyProperty", new[] { typeof(TestViewModel2) }, typeof(string));
-            Assert.AreEqual("String(MyProperty())", js);
+            Assert.AreEqual("dotvvm.globalize.bindingNumberToString(MyProperty)", js);
         }
 
         [TestMethod]
@@ -218,7 +221,7 @@ namespace DotVVM.Framework.Tests.Binding
             var result = CompileBinding("_api.GetCurrentTime('test')");
             Assert.AreEqual("dotvvm.invokeApiFn(function(){return dotvvm.api._api.getCurrentTime(\"test\");},[dotvvm.eventHub.get(\"dotvvm.api._api\")],[])", result);
             var assignment = CompileBinding("DateFrom = _api.GetCurrentTime('test')", typeof(TestViewModel));
-            Assert.AreEqual("DateFrom(dotvvm.serialization.serializeDate(dotvvm.invokeApiFn(function(){return dotvvm.api._api.getCurrentTime(\"test\");},[dotvvm.eventHub.get(\"dotvvm.api._api\")],[])())).DateFrom()", assignment);
+            Assert.AreEqual("DateFrom(dotvvm.serialization.serializeDate(dotvvm.invokeApiFn(function(){return dotvvm.api._api.getCurrentTime(\"test\");},[dotvvm.eventHub.get(\"dotvvm.api._api\")],[])(),false)).DateFrom()", assignment);
         }
 
         [TestMethod]
@@ -247,12 +250,39 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void JavascriptCompilation_WrappedNestedPropertyAccessExpression()
+        {
+            var result = CompileValueBinding("TestViewModel2.SomeString", new[] { typeof(TestViewModel) }, typeof(object));
+            Assert.AreEqual("TestViewModel2()&&TestViewModel2().SomeString()", FormatKnockoutScript(result.UnwrappedKnockoutExpression));
+            Assert.AreEqual("(TestViewModel2()||{}).SomeString", FormatKnockoutScript(result.KnockoutExpression));
+            Assert.AreEqual("dotvvm.evaluator.wrapObservable(function(){return TestViewModel2()&&TestViewModel2().SomeString;})", FormatKnockoutScript(result.WrappedKnockoutExpression));
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_WrappedNestedListAccessExpression()
+        {
+            var result = CompileValueBinding("TestViewModel2.Collection", new[] { typeof(TestViewModel) }, typeof(object));
+            Assert.AreEqual("TestViewModel2()&&TestViewModel2().Collection()", FormatKnockoutScript(result.UnwrappedKnockoutExpression));
+            Assert.AreEqual("(TestViewModel2()||{}).Collection", FormatKnockoutScript(result.KnockoutExpression));
+            Assert.AreEqual("dotvvm.evaluator.wrapObservable(function(){return TestViewModel2()&&TestViewModel2().Collection;},true)", FormatKnockoutScript(result.WrappedKnockoutExpression));
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_WrappedNegatedBooleanAccessExpression()
+        {
+            var result = CompileValueBinding("!Value", new[] { typeof(Something) }, typeof(object));
+            Assert.AreEqual("!Value()", FormatKnockoutScript(result.UnwrappedKnockoutExpression));
+            Assert.AreEqual("!Value()", FormatKnockoutScript(result.KnockoutExpression));
+            Assert.AreEqual("ko.pureComputed(function(){return !Value();})", FormatKnockoutScript(result.WrappedKnockoutExpression));
+        }
+
+        [TestMethod]
         public void JavascriptCompilation_WrappedExpression()
         {
             var result = CompileValueBinding("StringProp.Length + 43", new [] {typeof(TestViewModel) }, typeof(object));
             Assert.AreEqual("(StringProp()==null?null:StringProp().length)+43", FormatKnockoutScript(result.UnwrappedKnockoutExpression));
             Assert.AreEqual("(StringProp()==null?null:StringProp().length)+43", FormatKnockoutScript(result.KnockoutExpression));
-            Assert.AreEqual("dotvvm.evaluator.wrapKnockoutExpression(function(){return (StringProp()==null?null:StringProp().length)+43;})", FormatKnockoutScript(result.WrappedKnockoutExpression));
+            Assert.AreEqual("ko.pureComputed(function(){return (StringProp()==null?null:StringProp().length)+43;})", FormatKnockoutScript(result.WrappedKnockoutExpression));
         }
 
         [TestMethod]
@@ -279,6 +309,44 @@ namespace DotVVM.Framework.Tests.Binding
             Expression<Func<string, string>> expr = _ => string.Empty;
             var tree = configuration.ServiceProvider.GetRequiredService<JavascriptTranslator>().CompileToJavascript(expr, DataContextStack.Create(typeof(object)));
             Assert.AreEqual("function(_){return \"\";}", tree.ToString());
+        }
+
+        [TestMethod]
+        public void JsTranslator_LambdaWithParameter()
+        {
+            var result = this.CompileBinding("_this + arg", new [] { typeof(string) }, typeof(Func<string, string>));
+            Assert.AreEqual("function(arg){return $data+ko.unwrap(arg);}", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_LambdaWithDelegateInvocation()
+        {
+            var result = this.CompileBinding("arg(12) + _this", new [] { typeof(string) }, typeof(Func<Func<int, string>, string>));
+            Assert.AreEqual("function(arg){return ko.unwrap(arg)(12)+$data;}", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_EnumToString()
+        {
+            var result = CompileBinding("EnumProperty.ToString()", typeof(TestViewModel));
+            var resultImplicit = CompileBinding("EnumProperty", new [] { typeof(TestViewModel) }, typeof(string));
+
+            Assert.AreEqual(result, resultImplicit);
+            Assert.AreEqual("EnumProperty", result);
+        }
+
+        [TestMethod]
+        public void JsTranslator_DataContextShift()
+        {
+            var result = CompileValueBinding("_this.StringProp", new [] { typeof(TestViewModel) }, typeof(string));
+            var expr0 = JavascriptTranslator.FormatKnockoutScript(result.KnockoutExpression, dataContextLevel: 0);
+            var expr0_explicit = JavascriptTranslator.FormatKnockoutScript(result.KnockoutExpression, allowDataGlobal: false, dataContextLevel: 0);
+            var expr1 = JavascriptTranslator.FormatKnockoutScript(result.KnockoutExpression, dataContextLevel: 1);
+            var expr2 = JavascriptTranslator.FormatKnockoutScript(result.KnockoutExpression, dataContextLevel: 2);
+            Assert.AreEqual("StringProp", expr0);
+            Assert.AreEqual("$data.StringProp", expr0_explicit);
+            Assert.AreEqual("$parent.StringProp", expr1);
+            Assert.AreEqual("$parents[1].StringProp", expr2);
         }
     }
 

@@ -90,9 +90,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public bool Equals(DataContextStack stack)
         {
-            return this == stack || hashCode == stack.hashCode
+            return ReferenceEquals(this, stack) || hashCode == stack.hashCode
                 && DataContextType == stack.DataContextType
                 && NamespaceImports.SequenceEqual(stack.NamespaceImports)
+                && ExtensionParameters.SequenceEqual(stack.ExtensionParameters)
                 && Equals(Parent, stack.Parent);
         }
 
@@ -106,12 +107,15 @@ namespace DotVVM.Framework.Compilation.ControlTree
             unchecked
             {
                 var hashCode = 0;
-                if (NamespaceImports != null)
+                foreach (var import in NamespaceImports)
                 {
-                    foreach (var import in NamespaceImports)
-                    {
-                        hashCode += (hashCode * 47) ^ import.GetHashCode();
-                    }
+                    hashCode += (hashCode * 47) ^ import.GetHashCode();
+                }
+
+                foreach (var parameter in ExtensionParameters)
+                {
+                    hashCode *= 17;
+                    hashCode += parameter.GetHashCode();
                 }
 
                 hashCode = (hashCode * 397) ^ (Parent?.GetHashCode() ?? 0);

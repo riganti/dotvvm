@@ -13,6 +13,7 @@ namespace DotVVM.Framework.Controls
     public class Repeater : ItemsControl
     {
         private EmptyData emptyDataContainer;
+        private DotvvmControl clientSeparator;
 
         public Repeater(bool allowImplicitLifecycleRequirements = true)
         {
@@ -97,7 +98,11 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected internal override void OnLoad(IDotvvmRequestContext context)
         {
-            SetChildren(context);
+            if (context.IsPostBack)
+            {
+                SetChildren(context, true);
+            }
+
             base.OnLoad(context);
         }
 
@@ -106,7 +111,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
-            SetChildren(context);     // TODO: we should handle observable collection operations to persist controlstate of controls inside the Repeater
+            SetChildren(context, RenderOnServer || context.IsPostBack);     // TODO: we should handle observable collection operations to persist controlstate of controls inside the Repeater
             base.OnPreRender(context);
         }
 
@@ -152,21 +157,9 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            if (RenderOnServer)
+            foreach (var child in Children.Except(new[] { emptyDataContainer, clientSeparator }))
             {
-                // render on server
-                foreach (var child in Children.Except(new[] { emptyDataContainer }))
-                {
-                    child.Render(writer, context);
-                }
-            }
-            else
-            {
-                // render on client
-                var itemContainer = GetItem(context);
-                Children.Add(itemContainer);
-                itemContainer.Render(writer, context);
-
+                child.Render(writer, context);
             }
         }
 
@@ -182,14 +175,14 @@ namespace DotVVM.Framework.Controls
                 writer.WriteKnockoutDataBindEndComment();
             }
 
-            if (!RenderOnServer && SeparatorTemplate != null)
+            if (!RenderOnServer && clientSeparator != null)
             {
                 writer.AddAttribute("type", "text/html");
                 writer.AddAttribute("id", GetValueRaw(Internal.UniqueIDProperty) + "_separator");
                 var unique = GetValueRaw(Internal.UniqueIDProperty);
                 var id = GetValueRaw(Internal.ClientIDFragmentProperty);
                 writer.RenderBeginTag("script");
-                GetSeparator(context).Render(writer, context);
+                clientSeparator.Render(writer, context);
                 writer.RenderEndTag();
             }
 
@@ -231,6 +224,7 @@ namespace DotVVM.Framework.Controls
         private DotvvmControl GetSeparator(IDotvvmRequestContext context)
         {
             var placeholder = new PlaceHolder();
+            placeholder.SetDataContextType(this.GetDataContextType());
             SeparatorTemplate.BuildContent(context, placeholder);
             return placeholder;
         }
@@ -238,24 +232,37 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Performs the data-binding and builds the controls inside the <see cref="Repeater"/>.
         /// </summary>
-        private void SetChildren(IDotvvmRequestContext context)
+        private void SetChildren(IDotvvmRequestContext context, bool useServerTemplate)
         {
             Children.Clear();
             emptyDataContainer = null;
+            clientSeparator = null;
 
-            if (DataSource != null)
+            if (useServerTemplate)
             {
-                var itemBinding = GetItemBinding();
-                var index = 0;
-                foreach (var item in GetIEnumerableFromDataSource())
+                if (DataSource != null)
                 {
-                    if (SeparatorTemplate != null && index > 0)
+                    var itemBinding = GetItemBinding();
+                    var index = 0;
+                    foreach (var item in GetIEnumerableFromDataSource())
                     {
-                        Children.Add(GetSeparator(context));
+                        if (SeparatorTemplate != null && index > 0)
+                        {
+                            Children.Add(GetSeparator(context));
+                        }
+                        Children.Add(GetItem(context, item, index, itemBinding));
+                        index++;
                     }
-                    Children.Add(GetItem(context, item, index, itemBinding));
-                    index++;
                 }
+            }
+            else
+            {
+                if(SeparatorTemplate != null)
+                {
+                    Children.Add(clientSeparator = GetSeparator(context));
+                }
+
+                Children.Add(GetItem(context));
             }
 
             if (EmptyDataTemplate != null)

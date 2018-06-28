@@ -1,10 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DotVVM.Framework.Hosting;
-using DotVVM.Framework.ViewModel;
 using DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.TaskList;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.SpaContentPlaceHolder
@@ -17,13 +13,11 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.SpaContentPlaceH
         {
             HeaderText = "Task List";
         }
-        
 
         public void Redirect()
         {
             Context.RedirectToRoute("ControlSamples_SpaContentPlaceHolder_PageA", new { Id = 15 });
         }
-
     }
 }
 

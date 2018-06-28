@@ -9,16 +9,16 @@ namespace DotVVM.Framework.Runtime.Filters
     public interface IPageActionFilter: IActionFilter
     {
         /// <summary>
-        /// Called before page is processed.
-        /// </summary>
-        Task OnPageLoadingAsync(IDotvvmRequestContext context);
-        /// <summary>
-        /// Called after page is processed and ready to be sent to client.
-        /// </summary>
-        Task OnPageLoadedAsync(IDotvvmRequestContext context);
-        /// <summary>
         /// Called when an exception occurs during the processing of the page.
         /// </summary>
         Task OnPageExceptionAsync(IDotvvmRequestContext context, Exception exception);
+        /// <summary>
+        /// Called after page is initialized, just after the ViewModel instance is created
+        /// </summary>
+        Task OnPageInitializedAsync(IDotvvmRequestContext context);
+        /// <summary>
+        /// Called after page is rendered and ready to be sent to client.
+        /// </summary>
+        Task OnPageRenderedAsync(IDotvvmRequestContext context);
     }
 }

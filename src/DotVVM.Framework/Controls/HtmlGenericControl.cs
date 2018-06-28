@@ -51,6 +51,11 @@ namespace DotVVM.Framework.Controls
         public static DotvvmPropertyGroup CssClassesGroupDescriptor =
             DotvvmPropertyGroup.Register<bool, HtmlGenericControl>("Class-", "CssClasses");
 
+        public VirtualPropertyGroupDictionary<object> CssStyles => new VirtualPropertyGroupDictionary<object>(this, CssStylesGroupDescriptor);
+
+        public static DotvvmPropertyGroup CssStylesGroupDescriptor =
+            DotvvmPropertyGroup.Register<object, HtmlGenericControl>("Style-", nameof(CssStyles));
+
         /// <summary>
         /// Gets or sets the inner text of the HTML element.
         /// </summary>
@@ -125,6 +130,7 @@ namespace DotVVM.Framework.Controls
             {
                 AddHtmlAttributesToRender(writer);
                 AddCssClassesToRender(writer);
+                AddCssStylesToRender(writer);
                 AddVisibleAttributeOrBinding(writer);
                 AddTextPropertyToRender(writer);
             }
@@ -145,18 +151,18 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
-        /// Verifies that the control hasn't any HTML attributes or Visible or DataContext bindings set.
+        /// Verifies that the control hasn't any HTML attributes, css classes or Visible or DataContext bindings set.
         /// </summary>
         protected virtual void EnsureNoAttributesSet()
         {
-            if (Attributes.Count > 0 || CssClasses.Count > 0 || !true.Equals(GetValueRaw(VisibleProperty)) || HasBinding(DataContextProperty))
+            if (Attributes.Count > 0 || CssClasses.Count > 0 || CssStyles.Count > 0 || !true.Equals(GetValueRaw(VisibleProperty)) || HasBinding(DataContextProperty))
             {
                 throw new DotvvmControlException(this, "Cannot set HTML attributes, Visible, ID, Postback.Update, ... bindings on a control which does not render its own element!");
             }
         }
 
         /// <summary>
-        /// Renders the control begin tag.
+        /// Renders the control begin tag if <see cref="RendersHtmlTag" /> == true.
         /// </summary>
         protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
@@ -167,10 +173,16 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
-        /// Renders the control end tag.
+        /// Renders the control end tag if <see cref="RendersHtmlTag" /> == true. Also renders required resource i before the end tag, if it is a `head` or `body` element
         /// </summary>
         protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
+            // render resource link. If the Render is onvoked multiple times the resources are rendered on the first invocation.
+            if (TagName == "head")
+                new HeadResourceLinks().Render(writer, context);
+            else if (TagName == "body")
+                new BodyResourceLinks().Render(writer, context);
+
             if (RendersHtmlTag)
             {
                 writer.RenderEndTag();
@@ -196,10 +208,49 @@ namespace DotVVM.Framework.Controls
             KnockoutBindingGroup cssClassBindingGroup = null;
             foreach (var cssClass in CssClasses.Properties)
             {
-                if (cssClassBindingGroup == null) cssClassBindingGroup = new KnockoutBindingGroup();
-                cssClassBindingGroup.Add(cssClass.GroupMemberName, this, cssClass, null);
+                if (HasValueBinding(cssClass))
+                {
+                    if (cssClassBindingGroup == null) cssClassBindingGroup = new KnockoutBindingGroup();
+                    cssClassBindingGroup.Add(cssClass.GroupMemberName, this, cssClass);
+                }
+
+                try
+                {
+                    if (true.Equals(this.GetValue(cssClass)))
+                        writer.AddAttribute("class", cssClass.GroupMemberName, append: true, appendSeparator: " ");
+                }
+                catch { }
             }
+
             if (cssClassBindingGroup != null) writer.AddKnockoutDataBind("css", cssClassBindingGroup);
+        }
+
+        private void AddCssStylesToRender(IHtmlWriter writer)
+        {
+            KnockoutBindingGroup cssStylesBindingGroup = null;
+            foreach (var styleProperty in CssStyles.Properties)
+            {
+                if (HasValueBinding(styleProperty))
+                {
+                    if (cssStylesBindingGroup == null) cssStylesBindingGroup = new KnockoutBindingGroup();
+                    cssStylesBindingGroup.Add(styleProperty.GroupMemberName, this, styleProperty);
+                }
+
+                try
+                {
+                    var value = GetValue(styleProperty)?.ToString();
+                    if (!string.IsNullOrEmpty(value))
+                    {
+                        writer.AddStyleAttribute(styleProperty.GroupMemberName, value);
+                    }
+                }
+                catch { }
+            }
+
+            if (cssStylesBindingGroup != null)
+            {
+                writer.AddKnockoutDataBind("style", cssStylesBindingGroup);
+            }
         }
 
         private void AddHtmlAttribute(IHtmlWriter writer, string name, object value)
@@ -244,16 +295,18 @@ namespace DotVVM.Framework.Controls
 
         private void AddTextPropertyToRender(IHtmlWriter writer)
         {
-            writer.AddKnockoutDataBind("text", this, InnerTextProperty, () =>
+            var expression = GetValueBinding(InnerTextProperty);
+            if (expression != null)
             {
-                // inner Text is rendered as attribute only if contains binding
-                // otherwise it is rendered directly as encoded content
-                if (!string.IsNullOrWhiteSpace(InnerText))
-                {
-                    Children.Clear();
-                    Children.Add(new Literal(InnerText));
-                }
-            }, renderEvenInServerRenderingMode: true);
+                writer.AddKnockoutDataBind("text", expression.GetKnockoutBindingExpression(this));
+            }
+
+            if ((expression == null && !string.IsNullOrWhiteSpace(InnerText))
+                || (RenderOnServer && InnerText != null))
+            {
+                Children.Clear();
+                Children.Add(new Literal(InnerText));
+            }
         }
 
         /// <summary>

@@ -6,10 +6,10 @@ using DotVVM.Framework.Utils;
 namespace DotVVM.Framework.Runtime.Filters
 {
     /// <summary>
-    /// Allows to add custom logic before and after a command is executed on a ViewModel.
+    /// Allows to add custom logic into different phases of a request processing, e.g.: before and after a command is executed on a ViewModel.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true)]
-    public abstract class ActionFilterAttribute : Attribute, IPageActionFilter, ICommandActionFilter, IViewModelActionFilter
+    public abstract class ActionFilterAttribute : Attribute, IPageActionFilter, ICommandActionFilter, IViewModelActionFilter, IPresenterActionFilter
     {
         /// <summary>
         /// Called after the viewmodel object is created.
@@ -47,17 +47,29 @@ namespace DotVVM.Framework.Runtime.Filters
         protected internal virtual Task OnPageExceptionAsync(IDotvvmRequestContext context, Exception exception)
             => TaskUtils.GetCompletedTask();
 
-        /// <summary>
-        /// Called before page is processed.
-        /// </summary>
-        protected internal virtual Task OnPageLoadingAsync(IDotvvmRequestContext context)
+        /// <inheritdoc cref="IPresenterActionFilter.OnPresenterExecutingAsync"/>
+        protected internal virtual Task OnPresenterExecutingAsync(IDotvvmRequestContext context)
             => TaskUtils.GetCompletedTask();
 
-        /// <summary>
-        /// Called after page is processed and ready to be sent to client.
-        /// </summary>
-        protected internal virtual Task OnPageLoadedAsync(IDotvvmRequestContext context)
+        /// <inheritdoc cref="IPresenterActionFilter.OnPresenterExecutedAsync"/>
+        protected internal virtual Task OnPresenterExecutedAsync(IDotvvmRequestContext context)
             => TaskUtils.GetCompletedTask();
+
+        /// <inheritdoc cref="IPresenterActionFilter.OnPresenterExceptionAsync"/>
+        protected internal virtual Task OnPresenterExceptionAsync(IDotvvmRequestContext context, Exception exception)
+            => TaskUtils.GetCompletedTask();
+
+        /// <inheritdoc cref="IPageActionFilter.OnPageInitializedAsync"/>
+        protected internal virtual Task OnPageInitializedAsync(IDotvvmRequestContext context)
+            => TaskUtils.GetCompletedTask();
+
+        /// <inheritdoc cref="IPageActionFilter.OnPageRenderedAsync"/>
+        protected internal virtual Task OnPageRenderedAsync(IDotvvmRequestContext context)
+            => TaskUtils.GetCompletedTask();
+
+        Task IPresenterActionFilter.OnPresenterExceptionAsync(IDotvvmRequestContext context, Exception exception) => OnPresenterExceptionAsync(context, exception);
+        Task IPresenterActionFilter.OnPresenterExecutingAsync(IDotvvmRequestContext context) => OnPresenterExecutingAsync(context);
+        Task IPresenterActionFilter.OnPresenterExecutedAsync(IDotvvmRequestContext context) => OnPresenterExecutedAsync(context);
 
         Task IPageActionFilter.OnPageExceptionAsync(IDotvvmRequestContext context, Exception exception) => OnPageExceptionAsync(context, exception);
         Task ICommandActionFilter.OnCommandExecutingAsync(IDotvvmRequestContext context, ActionInfo actionInfo) => OnCommandExecutingAsync(context, actionInfo);
@@ -65,7 +77,7 @@ namespace DotVVM.Framework.Runtime.Filters
         Task IViewModelActionFilter.OnViewModelCreatedAsync(IDotvvmRequestContext context) => OnViewModelCreatedAsync(context);
         Task IViewModelActionFilter.OnViewModelDeserializedAsync(IDotvvmRequestContext context) => OnViewModelDeserializedAsync(context);
         Task IViewModelActionFilter.OnViewModelSerializingAsync(IDotvvmRequestContext context) => OnViewModelSerializingAsync(context);
-        Task IPageActionFilter.OnPageLoadingAsync(IDotvvmRequestContext context) => OnPageLoadingAsync(context);
-        Task IPageActionFilter.OnPageLoadedAsync(IDotvvmRequestContext context) => OnPageLoadedAsync(context);
+        Task IPageActionFilter.OnPageInitializedAsync(IDotvvmRequestContext context) => OnPageInitializedAsync(context);
+        Task IPageActionFilter.OnPageRenderedAsync(IDotvvmRequestContext context) => OnPageRenderedAsync(context);
     }
 }

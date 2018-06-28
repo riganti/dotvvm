@@ -11,8 +11,6 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     public class RouteLink : HtmlGenericControl
     {
-
-
         /// <summary>
         /// Gets or sets the name of the route in the route table.
         /// </summary>
@@ -75,12 +73,12 @@ namespace DotVVM.Framework.Controls
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             RouteLinkHelpers.WriteRouteLinkHrefAttribute(this, writer, context);
-           
+
             writer.AddKnockoutDataBind("text", this, TextProperty, () =>
             {
                 shouldRenderText = true;
             });
-            
+
             var enabledBinding = GetValueRaw(EnabledProperty);
 
             if (enabledBinding is bool)
@@ -92,19 +90,19 @@ namespace DotVVM.Framework.Controls
                 WriteEnabledBinding(writer, (IValueBinding) enabledBinding);
             }
 
+            WriteOnClickAttribute(writer, context);
+
             base.AddAttributesToRender(writer, context);
         }
 
         protected virtual void WriteEnabledBinding(IHtmlWriter writer, bool binding)
         {
             writer.AddKnockoutDataBind("dotvvmEnable", binding.ToString().ToLower());
-            writer.AddAttribute("onclick", "return !this.hasAttribute('disabled');");
         }
 
         protected virtual void WriteEnabledBinding(IHtmlWriter writer, IValueBinding binding)
         {
             writer.AddKnockoutDataBind("dotvvmEnable", binding.GetKnockoutBindingExpression(this));
-            writer.AddAttribute("onclick", "return !this.hasAttribute('disabled');");
         }
 
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
@@ -119,6 +117,18 @@ namespace DotVVM.Framework.Controls
                 {
                     writer.WriteText(Text);
                 }
+            }
+        }
+
+        protected virtual void WriteOnClickAttribute(IHtmlWriter writer, IDotvvmRequestContext context)
+        {
+            if ((bool)GetValue(Internal.IsSpaPageProperty) && (bool)GetValue(Internal.UseHistoryApiSpaNavigationProperty))
+            {
+                writer.AddAttribute("onclick", "return !this.hasAttribute('disabled') && dotvvm.handleSpaNavigation(this);");
+            }
+            else
+            {
+                writer.AddAttribute("onclick", "return !this.hasAttribute('disabled');");
             }
         }
     }

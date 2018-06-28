@@ -67,9 +67,10 @@ namespace DotVVM.Framework.Binding
             var changes = 0;
             foreach (var a in control.GetAllAncestors(incudingThis: true))
             {
-                if (a.properties.ContainsKey(DotvvmBindableObject.DataContextProperty)) changes++;
                 if (bindingContext.Equals(a.GetValue(Internal.DataContextTypeProperty, inherit: false)))
                     return (changes, a);
+
+                if (a.properties.ContainsKey(DotvvmBindableObject.DataContextProperty)) changes++;
             }
 
             throw new NotSupportedException($"Could not find DataContextSpace of binding '{binding}'.");
@@ -302,9 +303,16 @@ namespace DotVVM.Framework.Binding
 
         public static DataContextStack GetDataContextType(this DotvvmProperty property, DotvvmBindableObject obj)
         {
-            if (obj.HasBinding(property))
+            var propertyBinding = obj.GetBinding(property);
+
+            if (propertyBinding != null)
             {
-                return obj.GetBinding(property).GetProperty<DataContextStack>();
+                var propertyValue = propertyBinding.GetProperty(typeof(DataContextStack), ErrorHandlingMode.ReturnException);
+
+                if(propertyValue == null || propertyValue is DataContextStack)
+                {
+                    return (DataContextStack)propertyValue;
+                }
             }
 
             var dataContextType = obj.GetDataContextType();

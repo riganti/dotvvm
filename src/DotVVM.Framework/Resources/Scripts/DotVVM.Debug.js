@@ -14,7 +14,7 @@
     document.body.appendChild(debugWindow);
 
     var notificationWindow = parser.parseFromString("<div id='debugNotification'></div>", "text/html").querySelector("#debugNotification");
-    // notificationWindow.style.display = "none";
+    notificationWindow.style.display = "none";
     notificationWindow.style.zIndex = 2147483647;
     notificationWindow.style.position = "fixed";
     notificationWindow.style.top = "0px";
@@ -23,8 +23,7 @@
     notificationWindow.style.color = "white";
     notificationWindow.style.fontSize = "1.0em";
     notificationWindow.style.width = "400px";
-    notificationWindow.style.padding =  "20px";
-    notificationWindow.style.opacity = 0;
+    notificationWindow.style.padding = "20px";
     document.body.appendChild(notificationWindow);
 
     notificationWindow.addEventListener("click", function() {

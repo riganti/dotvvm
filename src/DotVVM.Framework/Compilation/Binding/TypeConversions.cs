@@ -4,6 +4,12 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using DotVVM.Framework.Utils;
 using System.Reflection;
+using System.Threading.Tasks;
+using System.Linq;
+using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.Javascript.Ast;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Binding;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
@@ -172,13 +178,24 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public static Expression ToStringConversion(Expression src)
         {
-			if (!IsStringConversionAllowed(src.Type)) return null;
+            var toStringMethod = src.Type.GetTypeInfo().GetMethod("ToString", Type.EmptyTypes);
+            if (toStringMethod?.DeclaringType == typeof(object))
+                toStringMethod = null;
+            // is the conversion allowed?
+            // IConvertibles, types that override ToString (primitive types do)
+            if (!(toStringMethod != null || typeof(IConvertible).IsAssignableFrom(src.Type)))
+                return null;
             if (src.NodeType == ExpressionType.Constant)
             {
                 var constant = (ConstantExpression)src;
-                return Expression.Constant(System.Convert.ToString(constant.Value), typeof(string));
+                return Expression.Constant(
+                    toStringMethod != null ? toStringMethod.Invoke(constant.Value, new object[0]) : System.Convert.ToString(constant.Value),
+                    typeof(string));
             }
-            else return Expression.Call(typeof(Convert), "ToString", Type.EmptyTypes, Expression.Convert(src, typeof(object)));
+            else if (toStringMethod != null)
+                return Expression.Call(src, toStringMethod);
+            else
+                return Expression.Call(typeof(Convert), "ToString", Type.EmptyTypes, Expression.Convert(src, typeof(object)));
         }
 
         // 6.1.9 Implicit constant expression conversions
@@ -322,6 +339,97 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
             }
             return null;
+        }
+
+        /// This is a strange conversion that wraps the entire expression into a Lambda
+        /// and makes an invokable delegate from a normal expression.
+        /// It also replaces special ExtensionParameters attached to the expression for lambda parameters
+        public static Expression MagicLambdaConversion(Expression expr, Type expectedType)
+        {
+            if (expectedType.IsDelegate())
+            {
+                var resultType = expectedType.GetMethod("Invoke").ReturnType;
+                var delegateArgs = expectedType
+                                      .GetMethod("Invoke")
+                                      .GetParameters()
+                                      .Select(p => Expression.Parameter(p.ParameterType, p.Name))
+                                      .ToArray();
+
+                var convertedToResult = TypeConversion.ImplicitConversion(expr, resultType) ?? TaskConversion(expr, resultType);
+                // TODO: convert delegates to another delegates
+
+                if (convertedToResult == null)
+                    return null;
+                else
+                {
+                    var replacedArgs = convertedToResult.ReplaceAll(arg =>
+                        arg?.GetParameterAnnotation()?.ExtensionParameter is MagicLambdaConversionExtensionParameter extensionParam ?
+                            delegateArgs.Single(a => a.Name == extensionParam.Identifier)
+                            .Assert(p => p.Type == ResolvedTypeDescriptor.ToSystemType(extensionParam.ParameterType)) :
+                        arg
+                    );
+                    return Expression.Lambda(
+                        expectedType,
+                        replacedArgs,
+                        delegateArgs
+                    );
+                }
+            }
+            else
+                return null;
+        }
+
+        public class MagicLambdaConversionExtensionParameter : BindingExtensionParameter
+        {
+            public int ArgumentIndex { get; }
+            public MagicLambdaConversionExtensionParameter(int argumentIndex, string identifier, Type type) : base(identifier, new ResolvedTypeDescriptor(type), inherit: false)
+            {
+                ArgumentIndex = argumentIndex;
+            }
+
+            public override JsExpression GetJsTranslation(JsExpression dataContext) =>
+                // although it is translated as commandArgs reference in staticCommand this conversion could cause significantly less readable error message in other contexts
+                throw Error();
+
+            private Exception Error() =>
+                new Exception($"The delegate parameter '{this.Identifier}' was not resolved - seems that the expression wasn't wrapped in lambda");
+
+            public override Expression GetServerEquivalent(Expression controlParameter) => throw Error();
+        }
+
+        private static Type GetTaskType(Type taskType)
+            => taskType.GetProperty("Result")?.PropertyType ?? typeof(void);
+
+        /// Performs conversions by wrapping or unwrapping results to/from <see cref="Task" />
+        public static Expression TaskConversion(Expression expr, Type expectedType)
+        {
+            if (typeof(Task).IsAssignableFrom(expectedType))
+            {
+                if (!typeof(Task).IsAssignableFrom(expr.Type))
+                {
+                    // return dummy completed task
+                    if (expectedType == typeof(Task))
+                    {
+                        return Expression.Block(expr, Expression.Call(typeof(TaskUtils), "GetCompletedTask", Type.EmptyTypes));
+                    }
+                    else if (expectedType.GetGenericTypeDefinition() == typeof(Task<>))
+                    {
+                        var taskType = GetTaskType(expectedType);
+                        var converted = TypeConversion.ImplicitConversion(expr, taskType);
+                        if (converted != null)
+                            return Expression.Call(typeof(Task), "FromResult", new Type[] { taskType }, converted);
+                        else
+                            return null;
+                    }
+                    else
+                        return null;
+                }
+                else
+                    return null;
+                // TODO: convert Task<> to another Task<>
+            }
+            else
+                return null;
         }
 
         static TypeConversion()

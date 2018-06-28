@@ -23,6 +23,7 @@ using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Runtime.Tracing;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Security;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -113,15 +114,15 @@ namespace DotVVM.Framework.Hosting
             context.ViewModel = ViewModelLoader.InitializeViewModel(context, page);
 
             // get action filters
-            var viewModelFilters = ActionFilterHelper.GetActionFilters<IViewModelActionFilter>(context.ViewModel.GetType().GetTypeInfo());
-            viewModelFilters.AddRange(context.Configuration.Runtime.GlobalFilters.OfType<IViewModelActionFilter>());
+            var viewModelFilters = ActionFilterHelper.GetActionFilters<IViewModelActionFilter>(context.ViewModel.GetType().GetTypeInfo())
+                .Concat(context.Configuration.Runtime.GlobalFilters.OfType<IViewModelActionFilter>());
 
-            var requestFilters = ActionFilterHelper.GetActionFilters<IPageActionFilter>(context.ViewModel.GetType().GetTypeInfo());
-            requestFilters.AddRange(context.Configuration.Runtime.GlobalFilters.OfType<IPageActionFilter>());
+            var requestFilters = ActionFilterHelper.GetActionFilters<IPageActionFilter>(context.ViewModel.GetType().GetTypeInfo())
+                .Concat(context.Configuration.Runtime.GlobalFilters.OfType<IPageActionFilter>());
 
             foreach (var f in requestFilters)
             {
-                await f.OnPageLoadingAsync(context);
+                await f.OnPageInitializedAsync(context);
             }
             try
             {
@@ -188,8 +189,15 @@ namespace DotVVM.Framework.Hosting
                     }
                     await requestTracer.TraceEvent(RequestTracingConstants.ViewModelDeserialized, context);
 
-                    // validate CSRF token 
-                    CsrfProtector.VerifyToken(context, context.CsrfToken);
+                    // validate CSRF token
+                    try
+                    {
+                        CsrfProtector.VerifyToken(context, context.CsrfToken);
+                    }
+                    catch (SecurityException exc)
+                    {
+                        await context.InterruptRequestAsync(HttpStatusCode.BadRequest, exc.Message);
+                    }
 
                     if (context.ViewModel is IDotvvmViewModel)
                     {
@@ -255,7 +263,7 @@ namespace DotVVM.Framework.Hosting
                 }
                 await requestTracer.TraceEvent(RequestTracingConstants.OutputRendered, context);
 
-                foreach (var f in requestFilters) await f.OnPageLoadedAsync(context);
+                foreach (var f in requestFilters) await f.OnPageRenderedAsync(context);
             }
             catch (DotvvmInterruptRequestExecutionException) { throw; }
             catch (DotvvmHttpException) { throw; }
@@ -325,11 +333,8 @@ namespace DotVVM.Framework.Hosting
 
             var result = await ExecuteCommand(actionInfo, context, filters);
 
-            using (var writer = new StreamWriter(context.HttpContext.Response.Body))
-            {
-                var json = ViewModelSerializer.BuildStaticCommandResponse(context, result);
-                writer.WriteLine(json);
-            }
+            await OutputRenderer.WriteStaticCommandResponse(context,
+                ViewModelSerializer.BuildStaticCommandResponse(context, result));
         }
 
         protected async Task<object> ExecuteCommand(ActionInfo action, IDotvvmRequestContext context, IEnumerable<ICommandActionFilter> methodFilters)

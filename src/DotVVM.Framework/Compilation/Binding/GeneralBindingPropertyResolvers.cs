@@ -55,8 +55,17 @@ namespace DotVVM.Framework.Compilation.Binding
             return Expression.Lambda<BindingDelegate>(expr, BindingCompiler.ViewModelsParameter, BindingCompiler.CurrentControlParameter);
         }
 
-        public CastedExpressionBindingProperty ConvertExpressionToType(ParsedExpressionBindingProperty expr, ExpectedTypeBindingProperty expectedType = null) =>
-            new CastedExpressionBindingProperty(TypeConversion.ImplicitConversion(expr.Expression, expectedType?.Type ?? typeof(object), throwException: true, allowToString: true));
+        public CastedExpressionBindingProperty ConvertExpressionToType(ParsedExpressionBindingProperty expr, ExpectedTypeBindingProperty expectedType = null)
+        {
+            var destType = expectedType?.Type ?? typeof(object);
+            var convertedExpr = TypeConversion.ImplicitConversion(expr.Expression, destType, throwException: false, allowToString: true);
+            return new CastedExpressionBindingProperty(
+                // if the expression is of type object (i.e. null literal) try the lambda conversion.
+                convertedExpr != null && expr.Expression.Type != typeof(object) ? convertedExpr :
+                TypeConversion.MagicLambdaConversion(expr.Expression, destType) ??
+                TypeConversion.ImplicitConversion(expr.Expression, destType, throwException: true, allowToString: true)
+            );
+        }
 
         public Expression<BindingUpdateDelegate> CompileToUpdateDelegate(ParsedExpressionBindingProperty binding, DataContextStack dataContext)
         {
@@ -77,13 +86,17 @@ namespace DotVVM.Framework.Compilation.Binding
             return new BindingParserOptions(binding.GetType());
         }
 
-        public ParsedExpressionBindingProperty GetExpression(OriginalStringBindingProperty originalString, DataContextStack dataContext, BindingParserOptions options)
+        public ParsedExpressionBindingProperty GetExpression(OriginalStringBindingProperty originalString, DataContextStack dataContext, BindingParserOptions options, ExpectedTypeBindingProperty expectedType = null)
         {
-            var expr = bindingParser.Parse(originalString.Code, dataContext, options);
-            return new ParsedExpressionBindingProperty(expr.Reduce());
+            var expr = bindingParser.ParseWithLambdaConversion(originalString.Code, dataContext, options, expectedType?.Type ?? typeof(object));
+            if (expr is StaticClassIdentifierExpression)
+                throw new Exception($"'{originalString.Code}' is a static class reference, not a valid expression.");
+            else if (expr is UnknownStaticClassIdentifierExpression)
+                expr = expr.Reduce();
+            return new ParsedExpressionBindingProperty(expr);
         }
 
-        public KnockoutJsExpressionBindingProperty CompileToJavascript(ParsedExpressionBindingProperty expression,
+        public KnockoutJsExpressionBindingProperty CompileToJavascript(CastedExpressionBindingProperty expression,
             DataContextStack dataContext)
         {
             return new KnockoutJsExpressionBindingProperty(
@@ -159,8 +172,6 @@ namespace DotVVM.Framework.Compilation.Binding
                 .Aggregate((a, b) => a.ApplySecond(b));
         }
 
-        public BindingDelegate Compile(Expression<BindingDelegate> expr) => expr.Compile();
-        public BindingUpdateDelegate Compile(Expression<BindingUpdateDelegate> expr) => expr.Compile();
 
         private ConditionalWeakTable<ResolvedTreeRoot, ConcurrentDictionary<DataContextStack, int>> bindingCounts = new ConditionalWeakTable<ResolvedTreeRoot, ConcurrentDictionary<DataContextStack, int>>();
 
@@ -317,7 +328,7 @@ namespace DotVVM.Framework.Compilation.Binding
             return new SelectorItemBindingProperty(binding.DeriveBinding(
                 dataContext.Parent,
                 Expression.Lambda(expression.Expression.ReplaceAll(e =>
-                    e.GetParameterAnnotation() is BindingParameterAnnotation annotation &&
+                        e?.GetParameterAnnotation() is BindingParameterAnnotation annotation &&
                         annotation.DataContext == dataContext &&
                         annotation.ExtensionParameter == null ?
                    argument :

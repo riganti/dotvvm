@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
@@ -8,6 +9,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.HelperNamespace;
+using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Javascript.Ast;
@@ -110,28 +112,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 new GenericMethodCompiler(args => new JsBinaryExpression(args[0], BinaryOperatorType.NotEqual, new JsLiteral(null))));
             //AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Count), lengthMethod, new[] { typeof(IEnumerable) });
 
-            AddMethodTranslator(typeof(Api), nameof(Api.RefreshOnChange),
-                new GenericMethodCompiler(a =>
-                    new JsIdentifierExpression("dotvvm").Member("apiRefreshOn").Invoke(
-                        a[1].WithAnnotation(ShouldBeObservableAnnotation.Instance),
-                        a[2].EnsureObservableWrapped())
-                        .WithAnnotation(a[1].Annotation<ResultIsObservableAnnotation>())
-                        .WithAnnotation(a[1].Annotation<ViewModelInfoAnnotation>())
-                        .WithAnnotation(a[1].Annotation<MayBeNullAnnotation>())
-                ));
-            AddMethodTranslator(typeof(Api), nameof(Api.RefreshOnEvent),
-                new GenericMethodCompiler(a =>
-                    new JsIdentifierExpression("dotvvm").Member("apiRefreshOn").Invoke(
-                        a[1].WithAnnotation(ShouldBeObservableAnnotation.Instance),
-                        new JsIdentifierExpression("dotvvm").Member("eventHub").Member("get").Invoke(a[2]))
-                    .WithAnnotation(a[1].Annotation<ResultIsObservableAnnotation>())
-                    .WithAnnotation(a[1].Annotation<ViewModelInfoAnnotation>())
-                    .WithAnnotation(a[1].Annotation<MayBeNullAnnotation>())
-                ));
-            AddMethodTranslator(typeof(Api), nameof(Api.PushEvent),
-                new GenericMethodCompiler(a =>
-                    new JsIdentifierExpression("dotvvm").Member("eventHub").Member("notify").Invoke(a[1])
-                ));
+            BindingApi.RegisterJavascriptTranslations(this);
             BindingPageInfo.RegisterJavascriptTranslations(this);
             BindingCollectionInfo.RegisterJavascriptTranslations(this);
 
@@ -147,29 +128,38 @@ namespace DotVVM.Framework.Compilation.Javascript
                 args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("format").Invoke(args[1], args[2])
             ));
             AddMethodTranslator(typeof(DateTime).GetMethod("ToString", Type.EmptyTypes), new GenericMethodCompiler(
-                args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingDateToString").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))
+                args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingDateToString")
+                        .WithAnnotation(new RequiredRuntimeResourcesBindingProperty(ImmutableArray.Create("globalize")))
+                        .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))
             ));
             AddMethodTranslator(typeof(DateTime).GetMethod("ToString", new[] { typeof(string) }), new GenericMethodCompiler(
-                args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingDateToString").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])
+                args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingDateToString")
+                        .WithAnnotation(new RequiredRuntimeResourcesBindingProperty(ImmutableArray.Create("globalize")))
+                        .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])
             ));
             AddMethodTranslator(typeof(DateTime?).GetMethod("ToString", Type.EmptyTypes), new GenericMethodCompiler(
-                args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingDateToString").Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))
+                args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingDateToString")
+                        .WithAnnotation(new RequiredRuntimeResourcesBindingProperty(ImmutableArray.Create("globalize")))
+                        .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))
             ));
 
             foreach (var num in ReflectionUtils.NumericTypes.Except(new[] { typeof(char) }))
             {
                 AddMethodTranslator(num.GetMethod("ToString", Type.EmptyTypes), new GenericMethodCompiler(
                     args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingNumberToString")
+                            .WithAnnotation(new RequiredRuntimeResourcesBindingProperty(ImmutableArray.Create("globalize")))
                             .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))
                             .WithAnnotation(ResultIsObservableAnnotation.Instance)
                 ));
                 AddMethodTranslator(num.GetMethod("ToString", new[] { typeof(string) }), new GenericMethodCompiler(
                     args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingNumberToString")
+                            .WithAnnotation(new RequiredRuntimeResourcesBindingProperty(ImmutableArray.Create("globalize")))
                             .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance), args[1])
                             .WithAnnotation(ResultIsObservableAnnotation.Instance)
                 ));
                 AddMethodTranslator(typeof(Nullable<>).MakeGenericType(num).GetMethod("ToString", Type.EmptyTypes), new GenericMethodCompiler(
                     args => new JsIdentifierExpression("dotvvm").Member("globalize").Member("bindingNumberToString")
+                        .WithAnnotation(new RequiredRuntimeResourcesBindingProperty(ImmutableArray.Create("globalize")))
                         .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))
                         .WithAnnotation(ResultIsObservableAnnotation.Instance)
                 ));

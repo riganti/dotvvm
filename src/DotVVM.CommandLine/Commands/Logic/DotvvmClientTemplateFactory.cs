@@ -12,7 +12,6 @@ namespace DotVVM.CommandLine.Commands.Logic
     {
         public DotvvmClientTemplateFactory(CodeGeneratorSettingsBase settings, Assembly[] assemblies) : base(settings, assemblies)
         {
-            
         }
 
         protected override string GetEmbeddedLiquidTemplate(string language, string template)

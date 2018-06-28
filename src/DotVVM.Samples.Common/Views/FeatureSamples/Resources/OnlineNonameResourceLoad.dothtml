@@ -11,5 +11,10 @@
 		<dot:Button Text="Alert" Click="{command: Alert()}" />
 
 	</div>
+	<dot:BodyResourceLinks />
+	<script>
+		if (!window.dotvvm)
+			alert("DotVVM scripts were not loaded before this one ;(");
+	</script>
 </body>
 </html>

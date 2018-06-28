@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.HelperNamespace;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
@@ -29,6 +30,15 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public abstract Expression GetServerEquivalent(Expression controlParameter);
         public abstract JsExpression GetJsTranslation(JsExpression dataContext);
+
+        public override bool Equals(object obj) =>
+            obj is BindingExtensionParameter other && Equals(other);
+
+        public bool Equals(BindingExtensionParameter other) =>
+            string.Equals(Identifier, other.Identifier) && Inherit == other.Inherit && ParameterType.IsEqualTo(other.ParameterType);
+
+        public override int GetHashCode() =>
+            unchecked(((Identifier?.GetHashCode() ?? 0) * 397) ^ (Inherit.GetHashCode() * 17) + ParameterType.FullName.GetHashCode());
     }
 
     public class CurrentMarkupControlExtensionParameter : BindingExtensionParameter
@@ -46,6 +56,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
         {
             return dataContext.Member("$control").WithAnnotation(new ViewModelInfoAnnotation(ResolvedTypeDescriptor.ToSystemType(this.ParameterType), isControl: true));
         }
+
+        public static CurrentMarkupControlExtensionParameter refserializer_create(ITypeDescriptor parameterType) => new CurrentMarkupControlExtensionParameter(parameterType);
     }
 
     public class CurrentCollectionIndexExtensionParameter : BindingExtensionParameter
@@ -103,7 +115,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         }
     }
 
-    public class InjectedServiceExtensionParameter: BindingExtensionParameter
+    public class InjectedServiceExtensionParameter : BindingExtensionParameter
     {
         public InjectedServiceExtensionParameter(string identifier, ITypeDescriptor type)
             : base(identifier, type, inherit: true) { }
@@ -117,7 +129,25 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public override JsExpression GetJsTranslation(JsExpression dataContext)
         {
-            throw new InvalidOperationException($"Can't use injected services in javascript-translated bindings");
-        } 
+            throw new InvalidOperationException($"Can't use injected services in javascript-translated bindings.");
+        }
+    }
+
+    public class BindingApiExtensionParameter : BindingExtensionParameter
+    {
+        public BindingApiExtensionParameter() : base("_api", new ResolvedTypeDescriptor(typeof(BindingApi)), true)
+        {
+
+        }
+
+        public override Expression GetServerEquivalent(Expression controlParameter)
+        {
+            return Expression.New(typeof(BindingApi));
+        }
+
+        public override JsExpression GetJsTranslation(JsExpression dataContext)
+        {
+            return new JsObjectExpression();
+        }
     }
 }

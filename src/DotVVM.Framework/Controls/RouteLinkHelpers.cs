@@ -17,13 +17,18 @@ namespace DotVVM.Framework.Controls
     {
         public static void WriteRouteLinkHrefAttribute(RouteLink control, IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            if (!control.RenderOnServer)
+            // Render client-side knockout expression only if there exists a parameter with value binding
+            var containsBinding = control.Params.RawValues.Any(p => p.Value is IValueBinding)
+                || control.GetValueRaw(RouteLink.UrlSuffixProperty) is IValueBinding;
+
+            if (containsBinding)
             {
                 var group = new KnockoutBindingGroup();
                 group.Add("href", GenerateKnockoutHrefExpression(control.RouteName, control, context));
                 writer.AddKnockoutDataBind("attr", group);
             }
-            else
+
+            if (control.RenderOnServer || !containsBinding)
             {
                 writer.AddAttribute("href", EvaluateRouteUrl(control.RouteName, control, context));
             }
@@ -34,7 +39,7 @@ namespace DotVVM.Framework.Controls
             var urlSuffix = GenerateUrlSuffixCore(control.GetValue(RouteLink.UrlSuffixProperty) as string, control);
             var coreUrl = GenerateRouteUrlCore(routeName, control, context) + urlSuffix;
 
-            if ((bool)control.GetValue(Internal.IsSpaPageProperty))
+            if ((bool)control.GetValue(Internal.IsSpaPageProperty) && !(bool)control.GetValue(Internal.UseHistoryApiSpaNavigationProperty))
             {
                 return "#!/" + (coreUrl.StartsWith("~/") ? coreUrl.Substring(2) : coreUrl);
             }
@@ -76,7 +81,7 @@ namespace DotVVM.Framework.Controls
             var link = GenerateRouteLinkCore(routeName, control, context);
 
             var urlSuffix = GetUrlSuffixExpression(control);
-            if ((bool)control.GetValue(Internal.IsSpaPageProperty))
+            if ((bool)control.GetValue(Internal.IsSpaPageProperty) && !context.Configuration.UseHistoryApiSpaNavigation)
             {
                 return $"'#!/' + {link}{(urlSuffix == null ? "" : " + " + urlSuffix)}";
             }

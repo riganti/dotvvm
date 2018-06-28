@@ -28,15 +28,9 @@ namespace DotVVM.Samples.Tests.New.Feature
             });
         }
 
-        public static IEnumerable<object[]> ValidationSummaryData =>
-            new[]
-            {
-                new object[] { SamplesRouteUrls.ControlSamples_ValidationSummary_IncludeErrorsFromTarget_PropertyPathNull },
-                new object[] { SamplesRouteUrls.ControlSamples_ValidationSummary_IncludeErrorsFromTarget_PropertyPathNotNull},
-            };
-
         [Theory]
-        [MemberData(nameof(ValidationSummaryData))]
+        [InlineData(SamplesRouteUrls.ControlSamples_ValidationSummary_IncludeErrorsFromTarget_PropertyPathNull)]
+        [InlineData(SamplesRouteUrls.ControlSamples_ValidationSummary_IncludeErrorsFromTarget_PropertyPathNotNull)]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_ValidationSummary_IncludeErrorsFromTarget_PropertyPathNull))]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_ValidationSummary_IncludeErrorsFromTarget_PropertyPathNotNull))]
         public void Control_ValidationSummary_IncludeErrorsFromTarget(string url)

@@ -117,6 +117,18 @@ namespace DotVVM.Framework.Tests.Runtime
         }
 
         [TestMethod]
+        public void BindingGroup_MultipleBindings_InProperOrder()
+        {
+            var textbox = new OrderedDataBindTextBox();
+            textbox.SetBinding(TextBox.TextProperty,
+                ValueBindingExpression.CreateThisBinding<string>(configuration.ServiceProvider.GetRequiredService<BindingCompilationService>(), null));
+
+            var html = InvokeLifecycleAndRender(textbox, CreateContext(string.Empty));
+
+            StringAssert.Contains(html.Replace(" ", ""), "data-bind=\"first:true,value:$rawData,second:true\"");
+        }
+
+        [TestMethod]
         public void MarkupControl_NoWrapperTagDirective()
         {
             var viewModel = new string[] { };
@@ -207,6 +219,18 @@ namespace DotVVM.Framework.Tests.Runtime
                     }
                 }
             }, CreateContext(viewModel));
+        }
+
+        public class OrderedDataBindTextBox : TextBox
+        {
+            protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
+            {
+                writer.AddKnockoutDataBind("first", "true");
+
+                base.AddAttributesToRender(writer, context);
+
+                writer.AddKnockoutDataBind("second", "true");
+            }
         }
     }
 }

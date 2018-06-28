@@ -1,13 +1,23 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
+#if DotNetCore
+#else
+using System.Threading;
+#endif
+
+using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.PostBack
 {
     public class PostBackHandlersViewModel : DotvvmViewModelBase
     {
+
+
         public int LastCommandValue { get; set; }
 
         public bool IsEnabled { get; set; }
@@ -18,9 +28,36 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.PostBack
             new MessageDate() { Message = "Generated 2", Value = 5 }
         };
 
+        public override Task Init()
+        {
+            return base.Init();
+        }
+
         public void DoWork(int value)
         {
             LastCommandValue = value;
+        }
+
+        public void ChangeLanguageEN()
+        {
+            var culture = CultureInfo.GetCultureInfo("en-US");
+            SetCulture(culture);
+        }
+
+        private void SetCulture(CultureInfo culture)
+        {
+
+            var builder = new UriBuilder(Context.HttpContext.Request.Url);
+            builder.Query = $"lang={culture.Name}";
+            Context.RedirectToUrl(builder.Uri.AbsoluteUri);
+
+        }
+
+        public void ChangeLanguageCZ()
+        {
+            var culture = CultureInfo.GetCultureInfo("cs-CZ");
+            SetCulture(culture);
+
         }
 
     }

@@ -74,7 +74,7 @@ namespace DotVVM.Framework.Controls
                 .Where(p => !p.DeclaringType.IsAssignableFrom(typeof(DotvvmMarkupControl)))
                 .Select(GetPropertySerializationInfo)
                 .Where(p => p.IsSerializable)
-                .Select(p => JsonConvert.SerializeObject(p.Property.Name) + ": " + p.Js);
+                .Select(p => JsonConvert.ToString(p.Property.Name, '"', StringEscapeHandling.EscapeHtml) + ": " + p.Js);
 
             writer.WriteKnockoutDataBindComment("dotvvm_withControlProperties", "{ " + string.Join(", ", properties) + " }");
             base.RenderContents(writer, context);
@@ -85,18 +85,21 @@ namespace DotVVM.Framework.Controls
         {
             var binding = GetBinding(property);
 
-            if (binding == null)
+            if (binding == null && !typeof(ITemplate).IsAssignableFrom(property.PropertyType))
             {
-
-                return new PropertySerializeInfo {
+                JsonSerializerSettings settings = DefaultViewModelSerializer.CreateDefaultSettings();
+                settings.StringEscapeHandling = StringEscapeHandling.EscapeHtml;
+                return new PropertySerializeInfo
+                {
                     Property = property,
-                    Js = JsonConvert.SerializeObject(GetValue(property), Formatting.None, DefaultViewModelSerializer.CreateDefaultSettings()),
+                    Js = JsonConvert.SerializeObject(GetValue(property), Formatting.None, settings),
                     IsSerializable = true
                 };
             }
             else if (binding is IValueBinding)
             {
-                return new PropertySerializeInfo {
+                return new PropertySerializeInfo
+                {
                     Property = property,
                     Js = (binding as IValueBinding).GetKnockoutBindingExpression(this),
                     IsSerializable = true

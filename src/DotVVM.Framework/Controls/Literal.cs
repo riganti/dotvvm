@@ -16,7 +16,6 @@ namespace DotVVM.Framework.Controls
     [ControlMarkupOptions(AllowContent = false)]
     public class Literal : HtmlGenericControl
     {
-
         /// <summary>
         /// Gets or sets the text displayed in the control.
         /// </summary>
@@ -27,7 +26,6 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty TextProperty =
             DotvvmProperty.Register<object, Literal>(t => t.Text, "");
-
 
         /// <summary>
         /// Gets or sets the format string that will be applied to numeric or date-time values.
@@ -100,7 +98,8 @@ namespace DotVVM.Framework.Controls
             RenderSpanElement = renderSpan;
         }
 
-        public static bool NeedsFormatting(IValueBinding binding) => binding != null && (binding.ResultType == typeof(DateTime) || ReflectionUtils.IsNumericType(binding.ResultType));
+        public static bool NeedsFormatting(IValueBinding binding) => binding != null && (binding.ResultType == typeof(DateTime) || binding.ResultType == typeof(DateTime?)
+            || binding.ResultType.IsNumericType() || Nullable.GetUnderlyingType(binding.ResultType).IsNumericType());
 
         protected override bool RendersHtmlTag => RenderSpanElement;
 

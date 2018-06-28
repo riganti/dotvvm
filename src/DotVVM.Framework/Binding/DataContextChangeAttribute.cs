@@ -21,5 +21,7 @@ namespace DotVVM.Framework.Binding
         public abstract Type GetChildDataContextType(Type dataContext, DataContextStack controlContextStack, DotvvmBindableObject control, DotvvmProperty property = null);
 
         public virtual IEnumerable<BindingExtensionParameter> GetExtensionParameters(ITypeDescriptor dataContext) => Enumerable.Empty<BindingExtensionParameter>();
+
+        public virtual IEnumerable<string> PropertyDependsOn => Enumerable.Empty<string>();
     }
 }

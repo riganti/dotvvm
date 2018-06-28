@@ -1,12 +1,14 @@
 ﻿{
   "factories": {
-    "chrome:fast": {}
+    "ie:fast": {},
+    "chrome:fast": {},
+    "firefox:fast": {}
   },
   "baseUrls": [
     "http://localhost:16018/"
   ],
   "testRunOptions": {
-    "runInParallel": false,
+    "runInParallel": true,
     "testAttemptsCount": 1
   },
   "logging": {

@@ -153,11 +153,7 @@ namespace DotVVM.Framework.Controls
             DataBind(context);     // TODO: support for observable collection
             base.OnPreRender(context);
         }
-
-        private void CallGridViewDataSetRequestRefresh(IRefreshableGridViewDataSet refreshableGridViewDataSet)
-        {
-            refreshableGridViewDataSet.RequestRefresh();
-        }
+       
         private void DataBind(IDotvvmRequestContext context)
         {
             Children.Clear();
@@ -166,12 +162,6 @@ namespace DotVVM.Framework.Controls
 
             var dataSourceBinding = GetDataSourceBinding();
             var dataSource = DataSource;
-
-
-            if (dataSource is IRefreshableGridViewDataSet refreshableDataSet)
-            {
-                CallGridViewDataSetRequestRefresh(refreshableDataSet);
-            }
 
             var sortCommand =
                 dataSource is ISortableGridViewDataSet sortableSet && sortableSet.SortingOptions is ISortingOptions sortOptions ?

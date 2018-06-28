@@ -1,0 +1,16 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.SpaContentPlaceHolder_HistoryApi.PageAViewModel, DotVVM.Samples.Common
+@masterPage Views/ControlSamples/SpaContentPlaceHolder_HistoryApi/SpaMaster.dotmaster
+
+<dot:Content ContentPlaceHolderID="MainContent">
+
+    <p id="value">Value: <span>{{value: Value}}</span></p>
+    <p>
+        <dot:Button Text="Increase" Click="{command: IncreaseValue()}" />
+    </p>
+
+    <p>
+        <dot:RouteLink RouteName="ControlSamples_SpaContentPlaceHolder_HistoryApi_PageB" Text="Go to Task List" /><br />
+        <dot:RouteLink RouteName="ComplexSamples_TaskList_ServerRenderedTaskList" Text="Exit SPA" />
+    </p>
+
+</dot:Content>

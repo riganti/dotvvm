@@ -24,7 +24,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation
         public override Task Init()
         {
             bool value;
-            //if there`s paremeter ClientSideValidationEnabled which controls if client side valid validation will be active than set it according to it
+            //if there`s parameter ClientSideValidationEnabled which controls if client side valid validation will be active than set it according to it
             //else disable client side validation
             if (Context.Parameters.ContainsKey("ClientSideValidationEnabled") &&
                 Boolean.TryParse(Context.Parameters["ClientSideValidationEnabled"].ToString(), out value))
