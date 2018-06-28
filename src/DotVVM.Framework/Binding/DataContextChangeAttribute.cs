@@ -11,7 +11,7 @@ using DotVVM.Framework.Compilation.ControlTree.Resolved;
 
 namespace DotVVM.Framework.Binding
 {
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Class, Inherited = true, AllowMultiple = true)]
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Class | AttributeTargets.Field | AttributeTargets.Parameter, Inherited = true, AllowMultiple = true)]
     public abstract class DataContextChangeAttribute : Attribute
     {
         public abstract int Order { get; }

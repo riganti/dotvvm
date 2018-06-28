@@ -112,7 +112,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         private static ConcurrentDictionary<string, DotvvmPropertyGroup > descriptorDictionary = new ConcurrentDictionary<string, DotvvmPropertyGroup >();
 
-        public static DotvvmPropertyGroup  Create(PropertyInfo propertyInfo, object defaultValue)
+        public static DotvvmPropertyGroup Create(PropertyInfo propertyInfo, object defaultValue)
         {
             return descriptorDictionary.GetOrAdd(propertyInfo.DeclaringType.Name + "," + propertyInfo.Name, fullName =>
             {
@@ -156,7 +156,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
         }
 
-        public static IEnumerable<DotvvmPropertyGroup > GetPropertyGroups(Type controlType)
+        public static IEnumerable<DotvvmPropertyGroup> GetPropertyGroups(Type controlType)
         {
             foreach (var property in controlType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
             {

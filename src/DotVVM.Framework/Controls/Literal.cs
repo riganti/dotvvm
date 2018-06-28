@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public string Text
         {
-            get { return (string)GetValue(TextProperty); }
+            get { return GetValue(TextProperty)?.ToString(); }
             set { SetValue(TextProperty, value); }
         }
         public static readonly DotvvmProperty TextProperty =
@@ -84,6 +84,18 @@ namespace DotVVM.Framework.Controls
             Text = text;
             RenderSpanElement = false;
             if (allowImplicitLifecycleRequirements && GetType() == typeof(Literal)) LifecycleRequirements = ControlLifecycleRequirements.None;
+        }
+
+        public Literal(ValueOrBinding text, bool renderSpan = false): this()
+        {
+            SetValue(TextProperty, text);
+            RenderSpanElement = renderSpan;
+        }
+
+        public Literal(IStaticValueBinding text, bool renderSpan = false): this()
+        {
+            SetBinding(TextProperty, text);
+            RenderSpanElement = renderSpan;
         }
 
         public static bool NeedsFormatting(IValueBinding binding) => binding != null && (binding.ResultType == typeof(DateTime) || binding.ResultType == typeof(DateTime?)

@@ -59,6 +59,11 @@ namespace DotVVM.Framework.Compilation.ControlTree
                         tt = tt.GetTypeInfo().BaseType;
                     }
                     while (tt != null && tt.GetTypeInfo().IsGenericType);
+
+                    if (!type.IsAbstract && typeof(EpicCoolControl).IsAssignableFrom(type))
+                    {
+                        EpicCoolControl.RegisterProperties(type);
+                    }
                 }
             }
         }
