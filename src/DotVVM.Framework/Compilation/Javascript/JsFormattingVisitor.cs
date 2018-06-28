@@ -358,10 +358,5 @@ namespace DotVVM.Framework.Compilation.Javascript
             }
             Emit(")");
         }
-
-        public void VisitJsExpressionInString(JsExpressionInString jsExpressionInString)
-        {
-            result.Append(jsExpressionInString.Expression);
-        }
     }
 }

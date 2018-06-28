@@ -27,7 +27,6 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         void VisitIfStatement(JsIfStatement jsIfStatement);
         void VisitFunctionExpression(JsFunctionExpression jsFunctionExpression);
         void VisitObjectProperty(JsObjectProperty jsObjectProperty);
-        void VisitJsExpressionInString(JsExpressionInString jsExpressionInString);
     }
 
     public class JsNodeVisitor : IJsNodeVisitor
@@ -73,8 +72,6 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         public virtual void VisitSymbolicParameter(JsSymbolicParameter symbolicParameter) => DefaultVisit(symbolicParameter);
 
         public virtual void VisitUnaryExpression(JsUnaryExpression unaryExpression) => DefaultVisit(unaryExpression);
-
-        public void VisitJsExpressionInString(JsExpressionInString jsExpressionInString) => DefaultVisit(jsExpressionInString);
 
         protected virtual void DefaultVisit(JsNode node)
         {

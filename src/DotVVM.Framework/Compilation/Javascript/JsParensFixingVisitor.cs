@@ -90,8 +90,6 @@ namespace DotVVM.Framework.Compilation.Javascript
                     return 4;
                 case JsAssignmentExpression ae:
                     return 3;
-                case JsExpressionInString expressionInString:
-                    return expressionInString.OperatorPrecedence;
                 case null:
                     return 0;
                 default: throw new NotSupportedException();
@@ -112,8 +110,6 @@ namespace DotVVM.Framework.Compilation.Javascript
                 case JsConditionalExpression _:
                     // these are right-to-left asociative
                     return expression.Role != JsConditionalExpression.ConditionRole;
-                case JsExpressionInString expressionInString:
-                    return expressionInString.IsPreferedSide;
                 default:
                     return true;
             }
