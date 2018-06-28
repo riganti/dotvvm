@@ -54,6 +54,7 @@
     <None Remove="Views\FeatureSamples\ServerSideStyles\DirectoryStyle\ServerSideStyles.dothtml" />
     <None Remove="Views\FeatureSamples\ServerSideStyles\NoDirectoryStyle\ServerSideStyles.dothtml" />
     <None Remove="Views\FeatureSamples\ServerSideStyles\ServerSideStyles.dothtml" />
+    <None Remove="Views\FeatureSamples\ServerSideStyles\ServerSideStyles_ControlProperties.dothtml" />
     <None Remove="Views\FeatureSamples\ServerSideStyles\ServerSideStyles_DotvvmProperties.dothtml" />
     <None Remove="Views\FeatureSamples\ServerSideStyles\ServerSideStyles_MatchingViewModel.dothtml" />
     <None Remove="Views\FeatureSamples\Serialization\EnumSerializationWithJsonConverter.dothtml" />
@@ -113,6 +114,7 @@
     <Content Include="Views\FeatureSamples\Serialization\EnumSerializationWithJsonConverter.dothtml" />
     <Content Include="Views\FeatureSamples\ServerSideStyles\DirectoryStyle\ServerSideStyles.dothtml" />
     <Content Include="Views\FeatureSamples\ServerSideStyles\NoDirectoryStyle\ServerSideStyles.dothtml" />
+    <Content Include="Views\FeatureSamples\ServerSideStyles\ServerSideStyles_ControlProperties.dothtml" />
     <Content Include="Views\FeatureSamples\ServerSideStyles\ServerSideStyles_MatchingViewModel.dothtml" />
     <Content Include="Views\FeatureSamples\ServerSideStyles\ServerSideStyles.dothtml" />
     <Content Include="Views\FeatureSamples\ServerSideStyles\ServerSideStyles_DotvvmProperties.dothtml" />

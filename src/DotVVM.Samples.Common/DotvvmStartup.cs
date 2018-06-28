@@ -12,6 +12,8 @@ using DotVVM.Samples.Common;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.ServerSideStyles;
 using Microsoft.Extensions.DependencyInjection;
+using DotVVM.Framework.Controls;
+using System.Collections.Generic;
 
 namespace DotVVM.Samples.BasicSamples
 {
@@ -57,7 +59,7 @@ namespace DotVVM.Samples.BasicSamples
             config.Styles.Register("customDataContextTag", c => c.HasDataContext<ServerSideStylesMatchingViewModel.TestingObject>()).
                 SetAttribute("dataContextCheck", "matching");
 
-            // All style samples
+             // All style samples
             config.Styles.Register<ServerSideStylesControl>()
                 .SetAttribute("value", "Text changed")
                 .SetDotvvmProperty(ServerSideStylesControl.CustomProperty, "Custom property changed", StyleOverrideOptions.Ignore)
@@ -71,6 +73,10 @@ namespace DotVVM.Samples.BasicSamples
                 .SetAttribute("derivedAttr", "Derived attribute");
             config.Styles.Register<ServerSideStylesControl>(c => c.HasProperty(ServerSideStylesControl.AddedProperty))
                 .SetAttribute("addedAttr", "Added attribute");
+
+            config.Styles.Register<Button>(c => c.HasHtmlAttribute("server-side-style-attribute"))
+               .SetControlProperty<ConfirmPostBackHandler>(PostBack.HandlersProperty, 
+                    (style) => style.SetDotvvmProperty(ConfirmPostBackHandler.MessageProperty, "ConfirmPostBackHandler Content"));
         }
 
         private static void AddRoutes(DotvvmConfiguration config)

@@ -125,6 +125,18 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles_ControlProperties))]
+        public void Feature_ServerSideStyles_ControlProperties()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles_ControlProperties);
+
+                browser.First("input[server-side-style-attribute]").Click();
+                AssertUI.AlertTextEquals(browser, "ConfirmPostBackHandler Content");
+            });
+        }
+
         public ServerSideStylesTests(ITestOutputHelper output) : base(output)
         {
         }

@@ -32,6 +32,13 @@ namespace DotVVM.Framework.Compilation
             var property = a.Property;
 
             error = null;
+
+            if (a is ResolvedPropertyControlCollection firstCollection && b is ResolvedPropertyControlCollection secondCollection)
+            {
+                firstCollection.Controls.AddRange(secondCollection.Controls);
+                return firstCollection;
+            }
+
             ResolvedBinding bindingA;
             Expression valA = GetExpression(a, out bindingA);
             ResolvedBinding bindingB;
@@ -116,7 +123,7 @@ namespace DotVVM.Framework.Compilation
         private static MethodCallExpression TryFindMethod(Type context, string name, params Expression[] parameters)
         {
             var binder = (DynamicMetaObjectBinder)Microsoft.CSharp.RuntimeBinder.Binder.InvokeMember(
-                CSharpBinderFlags.None, name, null, context, 
+                CSharpBinderFlags.None, name, null, context,
                 new[] { CSharpArgumentInfo.Create(CSharpArgumentInfoFlags.UseCompileTimeType | CSharpArgumentInfoFlags.IsStaticType, null) }
                 .Concat(ExpressionHelper.GetBinderArguments(parameters.Length)));
             var result = binder.Bind(DynamicMetaObject.Create(context, Expression.Constant(context)), parameters.Select(e => DynamicMetaObject.Create(null, e)).ToArray());
