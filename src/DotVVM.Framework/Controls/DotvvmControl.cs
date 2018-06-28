@@ -450,7 +450,9 @@ namespace DotVVM.Framework.Controls
 
         private object JoinValuesOrBindings(IList<object> fragments)
         {
-            if (fragments.All(f => f is string))
+            if (fragments == null)
+                return null;
+            else if (fragments.All(f => f is string))
             {
                 return string.Join("_", fragments);
             }
@@ -479,7 +481,7 @@ namespace DotVVM.Framework.Controls
         /// Adds the corresponding attribute for the Id property.
         /// </summary>
         protected virtual object CreateClientId() => 
-            string.IsNullOrEmpty(ID) ? null :
+            !this.IsPropertySet(IDProperty) ? null :
                 // build the client ID
                 JoinValuesOrBindings(GetClientIdFragments());
 
@@ -506,7 +508,7 @@ namespace DotVVM.Framework.Controls
             if (ClientIDMode == ClientIDMode.Static)
             {
                 // just rewrite Static mode ID
-                return new[] { ID };
+                return new[] { GetValueRaw(IDProperty) };
             }
 
             var fragments = new List<object> { rawId };
@@ -527,10 +529,10 @@ namespace DotVVM.Framework.Controls
                     {
                         fragments.Add(clientIdExpression);
                     }
-                    else if (!string.IsNullOrEmpty(ancestor.ID))
+                    else if (ancestor.GetValueRaw(IDProperty) is object ancestorId && "" != ancestorId as string)
                     {
                         // add the ID fragment
-                        fragments.Add(ancestor.ID);
+                        fragments.Add(ancestorId);
                     }
                     else
                     {
