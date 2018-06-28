@@ -1,4 +1,4 @@
-﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.EpicCoolControls.BasicSampleViewModel, DotVVM.Samples.Common
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.CompositeControls.BasicSampleViewModel, DotVVM.Samples.Common
 
 <!DOCTYPE html>
 
@@ -10,6 +10,7 @@
 <body>
 
     <cc:EpicCoolControlSample DataSource="{value: List}" TitleBinding="{value: "[" + _index + "] " + Title}" NumberBinding="{value: EditableNumber}" style="color: blue" />
+    <cc:CompositeControlSample DataSource="{value: List}" TitleBinding="{value: "[" + _index + "] " + Title}" NumberBinding="{value: EditableNumber}" style="color: blue" inner-li:style="border: 1px green solid" inner-li:Visible="{value: Visible}" />
 
     <p>
         Numbers:

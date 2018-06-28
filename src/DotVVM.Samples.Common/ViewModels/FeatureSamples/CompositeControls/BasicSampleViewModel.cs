@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using DotVVM.Framework.ViewModel;
 
-namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.EpicCoolControls
+namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.CompositeControls
 {
     public class BasicSampleViewModel : DotvvmViewModelBase
     {

@@ -9,7 +9,7 @@ using DotVVM.Framework.Utils;
 
 namespace DotVVM.Samples.BasicSamples.Controls
 {
-    public class EpicCoolControlSample: EpicCoolControl
+    public class CompositeControlSample: CompositeControl
     {
         public static DotvvmControl GetContents(
             IValueBinding<IEnumerable<object>> dataSource,
