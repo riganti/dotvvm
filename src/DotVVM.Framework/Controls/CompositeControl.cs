@@ -13,23 +13,23 @@ using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls
 {
-    public abstract class EpicCoolControl : DotvvmControl
+    public abstract class CompositeControl : DotvvmControl
     {
-        public EpicCoolControl()
+        public CompositeControl()
         {
         }
 
         private class ControlInfo
         {
             public MethodInfo RenderMethod;
-            public ImmutableArray<Func<IDotvvmRequestContext, EpicCoolControl, object>> Properties;
+            public ImmutableArray<Func<IDotvvmRequestContext, CompositeControl, object>> Properties;
         }
         private static ConcurrentDictionary<Type, ControlInfo> controlInfoCache = new ConcurrentDictionary<Type, ControlInfo>();
 
         private static object registrationLock = new object();
         internal static void RegisterProperties(Type controlType)
         {
-            Func<IDotvvmRequestContext, EpicCoolControl, object> initializeArgument(ParameterInfo parameter)
+            Func<IDotvvmRequestContext, CompositeControl, object> initializeArgument(ParameterInfo parameter)
             {
                 if (parameter.ParameterType == typeof(IDotvvmRequestContext))
                     return (context, _) => context;

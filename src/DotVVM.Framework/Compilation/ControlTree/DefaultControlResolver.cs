@@ -60,9 +60,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     }
                     while (tt != null && tt.GetTypeInfo().IsGenericType);
 
-                    if (!type.IsAbstract && typeof(EpicCoolControl).IsAssignableFrom(type))
+                    if (!type.IsAbstract && typeof(CompositeControl).IsAssignableFrom(type))
                     {
-                        EpicCoolControl.RegisterProperties(type);
+                        CompositeControl.RegisterProperties(type);
                     }
                 }
             }
