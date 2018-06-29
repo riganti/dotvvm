@@ -37,6 +37,20 @@ class ConfirmPostBackHandler implements DotvvmPostbackHandler {
     }
 }
 
+class SuppressPostBackHandler implements DotvvmPostbackHandler {
+    constructor(public suppress) { }
+    execute<T>(callback: () => Promise<T>, options: PostbackOptions): Promise<T> {
+        return new Promise<T>((resolve, reject) => {
+            if (this.suppress) {
+                reject({ type: "handler", handler: this, message: "The postback was suppressed" })
+            } else {
+                callback().then(resolve, reject)
+            }
+        });
+    }
+}
+
+
 type DotvvmPostBackHandlerConfiguration = {
     name: string;
     options: (context: KnockoutBindingContext) => any;

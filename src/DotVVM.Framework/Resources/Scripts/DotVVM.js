@@ -420,6 +420,23 @@ var ConfirmPostBackHandler = /** @class */ (function () {
     };
     return ConfirmPostBackHandler;
 }());
+var SuppressPostBackHandler = /** @class */ (function () {
+    function SuppressPostBackHandler(suppress) {
+        this.suppress = suppress;
+    }
+    SuppressPostBackHandler.prototype.execute = function (callback, options) {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            if (_this.suppress) {
+                reject({ type: "handler", handler: _this, message: "The postback was suppressed" });
+            }
+            else {
+                callback().then(resolve, reject);
+            }
+        });
+    };
+    return SuppressPostBackHandler;
+}());
 var DotvvmSerialization = /** @class */ (function () {
     function DotvvmSerialization() {
     }
@@ -784,6 +801,7 @@ var DotVVM = /** @class */ (function () {
         this.serialization = new DotvvmSerialization();
         this.postbackHandlers = {
             confirm: function (options) { return new ConfirmPostBackHandler(options.message); },
+            suppress: function (options) { return new SuppressPostBackHandler(options.suppress); },
             timeout: function (options) { return options.time ? _this.createWindowSetTimeoutHandler(options.time) : _this.windowSetTimeoutHandler; },
             "concurrency-default": function (o) { return ({
                 name: "concurrency-default",

@@ -660,11 +660,10 @@ namespace DotVVM.Framework.Tests.Parser.Binding
 
             //expecting  ...Dictionary(LessThan)Tuple... because reading generic type failed and it could not read (comma) 
             //so ended at the end of binary expression
-            Assert.IsTrue(string.Equals("System.Collections.Generic.Dictionary<Tuple<bool, bool>", node.ToDisplayString()));
+            Assert.IsTrue(string.Equals("System.Collections.Generic.Dictionary < Tuple<bool, bool>", node.ToDisplayString()));
 
             parser = bindingParserNodeFactory.SetupParser(originalString);
             var multi = parser.ReadMultiExpression() as MultiExpressionBindingParserNode;
-
 
 
             Assert.IsTrue(multi.Expressions.Count == 4);
@@ -674,11 +673,10 @@ namespace DotVVM.Framework.Tests.Parser.Binding
 
             //With multiple expesions we are able to eat the evil extra tokens and finis the expresion 
             //Expresion Tuple<string, int>.ValueCollection is parsed correctly
-            Assert.IsTrue(string.Equals(multi.Expressions[0].ToDisplayString(), "System.Collections.Generic.Dictionary<Tuple<bool, bool>"));
+            Assert.IsTrue(string.Equals(multi.Expressions[0].ToDisplayString(), "System.Collections.Generic.Dictionary < Tuple<bool, bool>"));
             Assert.IsTrue(string.Equals(multi.Expressions[1].ToDisplayString(), ""));
             Assert.IsTrue(string.Equals(multi.Expressions[2].ToDisplayString(), ","));
             Assert.IsTrue(string.Equals(multi.Expressions[3].ToDisplayString(), "Tuple<string, int>.ValueCollection"));
-
         }
 
         [TestMethod]
@@ -690,7 +688,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
 
             //Just comparition no generics or anything
             Assert.IsTrue(node is BinaryOperatorBindingParserNode);
-            Assert.IsTrue(string.Equals(originalString, node.ToDisplayString()));
+            Assert.IsTrue(string.Equals(originalString, node.ToDisplayString().Replace(" ", "")));
         }
 
         [TestMethod]
@@ -711,7 +709,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             var parser = bindingParserNodeFactory.SetupParser(originalString);
             var node = parser.ReadExpression();
 
-            Assert.AreEqual(originalString, node.ToDisplayString());
+            Assert.AreEqual(originalString, node.ToDisplayString().Replace(" ", ""));
 
             //OK display string's the same but is the tree OK?
             var firstComparison = node.CastTo<BinaryOperatorBindingParserNode>()

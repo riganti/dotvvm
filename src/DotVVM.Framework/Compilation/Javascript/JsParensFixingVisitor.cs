@@ -98,18 +98,21 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public static bool IsPreferedSide(JsExpression expression)
         {
-            if (expression is JsBinaryExpression) {
-                // asociativity, it is important to avoid common string concat patterns (((a+b)+c)+d)+e). Be aware JS + is not asociative - (""+3+5)==="35" vs (""+(3+5))==="8"
-                // all binary operators are currently left-to-right - a+b+c === (a+b)+c
-                // include parens when the expression is on the right side
-                return expression.Role == JsBinaryExpression.LeftRole;
-            } else if (expression is JsAssignmentExpression) {
-                return expression.Role == JsAssignmentExpression.RightRole;
-            } else if (expression is JsConditionalExpression) {
-                // these are right-to-left asociative
-                return expression.Role != JsConditionalExpression.ConditionRole;
+            switch (expression)
+            {
+                case JsBinaryExpression _:
+                    // asociativity, it is important to avoid common string concat patterns (((a+b)+c)+d)+e). Be aware JS + is not asociative - (""+3+5)==="35" vs (""+(3+5))==="8"
+                    // all binary operators are currently left-to-right - a+b+c === (a+b)+c
+                    // include parens when the expression is on the right side
+                    return expression.Role == JsBinaryExpression.LeftRole;
+                case JsAssignmentExpression _:
+                    return expression.Role == JsAssignmentExpression.RightRole;
+                case JsConditionalExpression _:
+                    // these are right-to-left asociative
+                    return expression.Role != JsConditionalExpression.ConditionRole;
+                default:
+                    return true;
             }
-            return true;
         }
 
         public static OperatorPrecedence GetOperatorPrecedence(JsExpression expression)

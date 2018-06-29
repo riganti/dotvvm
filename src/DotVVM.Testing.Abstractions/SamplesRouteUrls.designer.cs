@@ -181,9 +181,10 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_NestedMasterPages_Content = "FeatureSamples/NestedMasterPages/Content";
         public const string FeatureSamples_ParameterBinding_OptionalParameterBinding = "FeatureSamples/ParameterBinding/OptionalParameterBinding";
         public const string FeatureSamples_ParameterBinding_ParameterBinding = "FeatureSamples/ParameterBinding/ParameterBinding";
-        public const string FeatureSamples_PostBack_PostBackHandlers = "FeatureSamples/PostBack/PostBackHandlers";
+        public const string FeatureSamples_PostBack_ConfirmPostBackHandler = "FeatureSamples/PostBack/ConfirmPostBackHandler";
         public const string FeatureSamples_PostBack_PostbackUpdate = "FeatureSamples/PostBack/PostbackUpdate";
         public const string FeatureSamples_PostBack_PostbackUpdateRepeater = "FeatureSamples/PostBack/PostbackUpdateRepeater";
+        public const string FeatureSamples_PostBack_SuppressPostBackHandler = "FeatureSamples/PostBack/SuppressPostBackHandler";
         public const string FeatureSamples_PostbackConcurrency_PostbackConcurrencyMode = "FeatureSamples/PostbackConcurrency/PostbackConcurrencyMode";
         public const string FeatureSamples_Redirect_Redirect = "FeatureSamples/Redirect/Redirect";
         public const string FeatureSamples_RenderSettingsModeServer_RenderSettingModeServerProperty = "FeatureSamples/RenderSettingsModeServer/RenderSettingModeServerProperty";

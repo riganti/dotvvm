@@ -22,8 +22,6 @@ namespace DotVVM.Samples.Tests.Feature
         [Fact]
         public void Feature_Directives_ImportDirectiveInvalid()
         {
-
-
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Directives_ImportDirectiveInvalid);
                 browser.FindElements("#failed").ThrowIfDifferentCountThan(0);
@@ -40,7 +38,8 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.InnerTextEquals(browser.ElementAt("p", 0), "Hello from ImportDirectiveViewModel");
                 AssertUI.InnerTextEquals(browser.ElementAt("p", 1), "Hello TestClass1");
                 AssertUI.InnerTextEquals(browser.ElementAt("p", 2), "Hello TestClassNonAlias");
-                AssertUI.InnerTextEquals(browser.ElementAt("p", 3), "Default from configuration"); // maybe more possibilities?
+                AssertUI.InnerTextEquals(browser.ElementAt("p", 3), "Default from configuration"); 
+                AssertUI.InnerTextEquals(browser.ElementAt("p", 4), "Hello From Nested Class"); // maybe more possibilities?
             });
         }
 

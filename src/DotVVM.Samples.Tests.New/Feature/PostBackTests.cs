@@ -73,6 +73,7 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_PostBack_ConfirmPostBackHandler))]
         public void Feature_PostBack_PostBackHandlers_Localization()
         {
             RunInAllBrowsers(browser => {
@@ -199,7 +200,36 @@ namespace DotVVM.Samples.Tests.Feature
             browser.ConfirmAlert();
             browser.Wait();
             AssertUI.InnerTextEquals(index, "7");
+        }
 
+        [Fact]
+        public void Feature_PostBack_SuppressPostBackHandler()
+        {
+            RunInAllBrowsers(browser => {
+
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostBack_SuppressPostBackHandler);
+
+                var counter = browser.First("span[data-ui=counter]");
+                AssertUI.InnerTextEquals(counter, "0");
+
+                browser.First("input[data-ui=static-suppress-value]").Click();
+                AssertUI.InnerTextEquals(counter, "0");
+
+                browser.First("input[data-ui=multiple-suppress-handlers]").Click();
+                AssertUI.InnerTextEquals(counter, "0");
+
+                var conditionValue = browser.First("span[data-ui=condition]");
+                AssertUI.InnerTextEquals(conditionValue, "true");
+
+                browser.First("input[data-ui=value-binding-suppress]").Click();
+                AssertUI.InnerTextEquals(counter, "0");
+
+                browser.First("input[data-ui=change-condition]").Click();
+                AssertUI.InnerTextEquals(conditionValue, "false");
+
+                browser.First("input[data-ui=value-binding-suppress]").Click();
+                AssertUI.InnerTextEquals(counter, "1");
+            });
         }
 
         public PostBackTests(ITestOutputHelper output) : base(output)
