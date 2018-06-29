@@ -16,6 +16,7 @@ using System.Collections.Immutable;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Utils;
 using Microsoft.Extensions.DependencyInjection;
+using DotVVM.Framework.Tests.Common;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -420,7 +421,7 @@ namespace DotVVM.Framework.Tests.Binding
 
 
         [TestMethod]
-        public void BindingCompiler_MultiBlockExpression_MultipleTypes()
+        public void BindingCompiler_MultiBlockExpression_EnumAtEnd_CorrectResult()
         {
             TestViewModel vm = new TestViewModel { StringProp = "a" };
             var result = ExecuteBinding("StringProp = StringProp + 'll'; IntProp = MethodWithOverloads(); GetEnum()", new[] { vm });
@@ -430,11 +431,37 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AggregateException))]
-        public void BindingCompiler_MultiBlockExpression_MultipleTypesVoidAtEnd_TrowsException()
+        [ExpectedExceptionMessageSubstring(typeof(AggregateException), "Could not implicitly convert expression of type System.Void to System.Object")]
+        public void BindingCompiler_MultiBlockExpression_EmptyBlockAtEnd_Throws()
         {
             TestViewModel vm = new TestViewModel { StringProp = "a" };
-            var result = ExecuteBinding("StringProp = StringProp + 'll'; IntProperty = MethodWithOverloads();", new[] { vm });
+            var result = ExecuteBinding("GetEnum();", new[] { vm });
+        }
+
+        [TestMethod]
+        [ExpectedExceptionMessageSubstring(typeof(AggregateException), "empty")]
+        public void BindingCompiler_MultiBlockExpression_EmptyBlockInTheMiddle_Throws()
+        {
+            TestViewModel vm = new TestViewModel { StringProp = "a" };
+            var result = ExecuteBinding("StringProp = StringProp; ; GetEnum();", new[] { vm });
+        }
+
+        [TestMethod]
+        [ExpectedExceptionMessageSubstring(typeof(AggregateException), "empty")]
+        public void BindingCompiler_MultiBlockExpression_EmptyBlockAtStart_Throws()
+        {
+            TestViewModel vm = new TestViewModel { StringProp = "a" };
+            var result = ExecuteBinding("; GetEnum()", new[] { vm });
+        }
+
+        [TestMethod]
+        public void BindingCompiler_MultiBlockExpression_AssigmentAtEnd_CorrectResult()
+        {
+            TestViewModel vm = new TestViewModel { StringProp = "a" };
+            var result = ExecuteBinding("StringProp = StringProp + 'll'; IntProp = MethodWithOverloads()", new[] { vm });
+
+            Assert.IsInstanceOfType(result, typeof(int));
+            Assert.AreEqual(1, (int)result);
         }
 
         [TestMethod]
