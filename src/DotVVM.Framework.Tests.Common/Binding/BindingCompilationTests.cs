@@ -418,6 +418,25 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual("allkk|nn", result);
         }
 
+
+        [TestMethod]
+        public void BindingCompiler_MultiBlockExpression_MultipleTypes()
+        {
+            TestViewModel vm = new TestViewModel { StringProp = "a" };
+            var result = ExecuteBinding("StringProp = StringProp + 'll'; IntProp = MethodWithOverloads(); GetEnum()", new[] { vm });
+
+            Assert.IsInstanceOfType(result, typeof(TestEnum));
+            Assert.AreEqual(TestEnum.A, (TestEnum)result);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(AggregateException))]
+        public void BindingCompiler_MultiBlockExpression_MultipleTypesVoidAtEnd_TrowsException()
+        {
+            TestViewModel vm = new TestViewModel { StringProp = "a" };
+            var result = ExecuteBinding("StringProp = StringProp + 'll'; IntProperty = MethodWithOverloads();", new[] { vm });
+        }
+
         [TestMethod]
         public void BindingCompiler_DelegateConversion_TaskFromResult()
         {
@@ -459,6 +478,7 @@ namespace DotVVM.Framework.Tests.Binding
     class TestViewModel
     {
         public string StringProp { get; set; }
+        public int IntProp { get; set; }
         public TestViewModel2 TestViewModel2 { get; set; }
         public TestEnum EnumProperty { get; set; }
         public string StringProp2 { get; set; }
@@ -473,6 +493,10 @@ namespace DotVVM.Framework.Tests.Binding
             var p = StringProp;
             StringProp = a + b;
             return p;
+        }
+
+        public TestEnum GetEnum() {
+            return TestEnum.A;
         }
 
         public T Identity<T>(T param)
