@@ -35,6 +35,7 @@ interface IDotvvmViewModels {
 interface IDotvvmPostbackHandlerCollection {
     [name: string]: ((options: any) => DotvvmPostbackHandler);
     confirm: (options: { message?: string }) => ConfirmPostBackHandler;
+    suppress: (options: { suppress?: boolean }) => SuppressPostBackHandler;
 }
 
 class DotVVM {
@@ -56,6 +57,7 @@ class DotVVM {
 
     public postbackHandlers: IDotvvmPostbackHandlerCollection = {
         confirm: (options: any) => new ConfirmPostBackHandler(options.message),
+        suppress: (options: any) => new SuppressPostBackHandler(options.suppress),
         timeout: (options: any) => options.time ? this.createWindowSetTimeoutHandler(options.time) : this.windowSetTimeoutHandler,
         "concurrency-default": (o: any) => ({
             name: "concurrency-default",

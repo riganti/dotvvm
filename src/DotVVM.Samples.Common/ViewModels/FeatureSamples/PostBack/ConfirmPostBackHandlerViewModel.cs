@@ -14,10 +14,8 @@ using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.PostBack
 {
-    public class PostBackHandlersViewModel : DotvvmViewModelBase
+    public class ConfirmPostBackHandlerViewModel : DotvvmViewModelBase
     {
-
-
         public int LastCommandValue { get; set; }
 
         public bool IsEnabled { get; set; }
@@ -27,11 +25,6 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.PostBack
             new MessageDate() { Message = "Generated 1", Value = 4 },
             new MessageDate() { Message = "Generated 2", Value = 5 }
         };
-
-        public override Task Init()
-        {
-            return base.Init();
-        }
 
         public void DoWork(int value)
         {
@@ -46,21 +39,18 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.PostBack
 
         private void SetCulture(CultureInfo culture)
         {
-
             var builder = new UriBuilder(Context.HttpContext.Request.Url);
             builder.Query = $"lang={culture.Name}";
             Context.RedirectToUrl(builder.Uri.AbsoluteUri);
-
         }
 
         public void ChangeLanguageCZ()
         {
             var culture = CultureInfo.GetCultureInfo("cs-CZ");
             SetCulture(culture);
-
         }
-
     }
+
     public class MessageDate
     {
         public string Message { get; set; }
