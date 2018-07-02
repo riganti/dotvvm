@@ -443,7 +443,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void BindingCompiler_MultiBlockExpression_EmptyBlockInTheMiddle_Throws()
         {
             TestViewModel vm = new TestViewModel { StringProp = "a" };
-            var result = ExecuteBinding("StringProp = StringProp; ; GetEnum();", new[] { vm });
+            var result = ExecuteBinding("StringProp = StringProp; ; GetEnum()", new[] { vm });
         }
 
         [TestMethod]
