@@ -419,6 +419,13 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual("allkk|nn", result);
         }
 
+        [TestMethod]
+        [ExpectedExceptionMessageSubstring(typeof(AggregateException), "Identifier name")]
+        public void BindingCompiler_MemberAccessIdentifierMissing_Throws()
+        {
+            TestViewModel vm = new TestViewModel { StringProp = "a" };
+            var result = ExecuteBinding("StringProp.", new[] { vm });
+        }
 
         [TestMethod]
         public void BindingCompiler_MultiBlockExpression_EnumAtEnd_CorrectResult()
@@ -439,19 +446,31 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        [ExpectedExceptionMessageSubstring(typeof(AggregateException), "empty")]
-        public void BindingCompiler_MultiBlockExpression_EmptyBlockInTheMiddle_Throws()
+        [ExpectedExceptionMessageSubstring(typeof(AggregateException), "Could not implicitly convert expression of type System.Void to System.Object")]
+        public void BindingCompiler_MultiBlockExpression_WhitespaceBlockAtEnd_Throws()
         {
             TestViewModel vm = new TestViewModel { StringProp = "a" };
-            var result = ExecuteBinding("StringProp = StringProp; ; GetEnum()", new[] { vm });
+            var result = ExecuteBinding("GetEnum(); ", new[] { vm });
         }
 
         [TestMethod]
-        [ExpectedExceptionMessageSubstring(typeof(AggregateException), "empty")]
+        public void BindingCompiler_MultiBlockExpression_EmptyBlockInTheMiddle_Throws()
+        {
+            TestViewModel vm = new TestViewModel { StringProp = "a" };
+            var result = ExecuteBinding("StringProp = StringProp; ; MethodWithOverloads()", new[] { vm });
+
+            Assert.IsInstanceOfType(result, typeof(int));
+            Assert.AreEqual(1, (int)result);
+        }
+
+        [TestMethod]
         public void BindingCompiler_MultiBlockExpression_EmptyBlockAtStart_Throws()
         {
             TestViewModel vm = new TestViewModel { StringProp = "a" };
-            var result = ExecuteBinding("; GetEnum()", new[] { vm });
+            var result = ExecuteBinding("; MethodWithOverloads()", new[] { vm });
+
+            Assert.IsInstanceOfType(result, typeof(int));
+            Assert.AreEqual(1, (int)result);
         }
 
         [TestMethod]
