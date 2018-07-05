@@ -18,6 +18,15 @@
                         </dot:Button>
                     </ContentTemplate>
                 </dot:GridViewTemplateColumn>
+                <dot:GridViewTemplateColumn Width="10%">
+                    <ContentTemplate>
+                        <dot:AuthenticatedView>
+                            <NotAuthenticatedTemplate>
+                                <span data-ui="template-content">Not Authenticated</span>
+                            </NotAuthenticatedTemplate>
+                        </dot:AuthenticatedView>
+                    </ContentTemplate>
+                </dot:GridViewTemplateColumn>
             </Columns>
         </dot:GridView>
 
