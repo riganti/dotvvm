@@ -154,7 +154,7 @@ namespace DotVVM.Framework.Controls
             base.OnPreRender(context);
         }
        
-        private void DataBind(IDotvvmRequestContext context)
+        protected virtual void DataBind(IDotvvmRequestContext context)
         {
             Children.Clear();
             emptyDataContainer = null;
@@ -187,7 +187,9 @@ namespace DotVVM.Framework.Controls
                 };
             }
 
-            CreateHeaderRow(context, sortCommand);
+            var header = CreateHeaderRow(context, sortCommand);
+            Children.Add(header);
+
             var index = 0;
             if (dataSource != null)
             {
@@ -223,10 +225,9 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void CreateHeaderRow(IDotvvmRequestContext context, Action<string> sortCommand)
+        protected virtual HtmlGenericControl CreateHeaderRow(IDotvvmRequestContext context, Action<string> sortCommand)
         {
             head = new HtmlGenericControl("thead");
-            Children.Add(head);
 
             var gridViewDataSet = DataSource as IGridViewDataSet;
 
@@ -257,9 +258,11 @@ namespace DotVVM.Framework.Controls
                     column.CreateFilterControls(context, this, cell, gridViewDataSet);
                 }
             }
+
+            return head;
         }
 
-        private static void SetCellAttributes(GridViewColumn column, HtmlGenericControl cell, bool isHeaderCell)
+        protected static void SetCellAttributes(GridViewColumn column, HtmlGenericControl cell, bool isHeaderCell)
         {
             if (!string.IsNullOrEmpty(column.Width))
             {
@@ -288,7 +291,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void CreateRowWithCells(Hosting.IDotvvmRequestContext context, DataItemContainer placeholder)
+        protected virtual void CreateRowWithCells(Hosting.IDotvvmRequestContext context, DataItemContainer placeholder)
         {
             var isInEditMode = false;
             if (InlineEditing)
@@ -324,7 +327,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private HtmlGenericControl CreateRow(DataItemContainer placeholder, bool isInEditMode)
+        protected virtual HtmlGenericControl CreateRow(DataItemContainer placeholder, bool isInEditMode)
         {
             var row = new HtmlGenericControl("tr");
 
@@ -343,7 +346,7 @@ namespace DotVVM.Framework.Controls
             return row;
         }
 
-        private bool IsEditedRow(DataItemContainer placeholder)
+        protected virtual bool IsEditedRow(DataItemContainer placeholder)
         {
             var primaryKeyPropertyName = ((IGridViewDataSet)DataSource).RowEditOptions.PrimaryKeyPropertyName;
             if (string.IsNullOrEmpty(primaryKeyPropertyName))
@@ -366,7 +369,7 @@ namespace DotVVM.Framework.Controls
             return false;
         }
 
-        private void CreateTemplates(Hosting.IDotvvmRequestContext context, DataItemContainer placeholder, bool isInEditMode = false)
+        protected virtual void CreateTemplates(Hosting.IDotvvmRequestContext context, DataItemContainer placeholder, bool isInEditMode = false)
         {
             var row = CreateRow(placeholder, isInEditMode);
 
