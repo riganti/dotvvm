@@ -805,14 +805,14 @@ var DotVVM = /** @class */ (function () {
             timeout: function (options) { return options.time ? _this.createWindowSetTimeoutHandler(options.time) : _this.windowSetTimeoutHandler; },
             "concurrency-default": function (o) { return ({
                 name: "concurrency-default",
-                before: ["setIsPostackRunning"],
+                before: ["setIsPostbackRunning"],
                 execute: function (callback, options) {
                     return _this.commonConcurrencyHandler(callback(), options, o.q || "default");
                 }
             }); },
             "concurrency-deny": function (o) { return ({
                 name: "concurrency-deny",
-                before: ["setIsPostackRunning"],
+                before: ["setIsPostbackRunning"],
                 execute: function (callback, options) {
                     var queue = o.q || "default";
                     if (dotvvm.getPostbackQueue(queue).noRunning > 0)
@@ -822,7 +822,7 @@ var DotVVM = /** @class */ (function () {
             }); },
             "concurrency-queue": function (o) { return ({
                 name: "concurrency-queue",
-                before: ["setIsPostackRunning"],
+                before: ["setIsPostbackRunning"],
                 execute: function (callback, options) {
                     var queue = o.q || "default";
                     var handler = function () { return dotvvm.commonConcurrencyHandler(callback(), options, queue); };
@@ -836,7 +836,7 @@ var DotVVM = /** @class */ (function () {
             }); },
             "suppressOnUpdating": function (options) { return ({
                 name: "suppressOnUpdating",
-                before: ["setIsPostackRunning", "concurrency-default", "concurrency-queue", "concurrency-deny"],
+                before: ["setIsPostbackRunning", "concurrency-default", "concurrency-queue", "concurrency-deny"],
                 execute: function (callback, options) {
                     if (dotvvm.isViewModelUpdating)
                         return Promise.reject({ type: "handler", handler: this, message: "ViewModel is updating, so it's probably false onchange event" });

@@ -61,14 +61,14 @@ class DotVVM {
         timeout: (options: any) => options.time ? this.createWindowSetTimeoutHandler(options.time) : this.windowSetTimeoutHandler,
         "concurrency-default": (o: any) => ({
             name: "concurrency-default",
-            before: ["setIsPostackRunning"],
+            before: ["setIsPostbackRunning"],
             execute: (callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions) => {
                 return this.commonConcurrencyHandler(callback(), options, o.q || "default")
             }
         }),
         "concurrency-deny": (o: any) => ({
             name: "concurrency-deny",
-            before: ["setIsPostackRunning"],
+            before: ["setIsPostbackRunning"],
             execute(callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions) {
                 var queue = o.q || "default";
                 if (dotvvm.getPostbackQueue(queue).noRunning > 0)
@@ -78,7 +78,7 @@ class DotVVM {
         }),
         "concurrency-queue": (o: any) => ({
             name: "concurrency-queue",
-            before: ["setIsPostackRunning"],
+            before: ["setIsPostbackRunning"],
             execute(callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions) {
                 var queue = o.q || "default";
                 var handler = () => dotvvm.commonConcurrencyHandler(callback(), options, queue);
@@ -93,7 +93,7 @@ class DotVVM {
         }),
         "suppressOnUpdating": (options: any) => ({
             name: "suppressOnUpdating",
-            before: ["setIsPostackRunning", "concurrency-default", "concurrency-queue", "concurrency-deny"],
+            before: ["setIsPostbackRunning", "concurrency-default", "concurrency-queue", "concurrency-deny"],
             execute(callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions) {
                 if (dotvvm.isViewModelUpdating) return Promise.reject({ type: "handler", handler: this, message: "ViewModel is updating, so it's probably false onchange event" })
                 else return callback()
