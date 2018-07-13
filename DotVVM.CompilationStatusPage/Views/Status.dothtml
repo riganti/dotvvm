@@ -18,6 +18,36 @@
             color: green;
         }
 
+        .table td {
+            padding: 0.3rem;
+        }
+
+        h1, h2 {
+            margin-top: 25px;
+        }
+
+        nav {
+            margin-top: 15px;
+        }
+
+        .update-box {
+            position: absolute;
+            top: 10px;
+            margin-right: 40%;
+            margin-left: 40%;
+            text-align: center;
+            width: 20%;
+            border: 1px solid rgba(0,0,0,.125);
+            border-radius: 5px;
+            vertical-align: middle;
+            padding: 5px;
+            background-color: #fff;
+        }
+
+        .compiling-update-progress {
+            margin: 0;
+        }
+
         @keyframes blink {
             50% {
                 color: transparent
@@ -38,108 +68,127 @@
     </style>
 </head>
 <body>
-    <h1>
-        Compilation Status Page
-    </h1>
-    <dot:Button ID="compile-all-button" Click="{command: CompileAll()}" Text="Compile All" class="btn btn-primary"></dot:Button>
-    <dot:UpdateProgress>
-        <p class="compiling-update-progress">Compiling<span>.</span><span>.</span><span>.</span></p>
-    </dot:UpdateProgress>
-    <div ID="views" ClientIDMode="Static">
+    <div class="container-fluid">
+        <h1>
+            Compilation Status Page
+        </h1>
+        <dot:Button ID="compile-all-button" Click="{command: CompileAll()}" Text="Compile All" class="btn btn-primary float-right"></dot:Button>
+        <dot:UpdateProgress class="update-box">
+            <p class="compiling-update-progress">Compiling<span>.</span><span>.</span><span>.</span></p>
+        </dot:UpdateProgress>
+        <div ID="views" ClientIDMode="Static">
+            <nav>
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" data-toggle="tab-pane1" onclick="changeTab(this); return false;">Routes</a>
+                    </li>
+                    <li class="nav-item" id="tab2">
+                        <a class="nav-link" href="#" data-toggle="tab-pane2" onclick="changeTab(this); return false;">Controls</a>
+                    </li>
+                    <li class="nav-item" id="tab3">
+                        <a class="nav-link" href="#" data-toggle="tab-pane3" onclick="changeTab(this); return false;">Master Pages</a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="tab-content">
+                <div class="tab-pane active" id="tab-pane1">
+                    <h2>Routes</h2>
+                    <dot:GridView DataSource="{value:  Routes}" class="table table-hover">
+                        <RowDecorators>
+                            <dot:Decorator Class-table-danger="{value: Status == CompilationState.CompilationFailed}" />
+                            <dot:Decorator Class-table-success="{value: Status == CompilationState.CompletedSuccessfully}" />
+                        </RowDecorators>
+                        <Columns>
+                            <dot:GridViewTextColumn ValueBinding="{value: RouteName}" HeaderText="Route" />
+                            <dot:GridViewTemplateColumn HeaderText="Url">
+                                <ContentTemplate>
+                                    <span data-bind="if: !HasParameters()">
+                                        <a href="{value:  "/" +  Url}">{{value: Url}}</a>
+                                    </span>
+                                    <span data-bind="if: HasParameters()">
+                                        {{value: Url}}
+                                    </span>
+                                </ContentTemplate>
+                            </dot:GridViewTemplateColumn>
+                            <dot:GridViewTextColumn ValueBinding="{value: VirtualPath}" HeaderText="Virtual Path" />
+                            <dot:GridViewTemplateColumn HeaderText="Status">
+                                <ContentTemplate>
+                                    <span class="status">
+                                        {{value: Status}}
+                                    </span>
+                                </ContentTemplate>
+                            </dot:GridViewTemplateColumn>
+                            <dot:GridViewTemplateColumn>
+                                <ContentTemplate>
+                                    <span Visible="{value: Status != CompilationState.NonCompilable}">
+                                        <dot:LinkButton Click="{command: _root.BuildView(_this)}" Text="Compile" />
+                                    </span>
+                                </ContentTemplate>
+                            </dot:GridViewTemplateColumn>
+                            <dot:GridViewTextColumn ValueBinding="{value: Exception}">
+                            </dot:GridViewTextColumn>
+                        </Columns>
+                    </dot:GridView>
+                </div>
+                <div class="tab-pane" id="tab-pane2">
+                    <h2>Controls</h2>
+                    <dot:GridView DataSource="{value:  Controls}" class="table table-hover">
+                        <RowDecorators>
+                            <dot:Decorator Class-table-danger="{value: Status == CompilationState.CompilationFailed}" />
+                            <dot:Decorator Class-table-success="{value: Status == CompilationState.CompletedSuccessfully}" />
+                        </RowDecorators>
+                        <Columns>
+                            <dot:GridViewTextColumn ValueBinding="{value: TagPrefix }" HeaderText="Prefix" />
+                            <dot:GridViewTextColumn ValueBinding="{value: TagName }" HeaderText="Tag" />
+                            <dot:GridViewTextColumn ValueBinding="{value: VirtualPath }" HeaderText="Virtual Path" />
+                            <dot:GridViewTemplateColumn HeaderText="Status">
+                                <ContentTemplate>
+                                    <span class="status">
+                                        {{value: Status}}
+                                    </span>
+                                </ContentTemplate>
+                            </dot:GridViewTemplateColumn>
+                            <dot:GridViewTemplateColumn>
+                                <ContentTemplate>
+                                    <dot:Button Click="{command: _root.BuildView(_this)}" Text="Compile" class="btn btn-primary" />
+                                </ContentTemplate>
+                            </dot:GridViewTemplateColumn>
+                            <dot:GridViewTextColumn ValueBinding="{value: Exception}">
+                            </dot:GridViewTextColumn>
+                        </Columns>
+                    </dot:GridView>
+                </div>
+                <div class="tab-pane" id="tab-pane3">
+                    <h2>Master Pages</h2>
+                    <dot:GridView DataSource="{value:  MasterPages}" class="table table-hover">
 
-        <br />
-        <h2>Routes</h2>
-        <dot:GridView DataSource="{value:  Routes}" class="table table-hover">
-            <RowDecorators>
-                <dot:Decorator Class-table-danger="{value: Status == CompilationState.CompilationFailed}" />
-                <dot:Decorator Class-table-success="{value: Status == CompilationState.CompletedSuccessfully}" />
-            </RowDecorators>
-            <Columns>
-                <dot:GridViewTextColumn ValueBinding="{value: RouteName}" HeaderText="Route" />
-                <dot:GridViewTemplateColumn HeaderText="Url">
-                    <ContentTemplate>
-                        <span data-bind="if: !HasParameters()">
-                            <a href="{value:  "/" +  Url}">{{value: Url}}</a>
-                        </span>
-                        <span data-bind="if: HasParameters()">
-                            {{value: Url}}
-                        </span>
-                    </ContentTemplate>
-                </dot:GridViewTemplateColumn>
-                <dot:GridViewTextColumn ValueBinding="{value: VirtualPath}" HeaderText="Virtual Path" />
-                <dot:GridViewTemplateColumn HeaderText="Status">
-                    <ContentTemplate>
-                        <span class="status">
-                            {{value: Status}}
-                        </span>
-                    </ContentTemplate>
-                </dot:GridViewTemplateColumn>
-                <dot:GridViewTemplateColumn>
-                    <ContentTemplate>
-                        <span Visible="{value: Status != CompilationState.NonCompilable}">
-                            <dot:Button Click="{command: _root.BuildView(_this)}" Text="Compile" class="btn btn-primary" />
-                        </span>
-                    </ContentTemplate>
-                </dot:GridViewTemplateColumn>
-                <dot:GridViewTextColumn ValueBinding="{value: Exception}">
-                </dot:GridViewTextColumn>
-            </Columns>
-        </dot:GridView>
-
-        <h2>Controls</h2>
-        <dot:GridView DataSource="{value:  Controls}" class="table table-hover">
-            <RowDecorators>
-                <dot:Decorator Class-table-danger="{value: Status == CompilationState.CompilationFailed}" />
-                <dot:Decorator Class-table-success="{value: Status == CompilationState.CompletedSuccessfully}" />
-            </RowDecorators>
-            <Columns>
-                <dot:GridViewTextColumn ValueBinding="{value: TagPrefix }" HeaderText="Prefix" />
-                <dot:GridViewTextColumn ValueBinding="{value: TagName }" HeaderText="Tag" />
-                <dot:GridViewTextColumn ValueBinding="{value: VirtualPath }" HeaderText="Virtual Path" />
-                <dot:GridViewTemplateColumn HeaderText="Status">
-                    <ContentTemplate>
-                        <span class="status">
-                            {{value: Status}}
-                        </span>
-                    </ContentTemplate>
-                </dot:GridViewTemplateColumn>
-                <dot:GridViewTemplateColumn>
-                    <ContentTemplate>
-                        <dot:Button Click="{command: _root.BuildView(_this)}" Text="Compile" class="btn btn-primary" />
-                    </ContentTemplate>
-                </dot:GridViewTemplateColumn>
-                <dot:GridViewTextColumn ValueBinding="{value: Exception}">
-                </dot:GridViewTextColumn>
-            </Columns>
-        </dot:GridView>
-
-        <h2>Master Pages</h2>
-        <dot:GridView DataSource="{value:  MasterPages}" class="table table-hover">
-
-            <RowDecorators>
-                <dot:Decorator Class-table-danger="{value: Status == CompilationState.CompilationFailed}" />
-                <dot:Decorator Class-table-success="{value: Status == CompilationState.CompletedSuccessfully}" />
-            </RowDecorators>
-            <Columns>
-                <dot:GridViewTextColumn ValueBinding="{value: VirtualPath}" HeaderText="Virtual Path" />
-                <dot:GridViewTemplateColumn HeaderText="Status">
-                    <ContentTemplate>
-                        <span class="status">
-                            {{value: Status}}
-                        </span>
-                    </ContentTemplate>
-                </dot:GridViewTemplateColumn>
-                <dot:GridViewTemplateColumn>
-                    <ContentTemplate>
-                        <span Visible="{value: Status != CompilationState.NonCompilable}">
-                            <dot:Button Click="{command: _root.BuildView(_this)}" Text="Compile" class="btn btn-primary" />
-                        </span>
-                    </ContentTemplate>
-                </dot:GridViewTemplateColumn>
-                <dot:GridViewTextColumn ValueBinding="{value: Exception}">
-                </dot:GridViewTextColumn>
-            </Columns>
-        </dot:GridView>
+                        <RowDecorators>
+                            <dot:Decorator Class-table-danger="{value: Status == CompilationState.CompilationFailed}" />
+                            <dot:Decorator Class-table-success="{value: Status == CompilationState.CompletedSuccessfully}" />
+                        </RowDecorators>
+                        <Columns>
+                            <dot:GridViewTextColumn ValueBinding="{value: VirtualPath}" HeaderText="Virtual Path" />
+                            <dot:GridViewTemplateColumn HeaderText="Status">
+                                <ContentTemplate>
+                                    <span class="status">
+                                        {{value: Status}}
+                                    </span>
+                                </ContentTemplate>
+                            </dot:GridViewTemplateColumn>
+                            <dot:GridViewTemplateColumn>
+                                <ContentTemplate>
+                                    <span Visible="{value: Status != CompilationState.NonCompilable}">
+                                        <dot:Button Click="{command: _root.BuildView(_this)}" Text="Compile" class="btn btn-primary" />
+                                    </span>
+                                </ContentTemplate>
+                            </dot:GridViewTemplateColumn>
+                            <dot:GridViewTextColumn ValueBinding="{value: Exception}">
+                            </dot:GridViewTextColumn>
+                        </Columns>
+                    </dot:GridView>
+                </div>
+            </div>
+        </div>
     </div>
 
     <dot:InlineScript>
@@ -172,5 +221,15 @@
             document.getElementById('compile-all-button').click();
         });
     </dot:InlineScript>
+
+    <script>
+        function changeTab(item) {
+
+            document.getElementsByClassName("tab-pane active")[0].classList.remove("active");
+            document.getElementById(item.getAttribute("data-toggle")).classList.add("active");
+            document.getElementsByClassName("nav-link active")[0].classList.remove("active");
+            item.classList.add("active");
+        }
+    </script>
 </body>
 </html>
