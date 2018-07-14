@@ -25,7 +25,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\</OutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -33,7 +33,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\</OutputPath>
+    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -254,10 +254,10 @@
           <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
         </WebProjectProperties>
       </FlavorProperties>
-      <FlavorProperties GUID="{94EE71E2-EE2A-480B-8704-AF46D2E58D94}" Configuration="Debug|AnyCPU">
+      <FlavorProperties GUID="{94EE71E2-EE2A-480B-8704-AF46D2E58D94}" Configuration="Debug|Any CPU">
         <DotvvmPropertyPageProjectFlavorCfg />
       </FlavorProperties>
-      <FlavorProperties GUID="{94EE71E2-EE2A-480B-8704-AF46D2E58D94}" Configuration="Release|AnyCPU">
+      <FlavorProperties GUID="{94EE71E2-EE2A-480B-8704-AF46D2E58D94}" Configuration="Release|Any CPU">
         <DotvvmPropertyPageProjectFlavorCfg />
       </FlavorProperties>
     </VisualStudio>
