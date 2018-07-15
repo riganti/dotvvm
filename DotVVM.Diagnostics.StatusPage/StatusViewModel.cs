@@ -8,7 +8,7 @@ using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.ViewModel;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DotVVM.CompilationStatusPage.ViewModels
+namespace DotVVM.Diagnostics.StatusPage
 {
     public class StatusViewModel : DotvvmViewModelBase
     {

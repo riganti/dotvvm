@@ -111,7 +111,7 @@ function GitPush() {
 ### Configuration
 
 $packages = @(
-	[pscustomobject]@{ Package = "DotVVM.Diagnostics.StatusPage"; Directory = "DotVVM.CompilationStatusPage" }
+	[pscustomobject]@{ Package = "DotVVM.Diagnostics.StatusPage"; Directory = "DotVVM.Diagnostics.StatusPage" }
 )
 
 
