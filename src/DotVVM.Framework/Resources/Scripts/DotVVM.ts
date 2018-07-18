@@ -101,6 +101,17 @@ class DotVVM {
         })
     }
 
+    private suppressOnDisabledElementHandler: DotvvmPostbackHandler = {
+        name: "suppressOnDisabledElement",
+        before: ["setIsPostbackRunning", "concurrency-default", "concurrency-queue", "concurrency-deny"],
+        execute: <T>(callback: () => Promise<T>, options: PostbackOptions) => {
+            if (options.sender && dotvvm.isPostBackProhibited(options.sender)) {
+                return Promise.reject({ type: "handler", handler: this, message: "PostBack is prohitibited on disabled element" })
+            }
+            else return callback()
+        }
+    }
+
     private beforePostbackEventPostbackHandler: DotvvmPostbackHandler = {
         execute: <T>(callback: () => Promise<T>, options: PostbackOptions) => {
 
@@ -193,7 +204,7 @@ class DotVVM {
         }
     }
 
-    public globalPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[] = [this.isPostBackRunningHandler, this.postbackHandlersStartedEventHandler]
+    public globalPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[] = [this.suppressOnDisabledElementHandler, this.isPostBackRunningHandler, this.postbackHandlersStartedEventHandler]
     public globalLaterPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[] = [this.postbackHandlersCompletedEventHandler, this.beforePostbackEventPostbackHandler]
 
     public events = new DotvvmEvents();
@@ -355,8 +366,6 @@ class DotVVM {
     }
 
     public staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback = _ => { }, errorCallback = (xhr: XMLHttpRequest, error?) => { }) {
-        if (this.isPostBackProhibited(sender)) return;
-
         var data = this.serialization.serialize({
             "args": args,
             "command": command,
@@ -602,12 +611,6 @@ class DotVVM {
     }
 
     public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, context?: any, handlers?: ClientFriendlyPostbackHandlerConfiguration[], commandArgs?: any[]): Promise<DotvvmAfterPostBackEventArgs> {
-        if (this.isPostBackProhibited(sender)) {
-            const rejectedPromise = new Promise<DotvvmAfterPostBackEventArgs>((resolve, reject) => reject("rejected"));
-            rejectedPromise.catch(() => console.log("Postback probihited"));
-            return rejectedPromise;
-        }
-
         context = context || ko.contextFor(sender);
 
         const preparedHandlers = this.findPostbackHandlers(context, this.globalPostbackHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers));
@@ -1069,7 +1072,7 @@ class DotVVM {
     }
 
     private isPostBackProhibited(element: HTMLElement) {
-        if (element && element.tagName && element.tagName.toLowerCase() === "a" && element.getAttribute("disabled")) {
+        if (element && element.tagName && ["a", "input", "button"].indexOf(element.tagName.toLowerCase()) > -1 && element.getAttribute("disabled")) {
             return true;
         }
         return false;
