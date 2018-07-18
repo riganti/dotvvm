@@ -39,6 +39,8 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.EnabledProperty
         public string SelectedFruitFromList { get; set; }
         public bool ListEnabled { get; set; } = true;
 
+        public bool ButtonEnabled { get; set; } = true;
+
         public void SwitchEnabledState()
         {
             CheckEnabled = !CheckEnabled;
@@ -46,7 +48,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.EnabledProperty
             RadioEnabled = !RadioEnabled;
             TextEnabled = !TextEnabled;
             ListEnabled = !ListEnabled;
+            ButtonEnabled = !ButtonEnabled;
         }
-
     }
 }

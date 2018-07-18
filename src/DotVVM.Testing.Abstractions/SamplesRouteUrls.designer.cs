@@ -34,6 +34,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ComplexSamples_TaskList_TaskListAsyncCommands = "ComplexSamples/TaskList/TaskListAsyncCommands";
         public const string ControlSamples_AuthenticatedView_AuthenticatedViewTest = "ControlSamples/AuthenticatedView/AuthenticatedViewTest";
         public const string ControlSamples_Button_Button = "ControlSamples/Button/Button";
+        public const string ControlSamples_Button_ButtonEnabled = "ControlSamples/Button/ButtonEnabled";
         public const string ControlSamples_Button_ButtonOnclick = "ControlSamples/Button/ButtonOnclick";
         public const string ControlSamples_Button_ButtonTagName = "ControlSamples/Button/ButtonTagName";
         public const string ControlSamples_Button_InputTypeButton_HtmlContentInside = "ControlSamples/Button/InputTypeButton_HtmlContentInside";
@@ -70,6 +71,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_HtmlLiteral_HtmlLiteral = "ControlSamples/HtmlLiteral/HtmlLiteral";
         public const string ControlSamples_IncludeInPageProperty_IncludeInPage = "ControlSamples/IncludeInPageProperty/IncludeInPage";
         public const string ControlSamples_LinkButton_LinkButton = "ControlSamples/LinkButton/LinkButton";
+        public const string ControlSamples_LinkButton_LinkButtonEnabled = "ControlSamples/LinkButton/LinkButtonEnabled";
         public const string ControlSamples_LinkButton_LinkButtonOnclick = "ControlSamples/LinkButton/LinkButtonOnclick";
         public const string ControlSamples_ListBox_ListBox = "ControlSamples/ListBox/ListBox";
         public const string ControlSamples_Literal_Literal = "ControlSamples/Literal/Literal";

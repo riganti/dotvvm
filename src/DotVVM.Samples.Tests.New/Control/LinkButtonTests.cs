@@ -54,6 +54,44 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
+        [Fact]
+        public void Control_LinkButton_LinkButtonEnabled()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_LinkButton_LinkButtonEnabled);
+
+                var commandResult = browser.First("[data-ui=command-result]");
+                var staticCommandResult = browser.First("[data-ui=static-command-result]");
+                var clientStaticCommandResult = browser.First("[data-ui=client-static-command-result]");
+
+                AssertUI.InnerTextEquals(commandResult, "");
+                AssertUI.InnerTextEquals(staticCommandResult, "");
+                AssertUI.InnerTextEquals(clientStaticCommandResult, "");
+
+                var commandLinkButton = browser.First("[data-ui=command-linkbutton]");
+                var staticCommandLinkButton = browser.First("[data-ui=static-command-linkbutton]");
+                var clientStaticCommandLinkButton = browser.First("[data-ui=client-static-command-linkbutton]");
+
+                commandLinkButton.Click();
+                staticCommandLinkButton.Click();
+                clientStaticCommandLinkButton.Click();
+
+                AssertUI.InnerTextEquals(commandResult, "");
+                AssertUI.InnerTextEquals(staticCommandResult, "");
+                AssertUI.InnerTextEquals(clientStaticCommandResult, "");
+
+                browser.First("[data-ui=toggle-enabled]").Click();
+
+                commandLinkButton.Click();
+                staticCommandLinkButton.Click();
+                clientStaticCommandLinkButton.Click();
+
+                AssertUI.InnerTextEquals(commandResult, "Changed from command binding");
+                AssertUI.InnerTextEquals(staticCommandResult, "Changed from static command on server");
+                AssertUI.InnerTextEquals(clientStaticCommandResult, "Changed from static command");
+            });
+        }
+
         public LinkButtonTests(ITestOutputHelper output) : base(output)
         {
         }
