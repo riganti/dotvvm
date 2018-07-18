@@ -20,7 +20,7 @@ namespace DotVVM.Samples.Tests.Feature
         public void Feature_ReturnedFile_ReturnedFileSample_Simple()
         {
             RunInAllBrowsers(browser => {
-                ReturnedFileDownload(browser, "Hello");
+                ReturnedFileDownload(browser, "Hello DotVVM returned file sample!");
             });
         }
 
