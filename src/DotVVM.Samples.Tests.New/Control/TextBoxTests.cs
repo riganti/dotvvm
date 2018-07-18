@@ -83,6 +83,25 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_TextBox_SelectAllOnFocus);
 
+                // window.getSelection() doesn't work in Firefox due to this bug https://bugzilla.mozilla.org/show_bug.cgi?id=85686
+                // so custom implementation of getSelection is provided
+                // by https://stackoverflow.com/a/20427804
+                browser.GetJavaScriptExecutor().ExecuteScript(@"
+window.getSelectionText = function (dataui) {
+    if (window.getSelection) {
+        try {
+            var ta = document.querySelector('[data-ui=' + dataui + ']');
+            return ta.value.substring(ta.selectionStart, ta.selectionEnd);
+        } catch (e) {
+            console.log('Cant get selection text')
+        }
+    } 
+    // For IE
+    if (document.selection && document.selection.type != 'Control') {
+        return document.selection.createRange().text;
+            }
+}");
+
                 CheckSelectAllOnFocus(browser, "hardcoded");
                 CheckSelectAllOnFocus(browser, "bound", false);
                 browser.Single("button", this.SelectByDataUi).Click();
@@ -94,7 +113,7 @@ namespace DotVVM.Samples.Tests.Control
         {
             var textBox = browser.Single(textBoxDataUi, SelectByDataUi);
             textBox.Click();
-            var selectedText = (string)browser.GetJavaScriptExecutor().ExecuteScript("return window.getSelection().toString();");
+            var selectedText = (string)browser.GetJavaScriptExecutor().ExecuteScript($"return window.getSelectionText('{textBoxDataUi}');");
             var expectedText = isSelectAllOnFocusTrue ? "Testing text" : "";
             Assert.AreEqual(expectedText, selectedText);
         }
@@ -196,11 +215,11 @@ namespace DotVVM.Samples.Tests.Control
                 {
                     // There is special threatment for TextBox with Changed Command
                     // When Clear() method is used, changed command is invoked and default value '0.00' appear
-                    new Actions(browser.Driver)
-                        .DoubleClick(element.WebElement)
-                        .SendKeys(Keys.Delete)
-                        .Build()
-                        .Perform();
+
+                    while (element.GetText() != "")
+                    {
+                        element.WebElement.SendKeys(Keys.Backspace);
+                    }
                 }
 
                 var culture = new CultureInfo(cultureName);
