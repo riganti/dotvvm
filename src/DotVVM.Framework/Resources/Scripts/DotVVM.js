@@ -1104,6 +1104,7 @@ var DotVVM = /** @class */ (function () {
                 _this.isViewModelUpdating = false;
             }
         }, function (xhr) {
+            _this.events.error.trigger(new DotvvmErrorEventArgs(sender, _this.viewModels[viewModelName].viewModel, viewModelName, xhr, null));
             console.warn("StaticCommand postback failed: " + xhr.status + " - " + xhr.statusText, xhr);
             errorCallback(xhr);
             dotvvm.events.staticCommandMethodFailed.trigger(__assign({}, data, { xhr: xhr }));

@@ -386,6 +386,7 @@ class DotVVM {
                 this.isViewModelUpdating = false;
             }
         }, (xhr) => {
+            this.events.error.trigger(new DotvvmErrorEventArgs(sender, this.viewModels[viewModelName].viewModel, viewModelName, xhr, null));
             console.warn(`StaticCommand postback failed: ${xhr.status} - ${xhr.statusText}`, xhr);
             errorCallback(xhr);
             dotvvm.events.staticCommandMethodFailed.trigger({ ...data, xhr })
