@@ -12,5 +12,10 @@ namespace DotVVM.Framework.Runtime
         {
             return context.Services.GetRequiredService(serviceType);
         }
+
+        public virtual void DisposeStaticCommandServices(IDotvvmRequestContext context)
+        {
+        }
+        
     }
 }

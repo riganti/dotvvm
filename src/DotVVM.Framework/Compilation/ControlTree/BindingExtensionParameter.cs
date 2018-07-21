@@ -11,7 +11,9 @@ using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Utils;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
@@ -123,8 +125,14 @@ namespace DotVVM.Framework.Compilation.ControlTree
         public override Expression GetServerEquivalent(Expression controlParameter)
         {
             var type = ((ResolvedTypeDescriptor)this.ParameterType).Type;
-            var expr = ExpressionUtils.Replace((DotvvmBindableObject c) => ((IDotvvmRequestContext)c.GetValue(Internal.RequestContextProperty, true)).Services.GetService(type), controlParameter);
+            var expr = ExpressionUtils.Replace((DotvvmBindableObject c) => ResolveStaticCommandService(c, type), controlParameter);
             return Expression.Convert(expr, type);
+        }
+
+        private object ResolveStaticCommandService(DotvvmBindableObject c, Type type)
+        {
+            var context = (IDotvvmRequestContext)c.GetValue(Internal.RequestContextProperty, true);
+            return context.Services.GetService<IStaticCommandServiceLoader>().GetStaticCommandService(type, context);
         }
 
         public override JsExpression GetJsTranslation(JsExpression dataContext)

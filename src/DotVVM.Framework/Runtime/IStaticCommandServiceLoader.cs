@@ -8,5 +8,7 @@ namespace DotVVM.Framework.Runtime
 
         object GetStaticCommandService(Type serviceType, IDotvvmRequestContext context);
 
+        void DisposeStaticCommandServices(IDotvvmRequestContext context);
+
     }
 }
