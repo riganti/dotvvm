@@ -81,7 +81,7 @@ namespace DotVVM.Samples.Tests.New.Feature
                         var value = parent.First("[data-id='Column2']").GetText().Trim() + "|" + parent.First("[data-id=Row2]").GetText().Trim() + "|" + parent.First("[data-id='Row']").GetText().Trim() + "|" + parent.First("[data-id=Column]").GetText().Trim();
 
                         AssertUI.InnerTextEquals(browser.First("#value"), value);
-                    }, 1500, 25, "Button did not invoke action or action was not performed.");
+                    }, 2500, 25, "Button did not invoke action or action was not performed.");
                 }
 
                 AssertUI.TextEquals(browser.First("#Duplicity"), "false");
