@@ -182,7 +182,7 @@ window.getSelectionText = function (dataui) {
                 //write invalid values
                 dateTextBox.Clear().SendKeys("dsasdasd");
                 numberTextbox.Clear().SendKeys("000//*a");
-                dateTextBox.Click();
+                dateTextBox.Click();    
 
                 //check invalid values
                 AssertUI.InnerTextEquals(dateText, "");
@@ -215,12 +215,14 @@ window.getSelectionText = function (dataui) {
                 {
                     // There is special threatment for TextBox with Changed Command
                     // When Clear() method is used, changed command is invoked and default value '0.00' appear
-
                     while (element.GetText() != "")
                     {
                         element.WebElement.SendKeys(Keys.Backspace);
                     }
                 }
+
+                // Set focus to different element to drop focus on input and invoke onchange element (for IE)
+                void LoseFocus() => browser.Single("body").SetFocus(); ;
 
                 var culture = new CultureInfo(cultureName);
                 browser.NavigateToUrl(url);
@@ -237,6 +239,7 @@ window.getSelectionText = function (dataui) {
                 numberTextbox.SendKeys("42")
                     .SendEnterKey()
                     .Wait();
+                LoseFocus();
 
                 // check new values
                 AssertUI.InnerTextEquals(numberValueText, 42.ToString(culture));
@@ -247,6 +250,7 @@ window.getSelectionText = function (dataui) {
                 numberTextbox.SendKeys(123.456789.ToString(culture))
                     .SendEnterKey()
                     .Wait();
+                LoseFocus();
 
                 // check new values
                 AssertUI.InnerTextEquals(numberValueText, 123.456789.ToString(culture));
