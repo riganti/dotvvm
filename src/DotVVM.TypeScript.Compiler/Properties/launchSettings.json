@@ -1,8 +1,1 @@
-{
-  "profiles": {
-    "DotVVM.TypeScript.Compiler": {
-      "commandName": "Project",
-      "commandLineArgs": "C:\\Development\\Test\\DotVVM.Samples.JsTranslation\\DotVVM.Samples.BasicSamples.AspNetCore.sln DotVVM.Samples.BasicSamples.AspNetCore"
-    }
-  }
-}
+{}

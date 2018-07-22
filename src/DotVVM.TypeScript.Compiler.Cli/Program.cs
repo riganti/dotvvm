@@ -1,15 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-using DotVVM.Framework.Compilation.Binding;
 using DotVVM.TypeScript.Compiler.Exceptions;
-using DotVVM.TypeScript.Compiler.Translators.Operations;
-using DotVVM.TypeScript.Compiler.Utils;
 using DotVVM.TypeScript.Compiler.Utils.IO;
 using DotVVM.TypeScript.Compiler.Utils.Logging;
-using Microsoft.Extensions.DependencyInjection;
 
-namespace DotVVM.TypeScript.Compiler
+namespace DotVVM.TypeScript.Compiler.Cli
 {
     class Program
     {
@@ -23,14 +19,14 @@ namespace DotVVM.TypeScript.Compiler
 
             var filePath = args[0];
             var solutionFileInfo = new FileInfo(filePath);
-            if(!solutionFileInfo.Exists)
+            if (!solutionFileInfo.Exists)
                 throw new InvalidArgumentException("Solution file does not exist.");
-            if(!solutionFileInfo.Extension.Equals(".sln", StringComparison.InvariantCultureIgnoreCase))
+            if (!solutionFileInfo.Extension.Equals(".sln", StringComparison.InvariantCultureIgnoreCase))
                 throw new InvalidArgumentException("Passed file is not valid sln file.");
 
             var projectName = args[1];
 
-            return new CompilerArguments {SolutionFile = solutionFileInfo, ProjectName = projectName};
+            return new CompilerArguments { SolutionFile = solutionFileInfo, ProjectName = projectName };
         }
 
         static async Task<int> Main(string[] args)
@@ -47,6 +43,7 @@ namespace DotVVM.TypeScript.Compiler
             catch (InvalidArgumentException exception)
             {
                 logger.LogError("Arguments", exception.Message);
+                PrintHelp();
             }
             catch (MissingArgumentsException)
             {
@@ -55,7 +52,7 @@ namespace DotVVM.TypeScript.Compiler
             }
             catch (NotSupportedOperationException exception)
             {
-                logger.LogError("Operation","Unsupported operation used");
+                logger.LogError("Operation", "Unsupported operation used");
                 logger.LogError("Operation", exception.Message);
             }
             catch (Exception exception)

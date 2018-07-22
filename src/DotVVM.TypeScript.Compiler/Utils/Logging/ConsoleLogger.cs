@@ -2,7 +2,7 @@
 
 namespace DotVVM.TypeScript.Compiler.Utils.Logging
 {
-    class ConsoleLogger : ILogger
+    public class ConsoleLogger : ILogger
     {
         private const string PrefixDebug = "DEBUG";
         private const string PrefixInfo = "INFO";

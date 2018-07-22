@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DotVVM.TypeScript.Compiler.Cli": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\Development\\Riganti\\dotvvm\\src\\DotVVM.sln DotVVM.Samples.Common"
+    }
+  }
+}
