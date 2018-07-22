@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
-using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Runtime;
 using Newtonsoft.Json;
 using DotVVM.Framework.Hosting;
@@ -12,7 +11,6 @@ using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.Utils;
-using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Framework.Controls
 {
@@ -143,8 +141,6 @@ namespace DotVVM.Framework.Controls
             }
             string generatedPostbackHandlers = null;
 
-
-
             var adjustedExpression = expression.GetParametrizedCommandJavascript(control);
             // when the expression changes the dataContext, we need to override the default knockout context fo the command binding.
             var knockoutContext = options.KoContext ?? (
@@ -153,23 +149,22 @@ namespace DotVVM.Framework.Controls
                 default);
 
             var call = adjustedExpression.ToString(p =>
-                    p == CommandBindingExpression.ViewModelNameParameter ? new CodeParameterAssignment("\"root\"", OperatorPrecedence.Max) :
-                    p == CommandBindingExpression.SenderElementParameter ? options.ElementAccessor :
-                    p == CommandBindingExpression.CurrentPathParameter ? new CodeParameterAssignment(
-                        getContextPath(control),
-                        OperatorPrecedence.Max) :
-                    p == CommandBindingExpression.ControlUniqueIdParameter ? new CodeParameterAssignment(
-                        (uniqueControlId is IValueBinding ? "{ expr: " + JsonConvert.ToString(((IValueBinding)uniqueControlId).GetKnockoutBindingExpression(control)) + "}" : '"' + (string)uniqueControlId + '"'), OperatorPrecedence.Max) :
-                    p == JavascriptTranslator.KnockoutContextParameter ? knockoutContext :
-                    p == CommandBindingExpression.CommandArgumentsParameter ? options.CommandArgs ?? default :
-                    p == CommandBindingExpression.PostbackHandlersParameter ? new CodeParameterAssignment(generatedPostbackHandlers ?? (generatedPostbackHandlers = getHandlerScript()), OperatorPrecedence.Max) :
-                    default(CodeParameterAssignment)
-                );
+                p == CommandBindingExpression.ViewModelNameParameter ? new CodeParameterAssignment("\"root\"", OperatorPrecedence.Max) :
+                p == CommandBindingExpression.SenderElementParameter ? options.ElementAccessor :
+                p == CommandBindingExpression.CurrentPathParameter ? new CodeParameterAssignment(
+                    getContextPath(control),
+                    OperatorPrecedence.Max) :
+                p == CommandBindingExpression.ControlUniqueIdParameter ? new CodeParameterAssignment(
+                    (uniqueControlId is IValueBinding ? "{ expr: " + JsonConvert.ToString(((IValueBinding)uniqueControlId).GetKnockoutBindingExpression(control)) + "}" : '"' + (string)uniqueControlId + '"'), OperatorPrecedence.Max) :
+                p == JavascriptTranslator.KnockoutContextParameter ? knockoutContext :
+                p == CommandBindingExpression.CommandArgumentsParameter ? options.CommandArgs ?? default :
+                p == CommandBindingExpression.PostbackHandlersParameter ? new CodeParameterAssignment(generatedPostbackHandlers ?? (generatedPostbackHandlers = getHandlerScript()), OperatorPrecedence.Max) :
+                default(CodeParameterAssignment)
+            );
             if (generatedPostbackHandlers == null && options.AllowPostbackHandlers)
                 return $"dotvvm.applyPostbackHandlers(function(){{return {call}}}.bind(this),{options.ElementAccessor.Code.ToString(e => default(CodeParameterAssignment))},{getHandlerScript()})";
             else return call;
         }
-
 
         /// <summary>
         /// Generates a list of postback update handlers.
@@ -182,39 +177,39 @@ namespace DotVVM.Framework.Controls
             var sb = new StringBuilder();
             sb.Append('[');
             if (handlers != null) foreach (var handler in handlers)
+            {
+                if (!string.IsNullOrEmpty(handler.EventName) && handler.EventName != eventName) continue;
+
+                var options = handler.GetHandlerOptions();
+                var name = handler.ClientHandlerName;
+
+                if (handler.GetValueBinding(PostBackHandler.EnabledProperty) is IValueBinding binding) options.Add("enabled", binding);
+                else if (!handler.Enabled) continue;
+
+                if (sb.Length > 1)
+                    sb.Append(',');
+
+                if (options.Count == 0)
                 {
-                    if (!string.IsNullOrEmpty(handler.EventName) && handler.EventName != eventName) continue;
-
-                    var options = handler.GetHandlerOptions();
-                    var name = handler.ClientHandlerName;
-
-                    if (handler.GetValueBinding(PostBackHandler.EnabledProperty) is IValueBinding binding) options.Add("enabled", binding);
-                    else if (!handler.Enabled) continue;
-
-                    if (sb.Length > 1)
-                        sb.Append(',');
-
-                    if (options.Count == 0)
-                    {
-                        sb.Append(JsonConvert.ToString(name));
-                    }
-                    else
-                    {
-                        string script = GenerateHandlerOptions(handler, options);
-
-                        sb.Append("[");
-                        sb.Append(JsonConvert.ToString(name));
-                        sb.Append(",");
-                        sb.Append(script);
-                        sb.Append("]");
-                    }
+                    sb.Append(JsonConvert.ToString(name));
                 }
+                else
+                {
+                    string script = GenerateHandlerOptions(handler, options);
+
+                    sb.Append("[");
+                    sb.Append(JsonConvert.ToString(name));
+                    sb.Append(",");
+                    sb.Append(script);
+                    sb.Append("]");
+                }
+            }
             if (moreHandlers != null) foreach (var h in moreHandlers) if (h != null)
-                    {
-                        if (sb.Length > 1)
-                            sb.Append(',');
-                        sb.Append(h);
-                    }
+            {
+                if (sb.Length > 1)
+                    sb.Append(',');
+                sb.Append(h);
+            }
             sb.Append(']');
             return sb.ToString();
         }
