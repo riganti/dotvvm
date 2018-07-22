@@ -59,6 +59,8 @@ namespace DotVVM.Framework.Hosting
 
         public IViewModelParameterBinder ViewModelParameterBinder { get; }
 
+        [Obsolete(DefaultStaticCommandServiceLoader.DeprecationNotice)]
+
         public IStaticCommandServiceLoader StaticCommandServiceLoader { get; }
 
         public string ApplicationPath { get; }
@@ -298,7 +300,7 @@ namespace DotVVM.Framework.Hosting
 
         private object ExecuteStaticCommandPlan(StaticCommandInvocationPlan plan, Queue<JToken> arguments, IDotvvmRequestContext context)
         {
-            var methodArgs = plan.Arguments.Select((a, index) => 
+            var methodArgs = plan.Arguments.Select((a, index) =>
                 a.Type == StaticCommandParameterType.Argument ? arguments.Dequeue().ToObject((Type)a.Arg) :
                 a.Type == StaticCommandParameterType.Constant || a.Type == StaticCommandParameterType.DefaultValue ? a.Arg :
                 a.Type == StaticCommandParameterType.Inject ? StaticCommandServiceLoader.GetStaticCommandService((Type)a.Arg, context) :
