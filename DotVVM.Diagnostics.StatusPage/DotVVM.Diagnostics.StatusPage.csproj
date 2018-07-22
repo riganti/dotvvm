@@ -1,7 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <!-- <PropertyGroup>
-    <TargetFramework>net451</TargetFramework>
-  </PropertyGroup> -->
   <PropertyGroup>
     <AssemblyTitle>DotVVM.Diagnostics.StatusPage</AssemblyTitle>
     <VersionPrefix>1.0.0</VersionPrefix>

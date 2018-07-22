@@ -10,15 +10,15 @@ namespace DotVVM.Diagnostics.StatusPage
 {
     public static class StatusPageExtensions
     {
-        public static IDotvvmServiceCollection AddStatusPageConfiguration(this IDotvvmServiceCollection services)
+        public static IDotvvmServiceCollection AddStatusPage(this IDotvvmServiceCollection services)
         {
-            return services.AddStatusPageConfiguration(StatusPageOptions.CreateDefaultOptions());
+            return services.AddStatusPage(StatusPageOptions.CreateDefaultOptions());
         }
 
         /// <summary>
         /// Adds Compilation Status Page to the application.
         /// </summary>
-        public static IDotvvmServiceCollection AddStatusPageConfiguration(this IDotvvmServiceCollection services, StatusPageOptions options)
+        public static IDotvvmServiceCollection AddStatusPage(this IDotvvmServiceCollection services, StatusPageOptions options)
         {
             if (options == null)
             {
