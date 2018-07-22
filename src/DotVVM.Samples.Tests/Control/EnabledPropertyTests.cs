@@ -19,8 +19,9 @@ namespace DotVVM.Samples.Tests.Control
                 browser.ElementAt("label", 1).CheckIfIsEnabled();
                 browser.ElementAt("label", 2).CheckIfIsEnabled();
                 browser.ElementAt("select", 1).CheckIfIsEnabled();
+                browser.First("[data-ui=button]").CheckIfIsEnabled();
 
-                browser.First("input[type=button]").Click().Wait();
+                browser.First("[data-ui=switch-button]").Click().Wait();
 
                 browser.ElementAt("select", 0).CheckIfIsNotEnabled();
                 browser.ElementAt("input", 0).CheckIfIsNotEnabled();
@@ -40,6 +41,7 @@ namespace DotVVM.Samples.Tests.Control
                 browser.ElementAt("label", 1).CheckIfIsNotSelected();
                 browser.ElementAt("label", 2).CheckIfIsNotSelected();
                 browser.ElementAt("select", 1).CheckIfIsNotEnabled();
+                browser.First("[data-ui=button]").CheckIfIsNotEnabled();
             });
         }
     }

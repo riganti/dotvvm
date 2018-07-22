@@ -27,6 +27,6 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         public override IEnumerable<BindingParserNode> EnumerateChildNodes()
             => new[] { FirstExpression, SecondExpression };
 
-        public override string ToDisplayString() => $"{FirstExpression.ToDisplayString()}{Operator.ToDisplayString()}{SecondExpression.ToDisplayString()}";
+        public override string ToDisplayString() => $"{FirstExpression.ToDisplayString()} {Operator.ToDisplayString()} {SecondExpression.ToDisplayString()}";
     }
 }

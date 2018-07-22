@@ -85,9 +85,8 @@ namespace DotVVM.Framework.Controls
         {
             var binding = GetBinding(property);
 
-            if (binding == null)
+            if (binding == null && !typeof(ITemplate).IsAssignableFrom(property.PropertyType))
             {
-
                 JsonSerializerSettings settings = DefaultViewModelSerializer.CreateDefaultSettings();
                 settings.StringEscapeHandling = StringEscapeHandling.EscapeHtml;
                 return new PropertySerializeInfo
@@ -99,7 +98,8 @@ namespace DotVVM.Framework.Controls
             }
             else if (binding is IValueBinding)
             {
-                return new PropertySerializeInfo {
+                return new PropertySerializeInfo
+                {
                     Property = property,
                     Js = (binding as IValueBinding).GetKnockoutBindingExpression(this),
                     IsSerializable = true

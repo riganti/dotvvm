@@ -1,20 +1,16 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OpenQA.Selenium;
-using OpenQA.Selenium.Interactions;
+﻿using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
-using System;
-using System.Globalization;
-using System.Linq;
-using System.Threading;
-using DotVVM.Testing.Abstractions;
+using Xunit;
 
-
-namespace DotVVM.Samples.Tests.Complex
+namespace DotVVM.Samples.Tests.New.Complex
 {
-    [TestClass]
     public class TaskListTests : AppSeleniumTest
     {
-        [TestMethod]
+        public TaskListTests(Xunit.Abstractions.ITestOutputHelper output) : base(output)
+        {
+        }
+
+        [Fact]
         public void Complex_TaskList_TaskListAsyncCommands()
         {
             RunInAllBrowsers(browser =>
@@ -34,14 +30,14 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.Last("a").Click();
                 browser.Wait(500);
 
-                browser.Last(".table tr").CheckClassAttribute(a => a.Contains("completed"), "Last task is not marked as completed.");
+                AssertUI.ClassAttribute(browser.Last(".table tr"), a => a.Contains("completed"), "Last task is not marked as completed.");
 
                 browser.ElementAt("input[type=button]", 1).Click().Wait(1000);
                 browser.FindElements(".table tr").ThrowIfDifferentCountThan(5);
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void Complex_TaskList_ServerRenderedTaskList()
         {
             RunInAllBrowsers(browser =>
@@ -61,7 +57,7 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.Last("a").Click();
                 browser.Wait(500);
 
-                browser.Last(".table tr").CheckClassAttribute(a => a.Contains("completed"),
+                AssertUI.ClassAttribute(browser.Last(".table tr"), a => a.Contains("completed"),
                     "Last task is not marked as completed.");
             });
         }

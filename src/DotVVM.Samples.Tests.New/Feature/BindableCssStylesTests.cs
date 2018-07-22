@@ -14,8 +14,8 @@ namespace DotVVM.Samples.New.Tests.Feature
         [Fact]
         public void Feature_BindableCssStyles_BindableCssStyles()
         {
-            const string redColor = "rgba(255, 0, 0, 1)";
-            const string greenColor = "rgba(0, 128, 0, 1)";
+            const string redColorRegex = @"rgba?\(255, 0, 0(, 1)?\)";
+            const string greenColorRegex = @"rgba?\(0, 128, 0(, 1)?\)";
 
             // ToDo: update asserts with AssertUI when there are proper assert methods available
             RunInAllBrowsers(browser => {
@@ -37,22 +37,22 @@ namespace DotVVM.Samples.New.Tests.Feature
                 var widthDec = browser.Single("[data-ui='width-dec']");
                 Assert.Equal("50px", div.WebElement.GetCssValue("width"));
                 Assert.Equal("50px", div.WebElement.GetCssValue("height"));
-                Assert.Equal(greenColor, div.WebElement.GetCssValue("background-color"));
+                Assert.Matches(greenColorRegex, div.WebElement.GetCssValue("background-color"));
                 widthInc.Click().Click();
                 Assert.Equal("70px", div.WebElement.GetCssValue("width"));
                 widthDec.Click();
                 Assert.Equal("60px", div.WebElement.GetCssValue("width"));
                 Assert.Equal("50px", div.WebElement.GetCssValue("height"));
-                Assert.Equal(greenColor, div.WebElement.GetCssValue("background-color"));
+                Assert.Matches(greenColorRegex, div.WebElement.GetCssValue("background-color"));
 
                 var span = browser.Single("[data-ui='span-color']");
                 var setColorToGreen = browser.Single("[data-ui='set-color-green']");
                 var setColorToRed = browser.Single("[data-ui='set-color-red']");
-                Assert.Equal(redColor, span.WebElement.GetCssValue("color"));
+                Assert.Matches(redColorRegex, span.WebElement.GetCssValue("color"));
                 setColorToGreen.Click();
-                Assert.Equal(greenColor, span.WebElement.GetCssValue("color"));
+                Assert.Matches(greenColorRegex, span.WebElement.GetCssValue("color"));
                 setColorToRed.Click();
-                Assert.Equal(redColor, span.WebElement.GetCssValue("color"));
+                Assert.Matches(redColorRegex, span.WebElement.GetCssValue("color"));
 
                 var changeCondition = browser.Single("[data-ui='change-condition']");
                 AssertUI.IsDisplayed(span);

@@ -538,6 +538,16 @@ namespace DotVVM.Framework.Tests.Routing
             table.Add("Article", "", provider => provider.GetService<TestPresenter>(), null);
             Assert.IsInstanceOfType(table.First().GetPresenter(configuration.ServiceProvider), typeof(TestPresenter));
         }
+
+        [TestMethod]
+        public void DotvvmRoute_RegexConstraint()
+        {
+            var route = new DotvvmRoute("test/{Name:regex((aa|bb|cc))}", null, null, null, configuration);
+            Assert.IsTrue(route.IsMatch("test/aa", out var parameters));
+            Assert.IsTrue(route.IsMatch("test/bb", out parameters));
+            Assert.IsTrue(route.IsMatch("test/cc", out parameters));
+            Assert.IsFalse(route.IsMatch("test/aaaa", out parameters));
+        }
     }
 
     public class TestPresenterWithoutInterface

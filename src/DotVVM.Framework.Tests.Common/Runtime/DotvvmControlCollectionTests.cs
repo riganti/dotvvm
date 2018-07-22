@@ -218,5 +218,52 @@ namespace DotVVM.Framework.Tests.Runtime
             Assert.IsTrue(eventLog.Count(e => e.Control == root_a_New) == eventLog.Count(e => e.Control == root_New),
                 "Control added to root has not the same number of event as control added to the optimized one.");
         }
+
+        [TestMethod]
+        public void ControlCollection_NestedControlsWithNoneRequirementParent()
+        {
+            var initCalled = false;
+            var loadCalled = false;
+            var preRenderCalled = false;
+
+            var firstChild = new ControlLifeCycleMock() {
+                LifecycleRequirements = ControlLifecycleRequirements.All,
+            };
+
+            var secondChild = new ControlLifeCycleMock() {
+                LifecycleRequirements = ControlLifecycleRequirements.All,
+                InitAction = (control, _) => {
+                    initCalled = true;
+                },
+                LoadAction = (control, _) => {
+                    loadCalled = true;
+                },
+                PreRenderAction = (control, _) => {
+                    preRenderCalled = true;
+                }
+            };
+
+            var root = new ControlLifeCycleMock();
+
+            root.RenderAction = (control, _) => {
+                var innerRoot = new ControlLifeCycleMock() { LifecycleRequirements = ControlLifecycleRequirements.None };
+                root.Children.Add(innerRoot);
+
+                var td1 = new ControlLifeCycleMock() { LifecycleRequirements = ControlLifecycleRequirements.None };
+                innerRoot.Children.Add(td1);
+                td1.Children.Add(firstChild);
+
+                var td2 = new ControlLifeCycleMock() { LifecycleRequirements = ControlLifecycleRequirements.None };
+                innerRoot.Children.Add(td2);
+                td2.Children.Add(secondChild);
+            };
+
+            DotvvmControlCollection.InvokePageLifeCycleEventRecursive(root, LifeCycleEventType.PreRenderComplete);
+            root.Render(null, null);
+
+            Assert.IsTrue(initCalled);
+            Assert.IsTrue(loadCalled);
+            Assert.IsTrue(preRenderCalled);
+        }
     }
 }

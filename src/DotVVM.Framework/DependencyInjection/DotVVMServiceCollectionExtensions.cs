@@ -36,6 +36,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IDotvvmViewBuilder, DefaultDotvvmViewBuilder>();
             services.TryAddSingleton<IViewModelSerializer, DefaultViewModelSerializer>();
             services.TryAddSingleton<IViewModelLoader, DefaultViewModelLoader>();
+            services.TryAddSingleton<IStaticCommandServiceLoader, DefaultStaticCommandServiceLoader>();
             services.TryAddSingleton<IViewModelValidationMetadataProvider, AttributeViewModelValidationMetadataProvider>();
             services.TryAddSingleton<IValidationRuleTranslator, ViewModelValidationRuleTranslator>();
             services.TryAddSingleton<IPropertySerialization, DefaultPropertySerialization>();

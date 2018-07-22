@@ -88,5 +88,42 @@ namespace DotVVM.Samples.Tests.New.Control
             });
         }
 
+        [Fact]
+        public void Control_Button_ButtonEnabled()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Button_ButtonEnabled);
+
+                var commandResult = browser.First("[data-ui=command-result]");
+                var staticCommandResult = browser.First("[data-ui=static-command-result]");
+                var clientStaticCommandResult = browser.First("[data-ui=client-static-command-result]");
+
+                AssertUI.InnerTextEquals(commandResult, "");
+                AssertUI.InnerTextEquals(staticCommandResult, "");
+                AssertUI.InnerTextEquals(clientStaticCommandResult, "");
+
+                var commandButton = browser.First("[data-ui=command-button]");
+                var staticCommandButton = browser.First("[data-ui=static-command-button]");
+                var clientStaticCommandButton = browser.First("[data-ui=client-static-command-button]");
+
+                commandButton.Click();
+                staticCommandButton.Click();
+                clientStaticCommandButton.Click();
+
+                AssertUI.InnerTextEquals(commandResult, "");
+                AssertUI.InnerTextEquals(staticCommandResult, "");
+                AssertUI.InnerTextEquals(clientStaticCommandResult, "");
+
+                browser.First("[data-ui=toggle-enabled]").Click();
+
+                commandButton.Click();
+                staticCommandButton.Click();
+                clientStaticCommandButton.Click();
+
+                AssertUI.InnerTextEquals(commandResult, "Changed from command binding");
+                AssertUI.InnerTextEquals(staticCommandResult, "Changed from static command on server");
+                AssertUI.InnerTextEquals(clientStaticCommandResult, "Changed from static command");
+            });
+        }
     }
 }

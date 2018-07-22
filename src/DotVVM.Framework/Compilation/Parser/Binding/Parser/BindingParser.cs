@@ -103,7 +103,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             return CurrentIndex >= Tokens.Count;
         }
-        
+
         private BindingParserNode ReadSemicolonSeparatedExpression()
         {
             var startIndex = CurrentIndex;
@@ -111,7 +111,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             if (Peek() != null && Peek().Type == BindingTokenType.Semicolon)
             {
                 var operatorToken = Read();
-                var second = Peek() == null ? null : ReadSemicolonSeparatedExpression();
+
+                var second = Peek() == null
+                    ? CreateIdentifierExpected(startIndex)
+                    : ReadSemicolonSeparatedExpression();
+
                 first = CreateNode(new BlockBindingParserNode(first, second), startIndex);
             }
             return first;
@@ -482,7 +486,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 var identifier = Read();
                 SkipWhiteSpace();
 
-                if (Peek()!=null && Peek().Type == BindingTokenType.LessThanOperator)
+                if (Peek() != null && Peek().Type == BindingTokenType.LessThanOperator)
                 {
                     return ReadGenericArguments(startIndex, identifier);
                 }
@@ -491,7 +495,16 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             }
 
             // create virtual empty identifier expression
-            return CreateNode(new SimpleNameBindingParserNode(null) { NodeErrors = { "Identifier name was expected!" } }, startIndex);
+            return CreateIdentifierExpected(startIndex);
+        }
+
+        private SimpleNameBindingParserNode CreateIdentifierExpected(int startIndex)
+        {
+            return CreateNode(
+                new SimpleNameBindingParserNode(null) {
+                    NodeErrors = { "Identifier name was expected!" }
+                },
+                startIndex);
         }
 
         private IdentifierNameBindingParserNode ReadGenericArguments(int startIndex, BindingToken identifier)

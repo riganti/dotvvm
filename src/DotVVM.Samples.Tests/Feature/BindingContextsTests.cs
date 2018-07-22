@@ -7,18 +7,18 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using DotVVM.Testing.Abstractions;
+using Riganti.Selenium.DotVVM;
 
 
 namespace DotVVM.Samples.Tests.Feature
-{   
+{
     [TestClass]
     public class BindingContextsTests : AppSeleniumTest
     {
         [TestMethod]
         public void Feature_BindingContexts_BindingContext()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_BindingContexts_BindingContext);
                 browser.Wait(1000);
 
@@ -26,9 +26,10 @@ namespace DotVVM.Samples.Tests.Feature
                 for (var i = 0; i < linkCount; i++)
                 {
                     var link = browser.ElementAt("a", i);
-                    link.Click().Wait(500);
-                    
-                    browser.Single(".result").CheckIfInnerTextEquals(link.GetInnerText());
+                    link.Click();
+                    browser.WaitFor(() => {
+                        browser.Single(".result").CheckIfInnerTextEquals(link.GetInnerText());
+                    }, 3000, 50);
                 }
             });
         }
@@ -36,8 +37,7 @@ namespace DotVVM.Samples.Tests.Feature
         [TestMethod]
         public void Feature_BindingContexts_CollectionContext()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_BindingContexts_CollectionContext);
                 browser.Wait(1000);
 

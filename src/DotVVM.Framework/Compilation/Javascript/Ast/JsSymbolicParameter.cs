@@ -26,6 +26,19 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             this.defaultAssignment = defaultAssignment;
         }
 
+        public static JsSymbolicParameter CreateCodePlaceholder(ParametrizedCode code) =>
+            new JsSymbolicParameter(
+                new CodeSymbolicParameter("AdHoc placeholder"),
+                new CodeParameterAssignment(code)
+            );
+
+        public static JsSymbolicParameter CreateCodePlaceholder(string code, OperatorPrecedence operatorPrecedence) =>
+            new JsSymbolicParameter(
+                new CodeSymbolicParameter("AdHoc placeholder"),
+                new CodeParameterAssignment(code, operatorPrecedence)
+            );
+
+
         public override void AcceptVisitor(IJsNodeVisitor visitor) => visitor.VisitSymbolicParameter(this);
     }
 }

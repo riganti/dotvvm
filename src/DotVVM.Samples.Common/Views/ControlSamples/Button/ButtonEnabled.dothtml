@@ -1,0 +1,37 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.Button.ButtonEnabledViewModel, DotVVM.Samples.Common
+@import DotVVM.Samples.Common.ViewModels.ControlSamples.Button
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <div>
+        <dot:Button data-ui="command-button" Text="Disabled Button with command"
+                    Click="{command: ChangeResult()}" Enabled="{value: Enabled}" />
+
+        <span data-ui="command-result">{{value: CommandResult}}</span>
+    </div>
+    <div>
+        <dot:Button data-ui="static-command-button" Text="Disabled Button with static command"
+                    Click="{staticCommand: StaticCommandResult = ButtonEnabledViewModel.StaticChangeResult()}" Enabled="{value: Enabled}" />
+
+        <span data-ui="static-command-result">{{value: StaticCommandResult}}</span>
+    </div>
+    <div>
+        <dot:Button data-ui="client-static-command-button" Text="Disabled Button with client static command"
+                    Click="{staticCommand: ClientStaticCommandResult = 'Changed from static command'}" Enabled="{value: Enabled}" />
+
+        <span data-ui="client-static-command-result">{{value: ClientStaticCommandResult}}</span>
+    </div>
+
+    <div>
+        <dot:Button data-ui="toggle-enabled" Text="Toggle Enabled" Click="{staticCommand: Enabled = !Enabled}" />
+    </div>
+</body>
+</html>
+
+

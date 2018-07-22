@@ -197,6 +197,11 @@ declare class ConfirmPostBackHandler implements DotvvmPostbackHandler {
     constructor(message: string);
     execute<T>(callback: () => Promise<T>, options: PostbackOptions): Promise<T>;
 }
+declare class SuppressPostBackHandler implements DotvvmPostbackHandler {
+    suppress: any;
+    constructor(suppress: any);
+    execute<T>(callback: () => Promise<T>, options: PostbackOptions): Promise<T>;
+}
 declare type DotvvmPostBackHandlerConfiguration = {
     name: string;
     options: (context: KnockoutBindingContext) => any;
@@ -247,6 +252,9 @@ interface IDotvvmPostbackHandlerCollection {
     confirm: (options: {
         message?: string;
     }) => ConfirmPostBackHandler;
+    suppress: (options: {
+        suppress?: boolean;
+    }) => SuppressPostBackHandler;
 }
 declare class DotVVM {
     private postBackCounter;
@@ -263,6 +271,7 @@ declare class DotVVM {
     culture: string;
     serialization: DotvvmSerialization;
     postbackHandlers: IDotvvmPostbackHandlerCollection;
+    private suppressOnDisabledElementHandler;
     private beforePostbackEventPostbackHandler;
     private isPostBackRunningHandler;
     private createWindowSetTimeoutHandler(time);

@@ -420,6 +420,23 @@ var ConfirmPostBackHandler = /** @class */ (function () {
     };
     return ConfirmPostBackHandler;
 }());
+var SuppressPostBackHandler = /** @class */ (function () {
+    function SuppressPostBackHandler(suppress) {
+        this.suppress = suppress;
+    }
+    SuppressPostBackHandler.prototype.execute = function (callback, options) {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            if (_this.suppress) {
+                reject({ type: "handler", handler: _this, message: "The postback was suppressed" });
+            }
+            else {
+                callback().then(resolve, reject);
+            }
+        });
+    };
+    return SuppressPostBackHandler;
+}());
 var DotvvmSerialization = /** @class */ (function () {
     function DotvvmSerialization() {
     }
@@ -695,7 +712,7 @@ var DotvvmSerialization = /** @class */ (function () {
             var minValue = 0;
             var maxValue = Math.pow(2, bits) - 1;
             if (!unsigned) {
-                minValue = -((maxValue / 2) | 0);
+                minValue = -Math.floor(maxValue / 2);
                 maxValue = maxValue + minValue;
             }
             var int = parseInt(value);
@@ -796,17 +813,18 @@ var DotVVM = /** @class */ (function () {
         this.serialization = new DotvvmSerialization();
         this.postbackHandlers = {
             confirm: function (options) { return new ConfirmPostBackHandler(options.message); },
+            suppress: function (options) { return new SuppressPostBackHandler(options.suppress); },
             timeout: function (options) { return options.time ? _this.createWindowSetTimeoutHandler(options.time) : _this.windowSetTimeoutHandler; },
             "concurrency-default": function (o) { return ({
                 name: "concurrency-default",
-                before: ["setIsPostackRunning"],
+                before: ["setIsPostbackRunning"],
                 execute: function (callback, options) {
                     return _this.commonConcurrencyHandler(callback(), options, o.q || "default");
                 }
             }); },
             "concurrency-deny": function (o) { return ({
                 name: "concurrency-deny",
-                before: ["setIsPostackRunning"],
+                before: ["setIsPostbackRunning"],
                 execute: function (callback, options) {
                     var queue = o.q || "default";
                     if (dotvvm.getPostbackQueue(queue).noRunning > 0)
@@ -816,7 +834,7 @@ var DotVVM = /** @class */ (function () {
             }); },
             "concurrency-queue": function (o) { return ({
                 name: "concurrency-queue",
-                before: ["setIsPostackRunning"],
+                before: ["setIsPostbackRunning"],
                 execute: function (callback, options) {
                     var queue = o.q || "default";
                     var handler = function () { return dotvvm.commonConcurrencyHandler(callback(), options, queue); };
@@ -830,7 +848,7 @@ var DotVVM = /** @class */ (function () {
             }); },
             "suppressOnUpdating": function (options) { return ({
                 name: "suppressOnUpdating",
-                before: ["setIsPostackRunning", "concurrency-default", "concurrency-queue", "concurrency-deny"],
+                before: ["setIsPostbackRunning", "concurrency-default", "concurrency-queue", "concurrency-deny"],
                 execute: function (callback, options) {
                     if (dotvvm.isViewModelUpdating)
                         return Promise.reject({ type: "handler", handler: this, message: "ViewModel is updating, so it's probably false onchange event" });
@@ -838,6 +856,17 @@ var DotVVM = /** @class */ (function () {
                         return callback();
                 }
             }); }
+        };
+        this.suppressOnDisabledElementHandler = {
+            name: "suppressOnDisabledElement",
+            before: ["setIsPostbackRunning", "concurrency-default", "concurrency-queue", "concurrency-deny"],
+            execute: function (callback, options) {
+                if (options.sender && dotvvm.isPostBackProhibited(options.sender)) {
+                    return Promise.reject({ type: "handler", handler: _this, message: "PostBack is prohitibited on disabled element" });
+                }
+                else
+                    return callback();
+            }
         };
         this.beforePostbackEventPostbackHandler = {
             execute: function (callback, options) {
@@ -906,7 +935,7 @@ var DotVVM = /** @class */ (function () {
                 return callback();
             }
         };
-        this.globalPostbackHandlers = [this.isPostBackRunningHandler, this.postbackHandlersStartedEventHandler];
+        this.globalPostbackHandlers = [this.suppressOnDisabledElementHandler, this.isPostBackRunningHandler, this.postbackHandlersStartedEventHandler];
         this.globalLaterPostbackHandlers = [this.postbackHandlersCompletedEventHandler, this.beforePostbackEventPostbackHandler];
         this.events = new DotvvmEvents();
         this.globalize = new DotvvmGlobalize();
@@ -1066,8 +1095,6 @@ var DotVVM = /** @class */ (function () {
         var _this = this;
         if (callback === void 0) { callback = function (_) { }; }
         if (errorCallback === void 0) { errorCallback = function (xhr, error) { }; }
-        if (this.isPostBackProhibited(sender))
-            return;
         var data = this.serialization.serialize({
             "args": args,
             "command": command,
@@ -1089,6 +1116,7 @@ var DotVVM = /** @class */ (function () {
                 _this.isViewModelUpdating = false;
             }
         }, function (xhr) {
+            _this.events.error.trigger(new DotvvmErrorEventArgs(sender, _this.viewModels[viewModelName].viewModel, viewModelName, xhr, null));
             console.warn("StaticCommand postback failed: " + xhr.status + " - " + xhr.statusText, xhr);
             errorCallback(xhr);
             dotvvm.events.staticCommandMethodFailed.trigger(__assign({}, data, { xhr: xhr }));
@@ -1307,11 +1335,6 @@ var DotVVM = /** @class */ (function () {
     };
     DotVVM.prototype.postBack = function (viewModelName, sender, path, command, controlUniqueId, context, handlers, commandArgs) {
         var _this = this;
-        if (this.isPostBackProhibited(sender)) {
-            var rejectedPromise = new Promise(function (resolve, reject) { return reject("rejected"); });
-            rejectedPromise.catch(function () { return console.log("Postback probihited"); });
-            return rejectedPromise;
-        }
         context = context || ko.contextFor(sender);
         var preparedHandlers = this.findPostbackHandlers(context, this.globalPostbackHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers));
         if (preparedHandlers.filter(function (h) { return h.name && h.name.indexOf("concurrency-") == 0; }).length == 0) {
@@ -1749,7 +1772,7 @@ var DotVVM = /** @class */ (function () {
         return resultSuffix.concat(hashSuffix);
     };
     DotVVM.prototype.isPostBackProhibited = function (element) {
-        if (element && element.tagName && element.tagName.toLowerCase() === "a" && element.getAttribute("disabled")) {
+        if (element && element.tagName && ["a", "input", "button"].indexOf(element.tagName.toLowerCase()) > -1 && element.getAttribute("disabled")) {
             return true;
         }
         return false;

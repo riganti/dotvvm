@@ -17,6 +17,7 @@
   <ItemGroup>
     <None Remove="tsconfig.json" />
     <None Remove="Views\ComplexSamples\CascadeSelectors\TripleComboBoxes.dothtml" />
+    <None Remove="Views\ControlSamples\Button\ButtonEnabled.dothtml" />
     <None Remove="Views\ControlSamples\Button\ButtonOnclick.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\ComboBoxDelaySync.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\ComboBoxDelaySync2.dothtml" />
@@ -24,6 +25,7 @@
     <None Remove="Views\ControlSamples\ContentPlaceHolder\DoubleContentPlaceHolderMasterPage.dotmaster" />
     <None Remove="Views\ControlSamples\ContentPlaceHolder\DoubleContentPlaceHolderPage_ContentTest.dothtml" />
     <None Remove="Views\ControlSamples\IncludeInPageProperty\IncludeInPage.dothtml" />
+    <None Remove="Views\ControlSamples\LinkButton\LinkButtonEnabled.dothtml" />
     <None Remove="Views\ControlSamples\LinkButton\LinkButtonOnclick.dothtml" />
     <None Remove="Views\ControlSamples\ListBox\ListBox.dothtml" />
     <None Remove="Views\ControlSamples\Repeater\DataSourceNull.dothtml" />
@@ -76,9 +78,11 @@
     <Content Include="Scripts\testResource2.js" />
     <Content Include="tsconfig.json" />
     <Content Include="Views\ComplexSamples\CascadeSelectors\TripleComboBoxes.dothtml" />
+    <Content Include="Views\ControlSamples\Button\ButtonEnabled.dothtml" />
     <Content Include="Views\ControlSamples\ComboBox\ComboBoxTitle.dothtml" />
     <Content Include="Views\ControlSamples\ContentPlaceHolder\DoubleContentPlaceHolderMasterPage.dotmaster" />
     <Content Include="Views\ControlSamples\ContentPlaceHolder\DoubleContentPlaceHolderPage_ContentTest.dothtml" />
+    <Content Include="Views\ControlSamples\LinkButton\LinkButtonEnabled.dothtml" />
     <Content Include="Views\ControlSamples\ListBox\ListBox.dothtml" />
     <Content Include="Views\ControlSamples\Repeater\RequiredResource.dothtml" />
     <Content Include="Views\ControlSamples\TextBox\TextBox_Types.dothtml" />

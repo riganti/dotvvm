@@ -251,7 +251,11 @@ namespace DotVVM.Framework.Configuration
             }));
             configuration.RouteConstraints.Add("maxLength", new GenericRouteParameterType(p => "[^/]{0," + p + "}"));
             configuration.RouteConstraints.Add("minLength", new GenericRouteParameterType(p => "[^/]{" + p + ",}"));
-            configuration.RouteConstraints.Add("regex", new GenericRouteParameterType(p => p));
+            configuration.RouteConstraints.Add("regex", new GenericRouteParameterType(p => {
+                if (p.StartsWith("^")) throw new ArgumentException("Regex in route constraint should not start with `^`, it's always looking for full-match.");
+                if (p.EndsWith("$")) throw new ArgumentException("Regex in route constraint should not end with `$`, it's always looking for full-match.");
+                return p;
+            }));
         }
 
         private static void RegisterResources(DotvvmConfiguration configuration)

@@ -34,6 +34,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ComplexSamples_TaskList_TaskListAsyncCommands = "ComplexSamples/TaskList/TaskListAsyncCommands";
         public const string ControlSamples_AuthenticatedView_AuthenticatedViewTest = "ControlSamples/AuthenticatedView/AuthenticatedViewTest";
         public const string ControlSamples_Button_Button = "ControlSamples/Button/Button";
+        public const string ControlSamples_Button_ButtonEnabled = "ControlSamples/Button/ButtonEnabled";
         public const string ControlSamples_Button_ButtonOnclick = "ControlSamples/Button/ButtonOnclick";
         public const string ControlSamples_Button_ButtonTagName = "ControlSamples/Button/ButtonTagName";
         public const string ControlSamples_Button_InputTypeButton_HtmlContentInside = "ControlSamples/Button/InputTypeButton_HtmlContentInside";
@@ -70,6 +71,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_HtmlLiteral_HtmlLiteral = "ControlSamples/HtmlLiteral/HtmlLiteral";
         public const string ControlSamples_IncludeInPageProperty_IncludeInPage = "ControlSamples/IncludeInPageProperty/IncludeInPage";
         public const string ControlSamples_LinkButton_LinkButton = "ControlSamples/LinkButton/LinkButton";
+        public const string ControlSamples_LinkButton_LinkButtonEnabled = "ControlSamples/LinkButton/LinkButtonEnabled";
         public const string ControlSamples_LinkButton_LinkButtonOnclick = "ControlSamples/LinkButton/LinkButtonOnclick";
         public const string ControlSamples_ListBox_ListBox = "ControlSamples/ListBox/ListBox";
         public const string ControlSamples_Literal_Literal = "ControlSamples/Literal/Literal";
@@ -181,9 +183,10 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_NestedMasterPages_Content = "FeatureSamples/NestedMasterPages/Content";
         public const string FeatureSamples_ParameterBinding_OptionalParameterBinding = "FeatureSamples/ParameterBinding/OptionalParameterBinding";
         public const string FeatureSamples_ParameterBinding_ParameterBinding = "FeatureSamples/ParameterBinding/ParameterBinding";
-        public const string FeatureSamples_PostBack_PostBackHandlers = "FeatureSamples/PostBack/PostBackHandlers";
+        public const string FeatureSamples_PostBack_ConfirmPostBackHandler = "FeatureSamples/PostBack/ConfirmPostBackHandler";
         public const string FeatureSamples_PostBack_PostbackUpdate = "FeatureSamples/PostBack/PostbackUpdate";
         public const string FeatureSamples_PostBack_PostbackUpdateRepeater = "FeatureSamples/PostBack/PostbackUpdateRepeater";
+        public const string FeatureSamples_PostBack_SuppressPostBackHandler = "FeatureSamples/PostBack/SuppressPostBackHandler";
         public const string FeatureSamples_PostbackConcurrency_PostbackConcurrencyMode = "FeatureSamples/PostbackConcurrency/PostbackConcurrencyMode";
         public const string FeatureSamples_Redirect_Redirect = "FeatureSamples/Redirect/Redirect";
         public const string FeatureSamples_RenderSettingsModeServer_RenderSettingModeServerProperty = "FeatureSamples/RenderSettingsModeServer/RenderSettingModeServerProperty";
@@ -222,6 +225,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Validation_ValidationScopes = "FeatureSamples/Validation/ValidationScopes";
         public const string FeatureSamples_Validation_ValidationScopes2 = "FeatureSamples/Validation/ValidationScopes2";
         public const string FeatureSamples_ViewModelDeserialization_DoesNotDropObject = "FeatureSamples/ViewModelDeserialization/DoesNotDropObject";
+        public const string FeatureSamples_ViewModelDeserialization_NegativeLongNumber = "FeatureSamples/ViewModelDeserialization/NegativeLongNumber";
         public const string FeatureSamples_ViewModelNesting_NestedViewModel = "FeatureSamples/ViewModelNesting/NestedViewModel";
         public const string FeatureSamples_ViewModelProtection_ComplexViewModelProtection = "FeatureSamples/ViewModelProtection/ComplexViewModelProtection";
         public const string FeatureSamples_ViewModelProtection_SignedNestedInServerToClient = "FeatureSamples/ViewModelProtection/SignedNestedInServerToClient";
