@@ -91,14 +91,14 @@ declare class DotvvmAfterPostBackEventArgs implements PostbackEventArgs {
     postbackOptions: PostbackOptions;
     serverResponseObject: any;
     commandResult: any;
-    xhr: XMLHttpRequest | undefined;
+    xhr: XMLHttpRequest;
     isHandled: boolean;
     wasInterrupted: boolean;
     readonly postbackClientId: number;
     readonly viewModelName: string;
     readonly viewModel: any;
-    readonly sender: HTMLElement | undefined;
-    constructor(postbackOptions: PostbackOptions, serverResponseObject: any, commandResult?: any, xhr?: XMLHttpRequest | undefined);
+    readonly sender: HTMLElement;
+    constructor(postbackOptions: PostbackOptions, serverResponseObject: any, commandResult?: any, xhr?: XMLHttpRequest);
 }
 declare class DotvvmSpaNavigatingEventArgs implements DotvvmEventArgs {
     viewModel: any;
@@ -111,9 +111,9 @@ declare class DotvvmSpaNavigatedEventArgs implements DotvvmEventArgs {
     viewModel: any;
     viewModelName: string;
     serverResponseObject: any;
-    xhr: XMLHttpRequest | undefined;
+    xhr: XMLHttpRequest;
     isHandled: boolean;
-    constructor(viewModel: any, viewModelName: string, serverResponseObject: any, xhr?: XMLHttpRequest | undefined);
+    constructor(viewModel: any, viewModelName: string, serverResponseObject: any, xhr?: XMLHttpRequest);
 }
 declare class DotvvmRedirectEventArgs implements DotvvmEventArgs {
     viewModel: any;
@@ -185,12 +185,12 @@ interface AdditionalPostbackData {
 }
 declare class PostbackOptions {
     readonly postbackId: number;
-    readonly sender: HTMLElement | undefined;
+    readonly sender: HTMLElement;
     readonly args: any[];
     readonly viewModel: any;
-    readonly viewModelName: string | undefined;
+    readonly viewModelName: string;
     readonly additionalPostbackData: AdditionalPostbackData;
-    constructor(postbackId: number, sender?: HTMLElement | undefined, args?: any[], viewModel?: any, viewModelName?: string | undefined);
+    constructor(postbackId: number, sender?: HTMLElement, args?: any[], viewModel?: any, viewModelName?: string);
 }
 declare class ConfirmPostBackHandler implements DotvvmPostbackHandler {
     message: string;
