@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using DotVVM.Framework.ResourceManagement;
 using System.Reflection;
+using DotVVM.Diagnostics.StatusPage.Sample;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Diagnostics.StatusPage
@@ -25,9 +26,11 @@ namespace DotVVM.Diagnostics.StatusPage
                 options = StatusPageOptions.CreateDefaultOptions();
             }
 
+            services.Services.AddTransient<StatusPagePresenter>();
+            
             services.Services.Configure((DotvvmConfiguration config) =>
             {
-                config.RouteTable.Add(options.RouteName, options.Url, "embedded://DotVVM.Diagnostics.StatusPage/Status.dothtml");
+                config.RouteTable.Add(options.RouteName, options.Url, "embedded://DotVVM.Diagnostics.StatusPage/Status.dothtml", null, s => s.GetService<StatusPagePresenter>());
             });
 
             return services;

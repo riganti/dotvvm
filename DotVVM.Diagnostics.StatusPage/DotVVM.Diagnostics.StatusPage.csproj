@@ -29,7 +29,7 @@
     <EmbeddedResource Include="Status.dothtml" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="DotVVM" Version="2.0.1-preview04-final" />
+    <PackageReference Include="DotVVM" Version="2.0.1-preview05-final" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
