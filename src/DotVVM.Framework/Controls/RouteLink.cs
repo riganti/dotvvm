@@ -122,14 +122,16 @@ namespace DotVVM.Framework.Controls
 
         protected virtual void WriteOnClickAttribute(IHtmlWriter writer, IDotvvmRequestContext context)
         {
+            var onclickAttribute = "event.stopPropagation();";
             if ((bool)GetValue(Internal.IsSpaPageProperty) && (bool)GetValue(Internal.UseHistoryApiSpaNavigationProperty))
             {
-                writer.AddAttribute("onclick", "return !this.hasAttribute('disabled') && dotvvm.handleSpaNavigation(this);");
+                onclickAttribute += "return !this.hasAttribute('disabled') && dotvvm.handleSpaNavigation(this);";
             }
             else
             {
-                writer.AddAttribute("onclick", "return !this.hasAttribute('disabled');");
+                onclickAttribute += "return !this.hasAttribute('disabled');";
             }
+            writer.AddAttribute("onclick", onclickAttribute);
         }
     }
 }
