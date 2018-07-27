@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Text;
 using DotVVM.Framework.ResourceManagement;
 using System.Reflection;
-using DotVVM.Diagnostics.StatusPage.Sample;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Diagnostics.StatusPage

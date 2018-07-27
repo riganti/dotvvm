@@ -8,7 +8,7 @@ using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Security;
 using DotVVM.Framework.ViewModel.Serialization;
 
-namespace DotVVM.Diagnostics.StatusPage.Sample
+namespace DotVVM.Diagnostics.StatusPage
 {
     public class StatusPagePresenter :DotvvmPresenter
     {
