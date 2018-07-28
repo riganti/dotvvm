@@ -17,6 +17,7 @@ using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Tests.Common;
+using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -514,11 +515,11 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual(42, result(42));
         }
 
+        [TestMethod]
         public void BindingCompiler_ComparisonOperators()
         {
             var result = ExecuteBinding("LongProperty < TestViewModel2.MyProperty && LongProperty > TestViewModel2.MyProperty", new [] { new TestViewModel { TestViewModel2 = new TestViewModel2() } });
             Assert.AreEqual(false, result);
-
         }
     }
     class TestViewModel
@@ -597,6 +598,11 @@ namespace DotVVM.Framework.Tests.Binding
         {
             return SomeString + ": " + MyProperty;
         }
+    }
+
+    class TestViewModel3 : DotvvmViewModelBase
+    {
+        public string SomeString { get; set; }
     }
 
     class Something

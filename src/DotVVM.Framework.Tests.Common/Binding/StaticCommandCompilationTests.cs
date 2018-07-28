@@ -1,57 +1,25 @@
-using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
-using DotVVM.Framework.Runtime;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Javascript;
-using DotVVM.Framework.Compilation.Javascript.Ast;
-using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.Configuration;
-using System.Linq.Expressions;
 using DotVVM.Framework.ViewModel;
+using Microsoft.Extensions.DependencyInjection;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Runtime.Filters;
 using System.Collections.Immutable;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Tests.Binding
 {
-    public class FakeCommandBinding : ICommandBinding
-    {
-        private readonly ParametrizedCode commandJavascript;
-        private readonly BindingDelegate bindingDelegate;
-
-        public FakeCommandBinding(ParametrizedCode commandJavascript, BindingDelegate bindingDelegate)
-        {
-            this.commandJavascript = commandJavascript;
-            this.bindingDelegate = bindingDelegate;
-        }
-        public ParametrizedCode CommandJavascript => commandJavascript ?? throw new NotImplementedException();
-
-        public BindingDelegate BindingDelegate => bindingDelegate ?? throw new NotImplementedException();
-
-        public ImmutableArray<IActionFilter> ActionFilters => ImmutableArray<IActionFilter>.Empty;
-
-        public object GetProperty(Type type, ErrorHandlingMode errorMode = ErrorHandlingMode.ThrowException)
-        {
-            if (errorMode == ErrorHandlingMode.ReturnNull)
-                return null;
-            else if (errorMode == ErrorHandlingMode.ReturnException)
-                return new NotImplementedException();
-            else throw new NotImplementedException();
-        }
-    }
     [TestClass]
     public class StaticCommandCompilationTests
     {
-
         /// Gets translation of the specified binding expression if it would be passed in static command
         /// For better readability, the returned code does not include null checks
         public string CompileBinding(string expression, params Type[] contexts) => CompileBinding(expression, contexts, expectedType: typeof(Command));
@@ -63,11 +31,13 @@ namespace DotVVM.Framework.Tests.Binding
 
             var context = DataContextStack.Create(contexts.FirstOrDefault() ?? typeof(object), extensionParameters: new BindingExtensionParameter[]{
                 new BindingPageInfoExtensionParameter(),
+                new InjectedServiceExtensionParameter("injectedService", new ResolvedTypeDescriptor(typeof(TestService))),
                 }.Concat(configuration.Markup.DefaultExtensionParameters).ToArray());
             for (int i = 1; i < contexts.Length; i++)
             {
                 context = DataContextStack.Create(contexts[i], context);
             }
+
             var parser = new BindingExpressionBuilder();
             var expressionTree = parser.ParseWithLambdaConversion(expression, context, BindingParserOptions.Create<ValueBindingExpression>(), expectedType);
             var jsExpression =
@@ -138,6 +108,40 @@ namespace DotVVM.Framework.Tests.Binding
             var result = CompileBinding("StringProp = arg.ToString()", new [] { typeof(TestViewModel) }, typeof(Func<int, Task>));
             Assert.AreEqual("(function(a){return Promise.resolve(a.$data.StringProp(dotvvm.globalize.bindingNumberToString(commandArguments[0])()).StringProp());}(ko.contextFor(this)))", result);
         }
+
+        [TestMethod]
+        public void StaticCommandCompilation_PossibleAmniguousMatch()
+        {
+            var result = CompileBinding("SomeString = injectedService.Load(SomeString)", new[] { typeof(TestViewModel3) }, typeof(Func<string, string>));
+
+            Assert.AreEqual("(function(a,b){return new Promise(function(resolve){dotvvm.staticCommandPostback(\"root\",a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMuQ29tbW9uIiwiTG9hZCIsIkFRQT0iXQ==\",[b.$data.SomeString()],function(r_0){resolve(b.$data.SomeString(r_0).SomeString());});});}(this,ko.contextFor(this)))", result);
+        }
+    }
+
+    public class FakeCommandBinding : ICommandBinding
+    {
+        private readonly ParametrizedCode commandJavascript;
+        private readonly BindingDelegate bindingDelegate;
+
+        public FakeCommandBinding(ParametrizedCode commandJavascript, BindingDelegate bindingDelegate)
+        {
+            this.commandJavascript = commandJavascript;
+            this.bindingDelegate = bindingDelegate;
+        }
+        public ParametrizedCode CommandJavascript => commandJavascript ?? throw new NotImplementedException();
+
+        public BindingDelegate BindingDelegate => bindingDelegate ?? throw new NotImplementedException();
+
+        public ImmutableArray<IActionFilter> ActionFilters => ImmutableArray<IActionFilter>.Empty;
+
+        public object GetProperty(Type type, ErrorHandlingMode errorMode = ErrorHandlingMode.ThrowException)
+        {
+            if (errorMode == ErrorHandlingMode.ReturnNull)
+                return null;
+            else if (errorMode == ErrorHandlingMode.ReturnException)
+                return new NotImplementedException();
+            else throw new NotImplementedException();
+        }
     }
 
     public static class StaticCommands
@@ -147,5 +151,20 @@ namespace DotVVM.Framework.Tests.Binding
 
         [AllowStaticCommand]
         public static DateTime GetDate() => DateTime.UtcNow;
+    }
+
+    public abstract class TestInnerService<TOutput> 
+    {
+        public abstract TOutput Load(string text);
+        public abstract TOutput Load(string text1, string text2);
+    }
+
+    public class TestService : TestInnerService<string>
+    {
+
+        [AllowStaticCommand]
+        public override string Load(string text) => null;
+        [AllowStaticCommand]
+        public override string Load(string text1, string text2) => null;
     }
 }

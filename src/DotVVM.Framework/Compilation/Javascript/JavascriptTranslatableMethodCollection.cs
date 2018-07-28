@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -10,13 +9,9 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.HelperNamespace;
 using DotVVM.Framework.Binding.Properties;
-using DotVVM.Framework.Compilation.Binding;
-using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
-using DotVVM.Framework.ViewModel;
-using DotVVM.Framework.ViewModel.Serialization;
 
 namespace DotVVM.Framework.Compilation.Javascript
 {
@@ -173,7 +168,6 @@ namespace DotVVM.Framework.Compilation.Javascript
                     return JavascriptTranslationVisitor.TranslateViewModelProperty(args[0], (MemberInfo)dotvvmproperty.PropertyInfo ?? dotvvmproperty.PropertyType.GetTypeInfo(), name: dotvvmproperty.Name);
                 }
             ));
-
         }
 
         public JsExpression TryTranslateCall(LazyTranslatedExpression context, LazyTranslatedExpression[] args, MethodInfo method)
@@ -203,7 +197,10 @@ namespace DotVVM.Framework.Compilation.Javascript
             if (method.DeclaringType.GetTypeInfo().IsGenericType && !method.DeclaringType.GetTypeInfo().IsGenericTypeDefinition)
             {
                 var genericType = method.DeclaringType.GetGenericTypeDefinition();
-                var m2 = genericType.GetMethod(method.Name, BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+                var m2 = genericType.GetMethod(method.Name,
+                    BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public,
+                    binder: null, types: method.GetParameters().Select(p => p.ParameterType).ToArray(), modifiers: null);
+
                 if (m2 != null)
                 {
                     var r2 = TryTranslateCall(context, args, m2);
