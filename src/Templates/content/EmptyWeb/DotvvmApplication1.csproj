@@ -3,7 +3,18 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="**\*.dothtml" />
+    <!--Include Views-->
+    <Content Include="**/*.dothtml" Exclude="obj/**/*.*;bin/**/*.*">
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>
+    <!--Include MasterPage Views-->
+    <Content Include="**/*.dotmaster" Exclude="obj/**/*.*;bin/**/*.*">
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>
+    <!--Include Custom Control Views-->
+    <Content Include="**/*.dotcontrol" Exclude="obj/**/*.*;bin/**/*.*">
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <None Remove="dotvvm_serialized_config.json.tmp" />
@@ -14,9 +25,9 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.0" />
-    <PackageReference Include="DotVVM.AspNetCore" Version="1.1.6.1" />
+    <PackageReference Include="DotVVM.AspNetCore" Version="2.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <DotNetCliToolReference Include="DotVVM.CommandLine" Version="1.1.6.1" />
+    <DotNetCliToolReference Include="DotVVM.CommandLine" Version="2.0.0" />
   </ItemGroup>
 </Project>
