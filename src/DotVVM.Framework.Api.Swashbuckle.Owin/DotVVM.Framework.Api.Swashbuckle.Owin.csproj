@@ -5,7 +5,7 @@
     <PackageId>DotVVM.Api.Swashbuckle.Owin</PackageId>
     <PackageVersion>2.0.1-preview05-final</PackageVersion>
     <Authors>RIGANTI</Authors>
-    <Description>Swashbuckle.AspNetCore extensions for DotVVM.</Description>
+    <Description>Swashbuckle.Owin extensions for DotVVM.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>dotvvm;asp.net;mvvm;owin;dotnetcore;dnx</PackageTags>
     <PackageIconUrl>https://dotvvm.com/Content/images/icons/icon-blue-64x64.png</PackageIconUrl>
