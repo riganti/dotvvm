@@ -30,4 +30,7 @@
   <ItemGroup>
     <DotNetCliToolReference Include="DotVVM.CommandLine" Version="2.0.0" />
   </ItemGroup>
+  <Target Name="CreateWWWRoot" AfterTargets="AfterPublish">
+    <MakeDir Directories="$(PublishDir)wwwroot" Condition="!Exists('$(PublishDir)wwwroot')" />
+  </Target>
 </Project>
