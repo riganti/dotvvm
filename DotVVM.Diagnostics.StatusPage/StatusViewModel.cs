@@ -81,12 +81,23 @@ namespace DotVVM.Diagnostics.StatusPage
 
         public void CompileAll()
         {
-            Routes.ForEach(BuildView);
-            Controls.ForEach(BuildView);
-            MasterPages.ForEach(BuildView);
+            var tempMasterPages = new List<DotHtmlFileInfo>();
+            Routes.ForEach(a => BuildView(a, tempMasterPages));
+            Controls.ForEach(a => BuildView(a,tempMasterPages));
+            while (tempMasterPages.Count > 0)
+            {
+                MasterPages.AddRange(tempMasterPages);
+                tempMasterPages.Clear();
+                MasterPages.ForEach(a => BuildView(a, tempMasterPages));
+            }
         }
 
         public void BuildView(DotHtmlFileInfo file)
+        {
+            BuildView(file, MasterPages);
+        }
+
+        private void BuildView(DotHtmlFileInfo file, List<DotHtmlFileInfo> tempList)
         {
             if (file.Status != CompilationState.NonCompilable)
             {
@@ -102,9 +113,9 @@ namespace DotVVM.Diagnostics.StatusPage
                             ParserConstants.MasterPageDirective,
                             out var masterPage))
                     {
-                        if (MasterPages.All(s => s.VirtualPath != masterPage))
+                        if (MasterPages.All(s => s.VirtualPath != masterPage) && tempList.All(s => s.VirtualPath != masterPage))
                         {
-                            MasterPages.Add(new DotHtmlFileInfo()
+                            tempList.Add(new DotHtmlFileInfo()
                             {
                                 VirtualPath = masterPage
                             });
