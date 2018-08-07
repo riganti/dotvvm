@@ -348,6 +348,13 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual("$parent.StringProp", expr1);
             Assert.AreEqual("$parents[1].StringProp", expr2);
         }
+
+        [TestMethod]
+        public void JsTranslator_IntegerArithmetic()
+        {
+            var result = CompileBinding("IntProp / 2 + (IntProp + 1) / (IntProp - 1)", typeof(TestViewModel));
+            Assert.AreEqual("(IntProp()/2|0)+((IntProp()+1)/(IntProp()-1)|0)", result);
+        }
     }
 
 
