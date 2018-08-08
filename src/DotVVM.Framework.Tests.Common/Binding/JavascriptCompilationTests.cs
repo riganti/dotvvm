@@ -348,8 +348,14 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual("$parent.StringProp", expr1);
             Assert.AreEqual("$parents[1].StringProp", expr2);
         }
-    }
 
+        [TestMethod]
+        public void JavascriptCompilation_GuidToString()
+        {
+            var result = CompileBinding("GuidProp != Guid.Empty ? GuidProp.ToString() : ''", typeof(TestViewModel));
+            Assert.AreEqual("GuidProp()!=\"00000000-0000-0000-0000-000000000000\"?GuidProp:\"\"", result);
+        }
+    }
 
     public class TestApiClient
     {

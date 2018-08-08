@@ -137,6 +137,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                         .WithAnnotation(new RequiredRuntimeResourcesBindingProperty(ImmutableArray.Create("globalize")))
                         .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))
             ));
+            AddMethodTranslator(typeof(Guid).GetMethod("ToString", Type.EmptyTypes), new GenericMethodCompiler(args => args[0]));
 
             foreach (var num in ReflectionUtils.NumericTypes.Except(new[] { typeof(char) }))
             {

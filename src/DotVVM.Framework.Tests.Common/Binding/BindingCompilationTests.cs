@@ -532,6 +532,7 @@ namespace DotVVM.Framework.Tests.Binding
         public DateTime? DateFrom { get; set; }
         public DateTime? DateTo { get; set; }
         public object Time { get; set; } = TimeSpan.FromSeconds(5);
+        public Guid GuidProp { get; set; }
 
         public long LongProperty { get; set; }
 
