@@ -12,19 +12,25 @@ namespace DotVVM.Compiler.Programs
 
         private static void Main(string[] args)
         {
-#if NET461
-            if (!AppDomain.CurrentDomain.ShadowCopyFiles)
+            try
             {
-                var appDomain = AppDomain.CreateDomain("SecondaryDomainShadowCopyAllowed", null, new AppDomainSetup
+#if NET461
+                if (!AppDomain.CurrentDomain.ShadowCopyFiles)
                 {
-                    ShadowCopyFiles = "true"
-                });
-                appDomain.ExecuteAssemblyByName(typeof(Program).Assembly.FullName, args);
-                return;
-            }
+                    var appDomain = AppDomain.CreateDomain("SecondaryDomainShadowCopyAllowed", null, new AppDomainSetup {
+                        ShadowCopyFiles = "true"
+                    });
+                    appDomain.ExecuteAssemblyByName(typeof(Program).Assembly.FullName, args);
+                    return;
+                }
 #endif
-            Program2.ContinueMain(args);
+                Program2.ContinueMain(args);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(@"!#" + e);
+                throw;
+            }
         }
-
     }
 }
