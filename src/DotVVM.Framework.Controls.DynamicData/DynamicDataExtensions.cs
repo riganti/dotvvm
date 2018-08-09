@@ -16,20 +16,20 @@ namespace DotVVM.Framework.Controls.DynamicData
         /// <summary>
         /// Registers all services required by DotVVM Dynamic Data.
         /// </summary>
-        public static IServiceCollection AddDynamicData(this IServiceCollection services, DynamicDataConfiguration dynamicDataConfiguration = null)
+        public static IDotvvmServiceCollection AddDynamicData(this IDotvvmServiceCollection services, DynamicDataConfiguration dynamicDataConfiguration = null)
         {
             if (dynamicDataConfiguration == null)
             {
                 dynamicDataConfiguration = new DynamicDataConfiguration();
             }
-
+            
             // add the configuration of Dynamic Data to the service collection
-            services.AddSingleton(serviceProvider => dynamicDataConfiguration);
+            services.Services.AddSingleton(serviceProvider => dynamicDataConfiguration);
 
-            RegisterDefaultProviders(services, dynamicDataConfiguration);
+            RegisterDefaultProviders(services.Services, dynamicDataConfiguration);
             if (dynamicDataConfiguration.UseLocalizationResourceFiles)
             {
-                RegisterResourceFileProviders(services, dynamicDataConfiguration);
+                RegisterResourceFileProviders(services.Services, dynamicDataConfiguration);
             }
 
             return services;
