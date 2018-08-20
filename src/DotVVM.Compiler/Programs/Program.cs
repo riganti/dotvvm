@@ -29,7 +29,6 @@ namespace DotVVM.Compiler.Programs
             catch (Exception e)
             {
                 Console.WriteLine(@"!#" + e);
-                throw;
             }
         }
     }
