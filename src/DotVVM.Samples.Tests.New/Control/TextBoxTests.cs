@@ -181,14 +181,14 @@ window.getSelectionText = function (dataui) {
 
                 //write invalid values
                 dateTextBox.Clear().SendKeys("dsasdasd");
-                numberTextbox.Clear().SendKeys("000//*a");
+                numberTextbox.Clear().SendKeys("000//a");
                 dateTextBox.Click();    
 
                 //check invalid values
                 AssertUI.InnerTextEquals(dateText, "");
                 AssertUI.InnerTextEquals(numberValueText, "");
 
-                AssertUI.Attribute(numberTextbox, "value", "000//*a");
+                AssertUI.Attribute(numberTextbox, "value", "000//a");
                 AssertUI.Attribute(dateTextBox, "value", "dsasdasd");
 
                 //write new valid values

@@ -91,7 +91,7 @@ namespace DotVVM.Samples.Tests.Feature
             IElementWrapper section = null;
             browser.WaitFor(() => {
                 section = browser.First(sectionSelector);
-            }, 1000, "Cannot find static commands section.");
+            }, 2000, "Cannot find static commands section.");
 
             var index = browser.First("[data-ui=\"command-index\"]");
 
