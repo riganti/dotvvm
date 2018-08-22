@@ -47,6 +47,11 @@ declare class DotvvmEvents {
         error?: any;
     }>;
 }
+declare class DotvvmEventHandler<T> {
+    handler: (f: T) => void;
+    isOneTime: boolean;
+    constructor(handler: (f: T) => void, isOneTime: boolean);
+}
 declare class DotvvmEvent<T> {
     readonly name: string;
     private readonly triggerMissedEventsOnSubscribe;
@@ -54,6 +59,7 @@ declare class DotvvmEvent<T> {
     private history;
     constructor(name: string, triggerMissedEventsOnSubscribe?: boolean);
     subscribe(handler: (data: T) => void): void;
+    subscribeOnce(handler: (data: T) => void): void;
     unsubscribe(handler: (data: T) => void): void;
     trigger(data: T): void;
 }

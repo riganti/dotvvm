@@ -88,6 +88,13 @@ var DotvvmEvents = /** @class */ (function () {
     }
     return DotvvmEvents;
 }());
+var DotvvmEventHandler = /** @class */ (function () {
+    function DotvvmEventHandler(handler, isOneTime) {
+        this.handler = handler;
+        this.isOneTime = isOneTime;
+    }
+    return DotvvmEventHandler;
+}());
 // DotvvmEvent is used because CustomEvent is not browser compatible and does not support
 // calling missed events for handler that subscribed too late.
 var DotvvmEvent = /** @class */ (function () {
@@ -99,22 +106,31 @@ var DotvvmEvent = /** @class */ (function () {
         this.history = [];
     }
     DotvvmEvent.prototype.subscribe = function (handler) {
-        this.handlers.push(handler);
+        this.handlers.push(new DotvvmEventHandler(handler, false));
         if (this.triggerMissedEventsOnSubscribe) {
             for (var i = 0; i < this.history.length; i++) {
                 handler(history[i]);
             }
         }
     };
+    DotvvmEvent.prototype.subscribeOnce = function (handler) {
+        this.handlers.push(new DotvvmEventHandler(handler, true));
+    };
     DotvvmEvent.prototype.unsubscribe = function (handler) {
-        var index = this.handlers.indexOf(handler);
-        if (index >= 0) {
-            this.handlers = this.handlers.splice(index, 1);
+        for (var i = 0; i < this.handlers.length; i++) {
+            if (this.handlers[i].handler === handler) {
+                this.handlers.splice(i, 1);
+                return;
+            }
         }
     };
     DotvvmEvent.prototype.trigger = function (data) {
         for (var i = 0; i < this.handlers.length; i++) {
-            this.handlers[i](data);
+            this.handlers[i].handler(data);
+            if (this.handlers[i].isOneTime) {
+                this.handlers.splice(i, 1);
+                i--;
+            }
         }
         if (this.triggerMissedEventsOnSubscribe) {
             this.history.push(data);
