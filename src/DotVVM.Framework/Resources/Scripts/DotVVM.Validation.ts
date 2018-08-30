@@ -96,6 +96,28 @@ class DotvvmNotNullValidator extends DotvvmValidatorBase {
     }
 }
 
+class DotvvmEmailAddressValidator extends DotvvmValidatorBase {
+    public isValid(context: DotvvmValidationContext): boolean {
+        var value = context.valueToValidate;
+        if (value == null) return true;
+
+        if (typeof value !== "string") return false;
+
+        var found = false;
+        for (var i = 0; i < value.length; i++)
+        {
+            if (value[i] == '@') {
+                if (found || i == 0 || i == value.length - 1) {
+                    return false;
+                }
+                found = true;
+            }
+        }
+
+        return found;
+    }
+}
+
 type KnockoutValidatedObservable<T> = KnockoutObservable<T> & { validationErrors?: KnockoutObservableArray<ValidationError> }
 
 class ValidationError {
@@ -145,6 +167,7 @@ class DotvvmValidation {
         "regularExpression": new DotvvmRegularExpressionValidator(),
         "intrange": new DotvvmIntRangeValidator(),
         "range": new DotvvmRangeValidator(),
+        "emailAddress": new DotvvmEmailAddressValidator(),
         "notnull": new DotvvmNotNullValidator(),
         "enforceClientFormat": new DotvvmEnforceClientFormatValidator()
     }

@@ -2219,6 +2219,30 @@ var DotvvmNotNullValidator = /** @class */ (function (_super) {
     };
     return DotvvmNotNullValidator;
 }(DotvvmValidatorBase));
+var DotvvmEmailAddressValidator = /** @class */ (function (_super) {
+    __extends(DotvvmEmailAddressValidator, _super);
+    function DotvvmEmailAddressValidator() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    DotvvmEmailAddressValidator.prototype.isValid = function (context) {
+        var value = context.valueToValidate;
+        if (value == null)
+            return true;
+        if (typeof value !== "string")
+            return false;
+        var found = false;
+        for (var i = 0; i < value.length; i++) {
+            if (value[i] == '@') {
+                if (found || i == 0 || i == value.length - 1) {
+                    return false;
+                }
+                found = true;
+            }
+        }
+        return found;
+    };
+    return DotvvmEmailAddressValidator;
+}(DotvvmValidatorBase));
 var ValidationError = /** @class */ (function () {
     function ValidationError(validatedObservable, errorMessage) {
         this.validatedObservable = validatedObservable;
@@ -2253,6 +2277,7 @@ var DotvvmValidation = /** @class */ (function () {
             "regularExpression": new DotvvmRegularExpressionValidator(),
             "intrange": new DotvvmIntRangeValidator(),
             "range": new DotvvmRangeValidator(),
+            "emailAddress": new DotvvmEmailAddressValidator(),
             "notnull": new DotvvmNotNullValidator(),
             "enforceClientFormat": new DotvvmEnforceClientFormatValidator()
         };

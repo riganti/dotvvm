@@ -383,6 +383,9 @@ declare class DotvvmRangeValidator extends DotvvmValidatorBase {
 declare class DotvvmNotNullValidator extends DotvvmValidatorBase {
     isValid(context: DotvvmValidationContext): boolean;
 }
+declare class DotvvmEmailAddressValidator extends DotvvmValidatorBase {
+    isValid(context: DotvvmValidationContext): boolean;
+}
 declare type KnockoutValidatedObservable<T> = KnockoutObservable<T> & {
     validationErrors?: KnockoutObservableArray<ValidationError>;
 };
