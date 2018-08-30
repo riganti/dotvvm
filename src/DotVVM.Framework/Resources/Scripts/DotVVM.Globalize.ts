@@ -80,7 +80,7 @@
     }
 
     public bindingNumberToString(value: KnockoutObservable<string | number> | string | number, format: string = "G") {
-        if (!value) {
+        if (value == null) {
             return "";
         }
 

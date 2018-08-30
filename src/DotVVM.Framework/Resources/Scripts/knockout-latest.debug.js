@@ -918,7 +918,7 @@ ko.exportSymbol('utils.domNodeDisposal.removeDisposeCallback', ko.utils.domNodeD
         mayRequireCreateElementHack = ko.utils.ieVersion <= 8;
 
     function getWrap(tags) {
-        var m = tags.match(/^<([a-z]+)[ >]/);
+        var m = tags.match(/^(?:<!--.*?-->\s*?)*?<([a-z]+)[\s>]/);
         return (m && lookup[m[1]]) || none;
     }
 
@@ -4476,7 +4476,7 @@ function makeWithIfBinding(bindingKey, isWith, isNot, makeContextCallback) {
             ko.computed(function() {
                 var rawValue = valueAccessor(),
                     dataValue = ko.utils.unwrapObservable(rawValue),
-                    shouldDisplay = !isNot !== !dataValue, // equivalent to isNot ? !dataValue : !!dataValue
+                    shouldDisplay = isWith ? dataValue != null : !isNot !== !dataValue, // equivalent to isNot ? !dataValue : !!dataValue
                     isFirstRender = !savedNodes,
                     needsRefresh = isFirstRender || isWith || (shouldDisplay !== didDisplayOnLastUpdate);
 

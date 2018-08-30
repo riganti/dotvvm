@@ -378,7 +378,7 @@ var DotvvmGlobalize = /** @class */ (function () {
     DotvvmGlobalize.prototype.bindingNumberToString = function (value, format) {
         var _this = this;
         if (format === void 0) { format = "G"; }
-        if (!value) {
+        if (value == null) {
             return "";
         }
         var unwrapNumber = function () {
