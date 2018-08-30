@@ -126,13 +126,7 @@ namespace DotVVM.Framework.Controls
                     writer.AddKnockoutDataBind("attr", attrBindingGroup);
                 }
 
-                KnockoutBindingGroup cssClassBindingGroup = null;
-                foreach (var cssClass in CssClasses.Properties)
-                {
-                    if (cssClassBindingGroup == null) cssClassBindingGroup = new KnockoutBindingGroup();
-                    cssClassBindingGroup.Add(cssClass.GroupMemberName, this, cssClass, null);
-                }
-                if (cssClassBindingGroup != null) writer.AddKnockoutDataBind("css", cssClassBindingGroup);
+                AddCssClassesToRender(writer);
 
                 // handle Visible property
                 AddVisibleAttributeOrBinding(writer);
@@ -185,6 +179,28 @@ namespace DotVVM.Framework.Controls
                     throw new DotvvmControlException(this, "The DotVVM controls do not support the 'InnerText' property. It can be only used on HTML elements.");
                 }
             }
+        }
+
+        private void AddCssClassesToRender(IHtmlWriter writer)
+        {
+            KnockoutBindingGroup cssClassBindingGroup = null;
+            foreach (var cssClass in CssClasses.Properties)
+            {
+                if (HasValueBinding(cssClass))
+                {
+                    if (cssClassBindingGroup == null) cssClassBindingGroup = new KnockoutBindingGroup();
+                    cssClassBindingGroup.Add(cssClass.GroupMemberName, this, cssClass);
+                }
+
+                try
+                {
+                    if ("True".Equals(this.GetValue(cssClass)))
+                        writer.AddAttribute("class", cssClass.GroupMemberName, append: true, appendSeparator: " ");
+                }
+                catch { }
+            }
+
+            if (cssClassBindingGroup != null) writer.AddKnockoutDataBind("css", cssClassBindingGroup);
         }
 
         /// <summary>
