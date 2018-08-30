@@ -73,6 +73,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         [BindingCompilationRequirements(
                 optional: new[] { typeof(Binding.Properties.SimplePathExpressionBindingProperty) })]
+        [MarkupOptions(AllowHardCodedValue = false)]
         public object DataContext
         {
             get { return (object)GetValue(DataContextProperty); }
