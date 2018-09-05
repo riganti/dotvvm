@@ -38,6 +38,8 @@ namespace DotVVM.Framework.Tests.Binding
         public string CompileBinding(string expression, Type[] contexts, Type expectedType)
         {
             var context = DataContextStack.Create(contexts.FirstOrDefault() ?? typeof(object), extensionParameters: new BindingExtensionParameter[]{
+                new CurrentCollectionIndexExtensionParameter(),
+                new BindingCollectionInfoExtensionParameter("_collection"),
                 new BindingPageInfoExtensionParameter(),
                 }.Concat(configuration.Markup.DefaultExtensionParameters).ToArray());
             for (int i = 1; i < contexts.Length; i++)
@@ -361,6 +363,27 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding("GuidProp != Guid.Empty ? GuidProp.ToString() : ''", typeof(TestViewModel));
             Assert.AreEqual("GuidProp()!=\"00000000-0000-0000-0000-000000000000\"?GuidProp:\"\"", result);
+        }
+
+        [TestMethod]
+        public void StaticCommandCompilation_IndexParameter()
+        {
+            var result = CompileBinding("_index", new [] { typeof(TestViewModel)});
+            Assert.AreEqual("$index()", result);
+        }
+
+        [TestMethod]
+        public void StaticCommandCompilation_CollectionInfoParameter()
+        {
+            var result = CompileBinding("_collection.IsEven", typeof(TestViewModel));
+            Assert.AreEqual("$index()%2==0", result);
+        }
+
+        [TestMethod]
+        public void StaticCommandCompilation_IndexParameterInParent()
+        {
+            var result = CompileBinding("_index", new [] { typeof(TestViewModel), typeof(object), typeof(string) });
+            Assert.AreEqual("parentContext.$parentContext.$index()", result);
         }
     }
 

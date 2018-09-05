@@ -30,6 +30,7 @@ namespace DotVVM.Framework.Tests.Binding
             configuration.Markup.ImportedNamespaces.Add(new NamespaceImport("DotVVM.Framework.Tests.Binding"));
 
             var context = DataContextStack.Create(contexts.FirstOrDefault() ?? typeof(object), extensionParameters: new BindingExtensionParameter[]{
+                new CurrentCollectionIndexExtensionParameter(),
                 new BindingPageInfoExtensionParameter(),
                 new InjectedServiceExtensionParameter("injectedService", new ResolvedTypeDescriptor(typeof(TestService))),
                 }.Concat(configuration.Markup.DefaultExtensionParameters).ToArray());
@@ -115,6 +116,20 @@ namespace DotVVM.Framework.Tests.Binding
             var result = CompileBinding("SomeString = injectedService.Load(SomeString)", new[] { typeof(TestViewModel3) }, typeof(Func<string, string>));
 
             Assert.AreEqual("(function(a,b){return new Promise(function(resolve){dotvvm.staticCommandPostback(\"root\",a,\"WARNING/NOT/ENCRYPTED+++WyJEb3RWVk0uRnJhbWV3b3JrLlRlc3RzLkJpbmRpbmcuVGVzdFNlcnZpY2UsIERvdFZWTS5GcmFtZXdvcmsuVGVzdHMuQ29tbW9uIiwiTG9hZCIsIkFRQT0iXQ==\",[b.$data.SomeString()],function(r_0){resolve(b.$data.SomeString(r_0).SomeString());});});}(this,ko.contextFor(this)))", result);
+        }
+
+        [TestMethod]
+        public void StaticCommandCompilation_IndexParameter()
+        {
+            var result = CompileBinding("IntProp = _index", new [] { typeof(TestViewModel) });
+            Assert.AreEqual("(function(a){return Promise.resolve(a.$data.IntProp(a.$index()).IntProp());}(ko.contextFor(this)))", result);
+        }
+
+        [TestMethod]
+        public void StaticCommandCompilation_IndexParameterInParent()
+        {
+            var result = CompileBinding("_parent2.IntProp = _index", new [] { typeof(TestViewModel), typeof(object), typeof(string) });
+            Assert.AreEqual("(function(a){return Promise.resolve(a.$parents[1].IntProp(a.$parentContext.$parentContext.$index()).IntProp());}(ko.contextFor(this)))", result);
         }
     }
 

@@ -76,7 +76,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public override JsExpression GetJsTranslation(JsExpression dataContext)
         {
-            return new JsSymbolicParameter(JavascriptTranslator.CurrentIndexParameter);
+            return dataContext.Member("$index").Invoke();
         }
     }
 
@@ -113,7 +113,13 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public override JsExpression GetJsTranslation(JsExpression dataContext)
         {
-            return new JsObjectExpression();
+            JsExpression index() => dataContext.Clone().Member("$index").Invoke();
+            return new JsObjectExpression(
+                new JsObjectProperty(nameof(BindingCollectionInfo.Index), index()),
+                new JsObjectProperty(nameof(BindingCollectionInfo.IsFirst), new JsBinaryExpression(index(), BinaryOperatorType.Equal, new JsLiteral(0))),
+                new JsObjectProperty(nameof(BindingCollectionInfo.IsOdd), new JsBinaryExpression(new JsBinaryExpression(index(), BinaryOperatorType.Modulo, new JsLiteral(2)), BinaryOperatorType.Equal, new JsLiteral(1))),
+                new JsObjectProperty(nameof(BindingCollectionInfo.IsEven), new JsBinaryExpression(new JsBinaryExpression(index(), BinaryOperatorType.Modulo, new JsLiteral(2)), BinaryOperatorType.Equal, new JsLiteral(0)))
+            );
         }
     }
 

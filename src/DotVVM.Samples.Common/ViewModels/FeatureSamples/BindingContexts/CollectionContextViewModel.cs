@@ -24,5 +24,8 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.BindingContexts
             "Eleventh",
             "Twelfth"
         };
+
+        [FromQuery("renderMode")]
+        public DotVVM.Framework.Controls.RenderMode RenderMode { get; set; } = DotVVM.Framework.Controls.RenderMode.Client;
     }
 }
