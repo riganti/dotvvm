@@ -383,7 +383,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void StaticCommandCompilation_IndexParameterInParent()
         {
             var result = CompileBinding("_index", new [] { typeof(TestViewModel), typeof(object), typeof(string) });
-            Assert.AreEqual("parentContext.$parentContext.$index()", result);
+            Assert.AreEqual("$parentContext.$parentContext.$index()", result);
         }
     }
 
