@@ -238,8 +238,11 @@ var DotvvmFileUpload = /** @class */ (function () {
         return sender.parentElement.previousSibling;
     };
     DotvvmFileUpload.prototype.openUploadDialog = function (iframe) {
-        var fileUpload = iframe.contentWindow.document.getElementById('upload');
-        fileUpload.click();
+        var window = iframe.contentWindow;
+        if (window) {
+            var fileUpload = window.document.getElementById('upload');
+            fileUpload.click();
+        }
     };
     DotvvmFileUpload.prototype.createUploadId = function (sender, iframe) {
         iframe = iframe || this.getIframe(sender);
@@ -1164,8 +1167,8 @@ var DotVVM = /** @class */ (function () {
     DotVVM.prototype.sortHandlers = function (handlers) {
         var getHandler = (function () {
             var handlerMap = {};
-            for (var _i = 0, handlers_1 = handlers; _i < handlers_1.length; _i++) {
-                var h = handlers_1[_i];
+            for (var _i = 0, handlers_2 = handlers; _i < handlers_2.length; _i++) {
+                var h = handlers_2[_i];
                 if (h.name != null) {
                     handlerMap[h.name] = h;
                 }
@@ -1173,8 +1176,8 @@ var DotVVM = /** @class */ (function () {
             return function (s) { return typeof s == "string" ? handlerMap[s] : s; };
         })();
         var dependencies = handlers.map(function (handler, i) { return (handler["@sort_index"] = i, ({ handler: handler, deps: (handler.after || []).map(getHandler) })); });
-        for (var _i = 0, handlers_2 = handlers; _i < handlers_2.length; _i++) {
-            var h = handlers_2[_i];
+        for (var _i = 0, handlers_1 = handlers; _i < handlers_1.length; _i++) {
+            var h = handlers_1[_i];
             if (h.before)
                 for (var _a = 0, _b = h.before.map(getHandler); _a < _b.length; _a++) {
                     var before = _b[_a];
@@ -1810,7 +1813,10 @@ var DotVVM = /** @class */ (function () {
                     throw new Error();
                 var value = valueAccessor();
                 for (var prop in value) {
-                    value[prop] = createWrapperComputed(function () { return valueAccessor()[this.prop]; }.bind({ prop: prop }), "'" + prop + "' at '" + valueAccessor.toString() + "'");
+                    value[prop] = createWrapperComputed(function () {
+                        var property = valueAccessor()[this.prop];
+                        return !ko.isObservable(property) ? dotvvm.serialization.deserialize(property) : property;
+                    }.bind({ prop: prop }), "'" + prop + "' at '" + valueAccessor.toString() + "'");
                 }
                 var innerBindingContext = bindingContext.extend({ $control: value });
                 element.innerBindingContext = innerBindingContext;
@@ -2174,13 +2180,16 @@ var DotvvmEnforceClientFormatValidator = /** @class */ (function (_super) {
     DotvvmEnforceClientFormatValidator.prototype.isValid = function (context, property) {
         // parameters order: AllowNull, AllowEmptyString, AllowEmptyStringOrWhitespaces
         var valid = true;
-        if (!context.parameters[0] && context.valueToValidate == null) {
+        if (!context.parameters[0] && context.valueToValidate == null) // AllowNull
+         {
             valid = false;
         }
-        if (!context.parameters[1] && context.valueToValidate.length === 0) {
+        if (!context.parameters[1] && context.valueToValidate.length === 0) // AllowEmptyString
+         {
             valid = false;
         }
-        if (!context.parameters[2] && this.isEmpty(context.valueToValidate)) {
+        if (!context.parameters[2] && this.isEmpty(context.valueToValidate)) // AllowEmptyStringOrWhitespaces
+         {
             valid = false;
         }
         var metadata = this.getValidationMetadata(property);

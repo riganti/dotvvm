@@ -251,5 +251,32 @@ namespace DotVVM.Samples.Tests.New.Feature
                 ul.FindElements("li", By.CssSelector).ThrowIfDifferentCountThan(20);
             });
         }
+
+        [Fact]
+        public void Feature_MarkupControl_ComboBoxDataSourceBoundToStaticCollection()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_MarkupControl_ComboBoxDataSourceBoundToStaticCollection);
+
+                var innerControlLiteral = browser.First("[data-ui=inner-control-literal]");
+                AssertUI.InnerTextEquals(innerControlLiteral, "Default item");
+
+                var comboboxSelectedValue = browser.First("[data-ui=combobox-selected-value]");
+                var combobox = browser.First("[data-ui=combobox]");
+
+                combobox.Select(0);
+                AssertUI.InnerTextEquals(comboboxSelectedValue, "0");
+
+                combobox.Select(1);
+                AssertUI.InnerTextEquals(comboboxSelectedValue, "1");
+
+                combobox.Select(2);
+                AssertUI.InnerTextEquals(comboboxSelectedValue, "2");
+
+                AssertUI.InnerTextEquals(combobox.ElementAt("option", 0), "Number 0");
+                AssertUI.InnerTextEquals(combobox.ElementAt("option", 1), "Number 1");
+                AssertUI.InnerTextEquals(combobox.ElementAt("option", 2), "Number 2");
+            });
+        }
     }
 }

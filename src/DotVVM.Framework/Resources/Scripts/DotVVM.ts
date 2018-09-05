@@ -1105,9 +1105,16 @@ class DotVVM {
         ko.bindingHandlers["dotvvm_withControlProperties"] = {
             init: (element, valueAccessor, allBindings, viewModel, bindingContext) => {
                 if (!bindingContext) throw new Error();
+
                 var value = valueAccessor();
                 for (var prop in value) {
-                    value[prop] = createWrapperComputed(function () { return valueAccessor()[this.prop]; }.bind({ prop: prop }), `'${prop}' at '${valueAccessor.toString()}'`);
+
+                    value[prop] = createWrapperComputed(
+                        function () {
+                            var property = valueAccessor()[this.prop];
+                            return !ko.isObservable(property) ? dotvvm.serialization.deserialize(property) : property
+                        }.bind({ prop: prop }),
+                        `'${prop}' at '${valueAccessor.toString()}'`);
                 }
                 var innerBindingContext = bindingContext.extend({ $control: value });
                 element.innerBindingContext = innerBindingContext;

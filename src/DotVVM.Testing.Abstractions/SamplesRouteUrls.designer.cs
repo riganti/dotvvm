@@ -79,6 +79,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_Literal_Literal_CollectionLength = "ControlSamples/Literal/Literal_CollectionLength";
         public const string ControlSamples_Literal_Literal_FormatString = "ControlSamples/Literal/Literal_FormatString";
         public const string ControlSamples_RadioButton_RadioButton = "ControlSamples/RadioButton/RadioButton";
+        public const string ControlSamples_Repeater_CollectionIndex = "ControlSamples/Repeater/CollectionIndex";
         public const string ControlSamples_Repeater_DataSourceNull = "ControlSamples/Repeater/DataSourceNull";
         public const string ControlSamples_Repeater_NestedRepeater = "ControlSamples/Repeater/NestedRepeater";
         public const string ControlSamples_Repeater_NestedRepeaterWithControl = "ControlSamples/Repeater/NestedRepeaterWithControl";
@@ -171,12 +172,14 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Localization_Localization_Control_Page = "FeatureSamples/Localization/Localization_Control_Page";
         public const string FeatureSamples_Localization_Localization_FormatString = "FeatureSamples/Localization/Localization_FormatString";
         public const string FeatureSamples_Localization_Localization_NestedPage_Type = "FeatureSamples/Localization/Localization_NestedPage_Type";
+        public const string FeatureSamples_MarkupControl_ComboBoxDataSourceBoundToStaticCollection = "FeatureSamples/MarkupControl/ComboBoxDataSourceBoundToStaticCollection";
         public const string FeatureSamples_MarkupControl_CommandBindingInDataContextWithControlProperty = "FeatureSamples/MarkupControl/CommandBindingInDataContextWithControlProperty";
         public const string FeatureSamples_MarkupControl_CommandBindingInRepeater = "FeatureSamples/MarkupControl/CommandBindingInRepeater";
         public const string FeatureSamples_MarkupControl_ControlControlCommandInvokeAction = "FeatureSamples/MarkupControl/ControlControlCommandInvokeAction";
         public const string FeatureSamples_MarkupControl_ControlPropertyUpdatedByServer = "FeatureSamples/MarkupControl/ControlPropertyUpdatedByServer";
         public const string FeatureSamples_MarkupControl_ControlPropertyUpdating = "FeatureSamples/MarkupControl/ControlPropertyUpdating";
         public const string FeatureSamples_MarkupControl_ControlPropertyValidationPage = "FeatureSamples/MarkupControl/ControlPropertyValidationPage";
+        public const string FeatureSamples_MarkupControl_ControlWithTemplatePage = "FeatureSamples/MarkupControl/ControlWithTemplatePage";
         public const string FeatureSamples_MarkupControl_HierarchyControlPage = "FeatureSamples/MarkupControl/HierarchyControlPage";
         public const string FeatureSamples_MarkupControl_MarkupControlRegistration = "FeatureSamples/MarkupControl/MarkupControlRegistration";
         public const string FeatureSamples_MarkupControl_MultiControlHierarchy = "FeatureSamples/MarkupControl/MultiControlHierarchy";
