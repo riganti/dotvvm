@@ -8,7 +8,7 @@
     "outFile": "Resources/Scripts/DotVVM.js",
     "declaration": true,
     "strictNullChecks": true,
-    "lib": ["dom", "es2015.promise", "es5", "es2015.symbol"]
+    "lib": ["dom", "es2015.promise", "es5"]
   },
   "files": [
     "Resources/Scripts/DotVVM.Polyfills.ts",
