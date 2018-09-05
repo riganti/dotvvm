@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using DotVVM.Framework.ViewModel;
+using DotVVM.Samples.BasicSamples.Utilities;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation
 {
@@ -12,7 +13,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation
         [Required]
         public string RequiredString { get; set; }
 
-        [EmailAddress]
+        [OnlyServerSideEmailAddress]
         public string EmailString { get; set; }
 
         public bool ClientSideValidationEnabled => Context.Configuration.ClientSideValidation;
