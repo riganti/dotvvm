@@ -70,7 +70,7 @@ namespace DotVVM.Framework.Binding
                 if (bindingContext.Equals(a.GetValue(Internal.DataContextTypeProperty, inherit: false)))
                     return (changes, a);
 
-                if (a.properties.ContainsKey(DotvvmBindableObject.DataContextProperty)) changes++;
+                if (a.properties != null && a.properties.ContainsKey(DotvvmBindableObject.DataContextProperty)) changes++;
             }
 
             throw new NotSupportedException($"Could not find DataContextSpace of binding '{binding}'.");
