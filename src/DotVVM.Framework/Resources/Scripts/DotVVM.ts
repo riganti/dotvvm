@@ -1146,12 +1146,38 @@ class DotVVM {
             }
         }
 
+        const foreachCollectionSymbol = "$foreachCollectionSymbol"
+        ko.virtualElements.allowedBindings["dotvvm-SSR-foreach"] = true
+        ko.bindingHandlers["dotvvm-SSR-foreach"] = {
+            init(element, valueAccessor, _allBindings, _viewModel, bindingContext) {
+                if (!bindingContext) throw new Error()
+                var value = valueAccessor()
+                var innerBindingContext = bindingContext.extend({ [foreachCollectionSymbol]: value.data })
+                element.innerBindingContext = innerBindingContext
+                ko.applyBindingsToDescendants(innerBindingContext, element)
+                return { controlsDescendantBindings: true } // do not apply binding again
+
+            }
+        }
+        ko.virtualElements.allowedBindings["dotvvm-SSR-item"] = true
+        ko.bindingHandlers["dotvvm-SSR-item"] = {
+            init(element, valueAccessor, _allBindings, _viewModel, bindingContext) {
+                if (!bindingContext) throw new Error()
+                var index = valueAccessor()
+                var collection = bindingContext[foreachCollectionSymbol]
+                var innerBindingContext = bindingContext.createChildContext(() => ko.unwrap((ko.unwrap(collection) || [])[index])).extend({$index: ko.pureComputed(() => index)})
+                element.innerBindingContext = innerBindingContext
+                ko.applyBindingsToDescendants(innerBindingContext, element)
+                return { controlsDescendantBindings: true } // do not apply binding again
+
+            }
+        }
         ko.virtualElements.allowedBindings["withGridViewDataSet"] = true;
         ko.bindingHandlers["withGridViewDataSet"] = {
             init: (element, valueAccessor, allBindings, viewModel, bindingContext) => {
                 if (!bindingContext) throw new Error();
                 var value = valueAccessor();
-                var innerBindingContext = bindingContext.extend({ $gridViewDataSet: value });
+                var innerBindingContext = bindingContext.extend({ $gridViewDataSet: value, [foreachCollectionSymbol]: dotvvm.evaluator.getDataSourceItems(value) });
                 element.innerBindingContext = innerBindingContext;
                 ko.applyBindingsToDescendants(innerBindingContext, element);
                 return { controlsDescendantBindings: true }; // do not apply binding again

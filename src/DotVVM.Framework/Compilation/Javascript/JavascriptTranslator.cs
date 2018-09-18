@@ -21,7 +21,6 @@ namespace DotVVM.Framework.Compilation.Javascript
     {
         public static readonly CodeSymbolicParameter KnockoutContextParameter = new CodeSymbolicParameter("JavascriptTranslator.KnockoutContextParameter", CodeParameterAssignment.FromIdentifier("$context", true));
         public static readonly CodeSymbolicParameter KnockoutViewModelParameter = new CodeSymbolicParameter("JavascriptTranslator.KnockoutViewModelParameter", CodeParameterAssignment.FromIdentifier("$data", true));
-        public static readonly CodeSymbolicParameter CurrentIndexParameter = new CodeSymbolicParameter("JavascriptTranslator.CurrentIndexParameter", CodeParameterAssignment.FromIdentifier("$index()"));
         private readonly IViewModelSerializationMapper mapper;
 
         public IJavascriptMethodTranslator DefaultMethodTranslator { get; }
@@ -93,7 +92,6 @@ namespace DotVVM.Framework.Compilation.Javascript
             return expression.AssignParameters(o =>
                 o == KnockoutContextParameter ? context :
                 o == KnockoutViewModelParameter ? data :
-                o == CurrentIndexParameter ? CodeParameterAssignment.FromExpression(contextExpresion.Member("$index").Invoke()) :
                 default(CodeParameterAssignment)
             );
         }
@@ -127,7 +125,6 @@ namespace DotVVM.Framework.Compilation.Javascript
             return expression
                 .ToString(o => o == KnockoutContextParameter ? new CodeParameterAssignment(contextVariable) :
                                o == KnockoutViewModelParameter ? dataVariable :
-                               o == CurrentIndexParameter ? new ParametrizedCode.Builder { contextVariable, ".$index()" }.Build(OperatorPrecedence.Max) :
                                throw new Exception());
         }
     }

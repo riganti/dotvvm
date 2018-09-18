@@ -199,7 +199,7 @@ namespace DotVVM.Framework.Controls
                     // create row
                     var placeholder = new DataItemContainer { DataItemIndex = index };
                     placeholder.SetDataContextTypeFromDataSource(dataSourceBinding);
-                    placeholder.SetDataContextForItem(itemBinding, index, item);
+                    placeholder.DataContext = item;
                     placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[" + index + "]");
                     placeholder.ID = index.ToString();
                     Children.Add(placeholder);

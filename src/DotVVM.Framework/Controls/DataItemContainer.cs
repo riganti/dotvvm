@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls
 {
@@ -34,6 +35,18 @@ namespace DotVVM.Framework.Controls
             }
             set { SetValue(Internal.UniqueIDProperty, value != null ? value.ToString() : null); }
         }
-        
+
+
+        protected override void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
+        {
+            var maybeIndex = DataItemIndex;
+            if (maybeIndex is int index)
+                writer.WriteKnockoutDataBindComment("dotvvm-SSR-item", index.ToString());
+
+            base.RenderControl(writer, context);
+
+            if (maybeIndex is int)
+                writer.WriteKnockoutDataBindEndComment();
+        }
     }
 }
