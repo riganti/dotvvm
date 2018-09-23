@@ -171,8 +171,7 @@ namespace DotVVM.Framework.Controls
             {
                 base.RenderEndTag(writer, context);
             }
-
-            if (!RenderOnServer && !RenderWrapperTag)
+            else
             {
                 writer.WriteKnockoutDataBindEndComment();
             }
