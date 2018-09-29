@@ -95,13 +95,12 @@ namespace DotVVM.Framework.Hosting
         /// <returns></returns>
         public async Task ProcessRequestCore(IDotvvmRequestContext context)
         {
-            var requestTracer = context.Services.GetRequiredService<AggregateRequestTracer>();
             if (context.HttpContext.Request.Method != "GET" && context.HttpContext.Request.Method != "POST")
             {
-                // unknown HTTP method
-                context.HttpContext.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
-                throw new DotvvmHttpException("Only GET and POST methods are supported!");
+                await context.InterruptRequestAsMethodNotAllowedAsync();
             }
+
+            var requestTracer = context.Services.GetRequiredService<AggregateRequestTracer>();
             if (context.HttpContext.Request.Headers["X-PostbackType"] == "StaticCommand")
             {
                 await ProcessStaticCommandRequest(context);
