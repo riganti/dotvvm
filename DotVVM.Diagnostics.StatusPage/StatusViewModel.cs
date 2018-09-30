@@ -12,15 +12,22 @@ namespace DotVVM.Diagnostics.StatusPage
 {
     public class StatusViewModel : DotvvmViewModelBase
     {
+        private readonly StatusPageOptions _statusPageOptions;
+
         public List<DotHtmlFileInfo> Routes { get; set; }
 
         public List<DotHtmlFileInfo> Controls { get; set; }
         public string ApplicationPath { get; set; }
 
-        public override Task Init()
+        public StatusViewModel(StatusPageOptions statusPageOptions)
         {
-            // ToDo: implement your own authorization logic
-            if (!Context.HttpContext.Request.Url.IsLoopback)
+            _statusPageOptions = statusPageOptions;
+        }
+
+        public override async Task Init()
+        {
+            var isAuthorized = await _statusPageOptions.Authorize(Context);
+            if (!isAuthorized)
             {
                 var response = Context.HttpContext.Response;
                 response.StatusCode = 403;
@@ -33,14 +40,13 @@ namespace DotVVM.Diagnostics.StatusPage
                 MasterPages = new List<DotHtmlFileInfo>();
             }
             ApplicationPath = Context.Configuration.ApplicationPhysicalPath;
-            return base.Init();
+            await base.Init();
         }
 
         public override Task Load()
         {
             if (!Context.IsPostBack)
             {
-
                 Routes = Context.Configuration.RouteTable.Select(r => new DotHtmlFileInfo()
                 {
                     VirtualPath = r.VirtualPath,

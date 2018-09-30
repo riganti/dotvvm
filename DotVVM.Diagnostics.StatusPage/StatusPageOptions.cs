@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using DotVVM.Framework.Hosting;
+using System;
+using System.Threading.Tasks;
 
 namespace DotVVM.Diagnostics.StatusPage
 {
@@ -10,14 +10,12 @@ namespace DotVVM.Diagnostics.StatusPage
 
         public string Url { get; set; } = "_diagnostics/status";
 
+        public Func<IDotvvmRequestContext, Task<bool>> Authorize { get; set; }
+            = context => Task.FromResult(context.HttpContext.Request.Url.IsLoopback);
+
         public static StatusPageOptions CreateDefaultOptions()
         {
-            return new StatusPageOptions()
-            {
-                RouteName = "StatusPage",
-                Url = "_diagnostics/status"
-            };
-
+            return new StatusPageOptions();
         }
     }
 }
