@@ -35,22 +35,35 @@ namespace DotVVM.Framework.Compilation
         public override void VisitView(ResolvedTreeRoot view)
         {
             lastMetadata = view.Metadata;
-            var wrapperClassName = CreateControlClass(className, view.Metadata.Type);
+
+            var createsCustomDerivedType = view.Metadata.Type == typeof(DotvvmView);
+
+            if (createsCustomDerivedType)
+            {
+                emitter.ResultControlType = className + "Control";
+                emitter.EmitControlClass(view.Metadata.Type, emitter.ResultControlType);
+            }
+            else
+                emitter.ResultControlType = view.Metadata.Type.FullName;
+
             emitter.UseType(view.Metadata.Type);
             emitter.BuilderDataContextType = view.DataContextTypeStack?.DataContextType;
-            emitter.ResultControlType = wrapperClassName;
             // build the statements
             emitter.PushNewMethod(nameof(IControlBuilder.BuildControl), typeof(DotvvmControl), emitter.EmitControlBuilderParameters());
-            emitter.PushNewMethod(DefaultViewCompilerCodeEmitter.BuildControlFunctionName, typeof(DotvvmControl),
-                emitter.EmitControlBuilderParameters());
-            var pageName = emitter.EmitCreateObject(wrapperClassName);
+
+            var pageName =
+                createsCustomDerivedType ? emitter.EmitCreateObject(emitter.ResultControlType) :
+                                           this.EmitCreateControl(view.Metadata.Type, new object[0]);
+
             emitter.EmitSetDotvvmProperty(pageName, Internal.UniqueIDProperty, pageName);
             emitter.EmitSetDotvvmProperty(pageName, Internal.MarkupFileNameProperty, view.Metadata.VirtualPath);
             emitter.EmitSetDotvvmProperty(pageName, Internal.DataContextTypeProperty, emitter.EmitValue(view.DataContextTypeStack));
+
             if (typeof(DotvvmView).IsAssignableFrom(view.Metadata.Type))
                 emitter.EmitSetProperty(pageName, nameof(DotvvmView.ViewModelType),
                     emitter.EmitValue(view.DataContextTypeStack.DataContextType));
-            if (view.Metadata.Type.IsAssignableFrom(typeof(DotvvmView)) ||
+
+            if (typeof(DotvvmView).IsAssignableFrom(view.Metadata.Type) ||
                 typeof(DotvvmMarkupControl).IsAssignableFrom(view.Metadata.Type))
             {
                 foreach (var directive in view.Directives)
@@ -183,20 +196,6 @@ namespace DotVVM.Framework.Compilation
 
             var templateName = CreateTemplate(methodName);
             SetProperty(controlName, propertyTemplate.Property, SyntaxFactory.IdentifierName(templateName));
-        }
-
-        /// <summary>
-        /// Emits control class definition if wrapper is DotvvmView and returns class name
-        /// </summary>
-        protected string CreateControlClass(string className, Type wrapperType)
-        {
-            if (wrapperType == typeof(DotvvmView))
-            {
-                var controlClassName = className + "Control";
-                emitter.EmitControlClass(wrapperType, controlClassName);
-                return controlClassName;
-            }
-            else return wrapperType.FullName;
         }
 
         /// <summary>

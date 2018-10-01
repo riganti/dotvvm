@@ -31,7 +31,6 @@ namespace DotVVM.Framework.Compilation
 
         public const string ControlBuilderFactoryParameterName = "controlBuilderFactory";
         public const string ServiceProviderParameterName = "services";
-        public const string BuildControlFunctionName = nameof(IControlBuilder.BuildControl);
         public const string BuildTemplateFunctionName = "BuildTemplate";
 
         private Dictionary<GroupedDotvvmProperty, string> cachedGroupedDotvvmProperties = new Dictionary<GroupedDotvvmProperty, string>();
