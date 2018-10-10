@@ -35,8 +35,7 @@ namespace DotVVM.Framework.Compilation
 
             if (a is ResolvedPropertyControlCollection firstCollection && b is ResolvedPropertyControlCollection secondCollection)
             {
-                firstCollection.Controls.AddRange(secondCollection.Controls);
-                return firstCollection;
+                return new ResolvedPropertyControlCollection(property, Enumerable.Concat(firstCollection.Controls, secondCollection.Controls).ToList());
             }
 
             ResolvedBinding bindingA;
