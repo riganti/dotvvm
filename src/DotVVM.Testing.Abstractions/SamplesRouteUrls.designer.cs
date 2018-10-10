@@ -203,6 +203,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Serialization_Serialization = "FeatureSamples/Serialization/Serialization";
         public const string FeatureSamples_ServerComments_ServerComments = "FeatureSamples/ServerComments/ServerComments";
         public const string FeatureSamples_ServerSideStyles_ServerSideStyles = "FeatureSamples/ServerSideStyles/ServerSideStyles";
+        public const string FeatureSamples_ServerSideStyles_ServerSideStyles_ControlProperties = "FeatureSamples/ServerSideStyles/ServerSideStyles_ControlProperties";
         public const string FeatureSamples_ServerSideStyles_ServerSideStyles_DotvvmProperties = "FeatureSamples/ServerSideStyles/ServerSideStyles_DotvvmProperties";
         public const string FeatureSamples_ServerSideStyles_ServerSideStyles_MatchingViewModel = "FeatureSamples/ServerSideStyles/ServerSideStyles_MatchingViewModel";
         public const string FeatureSamples_ServerSideStyles_DirectoryStyle_ServerSideStyles = "FeatureSamples/ServerSideStyles/DirectoryStyle/ServerSideStyles";

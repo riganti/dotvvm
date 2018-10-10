@@ -10,14 +10,6 @@ using System.Linq;
 
 namespace DotVVM.Framework.Compilation.Styles
 {
-    // not generic interface
-    public interface IStyleBuilder
-    {
-        IStyleBuilder SetDotvvmProperty(DotvvmProperty property, object value);
-        IStyleBuilder WithCondition(Func<StyleMatchContext, bool> condition);
-        IStyle GetStyle();
-    }
-
     public class StyleBuilder<T> : IStyleBuilder
     {
         private Style style;
@@ -37,6 +29,18 @@ namespace DotVVM.Framework.Compilation.Styles
         {
             var propertyName = ReflectionUtils.GetMemberFromExpression(property.Body).Name;
             return SetDotvvmProperty(GetProperty(propertyName), value);
+        }
+
+        public StyleBuilder<T> SetControlProperty<TControlType>(DotvvmProperty property, Action<StyleBuilder<TControlType>> styleBuilder = null,
+            StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
+        {
+            var innerControlStyleBuilder = new StyleBuilder<TControlType>(null, false);
+            styleBuilder?.Invoke(innerControlStyleBuilder);
+
+            style.SetProperties[property] = new CompileTimeStyleBase.PropertyControlCollectionInsertionInfo(property, options,
+                new ControlResolverMetadata(typeof(TControlType)), innerControlStyleBuilder.GetStyle());
+
+            return this;
         }
 
         public StyleBuilder<T> SetDotvvmProperty(ResolvedPropertySetter setter, StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
@@ -89,17 +93,11 @@ namespace DotVVM.Framework.Compilation.Styles
             public override Type ControlType => typeof(T);
 
             public Func<StyleMatchContext, bool> Matcher { get; set; }
-            public override bool Matches(StyleMatchContext matchInfo)
+
+            public override bool Matches(StyleMatchContext context)
             {
-                return Matcher != null ? Matcher(matchInfo) : true;
+                return Matcher != null ? Matcher(context) : true;
             }
         }
-    }
-
-    public enum StyleOverrideOptions
-    {
-        Ignore,
-        Overwrite,
-        Append
     }
 }
