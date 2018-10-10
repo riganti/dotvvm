@@ -6,7 +6,7 @@ namespace DotVVM.Framework.Utils
 {
     internal static class DotvvmRequestContextUtils
     {
-        internal static async Task InterruptRequestAsync(this IDotvvmRequestContext context, HttpStatusCode statusCode, string message)
+        internal static async Task InterruptRequestAsync(this IDotvvmRequestContext context, HttpStatusCode statusCode, string message = null)
         {
             context.HttpContext.Response.StatusCode = (int)statusCode;
             if (!string.IsNullOrEmpty(message))
@@ -15,6 +15,13 @@ namespace DotVVM.Framework.Utils
             }
 
             context.InterruptRequest();
+        }
+
+        internal static Task InterruptRequestAsMethodNotAllowedAsync(this IDotvvmRequestContext context)
+        {
+            context.HttpContext.Response.Headers["Allow"] = "GET, POST";
+
+            return InterruptRequestAsync(context, HttpStatusCode.MethodNotAllowed);
         }
     }
 }

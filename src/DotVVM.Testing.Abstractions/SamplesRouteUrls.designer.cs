@@ -34,6 +34,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ComplexSamples_TaskList_TaskListAsyncCommands = "ComplexSamples/TaskList/TaskListAsyncCommands";
         public const string ControlSamples_AuthenticatedView_AuthenticatedViewTest = "ControlSamples/AuthenticatedView/AuthenticatedViewTest";
         public const string ControlSamples_Button_Button = "ControlSamples/Button/Button";
+        public const string ControlSamples_Button_ButtonEnabled = "ControlSamples/Button/ButtonEnabled";
         public const string ControlSamples_Button_ButtonOnclick = "ControlSamples/Button/ButtonOnclick";
         public const string ControlSamples_Button_ButtonTagName = "ControlSamples/Button/ButtonTagName";
         public const string ControlSamples_Button_InputTypeButton_HtmlContentInside = "ControlSamples/Button/InputTypeButton_HtmlContentInside";
@@ -70,6 +71,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_HtmlLiteral_HtmlLiteral = "ControlSamples/HtmlLiteral/HtmlLiteral";
         public const string ControlSamples_IncludeInPageProperty_IncludeInPage = "ControlSamples/IncludeInPageProperty/IncludeInPage";
         public const string ControlSamples_LinkButton_LinkButton = "ControlSamples/LinkButton/LinkButton";
+        public const string ControlSamples_LinkButton_LinkButtonEnabled = "ControlSamples/LinkButton/LinkButtonEnabled";
         public const string ControlSamples_LinkButton_LinkButtonOnclick = "ControlSamples/LinkButton/LinkButtonOnclick";
         public const string ControlSamples_ListBox_ListBox = "ControlSamples/ListBox/ListBox";
         public const string ControlSamples_Literal_Literal = "ControlSamples/Literal/Literal";
@@ -77,6 +79,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_Literal_Literal_CollectionLength = "ControlSamples/Literal/Literal_CollectionLength";
         public const string ControlSamples_Literal_Literal_FormatString = "ControlSamples/Literal/Literal_FormatString";
         public const string ControlSamples_RadioButton_RadioButton = "ControlSamples/RadioButton/RadioButton";
+        public const string ControlSamples_Repeater_CollectionIndex = "ControlSamples/Repeater/CollectionIndex";
         public const string ControlSamples_Repeater_DataSourceNull = "ControlSamples/Repeater/DataSourceNull";
         public const string ControlSamples_Repeater_NestedRepeater = "ControlSamples/Repeater/NestedRepeater";
         public const string ControlSamples_Repeater_NestedRepeaterWithControl = "ControlSamples/Repeater/NestedRepeaterWithControl";
@@ -162,6 +165,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_FormControlsEnabled_FormControlsEnabled = "FeatureSamples/FormControlsEnabled/FormControlsEnabled";
         public const string FeatureSamples_GenericTypes_InCommandBinding = "FeatureSamples/GenericTypes/InCommandBinding";
         public const string FeatureSamples_GenericTypes_InResourceBinding = "FeatureSamples/GenericTypes/InResourceBinding";
+        public const string FeatureSamples_GenericTypes_InStaticCommandBinding = "FeatureSamples/GenericTypes/InStaticCommandBinding";
         public const string FeatureSamples_HtmlTag_NonPairHtmlTag = "FeatureSamples/HtmlTag/NonPairHtmlTag";
         public const string FeatureSamples_IdGeneration_IdGeneration = "FeatureSamples/IdGeneration/IdGeneration";
         public const string FeatureSamples_JavascriptEvents_JavascriptEvents = "FeatureSamples/JavascriptEvents/JavascriptEvents";
@@ -169,21 +173,24 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Localization_Localization_Control_Page = "FeatureSamples/Localization/Localization_Control_Page";
         public const string FeatureSamples_Localization_Localization_FormatString = "FeatureSamples/Localization/Localization_FormatString";
         public const string FeatureSamples_Localization_Localization_NestedPage_Type = "FeatureSamples/Localization/Localization_NestedPage_Type";
+        public const string FeatureSamples_MarkupControl_ComboBoxDataSourceBoundToStaticCollection = "FeatureSamples/MarkupControl/ComboBoxDataSourceBoundToStaticCollection";
         public const string FeatureSamples_MarkupControl_CommandBindingInDataContextWithControlProperty = "FeatureSamples/MarkupControl/CommandBindingInDataContextWithControlProperty";
         public const string FeatureSamples_MarkupControl_CommandBindingInRepeater = "FeatureSamples/MarkupControl/CommandBindingInRepeater";
         public const string FeatureSamples_MarkupControl_ControlControlCommandInvokeAction = "FeatureSamples/MarkupControl/ControlControlCommandInvokeAction";
         public const string FeatureSamples_MarkupControl_ControlPropertyUpdatedByServer = "FeatureSamples/MarkupControl/ControlPropertyUpdatedByServer";
         public const string FeatureSamples_MarkupControl_ControlPropertyUpdating = "FeatureSamples/MarkupControl/ControlPropertyUpdating";
         public const string FeatureSamples_MarkupControl_ControlPropertyValidationPage = "FeatureSamples/MarkupControl/ControlPropertyValidationPage";
+        public const string FeatureSamples_MarkupControl_ControlWithTemplatePage = "FeatureSamples/MarkupControl/ControlWithTemplatePage";
         public const string FeatureSamples_MarkupControl_HierarchyControlPage = "FeatureSamples/MarkupControl/HierarchyControlPage";
         public const string FeatureSamples_MarkupControl_MarkupControlRegistration = "FeatureSamples/MarkupControl/MarkupControlRegistration";
         public const string FeatureSamples_MarkupControl_MultiControlHierarchy = "FeatureSamples/MarkupControl/MultiControlHierarchy";
         public const string FeatureSamples_NestedMasterPages_Content = "FeatureSamples/NestedMasterPages/Content";
         public const string FeatureSamples_ParameterBinding_OptionalParameterBinding = "FeatureSamples/ParameterBinding/OptionalParameterBinding";
         public const string FeatureSamples_ParameterBinding_ParameterBinding = "FeatureSamples/ParameterBinding/ParameterBinding";
-        public const string FeatureSamples_PostBack_PostBackHandlers = "FeatureSamples/PostBack/PostBackHandlers";
+        public const string FeatureSamples_PostBack_ConfirmPostBackHandler = "FeatureSamples/PostBack/ConfirmPostBackHandler";
         public const string FeatureSamples_PostBack_PostbackUpdate = "FeatureSamples/PostBack/PostbackUpdate";
         public const string FeatureSamples_PostBack_PostbackUpdateRepeater = "FeatureSamples/PostBack/PostbackUpdateRepeater";
+        public const string FeatureSamples_PostBack_SuppressPostBackHandler = "FeatureSamples/PostBack/SuppressPostBackHandler";
         public const string FeatureSamples_PostbackConcurrency_PostbackConcurrencyMode = "FeatureSamples/PostbackConcurrency/PostbackConcurrencyMode";
         public const string FeatureSamples_Redirect_Redirect = "FeatureSamples/Redirect/Redirect";
         public const string FeatureSamples_RenderSettingsModeServer_RenderSettingModeServerProperty = "FeatureSamples/RenderSettingsModeServer/RenderSettingModeServerProperty";
@@ -223,6 +230,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Validation_ValidationScopes = "FeatureSamples/Validation/ValidationScopes";
         public const string FeatureSamples_Validation_ValidationScopes2 = "FeatureSamples/Validation/ValidationScopes2";
         public const string FeatureSamples_ViewModelDeserialization_DoesNotDropObject = "FeatureSamples/ViewModelDeserialization/DoesNotDropObject";
+        public const string FeatureSamples_ViewModelDeserialization_NegativeLongNumber = "FeatureSamples/ViewModelDeserialization/NegativeLongNumber";
         public const string FeatureSamples_ViewModelNesting_NestedViewModel = "FeatureSamples/ViewModelNesting/NestedViewModel";
         public const string FeatureSamples_ViewModelProtection_ComplexViewModelProtection = "FeatureSamples/ViewModelProtection/ComplexViewModelProtection";
         public const string FeatureSamples_ViewModelProtection_SignedNestedInServerToClient = "FeatureSamples/ViewModelProtection/SignedNestedInServerToClient";

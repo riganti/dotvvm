@@ -32,12 +32,9 @@ namespace DotVVM.Compiler.Programs
             GetEnvironmentAssemblySearchPaths();
 #if NETCOREAPP2_0
             AssemblyResolver.ResolverNetstandard(GetEnvironmentWebAssemblyPath());
-    //      AssemblyResolver.DotNetCliInfo = DotNetCliInfoResolver.GetInfo();
 #else
             AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolver.ResolveAssembly;
 #endif
-
-
             if (args.Length == 0)
             {
                 while (true)

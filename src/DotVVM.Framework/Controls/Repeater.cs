@@ -119,19 +119,16 @@ namespace DotVVM.Framework.Controls
         {
             TagName = WrapperTagName;
 
-            if (!RenderOnServer)
+            var (bindingName, bindingValue) = RenderOnServer ?
+                                              ("dotvvm-SSR-foreach", GetServerSideForeachBindingGroup()) :
+                                              ("foreach", GetForeachKnockoutBindingGroup());
+            if (RenderWrapperTag)
             {
-
-                if (RenderWrapperTag)
-                {
-                    //writer.AddKnockoutForeachDataBind(javascriptDataSourceExpression);
-
-                    writer.AddKnockoutDataBind("foreach", GetForeachKnockoutBindingGroup());
-                }
-                else
-                {
-                    writer.WriteKnockoutDataBindComment("foreach", GetForeachKnockoutBindingGroup().ToString());
-                }
+                writer.AddKnockoutDataBind(bindingName, bindingValue);
+            }
+            else
+            {
+                writer.WriteKnockoutDataBindComment(bindingName, bindingValue.ToString());
             }
 
             if (RenderWrapperTag)
@@ -139,6 +136,11 @@ namespace DotVVM.Framework.Controls
                 base.RenderBeginTag(writer, context);
             }
         }
+
+        private KnockoutBindingGroup GetServerSideForeachBindingGroup() =>
+            new KnockoutBindingGroup {
+                { "data", GetForeachDataBindExpression().GetKnockoutBindingExpression(this) }
+            };
 
         private KnockoutBindingGroup GetForeachKnockoutBindingGroup()
         {
@@ -169,8 +171,7 @@ namespace DotVVM.Framework.Controls
             {
                 base.RenderEndTag(writer, context);
             }
-
-            if (!RenderOnServer && !RenderWrapperTag)
+            else
             {
                 writer.WriteKnockoutDataBindEndComment();
             }
@@ -204,17 +205,17 @@ namespace DotVVM.Framework.Controls
             return emptyDataContainer;
         }
 
-        private DotvvmControl GetItem(IDotvvmRequestContext context, object item = null, int index = -1, IValueBinding itemBinding = null)
+        private DotvvmControl GetItem(IDotvvmRequestContext context, object item = null, int? index = null)
         {
             var container = new DataItemContainer();
             container.SetDataContextTypeFromDataSource(GetBinding(DataSourceProperty));
-            if (item == null && index == -1)
+            if (item == null && index == null)
             {
                 SetUpClientItem(container);
             }
             else
             {
-                SetUpServerItem(context, item, index, itemBinding, container);
+                SetUpServerItem(context, item, (int)index, container);
             }
 
             ItemTemplate.BuildContent(context, container);
@@ -250,14 +251,14 @@ namespace DotVVM.Framework.Controls
                         {
                             Children.Add(GetSeparator(context));
                         }
-                        Children.Add(GetItem(context, item, index, itemBinding));
+                        Children.Add(GetItem(context, item, index));
                         index++;
                     }
                 }
             }
             else
             {
-                if(SeparatorTemplate != null)
+                if (SeparatorTemplate != null)
                 {
                     Children.Add(clientSeparator = GetSeparator(context));
                 }
@@ -278,10 +279,10 @@ namespace DotVVM.Framework.Controls
             container.SetValue(Internal.ClientIDFragmentProperty, GetValueRaw(Internal.CurrentIndexBindingProperty));
         }
 
-        private void SetUpServerItem(IDotvvmRequestContext context, object item, int index, IValueBinding itemBinding, DataItemContainer container)
+        private void SetUpServerItem(IDotvvmRequestContext context, object item, int index, DataItemContainer container)
         {
             container.DataItemIndex = index;
-            container.SetDataContextForItem(itemBinding, index, item);
+            container.DataContext = item;
             container.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[" + index + "]");
             container.ID = index.ToString();
         }

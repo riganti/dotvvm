@@ -1,0 +1,23 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.GenericCommandDemo, DotVVM.Samples.Common
+@import VM = DotVVM.Samples.BasicSamples.ViewModels
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Hello from DotVVM!</title>
+</head>
+
+<body>
+    <dot:Button data-ui="instance-command" Click="{staticCommand: Output = GenericInstanceFunctionWithReturnValue<VM.TestParameter, VM.TestParameter>()}">
+        Instance
+    </dot:Button>
+    <dot:Literal data-ui="instance-output" Text="{value: Output}" />
+
+    <br />
+    <dot:Button data-ui="static-command" Click="{staticCommand: StaticCommandOutput = VM.GenericCommandDemo.GenericStaticFunctionWithReturnValue<VM.TestParameter, VM.TestParameter>()}">
+        Static
+    </dot:Button>
+    <dot:Literal data-ui="static-output" Text="{value: StaticCommandOutput}" />
+</body>
+</html>

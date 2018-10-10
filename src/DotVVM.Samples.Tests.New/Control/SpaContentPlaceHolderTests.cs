@@ -15,6 +15,7 @@ namespace DotVVM.Samples.Tests.New.Control
         }
 
         [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_HistoryApi))]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_HistoryApi_Default))]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_HistoryApi_PageA))]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_HistoryApi_PageB))]

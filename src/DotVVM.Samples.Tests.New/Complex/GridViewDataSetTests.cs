@@ -28,11 +28,30 @@ namespace DotVVM.Samples.Tests.New.Complex
                     AssertUI.ContainsElement(button, "h4");
                     AssertUI.InnerTextEquals(button, "Choose");
                 }
+
+                Assert.Equal(3, buttonsInGridView.Count);
             });
         }
-        
+
+        [Fact]
+        public void Complex_GridViewDataSet_ControlWithITemplateInColumn()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_GridViewDataSet_GridViewDataSet);
+                browser.First(".GridView");
+
+                var templateContents = browser.FindElements(SelectByDataUiId("template-content"));
+
+                foreach (var content in templateContents)
+                {
+                    AssertUI.InnerTextEquals(content, "Not Authenticated");
+                }
+                Assert.Equal(3, templateContents.Count);
+            });
+        }
+
         protected By SelectByDataUiId(string selector)
           => By.CssSelector($"[data-ui='{selector}']");
-
     }
 }

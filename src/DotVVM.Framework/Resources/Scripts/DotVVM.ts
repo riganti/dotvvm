@@ -35,6 +35,7 @@ interface IDotvvmViewModels {
 interface IDotvvmPostbackHandlerCollection {
     [name: string]: ((options: any) => DotvvmPostbackHandler);
     confirm: (options: { message?: string }) => ConfirmPostBackHandler;
+    suppress: (options: { suppress?: boolean }) => SuppressPostBackHandler;
 }
 
 class DotVVM {
@@ -56,17 +57,18 @@ class DotVVM {
 
     public postbackHandlers: IDotvvmPostbackHandlerCollection = {
         confirm: (options: any) => new ConfirmPostBackHandler(options.message),
+        suppress: (options: any) => new SuppressPostBackHandler(options.suppress),
         timeout: (options: any) => options.time ? this.createWindowSetTimeoutHandler(options.time) : this.windowSetTimeoutHandler,
         "concurrency-default": (o: any) => ({
             name: "concurrency-default",
-            before: ["setIsPostackRunning"],
+            before: ["setIsPostbackRunning"],
             execute: (callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions) => {
                 return this.commonConcurrencyHandler(callback(), options, o.q || "default")
             }
         }),
         "concurrency-deny": (o: any) => ({
             name: "concurrency-deny",
-            before: ["setIsPostackRunning"],
+            before: ["setIsPostbackRunning"],
             execute(callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions) {
                 var queue = o.q || "default";
                 if (dotvvm.getPostbackQueue(queue).noRunning > 0)
@@ -76,7 +78,7 @@ class DotVVM {
         }),
         "concurrency-queue": (o: any) => ({
             name: "concurrency-queue",
-            before: ["setIsPostackRunning"],
+            before: ["setIsPostbackRunning"],
             execute(callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions) {
                 var queue = o.q || "default";
                 var handler = () => dotvvm.commonConcurrencyHandler(callback(), options, queue);
@@ -91,12 +93,23 @@ class DotVVM {
         }),
         "suppressOnUpdating": (options: any) => ({
             name: "suppressOnUpdating",
-            before: ["setIsPostackRunning", "concurrency-default", "concurrency-queue", "concurrency-deny"],
+            before: ["setIsPostbackRunning", "concurrency-default", "concurrency-queue", "concurrency-deny"],
             execute(callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions) {
                 if (dotvvm.isViewModelUpdating) return Promise.reject({ type: "handler", handler: this, message: "ViewModel is updating, so it's probably false onchange event" })
                 else return callback()
             }
         })
+    }
+
+    private suppressOnDisabledElementHandler: DotvvmPostbackHandler = {
+        name: "suppressOnDisabledElement",
+        before: ["setIsPostbackRunning", "concurrency-default", "concurrency-queue", "concurrency-deny"],
+        execute: <T>(callback: () => Promise<T>, options: PostbackOptions) => {
+            if (options.sender && dotvvm.isPostBackProhibited(options.sender)) {
+                return Promise.reject({ type: "handler", handler: this, message: "PostBack is prohitibited on disabled element" })
+            }
+            else return callback()
+        }
     }
 
     private beforePostbackEventPostbackHandler: DotvvmPostbackHandler = {
@@ -191,7 +204,7 @@ class DotVVM {
         }
     }
 
-    public globalPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[] = [this.isPostBackRunningHandler, this.postbackHandlersStartedEventHandler]
+    public globalPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[] = [this.suppressOnDisabledElementHandler, this.isPostBackRunningHandler, this.postbackHandlersStartedEventHandler]
     public globalLaterPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[] = [this.postbackHandlersCompletedEventHandler, this.beforePostbackEventPostbackHandler]
 
     public events = new DotvvmEvents();
@@ -353,8 +366,6 @@ class DotVVM {
     }
 
     public staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback = _ => { }, errorCallback = (xhr: XMLHttpRequest, error?) => { }) {
-        if (this.isPostBackProhibited(sender)) return;
-
         var data = this.serialization.serialize({
             "args": args,
             "command": command,
@@ -375,6 +386,7 @@ class DotVVM {
                 this.isViewModelUpdating = false;
             }
         }, (xhr) => {
+            this.events.error.trigger(new DotvvmErrorEventArgs(sender, this.viewModels[viewModelName].viewModel, viewModelName, xhr, null));
             console.warn(`StaticCommand postback failed: ${xhr.status} - ${xhr.statusText}`, xhr);
             errorCallback(xhr);
             dotvvm.events.staticCommandMethodFailed.trigger({ ...data, xhr })
@@ -600,12 +612,6 @@ class DotVVM {
     }
 
     public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, context?: any, handlers?: ClientFriendlyPostbackHandlerConfiguration[], commandArgs?: any[]): Promise<DotvvmAfterPostBackEventArgs> {
-        if (this.isPostBackProhibited(sender)) {
-            const rejectedPromise = new Promise<DotvvmAfterPostBackEventArgs>((resolve, reject) => reject("rejected"));
-            rejectedPromise.catch(() => console.log("Postback probihited"));
-            return rejectedPromise;
-        }
-
         context = context || ko.contextFor(sender);
 
         const preparedHandlers = this.findPostbackHandlers(context, this.globalPostbackHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers));
@@ -1067,7 +1073,7 @@ class DotVVM {
     }
 
     private isPostBackProhibited(element: HTMLElement) {
-        if (element && element.tagName && element.tagName.toLowerCase() === "a" && element.getAttribute("disabled")) {
+        if (element && element.tagName && ["a", "input", "button"].indexOf(element.tagName.toLowerCase()) > -1 && element.getAttribute("disabled")) {
             return true;
         }
         return false;
@@ -1099,9 +1105,16 @@ class DotVVM {
         ko.bindingHandlers["dotvvm_withControlProperties"] = {
             init: (element, valueAccessor, allBindings, viewModel, bindingContext) => {
                 if (!bindingContext) throw new Error();
+
                 var value = valueAccessor();
                 for (var prop in value) {
-                    value[prop] = createWrapperComputed(function () { return valueAccessor()[this.prop]; }.bind({ prop: prop }), `'${prop}' at '${valueAccessor.toString()}'`);
+
+                    value[prop] = createWrapperComputed(
+                        function () {
+                            var property = valueAccessor()[this.prop];
+                            return !ko.isObservable(property) ? dotvvm.serialization.deserialize(property) : property
+                        }.bind({ prop: prop }),
+                        `'${prop}' at '${valueAccessor.toString()}'`);
                 }
                 var innerBindingContext = bindingContext.extend({ $control: value });
                 element.innerBindingContext = innerBindingContext;
@@ -1133,12 +1146,38 @@ class DotVVM {
             }
         }
 
+        const foreachCollectionSymbol = "$foreachCollectionSymbol"
+        ko.virtualElements.allowedBindings["dotvvm-SSR-foreach"] = true
+        ko.bindingHandlers["dotvvm-SSR-foreach"] = {
+            init(element, valueAccessor, _allBindings, _viewModel, bindingContext) {
+                if (!bindingContext) throw new Error()
+                var value = valueAccessor()
+                var innerBindingContext = bindingContext.extend({ [foreachCollectionSymbol]: value.data })
+                element.innerBindingContext = innerBindingContext
+                ko.applyBindingsToDescendants(innerBindingContext, element)
+                return { controlsDescendantBindings: true } // do not apply binding again
+
+            }
+        }
+        ko.virtualElements.allowedBindings["dotvvm-SSR-item"] = true
+        ko.bindingHandlers["dotvvm-SSR-item"] = {
+            init(element, valueAccessor, _allBindings, _viewModel, bindingContext) {
+                if (!bindingContext) throw new Error()
+                var index = valueAccessor()
+                var collection = bindingContext[foreachCollectionSymbol]
+                var innerBindingContext = bindingContext.createChildContext(() => ko.unwrap((ko.unwrap(collection) || [])[index])).extend({$index: ko.pureComputed(() => index)})
+                element.innerBindingContext = innerBindingContext
+                ko.applyBindingsToDescendants(innerBindingContext, element)
+                return { controlsDescendantBindings: true } // do not apply binding again
+
+            }
+        }
         ko.virtualElements.allowedBindings["withGridViewDataSet"] = true;
         ko.bindingHandlers["withGridViewDataSet"] = {
             init: (element, valueAccessor, allBindings, viewModel, bindingContext) => {
                 if (!bindingContext) throw new Error();
                 var value = valueAccessor();
-                var innerBindingContext = bindingContext.extend({ $gridViewDataSet: value });
+                var innerBindingContext = bindingContext.extend({ $gridViewDataSet: value, [foreachCollectionSymbol]: dotvvm.evaluator.getDataSourceItems(value) });
                 element.innerBindingContext = innerBindingContext;
                 ko.applyBindingsToDescendants(innerBindingContext, element);
                 return { controlsDescendantBindings: true }; // do not apply binding again

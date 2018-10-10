@@ -61,6 +61,11 @@ namespace DotVVM.Samples.Tests.Feature
                     repeater2.ElementAt("*[data-id=repeater2server_marker]", i).CheckAttribute("id",
                         s => s.Equals(repeater2.GetAttribute("id") + "_" + i + "_repeater2server"), "Wrong ID");
                 }
+
+                foreach (var span in browser.Single("*[data-ui=repeater3]").Children)
+                {
+                    span.CheckAttribute("id", s => s.Equals(span.GetAttribute("data-ui")), "Wrong ID");
+                }
             });
         }
     }

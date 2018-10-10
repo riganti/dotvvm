@@ -44,7 +44,7 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<string, TextBox>(t => t.FormatString);
 
         /// <summary>
-        /// Gets or sets the command that will be triggered when the control text is changed.
+        /// Gets or sets the command that will be triggered when the onchange event is fired.
         /// </summary>
         public Command Changed
         {

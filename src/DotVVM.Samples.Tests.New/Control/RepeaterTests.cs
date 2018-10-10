@@ -269,6 +269,38 @@ namespace DotVVM.Samples.Tests.New
             });
         }
 
+        [Fact]
+        public void Control_Repeater_CollectionIndex()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_CollectionIndex);
+                browser.Wait();
+
+                var clientRenderedItems = browser.FindElements("client-rendered-item", this.SelectByDataUi);
+                var serverRenderedItems = browser.FindElements("server-rendered-item", this.SelectByDataUi);
+                var counterElement = browser.Single("counter", this.SelectByDataUi);
+
+                var allItems = clientRenderedItems.Select((element, index) => (element, index))
+                    .Concat(serverRenderedItems.Select((element, index) => (element, index)));
+
+                var counter = 0;
+                void CheckCounter() => AssertUI.InnerTextEquals(counterElement, counter.ToString());
+                foreach (var item in allItems)
+                {
+                    CheckCounter();
+
+                    foreach (var button in item.element.FindElements("input"))
+                    {
+                        button.Click();
+                        counter += item.index;
+                        CheckCounter();
+                    }
+
+                    AssertUI.InnerTextEquals(item.element.First("span"), item.index.ToString());
+                }
+            });
+        }
+
         private void CheckSeparators(IBrowserWrapper browser, string repeaterDataUi)
         {
             var repeater = browser.Single(repeaterDataUi, this.SelectByDataUi);

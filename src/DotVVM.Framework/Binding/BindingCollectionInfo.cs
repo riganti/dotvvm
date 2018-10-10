@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
+using DotVVM.Framework.Utils;
+using DotVVM.Framework.Compilation.ControlTree;
 
 namespace DotVVM.Framework.Binding
 {
@@ -23,14 +25,15 @@ namespace DotVVM.Framework.Binding
 
         internal static void RegisterJavascriptTranslations(JavascriptTranslatableMethodCollection methods)
         {
-            methods.AddPropertyGetterTranslator(typeof(BindingCollectionInfo), nameof(Index),
-                new GenericMethodCompiler(_ => new JsSymbolicParameter(JavascriptTranslator.CurrentIndexParameter)));
-            methods.AddPropertyGetterTranslator(typeof(BindingCollectionInfo), nameof(IsFirst),
-                new GenericMethodCompiler(_ => new JsBinaryExpression(new JsSymbolicParameter(JavascriptTranslator.CurrentIndexParameter), BinaryOperatorType.Equal, new JsLiteral(0))));
-            methods.AddPropertyGetterTranslator(typeof(BindingCollectionInfo), nameof(IsOdd),
-                    new GenericMethodCompiler(_ => new JsBinaryExpression(new JsBinaryExpression(new JsSymbolicParameter(JavascriptTranslator.CurrentIndexParameter), BinaryOperatorType.Modulo, new JsLiteral(2)), BinaryOperatorType.Equal, new JsLiteral(1))));
-            methods.AddPropertyGetterTranslator(typeof(BindingCollectionInfo), nameof(IsEven),
-                    new GenericMethodCompiler(_ => new JsBinaryExpression(new JsBinaryExpression(new JsSymbolicParameter(JavascriptTranslator.CurrentIndexParameter), BinaryOperatorType.Modulo, new JsLiteral(2)), BinaryOperatorType.Equal, new JsLiteral(0))));
+            IJavascriptMethodTranslator memberAccess(string name) =>
+                new GenericMethodCompiler(
+                    builder: a => a[0].CastTo<JsObjectExpression>().Properties.Single(p => p.Name == name).Expression.Clone(),
+                    check: (_m, a, _a) => a.GetParameterAnnotation() is BindingParameterAnnotation ann && ann.ExtensionParameter is BindingCollectionInfoExtensionParameter
+                );
+            methods.AddPropertyGetterTranslator(typeof(BindingCollectionInfo), nameof(Index), memberAccess(nameof(Index)));
+            methods.AddPropertyGetterTranslator(typeof(BindingCollectionInfo), nameof(IsFirst), memberAccess(nameof(IsFirst)));
+            methods.AddPropertyGetterTranslator(typeof(BindingCollectionInfo), nameof(IsOdd), memberAccess(nameof(IsOdd)));
+            methods.AddPropertyGetterTranslator(typeof(BindingCollectionInfo), nameof(IsEven), memberAccess(nameof(IsEven)));
         }
     }
 }

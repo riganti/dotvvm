@@ -18,8 +18,10 @@ namespace DotVVM.Framework.Compilation.Binding
             this.resolvers = resolvers;
         }
 
-        public Expression Resolve(string name, bool throwException = true)
+        public Expression Resolve(string name, bool throwOnNotFound = true)
         {
+            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException($"The identifier name was empty.", nameof(name));
+
             Expression expr;
             if (registry.TryGetValue(name, out expr))
             {
@@ -27,7 +29,7 @@ namespace DotVVM.Framework.Compilation.Binding
             }
             expr = resolvers.Select(r => r(name)).FirstOrDefault(e => e != null);
             if (expr != null) return expr;
-            if (throwException) throw new InvalidOperationException($"The identifier '{ name }' could not be resolved!");
+            if (throwOnNotFound) throw new InvalidOperationException($"The identifier '{ name }' could not be resolved!");
             return null;
         }
 

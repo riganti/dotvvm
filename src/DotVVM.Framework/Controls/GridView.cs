@@ -153,7 +153,7 @@ namespace DotVVM.Framework.Controls
             DataBind(context);     // TODO: support for observable collection
             base.OnPreRender(context);
         }
-       
+
         private void DataBind(IDotvvmRequestContext context)
         {
             Children.Clear();
@@ -176,7 +176,8 @@ namespace DotVVM.Framework.Controls
                             sortOptions.SortDescending = false;
                         }
                         (sortableSet as IPageableGridViewDataSet)?.GoToFirstPage();
-                    } :
+                    }
+            :
                     SortChanged;
 
             // WORKAROUND: DataSource is null => don't throw exception
@@ -187,7 +188,8 @@ namespace DotVVM.Framework.Controls
                 };
             }
 
-            CreateHeaderRow(context, sortCommand);
+            var header = CreateHeaderRow(context, sortCommand);
+            Children.Add(header);
             var index = 0;
             if (dataSource != null)
             {
@@ -197,7 +199,7 @@ namespace DotVVM.Framework.Controls
                     // create row
                     var placeholder = new DataItemContainer { DataItemIndex = index };
                     placeholder.SetDataContextTypeFromDataSource(dataSourceBinding);
-                    placeholder.SetDataContextForItem(itemBinding, index, item);
+                    placeholder.DataContext = item;
                     placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[" + index + "]");
                     placeholder.ID = index.ToString();
                     Children.Add(placeholder);
@@ -223,10 +225,9 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void CreateHeaderRow(IDotvvmRequestContext context, Action<string> sortCommand)
+        protected virtual HtmlGenericControl CreateHeaderRow(IDotvvmRequestContext context, Action<string> sortCommand)
         {
             head = new HtmlGenericControl("thead");
-            Children.Add(head);
 
             var gridViewDataSet = DataSource as IGridViewDataSet;
 
@@ -257,6 +258,8 @@ namespace DotVVM.Framework.Controls
                     column.CreateFilterControls(context, this, cell, gridViewDataSet);
                 }
             }
+
+            return head;
         }
 
         private static void SetCellAttributes(GridViewColumn column, HtmlGenericControl cell, bool isHeaderCell)
@@ -493,7 +496,7 @@ namespace DotVVM.Framework.Controls
             base.AddAttributesToRender(writer, context);
         }
 
-        
+
 
         public override IEnumerable<DotvvmBindableObject> GetLogicalChildren()
         {

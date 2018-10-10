@@ -227,16 +227,14 @@ namespace DotVVM.Framework.Controls
             if (updatedLastEvent > lastLifeCycleEvent)
             {
                 var currentParent = parent;
-                while (!currentParent.Children.isInvokingEvent && currentParent.Children.lastLifeCycleEvent > updatedLastEvent && currentParent.Parent != null)
+                while (!currentParent.Children.isInvokingEvent && currentParent.Children.lastLifeCycleEvent < updatedLastEvent && currentParent.Parent != null)
                 {
+                    currentParent.Children.lastLifeCycleEvent = updatedLastEvent;
                     currentParent = GetClosestDotvvmControlAncestor(currentParent);
                 }
-                currentParent.Children.InvokeMissedPageLifeCycleEvents(updatedLastEvent, true);
             }
-            else
-            {
-                item.Children.InvokeMissedPageLifeCycleEvents(lastLifeCycleEvent, isMissingInvoke: true);
-            }
+
+            item.Children.InvokeMissedPageLifeCycleEvents(lastLifeCycleEvent, isMissingInvoke: true);
 
             if (item.GetValue(Internal.UniqueIDProperty) == null)
             {

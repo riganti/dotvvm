@@ -15,7 +15,6 @@ namespace DotVVM.Samples.Tests.Feature
     [TestClass]
     public class ReturnedFileTests : AppSeleniumTest
     {
-
         [TestMethod]
         [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ReturnedFile_ReturnedFileSample))]
         public void Feature_ReturnedFile_ReturnedFileSample_Simple()
@@ -39,12 +38,12 @@ namespace DotVVM.Samples.Tests.Feature
         {
             browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ReturnedFile_ReturnedFileSample);
             var jsexec = browser.GetJavaScriptExecutor();
-            jsexec.ExecuteScript("var downloadURL = \"\";");
-            jsexec.ExecuteScript("DotVVM.prototype.performRedirect = function(url){downloadURL = url};");
+            jsexec.ExecuteScript("window.downloadURL = \"\";");
+            jsexec.ExecuteScript("DotVVM.prototype.performRedirect = function(url){window.downloadURL = url};");
 
             browser.First("textarea").SendKeys(fileContent);
             browser.First("input").SendKeys(Keys.Enter);
-            var downloadURL = (string)jsexec.ExecuteScript("return downloadURL");
+            var downloadURL = (string)jsexec.ExecuteScript("return window.downloadURL;");
             Assert.IsNotNull(downloadURL);
 
             string returnedFile;

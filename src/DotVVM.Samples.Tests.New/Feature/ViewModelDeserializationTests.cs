@@ -38,6 +38,27 @@ namespace DotVVM.Samples.Tests.New.Feature
             });
         }
 
+        [Fact]
+        public void Feature_ViewModelDeserialization_NegativeLongNumber()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModelDeserialization_NegativeLongNumber);
+
+                var postback = browser.Single("[data-ui=decrement-postback]");
+                var longNumber = browser.Single("[data-ui=long-number]");
+
+                AssertUI.InnerTextEquals(longNumber, "0");
+
+                // value--
+                postback.Click();
+                AssertUI.InnerTextEquals(longNumber, "-1");
+
+                // value--
+                postback.Click();
+                AssertUI.InnerTextEquals(longNumber, "-2");
+            });
+        }
+
         public ViewModelDeserializationTests(ITestOutputHelper output) : base(output)
         {
         }

@@ -1,73 +1,29 @@
-﻿using DotVVM.Framework.Binding.Expressions;
-using DotVVM.Framework.Configuration;
-using DotVVM.Framework.Controls;
-using DotVVM.Framework.Controls.Infrastructure;
-using DotVVM.Framework.Testing;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
-using DotVVM.Framework.Compilation.Javascript;
-using System.Collections;
+using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
-using Moq;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
     [TestClass]
-    public class ControlRenderedHtmlTests
+    public class DotvvmControlRenderedHtmlTests : DotvvmControlTestBase
     {
-        private DotvvmConfiguration configuration;
-        private BindingCompilationService bindingService;
-
-        [TestInitialize]
-        public void INIT()
-        {
-            this.configuration = DotvvmTestHelper.CreateConfiguration();
-            this.bindingService = configuration.ServiceProvider.GetRequiredService<BindingCompilationService>();
-        }
-
-
-        private static TestDotvvmRequestContext CreateContext(object viewModel, DotvvmConfiguration configuration = null)
-        {
-            configuration = configuration ?? DotvvmTestHelper.CreateConfiguration();
-            return new TestDotvvmRequestContext() {
-                Configuration = configuration,
-                ResourceManager = new ResourceManagement.ResourceManager(configuration.Resources),
-                ViewModel = viewModel
-            };
-        }
-
-        private static string InvokeLifecycleAndRender(DotvvmControl control, TestDotvvmRequestContext context)
-        {
-            var view = context.View = new DotvvmView();
-            view.Children.Add(control);
-            view.DataContext = context.ViewModel;
-            view.SetValue(Internal.RequestContextProperty, context);
-
-            DotvvmControlCollection.InvokePageLifeCycleEventRecursive(view, LifeCycleEventType.PreRenderComplete);
-            using (var text = new StringWriter())
-            {
-                var html = new HtmlWriter(text, context);
-                view.Render(html, context);
-                return text.ToString();
-            }
-        }
-
         [TestMethod]
         public void GridViewTextColumn_RenderedHtmlTest_ServerRendering()
         {
             var gridView = new GridView() {
                 Columns = new List<GridViewColumn>
                 {
-                    new GridViewTextColumn() { HeaderCssClass = "lol", HeaderText="Header Text", ValueBinding = ValueBindingExpression.CreateBinding(bindingService, h => (object)h[0], (DataContextStack)null) }
+                    new GridViewTextColumn() { HeaderCssClass = "lol", HeaderText="Header Text", ValueBinding = ValueBindingExpression.CreateBinding(BindingService, h => (object)h[0], (DataContextStack)null) }
                 },
-                DataSource = ValueBindingExpression.CreateBinding(bindingService, h => (IList)h[0], (DataContextStack)null),
+                DataSource = ValueBindingExpression.CreateBinding(BindingService, h => (IList)h[0], (DataContextStack)null),
             };
             gridView.SetValue(RenderSettings.ModeProperty, RenderMode.Server);
             var viewModel = new[] { "ROW 1", "ROW 2", "ROW 3" };
@@ -85,7 +41,7 @@ namespace DotVVM.Framework.Tests.Runtime
                 var repeater = new Repeater() {
                     ItemTemplate = new DelegateTemplate((f, s, c) => c.Children.Add(new HtmlGenericControl("ITEM_TAG"))),
                     EmptyDataTemplate = new DelegateTemplate((f, s, c) => c.Children.Add(new HtmlGenericControl("EMPTY_DATA"))),
-                    DataSource = ValueBindingExpression.CreateThisBinding<string[]>(configuration.ServiceProvider.GetRequiredService<BindingCompilationService>(), null),
+                    DataSource = ValueBindingExpression.CreateThisBinding<string[]>(Configuration.ServiceProvider.GetRequiredService<BindingCompilationService>(), null),
                     RenderWrapperTag = false
                 };
                 repeater.SetValue(RenderSettings.ModeProperty, renderMode);
@@ -121,7 +77,7 @@ namespace DotVVM.Framework.Tests.Runtime
         {
             var textbox = new OrderedDataBindTextBox();
             textbox.SetBinding(TextBox.TextProperty,
-                ValueBindingExpression.CreateThisBinding<string>(configuration.ServiceProvider.GetRequiredService<BindingCompilationService>(), null));
+                ValueBindingExpression.CreateThisBinding<string>(Configuration.ServiceProvider.GetRequiredService<BindingCompilationService>(), null));
 
             var html = InvokeLifecycleAndRender(textbox, CreateContext(string.Empty));
 
@@ -132,7 +88,7 @@ namespace DotVVM.Framework.Tests.Runtime
         public void MarkupControl_NoWrapperTagDirective()
         {
             var viewModel = new string[] { };
-            var clientHtml = InvokeLifecycleAndRender(new HtmlGenericControl("elem1"){
+            var clientHtml = InvokeLifecycleAndRender(new HtmlGenericControl("elem1") {
                 Children = {
                     new DotvvmMarkupControl(){
                         Directives = {
@@ -164,8 +120,7 @@ namespace DotVVM.Framework.Tests.Runtime
             mockHttpContext.Setup(p => p.Request).Returns(mockHttpRequest.Object);
             context.HttpContext = mockHttpContext.Object;
 
-            var clientHtml = InvokeLifecycleAndRender(new HtmlGenericControl("meta") 
-            {
+            var clientHtml = InvokeLifecycleAndRender(new HtmlGenericControl("meta") {
                 Attributes =
                 {
                     { "content", "~/test" }
@@ -181,7 +136,7 @@ namespace DotVVM.Framework.Tests.Runtime
         public void MarkupControl_WrapperTagDirective()
         {
             var viewModel = new string[] { };
-            var clientHtml = InvokeLifecycleAndRender(new HtmlGenericControl("elem1"){
+            var clientHtml = InvokeLifecycleAndRender(new HtmlGenericControl("elem1") {
                 Children = {
                     new DotvvmMarkupControl(){
                         Directives = {
@@ -205,8 +160,7 @@ namespace DotVVM.Framework.Tests.Runtime
         public void MarkupControl_WrapperTagAndNoWrapperTagDirective()
         {
             var viewModel = new string[] { };
-            var clientHtml = InvokeLifecycleAndRender(new HtmlGenericControl("elem1")
-            {
+            var clientHtml = InvokeLifecycleAndRender(new HtmlGenericControl("elem1") {
                 Children = {
                     new DotvvmMarkupControl(){
                         Directives = {
