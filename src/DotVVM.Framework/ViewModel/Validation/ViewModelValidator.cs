@@ -3,17 +3,20 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using DotVVM.Framework.Configuration;
 using DotVVM.Framework.ViewModel.Serialization;
 
 namespace DotVVM.Framework.ViewModel.Validation
 {
-    public class ViewModelValidator: IViewModelValidator
+    public class ViewModelValidator : IViewModelValidator
     {
         private readonly IViewModelSerializationMapper viewModelSerializationMapper;
+        private readonly Dictionary<object, object> validationItems;
 
-        public ViewModelValidator(IViewModelSerializationMapper viewModelMapper)
+        public ViewModelValidator(IViewModelSerializationMapper viewModelMapper, DotvvmConfiguration dotvvmConfiguration)
         {
             this.viewModelSerializationMapper = viewModelMapper;
+            this.validationItems = new Dictionary<object, object> { { typeof(DotvvmConfiguration), dotvvmConfiguration} };
         }
 
         /// <summary>
@@ -71,15 +74,14 @@ namespace DotVVM.Framework.ViewModel.Validation
                 // validate the property
                 if (property.ValidationRules.Any())
                 {
-                    var context = new ValidationContext(viewModel) { MemberName = property.Name };
+                    var context = new ValidationContext(viewModel, validationItems) { MemberName = property.Name };
 
                     foreach (var rule in property.ValidationRules)
                     {
                         var propertyResult = rule.SourceValidationAttribute?.GetValidationResult(value, context);
                         if (propertyResult != ValidationResult.Success)
                         {
-                            yield return new ViewModelValidationError()
-                            {
+                            yield return new ViewModelValidationError() {
                                 PropertyPath = path,
                                 ErrorMessage = rule.ErrorMessage
                             };
@@ -103,7 +105,8 @@ namespace DotVVM.Framework.ViewModel.Validation
 
             if (viewModel is IValidatableObject)
             {
-                foreach (var error in ((IValidatableObject)viewModel).Validate(new ValidationContext(viewModel)))
+                foreach (var error in ((IValidatableObject)viewModel).Validate(
+                    new ValidationContext(viewModel, validationItems)))
                 {
                     var paths = new List<string>();
                     if (error.MemberNames != null)
@@ -120,8 +123,7 @@ namespace DotVVM.Framework.ViewModel.Validation
 
                     foreach (var memberPath in paths)
                     {
-                        yield return new ViewModelValidationError()
-                        {
+                        yield return new ViewModelValidationError() {
                             PropertyPath = memberPath,
                             ErrorMessage = error.ErrorMessage
                         };
