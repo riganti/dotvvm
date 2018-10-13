@@ -9,21 +9,22 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Binding;
+using System.Text;
 
 namespace DotVVM.Framework.Runtime
 {
     public class DefaultOutputRenderer : IOutputRenderer
     {
-        protected virtual string RenderPage(IDotvvmRequestContext context, DotvvmView view)
+        protected virtual MemoryStream RenderPage(IDotvvmRequestContext context, DotvvmView view)
         {
-            // prepare the render context
-            // get the HTML
-            using (var textWriter = new StringWriter())
+            var outStream = new MemoryStream();
+            using (var textWriter = new StreamWriter(outStream, Encoding.UTF8, 4096, leaveOpen: true))
             {
                 var htmlWriter = new HtmlWriter(textWriter, context);
                 view.Render(htmlWriter, context);
-                return textWriter.ToString();
             }
+            outStream.Position = 0;
+            return outStream;
         }
 
         public virtual async Task WriteHtmlResponse(IDotvvmRequestContext context, DotvvmView view)
@@ -32,8 +33,9 @@ namespace DotVVM.Framework.Runtime
             context.HttpContext.Response.ContentType = "text/html; charset=utf-8";
             SetCacheHeaders(context.HttpContext);
             var html = RenderPage(context, view);
+            context.HttpContext.Response.Headers["Content-Length"] = html.Length.ToString();
             CheckRenderedResources(context);
-            await context.HttpContext.Response.WriteAsync(html);
+            await html.CopyToAsync(context.HttpContext.Response.Body);
         }
 
         private void CheckRenderedResources(IDotvvmRequestContext context)
