@@ -32,10 +32,12 @@ namespace DotVVM.Framework.Runtime
             // return the response
             context.HttpContext.Response.ContentType = "text/html; charset=utf-8";
             SetCacheHeaders(context.HttpContext);
-            var html = RenderPage(context, view);
-            context.HttpContext.Response.Headers["Content-Length"] = html.Length.ToString();
-            CheckRenderedResources(context);
-            await html.CopyToAsync(context.HttpContext.Response.Body);
+            using (var html = RenderPage(context, view))
+            {
+                context.HttpContext.Response.Headers["Content-Length"] = html.Length.ToString();
+                CheckRenderedResources(context);
+                await html.CopyToAsync(context.HttpContext.Response.Body);
+            }
         }
 
         private void CheckRenderedResources(IDotvvmRequestContext context)
