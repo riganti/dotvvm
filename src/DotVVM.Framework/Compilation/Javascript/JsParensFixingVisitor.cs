@@ -101,14 +101,14 @@ namespace DotVVM.Framework.Compilation.Javascript
             switch (expression)
             {
                 case JsBinaryExpression _:
-                    // asociativity, it is important to avoid common string concat patterns (((a+b)+c)+d)+e). Be aware JS + is not asociative - (""+3+5)==="35" vs (""+(3+5))==="8"
+                    // associativity, it is important to avoid common string concat patterns (((a+b)+c)+d)+e). Be aware JS + is not associative - (""+3+5)==="35" vs (""+(3+5))==="8"
                     // all binary operators are currently left-to-right - a+b+c === (a+b)+c
                     // include parens when the expression is on the right side
                     return expression.Role == JsBinaryExpression.LeftRole;
                 case JsAssignmentExpression _:
                     return expression.Role == JsAssignmentExpression.RightRole;
                 case JsConditionalExpression _:
-                    // these are right-to-left asociative
+                    // these are right-to-left associative
                     return expression.Role != JsConditionalExpression.ConditionRole;
                 default:
                     return true;
