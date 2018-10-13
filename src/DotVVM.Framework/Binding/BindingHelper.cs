@@ -310,7 +310,9 @@ namespace DotVVM.Framework.Binding
             }
 
             var (childType, extensionParameters) = ApplyDataContextChange(dataContextType, property.DataContextChangeAttributes, obj, property);
-            return DataContextStack.Create(childType, dataContextType, extensionParameters: extensionParameters.ToArray());
+
+            if (childType == null) return dataContextType;
+            else return DataContextStack.Create(childType, dataContextType, extensionParameters: extensionParameters.ToArray());
         }
 
         private static (Type childType, List<BindingExtensionParameter> extensionParameters) ApplyDataContextChange(DataContextStack dataContextType, DataContextChangeAttribute[] attributes, DotvvmBindableObject obj, DotvvmProperty property)

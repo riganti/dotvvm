@@ -833,7 +833,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
             if (attributes == null || attributes.Length == 0) return dataContext;
 
             var (type, extensionParameters) = ApplyContextChange(dataContext, attributes, control, property);
-            return CreateDataContextTypeStack(type, parentDataContextStack: dataContext, extensionParameters: extensionParameters.ToArray());
+
+            if (type == null) return dataContext;
+            else return CreateDataContextTypeStack(type, parentDataContextStack: dataContext, extensionParameters: extensionParameters.ToArray());
         }
 
         public static (ITypeDescriptor type, List<BindingExtensionParameter> extensionParameters) ApplyContextChange(IDataContextStack dataContext, DataContextChangeAttribute[] attributes, IAbstractControl control, IPropertyDescriptor property)
