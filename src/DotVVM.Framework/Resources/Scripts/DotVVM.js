@@ -327,7 +327,10 @@ var DotvvmGlobalize = /** @class */ (function () {
             return "";
         if (typeof value === "string") {
             // JSON date in string
-            value = this.parseDotvvmDate(value);
+            var date = this.parseDotvvmDate(value);
+            if (date) {
+                value = date;
+            }
         }
         if (format === "" || format === null) {
             format = "G";

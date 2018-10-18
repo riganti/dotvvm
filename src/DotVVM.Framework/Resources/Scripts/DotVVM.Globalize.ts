@@ -17,7 +17,10 @@
 
         if (typeof value === "string") {
             // JSON date in string
-            value = this.parseDotvvmDate(value);
+            let date = this.parseDotvvmDate(value);
+            if(date) {
+                value = date;
+            }
         }
 
         if (format === "" || format === null) {
