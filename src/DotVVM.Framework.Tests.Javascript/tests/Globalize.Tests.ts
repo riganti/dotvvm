@@ -97,3 +97,11 @@ describe("Globalize.js custom number format", () => {
         expect(dotvvm_Globalize.format(-1, "00", "en-US")).toBe("-01");
     });
 });
+
+describe("Globalize.js combined", () => {
+
+    it("formatString and bindingNumberToString", () => {
+        expect(dotvvm.globalize.formatString("", dotvvm.globalize.bindingNumberToString(ko.computed(() => 10)))).toBe("10");
+    });
+});
+
