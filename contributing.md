@@ -33,6 +33,12 @@ The OWIN and ASP.NET Core integration is splitted in two projects called `DotVVM
 
 `DotVVM.CommandLine` is a new project that add `dotvvm` subcommand to the `dotnet` CLI, [more info in a blog post](https://www.dotvvm.com/blog/17/DotVVM-1-1-RC-5-dotnet-new-and-DotVVM-CLI). 
 
+### Linking DotVVM from your app
+
+You may want to try to use DotVVM source codes directly from your project so you can interactively test your changes or simply check if some bugfix works correctly. The first step is to clone the DotVVM git repository, if you want to make some changes, you probably want to fork in on github beforehand (see above for more info). The second and last step is to replace NuGet reference to project reference in your project file (`Something.csproj`) - simply replace the `<PackageReference Include="DotVVM.AspNetCore" ... />` with `<ProjectReference Include="path/to/dotvvm/src/DotVVM.Framework.Hosting.AspNetCore/DotVVM.Framework.Hosting.AspNetCore.csproj" />`. You don't need to update solutions file or anything, this is the only thing the Dotnet SDK cares about.
+
+This simple technique only work with the "new" project file format, but it works well with "old" .NET Framework and it's unfortunately almost impossible to do with the old project system.
+
 ## Communication
 
 If you have any questions or want to ask anything, you can use a [Gitter chat](https://gitter.im/riganti/dotvvm) or post a comment in the issue you'd like to work on. We have the Czech chat at [Gitter](https://gitter.im/riganti/dotvvm-cz) as well.
