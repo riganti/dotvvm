@@ -98,10 +98,3 @@ describe("Globalize.js custom number format", () => {
     });
 });
 
-describe("Globalize.js combined", () => {
-
-    it("formatString and bindingNumberToString", () => {
-        expect(dotvvm.globalize.formatString("", dotvvm.globalize.bindingNumberToString(ko.computed(() => 10)))).toBe("10");
-    });
-});
-

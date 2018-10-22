@@ -9,6 +9,6 @@
 </head>
 <body>
     <cc:TextRepeater DataSource="{value: Numbers}"
-                     ItemTextBinding="{value: _this.ToString()}" />
+                     ItemTextBinding="{value: _this}" />
 </body>
 </html>
