@@ -23,7 +23,7 @@ To get started, fork the repository, and clone it on or computer. You can use Vi
 
 We are using Visual Studio 2017 (or VS Code) and some projects use .NET Core 2.0, so the solution will probably not open in previous versions of Visual Studio. 
 
-Open the `src/DotVVM.sln` solution in Visual Studio, or open the `src` folder in VS Code. Set `Samples/DotVVM.Samples.BasicSamples.AspNetCore` as a startup project and launch it. It should just work. If it does not, feel free to ask. For VS Code, launch it from the `src` directory, so it can find the `.vscode/lauch.json` and `.vscode/tasks.json` files. You can also try to rebuild `Tests/DotVVM.Framework.Tests.Common` project and run the unit/integration tests - it should complete in few seconds, everything should be green. :)
+Open the `src/DotVVM.sln` solution in Visual Studio, or open the `src` folder in VS Code. Set `Samples/DotVVM.Samples.BasicSamples.AspNetCore` as a startup project and launch it. It should just work. If it does not, feel free to ask. For VS Code, launch it from the `src` directory, so it can find the `.vscode/launch.json` and `.vscode/tasks.json` files. You can also try to rebuild `Tests/DotVVM.Framework.Tests.Common` project and run the unit/integration tests - it should complete in few seconds, everything should be green. :)
 
 Almost everying is in the `DotVVM.Framework` project, except few base interfaces and attributes in `DotVVM.Core` (so you don't have to reference the entire framework in your bussiess layer, if you just want to suppress serialization or turn on the validation of certain properties). 
 
