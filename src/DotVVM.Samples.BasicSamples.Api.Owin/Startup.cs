@@ -4,6 +4,7 @@ using System.Web.Http;
 using System.Web.Http.Cors;
 using DotVVM.Samples.BasicSamples.Api.Common.DataStore;
 using Microsoft.Owin;
+using Newtonsoft.Json;
 using Owin;
 
 [assembly: OwinStartup(typeof(DotVVM.Samples.BasicSamples.Api.Owin.Startup))]
@@ -22,6 +23,8 @@ namespace DotVVM.Samples.BasicSamples.Api.Owin
             var config = new HttpConfiguration();
             config.MapHttpAttributeRoutes();
             config.EnableCors(new EnableCorsAttribute("*", "*", "*"));
+            config.Formatters.JsonFormatter.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
+
             SwaggerConfig.Register(config);
             app.UseWebApi(config);
         }
