@@ -23,7 +23,7 @@ namespace DotVVM.Framework.Controls.DynamicData
 {
     public class DynamicDataContext
     {
-        private static ConcurrentDictionary<BindingDescriptor, IBinding> bindingCache = new ConcurrentDictionary<BindingDescriptor, IBinding>(); 
+        private static ConcurrentDictionary<BindingDescriptor, IBinding> bindingCache = new ConcurrentDictionary<BindingDescriptor, IBinding>();
 
         public DataContextStack DataContextStack { get; }
 
@@ -36,12 +36,9 @@ namespace DotVVM.Framework.Controls.DynamicData
 
         public Type EntityType => DataContextStack.DataContextType;
 
-
         public string ViewName { get; set; }
 
         public string GroupName { get; set; }
-
-
 
         public Dictionary<StateBagKey, object> StateBag { get; } = new Dictionary<StateBagKey, object>();
         public BindingCompilationService BindingCompilationService { get; }
@@ -57,7 +54,6 @@ namespace DotVVM.Framework.Controls.DynamicData
             BindingCompilationService = requestContext.Services.GetRequiredService<BindingCompilationService>();
         }
 
-
         public ValueBindingExpression CreateValueBinding(string expression, params Type[] nestedDataContextTypes)
         {
             var dataContextStack = CreateDataContextStack(DataContextStack, nestedDataContextTypes);
@@ -65,6 +61,15 @@ namespace DotVVM.Framework.Controls.DynamicData
             var descriptor = new BindingDescriptor(expression, typeof(ValueBindingExpression), dataContextStack);
 
             return (ValueBindingExpression)bindingCache.GetOrAdd(descriptor, bd => CompileValueBindingExpression(descriptor));
+        }
+
+        public ValueBindingExpression<T> CreateValueBinding<T>(string expression, params Type[] nestedDataContextTypes)
+        {
+            var dataContextStack = CreateDataContextStack(DataContextStack, nestedDataContextTypes);
+
+            var descriptor = new BindingDescriptor(expression, typeof(ValueBindingExpression<T>), dataContextStack);
+
+            return (ValueBindingExpression<T>)bindingCache.GetOrAdd(descriptor, bd => CompileValueBindingExpression(descriptor));
         }
 
         public CommandBindingExpression CreateCommandBinding(string expression, params Type[] nestedDataContextTypes)

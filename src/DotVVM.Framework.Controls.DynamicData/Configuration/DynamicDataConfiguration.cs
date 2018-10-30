@@ -15,6 +15,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Configuration
     /// </summary>
     public class DynamicDataConfiguration
     {
+        public Dictionary<Type, object> Properties { get; } = new Dictionary<Type, object>();
 
         /// <summary>
         /// Gets a list of registered providers that render form fields.
@@ -34,7 +35,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Configuration
             { "", new TableDynamicFormBuilder() },
             { "bootstrap", new BootstrapFormGroupBuilder() }
         };
-        
+
         /// <summary>
         /// Gets or sets whether the localization resource files for field display names and error messages will be used.
         /// </summary>
@@ -50,7 +51,6 @@ namespace DotVVM.Framework.Controls.DynamicData.Configuration
         /// </summary>
         public Type ErrorMessagesResourceFile { get; set; }
 
-
         public DynamicDataConfiguration()
         {
             FormEditorProviders.Add(new CheckBoxEditorProvider());
@@ -59,8 +59,6 @@ namespace DotVVM.Framework.Controls.DynamicData.Configuration
             GridColumnProviders.Add(new CheckBoxGridColumnProvider());
             GridColumnProviders.Add(new TextGridColumnProvider());
         }
-
-        
 
         public IFormBuilder GetFormBuilder(string formBuilderName = "")
         {
@@ -71,7 +69,6 @@ namespace DotVVM.Framework.Controls.DynamicData.Configuration
             }
             return builder;
         }
-
 
         /// <summary>
         /// Browses the specified assembly and auto-registers all form editor providers.

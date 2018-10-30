@@ -4,7 +4,6 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.GridColumns
 {
     public abstract class GridColumnProviderBase : DynamicDataPropertyHandlerBase, IGridColumnProvider
     {
-
         public GridViewColumn CreateColumn(GridView gridView, PropertyDisplayMetadata property, DynamicDataContext context)
         {
             var column = CreateColumnCore(gridView, property, context);

@@ -8,20 +8,17 @@ using DotVVM.Framework.Controls.DynamicData.Metadata;
 
 namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
 {
-
     /// <summary>
     /// Convention-based ComboBox form editor provider.
     /// </summary>
     public class ComboBoxConventionFormEditorProvider : ComboBoxFormEditorProvider
     {
-
         private readonly ComboBoxConventions comboBoxConventions;
 
         public ComboBoxConventionFormEditorProvider(ComboBoxConventions comboBoxConventions)
         {
             this.comboBoxConventions = comboBoxConventions;
         }
-
 
         public override bool CanHandleProperty(PropertyInfo propertyInfo, DynamicDataContext context)
         {
@@ -56,13 +53,9 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
             return base.GetDataSourceBindingExpression(property, context) ?? GetConvention(property, context).Settings.DataSourceBinding;
         }
 
-
-
         private ComboBoxConvention GetConvention(PropertyDisplayMetadata property, DynamicDataContext context)
         {
-            return (ComboBoxConvention) context.StateBag[new StateBagKey(this, property.PropertyInfo)];
+            return (ComboBoxConvention)context.StateBag[new StateBagKey(this, property.PropertyInfo)];
         }
     }
-
-    
 }
