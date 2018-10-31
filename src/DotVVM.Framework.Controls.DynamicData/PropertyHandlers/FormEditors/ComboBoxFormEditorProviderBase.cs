@@ -6,18 +6,15 @@ using DotVVM.Framework.Controls.DynamicData.Metadata;
 
 namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
 {
-
     /// <summary>
     /// A base class for ComboBox form editor providers.
     /// </summary>
     public abstract class ComboBoxFormEditorProvider : FormEditorProviderBase
     {
-        
         public override bool CanHandleProperty(PropertyInfo propertyInfo, DynamicDataContext context)
         {
             return GetSettings(propertyInfo) != null;
         }
-
 
         public override void CreateControl(DotvvmControl container, PropertyDisplayMetadata property, DynamicDataContext context)
         {
@@ -89,7 +86,6 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
         {
             return GetSettings(property.PropertyInfo)?.DisplayMember;
         }
-
 
         private ComboBoxSettingsAttribute GetSettings(PropertyInfo propertyInfo)
         {
