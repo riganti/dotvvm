@@ -228,7 +228,7 @@ namespace DotVVM.Framework.Compilation
         }
 
         /// <summary>
-        /// Emits binding contructor and returns variable name
+        /// Emits binding constructor and returns variable name
         /// </summary>
         protected ExpressionSyntax ProcessBinding(ResolvedBinding binding)
         {

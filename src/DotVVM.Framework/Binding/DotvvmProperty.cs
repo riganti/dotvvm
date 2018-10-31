@@ -297,5 +297,10 @@ namespace DotVVM.Framework.Binding
 
             return registeredProperties.Values.Where(p => types.Contains(p.DeclaringType)).ToArray();
         }
+
+        public override string ToString()
+        {
+            return $"{this.FullName}";
+        }
     }
 }

@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Binding
             if (control.TryGetProperty(controlProperty, out var setter))
             {
                 return setter is IAbstractPropertyBinding binding
-                    ? binding.Binding.ResultType
+                    ? binding.Binding.ResultType ?? throw new Exception($"The '{controlProperty.Name}' property contains invalid data-binding")
                     : dataContext;
             }
 

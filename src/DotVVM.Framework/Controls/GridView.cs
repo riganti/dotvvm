@@ -188,8 +188,8 @@ namespace DotVVM.Framework.Controls
                 };
             }
 
-            var header = CreateHeaderRow(context, sortCommand);
-            Children.Add(header);
+            CreateHeaderRow(context, sortCommand);
+
             var index = 0;
             if (dataSource != null)
             {
@@ -225,9 +225,10 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        protected virtual HtmlGenericControl CreateHeaderRow(IDotvvmRequestContext context, Action<string> sortCommand)
+        protected virtual void CreateHeaderRow(IDotvvmRequestContext context, Action<string> sortCommand)
         {
             head = new HtmlGenericControl("thead");
+            Children.Add(head);
 
             var gridViewDataSet = DataSource as IGridViewDataSet;
 
@@ -258,8 +259,6 @@ namespace DotVVM.Framework.Controls
                     column.CreateFilterControls(context, this, cell, gridViewDataSet);
                 }
             }
-
-            return head;
         }
 
         private static void SetCellAttributes(GridViewColumn column, HtmlGenericControl cell, bool isHeaderCell)

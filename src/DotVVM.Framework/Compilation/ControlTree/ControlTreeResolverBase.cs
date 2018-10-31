@@ -832,10 +832,20 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var attributes = property != null ? property.DataContextChangeAttributes : control.Metadata.DataContextChangeAttributes;
             if (attributes == null || attributes.Length == 0) return dataContext;
 
-            var (type, extensionParameters) = ApplyContextChange(dataContext, attributes, control, property);
+            try
+            {
+                var (type, extensionParameters) = ApplyContextChange(dataContext, attributes, control, property);
 
-            if (type == null) return dataContext;
-            else return CreateDataContextTypeStack(type, parentDataContextStack: dataContext, extensionParameters: extensionParameters.ToArray());
+                if (type == null) return dataContext;
+                else return CreateDataContextTypeStack(type, parentDataContextStack: dataContext, extensionParameters: extensionParameters.ToArray());
+            }
+            catch (Exception exception)
+            {
+                var node = property != null && control.TryGetProperty(property, out var v) ? v.DothtmlNode : control.DothtmlNode;
+                node?.AddError($"Could not compute the type of DataContext: {exception}");
+
+                return CreateDataContextTypeStack(null, parentDataContextStack: dataContext);
+            }
         }
 
         public static (ITypeDescriptor type, List<BindingExtensionParameter> extensionParameters) ApplyContextChange(IDataContextStack dataContext, DataContextChangeAttribute[] attributes, IAbstractControl control, IPropertyDescriptor property)
