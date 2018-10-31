@@ -56,26 +56,16 @@ namespace DotVVM.Samples.BasicSamples.Controls
         {
             Children.Clear();
 
-            var literal = new Literal();
-            {
-                literal.SetBinding(c => c.Text, CreateItemTextBinding());
-            }
-
             var repeater = new Repeater();
             {
                 repeater.SetBinding(c => c.DataSource, GetValueBinding(DataSourceProperty));
                 repeater.ItemTemplate = new DelegateTemplate(_ => {
-                    return literal;
+                    return new Literal()
+                        .SetBinding(c => c.Text, ItemTextBinding);
                 });
             };
 
             Children.Add(repeater);
-        }
-
-        protected virtual IValueBinding<string> CreateItemTextBinding()
-        {
-            return ValueBindingExpression.CreateThisBinding<string>(bindingService,
-                ItemTextBindingProperty.GetDataContextType(this));
         }
     }
 }
