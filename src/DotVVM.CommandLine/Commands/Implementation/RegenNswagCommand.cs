@@ -13,7 +13,7 @@ namespace DotVVM.CommandLine.Commands.Implementation
     {
         public override string Name => "Add Control";
 
-        public override string Usage => "dotvvm api regen [ swagger path -- if not specified all of them are refreshed ]";
+        public override string Usage => "dotvvm api regen [ swagger path or generated file path -- if not specified all of them are refreshed ]";
 
         public override bool TryConsumeArgs(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
         {
@@ -32,12 +32,13 @@ namespace DotVVM.CommandLine.Commands.Implementation
             var swaggerFile = args[0];
             if (swaggerFile != null)
             {
-                if (!Uri.TryCreate(swaggerFile, UriKind.RelativeOrAbsolute, out var swaggerFileUri))
-                    throw new InvalidCommandUsageException($"'{swaggerFile}' is not a valid uri.");
-                ApiClientManager.RegenApiClient(
-                    dotvvmProjectMetadata.ApiClients.FirstOrDefault(a => a.SwaggerFile == swaggerFileUri) ??
-                        throw new InvalidCommandUsageException($"No registered api client with with '{swaggerFile}' was found.")
-                ).Wait();
+                var apiClient =
+                    (Uri.TryCreate(swaggerFile, UriKind.Absolute, out var swaggerFileUri) ?
+                    dotvvmProjectMetadata.ApiClients.FirstOrDefault(a => a.SwaggerFile == swaggerFileUri) : null) ??
+                    dotvvmProjectMetadata.ApiClients.FirstOrDefault(a => a.CSharpClient == swaggerFile || a.TypescriptClient == swaggerFile);
+                if (apiClient == null)
+                    throw new InvalidCommandUsageException($"No api client is using {swaggerFile} url or file.");
+                ApiClientManager.RegenApiClient(apiClient).Wait();
             }
             else
             {

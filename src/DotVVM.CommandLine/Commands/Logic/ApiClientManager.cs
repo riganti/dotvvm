@@ -32,6 +32,7 @@ namespace DotVVM.CommandLine.Commands.Logic
 
         public static async Task RegenApiClient(ApiClientDefinition definition)
         {
+            Console.WriteLine($"Regenerating API from {definition.SwaggerFile}");
             var document = await LoadDocument(definition.SwaggerFile);
 
             document.PopulateOperationIds();
