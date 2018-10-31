@@ -13,11 +13,14 @@
 
     public formatString(format: string, value: any) {
         value = ko.unwrap(value);
-        if (value == null) return "";
+        if (value == null || value == "") return ""; 
 
-        if (typeof value === "string") {
-            // JSON date in string
-            value = this.parseDotvvmDate(value);
+        if (typeof value === "string") { 
+            // JSON date in string 
+            value = this.parseDotvvmDate(value); 
+            if (value == null) { 
+                throw new Error(`Could not parse ${value} as a date`) 
+            } 
         }
 
         if (format === "" || format === null) {

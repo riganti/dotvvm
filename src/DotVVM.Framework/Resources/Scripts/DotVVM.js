@@ -323,11 +323,14 @@ var DotvvmGlobalize = /** @class */ (function () {
     };
     DotvvmGlobalize.prototype.formatString = function (format, value) {
         value = ko.unwrap(value);
-        if (value == null)
+        if (value == null || value == "")
             return "";
         if (typeof value === "string") {
-            // JSON date in string
+            // JSON date in string 
             value = this.parseDotvvmDate(value);
+            if (value == null) {
+                throw new Error("Could not parse " + value + " as a date");
+            }
         }
         if (format === "" || format === null) {
             format = "G";

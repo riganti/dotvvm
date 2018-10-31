@@ -112,6 +112,7 @@ namespace DotVVM.Samples.BasicSamples
         private static void AddControls(DotvvmConfiguration config)
         {
             config.Markup.AddCodeControls("cc", typeof(Controls.ServerSideStylesControl));
+            config.Markup.AddCodeControls("cc", typeof(Controls.TextRepeater));
             config.Markup.AddCodeControls("PropertyUpdate", typeof(Controls.ServerRenderedLabel));
             config.Markup.AddMarkupControl("IdGeneration", "Control", "Views/FeatureSamples/IdGeneration/IdGeneration_control.dotcontrol");
             config.Markup.AddMarkupControl("FileUploadInRepeater", "FileUploadWrapper", "Views/ComplexSamples/FileUploadInRepeater/FileUploadWrapper.dotcontrol");
