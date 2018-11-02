@@ -253,6 +253,25 @@ namespace DotVVM.Samples.Tests.New.Feature
         }
 
         [Fact]
+        public void Feature_MarkupControl_ResourceBindingInControlProperty()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_MarkupControl_ResourceBindingInControlProperty);
+
+                var label = browser.First("[data-ui=markup-control] label");
+                var input = browser.First("[data-ui=markup-control] input");
+
+                AssertUI.InnerTextEquals(label, "Sample Text");
+                AssertUI.InnerTextEquals(input, "Sample Text");
+
+                input.SendKeys("123");
+                input.SendEnterKey();
+
+                AssertUI.InnerTextEquals(label, "Sample Text");
+            });
+        }
+
+        [Fact]
         public void Feature_MarkupControl_ComboBoxDataSourceBoundToStaticCollection()
         {
             RunInAllBrowsers(browser => {

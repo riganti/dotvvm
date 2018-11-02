@@ -83,33 +83,37 @@ namespace DotVVM.Framework.Controls
 
         private PropertySerializeInfo GetPropertySerializationInfo(DotvvmProperty property)
         {
-            var binding = GetBinding(property);
-
-            if (binding == null && !typeof(ITemplate).IsAssignableFrom(property.PropertyType))
+            if (GetBinding(property) is IValueBinding valueBinding)
             {
-                JsonSerializerSettings settings = DefaultViewModelSerializer.CreateDefaultSettings();
-                settings.StringEscapeHandling = StringEscapeHandling.EscapeHtml;
-                return new PropertySerializeInfo
-                {
+                return new PropertySerializeInfo {
                     Property = property,
-                    Js = JsonConvert.SerializeObject(GetValue(property), Formatting.None, settings),
+                    Js = valueBinding.GetKnockoutBindingExpression(this),
                     IsSerializable = true
                 };
             }
-            else if (binding is IValueBinding)
+            else if (ContainsPropertyStaticValue(property))
             {
-                return new PropertySerializeInfo
-                {
-                    Property = property,
-                    Js = (binding as IValueBinding).GetKnockoutBindingExpression(this),
-                    IsSerializable = true
+                JsonSerializerSettings settings = DefaultViewModelSerializer.CreateDefaultSettings();
+                settings.StringEscapeHandling = StringEscapeHandling.EscapeHtml;
 
+                return new PropertySerializeInfo {
+                    Property = property,
+                    Js = JsonConvert.SerializeObject(GetValue(property), Formatting.None, settings),
+                    IsSerializable = true
                 };
             }
             else
             {
                 return new PropertySerializeInfo { Property = property };
             }
+        }
+
+        private bool ContainsPropertyStaticValue(DotvvmProperty property)
+        {
+            var binding = GetBinding(property);
+
+            return (binding == null || binding is IStaticValueBinding)
+                && !typeof(ITemplate).IsAssignableFrom(property.PropertyType);
         }
 
         private class PropertySerializeInfo
