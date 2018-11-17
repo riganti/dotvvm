@@ -6,9 +6,7 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
 {
     public abstract class FormEditorProviderBase : DynamicDataPropertyHandlerBase, IFormEditorProvider
     {
-
         public string ControlCssClass { get; set; }
-
 
         public virtual bool RenderDefaultLabel => true;
 
@@ -21,5 +19,12 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
 
         public abstract void CreateControl(DotvvmControl container, PropertyDisplayMetadata property, DynamicDataContext context);
 
+        protected virtual void SetValidatorValueBinding(DotvvmBindableObject textBox, BindingExpression valueBindingExpression)
+        {
+            if (CanValidate)
+            {
+                textBox.SetBinding(Validator.ValueProperty, valueBindingExpression);
+            }
+        }
     }
 }
