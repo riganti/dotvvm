@@ -40,7 +40,11 @@ namespace DotVVM.CommandLine.Commands.Logic
             GenerateTS(document, definition);
 
             Console.WriteLine($"API clients generated. Place the following code snippet to your DotvvmStartup.cs: ");
-            Console.WriteLine($"config.RegisterApi{(isSingleClient ? "Client" : "Group")}(typeof({definition.Namespace}.{(definition.GenerateWrapperClass || isSingleClient ? typeName : " ... your client wrapper class ...")}), \"{ document.BasePath ?? "... your api endpoint ..." }\", \"{(definition.CompileTypescript ? Path.ChangeExtension(definition.TypescriptClient, "js") : "... path to your compiled javascript")}\");");
+            Console.WriteLine($"config.RegisterApi{(isSingleClient ? "Client" : "Group")}"
+                              + $"(typeof({definition.Namespace}.{(definition.GenerateWrapperClass || isSingleClient ? typeName : " ... your client wrapper class ...")}), "
+                              + $"\"{ document.BasePath ?? "... your api endpoint ..." }\", "
+                              + $"\"{(definition.CompileTypescript ? Path.ChangeExtension(definition.TypescriptClient, "js") : "... path to your compiled javascript")}\", "
+                              + $"\"_restApi\");");
         }
 
         public static (bool isSingleClient, string typeName) GenerateCSharp(SwaggerDocument document, ApiClientDefinition definition)
