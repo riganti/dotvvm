@@ -27,17 +27,17 @@ namespace DotVVM.CommandLine.Commands.Logic
             };
 
             project.ApiClients.Add(definition);
-            RegenApiClient(definition).Wait();
+            RegenApiClient(definition, promptOnFileOverwrite: true).Wait();
         }
 
-        public static async Task RegenApiClient(ApiClientDefinition definition)
+        public static async Task RegenApiClient(ApiClientDefinition definition, bool promptOnFileOverwrite)
         {
             Console.WriteLine($"Regenerating API from {definition.SwaggerFile}");
             var document = await LoadDocument(definition.SwaggerFile);
 
             document.PopulateOperationIds();
-            var (isSingleClient, typeName) = GenerateCSharp(document, definition);
-            GenerateTS(document, definition);
+            var (isSingleClient, typeName) = GenerateCSharp(document, definition, promptOnFileOverwrite);
+            GenerateTS(document, definition, promptOnFileOverwrite);
 
             Console.WriteLine($"API clients generated. Place the following code snippet to your DotvvmStartup.cs: ");
             Console.WriteLine($"config.RegisterApi{(isSingleClient ? "Client" : "Group")}"
@@ -47,7 +47,7 @@ namespace DotVVM.CommandLine.Commands.Logic
                               + $"\"_restApi\");");
         }
 
-        public static (bool isSingleClient, string typeName) GenerateCSharp(SwaggerDocument document, ApiClientDefinition definition)
+        public static (bool isSingleClient, string typeName) GenerateCSharp(SwaggerDocument document, ApiClientDefinition definition, bool promptOnFileOverwrite)
         {
             var settings = new SwaggerToCSharpClientGeneratorSettings() {
                 GenerateSyncMethods = true,
@@ -79,12 +79,12 @@ namespace DotVVM.CommandLine.Commands.Logic
             if (definition.GenerateWrapperClass)
                 csharp = newClient;
 
-            File.WriteAllText(definition.CSharpClient, csharp);
+            FileSystemHelpers.WriteFile(definition.CSharpClient, csharp, promptOnFileOverwrite);
 
             return (isSingleClient, wrapperTypeName);
         }
 
-        public static void GenerateTS(SwaggerDocument document, ApiClientDefinition definition)
+        public static void GenerateTS(SwaggerDocument document, ApiClientDefinition definition, bool promptOnFileOverwrite)
         {
             var settings = new SwaggerToTypeScriptClientGeneratorSettings() {
                 Template = TypeScriptTemplate.Fetch,
@@ -108,7 +108,7 @@ namespace DotVVM.CommandLine.Commands.Logic
             var ts = generator.GenerateFile();
             var baseClass = definition.CreateBaseClass();
             ts = definition.WrapInNamespace(ts, baseClass);
-            File.WriteAllText(definition.TypescriptClient, ts);
+            FileSystemHelpers.WriteFile(definition.TypescriptClient, ts, promptOnFileOverwrite);
 
             if (definition.CompileTypescript)
             {

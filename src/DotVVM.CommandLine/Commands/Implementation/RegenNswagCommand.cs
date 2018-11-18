@@ -38,12 +38,12 @@ namespace DotVVM.CommandLine.Commands.Implementation
                     dotvvmProjectMetadata.ApiClients.FirstOrDefault(a => a.CSharpClient == swaggerFile || a.TypescriptClient == swaggerFile);
                 if (apiClient == null)
                     throw new InvalidCommandUsageException($"No api client is using {swaggerFile} url or file.");
-                ApiClientManager.RegenApiClient(apiClient).Wait();
+                ApiClientManager.RegenApiClient(apiClient, promptOnFileOverwrite: false).Wait();
             }
             else
             {
                 dotvvmProjectMetadata.ApiClients
-                    .Select(ApiClientManager.RegenApiClient)
+                    .Select(c => ApiClientManager.RegenApiClient(c, promptOnFileOverwrite: false))
                     .ToArray()
                     .ApplyAction(Task.WaitAll);
             }
