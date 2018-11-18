@@ -2,7 +2,6 @@
 using DotVVM.CommandLine.Metadata;
 using NJsonSchema;
 using NSwag;
-using NSwag.CodeGeneration.OperationNameGenerators;
 
 namespace DotVVM.CommandLine.Commands.Logic
 {
@@ -23,31 +22,19 @@ namespace DotVVM.CommandLine.Commands.Logic
             return "namespace " + definition.Namespace + " {\n    " + ConversionUtilities.Tab(baseClass, 1).TrimEnd('\n') + "\n    " + ConversionUtilities.Tab(typescript, 1).TrimEnd('\n') + "\n}\n";
         }
 
-        public static string InjectWrapperClass(string csharpCode, string className, SwaggerDocument document, IOperationNameGenerator nameGenerator, out bool isSingleClient, out string clientName)
+        public static string InjectWrapperClass(string csharpCode, string className, string[] clientNames)
         {
-            var clients = document.Operations.Select(o => nameGenerator.GetClientName(document, o.Path, o.Method, o.Operation)).Distinct().ToArray();
-            if (clients.Length == 1)
-            {
-                isSingleClient = true;
-                clientName = clients[0] + "Client";
-                return csharpCode;
-            }
-            else
-            {
-                isSingleClient = false;
-                clientName = className;
-                var properties = from c in clients
-                                 let name = ConversionUtilities.ConvertToUpperCamelCase(c, true)
-                                 let type = name + "Client"
-                                 select $"public {type} {(string.IsNullOrEmpty(name) ? "Root" : name)} {{ get; set; }}";
+            var properties = from c in clientNames
+                             let name = ConversionUtilities.ConvertToUpperCamelCase(c, true)
+                             let type = name + "Client"
+                             select $"public {type} {(string.IsNullOrEmpty(name) ? "Root" : name)} {{ get; set; }}";
 
-                var wrapperClass = $@"    public class {className}
+            var wrapperClass = $@"    public class {className}
 {{
-    {ConversionUtilities.Tab(string.Join("\n", properties), 1)}
+{ConversionUtilities.Tab(string.Join("\n", properties), 1)}
 }}".Replace("\r\n", "\n");
-                var namespaceClosing = csharpCode.LastIndexOf('}');
-                return csharpCode.Insert(namespaceClosing, ConversionUtilities.Tab(wrapperClass, 1) + "\n");
-            }
+            var namespaceClosing = csharpCode.LastIndexOf('}');
+            return csharpCode.Insert(namespaceClosing, ConversionUtilities.Tab(wrapperClass, 1) + "\n");
         }
 
         public static void PopulateOperationIds(this SwaggerDocument document)
