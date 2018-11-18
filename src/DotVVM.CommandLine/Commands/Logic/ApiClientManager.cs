@@ -39,7 +39,7 @@ namespace DotVVM.CommandLine.Commands.Logic
             var (isSingleClient, typeName) = GenerateCSharp(document, definition, promptOnFileOverwrite);
             GenerateTS(document, definition, promptOnFileOverwrite);
 
-            Console.WriteLine($"API clients generated. Place the following code snippet to your DotvvmStartup.cs: ");
+            Console.WriteLine($"REST API clients generated. Place the following code snippet to your DotvvmStartup.cs: ");
             Console.WriteLine($"config.RegisterApi{(isSingleClient ? "Client" : "Group")}"
                               + $"(typeof({definition.Namespace}.{(definition.GenerateWrapperClass || isSingleClient ? typeName : " ... your client wrapper class ...")}), "
                               + $"\"{ document.BasePath ?? "... your api endpoint ..." }\", "

@@ -11,9 +11,9 @@ namespace DotVVM.CommandLine.Commands.Implementation
 {
     public class RegenNswagCommand : CommandBase
     {
-        public override string Name => "Add Control";
+        public override string Name => "Regenerate REST API clients";
 
-        public override string Usage => "dotvvm api regen [ swagger path or generated file path -- if not specified all of them are refreshed ]";
+        public override string Usage => "dotvvm api regen [ swagger metadata URL or swagger JSON path -- if not specified all of them are refreshed ]";
 
         public override bool TryConsumeArgs(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
         {
@@ -37,7 +37,7 @@ namespace DotVVM.CommandLine.Commands.Implementation
                     dotvvmProjectMetadata.ApiClients.FirstOrDefault(a => a.SwaggerFile == swaggerFileUri) : null) ??
                     dotvvmProjectMetadata.ApiClients.FirstOrDefault(a => a.CSharpClient == swaggerFile || a.TypescriptClient == swaggerFile);
                 if (apiClient == null)
-                    throw new InvalidCommandUsageException($"No api client is using {swaggerFile} url or file.");
+                    throw new InvalidCommandUsageException($"No API client with the following URL or path was found: {swaggerFile}");
                 ApiClientManager.RegenApiClient(apiClient, promptOnFileOverwrite: false).Wait();
             }
             else
