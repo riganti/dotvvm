@@ -136,6 +136,7 @@ namespace DotVVM.Framework.Configuration
                 jsidentifier.Clone(),
                 new JsNewExpression(
                     new JsIdentifierExpression(clientType.FullName),
+                    new JsLiteral(apiServerUrl),
                     CreateHttpObj(customFetchFunction)
                 )
             ));
