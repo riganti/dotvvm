@@ -1,5 +1,4 @@
 ﻿class DotvvmGlobalize {
-
     public format(format: string, ...values: any[]) {
         return format.replace(/\{([1-9]?[0-9]+)(:[^}]+)?\}/g, (match, group0, group1) => {
             var value = values[parseInt(group0)];
@@ -13,14 +12,14 @@
 
     public formatString(format: string, value: any) {
         value = ko.unwrap(value);
-        if (value == null || value == "") return ""; 
+        if (value == null || value === "") return "";
 
-        if (typeof value === "string") { 
-            // JSON date in string 
-            value = this.parseDotvvmDate(value); 
-            if (value == null) { 
-                throw new Error(`Could not parse ${value} as a date`) 
-            } 
+        if (typeof value === "string") {
+            // JSON date in string
+            value = this.parseDotvvmDate(value);
+            if (value == null) {
+                throw new Error(`Could not parse ${value} as a date`);
+            }
         }
 
         if (format === "" || format === null) {
@@ -117,5 +116,4 @@
             return ko.pureComputed(() => formatNumber());
         }
     }
-
 }
