@@ -1170,8 +1170,8 @@ var DotVVM = /** @class */ (function () {
     DotVVM.prototype.sortHandlers = function (handlers) {
         var getHandler = (function () {
             var handlerMap = {};
-            for (var _i = 0, handlers_1 = handlers; _i < handlers_1.length; _i++) {
-                var h = handlers_1[_i];
+            for (var _i = 0, handlers_2 = handlers; _i < handlers_2.length; _i++) {
+                var h = handlers_2[_i];
                 if (h.name != null) {
                     handlerMap[h.name] = h;
                 }
@@ -1179,8 +1179,8 @@ var DotVVM = /** @class */ (function () {
             return function (s) { return typeof s == "string" ? handlerMap[s] : s; };
         })();
         var dependencies = handlers.map(function (handler, i) { return (handler["@sort_index"] = i, ({ handler: handler, deps: (handler.after || []).map(getHandler) })); });
-        for (var _i = 0, handlers_2 = handlers; _i < handlers_2.length; _i++) {
-            var h = handlers_2[_i];
+        for (var _i = 0, handlers_1 = handlers; _i < handlers_1.length; _i++) {
+            var h = handlers_1[_i];
             if (h.before)
                 for (var _a = 0, _b = h.before.map(getHandler); _a < _b.length; _a++) {
                     var before = _b[_a];
@@ -1854,6 +1854,7 @@ var DotVVM = /** @class */ (function () {
         ko.virtualElements.allowedBindings["dotvvm-SSR-foreach"] = true;
         ko.bindingHandlers["dotvvm-SSR-foreach"] = {
             init: function (element, valueAccessor, _allBindings, _viewModel, bindingContext) {
+                var _a;
                 if (!bindingContext)
                     throw new Error();
                 var value = valueAccessor();
@@ -1861,7 +1862,6 @@ var DotVVM = /** @class */ (function () {
                 element.innerBindingContext = innerBindingContext;
                 ko.applyBindingsToDescendants(innerBindingContext, element);
                 return { controlsDescendantBindings: true }; // do not apply binding again
-                var _a;
             }
         };
         ko.virtualElements.allowedBindings["dotvvm-SSR-item"] = true;
@@ -1880,6 +1880,7 @@ var DotVVM = /** @class */ (function () {
         ko.virtualElements.allowedBindings["withGridViewDataSet"] = true;
         ko.bindingHandlers["withGridViewDataSet"] = {
             init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+                var _a;
                 if (!bindingContext)
                     throw new Error();
                 var value = valueAccessor();
@@ -1887,7 +1888,6 @@ var DotVVM = /** @class */ (function () {
                 element.innerBindingContext = innerBindingContext;
                 ko.applyBindingsToDescendants(innerBindingContext, element);
                 return { controlsDescendantBindings: true }; // do not apply binding again
-                var _a;
             },
             update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
             }
@@ -2211,13 +2211,16 @@ var DotvvmEnforceClientFormatValidator = /** @class */ (function (_super) {
     DotvvmEnforceClientFormatValidator.prototype.isValid = function (context, property) {
         // parameters order: AllowNull, AllowEmptyString, AllowEmptyStringOrWhitespaces
         var valid = true;
-        if (!context.parameters[0] && context.valueToValidate == null) {
+        if (!context.parameters[0] && context.valueToValidate == null) // AllowNull
+         {
             valid = false;
         }
-        if (!context.parameters[1] && context.valueToValidate.length === 0) {
+        if (!context.parameters[1] && context.valueToValidate.length === 0) // AllowEmptyString
+         {
             valid = false;
         }
-        if (!context.parameters[2] && this.isEmpty(context.valueToValidate)) {
+        if (!context.parameters[2] && this.isEmpty(context.valueToValidate)) // AllowEmptyStringOrWhitespaces
+         {
             valid = false;
         }
         var metadata = this.getValidationMetadata(property);
