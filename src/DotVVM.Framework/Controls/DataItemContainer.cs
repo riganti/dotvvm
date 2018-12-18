@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
@@ -26,14 +27,17 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the index of the data item in the data source control.
         /// </summary>
+        int? index = null;
         public int? DataItemIndex
         {
             get
             {
+                if (this.index is int) return this.index;
+
                 var value = GetValue(Internal.UniqueIDProperty);
-                return value is string id && int.TryParse(id, out var index) ? index : (int?)null;
+                return value is string id && int.TryParse(id, NumberStyles.Integer, CultureInfo.InvariantCulture, out var index) ? index : (int?)null;
             }
-            set { SetValue(Internal.UniqueIDProperty, value != null ? value.ToString() : null); }
+            set { this.index = value; SetValue(Internal.UniqueIDProperty, value?.ToString()); }
         }
 
 
