@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -21,22 +22,35 @@ namespace DotVVM.Framework.Controls
         private readonly bool debug;
         private readonly IDotvvmRequestContext requestContext;
 
-        private OrderedDictionary attributes = new OrderedDictionary();
+        private List<(string name, string val, string separator, bool)> attributes = new List<(string, string, string separator, bool)>();
         private OrderedDictionary dataBindAttributes = new OrderedDictionary();
         private Stack<string> openTags = new Stack<string>();
         private bool tagFullyOpen = true;
 
-
-        private static readonly Dictionary<string, string> separators = new Dictionary<string, string>()
+        public static bool IsSelfClosing(string s)
         {
-            { "class", " " },
-            { "style", ";" }
-        };
-
-        public static readonly ISet<string> SelfClosingTags = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        {
-            "area", "base", "br" , "col", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"
-        };
+            switch(s)
+            {
+                case "area":
+                case "base":
+                case "br" :
+                case "col":
+                case "command":
+                case "embed":
+                case "hr":
+                case "img":
+                case "input":
+                case "keygen":
+                case "link":
+                case "meta":
+                case "param":
+                case "source":
+                case "track":
+                case "wbr":
+                    return true;
+                default: return false;
+            }
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HtmlWriter"/> class.
@@ -50,9 +64,11 @@ namespace DotVVM.Framework.Controls
 
         public static string GetSeparatorForAttribute(string attributeName)
         {
-            string separator;
-            if (separators.TryGetValue(attributeName, out separator)) return separator;
-            return ";";
+            switch(attributeName)
+            {
+                case "class": return " ";
+                default: return ";";
+            }
         }
 
         public static string JoinAttributeValues(string attributeName, string valueA, string valueB, string separator = null)
@@ -62,10 +78,7 @@ namespace DotVVM.Framework.Controls
             if (string.IsNullOrWhiteSpace(valueB))
                 return valueA;
 
-            if (separator == null && !separators.TryGetValue(attributeName, out separator))
-            {
-                separator = ";";
-            }
+            separator = separator ?? GetSeparatorForAttribute(attributeName);
 
             // append the value with the separator
             return valueA + separator + valueB;
@@ -83,18 +96,17 @@ namespace DotVVM.Framework.Controls
         /// <param name="appendSeparator">The separator that will be used when <paramref name="append"/> is true and when the attribute already has a value.</param>
         public void AddAttribute(string name, string value, bool append = false, string appendSeparator = null)
         {
-            if (append)
-            {
-                if (attributes.Contains(name))
-                {
-                    var currentValue = attributes[name] as string;
-                    attributes[name] = JoinAttributeValues(name, currentValue, value, appendSeparator);
-                    return;
-                }
-            }
+            // if (append)
+            // {
+            //     if (attributes.Contains(name))
+            //     {
+            //         var currentValue = attributes[name] as string;
+            //         attributes[name] = JoinAttributeValues(name, currentValue, value, appendSeparator);
+            //         return;
+            //     }
+            // }
 
-            // set the value
-            attributes[name] = value;
+            attributes.Add((name, value, appendSeparator, append));
         }
 
         /// <summary>
@@ -151,7 +163,7 @@ namespace DotVVM.Framework.Controls
         public void RenderBeginTag(string name)
         {
             RenderBeginTagCore(name);
-            if (SelfClosingTags.Contains(name))
+            if (IsSelfClosing(name))
             {
                 tagFullyOpen = false;
             }
@@ -181,16 +193,14 @@ namespace DotVVM.Framework.Controls
             writer.Write("/>");
         }
 
+        private Dictionary<string, string> attributeMergeTable = new Dictionary<string, string>(23);
+
         /// <summary>
         /// Renders the begin tag without end char.
         /// </summary>
         private void RenderBeginTagCore(string name)
         {
             writer.Write("<");
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                throw new InvalidOperationException("HtmlWriter cannot render tag, because tag name is empty.");
-            }
             AssertIsValidHtmlName(name);
             writer.Write(name);
 
@@ -200,30 +210,78 @@ namespace DotVVM.Framework.Controls
             }
             dataBindAttributes.Clear();
 
-            if (attributes.Count > 0)
-            {
-                foreach (DictionaryEntry attr in attributes)
-                {
-                    var attributeName = (string)attr.Key;
-                    var attributeValue = ConvertHtmlAttributeValue(attr.Value);
+            if (attributes.Count == 0)
+                return;
 
-                    // allow to use the attribute transformer
-                    var pair = new HtmlTagAttributePair() { TagName = name, AttributeName = attributeName };
-                    HtmlAttributeTransformConfiguration transformConfiguration;
-                    if (requestContext.Configuration.Markup.HtmlAttributeTransforms.TryGetValue(pair, out transformConfiguration))
+            if (attributes.Count == 1)
+            {
+                var (aname, aval, _, _) = attributes[0];
+                // there can't be any name collisions of arguments
+                WriteAttrWithTransformers(name, aname, aval);
+            }
+            else if (attributes.Count == 2 && attributes[0].name != attributes[1].name)
+            {
+                // there can't be any name collisions
+
+                var (aname, aval, _, _) = attributes[0];
+                WriteAttrWithTransformers(name, aname, aval);
+                (aname, aval, _, _) = attributes[1];
+                WriteAttrWithTransformers(name, aname, aval);
+            }
+            else
+            {
+                bool changed = false;
+                foreach (var (aname, aval, separator, append) in attributes)
+                {
+                    if (attributeMergeTable.TryGetValue(aname, out var oldval))
                     {
-                        // use the transformer
-                        var transformer = transformConfiguration.GetInstance();
-                        transformer.RenderHtmlAttribute(this, requestContext, attributeName, attributeValue);
+                        changed = true;
+                        attributeMergeTable[aname] = append ? JoinAttributeValues(aname, oldval, aval, separator) : aval;
                     }
                     else
                     {
-                        WriteHtmlAttribute(attributeName, attributeValue);
+                        attributeMergeTable[aname] = aval;
                     }
                 }
+                if (changed)
+                {
+                    foreach (var (aname, _, _, _) in attributes)
+                    {
+                        if (attributeMergeTable.TryGetValue(aname, out var val))
+                        {
+                            attributeMergeTable.Remove(aname);
+                            WriteAttrWithTransformers(name, aname, val);
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (var (aname, aval, _, _) in attributes)
+                    {
+                        WriteAttrWithTransformers(name, aname, aval);
+                    }
+                    attributeMergeTable.Clear();
+                }
             }
-
+            Debug.Assert(attributeMergeTable.Count == 0);
             attributes.Clear();
+        }
+
+        private void WriteAttrWithTransformers(string name, string attributeName, string attributeValue)
+        {
+            // allow to use the attribute transformer
+            var pair = new HtmlTagAttributePair() { TagName = name, AttributeName = attributeName };
+            HtmlAttributeTransformConfiguration transformConfiguration;
+            if (requestContext.Configuration.Markup.HtmlAttributeTransforms.TryGetValue(pair, out transformConfiguration))
+            {
+                // use the transformer
+                var transformer = transformConfiguration.GetInstance();
+                transformer.RenderHtmlAttribute(this, requestContext, attributeName, attributeValue);
+            }
+            else
+            {
+                WriteHtmlAttribute(attributeName, attributeValue);
+            }
         }
 
         private string ConvertHtmlAttributeValue(object value)
@@ -238,7 +296,7 @@ namespace DotVVM.Framework.Controls
 
         /// Throws an exception if the specified string can't be a valid html name.
         /// The point is not to validate according to specification, but to make XSS attacks
-        /// impossibe - it disables html control characters, but won't throw on digit at the start of the name.
+        /// impossible - it disables html control characters, but won't throw on digit at the start of the name.
         private void AssertIsValidHtmlName(string name)
         {
             if (name.Length == 0) throw new ArgumentException("HTML name length can't be zero.");
@@ -253,27 +311,27 @@ namespace DotVVM.Framework.Controls
 
         public void WriteHtmlAttribute(string attributeName, string attributeValue)
         {
-            WriteUnencodedText(" ");
-            WriteUnencodedText(attributeName);
+            writer.Write(" ");
+            writer.Write(attributeName);
             if (attributeValue != null)
             {
-                WriteUnencodedText("=");
                 if (this.debug)
                 {
+                    writer.Write("=");
                     // this is only for debug, as I'm not sure about performance and security implications
                     // TODO: make this production ready (including proper performance comparison and security analysis)
                     var (singleCount, doubleCount) = (attributeValue.Count(c => c == '\''), attributeValue.Count(c => c == '"'));
                     var separator = singleCount > doubleCount ? "\"" : "'";
-                    WriteUnencodedText(separator.ToString());
-                    WriteUnencodedText(
+                    writer.Write(separator);
+                    writer.Write(
                         (separator == "'" ? attributeValue.Replace("&", "&amp;").Replace("'", "&#39;") : attributeValue.Replace("&", "&amp;").Replace("\"", "&quot;"))
                         .Replace(">", "&gt;").Replace("<", "&lt;"));
-                    WriteUnencodedText(separator.ToString());
+                    writer.Write(separator.ToString());
                 } else
                 {
-                    WriteUnencodedText("\"");
+                    writer.Write("=\"");
                     WriteText(attributeValue);
-                    WriteUnencodedText("\"");
+                    writer.Write("\"");
                 }
             }
         }
@@ -309,7 +367,7 @@ namespace DotVVM.Framework.Controls
         {
             if (text == null && text.Length == 0) return;
             EnsureTagFullyOpen();
-            writer.Write(WebUtility.HtmlEncode(text));
+            WebUtility.HtmlEncode(text, this.writer);
         }
 
         /// <summary>
