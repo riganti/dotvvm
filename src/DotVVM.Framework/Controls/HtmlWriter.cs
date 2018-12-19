@@ -22,7 +22,7 @@ namespace DotVVM.Framework.Controls
         private readonly bool debug;
         private readonly IDotvvmRequestContext requestContext;
 
-        private List<(string name, string val, string separator, bool)> attributes = new List<(string, string, string separator, bool)>();
+        private List<(string name, string val, string separator, bool allowAppending)> attributes = new List<(string, string, string separator, bool allowAppending)>();
         private OrderedDictionary dataBindAttributes = new OrderedDictionary();
         private Stack<string> openTags = new Stack<string>();
         private bool tagFullyOpen = true;
