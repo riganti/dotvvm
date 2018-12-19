@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void INIT()
         {
             this.configuration = DotvvmTestHelper.CreateConfiguration();
-            configuration.RegisterApiClient(typeof(TestApiClient), "http://server/api", "./apiscript.js", "_api");
+            configuration.RegisterApiClient(typeof(TestApiClient), "http://server/api", "./apiscript.js", "_testApi");
             this.bindingService = configuration.ServiceProvider.GetRequiredService<BindingCompilationService>();
         }
         public string CompileBinding(string expression, params Type[] contexts) => CompileBinding(expression, contexts, expectedType: typeof(object));
@@ -41,6 +41,7 @@ namespace DotVVM.Framework.Tests.Binding
                 new CurrentCollectionIndexExtensionParameter(),
                 new BindingCollectionInfoExtensionParameter("_collection"),
                 new BindingPageInfoExtensionParameter(),
+                new BindingApiExtensionParameter(),
                 }.Concat(configuration.Markup.DefaultExtensionParameters).ToArray());
             for (int i = 1; i < contexts.Length; i++)
             {
@@ -211,26 +212,26 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void JavascriptCompilation_Api_GetFunction()
         {
-            var result = CompileBinding("_api.GetString()");
-            Assert.AreEqual("dotvvm.invokeApiFn(function(){return dotvvm.api._api.getString();},[dotvvm.eventHub.get(\"dotvvm.api._api\")],[])", result);
-            var assignment = CompileBinding("StringProp = _api.GetString()", typeof(TestViewModel));
-            Assert.AreEqual("StringProp(dotvvm.invokeApiFn(function(){return dotvvm.api._api.getString();},[dotvvm.eventHub.get(\"dotvvm.api._api\")],[])()).StringProp()", assignment);
+            var result = CompileBinding("_testApi.GetString()");
+            Assert.AreEqual("dotvvm.invokeApiFn(function(){return dotvvm.api._testApi.getString();},[dotvvm.eventHub.get(\"dotvvm.api._testApi\")],[])", result);
+            var assignment = CompileBinding("StringProp = _testApi.GetString()", typeof(TestViewModel));
+            Assert.AreEqual("StringProp(dotvvm.invokeApiFn(function(){return dotvvm.api._testApi.getString();},[dotvvm.eventHub.get(\"dotvvm.api._testApi\")],[])()).StringProp", assignment);
         }
 
         [TestMethod]
         public void JavascriptCompilation_Api_GetDate()
         {
-            var result = CompileBinding("_api.GetCurrentTime('test')");
-            Assert.AreEqual("dotvvm.invokeApiFn(function(){return dotvvm.api._api.getCurrentTime(\"test\");},[dotvvm.eventHub.get(\"dotvvm.api._api\")],[])", result);
-            var assignment = CompileBinding("DateFrom = _api.GetCurrentTime('test')", typeof(TestViewModel));
-            Assert.AreEqual("DateFrom(dotvvm.serialization.serializeDate(dotvvm.invokeApiFn(function(){return dotvvm.api._api.getCurrentTime(\"test\");},[dotvvm.eventHub.get(\"dotvvm.api._api\")],[])(),false)).DateFrom()", assignment);
+            var result = CompileBinding("_testApi.GetCurrentTime('test')");
+            Assert.AreEqual("dotvvm.invokeApiFn(function(){return dotvvm.api._testApi.getCurrentTime(\"test\");},[dotvvm.eventHub.get(\"dotvvm.api._testApi\")],[])", result);
+            var assignment = CompileBinding("DateFrom = _testApi.GetCurrentTime('test')", typeof(TestViewModel));
+            Assert.AreEqual("DateFrom(dotvvm.serialization.serializeDate(dotvvm.invokeApiFn(function(){return dotvvm.api._testApi.getCurrentTime(\"test\");},[dotvvm.eventHub.get(\"dotvvm.api._testApi\")],[])(),false)).DateFrom", assignment);
         }
 
         [TestMethod]
         public void JavascriptCompilation_Api_DateParameter()
         {
-            var result = CompileBinding("_api.PostDateToString(DateFrom.Value)", typeof(TestViewModel));
-            Assert.AreEqual("dotvvm.invokeApiFn(function(){return dotvvm.api._api.postDateToString(dotvvm.globalize.parseDotvvmDate(DateFrom()));},[],[\"dotvvm.api._api\"])", result);
+            var result = CompileBinding("_testApi.PostDateToString(DateFrom.Value)", typeof(TestViewModel));
+            Assert.AreEqual("dotvvm.invokeApiFn(function(){return dotvvm.api._testApi.postDateToString(dotvvm.globalize.parseDotvvmDate(DateFrom()));},[],[\"dotvvm.api._testApi\"])", result);
         }
 
         [TestMethod]
@@ -391,6 +392,41 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var result = CompileBinding("_index", new [] { typeof(TestViewModel), typeof(object), typeof(string) });
             Assert.AreEqual("$parentContext.$parentContext.$index()", result);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_AssignAndUse()
+        {
+            var result = CompileBinding("StringProp2 = (_this.StringProp = _this.StringProp2 = 'lol') + 'hmm'", typeof(TestViewModel));
+            Assert.AreEqual("StringProp2(StringProp(StringProp2(\"lol\").StringProp2()).StringProp()+\"hmm\").StringProp2", result);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_AssignAndUseObject()
+        {
+            var result = CompileBinding("StringProp2 = (_this.TestViewModel2B = _this.TestViewModel2 = _this.VmArray[3]).SomeString", typeof(TestViewModel));
+            Assert.AreEqual("StringProp2(dotvvm.serialization.deserialize(dotvvm.serialization.deserialize(VmArray()[3](),TestViewModel2)(),TestViewModel2B)().SomeString()).StringProp2", result);
+        }
+
+        [TestMethod, Ignore] // ignored because https://github.com/dotnet/corefx/issues/33074
+        public void JavascriptCompilation_AssignAndUseObjectArray()
+        {
+            var result = CompileBinding("StringProp2 = (_this.VmArray[1] = (_this.VmArray[0] = _this.VmArray[3])).SomeString", typeof(TestViewModel));
+            Assert.AreEqual("", result);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_AssignmentExpectsObservable()
+        {
+            var result = CompileBinding("_api.RefreshOnChange(StringProp = StringProp2, StringProp + StringProp2)", typeof(TestViewModel));
+            Assert.AreEqual("dotvvm.apiRefreshOn(StringProp(StringProp2()).StringProp,ko.pureComputed(function(){return StringProp()+StringProp2();}))", result);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_ApiRefreshOn()
+        {
+            var result = CompileBinding("_api.RefreshOnChange('here would be the API invocation', StringProp + StringProp2)", typeof(TestViewModel));
+            Assert.AreEqual("dotvvm.apiRefreshOn(\"here would be the API invocation\",ko.pureComputed(function(){return StringProp()+StringProp2();}))", result);
         }
     }
 

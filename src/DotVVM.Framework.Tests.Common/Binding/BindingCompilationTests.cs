@@ -527,6 +527,7 @@ namespace DotVVM.Framework.Tests.Binding
         public string StringProp { get; set; }
         public int IntProp { get; set; }
         public TestViewModel2 TestViewModel2 { get; set; }
+        public TestViewModel2 TestViewModel2B { get; set; }
         public TestEnum EnumProperty { get; set; }
         public string StringProp2 { get; set; }
         public DateTime? DateFrom { get; set; }

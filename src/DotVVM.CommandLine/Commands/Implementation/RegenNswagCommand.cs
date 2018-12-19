@@ -11,9 +11,9 @@ namespace DotVVM.CommandLine.Commands.Implementation
 {
     public class RegenNswagCommand : CommandBase
     {
-        public override string Name => "Add Control";
+        public override string Name => "Regenerate REST API clients";
 
-        public override string Usage => "dotvvm api regen [ swagger path -- if not specified all of them are refreshed ]";
+        public override string Usage => "dotvvm api regen [ swagger metadata URL or swagger JSON path -- if not specified all of them are refreshed ]";
 
         public override bool TryConsumeArgs(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
         {
@@ -32,17 +32,18 @@ namespace DotVVM.CommandLine.Commands.Implementation
             var swaggerFile = args[0];
             if (swaggerFile != null)
             {
-                if (!Uri.TryCreate(swaggerFile, UriKind.RelativeOrAbsolute, out var swaggerFileUri))
-                    throw new InvalidCommandUsageException($"'{swaggerFile}' is not a valid uri.");
-                ApiClientManager.RegenApiClient(
-                    dotvvmProjectMetadata.ApiClients.FirstOrDefault(a => a.SwaggerFile == swaggerFileUri) ??
-                        throw new InvalidCommandUsageException($"No registered api client with with '{swaggerFile}' was found.")
-                ).Wait();
+                var apiClient =
+                    (Uri.TryCreate(swaggerFile, UriKind.Absolute, out var swaggerFileUri) ?
+                    dotvvmProjectMetadata.ApiClients.FirstOrDefault(a => a.SwaggerFile == swaggerFileUri) : null) ??
+                    dotvvmProjectMetadata.ApiClients.FirstOrDefault(a => a.CSharpClient == swaggerFile || a.TypescriptClient == swaggerFile);
+                if (apiClient == null)
+                    throw new InvalidCommandUsageException($"No API client with the following URL or path was found: {swaggerFile}");
+                ApiClientManager.RegenApiClient(apiClient, promptOnFileOverwrite: false).Wait();
             }
             else
             {
                 dotvvmProjectMetadata.ApiClients
-                    .Select(ApiClientManager.RegenApiClient)
+                    .Select(c => ApiClientManager.RegenApiClient(c, promptOnFileOverwrite: false))
                     .ToArray()
                     .ApplyAction(Task.WaitAll);
             }

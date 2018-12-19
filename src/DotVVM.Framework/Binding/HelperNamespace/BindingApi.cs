@@ -22,7 +22,7 @@ namespace DotVVM.Framework.Binding.HelperNamespace
                 new GenericMethodCompiler(a =>
                     new JsIdentifierExpression("dotvvm").Member("apiRefreshOn").Invoke(
                             a[1].WithAnnotation(ShouldBeObservableAnnotation.Instance),
-                            a[2].EnsureObservableWrapped())
+                            a[2].WithAnnotation(ObservableTransformationAnnotation.EnsureWrapped))
                         .WithAnnotation(a[1].Annotation<ResultIsObservableAnnotation>())
                         .WithAnnotation(a[1].Annotation<ViewModelInfoAnnotation>())
                         .WithAnnotation(a[1].Annotation<MayBeNullAnnotation>())

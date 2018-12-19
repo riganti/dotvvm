@@ -6,11 +6,11 @@
   "uiTestProjectRootNamespace": null,
   "apiClients": [
     {
-      "swaggerFile": "http://ipfs.io/ipfs/Qmb8Tu3nocE6f9HNE9SobpBCht2VRvCx3eTUHp9XyooVWK",
+      "swaggerFile": "http://ipfs.io/ipfs/QmRNXvUneTanzjjzrzrado6n5fX64ZUS9WJx1e3X4zUu3X",
       "csharpClient": "./GithubApiClient.cs",
       "typescriptClient": "./Scripts/GithubApiClient.ts",
       "namespace": "GithubApiClient",
-      "compileTypescript": true,
+      "compileTypescript": false,
       "generateWrapperClass": true,
       "isSingleClient": false,
       "fetchOptions": {

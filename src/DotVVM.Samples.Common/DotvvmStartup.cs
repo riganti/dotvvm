@@ -39,7 +39,7 @@ namespace DotVVM.Samples.BasicSamples
             // new GithubApiClient.GithubApiClient().Repos.GetIssues()
 
             config.RegisterApiGroup(typeof(Common.Api.Owin.TestWebApiClientOwin), "http://localhost:61453/", "Scripts/TestWebApiClientOwin.js", "_apiOwin");
-            config.RegisterApiClient(typeof(Common.Api.AspNetCore.Client), "http://localhost:5001/", "Scripts/TestWebApiClientAspNetCore.js", "_apiCore");
+            config.RegisterApiClient(typeof(Common.Api.AspNetCore.TestWebApiClientAspNetCore), "http://localhost:5001/", "Scripts/TestWebApiClientAspNetCore.js", "_apiCore");
 
             config.RegisterApiGroup(typeof(GithubApiClient.GithubApiClient), "https://api.github.com/", "Scripts/GithubApiClient.js", "_github", customFetchFunction: "basicAuthenticatedFetch");
             config.RegisterApiClient(typeof(AzureFunctionsApi.Client), "https://dotvvmazurefunctionstest.azurewebsites.net/", "Scripts/AzureFunctionsApiClient.js", "_azureFuncApi");
@@ -112,6 +112,7 @@ namespace DotVVM.Samples.BasicSamples
         private static void AddControls(DotvvmConfiguration config)
         {
             config.Markup.AddCodeControls("cc", typeof(Controls.ServerSideStylesControl));
+            config.Markup.AddCodeControls("cc", typeof(Controls.TextRepeater));
             config.Markup.AddCodeControls("PropertyUpdate", typeof(Controls.ServerRenderedLabel));
             config.Markup.AddMarkupControl("IdGeneration", "Control", "Views/FeatureSamples/IdGeneration/IdGeneration_control.dotcontrol");
             config.Markup.AddMarkupControl("FileUploadInRepeater", "FileUploadWrapper", "Views/ComplexSamples/FileUploadInRepeater/FileUploadWrapper.dotcontrol");
