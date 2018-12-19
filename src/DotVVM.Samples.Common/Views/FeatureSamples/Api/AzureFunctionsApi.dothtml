@@ -15,7 +15,7 @@
         <br />
         Number: {{value: Data.Number}}
         <br />
-        Date: {{value: Data.Date}}
+        Date: <span class="id-date1">{{value: Data.Date}}</span>
         <br />
         Bool: {{value: Data.Bool}}
     </p>
@@ -26,10 +26,10 @@
         <br />
         Number: {{value: PostResult.Number}}
         <br />
-        Date: {{value: PostResult.Date}}
-        <br />
-        Bool: {{value: PostResult.Bool}}
-    </p>
+        Date: <span class="id-date2">{{value: PostResult.Date}}</span>
+    <br />
+    Bool: {{value: PostResult.Bool}}
+</p>
 
     <dot:Button Text="Get data" Click="{staticCommand: Data = _azureFuncApi._api_HttpGet_get()}" />
     <dot:Button Text="Post data" Click="{staticCommand: PostResult = _azureFuncApi._api_HttpPost_post(Data)}" />

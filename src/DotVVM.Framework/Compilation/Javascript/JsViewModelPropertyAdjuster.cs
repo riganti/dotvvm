@@ -100,4 +100,16 @@ namespace DotVVM.Framework.Compilation.Javascript
         private ShouldBeObservableAnnotation() { }
         public static ShouldBeObservableAnnotation Instance = new ShouldBeObservableAnnotation();
     }
+    /// Instruct the <see cref="KnockoutObservableHandlingVisitor" /> to process the node after it's children are resolved and before it is handled itself by the rules
+    public sealed class ObservableTransformationAnnotation
+    {
+        public readonly Func<JsExpression, JsExpression> TransformExpression;
+        public ObservableTransformationAnnotation(Func<JsExpression, JsExpression> transformExpression)
+        {
+            TransformExpression = transformExpression;
+        }
+
+        /// Makes sure that the observable is fully wrapped in observable (i.e. wraps the expression in `ko.pureComputed(...)` when needed)
+        public static readonly ObservableTransformationAnnotation EnsureWrapped = new ObservableTransformationAnnotation(JsAstHelpers.EnsureObservableWrapped);
+    }
 }

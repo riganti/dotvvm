@@ -1,14 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using DotVVM.Framework.Runtime;
-using Newtonsoft.Json;
 using DotVVM.Framework.Binding;
-using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.Parser;
-using System.Reflection;
+using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ViewModel.Serialization;
+using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Controls
 {
@@ -27,7 +25,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public DotvvmMarkupControl() : this("div")
         {
-            this.LifecycleRequirements |= ControlLifecycleRequirements.PreInit;
+            LifecycleRequirements |= ControlLifecycleRequirements.PreInit;
         }
 
         /// <summary>
@@ -83,33 +81,38 @@ namespace DotVVM.Framework.Controls
 
         private PropertySerializeInfo GetPropertySerializationInfo(DotvvmProperty property)
         {
-            var binding = GetBinding(property);
-
-            if (binding == null && !typeof(ITemplate).IsAssignableFrom(property.PropertyType))
+            if (ContainsPropertyStaticValue(property))
             {
                 JsonSerializerSettings settings = DefaultViewModelSerializer.CreateDefaultSettings();
                 settings.StringEscapeHandling = StringEscapeHandling.EscapeHtml;
-                return new PropertySerializeInfo
-                {
+
+                return new PropertySerializeInfo {
                     Property = property,
                     Js = JsonConvert.SerializeObject(GetValue(property), Formatting.None, settings),
                     IsSerializable = true
                 };
             }
-            else if (binding is IValueBinding)
+            else if (GetBinding(property) is IValueBinding valueBinding)
             {
-                return new PropertySerializeInfo
-                {
+                return new PropertySerializeInfo {
                     Property = property,
-                    Js = (binding as IValueBinding).GetKnockoutBindingExpression(this),
+                    Js = valueBinding.GetKnockoutBindingExpression(this),
                     IsSerializable = true
-
                 };
             }
             else
             {
                 return new PropertySerializeInfo { Property = property };
             }
+        }
+
+        private bool ContainsPropertyStaticValue(DotvvmProperty property)
+        {
+            var binding = GetBinding(property);
+
+            var isValueOrServerSideValueBinding = binding == null || (binding is IStaticValueBinding && !(binding is IValueBinding));
+
+            return isValueOrServerSideValueBinding && !typeof(ITemplate).IsAssignableFrom(property.PropertyType);
         }
 
         private class PropertySerializeInfo

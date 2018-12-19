@@ -13,6 +13,9 @@
     <Content Include="**/*.dotmaster;**/*.dotcontrol;**/*.dothtml" Exclude="obj/**/*.*;bin/**/*.*" CopyToPublishDirectory="Always" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Views\ControlSamples\Literal\Literal_NumberBinding.dothtml" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="Scripts\ClientExtenders.js" />
     <Content Include="Scripts\testResource.js" />
     <Content Include="Scripts\testResource2.js" />
