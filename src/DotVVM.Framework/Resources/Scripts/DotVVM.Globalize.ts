@@ -1,4 +1,13 @@
 ﻿class DotvvmGlobalize {
+
+    private getGlobalize() {
+        const g = window["dotvvm_Globalize"]
+        if (!g) {
+            throw new Error("Resource 'globalize' is not included (symbol 'dotvvm_Globalize' could not be found).\nIt is usually included automatically when needed, but sometime it's not possible, so you will have to include it in your page using '<dot:RequiredResource Name=\"globalize\" />'")
+        }
+	return g;
+    }
+
     public format(format: string, ...values: any[]) {
         return format.replace(/\{([1-9]?[0-9]+)(:[^}]+)?\}/g, (match, group0, group1) => {
             var value = values[parseInt(group0)];
@@ -26,7 +35,7 @@
             format = "G";
         }
 
-        return dotvvm_Globalize.format(value, format, dotvvm.culture);
+        return this.getGlobalize().format(value, format, dotvvm.culture);
     }
 
     public parseDotvvmDate(value: string): Date | null {
@@ -39,11 +48,11 @@
     }
 
     public parseNumber(value: string): number {
-        return dotvvm_Globalize.parseFloat(value, 10, dotvvm.culture);
+        return this.getGlobalize().parseFloat(value, 10, dotvvm.culture);
     }
 
     public parseDate(value: string, format: string, previousValue?: Date) {
-        return dotvvm_Globalize.parseDate(value, format, dotvvm.culture, previousValue);
+        return this.getGlobalize().parseDate(value, format, dotvvm.culture, previousValue);
     }
 
     public bindingDateToString(value: KnockoutObservable<string | Date> | string | Date, format: string = "G") {
@@ -60,7 +69,7 @@
             const unwrappedVal = unwrapDate();
 
             if (unwrappedVal != null) {
-                return dotvvm_Globalize.format(unwrappedVal, format, dotvvm.culture);
+                return this.getGlobalize().format(unwrappedVal, format, dotvvm.culture);
             }
 
             return "";
@@ -73,7 +82,7 @@
             } : value;
             return ko.pureComputed({
                 read: () => formatDate(),
-                write: val => setter(dotvvm_Globalize.parseDate(val, format, dotvvm.culture))
+                write: val => setter(this.getGlobalize().parseDate(val, format, dotvvm.culture))
             });
         }
         else {
@@ -95,7 +104,7 @@
             const unwrappedVal = unwrapNumber();
 
             if (unwrappedVal != null) {
-                return dotvvm_Globalize.format(unwrappedVal, format, dotvvm.culture);
+                return this.getGlobalize().format(unwrappedVal, format, dotvvm.culture);
             }
 
             return "";
@@ -105,7 +114,7 @@
             return ko.pureComputed({
                 read: () => formatNumber(),
                 write: val => {
-                    const parsedFloat = dotvvm_Globalize.parseFloat(val, 10, dotvvm.culture),
+                    const parsedFloat = this.getGlobalize().parseFloat(val, 10, dotvvm.culture),
                         isValid = val == null || (parsedFloat != null && !isNaN(parsedFloat));
 
                     value(isValid ? parsedFloat : null);
