@@ -20,7 +20,7 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_Default);
-                browser.Wait(2000);
+                browser.Wait(5000);
 
                 // verify the URL after redirect to the DefaultRoute
                 browser.CheckIfAlertTextEquals("javascript 2 resource loaded!");
@@ -102,7 +102,7 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageB);
-                browser.Wait(2000);
+                browser.Wait(5000);
 
                 // verify the URL after redirect to the DefaultRoute
                 browser.CheckIfAlertTextEquals("javascript resource loaded!");
@@ -184,7 +184,7 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PrefixRouteName_PageB);
-                browser.Wait(2000);
+                browser.Wait(5000);
 
                 // verify the URL after redirect to the DefaultRoute
                 browser.CheckIfAlertTextEquals("javascript resource loaded!");

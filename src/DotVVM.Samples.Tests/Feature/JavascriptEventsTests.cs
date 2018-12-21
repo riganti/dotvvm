@@ -22,7 +22,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptEvents_JavascriptEvents);
 
                 // init alert
-                browser.Wait();
+                browser.Wait(5000);
                 browser.CheckIfAlertTextEquals("init");
                 browser.ConfirmAlert();
 
