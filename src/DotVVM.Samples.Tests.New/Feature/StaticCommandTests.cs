@@ -83,6 +83,31 @@ namespace DotVVM.Samples.Tests.New.Feature
         }
 
         [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_StaticCommand_StaticCommand_NullAssignment))]
+        public void Feature_StaticCommand_NullAssignment()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_StaticCommand_StaticCommand_NullAssignment);
+                browser.Wait();
+
+                void TestSection(string sectionName)
+                {
+                    AssertUI.InnerTextEquals(browser.Single($".type-{sectionName} .item1"), "not null");
+                    AssertUI.InnerTextEquals(browser.Single($".type-{sectionName} .item2"), "not null");
+                    browser.Single($".type-{sectionName} input[type=button]").Click();
+                    AssertUI.InnerTextEquals(browser.Single($".type-{sectionName} .item1"), "null");
+                    AssertUI.InnerTextEquals(browser.Single($".type-{sectionName} .item2"), "null");
+                }
+
+                TestSection("int");
+                TestSection("string");
+                TestSection("datetime");
+                TestSection("object");
+            });
+        }
+
+
+        [Fact]
         [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_StaticCommand_StaticCommand_ComboBoxSelectionChanged))]
         public void Feature_StaticCommand_ComboBoxSelectionChanged()
         {
