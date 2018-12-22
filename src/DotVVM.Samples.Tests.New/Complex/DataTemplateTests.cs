@@ -1,26 +1,20 @@
-﻿
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DotVVM.Testing.Abstractions;
+using Xunit;
+using Xunit.Abstractions;
 
-namespace DotVVM.Samples.Tests.Complex
+namespace DotVVM.Samples.Tests.New.Complex
 {
-    [TestClass]
     public class DataTemplateTests : AppSeleniumTest
     {
-        [TestMethod]
+        [Fact]
         public void Complex_EmptyDataTemplate_RepeaterGridView()
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_EmptyDataTemplate_RepeaterGridView);
                 browser.Wait();
-                void isDisplayed(string id) => browser.CheckIfIsDisplayed("#" + id);
-                void isHidden(string id) => browser.CheckIfIsNotDisplayed("#" + id);
+                void isDisplayed(string id) => AssertUI.IsDisplayed(browser, "#" + id);
+                void isHidden(string id) => AssertUI.IsNotDisplayed(browser, "#" + id);
                 void isNotPresent(string id) => browser.FindElements("#" + id + " > *").ThrowIfDifferentCountThan(0);
 
                 isHidden("marker1_parent");
@@ -59,6 +53,10 @@ namespace DotVVM.Samples.Tests.Complex
                 isNotPresent("null_marker4_parent");
                 isDisplayed("null_marker4");
             });
+        }
+
+        public DataTemplateTests(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

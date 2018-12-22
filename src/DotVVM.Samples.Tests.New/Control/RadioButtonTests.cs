@@ -4,21 +4,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Samples.Tests.New;
 using DotVVM.Testing.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace DotVVM.Samples.Tests.Control
 {
-    [TestClass]
     public class RadioButtonTests : AppSeleniumTest
     {
-
-        [TestMethod]
+        [Fact]
         public void Control_RadioButton_RadioButton()
         {
-            RunInAllBrowsers(browser =>
-            {
-                browser.NavigateToUrl( SamplesRouteUrls.ControlSamples_RadioButton_RadioButton);
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_RadioButton_RadioButton);
                 browser.Wait();
 
                 browser.ElementAt("input[type=radio]", 2).Click();
@@ -26,16 +26,18 @@ namespace DotVVM.Samples.Tests.Control
                 browser.First("input[type=button]").Click();
                 browser.Wait();
 
-                browser.Last("span")
-                    .CheckIfInnerTextEquals("4");
+                AssertUI.InnerTextEquals(browser.Last("span"), "4");
 
                 browser.ElementAt("input[type=radio]", 1).Click();
                 browser.First("input[type=button]").Click();
                 browser.Wait();
 
-                browser.Last("span")
-                    .CheckIfInnerTextEquals("2");
+                AssertUI.InnerTextEquals(browser.Last("span"), "2");
             });
+        }
+
+        public RadioButtonTests(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }
