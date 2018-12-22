@@ -1,18 +1,18 @@
 using System.Linq;
 using DotVVM.Testing.Abstractions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Riganti.Selenium.Core;
+using Riganti.Selenium.Core.Abstractions;
+using Xunit;
+using Xunit.Abstractions;
 
-namespace DotVVM.Samples.Tests.Feature
+namespace DotVVM.Samples.Tests.New.Feature
 {
-    [TestClass]
     public class ChildViewModelInvokeMethodsTests : AppSeleniumTest
     {
-        [TestMethod]
+        [Fact]
         public void Feature_ChildViewModelInvokeMethods_ChildViewModelInvokeMethods()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ChildViewModelInvokeMethods_ChildViewModelInvokeMethods);
 
                 CheckIfInnerTextEqualsToOne(browser, "InitCount");
@@ -25,9 +25,13 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
-        private static void CheckIfInnerTextEqualsToOne(IBrowserWrapperFluentApi browser, string dataUi)
+        private static void CheckIfInnerTextEqualsToOne(IBrowserWrapper browser, string dataUi)
         {
-            browser.FindElements($"[data-ui='{dataUi}']").First().CheckIfInnerTextEquals(1.ToString());
+            AssertUI.InnerTextEquals(browser.FindElements($"[data-ui='{dataUi}']").First(), 1.ToString());
+        }
+
+        public ChildViewModelInvokeMethodsTests(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

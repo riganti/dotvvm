@@ -1,23 +1,14 @@
-﻿using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Firefox;
-
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
+﻿using System.Globalization;
 using System.Threading;
-using System.Threading.Tasks;
-using DotVVM.Samples.Tests.New;
 using DotVVM.Testing.Abstractions;
+using OpenQA.Selenium;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
 using Xunit;
 using Xunit.Abstractions;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
-namespace DotVVM.Samples.Tests.Feature
+namespace DotVVM.Samples.Tests.New.Feature
 {
     public class LocalizationTests : AppSeleniumTest
     {
@@ -30,6 +21,7 @@ namespace DotVVM.Samples.Tests.Feature
                 ChangeAndTestLocalization(browser);
             });
         }
+
         [Fact]
         public void Feature_Localization()
         {
@@ -39,6 +31,7 @@ namespace DotVVM.Samples.Tests.Feature
                 ChangeAndTestLocalization(browser);
             });
         }
+
         [Fact]
         public void Feature_Localization_Localization_FormatString()
         {
@@ -57,7 +50,6 @@ namespace DotVVM.Samples.Tests.Feature
 
                 //supported
                 AssertUI.InnerTextEquals(browser.First("#HardCodedValueInBinding"), value.ToString("#0.00"));
-
             });
         }
 
@@ -68,7 +60,6 @@ namespace DotVVM.Samples.Tests.Feature
             browser.Last("a").Click();
             AssertUI.InnerTextEquals(browser.First("p"), "Tohle pochází z resource souboru!", false, true);
         }
-
 
         [Fact]
         public void Feature_Localization_Localization_NestedPage_Type()
@@ -99,7 +90,6 @@ namespace DotVVM.Samples.Tests.Feature
                     browser.Driver.FindElement(By.XPath("//div[@data-ui='localization-control-bare']/label/span")).Text);
                 Assert.AreEqual("Localized literal inside control",
                     browser.Driver.FindElement(By.XPath("//div[@data-ui='localization-control-bare']/span")).Text);
-
             });
         }
 
@@ -114,7 +104,6 @@ namespace DotVVM.Samples.Tests.Feature
                     browser.Driver.FindElement(By.XPath("//div[@data-ui='localization-control-import']/label/span")).Text);
                 Assert.AreEqual("Localized literal inside control",
                     browser.Driver.FindElement(By.XPath("//div[@data-ui='localization-control-import']/span")).Text);
-
             });
         }
 

@@ -1,24 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DotVVM.Samples.Tests.New;
 using DotVVM.Testing.Abstractions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
-using Riganti.Selenium.Validators.Checkers.BrowserWrapperCheckers;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace DotVVM.Samples.Tests.Feature
+namespace DotVVM.Samples.Tests.New.Feature
 {
     public class ParameterBindingTests : AppSeleniumTest
     {
         public ParameterBindingTests(ITestOutputHelper output) : base(output)
         {
         }
+
         [Fact]
         public void Feature_ParameterBinding_ParameterBinding()
         {

@@ -1,51 +1,47 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OpenQA.Selenium;
-using OpenQA.Selenium.Interactions;
+﻿using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
-using System;
-using System.Globalization;
-using System.Linq;
-using System.Threading;
-using DotVVM.Testing.Abstractions;
+using Xunit;
+using Xunit.Abstractions;
 
-
-namespace DotVVM.Samples.Tests.Feature
+namespace DotVVM.Samples.Tests.New.Feature
 {
-    [TestClass]
     public class JavascriptEventsTests : AppSeleniumTest
     {
-        [TestMethod]
+        [Fact]
         public void Feature_JavascriptEvents_JavascriptEvents()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptEvents_JavascriptEvents);
 
                 // init alert
                 browser.Wait();
-                browser.CheckIfAlertTextEquals("init");
+                AssertUI.AlertTextEquals(browser, "init");
                 browser.ConfirmAlert();
 
                 // postback alerts
                 browser.ElementAt("input[type=button]", 0).Click();
 
-                browser.CheckIfAlertTextEquals("beforePostback");
+                AssertUI.AlertTextEquals(browser, "beforePostback");
                 browser.ConfirmAlert();
                 browser.Wait();
 
-                browser.CheckIfAlertTextEquals("afterPostback");
+                AssertUI.AlertTextEquals(browser, "afterPostback");
                 browser.ConfirmAlert();
 
                 // error alerts
                 browser.ElementAt("input[type=button]", 1).Click();
 
-                browser.CheckIfAlertTextEquals("beforePostback");
+                AssertUI.AlertTextEquals(browser, "beforePostback");
                 browser.ConfirmAlert();
                 browser.Wait();
 
-                browser.CheckIfAlertTextEquals("custom error handler");
+                AssertUI.AlertTextEquals(browser, "custom error handler");
                 browser.ConfirmAlert();
             });
+        }
+
+        public JavascriptEventsTests(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

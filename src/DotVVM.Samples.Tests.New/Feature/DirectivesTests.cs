@@ -1,12 +1,9 @@
-﻿
-using DotVVM.Samples.Tests.New;
-using DotVVM.Testing.Abstractions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace DotVVM.Samples.Tests.Feature
+namespace DotVVM.Samples.Tests.New.Feature
 {
     public class DirectivesTests : AppSeleniumTest
     {
@@ -38,7 +35,7 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.InnerTextEquals(browser.ElementAt("p", 0), "Hello from ImportDirectiveViewModel");
                 AssertUI.InnerTextEquals(browser.ElementAt("p", 1), "Hello TestClass1");
                 AssertUI.InnerTextEquals(browser.ElementAt("p", 2), "Hello TestClassNonAlias");
-                AssertUI.InnerTextEquals(browser.ElementAt("p", 3), "Default from configuration"); 
+                AssertUI.InnerTextEquals(browser.ElementAt("p", 3), "Default from configuration");
                 AssertUI.InnerTextEquals(browser.ElementAt("p", 4), "Hello From Nested Class"); // maybe more possibilities?
             });
         }

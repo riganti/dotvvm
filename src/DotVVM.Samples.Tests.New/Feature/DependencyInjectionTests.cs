@@ -1,25 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DotVVM.Samples.Tests.New;
-using DotVVM.Testing.Abstractions;
+﻿using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
 using Xunit;
 using Xunit.Abstractions;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
-namespace DotVVM.Samples.Tests.Feature
+namespace DotVVM.Samples.Tests.New.Feature
 {
     public class DependencyInjectionTests : AppSeleniumTest
     {
-
         [Fact]
         public void Feature_DependencyInjection_ViewModelScopedService()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_DependencyInjection_ViewModelScopedService);
 
                 for (int i = 0; i < 5; i++)

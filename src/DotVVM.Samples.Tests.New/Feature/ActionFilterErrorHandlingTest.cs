@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DotVVM.Samples.Tests.New;
-using DotVVM.Testing.Abstractions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace DotVVM.Samples.Tests.Feature
+namespace DotVVM.Samples.Tests.New.Feature
 {
     public class ActionFilterErrorHandlingTest : AppSeleniumTest
     {
@@ -45,7 +38,6 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.Url(browser, u => u.Contains("error500"));
             });
         }
-
 
         [Fact]
         public void Feature_ActionFilterErrorHandling_ActionFilterRedirect()

@@ -1,9 +1,8 @@
-﻿using DotVVM.Samples.Tests.New;
-using DotVVM.Testing.Abstractions;
+﻿using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
 using Xunit;
 
-namespace DotVVM.Samples.New.Tests.Feature
+namespace DotVVM.Samples.Tests.New.Feature
 {
     public class CommandArgumentsTests : AppSeleniumTest
     {
@@ -16,8 +15,7 @@ namespace DotVVM.Samples.New.Tests.Feature
         {
             const string Value = "testing value";
 
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_CommandArguments_CommandArguments);
 
                 var text = browser.Single("[data-ui='value']");

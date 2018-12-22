@@ -1,26 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DotVVM.Testing.Abstractions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
+using Xunit;
+using Xunit.Abstractions;
 
-namespace DotVVM.Samples.Tests.Feature
+namespace DotVVM.Samples.Tests.New.Feature
 {
-    [TestClass]
     public class FormControlsEnabledTests : AppSeleniumTest
     {
-        [TestMethod]
+        [Fact]
         public void Feature_FormControlsEnabled_FormControlsEnabled()
         {
             // Button, CheckBox, ComboBox, ListBox, RadioButton, TextBox
             string[] prefixes = { "b", "c", "cb", "lb", "rb", "tb" };
 
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_FormControlsEnabled_FormControlsEnabled);
 
                 bool enabled = false;
@@ -30,32 +24,32 @@ namespace DotVVM.Samples.Tests.Feature
                     foreach (var prefix in prefixes)
                     {
                         // These controls should always be enabled because they are explicitly set to Enabled
-                        browser.First($"#{prefix}1-enabled").CheckIfIsEnabled();
-                        browser.First($"#{prefix}2-enabled").CheckIfIsEnabled();
-                        browser.First($"#repeater_0_{prefix}-enabled").CheckIfIsEnabled();
-                        browser.First($"#repeater_1_{prefix}-enabled").CheckIfIsEnabled();
+                        AssertUI.IsEnabled(browser.First($"#{prefix}1-enabled"));
+                        AssertUI.IsEnabled(browser.First($"#{prefix}2-enabled"));
+                        AssertUI.IsEnabled(browser.First($"#repeater_0_{prefix}-enabled"));
+                        AssertUI.IsEnabled(browser.First($"#repeater_1_{prefix}-enabled"));
 
                         // These controls should always be disabled
-                        browser.First($"#{prefix}1-disabled").CheckIfIsNotEnabled();
-                        browser.First($"#{prefix}2-disabled").CheckIfIsNotEnabled();
-                        browser.First($"#repeater_0_{prefix}-disabled").CheckIfIsNotEnabled();
-                        browser.First($"#repeater_1_{prefix}-disabled").CheckIfIsNotEnabled();
+                        AssertUI.IsNotEnabled(browser.First($"#{prefix}1-disabled"));
+                        AssertUI.IsNotEnabled(browser.First($"#{prefix}2-disabled"));
+                        AssertUI.IsNotEnabled(browser.First($"#repeater_0_{prefix}-disabled"));
+                        AssertUI.IsNotEnabled(browser.First($"#repeater_1_{prefix}-disabled"));
 
                         // These should be changed by the Toggle button
                         if (enabled)
                         {
-                            browser.First($"#{prefix}1-default").CheckIfIsEnabled();
-                            browser.First($"#{prefix}2-default").CheckIfIsEnabled();
+                            AssertUI.IsEnabled(browser.First($"#{prefix}1-default"));
+                            AssertUI.IsEnabled(browser.First($"#{prefix}2-default"));
                         }
                         else
                         {
-                            browser.First($"#{prefix}1-default").CheckIfIsNotEnabled();
-                            browser.First($"#{prefix}2-default").CheckIfIsNotEnabled();
+                            AssertUI.IsNotEnabled(browser.First($"#{prefix}1-default"));
+                            AssertUI.IsNotEnabled(browser.First($"#{prefix}2-default"));
                         }
 
                         // These are overriden by the repeater
-                        browser.First($"#repeater_0_{prefix}-default").CheckIfIsNotEnabled();
-                        browser.First($"#repeater_1_{prefix}-default").CheckIfIsEnabled();
+                        AssertUI.IsNotEnabled(browser.First($"#repeater_0_{prefix}-default"));
+                        AssertUI.IsEnabled(browser.First($"#repeater_1_{prefix}-default"));
                     }
                     browser.First("#toggle").Click().Wait();
                     enabled = !enabled;
@@ -89,7 +83,7 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
-        private void TestLinkButton(IBrowserWrapperFluentApi browser, string id, bool shouldBeEnabled, ref int currentPresses)
+        private void TestLinkButton(IBrowserWrapper browser, string id, bool shouldBeEnabled, ref int currentPresses)
         {
             browser.First($"#{id}").Click();
             if (shouldBeEnabled)
@@ -97,8 +91,11 @@ namespace DotVVM.Samples.Tests.Feature
                 currentPresses++;
             }
 
-            browser.First("#linkbuttons-pressed").CheckIfInnerTextEquals(currentPresses.ToString());
+            AssertUI.InnerTextEquals(browser.First("#linkbuttons-pressed"), currentPresses.ToString());
         }
 
+        public FormControlsEnabledTests(ITestOutputHelper output) : base(output)
+        {
+        }
     }
 }

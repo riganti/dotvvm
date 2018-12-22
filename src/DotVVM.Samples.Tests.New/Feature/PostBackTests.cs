@@ -1,22 +1,11 @@
-﻿using OpenQA.Selenium;
-using OpenQA.Selenium.Interactions;
-
-using System;
-using System.Globalization;
-using System.Linq;
-using System.Runtime.Remoting.Messaging;
-using System.Text.RegularExpressions;
-using System.Threading;
-using DotVVM.Samples.Tests.New;
-using DotVVM.Testing.Abstractions;
+﻿using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
 using Xunit;
 using Xunit.Abstractions;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
-
-namespace DotVVM.Samples.Tests.Feature
+namespace DotVVM.Samples.Tests.New.Feature
 {
     public class PostBackTests : AppSeleniumTest
     {
@@ -77,7 +66,6 @@ namespace DotVVM.Samples.Tests.Feature
         public void Feature_PostBack_PostBackHandlers_Localization()
         {
             RunInAllBrowsers(browser => {
-
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostBack_PostBackHandlers_Localization);
                 ValidatePostbackHandlersComplexSection(".commandBinding", browser);
 
@@ -86,7 +74,7 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
-        private  void ValidatePostbackHandlersComplexSection(string sectionSelector, IBrowserWrapper browser)
+        private void ValidatePostbackHandlersComplexSection(string sectionSelector, IBrowserWrapper browser)
         {
             IElementWrapper section = null;
             browser.WaitFor(() => {
@@ -206,7 +194,6 @@ namespace DotVVM.Samples.Tests.Feature
         public void Feature_PostBack_SuppressPostBackHandler()
         {
             RunInAllBrowsers(browser => {
-
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostBack_SuppressPostBackHandler);
 
                 var counter = browser.First("span[data-ui=counter]");

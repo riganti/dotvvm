@@ -1,9 +1,8 @@
-﻿using DotVVM.Samples.Tests.New;
-using DotVVM.Testing.Abstractions;
+﻿using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
 using Xunit;
 
-namespace DotVVM.Samples.Tests.Feature
+namespace DotVVM.Samples.Tests.New.Feature
 {
     public class GenericTypesTests : AppSeleniumTest
     {

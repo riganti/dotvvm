@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Globalization;
-using DotVVM.Samples.Tests.New;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace DotVVM.Samples.Tests.Feature
-{   
+namespace DotVVM.Samples.Tests.New.Feature
+{
     public class DateTimeSerializationTests : AppSeleniumTest
     {
         public DateTimeSerializationTests(ITestOutputHelper output) : base(output)
@@ -20,8 +19,7 @@ namespace DotVVM.Samples.Tests.Feature
             var culture = new CultureInfo("cs-CZ");
             CultureInfo.CurrentCulture = new CultureInfo("en");
 
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_DateTimeSerialization_DateTimeSerialization);
                 browser.WaitFor(() => browser.FindElements("input[type=text]").ThrowIfSequenceEmpty(), 5000);
 
@@ -35,14 +33,14 @@ namespace DotVVM.Samples.Tests.Feature
 
                 AssertUI.InnerText(browser.ElementAt("span", 0),
                     s => DateTime.Parse(s).Equals(DateTime.MinValue));
-                
+
                 // verify the second date
                 browser.ElementAt("input[type=text]", 1).Clear().SendKeys("2011-03-19 16:48:17");
                 browser.ElementAt("input[type=button]", 3).Click();
 
                 AssertUI.InnerText(browser.ElementAt("span", 1),
                     s => DateTime.Parse(s).Equals(new DateTime(2011, 3, 19, 16, 48, 0)));
-                
+
                 browser.ElementAt("input[type=text]", 1).Clear().SendKeys("test");
                 browser.ElementAt("input[type=button]", 3).Click();
 
