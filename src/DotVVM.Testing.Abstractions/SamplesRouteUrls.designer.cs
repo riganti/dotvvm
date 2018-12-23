@@ -122,6 +122,7 @@ namespace DotVVM.Testing.Abstractions
         public const string Errors_BindingInvalidCommand = "Errors/BindingInvalidCommand";
         public const string Errors_BindingInvalidProperty = "Errors/BindingInvalidProperty";
         public const string Errors_ControlUsageValidation = "Errors/ControlUsageValidation";
+        public const string Errors_CorruptedContentBetweenContentControls = "Errors/CorruptedContentBetweenContentControls";
         public const string Errors_EmptyBinding = "Errors/EmptyBinding";
         public const string Errors_EncryptedPropertyInValueBinding = "Errors/EncryptedPropertyInValueBinding";
         public const string Errors_FieldInValueBinding = "Errors/FieldInValueBinding";
@@ -170,6 +171,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_HtmlTag_NonPairHtmlTag = "FeatureSamples/HtmlTag/NonPairHtmlTag";
         public const string FeatureSamples_IdGeneration_IdGeneration = "FeatureSamples/IdGeneration/IdGeneration";
         public const string FeatureSamples_JavascriptEvents_JavascriptEvents = "FeatureSamples/JavascriptEvents/JavascriptEvents";
+        public const string FeatureSamples_LiteralBinding_LiteralBinding_Zero = "FeatureSamples/LiteralBinding/LiteralBinding_Zero";
         public const string FeatureSamples_Localization_Localization = "FeatureSamples/Localization/Localization";
         public const string FeatureSamples_Localization_Localization_Control_Page = "FeatureSamples/Localization/Localization_Control_Page";
         public const string FeatureSamples_Localization_Localization_FormatString = "FeatureSamples/Localization/Localization_FormatString";

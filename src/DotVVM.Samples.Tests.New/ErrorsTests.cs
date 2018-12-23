@@ -1,5 +1,4 @@
-﻿
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using System;
 using System.Linq;
@@ -212,7 +211,6 @@ namespace DotVVM.Samples.Tests
             });
         }
 
-
         [Fact]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_Button_InputTypeButton_HtmlContentInside))]
         public void Error_InputTypeButton_HtmlContentInside()
@@ -236,7 +234,6 @@ namespace DotVVM.Samples.Tests
                         );
             });
         }
-
 
         [Fact]
         [SampleReference(nameof(SamplesRouteUrls.Errors_FieldInValueBinding))]
@@ -264,6 +261,22 @@ namespace DotVVM.Samples.Tests
         }
 
         [Fact]
+        public void Error_CorruptedContentBetweenContentControls()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_CorruptedContentBetweenContentControls);
+                AssertUI.InnerText(browser.First("p.summary")
+                    ,
+                    s =>
+                        s.Contains("the page contains @masterpage") &&
+                        s.Contains("Views/Errors/CorruptedContentBetweenContentControls.dothtml") &&
+                        s.Contains("line: 13") &&
+                        s.Contains("line: 15")
+                );
+            });
+        }
+
+        [Fact]
         [SampleReference(nameof(SamplesRouteUrls.Errors_FieldInValueBinding))]
         public void Error_ExceptionWindow_DotNetReferenceSourceRedirect()
         {
@@ -287,10 +300,8 @@ namespace DotVVM.Samples.Tests
                         throw new Exception("The relevant docs page on referencesource.microsoft.com was not found.");
                     }
                 }
-
             });
         }
-
 
         /// <summary>
         /// Tests whether exception contains information about filet that was not found.
@@ -300,7 +311,6 @@ namespace DotVVM.Samples.Tests
         [SampleReference(nameof(SamplesRouteUrls.Errors_Routing_NonExistingView))]
         public void Errors_Routing_NonExistingView()
         {
-            
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_Routing_NonExistingView);
                 AssertUI.InnerText(browser.First(".exceptionMessage"),
@@ -308,7 +318,6 @@ namespace DotVVM.Samples.Tests
                     "Exception should contain information about file that was not found.");
             });
         }
-
 
         [Fact]
         public void Error_UnknownInnerControl()
