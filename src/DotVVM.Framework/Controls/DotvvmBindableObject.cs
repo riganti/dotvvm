@@ -87,12 +87,8 @@ namespace DotVVM.Framework.Controls
             return (T)GetValue(property, inherit);
         }
 
-        /// <summary>
-        /// Gets the value of a specified property.
-        /// </summary>
-        public virtual object GetValue(DotvvmProperty property, bool inherit = true)
+        private protected object EvalPropertyValue(DotvvmProperty property, object value)
         {
-            var value = GetValueRaw(property, inherit);
             if (property.IsBindingProperty) return value;
             while (value is IBinding)
             {
@@ -111,6 +107,12 @@ namespace DotVVM.Framework.Controls
             }
             return value;
         }
+
+        /// <summary>
+        /// Gets the value of a specified property.
+        /// </summary>
+        public virtual object GetValue(DotvvmProperty property, bool inherit = true) =>
+            EvalPropertyValue(property, GetValueRaw(property, inherit));
 
         /// <summary>
         /// Gets the value or a binding object for a specified property.

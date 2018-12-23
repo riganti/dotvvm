@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using DotVVM.Framework.Compilation.Javascript;
+using System.Runtime.CompilerServices;
 
 namespace DotVVM.Framework.Controls
 {
@@ -46,7 +47,6 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     public abstract class DotvvmControl : DotvvmBindableObject, IDotvvmControl
     {
-
         /// <summary>
         /// Gets the child controls.
         /// </summary>
@@ -208,19 +208,41 @@ namespace DotVVM.Framework.Controls
             htmlAttributes.Attributes["data-dotvvm-id"] = GetDotvvmUniqueId();
         }
 
-        /// <summary>
-        /// Renders the control into the specified writer.
-        /// </summary>
-        protected virtual void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
+        protected struct RenderState
         {
-            if (HasBinding<ResourceBindingExpression>(IncludeInPageProperty) && !IncludeInPage)
+            internal object IncludeInPage;
+            internal IValueBinding DataContext;
+            internal bool HasActives;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected static bool TouchProperty(DotvvmProperty property, object val, ref RenderState r)
+        {
+            if (property == DotvvmControl.IncludeInPageProperty)
+                r.IncludeInPage = val;
+            else if (property == DotvvmControl.DataContextProperty)
+                r.DataContext = val as IValueBinding;
+            else if (property is ActiveDotvvmProperty)
+                r.HasActives = true;
+            else return false;
+            return true;
+        }
+        protected bool RenderBeforeControl(in RenderState r, IHtmlWriter writer, IDotvvmRequestContext context)
+        {
+            if (r.IncludeInPage != null && !(r.IncludeInPage is IValueBinding) && !this.IncludeInPage)
+                return true;
+
+            if (r.DataContext != null)
             {
-                return;
+                writer.WriteKnockoutWithComment(r.DataContext.GetKnockoutBindingExpression(Parent));
             }
 
-            RenderBeginWithDataBindAttribute(writer);
+            if (r.IncludeInPage != null)
+            {
+                writer.WriteKnockoutDataBindComment("if", this, IncludeInPageProperty);
+            }
 
-            foreach (var item in properties)
+            if (r.HasActives) foreach (var item in properties)
             {
                 if (item.Key is ActiveDotvvmProperty activeProp)
                 {
@@ -228,12 +250,41 @@ namespace DotVVM.Framework.Controls
                 }
             }
 
+            return false;
+        }
+        protected void RenderAfterControl(in RenderState r, IHtmlWriter writer)
+        {
+            if (r.DataContext != null)
+            {
+                writer.WriteKnockoutDataBindEndComment();
+            }
+
+            if (r.IncludeInPage != null)
+            {
+                writer.WriteKnockoutDataBindEndComment();
+            }
+        }
+
+
+        /// <summary>
+        /// Renders the control into the specified writer.
+        /// </summary>
+        protected virtual void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
+        {
+            RenderState r = default;
+            var ip = GetValueRaw(IncludeInPageProperty);
+            r.IncludeInPage = true.Equals(ip) ? null : ip;
+            this.Properties.TryGetValue(DataContextProperty, out var dc);
+            r.DataContext = dc as IValueBinding;
+            r.HasActives = true;
+            RenderBeforeControl(in r, writer, context);
+
             AddAttributesToRender(writer, context);
             RenderBeginTag(writer, context);
             RenderContents(writer, context);
             RenderEndTag(writer, context);
 
-            RenderEndWithDataBindAttribute(writer);
+            RenderAfterControl(in r, writer);
         }
 
         private void RenderBeginWithDataBindAttribute(IHtmlWriter writer)
