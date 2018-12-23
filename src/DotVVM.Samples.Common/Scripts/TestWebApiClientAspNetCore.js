@@ -347,7 +347,7 @@ var DotVVM;
                                 body: content_,
                                 method: "POST",
                                 headers: new Headers({
-                                    "Content-Type": "application/json"
+                                    "Content-Type": "application/json",
                                 })
                             };
                             return this.transformOptions(options_).then(function (transformedOptions_) {
@@ -437,7 +437,7 @@ var DotVVM;
                                 body: content_,
                                 method: "PUT",
                                 headers: new Headers({
-                                    "Content-Type": "application/json"
+                                    "Content-Type": "application/json",
                                 })
                             };
                             return this.transformOptions(options_).then(function (transformedOptions_) {
@@ -478,7 +478,7 @@ var DotVVM;
                             var options_ = {
                                 method: "DELETE",
                                 headers: new Headers({
-                                    "Content-Type": "application/json"
+                                    "Content-Type": "application/json",
                                 })
                             };
                             return this.transformOptions(options_).then(function (transformedOptions_) {
@@ -910,3 +910,4 @@ var DotVVM;
         })(Common = Samples.Common || (Samples.Common = {}));
     })(Samples = DotVVM.Samples || (DotVVM.Samples = {}));
 })(DotVVM || (DotVVM = {}));
+//# sourceMappingURL=TestWebApiClientAspNetCore.js.map
