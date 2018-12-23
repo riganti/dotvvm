@@ -60,7 +60,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Compiler", "DotVVM.C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.Tests.CompletenessChecker", "DotVVM.Samples.Tests.CompletenessChecker\DotVVM.Samples.Tests.CompletenessChecker.csproj", "{0E656576-9BF6-442B-8714-775276396B6B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.Tests.New", "DotVVM.Samples.Tests.New\DotVVM.Samples.Tests.New.csproj", "{126C5346-0437-48B0-A8B7-8BE46F963C6D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.Tests", "DotVVM.Samples.Tests.New\DotVVM.Samples.Tests.csproj", "{126C5346-0437-48B0-A8B7-8BE46F963C6D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Testing.Abstractions", "DotVVM.Testing.Abstractions\DotVVM.Testing.Abstractions.csproj", "{F35863EA-2C56-4E10-A861-F5AA0633A0CB}"
 EndProject
