@@ -35,12 +35,14 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_TextBox_IntBoundTextBox);
 
+                browser.ElementAt("input", 0).Clear();
                 browser.ElementAt("input", 0).SendKeys("hello");
                 browser.ElementAt("input[type=button]", 0).Click();
                 browser.Wait();
 
-                AssertUI.InnerTextEquals(browser.ElementAt("input", 0), "0");
+                AssertUI.Value(browser.ElementAt("input", 0), "hello");
                 AssertUI.InnerTextEquals(browser.ElementAt("span", 0), "0");
+                AssertUI.TextNotEmpty(browser.FirstOrDefault("#ValidatorMessage"));
             });
         }
 
@@ -95,7 +97,7 @@ window.getSelectionText = function (dataui) {
         } catch (e) {
             console.log('Cant get selection text')
         }
-    } 
+    }
     // For IE
     if (document.selection && document.selection.type != 'Control') {
         return document.selection.createRange().text;
@@ -134,7 +136,6 @@ window.getSelectionText = function (dataui) {
         public void Control_TextBox_StringFormat(string cultureName, string url, string linkSelector)
         {
             RunInAllBrowsers(browser => {
-
                 var culture = new CultureInfo(cultureName);
                 browser.NavigateToUrl(url);
                 browser.First(linkSelector).Click();
@@ -182,7 +183,7 @@ window.getSelectionText = function (dataui) {
                 //write invalid values
                 dateTextBox.Clear().SendKeys("dsasdasd");
                 numberTextbox.Clear().SendKeys("000//a");
-                dateTextBox.Click();    
+                dateTextBox.Click();
 
                 //check invalid values
                 AssertUI.InnerTextEquals(dateText, "");
@@ -210,7 +211,6 @@ window.getSelectionText = function (dataui) {
         private void Control_TextBox_StringFormat_ChangedCommandBinding(string cultureName, string url, string linkSelector)
         {
             RunInAllBrowsers(browser => {
-
                 void ClearInput(IElementWrapper element)
                 {
                     // There is special threatment for TextBox with Changed Command
