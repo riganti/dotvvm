@@ -121,10 +121,11 @@ namespace DotVVM.Samples.Tests.Feature
                     var date1 = browser.First(".id-date1");
                     AssertUI.TextNotEquals(date1, originalDate1);
                     refreshedDate1 = date1.GetText();
-                }, 5000);
+                }, 5000, "#LI :1");
 
                 // test again
                 originalDate1 = refreshedDate1;
+                browser.Wait(1500);
 
                 // click it again - the time changes every second
 
@@ -133,7 +134,7 @@ namespace DotVVM.Samples.Tests.Feature
                     var date1 = browser.First(".id-date1");
                     AssertUI.TextNotEquals(date1, originalDate1);
                     refreshedDate1 = date1.GetText();
-                }, 5000);
+                }, 5000, "#LI :2");
 
                 // click the set data button
                 browser.ElementAt("input[type=button]", 1).Click();
