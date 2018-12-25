@@ -62,7 +62,7 @@ namespace DotVVM.Framework.Binding
 
         private bool TryGetValue(DotvvmBindableObject control, out object value, bool inherit = true)
         {
-            if (control.properties != null && control.properties.TryGetValue(this, out value))
+            if (control.properties.TryGet(this, out value))
             {
                 return true;
             }

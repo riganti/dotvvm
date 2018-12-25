@@ -165,6 +165,7 @@ namespace DotVVM.Framework.Compilation
         {
             using (var ms = new MemoryStream())
             {
+                Console.WriteLine("Compiling view:\n" + compilation.SyntaxTrees[0].GetRoot().NormalizeWhitespace());
                 var result = compilation.Emit(ms);
                 if (result.Success)
                 {
