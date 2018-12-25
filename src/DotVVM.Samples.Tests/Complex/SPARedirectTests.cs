@@ -1,6 +1,8 @@
-﻿using DotVVM.Samples.Tests.Base;
+﻿using System;
+using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
+using Riganti.Selenium.Core.Abstractions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -21,30 +23,30 @@ namespace DotVVM.Samples.Tests.Complex
                 AssertUI.Url(browser, s => s.Contains("/ComplexSamples/SPARedirect/login?ReturnUrl=%2FComplexSamples%2FSPARedirect"));
 
                 // login to the app
-                var loginElement = browser.First("input[type=button]");
-                AssertUI.Attribute(loginElement, "value", "Login");
-                loginElement.Click().Wait(1000);
+                IElementWrapper getLoginElement() => browser.First("input[type=button]");
+                AssertUI.Attribute(getLoginElement(), "value", "Login");
+                getLoginElement().Click().Wait(1000);
 
                 //check url
                 AssertUI.Url(browser, s => s.Contains("ComplexSamples/SPARedirect"));
 
                 // sign out
-                AssertUI.Attribute(loginElement, "value", "Sign Out");
-                loginElement.Click().Wait(1000);
+                AssertUI.Attribute(getLoginElement(), "value", "Sign Out");
+                getLoginElement().Click().Wait(1000);
 
                 //check url
                 AssertUI.Url(browser, s => s.Contains("/ComplexSamples/SPARedirect/login?ReturnUrl=%2FComplexSamples%2FSPARedirect"));
 
                 // login to the app
-                AssertUI.Attribute(loginElement, "value", "Login");
-                loginElement.Click().Wait(1000);
+                AssertUI.Attribute(getLoginElement(), "value", "Login");
+                getLoginElement().Click().Wait(1000);
 
                 //check url
                 AssertUI.Url(browser, s => s.Contains("ComplexSamples/SPARedirect"));
 
                 // sign out
-                AssertUI.Attribute(loginElement, "value", "Sign Out");
-                loginElement.Click().Wait(1000);
+                AssertUI.Attribute(getLoginElement(), "value", "Sign Out");
+                getLoginElement().Click().Wait(1000);
             });
         }
 
