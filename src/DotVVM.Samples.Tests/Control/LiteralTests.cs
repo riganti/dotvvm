@@ -1,14 +1,11 @@
-﻿using DotVVM.Testing.Abstractions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
+using DotVVM.Samples.Tests.Base;
+using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace DotVVM.Samples.Tests.New
+namespace DotVVM.Samples.Tests.Control
 {
     public class LiteralTests : AppSeleniumTest
     {

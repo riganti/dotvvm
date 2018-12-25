@@ -1,12 +1,12 @@
-﻿using Riganti.Selenium.Core;
-using System.Linq;
+﻿using System.Linq;
+using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
+using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
 using Xunit;
 using Xunit.Abstractions;
-using System.Collections.Generic;
 
-namespace DotVVM.Samples.Tests.New.Control
+namespace DotVVM.Samples.Tests.Control
 {
     public class GridViewTests : AppSeleniumTest
     {

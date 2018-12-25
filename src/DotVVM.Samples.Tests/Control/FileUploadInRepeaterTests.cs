@@ -1,16 +1,13 @@
-﻿using DotVVM.Testing.Abstractions;
+﻿using System.IO;
+using System.Linq;
+using DotVVM.Samples.Tests.Base;
+using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.DotVVM;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace DotVVM.Samples.Tests.New
+namespace DotVVM.Samples.Tests.Control
 {
     public class FileUploadInRepeaterTests : AppSeleniumTest
     {

@@ -2,7 +2,7 @@
 
 using System;
 using System.Linq;
-using DotVVM.Samples.Tests.New;
+using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
 using Xunit;

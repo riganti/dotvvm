@@ -1,15 +1,12 @@
-﻿using DotVVM.Testing.Abstractions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
+using DotVVM.Samples.Tests.Base;
+using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
+using Riganti.Selenium.Core.Abstractions;
 using Xunit;
 using Xunit.Abstractions;
-using Riganti.Selenium.Core.Abstractions;
 
-namespace DotVVM.Samples.Tests.New
+namespace DotVVM.Samples.Tests.Control
 {
     public class RepeaterTests : AppSeleniumTest
     {

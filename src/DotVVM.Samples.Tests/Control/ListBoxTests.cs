@@ -1,5 +1,5 @@
-﻿using Riganti.Selenium.Core;
-using DotVVM.Samples.Tests.New;
+﻿using DotVVM.Samples.Tests.Base;
+using Riganti.Selenium.Core;
 using DotVVM.Testing.Abstractions;
 using Xunit;
 using Xunit.Abstractions;

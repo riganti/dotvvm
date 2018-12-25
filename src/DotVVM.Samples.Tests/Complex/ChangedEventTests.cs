@@ -1,18 +1,12 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using DotVVM.Samples.Tests.Base;
+using DotVVM.Testing.Abstractions;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
-using System;
-using System.Globalization;
-using System.Linq;
-using System.Threading;
-using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
-using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
 
-
-namespace DotVVM.Samples.Tests.New.Complex
+namespace DotVVM.Samples.Tests.Complex
 {
     public class ChangedEventTests : AppSeleniumTest
     {

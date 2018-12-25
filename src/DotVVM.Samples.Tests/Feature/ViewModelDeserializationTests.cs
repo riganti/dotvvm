@@ -1,17 +1,10 @@
-﻿
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Selenium.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DotVVM.Samples.Tests.New;
+﻿using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
-using Xunit.Abstractions;
+using Riganti.Selenium.Core;
 using Xunit;
+using Xunit.Abstractions;
 
-namespace DotVVM.Samples.Tests.New.Feature
+namespace DotVVM.Samples.Tests.Feature
 {
     public class ViewModelDeserializationTests : AppSeleniumTest
     {

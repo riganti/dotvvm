@@ -1,11 +1,12 @@
-﻿using DotVVM.Testing.Abstractions;
+﻿using DotVVM.Samples.Tests.Base;
+using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
 using Riganti.Selenium.Core.Abstractions.Exceptions;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace DotVVM.Samples.Tests.New.Complex
+namespace DotVVM.Samples.Tests.Complex
 {
     public class ServerRenderingTests : AppSeleniumTest
     {

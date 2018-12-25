@@ -1,12 +1,13 @@
 ﻿using System.IO;
 using System.Linq;
-using Xunit;
-using Xunit.Abstractions;
+using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.DotVVM;
+using Xunit;
+using Xunit.Abstractions;
 
-namespace DotVVM.Samples.Tests.New
+namespace DotVVM.Samples.Tests.Control
 {
     public class FileUploadTests : AppSeleniumTest
     {

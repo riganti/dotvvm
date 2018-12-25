@@ -1,10 +1,10 @@
-﻿using Riganti.Selenium.Core;
-using DotVVM.Samples.Tests.New;
+﻿using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
+using Riganti.Selenium.Core;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace DotVVM.Samples.Tests.New.Control
+namespace DotVVM.Samples.Tests.Control
 {
     public class ComboBoxTests : AppSeleniumTest
     {

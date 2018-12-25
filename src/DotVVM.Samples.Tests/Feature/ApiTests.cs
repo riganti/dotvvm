@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
+using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
-using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace DotVVM.Samples.Tests.New.Feature
+namespace DotVVM.Samples.Tests.Feature
 {
     public class ApiTests : AppSeleniumTest
     {

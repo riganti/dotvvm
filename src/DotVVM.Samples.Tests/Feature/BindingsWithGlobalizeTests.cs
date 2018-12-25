@@ -1,11 +1,11 @@
-﻿using DotVVM.Testing.Abstractions;
-using OpenQA.Selenium;
+﻿using DotVVM.Samples.Tests.Base;
+using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace DotVVM.Samples.Tests.New.Feature
+namespace DotVVM.Samples.Tests.Feature
 {
     public class BindingsWithGlobalizeTests : AppSeleniumTest
     {

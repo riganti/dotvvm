@@ -1,8 +1,9 @@
-﻿using DotVVM.Testing.Abstractions;
+﻿using DotVVM.Samples.Tests.Base;
+using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
 using Xunit;
 
-namespace DotVVM.Samples.Tests.New.Feature
+namespace DotVVM.Samples.Tests.Feature
 {
     public class CommandArgumentsTests : AppSeleniumTest
     {

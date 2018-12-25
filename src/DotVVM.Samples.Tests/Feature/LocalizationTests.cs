@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Threading;
+using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using OpenQA.Selenium;
 using Riganti.Selenium.Core;
@@ -8,7 +9,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
-namespace DotVVM.Samples.Tests.New.Feature
+namespace DotVVM.Samples.Tests.Feature
 {
     public class LocalizationTests : AppSeleniumTest
     {

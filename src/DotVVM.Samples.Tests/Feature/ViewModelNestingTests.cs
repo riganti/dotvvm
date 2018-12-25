@@ -1,12 +1,11 @@
-﻿using DotVVM.Samples.Tests.New;
+﻿using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace DotVVM.Samples.Tests.New.Feature
+namespace DotVVM.Samples.Tests.Feature
 {
     public class ViewModelNestingTests : AppSeleniumTest
     {

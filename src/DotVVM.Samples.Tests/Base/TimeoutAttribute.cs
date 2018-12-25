@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DotVVM.Samples.Tests.New
+namespace DotVVM.Samples.Tests.Base
 {
     public class TimeoutAttribute : Attribute
     {

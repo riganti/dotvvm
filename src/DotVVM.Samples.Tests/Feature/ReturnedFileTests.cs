@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using OpenQA.Selenium;
 using Riganti.Selenium.Core.Abstractions;
@@ -6,7 +7,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
-namespace DotVVM.Samples.Tests.New.Feature
+namespace DotVVM.Samples.Tests.Feature
 {
     public class ReturnedFileTests : AppSeleniumTest
     {
