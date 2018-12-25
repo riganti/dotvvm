@@ -13,8 +13,7 @@ namespace DotVVM.Samples.Tests.Feature
         [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_Api_GithubRepoApi))]
         public void Feature_Api_GithubRepoApi()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Api_GithubRepoApi);
                 browser.Wait(2000);
 
@@ -56,10 +55,12 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Api_GetCollection);
-                browser.Wait(2000);
 
                 // click the first button (ID = 11)
-                browser.First(".id-company[data-company-id='11'] input[type=button]").Click().Wait();
+                browser.WaitFor(() => {
+                    browser.First(".id-company[data-company-id='11'] input[type=button]").Click()
+                        .Wait();
+                }, 10000, "Cannot find CompanyID = 11. Probably data are not loaded. (The page did not load in 5s.)");
 
                 // ensure that orders have been loaded
                 var orders = browser.FindElements(".id-order");
@@ -104,25 +105,43 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Api_AzureFunctionsApi);
-                browser.Wait(2000);
+                string originalDate1 = null;
+                string refreshedDate1 = null;
+
+                browser.WaitFor(() => {
+                    var date1 = browser.First(".id-date1");
+                    AssertUI.TextNotEmpty(date1);
+                    originalDate1 = date1.GetText();
+                }, 5000, "Page did not loaded in 5s.");
 
                 // click the get data button
-                var originalDate1 = browser.First(".id-date1").GetText();
-                browser.First("input[type=button]").Click().Wait();
-                var refreshedDate1 = browser.First(".id-date1").GetText();
-                Assert.NotEqual(originalDate1, refreshedDate1);
+                browser.First("input[type=button]").Click();
+
+                browser.WaitFor(() => {
+                    var date1 = browser.First(".id-date1");
+                    AssertUI.TextNotEquals(date1, originalDate1);
+                    refreshedDate1 = date1.GetText();
+                }, 5000);
+
+                // test again
+                originalDate1 = refreshedDate1;
 
                 // click it again - the time changes every second
-                originalDate1 = refreshedDate1;
-                browser.Wait(1500);
-                browser.First("input[type=button]").Click().Wait();
-                refreshedDate1 = browser.First(".id-date1").GetText();
-                Assert.NotEqual(originalDate1, refreshedDate1);
+
+                browser.First("input[type=button]").Click();
+                browser.WaitFor(() => {
+                    var date1 = browser.First(".id-date1");
+                    AssertUI.TextNotEquals(date1, originalDate1);
+                    refreshedDate1 = date1.GetText();
+                }, 5000);
 
                 // click the set data button
-                browser.ElementAt("input[type=button]", 1).Click().Wait();
-                var refreshedDate2 = browser.First(".id-date2").GetText();
-                Assert.Equal(refreshedDate1, refreshedDate2);
+                browser.ElementAt("input[type=button]", 1).Click();
+
+                browser.WaitFor(() => {
+                    var date2 = browser.First(".id-date2");
+                    AssertUI.TextEquals(date2, refreshedDate1);
+                }, 5000);
             });
         }
 
