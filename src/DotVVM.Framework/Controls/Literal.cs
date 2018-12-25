@@ -150,7 +150,8 @@ namespace DotVVM.Framework.Controls
 
             r.HtmlState.RendersHtmlTag = r.RenderSpanElement;
 
-            base.RenderBeforeControl(in r.BaseState, writer, context);
+            if (base.RenderBeforeControl(in r.BaseState, writer, context))
+                return;
 
             base.AddAttributesCore(writer, ref r.HtmlState);
 

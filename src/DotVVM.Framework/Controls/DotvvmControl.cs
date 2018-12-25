@@ -227,6 +227,7 @@ namespace DotVVM.Framework.Controls
             else return false;
             return true;
         }
+        /// <returns>true means that rendering of the rest of this control should be skipped</returns>
         protected bool RenderBeforeControl(in RenderState r, IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (r.IncludeInPage != null && !(r.IncludeInPage is IValueBinding) && !this.IncludeInPage)
@@ -237,9 +238,9 @@ namespace DotVVM.Framework.Controls
                 writer.WriteKnockoutWithComment(r.DataContext.GetKnockoutBindingExpression(Parent));
             }
 
-            if (r.IncludeInPage != null)
+            if (r.IncludeInPage != null && r.IncludeInPage is IValueBinding binding)
             {
-                writer.WriteKnockoutDataBindComment("if", this, IncludeInPageProperty);
+                writer.WriteKnockoutDataBindComment("if", binding.GetKnockoutBindingExpression(this));
             }
 
             if (r.HasActives) foreach (var item in properties)
@@ -277,7 +278,8 @@ namespace DotVVM.Framework.Controls
             this.Properties.TryGetValue(DataContextProperty, out var dc);
             r.DataContext = dc as IValueBinding;
             r.HasActives = true;
-            RenderBeforeControl(in r, writer, context);
+            if (RenderBeforeControl(in r, writer, context))
+                return;
 
             AddAttributesToRender(writer, context);
             RenderBeginTag(writer, context);
