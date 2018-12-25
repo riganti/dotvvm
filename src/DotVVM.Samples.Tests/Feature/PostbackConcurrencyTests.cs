@@ -64,7 +64,6 @@ namespace DotVVM.Samples.Tests.Feature
         public void Feature_PostbackConcurrency_QueueMode(string longActionSelector, string shortActionSelector)
         {
             RunInAllBrowsers(browser => {
-
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostbackConcurrency_QueueMode);
 
                 // try the long action than queue another long action and short action
@@ -100,12 +99,11 @@ namespace DotVVM.Samples.Tests.Feature
         public void Feature_PostbackConcurrency_DenyMode(string longActionSelector, string shortActionSelector)
         {
             RunInAllBrowsers(browser => {
-
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostbackConcurrency_DenyMode);
 
                 // try the long action than queue the short action which should fail
                 browser.Single(longActionSelector).Click();
-                browser.Wait(500);
+                browser.Wait(250);
                 browser.Single(shortActionSelector).Click();
 
                 var postbackIndexSpan = browser.Single("span[data-ui=postback-index]");
@@ -115,11 +113,11 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.InnerTextEquals(postbackIndexSpan, "0");
                 AssertUI.InnerTextEquals(lastActionSpan, string.Empty);
 
-                browser.Wait(4000);
-
-                // the long action should be finished and the short action should be interrupted with no effect
-                AssertUI.InnerTextEquals(postbackIndexSpan, "1");
-                AssertUI.InnerTextEquals(lastActionSpan, "long");
+                browser.WaitFor(() => {
+                    // the long action should be finished and the short action should be interrupted with no effect
+                    AssertUI.InnerTextEquals(postbackIndexSpan, "1");
+                    AssertUI.InnerTextEquals(lastActionSpan, "long");
+                }, 6000);
             });
         }
     }
