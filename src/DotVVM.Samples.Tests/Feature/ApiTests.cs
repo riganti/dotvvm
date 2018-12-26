@@ -60,7 +60,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.WaitFor(() => {
                     browser.First(".id-company[data-company-id='11'] input[type=button]").Click()
                         .Wait();
-                }, 10000, "Cannot find CompanyID = 11. Probably data are not loaded. (The page did not load in 5s.)");
+                }, 30000, "Cannot find CompanyID = 11. Probably data are not loaded. (The page did not load in 5s.)");
 
                 // ensure that orders have been loaded
                 var orders = browser.FindElements(".id-order");
@@ -112,7 +112,7 @@ namespace DotVVM.Samples.Tests.Feature
                     var date1 = browser.First(".id-date1");
                     AssertUI.TextNotEmpty(date1);
                     originalDate1 = date1.GetText();
-                }, 5000, "Page did not loaded in 5s.");
+                }, 15000, "Page did not loaded in 15s.");
 
                 // click the get data button
                 browser.First("input[type=button]").Click();
