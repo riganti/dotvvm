@@ -73,7 +73,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.First($".id-order[data-order-id='{idToDelete}'] input[type=button][value=Delete]").Click().Wait();
                 orders = browser.FindElements(".id-order");
                 AssertUI.Any(orders).Attribute("data-order-id", "6");
-                Assert.DoesNotContain(orders, o => o.GetAttribute("data-order-id") == idToDelete);
+                AssertUI.All(orders).Attribute("data-order-id", s => s != idToDelete);
 
                 // click the second button (ID = 12)
                 browser.First(".id-company[data-company-id='12'] input[type=button]").Click().Wait();
