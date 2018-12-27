@@ -2,6 +2,7 @@
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
+using Riganti.Selenium.Core.Api;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -64,13 +65,14 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // ensure that orders have been loaded
                 var orders = browser.FindElements(".id-order");
-                Assert.Contains(orders, o => o.GetAttribute("data-order-id") == "6");
+                AssertUI.Any(orders).Attribute("data-order-id", "6");
+
                 var idToDelete = orders[2].GetAttribute("data-order-id");       // every order has two elements (read-only and edit)
 
                 // delete order (ID = 7)
                 browser.First($".id-order[data-order-id='{idToDelete}'] input[type=button][value=Delete]").Click().Wait();
                 orders = browser.FindElements(".id-order");
-                Assert.Contains(orders, o => o.GetAttribute("data-order-id") == "6");
+                AssertUI.Any(orders).Attribute("data-order-id", "6");
                 Assert.DoesNotContain(orders, o => o.GetAttribute("data-order-id") == idToDelete);
 
                 // click the second button (ID = 12)
@@ -78,8 +80,8 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // ensure that orders have been loaded
                 orders = browser.FindElements(".id-order");
-                Assert.Contains(orders, o => o.GetAttribute("data-order-id") == "2");
-                Assert.Contains(orders, o => o.GetAttribute("data-order-id") == "9");
+                AssertUI.Any(orders).Attribute("data-order-id", "2");
+                AssertUI.Any(orders).Attribute("data-order-id", "9");
 
                 // edit order (ID = 2)
                 browser.First(".id-order[data-order-id='2'] input[type=button][value=Edit]").Click().Wait();
