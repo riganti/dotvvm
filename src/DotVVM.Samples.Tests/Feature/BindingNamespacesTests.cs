@@ -1,22 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
+using Riganti.Selenium.Core;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace DotVVM.Samples.Tests.Feature
 {
-    [TestClass]
     public class BindingNamespacesTests : AppSeleniumTest
     {
-        [TestMethod]
+        [Fact]
         public void Feature_BindingNamespaces_BindingUsingNamespace()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_BindingNamespaces_BindingUsingNamespace);
 
                 var dataUis = new[]
@@ -30,9 +25,13 @@ namespace DotVVM.Samples.Tests.Feature
 
                 foreach (var dataUi in dataUis)
                 {
-                    browser.Single($"[data-ui='{dataUi}']").CheckIfTextEquals("Works");
+                    AssertUI.TextEquals(browser.Single($"[data-ui='{dataUi}']"), "Works");
                 }
             });
+        }
+
+        public BindingNamespacesTests(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

@@ -1,21 +1,15 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OpenQA.Selenium;
-using OpenQA.Selenium.Interactions;
-using Riganti.Selenium.Core;
-using System;
-using System.Globalization;
-using System.Linq;
-using System.Threading;
+﻿using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
-using Riganti.Selenium.DotVVM;
-
+using OpenQA.Selenium;
+using Riganti.Selenium.Core;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace DotVVM.Samples.Tests.Feature
 {
-    [TestClass]
     public class BindingContextsTests : AppSeleniumTest
     {
-        [TestMethod]
+        [Fact]
         public void Feature_BindingContexts_BindingContext()
         {
             RunInAllBrowsers(browser => {
@@ -28,26 +22,30 @@ namespace DotVVM.Samples.Tests.Feature
                     var link = browser.ElementAt("a", i);
                     link.Click();
                     browser.WaitFor(() => {
-                        browser.Single(".result").CheckIfInnerTextEquals(link.GetInnerText());
+                        AssertUI.InnerTextEquals(browser.Single(".result"), link.GetInnerText());
                     }, 3000, 50);
                 }
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void Feature_BindingContexts_CollectionContext()
         {
             RunInAllBrowsers(browser => {
-                foreach (var a in new [] { "Client", "Server" })
+                foreach (var a in new[] { "Client", "Server" })
                 {
                     browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_BindingContexts_CollectionContext + $"?renderMode={a}");
                     browser.Wait(1000);
 
                     var elements = browser.FindElements(By.ClassName("collection-index"));
                     elements.ThrowIfSequenceEmpty();
-                    elements.ForEach(e => e.CheckIfInnerTextEquals(elements.IndexOf(e).ToString()));
+                    elements.ForEach(e => AssertUI.InnerTextEquals(e, elements.IndexOf(e).ToString()));
                 }
             });
+        }
+
+        public BindingContextsTests(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

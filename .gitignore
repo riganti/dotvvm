@@ -200,6 +200,4 @@ FakesAssemblies/
 /.idea
 /src/.idea
 
-
-/src/DotVVM.Samples.Common/Scripts/GithubApiClient.js
 /src/DotVVM.Samples.BasicSamples.Api.AspNetCore/temp/returnedFiles

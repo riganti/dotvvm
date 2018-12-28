@@ -1,23 +1,28 @@
 ﻿using System.Linq;
+using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Riganti.Selenium.Core;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace DotVVM.Samples.Tests.Control
 {
-    [TestClass]
     public class EnvironmentViewTests : AppSeleniumTest
     {
-        [TestMethod]
+        [Fact]
         public void Control_EnvironmentView_EnvironmentViewTest()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_EnvironmentView_EnvironmentViewTest);
 
-                browser.FindElements(".result1").ThrowIfDifferentCountThan(1).First().CheckIfInnerTextEquals("Development or Production environment!");
-                browser.FindElements(".result2").ThrowIfDifferentCountThan(1).First().CheckIfInnerTextEquals("Not Staging environment!");
+                AssertUI.InnerTextEquals(browser.FindElements(".result1").ThrowIfDifferentCountThan(1).First(), "Development or Production environment!");
+                AssertUI.InnerTextEquals(browser.FindElements(".result2").ThrowIfDifferentCountThan(1).First(), "Not Staging environment!");
             });
+        }
+
+        public EnvironmentViewTests(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

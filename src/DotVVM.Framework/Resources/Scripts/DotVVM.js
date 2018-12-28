@@ -305,6 +305,13 @@ var DotvvmFileSize = /** @class */ (function () {
 var DotvvmGlobalize = /** @class */ (function () {
     function DotvvmGlobalize() {
     }
+    DotvvmGlobalize.prototype.getGlobalize = function () {
+        var g = window["dotvvm_Globalize"];
+        if (!g) {
+            throw new Error("Resource 'globalize' is not included (symbol 'dotvvm_Globalize' could not be found).\nIt is usually included automatically when needed, but sometime it's not possible, so you will have to include it in your page using '<dot:RequiredResource Name=\"globalize\" />'");
+        }
+        return g;
+    };
     DotvvmGlobalize.prototype.format = function (format) {
         var _this = this;
         var values = [];
@@ -335,7 +342,7 @@ var DotvvmGlobalize = /** @class */ (function () {
         if (format === "" || format === null) {
             format = "G";
         }
-        return dotvvm_Globalize.format(value, format, dotvvm.culture);
+        return this.getGlobalize().format(value, format, dotvvm.culture);
     };
     DotvvmGlobalize.prototype.parseDotvvmDate = function (value) {
         var match = value.match("^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(\\.[0-9]{3,7})$");
@@ -345,10 +352,10 @@ var DotvvmGlobalize = /** @class */ (function () {
         return null;
     };
     DotvvmGlobalize.prototype.parseNumber = function (value) {
-        return dotvvm_Globalize.parseFloat(value, 10, dotvvm.culture);
+        return this.getGlobalize().parseFloat(value, 10, dotvvm.culture);
     };
     DotvvmGlobalize.prototype.parseDate = function (value, format, previousValue) {
-        return dotvvm_Globalize.parseDate(value, format, dotvvm.culture, previousValue);
+        return this.getGlobalize().parseDate(value, format, dotvvm.culture, previousValue);
     };
     DotvvmGlobalize.prototype.bindingDateToString = function (value, format) {
         var _this = this;
@@ -363,7 +370,7 @@ var DotvvmGlobalize = /** @class */ (function () {
         var formatDate = function () {
             var unwrappedVal = unwrapDate();
             if (unwrappedVal != null) {
-                return dotvvm_Globalize.format(unwrappedVal, format, dotvvm.culture);
+                return _this.getGlobalize().format(unwrappedVal, format, dotvvm.culture);
             }
             return "";
         };
@@ -374,7 +381,7 @@ var DotvvmGlobalize = /** @class */ (function () {
             } : value;
             return ko.pureComputed({
                 read: function () { return formatDate(); },
-                write: function (val) { return setter_1(dotvvm_Globalize.parseDate(val, format, dotvvm.culture)); }
+                write: function (val) { return setter_1(_this.getGlobalize().parseDate(val, format, dotvvm.culture)); }
             });
         }
         else {
@@ -394,7 +401,7 @@ var DotvvmGlobalize = /** @class */ (function () {
         var formatNumber = function () {
             var unwrappedVal = unwrapNumber();
             if (unwrappedVal != null) {
-                return dotvvm_Globalize.format(unwrappedVal, format, dotvvm.culture);
+                return _this.getGlobalize().format(unwrappedVal, format, dotvvm.culture);
             }
             return "";
         };
@@ -402,7 +409,7 @@ var DotvvmGlobalize = /** @class */ (function () {
             return ko.pureComputed({
                 read: function () { return formatNumber(); },
                 write: function (val) {
-                    var parsedFloat = dotvvm_Globalize.parseFloat(val, 10, dotvvm.culture), isValid = val == null || (parsedFloat != null && !isNaN(parsedFloat));
+                    var parsedFloat = _this.getGlobalize().parseFloat(val, 10, dotvvm.culture), isValid = val == null || (parsedFloat != null && !isNaN(parsedFloat));
                     value(isValid ? parsedFloat : null);
                 }
             });
@@ -467,12 +474,14 @@ var DotvvmSerialization = /** @class */ (function () {
         if (typeof (viewModel) == "undefined" || viewModel == null) {
             if (ko.isObservable(target)) {
                 target(viewModel);
+                return target;
             }
             return viewModel;
         }
         if (typeof (viewModel) == "string" || typeof (viewModel) == "number" || typeof (viewModel) == "boolean") {
             if (ko.isObservable(target)) {
                 target(viewModel);
+                return target;
             }
             return viewModel;
         }
@@ -480,6 +489,7 @@ var DotvvmSerialization = /** @class */ (function () {
             viewModel = dotvvm.serialization.serializeDate(viewModel);
             if (ko.isObservable(target)) {
                 target(viewModel);
+                return target;
             }
             return viewModel;
         }
@@ -1170,8 +1180,8 @@ var DotVVM = /** @class */ (function () {
     DotVVM.prototype.sortHandlers = function (handlers) {
         var getHandler = (function () {
             var handlerMap = {};
-            for (var _i = 0, handlers_2 = handlers; _i < handlers_2.length; _i++) {
-                var h = handlers_2[_i];
+            for (var _i = 0, handlers_1 = handlers; _i < handlers_1.length; _i++) {
+                var h = handlers_1[_i];
                 if (h.name != null) {
                     handlerMap[h.name] = h;
                 }
@@ -1179,8 +1189,8 @@ var DotVVM = /** @class */ (function () {
             return function (s) { return typeof s == "string" ? handlerMap[s] : s; };
         })();
         var dependencies = handlers.map(function (handler, i) { return (handler["@sort_index"] = i, ({ handler: handler, deps: (handler.after || []).map(getHandler) })); });
-        for (var _i = 0, handlers_1 = handlers; _i < handlers_1.length; _i++) {
-            var h = handlers_1[_i];
+        for (var _i = 0, handlers_2 = handlers; _i < handlers_2.length; _i++) {
+            var h = handlers_2[_i];
             if (h.before)
                 for (var _a = 0, _b = h.before.map(getHandler); _a < _b.length; _a++) {
                     var before = _b[_a];
@@ -1854,7 +1864,6 @@ var DotVVM = /** @class */ (function () {
         ko.virtualElements.allowedBindings["dotvvm-SSR-foreach"] = true;
         ko.bindingHandlers["dotvvm-SSR-foreach"] = {
             init: function (element, valueAccessor, _allBindings, _viewModel, bindingContext) {
-                var _a;
                 if (!bindingContext)
                     throw new Error();
                 var value = valueAccessor();
@@ -1862,6 +1871,7 @@ var DotVVM = /** @class */ (function () {
                 element.innerBindingContext = innerBindingContext;
                 ko.applyBindingsToDescendants(innerBindingContext, element);
                 return { controlsDescendantBindings: true }; // do not apply binding again
+                var _a;
             }
         };
         ko.virtualElements.allowedBindings["dotvvm-SSR-item"] = true;
@@ -1880,7 +1890,6 @@ var DotVVM = /** @class */ (function () {
         ko.virtualElements.allowedBindings["withGridViewDataSet"] = true;
         ko.bindingHandlers["withGridViewDataSet"] = {
             init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
-                var _a;
                 if (!bindingContext)
                     throw new Error();
                 var value = valueAccessor();
@@ -1888,6 +1897,7 @@ var DotVVM = /** @class */ (function () {
                 element.innerBindingContext = innerBindingContext;
                 ko.applyBindingsToDescendants(innerBindingContext, element);
                 return { controlsDescendantBindings: true }; // do not apply binding again
+                var _a;
             },
             update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
             }
@@ -2211,16 +2221,13 @@ var DotvvmEnforceClientFormatValidator = /** @class */ (function (_super) {
     DotvvmEnforceClientFormatValidator.prototype.isValid = function (context, property) {
         // parameters order: AllowNull, AllowEmptyString, AllowEmptyStringOrWhitespaces
         var valid = true;
-        if (!context.parameters[0] && context.valueToValidate == null) // AllowNull
-         {
+        if (!context.parameters[0] && context.valueToValidate == null) {
             valid = false;
         }
-        if (!context.parameters[1] && context.valueToValidate.length === 0) // AllowEmptyString
-         {
+        if (!context.parameters[1] && context.valueToValidate.length === 0) {
             valid = false;
         }
-        if (!context.parameters[2] && this.isEmpty(context.valueToValidate)) // AllowEmptyStringOrWhitespaces
-         {
+        if (!context.parameters[2] && this.isEmpty(context.valueToValidate)) {
             valid = false;
         }
         var metadata = this.getValidationMetadata(property);

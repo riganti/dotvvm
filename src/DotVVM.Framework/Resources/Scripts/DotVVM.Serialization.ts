@@ -15,12 +15,14 @@ class DotvvmSerialization {
         if (typeof (viewModel) == "undefined" || viewModel == null) {
             if (ko.isObservable(target)) {
                 target(viewModel);
+                return target;
             }
             return viewModel;
         }
         if (typeof (viewModel) == "string" || typeof (viewModel) == "number" || typeof (viewModel) == "boolean") {
             if (ko.isObservable(target)) {
                 target(viewModel);
+                return target;
             }
             return viewModel;
         }
@@ -28,6 +30,7 @@ class DotvvmSerialization {
             viewModel = dotvvm.serialization.serializeDate(viewModel);
             if (ko.isObservable(target)) {
                 target(viewModel);
+                return target;
             }
             return viewModel;
         }

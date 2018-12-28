@@ -1,0 +1,17 @@
+﻿{
+  "factories": {
+    "firefox:fast": {}
+  },
+  "baseUrls": [
+    "http://localhost:16018/"
+  ],
+  "testRunOptions": {
+    "runInParallel": true,
+    "testAttemptsCount": 2
+  },
+  "logging": {
+    "loggers": {
+      "testContext": {}
+    }
+  }
+}
