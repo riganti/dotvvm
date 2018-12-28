@@ -15,12 +15,14 @@ namespace DotVVM.Compiler.Compilation
             this.serializerObjectName = serializerObjectName;
         }
 
-        public override ExpressionSyntax EmitValueReference(object value)
-        {
-            var field = objSerializer.AddObject(value);
-            return SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
-                SyntaxFactory.ParseTypeName(serializerObjectName),
-                SyntaxFactory.IdentifierName(field));
-        }
+        // 
+
+        // public override ExpressionSyntax EmitValueReference(object value)
+        // {
+        //     var field = objSerializer.AddObject(value);
+        //     return SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
+        //         SyntaxFactory.ParseTypeName(serializerObjectName),
+        //         SyntaxFactory.IdentifierName(field));
+        // }
     }
 }
