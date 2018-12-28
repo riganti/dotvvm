@@ -15,7 +15,7 @@ namespace DotVVM.Compiler.Compilation
             this.serializerObjectName = serializerObjectName;
         }
 
-        // 
+        // TODO: this needs to be restored in order to fix the emitting feature of DotVVM.Compiler
 
         // public override ExpressionSyntax EmitValueReference(object value)
         // {
