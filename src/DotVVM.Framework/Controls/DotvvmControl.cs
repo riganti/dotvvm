@@ -179,7 +179,7 @@ namespace DotVVM.Framework.Controls
         {
             this.Children.ValidateParentsLifecycleEvents(); // debug check
 
-            if (Properties.ContainsKey(PostBack.UpdateProperty))
+            if (properties.Contains(PostBack.UpdateProperty))
             {
                 AddDotvvmUniqueIdAttribute();
             }
@@ -275,7 +275,7 @@ namespace DotVVM.Framework.Controls
             RenderState r = default;
             var ip = GetValueRaw(IncludeInPageProperty);
             r.IncludeInPage = true.Equals(ip) ? null : ip;
-            this.Properties.TryGetValue(DataContextProperty, out var dc);
+            this.properties.TryGet(DataContextProperty, out var dc);
             r.DataContext = dc as IValueBinding;
             r.HasActives = true;
             if (RenderBeforeControl(in r, writer, context))
