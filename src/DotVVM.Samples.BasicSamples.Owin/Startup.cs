@@ -9,6 +9,7 @@ using Microsoft.Owin;
 using Microsoft.Owin.Security.Cookies;
 using Owin;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Routing;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
 using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand;
 using DotVVM.Samples.Common;
@@ -55,10 +56,12 @@ namespace DotVVM.Samples.BasicSamples
             );
             var config = app.UseDotVVM<DotvvmStartup>(GetApplicationPath());
             config.RouteTable.Add("AuthorizedPresenter", "ComplexSamples/Auth/AuthorizedPresenter", provider => new AuthorizedPresenter());
+#if AssertConfiguration
+            // this compilation symbol is set by CI server
+            config.AssertConfigurationIsValid();
+#endif
             app.UseStaticFiles();
         }
-
-     
 
         private string GetApplicationPath()
             => Path.Combine(Path.GetDirectoryName(HostingEnvironment.ApplicationPhysicalPath.TrimEnd('\\', '/')), "DotVVM.Samples.Common");

@@ -21,7 +21,6 @@ namespace DotVVM.Samples.BasicSamples
     {
         public class BindingTestResolvers
         {
-
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -50,7 +49,6 @@ namespace DotVVM.Samples.BasicSamples
 
             services.AddAuthentication("Scheme3")
                 .AddCookie("Scheme3");
-
 
             services.AddLocalization(o => o.ResourcesPath = "Resources");
 
@@ -85,6 +83,10 @@ namespace DotVVM.Samples.BasicSamples
             var config = app.UseDotVVM<DotvvmStartup>(GetApplicationPath(env));
             config.RouteTable.Add("AuthorizedPresenter", "ComplexSamples/Auth/AuthorizedPresenter", provider => new AuthorizedPresenter());
 
+#if AssertConfiguration
+            // this compilation symbol is set by CI server
+            config.AssertConfigurationIsValid();
+#endif
             app.UseStaticFiles();
         }
 

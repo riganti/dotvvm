@@ -24,13 +24,10 @@ namespace DotVVM.Framework.Configuration
 
         private static string BuildMessage(List<DotvvmConfigurationAssertResult<RouteBase>> routes, List<DotvvmConfigurationAssertResult<DotvvmControlConfiguration>> controls)
         {
-
             var sb = new StringBuilder();
             BuildRoutesMessage(routes, sb);
             BuildControlsMessage(controls, sb);
             return sb.ToString();
-
-
         }
 
         private static void BuildRoutesMessage(List<DotvvmConfigurationAssertResult<RouteBase>> routes, StringBuilder sb)
@@ -76,9 +73,9 @@ namespace DotVVM.Framework.Configuration
                 {
                     if (control.Reason == DotvvmConfigurationAssertReason.InvalidCombination)
                     {
-                            sb.Append("Control '");
-                            sb.Append(JsonConvert.SerializeObject(control.Value));
-                            sb.Append("' has set invalid combination of properties.");
+                        sb.Append("Control '");
+                        sb.Append(JsonConvert.SerializeObject(control.Value));
+                        sb.Append("' has set invalid combination of properties.");
                     }
 
                     if (control.Reason == DotvvmConfigurationAssertReason.MissingFile)
@@ -91,9 +88,8 @@ namespace DotVVM.Framework.Configuration
                         sb.Append(control.Value.Src);
                         sb.Append("'.");
                     }
-                sb.AppendLine();
+                    sb.AppendLine();
                 }
-
             }
         }
 
