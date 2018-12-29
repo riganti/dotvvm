@@ -42,15 +42,15 @@ namespace DotVVM.Framework.Hosting
 
             //no such resource found
             resourceName = resourceName.Replace('/', '.');
-            if( assembly.GetManifestResourceInfo(resourceName) == null)
+            if (assembly.GetManifestResourceInfo(resourceName) == null)
             {
                 throw new ArgumentException("No such resource was found", "virtualPath");
             }
 
             //load the file
-            Stream stream = assembly.GetManifestResourceStream(resourceName);
-            StreamReader sr = new StreamReader(stream);
-            return new MarkupFile(resourceName, resourceName, sr.ReadToEnd());
+            using (Stream stream = assembly.GetManifestResourceStream(resourceName))
+            using (StreamReader sr = new StreamReader(stream))
+                return new MarkupFile(resourceName, resourceName, sr.ReadToEnd());
         }
 
         /// <summary>

@@ -59,7 +59,7 @@ namespace DotVVM.Samples.BasicSamples
             config.Styles.Register("customDataContextTag", c => c.HasDataContext<ServerSideStylesMatchingViewModel.TestingObject>()).
                 SetAttribute("dataContextCheck", "matching");
 
-             // All style samples
+            // All style samples
             config.Styles.Register<ServerSideStylesControl>()
                 .SetAttribute("value", "Text changed")
                 .SetDotvvmProperty(ServerSideStylesControl.CustomProperty, "Custom property changed", StyleOverrideOptions.Ignore)
@@ -75,7 +75,7 @@ namespace DotVVM.Samples.BasicSamples
                 .SetAttribute("addedAttr", "Added attribute");
 
             config.Styles.Register<Button>(c => c.HasHtmlAttribute("server-side-style-attribute"))
-               .SetControlProperty<ConfirmPostBackHandler>(PostBack.HandlersProperty, 
+               .SetControlProperty<ConfirmPostBackHandler>(PostBack.HandlersProperty,
                     (style) => style.SetDotvvmProperty(ConfirmPostBackHandler.MessageProperty, "ConfirmPostBackHandler Content"));
         }
 
@@ -103,8 +103,7 @@ namespace DotVVM.Samples.BasicSamples
             config.RouteTable.Add("FeatureSamples_Redirect_RedirectFromPresenter", "FeatureSamples/Redirect/RedirectFromPresenter", provider => new RedirectingPresenter());
             config.RouteTable.Add("FeatureSamples_Validation_ClientSideValidationDisabling2", "FeatureSamples/Validation/ClientSideValidationDisabling/{ClientSideValidationEnabled}", "Views/FeatureSamples/Validation/ClientSideValidationDisabling.dothtml", new { ClientSideValidationEnabled = false });
             config.RouteTable.Add("FeatureSamples_EmbeddedResourceControls_EmbeddedResourceView", "FeatureSamples/EmbeddedResourceControls/EmbeddedResourceView", "embedded://EmbeddedResourceControls/EmbeddedResourceView.dothtml");
-            config.RouteTable.Add("FeatureSamples_PostBack_PostBackHandlers_Localization","FeatureSamples/PostBack/PostBackHandlers_Localized", "Views/FeatureSamples/PostBack/ConfirmPostBackHandler.dothtml", LocalizablePresenter.BasedOnQuery("lang"));
-
+            config.RouteTable.Add("FeatureSamples_PostBack_PostBackHandlers_Localization", "FeatureSamples/PostBack/PostBackHandlers_Localized", "Views/FeatureSamples/PostBack/ConfirmPostBackHandler.dothtml", LocalizablePresenter.BasedOnQuery("lang"));
 
             config.RouteTable.Add("Errors_Routing_NonExistingView", "Errors/Routing/NonExistingView", "Views/Errors/Routing/NonExistingView.dothml");
         }

@@ -25,7 +25,7 @@ namespace DotVVM.Framework.Hosting
 
             for (int i = 0; i < Loaders.Count; i++)
             {
-                if (((result = Loaders[i].GetMarkup(configuration, virtualPath))) != null)
+                if ((result = Loaders[i].GetMarkup(configuration, virtualPath)) != null)
                 {
                     return result;
                 }
