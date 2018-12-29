@@ -7,13 +7,13 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using DotVVM.Compiler.Compilation;
+using DotVVM.Compiler.DTOs;
 using DotVVM.Compiler.Initialization;
 using DotVVM.Compiler.Resolving;
 using Newtonsoft.Json;
 
 namespace DotVVM.Compiler.Programs
 {
-
     public class Program2
     {
 
@@ -21,14 +21,20 @@ namespace DotVVM.Compiler.Programs
         internal static CompilerOptions Options { get; private set; }
         internal static HashSet<string> assemblySearchPaths { get; private set; } = new HashSet<string>();
         private static Stopwatch stopwatcher;
-
+        private static string GetEnvironmentWebAssemblyPath()
+        {
+            return Environment.GetEnvironmentVariable("webAssemblyPath");
+        }
         public static void ContinueMain(string[] args)
         {
             WriteTargetFramework();
 
             GetEnvironmentAssemblySearchPaths();
+#if NETCOREAPP2_0
+            AssemblyResolver.ResolverNetstandard(GetEnvironmentWebAssemblyPath());
+#else
             AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolver.ResolveAssembly;
-
+#endif
             if (args.Length == 0)
             {
                 while (true)
@@ -46,6 +52,11 @@ namespace DotVVM.Compiler.Programs
             if (args[0] == "--debugger")
             {
                 WaitForDbg();
+                args = args.Skip(1).ToArray();
+            }
+            if (args[0] == "--debugger-break")
+            {
+                WaitForDbg(true);
                 args = args.Skip(1).ToArray();
             }
 
@@ -109,22 +120,27 @@ JSON structure:
         private static void Exit(int exitCode)
         {
 
-            Environment.Exit(1);
+            Environment.Exit(exitCode);
         }
 
         private static void GetEnvironmentAssemblySearchPaths()
         {
-            assemblySearchPaths.Add(Environment.CurrentDirectory);
             foreach (var path in Environment.GetEnvironmentVariable("assemblySearchPath")?.Split(',') ?? new string[0])
             {
                 assemblySearchPaths.Add(path);
             }
+            assemblySearchPaths.Add(Environment.CurrentDirectory);
         }
+       
 
-        private static void WaitForDbg()
+        private static void WaitForDbg(bool _break = false)
         {
             WriteInfo("Process ID: " + Process.GetCurrentProcess().Id);
             while (!Debugger.IsAttached) Thread.Sleep(10);
+            if (_break)
+            {
+                Debugger.Break();
+            }
         }
 
 
@@ -172,9 +188,11 @@ JSON structure:
                     result = ExportConfiguration(options);
                 }
 
+                ConfigurationSerialization.PreInit();
+
                 var serializedResult = JsonConvert.SerializeObject(result, Formatting.Indented,
                     new JsonSerializerSettings {
-                        TypeNameHandling = TypeNameHandling.Auto
+                        TypeNameHandling = TypeNameHandling.Auto,
                     });
                 Console.WriteLine(serializedResult);
                 WriteConfigurationOutput(serializedResult);

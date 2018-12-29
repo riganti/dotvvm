@@ -1,26 +1,29 @@
-﻿
+﻿using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
+using Riganti.Selenium.Core;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace DotVVM.Samples.Tests.Feature
 {
-    [TestClass]
     public class ServerCommentsTests : AppSeleniumTest
     {
-        [TestMethod]
+        [Fact]
         public void Feature_ServerComments_ServerComments()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ServerComments_ServerComments);
 
-                browser.Single("#before").CheckIfInnerText(s => s.Contains("Before Server"));
-                browser.Single("#afterFirst").CheckIfInnerText(s => s.Contains("After Server"));
-                browser.Single("#afterOther").CheckIfInnerText(s => s.Contains("After Other"));
+                AssertUI.InnerText(browser.Single("#before"), s => s.Contains("Before Server"));
+                AssertUI.InnerText(browser.Single("#afterFirst"), s => s.Contains("After Server"));
+                AssertUI.InnerText(browser.Single("#afterOther"), s => s.Contains("After Other"));
                 browser.FindElements("#firstHidden").ThrowIfDifferentCountThan(0);
                 browser.FindElements("#otherHidden").ThrowIfDifferentCountThan(0);
             });
+        }
+
+        public ServerCommentsTests(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Utils;
@@ -86,8 +87,15 @@ namespace DotVVM.Framework.Controls
             if (allowImplicitLifecycleRequirements && GetType() == typeof(Literal)) LifecycleRequirements = ControlLifecycleRequirements.None;
         }
 
-        public static bool NeedsFormatting(IValueBinding binding) => binding != null && (binding.ResultType == typeof(DateTime) || binding.ResultType == typeof(DateTime?)
-            || binding.ResultType.IsNumericType() || Nullable.GetUnderlyingType(binding.ResultType).IsNumericType());
+        public static bool NeedsFormatting(IValueBinding binding)
+        {
+            bool isFormattedType(Type type) =>
+                type != null && (type.IsNumericType() || type == typeof(DateTime) || isFormattedType(Nullable.GetUnderlyingType(type)));
+
+            bool isFormattedTypeOrObj(Type type) => type == typeof(object) || isFormattedType(type);
+
+            return isFormattedType(binding?.ResultType) && isFormattedTypeOrObj(binding?.GetProperty<ExpectedTypeBindingProperty>(ErrorHandlingMode.ReturnNull)?.Type);
+        }
 
         protected override bool RendersHtmlTag => RenderSpanElement;
 

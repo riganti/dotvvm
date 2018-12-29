@@ -213,6 +213,11 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected virtual void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
         {
+            if (HasBinding<ResourceBindingExpression>(IncludeInPageProperty) && !IncludeInPage)
+            {
+                return;
+            }
+
             RenderBeginWithDataBindAttribute(writer);
 
             foreach (var item in properties)
@@ -240,7 +245,7 @@ namespace DotVVM.Framework.Controls
             }
 
             // if the IncludeInPage has binding, render the "if" binding
-            if (HasBinding(IncludeInPageProperty))
+            if (HasValueBinding(IncludeInPageProperty))
             {
                 writer.WriteKnockoutDataBindComment("if", this, IncludeInPageProperty);
             }
@@ -248,7 +253,7 @@ namespace DotVVM.Framework.Controls
 
         private void RenderEndWithDataBindAttribute(IHtmlWriter writer)
         {
-            if (HasBinding(IncludeInPageProperty))
+            if (HasValueBinding(IncludeInPageProperty))
             {
                 writer.WriteKnockoutDataBindEndComment();
             }
@@ -445,7 +450,9 @@ namespace DotVVM.Framework.Controls
 
         private object JoinValuesOrBindings(IList<object> fragments)
         {
-            if (fragments.All(f => f is string))
+            if (fragments == null)
+                return null;
+            else if (fragments.All(f => f is string))
             {
                 return string.Join("_", fragments);
             }
@@ -466,7 +473,7 @@ namespace DotVVM.Framework.Controls
                     else result.Add(JavascriptCompilationHelper.CompileConstant(f));
                 }
                 if (service == null) throw new NotSupportedException();
-                return ValueBindingExpression.CreateBinding<string>(service.WithoutInitialization(), h => null, result.Build(new OperatorPrecedence()));
+                return ValueBindingExpression.CreateBinding<string>(service.WithoutInitialization(), h => null, result.Build(new OperatorPrecedence()), this.GetDataContextType());
             }
         }
 
@@ -474,7 +481,7 @@ namespace DotVVM.Framework.Controls
         /// Adds the corresponding attribute for the Id property.
         /// </summary>
         protected virtual object CreateClientId() => 
-            string.IsNullOrEmpty(ID) ? null :
+            !this.IsPropertySet(IDProperty) ? null :
                 // build the client ID
                 JoinValuesOrBindings(GetClientIdFragments());
 
@@ -501,7 +508,7 @@ namespace DotVVM.Framework.Controls
             if (ClientIDMode == ClientIDMode.Static)
             {
                 // just rewrite Static mode ID
-                return new[] { ID };
+                return new[] { GetValueRaw(IDProperty) };
             }
 
             var fragments = new List<object> { rawId };
@@ -522,10 +529,10 @@ namespace DotVVM.Framework.Controls
                     {
                         fragments.Add(clientIdExpression);
                     }
-                    else if (!string.IsNullOrEmpty(ancestor.ID))
+                    else if (ancestor.GetValueRaw(IDProperty) is object ancestorId && "" != ancestorId as string)
                     {
                         // add the ID fragment
-                        fragments.Add(ancestor.ID);
+                        fragments.Add(ancestorId);
                     }
                     else
                     {

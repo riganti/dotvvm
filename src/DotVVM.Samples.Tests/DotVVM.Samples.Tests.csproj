@@ -1,49 +1,37 @@
-﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <OutputType>library</OutputType>
     <TargetFramework>net461</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
+
   <ItemGroup>
-    <EmbeddedResource Include="**\*.resx" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
+    <PackageReference Include="System.ValueTuple" Version="4.4.0" />
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1" />
+    <PackageReference Include="Riganti.Selenium.Coordinator.Client" Version="2.0.5-preview01-final" />
+    <PackageReference Include="Riganti.Selenium.Core" Version="2.0.5-preview01-final" />
+    <PackageReference Include="Riganti.Selenium.Core.Abstractions" Version="2.0.5-preview01-final" />
+    <PackageReference Include="Riganti.Selenium.DotVVM" Version="2.0.5-preview01-final" />
+    <PackageReference Include="Riganti.Selenium.AssertApi" Version="2.0.5-preview01-final" />
+    <PackageReference Include="Riganti.Selenium.xUnitIntegration" Version="2.0.5-preview01-final" />
+    <PackageReference Include="Riganti.Selenium.Validators" Version="2.0.5-preview01-final" />
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="App.config" />
-  </ItemGroup>
-    <ItemGroup>
-    <None Update="SamplesRouteUrls.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>SamplesRouteUrls.tt</DependentUpon>
-    </None>
-    <None Update="seleniumconfig.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
-    <PackageReference Include="Microsoft.Owin.Security" Version="3.0.1" />
-    <PackageReference Include="Moq" Version="4.7.142" />
-    <PackageReference Include="MSTest.TestFramework" Version="1.2.0" />
-    <PackageReference Include="MSTest.TestAdapter" Version="1.2.0" />
-    <PackageReference Include="Riganti.Selenium.Coordinator.Client" Version="2.0.0-beta17" />
-    <PackageReference Include="Riganti.Selenium.Core" Version="2.0.0-beta17" />
-    <PackageReference Include="Riganti.Selenium.Core.Abstractions" Version="2.0.0-beta17" />
-    <PackageReference Include="Riganti.Selenium.DotVVM" Version="2.0.0-beta17" />
-    <PackageReference Include="Riganti.Selenium.FluentApi" Version="2.0.0-beta17" />
-    <PackageReference Include="Riganti.Selenium.MSTest2Integration" Version="2.0.0-beta17" />
-    <PackageReference Include="Riganti.Selenium.Validators" Version="2.0.0-beta17" />
-  </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\DotVVM.Testing.Abstractions\DotVVM.Testing.Abstractions.csproj" />
   </ItemGroup>
+
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
-    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="seleniumconfig.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

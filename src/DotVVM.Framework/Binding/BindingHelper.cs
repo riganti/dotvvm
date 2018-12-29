@@ -67,9 +67,10 @@ namespace DotVVM.Framework.Binding
             var changes = 0;
             foreach (var a in control.GetAllAncestors(incudingThis: true))
             {
-                if (a.properties.ContainsKey(DotvvmBindableObject.DataContextProperty)) changes++;
                 if (bindingContext.Equals(a.GetValue(Internal.DataContextTypeProperty, inherit: false)))
                     return (changes, a);
+
+                if (a.properties != null && a.properties.ContainsKey(DotvvmBindableObject.DataContextProperty)) changes++;
             }
 
             throw new NotSupportedException($"Could not find DataContextSpace of binding '{binding}'.");
@@ -277,21 +278,18 @@ namespace DotVVM.Framework.Binding
         public static void SetDataContextTypeFromDataSource(this DotvvmBindableObject obj, IBinding dataSourceBinding) =>
             obj.SetDataContextType(dataSourceBinding.GetProperty<CollectionElementDataContextBindingProperty>().DataContext);
 
-        public static void SetDataContextForItem(this DotvvmBindableObject obj, IValueBinding itemBinding, int index, object currentItem)
-        {
-            obj.SetBinding(DotvvmBindableObject.DataContextProperty, ValueBindingExpression.CreateBinding(
-                itemBinding.GetProperty<BindingCompilationService>().WithoutInitialization(),
-                j => currentItem,
-                itemBinding.KnockoutExpression.AssignParameters(p =>
-                    p == JavascriptTranslator.CurrentIndexParameter ? new CodeParameterAssignment(index.ToString(), OperatorPrecedence.Max) :
-                    default(CodeParameterAssignment))));
-        }
-
         public static DataContextStack GetDataContextType(this DotvvmProperty property, DotvvmBindableObject obj)
         {
-            if (obj.HasBinding(property))
+            var propertyBinding = obj.GetBinding(property);
+
+            if (propertyBinding != null)
             {
-                return obj.GetBinding(property).GetProperty<DataContextStack>();
+                var propertyValue = propertyBinding.GetProperty(typeof(DataContextStack), ErrorHandlingMode.ReturnException);
+
+                if(propertyValue == null || propertyValue is DataContextStack)
+                {
+                    return (DataContextStack)propertyValue;
+                }
             }
 
             var dataContextType = obj.GetDataContextType();
@@ -312,7 +310,9 @@ namespace DotVVM.Framework.Binding
             }
 
             var (childType, extensionParameters) = ApplyDataContextChange(dataContextType, property.DataContextChangeAttributes, obj, property);
-            return DataContextStack.Create(childType, dataContextType, extensionParameters: extensionParameters.ToArray());
+
+            if (childType == null) return dataContextType;
+            else return DataContextStack.Create(childType, dataContextType, extensionParameters: extensionParameters.ToArray());
         }
 
         private static (Type childType, List<BindingExtensionParameter> extensionParameters) ApplyDataContextChange(DataContextStack dataContextType, DataContextChangeAttribute[] attributes, DotvvmBindableObject obj, DotvvmProperty property)

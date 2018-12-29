@@ -22,10 +22,10 @@ namespace DotVVM.Framework.Controls
             var expression = control.GetValueBinding(property);
             if (expression != null && (!control.RenderOnServer || renderEvenInServerRenderingMode))
             {
-                writer.AddAttribute("data-bind", name + ": " + expression.GetKnockoutBindingExpression(control), true, ", ");
+                writer.AddKnockoutDataBind(name, expression.GetKnockoutBindingExpression(control));
                 if (valueUpdate != null)
                 {
-                    writer.AddAttribute("data-bind", "valueUpdate: '" + valueUpdate + "'", true, ", ");
+                    writer.AddKnockoutDataBind("valueUpdate", $"'{valueUpdate}'");
                 }
             }
             else
@@ -46,9 +46,10 @@ namespace DotVVM.Framework.Controls
             writer.AddKnockoutDataBind(name, valueBinding.GetKnockoutBindingExpression(control));
         }
 
-        public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, IEnumerable<KeyValuePair<string, IValueBinding>> expressions, DotvvmBindableObject control, DotvvmProperty property)
+        /// <param name="property">This parameter is here for historical reasons, it's not useful for anything</param>
+        public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, IEnumerable<KeyValuePair<string, IValueBinding>> expressions, DotvvmBindableObject control, DotvvmProperty property = null)
         {
-            writer.AddAttribute("data-bind", name + ": {" + String.Join(",", expressions.Select(e => "'" + e.Key + "': " + e.Value.GetKnockoutBindingExpression(control))) + "}", true, ", ");
+            writer.AddKnockoutDataBind(name, $"{{{String.Join(",", expressions.Select(e => "'" + e.Key + "': " + e.Value.GetKnockoutBindingExpression(control)))}}}");
         }
 
         public static void WriteKnockoutForeachComment(this IHtmlWriter writer, string binding)
@@ -215,27 +216,46 @@ namespace DotVVM.Framework.Controls
         private static string GenerateHandlerOptions(DotvvmBindableObject handler, Dictionary<string, object> options)
         {
             JsExpression optionsExpr = new JsObjectExpression(
-                options.Where(o => o.Value != null).Select(o => new JsObjectProperty(o.Key, o.Value is IValueBinding b ?
-                    (JsExpression)new JsIdentifierExpression(
-                        JavascriptTranslator.FormatKnockoutScript(b.GetParametrizedKnockoutExpression(handler, unwrapped: true), new ParametrizedCode("c"), new ParametrizedCode("d"))) :
-                    new JsLiteral(o.Value)))
+                options.Where(o => o.Value != null).Select(o => new JsObjectProperty(o.Key, TransformOptionValueToExpression(handler, o.Value)))
             );
+
             if (options.Any(o => o.Value is IValueBinding))
+            {
                 optionsExpr = new JsFunctionExpression(
                     new[] { new JsIdentifier("c"), new JsIdentifier("d") },
                     new JsBlockStatement(new JsReturnStatement(optionsExpr))
                 );
+            }
 
             optionsExpr.FixParenthesis();
             var script = new JsFormattingVisitor().ApplyAction(optionsExpr.AcceptVisitor).GetParameterlessResult();
             return script;
         }
 
+        private static JsExpression TransformOptionValueToExpression(DotvvmBindableObject handler, object optionValue)
+        {
+            switch (optionValue)
+            {
+                case IValueBinding binding:
+                    return new JsIdentifierExpression(
+                        JavascriptTranslator.FormatKnockoutScript(binding.GetParametrizedKnockoutExpression(handler, unwrapped: true),
+                            new ParametrizedCode("c"), new ParametrizedCode("d")));
+                case IStaticValueBinding staticValueBinding:
+                    return new JsLiteral(staticValueBinding.Evaluate(handler));
+                case JsExpression expression:
+                    return expression.Clone();
+                case IBinding _:
+                    throw new ArgumentException("Option value can contains only IValueBinding or IStaticValueBinding. Other bindings are not supported.");
+                default:
+                    return new JsLiteral(optionValue);
+            }
+        }
+
         static string GenerateConcurrencyModeHandler(DotvvmBindableObject obj)
         {
-            var mode = (obj.GetValue(PostBack.ConcurrencyProperty) as PostbackConcurrencyMode?) ?? PostbackConcurrencyMode.None;
+            var mode = (obj.GetValue(PostBack.ConcurrencyProperty) as PostbackConcurrencyMode?) ?? PostbackConcurrencyMode.Default;
             var queueName = obj.GetValueRaw(PostBack.ConcurrencyQueueProperty) ?? "default";
-            if (mode == PostbackConcurrencyMode.None && "default".Equals(queueName)) return null;
+            if (mode == PostbackConcurrencyMode.Default && "default".Equals(queueName)) return null;
             var handlerName = $"concurrency-{mode.ToString().ToLower()}";
             if ("default".Equals(queueName)) return JsonConvert.ToString(handlerName);
             return $"[{JsonConvert.ToString(handlerName)},{GenerateHandlerOptions(obj, new Dictionary<string, object> { ["q"] = queueName })}]";

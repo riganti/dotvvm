@@ -1,12 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DotVVM.Framework.Controls;
-using System.Linq.Expressions;
 using System.Reflection;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Binding
 {
@@ -18,6 +15,12 @@ namespace DotVVM.Framework.Binding
 
         public bool AllowMissingProperty { get; set; }
 
+        public ControlPropertyBindingDataContextChangeAttribute(string propertyName, int order = 0)
+        {
+            PropertyName = propertyName;
+            Order = order;
+        }
+
         public override ITypeDescriptor GetChildDataContextType(ITypeDescriptor dataContext, IDataContextStack controlContextStack, IAbstractControl control, IPropertyDescriptor property = null)
         {
             if (!control.Metadata.TryGetProperty(PropertyName, out var controlProperty))
@@ -27,8 +30,8 @@ namespace DotVVM.Framework.Binding
 
             if (control.TryGetProperty(controlProperty, out var setter))
             {
-                return setter is IAbstractPropertyBinding binding 
-                    ? binding.Binding.ResultType 
+                return setter is IAbstractPropertyBinding binding
+                    ? binding.Binding.ResultType ?? throw new Exception($"The '{controlProperty.Name}' property contains invalid data-binding")
                     : dataContext;
             }
 
@@ -53,8 +56,9 @@ namespace DotVVM.Framework.Binding
 
             if (control.Properties.ContainsKey(controlProperty))
             {
-                var binding = control.GetValueBinding(controlProperty);
-                return binding == null ? dataContext : binding.ResultType;
+                return control.HasValueBinding(controlProperty)
+                    ? control.GetValueBinding(controlProperty).ResultType
+                    : dataContext;
             }
 
             if (AllowMissingProperty)
@@ -65,11 +69,6 @@ namespace DotVVM.Framework.Binding
             throw new Exception($"Property '{PropertyName}' is required on '{controlType.Name}'.");
         }
 
-        public ControlPropertyBindingDataContextChangeAttribute(string propertyName, int order = 0)
-        {
-            PropertyName = propertyName;
-            Order = order;
-        }
-        public override IEnumerable<string> PropertyDependsOn => new [] { PropertyName };
+        public override IEnumerable<string> PropertyDependsOn => new[] { PropertyName };
     }
 }

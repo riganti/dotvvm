@@ -16,6 +16,8 @@ namespace DotVVM.Framework.Controls
         Time,
         Color,
         Search,
-        Number
+        Number,
+        Month,
+        DateTimeLocal
     }
 }

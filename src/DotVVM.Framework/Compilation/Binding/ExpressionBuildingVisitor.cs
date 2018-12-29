@@ -250,7 +250,7 @@ namespace DotVVM.Framework.Compilation.Binding
             {
                 var name = (target as UnknownStaticClassIdentifierExpression).Name + "." + identifierName;
 
-                var resolvedTypeExpression = Registry.Resolve(name, throwException: false) ?? new UnknownStaticClassIdentifierExpression(name);
+                var resolvedTypeExpression = Registry.Resolve(name, throwOnNotFound: false) ?? new UnknownStaticClassIdentifierExpression(name);
 
                 if (typeParameters != null)
                 {
@@ -272,7 +272,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
         protected override Expression VisitBlock(BlockBindingParserNode node)
         {
-            var left = HandleErrors(node.FirstExpression, Visit);
+            var left = HandleErrors(node.FirstExpression, Visit) ?? Expression.Default(typeof(void));
             var right = HandleErrors(node.SecondExpression, Visit) ?? Expression.Default(typeof(void));
             ThrowOnErrors();
 
@@ -286,11 +286,13 @@ namespace DotVVM.Framework.Compilation.Binding
 
         private Expression GetMemberOrTypeExpression(IdentifierNameBindingParserNode node, Type[] typeParameters)
         {
-            
+            if (node.NameToken == null) return null;
+
             var expr = 
                 Scope == null 
-                ? Registry.Resolve(node.Name, throwException: false)
-                : (ExpressionHelper.GetMember(Scope, node.Name, typeParameters, throwExceptions: false, onlyMemberTypes: ResolveOnlyTypeName) ?? Registry.Resolve(node.Name, throwException: false));
+                ? Registry.Resolve(node.Name, throwOnNotFound: false)
+                : (ExpressionHelper.GetMember(Scope, node.Name, typeParameters, throwExceptions: false, onlyMemberTypes: ResolveOnlyTypeName)
+                    ?? Registry.Resolve(node.Name, throwOnNotFound: false));
 
             if (expr == null) return new UnknownStaticClassIdentifierExpression(node.Name);
             if (expr is ParameterExpression && expr.Type == typeof(ExpressionHelper.UnknownTypeSentinel)) throw new Exception($"Type of '{expr}' could not be resolved.");

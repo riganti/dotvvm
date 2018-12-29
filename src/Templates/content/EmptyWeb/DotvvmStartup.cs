@@ -1,6 +1,7 @@
 using DotVVM.Framework;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Routing;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotvvmApplication1
 {
@@ -30,6 +31,11 @@ namespace DotvvmApplication1
         private void ConfigureResources(DotvvmConfiguration config, string applicationPath)
         {
             // register custom resources and adjust paths to the built-in resources
+        }
+
+        public void ConfigureServices(IDotvvmServiceCollection options)
+        {
+            options.AddDefaultTempStorages("Temp");
         }
     }
 }

@@ -55,7 +55,6 @@ namespace DotVVM.Samples.BasicSamples
             );
             var config = app.UseDotVVM<DotvvmStartup>(GetApplicationPath());
             config.RouteTable.Add("AuthorizedPresenter", "ComplexSamples/Auth/AuthorizedPresenter", provider => new AuthorizedPresenter());
-
             app.UseStaticFiles();
         }
 

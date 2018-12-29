@@ -14,38 +14,39 @@ namespace DotVVM.Framework.ViewModel.Validation
         {
             foreach (var attribute in validationAttributes)
             {
-                var validationRule = new ViewModelPropertyValidationRule(sourceValidationAttribute: attribute, propertyName: property.Name);
+                var validationRule = new ViewModelPropertyValidationRule(sourceValidationAttribute: attribute, staticPropertyName: property.Name);
                 // TODO: extensibility
-                if (attribute is RequiredAttribute)
-                {
-                    validationRule.ClientRuleName = "required";
-                }
-                else if (attribute is RegularExpressionAttribute)
-                {
-                    var typedAttribute = (RegularExpressionAttribute)attribute;
 
-                    validationRule.ClientRuleName = "regularExpression";
-                    validationRule.Parameters = new[] { typedAttribute.Pattern };
-                }
-                else if (attribute is RangeAttribute)
-                {
-                    var typed = (RangeAttribute)attribute;
+                var displayAttribute = property.GetCustomAttribute<DisplayAttribute>();
+                if (displayAttribute != null)
+                    validationRule.PropertyNameResolver = () => displayAttribute.GetName();
 
-                    validationRule.ClientRuleName = "range";
-                    validationRule.Parameters = new[] { typed.Minimum, typed.Maximum };
-                }
-                else if (attribute is DotvvmEnforceClientFormatAttribute)
+                switch (attribute)
                 {
-                    var typed = (DotvvmEnforceClientFormatAttribute)attribute;
-
-                    validationRule.ClientRuleName = "enforceClientFormat";
-                    validationRule.Parameters = new object[] { typed.AllowNull, typed.AllowEmptyString, typed.AllowEmptyStringOrWhitespaces };
+                    case RequiredAttribute _:
+                        validationRule.ClientRuleName = "required";
+                        break;
+                    case RegularExpressionAttribute regularExpressionAttr:
+                        validationRule.ClientRuleName = "regularExpression";
+                        validationRule.Parameters = new[] { regularExpressionAttr.Pattern };
+                        break;
+                    case RangeAttribute rangeAttr:
+                        validationRule.ClientRuleName = "range";
+                        validationRule.Parameters = new[] { rangeAttr.Minimum, rangeAttr.Maximum };
+                        break;
+                    case DotvvmEnforceClientFormatAttribute enforceClientFormatAttr:
+                        validationRule.ClientRuleName = "enforceClientFormat";
+                        validationRule.Parameters = new object[] { enforceClientFormatAttr.AllowNull, enforceClientFormatAttr.AllowEmptyString,
+                            enforceClientFormatAttr.AllowEmptyStringOrWhitespaces };
+                        break;
+                    case EmailAddressAttribute _:
+                        validationRule.ClientRuleName = "emailAddress";
+                        break;
+                    default:
+                        validationRule.ClientRuleName = string.Empty;
+                        break;
                 }
-                else
-                {
-                    validationRule.ClientRuleName = string.Empty;
-                }
-
+      
                 yield return validationRule;
             }
         }

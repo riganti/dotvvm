@@ -23,7 +23,7 @@ To get started, fork the repository, and clone it on or computer. You can use Vi
 
 We are using Visual Studio 2017 (or VS Code) and some projects use .NET Core 2.0, so the solution will probably not open in previous versions of Visual Studio. 
 
-Open the `src/DotVVM.sln` solution in Visual Studio, or open the `src` folder in VS Code. Set `Samples/DotVVM.Samples.BasicSamples.AspNetCore` as a startup project and launch it. It should just work. If it does not, feel free to ask. For VS Code, launch it from the `src` directory, so it can find the `.vscode/lauch.json` and `.vscode/tasks.json` files. You can also try to rebuild `Tests/DotVVM.Framework.Tests.Common` project and run the unit/integration tests - it should complete in few seconds, everything should be green. :)
+Open the `src/DotVVM.sln` solution in Visual Studio, or open the `src` folder in VS Code. Set `Samples/DotVVM.Samples.BasicSamples.AspNetCore` as a startup project and launch it. It should just work. If it does not, feel free to ask. For VS Code, launch it from the `src` directory, so it can find the `.vscode/launch.json` and `.vscode/tasks.json` files. You can also try to rebuild `Tests/DotVVM.Framework.Tests.Common` project and run the unit/integration tests - it should complete in few seconds, everything should be green. :)
 
 Almost everying is in the `DotVVM.Framework` project, except few base interfaces and attributes in `DotVVM.Core` (so you don't have to reference the entire framework in your bussiess layer, if you just want to suppress serialization or turn on the validation of certain properties). 
 
@@ -32,6 +32,12 @@ The OWIN and ASP.NET Core integration is splitted in two projects called `DotVVM
 `DotVVM.Compiler` project is a command line application that can be used for view precompilation and is used by our VS Extension to dump configuration from the project after the DotvvmStartup has run. 
 
 `DotVVM.CommandLine` is a new project that add `dotvvm` subcommand to the `dotnet` CLI, [more info in a blog post](https://www.dotvvm.com/blog/17/DotVVM-1-1-RC-5-dotnet-new-and-DotVVM-CLI). 
+
+### Linking DotVVM from your app
+
+You may want to try to use DotVVM source codes directly from your project so you can interactively test your changes or simply check if some bugfix works correctly. The first step is to clone the DotVVM git repository, if you want to make some changes, you probably want to fork in on github beforehand (see above for more info). The second and last step is to replace NuGet reference to project reference in your project file (`Something.csproj`) - simply replace the `<PackageReference Include="DotVVM.AspNetCore" ... />` with `<ProjectReference Include="path/to/dotvvm/src/DotVVM.Framework.Hosting.AspNetCore/DotVVM.Framework.Hosting.AspNetCore.csproj" />`. You don't need to update solutions file or anything, this is the only thing the Dotnet SDK cares about.
+
+This simple technique only work with the "new" project file format, but it works well with "old" .NET Framework and it's unfortunately almost impossible to do with the old project system.
 
 ## Communication
 

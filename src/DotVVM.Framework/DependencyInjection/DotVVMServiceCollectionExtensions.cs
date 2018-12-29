@@ -11,11 +11,11 @@ using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
-using DotVVM.Framework.Diagnostics;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Runtime.Tracing;
+using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.ViewModel.Validation;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -29,18 +29,17 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Adds essential DotVVM services to the specified <see cref="IServiceCollection" />.
         /// </summary>
         /// <param name="services">The <see cref="IServiceCollection" /> to add services to.</param>
-        /// <param name="allowDebugServices">If the vs-diagnostics services should be registered</param>
-        public static IServiceCollection RegisterDotVVMServices(IServiceCollection services, bool allowDebugServices = true)
+        public static IServiceCollection RegisterDotVVMServices(IServiceCollection services)
         {
             services.AddOptions();
-
-            if (allowDebugServices) services.AddDiagnosticServices();
 
             services.TryAddSingleton<IDotvvmViewBuilder, DefaultDotvvmViewBuilder>();
             services.TryAddSingleton<IViewModelSerializer, DefaultViewModelSerializer>();
             services.TryAddSingleton<IViewModelLoader, DefaultViewModelLoader>();
+            services.TryAddSingleton<IStaticCommandServiceLoader, DefaultStaticCommandServiceLoader>();
             services.TryAddSingleton<IViewModelValidationMetadataProvider, AttributeViewModelValidationMetadataProvider>();
             services.TryAddSingleton<IValidationRuleTranslator, ViewModelValidationRuleTranslator>();
+            services.TryAddSingleton<IPropertySerialization, DefaultPropertySerialization>();
             services.TryAddSingleton<IViewModelValidator, ViewModelValidator>();
             services.TryAddSingleton<IViewModelSerializationMapper, ViewModelSerializationMapper>();
             services.TryAddSingleton<IViewModelParameterBinder, AttributeViewModelParameterBinder>();
@@ -86,23 +85,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 o.TreeVisitors.Add(() => ActivatorUtilities.CreateInstance<StylingVisitor>(s));
                 o.TreeVisitors.Add(() => ActivatorUtilities.CreateInstance<DataContextPropertyAssigningVisitor>(s));
                 o.TreeVisitors.Add(() => new LifecycleRequirementsAssigningVisitor());
-            });
-
-            return services;
-        }
-
-        internal static IServiceCollection AddDiagnosticServices(this IServiceCollection services)
-        {
-            services.TryAddSingleton<DotvvmDiagnosticsConfiguration>();
-            services.TryAddSingleton<IDiagnosticsInformationSender, DiagnosticsInformationSender>();
-
-            services.TryAddSingleton<IOutputRenderer, DiagnosticsRenderer>();
-            services.AddScoped<DiagnosticsRequestTracer>(s => {
-                return new DiagnosticsRequestTracer(s.GetRequiredService<IDiagnosticsInformationSender>());
-            });
-            services.AddScoped<IRequestTracer>(s => {
-                var config = s.GetRequiredService<DotvvmConfiguration>();
-                return (config.Debug ? (IRequestTracer)s.GetService<DiagnosticsRequestTracer>() : null) ?? new NullRequestTracer();
             });
 
             return services;

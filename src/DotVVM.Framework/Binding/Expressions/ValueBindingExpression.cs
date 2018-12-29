@@ -90,6 +90,7 @@ namespace DotVVM.Framework.Binding.Expressions
             var visitor = new ViewModelAccessReplacer(expr.Parameters.Single());
             var expression = visitor.Visit(expr.Body);
             dataContext = dataContext ?? visitor.GetDataContext();
+            visitor.ValidateDataContext(dataContext);
             return new ValueBindingExpression<T>(service, new object[] {
                 new ParsedExpressionBindingProperty(BindingHelper.AnnotateStandardContextParams(expression, dataContext).OptimizeConstants()),
                 new ResultTypeBindingProperty(typeof(T)),
@@ -115,6 +116,16 @@ namespace DotVVM.Framework.Binding.Expressions
                     c = DataContextStack.Create(vm ?? typeof(object), c);
                 }
                 return c;
+            }
+
+            public void ValidateDataContext(DataContextStack dataContext)
+            {
+                for (int i = 0; i < VmTypes.Count; i++, dataContext = dataContext.Parent)
+                {
+                    if (dataContext == null) throw new Exception($"Can not access _parent{i}, it does not exist in the data context.");
+                    if (VmTypes[i] != null && !VmTypes[i].IsAssignableFrom(dataContext.DataContextType))
+                        throw new Exception($"_parent{i} does not have type '{this.VmTypes[i]}' but '{dataContext.DataContextType}'.");
+                }
             }
 
             public override Expression Visit(Expression node)

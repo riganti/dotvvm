@@ -35,6 +35,7 @@ interface IDotvvmViewModels {
 interface IDotvvmPostbackHandlerCollection {
     [name: string]: ((options: any) => DotvvmPostbackHandler);
     confirm: (options: { message?: string }) => ConfirmPostBackHandler;
+    suppress: (options: { suppress?: boolean }) => SuppressPostBackHandler;
 }
 
 class DotVVM {
@@ -43,6 +44,7 @@ class DotVVM {
     private fakeRedirectAnchor: HTMLAnchorElement;
     private resourceSigns: { [name: string]: boolean } = {}
     private isViewModelUpdating: boolean = true;
+    private spaHistory = new DotvvmSpaHistory();
 
     // warning this property is referenced in ModelState.cs and KnockoutHelper.cs
     public viewModelObservables: {
@@ -55,17 +57,18 @@ class DotVVM {
 
     public postbackHandlers: IDotvvmPostbackHandlerCollection = {
         confirm: (options: any) => new ConfirmPostBackHandler(options.message),
+        suppress: (options: any) => new SuppressPostBackHandler(options.suppress),
         timeout: (options: any) => options.time ? this.createWindowSetTimeoutHandler(options.time) : this.windowSetTimeoutHandler,
-        "concurrency-none": (o: any) => ({
-            name: "concurrency-none",
-            before: ["setIsPostackRunning"],
+        "concurrency-default": (o: any) => ({
+            name: "concurrency-default",
+            before: ["setIsPostbackRunning"],
             execute: (callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions) => {
                 return this.commonConcurrencyHandler(callback(), options, o.q || "default")
             }
         }),
         "concurrency-deny": (o: any) => ({
             name: "concurrency-deny",
-            before: ["setIsPostackRunning"],
+            before: ["setIsPostbackRunning"],
             execute(callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions) {
                 var queue = o.q || "default";
                 if (dotvvm.getPostbackQueue(queue).noRunning > 0)
@@ -75,7 +78,7 @@ class DotVVM {
         }),
         "concurrency-queue": (o: any) => ({
             name: "concurrency-queue",
-            before: ["setIsPostackRunning"],
+            before: ["setIsPostbackRunning"],
             execute(callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions) {
                 var queue = o.q || "default";
                 var handler = () => dotvvm.commonConcurrencyHandler(callback(), options, queue);
@@ -90,12 +93,23 @@ class DotVVM {
         }),
         "suppressOnUpdating": (options: any) => ({
             name: "suppressOnUpdating",
-            before: ["setIsPostackRunning", "concurrency-none", "concurrency-queue", "concurrency-deny"],
+            before: ["setIsPostbackRunning", "concurrency-default", "concurrency-queue", "concurrency-deny"],
             execute(callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions) {
                 if (dotvvm.isViewModelUpdating) return Promise.reject({ type: "handler", handler: this, message: "ViewModel is updating, so it's probably false onchange event" })
                 else return callback()
             }
         })
+    }
+
+    private suppressOnDisabledElementHandler: DotvvmPostbackHandler = {
+        name: "suppressOnDisabledElement",
+        before: ["setIsPostbackRunning", "concurrency-default", "concurrency-queue", "concurrency-deny"],
+        execute: <T>(callback: () => Promise<T>, options: PostbackOptions) => {
+            if (options.sender && dotvvm.isPostBackProhibited(options.sender)) {
+                return Promise.reject({ type: "handler", handler: this, message: "PostBack is prohitibited on disabled element" })
+            }
+            else return callback()
+        }
     }
 
     private beforePostbackEventPostbackHandler: DotvvmPostbackHandler = {
@@ -165,7 +179,7 @@ class DotVVM {
         });
     }
 
-    private defaultConcurrencyPostbackHandler: DotvvmPostbackHandler = this.postbackHandlers["concurrency-none"]({})
+    private defaultConcurrencyPostbackHandler: DotvvmPostbackHandler = this.postbackHandlers["concurrency-default"]({})
 
     private postbackQueues: { [name: string]: { queue: (() => void)[], noRunning: number } } = {}
     public getPostbackQueue(name = "default") {
@@ -190,7 +204,7 @@ class DotVVM {
         }
     }
 
-    public globalPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[] = [this.isPostBackRunningHandler, this.postbackHandlersStartedEventHandler]
+    public globalPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[] = [this.suppressOnDisabledElementHandler, this.isPostBackRunningHandler, this.postbackHandlersStartedEventHandler]
     public globalLaterPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[] = [this.postbackHandlersCompletedEventHandler, this.beforePostbackEventPostbackHandler]
 
     public events = new DotvvmEvents();
@@ -201,6 +215,7 @@ class DotVVM {
     public validation: DotvvmValidation;
     public extensions: IDotvvmExtensions = {};
 
+    public useHistoryApiSpaNavigation: boolean;
     public isPostbackRunning = ko.observable(false);
 
     public init(viewModelName: string, culture: string): void {
@@ -233,9 +248,20 @@ class DotVVM {
         // handle SPA requests
         const spaPlaceHolder = this.getSpaPlaceHolder();
         if (spaPlaceHolder != null) {
-            this.domUtils.attachEvent(window, "hashchange", () => this.handleHashChange(viewModelName, spaPlaceHolder, false));
-            this.handleHashChange(viewModelName, spaPlaceHolder, true);
+            var hashChangeHandler = (initialLoad: boolean) => this.handleHashChange(viewModelName, spaPlaceHolder, initialLoad);
+
+            this.useHistoryApiSpaNavigation = <boolean>JSON.parse(<string>spaPlaceHolder.getAttribute("data-dotvvm-spacontentplaceholder-usehistoryapi"));
+            if (this.useHistoryApiSpaNavigation) {
+                hashChangeHandler = (initialLoad: boolean) => this.handleHashChangeWithHistory(viewModelName, spaPlaceHolder, initialLoad);
+            }
+
+            var spaChangedHandler = () => hashChangeHandler(false)
+            this.domUtils.attachEvent(window, "hashchange", spaChangedHandler);
+            hashChangeHandler(true);
         }
+
+        window.addEventListener('popstate', (event) => this.handlePopState(viewModelName, event, spaPlaceHolder != null));
+
         this.isViewModelUpdating = false;
 
         if (idFragment) {
@@ -252,6 +278,40 @@ class DotVVM {
         });
     }
 
+    private handlePopState(viewModelName: string, event: PopStateEvent, inSpaPage: boolean) {
+        if (this.spaHistory.isSpaPage(event.state)) {
+            var historyRecord = this.spaHistory.getHistoryRecord(event.state);
+            if (inSpaPage)
+                this.navigateCore(viewModelName, historyRecord.url);
+            else
+                this.performRedirect(historyRecord.url, true);
+
+            event.preventDefault();
+        }
+    }
+
+    private handleHashChangeWithHistory(viewModelName: string, spaPlaceHolder: HTMLElement, isInitialPageLoad: boolean) {
+        if (document.location.hash.indexOf("#!/") === 0) {
+            // the user requested navigation to another SPA page
+            this.navigateCore(viewModelName, document.location.hash.substring(2),
+                (url) => { this.spaHistory.replacePage(url); });
+
+        } else {
+            var defaultUrl = spaPlaceHolder.getAttribute("data-dotvvm-spacontentplaceholder-defaultroute");
+            var containsContent = spaPlaceHolder.hasAttribute("data-dotvvm-spacontentplaceholder-content");
+
+            if (!containsContent && defaultUrl) {
+                this.navigateCore(viewModelName, "/" + defaultUrl, (url) => this.spaHistory.replacePage(url));
+            } else {
+                this.isSpaReady(true);
+                spaPlaceHolder.style.display = "";
+
+                var currentRelativeUrl = location.pathname + location.search + location.hash
+                this.spaHistory.replacePage(currentRelativeUrl);
+            }
+        }
+    }
+
     private handleHashChange(viewModelName: string, spaPlaceHolder: HTMLElement, isInitialPageLoad: boolean) {
         if (document.location.hash.indexOf("#!/") === 0) {
             // the user requested navigation to another SPA page
@@ -259,6 +319,7 @@ class DotVVM {
 
         } else {
             var url = spaPlaceHolder.getAttribute("data-dotvvm-spacontentplaceholder-defaultroute");
+
             if (url) {
                 // perform redirect to default page
                 url = "#!/" + url;
@@ -305,8 +366,6 @@ class DotVVM {
     }
 
     public staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback = _ => { }, errorCallback = (xhr: XMLHttpRequest, error?) => { }) {
-        if (this.isPostBackProhibited(sender)) return;
-
         var data = this.serialization.serialize({
             "args": args,
             "command": command,
@@ -318,7 +377,7 @@ class DotVVM {
             try {
                 this.isViewModelUpdating = true;
                 const result = JSON.parse(response.responseText);
-                dotvvm.events.staticCommandMethodInvoked.trigger({ ...data, result });
+                dotvvm.events.staticCommandMethodInvoked.trigger({ ...data, result, xhr: response });
                 callback(result);
             } catch (error) {
                 dotvvm.events.staticCommandMethodFailed.trigger({ ...data, xhr: response, error: error })
@@ -327,6 +386,7 @@ class DotVVM {
                 this.isViewModelUpdating = false;
             }
         }, (xhr) => {
+            this.events.error.trigger(new DotvvmErrorEventArgs(sender, this.viewModels[viewModelName].viewModel, viewModelName, xhr, null));
             console.warn(`StaticCommand postback failed: ${xhr.status} - ${xhr.statusText}`, xhr);
             errorCallback(xhr);
             dotvvm.events.staticCommandMethodFailed.trigger({ ...data, xhr })
@@ -524,15 +584,34 @@ class DotVVM {
         });
     }
 
+    public handleSpaNavigation(element: HTMLElement): boolean {
+        var target = element.getAttribute('target');
 
-
-    public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, context?: any, handlers?: ClientFriendlyPostbackHandlerConfiguration[], commandArgs?: any[]): Promise<DotvvmAfterPostBackEventArgs> {
-        if (this.isPostBackProhibited(sender)) {
-            const rejectedPromise = new Promise<DotvvmAfterPostBackEventArgs>((resolve, reject) => reject("rejected"));
-            rejectedPromise.catch(() => console.log("Postback probihited"));
-            return rejectedPromise;
+        if (target == "_blank") {
+            return true;
         }
 
+        return this.handleSpaNavigationCore(element.getAttribute('href'));
+    }
+
+    public handleSpaNavigationCore(url: string | null): boolean {
+       if (url && url.indexOf("/") === 0) {
+            var viewModelName = "root"
+
+            url = this.removeVirtualDirectoryFromUrl(url, viewModelName);
+            this.navigateCore(viewModelName, url, (navigatedUrl) => {
+                if (!history.state || history.state.url != navigatedUrl) {
+                    this.spaHistory.pushPage(navigatedUrl);
+                }
+            });
+
+            return false;
+        }
+
+        return true;
+    }
+
+    public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, context?: any, handlers?: ClientFriendlyPostbackHandlerConfiguration[], commandArgs?: any[]): Promise<DotvvmAfterPostBackEventArgs> {
         context = context || ko.contextFor(sender);
 
         const preparedHandlers = this.findPostbackHandlers(context, this.globalPostbackHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers));
@@ -644,7 +723,7 @@ class DotVVM {
         return null;
     }
 
-    private navigateCore(viewModelName: string, url: string) {
+    private navigateCore(viewModelName: string, url: string, handlePageNavigating?: (url: string) => void) {
         var viewModel = this.viewModels[viewModelName].viewModel;
 
         // prevent double postbacks
@@ -657,15 +736,22 @@ class DotVVM {
             return;
         }
 
+        var virtualDirectory = this.viewModels[viewModelName].virtualDirectory || "";
+
         // add virtual directory prefix
-        url = "/___dotvvm-spa___" + this.addLeadingSlash(url);
-        var fullUrl = this.addLeadingSlash(this.concatUrl(this.viewModels[viewModelName].virtualDirectory || "", url));
+        var spaUrl = "/___dotvvm-spa___" + this.addLeadingSlash(url);
+        var fullUrl = this.addLeadingSlash(this.concatUrl(virtualDirectory, spaUrl));
 
         // find SPA placeholder
         var spaPlaceHolder = this.getSpaPlaceHolder();
         if (!spaPlaceHolder) {
             document.location.href = fullUrl;
             return;
+        }
+
+        if (handlePageNavigating) {
+            handlePageNavigating(
+                this.addLeadingSlash(this.concatUrl(virtualDirectory, this.addLeadingSlash(url))));
         }
 
         // send the request
@@ -714,6 +800,7 @@ class DotVVM {
                 // trigger spaNavigated event
                 var spaNavigatedArgs = new DotvvmSpaNavigatedEventArgs(viewModel, viewModelName, resultObject, result);
                 this.events.spaNavigated.trigger(spaNavigatedArgs);
+
                 if (!isSuccess && !spaNavigatedArgs.isHandled) {
                     throw "Invalid response from server!";
                 }
@@ -735,7 +822,7 @@ class DotVVM {
         if (resultObject.replace != null) replace = resultObject.replace;
         var url;
         // redirect
-        if (this.getSpaPlaceHolder() && resultObject.url.indexOf("//") < 0 && resultObject.allowSpa) {
+        if (this.getSpaPlaceHolder() && !this.useHistoryApiSpaNavigation && resultObject.url.indexOf("//") < 0 && resultObject.allowSpa) {
             // relative URL - keep in SPA mode, but remove the virtual directory
             url = "#!" + this.removeVirtualDirectoryFromUrl(resultObject.url, viewModelName);
             if (url === "#!") {
@@ -754,12 +841,15 @@ class DotVVM {
         var redirectArgs = new DotvvmRedirectEventArgs(dotvvm.viewModels[viewModelName], viewModelName, url, replace);
         this.events.redirect.trigger(redirectArgs);
 
-        this.performRedirect(url, replace);
+        this.performRedirect(url, replace, resultObject.allowSpa && this.useHistoryApiSpaNavigation);
     }
 
-    private performRedirect(url: string, replace: boolean) {
+    private performRedirect(url: string, replace: boolean, useHistoryApiSpaRedirect?: boolean) {
         if (replace) {
             location.replace(url);
+        }
+        else if (useHistoryApiSpaRedirect) {
+            this.handleSpaNavigationCore(url);
         }
         else {
             var fakeAnchor = this.fakeRedirectAnchor;
@@ -983,7 +1073,7 @@ class DotVVM {
     }
 
     private isPostBackProhibited(element: HTMLElement) {
-        if (element && element.tagName && element.tagName.toLowerCase() === "a" && element.getAttribute("disabled")) {
+        if (element && element.tagName && ["a", "input", "button"].indexOf(element.tagName.toLowerCase()) > -1 && element.getAttribute("disabled")) {
             return true;
         }
         return false;
@@ -1015,9 +1105,16 @@ class DotVVM {
         ko.bindingHandlers["dotvvm_withControlProperties"] = {
             init: (element, valueAccessor, allBindings, viewModel, bindingContext) => {
                 if (!bindingContext) throw new Error();
+
                 var value = valueAccessor();
                 for (var prop in value) {
-                    value[prop] = createWrapperComputed(function () { return valueAccessor()[this.prop]; }.bind({ prop: prop }), `'${prop}' at '${valueAccessor.toString()}'`);
+
+                    value[prop] = createWrapperComputed(
+                        function () {
+                            var property = valueAccessor()[this.prop];
+                            return !ko.isObservable(property) ? dotvvm.serialization.deserialize(property) : property
+                        }.bind({ prop: prop }),
+                        `'${prop}' at '${valueAccessor.toString()}'`);
                 }
                 var innerBindingContext = bindingContext.extend({ $control: value });
                 element.innerBindingContext = innerBindingContext;
@@ -1049,12 +1146,38 @@ class DotVVM {
             }
         }
 
+        const foreachCollectionSymbol = "$foreachCollectionSymbol"
+        ko.virtualElements.allowedBindings["dotvvm-SSR-foreach"] = true
+        ko.bindingHandlers["dotvvm-SSR-foreach"] = {
+            init(element, valueAccessor, _allBindings, _viewModel, bindingContext) {
+                if (!bindingContext) throw new Error()
+                var value = valueAccessor()
+                var innerBindingContext = bindingContext.extend({ [foreachCollectionSymbol]: value.data })
+                element.innerBindingContext = innerBindingContext
+                ko.applyBindingsToDescendants(innerBindingContext, element)
+                return { controlsDescendantBindings: true } // do not apply binding again
+
+            }
+        }
+        ko.virtualElements.allowedBindings["dotvvm-SSR-item"] = true
+        ko.bindingHandlers["dotvvm-SSR-item"] = {
+            init(element, valueAccessor, _allBindings, _viewModel, bindingContext) {
+                if (!bindingContext) throw new Error()
+                var index = valueAccessor()
+                var collection = bindingContext[foreachCollectionSymbol]
+                var innerBindingContext = bindingContext.createChildContext(() => ko.unwrap((ko.unwrap(collection) || [])[index])).extend({$index: ko.pureComputed(() => index)})
+                element.innerBindingContext = innerBindingContext
+                ko.applyBindingsToDescendants(innerBindingContext, element)
+                return { controlsDescendantBindings: true } // do not apply binding again
+
+            }
+        }
         ko.virtualElements.allowedBindings["withGridViewDataSet"] = true;
         ko.bindingHandlers["withGridViewDataSet"] = {
             init: (element, valueAccessor, allBindings, viewModel, bindingContext) => {
                 if (!bindingContext) throw new Error();
                 var value = valueAccessor();
-                var innerBindingContext = bindingContext.extend({ $gridViewDataSet: value });
+                var innerBindingContext = bindingContext.extend({ $gridViewDataSet: value, [foreachCollectionSymbol]: dotvvm.evaluator.getDataSourceItems(value) });
                 element.innerBindingContext = innerBindingContext;
                 ko.applyBindingsToDescendants(innerBindingContext, element);
                 return { controlsDescendantBindings: true }; // do not apply binding again

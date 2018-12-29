@@ -15,7 +15,6 @@ namespace DotVVM.Framework.Controls
         {
         }
 
-
         /// <summary>
         /// Gets or sets a value indicating whether the control is enabled and can be modified.
         /// </summary>
@@ -26,7 +25,6 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty EnabledProperty =
             DotvvmPropertyWithFallback.Register<bool, SelectorBase>(nameof(Enabled), FormControls.EnabledProperty);
-
 
         /// <summary>
         /// Gets or sets the name of property in the DataSource collection that will be displayed in the control.
@@ -57,7 +55,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// The expression of DataSource item that will be displayed in the control.
         /// </summary>
-        [ControlPropertyBindingDataContextChange("DataSource")]
+        [ControlPropertyBindingDataContextChange(nameof(DataSource))]
         [CollectionElementDataContextChange(1)]
         [BindingCompilationRequirements(required: new[]{ typeof(SelectorItemBindingProperty) })]
         public IValueBinding ItemTextBinding
@@ -71,7 +69,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// The expression of DataSource item that will be passed to the SelectedValue property when the item is selected.
         /// </summary>
-        [ControlPropertyBindingDataContextChange("DataSource")]
+        [ControlPropertyBindingDataContextChange(nameof(DataSource))]
         [CollectionElementDataContextChange(1)]
         [BindingCompilationRequirements(required: new[]{ typeof(SelectorItemBindingProperty) })]
         public IValueBinding ItemValueBinding
@@ -93,5 +91,18 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty SelectionChangedProperty =
             DotvvmProperty.Register<Command, SelectorBase>(t => t.SelectionChanged, null);
 
+        /// <summary>
+        /// The expression of DataSource item that will be placed into html title attribute.
+        /// </summary>
+        [ControlPropertyBindingDataContextChange(nameof(DataSource))]
+        [CollectionElementDataContextChange(1)]
+        [BindingCompilationRequirements(required: new[] { typeof(SelectorItemBindingProperty) })]
+        public IValueBinding ItemTitleBinding
+        {
+            get { return (IValueBinding)GetValue(ItemTitleBindingProperty); }
+            set { SetValue(ItemTitleBindingProperty, value); }
+        }
+        public static readonly DotvvmProperty ItemTitleBindingProperty =
+            DotvvmProperty.Register<IValueBinding, SelectorBase>(nameof(ItemTitleBinding));
     }
 }

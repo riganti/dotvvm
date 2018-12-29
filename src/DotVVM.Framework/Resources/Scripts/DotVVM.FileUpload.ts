@@ -5,12 +5,15 @@ class DotvvmFileUpload {
         this.createUploadId(sender, iframe);
         this.openUploadDialog(iframe);
     }
-    private getIframe(sender:HTMLElement) {
+    private getIframe(sender: HTMLElement) {
         return <HTMLIFrameElement>sender.parentElement!.previousSibling;
     }
     private openUploadDialog(iframe: HTMLIFrameElement) {
-        var fileUpload = <HTMLInputElement>iframe.contentWindow.document.getElementById('upload');
-        fileUpload.click();
+        var window = iframe.contentWindow;
+        if (window) {
+            var fileUpload = <HTMLInputElement>window.document.getElementById('upload');
+            fileUpload.click();
+        }
     }
 
     public createUploadId(sender: HTMLElement, iframe: HTMLElement) {

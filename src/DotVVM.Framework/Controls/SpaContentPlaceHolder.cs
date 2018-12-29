@@ -1,12 +1,11 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Binding;
-using DotVVM.Framework.Compilation.Parser;
+using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Hosting.Middlewares;
-using DotVVM.Framework.Runtime;
+using DotVVM.Framework.Utils;
+using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Controls
 {
@@ -15,7 +14,6 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     public class SpaContentPlaceHolder : ContentPlaceHolder
     {
-
         /// <summary>
         /// Gets or sets the default name of the route that should be loaded when there is no hash part in the URL.
         /// </summary>
@@ -27,7 +25,6 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty DefaultRouteNameProperty
             = DotvvmProperty.Register<string, SpaContentPlaceHolder>(p => p.DefaultRouteName);
-
 
         /// <summary>
         /// Gets or sets the name of the route defining the base URL of the SPA (the part of the URL before the hash).
@@ -42,7 +39,18 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty PrefixRouteNameProperty
             = DotvvmProperty.Register<string, SpaContentPlaceHolder>(c => c.PrefixRouteName, null);
 
-
+        /// <summary>
+        /// Gets or sets whether navigation in the SPA pages should use History API.
+        /// If this property is not set, settings from <see cref="DotvvmConfiguration">DotvvmConfiguration</see> is used.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
+        public bool? UseHistoryApi
+        {
+            get { return (bool?)GetValue(UseHistoryApiProperty); }
+            set { SetValue(UseHistoryApiProperty, value); }
+        }
+        public static readonly DotvvmProperty UseHistoryApiProperty
+            = DotvvmProperty.Register<bool?, SpaContentPlaceHolder>(c => c.UseHistoryApi, null);
 
         public SpaContentPlaceHolder()
         {
@@ -52,15 +60,24 @@ namespace DotVVM.Framework.Controls
 
         public string GetSpaContentPlaceHolderUniqueId()
         {
-            return GetAllAncestors().FirstOrDefault(a => a is DotvvmView).GetType().ToString();
+            var dotvvmViewId = GetAllAncestors().FirstOrDefault(a => a is DotvvmView).GetType().ToString();
+            var markupRelativeFilePath = (string)GetValue(Internal.MarkupFileNameProperty);
+
+            return HashUtils.HashAndBase64Encode(
+                (dotvvmViewId, markupRelativeFilePath, GetDotvvmUniqueId()).ToString());
         }
 
-        protected internal override void OnInit(Hosting.IDotvvmRequestContext context)
+        protected internal override void OnInit(IDotvvmRequestContext context)
         {
-            GetRoot().SetValue(Internal.IsSpaPageProperty, true);
+            var rootObject = GetRoot();
+            rootObject.SetValue(Internal.IsSpaPageProperty, true);
+
+            var useHistoryApiSpaNavigation = UseHistoryApi ?? context.Configuration.UseHistoryApiSpaNavigation;
+            rootObject.SetValue(Internal.UseHistoryApiSpaNavigationProperty, useHistoryApiSpaNavigation);
 
             Attributes["name"] = HostingConstants.SpaContentPlaceHolderID;
             Attributes[HostingConstants.SpaContentPlaceHolderDataAttributeName] = GetSpaContentPlaceHolderUniqueId();
+            Attributes[HostingConstants.SpaUseHistoryApiAttributeName] = JsonConvert.ToString(useHistoryApiSpaNavigation);
 
             var correctSpaUrlPrefix = GetCorrectSpaUrlPrefix(context);
             if (correctSpaUrlPrefix != null)
@@ -72,7 +89,7 @@ namespace DotVVM.Framework.Controls
 
             base.OnInit(context);
         }
-        
+
         private string GetCorrectSpaUrlPrefix(IDotvvmRequestContext context)
         {
             var routePath = "";
@@ -93,7 +110,7 @@ namespace DotVVM.Framework.Controls
             return result;
         }
 
-        protected internal override void OnPreRender(Hosting.IDotvvmRequestContext context)
+        protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
             if (context.IsSpaRequest)
             {
@@ -111,6 +128,11 @@ namespace DotVVM.Framework.Controls
                 writer.AddStyleAttribute("display", "none");
             }
             writer.AddKnockoutDataBind("if", "dotvvm.isSpaReady");
+
+            if (Children.Count > 0)
+            {
+                writer.AddAttribute(HostingConstants.SpaContentAttributeName, string.Empty);
+            }
 
             if (!string.IsNullOrEmpty(DefaultRouteName))
             {

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 
 namespace DotVVM.Framework.Compilation.Javascript.Ast
 {
@@ -284,5 +285,6 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         public static bool TryGetAnnotation<T>(this IAnnotatable node, out T annotation)
             where T : class
             => (annotation = node.Annotation<T>()) != null;
+
     }
 }

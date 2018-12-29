@@ -1,34 +1,28 @@
-﻿
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Selenium.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
+using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
 using Riganti.Selenium.Core.Abstractions.Exceptions;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace DotVVM.Samples.Tests.Complex
 {
-    [TestClass]
     public class RedirectAndUrlTests : AppSeleniumTest
     {
-        [TestMethod]
+        [Fact]
         [SampleReference(nameof(SamplesRouteUrls.ComplexSamples_RedirectAndUrl_ScrollingPage))]
         public void Complex_RedirectAndUrl_PostbackInteruption()
         {
-            //When redirecting to fragment e.g. /uri#element-id postback gets interupted and the page does not reload 
+            //When redirecting to fragment e.g. /uri#element-id postback gets interupted and the page does not reload
             //Expected: Page reloads and scrolls to element-id
 
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 //Postback with no redirect sets message
                 browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_RedirectAndUrl_ScrollingPage);
                 browser.First("a[data-ui=test-link]").Click();
                 browser.Wait(200);
-                browser.First("span[data-ui='message1']").CheckIfInnerTextEquals("TestMessage");
+                AssertUI.InnerTextEquals(browser.First("span[data-ui='message1']"), "TestMessage");
 
                 //used RedirectToUrl to redirect to page with Id, however the redirect made page reload and discarted the viewmodel
                 //therefore  message1 should be blank
@@ -44,41 +38,40 @@ namespace DotVVM.Samples.Tests.Complex
                 message1element.IsDisplayed();
                 message1element.CheckIfIsElementNotInView();
 
-                message1element.CheckIfInnerTextEquals("TestMessage");
-                message2element.CheckIfInnerTextEquals("TestMessage");
+                AssertUI.InnerTextEquals(message1element, "TestMessage");
+                AssertUI.InnerTextEquals(message2element, "TestMessage");
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void Complex_RedirectAndUrl_ScrollingPage()
         {
             //There I am testing that scrolling to element using Context.ResultIdFragment works correctly
             //It should scroll to element without interupting the postback
 
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 //Postback with no redirect sets message to 'TestMessage'
                 browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_RedirectAndUrl_ScrollingPage);
                 browser.First("a[data-ui=test-link]").Click();
                 browser.Wait(200);
-                browser.First("span[data-ui='message1']").CheckIfInnerText(s => s.Equals("TestMessage"));
+                AssertUI.InnerText(browser.First("span[data-ui='message1']"), s => s.Equals("TestMessage"));
 
                 //Postback sould run and view should scroll, page should not reload therefore messeges remain.
                 browser.First("a[data-ui='go-to-2-link']").Click();
                 browser.Wait(200);
-                
+
                 var message2element = browser.First("span[data-ui='message2']");
                 var message1element = browser.First("span[data-ui='message1']");
 
-                //Message 2 should be scrolled to while message 1 snhould not, and both should have their texts set from the postback. 
+                //Message 2 should be scrolled to while message 1 snhould not, and both should have their texts set from the postback.
                 message1element.IsDisplayed();
                 message2element.IsDisplayed();
 
                 message1element.CheckIfIsElementNotInView();
                 message2element.CheckIfIsElementInView();
 
-                message1element.CheckIfInnerText(s => s.Equals("ToParagraph2"));
-                message2element.CheckIfInnerText(s => s.Equals("ToParagraph2"));
+                AssertUI.InnerText(message1element, s => s.Equals("ToParagraph2"));
+                AssertUI.InnerText(message2element, s => s.Equals("ToParagraph2"));
 
                 //basicly the same just clicking on link to do postback and scroll back to paragraph1 after
                 browser.First("a[data-ui='go-to-1-link']").Click();
@@ -91,8 +84,8 @@ namespace DotVVM.Samples.Tests.Complex
                 message1element.CheckIfIsElementInView();
                 message2element.CheckIfIsElementNotInView();
 
-                message1element.CheckIfInnerText(s => s.Equals("ToParagraph1"));
-                message2element.CheckIfInnerText(s => s.Equals("ToParagraph1"));
+                AssertUI.InnerText(message1element, s => s.Equals("ToParagraph1"));
+                AssertUI.InnerText(message2element, s => s.Equals("ToParagraph1"));
 
                 //Now test that the scrolling works 2 times in row with same link
                 var goTo1Link = browser.First("a[data-ui='go-to-1-link']");
@@ -106,14 +99,17 @@ namespace DotVVM.Samples.Tests.Complex
                 message2element.CheckIfIsElementNotInView();
             });
         }
-    }
-}
 
-public static class ElementWrapperIsInViewExtensions
-{
-    public static IElementWrapper ScrollTo(this IElementWrapper element)
+        public RedirectAndUrlTests(ITestOutputHelper output) : base(output)
+        {
+        }
+    }
+
+    public static class ElementWrapperIsInViewExtensions
     {
-        var javascript = @"
+        public static IElementWrapper ScrollTo(this IElementWrapper element)
+        {
+            var javascript = @"
             function findPosition(element) {
                 var curtop = 0;
                 if (element.offsetParent) {
@@ -126,32 +122,32 @@ public static class ElementWrapperIsInViewExtensions
 
             window.scroll(0,findPosition(arguments[0]));
         ";
-        var executor = element.BrowserWrapper.GetJavaScriptExecutor();
-        executor.ExecuteScript(javascript,element.WebElement);
-        return element;
-    }
-
-    public static void CheckIfIsElementInView(this IElementWrapper element)
-    {
-        if (!IsElementInView(element))
-        {
-            throw new UnexpectedElementStateException($"Element is not in browser view. {element.ToString()}");
+            var executor = element.BrowserWrapper.GetJavaScriptExecutor();
+            executor.ExecuteScript(javascript, element.WebElement);
+            return element;
         }
-    }
 
-    public static void CheckIfIsElementNotInView(this IElementWrapper element)
-    {
-        if (IsElementInView(element))
+        public static void CheckIfIsElementInView(this IElementWrapper element)
         {
-            throw new UnexpectedElementStateException($"Element is in browser view. {element.ToString()}");
+            if (!IsElementInView(element))
+            {
+                throw new UnexpectedElementStateException($"Element is not in browser view. {element.ToString()}");
+            }
         }
-    }
 
-    public static bool IsElementInView( this IElementWrapper element)
-    {
-        var executor = element.BrowserWrapper.GetJavaScriptExecutor();
+        public static void CheckIfIsElementNotInView(this IElementWrapper element)
+        {
+            if (IsElementInView(element))
+            {
+                throw new UnexpectedElementStateException($"Element is in browser view. {element.ToString()}");
+            }
+        }
 
-        var result = executor.ExecuteScript(@"
+        public static bool IsElementInView(this IElementWrapper element)
+        {
+            var executor = element.BrowserWrapper.GetJavaScriptExecutor();
+
+            var result = executor.ExecuteScript(@"
 function elementInViewport2(el) {
   var top = el.offsetTop;
   var left = el.offsetLeft;
@@ -175,6 +171,7 @@ function elementInViewport2(el) {
 return elementInViewport2(arguments[0]);
                 ", element.WebElement);
 
-        return (bool)result;
+            return (bool)result;
+        }
     }
 }

@@ -10,7 +10,6 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     public class Content : DotvvmControl
     {
-
         /// <summary>
         /// Gets or sets the ID of the ContentPlaceHolder control in the master page in which the content will be placed.
         /// </summary>

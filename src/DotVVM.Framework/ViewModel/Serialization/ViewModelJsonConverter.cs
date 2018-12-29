@@ -110,6 +110,17 @@ namespace DotVVM.Framework.ViewModel.Serialization
             return typeof(IEnumerable).IsAssignableFrom(type);
         }
 
+        public static bool IsDictionary(Type type)
+        {
+            return type.GetInterfaces().Any(x => x.IsGenericType
+                    && x.GetGenericTypeDefinition() == typeof(IDictionary<,>));
+        }
+
+        public static bool IsCollection(Type type)
+        {
+            return !IsPrimitiveType(type) && IsEnumerable(type) && !IsDictionary(type);
+        }
+
         public static bool IsPrimitiveType(Type type)
         {
             return primitiveTypes.Contains(type);

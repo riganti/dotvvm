@@ -19,7 +19,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false)]
         [AttachedProperty(typeof(PostbackConcurrencyMode))]
         public static readonly DotvvmProperty ConcurrencyProperty =
-            DotvvmProperty.Register<PostbackConcurrencyMode, PostBack>(() => ConcurrencyProperty, PostbackConcurrencyMode.None, isValueInherited: true);
+            DotvvmProperty.Register<PostbackConcurrencyMode, PostBack>(() => ConcurrencyProperty, PostbackConcurrencyMode.Default, isValueInherited: true);
 
 
         [MarkupOptions(AllowBinding = false)]
@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Controls
 
     public enum PostbackConcurrencyMode
     {
-        None,
+        Default,
         Deny,
         Queue
     }

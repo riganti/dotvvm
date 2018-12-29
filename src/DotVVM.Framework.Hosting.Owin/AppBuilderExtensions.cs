@@ -26,14 +26,12 @@ namespace Owin
         /// in production.
         /// </param>
         /// <param name="debug">A value indicating whether the application should run in debug mode.</param>
-        public static DotvvmConfiguration UseDotVVM<TStartup, TServiceConfigurator>(this IAppBuilder app, string applicationRootPath, bool useErrorPages = true, bool debug = true)
+        /// <param name="serviceProviderFactoryMethod">Register factory method to create your own instance of IServiceProvider.</param>
+        public static DotvvmConfiguration UseDotVVM<TStartup, TServiceConfigurator>(this IAppBuilder app, string applicationRootPath, bool useErrorPages = true, bool debug = true, Func<IServiceCollection, IServiceProvider> serviceProviderFactoryMethod = null)
             where TStartup : IDotvvmStartup, new()
             where TServiceConfigurator : IDotvvmServiceConfigurator, new()
         {
-            var serviceConfigurator = new TServiceConfigurator();
-            var config = app.UseDotVVM(applicationRootPath, useErrorPages, debug, serviceConfigurator);
-            new TStartup().Configure(config, applicationRootPath);
-            return config;
+            return app.UseDotVVM(applicationRootPath, useErrorPages, debug, new TServiceConfigurator(), new TStartup(), serviceProviderFactoryMethod);
         }
 
         /// <summary>
@@ -46,17 +44,15 @@ namespace Owin
         /// in production.
         /// </param>
         /// <param name="debug">A value indicating whether the application should run in debug mode.</param>
-        public static DotvvmConfiguration UseDotVVM<TStartup>(this IAppBuilder app, string applicationRootPath, bool useErrorPages = true, bool debug = true)
+        /// <param name="serviceProviderFactoryMethod">Register factory method to create your own instance of IServiceProvider.</param>
+        public static DotvvmConfiguration UseDotVVM<TStartup>(this IAppBuilder app, string applicationRootPath, bool useErrorPages = true, bool debug = true, Func<IServiceCollection, IServiceProvider> serviceProviderFactoryMethod = null)
             where TStartup : IDotvvmStartup, new()
         {
             var startup = new TStartup();
-            var config = app.UseDotVVM(applicationRootPath, useErrorPages, debug, startup as IDotvvmServiceConfigurator);
-            startup.Configure(config, applicationRootPath);
-
-            return config;
+            return app.UseDotVVM(applicationRootPath, useErrorPages, debug, startup as IDotvvmServiceConfigurator, startup, serviceProviderFactoryMethod);
         }
 
-        private static DotvvmConfiguration UseDotVVM(this IAppBuilder app, string applicationRootPath, bool useErrorPages, bool debug, IDotvvmServiceConfigurator configurator)
+        private static DotvvmConfiguration UseDotVVM(this IAppBuilder app, string applicationRootPath, bool useErrorPages, bool debug, IDotvvmServiceConfigurator configurator, IDotvvmStartup startup, Func<IServiceCollection, IServiceProvider> serviceProviderFactoryMethod = null)
         {
             var config = DotvvmConfiguration.CreateDefault(s => {
                 s.TryAddSingleton<IDataProtectionProvider>(p => new DefaultDataProtectionProvider(app));
@@ -67,10 +63,12 @@ namespace Owin
                 s.TryAddScoped<DotvvmRequestContextStorage>(_ => new DotvvmRequestContextStorage());
                 s.TryAddScoped<IDotvvmRequestContext>(services => services.GetRequiredService<DotvvmRequestContextStorage>().Context);
                 configurator?.ConfigureServices(new DotvvmServiceCollection(s));
-            });
-
+            }, serviceProviderFactoryMethod);
             config.Debug = debug;
             config.ApplicationPhysicalPath = applicationRootPath;
+
+            startup.Configure(config, applicationRootPath);
+
 
             if (useErrorPages)
             {
@@ -83,7 +81,7 @@ namespace Owin
                 new DotvvmReturnedFileMiddleware(),
                 new DotvvmRoutingMiddleware()
             }.Where(t => t != null).ToArray());
-
+            config.Freeze();
             return config;
         }
     }

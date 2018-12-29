@@ -14,7 +14,6 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     public class UpdateProgress : HtmlGenericControl
     {
-
         /// <summary>
         /// Gets or sets the delay (in ms) after which the content inside UpdateProgress control is shown
         /// </summary>

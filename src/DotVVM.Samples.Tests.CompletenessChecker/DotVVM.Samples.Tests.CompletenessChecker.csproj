@@ -16,11 +16,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MSTest.TestFramework" Version="1.2.0" />
+    <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\DotVVM.Samples.Tests.New\DotVVM.Samples.Tests.New.csproj" />
     <ProjectReference Include="..\DotVVM.Samples.Tests\DotVVM.Samples.Tests.csproj" />
     <ProjectReference Include="..\DotVVM.Testing.Abstractions\DotVVM.Testing.Abstractions.csproj" />
   </ItemGroup>

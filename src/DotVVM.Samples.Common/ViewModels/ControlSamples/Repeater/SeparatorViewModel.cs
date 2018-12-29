@@ -18,5 +18,10 @@ namespace DotVVM.Samples.Common.ViewModels.ControlSamples.Repeater
 
             public string Sender { get; set; }
         }
+
+        public void AddItem()
+        {
+            Cards.Add(new Card { From = "New York", Sender = "Timmy" });
+        }
     }
 }

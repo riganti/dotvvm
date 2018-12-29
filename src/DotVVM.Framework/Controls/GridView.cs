@@ -154,10 +154,6 @@ namespace DotVVM.Framework.Controls
             base.OnPreRender(context);
         }
 
-        private void CallGridViewDataSetRequestRefresh(IRefreshableGridViewDataSet refreshableGridViewDataSet)
-        {
-            refreshableGridViewDataSet.RequestRefresh();
-        }
         private void DataBind(IDotvvmRequestContext context)
         {
             Children.Clear();
@@ -166,12 +162,6 @@ namespace DotVVM.Framework.Controls
 
             var dataSourceBinding = GetDataSourceBinding();
             var dataSource = DataSource;
-
-
-            if (dataSource is IRefreshableGridViewDataSet refreshableDataSet)
-            {
-                CallGridViewDataSetRequestRefresh(refreshableDataSet);
-            }
 
             var sortCommand =
                 dataSource is ISortableGridViewDataSet sortableSet && sortableSet.SortingOptions is ISortingOptions sortOptions ?
@@ -186,7 +176,8 @@ namespace DotVVM.Framework.Controls
                             sortOptions.SortDescending = false;
                         }
                         (sortableSet as IPageableGridViewDataSet)?.GoToFirstPage();
-                    } :
+                    }
+            :
                     SortChanged;
 
             // WORKAROUND: DataSource is null => don't throw exception
@@ -198,6 +189,7 @@ namespace DotVVM.Framework.Controls
             }
 
             CreateHeaderRow(context, sortCommand);
+
             var index = 0;
             if (dataSource != null)
             {
@@ -207,7 +199,7 @@ namespace DotVVM.Framework.Controls
                     // create row
                     var placeholder = new DataItemContainer { DataItemIndex = index };
                     placeholder.SetDataContextTypeFromDataSource(dataSourceBinding);
-                    placeholder.SetDataContextForItem(itemBinding, index, item);
+                    placeholder.DataContext = item;
                     placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[" + index + "]");
                     placeholder.ID = index.ToString();
                     Children.Add(placeholder);
@@ -233,7 +225,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void CreateHeaderRow(IDotvvmRequestContext context, Action<string> sortCommand)
+        protected virtual void CreateHeaderRow(IDotvvmRequestContext context, Action<string> sortCommand)
         {
             head = new HtmlGenericControl("thead");
             Children.Add(head);
@@ -503,7 +495,7 @@ namespace DotVVM.Framework.Controls
             base.AddAttributesToRender(writer, context);
         }
 
-        
+
 
         public override IEnumerable<DotvvmBindableObject> GetLogicalChildren()
         {

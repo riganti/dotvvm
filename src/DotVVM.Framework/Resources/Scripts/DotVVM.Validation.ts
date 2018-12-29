@@ -96,6 +96,28 @@ class DotvvmNotNullValidator extends DotvvmValidatorBase {
     }
 }
 
+class DotvvmEmailAddressValidator extends DotvvmValidatorBase {
+    public isValid(context: DotvvmValidationContext): boolean {
+        var value = context.valueToValidate;
+        if (value == null) return true;
+
+        if (typeof value !== "string") return false;
+
+        var found = false;
+        for (var i = 0; i < value.length; i++)
+        {
+            if (value[i] == '@') {
+                if (found || i == 0 || i == value.length - 1) {
+                    return false;
+                }
+                found = true;
+            }
+        }
+
+        return found;
+    }
+}
+
 type KnockoutValidatedObservable<T> = KnockoutObservable<T> & { validationErrors?: KnockoutObservableArray<ValidationError> }
 
 class ValidationError {
@@ -145,6 +167,7 @@ class DotvvmValidation {
         "regularExpression": new DotvvmRegularExpressionValidator(),
         "intrange": new DotvvmIntRangeValidator(),
         "range": new DotvvmRangeValidator(),
+        "emailAddress": new DotvvmEmailAddressValidator(),
         "notnull": new DotvvmNotNullValidator(),
         "enforceClientFormat": new DotvvmEnforceClientFormatValidator()
     }
@@ -170,7 +193,8 @@ class DotvvmValidation {
             if (errorMessages.length > 0) {
                 element.className += " " + className;
             } else {
-                element.className = element.className.split(' ').filter(c => c != className).join(' ');
+                var classNames = className.split(' ');
+                element.className = element.className.split(' ').filter(c => classNames.indexOf(c) < 0).join(' ');
             }
         },
 
@@ -198,7 +222,7 @@ class DotvvmValidation {
                     var context = ko.contextFor(options.sender);
                     var validationTarget = dotvvm.evaluator.evaluateOnViewModel(context, path);
 
-                    // validate the object
+                    this.errors([]);
                     this.clearValidationErrors(dotvvm.viewModelObservables[options.viewModelName || 'root']);
                     this.validateViewModel(validationTarget);
                     if (this.errors().length > 0) {

@@ -11,14 +11,14 @@
 
     <p>
         <dot:TextBox Text="{value: UserName}" placeholder="user name" />
-        <dot:ComboBox SelectedValue="{value: Repo}" DataSource="{value: Api.RefreshOnChange(_github.Users.GetRepos(UserName), UserName)}" ItemValueBinding="{value: Name}" ItemTextBinding="{value: Name}" />
+        <dot:ComboBox SelectedValue="{value: Repo}" DataSource="{value: _api.RefreshOnChange(_github.Users.GetRepos(UserName), UserName)}" ItemValueBinding="{value: Name}" ItemTextBinding="{value: Name}" />
     </p>
 
     <p>
         Open Issues:
     </p>
 
-    <dot:GridView DataSource="{value: Api.RefreshOnChange(_github.Repos.GetIssuesAll(UserName, Repo, 'All', 'Open', '', 'Updated', 'Desc', '1950-01-01T00:00:00Z'), Repo + UserName)}">
+    <dot:GridView DataSource="{value: _api.RefreshOnChange(_github.Repos.GetIssuesAll(UserName, Repo, 'All', 'Open', '', 'Updated', 'Desc', '1950-01-01T00:00:00Z'), Repo + UserName)}">
         <RowDecorators>
             <dot:Decorator Events.Click="{staticCommand: _root.CurrentIssueText = _github.Repos.GetIssues(_root.UserName, _root.Repo, Number).Body}" />
         </RowDecorators>
@@ -36,7 +36,7 @@
         </dot:GridViewTemplateColumn>
     </dot:GridView>
 
-    <div>
+    <div class="id-current-issue-text">
         {{value: CurrentIssueText}}
     </div>
 
@@ -44,8 +44,8 @@
         <h2>New Issue </h2>
         <dot:TextBox Text="{value: Title}" />
         <dot:TextBox Type="MultiLine" Text="{value: Body}" />
-        <span Visible="{value: Api.RefreshOnChange(_github.Repos.GetWatchers(_root.UserName, _root.Repo), _root.Repo).Count > 0}"> You can only push issues to repos that have 0 watchers. </span>
-        <dot:Button Click="{staticCommand: _github.Repos.PostIssues(_root.UserName, _root.Repo, _this);}" Enabled="{value: Api.RefreshOnChange(_github.Repos.GetWatchers(_root.UserName, _root.Repo), _root.Repo).Count == 0}"> Submit issue </dot:Button>
+        <span Visible="{value: _api.RefreshOnChange(_github.Repos.GetWatchers(_root.UserName, _root.Repo), _root.Repo).Count > 0}"> You can only push issues to repos that have 0 watchers. </span>
+        <dot:Button Click="{staticCommand: _github.Repos.PostIssues(_root.UserName, _root.Repo, _this);}" Enabled="{value: _api.RefreshOnChange(_github.Repos.GetWatchers(_root.UserName, _root.Repo), _root.Repo).Count == 0}"> Submit issue </dot:Button>
     </div>
 
     <dot:Button Text="Fill sample issue" Click="{staticCommand: NewIssue.Title = "Hello."; NewIssue.Body = "This project is simply awesome."}" />

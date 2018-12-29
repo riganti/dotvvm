@@ -15,12 +15,14 @@ class DotvvmSerialization {
         if (typeof (viewModel) == "undefined" || viewModel == null) {
             if (ko.isObservable(target)) {
                 target(viewModel);
+                return target;
             }
             return viewModel;
         }
         if (typeof (viewModel) == "string" || typeof (viewModel) == "number" || typeof (viewModel) == "boolean") {
             if (ko.isObservable(target)) {
                 target(viewModel);
+                return target;
             }
             return viewModel;
         }
@@ -28,6 +30,7 @@ class DotvvmSerialization {
             viewModel = dotvvm.serialization.serializeDate(viewModel);
             if (ko.isObservable(target)) {
                 target(viewModel);
+                return target;
             }
             return viewModel;
         }
@@ -285,7 +288,7 @@ class DotvvmSerialization {
             var minValue = 0;
             var maxValue = Math.pow(2, bits) - 1;
             if (!unsigned) {
-                minValue = -((maxValue / 2) | 0);
+                minValue = -Math.floor(maxValue / 2);
                 maxValue = maxValue + minValue;
             }
             var int = parseInt(value);

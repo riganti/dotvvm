@@ -16,7 +16,9 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
         [TestMethod]
         public void ViewModelSerializationMapper_Name_JsonPropertyVsBindAttribute()
         {
-            var mapper = new ViewModelSerializationMapper(new ViewModelValidationRuleTranslator(), new AttributeViewModelValidationMetadataProvider());
+            var mapper = new ViewModelSerializationMapper(new ViewModelValidationRuleTranslator(),
+                new AttributeViewModelValidationMetadataProvider(),
+                new DefaultPropertySerialization());
             var map = mapper.GetMap(typeof(JsonPropertyVsBindAttribute));
 
             Assert.AreEqual("NoAttribute", map.Property("NoAttribute").Name);

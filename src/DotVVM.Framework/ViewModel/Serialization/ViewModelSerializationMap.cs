@@ -215,7 +215,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             let parameters = method.GetParameters()
             where parameters.Length == 1
             let parameterType = parameters[0].ParameterType
-            where parameterType != typeof(object)
+            where parameterType != typeof(object) && parameterType != typeof(byte[])
             where parameterType != typeof(DateTime) && parameterType != typeof(DateTime?)
             where parameterType != typeof(DateTimeOffset) && parameterType != typeof(DateTimeOffset?)
             select new { key = parameterType, value = method }
@@ -469,7 +469,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         private void AddTypeOptions(Dictionary<string, object> options, ViewModelPropertyMap property)
         {
-            if (property.TransferToClient || property.TransferToServer)
+            if ((property.TransferToClient || property.TransferToServer) && property.ViewModelProtection != ProtectMode.EncryptData)
             {
                 if ((property.Type == typeof(DateTime) || property.Type == typeof(DateTime?)) && property.JsonConverter == null) // TODO: allow customization using attributes
                 {

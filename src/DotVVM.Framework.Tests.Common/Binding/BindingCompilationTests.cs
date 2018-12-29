@@ -16,6 +16,8 @@ using System.Collections.Immutable;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Utils;
 using Microsoft.Extensions.DependencyInjection;
+using DotVVM.Framework.Tests.Common;
+using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -419,6 +421,70 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        [ExpectedExceptionMessageSubstring(typeof(AggregateException), "Identifier name")]
+        public void BindingCompiler_MemberAccessIdentifierMissing_Throws()
+        {
+            TestViewModel vm = new TestViewModel { StringProp = "a" };
+            var result = ExecuteBinding("StringProp.", new[] { vm });
+        }
+
+        [TestMethod]
+        public void BindingCompiler_MultiBlockExpression_EnumAtEnd_CorrectResult()
+        {
+            TestViewModel vm = new TestViewModel { StringProp = "a" };
+            var result = ExecuteBinding("StringProp = StringProp + 'll'; IntProp = MethodWithOverloads(); GetEnum()", new[] { vm });
+
+            Assert.IsInstanceOfType(result, typeof(TestEnum));
+            Assert.AreEqual(TestEnum.A, (TestEnum)result);
+        }
+
+        [TestMethod]
+        [ExpectedExceptionMessageSubstring(typeof(AggregateException), "Could not implicitly convert expression of type System.Void to System.Object")]
+        public void BindingCompiler_MultiBlockExpression_EmptyBlockAtEnd_Throws()
+        {
+            TestViewModel vm = new TestViewModel { StringProp = "a" };
+            var result = ExecuteBinding("GetEnum();", new[] { vm });
+        }
+
+        [TestMethod]
+        [ExpectedExceptionMessageSubstring(typeof(AggregateException), "Could not implicitly convert expression of type System.Void to System.Object")]
+        public void BindingCompiler_MultiBlockExpression_WhitespaceBlockAtEnd_Throws()
+        {
+            TestViewModel vm = new TestViewModel { StringProp = "a" };
+            var result = ExecuteBinding("GetEnum(); ", new[] { vm });
+        }
+
+        [TestMethod]
+        public void BindingCompiler_MultiBlockExpression_EmptyBlockInTheMiddle_Throws()
+        {
+            TestViewModel vm = new TestViewModel { StringProp = "a" };
+            var result = ExecuteBinding("StringProp = StringProp; ; MethodWithOverloads()", new[] { vm });
+
+            Assert.IsInstanceOfType(result, typeof(int));
+            Assert.AreEqual(1, (int)result);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_MultiBlockExpression_EmptyBlockAtStart_Throws()
+        {
+            TestViewModel vm = new TestViewModel { StringProp = "a" };
+            var result = ExecuteBinding("; MethodWithOverloads()", new[] { vm });
+
+            Assert.IsInstanceOfType(result, typeof(int));
+            Assert.AreEqual(1, (int)result);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_MultiBlockExpression_AssigmentAtEnd_CorrectResult()
+        {
+            TestViewModel vm = new TestViewModel { StringProp = "a" };
+            var result = ExecuteBinding("StringProp = StringProp + 'll'; IntProp = MethodWithOverloads()", new[] { vm });
+
+            Assert.IsInstanceOfType(result, typeof(int));
+            Assert.AreEqual(1, (int)result);
+        }
+
+        [TestMethod]
         public void BindingCompiler_DelegateConversion_TaskFromResult()
         {
             TestViewModel vm = new TestViewModel { StringProp = "a" };
@@ -449,30 +515,40 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual(42, result(42));
         }
 
+        [TestMethod]
         public void BindingCompiler_ComparisonOperators()
         {
             var result = ExecuteBinding("LongProperty < TestViewModel2.MyProperty && LongProperty > TestViewModel2.MyProperty", new [] { new TestViewModel { TestViewModel2 = new TestViewModel2() } });
             Assert.AreEqual(false, result);
-
         }
     }
     class TestViewModel
     {
         public string StringProp { get; set; }
+        public int IntProp { get; set; }
         public TestViewModel2 TestViewModel2 { get; set; }
+        public TestViewModel2 TestViewModel2B { get; set; }
         public TestEnum EnumProperty { get; set; }
         public string StringProp2 { get; set; }
         public DateTime? DateFrom { get; set; }
         public DateTime? DateTo { get; set; }
         public object Time { get; set; } = TimeSpan.FromSeconds(5);
+        public Guid GuidProp { get; set; }
 
         public long LongProperty { get; set; }
+
+        public long[] LongArray => new long[] { 1, 2, long.MaxValue };
+        public TestViewModel2[] VmArray => new TestViewModel2[] { new TestViewModel2() };
 
         public string SetStringProp(string a, int b)
         {
             var p = StringProp;
             StringProp = a + b;
             return p;
+        }
+
+        public TestEnum GetEnum() {
+            return TestEnum.A;
         }
 
         public T Identity<T>(T param)
@@ -527,6 +603,11 @@ namespace DotVVM.Framework.Tests.Binding
         {
             return SomeString + ": " + MyProperty;
         }
+    }
+
+    class TestViewModel3 : DotvvmViewModelBase
+    {
+        public string SomeString { get; set; }
     }
 
     class Something

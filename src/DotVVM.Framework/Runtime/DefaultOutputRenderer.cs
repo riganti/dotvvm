@@ -89,6 +89,13 @@ namespace DotVVM.Framework.Runtime
             await context.HttpContext.Response.WriteAsync(serializedViewModel);
         }
 
+        public virtual async Task WriteStaticCommandResponse(IDotvvmRequestContext context, string json)
+        {
+            context.HttpContext.Response.ContentType = "application/json; charset=utf-8";
+            SetCacheHeaders(context.HttpContext);
+            await context.HttpContext.Response.WriteAsync(json);
+        }
+
         public virtual async Task RenderPlainJsonResponse(IHttpContext context, object data)
         {
             context.Response.StatusCode = (int)HttpStatusCode.OK;

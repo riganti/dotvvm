@@ -120,4 +120,7 @@
   <data name="DefaultDirectiveLocalization" xml:space="preserve">
     <value>Defaultní nastavení z konfigurace</value>
   </data>
+  <data name="PostbackHandlers" xml:space="preserve">
+    <value>CzechValue</value>
+  </data>
 </root>

@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -10,13 +9,9 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.HelperNamespace;
 using DotVVM.Framework.Binding.Properties;
-using DotVVM.Framework.Compilation.Binding;
-using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
-using DotVVM.Framework.ViewModel;
-using DotVVM.Framework.ViewModel.Serialization;
 
 namespace DotVVM.Framework.Compilation.Javascript
 {
@@ -112,28 +107,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 new GenericMethodCompiler(args => new JsBinaryExpression(args[0], BinaryOperatorType.NotEqual, new JsLiteral(null))));
             //AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Count), lengthMethod, new[] { typeof(IEnumerable) });
 
-            AddMethodTranslator(typeof(Api), nameof(Api.RefreshOnChange),
-                new GenericMethodCompiler(a =>
-                    new JsIdentifierExpression("dotvvm").Member("apiRefreshOn").Invoke(
-                        a[1].WithAnnotation(ShouldBeObservableAnnotation.Instance),
-                        a[2].EnsureObservableWrapped())
-                        .WithAnnotation(a[1].Annotation<ResultIsObservableAnnotation>())
-                        .WithAnnotation(a[1].Annotation<ViewModelInfoAnnotation>())
-                        .WithAnnotation(a[1].Annotation<MayBeNullAnnotation>())
-                ));
-            AddMethodTranslator(typeof(Api), nameof(Api.RefreshOnEvent),
-                new GenericMethodCompiler(a =>
-                    new JsIdentifierExpression("dotvvm").Member("apiRefreshOn").Invoke(
-                        a[1].WithAnnotation(ShouldBeObservableAnnotation.Instance),
-                        new JsIdentifierExpression("dotvvm").Member("eventHub").Member("get").Invoke(a[2]))
-                    .WithAnnotation(a[1].Annotation<ResultIsObservableAnnotation>())
-                    .WithAnnotation(a[1].Annotation<ViewModelInfoAnnotation>())
-                    .WithAnnotation(a[1].Annotation<MayBeNullAnnotation>())
-                ));
-            AddMethodTranslator(typeof(Api), nameof(Api.PushEvent),
-                new GenericMethodCompiler(a =>
-                    new JsIdentifierExpression("dotvvm").Member("eventHub").Member("notify").Invoke(a[1])
-                ));
+            BindingApi.RegisterJavascriptTranslations(this);
             BindingPageInfo.RegisterJavascriptTranslations(this);
             BindingCollectionInfo.RegisterJavascriptTranslations(this);
 
@@ -163,6 +137,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                         .WithAnnotation(new RequiredRuntimeResourcesBindingProperty(ImmutableArray.Create("globalize")))
                         .Invoke(args[0].WithAnnotation(ShouldBeObservableAnnotation.Instance))
             ));
+            AddMethodTranslator(typeof(Guid).GetMethod("ToString", Type.EmptyTypes), new GenericMethodCompiler(args => args[0]));
 
             foreach (var num in ReflectionUtils.NumericTypes.Except(new[] { typeof(char) }))
             {
@@ -194,7 +169,6 @@ namespace DotVVM.Framework.Compilation.Javascript
                     return JavascriptTranslationVisitor.TranslateViewModelProperty(args[0], (MemberInfo)dotvvmproperty.PropertyInfo ?? dotvvmproperty.PropertyType.GetTypeInfo(), name: dotvvmproperty.Name);
                 }
             ));
-
         }
 
         public JsExpression TryTranslateCall(LazyTranslatedExpression context, LazyTranslatedExpression[] args, MethodInfo method)
@@ -224,7 +198,10 @@ namespace DotVVM.Framework.Compilation.Javascript
             if (method.DeclaringType.GetTypeInfo().IsGenericType && !method.DeclaringType.GetTypeInfo().IsGenericTypeDefinition)
             {
                 var genericType = method.DeclaringType.GetGenericTypeDefinition();
-                var m2 = genericType.GetMethod(method.Name, BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+                var m2 = genericType.GetMethod(method.Name,
+                    BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public,
+                    binder: null, types: method.GetParameters().Select(p => p.ParameterType).ToArray(), modifiers: null);
+
                 if (m2 != null)
                 {
                     var r2 = TryTranslateCall(context, args, m2);

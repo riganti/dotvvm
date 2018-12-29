@@ -16,7 +16,6 @@ namespace DotVVM.Framework.Tests.Runtime
     [TestClass]
     public class ResourceManagerTests
     {
-
         [TestMethod]
         public void ResourceManager_SimpleTest()
         {
@@ -26,7 +25,6 @@ namespace DotVVM.Framework.Tests.Runtime
             manager.AddRequiredResource(ResourceConstants.GlobalizeResourceName);
             Assert.AreEqual(configuration.Resources.FindResource(ResourceConstants.GlobalizeResourceName), manager.GetResourcesInOrder().First());
         }
-
 
         [TestMethod]
         public void ResourceManager_DependentResources()
@@ -41,7 +39,6 @@ namespace DotVVM.Framework.Tests.Runtime
             Assert.AreEqual(configuration.Resources.FindResource(ResourceConstants.DotvvmResourceName + ".internal"), resourcesInCorrectOrder[2]);
             Assert.AreEqual(configuration.Resources.FindResource(ResourceConstants.DotvvmResourceName), resourcesInCorrectOrder[3]);
         }
-
 
         [TestMethod]
         public void ResourceManager_DependentResources_Css()
@@ -75,13 +72,9 @@ namespace DotVVM.Framework.Tests.Runtime
             config1.Resources.Register("rs7", new PolyfillResource(){ RenderPosition =  ResourceRenderPosition.Head});
             config1.Resources.Register("rs8", new ScriptResource(new JQueryGlobalizeResourceLocation(CultureInfo.GetCultureInfo("en-US"))));
 
-
-
             // serialize & deserialize
             JsonSerializerSettings settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto };
             var config2 = JsonConvert.DeserializeObject<DotvvmConfiguration>(JsonConvert.SerializeObject(config1, settings), settings);
-
-
 
             //test 
             Assert.IsTrue(config2.Resources.FindResource("rs1") is ScriptResource rs1 &&
@@ -106,8 +99,6 @@ namespace DotVVM.Framework.Tests.Runtime
                 rs6loc2.FilePath == "file1.js");
             Assert.IsTrue(config2.Resources.FindResource("rs7") is PolyfillResource rs7 && rs7.RenderPosition == ResourceRenderPosition.Head);
             Assert.IsTrue(config2.Resources.FindResource("rs8") is ScriptResource rs8 && rs8.Location is JQueryGlobalizeResourceLocation rs8loc);
-            
-
         }
 
         [TestMethod]

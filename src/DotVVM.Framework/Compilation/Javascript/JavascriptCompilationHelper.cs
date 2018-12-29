@@ -60,5 +60,6 @@ namespace DotVVM.Framework.Compilation.Javascript
                 node.Role == JsConditionalExpression.FalseRole ||
                 node.Role == JsConditionalExpression.TrueRole
             ) && node.Parent.SatisfyResultCondition(predicate);
+
     }
 }

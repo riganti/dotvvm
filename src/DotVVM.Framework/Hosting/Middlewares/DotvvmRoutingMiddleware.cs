@@ -81,13 +81,13 @@ namespace DotVVM.Framework.Hosting.Middlewares
 
             var presenter = context.Presenter = route.GetPresenter(context.Services);
             var filters =
-                ActionFilterHelper.GetActionFilters<IPageActionFilter>(presenter.GetType().GetTypeInfo())
-                .Concat(context.Configuration.Runtime.GlobalFilters.OfType<IPageActionFilter>());
+                ActionFilterHelper.GetActionFilters<IPresenterActionFilter>(presenter.GetType().GetTypeInfo())
+                .Concat(context.Configuration.Runtime.GlobalFilters.OfType<IPresenterActionFilter>());
             try
             {
-                foreach (var f in filters) await f.OnPageLoadingAsync(context);
+                foreach (var f in filters) await f.OnPresenterExecutingAsync(context);
                 await presenter.ProcessRequest(context);
-                foreach (var f in filters) await f.OnPageLoadedAsync(context);
+                foreach (var f in filters) await f.OnPresenterExecutedAsync(context);
             }
             catch (DotvvmInterruptRequestExecutionException) { } // the response has already been generated, do nothing
             catch (DotvvmHttpException) { throw; }
@@ -95,7 +95,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
             {
                 foreach (var f in filters)
                 {
-                    await f.OnPageExceptionAsync(context, exception);
+                    await f.OnPresenterExceptionAsync(context, exception);
                     if (context.IsPageExceptionHandled) context.InterruptRequest();
                 }
                 await requestTracer.EndRequest(context, exception);

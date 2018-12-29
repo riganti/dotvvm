@@ -119,7 +119,7 @@
     <Content Include="test.zip" />
     <Content Include="packages.config" />
     <Content Include=".dotvvm.json" />
-    <None Include="Properties\PublishProfiles\CI FileSystem.pubxml" />
+    <None Include="Properties\PublishProfiles\CI.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

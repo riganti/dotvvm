@@ -1,53 +1,56 @@
-﻿
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Selenium.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
+using Riganti.Selenium.Core;
+using Riganti.Selenium.Core.Abstractions;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace DotVVM.Samples.Tests.Complex
 {
-    [TestClass]
     public class SPARedirectTests : AppSeleniumTest
     {
-        [TestMethod]
+        [Fact]
         [SampleReference(nameof(SamplesRouteUrls.ComplexSamples_SPARedirect_home))]
         [SampleReference(nameof(SamplesRouteUrls.ComplexSamples_SPARedirect_login))]
         public void Complex_SPARedirect_RedirectToLoginPage()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl("ComplexSamples/SPARedirect");
                 browser.Wait(1000);
 
                 //check url
-                browser.CheckUrl(s => s.Contains("/ComplexSamples/SPARedirect/login?ReturnUrl=%2FComplexSamples%2FSPARedirect"));
+                AssertUI.Url(browser, s => s.Contains("/ComplexSamples/SPARedirect/login?ReturnUrl=%2FComplexSamples%2FSPARedirect"));
 
                 // login to the app
-                browser.First("input[type=button]").CheckAttribute("value", "Login").Click().Wait(1000);
+                IElementWrapper getLoginElement() => browser.First("input[type=button]");
+                AssertUI.Attribute(getLoginElement(), "value", "Login");
+                getLoginElement().Click().Wait(1000);
 
                 //check url
-                browser.CheckUrl(s => s.Contains("ComplexSamples/SPARedirect"));
+                AssertUI.Url(browser, s => s.Contains("ComplexSamples/SPARedirect"));
 
                 // sign out
-                browser.First("input[type=button]").CheckAttribute("value", "Sign Out").Click().Wait(1000);
-                
+                AssertUI.Attribute(getLoginElement(), "value", "Sign Out");
+                getLoginElement().Click().Wait(1000);
+
                 //check url
-                browser.CheckUrl(s => s.Contains("/ComplexSamples/SPARedirect/login?ReturnUrl=%2FComplexSamples%2FSPARedirect"));
+                AssertUI.Url(browser, s => s.Contains("/ComplexSamples/SPARedirect/login?ReturnUrl=%2FComplexSamples%2FSPARedirect"));
 
                 // login to the app
-                browser.First("input[type=button]").CheckAttribute("value", "Login").Click().Wait(1000);
+                AssertUI.Attribute(getLoginElement(), "value", "Login");
+                getLoginElement().Click().Wait(1000);
 
                 //check url
-                browser.CheckUrl(s => s.Contains("ComplexSamples/SPARedirect"));
+                AssertUI.Url(browser, s => s.Contains("ComplexSamples/SPARedirect"));
 
                 // sign out
-                browser.First("input[type=button]").CheckAttribute("value", "Sign Out").Click().Wait(1000);
-
+                AssertUI.Attribute(getLoginElement(), "value", "Sign Out");
+                getLoginElement().Click().Wait(1000);
             });
+        }
+
+        public SPARedirectTests(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

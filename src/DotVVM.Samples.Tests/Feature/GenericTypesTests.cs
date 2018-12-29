@@ -1,60 +1,59 @@
-﻿
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Selenium.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
+using Riganti.Selenium.Core;
+using Xunit;
 
 namespace DotVVM.Samples.Tests.Feature
 {
-    [TestClass]
     public class GenericTypesTests : AppSeleniumTest
     {
-        [TestMethod]
+        public GenericTypesTests(Xunit.Abstractions.ITestOutputHelper output) : base(output)
+        {
+        }
+
+        [Fact]
         public void Feature_GenericTypes_InResourceBinding()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_GenericTypes_InResourceBinding);
 
-                browser
-                    .Single("span[data-ui=generic-instance-function]")
-                    .CheckIfInnerTextEquals("Hello from instance generic method arg1:Hallo from generic parameter. arg2:Hallo from generic parameter.");
+                AssertUI.InnerTextEquals(browser
+                    .Single("span[data-ui=generic-instance-function]"),
+                    "Hello from instance generic method arg1:Hallo from generic parameter. arg2:Hallo from generic parameter.");
 
-                browser
-                    .Single("span[data-ui=generic-class-full]")
-                    .CheckIfInnerTextEquals("Hallo from generic parameter.");
+                AssertUI.InnerTextEquals(browser
+                    .Single("span[data-ui=generic-class-full]"),
+                    "Hallo from generic parameter.");
 
-                browser
-                    .Single("span[data-ui=generic-class-aliased]")
-                    .CheckIfInnerTextEquals("Hallo from generic parameter.");
+                AssertUI.InnerTextEquals(browser
+                    .Single("span[data-ui=generic-class-aliased]"),
+                    "Hallo from generic parameter.");
 
-                browser
-                    .Single("span[data-ui=generic-static-function-aliased]")
-                    .CheckIfInnerTextEquals("Hello from static generic method arg1:Hallo from generic parameter. arg2:Hallo from generic parameter.");
+                AssertUI.InnerTextEquals(browser
+                    .Single("span[data-ui=generic-static-function-aliased]"),
+                    "Hello from static generic method arg1:Hallo from generic parameter. arg2:Hallo from generic parameter.");
             });
         }
 
-        [TestMethod]
-        public void Feature_GenericTypes_InCommandBinding()
+        [Theory]
+        [InlineData(SamplesRouteUrls.FeatureSamples_GenericTypes_InCommandBinding)]
+        [InlineData(SamplesRouteUrls.FeatureSamples_GenericTypes_InStaticCommandBinding)]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_GenericTypes_InStaticCommandBinding))]
+        public void Feature_GenericTypes_InCommandBinding(string url)
         {
-            RunInAllBrowsers(browser =>
-            {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_GenericTypes_InCommandBinding);
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(url);
 
-                browser.Single("input[data-ui=static]").Click();
-                browser.Single("input[data-ui=instance]").Click();
+                browser.Single("input[data-ui=static-command]").Click();
+                browser.Single("input[data-ui=instance-command]").Click();
 
-                browser
-                    .Single("span[data-ui=output]")
-                    .CheckIfInnerTextEquals("Hello from instance generic command arg1:Hallo from generic parameter. arg2:Hallo from generic parameter.");
+                AssertUI.InnerTextEquals(browser
+                    .Single("span[data-ui=instance-output]"),
+                    "Hello from instance generic command arg1:Hallo from generic parameter. arg2:Hallo from generic parameter.");
 
-                browser
-                    .Single("span[data-ui=static-output]")
-                    .CheckIfInnerTextEquals("Hello from static generic command arg1:Hallo from generic parameter. arg2:Hallo from generic parameter.");
+                AssertUI.InnerTextEquals(browser
+                    .Single("span[data-ui=static-output]"),
+                    "Hello from static generic command arg1:Hallo from generic parameter. arg2:Hallo from generic parameter.");
             });
         }
     }
