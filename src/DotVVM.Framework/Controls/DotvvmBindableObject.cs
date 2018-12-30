@@ -16,22 +16,13 @@ namespace DotVVM.Framework.Controls
         private static readonly ConcurrentDictionary<Type, DotvvmProperty[]> declaredProperties = new ConcurrentDictionary<Type, DotvvmProperty[]>();
 
 
-        protected internal Dictionary<DotvvmProperty, object> properties;
+        internal DotvvmControlProperties properties;
 
         /// <summary>
         /// Gets the collection of control property values.
         /// </summary>
-        public Dictionary<DotvvmProperty, object> Properties
-        {
-            get
-            {
-                if (properties == null)
-                {
-                    properties = new Dictionary<DotvvmProperty, object>();
-                }
-                return properties;
-            }
-        }
+        public DotvvmPropertyDictionary Properties =>
+            new DotvvmPropertyDictionary(this);
 
 
         /// <summary>
@@ -87,12 +78,8 @@ namespace DotVVM.Framework.Controls
             return (T)GetValue(property, inherit);
         }
 
-        /// <summary>
-        /// Gets the value of a specified property.
-        /// </summary>
-        public virtual object GetValue(DotvvmProperty property, bool inherit = true)
+        internal object EvalPropertyValue(DotvvmProperty property, object value)
         {
-            var value = GetValueRaw(property, inherit);
             if (property.IsBindingProperty) return value;
             while (value is IBinding)
             {
@@ -113,11 +100,22 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
+        /// Gets the value of a specified property.
+        /// </summary>
+        public virtual object GetValue(DotvvmProperty property, bool inherit = true) =>
+            EvalPropertyValue(property, GetValueRaw(property, inherit));
+
+        /// <summary>
         /// Gets the value or a binding object for a specified property.
         /// </summary>
         public virtual object GetValueRaw(DotvvmProperty property, bool inherit = true)
         {
             return property.GetValue(this, inherit);
+        }
+
+        public void MagicSetValue(DotvvmProperty[] keys, object[] values, int hashSeed)
+        {
+            this.properties.AssignBulk(keys, values, hashSeed);
         }
 
         /// <summary>
@@ -268,17 +266,17 @@ namespace DotVVM.Framework.Controls
 
         public bool HasBinding(DotvvmProperty property)
         {
-            return Properties.TryGetValue(property, out object value) && value is IBinding;
+            return properties.TryGet(property, out object value) && value is IBinding;
         }
         public bool HasValueBinding(DotvvmProperty property)
         {
-            return Properties.TryGetValue(property, out object value) && value is IValueBinding;
+            return properties.TryGet(property, out object value) && value is IValueBinding;
         }
 
         public bool HasBinding<TBinding>(DotvvmProperty property)
             where TBinding : IBinding
         {
-            return Properties.TryGetValue(property, out object value) && value is TBinding;
+            return properties.TryGet(property, out object value) && value is TBinding;
         }
 
         /// <summary>

@@ -109,8 +109,7 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public virtual object GetValue(DotvvmBindableObject control, bool inherit = true)
         {
-            object value;
-            if (control.properties != null && control.properties.TryGetValue(this, out value))
+            if (control.properties.TryGet(this, out var value))
             {
                 return value;
             }
@@ -127,7 +126,7 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public virtual bool IsSet(DotvvmBindableObject control, bool inherit = true)
         {
-            if (control.properties != null && control.properties.ContainsKey(this))
+            if (control.properties.Contains(this))
             {
                 return true;
             }
@@ -146,7 +145,7 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public virtual void SetValue(DotvvmBindableObject control, object value)
         {
-            control.Properties[this] = value;
+            control.properties.Set(this, value);
         }
 
         /// <summary>

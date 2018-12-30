@@ -268,20 +268,11 @@ namespace DotVVM.Framework.Controls
             }
 
             base.AddAttributesToRender(writer, context);
-        }
 
-        protected override void AddVisibleAttributeOrBinding(IHtmlWriter writer)
-        {
-            if (!IsPropertySet(VisibleProperty))
+            // If Visible property was set to something, it will be overwritten by this. TODO: is it how it should behave?
+            if (HideWhenOnlyOnePage)
             {
-                if (HideWhenOnlyOnePage)
-                {
-                    writer.AddKnockoutDataBind("visible", $"ko.unwrap({GetDataSetBinding().GetKnockoutBindingExpression(this)}).PagingOptions().PagesCount() > 1");
-                }
-                else
-                {
-                    writer.AddKnockoutDataBind("visible", this, VisibleProperty, renderEvenInServerRenderingMode: true);
-                }
+                writer.AddKnockoutDataBind("visible", $"ko.unwrap({GetDataSetBinding().GetKnockoutBindingExpression(this)}).PagingOptions().PagesCount() > 1");
             }
         }
 

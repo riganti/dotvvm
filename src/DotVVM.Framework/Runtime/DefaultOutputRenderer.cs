@@ -51,10 +51,7 @@ namespace DotVVM.Framework.Runtime
             {
                 var control = stack.Pop();
 
-                object val;
-                if (control.properties != null &&
-                    control.properties.TryGetValue(PostBack.UpdateProperty, out val) &&
-                    val is bool && (bool)val)
+                if (control.properties.TryGet(PostBack.UpdateProperty, out var val) && true.Equals(val))
                 {
                     using (var w = new StringWriter())
                     {

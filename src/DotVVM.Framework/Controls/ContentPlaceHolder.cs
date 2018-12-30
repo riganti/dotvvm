@@ -16,11 +16,13 @@ namespace DotVVM.Framework.Controls
             SetValue(Internal.IsNamingContainerProperty, true);
         }
 
-        protected override void EnsureNoAttributesSet()
+        protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            if (!RenderWrapperTag)
-                Attributes.Remove("id");
-            base.EnsureNoAttributesSet();
+            // The ID is used only at runtime to find the PlaceHolder-Content pair.
+            // We don't want to render it
+            ID = null;
+
+            base.AddAttributesToRender(writer, context);
         }
 
         // TODO: static checker if has a ID
