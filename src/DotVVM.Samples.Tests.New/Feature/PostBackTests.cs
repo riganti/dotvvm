@@ -57,7 +57,11 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.Wait();
 
                 // check the inner text of generated items
-                browser.FindElements("p.item")
+                browser.FindElements(".render-server p.item")
+                    .ThrowIfDifferentCountThan(5).ForEach(e => {
+                        AssertUI.InnerTextEquals(e, "test");
+                    });
+                browser.FindElements(".render-client p.item")
                     .ThrowIfDifferentCountThan(5).ForEach(e => {
                         AssertUI.InnerTextEquals(e, "test");
                     });
@@ -68,7 +72,15 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.Click("input[type=button]");
                 browser.Wait();
 
-                browser.FindElements("p.item").ThrowIfDifferentCountThan(5).ForEach(e => AssertUI.InnerTextEquals(e, "xxx"));
+                // check the inner text of generated items
+                browser.FindElements(".render-server p.item")
+                    .ThrowIfDifferentCountThan(5).ForEach(e => {
+                        AssertUI.InnerTextEquals(e, "xxx");
+                    });
+                browser.FindElements(".render-client p.item")
+                    .ThrowIfDifferentCountThan(5).ForEach(e => {
+                        AssertUI.InnerTextEquals(e, "xxx");
+                    });
             });
         }
 
