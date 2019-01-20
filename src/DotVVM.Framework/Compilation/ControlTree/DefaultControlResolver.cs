@@ -61,10 +61,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
             // the current AppDomain, to return all assemblies we traverse recursively all referenced Assemblies
             var allTypes = loadedAssemblies
                 .SelectRecursively(a => a.GetReferencedAssemblies().Where(an => visitedAssemblies.Add(an.FullName)).Select(an => Assembly.Load(an)))
-                .Distinct()
                 .Where(a => a.GetReferencedAssemblies().Any(r => r.Name == dotvvmAssembly))
+                .Distinct()
                 .Concat(new[] { typeof(DotvvmControl).GetTypeInfo().Assembly })
-                .SelectMany(a => a.GetLoadableTypes()).Where(t => t.GetTypeInfo().IsClass).ToList();
+                .SelectMany(a => a.GetLoadableTypes()).Where(t => t.GetTypeInfo().IsClass);
 #endif
 
             foreach (var type in allTypes)
