@@ -178,12 +178,7 @@ namespace DotVVM.Framework.Controls
         public virtual void Render(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             this.Children.ValidateParentsLifecycleEvents(); // debug check
-
-            if (Properties.ContainsKey(PostBack.UpdateProperty))
-            {
-                AddDotvvmUniqueIdAttribute();
-            }
-
+            
             try
             {
                 RenderControl(writer, context);
@@ -198,12 +193,12 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Adds 'data-dotvvm-id' attribute with generated unique id to the control. You can find control by this id using FindControlByUniqueId method.
         /// </summary>
-        protected void AddDotvvmUniqueIdAttribute()
+        protected internal void AddDotvvmUniqueIdAttribute()
         {
             var htmlAttributes = this as IControlWithHtmlAttributes;
             if (htmlAttributes == null)
             {
-                throw new DotvvmControlException(this, "Postback.Update can not be set on property which don't render html attributes.");
+                throw new DotvvmControlException(this, "Postback.Update can not be set on property which don't render HTML attributes.");
             }
             htmlAttributes.Attributes["data-dotvvm-id"] = GetDotvvmUniqueId();
         }
