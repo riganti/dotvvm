@@ -58,7 +58,6 @@ namespace DotVVM.Framework.Runtime
                 {
                     using (var w = new StringWriter())
                     {
-                        control.AddDotvvmUniqueIdAttribute();
                         control.Render(new HtmlWriter(w, context), context);
 
                         var clientId = control.GetDotvvmUniqueId() as string;
