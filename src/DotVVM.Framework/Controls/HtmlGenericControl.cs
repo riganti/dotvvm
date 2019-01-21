@@ -106,6 +106,7 @@ namespace DotVVM.Framework.Controls
             public bool RendersHtmlTag;
 
             private byte _renderOnServer;
+
             public bool RenderOnServer(HtmlGenericControl @this)
             {
                 if (_renderOnServer == 0)
@@ -149,7 +150,6 @@ namespace DotVVM.Framework.Controls
                 TouchProperty(prop, val, ref r);
             r.RendersHtmlTag = this.RendersHtmlTag;
 
-
             AddAttributesCore(writer, ref r);
 
             base.AddAttributesToRender(writer, context);
@@ -180,7 +180,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Adds the corresponding attribute or binding for the Visible property.
         /// </summary>
-        private void AddVisibleAttributeOrBinding(in RenderState r, IHtmlWriter writer)
+        protected virtual void AddVisibleAttributeOrBinding(in RenderState r, IHtmlWriter writer)
         {
             var v = r.Visible;
             if (v is IValueBinding binding)
