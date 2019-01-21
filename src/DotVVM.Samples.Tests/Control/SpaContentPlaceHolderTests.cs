@@ -3,52 +3,54 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Riganti.Selenium.Core;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace DotVVM.Samples.Tests.Control
 {
-    [TestClass]
     public class SpaContentPlaceHolderTests : AppSeleniumTest
     {
-        [TestMethod]
+        [Fact]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_Default))]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageA))]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageB))]
         public void Control_SpaContentPlaceHolder_SpaContentPlaceHolder()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_Default);
                 browser.Wait(2000);
 
                 // verify the URL after redirect to the DefaultRoute
-                browser.CheckIfAlertTextEquals("javascript 2 resource loaded!");
+                AssertUI.AlertTextEquals(browser, "javascript 2 resource loaded!");
                 browser.ConfirmAlert();
                 browser.Wait(2000);
-                browser.CheckIfAlertTextEquals("javascript resource loaded!");
+                AssertUI.AlertTextEquals(browser, "javascript resource loaded!");
                 browser.ConfirmAlert();
-                browser.CheckUrlEquals(browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_Default + "#!/" + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageB);
-                
+                AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_Default + "#!/" + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageB);
+
                 // go to first page
                 browser.First("a").Click();
                 browser.Wait();
-                browser.CheckUrlEquals(browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_Default + "#!/" + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageA + "/16");
+                AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_Default + "#!/" + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageA + "/16");
 
                 // test first page
-                browser.ElementAt("span", 0).CheckIfTextEquals("0");
+                AssertUI.TextEquals(browser.ElementAt("span", 0), "0");
                 browser.Click("input[type=button]");
                 browser.Wait();
                 browser.Click("input[type=button]");
                 browser.Wait();
                 browser.Click("input[type=button]");
                 browser.Wait();
-                browser.ElementAt("span", 0).CheckIfTextEquals("3");
+                AssertUI.TextEquals(browser.ElementAt("span", 0), "3");
 
                 // go to second page
                 browser.FindElements("a").Single(l => l.GetText() == "Go to Task List").Click();
                 browser.Wait();
-                browser.CheckUrlEquals(browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_Default + "#!/" + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageB);
+                AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_Default + "#!/" + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageB);
 
                 // try the task list
                 browser.FindElements(".table tr").ThrowIfDifferentCountThan(3);
@@ -58,22 +60,22 @@ namespace DotVVM.Samples.Tests.Control
                 browser.FindElements(".table tr").ThrowIfDifferentCountThan(4);
                 browser.Last("tr a").Click();
                 browser.Wait();
-                browser.Last(".table tr").CheckIfHasClass("completed");
+                AssertUI.HasClass(browser.Last(".table tr"), "completed");
 
                 // test the browse back button
                 browser.NavigateBack();
                 browser.Wait();
-                browser.CheckUrlEquals(browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_Default + "#!/" + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageA + "/16");
+                AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_Default + "#!/" + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageA + "/16");
 
                 // test first page
-                browser.ElementAt("span", 0).CheckIfTextEquals("0");
+                AssertUI.TextEquals(browser.ElementAt("span", 0), "0");
                 browser.Click("input[type=button]");
                 browser.Wait();
                 browser.Click("input[type=button]");
                 browser.Wait();
                 browser.Click("input[type=button]");
                 browser.Wait();
-                browser.ElementAt("span", 0).CheckIfTextEquals("3");
+                AssertUI.TextEquals(browser.ElementAt("span", 0), "3");
 
                 // test the forward button
                 browser.NavigateForward();
@@ -83,54 +85,53 @@ namespace DotVVM.Samples.Tests.Control
                 browser.FindElements(".table tr").ThrowIfDifferentCountThan(3);
                 browser.Last("input[type=button]").Click();
                 browser.Wait(2000);
-                browser.CheckUrlEquals(browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_Default + "#!/" + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageA + "/15");
+                AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_Default + "#!/" + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageA + "/15");
 
                 // test the redirect outside SPA
-                browser.ElementAt("span", 0).CheckIfTextEquals("0");
+                AssertUI.TextEquals(browser.ElementAt("span", 0), "0");
                 browser.FindElements("a").Single(l => l.GetText().Contains("Exit SPA")).Click();
                 browser.Wait();
-                browser.CheckUrlEquals(browser.BaseUrl + SamplesRouteUrls.ComplexSamples_TaskList_ServerRenderedTaskList);
+                AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ComplexSamples_TaskList_ServerRenderedTaskList);
             });
         }
 
-        [TestMethod]
+        [Fact]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_Default))]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageA))]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageB))]
         public void Control_SpaContentPlaceHolder_SpaContentPlaceHolder_EnteredFromPageB()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageB);
                 browser.Wait(2000);
 
                 // verify the URL after redirect to the DefaultRoute
-                browser.CheckIfAlertTextEquals("javascript resource loaded!");
+                AssertUI.AlertTextEquals(browser, "javascript resource loaded!");
                 browser.ConfirmAlert();
                 browser.Wait(2000);
-                browser.CheckIfAlertTextEquals("javascript 2 resource loaded!");
+                AssertUI.AlertTextEquals(browser, "javascript 2 resource loaded!");
                 browser.ConfirmAlert();
-                browser.CheckUrlEquals(browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageB + "#!/" + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageB);
+                AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageB + "#!/" + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageB);
 
                 // go to first page
                 browser.First("a").Click();
                 browser.Wait();
-                browser.CheckUrlEquals(browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageB + "#!/" + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageA + "/16");
+                AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageB + "#!/" + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageA + "/16");
 
                 // test first page
-                browser.ElementAt("span", 0).CheckIfTextEquals("0");
+                AssertUI.TextEquals(browser.ElementAt("span", 0), "0");
                 browser.Click("input[type=button]");
                 browser.Wait();
                 browser.Click("input[type=button]");
                 browser.Wait();
                 browser.Click("input[type=button]");
                 browser.Wait();
-                browser.ElementAt("span", 0).CheckIfTextEquals("3");
+                AssertUI.TextEquals(browser.ElementAt("span", 0), "3");
 
                 // go to second page
                 browser.FindElements("a").Single(l => l.GetText() == "Go to Task List").Click();
                 browser.Wait();
-                browser.CheckUrlEquals(browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageB + "#!/" + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageB);
+                AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageB + "#!/" + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageB);
 
                 // try the task list
                 browser.FindElements(".table tr").ThrowIfDifferentCountThan(3);
@@ -140,22 +141,22 @@ namespace DotVVM.Samples.Tests.Control
                 browser.FindElements(".table tr").ThrowIfDifferentCountThan(4);
                 browser.Last("tr a").Click();
                 browser.Wait();
-                browser.Last(".table tr").CheckIfHasClass("completed");
+                AssertUI.HasClass(browser.Last(".table tr"), "completed");
 
                 // test the browse back button
                 browser.NavigateBack();
                 browser.Wait();
-                browser.CheckUrlEquals(browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageB + "#!/" + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageA + "/16");
+                AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageB + "#!/" + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageA + "/16");
 
                 // test first page
-                browser.ElementAt("span", 0).CheckIfTextEquals("0");
+                AssertUI.TextEquals(browser.ElementAt("span", 0), "0");
                 browser.Click("input[type=button]");
                 browser.Wait();
                 browser.Click("input[type=button]");
                 browser.Wait();
                 browser.Click("input[type=button]");
                 browser.Wait();
-                browser.ElementAt("span", 0).CheckIfTextEquals("3");
+                AssertUI.TextEquals(browser.ElementAt("span", 0), "3");
 
                 // test the forward button
                 browser.NavigateForward();
@@ -165,60 +166,59 @@ namespace DotVVM.Samples.Tests.Control
                 browser.FindElements(".table tr").ThrowIfDifferentCountThan(3);
                 browser.Last("input[type=button]").Click();
                 browser.Wait(2000);
-                browser.CheckUrlEquals(browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageB + "#!/" + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageA + "/15");
+                AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageB + "#!/" + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PageA + "/15");
 
                 // test the redirect outside SPA
-                browser.ElementAt("span", 0).CheckIfTextEquals("0");
+                AssertUI.TextEquals(browser.ElementAt("span", 0), "0");
                 browser.FindElements("a").Single(l => l.GetText().Contains("Exit SPA")).Click();
                 browser.Wait();
-                browser.CheckUrlEquals(browser.BaseUrl + SamplesRouteUrls.ComplexSamples_TaskList_ServerRenderedTaskList);
+                AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ComplexSamples_TaskList_ServerRenderedTaskList);
             });
         }
 
-        [TestMethod]
+        [Fact]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PrefixRouteName_Default))]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PrefixRouteName_PageA))]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PrefixRouteName_PageB))]
         public void Control_SpaContentPlaceHolder_PrefixRouteName_EnteredFromPageB()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PrefixRouteName_PageB);
                 browser.Wait(2000);
 
                 // verify the URL after redirect to the DefaultRoute
-                browser.CheckIfAlertTextEquals("javascript resource loaded!");
+                AssertUI.AlertTextEquals(browser, "javascript resource loaded!");
                 browser.ConfirmAlert();
                 browser.Wait(2000);
-                browser.CheckIfAlertTextEquals("javascript 2 resource loaded!");
+                AssertUI.AlertTextEquals(browser, "javascript 2 resource loaded!");
                 browser.ConfirmAlert();
                 browser.Wait(2000);
-                browser.CheckIfAlertTextEquals("javascript 2 resource loaded!");
+                AssertUI.AlertTextEquals(browser, "javascript 2 resource loaded!");
                 browser.ConfirmAlert();
                 browser.Wait(2000);
-                browser.CheckIfAlertTextEquals("javascript resource loaded!");
+                AssertUI.AlertTextEquals(browser, "javascript resource loaded!");
                 browser.ConfirmAlert();
-                browser.CheckUrlEquals(browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PrefixRouteName_Default + "#!/" + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PrefixRouteName_PageB);
+                AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PrefixRouteName_Default + "#!/" + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PrefixRouteName_PageB);
 
                 // go to first page
                 browser.First("a").Click();
                 browser.Wait();
-                browser.CheckUrlEquals(browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PrefixRouteName_Default + "#!/" + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PrefixRouteName_PageA + "/16");
+                AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PrefixRouteName_Default + "#!/" + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PrefixRouteName_PageA + "/16");
 
                 // test first page
-                browser.ElementAt("span", 0).CheckIfTextEquals("0");
+                AssertUI.TextEquals(browser.ElementAt("span", 0), "0");
                 browser.Click("input[type=button]");
                 browser.Wait();
                 browser.Click("input[type=button]");
                 browser.Wait();
                 browser.Click("input[type=button]");
                 browser.Wait();
-                browser.ElementAt("span", 0).CheckIfTextEquals("3");
+                AssertUI.TextEquals(browser.ElementAt("span", 0), "3");
 
                 // go to second page
                 browser.FindElements("a").Single(l => l.GetText() == "Go to Task List").Click();
                 browser.Wait();
-                browser.CheckUrlEquals(browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PrefixRouteName_Default + "#!/" + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PrefixRouteName_PageB);
+                AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PrefixRouteName_Default + "#!/" + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PrefixRouteName_PageB);
 
                 // try the task list
                 browser.FindElements(".table tr").ThrowIfDifferentCountThan(3);
@@ -228,22 +228,22 @@ namespace DotVVM.Samples.Tests.Control
                 browser.FindElements(".table tr").ThrowIfDifferentCountThan(4);
                 browser.Last("tr a").Click();
                 browser.Wait();
-                browser.Last(".table tr").CheckIfHasClass("completed");
+                AssertUI.HasClass(browser.Last(".table tr"), "completed");
 
                 // test the browse back button
                 browser.NavigateBack();
                 browser.Wait();
-                browser.CheckUrlEquals(browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PrefixRouteName_Default + "#!/" + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PrefixRouteName_PageA + "/16");
+                AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PrefixRouteName_Default + "#!/" + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PrefixRouteName_PageA + "/16");
 
                 // test first page
-                browser.ElementAt("span", 0).CheckIfTextEquals("0");
+                AssertUI.TextEquals(browser.ElementAt("span", 0), "0");
                 browser.Click("input[type=button]");
                 browser.Wait();
                 browser.Click("input[type=button]");
                 browser.Wait();
                 browser.Click("input[type=button]");
                 browser.Wait();
-                browser.ElementAt("span", 0).CheckIfTextEquals("3");
+                AssertUI.TextEquals(browser.ElementAt("span", 0), "3");
 
                 // test the forward button
                 browser.NavigateForward();
@@ -253,14 +253,18 @@ namespace DotVVM.Samples.Tests.Control
                 browser.FindElements(".table tr").ThrowIfDifferentCountThan(3);
                 browser.Last("input[type=button]").Click();
                 browser.Wait(2000);
-                browser.CheckUrlEquals(browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PrefixRouteName_Default + "#!/" + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PrefixRouteName_PageA + "/15");
+                AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PrefixRouteName_Default + "#!/" + SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_PrefixRouteName_PageA + "/15");
 
                 // test the redirect outside SPA
-                browser.ElementAt("span", 0).CheckIfTextEquals("0");
+                AssertUI.TextEquals(browser.ElementAt("span", 0), "0");
                 browser.FindElements("a").Single(l => l.GetText().Contains("Exit SPA")).Click();
                 browser.Wait();
-                browser.CheckUrlEquals(browser.BaseUrl + SamplesRouteUrls.ComplexSamples_TaskList_ServerRenderedTaskList);
+                AssertUI.UrlEquals(browser, browser.BaseUrl + SamplesRouteUrls.ComplexSamples_TaskList_ServerRenderedTaskList);
             });
+        }
+
+        public SpaContentPlaceHolderTests(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

@@ -14,6 +14,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="Views\ControlSamples\Literal\Literal_NumberBinding.dothtml" />
+    <None Remove="Views\Errors\CorruptedContentBetweenContentControls.dothtml" />
+    <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_NullAssignment.dothtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Scripts\ClientExtenders.js" />

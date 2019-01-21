@@ -24,9 +24,9 @@ namespace DotVVM.Framework.Controls
         {
             var decorator = (Decorator)Activator.CreateInstance(GetType());
 
-            foreach (var prop in Properties)
+            foreach (var prop in properties)
             {
-                decorator.Properties[prop.Key] = prop.Value;
+                decorator.properties.Set(prop.Key, prop.Value);
             }
 
             foreach (var attr in Attributes)

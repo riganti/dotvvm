@@ -45,7 +45,7 @@ namespace DotVVM.Framework.Binding
                 throw new Exception($"The property '{PropertyName}' was not found on control '{controlType}'!");
             }
 
-            if (control.Properties.ContainsKey(controlProperty) && control.HasValueBinding(controlProperty))
+            if (control.properties.Contains(controlProperty) && control.HasValueBinding(controlProperty))
             {
                 return control.GetValueBinding(controlProperty).ResultType;
             }

@@ -1,6 +1,8 @@
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Hosting;
 using System.Diagnostics;
 using System.Linq;
@@ -20,11 +22,18 @@ namespace DotVVM.Framework.Controls
 
         public Repeater(bool allowImplicitLifecycleRequirements = true)
         {
-            SetValue(Internal.IsNamingContainerProperty, true);
-            if (allowImplicitLifecycleRequirements && GetType() == typeof(Repeater))
+            if (allowImplicitLifecycleRequirements)
             {
-                LifecycleRequirements &= ~(ControlLifecycleRequirements.InvokeMissingInit | ControlLifecycleRequirements.InvokeMissingLoad);
+                SetValue(Internal.IsNamingContainerProperty, true);
+                if (GetType() == typeof(Repeater))
+                    LifecycleRequirements &= ~(ControlLifecycleRequirements.InvokeMissingInit | ControlLifecycleRequirements.InvokeMissingLoad);
             }
+        }
+
+        [ApplyControlStyle]
+        public static void OnCompilation(ResolvedControl control)
+        {
+            control.SetProperty(new ResolvedPropertyValue(Internal.IsNamingContainerProperty, true), replace: false, error: out _);
         }
 
         /// <summary>

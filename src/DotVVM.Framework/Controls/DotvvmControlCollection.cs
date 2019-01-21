@@ -236,7 +236,7 @@ namespace DotVVM.Framework.Controls
 
             item.Children.InvokeMissedPageLifeCycleEvents(lastLifeCycleEvent, isMissingInvoke: true);
 
-            if (item.GetValue(Internal.UniqueIDProperty) == null)
+            if (!item.properties.Contains(Internal.UniqueIDProperty))
             {
                 item.SetValue(Internal.UniqueIDProperty, parent.GetValue(Internal.UniqueIDProperty) + "a" + Count);
             }
