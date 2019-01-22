@@ -11,7 +11,6 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
     /// </summary>
     public class TextBoxEditorProvider : FormEditorProviderBase
     {
-
         public override bool CanValidate => true;
 
         public override bool CanHandleProperty(PropertyInfo propertyInfo, DynamicDataContext context)
@@ -39,7 +38,7 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
                 textBox.Attributes["class"] = cssClass;
             }
 
-            textBox.ValueType = TextBoxHelper.GetValueType(property.PropertyInfo);
+            textBox.ValueType = TextBoxHelper.GetValueTypeOrDefault(property.PropertyInfo);
             textBox.FormatString = property.FormatString;
             textBox.SetBinding(TextBox.TextProperty, context.CreateValueBinding(property.PropertyInfo.Name));
 
@@ -57,7 +56,5 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
                 ControlHelpers.CopyProperty(textBox, DynamicEntity.EnabledProperty, textBox, TextBox.EnabledProperty);
             }
         }
-        
-        
     }
 }
