@@ -4,7 +4,9 @@ using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Hosting;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace DotVVM.Framework.Controls
 {
@@ -16,6 +18,7 @@ namespace DotVVM.Framework.Controls
     {
         private EmptyData emptyDataContainer;
         private DotvvmControl clientSeparator;
+        private DotvvmControl clientSideTemplate;
 
         public Repeater(bool allowImplicitLifecycleRequirements = true)
         {
@@ -109,7 +112,7 @@ namespace DotVVM.Framework.Controls
         {
             if (context.IsPostBack)
             {
-                SetChildren(context, true);
+                SetChildren(context, renderClientTemplate: false, memoizeReferences: true);
             }
 
             base.OnLoad(context);
@@ -120,7 +123,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
-            SetChildren(context, RenderOnServer || context.IsPostBack);     // TODO: we should handle observable collection operations to persist controlstate of controls inside the Repeater
+            SetChildren(context, renderClientTemplate: !RenderOnServer, memoizeReferences: false);
             base.OnPreRender(context);
         }
 
@@ -168,10 +171,16 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            foreach (var child in Children.Except(new[] { emptyDataContainer, clientSeparator }))
+            if (this.RenderOnServer)
             {
-                child.Render(writer, context);
+                Debug.Assert(clientSideTemplate == null);
+                foreach (var child in Children.Except(new[] { emptyDataContainer, clientSeparator }))
+                {
+                    child.Render(writer, context);
+                }
             }
+            else
+                clientSideTemplate.Render(writer, context);
         }
 
         protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
@@ -214,8 +223,16 @@ namespace DotVVM.Framework.Controls
             return emptyDataContainer;
         }
 
-        private DotvvmControl GetItem(IDotvvmRequestContext context, object item = null, int? index = null)
+        private ConditionalWeakTable<object, DataItemContainer> childrenCache = new ConditionalWeakTable<object, DataItemContainer>();
+        private DotvvmControl GetItem(IDotvvmRequestContext context, object item = null, int? index = null, bool allowMemoizationRetrive = false, bool allowMemoizationStore = false)
         {
+            if (allowMemoizationRetrive && item != null && childrenCache.TryGetValue(item, out var container2) && container2.Parent == null)
+            {
+                Debug.Assert(item == container2.GetValueRaw(DataContextProperty));
+                SetUpServerItem(context, item, (int)index, container2);
+                return container2;
+            }
+
             var container = new DataItemContainer();
             container.SetDataContextTypeFromDataSource(GetBinding(DataSourceProperty));
             if (item == null && index == null)
@@ -228,6 +245,14 @@ namespace DotVVM.Framework.Controls
             }
 
             ItemTemplate.BuildContent(context, container);
+
+            // write it to the cache after the content is build. If it would be before that, exception could be suppressed
+            if (allowMemoizationStore && item != null)
+            {
+                // this GetValue call adds the value without raising exception when the value is already added...
+                childrenCache.GetValue(item, _ => container);
+            }
+
             return container;
         }
 
@@ -242,37 +267,39 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Performs the data-binding and builds the controls inside the <see cref="Repeater"/>.
         /// </summary>
-        private void SetChildren(IDotvvmRequestContext context, bool useServerTemplate)
+        private void SetChildren(IDotvvmRequestContext context, bool renderClientTemplate, bool memoizeReferences)
         {
             Children.Clear();
             emptyDataContainer = null;
             clientSeparator = null;
+            clientSideTemplate = null;
 
-            if (useServerTemplate)
+            if (DataSource != null)
             {
-                if (DataSource != null)
+                var itemBinding = GetItemBinding();
+                var index = 0;
+                foreach (var item in GetIEnumerableFromDataSource())
                 {
-                    var itemBinding = GetItemBinding();
-                    var index = 0;
-                    foreach (var item in GetIEnumerableFromDataSource())
+                    if (SeparatorTemplate != null && index > 0)
                     {
-                        if (SeparatorTemplate != null && index > 0)
-                        {
-                            Children.Add(GetSeparator(context));
-                        }
-                        Children.Add(GetItem(context, item, index));
-                        index++;
+                        Children.Add(GetSeparator(context));
                     }
+                    Children.Add(GetItem(context, item, index,
+                        allowMemoizationRetrive: context.IsPostBack && !memoizeReferences, // on GET request we are not initializing the Repeater twice
+                        allowMemoizationStore: memoizeReferences
+                    ));
+                    index++;
                 }
             }
-            else
+
+            if (renderClientTemplate)
             {
                 if (SeparatorTemplate != null)
                 {
                     Children.Add(clientSeparator = GetSeparator(context));
                 }
 
-                Children.Add(GetItem(context));
+                Children.Add(clientSideTemplate = GetItem(context));
             }
 
             if (EmptyDataTemplate != null)

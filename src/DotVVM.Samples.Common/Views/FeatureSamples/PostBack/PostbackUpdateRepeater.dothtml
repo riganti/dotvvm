@@ -6,21 +6,27 @@
     <title>Hello from DotVVM!</title>
 </head>
 <body>
-	<div class="container">
-		<h1>PostBack.Update in Repeater test</h1>
-		
-		<div class="well">
-			<p>Enter a value: <dot:TextBox Text="{value: Value}" /></p>
-			<p><dot:Button Text="Refresh control" Click="{command: Apply()}" /></p>
-		</div>
-		<p>&nbsp;</p>
-		
-		<dot:Repeater DataSource="{value: Items}">
-			<ItemTemplate>
-				<p class="item" RenderSettings.Mode="Server" PostBack.Update="true">{{value: _this}}</p>
-			</ItemTemplate>
-		</dot:Repeater>
-	</div>
+    <div class="container">
+        <h1>PostBack.Update in Repeater test</h1>
+
+        <div class="well">
+            <p>Enter a value: <dot:TextBox Text="{value: Value}" /></p>
+            <p><dot:Button Text="Refresh control" Click="{command: Apply()}" /></p>
+        </div>
+        <p>&nbsp;</p>
+
+        <dot:Repeater DataSource="{value: Items}" RenderSettings.Mode="Server" PostBack.Update="true" class="render-server">
+            <ItemTemplate>
+                <p class="item">{{value: _this}}</p>
+            </ItemTemplate>
+        </dot:Repeater>
+
+        <dot:Repeater DataSource="{value: Items}" RenderSettings.Mode="Client" PostBack.Update="true" class="render-client">
+            <ItemTemplate>
+                <p class="item">{{value: _this}}</p>
+            </ItemTemplate>
+        </dot:Repeater>
+    </div>
 
 </body>
 </html>
