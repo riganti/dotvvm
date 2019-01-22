@@ -1,10 +1,11 @@
 ﻿class DotvvmGlobalize {
+
     private getGlobalize() {
         const g = window["dotvvm_Globalize"]
         if (!g) {
             throw new Error("Resource 'globalize' is not included (symbol 'dotvvm_Globalize' could not be found).\nIt is usually included automatically when needed, but sometime it's not possible, so you will have to include it in your page using '<dot:RequiredResource Name=\"globalize\" />'")
         }
-        return g;
+	return g;
     }
 
     public format(format: string, ...values: any[]) {
@@ -21,7 +22,6 @@
     public formatString(format: string, value: any) {
         value = ko.unwrap(value);
         if (value == null || value === "") return "";
-        if ((format || "") === "" && typeof value === "string") return value;
 
         if (typeof value === "string") {
             // JSON date in string
