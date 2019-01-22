@@ -26,6 +26,7 @@ namespace DotVVM.Framework.Controls
             get { return (string)GetValue(TextProperty); }
             set { SetValue(TextProperty, value); }
         }
+
         public static readonly DotvvmProperty TextProperty =
             DotvvmProperty.Register<object, Literal>(t => t.Text, "");
 
@@ -38,6 +39,7 @@ namespace DotVVM.Framework.Controls
             get { return (string)GetValue(FormatStringProperty); }
             set { SetValue(FormatStringProperty, value); }
         }
+
         public static readonly DotvvmProperty FormatStringProperty =
             DotvvmProperty.Register<string, Literal>(c => c.FormatString, "");
 
@@ -51,6 +53,7 @@ namespace DotVVM.Framework.Controls
             get { return (FormatValueType)GetValue(ValueTypeProperty); }
             set { SetValue(ValueTypeProperty, value); }
         }
+
         [Obsolete("ValueType property is no longer required, it is automatically inferred from compile-time type of Text binding")]
         public static readonly DotvvmProperty ValueTypeProperty =
             DotvvmProperty.Register<FormatValueType, Literal>(t => t.ValueType);
@@ -64,6 +67,7 @@ namespace DotVVM.Framework.Controls
             get { return (bool)GetValue(RenderSpanElementProperty); }
             set { SetValue(RenderSpanElementProperty, value); }
         }
+
         public static readonly DotvvmProperty RenderSpanElementProperty =
             DotvvmProperty.Register<bool, Literal>(t => t.RenderSpanElement, true);
 
@@ -87,25 +91,21 @@ namespace DotVVM.Framework.Controls
 
         public static bool NeedsFormatting(IValueBinding binding)
         {
-            // bool isFormattedType(Type type) =>
-            //     type != null && (type.IsNumericType() || type == typeof(DateTime) || isFormattedType(Nullable.GetUnderlyingType(type)));
+            bool isFormattedType(Type type) =>
+                type != null && (type == typeof(float) || type == typeof(double) || type == typeof(decimal) || type == typeof(DateTime) || isFormattedType(Nullable.GetUnderlyingType(type)));
 
-            // bool isFormattedTypeOrObj(Type type) => type == typeof(object) || isFormattedType(type);
+            bool isFormattedTypeOrObj(Type type) => type == typeof(object) || isFormattedType(type);
 
-            // return isFormattedType(binding?.ResultType) && isFormattedTypeOrObj(binding?.GetProperty<ExpectedTypeBindingProperty>(ErrorHandlingMode.ReturnNull)?.Type);
-            bool formatType(Type t) => !(t == null) && (t == typeof(DateTime) || t == typeof(float) || t == typeof(double) || t == typeof(decimal));
-            if (binding == null) return true;
-            var rt = binding.ResultType;
-            return formatType(rt) || formatType(Nullable.GetUnderlyingType(rt));
+            return isFormattedType(binding?.ResultType) && isFormattedTypeOrObj(binding?.GetProperty<ExpectedTypeBindingProperty>(ErrorHandlingMode.ReturnNull)?.Type);
         }
 
         protected override bool RendersHtmlTag => RenderSpanElement;
 
         public bool IsFormattingRequired =>
             !string.IsNullOrEmpty(FormatString) ||
-            #pragma warning disable
+#pragma warning disable
             ValueType != FormatValueType.Text ||
-            #pragma warning restore
+#pragma warning restore
             NeedsFormatting(GetValueBinding(TextProperty));
 
         protected internal override void OnPreRender(Hosting.IDotvvmRequestContext context)
@@ -135,8 +135,8 @@ namespace DotVVM.Framework.Controls
                 r.RenderSpanElement = (bool)EvalPropertyValue(RenderSpanElementProperty, value);
             else if (prop == FormatStringProperty || prop == ValueTypeProperty)
                 r.HasFormattingStuff = true;
-            else if (base.TouchProperty(prop, value, ref r.HtmlState)) {}
-            else if (DotvvmControl.TouchProperty(prop, value, ref r.BaseState)) {}
+            else if (base.TouchProperty(prop, value, ref r.HtmlState)) { }
+            else if (DotvvmControl.TouchProperty(prop, value, ref r.BaseState)) { }
             else return false;
             return true;
         }
