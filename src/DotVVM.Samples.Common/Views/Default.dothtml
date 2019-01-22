@@ -7,9 +7,10 @@
     <meta charset="utf-8" />
     <style>
         ul li {
-            padding:2px;
+            padding: 2px;
         }
-        body{
+
+        body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
     </style>
@@ -19,6 +20,5 @@
         <li><a href="{value: Url}">{{value: RouteName}}</a></li>
     </dot:Repeater>
     <div>Number of Tests: {{value: Routes.Count}}</div>
-
 </body>
 </html>
