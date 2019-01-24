@@ -18,12 +18,13 @@
         </Content>
     </ItemGroup>
     <ItemGroup>
+        <None Remove="Controls\control.dotcontrol" />
         <None Remove="dotvvm_serialized_config.json.tmp" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore" Version="2.0.3" />
         <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.3" />
-        <PackageReference Include="DotVVM.AspNetCore" Version="2.0.1-preview05-final" />
+        <PackageReference Include="DotVVM.AspNetCore" Version="2.1.0" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\DotVVM.Diagnostics.StatusPage\DotVVM.Diagnostics.StatusPage.csproj" />

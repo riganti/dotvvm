@@ -149,7 +149,7 @@
                             </dot:GridViewTemplateColumn>
                             <dot:GridViewTemplateColumn>
                                 <ContentTemplate>
-                                    <dot:Button Click="{command: _root.BuildView(_this)}" Text="Compile" class="btn btn-primary" />
+                                    <dot:LinkButton Click="{command: _root.BuildView(_this)}" Text="Compile" />
                                 </ContentTemplate>
                             </dot:GridViewTemplateColumn>
                             <dot:GridViewTextColumn ValueBinding="{value: Exception}">
@@ -177,7 +177,7 @@
                             <dot:GridViewTemplateColumn>
                                 <ContentTemplate>
                                     <span Visible="{value: Status != CompilationState.NonCompilable}">
-                                        <dot:Button Click="{command: _root.BuildView(_this)}" Text="Compile" class="btn btn-primary" />
+                                        <dot:LinkButton Click="{command: _root.BuildView(_this)}" Text="Compile" />
                                     </span>
                                 </ContentTemplate>
                             </dot:GridViewTemplateColumn>

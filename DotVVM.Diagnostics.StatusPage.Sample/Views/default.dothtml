@@ -2,6 +2,13 @@
 @masterPage Views/MasterPage.dotmaster
 <dot:Content ContentPlaceHolderID="MainContent">
 
-	<h1>{{value: Title}}</h1>
+    <h1>{{value: Title}}</h1>
     <dot:RouteLink RouteName="StatusPage">Show Compilation Status Page</dot:RouteLink>
+
+    <h1>
+        Controls test
+    </h1>
+    <span>
+        <cc:control></cc:control>
+    </span>
 </dot:Content>
