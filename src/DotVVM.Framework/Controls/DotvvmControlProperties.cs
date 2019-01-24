@@ -16,21 +16,22 @@ namespace DotVVM.Framework.Controls
         // 2. keys == null & values is Dictionary<DotvvmProperty, object> --> it falls back to traditional mutable property dictionary
         // 3. keys is DotvvmProperty[] & values is object[] --> read-only perfect 2-slot hashing
         [FieldOffset(0)]
-        object keys;
+        private object keys;
+
         [FieldOffset(0)]
-        DotvvmProperty[] keysAsArray;
-
+        private DotvvmProperty[] keysAsArray;
 
         [FieldOffset(8)]
-        object values;
-        [FieldOffset(8)]
-        object[] valuesAsArray;
-        [FieldOffset(8)]
-        Dictionary<DotvvmProperty, object> valuesAsDictionary;
+        private object values;
 
+        [FieldOffset(8)]
+        private object[] valuesAsArray;
+
+        [FieldOffset(8)]
+        private Dictionary<DotvvmProperty, object> valuesAsDictionary;
 
         [FieldOffset(16)]
-        int hashSeed;
+        private int hashSeed;
 
         public void AssignBulk(DotvvmProperty[] keys, object[] values, int hashSeed)
         {
@@ -174,14 +175,38 @@ namespace DotVVM.Framework.Controls
 
         private static DotvvmControlPropertiesEnumerator EmptyEnumerator = new DotvvmControlPropertiesEnumerator(new DotvvmProperty[0], new object[0]);
 
+        public bool Remove(DotvvmProperty key)
+        {
+            if (!Contains(key)) return false;
+            if (this.keys == null && valuesAsDictionary != null)
+            {
+                return valuesAsDictionary.Remove(key);
+            }
+
+            // move from read-only struct to mutable struct
+            {
+                var keysTmp = this.keysAsArray;
+                var valuesTmp = this.valuesAsArray;
+                var d = new Dictionary<DotvvmProperty, object>();
+
+                for (int i = 0; i < keysTmp.Length; i++)
+                {
+                    if (keysTmp[i] != null && keysTmp[i] != key)
+                        d[keysTmp[i]] = valuesTmp[i];
+                }
+                this.valuesAsDictionary = d;
+                this.keys = null;
+                return true;
+            }
+        }
     }
 
     public struct DotvvmControlPropertiesEnumerator : IEnumerator<KeyValuePair<DotvvmProperty, object>>
     {
-        DotvvmProperty[] keys;
-        object[] values;
-        int index;
-        Dictionary<DotvvmProperty, object>.Enumerator dictEnumerator;
+        private DotvvmProperty[] keys;
+        private object[] values;
+        private int index;
+        private Dictionary<DotvvmProperty, object>.Enumerator dictEnumerator;
 
         internal DotvvmControlPropertiesEnumerator(DotvvmProperty[] keys, object[] values)
         {
@@ -211,7 +236,7 @@ namespace DotVVM.Framework.Controls
         {
             if (keys == null)
                 return dictEnumerator.MoveNext();
-            while(++index < keys.Length && keys[index] == null) {}
+            while (++index < keys.Length && keys[index] == null) { }
             return index < keys.Length;
         }
 
@@ -227,7 +252,10 @@ namespace DotVVM.Framework.Controls
     {
         private readonly DotvvmBindableObject control;
 
-        public DotvvmPropertyDictionary(DotvvmBindableObject control) { this.control = control; }
+        public DotvvmPropertyDictionary(DotvvmBindableObject control)
+        {
+            this.control = control;
+        }
 
         public object this[DotvvmProperty key] { get => control.properties.GetOrThrow(key); set => control.properties.Set(key, value); }
 
@@ -251,7 +279,7 @@ namespace DotVVM.Framework.Controls
 
         public void Clear()
         {
-            throw new NotImplementedException();
+            control.properties.ClearEverything();
         }
 
         public bool Contains(KeyValuePair<DotvvmProperty, object> item) => control.properties.TryGet(item.Key, out var x) && Object.Equals(x, item.Value);
@@ -270,7 +298,7 @@ namespace DotVVM.Framework.Controls
 
         public bool Remove(DotvvmProperty key)
         {
-            throw new NotImplementedException();
+            return control.properties.Remove(key);
         }
 
         public bool Remove(KeyValuePair<DotvvmProperty, object> item)
