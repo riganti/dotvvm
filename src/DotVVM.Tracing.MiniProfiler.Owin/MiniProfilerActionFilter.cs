@@ -3,22 +3,22 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime.Filters;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Binding;
+using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Profiling;
 using Microsoft.Owin;
-
 
 namespace DotVVM.Tracing.MiniProfiler.Owin
 {
     public class MiniProfilerActionFilter : ActionFilterAttribute
     {
-        private readonly PathString resultsLink;
+        //private readonly PathString resultsLink;
 
         public MiniProfilerActionFilter()
         {
-            var basePath = new PathString(
-                StackExchange.Profiling.MiniProfiler.Settings.RouteBasePath.Replace("~/", "/"));
+            //var basePath = new PathString(
+            //    StackExchange.Profiling.MiniProfiler.DefaultOptions.ProfilerProvider. .RouteBasePath.Replace("~/", "/"));
 
-            resultsLink = basePath.Add(new PathString("/results-index"));
+            //resultsLink = basePath.Add(new PathString("/results-index"));
         }
 
         protected override Task OnPresenterExecutingAsync(IDotvvmRequestContext context)
@@ -47,8 +47,7 @@ namespace DotVVM.Tracing.MiniProfiler.Owin
 
         private void AddMiniProfilerName(IDotvvmRequestContext context, params string[] nameParts)
         {
-            var currentMiniProfiler = StackExchange.Profiling.MiniProfiler.Current;
-
+            var currentMiniProfiler = StackExchange.Profiling.MiniProfiler.StartNew();
             if (currentMiniProfiler != null)
             {
                 currentMiniProfiler.Name = string.Join(" ", nameParts);

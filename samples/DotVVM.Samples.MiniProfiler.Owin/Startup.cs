@@ -3,8 +3,11 @@ using Microsoft.Owin;
 using Owin;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Tracing.MiniProfiler.Owin;
+using StackExchange.Profiling;
+using StackExchange.Profiling.Storage;
 
 [assembly: OwinStartup(typeof(DotVVM.Samples.MiniProfiler.Owin.Startup))]
+
 namespace DotVVM.Samples.MiniProfiler.Owin
 {
     public class Startup
@@ -12,7 +15,6 @@ namespace DotVVM.Samples.MiniProfiler.Owin
         public void Configuration(IAppBuilder app)
         {
             var applicationPhysicalPath = HostingEnvironment.ApplicationPhysicalPath;
-
 
             //StackExchange.Profiling.WebRequestProfilerProvider.Setup("~/profiler",
             //// ResultsAuthorize (optional - open to all by default):
@@ -24,7 +26,12 @@ namespace DotVVM.Samples.MiniProfiler.Owin
             //// the list of all sessions in the store is restricted by default, you must return true to allow it
             //request => request.IsLocal
             //);
-            StackExchange.Profiling.MiniProfiler.Settings.Results_List_Authorize = (r) => true;
+
+            StackExchange.Profiling.MiniProfiler.Configure(new MiniProfilerOptions()
+            {
+                ResultsAuthorize = s => s.IsLocal,
+                ResultsListAuthorize = s => true,
+            });
 
             // use DotVVM
             var dotvvmConfiguration = app.UseDotVVM<DotvvmStartup>(applicationPhysicalPath);

@@ -3,6 +3,7 @@ using DotVVM.Framework.Runtime.Tracing;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
 using System;
+using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Profiling;
 
 namespace DotVVM.Tracing.MiniProfiler.Owin
@@ -15,29 +16,34 @@ namespace DotVVM.Tracing.MiniProfiler.Owin
         public Task EndRequest(IDotvvmRequestContext context)
         {
             SetEventNameStopCurrentTiming(endRequestEventName);
-            StackExchange.Profiling.MiniProfiler.Stop();
-
-            return TaskUtils.GetCompletedTask();
+            return StopProfiler();
         }
 
         public Task EndRequest(IDotvvmRequestContext context, Exception exception)
         {
             SetEventNameStopCurrentTiming(endRequestEventName);
-            StackExchange.Profiling.MiniProfiler.Stop();
+            return StopProfiler();
+        }
 
-            return TaskUtils.GetCompletedTask();
+        private Task StopProfiler()
+        {
+            return GetProfilerCurrent()?.StopAsync() ?? TaskUtils.GetCompletedTask();
+        }
+
+        private StackExchange.Profiling.MiniProfiler GetProfilerCurrent()
+        {
+            return StackExchange.Profiling.MiniProfiler.Current;
         }
 
         public Task TraceEvent(string eventName, IDotvvmRequestContext context)
         {
-            if (StackExchange.Profiling.MiniProfiler.Current == null)
+            if (GetProfilerCurrent() == null)
             {
-                StackExchange.Profiling.MiniProfiler.Start();
+                StackExchange.Profiling.MiniProfiler.StartNew();
             }
-
             SetEventNameStopCurrentTiming(eventName);
 
-            currentTiming = (Timing)StackExchange.Profiling.MiniProfiler.Current.Step(string.Empty);
+            currentTiming = (Timing)GetProfilerCurrent().Step(string.Empty);
             return TaskUtils.GetCompletedTask();
         }
 

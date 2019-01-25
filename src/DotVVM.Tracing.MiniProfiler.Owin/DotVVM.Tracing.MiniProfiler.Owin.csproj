@@ -3,7 +3,7 @@
   <PropertyGroup>
   	<AssemblyTitle>DotVVM.Tracing.MiniProfiler.Owin</AssemblyTitle>
     <VersionPrefix>2.0.0-preview03-final</VersionPrefix>
-    <TargetFramework>net451</TargetFramework>
+    <TargetFramework>net461</TargetFramework>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
@@ -21,8 +21,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotVVM.Owin" Version="2.0.0" />
-    <PackageReference Include="MiniProfiler" Version="3.2.0.157" />
+    <PackageReference Include="DotVVM.Owin" Version="2.1.0" />
+    <PackageReference Include="MiniProfiler" Version="4.0.138" />
   </ItemGroup>
 
   <ItemGroup>

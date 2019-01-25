@@ -1,10 +1,10 @@
-﻿using DotVVM.Framework.Runtime.Tracing;
-using DotVVM.Tracing.MiniProfiler.Owin;
+﻿using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Runtime.Tracing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using StackExchange.Profiling;
 
-namespace DotVVM.Framework.Configuration
+namespace DotVVM.Tracing.MiniProfiler.Owin
 {
     public static class MiniProfilerBuilderExtensions
     {
@@ -17,7 +17,6 @@ namespace DotVVM.Framework.Configuration
         {
             services.Services.AddTransient<IRequestTracer, MiniProfilerTracer>();
             services.Services.AddTransient<IConfigureOptions<DotvvmConfiguration>, MiniProfilerSetup>();
-
             return services;
         }
     }
@@ -29,10 +28,8 @@ namespace DotVVM.Framework.Configuration
             options.Markup.AddCodeControls(DotvvmConfiguration.DotvvmControlTagPrefix, typeof(MiniProfilerWidget));
             options.Runtime.GlobalFilters.Add(new MiniProfilerActionFilter());
 
-            var currentProfiler = MiniProfiler.Settings.ProfilerProvider
-                ?? new WebRequestProfilerProvider();
-
-            MiniProfiler.Settings.ProfilerProvider = new DotVVMProfilerProvider(currentProfiler);
+            var currentProfiler = StackExchange.Profiling.MiniProfiler.DefaultOptions.ProfilerProvider ?? new DefaultProfilerProvider();
+            StackExchange.Profiling.MiniProfiler.DefaultOptions.ProfilerProvider = new DotVVMProfilerProvider(currentProfiler);
         }
     }
 }

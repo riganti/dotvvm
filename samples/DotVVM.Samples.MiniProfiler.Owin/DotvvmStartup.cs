@@ -1,4 +1,5 @@
 using DotVVM.Framework.Configuration;
+using DotVVM.Tracing.MiniProfiler.Owin;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Samples.MiniProfiler.Owin
@@ -7,9 +8,8 @@ namespace DotVVM.Samples.MiniProfiler.Owin
     {
         public void ConfigureServices(IDotvvmServiceCollection options)
         {
-            options
-                .AddDefaultTempStorages("Temp")
-                .AddMiniProfilerEventTracing();
+            options.AddDefaultTempStorages("Temp");
+            options.AddMiniProfilerEventTracing();
         }
 
         // For more information about this class, visit https://dotvvm.com/docs/tutorials/basics-project-structure
@@ -25,7 +25,7 @@ namespace DotVVM.Samples.MiniProfiler.Owin
             config.RouteTable.Add("Default", "", "Views/default.dothtml");
 
             // Uncomment the following line to auto-register all dothtml files in the Views folder
-            // config.RouteTable.AutoDiscoverRoutes(new DefaultRouteStrategy(config));    
+            // config.RouteTable.AutoDiscoverRoutes(new DefaultRouteStrategy(config));
         }
 
         private void ConfigureControls(DotvvmConfiguration config, string applicationPath)

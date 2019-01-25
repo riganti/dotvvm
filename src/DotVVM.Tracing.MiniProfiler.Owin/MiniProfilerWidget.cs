@@ -16,6 +16,7 @@ namespace DotVVM.Tracing.MiniProfiler.Owin
             get { return (RenderPosition?)GetValue(PositionProperty); }
             set { SetValue(PositionProperty, value); }
         }
+
         public static readonly DotvvmProperty PositionProperty
             = DotvvmProperty.Register<RenderPosition?, MiniProfilerWidget>(c => c.Position, null);
 
@@ -28,6 +29,7 @@ namespace DotVVM.Tracing.MiniProfiler.Owin
             get { return (bool?)GetValue(ShowTrivialProperty); }
             set { SetValue(ShowTrivialProperty, value); }
         }
+
         public static readonly DotvvmProperty ShowTrivialProperty
             = DotvvmProperty.Register<bool?, MiniProfilerWidget>(c => c.ShowTrivial, null);
 
@@ -40,6 +42,7 @@ namespace DotVVM.Tracing.MiniProfiler.Owin
             get { return (bool?)GetValue(ShowTimeWithChildrenProperty); }
             set { SetValue(ShowTimeWithChildrenProperty, value); }
         }
+
         public static readonly DotvvmProperty ShowTimeWithChildrenProperty
             = DotvvmProperty.Register<bool?, MiniProfilerWidget>(c => c.ShowTimeWithChildren, null);
 
@@ -52,6 +55,7 @@ namespace DotVVM.Tracing.MiniProfiler.Owin
             get { return (int?)GetValue(MaxTracesProperty); }
             set { SetValue(MaxTracesProperty, value); }
         }
+
         public static readonly DotvvmProperty MaxTracesProperty
             = DotvvmProperty.Register<int?, MiniProfilerWidget>(c => c.MaxTraces, null);
 
@@ -64,6 +68,7 @@ namespace DotVVM.Tracing.MiniProfiler.Owin
             get { return (bool?)GetValue(ShowControlsProperty); }
             set { SetValue(ShowControlsProperty, value); }
         }
+
         public static readonly DotvvmProperty ShowControlsProperty
             = DotvvmProperty.Register<bool?, MiniProfilerWidget>(c => c.ShowControls, null);
 
@@ -76,32 +81,34 @@ namespace DotVVM.Tracing.MiniProfiler.Owin
             get { return (bool?)GetValue(StartHiddenProperty); }
             set { SetValue(StartHiddenProperty, value); }
         }
+
         public static readonly DotvvmProperty StartHiddenProperty
             = DotvvmProperty.Register<bool?, MiniProfilerWidget>(c => c.StartHidden, null);
 
         protected override void OnPreRender(IDotvvmRequestContext context)
         {
             context.ResourceManager.AddStartupScript("DotVVM-MiniProfiler-Integration",
-                @"(function() {
-                    var miniProfilerUpdate = function(arg) { 
-                        if(arg.xhr && arg.xhr.getResponseHeader) { 
-                            var jsonIds = arg.xhr.getResponseHeader('X-MiniProfiler-Ids'); 
-                            if (jsonIds) {
-                                var ids = JSON.parse(jsonIds);
-                                MiniProfiler.fetchResults(ids);
-                            }
-                        }
-                    };
-                    dotvvm.events.afterPostback.subscribe(miniProfilerUpdate);
-                    dotvvm.events.spaNavigated.subscribe(miniProfilerUpdate);
-                })()", "dotvvm");
-
+                @"
+(function() {
+    var miniProfilerUpdate = function(arg) {
+        if(arg.xhr && arg.xhr.getResponseHeader) {
+            var jsonIds = arg.xhr.getResponseHeader('X-MiniProfiler-Ids');
+            if (jsonIds) {
+                var ids = JSON.parse(jsonIds);
+                MiniProfiler.fetchResults(ids);
+            }
+        }
+    };
+    dotvvm.events.afterPostback.subscribe(miniProfilerUpdate);
+    dotvvm.events.spaNavigated.subscribe(miniProfilerUpdate);
+    dotvvm.events.staticCommandMethodInvoked.subscribe(miniProfilerUpdate);
+})()", "dotvvm");
             base.OnPreRender(context);
         }
 
         protected override void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            var html = StackExchange.Profiling.MiniProfiler.RenderIncludes(
+            var html = StackExchange.Profiling.MiniProfiler.Current.RenderIncludes(
                 position: Position,
                 showTrivial: ShowTrivial,
                 showTimeWithChildren: ShowTimeWithChildren,

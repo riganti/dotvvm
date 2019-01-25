@@ -1,34 +1,21 @@
-﻿using StackExchange.Profiling;
+﻿using System.Threading.Tasks;
+using StackExchange.Profiling;
+using StackExchange.Profiling.Internal;
 
 namespace DotVVM.Tracing.MiniProfiler.Owin
 {
-    public class DotVVMProfilerProvider : IProfilerProvider
+    public class DotVVMProfilerProvider : IAsyncProfilerProvider
     {
-        private IProfilerProvider profileProvider;
+        private IAsyncProfilerProvider provider;
 
-        public DotVVMProfilerProvider(IProfilerProvider profileProvider)
+        public DotVVMProfilerProvider(IAsyncProfilerProvider provider)
         {
-            this.profileProvider = profileProvider;
+            this.provider = provider;
         }
 
         public StackExchange.Profiling.MiniProfiler GetCurrentProfiler()
         {
-            return profileProvider.GetCurrentProfiler();
-        }
-
-        public StackExchange.Profiling.MiniProfiler Start(ProfileLevel level, string sessionName = null)
-        {
-            return profileProvider.Start(level, sessionName);
-        }
-
-        public void Stop(bool discardResults)
-        {
-            if (!discardResults)
-            {
-                discardResults = EnsureName();
-            }
-
-            profileProvider.Stop(discardResults);
+            return provider.CurrentProfiler;
         }
 
         private bool EnsureName()
@@ -38,5 +25,22 @@ namespace DotVVM.Tracing.MiniProfiler.Owin
             // Exclude all dotvvm Resources - others have some name
             return string.IsNullOrEmpty(currentMiniProfiler?.Name);
         }
+
+        public StackExchange.Profiling.MiniProfiler Start(string profilerName, MiniProfilerBaseOptions options)
+        {
+            return provider.Start(profilerName, options);
+        }
+
+        public void Stopped(StackExchange.Profiling.MiniProfiler profiler, bool discardResults)
+        {
+            provider.Stopped(profiler, discardResults);
+        }
+
+        public Task StoppedAsync(StackExchange.Profiling.MiniProfiler profiler, bool discardResults)
+        {
+            return provider.StoppedAsync(profiler, discardResults);
+        }
+
+        public StackExchange.Profiling.MiniProfiler CurrentProfiler => this.provider.CurrentProfiler;
     }
 }

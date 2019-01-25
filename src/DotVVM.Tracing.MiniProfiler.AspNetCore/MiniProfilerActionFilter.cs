@@ -11,13 +11,8 @@ namespace DotVVM.Tracing.MiniProfiler.AspNetCore
 {
     public class MiniProfilerActionFilter : ActionFilterAttribute
     {
-        private readonly IOptions<MiniProfilerOptions> minipProfilerOptions;
-        private readonly PathString resultsLink;
-
-        public MiniProfilerActionFilter(IOptions<MiniProfilerOptions> minipProfilerOptions)
+        public MiniProfilerActionFilter()
         {
-            this.minipProfilerOptions = minipProfilerOptions;
-            this.resultsLink = minipProfilerOptions.Value.RouteBasePath.Add(new PathString("/results-index"));
         }
 
         protected override Task OnPresenterExecutingAsync(IDotvvmRequestContext context)
@@ -47,7 +42,7 @@ namespace DotVVM.Tracing.MiniProfiler.AspNetCore
         private void AddMiniProfilerName(IDotvvmRequestContext context, params string[] nameParts)
         {
             var currentMiniProfiler = StackExchange.Profiling.MiniProfiler.Current;
- 
+
             if (currentMiniProfiler != null)
             {
                 currentMiniProfiler.Name = string.Join(" ", nameParts);

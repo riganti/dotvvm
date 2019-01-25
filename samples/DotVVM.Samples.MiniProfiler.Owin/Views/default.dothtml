@@ -1,5 +1,5 @@
 ﻿@viewModel DotVVM.Samples.MiniProfiler.Owin.ViewModels.DefaultViewModel, DotVVM.Samples.MiniProfiler.Owin
-
+@import  DotVVM.Samples.MiniProfiler.Owin.ViewModels
 <!DOCTYPE html>
 
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
@@ -15,6 +15,6 @@
     <dot:MiniProfilerWidget Position="Right" />
 
     <dot:Button Text="Sample Command" Click="{command:  Command()}" />
-
+    <dot:Button Text="Static Command" Click="{staticCommand: DefaultViewModel.StaticCommand()}" />
 </body>
 </html>

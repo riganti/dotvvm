@@ -1,9 +1,7 @@
 ﻿using System;
-using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Runtime.Tracing;
 using DotVVM.Tracing.MiniProfiler.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using StackExchange.Profiling;
 
 namespace DotVVM.Framework.Configuration
@@ -27,8 +25,7 @@ namespace DotVVM.Framework.Configuration
             services.Services.Configure((DotvvmConfiguration conf) =>
             {
                 conf.Markup.AddCodeControls(DotvvmConfiguration.DotvvmControlTagPrefix, typeof(MiniProfilerWidget));
-                conf.Runtime.GlobalFilters.Add(
-                    new MiniProfilerActionFilter(conf.ServiceProvider.GetService<IOptions<MiniProfilerOptions>>()));
+                conf.Runtime.GlobalFilters.Add(new MiniProfilerActionFilter());
             });
 
             return services;

@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using DotVVM.Framework.ViewModel;
@@ -6,7 +7,6 @@ namespace DotVVM.Samples.MiniProfiler.Owin.ViewModels
 {
     public class DefaultViewModel : DotvvmViewModelBase
     {
-
         public string Title { get; set; }
 
         public DefaultViewModel()
@@ -32,8 +32,17 @@ namespace DotVVM.Samples.MiniProfiler.Owin.ViewModels
             return base.PreRender();
         }
 
+        private static Random random = new Random();
+
         public void Command()
         {
+            Thread.Sleep(random.Next(100, 800));
+        }
+
+        [AllowStaticCommand]
+        public static void StaticCommand()
+        {
+            Thread.Sleep(random.Next(100, 800));
         }
     }
 }
