@@ -4,6 +4,8 @@ using System.Linq;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Hosting.Middlewares;
+using DotVVM.Framework.Hosting.Owin.Runtime.Caching;
+using DotVVM.Framework.Runtime.Caching;
 using DotVVM.Framework.Runtime.Tracing;
 using DotVVM.Framework.Security;
 using Microsoft.Extensions.DependencyInjection;
@@ -56,6 +58,7 @@ namespace Owin
         {
             var config = DotvvmConfiguration.CreateDefault(s => {
                 s.TryAddSingleton<IDataProtectionProvider>(p => new DefaultDataProtectionProvider(app));
+                s.TryAddSingleton<IDotvvmCache, OwinDotvvmCache>();
                 s.TryAddSingleton<IViewModelProtector, DefaultViewModelProtector>();
                 s.TryAddSingleton<ICsrfProtector, DefaultCsrfProtector>();
                 s.TryAddSingleton<IEnvironmentNameProvider, DotvvmEnvironmentNameProvider>();
@@ -68,7 +71,6 @@ namespace Owin
             config.ApplicationPhysicalPath = applicationRootPath;
 
             startup.Configure(config, applicationRootPath);
-
 
             if (useErrorPages)
             {
