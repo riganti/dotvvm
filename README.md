@@ -2,8 +2,6 @@
 
 Reimplementation of **ASP.NET Dynamic Data** for [DotVVM](https://github.com/riganti/dotvvm). 
 
-Please note that this library is in a very early stage and we expect breaking changes. 
-
 
 ## Data Annotations
 
