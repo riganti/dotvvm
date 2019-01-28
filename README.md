@@ -17,7 +17,7 @@ The main goal of this library is to generate user interface from metadata. Curre
 First, install the `DotVVM.DynamicData` NuGet package in your project.
 
 ```
-Install-Package DotVVM.DynamicData -pre
+Install-Package DotVVM.DynamicData
 ```
 
 To use Dynamic Data, add the following line to the `Startup.cs` file.
