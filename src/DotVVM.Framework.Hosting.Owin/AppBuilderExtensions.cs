@@ -58,7 +58,7 @@ namespace Owin
         {
             var config = DotvvmConfiguration.CreateDefault(s => {
                 s.TryAddSingleton<IDataProtectionProvider>(p => new DefaultDataProtectionProvider(app));
-                s.TryAddSingleton<IDotvvmCache, OwinDotvvmCache>();
+                s.TryAddSingleton<IDotvvmCacheAdapter, OwinDotvvmCacheAdapter>();
                 s.TryAddSingleton<IViewModelProtector, DefaultViewModelProtector>();
                 s.TryAddSingleton<ICsrfProtector, DefaultCsrfProtector>();
                 s.TryAddSingleton<IEnvironmentNameProvider, DotvvmEnvironmentNameProvider>();

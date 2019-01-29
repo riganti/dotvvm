@@ -4,9 +4,9 @@ using System.Text;
 
 namespace DotVVM.Framework.Runtime.Caching
 {
-    public interface IDotvvmCache
+    public interface IDotvvmCacheAdapter
     {
-        T GetOrAdd<T>(object key, Func<object, DotvvmCachedItem<T>> factoryFunc);
+        T GetOrAdd<Tkey, T>(Tkey key, Func<Tkey, DotvvmCachedItem<T>> factoryFunc);
 
         T Get<T>(object key);
 
@@ -15,21 +15,18 @@ namespace DotVVM.Framework.Runtime.Caching
 
     public class DotvvmCachedItem<T>
     {
-        public DotvvmCachedItem(T value, DotvvmCacheItemPriority priority)
+        public DotvvmCachedItem(T value, DotvvmCacheItemPriority priority = DotvvmCacheItemPriority.Normal, TimeSpan? absoluteExpiration = null, TimeSpan? slidingExpiration = null)
         {
-            this.Value = value;
+            Value = value;
             Priority = priority;
+            Expiration = absoluteExpiration;
+            SlidingExpiration = slidingExpiration;
         }
 
-        public DotvvmCachedItem(T value)
-        {
-            this.Value = value;
-        }
-
-        public T Value;
-        public TimeSpan? Expiration;
-        public DotvvmCacheItemPriority Priority;
-        public TimeSpan? SlidingExpiration;
+        public T Value { get; }
+        public TimeSpan? Expiration { get; }
+        public DotvvmCacheItemPriority Priority { get; }
+        public TimeSpan? SlidingExpiration { get; }
     }
 
     public enum DotvvmCacheItemPriority

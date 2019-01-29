@@ -23,14 +23,14 @@ namespace DotVVM.Framework.Tests.Owin
         public void NullableFactoryMethod()
         {
             var config = DotvvmConfiguration.CreateDefault(services => {
-                services.TryAddSingleton<IDotvvmCache, OwinDotvvmCache>();
+                services.TryAddSingleton<IDotvvmCacheAdapter, OwinDotvvmCacheAdapter>();
             });
 
-            var cache = config.ServiceProvider.GetService<IDotvvmCache>();
+            var cache = config.ServiceProvider.GetService<IDotvvmCacheAdapter>();
             Assert.IsNotNull(cache);
 
             var key = new object();
-            var a = cache.GetOrAdd<object>(key, null);
+            var a = cache.GetOrAdd<object, object>(key, null);
             Assert.IsNull(a);
         }
 
@@ -38,10 +38,10 @@ namespace DotVVM.Framework.Tests.Owin
         public void AddGetRemove()
         {
             var config = DotvvmConfiguration.CreateDefault(services => {
-                services.TryAddSingleton<IDotvvmCache, OwinDotvvmCache>();
+                services.TryAddSingleton<IDotvvmCacheAdapter, OwinDotvvmCacheAdapter>();
             });
 
-            var cache = config.ServiceProvider.GetService<IDotvvmCache>();
+            var cache = config.ServiceProvider.GetService<IDotvvmCacheAdapter>();
             Assert.IsNotNull(cache);
 
             var key = new object();
@@ -70,22 +70,22 @@ namespace DotVVM.Framework.Tests.Owin
             Assert.AreEqual(b, value2);
 
             // GET
-            a = cache.GetOrAdd<string>(key, null);
+            a = cache.GetOrAdd<object, string>(key, null);
             Assert.AreEqual(a, value);
 
-            b = cache.GetOrAdd<string>(key2, null);
+            b = cache.GetOrAdd<object, string>(key2, null);
             Assert.AreEqual(b, value2);
 
             // REMOVE
             cache.Remove(key2);
-            a = cache.GetOrAdd<string>(key, null);
+            a = cache.GetOrAdd<object, string>(key, null);
             Assert.AreEqual(a, value);
 
-            b = cache.GetOrAdd<string>(key2, null);
+            b = cache.GetOrAdd<object, string>(key2, null);
             Assert.IsNull(b);
 
             cache.Remove(key);
-            a = cache.GetOrAdd<string>(key, null);
+            a = cache.GetOrAdd<object, string>(key, null);
             Assert.IsNull(a);
         }
     }

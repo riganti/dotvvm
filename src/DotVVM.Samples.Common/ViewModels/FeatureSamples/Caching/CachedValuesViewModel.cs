@@ -11,22 +11,22 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.Caching
     public class CachedValuesViewModel : DotvvmViewModelBase
     {
         private static object key = new object();
-        private readonly IDotvvmCache cache;
+        private readonly IDotvvmCacheAdapter cacheAdapter;
 
-        public CachedValuesViewModel(IDotvvmCache cache)
+        public CachedValuesViewModel(IDotvvmCacheAdapter cacheAdapter)
         {
-            this.cache = cache;
-            Text = cache.Get<string>(key);
+            this.cacheAdapter = cacheAdapter;
+            Text = cacheAdapter.Get<string>(key);
         }
 
         public void SetItem()
         {
-            cache.GetOrAdd(key, k => new DotvvmCachedItem<string>("value"));
+            cacheAdapter.GetOrAdd(key, k => new DotvvmCachedItem<string>("value"));
         }
 
         public void RemoveItem()
         {
-            cache.Remove(key);
+            cacheAdapter.Remove(key);
         }
 
         public string Text { get; set; }

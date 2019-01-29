@@ -9,12 +9,12 @@ using DotVVM.Framework.Runtime.Caching;
 
 namespace DotVVM.Framework.Hosting.Owin.Runtime.Caching
 {
-    public class OwinDotvvmCache : IDotvvmCache
+    public class OwinDotvvmCacheAdapter : IDotvvmCacheAdapter
     {
         private Cache cache;
         private ConditionalWeakTable<object, string> keysTable;
 
-        public OwinDotvvmCache()
+        public OwinDotvvmCacheAdapter()
         {
             cache = new Cache();
             keysTable = new ConditionalWeakTable<object, string>();
@@ -28,7 +28,7 @@ namespace DotVVM.Framework.Hosting.Owin.Runtime.Caching
             }
         }
 
-        public T GetOrAdd<T>(object key, Func<object, DotvvmCachedItem<T>> updateFunc)
+        public T GetOrAdd<Tkey, T>(Tkey key, Func<Tkey, DotvvmCachedItem<T>> updateFunc)
         {
             var stringKey = GetOrAddStringKey(key);
             var value = cache.Get(stringKey);
@@ -49,7 +49,7 @@ namespace DotVVM.Framework.Hosting.Owin.Runtime.Caching
             return itemValue?.Value is T update ? update : default(T);
         }
 
-        public T Get<T>(object key) => GetOrAdd<T>(key, null);
+        public T Get<T>(object key) => GetOrAdd<object, T>(key, null);
 
         private string GetOrAddStringKey(object key)
         {
@@ -63,12 +63,12 @@ namespace DotVVM.Framework.Hosting.Owin.Runtime.Caching
 
         public object Remove(object key)
         {
-            if (keysTable.TryGetValue(key, out var stringKey))
+            if (!keysTable.TryGetValue(key, out var stringKey))
+                return null;
+
+            if (cache.Remove(stringKey) is KeyValuePair<object, object> value)
             {
-                if (cache.Remove(stringKey) is KeyValuePair<object, object> value)
-                {
-                    return value.Value;
-                }
+                return value.Value;
             }
             return null;
         }
