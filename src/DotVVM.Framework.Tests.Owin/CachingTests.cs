@@ -22,9 +22,7 @@ namespace DotVVM.Framework.Tests.Owin
         [TestMethod]
         public void NullableFactoryMethod()
         {
-            var config = DotvvmConfiguration.CreateDefault(services => {
-                services.TryAddSingleton<IDotvvmCacheAdapter, OwinDotvvmCacheAdapter>();
-            });
+            var config = GetConfig();
 
             var cache = config.ServiceProvider.GetService<IDotvvmCacheAdapter>();
             Assert.IsNotNull(cache);
@@ -35,11 +33,53 @@ namespace DotVVM.Framework.Tests.Owin
         }
 
         [TestMethod]
-        public void AddGetRemove()
+        public void FactoryMethodReturnsNullForFirstTime()
+        {
+            var config = GetConfig();
+
+            var cache = config.ServiceProvider.GetService<IDotvvmCacheAdapter>();
+            Assert.IsNotNull(cache);
+
+            var key = new object();
+            var a = cache.GetOrAdd<object, object>(key, k => null);
+            Assert.IsNull(a);
+
+            var cachedObject = new object();
+            a = cache.GetOrAdd(key, k => new DotvvmCachedItem<object>(cachedObject));
+            Assert.IsNotNull(a);
+            Assert.AreEqual(a, cachedObject);
+        }
+
+        private static DotvvmConfiguration GetConfig()
         {
             var config = DotvvmConfiguration.CreateDefault(services => {
                 services.TryAddSingleton<IDotvvmCacheAdapter, OwinDotvvmCacheAdapter>();
             });
+            return config;
+        }
+
+        [TestMethod]
+        public void FactoryMethodReturnsValueNullForFirstTime()
+        {
+            var config = GetConfig();
+
+            var cache = config.ServiceProvider.GetService<IDotvvmCacheAdapter>();
+            Assert.IsNotNull(cache);
+
+            var key = new object();
+            var a = cache.GetOrAdd(key, k => new DotvvmCachedItem<object>(null));
+            Assert.IsNull(a);
+
+            var cachedObject = new object();
+            a = cache.GetOrAdd(key, k => new DotvvmCachedItem<object>(cachedObject));
+            Assert.IsNotNull(a);
+            Assert.AreEqual(a, cachedObject);
+        }
+
+        [TestMethod]
+        public void AddGetRemove()
+        {
+            var config = GetConfig();
 
             var cache = config.ServiceProvider.GetService<IDotvvmCacheAdapter>();
             Assert.IsNotNull(cache);

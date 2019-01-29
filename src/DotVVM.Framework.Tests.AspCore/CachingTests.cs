@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DotVVM.Framework.Compilation.ControlTree;
-using DotVVM.Framework.Configuration;
+﻿using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting.AspNetCore.Runtime.Caching;
 using DotVVM.Framework.Runtime.Caching;
-using DotVVM.Framework.Security;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace DotVVM.Framework.Tests.Owin
+namespace DotVVM.Framework.Tests.AspCore
 {
     [TestClass]
     public class CachingTests
@@ -20,10 +13,7 @@ namespace DotVVM.Framework.Tests.Owin
         [TestMethod]
         public void NullableFactoryMethod()
         {
-            var config = DotvvmConfiguration.CreateDefault(services => {
-                services.AddMemoryCache();
-                services.TryAddSingleton<IDotvvmCacheAdapter, AspNetCoreDotvvmCacheAdapter>();
-            });
+            var config = GetConfig();
 
             var cache = config.ServiceProvider.GetService<IDotvvmCacheAdapter>();
             Assert.IsNotNull(cache);
@@ -33,14 +23,55 @@ namespace DotVVM.Framework.Tests.Owin
             Assert.IsNull(a);
         }
 
-        [TestMethod]
-        public void AddGetRemove()
+        private static DotvvmConfiguration GetConfig()
         {
             var config = DotvvmConfiguration.CreateDefault(services => {
                 services.AddMemoryCache();
                 services.TryAddSingleton<IDotvvmCacheAdapter, AspNetCoreDotvvmCacheAdapter>();
             });
+            return config;
+        }
 
+        [TestMethod]
+        public void FactoryMethodReturnsNullForFirstTime()
+        {
+            var config = GetConfig();
+
+            var cache = config.ServiceProvider.GetService<IDotvvmCacheAdapter>();
+            Assert.IsNotNull(cache);
+
+            var key = new object();
+            var a = cache.GetOrAdd<object, object>(key, k => null);
+            Assert.IsNull(a);
+
+            var cachedObject = new object();
+            a = cache.GetOrAdd(key, k => new DotvvmCachedItem<object>(cachedObject));
+            Assert.IsNotNull(a);
+            Assert.AreEqual(a, cachedObject);
+        }
+
+        [TestMethod]
+        public void FactoryMethodReturnsValueNullForFirstTime()
+        {
+            var config = GetConfig();
+
+            var cache = config.ServiceProvider.GetService<IDotvvmCacheAdapter>();
+            Assert.IsNotNull(cache);
+
+            var key = new object();
+            var a = cache.GetOrAdd(key, k => new DotvvmCachedItem<object>(null));
+            Assert.IsNull(a);
+
+            var cachedObject = new object();
+            a = cache.GetOrAdd(key, k => new DotvvmCachedItem<object>(cachedObject));
+            Assert.IsNotNull(a);
+            Assert.AreEqual(a, cachedObject);
+        }
+
+        [TestMethod]
+        public void AddGetRemove()
+        {
+            var config = GetConfig();
             var cache = config.ServiceProvider.GetService<IDotvvmCacheAdapter>();
             Assert.IsNotNull(cache);
 

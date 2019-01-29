@@ -27,18 +27,18 @@ namespace DotVVM.Framework.Hosting.AspNetCore.Runtime.Caching
 
         public T GetOrAdd<Tkey, T>(Tkey key, Func<Tkey, DotvvmCachedItem<T>> factoryFunc)
         {
-            if (memoryCache.TryGetValue(key, out ICacheEntry cachedValue))
+            if (memoryCache.TryGetValue(key, out ICacheEntry cachedValue) && cachedValue?.Value is T convertedValue)
             {
-                return cachedValue?.Value is T convertedValue ? convertedValue : default(T);
+                return convertedValue;
             }
 
             if (factoryFunc == null)
                 return default(T);
 
             var item = factoryFunc.Invoke(key);
-            var value = item.Value;
-            if (value == null)
+            if (item == null || item.Value == null)
                 return default(T);
+            var value = item.Value;
 
             var entry = memoryCache.CreateEntry(key);
 

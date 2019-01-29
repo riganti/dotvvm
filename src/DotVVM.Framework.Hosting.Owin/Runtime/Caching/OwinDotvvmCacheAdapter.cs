@@ -31,12 +31,12 @@ namespace DotVVM.Framework.Hosting.Owin.Runtime.Caching
         public T GetOrAdd<Tkey, T>(Tkey key, Func<Tkey, DotvvmCachedItem<T>> updateFunc)
         {
             var stringKey = GetOrAddStringKey(key);
-            var value = cache.Get(stringKey);
+            var value = cache.Get(stringKey) as KeyValuePair<object, object>?;
 
             if (value == null)
             {
                 var item = updateFunc?.Invoke(key);
-                if (item == null) return default(T);
+                if (item == null || item.Value == null) return default(T);
 
                 var kvPair = new KeyValuePair<object, object>(key, item.Value);
                 var aExpiration = item.Expiration != null ? DateTime.UtcNow.Add(item.Expiration.Value) : Cache.NoAbsoluteExpiration;
@@ -45,8 +45,7 @@ namespace DotVVM.Framework.Hosting.Owin.Runtime.Caching
                 cache.Add(stringKey, kvPair, null, aExpiration, sExpiration, item.Priority.ConvertToCacheItemPriority(), RemovedCallback);
                 value = kvPair;
             }
-            var itemValue = value as KeyValuePair<object, object>?;
-            return itemValue?.Value is T update ? update : default(T);
+            return value?.Value is T update ? update : default(T);
         }
 
         public T Get<T>(object key) => GetOrAdd<object, T>(key, null);
