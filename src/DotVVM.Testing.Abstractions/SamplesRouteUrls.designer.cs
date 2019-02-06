@@ -224,7 +224,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Validation_DateTimeValidation_NullableDateTime = "FeatureSamples/Validation/DateTimeValidation_NullableDateTime";
         public const string FeatureSamples_Validation_DynamicValidation = "FeatureSamples/Validation/DynamicValidation";
         public const string FeatureSamples_Validation_EncryptedData = "FeatureSamples/Validation/EncryptedData";
-        public const string FeatureSamples_Validation_EnforceClientSiteValidationDisabled = "FeatureSamples/Validation/EnforceClientSiteValidationDisabled";
+        public const string FeatureSamples_Validation_EnforceClientSideValidationDisabled = "FeatureSamples/Validation/EnforceClientSideValidationDisabled";
         public const string FeatureSamples_Validation_EssentialTypeValidation = "FeatureSamples/Validation/EssentialTypeValidation";
         public const string FeatureSamples_Validation_Localization = "FeatureSamples/Validation/Localization";
         public const string FeatureSamples_Validation_ModelStateErrors = "FeatureSamples/Validation/ModelStateErrors";
