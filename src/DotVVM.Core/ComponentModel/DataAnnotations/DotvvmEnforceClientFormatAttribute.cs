@@ -11,12 +11,12 @@ namespace System.ComponentModel.DataAnnotations
     /// </summary>
     public class DotvvmEnforceClientFormatAttribute : ValidationAttribute
     {
+        public bool Enforce { get; set; } = true;
         public bool AllowNull { get; set; } = true;
 
         public bool AllowEmptyStringOrWhitespaces { get; set; } = true;
 
         public bool AllowEmptyString { get; set; } = true;
-
 
         public override bool IsValid(object value)
         {

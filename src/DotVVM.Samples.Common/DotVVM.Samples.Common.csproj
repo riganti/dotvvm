@@ -17,6 +17,7 @@
     <None Remove="Views\Errors\CorruptedContentBetweenContentControls.dothtml" />
     <None Remove="Views\FeatureSamples\Caching\CachedValues.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_NullAssignment.dothtml" />
+    <None Remove="Views\FeatureSamples\Validation\EnforceClientSiteValidationDisabled.dothtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Scripts\ClientExtenders.js" />
