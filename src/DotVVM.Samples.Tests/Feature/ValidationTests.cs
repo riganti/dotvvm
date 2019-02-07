@@ -258,7 +258,7 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_EnforceClientSideValidationDisabled);
-
+                
                 var withBtn = browser.ElementAt("input[type=button]", 0);
                 var withOutBtn = browser.ElementAt("input[type=button]", 1);
 

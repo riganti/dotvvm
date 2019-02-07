@@ -52,19 +52,19 @@ namespace DotVVM.Framework.ViewModel.Validation
                 }
 
                 yield return validationRule;
-
-                // enforce client format by default
-                if (addEnforceClientFormat && property.PropertyType.IsNullable() && property.PropertyType.IsNumericType())
-                {
-                    var enforceClientFormatAttr = new DotvvmEnforceClientFormatAttribute();
-
-                    validationRule = new ViewModelPropertyValidationRule(sourceValidationAttribute: enforceClientFormatAttr, staticPropertyName: property.Name);
-                    validationRule.Parameters = new object[] { enforceClientFormatAttr.AllowNull, enforceClientFormatAttr.AllowEmptyString, enforceClientFormatAttr.AllowEmptyStringOrWhitespaces };
-                    validationRule.ClientRuleName = "enforceClientFormat";
-
-                    yield return validationRule;
-                }
             }
+            // enforce client format by default
+            if (addEnforceClientFormat && property.PropertyType.IsNullable() && Nullable.GetUnderlyingType(property.PropertyType).IsNumericType())
+            {
+                var enforceClientFormatAttr = new DotvvmEnforceClientFormatAttribute();
+
+                var validationRule = new ViewModelPropertyValidationRule(sourceValidationAttribute: enforceClientFormatAttr, staticPropertyName: property.Name);
+                validationRule.Parameters = new object[] { enforceClientFormatAttr.AllowNull, enforceClientFormatAttr.AllowEmptyString, enforceClientFormatAttr.AllowEmptyStringOrWhitespaces };
+                validationRule.ClientRuleName = "enforceClientFormat";
+
+                yield return validationRule;
+            }
+
         }
     }
 }
