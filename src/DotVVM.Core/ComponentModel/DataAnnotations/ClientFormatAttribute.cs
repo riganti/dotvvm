@@ -9,9 +9,18 @@ namespace System.ComponentModel.DataAnnotations
     /// Checks whether the value matches the format specified by DotVVM control (e.g. TextBox).
     /// The value can be empty string or null. If it is not, it must match the FormatString that the control specifies.
     /// </summary>
+    [Obsolete("The client format is enforced by default. If you need to disable it use ClientFormatAttribute", true)]
     public class DotvvmEnforceClientFormatAttribute : ValidationAttribute
     {
-        public bool Enforce { get; set; } = true;
+    }
+
+    /// <summary>
+    /// Checks whether the value matches the format specified by DotVVM control (e.g. TextBox).
+    /// The value can be empty string or null. If it is not, it must match the FormatString that the control specifies.
+    /// </summary>
+    public class DotvvmClientFormatAttribute : ValidationAttribute
+    {
+        public bool Disable { get; set; }
         public bool AllowNull { get; set; } = true;
 
         public bool AllowEmptyStringOrWhitespaces { get; set; } = true;

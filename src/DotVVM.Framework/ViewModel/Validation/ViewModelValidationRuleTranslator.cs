@@ -36,9 +36,9 @@ namespace DotVVM.Framework.ViewModel.Validation
                         validationRule.ClientRuleName = "range";
                         validationRule.Parameters = new[] { rangeAttr.Minimum, rangeAttr.Maximum };
                         break;
-                    case DotvvmEnforceClientFormatAttribute enforceClientFormatAttr:
+                    case DotvvmClientFormatAttribute enforceClientFormatAttr:
                         addEnforceClientFormat = false;
-                        if (!enforceClientFormatAttr.Enforce) yield break;
+                        if (enforceClientFormatAttr.Disable) yield break;
                         validationRule.ClientRuleName = "enforceClientFormat";
                         validationRule.Parameters = new object[] { enforceClientFormatAttr.AllowNull, enforceClientFormatAttr.AllowEmptyString,
                             enforceClientFormatAttr.AllowEmptyStringOrWhitespaces };
@@ -56,7 +56,7 @@ namespace DotVVM.Framework.ViewModel.Validation
             // enforce client format by default
             if (addEnforceClientFormat && property.PropertyType.IsNullable() && Nullable.GetUnderlyingType(property.PropertyType).IsNumericType())
             {
-                var enforceClientFormatAttr = new DotvvmEnforceClientFormatAttribute();
+                var enforceClientFormatAttr = new DotvvmClientFormatAttribute();
 
                 var validationRule = new ViewModelPropertyValidationRule(sourceValidationAttribute: enforceClientFormatAttr, staticPropertyName: property.Name);
                 validationRule.Parameters = new object[] { enforceClientFormatAttr.AllowNull, enforceClientFormatAttr.AllowEmptyString, enforceClientFormatAttr.AllowEmptyStringOrWhitespaces };

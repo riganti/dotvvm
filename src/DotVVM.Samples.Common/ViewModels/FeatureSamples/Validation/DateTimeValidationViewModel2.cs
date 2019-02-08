@@ -12,7 +12,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation
         public DateTime DateTimeTestValue { get; set; }
 
         public bool DateTimeTestResult { get; set; }
-
+        
         private DateTime defaultValue = new DateTime(2016, 3, 1);
 
         public void ValidateRequiredDateTime()

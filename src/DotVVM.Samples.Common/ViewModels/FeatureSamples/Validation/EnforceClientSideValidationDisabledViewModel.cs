@@ -9,7 +9,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation
 {
 	public class EnforceClientSideValidationDisabledViewModel
     {
-        [DotvvmEnforceClientFormat(Enforce = false, ErrorMessage = "This message will not be display. Because this client format enforcing is disabled.")]
+        [DotvvmClientFormat(Disable = true, ErrorMessage = "This message will not be display. Because this client format enforcing is disabled.")]
         public int? NullableIntegerProperty { get; set; }
         [Required (ErrorMessage = "Int requires value.")]
         public int IntegerProperty { get; set; }
