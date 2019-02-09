@@ -17,6 +17,7 @@ namespace DotVVM.Framework.Controls
 
         private LifeCycleEventType lastLifeCycleEvent;
         private bool isInvokingEvent;
+        private int uniqueIdCounter = 0;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmControlCollection"/> class.
@@ -76,6 +77,7 @@ namespace DotVVM.Framework.Controls
                 item.Parent = null;
             }
             controls.Clear();
+            uniqueIdCounter = 0;
         }
 
         /// <summary>
@@ -236,12 +238,26 @@ namespace DotVVM.Framework.Controls
 
             item.Children.InvokeMissedPageLifeCycleEvents(lastLifeCycleEvent, isMissingInvoke: true);
 
-            if (!item.properties.Contains(Internal.UniqueIDProperty))
+            if (!item.properties.Contains(Internal.UniqueIDProperty) && parent.properties.Contains(Internal.UniqueIDProperty))
             {
-                item.SetValue(Internal.UniqueIDProperty, parent.GetValue(Internal.UniqueIDProperty) + "a" + Count);
+                AssignUniqueIds(item);
             }
 
             ValidateParentsLifecycleEvents();
+        }
+
+        void AssignUniqueIds(DotvvmControl item)
+        {
+            Debug.Assert(parent.properties.Contains(Internal.UniqueIDProperty));
+            Debug.Assert(!item.properties.Contains(Internal.UniqueIDProperty));
+
+            item.SetValue(Internal.UniqueIDProperty, parent.GetValue(Internal.UniqueIDProperty) + "a" + uniqueIdCounter);
+            uniqueIdCounter++;
+            foreach (var c in item.Children)
+            {
+                if (!c.properties.Contains(Internal.UniqueIDProperty))
+                    item.Children.AssignUniqueIds(c);
+            }
         }
 
         [Conditional("DEBUG")]
