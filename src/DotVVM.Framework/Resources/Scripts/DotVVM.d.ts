@@ -47,6 +47,11 @@ declare class DotvvmEvents {
         error?: any;
     }>;
 }
+declare class DotvvmEventHandler<T> {
+    handler: (f: T) => void;
+    isOneTime: boolean;
+    constructor(handler: (f: T) => void, isOneTime: boolean);
+}
 declare class DotvvmEvent<T> {
     readonly name: string;
     private readonly triggerMissedEventsOnSubscribe;
@@ -54,6 +59,7 @@ declare class DotvvmEvent<T> {
     private history;
     constructor(name: string, triggerMissedEventsOnSubscribe?: boolean);
     subscribe(handler: (data: T) => void): void;
+    subscribeOnce(handler: (data: T) => void): void;
     unsubscribe(handler: (data: T) => void): void;
     trigger(data: T): void;
 }
@@ -91,7 +97,7 @@ declare class DotvvmAfterPostBackEventArgs implements PostbackEventArgs {
     postbackOptions: PostbackOptions;
     serverResponseObject: any;
     commandResult: any;
-    xhr: XMLHttpRequest | undefined;
+    xhr?: XMLHttpRequest | undefined;
     isHandled: boolean;
     wasInterrupted: boolean;
     readonly postbackClientId: number;
@@ -111,7 +117,7 @@ declare class DotvvmSpaNavigatedEventArgs implements DotvvmEventArgs {
     viewModel: any;
     viewModelName: string;
     serverResponseObject: any;
-    xhr: XMLHttpRequest | undefined;
+    xhr?: XMLHttpRequest | undefined;
     isHandled: boolean;
     constructor(viewModel: any, viewModelName: string, serverResponseObject: any, xhr?: XMLHttpRequest | undefined);
 }
@@ -125,8 +131,8 @@ declare class DotvvmRedirectEventArgs implements DotvvmEventArgs {
 }
 declare class DotvvmFileUpload {
     showUploadDialog(sender: HTMLElement): void;
-    private getIframe(sender);
-    private openUploadDialog(iframe);
+    private getIframe;
+    private openUploadDialog;
     createUploadId(sender: HTMLElement, iframe: HTMLElement): void;
     reportProgress(targetControlId: any, isBusy: boolean, progress: number, result: DotvvmFileUploadData[] | string): void;
 }
@@ -149,13 +155,14 @@ declare class DotvvmFileSize {
     FormattedText: KnockoutObservable<string>;
 }
 declare class DotvvmGlobalize {
+    private getGlobalize;
     format(format: string, ...values: any[]): string;
-    formatString(format: string, value: any): string;
+    formatString(format: string, value: any): any;
     parseDotvvmDate(value: string): Date | null;
     parseNumber(value: string): number;
-    parseDate(value: string, format: string, previousValue?: Date): Date;
-    bindingDateToString(value: KnockoutObservable<string | Date> | string | Date, format?: string): "" | KnockoutComputed<string>;
-    bindingNumberToString(value: KnockoutObservable<string | number> | string | number, format?: string): "" | KnockoutComputed<string>;
+    parseDate(value: string, format: string, previousValue?: Date): any;
+    bindingDateToString(value: KnockoutObservable<string | Date> | string | Date, format?: string): "" | KnockoutComputed<any>;
+    bindingNumberToString(value: KnockoutObservable<string | number> | string | number, format?: string): "" | KnockoutComputed<any>;
 }
 declare type DotvvmPostbackHandler = {
     execute(callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions): Promise<PostbackCommitFunction>;
@@ -185,10 +192,10 @@ interface AdditionalPostbackData {
 }
 declare class PostbackOptions {
     readonly postbackId: number;
-    readonly sender: HTMLElement | undefined;
+    readonly sender?: HTMLElement | undefined;
     readonly args: any[];
-    readonly viewModel: any;
-    readonly viewModelName: string | undefined;
+    readonly viewModel?: any;
+    readonly viewModelName?: string | undefined;
     readonly additionalPostbackData: AdditionalPostbackData;
     constructor(postbackId: number, sender?: HTMLElement | undefined, args?: any[], viewModel?: any, viewModelName?: string | undefined);
 }
@@ -221,10 +228,10 @@ declare class DotvvmSerialization {
     wrapObservable<T>(obj: T): KnockoutObservable<T>;
     serialize(viewModel: any, opt?: ISerializationOptions): any;
     validateType(value: any, type: string): boolean;
-    private findObject(obj, matcher);
+    private findObject;
     flatSerialize(viewModel: any): any;
     getPureObject(viewModel: any): {};
-    private pad(value, digits);
+    private pad;
     serializeDate(date: string | Date | null, convertToUtc?: boolean): string | null;
 }
 interface Document {
@@ -274,7 +281,7 @@ declare class DotVVM {
     private suppressOnDisabledElementHandler;
     private beforePostbackEventPostbackHandler;
     private isPostBackRunningHandler;
-    private createWindowSetTimeoutHandler(time);
+    private createWindowSetTimeoutHandler;
     private windowSetTimeoutHandler;
     private commonConcurrencyHandler;
     private defaultConcurrencyPostbackHandler;
@@ -297,46 +304,46 @@ declare class DotVVM {
     useHistoryApiSpaNavigation: boolean;
     isPostbackRunning: KnockoutObservable<boolean>;
     init(viewModelName: string, culture: string): void;
-    private handlePopState(viewModelName, event, inSpaPage);
-    private handleHashChangeWithHistory(viewModelName, spaPlaceHolder, isInitialPageLoad);
-    private handleHashChange(viewModelName, spaPlaceHolder, isInitialPageLoad);
-    private persistViewModel(viewModelName);
-    private backUpPostBackConter();
-    private isPostBackStillActive(currentPostBackCounter);
+    private handlePopState;
+    private handleHashChangeWithHistory;
+    private handleHashChange;
+    private persistViewModel;
+    private backUpPostBackConter;
+    private isPostBackStillActive;
     staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback?: (_: any) => void, errorCallback?: (xhr: XMLHttpRequest, error?: any) => void): void;
-    private processPassedId(id, context);
+    private processPassedId;
     protected getPostbackHandler(name: string): (options: any) => DotvvmPostbackHandler;
-    private isPostbackHandler(obj);
+    private isPostbackHandler;
     findPostbackHandlers(knockoutContext: any, config: ClientFriendlyPostbackHandlerConfiguration[]): DotvvmPostbackHandler[];
-    private sortHandlers(handlers);
-    private applyPostbackHandlersCore(callback, options, handlers?);
+    private sortHandlers;
+    private applyPostbackHandlersCore;
     applyPostbackHandlers(callback: (options: PostbackOptions) => Promise<PostbackCommitFunction | undefined>, sender: HTMLElement, handlers?: ClientFriendlyPostbackHandlerConfiguration[], args?: any[], context?: any, viewModel?: any, viewModelName?: string): Promise<DotvvmAfterPostBackEventArgs>;
     postbackCore(options: PostbackOptions, path: string[], command: string, controlUniqueId: string, context: any, commandArgs?: any[]): Promise<() => Promise<DotvvmAfterPostBackEventArgs>>;
     handleSpaNavigation(element: HTMLElement): boolean;
     handleSpaNavigationCore(url: string | null): boolean;
     postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, context?: any, handlers?: ClientFriendlyPostbackHandlerConfiguration[], commandArgs?: any[]): Promise<DotvvmAfterPostBackEventArgs>;
-    private loadResourceList(resources, callback);
-    private loadResourceElements(elements, offset, callback);
-    private getSpaPlaceHolder();
-    private navigateCore(viewModelName, url, handlePageNavigating?);
-    private handleRedirect(resultObject, viewModelName, replace?);
-    private performRedirect(url, replace, useHistoryApiSpaRedirect?);
-    private fixSpaUrlPrefix(url);
-    private removeVirtualDirectoryFromUrl(url, viewModelName);
-    private addLeadingSlash(url);
-    private concatUrl(url1, url2);
+    private loadResourceList;
+    private loadResourceElements;
+    private getSpaPlaceHolder;
+    private navigateCore;
+    private handleRedirect;
+    private performRedirect;
+    private fixSpaUrlPrefix;
+    private removeVirtualDirectoryFromUrl;
+    private addLeadingSlash;
+    private concatUrl;
     patch(source: any, patch: any): any;
-    private updateDynamicPathFragments(context, path);
-    private postJSON(url, method, postData, success, error, preprocessRequest?);
-    private getJSON(url, method, spaPlaceHolderUniqueId, success, error);
+    private updateDynamicPathFragments;
+    private postJSON;
+    private getJSON;
     getXHR(): XMLHttpRequest;
-    private cleanUpdatedControls(resultObject, updatedControls?);
-    private restoreUpdatedControls(resultObject, updatedControls, applyBindingsOnEachControl);
+    private cleanUpdatedControls;
+    private restoreUpdatedControls;
     unwrapArrayExtension(array: any): any;
     buildRouteUrl(routePath: string, params: any): string;
     buildUrlSuffix(urlSuffix: string, query: any): string;
-    private isPostBackProhibited(element);
-    private addKnockoutBindingHandlers();
+    private isPostBackProhibited;
+    private addKnockoutBindingHandlers;
 }
 declare class DotvvmValidationContext {
     valueToValidate: any;
@@ -375,6 +382,9 @@ declare class DotvvmRangeValidator extends DotvvmValidatorBase {
     isValid(context: DotvvmValidationContext, property: KnockoutObservable<any>): boolean;
 }
 declare class DotvvmNotNullValidator extends DotvvmValidatorBase {
+    isValid(context: DotvvmValidationContext): boolean;
+}
+declare class DotvvmEmailAddressValidator extends DotvvmValidatorBase {
     isValid(context: DotvvmValidationContext): boolean;
 }
 declare type KnockoutValidatedObservable<T> = KnockoutObservable<T> & {
@@ -439,7 +449,7 @@ declare class DotvvmValidation {
      * Adds validation errors from the server to the appropriate arrays
      */
     showValidationErrorsFromServer(args: DotvvmAfterPostBackEventArgs): void;
-    private addValidationError(validatedProperty, error);
+    private addValidationError;
 }
 declare var dotvvm: DotVVM;
 declare class DotvvmEvaluator {
@@ -449,9 +459,9 @@ declare class DotvvmEvaluator {
     tryEval(func: () => any): any;
     isObservableArray(instance: any): instance is KnockoutObservableArray<any>;
     wrapObservable(func: () => any, isArray?: boolean): KnockoutComputed<any>;
-    private updateObservable(getObservable, value);
-    private updateObservableArray(getObservableArray, fnName, args);
-    private getExpressionResult(func);
+    private updateObservable;
+    private updateObservableArray;
+    private getExpressionResult;
 }
 declare type ApiComputed<T> = KnockoutObservable<T | null> & {
     refreshValue: (throwOnError?: boolean) => PromiseLike<any> | undefined;

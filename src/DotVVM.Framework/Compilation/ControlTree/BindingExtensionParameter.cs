@@ -17,11 +17,15 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
+    /// Base class for defining an extension parameter.
     public abstract class BindingExtensionParameter
     {
+        /// A name that will be used in binding expressions to reference this parameter
         public string Identifier { get; }
-        public bool Inherit { get; }
+        /// Type of the parameter. When used in a binding, the expression will have this type.
         public ITypeDescriptor ParameterType { get; }
+        /// When the extension parameter is introduced in a specific data context, this parameter controls if the parameter will also be valid in child data contexts.
+        public bool Inherit { get; }
 
         public BindingExtensionParameter(string identifier, ITypeDescriptor type, bool inherit)
         {
@@ -30,13 +34,15 @@ namespace DotVVM.Framework.Compilation.ControlTree
             this.Inherit = inherit;
         }
 
+        /// Returns an expression that is evaluated when value of this parameter is needed when running on server
         public abstract Expression GetServerEquivalent(Expression controlParameter);
+        /// Returns a JS expression that is put into the emitted JS code on the place of the parameter
         public abstract JsExpression GetJsTranslation(JsExpression dataContext);
 
         public override bool Equals(object obj) =>
             obj is BindingExtensionParameter other && Equals(other);
 
-        public bool Equals(BindingExtensionParameter other) =>
+        public virtual bool Equals(BindingExtensionParameter other) =>
             string.Equals(Identifier, other.Identifier) && Inherit == other.Inherit && ParameterType.IsEqualTo(other.ParameterType);
 
         public override int GetHashCode() =>
@@ -76,7 +82,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public override JsExpression GetJsTranslation(JsExpression dataContext)
         {
-            return new JsSymbolicParameter(JavascriptTranslator.CurrentIndexParameter);
+            return dataContext.Member("$index").Invoke();
         }
     }
 
@@ -113,7 +119,13 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public override JsExpression GetJsTranslation(JsExpression dataContext)
         {
-            return new JsObjectExpression();
+            JsExpression index() => dataContext.Clone().Member("$index").Invoke();
+            return new JsObjectExpression(
+                new JsObjectProperty(nameof(BindingCollectionInfo.Index), index()),
+                new JsObjectProperty(nameof(BindingCollectionInfo.IsFirst), new JsBinaryExpression(index(), BinaryOperatorType.Equal, new JsLiteral(0))),
+                new JsObjectProperty(nameof(BindingCollectionInfo.IsOdd), new JsBinaryExpression(new JsBinaryExpression(index(), BinaryOperatorType.Modulo, new JsLiteral(2)), BinaryOperatorType.Equal, new JsLiteral(1))),
+                new JsObjectProperty(nameof(BindingCollectionInfo.IsEven), new JsBinaryExpression(new JsBinaryExpression(index(), BinaryOperatorType.Modulo, new JsLiteral(2)), BinaryOperatorType.Equal, new JsLiteral(0)))
+            );
         }
     }
 
@@ -124,7 +136,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public override Expression GetServerEquivalent(Expression controlParameter)
         {
-            var type = ((ResolvedTypeDescriptor)this.ParameterType).Type;
+            var type = ResolvedTypeDescriptor.ToSystemType(this.ParameterType);
             var expr = ExpressionUtils.Replace((DotvvmBindableObject c) => ResolveStaticCommandService(c, type), controlParameter);
             return Expression.Convert(expr, type);
         }

@@ -9,7 +9,9 @@ namespace DotVVM.Framework.Runtime
     [Obsolete(DefaultStaticCommandServiceLoader.DeprecationNotice)]
     public class DefaultStaticCommandServiceLoader : IStaticCommandServiceLoader
     {
-        public const string DeprecationNotice = "IStaticCommandServiceLoader is only temporary workaround for a flaw in service registration in DotVVM.Hosting.OWIN and it will be removed soon. If you need to use it, you are doing something wrong.\n\nSee discussion at https://github.com/riganti/dotvvm/commit/46f043d28f5bda2f83f2bf827c65a2c32d56e252 and https://github.com/riganti/dotvvm/commit/3036726a9783bb953ddf1b7b9a62f2c27d0db7b3 for some context.";
+        public const string DeprecationNotice = @"IStaticCommandServiceLoader is a workaround for the case when you need to resolve the static command service from your IoC/DI container but you do not want to integrate it with IServiceProvider (for eample if you integrace DotVVM in an existing ASP.NET project).
+        In most cases, you don't want to use this method, as you can replace the IServiceProvider with your own implementation in Startup.cs by using optional parameter 'Func<IServiceConllection, IServiceProvider> serviceProviderFactoryMethod' of the app.UseDotVVM() method.
+            See https://www.dotvvm.com/docs/tutorials/advanced-ioc-di-container-owin/2.0";
         public virtual object GetStaticCommandService(Type serviceType, IDotvvmRequestContext context)
         {
             return context.Services.GetRequiredService(serviceType);

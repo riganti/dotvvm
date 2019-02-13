@@ -1,26 +1,10 @@
 ## DotVVM Roadmap
 
-Current stable version: **1.1**
+Current stable version: **2.0**
 
-Next planned version:   **2.0**
+Next planned version:   **2.1**
 
 <br />
-
-### DotVVM 2.0
-
-**DotVVM 2.0** (originally named 1.2) final release is planned for May 2018.
-Most of the features are implemented and need to be tested in real projects.
-
-| Feature                                                                                         | Status      |
-|-------------------------------------------------------------------------------------------------|-------------|
-| REST API bindings [#282](https://github.com/riganti/dotvvm/issues/282)                          | implemented |
-| Server Side Styles [#399](https://github.com/riganti/dotvvm/issues/399)                         | implemented |
-| Javascript Events and client-side API [#390](https://github.com/riganti/dotvvm/issues/390)      | implemented |
-| Dependency Injection in controls [#266](https://github.com/riganti/dotvvm/issues/266)           | implemented |
-| PostBack.ConcurrencyMode [#283](https://github.com/riganti/dotvvm/issues/283)                   | implemented |
-| Static Command Services [#281](https://github.com/riganti/dotvvm/issues/281)                    | implemented |
-| _collection Variable [#205](https://github.com/riganti/dotvvm/issues/205)                       | implemented |
-| Embedding of Markup Controls in DLL [#151](https://github.com/riganti/dotvvm/issues/151)        | implemented |
 
 ### DotVVM 2.1
 
@@ -28,17 +12,20 @@ More features are planned for the year 2018.
 
 | Feature                                                       | Status      |
 |---------------------------------------------------------------|-------------|
+| Client-side GridViewDataSet                                   | in progress |
+| WebAssembly basic integration                                 | in progress |
 | Electron integration                                          | in progress |
 | Selenium Test Helpers                                         | in progress |
 | ReactBridge control                                           | implemented |
+
 
 ### Side Projects
 
 There are several side projects with active development. 
 
 * SignalR integration and the ability to update the viewmodel from the server side.
-* Translation of C# methods in viewmodels into JavaScript.
-* Flex-based layouting control
+* Translation of C# methods in viewmodels into JavaScript (implemented, pending merge).
+* Flex-based layouting control (implemented, will be added as a commercial product).
 * [DotVVM Dynamic Data](https://github.com/riganti/dotvvm-dynamic-data)
 
 ### Future

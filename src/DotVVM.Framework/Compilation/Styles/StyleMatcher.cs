@@ -109,10 +109,15 @@ namespace DotVVM.Framework.Compilation.Styles
 
             public void ApplyStyle(ResolvedControl control, DotvvmConfiguration configuration)
             {
-                action(control, configuration);
+                try
+                {
+                    action(control, configuration);
+                }
+                catch(Exception ex)
+                {
+                    control.DothtmlNode.AddError($"Could not apply styles: {ex}");
+                }
             }
         }
     }
-
-    
 }

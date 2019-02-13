@@ -80,6 +80,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         }
 
         /// Wraps the expression in `dotvvm.evaluator.wrapObservable` if needed
+        /// Note that this method may be used to process nodes that are already fully handled by all the transformation regarding observables -> it's fine to use to post-process a generate expression, but you shall not use it in custom method translator (see <see cref="ObservableTransformationAnnotation.EnsureWrapped"/> annotation instead)
         public static JsExpression EnsureObservableWrapped(this JsExpression expression)
         {
             // It's not needed to wrap if none of the descendants return an observable

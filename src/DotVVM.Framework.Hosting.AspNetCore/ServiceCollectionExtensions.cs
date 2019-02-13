@@ -1,9 +1,12 @@
 ﻿using System;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Hosting.AspNetCore.Runtime.Caching;
+using DotVVM.Framework.Runtime.Caching;
 using DotVVM.Framework.Security;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.AspNetCore.Builder;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -25,8 +28,6 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-
-
         /// <summary>
         /// Adds DotVVM services with authorization and data protection to the specified <see cref="IServiceCollection" />.
         /// </summary>
@@ -44,11 +45,12 @@ namespace Microsoft.Extensions.DependencyInjection
             services
                 .AddAuthorization()
                 .AddDataProtection();
-
+            services.AddMemoryCache();
             DotvvmServiceCollectionExtensions.RegisterDotVVMServices(services);
 
             services.TryAddSingleton<ICsrfProtector, DefaultCsrfProtector>();
             services.TryAddSingleton<ICookieManager, ChunkingCookieManager>();
+            services.TryAddSingleton<IDotvvmCacheAdapter, AspNetCoreDotvvmCacheAdapter>();
             services.TryAddSingleton<IViewModelProtector, DefaultViewModelProtector>();
             services.TryAddSingleton<IEnvironmentNameProvider, DotvvmEnvironmentNameProvider>();
             services.TryAddScoped<DotvvmRequestContextStorage>(_ => new DotvvmRequestContextStorage());

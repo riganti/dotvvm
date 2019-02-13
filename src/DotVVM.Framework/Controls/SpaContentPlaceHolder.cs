@@ -4,6 +4,7 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Hosting.Middlewares;
+using DotVVM.Framework.Utils;
 using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Controls
@@ -59,7 +60,11 @@ namespace DotVVM.Framework.Controls
 
         public string GetSpaContentPlaceHolderUniqueId()
         {
-            return GetAllAncestors().FirstOrDefault(a => a is DotvvmView).GetType().ToString();
+            var dotvvmViewId = GetAllAncestors().FirstOrDefault(a => a is DotvvmView).GetType().ToString();
+            var markupRelativeFilePath = (string)GetValue(Internal.MarkupFileNameProperty);
+
+            return HashUtils.HashAndBase64Encode(
+                (dotvvmViewId, markupRelativeFilePath, GetDotvvmUniqueId()).ToString());
         }
 
         protected internal override void OnInit(IDotvvmRequestContext context)

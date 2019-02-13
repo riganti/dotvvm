@@ -8,6 +8,7 @@ namespace DotVVM.Framework.Configuration
 {
     public class ServiceLocator
     {
+        private Func<IServiceCollection, IServiceProvider> serviceProviderFactoryMethod;
         private IServiceCollection serviceCollection;
         private IServiceProvider serviceProvider;
 
@@ -16,8 +17,9 @@ namespace DotVVM.Framework.Configuration
             this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }
 
-        public ServiceLocator(IServiceCollection serviceCollection)
+        public ServiceLocator(IServiceCollection serviceCollection, Func<IServiceCollection, IServiceProvider> serviceProviderFactoryMethod = null)
         {
+            this.serviceProviderFactoryMethod = serviceProviderFactoryMethod;
             this.serviceCollection = serviceCollection ?? throw new ArgumentNullException(nameof(serviceCollection));
         }
 
@@ -25,13 +27,12 @@ namespace DotVVM.Framework.Configuration
         {
             if (serviceProvider == null)
             {
-                serviceProvider = BuildServiceProvider();
+                serviceProvider = (serviceProviderFactoryMethod ?? BuildServiceProvider).Invoke(serviceCollection);
                 serviceCollection = null;
             }
             return serviceProvider;
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
         private IServiceProvider BuildServiceProvider()
         {
             return BuildServiceProvider(serviceCollection);

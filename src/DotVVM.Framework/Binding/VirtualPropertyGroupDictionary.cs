@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Collections;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Binding
 {
@@ -25,8 +26,7 @@ namespace DotVVM.Framework.Binding
         {
             get
             {
-                if (control.properties == null) yield break;
-                foreach (var p in control.properties.Keys)
+                foreach (var (p, _) in control.properties)
                 {
                     var pg = p as GroupedDotvvmProperty;
                     if (pg != null && pg.PropertyGroup == group)
@@ -41,8 +41,7 @@ namespace DotVVM.Framework.Binding
         {
             get
             {
-                if (control.properties == null) yield break;
-                foreach (var p in control.properties.Keys)
+                foreach (var (p, _) in control.properties)
                 {
                     var pg = p as GroupedDotvvmProperty;
                     if (pg != null && pg.PropertyGroup == group)
@@ -57,8 +56,7 @@ namespace DotVVM.Framework.Binding
         {
             get
             {
-                if (control.properties == null) yield break;
-                foreach (var p in control.properties.Keys)
+                foreach (var (p, _) in control.properties)
                 {
                     var pg = p as GroupedDotvvmProperty;
                     if (pg != null && pg.PropertyGroup == group)
@@ -111,8 +109,7 @@ namespace DotVVM.Framework.Binding
 
         public bool Remove(string key)
         {
-            if (control.properties == null) return false;
-            return control.properties.Remove(group.GetDotvvmProperty(key));
+            return control.Properties.Remove(group.GetDotvvmProperty(key));
         }
 
         public bool TryGetValue(string key, out TValue value)
@@ -137,13 +134,12 @@ namespace DotVVM.Framework.Binding
 
         public void Clear()
         {
-            if (control.properties == null) return;
-            foreach (var p in control.properties.Keys)
+            foreach (var (p, _) in control.properties)
             {
                 var pg = p as GroupedDotvvmProperty;
                 if (pg != null && pg.PropertyGroup == group)
                 {
-                    control.properties.Remove(p);
+                    control.Properties.Remove(p);
                 }
             }
         }
@@ -178,13 +174,12 @@ namespace DotVVM.Framework.Binding
 
         public IEnumerator<KeyValuePair<string, TValue>> GetEnumerator()
         {
-            if (control.properties == null) yield break;
-            foreach (var p in control.properties.Keys)
+            foreach (var (p, value) in control.properties)
             {
                 var pg = p as GroupedDotvvmProperty;
                 if (pg != null && pg.PropertyGroup == group)
                 {
-                    yield return new KeyValuePair<string, TValue>(pg.GroupMemberName, (TValue)control.GetValue(p));
+                    yield return new KeyValuePair<string, TValue>(pg.GroupMemberName, (TValue)control.EvalPropertyValue(p, value));
                 }
             }
         }
@@ -194,13 +189,12 @@ namespace DotVVM.Framework.Binding
         {
             get
             {
-                if (control.properties == null) yield break;
-                foreach (var p in control.properties.Keys)
+                foreach (var (p, value) in control.properties)
                 {
                     var pg = p as GroupedDotvvmProperty;
                     if (pg != null && pg.PropertyGroup == group)
                     {
-                        yield return new KeyValuePair<string, object>(pg.GroupMemberName, control.GetValueRaw(p));
+                        yield return new KeyValuePair<string, object>(pg.GroupMemberName, value);
                     }
                 }
             }

@@ -13,29 +13,29 @@ namespace DotVVM.Framework.Diagnostics
 {
     class DiagnosticsRenderer : DefaultOutputRenderer
     {
-        protected override string RenderPage(IDotvvmRequestContext context, DotvvmView view)
+        protected override MemoryStream RenderPage(IDotvvmRequestContext context, DotvvmView view)
         {
             var html = base.RenderPage(context, view);
             if (context.Configuration.Debug && context.Services.GetService<DiagnosticsRequestTracer>() is DiagnosticsRequestTracer tracer)
             {
-                tracer.LogResponseSize(GetCompressedSize(html), Encoding.UTF8.GetByteCount(html));
+                tracer.LogResponseSize(GetCompressedSize(html.ToArray()), html.Length);
             }
             return html;
         }
 
         public override Task WriteViewModelResponse(IDotvvmRequestContext context, DotvvmView view)
         {
-            var viewModelJson = context.GetSerializedViewModel();
             if (context.Configuration.Debug && context.Services.GetService<DiagnosticsRequestTracer>() is DiagnosticsRequestTracer tracer)
             {
-                tracer.LogResponseSize(GetCompressedSize(viewModelJson), Encoding.UTF8.GetByteCount(viewModelJson));
+                var viewModelJson = context.GetSerializedViewModel();
+                var vmBytes = Encoding.UTF8.GetBytes(viewModelJson);
+                tracer.LogResponseSize(GetCompressedSize(vmBytes), vmBytes.LongLength);
             }
             return base.WriteViewModelResponse(context, view);
         }
 
-        private long GetCompressedSize(string text)
+        private long GetCompressedSize(byte[] bytes)
         {
-            var bytes = Encoding.UTF8.GetBytes(text);
             using (var memoryStream = new MemoryStream())
             using (var zipStream = new GZipStream(memoryStream, CompressionLevel.Fastest))
             {

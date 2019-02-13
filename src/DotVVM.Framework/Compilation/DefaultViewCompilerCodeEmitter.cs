@@ -16,11 +16,19 @@ using System.Linq.Expressions;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.Binding;
 using Microsoft.Extensions.DependencyInjection;
+using DotVVM.Framework.Controls;
+using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 
 namespace DotVVM.Framework.Compilation
 {
     public class DefaultViewCompilerCodeEmitter
     {
+
+        public DefaultViewCompilerCodeEmitter()
+        {
+            this.valueEmitter = new RoslynValueEmitter(ParseTypeName);
+        }
 
         private int CurrentControlIndex;
 
@@ -31,9 +39,8 @@ namespace DotVVM.Framework.Compilation
 
         public const string ControlBuilderFactoryParameterName = "controlBuilderFactory";
         public const string ServiceProviderParameterName = "services";
-        public const string BuildControlFunctionName = nameof(IControlBuilder.BuildControl);
         public const string BuildTemplateFunctionName = "BuildTemplate";
-
+        protected readonly RoslynValueEmitter valueEmitter;
         private Dictionary<GroupedDotvvmProperty, string> cachedGroupedDotvvmProperties = new Dictionary<GroupedDotvvmProperty, string>();
         private ConcurrentDictionary<(Type obj, string argTypes), string> injectionFactoryCache = new ConcurrentDictionary<(Type obj, string argTypes), string>();
         private Stack<EmitterMethodInfo> methods = new Stack<EmitterMethodInfo>();
@@ -75,6 +82,8 @@ namespace DotVVM.Framework.Compilation
             return name;
         }
 
+        public ExpressionSyntax EmitValue(object value) => valueEmitter.EmitValue(value);
+
         /// <summary>
         /// Emits the create object expression.
         /// </summary>
@@ -99,7 +108,6 @@ namespace DotVVM.Framework.Compilation
                     EmitValue(parameterTypes).Apply(SyntaxFactory.Argument),
                 })));
 
-        
         public string EmitCustomInjectionFactoryInvocation(Type factoryType, Type controlType) =>
                 SyntaxFactory.IdentifierName(ServiceProviderParameterName)
                 .Apply(i => SyntaxFactory.MemberAccessExpression(
@@ -189,6 +197,22 @@ namespace DotVVM.Framework.Compilation
             );
         }
 
+        public static ExpressionSyntax EmitCreateArray(TypeSyntax elementType, IEnumerable<ExpressionSyntax> values)
+        {
+            return
+                SyntaxFactory.ArrayCreationExpression(
+                    SyntaxFactory.ArrayType(
+                        elementType,
+                        SyntaxFactory.SingletonList(
+                            SyntaxFactory.ArrayRankSpecifier(
+                                SyntaxFactory.SingletonSeparatedList<ExpressionSyntax>(
+                                    SyntaxFactory.OmittedArraySizeExpression())))),
+                    SyntaxFactory.InitializerExpression(
+                        SyntaxKind.ArrayInitializerExpression,
+                        SyntaxFactory.SeparatedList(
+                            values)));
+        }
+
         public ExpressionSyntax EmitAttributeInitializer(CustomAttributeData attr)
         {
             UseType(attr.AttributeType);
@@ -237,7 +261,7 @@ namespace DotVVM.Framework.Compilation
                                                 SyntaxFactory.IdentifierName(nameof(IControlBuilderFactory.GetControlBuilder))
                                             ),
                                             SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(new[] {
-                                                SyntaxFactory.Argument(EmitStringLiteral(virtualPath))
+                                                SyntaxFactory.Argument(EmitValue(virtualPath))
                                             }))
                                         ),
                                     SyntaxFactory.IdentifierName("Item2")),
@@ -284,122 +308,7 @@ namespace DotVVM.Framework.Compilation
             return name;
         }
 
-        /// <summary>
-        /// Emits the value.
-        /// </summary>
-        public ExpressionSyntax EmitValue(object value)
-        {
-            if (value == null)
-            {
-                return SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression);
-            }
-            if (value is string)
-            {
-                return EmitStringLiteral((string)value);
-            }
-            if (value is bool)
-            {
-                return EmitBooleanLiteral((bool)value);
-            }
-            if (value is int)
-            {
-                return EmitStandardNumericLiteral((int)value);
-            }
-            if (value is long)
-            {
-                return EmitStandardNumericLiteral((long)value);
-            }
-            if (value is ulong)
-            {
-                return EmitStandardNumericLiteral((ulong)value);
-            }
-            if (value is uint)
-            {
-                return EmitStandardNumericLiteral((uint)value);
-            }
-            if (value is decimal)
-            {
-                return EmitStandardNumericLiteral((decimal)value);
-            }
-            if (value is float)
-            {
-                return EmitStandardNumericLiteral((float)value);
-            }
-            if (value is double)
-            {
-                return EmitStandardNumericLiteral((double)value);
-            }
-            if (value is Type)
-            {
-                UseType(value as Type);
-                return SyntaxFactory.TypeOfExpression(ParseTypeName((value as Type)));
-            }
 
-            var type = value.GetType();
-
-
-            if (ReflectionUtils.IsNumericType(type))
-            {
-                return EmitStrangeIntegerValue(Convert.ToInt64(value), type);
-            }
-
-            if (type.GetTypeInfo().IsEnum)
-            {
-                UseType(type);
-                var flags =
-                    value.ToString().Split(',').Select(v =>
-                        SyntaxFactory.MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            ParseTypeName(type),
-                            SyntaxFactory.IdentifierName(v.Trim())
-                        )
-                   ).ToArray();
-                ExpressionSyntax expr = flags[0];
-                foreach (var i in flags.Skip(1)) {
-                    expr = SyntaxFactory.BinaryExpression(SyntaxKind.BitwiseOrExpression, expr, i);
-                }
-                return expr;
-            }
-            if (type.IsArray || typeof(IEnumerable).IsAssignableFrom(type))
-            {
-                return EmitCreateArray(ReflectionUtils.GetEnumerableType(type), (IEnumerable)value);
-            }
-            if (IsImmutableObject(type))
-                return EmitValueReference(value);
-            throw new NotSupportedException($"Emiting value of type '{value.GetType().FullName}' is not supported.");
-        }
-
-        public ExpressionSyntax EmitCreateArray(Type arrayType, IEnumerable values)
-        {
-            return SyntaxFactory.ArrayCreationExpression(
-                                    SyntaxFactory.ArrayType(
-                                        ParseTypeName(arrayType),
-                                        SyntaxFactory.SingletonList(
-                                            SyntaxFactory.ArrayRankSpecifier(
-                                                SyntaxFactory.SingletonSeparatedList<ExpressionSyntax>(
-                                                    SyntaxFactory.OmittedArraySizeExpression())))),
-                                    SyntaxFactory.InitializerExpression(
-                                        SyntaxKind.ArrayInitializerExpression,
-                                        SyntaxFactory.SeparatedList(
-                                            values.Cast<object>().Select(EmitValue))));
-        }
-
-        /// <summary>
-        /// Emits the boolean literal.
-        /// </summary>
-        private ExpressionSyntax EmitBooleanLiteral(bool value)
-        {
-            return SyntaxFactory.LiteralExpression(value ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression);
-        }
-
-        public virtual ExpressionSyntax EmitValueReference(object value)
-        {
-            var id = AddObject(value);
-            return SyntaxFactory.ElementAccessExpression(SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
-                    ParseTypeName(typeof(DefaultViewCompilerCodeEmitter)),
-                    SyntaxFactory.IdentifierName(nameof(_ViewImmutableObjects))),
-                    SyntaxFactory.BracketedArgumentList(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.Argument(EmitValue(id)))));
-        }
 
         /// <summary>
         /// Emits the set property statement.
@@ -440,7 +349,7 @@ namespace DotVVM.Framework.Compilation
                                         SyntaxFactory.ParseName(gprop.PropertyGroup.DeclaringType.FullName + "." + gprop.PropertyGroup.DescriptorField.Name
                                             + "." + nameof(DotvvmPropertyGroup.GetDotvvmProperty)),
                                         SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(
-                                            SyntaxFactory.Argument(this.EmitStringLiteral(gprop.GroupMemberName))
+                                            SyntaxFactory.Argument(this.EmitValue(gprop.GroupMemberName))
                                         ))
                                     )
                                 ))
@@ -458,11 +367,16 @@ namespace DotVVM.Framework.Compilation
             }
         }
 
+        private Dictionary<string, List<(DotvvmProperty prop, ExpressionSyntax value)>> controlProperties = new Dictionary<string, List<(DotvvmProperty, ExpressionSyntax)>>();
+
         public void EmitSetDotvvmProperty(string controlName, DotvvmProperty property, object value) =>
             EmitSetDotvvmProperty(controlName, property, EmitValue(value));
 
         public void EmitSetDotvvmProperty(string controlName, DotvvmProperty property, ExpressionSyntax value)
         {
+            if (!controlProperties.TryGetValue(controlName, out var propertyList))
+                throw new Exception($"Can not set property, control {controlName} is not registered");
+
             UseType(property.DeclaringType);
             UseType(property.PropertyType);
 
@@ -480,26 +394,69 @@ namespace DotVVM.Framework.Compilation
             }
             else
             {
-                CurrentStatements.Add(
-                  SyntaxFactory.ExpressionStatement(
-                      SyntaxFactory.InvocationExpression(
-                          SyntaxFactory.MemberAccessExpression(
-                              SyntaxKind.SimpleMemberAccessExpression,
-                              CreateDotvvmPropertyIdentifier(property),
-                              SyntaxFactory.IdentifierName("SetValue")
-                          ),
-                          SyntaxFactory.ArgumentList(
-                              SyntaxFactory.SeparatedList(
-                                  new[] {
-                                        SyntaxFactory.Argument(SyntaxFactory.IdentifierName(controlName)),
-                                        SyntaxFactory.Argument(value)
-                                  }
-                              )
-                          )
-                      )
-                  )
-              );
+                propertyList.Add((property, value));
             }
+        }
+
+        /// Instructs the emitter that this object can receive DotvvmProperties
+        /// Note that the properties have to be commited using <see cref="CommitDotvvmProperties(string)" />
+        public void RegisterDotvvmProperties(string controlName) =>
+            controlProperties.Add(controlName, new List<(DotvvmProperty prop, ExpressionSyntax value)>());
+
+        public void CommitDotvvmProperties(string name)
+        {
+            var properties = controlProperties[name];
+            controlProperties.Remove(name);
+            if (properties.Count == 0) return;
+
+            properties.Sort((a, b) => a.prop.FullName.CompareTo(b.prop.FullName));
+
+            var (hashSeed, keys, values) = PropertyImmutableHashtable.CreateTableWithValues(properties.Select(p => p.prop).ToArray(), properties.Select(p => p.value).ToArray());
+
+            var invertedValues = new object[values.Length];
+            var successfulInversion = true;
+            for (int i = 0; i < values.Length; i++)
+            {
+                if (values[i] != null)
+                {
+                    successfulInversion = successfulInversion && this.valueEmitter.TryInvertExpression(values[i], out invertedValues[i]);
+                }
+            }
+
+            ExpressionSyntax valueExpr;
+            if (successfulInversion)
+            {
+                valueExpr = valueEmitter.EmitValueReference(invertedValues);
+            }
+            else
+            {
+                valueExpr = EmitCreateArray(
+                    this.ParseTypeName(typeof(object)),
+                    values.Select(v => v ?? this.EmitValue(null))
+                );
+            }
+
+            var keyExpr = valueEmitter.EmitValueReference(keys);
+
+            // control.MagicSetValue(keys, values, hashSeed)
+            CurrentStatements.Add(
+                SyntaxFactory.ExpressionStatement(
+                    SyntaxFactory.InvocationExpression(
+                        SyntaxFactory.MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                                SyntaxFactory.IdentifierName(name),
+                                SyntaxFactory.IdentifierName(nameof(DotvvmBindableObject.MagicSetValue))
+                        ),
+                        SyntaxFactory.ArgumentList(
+                            SyntaxFactory.SeparatedList(new[] {
+                                keyExpr,
+                                valueExpr,
+                                EmitValue(hashSeed)
+                            }.Select(SyntaxFactory.Argument))
+                        )
+                    )
+                )
+            );
         }
 
         /// <summary>
@@ -562,7 +519,7 @@ namespace DotVVM.Framework.Compilation
                                 SyntaxFactory.SeparatedList(
                                     new[]
                                     {
-                                        SyntaxFactory.Argument(EmitStringLiteral(key))
+                                        SyntaxFactory.Argument(EmitValue(key))
                                     }
                                 )
                             )
@@ -571,51 +528,6 @@ namespace DotVVM.Framework.Compilation
                     )
                 )
             );
-        }
-
-        private LiteralExpressionSyntax EmitStringLiteral(string value)
-        {
-            return SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(value));
-        }
-
-        private LiteralExpressionSyntax EmitStandardNumericLiteral(int value)
-        {
-            return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value));
-        }
-
-        private LiteralExpressionSyntax EmitStandardNumericLiteral(long value)
-        {
-            return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value));
-        }
-
-        private LiteralExpressionSyntax EmitStandardNumericLiteral(ulong value)
-        {
-            return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value));
-        }
-
-        private LiteralExpressionSyntax EmitStandardNumericLiteral(uint value)
-        {
-            return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value));
-        }
-
-        private LiteralExpressionSyntax EmitStandardNumericLiteral(decimal value)
-        {
-            return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value));
-        }
-
-        private LiteralExpressionSyntax EmitStandardNumericLiteral(float value)
-        {
-            return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value));
-        }
-
-        private LiteralExpressionSyntax EmitStandardNumericLiteral(double value)
-        {
-            return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value));
-        }
-
-        private ExpressionSyntax EmitStrangeIntegerValue(long value, Type type)
-        {
-            return SyntaxFactory.CastExpression(this.ParseTypeName(type), SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value)));
         }
 
         /// <summary>
@@ -645,12 +557,12 @@ namespace DotVVM.Framework.Compilation
                                 SyntaxFactory.SeparatedList(
                                     new[]
                                     {
-                                        SyntaxFactory.Argument(EmitStringLiteral(name))
+                                        SyntaxFactory.Argument(EmitValue(name))
                                     }
                                 )
                             )
                         ),
-                        EmitStringLiteral(value)
+                        EmitValue(value)
                     )
                 )
             );
@@ -684,7 +596,7 @@ namespace DotVVM.Framework.Compilation
                 {
                     initializer = SyntaxFactory.ThrowStatement(
                         CreateObjectExpression(typeof(InvalidOperationException),
-                            new[] { EmitStringLiteral($"Property '{ property.FullName }' can't be used as control collection since it is not initialized and does not have setter available for automatic initialization") }
+                            new[] { EmitValue($"Property '{ property.FullName }' can't be used as control collection since it is not initialized and does not have setter available for automatic initialization") }
                         )
                     );
                 }
@@ -824,11 +736,34 @@ namespace DotVVM.Framework.Compilation
             CurrentStatements.Add(SyntaxFactory.ReturnStatement(SyntaxFactory.IdentifierName(variableName)));
         }
 
+        Regex allowedCachedExpressions =
+            new Regex(@"Asm_\d+::DotVVM.Framework.Compilation\.RoslynValueEmitter\.(_ViewImmutableObjects_ObjArray|_ViewImmutableObjects|_ViewImmutableObjects_PropArray)");
+
+        // private IEnumerable<StatementSyntax> OptimizeMethodBody(List<StatementSyntax> statements)
+        // {
+        //     var nodes =
+        //         statements.SelectMany((s, i) =>
+        //             s.DescendantNodes()
+        //             .Where(n => (n.IsKind(SyntaxKind.SimpleMemberAccessExpression)) &&
+        //                         allowedCachedExpressions.IsMatch(n.ToString()))
+        //             .Select(n => (i, n))
+        //         )
+        //         .GroupBy(n => n.n.ToString())
+        //         .Where(g => g.Count() > 2);
+        //     foreach (var ng in nodes)
+        //     {
+                
+        //     }
+        // }
+
         /// <summary>
         /// Gets the result syntax tree.
         /// </summary>
         public IEnumerable<SyntaxTree> BuildTree(string namespaceName, string className, string fileName)
         {
+            if (controlProperties.FirstOrDefault(c => c.Value.Any()) is var uncommittedControl && uncommittedControl.Value != null)
+                throw new Exception($"Control {uncommittedControl.Key} has unresolved properties {String.Join(", ", uncommittedControl.Value.Select(p => p.prop.FullName + " " + p.value))}");
+
             UseType(BuilderDataContextType);
 
             var controlType = ReflectionUtils.IsFullName(ResultControlType)
@@ -858,7 +793,7 @@ namespace DotVVM.Framework.Compilation
                                         SyntaxFactory.Attribute(
                                             (QualifiedNameSyntax)ParseTypeName(typeof(LoadControlBuilderAttribute)),
                                             SyntaxFactory.AttributeArgumentList(SyntaxFactory.SeparatedList(new [] {
-                                                SyntaxFactory.AttributeArgument(EmitStringLiteral(fileName))
+                                                SyntaxFactory.AttributeArgument(EmitValue(fileName))
                                             }))
                                         )
                                     })))
@@ -945,29 +880,6 @@ namespace DotVVM.Framework.Compilation
                     )
                 )
             );
-        }
-
-        public static object[] _ViewImmutableObjects = new object[16];
-        private static Func<Type, bool> IsImmutableObject = t => typeof(IBinding).IsAssignableFrom(t) || t == typeof(DataContextStack);
-        private static int _viewObjectsCount = 0;
-        public static int AddObject(object obj)
-        {
-            // Is there any ConcurrentList implementation? feel free to replace this 
-            void resize(int minSize)
-            {
-                lock (_ViewImmutableObjects)
-                {
-                    if (minSize < _ViewImmutableObjects.Length) return;
-                    var newArray = new object[_ViewImmutableObjects.Length * 2];
-                    Array.Copy(_ViewImmutableObjects, 0, newArray, 0, _ViewImmutableObjects.Length);
-                    // read/writes of references are atomic
-                    _ViewImmutableObjects = newArray;
-                }
-            }
-            var id = Interlocked.Increment(ref _viewObjectsCount);
-            if (id >= _ViewImmutableObjects.Length) resize(id);
-            _ViewImmutableObjects[id] = obj;
-            return id;
         }
     }
 }

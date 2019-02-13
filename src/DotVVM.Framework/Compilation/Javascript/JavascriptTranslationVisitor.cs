@@ -278,6 +278,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 if (mTranslate != null) return mTranslate;
             }
             BinaryOperatorType op;
+            bool mayInduceDecimals = false; // whether the operation can have non-integer result just from integer inputs
             switch (expression.NodeType)
             {
                 case ExpressionType.Equal: op = BinaryOperatorType.Equal; break;
@@ -293,7 +294,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 case ExpressionType.SubtractChecked:
                 case ExpressionType.Subtract: op = BinaryOperatorType.Minus; break;
                 case ExpressionType.SubtractAssignChecked:
-                case ExpressionType.Divide: op = BinaryOperatorType.Divide; break;
+                case ExpressionType.Divide: op = BinaryOperatorType.Divide; mayInduceDecimals = true; break;
                 case ExpressionType.Modulo: op = BinaryOperatorType.Modulo; break;
                 case ExpressionType.MultiplyChecked:
                 case ExpressionType.Multiply: op = BinaryOperatorType.Times; break;
@@ -303,11 +304,28 @@ namespace DotVVM.Framework.Compilation.Javascript
                 case ExpressionType.Or: op = BinaryOperatorType.BitwiseOr; break;
                 case ExpressionType.ExclusiveOr: op = BinaryOperatorType.BitwiseXOr; break;
                 case ExpressionType.Coalesce: op = BinaryOperatorType.ConditionalOr; break;
-                case ExpressionType.ArrayIndex: return new JsIndexerExpression(left, right);
+                case ExpressionType.ArrayIndex: return new JsIndexerExpression(left, right).WithAnnotation(ResultIsObservableAnnotation.Instance);
                 default:
                     throw new NotSupportedException($"Unary operator of type { expression.NodeType } is not supported");
             }
-            return new JsBinaryExpression(left, op, right);
+            var result = new JsBinaryExpression(left, op, right);
+            if (mayInduceDecimals && ReflectionUtils.IsNumericType(expression.Type) && expression.Type != typeof(float) && expression.Type != typeof(double) && expression.Type != typeof(decimal))
+            {
+                if (new [] { typeof(Byte), typeof(SByte), typeof(Int16), typeof(UInt16), typeof(Int32) }.Contains(expression.Type))
+                    // `(expr | 0)` to get the integer result type
+                    return new JsBinaryExpression(
+                        result,
+                        BinaryOperatorType.BitwiseOr,
+                        new JsLiteral(0));
+                else if (new [] { typeof(UInt32), typeof(UInt64) }.Contains(expression.Type))
+                    // round down, unsigned integers are always rounded down
+                    return new JsIdentifierExpression("Math").Member("floor").Invoke(result);
+                else
+                    // round to zero, by trimming a string...
+                    return new JsIdentifierExpression("parseInt").Invoke(result);
+            }
+            else
+                return result;
         }
 
         public JsExpression TranslateUnary(UnaryExpression expression)

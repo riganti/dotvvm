@@ -14,7 +14,6 @@ namespace DotVVM.Framework.Runtime
 {
     public class DefaultDotvvmViewBuilder : IDotvvmViewBuilder
     {
-
         protected readonly IMarkupFileLoader markupFileLoader;
 
         protected readonly IControlBuilderFactory controlBuilderFactory;
@@ -34,7 +33,6 @@ namespace DotVVM.Framework.Runtime
         {
             // get the page markup
             var markup = markupFileLoader.GetMarkupFileVirtualPath(context);
-
 
             // build the page
             var (_, pageBuilder) = controlBuilderFactory.GetControlBuilder(markup);
@@ -90,6 +88,7 @@ namespace DotVVM.Framework.Runtime
         {
             return page.Directives.ContainsKey(ParserConstants.MasterPageDirective);
         }
+
         /// <summary>
         /// Fills default directives if specific directives are not set
         /// </summary>
@@ -103,7 +102,6 @@ namespace DotVVM.Framework.Runtime
                 }
             }
         }
-
 
         /// <summary>
         /// Performs the master page nesting.
@@ -172,9 +170,17 @@ namespace DotVVM.Framework.Runtime
         private List<Content> GetChildPageContents(DotvvmView childPage, List<ContentPlaceHolder> parentPlaceHolders)
         {
             // make sure that the body contains only whitespace and Content controls
-            if (!childPage.Children.All(c => (c is RawLiteral && ((RawLiteral)c).IsWhitespace) || (c is Content)))
+            var nonContentElements =
+                childPage.Children.Where(c => !((c is RawLiteral && ((RawLiteral)c).IsWhitespace) || (c is Content)));
+            if (nonContentElements.Any())
             {
-                throw new Exception("If the page contains @masterpage directive, it can only contain white space and <dot:Content /> controls!");    // TODO: exception handling
+                // show all error lines
+                var innerExceptions = nonContentElements.Select(s =>
+                        new Exception($"Error occurred near line: {(s.GetValue(Internal.MarkupLineNumberProperty)?.ToString() ?? "")}.")).ToList(); // the message cannot be specifically to the line, because MarkupLineNumber shows the last character position which is a line under the error in some cases.
+
+                var corruptedFile = childPage.GetValue(Internal.MarkupFileNameProperty)?.ToString();
+                throw new AggregateException("If the page contains @masterpage directive, it can only contain white space and <dot:Content /> controls! \r\n"
+                    + (string.IsNullOrWhiteSpace(corruptedFile) ? "" : $"Corrupted file name: {corruptedFile}"), innerExceptions);
             }
 
             // make sure that the Content controls are not nested in other elements
@@ -188,6 +194,5 @@ namespace DotVVM.Framework.Runtime
 
             return contents;
         }
-
     }
 }

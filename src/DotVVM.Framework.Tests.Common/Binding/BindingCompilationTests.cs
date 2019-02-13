@@ -17,6 +17,7 @@ using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Tests.Common;
+using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -514,11 +515,11 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual(42, result(42));
         }
 
+        [TestMethod]
         public void BindingCompiler_ComparisonOperators()
         {
             var result = ExecuteBinding("LongProperty < TestViewModel2.MyProperty && LongProperty > TestViewModel2.MyProperty", new [] { new TestViewModel { TestViewModel2 = new TestViewModel2() } });
             Assert.AreEqual(false, result);
-
         }
     }
     class TestViewModel
@@ -526,13 +527,18 @@ namespace DotVVM.Framework.Tests.Binding
         public string StringProp { get; set; }
         public int IntProp { get; set; }
         public TestViewModel2 TestViewModel2 { get; set; }
+        public TestViewModel2 TestViewModel2B { get; set; }
         public TestEnum EnumProperty { get; set; }
         public string StringProp2 { get; set; }
         public DateTime? DateFrom { get; set; }
         public DateTime? DateTo { get; set; }
         public object Time { get; set; } = TimeSpan.FromSeconds(5);
+        public Guid GuidProp { get; set; }
 
         public long LongProperty { get; set; }
+
+        public long[] LongArray => new long[] { 1, 2, long.MaxValue };
+        public TestViewModel2[] VmArray => new TestViewModel2[] { new TestViewModel2() };
 
         public string SetStringProp(string a, int b)
         {
@@ -597,6 +603,11 @@ namespace DotVVM.Framework.Tests.Binding
         {
             return SomeString + ": " + MyProperty;
         }
+    }
+
+    class TestViewModel3 : DotvvmViewModelBase
+    {
+        public string SomeString { get; set; }
     }
 
     class Something

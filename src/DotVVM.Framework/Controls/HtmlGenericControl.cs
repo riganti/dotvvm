@@ -3,9 +3,11 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace DotVVM.Framework.Controls
 {
@@ -49,7 +51,7 @@ namespace DotVVM.Framework.Controls
         public VirtualPropertyGroupDictionary<bool> CssClasses => new VirtualPropertyGroupDictionary<bool>(this, CssClassesGroupDescriptor);
 
         public static DotvvmPropertyGroup CssClassesGroupDescriptor =
-            DotvvmPropertyGroup.Register<bool, HtmlGenericControl>("Class-", "CssClasses");
+            DotvvmPropertyGroup.Register<bool, HtmlGenericControl>("Class-", nameof(CssClasses));
 
         public VirtualPropertyGroupDictionary<object> CssStyles => new VirtualPropertyGroupDictionary<object>(this, CssStylesGroupDescriptor);
 
@@ -92,49 +94,110 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected virtual bool RendersHtmlTag => true;
 
+        protected new struct RenderState
+        {
+            public object Visible;
+            public object ClientId;
+            public object InnerText;
+            public bool HasId;
+            public bool HasClass;
+            public bool HasStyle;
+            public bool HasPostbackUpdate;
+            public bool RendersHtmlTag;
+
+            private byte _renderOnServer;
+
+            public bool RenderOnServer(HtmlGenericControl @this)
+            {
+                if (_renderOnServer == 0)
+                    _renderOnServer = @this.RenderOnServer ? (byte)1 : (byte)2;
+                return _renderOnServer == 1;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected bool TouchProperty(DotvvmProperty prop, object value, ref RenderState r)
+        {
+            if (prop == VisibleProperty)
+                r.Visible = value;
+            else if (prop == ClientIDProperty)
+                r.ClientId = value;
+            else if (prop == IDProperty)
+                r.HasId = true;
+            else if (prop == InnerTextProperty)
+                r.InnerText = value;
+            else if (prop == PostBack.UpdateProperty)
+                r.HasPostbackUpdate = (bool)this.EvalPropertyValue(prop, value);
+            else if (prop is GroupedDotvvmProperty gp)
+            {
+                if (gp.PropertyGroup == CssClassesGroupDescriptor)
+                    r.HasClass = true;
+                else if (gp.PropertyGroup == CssStylesGroupDescriptor)
+                    r.HasStyle = true;
+                else return false;
+            }
+            else return false;
+            return true;
+        }
+
         /// <summary>
         /// Adds all attributes that should be added to the control begin tag.
         /// </summary>
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            AddClientIdAttribute();
-            CheckInnerTextUsage();
+            RenderState r = default;
+            foreach (var (prop, val) in this.properties)
+                TouchProperty(prop, val, ref r);
+            r.RendersHtmlTag = this.RendersHtmlTag;
 
-            if (!RendersHtmlTag)
+            AddAttributesCore(writer, ref r);
+
+            base.AddAttributesToRender(writer, context);
+        }
+
+        protected void AddAttributesCore(IHtmlWriter writer, ref RenderState r)
+        {
+            AddClientIdAttribute(ref r);
+            CheckInnerTextUsage(in r);
+
+            if (!r.RendersHtmlTag)
             {
                 // the control renders no html tag and therefore if it has any attributes it should throw an exception
-                EnsureNoAttributesSet();
+                EnsureNoAttributesSet(in r);
             }
             else
             {
-                AddHtmlAttributesToRender(writer);
-                AddCssClassesToRender(writer);
-                AddCssStylesToRender(writer);
-                AddVisibleAttributeOrBinding(writer);
-                AddTextPropertyToRender(writer);
+                if (r.HasClass)
+                    AddCssClassesToRender(writer);
+                if (r.HasStyle)
+                    AddCssStylesToRender(writer);
+                AddVisibleAttributeOrBinding(in r, writer);
+                AddTextPropertyToRender(ref r, writer);
+                AddHtmlAttributesToRender(ref r, writer);
             }
-
-            base.AddAttributesToRender(writer, context);
         }
 
         /// <summary>
         /// Adds the corresponding attribute or binding for the Visible property.
         /// </summary>
-        protected virtual void AddVisibleAttributeOrBinding(IHtmlWriter writer)
+        protected virtual void AddVisibleAttributeOrBinding(in RenderState r, IHtmlWriter writer)
         {
-            writer.AddKnockoutDataBind("visible", this, VisibleProperty, renderEvenInServerRenderingMode: true);
-            if (GetValue(VisibleProperty) as bool? == false)
+            var v = r.Visible;
+            if (v is IValueBinding binding)
+                writer.AddKnockoutDataBind("visible", binding.GetKnockoutBindingExpression(this));
+
+            if (false.Equals(EvalPropertyValue(VisibleProperty, v)))
             {
-                writer.AddStyleAttribute("display", "none");
+                writer.AddAttribute("style", "display:none");
             }
         }
 
         /// <summary>
         /// Verifies that the control hasn't any HTML attributes, css classes or Visible or DataContext bindings set.
         /// </summary>
-        protected virtual void EnsureNoAttributesSet()
+        private void EnsureNoAttributesSet(in RenderState r)
         {
-            if (Attributes.Count > 0 || CssClasses.Count > 0 || CssStyles.Count > 0 || !true.Equals(GetValueRaw(VisibleProperty)) || HasBinding(DataContextProperty))
+            if (Attributes.Count > 0 || r.HasClass || r.HasStyle || (r.Visible != null && !true.Equals(r.Visible)) || r.HasPostbackUpdate)
             {
                 throw new DotvvmControlException(this, "Cannot set HTML attributes, Visible, ID, Postback.Update, ... bindings on a control which does not render its own element!");
             }
@@ -156,7 +219,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            // render resource link. If the Render is onvoked multiple times the resources are rendered on the first invocation.
+            // render resource link. If the Render is invoked multiple times the resources are rendered on the first invocation.
             if (TagName == "head")
                 new HeadResourceLinks().Render(writer, context);
             else if (TagName == "body")
@@ -168,28 +231,23 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void AddClientIdAttribute()
+        private void AddClientIdAttribute(ref RenderState r)
         {
-            object id;
-            if (!IsPropertySet(ClientIDProperty))
+            if (r.HasId && r.ClientId == null)
             {
-                SetValueRaw(ClientIDProperty, id = CreateClientId());
+                SetValueRaw(ClientIDProperty, r.ClientId = CreateClientId());
             }
-            else
-            {
-                id = GetValueRaw(ClientIDProperty);
-            }
-            if (id != null) Attributes["id"] = id;
+
+            if (r.ClientId != null) Attributes["id"] = r.ClientId;
         }
 
         private void AddCssClassesToRender(IHtmlWriter writer)
         {
-            KnockoutBindingGroup cssClassBindingGroup = null;
+            KnockoutBindingGroup cssClassBindingGroup = new KnockoutBindingGroup();
             foreach (var cssClass in CssClasses.Properties)
             {
                 if (HasValueBinding(cssClass))
                 {
-                    if (cssClassBindingGroup == null) cssClassBindingGroup = new KnockoutBindingGroup();
                     cssClassBindingGroup.Add(cssClass.GroupMemberName, this, cssClass);
                 }
 
@@ -201,7 +259,7 @@ namespace DotVVM.Framework.Controls
                 catch { }
             }
 
-            if (cssClassBindingGroup != null) writer.AddKnockoutDataBind("css", cssClassBindingGroup);
+            if (!cssClassBindingGroup.IsEmpty) writer.AddKnockoutDataBind("css", cssClassBindingGroup);
         }
 
         private void AddCssStylesToRender(IHtmlWriter writer)
@@ -252,53 +310,53 @@ namespace DotVVM.Framework.Controls
             else throw new NotSupportedException($"Attribute value of type '{value.GetType().FullName}' is not supported.");
         }
 
-        private void AddHtmlAttributesToRender(IHtmlWriter writer)
+        private void AddHtmlAttributesToRender(ref RenderState r, IHtmlWriter writer)
         {
-            var attributeBindingGroup = new KnockoutBindingGroup();
+            KnockoutBindingGroup attributeBindingGroup = null;
             foreach (var attribute in Attributes)
             {
                 if (attribute.Value is IValueBinding)
                 {
                     var binding = attribute.Value as IValueBinding;
+                    if (attributeBindingGroup == null) attributeBindingGroup = new KnockoutBindingGroup();
                     attributeBindingGroup.Add(attribute.Key, binding.GetKnockoutBindingExpression(this));
-                    if (!RenderOnServer)
+                    if (!r.RenderOnServer(this))
                         continue;
                 }
                 AddHtmlAttribute(writer, attribute.Key, attribute.Value);
             }
-            if (!attributeBindingGroup.IsEmpty)
+            if (attributeBindingGroup != null)
             {
                 writer.AddKnockoutDataBind("attr", attributeBindingGroup);
             }
         }
 
-        private void AddTextPropertyToRender(IHtmlWriter writer)
+        private void AddTextPropertyToRender(ref RenderState r, IHtmlWriter writer)
         {
-            var expression = GetValueBinding(InnerTextProperty);
+            if (r.InnerText == null) return;
+            var expression = r.InnerText as IValueBinding;
             if (expression != null)
             {
                 writer.AddKnockoutDataBind("text", expression.GetKnockoutBindingExpression(this));
             }
 
-            if ((expression == null && !string.IsNullOrWhiteSpace(InnerText))
-                || (RenderOnServer && InnerText != null))
+            var value = (string)this.EvalPropertyValue(InnerTextProperty, r.InnerText);
+            if ((expression == null && !string.IsNullOrWhiteSpace(value))
+                || r.RenderOnServer(this))
             {
                 Children.Clear();
-                Children.Add(new Literal(InnerText));
+                Children.Add(new Literal(value));
             }
         }
 
         /// <summary>
         /// Checks the inner text property usage.
         /// </summary>
-        private void CheckInnerTextUsage()
+        private void CheckInnerTextUsage(in RenderState r)
         {
-            if (GetType() != typeof(HtmlGenericControl))
+            if (r.InnerText != null && GetType() != typeof(HtmlGenericControl))
             {
-                if (GetValueRaw(InnerTextProperty) != null)
-                {
-                    throw new DotvvmControlException(this, "The DotVVM controls do not support the 'InnerText' property. It can be only used on HTML elements.");
-                }
+                throw new DotvvmControlException(this, "The DotVVM controls do not support the 'InnerText' property. It can be only used on HTML elements.");
             }
         }
     }

@@ -70,7 +70,7 @@ namespace DotVVM.Framework.Binding
                 if (bindingContext.Equals(a.GetValue(Internal.DataContextTypeProperty, inherit: false)))
                     return (changes, a);
 
-                if (a.properties.ContainsKey(DotvvmBindableObject.DataContextProperty)) changes++;
+                if (a.properties.Contains(DotvvmBindableObject.DataContextProperty)) changes++;
             }
 
             throw new NotSupportedException($"Could not find DataContextSpace of binding '{binding}'.");
@@ -278,16 +278,6 @@ namespace DotVVM.Framework.Binding
         public static void SetDataContextTypeFromDataSource(this DotvvmBindableObject obj, IBinding dataSourceBinding) =>
             obj.SetDataContextType(dataSourceBinding.GetProperty<CollectionElementDataContextBindingProperty>().DataContext);
 
-        public static void SetDataContextForItem(this DotvvmBindableObject obj, IValueBinding itemBinding, int index, object currentItem)
-        {
-            obj.SetBinding(DotvvmBindableObject.DataContextProperty, ValueBindingExpression.CreateBinding(
-                itemBinding.GetProperty<BindingCompilationService>().WithoutInitialization(),
-                j => currentItem,
-                itemBinding.KnockoutExpression.AssignParameters(p =>
-                    p == JavascriptTranslator.CurrentIndexParameter ? new CodeParameterAssignment(index.ToString(), OperatorPrecedence.Max) :
-                    default(CodeParameterAssignment))));
-        }
-
         public static DataContextStack GetDataContextType(this DotvvmProperty property, DotvvmBindableObject obj)
         {
             var propertyBinding = obj.GetBinding(property);
@@ -320,7 +310,9 @@ namespace DotVVM.Framework.Binding
             }
 
             var (childType, extensionParameters) = ApplyDataContextChange(dataContextType, property.DataContextChangeAttributes, obj, property);
-            return DataContextStack.Create(childType, dataContextType, extensionParameters: extensionParameters.ToArray());
+
+            if (childType == null) return dataContextType;
+            else return DataContextStack.Create(childType, dataContextType, extensionParameters: extensionParameters.ToArray());
         }
 
         private static (Type childType, List<BindingExtensionParameter> extensionParameters) ApplyDataContextChange(DataContextStack dataContextType, DataContextChangeAttribute[] attributes, DotvvmBindableObject obj, DotvvmProperty property)

@@ -222,41 +222,49 @@ namespace DotVVM.Framework.Compilation.Binding
             );
         }
 
-        public static StaticCommandInvocationPlan DeserializePlan(JToken json)
+        public static StaticCommandInvocationPlan DeserializePlan(JToken planInJson)
         {
-            var jarray = (JArray)json;
+            var jarray = (JArray)planInJson;
             var typeName = jarray[0].Value<string>();
             var methodName = jarray[1].Value<string>();
-            var argTypes = jarray[2].ToObject<byte[]>().Select(a => (StaticCommandParameterType)a).ToArray();
-            var method = Type.GetType(typeName).GetMethods().SingleOrDefault(m => m.Name == methodName && m.GetParameters().Length + (m.IsStatic ? 0 : 1) == argTypes.Length && m.IsDefined(typeof(AllowStaticCommandAttribute)))
-                ?? throw new NotSupportedException($"The specified method was not found.");
-            var methodParameters = method.GetParameters();
+            var genericArgumentTypes = jarray[2].Value<JArray>();
+            var argTypes = jarray[3].ToObject<byte[]>().Select(a => (StaticCommandParameterType)a).ToArray();
 
+            var methodFound = Type.GetType(typeName).GetMethods()
+                .SingleOrDefault(m => m.Name == methodName
+                                    && m.GetParameters().Length + (m.IsStatic ? 0 : 1) == argTypes.Length
+                                    && m.IsDefined(typeof(AllowStaticCommandAttribute)))
+                ?? throw new NotSupportedException($"The specified method was not found.");
+
+            if (methodFound.IsGenericMethod)
+            {
+                methodFound = methodFound.MakeGenericMethod(
+                    genericArgumentTypes.Select(nameToken => Type.GetType(nameToken.Value<string>())).ToArray());
+            }
+
+            var methodParameters = methodFound.GetParameters();
             var args = argTypes
-                .Select((a, i) => (type: a, arg: jarray.Count <= i + 3 ? JValue.CreateNull() : jarray[i + 3], parameter: (method.IsStatic ? methodParameters[i] : (i == 0 ? null : methodParameters[i - 1]))))
+                .Select((a, i) => (type: a, arg: jarray.Count <= i + 4 ? JValue.CreateNull() : jarray[i + 4], parameter: (methodFound.IsStatic ? methodParameters[i] : (i == 0 ? null : methodParameters[i - 1]))))
                 .Select((a) => {
-                    if (a.type == StaticCommandParameterType.Argument || a.type == StaticCommandParameterType.Inject)
+                    switch (a.type)
                     {
-                        if (a.arg.Type == JTokenType.Null)
-                            return new StaticCommandParameterPlan(a.type, a.parameter?.ParameterType ?? method.DeclaringType);
-                        else
-                            return new StaticCommandParameterPlan(a.type, a.arg.Value<string>().Apply(Type.GetType));
+                        case StaticCommandParameterType.Argument:
+                        case StaticCommandParameterType.Inject:
+                            if (a.arg.Type == JTokenType.Null)
+                                return new StaticCommandParameterPlan(a.type, a.parameter?.ParameterType ?? methodFound.DeclaringType);
+                            else
+                                return new StaticCommandParameterPlan(a.type, a.arg.Value<string>().Apply(Type.GetType));
+                        case StaticCommandParameterType.Constant:
+                            return new StaticCommandParameterPlan(a.type, a.arg.ToObject(a.parameter?.ParameterType ?? methodFound.DeclaringType));
+                        case StaticCommandParameterType.DefaultValue:
+                            return new StaticCommandParameterPlan(a.type, a.parameter.DefaultValue);
+                        case StaticCommandParameterType.Invocation:
+                            return new StaticCommandParameterPlan(a.type, DeserializePlan(a.arg));
+                        default:
+                            throw new NotSupportedException($"{a.type}");
                     }
-                    else if (a.type == StaticCommandParameterType.Constant)
-                    {
-                        return new StaticCommandParameterPlan(a.type, a.arg.ToObject(a.parameter?.ParameterType ?? method.DeclaringType));
-                    }
-                    else if (a.type == StaticCommandParameterType.DefaultValue)
-                    {
-                        return new StaticCommandParameterPlan(a.type, a.parameter.DefaultValue);
-                    }
-                    else if (a.type == StaticCommandParameterType.Invocation)
-                    {
-                        return new StaticCommandParameterPlan(a.type, DeserializePlan(a.arg));
-                    }
-                    else throw new NotSupportedException($"{a.type}");
                 }).ToArray();
-            return new StaticCommandInvocationPlan(method, args);
+            return new StaticCommandInvocationPlan(methodFound, args);
         }
 
         private static string GetTypeFullName(Type type) => $"{type.FullName}, {type.Assembly.GetName().Name}";
@@ -266,6 +274,7 @@ namespace DotVVM.Framework.Compilation.Binding
             var array = new JArray(
                 new JValue(GetTypeFullName(plan.Method.DeclaringType)),
                 new JValue(plan.Method.Name),
+                new JArray(plan.Method.GetGenericArguments().Select(GetTypeFullName)),
                 JToken.FromObject(plan.Arguments.Select(a => (byte)a.Type).ToArray())
             );
             var parameters = (new ParameterInfo[plan.Method.IsStatic ? 0 : 1]).Concat(plan.Method.GetParameters()).ToArray();

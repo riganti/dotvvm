@@ -28,7 +28,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -119,7 +119,7 @@
     <Content Include="test.zip" />
     <Content Include="packages.config" />
     <Content Include=".dotvvm.json" />
-    <None Include="Properties\PublishProfiles\CI FileSystem.pubxml" />
+    <None Include="Properties\PublishProfiles\CI.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
