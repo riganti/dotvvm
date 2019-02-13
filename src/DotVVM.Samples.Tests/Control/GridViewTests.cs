@@ -454,6 +454,21 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_GridView_GridViewRowDecorators))]
+        public void Control_GridView_GridViewRowDecorators_RouteLinkClickPropagation()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewRowDecorators);
+                browser.Wait();
+
+                var routeLinks = browser.FindElements("table [data-ui=route-link]");
+
+                routeLinks.First().Click().Wait();
+                AssertUI.UrlEquals(browser, browser.BaseUrl);
+            });
+        }
+
+        [Fact]
         public void Control_GridView_ColumnVisible()
         {
             RunInAllBrowsers(browser =>

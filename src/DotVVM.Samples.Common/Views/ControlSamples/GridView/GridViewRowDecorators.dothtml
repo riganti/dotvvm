@@ -38,6 +38,7 @@
                 <dot:GridViewTemplateColumn>
                     <dot:Button Text="Test Click Propagation" Click="{command: ChangeName()}" />
                     <dot:LinkButton Text="Test Click Propagation" Click="{command: ChangeName()}" />
+                    <dot:RouteLink Text="Test Click Propagation" RouteName="Default" data-ui="route-link"/>
                 </dot:GridViewTemplateColumn>
             </Columns>
         </dot:GridView>
