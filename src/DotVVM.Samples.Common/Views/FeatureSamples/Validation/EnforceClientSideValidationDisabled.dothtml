@@ -14,7 +14,12 @@
     <p class="nullableInt">
         int? <dot:TextBox Text="{value: NullableIntegerProperty}" />
     </p>
-
+    <p class="DateTime">
+        DateTime <dot:TextBox Text="{value: DateTimeProperty}" />
+    </p>
+    <p class="nullableDateTime">
+        DateTime? <dot:TextBox Text="{value: NullableDateTimeProperty}" />
+    </p>
     <p>
         <dot:Button Click="{command: Postback()}" Validation.Enabled="true" Validation.Target="{value: _root}" Text="Postback with validation" />
         <dot:Button Click="{command: Postback()}" Validation.Enabled="false" Text="Postback without validation" />

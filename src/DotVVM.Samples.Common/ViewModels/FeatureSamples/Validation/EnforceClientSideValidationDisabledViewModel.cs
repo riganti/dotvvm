@@ -9,8 +9,13 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation
 {
 	public class EnforceClientSideValidationDisabledViewModel
     {
-        [DotvvmClientFormat(Disable = true, ErrorMessage = "This message will not be display. Because this client format enforcing is disabled.")]
+        [DotvvmClientFormat(Disable = true, ErrorMessage = "This message will not be displayed. Because this client format enforcing is disabled.")]
         public int? NullableIntegerProperty { get; set; }
+
+        [DotvvmClientFormat(Disable = true, ErrorMessage = "This message will not be displayed. Because this client format enforcing is disabled.")]
+        public DateTime? NullableDateTimeProperty { get; set; }
+
+        public DateTime DateTimeProperty { get; set; } = DateTime.Now;
         [Required (ErrorMessage = "Int requires value.")]
         public int IntegerProperty { get; set; }
         public void Postback()

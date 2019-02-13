@@ -38,10 +38,14 @@ namespace DotVVM.Framework.ViewModel.Validation
                         break;
                     case DotvvmClientFormatAttribute enforceClientFormatAttr:
                         addEnforceClientFormat = false;
-                        if (enforceClientFormatAttr.Disable) yield break;
+                        if (enforceClientFormatAttr.Disable)
+                            break;
+
                         validationRule.ClientRuleName = "enforceClientFormat";
-                        validationRule.Parameters = new object[] { enforceClientFormatAttr.AllowNull, enforceClientFormatAttr.AllowEmptyString,
-                            enforceClientFormatAttr.AllowEmptyStringOrWhitespaces };
+                        validationRule.Parameters = new object[] {
+                                                            enforceClientFormatAttr.AllowNull,
+                                                            enforceClientFormatAttr.AllowEmptyString,
+                                                            enforceClientFormatAttr.AllowEmptyStringOrWhitespaces };
                         break;
                     case EmailAddressAttribute _:
                         validationRule.ClientRuleName = "emailAddress";
@@ -54,13 +58,20 @@ namespace DotVVM.Framework.ViewModel.Validation
                 yield return validationRule;
             }
             // enforce client format by default
-            if (addEnforceClientFormat && property.PropertyType.IsNullable() && Nullable.GetUnderlyingType(property.PropertyType).IsNumericType())
+            if (addEnforceClientFormat && (property.PropertyType.IsNullable() && property.PropertyType.UnwrapNullableType().IsNumericType() || property.PropertyType.UnwrapNullableType().IsDateOrTimeType()))
             {
                 var enforceClientFormatAttr = new DotvvmClientFormatAttribute();
 
-                var validationRule = new ViewModelPropertyValidationRule(sourceValidationAttribute: enforceClientFormatAttr, staticPropertyName: property.Name);
-                validationRule.Parameters = new object[] { enforceClientFormatAttr.AllowNull, enforceClientFormatAttr.AllowEmptyString, enforceClientFormatAttr.AllowEmptyStringOrWhitespaces };
-                validationRule.ClientRuleName = "enforceClientFormat";
+                var validationRule =
+                    new ViewModelPropertyValidationRule(sourceValidationAttribute: enforceClientFormatAttr,
+                        staticPropertyName: property.Name) {
+                        Parameters = new object[] {
+                            enforceClientFormatAttr.AllowNull,
+                            enforceClientFormatAttr.AllowEmptyString,
+                            enforceClientFormatAttr.AllowEmptyStringOrWhitespaces
+                        },
+                        ClientRuleName = "enforceClientFormat"
+                    };
 
                 yield return validationRule;
             }

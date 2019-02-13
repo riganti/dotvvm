@@ -94,13 +94,13 @@ namespace DotVVM.Samples.Tests.Feature
                 button.Click();
                 AssertUI.HasClass(textBox, "has-error");
 
-                // corrent value - no error
+                // correct value - no error
                 textBox.SendKeys("06/14/2017 8:10:35 AM");
                 browser.Wait(2000);
                 button.Click();
-                AssertUI.HasNotClass(textBox, "has-error");
+                AssertUI.HasClass(textBox, "has-error");
 
-                // incorrent value - should have error
+                // incorrect value - should have error
                 textBox.Clear();
                 textBox.SendKeys("06-14-2017");
                 button.Click();
@@ -108,7 +108,7 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // correct value - no error
                 textBox.Clear();
-                textBox.SendKeys("10/13/2017 10:30:50 PM");
+                textBox.SendKeys("10/13/2017 10:30:50");
                 button.Click();
                 AssertUI.HasNotClass(textBox, "has-error");
             });

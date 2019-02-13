@@ -9,6 +9,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation
         // This viewmodel tests even Validation.Target on each property.
 
         [Required]
+        [DotvvmClientFormat(Disable = true)]
         public DateTime DateTimeTestValue { get; set; }
 
         public bool DateTimeTestResult { get; set; }
