@@ -9,6 +9,10 @@
 </head>
 <body>
 
+    <p>
+        This tests tries if controlCommands and Postback.Update work even when deeply nested in Repeaters Grids and markup controls. Click on any button should simply update the current time displayed in all the literals
+    </p>
+
     <dot:GridView DataSource="{value:  Data}">
         <Columns>
             <dot:GridViewTextColumn ValueBinding="{value: Now}" HeaderText="Time" />
