@@ -8,6 +8,11 @@
     <title></title>
 </head>
 <body RenderSettings.Mode="Server">
+
+    <p>
+        This tests tries if controlCommands and Postback.Update work even when deeply nested in Repeaters Grids and markup controls. Click on any button should simply update the current time displayed in all the literals
+    </p>
+
     <%-- TODO: Write a test --%>
     <dot:GridView DataSource="{value:  Data}">
         <Columns>
@@ -17,7 +22,7 @@
                 <ContentTemplate>
                     <dot:Repeater DataSource="{value:  Data}">
                         <ItemTemplate>
-                            <cc:RecursiveTextRepeater Data="{value:  Data}"/>
+                            <cc:RecursiveTextRepeater Data="{value:  Data}" />
                         </ItemTemplate>
                     </dot:Repeater>
                 </ContentTemplate>

@@ -2,12 +2,12 @@
 @baseType DotVVM.Samples.Common.Views.FeatureSamples.PostBack.RecursiveTextRepeater, DotVVM.Samples.Common
 <dot:Repeater DataSource="{controlProperty: Data }">
     <ItemTemplate>
-        <p>
+        <div>
             INNER MarkupControl - NOW:
             <dot:Literal Text="{value:  Now }" PostBack.Update="true" /> |
             <dot:Literal Text="{value:  Text}" PostBack.Update="true" /> |
             <dot:Button Click="{command:  Command()}" Text="Item command" />|
             <dot:Button Click="{controlCommand: ControlCommand(_this)}" Text="Command command" />|
-        </p>
+        </div>
     </ItemTemplate>
 </dot:Repeater>
