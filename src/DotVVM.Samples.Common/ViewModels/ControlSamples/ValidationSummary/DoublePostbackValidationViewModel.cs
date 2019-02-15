@@ -7,7 +7,7 @@ using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Samples.Common.ViewModels.ControlSamples.ValidationSummary
 {
-    public class DoublePostbackValidationViewModel : DotvvmViewModelBase
+    public class MessagesRendering : DotvvmViewModelBase
     {
         [Required]
         public string StringValue { get; set; }
