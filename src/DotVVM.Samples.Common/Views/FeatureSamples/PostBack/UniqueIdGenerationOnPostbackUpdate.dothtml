@@ -7,8 +7,8 @@
     <meta charset="utf-8" />
     <title></title>
 </head>
-<body>
-
+<body RenderSettings.Mode="Server">
+    <%-- TODO: Write a test --%>
     <dot:GridView DataSource="{value:  Data}">
         <Columns>
             <dot:GridViewTextColumn ValueBinding="{value: Now}" HeaderText="Time" />

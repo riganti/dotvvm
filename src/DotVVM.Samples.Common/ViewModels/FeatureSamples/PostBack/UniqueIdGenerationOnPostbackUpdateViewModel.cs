@@ -11,99 +11,103 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.PostBack
     {
         public override Task PreRender()
         {
-            Data = new List<TestDataItem>() {
-                new TestDataItem() {
-                    Data = new List<TestDataItem>() {
-                        new TestDataItem(),
-                        new TestDataItem(),
-                        new TestDataItem(),
-                        new TestDataItem(),
-                        new TestDataItem(),
-                    }
-                },
-                new TestDataItem() {
-                    Data = new List<TestDataItem>() {
-                        new TestDataItem(){
-                            Data = new List<TestDataItem>() {
-                                new TestDataItem(),
-                                new TestDataItem(),
-                                new TestDataItem(),
-                                new TestDataItem(),
-                                new TestDataItem(),
-                                new TestDataItem(),
-                                new TestDataItem(),
-                            },
-                        },
-                        new TestDataItem(){
-                            Data = new List<TestDataItem>() {
-                                new TestDataItem(){
-                                    Data = new List<TestDataItem>() {
-                                        new TestDataItem(){
-                                            Data = new List<TestDataItem>() {
-                                                new TestDataItem(){
-                                                    Data = new List<TestDataItem>() {
-                                                        new TestDataItem(){
-                                                            Data = new List<TestDataItem>() {
-                                                                new TestDataItem(),
-                                                                new TestDataItem(),
-                                                                new TestDataItem(),
-                                                                new TestDataItem(),
-                                                                new TestDataItem(),
-                                                                new TestDataItem(),
-                                                            },
-                                                        },
-                                                        new TestDataItem(),
-                                                        new TestDataItem(),
-                                                        new TestDataItem(),
-                                                        new TestDataItem(),
-                                                        new TestDataItem(),
-                                                    },
-                                                },
-                                                new TestDataItem(),
-                                                new TestDataItem(),
-                                                new TestDataItem(),
-                                                new TestDataItem(),
-                                                new TestDataItem(),
-                                            },
-                                        },
-                                        new TestDataItem(),
-                                        new TestDataItem(),
-                                        new TestDataItem(),
-                                        new TestDataItem(),
-                                        new TestDataItem(),
-                                    },
+            if (!Context.IsPostBack)
+            {
+                Data = new List<TestDataItem>() {
+                    new TestDataItem() {
+                        Data = new List<TestDataItem>() {
+                            new TestDataItem(),
+                            new TestDataItem(),
+                            new TestDataItem(),
+                            new TestDataItem(),
+                            new TestDataItem(),
+                        }
+                    },
+                    new TestDataItem() {
+                        Data = new List<TestDataItem>() {
+                            new TestDataItem(){
+                                Data = new List<TestDataItem>() {
+                                    new TestDataItem(),
+                                    new TestDataItem(),
+                                    new TestDataItem(),
+                                    new TestDataItem(),
+                                    new TestDataItem(),
+                                    new TestDataItem(),
+                                    new TestDataItem(),
                                 },
-                                new TestDataItem(),
-                                new TestDataItem(),
-                                new TestDataItem(),
-                                new TestDataItem(),
-                                new TestDataItem(),
                             },
-                        },new TestDataItem(){
-                            Data = new List<TestDataItem>() {
-                                new TestDataItem(),
-                                new TestDataItem(),
-                                new TestDataItem(),
-                                new TestDataItem(),
-                                new TestDataItem(),
-                                new TestDataItem(),
-                                new TestDataItem(),
-                                new TestDataItem(),
+                            new TestDataItem(){
+                                Data = new List<TestDataItem>() {
+                                    new TestDataItem(){
+                                        Data = new List<TestDataItem>() {
+                                            new TestDataItem(){
+                                                Data = new List<TestDataItem>() {
+                                                    new TestDataItem(){
+                                                        Data = new List<TestDataItem>() {
+                                                            new TestDataItem(){
+                                                                Data = new List<TestDataItem>() {
+                                                                    new TestDataItem(),
+                                                                    new TestDataItem(),
+                                                                    new TestDataItem(),
+                                                                    new TestDataItem(),
+                                                                    new TestDataItem(),
+                                                                    new TestDataItem(),
+                                                                },
+                                                            },
+                                                            new TestDataItem(),
+                                                            new TestDataItem(),
+                                                            new TestDataItem(),
+                                                            new TestDataItem(),
+                                                            new TestDataItem(),
+                                                        },
+                                                    },
+                                                    new TestDataItem(),
+                                                    new TestDataItem(),
+                                                    new TestDataItem(),
+                                                    new TestDataItem(),
+                                                    new TestDataItem(),
+                                                },
+                                            },
+                                            new TestDataItem(),
+                                            new TestDataItem(),
+                                            new TestDataItem(),
+                                            new TestDataItem(),
+                                            new TestDataItem(),
+                                        },
+                                    },
+                                    new TestDataItem(),
+                                    new TestDataItem(),
+                                    new TestDataItem(),
+                                    new TestDataItem(),
+                                    new TestDataItem(),
+                                },
+                            },new TestDataItem(){
+                                Data = new List<TestDataItem>() {
+                                    new TestDataItem(),
+                                    new TestDataItem(),
+                                    new TestDataItem(),
+                                    new TestDataItem(),
+                                    new TestDataItem(),
+                                    new TestDataItem(),
+                                    new TestDataItem(),
+                                    new TestDataItem(),
+                                },
+                            },new TestDataItem(){
+                                Data = new List<TestDataItem>() {
+                                    new TestDataItem(),
+                                    new TestDataItem(),
+                                    new TestDataItem(),
+                                    new TestDataItem(),
+                                    new TestDataItem(),
+                                    new TestDataItem(),
+                                    new TestDataItem(),
+                                },
                             },
-                        },new TestDataItem(){
-                            Data = new List<TestDataItem>() {
-                                new TestDataItem(),
-                                new TestDataItem(),
-                                new TestDataItem(),
-                                new TestDataItem(),
-                                new TestDataItem(),
-                                new TestDataItem(),
-                                new TestDataItem(),
-                            },
-                        },
+                        }
                     }
-                }
-            };
+
+                };
+            }
 
             return base.PreRender();
         }

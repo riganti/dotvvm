@@ -4,7 +4,8 @@
     <ItemTemplate>
         <p>
             INNER MarkupControl - NOW:
-            <dot:Literal Text="{value:  Now }" <%--PostBack.Update="true"--%> /> |
+            <dot:Literal Text="{value:  Now }" PostBack.Update="true" /> |
+            <dot:Literal Text="{value:  Text}" PostBack.Update="true" /> |
             <dot:Button Click="{command:  Command()}" Text="Item command" />|
             <dot:Button Click="{controlCommand: ControlCommand(_this)}" Text="Command command" />|
         </p>

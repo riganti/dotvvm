@@ -2,10 +2,10 @@
 @baseType DotVVM.Samples.Common.Views.FeatureSamples.PostBack.RecursiveTextRepeater, DotVVM.Samples.Common
 <dot:Repeater DataSource="{controlProperty: Data }">
     <ItemTemplate>
-        <p>
+        <div>
             NOW:
-            <dot:Literal Text="{value:  Now }" <%--PostBack.Update="true"--%> /> |
-            <dot:Literal Text="{value:  Text }" <%--PostBack.Update="true"--%> /> |
+            <dot:Literal Text="{value:  Now }"  /> |
+            <dot:Literal Text="{value:  Text }"  /> |
             <dot:Button Click="{command:  Command()}" Text="Item command" />
             <dot:Button Click="{controlCommand: _control.ControlCommand(_this)}" Text="Control command" /> <br />
             <dot:GridView DataSource="{value:  Data}">
@@ -23,7 +23,7 @@
                     </dot:GridViewTemplateColumn>
                 </Columns>
             </dot:GridView>
-        </p>
+        </div>
     </ItemTemplate>
 
 </dot:Repeater>
