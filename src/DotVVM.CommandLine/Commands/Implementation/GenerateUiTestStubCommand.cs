@@ -1,9 +1,12 @@
 ﻿using System;
 using System.IO;
+using DotVVM.CommandLine.Commands.Templates;
 using DotVVM.CommandLine.Metadata;
-using DotVVM.CommandLine.ProjectSystem;
+using DotVVM.CommandLine.Security;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Security;
 using DotVVM.Framework.Tools.SeleniumGenerator;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace DotVVM.CommandLine.Commands.Implementation
 {
@@ -33,35 +36,24 @@ namespace DotVVM.CommandLine.Commands.Implementation
 
         public override void Handle(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
         {
+
             // make sure the test directory exists
             if (string.IsNullOrEmpty(dotvvmProjectMetadata.UITestProjectPath))
             {
-                dotvvmProjectMetadata.UITestProjectPath = ConsoleHelpers.AskForValue($"Enter the path to the test project\n(relative to DotVVM project directory, e.g. '..\\{dotvvmProjectMetadata.ProjectName}.Tests'): ");
+                var hintProjectName = $"..\\{dotvvmProjectMetadata.ProjectName}.Tests";
+                dotvvmProjectMetadata.UITestProjectPath = ConsoleHelpers.AskForValue($"Enter the path to the test project\n(relative to DotVVM project directory, e.g. '{hintProjectName}'): ", hintProjectName);
             }
+
             var testProjectDirectory = dotvvmProjectMetadata.GetUITestProjectFullPath();
             if (!Directory.Exists(testProjectDirectory))
             {
-                throw new Exception($"The directory {testProjectDirectory} doesn't exist!");
+                GenerateTestProject(testProjectDirectory);
             }
 
             // make sure we know the test project namespace
             if (string.IsNullOrEmpty(dotvvmProjectMetadata.UITestProjectRootNamespace))
             {
-                var csprojService = new CSharpProjectService();
-                var csproj = csprojService.FindCsprojInDirectory(testProjectDirectory);
-                if (csproj != null)
-                {
-                    csprojService.Load(csproj);
-                    dotvvmProjectMetadata.UITestProjectRootNamespace = csprojService.GetRootNamespace();
-                }
-                else
-                {
-                    dotvvmProjectMetadata.UITestProjectRootNamespace = ConsoleHelpers.AskForValue("Enter the test project root namespace: ");
-                    if (string.IsNullOrEmpty(dotvvmProjectMetadata.UITestProjectRootNamespace))
-                    {
-                        throw new Exception("The test project root namespace must not be empty!");
-                    }
-                }
+                dotvvmProjectMetadata.UITestProjectRootNamespace = Path.GetFileName(testProjectDirectory);
             }
 
             // generate the test stubs
@@ -74,9 +66,9 @@ namespace DotVVM.CommandLine.Commands.Implementation
 
                 // determine full type name and target file
                 var relativePath = PathHelpers.GetDothtmlFileRelativePath(dotvvmProjectMetadata, file);
-                var relativeTypeName = PathHelpers.TrimFileExtension(relativePath) + "Helper";
+                var relativeTypeName = PathHelpers.TrimFileExtension(relativePath) + "PageObject";
                 var fullTypeName = dotvvmProjectMetadata.UITestProjectRootNamespace + "." + PathHelpers.CreateTypeNameFromPath(relativeTypeName);
-                var targetFileName = Path.Combine(dotvvmProjectMetadata.UITestProjectPath, "Helpers", relativeTypeName + ".cs");
+                var targetFileName = Path.Combine(dotvvmProjectMetadata.UITestProjectPath, "PageObjects", relativeTypeName + ".cs");
 
                 // generate the file
                 var generator = new SeleniumHelperGenerator();
@@ -87,8 +79,38 @@ namespace DotVVM.CommandLine.Commands.Implementation
                     ViewFullPath = file
                 };
 
-                generator.ProcessMarkupFile(DotvvmConfiguration.CreateDefault(), config);
+                generator.ProcessMarkupFile(
+                    DotvvmConfiguration.CreateDefault(services
+                        => services.TryAddSingleton<IViewModelProtector, FakeViewModelProtector>()),
+                    config);
             }
+        }
+
+        private void GenerateTestProject(string projectDirectory)
+        {
+            var projectFileName = Path.GetFileName(projectDirectory);
+            var testProjectPath = Path.Combine(projectDirectory, projectFileName + ".csproj");
+            var fileContent = GetProjectFileTextContent();
+
+            FileSystemHelpers.WriteFile(testProjectPath, fileContent);
+
+            CreatePageObjectsDirectory(projectDirectory);
+        }
+
+        private static void CreatePageObjectsDirectory(string projectDirectory)
+        {
+            var objectsDirectory = projectDirectory + "\\PageObjects";
+            if (!Directory.Exists(objectsDirectory))
+            {
+                Directory.CreateDirectory(objectsDirectory);
+            }
+        }
+
+        private string GetProjectFileTextContent()
+        {
+            var projectTemplate = new TestProjectTemplate();
+
+            return projectTemplate.TransformText();
         }
     }
 }
