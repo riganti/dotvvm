@@ -3,7 +3,6 @@ using System.IO;
 using DotVVM.CommandLine.Commands.Templates;
 using DotVVM.CommandLine.Core;
 using DotVVM.CommandLine.Core.Metadata;
-using DotVVM.CommandLine.Metadata;
 using DotVVM.CommandLine.Security;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Security;
@@ -17,6 +16,8 @@ namespace DotVVM.CommandLine.Commands.Implementation
         public override string Name => "Generate UI Test Stub";
 
         public override string Usage => "dotvvm gen uitest <NAME>\ndotvvm gut <NAME>";
+
+        private const string PageObjectsText = "PageObjects";
 
         public override bool TryConsumeArgs(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
         {
@@ -68,9 +69,9 @@ namespace DotVVM.CommandLine.Commands.Implementation
 
                 // determine full type name and target file
                 var relativePath = PathHelpers.GetDothtmlFileRelativePath(dotvvmProjectMetadata, file);
-                var relativeTypeName = PathHelpers.TrimFileExtension(relativePath) + "PageObject";
-                var fullTypeName = dotvvmProjectMetadata.UITestProjectRootNamespace + "." + PathHelpers.CreateTypeNameFromPath(relativeTypeName);
-                var targetFileName = Path.Combine(dotvvmProjectMetadata.UITestProjectPath, "PageObjects", relativeTypeName + ".cs");
+                var relativeTypeName = $"{PathHelpers.TrimFileExtension(relativePath)}PageObject";
+                var fullTypeName = $"{dotvvmProjectMetadata.UITestProjectRootNamespace}.{PageObjectsText}.{PathHelpers.CreateTypeNameFromPath(relativeTypeName)}";
+                var targetFileName = Path.Combine(dotvvmProjectMetadata.UITestProjectPath, PageObjectsText, relativeTypeName + ".cs");
 
                 // generate the file
                 var generator = new SeleniumHelperGenerator();
@@ -101,7 +102,7 @@ namespace DotVVM.CommandLine.Commands.Implementation
 
         private static void CreatePageObjectsDirectory(string projectDirectory)
         {
-            var objectsDirectory = projectDirectory + "\\PageObjects";
+            var objectsDirectory = Path.Combine(projectDirectory, PageObjectsText);
             if (!Directory.Exists(objectsDirectory))
             {
                 Directory.CreateDirectory(objectsDirectory);

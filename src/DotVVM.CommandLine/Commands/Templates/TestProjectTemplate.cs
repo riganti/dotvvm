@@ -41,6 +41,7 @@ namespace DotVVM.CommandLine.Commands.Templates
     <PackageReference Include=""Microsoft.NET.Test.Sdk"" Version=""15.9.0"" />
     <PackageReference Include=""MSTest.TestAdapter"" Version=""1.3.2"" />
     <PackageReference Include=""MSTest.TestFramework"" Version=""1.3.2"" />
+    <PackageReference Include=""Selenium.WebDriver"" Version=""3.12.1"" />
   </ItemGroup>
 
   <ItemGroup>
