@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using DotVVM.CommandLine.Core.Metadata;
 using DotVVM.CommandLine.Metadata;
 
 namespace DotVVM.CommandLine.Commands

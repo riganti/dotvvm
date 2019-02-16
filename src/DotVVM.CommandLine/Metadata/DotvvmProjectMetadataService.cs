@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using DotVVM.CommandLine.Core.Metadata;
 using DotVVM.CommandLine.ProjectSystem;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

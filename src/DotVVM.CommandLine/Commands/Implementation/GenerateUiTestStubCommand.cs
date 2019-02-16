@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using DotVVM.CommandLine.Commands.Templates;
+using DotVVM.CommandLine.Core;
+using DotVVM.CommandLine.Core.Metadata;
 using DotVVM.CommandLine.Metadata;
 using DotVVM.CommandLine.Security;
 using DotVVM.Framework.Configuration;

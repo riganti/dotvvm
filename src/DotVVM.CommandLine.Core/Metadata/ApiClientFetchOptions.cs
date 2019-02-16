@@ -1,10 +1,7 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using Newtonsoft.Json;
 
-namespace DotVVM.CommandLine.Metadata
+namespace DotVVM.CommandLine.Core.Metadata
 {
     public class ApiClientFetchOptions
     {
