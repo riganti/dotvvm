@@ -40,9 +40,9 @@ namespace DotVVM.CommandLine
                 new AddViewModelCommand(),
                 new AddControlCommand(),
                 new AddNswagCommand(),
-                new RegenNswagCommand()
+                new RegenNswagCommand(),
 
-                //new GenerateUiTestStubCommand()
+                new GenerateUiTestStubCommand()
             };
             var arguments = new Arguments(args);
             var command = commands.FirstOrDefault(c => c.TryConsumeArgs(arguments, metadata));

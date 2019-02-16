@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DotVVM.CommandLine.Metadata;
 using DotVVM.CommandLine.ProjectSystem;
 using DotVVM.Framework.Configuration;
-//using DotVVM.Framework.Tools.SeleniumGenerator;
+using DotVVM.Framework.Tools.SeleniumGenerator;
 
 namespace DotVVM.CommandLine.Commands.Implementation
 {
@@ -83,16 +79,15 @@ namespace DotVVM.CommandLine.Commands.Implementation
                 var targetFileName = Path.Combine(dotvvmProjectMetadata.UITestProjectPath, "Helpers", relativeTypeName + ".cs");
 
                 // generate the file
-                //var generator = new SeleniumHelperGenerator();
-                //var config = new SeleniumGeneratorConfiguration()
-                //{
-                //    TargetNamespace = PathHelpers.GetNamespaceFromFullType(fullTypeName),
-                //    HelperName = PathHelpers.GetTypeNameFromFullType(fullTypeName),
-                //    HelperFileFullPath = targetFileName,
-                //    ViewFullPath = file
-                //};
+                var generator = new SeleniumHelperGenerator();
+                var config = new SeleniumGeneratorConfiguration() {
+                    TargetNamespace = PathHelpers.GetNamespaceFromFullType(fullTypeName),
+                    HelperName = PathHelpers.GetTypeNameFromFullType(fullTypeName),
+                    HelperFileFullPath = targetFileName,
+                    ViewFullPath = file
+                };
 
-                //generator.ProcessMarkupFile(DotvvmConfiguration.CreateDefault(), config);
+                generator.ProcessMarkupFile(DotvvmConfiguration.CreateDefault(), config);
             }
         }
     }
