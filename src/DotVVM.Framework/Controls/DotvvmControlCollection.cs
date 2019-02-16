@@ -161,7 +161,7 @@ namespace DotVVM.Framework.Controls
             items = items.ToArray();
             controls.InsertRange(index, items);
 
-            foreach(var item in items)
+            foreach (var item in items)
             {
                 SetParent(item);
             }
@@ -236,12 +236,14 @@ namespace DotVVM.Framework.Controls
                 }
             }
 
-            item.Children.InvokeMissedPageLifeCycleEvents(lastLifeCycleEvent, isMissingInvoke: true);
-
             if (!item.properties.Contains(Internal.UniqueIDProperty) && parent.properties.Contains(Internal.UniqueIDProperty))
             {
                 AssignUniqueIds(item);
             }
+
+            item.Children.InvokeMissedPageLifeCycleEvents(lastLifeCycleEvent, isMissingInvoke: true);
+
+
 
             ValidateParentsLifecycleEvents();
         }
