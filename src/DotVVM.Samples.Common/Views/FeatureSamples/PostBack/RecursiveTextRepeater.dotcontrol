@@ -1,0 +1,29 @@
+﻿@viewModel System.Object, mscorlib
+@baseType DotVVM.Samples.Common.Views.FeatureSamples.PostBack.RecursiveTextRepeater, DotVVM.Samples.Common
+<dot:Repeater DataSource="{controlProperty: Data }">
+    <ItemTemplate>
+        <div>
+            NOW:
+            <dot:Literal Text="{value:  Now }"  /> |
+            <dot:Literal Text="{value:  Text }"  /> |
+            <dot:Button Click="{command:  Command()}" Text="Item command" />
+            <dot:Button Click="{controlCommand: _control.ControlCommand(_this)}" Text="Control command" /> <br />
+            <dot:GridView DataSource="{value:  Data}">
+                <Columns>
+                    <dot:GridViewTextColumn ValueBinding="{value: Now}" HeaderText="Time" />
+                    <dot:GridViewTextColumn ValueBinding="{value: Text}" HeaderText="Time" />
+                    <dot:GridViewTemplateColumn>
+                        <ContentTemplate>
+                            <dot:Repeater DataSource="{value:  Data}">
+                                <ItemTemplate>
+                                    <cc:RecursiveTextRepeater2 Data="{value:  Data}" />
+                                </ItemTemplate>
+                            </dot:Repeater>
+                        </ContentTemplate>
+                    </dot:GridViewTemplateColumn>
+                </Columns>
+            </dot:GridView>
+        </div>
+    </ItemTemplate>
+
+</dot:Repeater>
