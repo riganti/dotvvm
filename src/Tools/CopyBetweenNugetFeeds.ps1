@@ -5,9 +5,6 @@ Param(
     [string]$apiKey
 )
 
-
-### Configuration
-
 ### Configuration
 
 $packages = @(
@@ -23,16 +20,17 @@ foreach($package in $packages){
 
     $packageId = $package.Package
     $webClient = New-Object System.Net.WebClient
-    $url = "$internalServer/package/" + $packageId + "/" + $version
+    $url = "$internalServer/packages/" + $packageId + "/" + $version + "/" + $packageId + "." + $version + ".nupkg"
     $nupkgFile = Join-Path $PSScriptRoot ($packageId + "." + $version + ".nupkg")
 
-    Write-Host "Downloading from $url"
-    $webClient.DownloadFile($url, $nupkgFile)
+    Write-Host "Downloading from $url ($nupkgFile)"
+    $webClient.DownloadFile($url, $nupkgFile) 
     Write-Host "Package downloaded from '$internalServer'."
 
     Write-Host "Uploading package..."
-    & .\Tools\nuget.exe push $nupkgFile -source $server -apiKey $apiKey
+    & .\nuget.exe push $nupkgFile -source $server -apiKey $apiKey
     Write-Host "Package uploaded to $server."
 
     Remove-Item $nupkgFile
 }
+
