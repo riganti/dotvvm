@@ -2,6 +2,7 @@
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
+using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -39,17 +40,55 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
-        [Fact]
-        public void Feature_StaticCommand_StaticCommand()
+        [Theory]
+        [InlineData("compute-static-method")]
+        [InlineData("compute-string")]
+        [InlineData("compute-service-async")]
+        [InlineData("compute-service")]
+        public void Feature_StaticCommand_StaticCommand(string selector)
         {
             RunInAllBrowsers(browser => {
-                foreach (var b in browser.FindElements("input[type=button]"))
-                {
-                    browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_StaticCommand_StaticCommand);
-                    browser.Wait();
-                    b.Click();
-                    AssertUI.InnerTextEquals(browser.First("span"), "Hello Deep Thought!");
-                }
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_StaticCommand_StaticCommand);
+                browser.IsDotvvmPage();
+
+                var b = browser.First(selector, SelectByDataUi);
+                b.Click();
+                AssertUI.InnerTextEquals(browser.First("span"), "Hello Deep Thought!");
+            });
+        }
+
+        [Theory]
+        [InlineData("service-null")]
+        [InlineData("static-null")]
+        [InlineData("null")]
+        public void Feature_StaticCommand_StaticCommand_ObjectAssignation(string selector)
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_StaticCommand_StaticCommand);
+                browser.IsDotvvmPage();
+
+                var name = browser.First("name", SelectByDataUi);
+                var value= browser.First("value", SelectByDataUi);
+
+                var a = browser.First("service-object", SelectByDataUi);
+                a.Click();
+
+                AssertUI.TextEquals(name, "Hello DotVVM!");
+                AssertUI.TextEquals(value, "1");
+
+                var b = browser.First(selector, SelectByDataUi);
+                b.Click();
+
+                AssertUI.TextEmpty(name);
+                AssertUI.TextEmpty(value);
+
+                a.Click();
+                AssertUI.TextEquals(name, "Hello DotVVM!");
+                AssertUI.TextEquals(value, "1");
+
+                b.Click();
+                AssertUI.TextEmpty(name);
+                AssertUI.TextEmpty(value);
             });
         }
 
