@@ -98,7 +98,7 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_StaticCommand_StaticCommand_NullBinding);
-                browser.Wait();
+                browser.IsDotvvmPage();
 
                 var showSelected = browser.First("#show-selected");
                 AssertUI.IsNotDisplayed(showSelected);
@@ -128,7 +128,7 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_StaticCommand_StaticCommand_NullAssignment);
-                browser.Wait();
+                browser.IsDotvvmPage();
 
                 void TestSection(string sectionName)
                 {
@@ -168,7 +168,7 @@ namespace DotVVM.Samples.Tests.Feature
 
         private static void Feature_StaticCommand_ComboBoxSelectionChangedViewModel_Core(IBrowserWrapper browser)
         {
-            browser.Wait();
+            browser.IsDotvvmPage();
 
             // select second value in the first combo box, the second one should select the second value too 
             browser.ElementAt("select", 0).Select(1).Wait();
