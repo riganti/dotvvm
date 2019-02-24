@@ -12,6 +12,7 @@ using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Runtime.Caching;
 using DotVVM.Framework.Utils;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Options;
@@ -27,13 +28,15 @@ namespace DotVVM.Framework.Binding
     {
         private readonly IExpressionToDelegateCompiler expressionCompiler;
         private readonly Lazy<BindingCompilationService> noInitService;
+        public DotvvmBindingCacheHelper Cache { get; }
 
-        public BindingCompilationService(IOptions<BindingCompilationOptions> options, IExpressionToDelegateCompiler expressionCompiler)
+        public BindingCompilationService(IOptions<BindingCompilationOptions> options, IExpressionToDelegateCompiler expressionCompiler, IDotvvmCacheAdapter cache)
         {
             this.expressionCompiler = expressionCompiler;
-            noInitService = new Lazy<BindingCompilationService>(() => new NoInitService(options, expressionCompiler));
+            this.noInitService = new Lazy<BindingCompilationService>(() => new NoInitService(options, expressionCompiler, cache));
             foreach (var p in GetDelegates(options.Value.TransformerClasses))
                 resolvers.AddDelegate(p);
+            this.Cache = new DotvvmBindingCacheHelper(cache, this);
         }
 
         BindingResolverCollection resolvers = new BindingResolverCollection(Enumerable.Empty<Delegate>());
@@ -59,7 +62,6 @@ namespace DotVVM.Framework.Binding
             if (type == typeof(BindingCompilationService)) return this;
             if (type.IsAssignableFrom(binding.GetType())) return binding;
 
-            var typeName = type.ToString();
             var additionalResolvers = GetAdditionalResolvers(binding);
             var bindingResolvers = GetResolversForBinding(binding.GetType());
 
@@ -163,7 +165,7 @@ namespace DotVVM.Framework.Binding
 
         class NoInitService : BindingCompilationService
         {
-            public NoInitService(IOptions<BindingCompilationOptions> options, IExpressionToDelegateCompiler expressionCompiler) : base(options, expressionCompiler) { }
+            public NoInitService(IOptions<BindingCompilationOptions> options, IExpressionToDelegateCompiler expressionCompiler, IDotvvmCacheAdapter cache) : base(options, expressionCompiler, cache) { }
 
             public override void InitializeBinding(IBinding binding, IEnumerable<BindingCompilationRequirementsAttribute> bindingRequirements = null)
             {

@@ -22,7 +22,7 @@ namespace DotVVM.Framework.Tests.Runtime
         [TestInitialize]
         public virtual void Initialize()
         {
-            Configuration = DotvvmTestHelper.CreateConfiguration();
+            Configuration = DotvvmTestHelper.DefaultConfig;
             BindingService = Configuration.ServiceProvider.GetRequiredService<BindingCompilationService>();
         }
 

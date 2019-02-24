@@ -25,7 +25,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestInitialize]
         public void INIT()
         {
-            this.configuration = DotvvmTestHelper.CreateConfiguration();
+            this.configuration = DotvvmTestHelper.DefaultConfig;
             this.bindingService = configuration.ServiceProvider.GetRequiredService<BindingCompilationService>();
         }
 
