@@ -20,7 +20,11 @@ namespace DotVVM.Framework.Binding
 
         public T CachedCreate<T>(string identifier, object[] keys, Func<T> factory) where T: IBinding
         {
-            return this.cache.GetOrAdd(new CacheKey(typeof(T), identifier, keys), _ => new DotvvmCachedItem<T>(factory(), DotvvmCacheItemPriority.High));
+            return this.cache.GetOrAdd(new CacheKey(typeof(T), identifier, keys), _ => {
+                foreach (var k in keys)
+                    CheckEqualsImplementation(k);
+                return new DotvvmCachedItem<T>(factory(), DotvvmCacheItemPriority.High);
+            });
         }
 
         public T CachedCreate<T>(string identifier, object[] keys, object[] properties) where T: IBinding
@@ -31,11 +35,11 @@ namespace DotVVM.Framework.Binding
         internal static void CheckEqualsImplementation(object k)
         {
             // whitelist for some common singletons
-            if (k is DotvvmProperty) return;
+            if (k is null || k is DotvvmProperty) return;
 
             var t = k.GetType();
             var eqMethod = t.GetMethod("Equals", BindingFlags.Public | BindingFlags.Instance, null, new [] { typeof(object) }, null);
-            if (eqMethod.GetBaseDefinition().DeclaringType == typeof(object))
+            if (eqMethod.GetBaseDefinition().DeclaringType != typeof(object) || eqMethod.DeclaringType == typeof(object))
             {
                 throw new Exception($"Instance of type {t} can not be used as a cache key, because it does not have Object.Equals method overridden. If you really want to use referential equality (you are using a singleton as a cache key or something like that), you can wrap in Tuple<T>.");
             }

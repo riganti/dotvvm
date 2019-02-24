@@ -26,6 +26,7 @@ namespace DotVVM.Framework.Binding
             var binding2 = ValueBindingExpression.CreateThisBinding<string>(service, dataContext);
             var binding3 = ValueBindingExpression.CreateThisBinding<object>(service, dataContext);
             var binding4 = ValueBindingExpression.CreateThisBinding<string>(service, DataContextStack.Create(typeof(string), dataContext));
+            var binding5 = ValueBindingExpression.CreateThisBinding<string>(service, DataContextStack.Create(typeof(string), dataContext));
 
             Assert.AreEqual(binding1, binding2);
             Assert.AreNotEqual(binding1, binding3);
@@ -33,6 +34,7 @@ namespace DotVVM.Framework.Binding
             Assert.AreNotEqual(binding2, binding3);
             Assert.AreNotEqual(binding2, binding4);
             Assert.AreNotEqual(binding3, binding4);
+            Assert.AreEqual(binding4, binding5);
         }
     }
 }
