@@ -40,9 +40,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public JsonConverter JsonConverter { get; set; }
 
         /// <summary>
-        /// Gets whether the property is transfered both ways.
+        /// Gets whether the property is transferred both ways.
         /// </summary>
-        public bool IsFullyTransfered()
+        public bool IsFullyTransferred()
         {
             return TransferToServer && TransferToClient;
         }
@@ -53,7 +53,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         }
         public void ValidateSettings()
         {
-            if (ViewModelProtection != ProtectMode.None && !IsFullyTransfered())
+            if (ViewModelProtection != ProtectMode.None && !IsFullyTransferred())
             {
                 throw new DotvvmCompilationException($"The property {PropertyInfo.Name} of type {Type} uses the Protect attribute, therefore its Bind Direction must be set to {Direction.Both}.");
             }

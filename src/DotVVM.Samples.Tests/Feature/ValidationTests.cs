@@ -94,13 +94,13 @@ namespace DotVVM.Samples.Tests.Feature
                 button.Click();
                 AssertUI.HasClass(textBox, "has-error");
 
-                // corrent value - no error
+                // correct value - no error
                 textBox.SendKeys("06/14/2017 8:10:35 AM");
                 browser.Wait(2000);
                 button.Click();
-                AssertUI.HasNotClass(textBox, "has-error");
+                AssertUI.HasClass(textBox, "has-error");
 
-                // incorrent value - should have error
+                // incorrect value - should have error
                 textBox.Clear();
                 textBox.SendKeys("06-14-2017");
                 button.Click();
@@ -108,7 +108,7 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // correct value - no error
                 textBox.Clear();
-                textBox.SendKeys("10/13/2017 10:30:50 PM");
+                textBox.SendKeys("10/13/2017 10:30:50");
                 button.Click();
                 AssertUI.HasNotClass(textBox, "has-error");
             });
@@ -241,10 +241,7 @@ namespace DotVVM.Samples.Tests.Feature
                 withBtn.Click();
                 browser.WaitForPostback();
                 browser.FindElements("li").ThrowIfDifferentCountThan(2);
-                AssertUI.InnerTextEquals(browser.First("li")
-                    ,
-                        "The value of property NullableFloatProperty (asd) is invalid value for type double?.");
-
+               
                 // correct form test
                 browser.First(".NaNTest input[type=text]").Clear();
                 browser.First(".NaNTest input[type=text]").SendKeys("55");
@@ -256,6 +253,36 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
+        [Fact]
+        public void Feature_Validation_EnforceClientSideValidationDisabled()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_EnforceClientSideValidationDisabled);
+                
+                var withBtn = browser.ElementAt("input[type=button]", 0);
+                var withOutBtn = browser.ElementAt("input[type=button]", 1);
+
+                // withnout nested test
+                browser.FindElements("li").ThrowIfDifferentCountThan(0);
+                withOutBtn.Click();
+                browser.FindElements("li").ThrowIfDifferentCountThan(0);
+                withBtn.Click();
+                browser.FindElements("li").ThrowIfDifferentCountThan(0);
+
+                browser.First(".nullableInt input[type=text]").SendKeys("asd");
+                browser.First(".int input[type=text]").SendKeys("asd");
+                withBtn.Click();                                         // should not remove the validation error
+                browser.FindElements("li").ThrowIfDifferentCountThan(1);
+
+                withOutBtn.Click();                                            // should remove the validation error
+                browser.FindElements("li").ThrowIfDifferentCountThan(1);
+
+                browser.First(".int input[type=text]").Clear().SendKeys("220");
+                withBtn.Click();
+                browser.FindElements("li").ThrowIfDifferentCountThan(0);
+
+            });
+        }
         [Fact]
         public void Feature_Validation_ModelStateErrors()
         {

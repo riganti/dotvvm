@@ -11,7 +11,7 @@ using DotVVM.Framework.Runtime.Filters;
 namespace DotVVM.Framework.Binding.Expressions
 {
     [BindingCompilationRequirements(optional: new[] { typeof(BindingResolverCollection) })]
-    public abstract class BindingExpression : IBinding, IMutableBinding, ICloneableBinding
+    public abstract class BindingExpression : IBinding, ICloneableBinding
     {
         struct PropValue
         {
@@ -68,19 +68,6 @@ namespace DotVVM.Framework.Binding.Expressions
 
         public object GetProperty(Type type, ErrorHandlingMode errorMode = ErrorHandlingMode.ThrowException) =>
             properties.GetOrAdd(type, ComputeProperty).GetValue(errorMode);
-
-        bool IMutableBinding.IsMutable => this.GetProperty<IsMutableBindingProperty>(ErrorHandlingMode.ReturnNull)?.IsMutable ?? false;
-        void IMutableBinding.AddProperty(object property)
-        {
-            if (!((IMutableBinding)this).IsMutable) throw new InvalidOperationException("Binding is frozen, can add property.");
-            if (this.properties.TryAdd(property.GetType(), new PropValue(property)))
-                throw new InvalidOperationException("Property already exists.");
-            foreach (var prop in properties)
-            {
-                // remove all error properties
-                if (prop.Value.Error != null) properties.TryRemove(prop.Key, out var _);
-            }
-        }
 
 
         public override string ToString()

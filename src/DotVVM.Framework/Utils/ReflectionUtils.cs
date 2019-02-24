@@ -256,6 +256,13 @@ namespace DotVVM.Framework.Utils
             if (result == null) return null;
             return ResolvedTypeDescriptor.ToSystemType(result);
         }
+        public static readonly HashSet<Type> DateTimeTypes = new HashSet<Type>()
+            {
+                typeof(DateTime),
+                typeof(DateTimeOffset),
+                typeof(TimeSpan)
+            };
+
 
         public static readonly HashSet<Type> NumericTypes = new HashSet<Type>()
         {
@@ -278,6 +285,10 @@ namespace DotVVM.Framework.Utils
             return NumericTypes.Contains(type);
         }
 
+        public static bool IsDateOrTimeType(this Type type)
+        {
+            return DateTimeTypes.Contains(type);
+        }
         public static bool IsDynamicOrObject(this Type type)
         {
             return type.GetInterfaces().Contains(typeof(IDynamicMetaObjectProvider)) ||
@@ -331,7 +342,10 @@ namespace DotVVM.Framework.Utils
         {
             return Nullable.GetUnderlyingType(type) != null;
         }
-
+        public static Type UnwrapNullableType(this Type type)
+        {
+            return Nullable.GetUnderlyingType(type) ?? type;
+        }
         public static Type MakeNullableType(this Type type)
         {
             return type.GetTypeInfo().IsValueType && Nullable.GetUnderlyingType(type) == null && type != typeof(void) ? typeof(Nullable<>).MakeGenericType(type) : type;

@@ -1,0 +1,31 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation.EnforceClientSideValidationDisabledViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <p class="int">
+        int <dot:TextBox Text="{value: IntegerProperty}" />
+    </p>
+    <p class="nullableInt">
+        int? <dot:TextBox Text="{value: NullableIntegerProperty}" />
+    </p>
+    <p class="DateTime">
+        DateTime <dot:TextBox Text="{value: DateTimeProperty}" />
+    </p>
+    <p class="nullableDateTime">
+        DateTime? <dot:TextBox Text="{value: NullableDateTimeProperty}" />
+    </p>
+    <p>
+        <dot:Button Click="{command: Postback()}" Validation.Enabled="true" Validation.Target="{value: _root}" Text="Postback with validation" />
+        <dot:Button Click="{command: Postback()}" Validation.Enabled="false" Text="Postback without validation" />
+    </p>
+    <dot:ValidationSummary IncludeErrorsFromChildren="true" />
+</body>
+</html>
+
+
