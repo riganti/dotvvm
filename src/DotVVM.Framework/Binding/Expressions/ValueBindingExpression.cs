@@ -66,9 +66,11 @@ namespace DotVVM.Framework.Binding.Expressions
 
         #region Helpers
 
+        /// Creates binding {value: _this} for a specific data context. Note that the result is cached (non-deterministically, using the <see cref="DotVVM.Framework.Runtime.Caching.IDotvvmCacheAdapter" />)
         public static ValueBindingExpression<T> CreateThisBinding<T>(BindingCompilationService service, DataContextStack dataContext) =>
-            CreateBinding<T>(service, o => (T)o[0], dataContext);
+            service.Cache.CachedCreate("ValueBindingExpression.ThisBinding", new [] { dataContext }, () => CreateBinding<T>(service, o => (T)o[0], dataContext));
 
+        /// Crates a new value binding expression from the specified .NET delegate and Javascript expression. Note that this operation is not very cheap and the result is not cached.
         public static ValueBindingExpression<T> CreateBinding<T>(BindingCompilationService service, Func<object[], T> func, JsExpression expression, DataContextStack dataContext = null) =>
             new ValueBindingExpression<T>(service, new object[] {
                 new BindingDelegate((o, c) => func(o)),
@@ -77,6 +79,7 @@ namespace DotVVM.Framework.Binding.Expressions
                 dataContext
             });
 
+        /// Crates a new value binding expression from the specified .NET delegate and Javascript expression. Note that this operation is not very cheap and the result is not cached.
         public static ValueBindingExpression<T> CreateBinding<T>(BindingCompilationService service, Func<object[], T> func, ParametrizedCode expression, DataContextStack dataContext = null) =>
             new ValueBindingExpression<T>(service, new object[] {
                 new BindingDelegate((o, c) => func(o)),
@@ -85,6 +88,7 @@ namespace DotVVM.Framework.Binding.Expressions
                 dataContext
             });
 
+        /// Crates a new value binding expression from the specified Linq.Expression. Note that this operation is quite expansive and the result is not cached (you are supposed to do it and NOT invoke this function for every request).
         public static ValueBindingExpression<T> CreateBinding<T>(BindingCompilationService service, Expression<Func<object[], T>> expr, DataContextStack dataContext)
         {
             var visitor = new ViewModelAccessReplacer(expr.Parameters.Single());
