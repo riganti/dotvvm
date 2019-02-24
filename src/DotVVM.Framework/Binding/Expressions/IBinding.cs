@@ -16,11 +16,6 @@ namespace DotVVM.Framework.Binding.Expressions
         //IList<Delegate> AdditionalServices { get; }
     }
 
-    public interface IMutableBinding: IBinding
-    {
-        void AddProperty(object property);
-        bool IsMutable { get; }
-    }
 
     public interface ICloneableBinding: IBinding
     {

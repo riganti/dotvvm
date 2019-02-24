@@ -62,7 +62,6 @@ namespace DotVVM.Framework.Binding
             if (type == typeof(BindingCompilationService)) return this;
             if (type.IsAssignableFrom(binding.GetType())) return binding;
 
-            var typeName = type.ToString();
             var additionalResolvers = GetAdditionalResolvers(binding);
             var bindingResolvers = GetResolversForBinding(binding.GetType());
 
