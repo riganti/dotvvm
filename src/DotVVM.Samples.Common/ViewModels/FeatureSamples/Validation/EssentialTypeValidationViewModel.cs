@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations;
 namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation
 {
 	public class EssentialTypeValidationViewModel
-	{
+    {
         public int IntegerProperty { get; set; }
         public double FloatProperty { get; set; }
         [Required]

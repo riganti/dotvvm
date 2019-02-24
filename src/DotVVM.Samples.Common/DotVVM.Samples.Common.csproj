@@ -14,12 +14,14 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="Views\ControlSamples\Literal\Literal_NumberBinding.dothtml" />
+    <None Remove="Views\ControlSamples\ValidationSummary\MessagesRendering.dothtml" />
     <None Remove="Views\Errors\CorruptedContentBetweenContentControls.dothtml" />
     <None Remove="Views\FeatureSamples\Caching\CachedValues.dothtml" />
     <None Remove="Views\FeatureSamples\PostBack\RecursiveTextRepeater.dotcontrol" />
     <None Remove="Views\FeatureSamples\PostBack\RecursiveTextRepeater2.dotcontrol" />
     <None Remove="Views\FeatureSamples\PostBack\UniqueIdGenerationOnPostbackUpdate.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_NullAssignment.dothtml" />
+    <None Remove="Views\FeatureSamples\Validation\EnforceClientSideValidationDisabled.dothtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Scripts\ClientExtenders.js" />

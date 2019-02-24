@@ -152,6 +152,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_BindingContexts_CollectionContext = "FeatureSamples/BindingContexts/CollectionContext";
         public const string FeatureSamples_BindingNamespaces_BindingUsingNamespace = "FeatureSamples/BindingNamespaces/BindingUsingNamespace";
         public const string FeatureSamples_BindingPageInfo_BindingPageInfo = "FeatureSamples/BindingPageInfo/BindingPageInfo";
+        public const string FeatureSamples_Caching_CachedValues = "FeatureSamples/Caching/CachedValues";
         public const string FeatureSamples_ChildViewModelInvokeMethods_ChildViewModelInvokeMethods = "FeatureSamples/ChildViewModelInvokeMethods/ChildViewModelInvokeMethods";
         public const string FeatureSamples_ClientExtenders_PasswordStrength = "FeatureSamples/ClientExtenders/PasswordStrength";
         public const string FeatureSamples_CommandArguments_CommandArguments = "FeatureSamples/CommandArguments/CommandArguments";
@@ -223,6 +224,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Validation_DateTimeValidation_NullableDateTime = "FeatureSamples/Validation/DateTimeValidation_NullableDateTime";
         public const string FeatureSamples_Validation_DynamicValidation = "FeatureSamples/Validation/DynamicValidation";
         public const string FeatureSamples_Validation_EncryptedData = "FeatureSamples/Validation/EncryptedData";
+        public const string FeatureSamples_Validation_EnforceClientSideValidationDisabled = "FeatureSamples/Validation/EnforceClientSideValidationDisabled";
         public const string FeatureSamples_Validation_EssentialTypeValidation = "FeatureSamples/Validation/EssentialTypeValidation";
         public const string FeatureSamples_Validation_Localization = "FeatureSamples/Validation/Localization";
         public const string FeatureSamples_Validation_ModelStateErrors = "FeatureSamples/Validation/ModelStateErrors";

@@ -377,7 +377,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                         {
                             // encryption is worthless if the property is not being transfered both ways
                             // therefore ClearEmptyNest throws exception if the property contains encrypted values
-                            if (!property.IsFullyTransfered())
+                            if (!property.IsFullyTransferred())
                             {
                                 // encryptedValuesWriter.ClearEmptyNest();
                                 block.Add(Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.ClearEmptyNest), Type.EmptyTypes));
