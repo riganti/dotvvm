@@ -18,7 +18,7 @@ namespace DotVVM.Framework.Binding
             this.compilationService = compilationService;
         }
 
-        public T CachedCreate<T>(string identifier, object[] keys, Func<T> factory) where T: IBinding
+        public T CreateCachedBinding<T>(string identifier, object[] keys, Func<T> factory) where T: IBinding
         {
             return this.cache.GetOrAdd(new CacheKey(typeof(T), identifier, keys), _ => {
                 foreach (var k in keys)
@@ -27,9 +27,9 @@ namespace DotVVM.Framework.Binding
             });
         }
 
-        public T CachedCreate<T>(string identifier, object[] keys, object[] properties) where T: IBinding
+        public T CreateCachedBinding<T>(string identifier, object[] keys, object[] properties) where T: IBinding
         {
-            return CachedCreate<T>(identifier, keys, () => (T)BindingFactory.CreateBinding(this.compilationService, typeof(T), properties));
+            return CreateCachedBinding<T>(identifier, keys, () => (T)BindingFactory.CreateBinding(this.compilationService, typeof(T), properties));
         }
 
         internal static void CheckEqualsImplementation(object k)
@@ -39,7 +39,7 @@ namespace DotVVM.Framework.Binding
 
             var t = k.GetType();
             var eqMethod = t.GetMethod("Equals", BindingFlags.Public | BindingFlags.Instance, null, new [] { typeof(object) }, null);
-            if (eqMethod.GetBaseDefinition().DeclaringType != typeof(object) || eqMethod.DeclaringType == typeof(object))
+            if (eqMethod?.GetBaseDefinition().DeclaringType != typeof(object) || eqMethod.DeclaringType == typeof(object))
             {
                 throw new Exception($"Instance of type {t} can not be used as a cache key, because it does not have Object.Equals method overridden. If you really want to use referential equality (you are using a singleton as a cache key or something like that), you can wrap in Tuple<T>.");
             }
@@ -79,21 +79,5 @@ namespace DotVVM.Framework.Binding
                 return hash;
             }
         }
-
-        // public class RefEqualityBox<T> : IEquatable<RefEqualityBox<T>>
-        //     where T: class
-        // {
-        //     public RefEqualityBox(T obj)
-        //     {
-        //         Obj = obj;
-        //     }
-
-        //     public T Obj { get; }
-
-        //     public bool Equals(RefEqualityBox<T> other)
-        //     {
-        //         return object.ReferenceEquals(Obj, other.Obj);
-        //     }
-        // }
     }
 }
