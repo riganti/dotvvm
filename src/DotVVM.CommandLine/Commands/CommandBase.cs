@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,7 +11,7 @@ namespace DotVVM.CommandLine.Commands
         
         public abstract string Name { get; }
 
-        public abstract string Usage { get; }
+        public abstract string[] Usages { get; }
 
         public abstract bool TryConsumeArgs(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata);
 

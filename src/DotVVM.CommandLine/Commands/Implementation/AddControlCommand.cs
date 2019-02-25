@@ -11,7 +11,7 @@ namespace DotVVM.CommandLine.Commands.Implementation
     {
         public override string Name => "Add Control";
 
-        public override string Usage => "dotvvm add control <NAME> [-c|--code|--codebehind]\ndotvvm ac <NAME> [-c|--code|--codebehind]";
+        public override string[] Usages => new []{ "dotvvm add control <NAME> [-c|--code|--codebehind]", "dotvvm ac <NAME> [-c|--code|--codebehind]"};
 
         public override bool TryConsumeArgs(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
         {

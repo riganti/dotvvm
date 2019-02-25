@@ -11,7 +11,7 @@ namespace DotVVM.CommandLine.Commands.Implementation
     {
         public override string Name => "Add ViewModel";
 
-        public override string Usage => "dotvvm add viewmodel <NAME>\ndotvvm avm <NAME>";
+        public override string[] Usages => new[] { "dotvvm add viewmodel <NAME>", "dotvvm avm <NAME>" };
 
         public override bool TryConsumeArgs(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
         {
@@ -52,10 +52,9 @@ namespace DotVVM.CommandLine.Commands.Implementation
         {
             var viewModelName = NamingHelpers.GetClassNameFromPath(viewModelPath);
             var viewModelNamespace = NamingHelpers.GetNamespaceFromPath(viewModelPath, dotvvmProjectMetadata.ProjectDirectory, dotvvmProjectMetadata.RootNamespace);
-            
+
             // create viewmodel
-            var viewModelTemplate = new ViewModelTemplate()
-            {
+            var viewModelTemplate = new ViewModelTemplate() {
                 ViewModelName = viewModelName,
                 ViewModelNamespace = viewModelNamespace
                 // TODO: BaseViewModel

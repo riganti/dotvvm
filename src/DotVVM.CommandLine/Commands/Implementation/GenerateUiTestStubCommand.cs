@@ -15,7 +15,7 @@ namespace DotVVM.CommandLine.Commands.Implementation
     {
         public override string Name => "Generate UI Test Stub";
 
-        public override string Usage => "dotvvm gen uitest <NAME>\ndotvvm gut <NAME>";
+        public override string[] Usages => new[] {"dotvvm gen uitest <NAME>", "dotvvm gut <NAME>"};
 
         public override bool TryConsumeArgs(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
         {

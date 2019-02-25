@@ -12,7 +12,7 @@ namespace DotVVM.CommandLine.Commands.Implementation
     {
         public override string Name => "Add Page";
 
-        public override string Usage => "dotvvm add page <NAME> [-m|--master|--masterpage <MASTERPAGE>]\ndotvvm ap <NAME> [-m|--master|--masterpage <MASTERPAGE>]";
+        public override string[] Usages => new []{"dotvvm add page <NAME> [-m|--master|--masterpage <MASTERPAGE>]", "dotvvm ap <NAME> [-m|--master|--masterpage <MASTERPAGE>]"};
 
         public override bool TryConsumeArgs(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
         {

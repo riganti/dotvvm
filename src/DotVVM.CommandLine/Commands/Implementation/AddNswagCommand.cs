@@ -12,7 +12,7 @@ namespace DotVVM.CommandLine.Commands.Implementation
     {
         public override string Name => "Add REST API client";
 
-        public override string Usage => "dotvvm api create <http://path/to/swagger.json> <Namespace> <../ApiProject/CSharpClient.cs> <Scripts/TypescriptClient.cs>";
+        public override string[] Usages => new []{ "dotvvm api create <http://path/to/swagger.json> <Namespace> <../ApiProject/CSharpClient.cs> <Scripts/TypescriptClient.cs>" };
 
         public override bool TryConsumeArgs(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
         {

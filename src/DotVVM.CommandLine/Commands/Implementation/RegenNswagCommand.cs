@@ -13,7 +13,7 @@ namespace DotVVM.CommandLine.Commands.Implementation
     {
         public override string Name => "Regenerate REST API clients";
 
-        public override string Usage => "dotvvm api regen [ swagger metadata URL or swagger JSON path -- if not specified all of them are refreshed ]";
+        public override string[] Usages => new []{"dotvvm api regen [ swagger metadata URL or swagger JSON path -- if not specified all of them are refreshed ]" };
 
         public override bool TryConsumeArgs(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
         {
