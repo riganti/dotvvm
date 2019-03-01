@@ -1,5 +1,0 @@
-BindingPropertyException occurred: Unable to get property KnockoutExpressionBindingProperty of binding {ValueBindingExpression`1: value(DotVVM.Framework.Configuration.DotvvmConfiguration).ToString()}, unresolvable arguments. (Method Object.ToString can not be translated to Javascript)
-    at void DotVVM.Framework.Tests.Runtime.RuntimeErrorTests.PropertyResolverFailure()+() => { }
-
-NotSupportedException occurred: Method Object.ToString can not be translated to Javascript
-    at JsExpression DotVVM.Framework.Compilation.Javascript.JavascriptTranslationVisitor.TranslateMethodCall(MethodCallExpression expression)

@@ -73,7 +73,7 @@ namespace DotVVM.Framework.Binding
 
             Exception checkArguments(object[] arguments) =>
                 arguments.OfType<Exception>().ToArray() is var exceptions && exceptions.Any() ?
-                new BindingPropertyException(binding, type, "unresolvable arguments", exceptions) :
+                new AggregateException($"Could not resolve '{type}'.", exceptions) :
                 null;
 
             if (resolver != null)
@@ -91,7 +91,7 @@ namespace DotVVM.Framework.Binding
                     if (checkArguments(arguments) is Exception exc) return exc;
                     value = postProcessor.ExceptionSafeDynamicInvoke(arguments) ?? value;
                 }
-                return value ?? new BindingPropertyException(binding, type, "resolver returned null");
+                return value ?? new InvalidOperationException($"Could not resolve binding property '{type}'.");
             }
             if (typeof(Delegate).IsAssignableFrom(type))
             {
@@ -100,7 +100,7 @@ namespace DotVVM.Framework.Binding
                     return expressionCompiler.Compile(lambda);
                 else return result;
             }
-            else return new BindingPropertyException(binding, type, "resolver not found"); // don't throw the exception, since it creates noise for debugger
+            else return new InvalidOperationException($"Could not resolve binding property '{type}', resolver not found."); // don't throw the exception, since it creates noise for debugger
         }
 
         protected Exception GetException(IBinding binding, string message) =>

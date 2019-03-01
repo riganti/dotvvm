@@ -73,7 +73,7 @@ namespace DotVVM.Framework.Binding
                 if (a.properties.Contains(DotvvmBindableObject.DataContextProperty)) changes++;
             }
 
-            throw new NotSupportedException($"Could not find DataContext space of binding '{binding}'. The DataContextType property of the binding does not correspond to DataContextType of the {control.GetType().Name} not any of its ancestor. Control's context is {controlContext}, binding's context is {bindingContext}.");
+            throw new NotSupportedException($"Could not find DataContextSpace of binding '{binding}'.");
         }
 
         /// <summary>

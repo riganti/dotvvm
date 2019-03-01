@@ -8,8 +8,6 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using DotVVM.Framework.Binding;
-using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Runtime.Commands;
 using DotVVM.Framework.Utils;
@@ -314,17 +312,6 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             return template.TransformText();
         }
 
-        static (string name, object value) StripBindingProperty(string name, object value)
-        {
-            var t = value.GetType();
-            var fields = t.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            if (fields.Length != 1 || !fields[0].IsInitOnly)
-                return (name, value);
-
-            return (name + "." + fields[0].Name, fields[0].GetValue(value));
-        }
-
-
         public static ErrorFormatter CreateDefault()
         {
             var f = new ErrorFormatter();
@@ -332,17 +319,6 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             f.Formatters.Add((e, o) => new ExceptionSectionFormatter(f.LoadException(e), "Raw Stack Trace", "raw_stack_trace"));
             f.Formatters.Add((e, o) => DictionarySection.Create("Cookies", "cookies", o.Request.Cookies));
             f.Formatters.Add((e, o) => DictionarySection.Create("Request Headers", "reqHeaders", o.Request.Headers));
-            f.Formatters.Add((e, o) => {
-                var b = e.AllInnerExceptions().OfType<BindingPropertyException>().Select(a => a.Binding).OfType<ICloneableBinding>().FirstOrDefault();
-                if (b == null) return null;
-                return DictionarySection.Create("Binding", "binding",
-                    new []{ new KeyValuePair<object, object>("Type", b.GetType().FullName) }
-                    .Concat(
-                        b.GetAllComputedProperties()
-                        .Select(a => StripBindingProperty(a.GetType().Name, a))
-                        .Select(a => new KeyValuePair<object, object>(a.name, a.value))
-                    ).ToArray());
-            });
             f.AddInfoLoader<ReflectionTypeLoadException>(e => new ExceptionAdditionalInfo {
                 Title = "Loader Exceptions",
                 Objects = e.LoaderExceptions.Select(lde => lde.GetType().Name + ": " + lde.Message).ToArray(),
