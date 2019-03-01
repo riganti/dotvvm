@@ -34,5 +34,7 @@ namespace DotVVM.Framework.Compilation
 
         public override int GetHashCode() =>
             unchecked(((Namespace?.GetHashCode() ?? 0) * 397) ^ (Alias?.GetHashCode() ?? 0));
+
+		public override string ToString() => "import(" + (Alias == null ? Namespace : Alias + "=" + Namespace) + ")";
     }
 }
