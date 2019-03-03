@@ -248,13 +248,13 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public DataSourceAccessBinding GetDataSourceAccess(ParsedExpressionBindingProperty expression, IBinding binding)
         {
-            if (typeof(IBaseGridViewDataSet).IsAssignableFrom(expression.Expression.Type))
+            if (typeof(IBaseGridViewDataSet).IsAssignableFrom(expression.Expression.Type) && !expression.Expression.Type.IsInterface)
                 return new DataSourceAccessBinding(binding.DeriveBinding(new ParsedExpressionBindingProperty(
                     Expression.Property(expression.Expression, nameof(IBaseGridViewDataSet.Items))
                 )));
             else if (typeof(IEnumerable).IsAssignableFrom(expression.Expression.Type))
                 return new DataSourceAccessBinding(binding);
-            else throw new NotSupportedException($"Can not make datasource from binding '{expression.Expression}'.");
+            else throw new NotSupportedException($"Can not make datasource from binding '{expression.Expression}' of type '{expression.Expression.Type}'.");
         }
 
         public DataSourceLengthBinding GetDataSourceLength(ParsedExpressionBindingProperty expression, IBinding binding)
