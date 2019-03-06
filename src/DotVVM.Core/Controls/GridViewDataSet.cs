@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Controls
     /// Represents a collection of items with paging, sorting and row edit capabilities.
     /// </summary>
     /// <typeparam name="T">The type of the <see cref="Items" /> elements.</typeparam>
-    public class GridViewDataSet<T> : IGridViewDataSet
+    public class GridViewDataSet<T> : IGridViewDataSet<T>
     {
         /// <summary>
         /// Gets or sets whether the data should be refreshed. This property is set to true automatically

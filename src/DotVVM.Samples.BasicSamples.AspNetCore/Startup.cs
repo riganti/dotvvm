@@ -83,6 +83,7 @@ namespace DotVVM.Samples.BasicSamples
             var config = app.UseDotVVM<DotvvmStartup>(GetApplicationPath(env));
             config.RouteTable.Add("AuthorizedPresenter", "ComplexSamples/Auth/AuthorizedPresenter", provider => new AuthorizedPresenter());
 
+
 #if AssertConfiguration
             // this compilation symbol is set by CI server
             config.AssertConfigurationIsValid();
