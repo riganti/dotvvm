@@ -6,6 +6,7 @@
     public spaNavigating = new DotvvmEvent<DotvvmSpaNavigatingEventArgs>("dotvvm.events.spaNavigating");
     public spaNavigated = new DotvvmEvent<DotvvmSpaNavigatedEventArgs>("dotvvm.events.spaNavigated");
     public redirect = new DotvvmEvent<DotvvmRedirectEventArgs>("dotvvm.events.redirect");
+
     public postbackHandlersStarted = new DotvvmEvent<{}>("dotvvm.events.postbackHandlersStarted")
     public postbackHandlersCompleted = new DotvvmEvent<{}>("dotvvm.events.postbackHandlersCompleted")
     public postbackResponseReceived = new DotvvmEvent<{}>("dotvvm.events.postbackResponseReceived")
@@ -14,21 +15,26 @@
     public postbackRejected = new DotvvmEvent<{}>("dotvvm.events.postbackRejected")
 
     public staticCommandMethodInvoking = new DotvvmEvent<{args: any[], command: string}>("dotvvm.events.staticCommandMethodInvoking")
-    public staticCommandMethodInvoked = new DotvvmEvent<{args: any[], command: string, result: any}>("dotvvm.events.staticCommandMethodInvoked")
+    public staticCommandMethodInvoked = new DotvvmEvent<{args: any[], command: string, result: any, xhr: XMLHttpRequest}>("dotvvm.events.staticCommandMethodInvoked")
     public staticCommandMethodFailed = new DotvvmEvent<{args: any[], command: string, xhr: XMLHttpRequest, error?: any}>("dotvvm.events.staticCommandMethodInvoked")
+}
+
+class DotvvmEventHandler<T> {
+    constructor(public handler: (f: T) => void, public isOneTime: boolean) {
+    }
 }
 
 // DotvvmEvent is used because CustomEvent is not browser compatible and does not support
 // calling missed events for handler that subscribed too late.
 class DotvvmEvent<T> {
-    private handlers : ((f:T) => void)[] = [];
+    private handlers: DotvvmEventHandler<T>[] = [];
     private history : T[] = [];
 
     constructor(public readonly name: string, private readonly triggerMissedEventsOnSubscribe: boolean = false) {
     }
 
     public subscribe(handler: (data: T) => void) {
-        this.handlers.push(handler);
+        this.handlers.push(new DotvvmEventHandler<T>(handler, false));
 
         if (this.triggerMissedEventsOnSubscribe) {
             for (var i = 0; i < this.history.length; i++) {
@@ -37,16 +43,26 @@ class DotvvmEvent<T> {
         }
     }
 
+    public subscribeOnce(handler: (data: T) => void) {
+        this.handlers.push(new DotvvmEventHandler<T>(handler, true));
+    }
+
     public unsubscribe(handler: (data: T) => void) {
-        var index = this.handlers.indexOf(handler);
-        if (index >= 0) {
-            this.handlers = this.handlers.splice(index, 1);
+        for (var i = 0; i < this.handlers.length; i++) {
+            if (this.handlers[i].handler === handler) {
+                this.handlers.splice(i, 1);
+                return;
+            }
         }
     }
 
     public trigger(data: T): void {
         for (var i = 0; i < this.handlers.length; i++) {
-            this.handlers[i](data);
+            this.handlers[i].handler(data);
+            if (this.handlers[i].isOneTime) {
+                this.handlers.splice(i, 1);
+                i--;
+            }
         }
 
         if (this.triggerMissedEventsOnSubscribe) {

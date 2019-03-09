@@ -5,7 +5,7 @@ using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Binding.Expressions
 {
-    [Options]
+    [Options, ValueBindingExpression.Options]
     public class ControlPropertyBindingExpression : ValueBindingExpression
     {
         public ControlPropertyBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties) { }

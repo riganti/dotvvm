@@ -11,6 +11,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using DotVVM.Framework.Compilation.Binding;
+using System.Diagnostics;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -35,21 +36,36 @@ namespace DotVVM.Framework.Compilation
         public override void VisitView(ResolvedTreeRoot view)
         {
             lastMetadata = view.Metadata;
-            var wrapperClassName = CreateControlClass(className, view.Metadata.Type);
+
+            var createsCustomDerivedType = view.Metadata.Type == typeof(DotvvmView);
+
+            if (createsCustomDerivedType)
+            {
+                emitter.ResultControlType = className + "Control";
+                emitter.EmitControlClass(view.Metadata.Type, emitter.ResultControlType);
+            }
+            else
+                emitter.ResultControlType = view.Metadata.Type.FullName;
+
             emitter.UseType(view.Metadata.Type);
             emitter.BuilderDataContextType = view.DataContextTypeStack?.DataContextType;
-            emitter.ResultControlType = wrapperClassName;
             // build the statements
             emitter.PushNewMethod(nameof(IControlBuilder.BuildControl), typeof(DotvvmControl), emitter.EmitControlBuilderParameters());
-            emitter.PushNewMethod(DefaultViewCompilerCodeEmitter.BuildControlFunctionName, typeof(DotvvmControl),
-                emitter.EmitControlBuilderParameters());
-            var pageName = emitter.EmitCreateObject(wrapperClassName);
+
+            var pageName =
+                createsCustomDerivedType ? emitter.EmitCreateObject(emitter.ResultControlType) :
+                                           this.EmitCreateControl(view.Metadata.Type, new object[0]);
+            emitter.RegisterDotvvmProperties(pageName);
+
             emitter.EmitSetDotvvmProperty(pageName, Internal.UniqueIDProperty, pageName);
             emitter.EmitSetDotvvmProperty(pageName, Internal.MarkupFileNameProperty, view.Metadata.VirtualPath);
+            emitter.EmitSetDotvvmProperty(pageName, Internal.DataContextTypeProperty, emitter.EmitValue(view.DataContextTypeStack));
+
             if (typeof(DotvvmView).IsAssignableFrom(view.Metadata.Type))
                 emitter.EmitSetProperty(pageName, nameof(DotvvmView.ViewModelType),
                     emitter.EmitValue(view.DataContextTypeStack.DataContextType));
-            if (view.Metadata.Type.IsAssignableFrom(typeof(DotvvmView)) ||
+
+            if (typeof(DotvvmView).IsAssignableFrom(view.Metadata.Type) ||
                 typeof(DotvvmMarkupControl).IsAssignableFrom(view.Metadata.Type))
             {
                 foreach (var directive in view.Directives)
@@ -61,6 +77,8 @@ namespace DotVVM.Framework.Compilation
             controlName = pageName;
 
             base.VisitView(view);
+
+            emitter.CommitDotvvmProperties(pageName);
 
             emitter.EmitReturnClause(pageName);
             emitter.PopMethod();
@@ -103,9 +121,13 @@ namespace DotVVM.Framework.Compilation
         public override void VisitControl(ResolvedControl node)
         {
             var parentName = controlName;
-            controlName = CreateControl(node);
+            var localControlName = controlName = CreateControl(node);
 
             base.VisitControl(node);
+
+            Debug.Assert(localControlName == controlName);
+
+            emitter.CommitDotvvmProperties(controlName);
 
             emitter.EmitAddCollectionItem(parentName, controlName);
             controlName = parentName;
@@ -142,6 +164,7 @@ namespace DotVVM.Framework.Compilation
             controlName = CreateControl(control);
             // compile control content
             base.VisitControl(control);
+            emitter.CommitDotvvmProperties(controlName);
             emitter.EmitSetProperty(controlName, nameof(DotvvmControl.Parent), SyntaxFactory.IdentifierName(parentName));
             // set the property
             SetProperty(parentName, propertyControl.Property, SyntaxFactory.IdentifierName(controlName));
@@ -159,6 +182,8 @@ namespace DotVVM.Framework.Compilation
 
                 // compile control content
                 base.VisitControl(control);
+
+                emitter.CommitDotvvmProperties(controlName);
 
                 // add to collection in property
                 emitter.EmitSetProperty(controlName, nameof(DotvvmControl.Parent), SyntaxFactory.IdentifierName(parentName));
@@ -185,20 +210,6 @@ namespace DotVVM.Framework.Compilation
         }
 
         /// <summary>
-        /// Emits control class definition if wrapper is DotvvmView and returns class name
-        /// </summary>
-        protected string CreateControlClass(string className, Type wrapperType)
-        {
-            if (wrapperType == typeof(DotvvmView))
-            {
-                var controlClassName = className + "Control";
-                emitter.EmitControlClass(wrapperType, controlClassName);
-                return controlClassName;
-            }
-            else return wrapperType.FullName;
-        }
-
-        /// <summary>
         /// Processes the HTML element that represents a new object.
         /// </summary>
         protected string CreateControl(ResolvedControl control)
@@ -215,6 +226,7 @@ namespace DotVVM.Framework.Compilation
                 // markup control
                 name = emitter.EmitInvokeControlBuilder(control.Metadata.Type, control.Metadata.VirtualPath);
             }
+            emitter.RegisterDotvvmProperties(name);
             // set unique id
             emitter.EmitSetDotvvmProperty(name, Internal.UniqueIDProperty, name);
 
@@ -228,7 +240,7 @@ namespace DotVVM.Framework.Compilation
         }
 
         /// <summary>
-        /// Emits binding contructor and returns variable name
+        /// Emits binding constructor and returns variable name
         /// </summary>
         protected ExpressionSyntax ProcessBinding(ResolvedBinding binding)
         {

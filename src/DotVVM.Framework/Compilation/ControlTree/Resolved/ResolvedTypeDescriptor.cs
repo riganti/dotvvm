@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using DotVVM.Framework.Controls;
@@ -9,6 +11,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
     public class ResolvedTypeDescriptor : ITypeDescriptor
     {
+        private static ConcurrentDictionary<Type, ResolvedTypeDescriptor> cache = new ConcurrentDictionary<Type, ResolvedTypeDescriptor>();
         public Type Type { get; }
 
         public ResolvedTypeDescriptor(Type type)
@@ -78,12 +81,30 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
         public ITypeDescriptor TryGetPropertyType(string propertyName)
         {
-            var propertyType = Type.GetProperty(propertyName)?.PropertyType;
-            if (propertyType != null)
-            {
-                return new ResolvedTypeDescriptor(propertyType);
-            }
-            return null;
+            return cache.GetOrAdd(Type, type => {
+                if (!Type.IsInterface)
+                {
+                    var propertyType = Type.GetProperty(propertyName)?.PropertyType;
+                    if (propertyType != null)
+                    {
+                        return new ResolvedTypeDescriptor(propertyType);
+                    }
+                }
+                else
+                {
+                    var candidates = Type.GetInterfaces().Where(s => s.GetProperty(propertyName) != null).ToList();
+                    // this is not nice and I don't like it but the problem is shadowing of props in interfaces.
+                    var propertyType = candidates
+                        .First(s => candidates.Where(c => c != s).All(b => b.GetInterfaces().All(n => n != s)))
+                        .GetProperty(propertyName)?.PropertyType;
+                    if (propertyType != null)
+                    {
+                        return new ResolvedTypeDescriptor(propertyType);
+                    }
+
+                }
+                return null;
+            });
         }
 
         public ITypeDescriptor MakeGenericType(params ITypeDescriptor[] typeArguments)

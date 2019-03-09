@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace DotVVM.Samples.BasicSamples.Api.AspNetCore
@@ -34,7 +35,10 @@ namespace DotVVM.Samples.BasicSamples.Api.AspNetCore
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
-            services.AddMvc();
+            services.AddMvc().AddJsonOptions(options =>
+            {
+                options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
+            }); 
 
             services.AddDotVVM<DotvvmServiceConfigurator>();
 

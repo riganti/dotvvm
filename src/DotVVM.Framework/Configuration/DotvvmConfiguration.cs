@@ -164,13 +164,14 @@ namespace DotVVM.Framework.Configuration
         /// Creates the default configuration and optionally registers additional application services.
         /// </summary>
         /// <param name="registerServices">An action to register additional services.</param>
-        public static DotvvmConfiguration CreateDefault(Action<IServiceCollection> registerServices = null)
+        /// <param name="serviceProviderFactoryMethod">Register factory method to create your own instance of IServiceProvider.</param>
+        public static DotvvmConfiguration CreateDefault(Action<IServiceCollection> registerServices = null, Func<IServiceCollection, IServiceProvider> serviceProviderFactoryMethod = null)
         {
             var services = new ServiceCollection();
             DotvvmServiceCollectionExtensions.RegisterDotVVMServices(services);
             registerServices?.Invoke(services);
 
-            return new ServiceLocator(services).GetService<DotvvmConfiguration>();
+            return new ServiceLocator(services, serviceProviderFactoryMethod).GetService<DotvvmConfiguration>();
         }
 
         /// <summary>
@@ -250,7 +251,11 @@ namespace DotVVM.Framework.Configuration
             }));
             configuration.RouteConstraints.Add("maxLength", new GenericRouteParameterType(p => "[^/]{0," + p + "}"));
             configuration.RouteConstraints.Add("minLength", new GenericRouteParameterType(p => "[^/]{" + p + ",}"));
-            configuration.RouteConstraints.Add("regex", new GenericRouteParameterType(p => p));
+            configuration.RouteConstraints.Add("regex", new GenericRouteParameterType(p => {
+                if (p.StartsWith("^")) throw new ArgumentException("Regex in route constraint should not start with `^`, it's always looking for full-match.");
+                if (p.EndsWith("$")) throw new ArgumentException("Regex in route constraint should not end with `$`, it's always looking for full-match.");
+                return p;
+            }));
         }
 
         private static void RegisterResources(DotvvmConfiguration configuration)

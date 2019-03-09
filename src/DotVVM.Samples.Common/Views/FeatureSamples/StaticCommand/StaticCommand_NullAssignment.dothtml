@@ -1,0 +1,41 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand.StaticCommand_NullAssignmentViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <h2>Static command null assignments</h2>
+
+    <div class="type-int">
+        <h3>Int</h3>
+        <p class="item1">{{value: IntItem1 == null ? "null" : "not null"}}</p>
+        <p class="item2">{{value: IntItem2 == null ? "null" : "not null"}}</p>
+        <p><dot:Button Text="Set null" Click="{staticCommand: IntItem1 = null; IntItem2 = null}" /></p>
+    </div>
+    <div class="type-string">
+        <h3>String</h3>
+        <p class="item1">{{value: StringItem1 == null ? "null" : "not null"}}</p>
+        <p class="item2">{{value: StringItem2 == null ? "null" : "not null"}}</p>
+        <p><dot:Button Text="Set null" Click="{staticCommand: StringItem1 = null; StringItem2 = null}" /></p>
+    </div>
+    <div class="type-datetime">
+        <h3>DateTime</h3>
+        <p class="item1">{{value: DateTimeItem1 == null ? "null" : "not null"}}</p>
+        <p class="item2">{{value: DateTimeItem2 == null ? "null" : "not null"}}</p>
+        <p><dot:Button Text="Set null" Click="{staticCommand: DateTimeItem1 = null; DateTimeItem2 = null}" /></p>
+    </div>
+    <div class="type-object">
+        <h3>Object</h3>
+        <p class="item1">{{value: ObjectItem1 == null ? "null" : "not null"}}</p>
+        <p class="item2">{{value: ObjectItem2 == null ? "null" : "not null"}}</p>
+        <p><dot:Button Text="Set null" Click="{staticCommand: ObjectItem1 = null; ObjectItem2 = null}" /></p>
+    </div>
+
+</body>
+</html>
+
+

@@ -1,0 +1,25 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.ValidationSummary.MessagesRendering, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <%-- TODO: Write tests --%>
+    <dot:TextBox Text="{value: StringValue}" />
+
+    <dot:TextBox Text="{value: DateTimeValue}" />
+    <dot:TextBox Text="{value: IntValue}" />
+
+    <dot:TextBox Text="{value: NullableDateTimeValue}" />
+    <dot:TextBox Text="{value: NullableIntValue}" />
+
+    <dot:ValidationSummary />
+
+</body>
+</html>
+
+

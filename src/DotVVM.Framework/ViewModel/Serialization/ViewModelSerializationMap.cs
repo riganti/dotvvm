@@ -215,7 +215,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             let parameters = method.GetParameters()
             where parameters.Length == 1
             let parameterType = parameters[0].ParameterType
-            where parameterType != typeof(object)
+            where parameterType != typeof(object) && parameterType != typeof(byte[])
             where parameterType != typeof(DateTime) && parameterType != typeof(DateTime?)
             where parameterType != typeof(DateTimeOffset) && parameterType != typeof(DateTimeOffset?)
             select new { key = parameterType, value = method }
@@ -377,7 +377,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                         {
                             // encryption is worthless if the property is not being transfered both ways
                             // therefore ClearEmptyNest throws exception if the property contains encrypted values
-                            if (!property.IsFullyTransfered())
+                            if (!property.IsFullyTransferred())
                             {
                                 // encryptedValuesWriter.ClearEmptyNest();
                                 block.Add(Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.ClearEmptyNest), Type.EmptyTypes));

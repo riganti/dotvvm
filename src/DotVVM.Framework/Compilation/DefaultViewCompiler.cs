@@ -131,18 +131,26 @@ namespace DotVVM.Framework.Compilation
                     typeof(DynamicAttribute).Assembly,
                     typeof(DotvvmConfiguration).Assembly,
 #if DotNetCore
-                    Assembly.Load(new AssemblyName("netstandard")),
                     Assembly.Load(new AssemblyName("System.Runtime")),
                     Assembly.Load(new AssemblyName("System.Collections.Concurrent")),
                     Assembly.Load(new AssemblyName("System.Collections")),
 #else
                     typeof(List<>).Assembly
 #endif
-                })
-                .Distinct();
+                });
+
+            try
+            {
+                // netstandard assembly is required for netstandard 2.0 and in some cases
+                // for netframework461 and newer. netstandard is not included in netframework452
+                // and will throw FileNotFoundException. Instead of detecting current netframework
+                // version, the exception is swallowed.
+                references = references.Concat(new[] { Assembly.Load(new AssemblyName("netstandard")) });
+            }
+            catch (FileNotFoundException) { }
 
             return CSharpCompilation.Create(assemblyName, options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
-                .AddReferences(references.Select(a => assemblyCache.GetAssemblyMetadata(a)));
+                .AddReferences(references.Distinct().Select(a => assemblyCache.GetAssemblyMetadata(a)));
         }
 
         protected virtual IControlBuilder GetControlBuilder(Assembly assembly, string namespaceName, string className)

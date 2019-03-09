@@ -1,26 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Riganti.Selenium.Core;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace DotVVM.Samples.Tests.Complex
 {
-    [TestClass]
     public class NamespaceCollisionTests : AppSeleniumTest
     {
-        [TestMethod]
+        [Fact]
         public void Complex_NamespaceCollision_NamespaceCollision()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_NamespaceCollision_NamespaceCollision);
-                browser.First("body").CheckIfTextEquals("Hello from DotVVM!");
+                AssertUI.TextEquals(browser.First("body"), "Hello from DotVVM!");
             });
+        }
 
+        public NamespaceCollisionTests(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

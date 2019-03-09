@@ -14,7 +14,6 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.Api
             SortExpression = nameof(Company<string>.Id)
         };
 
-        [Bind(Direction.ServerToClientFirstRequest)]
         public GridViewDataSet<Company<string>> DataSet1 { get; set; } = new GridViewDataSet<Company<string>>() {
             SortingOptions =
             {
@@ -26,7 +25,6 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.Api
             }
         };
 
-        [Bind(Direction.ServerToClientFirstRequest)]
         public GridViewDataSet<Company<string>> DataSet2 { get; set; } = new GridViewDataSet<Company<string>>() {
             SortingOptions =
             {

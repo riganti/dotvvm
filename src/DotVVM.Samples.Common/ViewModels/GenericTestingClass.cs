@@ -46,24 +46,40 @@ namespace DotVVM.Samples.BasicSamples.ViewModels
         public string StaticOutput => StaticProperty;
 
         public static string StaticProperty { get; set; } = string.Empty;
+        public string StaticCommandOutput { get; set; }
 
         public void GenericInstanceFunction<TArg1, TArg2>()
             where TArg1 : new()
             where TArg2 : new()
         {
-            var arg1 = new TArg1();
-            var arg2 = new TArg2();
-            Output = $"Hello from instance generic command arg1:{arg1.ToString()} arg2:{arg2.ToString()}";
+            Output = GenericInstanceFunctionWithReturnValue<TArg1, TArg2>();
         }
 
         [AllowStaticCommand]
-        public static void GenericStaticFunction<TArg1, TArg2>()
+        public string GenericInstanceFunctionWithReturnValue<TArg1, TArg2>()
             where TArg1 : new()
             where TArg2 : new()
         {
             var arg1 = new TArg1();
             var arg2 = new TArg2();
-            StaticProperty = $"Hello from static generic command arg1:{arg1.ToString()} arg2:{arg2.ToString()}";
+            return $"Hello from instance generic command arg1:{arg1} arg2:{arg2}";
+        }
+
+        public static void GenericStaticFunction<TArg1, TArg2>()
+            where TArg1 : new()
+            where TArg2 : new()
+        {
+            StaticProperty = GenericStaticFunctionWithReturnValue<TArg1, TArg2>();
+        }
+
+        [AllowStaticCommand]
+        public static string GenericStaticFunctionWithReturnValue<TArg1, TArg2>()
+            where TArg1 : new()
+            where TArg2 : new()
+        {
+            var arg1 = new TArg1();
+            var arg2 = new TArg2();
+            return $"Hello from static generic command arg1:{arg1} arg2:{arg2}";
         }
     }
 

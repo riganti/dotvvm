@@ -26,7 +26,6 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty EnabledProperty =
             DotvvmPropertyWithFallback.Register<bool, SelectorBase>(nameof(Enabled), FormControls.EnabledProperty);
 
-
         /// <summary>
         /// Gets or sets the name of property in the DataSource collection that will be displayed in the control.
         /// </summary>

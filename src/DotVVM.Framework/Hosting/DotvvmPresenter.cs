@@ -23,17 +23,19 @@ using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Runtime.Tracing;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Security;
 
 namespace DotVVM.Framework.Hosting
 {
     [NotAuthorized] // DotvvmPresenter handles authorization itself, allowing authorization on it would make [NotAuthorized] attribute useless on ViewModel, since request would be interrupted earlier that VM is found
     public class DotvvmPresenter : IDotvvmPresenter
     {
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmPresenter" /> class.
         /// </summary>
         public DotvvmPresenter(DotvvmConfiguration configuration, IDotvvmViewBuilder viewBuilder, IViewModelLoader viewModelLoader, IViewModelSerializer viewModelSerializer,
-            IOutputRenderer outputRender, ICsrfProtector csrfProtector, IViewModelParameterBinder viewModelParameterBinder)
+            IOutputRenderer outputRender, ICsrfProtector csrfProtector, IViewModelParameterBinder viewModelParameterBinder, IStaticCommandServiceLoader staticCommandServiceLoader)
         {
             DotvvmViewBuilder = viewBuilder;
             ViewModelLoader = viewModelLoader;
@@ -41,6 +43,7 @@ namespace DotVVM.Framework.Hosting
             OutputRenderer = outputRender;
             CsrfProtector = csrfProtector;
             ViewModelParameterBinder = viewModelParameterBinder;
+            StaticCommandServiceLoader = staticCommandServiceLoader;
             ApplicationPath = configuration.ApplicationPhysicalPath;
         }
 
@@ -55,6 +58,10 @@ namespace DotVVM.Framework.Hosting
         public ICsrfProtector CsrfProtector { get; }
 
         public IViewModelParameterBinder ViewModelParameterBinder { get; }
+
+        [Obsolete(DefaultStaticCommandServiceLoader.DeprecationNotice)]
+
+        public IStaticCommandServiceLoader StaticCommandServiceLoader { get; }
 
         public string ApplicationPath { get; }
 
@@ -88,13 +95,12 @@ namespace DotVVM.Framework.Hosting
         /// <returns></returns>
         public async Task ProcessRequestCore(IDotvvmRequestContext context)
         {
-            var requestTracer = context.Services.GetRequiredService<AggregateRequestTracer>();
             if (context.HttpContext.Request.Method != "GET" && context.HttpContext.Request.Method != "POST")
             {
-                // unknown HTTP method
-                context.HttpContext.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
-                throw new DotvvmHttpException("Only GET and POST methods are supported!");
+                await context.InterruptRequestAsMethodNotAllowedAsync();
             }
+
+            var requestTracer = context.Services.GetRequiredService<AggregateRequestTracer>();
             if (context.HttpContext.Request.Headers["X-PostbackType"] == "StaticCommand")
             {
                 await ProcessStaticCommandRequest(context);
@@ -188,8 +194,15 @@ namespace DotVVM.Framework.Hosting
                     }
                     await requestTracer.TraceEvent(RequestTracingConstants.ViewModelDeserialized, context);
 
-                    // validate CSRF token 
-                    CsrfProtector.VerifyToken(context, context.CsrfToken);
+                    // validate CSRF token
+                    try
+                    {
+                        CsrfProtector.VerifyToken(context, context.CsrfToken);
+                    }
+                    catch (SecurityException exc)
+                    {
+                        await context.InterruptRequestAsync(HttpStatusCode.BadRequest, exc.Message);
+                    }
 
                     if (context.ViewModel is IDotvvmViewModel)
                     {
@@ -282,15 +295,16 @@ namespace DotVVM.Framework.Hosting
                 {
                     ViewModelLoader.DisposeViewModel(context.ViewModel);
                 }
+                StaticCommandServiceLoader.DisposeStaticCommandServices(context);
             }
         }
 
         private object ExecuteStaticCommandPlan(StaticCommandInvocationPlan plan, Queue<JToken> arguments, IDotvvmRequestContext context)
         {
-            var methodArgs = plan.Arguments.Select((a, index) => 
+            var methodArgs = plan.Arguments.Select((a, index) =>
                 a.Type == StaticCommandParameterType.Argument ? arguments.Dequeue().ToObject((Type)a.Arg) :
                 a.Type == StaticCommandParameterType.Constant || a.Type == StaticCommandParameterType.DefaultValue ? a.Arg :
-                a.Type == StaticCommandParameterType.Inject ? context.Services.GetRequiredService((Type)a.Arg) :
+                a.Type == StaticCommandParameterType.Inject ? StaticCommandServiceLoader.GetStaticCommandService((Type)a.Arg, context) :
                 a.Type == StaticCommandParameterType.Invocation ? ExecuteStaticCommandPlan((StaticCommandInvocationPlan)a.Arg, arguments, context) :
                 throw new NotSupportedException("" + a.Type)
             ).ToArray();
@@ -299,38 +313,40 @@ namespace DotVVM.Framework.Hosting
 
         public async Task ProcessStaticCommandRequest(IDotvvmRequestContext context)
         {
-            JObject postData;
-            using (var jsonReader = new JsonTextReader(new StreamReader(context.HttpContext.Request.Body)))
+            try
             {
-                postData = JObject.Load(jsonReader);
-            }
-            // validate csrf token
-            context.CsrfToken = postData["$csrfToken"].Value<string>();
-            CsrfProtector.VerifyToken(context, context.CsrfToken);
-
-            var command = postData["command"].Value<string>();
-            var arguments = postData["args"] as JArray;
-            var executionPlan =
-                StaticCommandBindingCompiler.DecryptJson(Convert.FromBase64String(command), context.Services.GetService<IViewModelProtector>())
-                .Apply(StaticCommandBindingCompiler.DeserializePlan);
-
-            var actionInfo = new ActionInfo
-            {
-                IsControlCommand = false,
-                Action = () => {
-                    return ExecuteStaticCommandPlan(executionPlan, new Queue<JToken>(arguments), context);
+                JObject postData;
+                using (var jsonReader = new JsonTextReader(new StreamReader(context.HttpContext.Request.Body)))
+                {
+                    postData = JObject.Load(jsonReader);
                 }
-            };
-            var filters = context.Configuration.Runtime.GlobalFilters.OfType<ICommandActionFilter>()
-                .Concat(executionPlan.GetAllMethods().SelectMany(m => ActionFilterHelper.GetActionFilters<ICommandActionFilter>(m)))
-                .ToArray();
 
-            var result = await ExecuteCommand(actionInfo, context, filters);
+                // validate csrf token
+                context.CsrfToken = postData["$csrfToken"].Value<string>();
+                CsrfProtector.VerifyToken(context, context.CsrfToken);
 
-            using (var writer = new StreamWriter(context.HttpContext.Response.Body))
+                var command = postData["command"].Value<string>();
+                var arguments = postData["args"] as JArray;
+                var executionPlan =
+                    StaticCommandBindingCompiler.DecryptJson(Convert.FromBase64String(command), context.Services.GetService<IViewModelProtector>())
+                        .Apply(StaticCommandBindingCompiler.DeserializePlan);
+
+                var actionInfo = new ActionInfo {
+                    IsControlCommand = false,
+                    Action = () => { return ExecuteStaticCommandPlan(executionPlan, new Queue<JToken>(arguments), context); }
+                };
+                var filters = context.Configuration.Runtime.GlobalFilters.OfType<ICommandActionFilter>()
+                    .Concat(executionPlan.GetAllMethods().SelectMany(m => ActionFilterHelper.GetActionFilters<ICommandActionFilter>(m)))
+                    .ToArray();
+
+                var result = await ExecuteCommand(actionInfo, context, filters);
+
+                await OutputRenderer.WriteStaticCommandResponse(context,
+                    ViewModelSerializer.BuildStaticCommandResponse(context, result));
+            }
+            finally
             {
-                var json = ViewModelSerializer.BuildStaticCommandResponse(context, result);
-                writer.WriteLine(json);
+                StaticCommandServiceLoader.DisposeStaticCommandServices(context);
             }
         }
 

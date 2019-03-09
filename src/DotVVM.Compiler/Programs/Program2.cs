@@ -21,17 +21,20 @@ namespace DotVVM.Compiler.Programs
         internal static CompilerOptions Options { get; private set; }
         internal static HashSet<string> assemblySearchPaths { get; private set; } = new HashSet<string>();
         private static Stopwatch stopwatcher;
+        private static string GetEnvironmentWebAssemblyPath()
+        {
+            return Environment.GetEnvironmentVariable("webAssemblyPath");
+        }
         public static void ContinueMain(string[] args)
         {
             WriteTargetFramework();
 
             GetEnvironmentAssemblySearchPaths();
 #if NETCOREAPP2_0
-            AssemblyResolver.DotNetCliInfo = DotNetCliInfoResolver.GetInfo();
-#endif
+            AssemblyResolver.ResolverNetstandard(GetEnvironmentWebAssemblyPath());
+#else
             AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolver.ResolveAssembly;
-
-
+#endif
             if (args.Length == 0)
             {
                 while (true)
@@ -128,6 +131,7 @@ JSON structure:
             }
             assemblySearchPaths.Add(Environment.CurrentDirectory);
         }
+       
 
         private static void WaitForDbg(bool _break = false)
         {

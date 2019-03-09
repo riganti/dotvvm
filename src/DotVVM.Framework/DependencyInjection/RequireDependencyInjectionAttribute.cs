@@ -15,7 +15,9 @@ namespace DotVVM.Framework.DependencyInjection
         {
             if (factoryType != null)
             {
-                if (typeof(Delegate).IsAssignableFrom(factoryType) || !typeof(DotvvmControl).IsAssignableFrom(factoryType.GetMethod("Invoke", new [] { typeof(IServiceProvider), typeof(Type) })?.ReturnType)) throw new ArgumentException($"The specified factory type ({factoryType}) should be an delegate equivalent to Func<IServiceProvider, Type, DotvvmControl>");
+                if (!typeof(Delegate).IsAssignableFrom(factoryType) || !typeof(DotvvmControl).IsAssignableFrom(factoryType.GetMethod("Invoke", new [] { typeof(IServiceProvider), typeof(Type) })?.ReturnType)) throw new ArgumentException($"The specified factory type ({factoryType}) should be a delegate equivalent to Func<IServiceProvider, Type, DotvvmControl>");
+                if (factoryType.IsNotPublic)
+                    throw new ArgumentException($"The specified factory type ({factoryType}) must be publicly accessible.");
             }
             FactoryType = factoryType ?? typeof(Func<IServiceProvider, Type, DotvvmControl>);
         }

@@ -11,7 +11,6 @@ using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
-using DotVVM.Framework.Diagnostics;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Runtime;
@@ -34,11 +33,10 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.AddOptions();
 
-            services.AddDiagnosticServices();
-
             services.TryAddSingleton<IDotvvmViewBuilder, DefaultDotvvmViewBuilder>();
             services.TryAddSingleton<IViewModelSerializer, DefaultViewModelSerializer>();
             services.TryAddSingleton<IViewModelLoader, DefaultViewModelLoader>();
+            services.TryAddSingleton<IStaticCommandServiceLoader, DefaultStaticCommandServiceLoader>();
             services.TryAddSingleton<IViewModelValidationMetadataProvider, AttributeViewModelValidationMetadataProvider>();
             services.TryAddSingleton<IValidationRuleTranslator, ViewModelValidationRuleTranslator>();
             services.TryAddSingleton<IPropertySerialization, DefaultPropertySerialization>();
@@ -87,21 +85,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 o.TreeVisitors.Add(() => ActivatorUtilities.CreateInstance<StylingVisitor>(s));
                 o.TreeVisitors.Add(() => ActivatorUtilities.CreateInstance<DataContextPropertyAssigningVisitor>(s));
                 o.TreeVisitors.Add(() => new LifecycleRequirementsAssigningVisitor());
-            });
-
-            return services;
-        }
-
-        internal static IServiceCollection AddDiagnosticServices(this IServiceCollection services)
-        {
-            services.TryAddSingleton<DotvvmDiagnosticsConfiguration>();
-            services.TryAddSingleton<IDiagnosticsInformationSender, DiagnosticsInformationSender>();
-
-            services.TryAddSingleton<IOutputRenderer, DiagnosticsRenderer>();
-            services.AddScoped<DiagnosticsRequestTracer>(s => new DiagnosticsRequestTracer(s.GetRequiredService<IDiagnosticsInformationSender>()));
-            services.AddScoped<IRequestTracer>(s => {
-                var config = s.GetRequiredService<DotvvmConfiguration>();
-                return (config.Debug ? (IRequestTracer)s.GetService<DiagnosticsRequestTracer>() : null) ?? new NullRequestTracer();
             });
 
             return services;

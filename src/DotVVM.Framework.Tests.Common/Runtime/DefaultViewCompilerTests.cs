@@ -220,6 +220,27 @@ test <dot:Literal><a /></dot:Literal>";
         }
 
         [TestMethod]
+        public void DefaultViewCompiler_CodeGeneration_MarkupControlWithDI()
+        {
+            var markup = @"@viewModel System.Object, mscorlib
+<cc:Test5 />";
+            var page = CompileMarkup(markup, new Dictionary<string, string>()
+            {
+                { "test5.dothtml", $"@baseType {typeof(TestMarkupDIControl)}\n@viewModel System.Object, mscorlib\n<dot:Literal Text='aaa' />" }
+            });
+
+            Assert.IsInstanceOfType(page, typeof(DotvvmView));
+            Assert.IsInstanceOfType(page.Children[0], typeof(TestMarkupDIControl));
+
+            var control = (TestMarkupDIControl)page.Children[0];
+            Assert.IsNotNull(control.config);
+
+            var literal = page.Children[0].Children[0].Children[0];
+            Assert.IsInstanceOfType(literal, typeof(Literal));
+            Assert.AreEqual("aaa", ((Literal)literal).Text);
+        }
+
+        [TestMethod]
         public void DefaultViewCompiler_CodeGeneration_MarkupControl_InTemplate()
         {
             var markup = string.Format("@viewModel {0}, {1}\r\n", typeof(ViewCompilerTestViewModel).FullName, typeof(ViewCompilerTestViewModel).GetTypeInfo().Assembly.GetName().Name) +
@@ -425,7 +446,7 @@ test <dot:Literal><a /></dot:Literal>";
             context.Configuration = DotvvmTestHelper.CreateConfiguration(services =>
             {
                 services.AddSingleton<IMarkupFileLoader>(new FakeMarkupFileLoader(markupFiles));
-                services.AddSingleton<Func<IServiceProvider, Type, DotvvmControl>>((s, t) =>
+                services.AddSingleton<CustomControlFactory>((s, t) =>
                     t == typeof(TestCustomDependencyInjectionControl) ? new TestCustomDependencyInjectionControl("") { IsCorrectlyCreated = true } :
                     throw new Exception());
             });
@@ -436,6 +457,7 @@ test <dot:Literal><a /></dot:Literal>";
             context.Configuration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test2", Src = "test2.dothtml" });
             context.Configuration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test3", Src = "test3.dothtml" });
             context.Configuration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test4", Src = "test4.dothtml" });
+            context.Configuration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test5", Src = "test5.dothtml" });
             context.Configuration.Markup.AddCodeControls("ff", typeof(TestControl));
             context.Configuration.Markup.AddAssembly(typeof(DefaultViewCompilerTests).GetTypeInfo().Assembly.GetName().Name);
 
@@ -478,6 +500,16 @@ test <dot:Literal><a /></dot:Literal>";
 
     }
 
+    public class TestMarkupDIControl : DotvvmMarkupControl
+    {
+        public readonly DotvvmConfiguration config;
+
+        public TestMarkupDIControl(DotvvmConfiguration configuration)
+        {
+            this.config = configuration;
+        }
+    }
+
     public class TestDIControl : DotvvmControl
     {
         public readonly DotvvmConfiguration config;
@@ -503,7 +535,9 @@ test <dot:Literal><a /></dot:Literal>";
             DotvvmProperty.Register<FlaggyEnum, TestCodeControl>(nameof(Flags));
     }
 
-    [RequireDependencyInjection]
+    public delegate DotvvmControl CustomControlFactory(IServiceProvider sp, Type controlType);
+
+    [RequireDependencyInjection(typeof(CustomControlFactory))]
     public class TestCustomDependencyInjectionControl: DotvvmControl
     {
         public bool IsCorrectlyCreated { get; set; } = false;

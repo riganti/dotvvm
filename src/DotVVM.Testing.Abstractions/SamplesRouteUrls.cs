@@ -2,8 +2,8 @@
 {
     public partial class SamplesRouteUrls
     {
-        public const string FeatureSamples_PostbackConcurrency_NoneMode =
-            "FeatureSamples/PostbackConcurrency/PostbackConcurrencyMode?concurrency=None";
+        public const string FeatureSamples_PostbackConcurrency_DefaultMode =
+            "FeatureSamples/PostbackConcurrency/PostbackConcurrencyMode?concurrency=Default";
 
         public const string FeatureSamples_PostbackConcurrency_QueueMode =
             "FeatureSamples/PostbackConcurrency/PostbackConcurrencyMode?concurrency=Queue";

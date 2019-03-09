@@ -122,14 +122,17 @@ namespace DotVVM.Framework.Controls
 
         protected virtual void WriteOnClickAttribute(IHtmlWriter writer, IDotvvmRequestContext context)
         {
+            // a hack that makes the RouteLink work even in container with Events.Click. This does not solve the problem in general, but better than nothing.
+            var onclickAttribute = "event.stopPropagation();";
             if ((bool)GetValue(Internal.IsSpaPageProperty) && (bool)GetValue(Internal.UseHistoryApiSpaNavigationProperty))
             {
-                writer.AddAttribute("onclick", "return !this.hasAttribute('disabled') && dotvvm.handleSpaNavigation(this.getAttribute('href'));");
+                onclickAttribute += "return !this.hasAttribute('disabled') && dotvvm.handleSpaNavigation(this);";
             }
             else
             {
-                writer.AddAttribute("onclick", "return !this.hasAttribute('disabled');");
+                onclickAttribute += "return !this.hasAttribute('disabled');";
             }
+            writer.AddAttribute("onclick", onclickAttribute);
         }
     }
 }

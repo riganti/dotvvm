@@ -9,15 +9,15 @@
 </head>
 
 <body>
-    <dot:Button data-ui="instance" Click="{command: GenericInstanceFunction<VM.TestParameter, VM.TestParameter>()}">
+    <dot:Button data-ui="instance-command" Click="{command: GenericInstanceFunction<VM.TestParameter, VM.TestParameter>()}">
         Instance
     </dot:Button>
+    <dot:Literal data-ui="instance-output" Text="{value: Output}" />
+
     <br />
-    <dot:Button data-ui="static" Click="{command: VM.GenericCommandDemo.GenericStaticFunction<VM.TestParameter, VM.TestParameter>()}">
+    <dot:Button data-ui="static-command" Click="{command: VM.GenericCommandDemo.GenericStaticFunction<VM.TestParameter, VM.TestParameter>()}">
         Static
     </dot:Button>
-
-    <dot:Literal data-ui="output" Text="{value: Output}" />
     <dot:Literal data-ui="static-output" Text="{value: StaticOutput}" />
 </body>
 </html>

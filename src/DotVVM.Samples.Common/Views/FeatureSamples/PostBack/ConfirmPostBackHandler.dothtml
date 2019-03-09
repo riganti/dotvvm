@@ -1,0 +1,123 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.PostBack.ConfirmPostBackHandlerViewModel, DotVVM.Samples.Common
+
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Hello from DotVVM!</title>
+</head>
+<body ClientIDMode="Static">
+    <div class="commandBinding">
+
+        <p>
+            <dot:Button Text="1 confirmation" Click="{command: DoWork(1)}">
+                <PostBack.Handlers>
+                    <dot:ConfirmPostBackHandler Message="Confirmation 1" />
+                </PostBack.Handlers>
+            </dot:Button>
+        </p>
+        <p>
+            <dot:Button Text="2 confirmations" Click="{command: DoWork(2)}">
+                <PostBack.Handlers>
+                    <dot:ConfirmPostBackHandler Message="Confirmation 1" />
+                    <dot:ConfirmPostBackHandler Message="Confirmation 2" />
+                </PostBack.Handlers>
+            </dot:Button>
+        </p>
+        <p>
+            <dot:Button Text="other event confirmation" Click="{command: DoWork(3)}">
+                <PostBack.Handlers>
+                    <dot:ConfirmPostBackHandler Message="Confirmation 3" EventName="UnknownEvent" />
+                </PostBack.Handlers>
+            </dot:Button>
+        </p>
+
+        <dot:Repeater DataSource="{value: Generated}">
+            <ItemTemplate>
+                <p>
+                    <dot:Button Text="{value: Message}" Click="{command: _parent.DoWork(Value)}">
+                        <PostBack.Handlers>
+                            <dot:ConfirmPostBackHandler Message="{value: Message}" EventName="Click" />
+                        </PostBack.Handlers>
+                    </dot:Button>
+                </p>
+            </ItemTemplate>
+        </dot:Repeater>
+
+        <dot:Button Text="conditional handler" Click="{command: DoWork(6)}">
+            <PostBack.Handlers>
+                <dot:ConfirmPostBackHandler Message="Conditional 1" EventName="Click" Enabled="{value: IsEnabled}" />
+            </PostBack.Handlers>
+        </dot:Button>
+        <dot:CheckBox Checked="{value: IsEnabled}" Text="Allow 6th handler" />
+
+        <p>
+            <dot:Button Text="Resource binding check" Click="{command: DoWork(7)}">
+                <PostBack.Handlers>
+                    <dot:ConfirmPostBackHandler Message="{resource: DotVVM.Samples.Common.Resources.Resource.PostbackHandlers}" />
+                </PostBack.Handlers>
+            </dot:Button>
+        </p>
+    </div>
+
+    <h3>StaticCommand version</h3>
+    <div class="staticCommandBinding">
+        <p>
+            <dot:Button Text="1 confirmation" Click="{staticCommand: LastCommandValue = 1}">
+                <PostBack.Handlers>
+                    <dot:ConfirmPostBackHandler Message="Confirmation 1" />
+                </PostBack.Handlers>
+            </dot:Button>
+        </p>
+        <p>
+            <dot:Button Text="2 confirmations" Click="{staticCommand: LastCommandValue = 2}">
+                <PostBack.Handlers>
+                    <dot:ConfirmPostBackHandler Message="Confirmation 1" />
+                    <dot:ConfirmPostBackHandler Message="Confirmation 2" />
+                </PostBack.Handlers>
+            </dot:Button>
+        </p>
+        <p>
+            <dot:Button Text="other event confirmation" Click="{staticCommand: LastCommandValue = 3}">
+                <PostBack.Handlers>
+                    <dot:ConfirmPostBackHandler Message="Confirmation 3" EventName="UnknownEvent" />
+                </PostBack.Handlers>
+            </dot:Button>
+        </p>
+
+        <dot:Repeater DataSource="{value: Generated}">
+            <ItemTemplate>
+                <p>
+                    <dot:Button Text="{value: Message}" Click="{staticCommand: _parent.LastCommandValue = Value}">
+                        <PostBack.Handlers>
+                            <dot:ConfirmPostBackHandler Message="{value: Message}" EventName="Click" />
+                        </PostBack.Handlers>
+                    </dot:Button>
+                </p>
+            </ItemTemplate>
+        </dot:Repeater>
+
+        <dot:Button Text="conditional handler" Click="{staticCommand: LastCommandValue = 6}">
+            <PostBack.Handlers>
+                <dot:ConfirmPostBackHandler Message="Conditional 1" EventName="Click" Enabled="{value: IsEnabled}" />
+            </PostBack.Handlers>
+        </dot:Button>
+        <dot:CheckBox Checked="{value: IsEnabled}" Text="Allow 6th handler" />
+
+        <p>
+            <dot:Button Text="Resource binding check" Click="{staticCommand: LastCommandValue = 7}">
+                <PostBack.Handlers>
+                    <dot:ConfirmPostBackHandler Message="{resource: DotVVM.Samples.Common.Resources.Resource.PostbackHandlers}" />
+                </PostBack.Handlers>
+            </dot:Button>
+        </p>
+    </div>
+    <dot:Button ID="ChangeLanguageEN" ClientIDMode="Static" Text="Change to EN" Click="{command:  ChangeLanguageEN()}" />
+    <dot:Button ID="ChangeLanguageCZ" ClientIDMode="Static" Text="Change to CZ" Click="{command:  ChangeLanguageCZ()}" />
+
+
+    <p>Executed command index: <span data-ui="command-index">{{value: LastCommandValue}}</span></p>
+</body>
+</html>

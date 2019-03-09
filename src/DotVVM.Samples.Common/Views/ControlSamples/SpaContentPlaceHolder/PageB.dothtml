@@ -1,9 +1,9 @@
 ﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.SpaContentPlaceHolder.PageBViewModel, DotVVM.Samples.Common
 @masterPage Views/ControlSamples/SpaContentPlaceHolder/SpaMaster.dotmaster
 
-<dot:Content ContentPlaceHolderID="MainContent">
+<dot:Content ContentPlaceHolderID="MainContent" DataContext="{value: Sample1}">
 
-    <div DataContext="{value: Sample1}">
+    <div>
         <h1>Task List</h1>
 
         <fieldset>
@@ -34,7 +34,7 @@
         </table>
     </div>
 
-    <p><dot:Button Click="{command: Redirect()}" Text="Redirect in SPA test" /></p>
+    <p><dot:Button Click="{command: _root.Redirect()}" Text="Redirect in SPA test" /></p>
 
     <dot:RequiredResource Name="ControlSamples_SpaContentPlaceHolder_testCss" />
     <dot:RequiredResource Name="ControlSamples_SpaContentPlaceHolder_testJs" />

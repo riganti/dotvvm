@@ -6,7 +6,11 @@
     },
     "NetCoreApp": {
       "commandName": "Project",
-      "commandLineArgs": "--debugger --json \"{\\\"WebSiteAssembly\\\":\\\"C:\\\\dev\\\\dotvvm\\\\src\\\\DotVVM.Samples.BasicSamples.AspNetCore\\\\bin\\\\Debug\\\\netcoreapp2.0\\\\DotVVM.Samples.BasicSamples.AspNetCore.dll\\\",\\\"WebSitePath\\\":\\\"C:\\\\dev\\\\dotvvm\\\\src\\\\DotVVM.Samples.BasicSamples.AspNetCore\\\",\\\"FullCompile\\\":false,\\\"SerializeConfig\\\":true,\\\"DothtmlFiles\\\":[],\\\"OutputResolvedDothtmlMap\\\":true,\\\"CheckBindingErrors\\\":false}\""
+      "commandLineArgs": "--debugger --json \"{\\\"WebSiteAssembly\\\":\\\"C:\\\\dev\\\\dotvvm\\\\src\\\\DotVVM.Samples.BasicSamples.AspNetCore\\\\bin\\\\Debug\\\\netcoreapp2.0\\\\DotVVM.Samples.BasicSamples.AspNetCore.dll\\\",\\\"WebSitePath\\\":\\\"C:\\\\dev\\\\dotvvm\\\\src\\\\DotVVM.Samples.BasicSamples.AspNetCore\\\",\\\"FullCompile\\\":false,\\\"SerializeConfig\\\":true,\\\"DothtmlFiles\\\":[],\\\"OutputResolvedDothtmlMap\\\":true,\\\"CheckBindingErrors\\\":true}\"",
+      "environmentVariables": {
+        "webAssemblyPath": "C:\\dev\\dotvvm\\src\\DotVVM.Samples.BasicSamples.AspNetCore\\bin\\Release\\netcoreapp2.0\\DotVVM.Samples.BasicSamples.AspNetCore.dll",
+        "assemblySearchPath": "C:\\dev\\dotvvm\\src\\DotVVM.Samples.BasicSamples.AspNetCore\\bin\\Release\\netcoreapp2.0"
+      }
     }
   }
 }

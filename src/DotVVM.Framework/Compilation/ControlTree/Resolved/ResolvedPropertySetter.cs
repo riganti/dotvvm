@@ -11,7 +11,6 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         public ResolvedPropertySetter(DotvvmProperty property)
         {
             Property = property;
-        }
-        
+        }    
     }
 }

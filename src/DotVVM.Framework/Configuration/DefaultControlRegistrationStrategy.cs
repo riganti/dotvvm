@@ -23,7 +23,7 @@ namespace DotVVM.Framework.Configuration
 		}
 
 		protected virtual IEnumerable<string> ListFiles()
-			=> Directory.GetFiles(controlsDirectory, filesFilter);
+			=> Directory.GetFiles(controlsDirectory, filesFilter, SearchOption.AllDirectories);
 
 		protected virtual string GetControlName(string fileName) => Path.GetFileNameWithoutExtension(fileName);
 

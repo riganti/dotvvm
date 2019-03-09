@@ -10,8 +10,7 @@ namespace DotVVM.Framework.Controls
 {
     public abstract class GridViewColumn : DotvvmBindableObject
     {
-
-        [PopDataContextManipulationAttribute]
+        [PopDataContextManipulation]
         public string HeaderText
         {
             get { return (string)GetValue(HeaderTextProperty); }
@@ -20,9 +19,8 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty HeaderTextProperty
             = DotvvmProperty.Register<string, GridViewColumn>(c => c.HeaderText, null);
 
-
+        [PopDataContextManipulation]
         [MarkupOptions(MappingMode = MappingMode.InnerElement)]
-        [PopDataContextManipulationAttribute]
         public ITemplate HeaderTemplate
         {
             get { return (ITemplate)GetValue(HeaderTemplateProperty); }
@@ -31,9 +29,8 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty HeaderTemplateProperty
             = DotvvmProperty.Register<ITemplate, GridViewColumn>(c => c.HeaderTemplate, null);
 
-
+        [PopDataContextManipulation]
         [MarkupOptions(MappingMode = MappingMode.InnerElement)]
-        [PopDataContextManipulationAttribute]
         public ITemplate FilterTemplate
         {
             get { return (ITemplate)GetValue(FilterTemplateProperty); }
@@ -42,7 +39,7 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty FilterTemplateProperty
             = DotvvmProperty.Register<ITemplate, GridViewColumn>(c => c.FilterTemplate, null);
 
-
+        [PopDataContextManipulation]
         [MarkupOptions(AllowBinding = false)]
         public string SortExpression
         {
@@ -52,7 +49,7 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty SortExpressionProperty =
             DotvvmProperty.Register<string, GridViewColumn>(c => c.SortExpression);
 
-
+        [PopDataContextManipulation]
         [MarkupOptions(AllowBinding = false)]
         public string SortAscendingHeaderCssClass
         {
@@ -62,7 +59,7 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty SortAscendingHeaderCssClassProperty =
             DotvvmProperty.Register<string, GridViewColumn>(c => c.SortAscendingHeaderCssClass, "sort-asc");
 
-
+        [PopDataContextManipulation]
         [MarkupOptions(AllowBinding = false)]
         public string SortDescendingHeaderCssClass
         {
@@ -72,6 +69,7 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty SortDescendingHeaderCssClassProperty =
             DotvvmProperty.Register<string, GridViewColumn>(c => c.SortDescendingHeaderCssClass, "sort-desc");
 
+        [PopDataContextManipulation]
         [MarkupOptions(AllowBinding = false)]
         public bool AllowSorting
         {
@@ -89,6 +87,7 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty CssClassProperty =
             DotvvmProperty.Register<string, GridViewColumn>(c => c.CssClass);
 
+        [PopDataContextManipulation]
         [MarkupOptions(AllowBinding = false)]
         public bool IsEditable
         {
@@ -98,7 +97,7 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty IsEditableProperty =
             DotvvmProperty.Register<bool, GridViewColumn>(t => t.IsEditable, true);
 
-        [PopDataContextManipulationAttribute]
+        [PopDataContextManipulation]
         public string HeaderCssClass
         {
             get { return (string)GetValue(HeaderCssClassProperty); }
@@ -107,6 +106,7 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty HeaderCssClassProperty =
             DotvvmProperty.Register<string, GridViewColumn>(c => c.HeaderCssClass);
 
+        [PopDataContextManipulation]
         [MarkupOptions(AllowBinding = false)]
         public string Width
         {
@@ -116,7 +116,7 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty WidthProperty
             = DotvvmProperty.Register<string, GridViewColumn>(c => c.Width, null);
 
-        [PopDataContextManipulationAttribute]
+        [PopDataContextManipulation]
         [MarkupOptions(AllowHardCodedValue = false)]
         public bool Visible
         {
@@ -152,7 +152,7 @@ namespace DotVVM.Framework.Controls
                 linkButton.SetValue(LinkButton.TextProperty, GetValueRaw(HeaderTextProperty));
                 cell.Children.Add(linkButton);
 
-                var bindingId = linkButton.GetValue(Internal.UniqueIDProperty) + "_sortBinding";
+                var bindingId = linkButton.GetDotvvmUniqueId() + "_sortBinding";
                 var binding = new CommandBindingExpression(context.Services.GetRequiredService<BindingCompilationService>().WithoutInitialization(), h => sortCommand(sortExpression), bindingId);
                 linkButton.SetBinding(ButtonBase.ClickProperty, binding);
 

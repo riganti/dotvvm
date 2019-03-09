@@ -9,12 +9,12 @@ using Xunit;
 
 namespace DotVVM.Samples.Tests.CompletenessChecker
 {
-    static class Program
+    internal static class Program
     {
         // this utility compares the UI tests and Selenium tests and reports samples which do not have tests
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            var testAssemblies = new[] { "DotVVM.Samples.Tests", "DotVVM.Samples.Tests.New" };
+            var testAssemblies = new[] { "DotVVM.Samples.Tests.New" };
             var testMethodAttributes = new[] { typeof(TestMethodAttribute), typeof(FactAttribute), typeof(TheoryAttribute) };
 
             // get a list of tests

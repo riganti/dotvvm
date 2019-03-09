@@ -9,6 +9,11 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Directives
 	public class ImportDirectiveViewModel : DotvvmViewModelBase
 	{
         public static string Func() => "Hello from ImportDirectiveViewModel";
+
+        public class NestedViewModel
+        {
+            public static string StaticText { get; set; } = "Hello From Nested Class";
+        }
 	}
 }
 

@@ -6,34 +6,33 @@
 <head>
     <meta charset="utf-8" />
     <title></title>
-    <dot:RequiredResource Name="apiInit_api" />
 </head>
 <body>
-    <dot:Repeater DataSource="{value: _api.Companies.Get()}">
-        <p>
+    <dot:Repeater DataSource="{value: _apiOwin.Companies.Get()}">
+        <div class="id-company" data-company-id="{value: Id}">
             {{value: Id}}: 
             {{value: Name}}
         
             <div style="margin-left: 30px">
                 <dot:Button Text="select company" Click="{staticCommand: _parent.SelectedCompanyId = Id}" />
             </div>
-        </p>
+        </div>
     </dot:Repeater>
     <hr />
     <div style="margin-left: 30px">
 
-        <dot:Repeater DataSource="{value: SelectedCompanyId == -1 ? null : Api.RefreshOnChange(_api.Orders.Get(SelectedCompanyId, 0, 20), SelectedCompanyId)}">
-            <p Visible="{value: _root.EditedOrderId == Id}">
+        <dot:Repeater DataSource="{value: SelectedCompanyId == -1 ? null : _api.RefreshOnChange(_apiOwin.Orders.Get(SelectedCompanyId, 0, 20), SelectedCompanyId)}">
+            <div Visible="{value: _root.EditedOrderId == Id}" class="id-order id-edit" data-order-id="{value: Id}">
                 OrderId: {{value: Id}} <br />
-                Date: <dot:TextBox Text="{value: Date}" Type="date" /> <br /> 
-                <dot:Button Click="{staticCommand: _api.Orders.Put(Id, _this)}" Text="Apply" />
+                Date: <dot:TextBox Text="{value: Date}" FormatString="yyyy-MM-dd" /> <br /> 
+                <dot:Button Click="{staticCommand: _apiOwin.Orders.Put(Id, _this)}" Text="Apply" />
                 <dot:Button Click="{staticCommand: _root.EditedOrderId = -1}" Text="Exit" />
-            </p>
-            <p Visible="{value: _root.EditedOrderId != Id}">
-                OrderId: {{value: Id}}, Date: {{value: Date}}, 
-                <dot:Button Click="{staticCommand: _api.Orders.Delete(Id)}" Text="Delete" />
+            </div>
+            <div Visible="{value: _root.EditedOrderId != Id}" class="id-order" data-order-id="{value: Id}">
+                OrderId: {{value: Id}}, Date: <span class="id-date">{{value: Date.Value.ToString("yyyy-MM-dd")}}</span>, 
+                <dot:Button Click="{staticCommand: _apiOwin.Orders.Delete(Id)}" Text="Delete" />
                 <dot:Button Click="{staticCommand: _root.EditedOrderId = Id}" Text="Edit" />
-            </p>
+            </div>
         </dot:Repeater>
     </div>
 

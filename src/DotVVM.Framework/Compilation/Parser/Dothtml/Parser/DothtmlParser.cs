@@ -185,7 +185,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
             while (startElement != null && !startElement.FullTagName.Equals(element.FullTagName, StringComparison.OrdinalIgnoreCase))
             {
                 ElementHierarchy.Pop();
-                if (HtmlWriter.SelfClosingTags.Contains(startElement.FullTagName))
+                if (HtmlWriter.IsSelfClosing(startElement.FullTagName))
                 {
                     // automatic immediate close of the tag (for <img src="">)
                     ElementHierarchy.Peek().Content.AddRange(startElement.Content);

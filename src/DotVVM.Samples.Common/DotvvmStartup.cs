@@ -12,6 +12,8 @@ using DotVVM.Samples.Common;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.ServerSideStyles;
 using Microsoft.Extensions.DependencyInjection;
+using DotVVM.Framework.Controls;
+using System.Collections.Generic;
 
 namespace DotVVM.Samples.BasicSamples
 {
@@ -36,8 +38,8 @@ namespace DotVVM.Samples.BasicSamples
                 });
             // new GithubApiClient.GithubApiClient().Repos.GetIssues()
 
-            config.RegisterApiGroup(typeof(Common.Api.Owin.TestWebApiClientOwin), "http://localhost:61453/", "Scripts/TestWebApiClientOwin.js", "_api");
-            config.RegisterApiClient(typeof(Common.Api.AspNetCore.Client), "http://localhost:5001/", "Scripts/TestWebApiClientAspNetCore.js", "_api2");
+            config.RegisterApiGroup(typeof(Common.Api.Owin.TestWebApiClientOwin), "http://localhost:61453/", "Scripts/TestWebApiClientOwin.js", "_apiOwin");
+            config.RegisterApiClient(typeof(Common.Api.AspNetCore.TestWebApiClientAspNetCore), "http://localhost:5001/", "Scripts/TestWebApiClientAspNetCore.js", "_apiCore");
 
             config.RegisterApiGroup(typeof(GithubApiClient.GithubApiClient), "https://api.github.com/", "Scripts/GithubApiClient.js", "_github", customFetchFunction: "basicAuthenticatedFetch");
             config.RegisterApiClient(typeof(AzureFunctionsApi.Client), "https://dotvvmazurefunctionstest.azurewebsites.net/", "Scripts/AzureFunctionsApiClient.js", "_azureFuncApi");
@@ -71,6 +73,10 @@ namespace DotVVM.Samples.BasicSamples
                 .SetAttribute("derivedAttr", "Derived attribute");
             config.Styles.Register<ServerSideStylesControl>(c => c.HasProperty(ServerSideStylesControl.AddedProperty))
                 .SetAttribute("addedAttr", "Added attribute");
+
+            config.Styles.Register<Button>(c => c.HasHtmlAttribute("server-side-style-attribute"))
+               .SetControlProperty<ConfirmPostBackHandler>(PostBack.HandlersProperty,
+                    (style) => style.SetDotvvmProperty(ConfirmPostBackHandler.MessageProperty, "ConfirmPostBackHandler Content"));
         }
 
         private static void AddRoutes(DotvvmConfiguration config)
@@ -97,8 +103,7 @@ namespace DotVVM.Samples.BasicSamples
             config.RouteTable.Add("FeatureSamples_Redirect_RedirectFromPresenter", "FeatureSamples/Redirect/RedirectFromPresenter", provider => new RedirectingPresenter());
             config.RouteTable.Add("FeatureSamples_Validation_ClientSideValidationDisabling2", "FeatureSamples/Validation/ClientSideValidationDisabling/{ClientSideValidationEnabled}", "Views/FeatureSamples/Validation/ClientSideValidationDisabling.dothtml", new { ClientSideValidationEnabled = false });
             config.RouteTable.Add("FeatureSamples_EmbeddedResourceControls_EmbeddedResourceView", "FeatureSamples/EmbeddedResourceControls/EmbeddedResourceView", "embedded://EmbeddedResourceControls/EmbeddedResourceView.dothtml");
-            config.RouteTable.Add("FeatureSamples_PostBack_PostBackHandlers_Localization","FeatureSamples/PostBack/PostBackHandlers_Localized", "Views/FeatureSamples/PostBack/PostBackHandlers.dothtml", LocalizablePresenter.BasedOnQuery("lang"));
-
+            config.RouteTable.Add("FeatureSamples_PostBack_PostBackHandlers_Localization", "FeatureSamples/PostBack/PostBackHandlers_Localized", "Views/FeatureSamples/PostBack/ConfirmPostBackHandler.dothtml", LocalizablePresenter.BasedOnQuery("lang"));
 
             config.RouteTable.Add("Errors_Routing_NonExistingView", "Errors/Routing/NonExistingView", "Views/Errors/Routing/NonExistingView.dothml");
         }
@@ -106,31 +111,21 @@ namespace DotVVM.Samples.BasicSamples
         private static void AddControls(DotvvmConfiguration config)
         {
             config.Markup.AddCodeControls("cc", typeof(Controls.ServerSideStylesControl));
-            config.Markup.AddCodeControls("cc", typeof(Controls.DerivedControl));
+            config.Markup.AddCodeControls("cc", typeof(Controls.TextRepeater));
             config.Markup.AddCodeControls("PropertyUpdate", typeof(Controls.ServerRenderedLabel));
-            config.Markup.AddCodeControls("cc", typeof(Controls.PromptButton));
             config.Markup.AddMarkupControl("IdGeneration", "Control", "Views/FeatureSamples/IdGeneration/IdGeneration_control.dotcontrol");
             config.Markup.AddMarkupControl("FileUploadInRepeater", "FileUploadWrapper", "Views/ComplexSamples/FileUploadInRepeater/FileUploadWrapper.dotcontrol");
-            config.Markup.AddMarkupControl("sample", "PasswordStrengthControl", "Views/FeatureSamples/ClientExtenders/PasswordStrengthControl.dotcontrol");
-            config.Markup.AddMarkupControl("sample", "Localization_Control", "Views/FeatureSamples/Localization/Localization_Control.dotcontrol");
-            config.Markup.AddMarkupControl("sample", "ControlCommandBinding", "Views/FeatureSamples/MarkupControl/ControlCommandBinding.dotcontrol");
-            config.Markup.AddMarkupControl("sample", "ControlValueBindingWithCommand", "Views/FeatureSamples/MarkupControl/ControlValueBindingWithCommand.dotcontrol");
-            config.Markup.AddMarkupControl("sample", "ControlWithButton", "Views/ControlSamples/Repeater/SampleControl/ControlWithButton.dotcontrol");
-            config.Markup.AddMarkupControl("sample", "ControlWithButton2", "Views/ControlSamples/Repeater/SampleControl/ControlWithButton2.dotcontrol");
-            config.Markup.AddMarkupControl("sample", "ControlControlCommandInvokeAction", "Views/FeatureSamples/MarkupControl/ControlControlCommandInvokeAction.dotcontrol");
-            
+            config.Markup.AddMarkupControl("cc", "RecursiveTextRepeater", "Views/FeatureSamples/PostBack/RecursiveTextRepeater.dotcontrol");
+            config.Markup.AddMarkupControl("cc", "RecursiveTextRepeater2", "Views/FeatureSamples/PostBack/RecursiveTextRepeater2.dotcontrol");
 
             config.Markup.AddMarkupControl("sample", "EmbeddedResourceControls_Button", "embedded://EmbeddedResourceControls/Button.dotcontrol");
 
-            config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/ComplexSamples/ServerRendering/"));
-            config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/FeatureSamples/MarkupControl/"));
-            config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/FeatureSamples/StaticCommand/"));
-            config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/Errors/"));
+            config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/"));
         }
 
-        public void ConfigureServices(IDotvvmServiceCollection services)
+        public void ConfigureServices(IDotvvmServiceCollection options)
         {
-            CommonConfiguration.ConfigureServices(services);
+            CommonConfiguration.ConfigureServices(options);
         }
     }
 }

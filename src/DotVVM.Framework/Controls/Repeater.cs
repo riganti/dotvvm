@@ -1,10 +1,14 @@
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
 using System.IO;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace DotVVM.Framework.Controls
 {
@@ -15,14 +19,23 @@ namespace DotVVM.Framework.Controls
     public class Repeater : ItemsControl
     {
         private EmptyData emptyDataContainer;
+        private DotvvmControl clientSeparator;
+        private DotvvmControl clientSideTemplate;
 
         public Repeater(bool allowImplicitLifecycleRequirements = true)
         {
-            SetValue(Internal.IsNamingContainerProperty, true);
-            if (allowImplicitLifecycleRequirements && GetType() == typeof(Repeater))
+            if (allowImplicitLifecycleRequirements)
             {
-                LifecycleRequirements &= ~(ControlLifecycleRequirements.InvokeMissingInit | ControlLifecycleRequirements.InvokeMissingLoad);
+                SetValue(Internal.IsNamingContainerProperty, true);
+                if (GetType() == typeof(Repeater))
+                    LifecycleRequirements &= ~(ControlLifecycleRequirements.InvokeMissingInit | ControlLifecycleRequirements.InvokeMissingLoad);
             }
+        }
+
+        [ApplyControlStyle]
+        public static void OnCompilation(ResolvedControl control)
+        {
+            control.SetProperty(new ResolvedPropertyValue(Internal.IsNamingContainerProperty, true), replace: false, error: out _);
         }
 
         /// <summary>
@@ -99,7 +112,11 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected internal override void OnLoad(IDotvvmRequestContext context)
         {
-            SetChildren(context);
+            if (context.IsPostBack)
+            {
+                SetChildren(context, renderClientTemplate: false, memoizeReferences: true);
+            }
+
             base.OnLoad(context);
         }
 
@@ -108,7 +125,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
-            SetChildren(context);     // TODO: we should handle observable collection operations to persist controlstate of controls inside the Repeater
+            SetChildren(context, renderClientTemplate: !RenderOnServer, memoizeReferences: false);
             base.OnPreRender(context);
         }
 
@@ -116,16 +133,16 @@ namespace DotVVM.Framework.Controls
         {
             TagName = WrapperTagName;
 
-            if (!RenderOnServer)
+            var (bindingName, bindingValue) = RenderOnServer ?
+                                              ("dotvvm-SSR-foreach", GetServerSideForeachBindingGroup()) :
+                                              ("template", GetForeachKnockoutBindingGroup(context));
+            if (RenderWrapperTag)
             {
-                if (RenderWrapperTag)
-                {
-                    writer.AddKnockoutDataBind("template", GetForeachKnockoutBindingGroup(context));
-                }
-                else
-                {
-                    writer.WriteKnockoutDataBindComment("template", GetForeachKnockoutBindingGroup(context).ToString());
-                }
+                writer.AddKnockoutDataBind(bindingName, bindingValue);
+            }
+            else
+            {
+                writer.WriteKnockoutDataBindComment(bindingName, bindingValue.ToString());
             }
 
             if (RenderWrapperTag)
@@ -133,6 +150,11 @@ namespace DotVVM.Framework.Controls
                 base.RenderBeginTag(writer, context);
             }
         }
+
+        private KnockoutBindingGroup GetServerSideForeachBindingGroup() =>
+            new KnockoutBindingGroup {
+                { "data", GetForeachDataBindExpression().GetKnockoutBindingExpression(this) }
+            };
 
         private KnockoutBindingGroup GetForeachKnockoutBindingGroup(IDotvvmRequestContext context)
         {
@@ -161,14 +183,16 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            if (RenderOnServer)
+            if (this.RenderOnServer)
             {
-                // render on server
-                foreach (var child in Children.Except(new[] { emptyDataContainer }))
+                Debug.Assert(clientSideTemplate == null);
+                foreach (var child in Children.Except(new[] { emptyDataContainer, clientSeparator }))
                 {
                     child.Render(writer, context);
                 }
             }
+            //else
+            //    clientSideTemplate.Render(writer, context);
         }
 
         protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
@@ -177,12 +201,21 @@ namespace DotVVM.Framework.Controls
             {
                 base.RenderEndTag(writer, context);
             }
-
-            if (!RenderOnServer && !RenderWrapperTag)
+            else
             {
                 writer.WriteKnockoutDataBindEndComment();
             }
 
+            //if (!RenderOnServer && clientSeparator != null)
+            //{
+                //writer.AddAttribute("type", "text/html");
+                //writer.AddAttribute("id", GetValueRaw(Internal.UniqueIDProperty) + "_separator");
+                //var unique = GetValueRaw(Internal.UniqueIDProperty);
+                //var id = GetValueRaw(Internal.ClientIDFragmentProperty);
+                //writer.RenderBeginTag("script");
+                //clientSeparator.Render(writer, context);
+                //writer.RenderEndTag();
+            //}
             emptyDataContainer?.Render(writer, context);
         }
 
@@ -201,20 +234,36 @@ namespace DotVVM.Framework.Controls
             return emptyDataContainer;
         }
 
-        private DotvvmControl GetItem(IDotvvmRequestContext context, object item = null, int index = -1, IValueBinding itemBinding = null)
+        private ConditionalWeakTable<object, DataItemContainer> childrenCache = new ConditionalWeakTable<object, DataItemContainer>();
+        private DotvvmControl GetItem(IDotvvmRequestContext context, object item = null, int? index = null, bool allowMemoizationRetrive = false, bool allowMemoizationStore = false)
         {
+            if (allowMemoizationRetrive && item != null && childrenCache.TryGetValue(item, out var container2) && container2.Parent == null)
+            {
+                Debug.Assert(item == container2.GetValueRaw(DataContextProperty));
+                SetUpServerItem(context, item, (int)index, container2);
+                return container2;
+            }
+
             var container = new DataItemContainer();
             container.SetDataContextTypeFromDataSource(GetBinding(DataSourceProperty));
-            if (item == null && index == -1)
+            if (item == null && index == null)
             {
                 SetUpClientItem(container);
             }
             else
             {
-                SetUpServerItem(context, item, index, itemBinding, container);
+                SetUpServerItem(context, item, (int)index, container);
             }
 
             ItemTemplate.BuildContent(context, container);
+
+            // write it to the cache after the content is build. If it would be before that, exception could be suppressed
+            if (allowMemoizationStore && item != null)
+            {
+                // this GetValue call adds the value without raising exception when the value is already added...
+                childrenCache.GetValue(item, _ => container);
+            }
+
             return container;
         }
 
@@ -229,10 +278,12 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Performs the data-binding and builds the controls inside the <see cref="Repeater"/>.
         /// </summary>
-        private void SetChildren(IDotvvmRequestContext context)
+        private void SetChildren(IDotvvmRequestContext context, bool renderClientTemplate, bool memoizeReferences)
         {
             Children.Clear();
             emptyDataContainer = null;
+            clientSeparator = null;
+            clientSideTemplate = null;
 
             if (DataSource != null)
             {
@@ -244,9 +295,22 @@ namespace DotVVM.Framework.Controls
                     {
                         Children.Add(GetSeparator(context));
                     }
-                    Children.Add(GetItem(context, item, index, itemBinding));
+                    Children.Add(GetItem(context, item, index,
+                        allowMemoizationRetrive: context.IsPostBack && !memoizeReferences, // on GET request we are not initializing the Repeater twice
+                        allowMemoizationStore: memoizeReferences
+                    ));
                     index++;
                 }
+            }
+
+            if (renderClientTemplate)
+            {
+                if (SeparatorTemplate != null)
+                {
+                    Children.Add(clientSeparator = GetSeparator(context));
+                }
+
+                Children.Add(clientSideTemplate = GetItem(context));
             }
 
             if (EmptyDataTemplate != null)
@@ -262,10 +326,10 @@ namespace DotVVM.Framework.Controls
             container.SetValue(Internal.ClientIDFragmentProperty, GetValueRaw(Internal.CurrentIndexBindingProperty));
         }
 
-        private void SetUpServerItem(IDotvvmRequestContext context, object item, int index, IValueBinding itemBinding, DataItemContainer container)
+        private void SetUpServerItem(IDotvvmRequestContext context, object item, int index, DataItemContainer container)
         {
             container.DataItemIndex = index;
-            container.SetDataContextForItem(itemBinding, index, item);
+            container.DataContext = item;
             container.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[" + index + "]");
             container.ID = index.ToString();
         }

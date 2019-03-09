@@ -5,6 +5,7 @@ using System.Security;
 using System.Text;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Runtime.Caching;
 using DotVVM.Framework.Security;
 using DotVVM.Framework.Testing;
 using Microsoft.Extensions.DependencyInjection;
@@ -49,7 +50,11 @@ namespace DotVVM.Framework.Tests
         public static void RegisterMoqServices(IServiceCollection services)
         {
             services.TryAddSingleton<IViewModelProtector, FakeProtector>();
+            services.TryAddSingleton<IDotvvmCacheAdapter, SimpleDictionaryCacheAdapter>();
         }
+
+        private static Lazy<DotvvmConfiguration> _defaultConfig = new Lazy<DotvvmConfiguration>(() => CreateConfiguration());
+        public static DotvvmConfiguration DefaultConfig => _defaultConfig.Value;
 
         public static DotvvmConfiguration CreateConfiguration(Action<IServiceCollection> customServices = null) =>
             DotvvmConfiguration.CreateDefault(s => {

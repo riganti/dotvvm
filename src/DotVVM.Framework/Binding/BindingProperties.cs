@@ -203,18 +203,6 @@ namespace DotVVM.Framework.Binding.Properties
     }
 
     /// <summary>
-    /// Determines whether binding properties can be assigned after initialization. Runtime-used binding should never be mutable.
-    /// </summary>
-    public sealed class IsMutableBindingProperty
-    {
-        public readonly bool IsMutable;
-        public IsMutableBindingProperty(bool isMutable)
-        {
-            this.IsMutable = isMutable;
-        }
-    }
-
-    /// <summary>
     /// Contains the property where the binding is assigned.
     /// </summary>
     public sealed class AssignedPropertyBindingProperty
