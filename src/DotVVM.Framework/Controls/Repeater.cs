@@ -105,6 +105,18 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty WrapperTagNameProperty =
             DotvvmProperty.Register<string, Repeater>(t => t.WrapperTagName, "div");
 
+        /// <summary>
+        /// Gets or sets if the repeater should use inline template (the default, traditional way of doing things) or if it should use Knockout's named template (with the template in &lt;script> tag).
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
+        public bool RenderAsNamedTemplate
+        {
+            get { return (bool)GetValue(RenderAsNamedTemplateProperty); }
+            set { SetValue(RenderAsNamedTemplateProperty, value); }
+        }
+        public static readonly DotvvmProperty RenderAsNamedTemplateProperty =
+            DotvvmProperty.Register<bool, Repeater>(nameof(RenderAsNamedTemplate), defaultValue: false);
+
         protected override bool RendersHtmlTag => RenderWrapperTag;
 
         /// <summary>
@@ -135,7 +147,7 @@ namespace DotVVM.Framework.Controls
 
             var (bindingName, bindingValue) = RenderOnServer ?
                                               ("dotvvm-SSR-foreach", GetServerSideForeachBindingGroup()) :
-                                              ("template", GetForeachKnockoutBindingGroup(context));
+                                              GetForeachKnockoutBindingGroup(context);
             if (RenderWrapperTag)
             {
                 writer.AddKnockoutDataBind(bindingName, bindingValue);
@@ -156,26 +168,35 @@ namespace DotVVM.Framework.Controls
                 { "data", GetForeachDataBindExpression().GetKnockoutBindingExpression(this) }
             };
 
-        private KnockoutBindingGroup GetForeachKnockoutBindingGroup(IDotvvmRequestContext context)
+        private (string bindingName, KnockoutBindingGroup bindingValue) GetForeachKnockoutBindingGroup(IDotvvmRequestContext context)
         {
-            var itemContainer = GetItem(context);
-            Children.Add(itemContainer);
+            var useTemplate = this.RenderAsNamedTemplate;
+            var value = new KnockoutBindingGroup();
 
-            var itemTemplateId = context.ResourceManager.AddTemplateResource(context, itemContainer);
 
             var javascriptDataSourceExpression = GetForeachDataBindExpression().GetKnockoutBindingExpression(this);
-            var group = new KnockoutBindingGroup {
-                { "name", itemTemplateId, true },
-                { "foreach", javascriptDataSourceExpression }
-            };
+            value.Add(
+                useTemplate ? "foreach" : "data",
+                javascriptDataSourceExpression);
 
-            if (SeparatorTemplate != null)
+            if (useTemplate)
             {
-                var separatorTemplateId = context.ResourceManager.AddTemplateResource(context, GetSeparator(context));
+                var itemTemplateId = context.ResourceManager.AddTemplateResource(context, clientSideTemplate);
 
-                group.Add("separatorTemplate", separatorTemplateId, true);
+                value.Add("name", itemTemplateId, true);
             }
-            return group;
+
+            if (clientSeparator != null)
+            {
+                // separator has to be always rendered as a named template
+                var separatorTemplateId = context.ResourceManager.AddTemplateResource(context, clientSeparator);
+                value.Add("separatorTemplate", separatorTemplateId, true);
+            }
+
+            return (
+                useTemplate ? "template" : "foreach",
+                value
+            );
         }
 
         /// <summary>
@@ -183,16 +204,17 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            if (this.RenderOnServer)
+            Debug.Assert((clientSideTemplate == null) == this.RenderOnServer);
+            if (clientSideTemplate == null)
             {
-                Debug.Assert(clientSideTemplate == null);
-                foreach (var child in Children.Except(new[] { emptyDataContainer, clientSeparator }))
+                Debug.Assert(clientSeparator == null);
+                foreach (var child in Children.Except(new[] { emptyDataContainer }))
                 {
                     child.Render(writer, context);
                 }
             }
-            //else
-            //    clientSideTemplate.Render(writer, context);
+            else if (!this.RenderAsNamedTemplate)
+               clientSideTemplate.Render(writer, context);
         }
 
         protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
@@ -206,16 +228,6 @@ namespace DotVVM.Framework.Controls
                 writer.WriteKnockoutDataBindEndComment();
             }
 
-            //if (!RenderOnServer && clientSeparator != null)
-            //{
-                //writer.AddAttribute("type", "text/html");
-                //writer.AddAttribute("id", GetValueRaw(Internal.UniqueIDProperty) + "_separator");
-                //var unique = GetValueRaw(Internal.UniqueIDProperty);
-                //var id = GetValueRaw(Internal.ClientIDFragmentProperty);
-                //writer.RenderBeginTag("script");
-                //clientSeparator.Render(writer, context);
-                //writer.RenderEndTag();
-            //}
             emptyDataContainer?.Render(writer, context);
         }
 
