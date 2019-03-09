@@ -18,10 +18,7 @@ namespace DotVVM.Framework.ResourceManagement
             get => _template;
             set
             {
-                if (value?.IndexOf("</script", StringComparison.OrdinalIgnoreCase) >= 0)
-                {
-                    throw new Exception($"Inline script can't contain `</script>`.");
-                }
+                InlineScriptResource.InlineScriptContentGuard(value);
                 _template = value;
             }
         }
