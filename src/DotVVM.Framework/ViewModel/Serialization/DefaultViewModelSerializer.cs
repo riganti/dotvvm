@@ -89,7 +89,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 null;
 
             // create result object
-            var result = context.ViewModelJson ?? new JObject();
+            var result = new JObject();
             result["viewModel"] = writer.Token;
             result["url"] = context.HttpContext?.Request?.Url?.PathAndQuery;
             result["virtualDirectory"] = context.HttpContext?.Request?.PathBase?.Value?.Trim('/') ?? "";

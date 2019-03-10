@@ -38,5 +38,4 @@ namespace DotVVM.Framework.Hosting
         {
         }
     }
-
 }
