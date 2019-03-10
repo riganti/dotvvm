@@ -127,7 +127,8 @@ namespace DotVVM.Framework.Security
                     new CookieOptions
                     {
                         HttpOnly = true,                                // Don't allow client script access
-                        Secure = context.HttpContext.Request.IsHttps   // If request goes trough HTTPS, mark as secure only
+                        Secure = context.HttpContext.Request.IsHttps,   // If request goes trough HTTPS, mark as secure only
+                        SameSite = SameSiteMode.Lax
                     });
 
                 // Return newly generated SID
