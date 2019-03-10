@@ -45,7 +45,7 @@ namespace DotVVM.Framework.Hosting
             }
             // create the context
             var dotvvmContext = CreateDotvvmContext(context);
-            context.RequestServices.GetService<DotvvmRequestContextStorage>().Context = dotvvmContext;
+            context.RequestServices.GetRequiredService<DotvvmRequestContextStorage>().Context = dotvvmContext;
             context.Items[HostingConstants.DotvvmRequestContextOwinKey] = dotvvmContext;
 
             var requestCultureFeature = context.Features.Get<IRequestCultureFeature>();

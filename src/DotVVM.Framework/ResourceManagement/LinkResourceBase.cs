@@ -74,7 +74,7 @@ namespace DotVVM.Framework.ResourceManagement
 
         protected string ComputeIntegrityHash(IDotvvmRequestContext context)
         {
-            var hasher = context.Services.GetService<IResourceHashService>();
+            var hasher = context.Services.GetRequiredService<IResourceHashService>();
             var localLocation = GetLocations().OfType<ILocalResourceLocation>().First();
             if (localLocation != null) return hasher.GetIntegrityHash(localLocation, context);
             else return null;
