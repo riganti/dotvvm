@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net461;netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks>net47;net461;netcoreapp2.0</TargetFrameworks>
     <FileAlgnment>512</FileAlgnment>
     <OutputType>Exe</OutputType>
     <Authors>RIGANTI</Authors>
@@ -22,6 +22,7 @@
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
     <StartupObject>DotVVM.Compiler.Programs.Program</StartupObject>
+    <Version>2.2.0</Version>
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="1.0.0" />
@@ -37,6 +38,7 @@
   <ItemGroup>
     <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj" />
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
+    <ProjectReference Include="..\DotVVM.Utils.ConfigurationHost\DotVVM.Utils.ConfigurationHost.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

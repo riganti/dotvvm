@@ -8,8 +8,16 @@ using System.Text;
 using System.Threading;
 using DotVVM.Compiler.Compilation;
 using DotVVM.Compiler.DTOs;
-using DotVVM.Compiler.Initialization;
+using DotVVM.Compiler.Fakes;
 using DotVVM.Compiler.Resolving;
+using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Runtime.Caching;
+using DotVVM.Framework.Security;
+using DotVVM.Utils.ConfigurationHost;
+using DotVVM.Utils.ConfigurationHost.Initialization;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Newtonsoft.Json;
 
 namespace DotVVM.Compiler.Programs
@@ -23,17 +31,18 @@ namespace DotVVM.Compiler.Programs
         private static Stopwatch stopwatcher;
         private static string GetEnvironmentWebAssemblyPath()
         {
-            return Environment.GetEnvironmentVariable("webAssemblyPath");
+            return Environment.GetEnvironmentVariable(CompilerConstants.EnvironmentVariables.WebAssemblyPath);
         }
         public static void ContinueMain(string[] args)
         {
             WriteTargetFramework();
 
             GetEnvironmentAssemblySearchPaths();
+            var assemblyResolver = new AssemblyResolver(assemblySearchPaths, new ConsoleLogger());
 #if NETCOREAPP2_0
-            AssemblyResolver.ResolverNetstandard(GetEnvironmentWebAssemblyPath());
+            assemblyResolver.ResolverNetstandard(GetEnvironmentWebAssemblyPath());
 #else
-            AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolver.ResolveAssembly;
+            AppDomain.CurrentDomain.AssemblyResolve += assemblyResolver.ResolveAssembly;
 #endif
             if (args.Length == 0)
             {
@@ -44,23 +53,23 @@ namespace DotVVM.Compiler.Programs
                     ProcessCompilationRequest(Options);
                 }
             }
-            if (args[0] == "-?")
+            if (args[0] == CompilerConstants.Arguments.Help)
             {
                 WriteHelp();
                 Exit(0);
             }
-            if (args[0] == "--debugger")
+            if (args[0] ==CompilerConstants.Arguments.WaitForDebugger)
             {
                 WaitForDbg();
                 args = args.Skip(1).ToArray();
             }
-            if (args[0] == "--debugger-break")
+            if (args[0] == CompilerConstants.Arguments.WaitForDebuggerAndBreak)
             {
                 WaitForDbg(true);
                 args = args.Skip(1).ToArray();
             }
 
-            if (args[0] == "--json")
+            if (args[0] == CompilerConstants.Arguments.JsonOptions)
             {
                 var opt = string.Join(" ", args.Skip(1));
 
@@ -83,7 +92,10 @@ namespace DotVVM.Compiler.Programs
 
         private static void WriteTargetFramework()
         {
-#if NET461
+
+#if NET47
+            WriteInfo("Target framework: .NET Framework 4.7");
+#elif NET461
             WriteInfo("Target framework: .NET Framework 4.6");
 #elif NETCOREAPP2_0
             WriteInfo("Target framework: .NET Standard 2.0");
@@ -117,21 +129,21 @@ JSON structure:
 
         }
 
-        private static void Exit(int exitCode)
+        internal static void Exit(int exitCode)
         {
-
+            Console.WriteLine($"#$ Exit {exitCode} - DotVVM Compiler Ended");
             Environment.Exit(exitCode);
         }
 
         private static void GetEnvironmentAssemblySearchPaths()
         {
-            foreach (var path in Environment.GetEnvironmentVariable("assemblySearchPath")?.Split(',') ?? new string[0])
+            foreach (var path in Environment.GetEnvironmentVariable(CompilerConstants.EnvironmentVariables.AssemblySearchPath)?.Split(',') ?? new string[0])
             {
                 assemblySearchPaths.Add(path);
             }
             assemblySearchPaths.Add(Environment.CurrentDirectory);
         }
-       
+
 
         private static void WaitForDbg(bool _break = false)
         {
@@ -265,11 +277,11 @@ JSON structure:
             return options;
         }
 
-        private static void WriteError(Exception ex)
+        internal static void WriteError(Exception ex)
         {
             WriteInfo("Error occured!");
             var exceptionJson = JsonConvert.SerializeObject(ex);
-            Console.WriteLine("!" + exceptionJson);
+            Console.WriteLine("! " + exceptionJson);
             Console.WriteLine();
         }
 
@@ -289,5 +301,35 @@ JSON structure:
             } while (!string.IsNullOrEmpty(line));
             return sb.ToString();
         }
+    }
+
+    internal class ConfigurationInitializer
+    {
+        public static DotvvmConfiguration InitDotVVM(Assembly assembly, string webSitePath, ViewStaticCompiler viewStaticCompiler, Action<IServiceCollection> additionalServices)
+        {
+            return ConfigurationHost.InitDotVVM(assembly, webSitePath, services => {
+
+                if (viewStaticCompiler != null)
+                {
+                    services.AddSingleton<ViewStaticCompiler>(viewStaticCompiler);
+                    services.AddSingleton<IControlResolver, OfflineCompilationControlResolver>();
+                    services.TryAddSingleton<IViewModelProtector, FakeViewModelProtector>();
+                    services.AddSingleton(new RefObjectSerializer());
+                    services.AddSingleton<IDotvvmCacheAdapter, DotVVM.Framework.Testing.SimpleDictionaryCacheAdapter>();
+                }
+
+                additionalServices?.Invoke(services);
+            });
+        }
+    }
+
+    public class ConsoleLogger : ILogger
+    {
+        public void LogInfo(string message) => Program2.WriteInfo(message);
+
+
+        public void LogException(Exception exception) => Program2.WriteError(exception);
+
+        public void LogError(string message) => Program2.WriteInfo("[error]: " + message);
     }
 }

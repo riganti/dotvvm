@@ -2,7 +2,7 @@
   "profiles": {
     "DotVVM.CommandLine": {
       "commandName": "Project",
-      "commandLineArgs": "api regen http://localhost:61453/swagger/docs/v1",
+      "commandLineArgs": "compiler export-config",
       "workingDirectory": "..\\DotVVM.Samples.Common"
     }
   }

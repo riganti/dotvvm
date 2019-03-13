@@ -33,12 +33,17 @@
     <None Remove="Templates\TypeScript\FetchClient.liquid" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\DotVVM.Compiler\DTOs\CompilerOptions.cs" Link="Commands\Logic\Compiler\CompilerOptions.cs" />
+    <Compile Include="..\DotVVM.Compiler\CompilerConstants.cs" Link="Commands\Logic\Compiler\CompilerConstants.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <EmbeddedResource Include="Templates\CSharp\Client.Class.liquid" />
     <EmbeddedResource Include="Templates\TypeScript\Client.RequestUrl.liquid" />
     <EmbeddedResource Include="Templates\TypeScript\FetchClient.liquid" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
+    <ProjectReference Include="..\DotVVM.Utils.ProjectService\DotVVM.Utils.ProjectService.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Commands\Templates\ControlCodeBehindTemplate.tt">
@@ -87,6 +92,9 @@
     <PackageReference Include="NSwag.CodeGeneration" Version="11.14.1" />
     <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="11.14.1" />
     <PackageReference Include="NSwag.CodeGeneration.Typescript" Version="11.14.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Commands\Logic\Compiler\" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>

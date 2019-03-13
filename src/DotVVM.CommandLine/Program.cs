@@ -4,7 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using DotVVM.CommandLine.Commands;
-using DotVVM.CommandLine.Commands.Implementation;
+using DotVVM.CommandLine.Commands.Core;
+using DotVVM.CommandLine.Commands.Handlers;
 using DotVVM.CommandLine.Metadata;
 using Microsoft.CodeAnalysis;
 
@@ -36,15 +37,15 @@ namespace DotVVM.CommandLine
             // find applicable command
             var commands = new CommandBase[]
             {
-                new AddPageCommand(),
-                new AddMasterPageCommand(),
-                new AddViewModelCommand(),
-                new AddControlCommand(),
-                new AddNswagCommand(),
-                new RegenNswagCommand(),
-                new CompilerConfigurationExportCommand(),
-                new VersionCommand(), 
-                //new GenerateUiTestStubCommand()
+                new AddPageCommandHandler(),
+                new AddMasterPageCommandHandler(),
+                new AddViewModelCommandHandler(),
+                new AddControlCommandHandler(),
+                new AddNswagCommandHandler(),
+                new RegenNswagCommandHandler(),
+                new CompilerConfigurationExportCommandHandler(),
+                new VersionCommandHandler(), 
+                //new GenerateUiTestStubCommandHandler()
             };
             var arguments = new Arguments(args);
             var command = commands.FirstOrDefault(c => c.TryConsumeArgs(arguments, metadata));
