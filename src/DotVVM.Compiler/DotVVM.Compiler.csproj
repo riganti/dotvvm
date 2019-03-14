@@ -54,9 +54,5 @@
       <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>true</Private>
     </Reference>
-    <Reference Include="NJsonSchema">
-      <HintPath>..\..\..\..\Users\sesta\.nuget\packages\njsonschema\9.4.5\lib\netstandard1.0\NJsonSchema.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
   </ItemGroup>
 </Project>
