@@ -41,7 +41,7 @@ namespace DotVVM.Framework.Controls
 
         public void BuildContent(IDotvvmRequestContext context, DotvvmControl container)
         {
-            var controlBuilderFactory = context.Services.GetService<IControlBuilderFactory>();
+            var controlBuilderFactory = context.Services.GetRequiredService<IControlBuilderFactory>();
             BuildContentBody.Invoke(controlBuilderFactory, context.Services, container);
         }
     }

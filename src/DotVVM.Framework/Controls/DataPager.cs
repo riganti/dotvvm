@@ -165,7 +165,7 @@ namespace DotVVM.Framework.Controls
             ContentWrapper = CreateWrapperList(dataContextType);
             Children.Add(ContentWrapper);
 
-            var bindings = context.Services.GetService<CommonBindings>();
+            var bindings = context.Services.GetRequiredService<CommonBindings>();
 
             object enabledValue = (HasValueBinding(EnabledProperty) ?
                 (object)ValueBindingExpression.CreateBinding<bool>(

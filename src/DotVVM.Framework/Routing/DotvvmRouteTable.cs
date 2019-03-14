@@ -128,7 +128,7 @@ namespace DotVVM.Framework.Routing
             {
                 throw new ArgumentException($@"{nameof(presenterType)} has to inherit from DotVVM.Framework.Hosting.IDotvvmPresenter.", nameof(presenterType));
             }
-            Func<IServiceProvider, IDotvvmPresenter> presenterFactory = provider => (IDotvvmPresenter)provider.GetService(presenterType);
+            Func<IServiceProvider, IDotvvmPresenter> presenterFactory = provider => (IDotvvmPresenter)provider.GetRequiredService(presenterType);
             Add(routeName, url, presenterFactory, defaultValues);
         }
 

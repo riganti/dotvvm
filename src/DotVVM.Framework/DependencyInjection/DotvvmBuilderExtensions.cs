@@ -52,7 +52,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.Services.TryAddSingleton<IUploadedFileStorage>(s =>
             {
-                var fullPath = Path.Combine(s.GetService<DotvvmConfiguration>().ApplicationPhysicalPath, tempPath);
+                var fullPath = Path.Combine(s.GetRequiredService<DotvvmConfiguration>().ApplicationPhysicalPath, tempPath);
                 return new FileSystemUploadedFileStorage(fullPath, autoDeleteInterval);
             });
             return services;
@@ -76,7 +76,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.Services.TryAddSingleton<IReturnedFileStorage>(s =>
             {
-                var fullPath = Path.Combine(s.GetService<DotvvmConfiguration>().ApplicationPhysicalPath, tempPath);
+                var fullPath = Path.Combine(s.GetRequiredService<DotvvmConfiguration>().ApplicationPhysicalPath, tempPath);
                 return new FileSystemReturnedFileStorage(fullPath, autoDeleteInterval);
             });
             return services;
