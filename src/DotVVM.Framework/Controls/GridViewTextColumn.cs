@@ -86,6 +86,13 @@ namespace DotVVM.Framework.Controls
             #pragma warning disable
             literal.ValueType = ValueType;
             #pragma warning restore
+
+            // TODO: rewrite this
+            if (Properties.TryGetValue(Properties.First(p => p.Key.ToString() == "UITests.Name").Key, out var property))
+            {
+                literal.Properties.Add(Properties.First(p => p.Key.ToString() == "UITests.Name").Key, property);
+            }
+
             literal.SetBinding(Literal.TextProperty, ValueBinding);
 
             container.Children.Add(literal);

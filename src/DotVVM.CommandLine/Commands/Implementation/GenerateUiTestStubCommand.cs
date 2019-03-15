@@ -74,7 +74,7 @@ namespace DotVVM.CommandLine.Commands.Implementation
                 var targetFileName = Path.Combine(dotvvmProjectMetadata.UITestProjectPath, PageObjectsText, relativeTypeName + ".cs");
 
                 // generate the file
-                var generator = new SeleniumHelperGenerator();
+                var generator = new SeleniumPageObjectGenerator();
                 var config = new SeleniumGeneratorConfiguration() {
                     TargetNamespace = PathHelpers.GetNamespaceFromFullType(fullTypeName),
                     HelperName = PathHelpers.GetTypeNameFromFullType(fullTypeName),
