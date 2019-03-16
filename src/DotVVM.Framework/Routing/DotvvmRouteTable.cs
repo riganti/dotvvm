@@ -33,7 +33,7 @@ namespace DotVVM.Framework.Routing
         /// <summary>
         /// Contains information about the group of this RouteTable.
         /// </summary>
-        private RouteTableGroup group = null;
+        internal RouteTableGroup Group { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmRouteTable"/> class.
@@ -41,6 +41,14 @@ namespace DotVVM.Framework.Routing
         public DotvvmRouteTable(DotvvmConfiguration configuration)
         {
             this.configuration = configuration;
+        }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DotvvmRouteTable"/> class.
+        /// </summary>
+        public DotvvmRouteTable(DotvvmConfiguration configuration, RouteTableGroup group)
+        {
+            this.configuration = configuration;
+            Group = group;
         }
 
         /// <summary>
@@ -73,11 +81,10 @@ namespace DotVVM.Framework.Routing
             {
                 throw new InvalidOperationException($"The group with name '{groupName}' has already been registered!");
             }
-            urlPrefix = CombinePath(group?.UrlPrefix, urlPrefix);
-            virtualPathPrefix = CombinePath(group?.VirtualPathPrefix, virtualPathPrefix);
+            urlPrefix = CombinePath(Group?.UrlPrefix, urlPrefix);
+            virtualPathPrefix = CombinePath(Group?.VirtualPathPrefix, virtualPathPrefix);
 
-            var newGroup = new DotvvmRouteTable(configuration);
-            newGroup.group = new RouteTableGroup(groupName, group?.RouteNamePrefix + groupName + "_", urlPrefix, virtualPathPrefix, Add);
+            var newGroup = new DotvvmRouteTable(configuration, new RouteTableGroup(groupName, Group?.RouteNamePrefix + groupName + "_", urlPrefix, virtualPathPrefix, Add));
 
             content(newGroup);
             routeTableGroups.Add(groupName, newGroup);
@@ -95,10 +102,20 @@ namespace DotVVM.Framework.Routing
         /// <param name="routeName">Name of the route.</param>
         /// <param name="url">The URL.</param>
         /// <param name="virtualPath">The virtual path of the Dothtml file.</param>
+        /// <param name="presenterFactory">The presenter factory.</param>
         /// <param name="defaultValues">The default values.</param>
         public void Add(string routeName, string url, string virtualPath, object defaultValues = null, Func<IServiceProvider, IDotvvmPresenter> presenterFactory = null)
         {
-            Add(group?.RouteNamePrefix + routeName, new DotvvmRoute(CombinePath(group?.UrlPrefix, url), CombinePath(group?.VirtualPathPrefix, virtualPath), defaultValues, presenterFactory ?? GetDefaultPresenter, configuration));
+            var route = new DotvvmRoute(
+                CombinePath(Group?.UrlPrefix, url),
+                CombinePath(Group?.VirtualPathPrefix, virtualPath),
+                defaultValues,
+                presenterFactory ?? GetDefaultPresenter,
+                configuration)
+                {
+                    Group = Group
+                };
+            Add(Group?.RouteNamePrefix + routeName, route);
         }
 
 
@@ -111,7 +128,7 @@ namespace DotVVM.Framework.Routing
         /// <param name="presenterFactory">The presenter factory.</param>
         public void Add(string routeName, string url, Func<IServiceProvider, IDotvvmPresenter> presenterFactory, object defaultValues = null)
         {
-            Add(group?.RouteNamePrefix + routeName, new DotvvmRoute(CombinePath(group?.UrlPrefix, url), group?.VirtualPathPrefix, defaultValues, presenterFactory, configuration));
+            Add(routeName, CombinePath(Group?.UrlPrefix, url), null, defaultValues, presenterFactory);
         }
 
 
@@ -144,7 +161,7 @@ namespace DotVVM.Framework.Routing
             // internal assign routename
             route.RouteName = routeName;
 
-            group?.AddToParentRouteTable?.Invoke(routeName, route);
+            Group?.AddToParentRouteTable?.Invoke(routeName, route);
 
             // The list is used for finding the routes because it keeps the ordering, the dictionary is for checking duplicates
             list.Add(new KeyValuePair<string, RouteBase>(routeName, route));

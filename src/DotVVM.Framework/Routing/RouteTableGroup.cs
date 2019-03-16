@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Routing
 {
     public class RouteTableGroup
     {
+        [JsonIgnore]
         public Action<string, RouteBase> AddToParentRouteTable { get; private set; }
 
         public string GroupName { get; private set; }

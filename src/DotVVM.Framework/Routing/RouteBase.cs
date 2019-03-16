@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Routing
         /// </summary>
         public string RouteName { get; internal set; }
 
-
+        internal RouteTableGroup Group { get; set; }
 
 
         /// <summary>

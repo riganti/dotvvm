@@ -106,6 +106,9 @@ namespace DotVVM.Samples.BasicSamples
             config.RouteTable.Add("FeatureSamples_PostBack_PostBackHandlers_Localization", "FeatureSamples/PostBack/PostBackHandlers_Localized", "Views/FeatureSamples/PostBack/ConfirmPostBackHandler.dothtml", LocalizablePresenter.BasedOnQuery("lang"));
 
             config.RouteTable.Add("Errors_Routing_NonExistingView", "Errors/Routing/NonExistingView", "Views/Errors/Routing/NonExistingView.dothml");
+            config.RouteTable.AddGroup("GroupTest", "group-test", "", c => {
+                c.Add("GroupRouteTest", "group-route1", "");
+            } );
         }
 
         private static void AddControls(DotvvmConfiguration config)

@@ -44,7 +44,8 @@ namespace DotVVM.Framework.Routing
                 new JObject() {
                     ["url"] = route.Url,
                     ["virtualPath"] = route.VirtualPath,
-                    ["defaultValues"] = JObject.FromObject(route.DefaultValues)
+                    ["defaultValues"] = JObject.FromObject(route.DefaultValues),
+                    ["group"] = route.Group == null ? null : JObject.FromObject(route.Group)
                 }.WriteTo(writer);
             }
             writer.WriteEndObject();
