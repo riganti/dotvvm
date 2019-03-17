@@ -1,7 +1,7 @@
-﻿using DotVVM.Utils.ConfigurationHost.Operations;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using DotVVM.Utils.ProjectService.Operations;
 
-namespace DotVVM.Utils.ConfigurationHost.Output.Statistics
+namespace DotVVM.Utils.ProjectService.Output.Statistics
 {
     public class DummyStatisticsProvider : IStatisticsProvider
     {

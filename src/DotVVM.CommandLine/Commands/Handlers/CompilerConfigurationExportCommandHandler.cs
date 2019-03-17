@@ -15,6 +15,7 @@ namespace DotVVM.CommandLine.Commands.Handlers
 
         public override void Handle(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
         {
+            var dotvvmAppMetadataProvider = new DotvvmAppMetadataProvider();
             var opts = new CompilerStartupOptions() {
                 Options = new CompilerOptions {
                     DothtmlFiles = null,
@@ -30,6 +31,18 @@ namespace DotVVM.CommandLine.Commands.Handlers
             };
 
             DotvvmCompilerLauncher.Start(opts);
+        }
+    }
+
+    public class DotvvmAppMetadataProvider
+    {
+        public void GetAppMetadata()
+        {
+            
+        }
+        public void GetBindingRedirects()
+        {
+
         }
     }
 }

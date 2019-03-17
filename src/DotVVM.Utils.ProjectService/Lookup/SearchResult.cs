@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace DotVVM.Utils.ConfigurationHost.Lookup
+namespace DotVVM.Utils.ProjectService.Lookup
 {
     public class SearchResult : IResult
     {

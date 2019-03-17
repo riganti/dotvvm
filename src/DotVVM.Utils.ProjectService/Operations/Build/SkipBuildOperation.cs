@@ -1,7 +1,6 @@
-﻿using System;
-using DotVVM.Utils.ConfigurationHost.Output;
+﻿using DotVVM.Utils.ProjectService.Output;
 
-namespace DotVVM.Utils.ConfigurationHost.Operations.Build
+namespace DotVVM.Utils.ProjectService.Operations.Build
 {
     public class SkipBuildOperation : BuildOperation
     {

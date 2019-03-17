@@ -1,12 +1,11 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Xml.Linq;
 using System.Xml.XPath;
-using DotVVM.Utils.ConfigurationHost.Extensions;
+using DotVVM.Utils.ProjectService.Extensions;
 
-namespace DotVVM.Utils.ConfigurationHost.Operations.DotvvmCompiler
+namespace DotVVM.Utils.ProjectService.Operations.DotvvmCompiler
 {
     public class AssemblyPreprocessorOldCsproj : AssemblyPreprocessorBase //name?
     {

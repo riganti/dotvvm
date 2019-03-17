@@ -3,11 +3,11 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 
-namespace DotVVM.Utils.ConfigurationHost.Lookup
+namespace DotVVM.Utils.ProjectService.Lookup
 {
     public class ProjectSystemSearcher
     {
-        public IEnumerable<IResult> Search(AppConfiguration configuration)
+        public IEnumerable<IResult> Search(DotvvmProjectSertviceConfiguration configuration)
         {
             var allCsprojs = new DirectoryInfo(configuration.LookupFolder).GetFiles("*.csproj", SearchOption.AllDirectories);
             var csprojVersionProvider = new CsprojVersionProvider();
@@ -39,7 +39,7 @@ namespace DotVVM.Utils.ConfigurationHost.Lookup
             }).Where(s => s != null).ToList();
         }
 
-        private static bool IsRequiredCsprojVersion(AppConfiguration configuration, CsprojVersion csprojVersion)
+        private static bool IsRequiredCsprojVersion(DotvvmProjectSertviceConfiguration configuration, CsprojVersion csprojVersion)
         {
             return csprojVersion == configuration.Version || configuration.Version == CsprojVersion.None;
         }

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace DotVVM.Utils.ConfigurationHost.Operations.Providers
+﻿namespace DotVVM.Utils.ProjectService.Operations.Providers
 {
     public interface IOperationProvider
     {

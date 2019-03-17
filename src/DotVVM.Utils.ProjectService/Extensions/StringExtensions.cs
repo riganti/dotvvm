@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DotVVM.Utils.ConfigurationHost.Extensions
+namespace DotVVM.Utils.ProjectService.Extensions
 {
     public static class StringExtensions
     {

@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using DotVVM.Utils.ConfigurationHost.Lookup;
 
-namespace DotVVM.Utils.ConfigurationHost.Output.Statistics
+namespace DotVVM.Utils.ProjectService.Output.Statistics
 {
     public class Statistics
     {

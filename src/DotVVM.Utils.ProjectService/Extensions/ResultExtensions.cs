@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using DotVVM.Utils.ConfigurationHost.Lookup;
-using DotVVM.Utils.ConfigurationHost.Operations;
-using DotVVM.Utils.ConfigurationHost.Output.Statistics;
+using DotVVM.Utils.ProjectService.Operations;
+using DotVVM.Utils.ProjectService.Output.Statistics;
 
-namespace DotVVM.Utils.ConfigurationHost.Extensions
+namespace DotVVM.Utils.ProjectService.Extensions
 {
     public static class ResultExtensions
     {

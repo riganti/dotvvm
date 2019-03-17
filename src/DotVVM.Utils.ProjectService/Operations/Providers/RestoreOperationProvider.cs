@@ -1,7 +1,7 @@
-﻿using DotVVM.Utils.ConfigurationHost.Lookup;
-using DotVVM.Utils.ConfigurationHost.Operations.Restore;
+﻿using DotVVM.Utils.ProjectService.Lookup;
+using DotVVM.Utils.ProjectService.Operations.Restore;
 
-namespace DotVVM.Utils.ConfigurationHost.Operations.Providers
+namespace DotVVM.Utils.ProjectService.Operations.Providers
 {
     public class RestoreOperationProvider : IOperationProvider
     {
@@ -9,7 +9,7 @@ namespace DotVVM.Utils.ConfigurationHost.Operations.Providers
         private MsBuildRestoreOperation MsBuildRestore { get; }
         private SkipRestoreOperation SkipRestore { get; }
 
-        public RestoreOperationProvider(AppConfiguration configuration)
+        public RestoreOperationProvider(DotvvmProjectSertviceConfiguration configuration)
         {
             DotNetRestore = new DotNetRestoreOperation();
             MsBuildRestore = new MsBuildRestoreOperation(configuration.MsBuildPath);

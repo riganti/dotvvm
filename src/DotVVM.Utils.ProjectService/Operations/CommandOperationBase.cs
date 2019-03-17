@@ -1,8 +1,8 @@
 ﻿using System;
-using DotVVM.Utils.ConfigurationHost.Lookup;
-using DotVVM.Utils.ConfigurationHost.Output;
+using DotVVM.Utils.ProjectService.Lookup;
+using DotVVM.Utils.ProjectService.Output;
 
-namespace DotVVM.Utils.ConfigurationHost.Operations
+namespace DotVVM.Utils.ProjectService.Operations
 {
     public abstract class CommandOperationBase : CommandRunner, IOperation
     {

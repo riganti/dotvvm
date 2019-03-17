@@ -1,4 +1,4 @@
-﻿namespace DotVVM.Utils.ConfigurationHost.Operations.DotvvmCompiler
+﻿namespace DotVVM.Utils.ProjectService.Operations.DotvvmCompiler
 {
     public class AssemblyPreprocessorNetSdkNet : AssemblyPreprocessorBase
     {

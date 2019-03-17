@@ -1,10 +1,8 @@
 ﻿using System.IO;
-using System.Linq;
 using System.Xml.Linq;
-using System.Xml.XPath;
-using DotVVM.Utils.ConfigurationHost.Extensions;
+using DotVVM.Utils.ProjectService.Extensions;
 
-namespace DotVVM.Utils.ConfigurationHost.Lookup
+namespace DotVVM.Utils.ProjectService.Lookup
 {
     public class AssemblyNameProvider
     {

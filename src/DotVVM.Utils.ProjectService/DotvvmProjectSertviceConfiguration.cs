@@ -1,8 +1,8 @@
-﻿using DotVVM.Utils.ConfigurationHost.Lookup;
+﻿using DotVVM.Utils.ProjectService.Lookup;
 
-namespace DotVVM.Utils.ConfigurationHost
+namespace DotVVM.Utils.ProjectService
 {
-    public class AppConfiguration
+    public class DotvvmProjectSertviceConfiguration
     {
         public bool Help { get; set; }
         public bool Build { get; set; }

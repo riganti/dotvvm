@@ -1,7 +1,7 @@
 ﻿using System;
-using DotVVM.Utils.ConfigurationHost.Lookup;
+using DotVVM.Utils.ProjectService.Lookup;
 
-namespace DotVVM.Utils.ConfigurationHost.Operations.DotvvmCompiler
+namespace DotVVM.Utils.ProjectService.Operations.DotvvmCompiler
 {
     public class AssemblyPreprocessorFactory
     {

@@ -1,6 +1,6 @@
-﻿using DotVVM.Utils.ConfigurationHost.Output;
+﻿using DotVVM.Utils.ProjectService.Output;
 
-namespace DotVVM.Utils.ConfigurationHost.Operations.Restore
+namespace DotVVM.Utils.ProjectService.Operations.Restore
 {
     public abstract class RestoreOperation : CommandOperationBase
     {

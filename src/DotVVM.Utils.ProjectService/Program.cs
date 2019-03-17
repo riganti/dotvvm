@@ -1,18 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.Contracts;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using DotVVM.Utils.ConfigurationHost.Lookup;
-using DotVVM.Utils.ConfigurationHost.Operations;
-using DotVVM.Utils.ConfigurationHost.Operations.DotvvmCompiler;
-using DotVVM.Utils.ConfigurationHost.Operations.Providers;
-using DotVVM.Utils.ConfigurationHost.Output;
-using DotVVM.Utils.ConfigurationHost.Output.Statistics;
+using DotVVM.Utils.ProjectService.Lookup;
+using DotVVM.Utils.ProjectService.Operations.Providers;
+using DotVVM.Utils.ProjectService.Output;
+using DotVVM.Utils.ProjectService.Output.Statistics;
 
-namespace DotVVM.Utils.ConfigurationHost
+namespace DotVVM.Utils.ProjectService
 {
     class Program
     {
@@ -43,7 +37,7 @@ namespace DotVVM.Utils.ConfigurationHost
 
         private static void Execute(string[] args)
         {
-            var configuration = new AppConfiguration();
+            var configuration = new DotvvmProjectSertviceConfiguration();
             var results = new ProjectSystemSearcher().Search(configuration).ToList();
             var statisticsProvider = new StatisticsProviderFactory().GetProvider(configuration);
             var executor = new OperationExecutor(results, Logger, statisticsProvider);
@@ -54,7 +48,5 @@ namespace DotVVM.Utils.ConfigurationHost
 
             statisticsProvider.SaveStatistics(executor.Results);
         }
-
-     
     }
 }

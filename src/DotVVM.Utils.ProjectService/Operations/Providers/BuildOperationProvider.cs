@@ -1,8 +1,7 @@
-﻿using System;
-using DotVVM.Utils.ConfigurationHost.Lookup;
-using DotVVM.Utils.ConfigurationHost.Operations.Build;
+﻿using DotVVM.Utils.ProjectService.Lookup;
+using DotVVM.Utils.ProjectService.Operations.Build;
 
-namespace DotVVM.Utils.ConfigurationHost.Operations.Providers
+namespace DotVVM.Utils.ProjectService.Operations.Providers
 {
     public class BuildOperationProvider : IOperationProvider
     {
@@ -10,7 +9,7 @@ namespace DotVVM.Utils.ConfigurationHost.Operations.Providers
         private MsBuildBuildOperation MsBuild { get; }
         private SkipBuildOperation SkipBuild { get; }
 
-        public BuildOperationProvider(AppConfiguration configuration)
+        public BuildOperationProvider(DotvvmProjectSertviceConfiguration configuration)
         {
             DotNetBuild = new DotNetBuildOperation();
             SkipBuild = new SkipBuildOperation();

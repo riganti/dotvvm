@@ -1,10 +1,10 @@
-﻿using DotVVM.Utils.ConfigurationHost.Extensions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using DotVVM.Utils.ProjectService.Extensions;
 
-namespace DotVVM.Utils.ConfigurationHost.Lookup
+namespace DotVVM.Utils.ProjectService.Lookup
 {
     public class DotvvmVersionProvider
     {

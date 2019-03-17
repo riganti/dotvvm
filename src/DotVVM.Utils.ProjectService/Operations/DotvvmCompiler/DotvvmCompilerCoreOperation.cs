@@ -1,10 +1,9 @@
-﻿using System;
-using System.Diagnostics;
-using DotVVM.Utils.ConfigurationHost.Extensions;
-using DotVVM.Utils.ConfigurationHost.Output;
-using DotVVM.Utils.ConfigurationHost.Output.Statistics;
+﻿using System.Diagnostics;
+using DotVVM.Utils.ProjectService.Extensions;
+using DotVVM.Utils.ProjectService.Output;
+using DotVVM.Utils.ProjectService.Output.Statistics;
 
-namespace DotVVM.Utils.ConfigurationHost.Operations.DotvvmCompiler
+namespace DotVVM.Utils.ProjectService.Operations.DotvvmCompiler
 {
     public class DotvvmCompilerCoreOperation : DotvvmCompilerOperation
     {

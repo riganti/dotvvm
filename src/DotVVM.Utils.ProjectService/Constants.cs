@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-
-namespace DotVVM.Utils.ConfigurationHost
+﻿namespace DotVVM.Utils.ProjectService
 {
     public static class Constants
     {

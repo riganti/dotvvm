@@ -1,8 +1,7 @@
-﻿using System;
-using System.Xml;
+﻿using System.Xml;
 using System.Xml.Linq;
 
-namespace DotVVM.Utils.ConfigurationHost.Operations.DotvvmCompiler
+namespace DotVVM.Utils.ProjectService.Operations.DotvvmCompiler
 {
     public abstract class AssemblyPreprocessorBase : IAssemblyPreprocessor
     {

@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using DotVVM.Utils.ConfigurationHost.Extensions;
-using DotVVM.Utils.ConfigurationHost.Lookup;
-using DotVVM.Utils.ConfigurationHost.Operations;
-using DotVVM.Utils.ConfigurationHost.Operations.Providers;
-using DotVVM.Utils.ConfigurationHost.Output;
-using DotVVM.Utils.ConfigurationHost.Output.Statistics;
+using DotVVM.Utils.ProjectService.Operations;
+using DotVVM.Utils.ProjectService.Operations.Providers;
+using DotVVM.Utils.ProjectService.Output;
+using DotVVM.Utils.ProjectService.Output.Statistics;
 
-namespace DotVVM.Utils.ConfigurationHost
+namespace DotVVM.Utils.ProjectService
 {
     public class OperationExecutor
     {

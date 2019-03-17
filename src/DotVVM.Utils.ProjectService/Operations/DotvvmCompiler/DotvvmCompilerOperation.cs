@@ -1,17 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Text;
-using System.Xml;
-using NuGet.Versioning;
-using DotVVM.Utils.ConfigurationHost.Extensions;
-using DotVVM.Utils.ConfigurationHost.Lookup;
-using DotVVM.Utils.ConfigurationHost.Output;
-using DotVVM.Utils.ConfigurationHost.Output.Statistics;
+using DotVVM.Utils.ProjectService.Extensions;
+using DotVVM.Utils.ProjectService.Output;
+using DotVVM.Utils.ProjectService.Output.Statistics;
 
-namespace DotVVM.Utils.ConfigurationHost.Operations.DotvvmCompiler
+namespace DotVVM.Utils.ProjectService.Operations.DotvvmCompiler
 {
     public abstract class DotvvmCompilerOperation : CommandOperationBase
     {

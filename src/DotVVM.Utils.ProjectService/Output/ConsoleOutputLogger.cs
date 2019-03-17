@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DotVVM.Utils.ConfigurationHost.Output
+namespace DotVVM.Utils.ProjectService.Output
 {
     public class ConsoleOutputLogger : IOutputLogger
     {

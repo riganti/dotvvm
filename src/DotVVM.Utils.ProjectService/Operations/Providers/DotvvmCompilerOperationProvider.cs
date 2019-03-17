@@ -1,9 +1,8 @@
-﻿using DotVVM.Utils.ConfigurationHost.Extensions;
-using DotVVM.Utils.ConfigurationHost.Lookup;
-using DotVVM.Utils.ConfigurationHost.Operations.DotvvmCompiler;
-using DotVVM.Utils.ConfigurationHost.Output.Statistics;
+﻿using DotVVM.Utils.ProjectService.Lookup;
+using DotVVM.Utils.ProjectService.Operations.DotvvmCompiler;
+using DotVVM.Utils.ProjectService.Output.Statistics;
 
-namespace DotVVM.Utils.ConfigurationHost.Operations.Providers
+namespace DotVVM.Utils.ProjectService.Operations.Providers
 {
     public class DotvvmCompilerOperationProvider : IOperationProvider
     {
@@ -11,7 +10,7 @@ namespace DotVVM.Utils.ConfigurationHost.Operations.Providers
         private IOperation CompilerCore { get; }
         private IOperation SkipCompiler { get; }
 
-        public DotvvmCompilerOperationProvider(IStatisticsProvider statisticsProvider, AppConfiguration configuration)
+        public DotvvmCompilerOperationProvider(IStatisticsProvider statisticsProvider, DotvvmProjectSertviceConfiguration configuration)
         {
             SkipCompiler = new SkipDotvvmCompilerOperation(statisticsProvider);
             CompilerNet = string.IsNullOrWhiteSpace(configuration.DotvvmCompilerNetPath) ?

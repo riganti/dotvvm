@@ -1,7 +1,7 @@
-﻿using DotVVM.Utils.ConfigurationHost.Output;
-using DotVVM.Utils.ConfigurationHost.Output.Statistics;
+﻿using DotVVM.Utils.ProjectService.Output;
+using DotVVM.Utils.ProjectService.Output.Statistics;
 
-namespace DotVVM.Utils.ConfigurationHost.Operations.DotvvmCompiler
+namespace DotVVM.Utils.ProjectService.Operations.DotvvmCompiler
 {
     public class SkipDotvvmCompilerOperation : DotvvmCompilerOperation
     {

@@ -1,9 +1,8 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
+using DotVVM.Utils.ProjectService.Extensions;
 using Newtonsoft.Json.Linq;
-using DotVVM.Utils.ConfigurationHost.Extensions;
 
-namespace DotVVM.Utils.ConfigurationHost.Operations.DotvvmCompiler
+namespace DotVVM.Utils.ProjectService.Operations.DotvvmCompiler
 {
     public class AssemblyPreprocessorNetSdkCore : AssemblyPreprocessorBase
     {

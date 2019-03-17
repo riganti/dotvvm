@@ -1,8 +1,7 @@
 ﻿using System.Linq;
-using System.Security.Cryptography;
 using System.Xml.Linq;
 
-namespace DotVVM.Utils.ConfigurationHost.Extensions
+namespace DotVVM.Utils.ProjectService.Extensions
 {
     public static class XmlExtensions
     {

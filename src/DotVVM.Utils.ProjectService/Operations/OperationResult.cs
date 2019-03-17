@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices;
-
-namespace DotVVM.Utils.ConfigurationHost.Operations
+﻿namespace DotVVM.Utils.ProjectService.Operations
 {
     public class OperationResult
     {

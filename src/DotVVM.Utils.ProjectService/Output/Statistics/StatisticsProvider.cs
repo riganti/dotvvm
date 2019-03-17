@@ -1,14 +1,14 @@
-﻿using Newtonsoft.Json;
-using NuGet.Versioning;
-using DotVVM.Utils.ConfigurationHost.Extensions;
-using DotVVM.Utils.ConfigurationHost.Lookup;
-using DotVVM.Utils.ConfigurationHost.Operations;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using DotVVM.Utils.ProjectService.Extensions;
+using DotVVM.Utils.ProjectService.Lookup;
+using DotVVM.Utils.ProjectService.Operations;
+using Newtonsoft.Json;
+using NuGet.Versioning;
 
-namespace DotVVM.Utils.ConfigurationHost.Output.Statistics
+namespace DotVVM.Utils.ProjectService.Output.Statistics
 {
     public class StatisticsProvider : IStatisticsProvider
     {

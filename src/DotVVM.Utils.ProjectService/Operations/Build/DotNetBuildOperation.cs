@@ -1,8 +1,7 @@
-﻿using System;
-using DotVVM.Utils.ConfigurationHost.Lookup;
-using DotVVM.Utils.ConfigurationHost.Output;
+﻿using DotVVM.Utils.ProjectService.Lookup;
+using DotVVM.Utils.ProjectService.Output;
 
-namespace DotVVM.Utils.ConfigurationHost.Operations.Build
+namespace DotVVM.Utils.ProjectService.Operations.Build
 {
     public class DotNetBuildOperation : BuildOperation
     {

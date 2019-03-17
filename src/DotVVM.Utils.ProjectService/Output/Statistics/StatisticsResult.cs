@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using DotVVM.Utils.ConfigurationHost.Lookup;
-using DotVVM.Utils.ConfigurationHost.Operations;
+using DotVVM.Utils.ProjectService.Lookup;
+using DotVVM.Utils.ProjectService.Operations;
 
-namespace DotVVM.Utils.ConfigurationHost.Output.Statistics
+namespace DotVVM.Utils.ProjectService.Output.Statistics
 {
     public class StatisticsResult : IResult
     {

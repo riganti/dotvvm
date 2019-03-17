@@ -1,4 +1,4 @@
-﻿namespace DotVVM.Utils.ConfigurationHost.Lookup
+﻿namespace DotVVM.Utils.ProjectService.Lookup
 {
     public enum CsprojVersion
     {
