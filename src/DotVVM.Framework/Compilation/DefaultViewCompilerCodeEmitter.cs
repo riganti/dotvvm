@@ -346,8 +346,13 @@ namespace DotVVM.Framework.Compilation
                                 SyntaxFactory.VariableDeclarator(fieldName)
                                 .WithInitializer(SyntaxFactory.EqualsValueClause(
                                     SyntaxFactory.InvocationExpression(
-                                        SyntaxFactory.ParseName(gprop.PropertyGroup.DeclaringType.FullName + "." + gprop.PropertyGroup.DescriptorField.Name
-                                            + "." + nameof(DotvvmPropertyGroup.GetDotvvmProperty)),
+                                        SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleAssignmentExpression,
+                                            SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleAssignmentExpression,
+                                                ParseTypeName(gprop.PropertyGroup.DeclaringType),
+                                                SyntaxFactory.IdentifierName(gprop.PropertyGroup.DescriptorField.Name)
+                                            ),
+                                            SyntaxFactory.IdentifierName(nameof(DotvvmPropertyGroup.GetDotvvmProperty))
+                                        ),
                                         SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(
                                             SyntaxFactory.Argument(this.EmitValue(gprop.GroupMemberName))
                                         ))
@@ -636,9 +641,8 @@ namespace DotVVM.Framework.Compilation
                                     SyntaxFactory.IdentifierName("GetValue")
                                 ),
                                 SyntaxFactory.ArgumentList(
-                                    SyntaxFactory.SeparatedList(new[]
-                                    {
-                                        SyntaxFactory.Argument(SyntaxFactory.ParseName(property.DescriptorFullName))
+                                    SyntaxFactory.SeparatedList(new[] {
+                                        SyntaxFactory.Argument(this.CreateDotvvmPropertyIdentifier(property))
                                     })
                                 )
                             ),
@@ -652,9 +656,8 @@ namespace DotVVM.Framework.Compilation
                                     SyntaxFactory.IdentifierName("SetValue")
                                 ),
                                 SyntaxFactory.ArgumentList(
-                                    SyntaxFactory.SeparatedList(new[]
-                                    {
-                                        SyntaxFactory.Argument(SyntaxFactory.ParseName(property.DescriptorFullName)),
+                                    SyntaxFactory.SeparatedList(new[] {
+                                        SyntaxFactory.Argument(this.CreateDotvvmPropertyIdentifier(property)),
                                         SyntaxFactory.Argument(
                                             SyntaxFactory.ObjectCreationExpression(ParseTypeName(property.PropertyType))
                                                 .WithArgumentList(
@@ -677,9 +680,8 @@ namespace DotVVM.Framework.Compilation
                                 SyntaxFactory.IdentifierName("GetValue")
                             ),
                             SyntaxFactory.ArgumentList(
-                                SyntaxFactory.SeparatedList(new[]
-                                {
-                                    SyntaxFactory.Argument(SyntaxFactory.ParseName(property.DescriptorFullName))
+                                SyntaxFactory.SeparatedList(new[] {
+                                    SyntaxFactory.Argument(this.CreateDotvvmPropertyIdentifier(property))
                                 })
                             )
                         )
