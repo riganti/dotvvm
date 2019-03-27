@@ -16,7 +16,7 @@ namespace DotVVM.Utils.ProjectService.Lookup
                 switch (csprojVersion)
                 {
                     case CsprojVersion.OlderProjectSystem:
-                        GetVersionsFromOldCsproj(xml, ns, versions);
+                        FillVersionsFromOldCsproj(xml, ns, versions);
                         return versions;
                     case CsprojVersion.DotNetSdk:
                         GetVersionsFromNewCsproj(xml, ns, versions);
@@ -31,7 +31,7 @@ namespace DotVVM.Utils.ProjectService.Lookup
             return versions;
         }
 
-        private void GetVersionsFromOldCsproj(XDocument xml, XNamespace ns, List<PackageVersion> versions)
+        private void FillVersionsFromOldCsproj(XDocument xml, XNamespace ns, List<PackageVersion> versions)
         {
             var references = xml.Descendants(ns + "Reference");
 
@@ -39,13 +39,29 @@ namespace DotVVM.Utils.ProjectService.Lookup
             {
                 var include = reference.Attribute("Include")?.Value;
                 if (!IsDotvvmReference(include)) continue; // is null check as well
+
+                // ReSharper disable once PossibleNullReferenceException
                 var s = include.Split(',');
                 var version = GetVersion(s);
+
                 var name = s.Single(IsDotvvmReference).Trim();
-                versions.Add(new PackageVersion()
-                {
+                versions.Add(new PackageVersion() {
                     Name = name,
                     Version = version
+                });
+            }
+
+            var projectReferences = xml.Descendants(ns + "ProjectReference");
+            foreach (var reference in projectReferences)
+            {
+                var include = reference.Attribute("Include")?.Value;
+                if (!IsDotvvmReference(include)) continue;
+
+                var name = GetDotvvmProjectReferenceName(include);
+                if (name == null) continue;
+                versions.Add(new PackageVersion() {
+                    Name = name,
+                    IsProjectReference = true,
                 });
             }
         }
@@ -67,8 +83,7 @@ namespace DotVVM.Utils.ProjectService.Lookup
                 if (!IsDotvvmReference(name)) continue;
                 var version = reference.Attribute("Version")?.Value;
 
-                versions.Add(new PackageVersion()
-                {
+                versions.Add(new PackageVersion() {
                     Name = name,
                     Version = version
                 });
@@ -77,7 +92,26 @@ namespace DotVVM.Utils.ProjectService.Lookup
 
         private bool IsDotvvmReference(string name)
         {
-            return name.Contains("dotvvm", StringComparison.OrdinalIgnoreCase);
+            return name?.Contains("dotvvm", StringComparison.OrdinalIgnoreCase) ?? false;
+        }
+        private string GetDotvvmProjectReferenceName(string name)
+        {
+            if (name.EndsWith("\\DotVVM.Framework.csproj", StringComparison.OrdinalIgnoreCase))
+            {
+                return "DotVVM";
+            }
+            if (name.EndsWith("\\DotVVM.Framework.Hosting.Owin.csproj", StringComparison.OrdinalIgnoreCase))
+            {
+                return "DotVVM.Owin";
+            }
+            if (name.EndsWith("\\DotVVM.Framework.Hosting.AspNetCore.csproj", StringComparison.OrdinalIgnoreCase))
+            {
+                return "DotVVM.AspNetCore";
+            }
+
+            return null;
         }
     }
+
+
 }

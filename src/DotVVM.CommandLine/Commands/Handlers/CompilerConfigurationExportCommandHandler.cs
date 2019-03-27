@@ -1,7 +1,11 @@
-﻿using DotVVM.CommandLine.Commands.Core;
+﻿using System;
+using System.Linq;
+using DotVVM.CommandLine.Commands.Core;
 using DotVVM.CommandLine.Commands.Logic.Compiler;
 using DotVVM.CommandLine.Metadata;
 using DotVVM.Compiler;
+using DotVVM.Utils.ProjectService;
+using DotVVM.Utils.ProjectService.Lookup;
 
 namespace DotVVM.CommandLine.Commands.Handlers
 {
@@ -15,7 +19,13 @@ namespace DotVVM.CommandLine.Commands.Handlers
 
         public override void Handle(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
         {
-            var dotvvmAppMetadataProvider = new DotvvmAppMetadataProvider();
+            var configuration = new ProjectServiceConfiguration {
+                Version = CsprojVersion.OlderProjectSystem,
+                LookupFolder = Environment.CurrentDirectory
+            };
+
+            var results = new ProjectSystemSearcher().Search(configuration).ToList();
+            
             var opts = new CompilerStartupOptions() {
                 Options = new CompilerOptions {
                     DothtmlFiles = null,

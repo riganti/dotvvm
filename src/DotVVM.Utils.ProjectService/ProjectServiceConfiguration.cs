@@ -2,7 +2,7 @@
 
 namespace DotVVM.Utils.ProjectService
 {
-    public class DotvvmProjectSertviceConfiguration
+    public class ProjectServiceConfiguration
     {
         public bool Help { get; set; }
         public bool Build { get; set; }

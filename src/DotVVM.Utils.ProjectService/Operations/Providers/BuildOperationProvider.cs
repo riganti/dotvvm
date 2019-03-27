@@ -9,7 +9,7 @@ namespace DotVVM.Utils.ProjectService.Operations.Providers
         private MsBuildBuildOperation MsBuild { get; }
         private SkipBuildOperation SkipBuild { get; }
 
-        public BuildOperationProvider(DotvvmProjectSertviceConfiguration configuration)
+        public BuildOperationProvider(ProjectServiceConfiguration configuration)
         {
             DotNetBuild = new DotNetBuildOperation();
             SkipBuild = new SkipBuildOperation();

@@ -7,7 +7,7 @@ namespace DotVVM.Utils.ProjectService.Lookup
 {
     public class ProjectSystemSearcher
     {
-        public IEnumerable<IResult> Search(DotvvmProjectSertviceConfiguration configuration)
+        public IEnumerable<IResult> Search(ProjectServiceConfiguration configuration)
         {
             var allCsprojs = new DirectoryInfo(configuration.LookupFolder).GetFiles("*.csproj", SearchOption.AllDirectories);
             var csprojVersionProvider = new CsprojVersionProvider();
@@ -39,7 +39,7 @@ namespace DotVVM.Utils.ProjectService.Lookup
             }).Where(s => s != null).ToList();
         }
 
-        private static bool IsRequiredCsprojVersion(DotvvmProjectSertviceConfiguration configuration, CsprojVersion csprojVersion)
+        private static bool IsRequiredCsprojVersion(ProjectServiceConfiguration configuration, CsprojVersion csprojVersion)
         {
             return csprojVersion == configuration.Version || configuration.Version == CsprojVersion.None;
         }

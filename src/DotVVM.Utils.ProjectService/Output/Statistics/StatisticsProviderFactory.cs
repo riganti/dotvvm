@@ -2,7 +2,7 @@
 {
     public class StatisticsProviderFactory
     {
-        public IStatisticsProvider GetProvider(DotvvmProjectSertviceConfiguration configuration)
+        public IStatisticsProvider GetProvider(ProjectServiceConfiguration configuration)
         {
             if (string.IsNullOrWhiteSpace(configuration.StatisticsFolder))
             {

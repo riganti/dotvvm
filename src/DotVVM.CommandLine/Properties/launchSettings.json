@@ -3,7 +3,7 @@
     "DotVVM.CommandLine": {
       "commandName": "Project",
       "commandLineArgs": "compiler export-config",
-      "workingDirectory": "..\\DotVVM.Samples.Common"
+      "workingDirectory": "..\\DotVVM.Samples.Compiler.Net461.Owin"
     }
   }
 }

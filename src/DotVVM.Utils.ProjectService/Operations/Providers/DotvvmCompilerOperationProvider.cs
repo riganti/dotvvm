@@ -10,7 +10,7 @@ namespace DotVVM.Utils.ProjectService.Operations.Providers
         private IOperation CompilerCore { get; }
         private IOperation SkipCompiler { get; }
 
-        public DotvvmCompilerOperationProvider(IStatisticsProvider statisticsProvider, DotvvmProjectSertviceConfiguration configuration)
+        public DotvvmCompilerOperationProvider(IStatisticsProvider statisticsProvider, ProjectServiceConfiguration configuration)
         {
             SkipCompiler = new SkipDotvvmCompilerOperation(statisticsProvider);
             CompilerNet = string.IsNullOrWhiteSpace(configuration.DotvvmCompilerNetPath) ?

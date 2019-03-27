@@ -8,37 +8,16 @@ using DotVVM.Utils.ProjectService.Output.Statistics;
 
 namespace DotVVM.Utils.ProjectService
 {
-    class Program
+    internal class Program
     {
-        public static readonly IOutputLogger Logger = new AggregatedOutputLogger(new ConsoleOutputLogger());
-        static void Main(string[] args)
-        {
-            try
-            {
-                Execute(args);
-                WaitWhenDebuggerAttached();
-            }
-            catch (Exception e)
-            {
-                Logger.WriteError(e);
-                WaitWhenDebuggerAttached();
-                Environment.Exit(1);
-            }
-        }
+        public readonly IOutputLogger Logger = new AggregatedOutputLogger(new ConsoleOutputLogger());
 
-        private static void WaitWhenDebuggerAttached()
-        {
-            if (Debugger.IsAttached)
-            {
-                Console.Write("Continue by pressing key...");
-                Console.ReadKey();
-            }
-        }
 
-        private static void Execute(string[] args)
+        private void Execute()
         {
-            var configuration = new DotvvmProjectSertviceConfiguration();
+            var configuration = new ProjectServiceConfiguration();
             var results = new ProjectSystemSearcher().Search(configuration).ToList();
+
             var statisticsProvider = new StatisticsProviderFactory().GetProvider(configuration);
             var executor = new OperationExecutor(results, Logger, statisticsProvider);
 

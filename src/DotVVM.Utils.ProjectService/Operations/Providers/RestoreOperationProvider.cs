@@ -9,7 +9,7 @@ namespace DotVVM.Utils.ProjectService.Operations.Providers
         private MsBuildRestoreOperation MsBuildRestore { get; }
         private SkipRestoreOperation SkipRestore { get; }
 
-        public RestoreOperationProvider(DotvvmProjectSertviceConfiguration configuration)
+        public RestoreOperationProvider(ProjectServiceConfiguration configuration)
         {
             DotNetRestore = new DotNetRestoreOperation();
             MsBuildRestore = new MsBuildRestoreOperation(configuration.MsBuildPath);
