@@ -82,38 +82,43 @@ namespace DotVVM.Tracing.MiniProfiler.AspNetCore
 
         protected override void OnPreRender(IDotvvmRequestContext context)
         {
-            context.ResourceManager.AddStartupScript("DotVVM-MiniProfiler-Integration",
-                @"
-(function() {
-    var miniProfilerUpdate = function(arg) { 
-        if(arg.xhr && arg.xhr.getResponseHeader) { 
-            var jsonIds = arg.xhr.getResponseHeader('X-MiniProfiler-Ids'); 
-            if (jsonIds) {
-                var ids = JSON.parse(jsonIds);
-                MiniProfiler.fetchResults(ids);
+            var authorized = (StackExchange.Profiling.MiniProfiler.Current.Options as MiniProfilerOptions)?.ResultsAuthorize?.Invoke(context.GetAspNetCoreContext().Request) ?? false;
+            if (authorized)
+            {
+
+                context.ResourceManager.AddStartupScript("DotVVM-MiniProfiler-Integration",
+                    @"
+                        (function() {
+                            var miniProfilerUpdate = function(arg) { 
+                                if(arg.xhr && arg.xhr.getResponseHeader) { 
+                                    var jsonIds = arg.xhr.getResponseHeader('X-MiniProfiler-Ids'); 
+                                    if (jsonIds) {
+                                        var ids = JSON.parse(jsonIds);
+                                        MiniProfiler.fetchResults(ids);
+                                    }
+                                }
+                            };
+                            dotvvm.events.afterPostback.subscribe(miniProfilerUpdate);
+                            dotvvm.events.spaNavigated.subscribe(miniProfilerUpdate);
+                            dotvvm.events.staticCommandMethodInvoked.subscribe(miniProfilerUpdate);
+
+                            if(!window.performance || !window.performance.timing) return;
+
+                            var dotvvmInitialized = false;
+                            dotvvm.events.init.subscribe(function () {
+                                mPt.end('DotVVM init');
+                                dotvvmInitialized = true;
+                            });
+
+                            window.dotvvm.domUtils.onDocumentReady(function () {
+                                mPt.start('DotVVM init');
+                            });
+
+                            window.document.getElementById('mini-profiler').addEventListener('load', function () {
+                                window.MiniProfiler.initCondition = function() {return dotvvmInitialized;};
+                            }); 
+                        })()", "dotvvm");
             }
-        }
-    };
-    dotvvm.events.afterPostback.subscribe(miniProfilerUpdate);
-    dotvvm.events.spaNavigated.subscribe(miniProfilerUpdate);
-    dotvvm.events.staticCommandMethodInvoked.subscribe(miniProfilerUpdate);
-
-    if(!window.performance || !window.performance.timing) return;
-
-    var dotvvmInitialized = false;
-    dotvvm.events.init.subscribe(function () {
-        mPt.end('DotVVM init');
-        dotvvmInitialized = true;
-    });
-
-    window.dotvvm.domUtils.onDocumentReady(function () {
-        mPt.start('DotVVM init');
-    });
-
-    window.document.getElementById('mini-profiler').addEventListener('load', function () {
-        window.MiniProfiler.initCondition = function() {return dotvvmInitialized;};
-    }); 
-})()", "dotvvm");
 
             base.OnPreRender(context);
         }

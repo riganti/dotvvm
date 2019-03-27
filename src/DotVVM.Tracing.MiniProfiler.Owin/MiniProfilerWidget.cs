@@ -1,4 +1,5 @@
-﻿using DotVVM.Framework.Binding;
+﻿using System.Web;
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using StackExchange.Profiling;
@@ -87,8 +88,11 @@ namespace DotVVM.Tracing.MiniProfiler.Owin
 
         protected override void OnPreRender(IDotvvmRequestContext context)
         {
-            context.ResourceManager.AddStartupScript("DotVVM-MiniProfiler-Integration",
-                @"
+            var authorized = (StackExchange.Profiling.MiniProfiler.Current.Options as MiniProfilerOptions)?.ResultsAuthorize?.Invoke(HttpContext.Current.Request) ?? false;
+            if (authorized)
+            {
+                context.ResourceManager.AddStartupScript("DotVVM-MiniProfiler-Integration",
+                    @"
 (function() {
     var miniProfilerUpdate = function(arg) {
         if(arg.xhr && arg.xhr.getResponseHeader) {
@@ -103,6 +107,7 @@ namespace DotVVM.Tracing.MiniProfiler.Owin
     dotvvm.events.spaNavigated.subscribe(miniProfilerUpdate);
     dotvvm.events.staticCommandMethodInvoked.subscribe(miniProfilerUpdate);
 })()", "dotvvm");
+            }
             base.OnPreRender(context);
         }
 
