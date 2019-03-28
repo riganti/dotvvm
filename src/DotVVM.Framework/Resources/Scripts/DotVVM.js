@@ -1,15 +1,21 @@
-var __assign = (this && this.__assign) || Object.assign || function(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
-    }
-    return t;
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
 };
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -1520,7 +1526,7 @@ var DotVVM = /** @class */ (function () {
                     return;
                 }
                 // trigger spaNavigated event
-                var spaNavigatedArgs = new DotvvmSpaNavigatedEventArgs(viewModel, viewModelName, resultObject, result);
+                var spaNavigatedArgs = new DotvvmSpaNavigatedEventArgs(_this.viewModels[viewModelName].viewModel, viewModelName, resultObject, result);
                 _this.events.spaNavigated.trigger(spaNavigatedArgs);
                 if (!isSuccess && !spaNavigatedArgs.isHandled) {
                     throw "Invalid response from server!";
@@ -1980,8 +1986,8 @@ var DotVVM = /** @class */ (function () {
                         return;
                     currentVisible = visible;
                     for (var i = 0; i < table.rows.length; i++) {
-                        var row = table.rows.item(i);
-                        var style = row.cells[columnIndex].style;
+                        var row_1 = table.rows.item(i);
+                        var style = row_1.cells[columnIndex].style;
                         if (visible) {
                             style.display = lastDisplay;
                         }
@@ -1997,7 +2003,10 @@ var DotVVM = /** @class */ (function () {
                 var table = element;
                 while (!(table instanceof HTMLTableElement))
                     table = table.parentElement;
-                var colIndex = [].slice.call(table.rows.item(0).cells).indexOf(element);
+                var row = table.rows.item(0);
+                if (!row)
+                    throw Error("Table with dotvvm-table-columnvisible binding handler must not be empty.");
+                var colIndex = [].slice.call(row.cells).indexOf(element);
                 element['dotvvmChangeVisibility'] = changeVisibility.bind(null, table, colIndex);
             },
             update: function (element, valueAccessor) {
