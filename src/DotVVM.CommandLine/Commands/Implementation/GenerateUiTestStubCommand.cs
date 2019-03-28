@@ -110,7 +110,7 @@ namespace DotVVM.CommandLine.Commands.Implementation
         {
             var config = new SeleniumGeneratorConfiguration() {
                 TargetNamespace = PathHelpers.GetNamespaceFromFullType(fullTypeName),
-                HelperName = PathHelpers.GetTypeNameFromFullType(fullTypeName),
+                PageObjectName = PathHelpers.GetTypeNameFromFullType(fullTypeName),
                 PageObjectFileFullPath = targetFileName,
                 ViewFullPath = file
             };

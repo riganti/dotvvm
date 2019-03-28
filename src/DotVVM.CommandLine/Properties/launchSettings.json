@@ -1,7 +1,9 @@
 {
   "profiles": {
     "DotVVM.CommandLine": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "gut Views/SimplePage/TestingPage.dothtml",
+      "workingDirectory": "C:\\Users\\filipkalous\\source\\repos\\dotvvm-selenium-generator.git\\src\\Samples\\SampleApp1"
     }
   }
 }
