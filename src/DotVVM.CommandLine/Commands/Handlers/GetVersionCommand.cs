@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using DotVVM.CommandLine.Commands.Core;
 using DotVVM.CommandLine.Commands.Templates;
-using DotVVM.CommandLine.Metadata;
+using DotVVM.CommandLine.Core.Metadata;
 
 namespace DotVVM.CommandLine.Commands.Handlers
 {

@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 
-namespace DotVVM.CommandLine
+namespace DotVVM.CommandLine.Core
 {
     public static class NamingHelpers
     {

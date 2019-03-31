@@ -1,7 +1,7 @@
 ﻿using System;
 using DotVVM.CommandLine.Commands.Core;
 using DotVVM.CommandLine.Commands.Logic;
-using DotVVM.CommandLine.Metadata;
+using DotVVM.CommandLine.Core.Metadata;
 
 namespace DotVVM.CommandLine.Commands.Handlers
 {

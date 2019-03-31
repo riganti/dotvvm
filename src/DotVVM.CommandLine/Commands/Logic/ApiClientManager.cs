@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using DotVVM.CommandLine.Core;
+using DotVVM.CommandLine.Core.Metadata;
 using DotVVM.CommandLine.Metadata;
 using NJsonSchema;
 using NJsonSchema.CodeGeneration.CSharp;

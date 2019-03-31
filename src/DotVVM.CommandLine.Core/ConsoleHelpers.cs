@@ -4,10 +4,16 @@ namespace DotVVM.CommandLine
 {
     public static class ConsoleHelpers
     {
-        public static string AskForValue(string question)
+        public static string AskForValue(string question, string defaultValue = null)
         {
             Console.WriteLine(question);
-            return Console.ReadLine();
+            var result =  Console.ReadLine();
+            if (defaultValue != null && string.IsNullOrEmpty(result))
+            {
+                return defaultValue;
+            }
+
+            return result;
         }
 
         public static bool AskForYesNo(string question)

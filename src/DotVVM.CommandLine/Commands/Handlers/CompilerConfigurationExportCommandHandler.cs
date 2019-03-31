@@ -2,7 +2,7 @@
 using System.Linq;
 using DotVVM.CommandLine.Commands.Core;
 using DotVVM.CommandLine.Commands.Logic.Compiler;
-using DotVVM.CommandLine.Metadata;
+using DotVVM.CommandLine.Core.Metadata;
 using DotVVM.Compiler;
 using DotVVM.Utils.ProjectService;
 using DotVVM.Utils.ProjectService.Lookup;

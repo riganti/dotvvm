@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace DotVVM.CommandLine
+namespace DotVVM.CommandLine.Core
 {
     public static class FileSystemHelpers
     {

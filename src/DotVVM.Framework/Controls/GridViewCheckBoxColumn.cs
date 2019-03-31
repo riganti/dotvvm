@@ -1,3 +1,4 @@
+using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
 
@@ -25,6 +26,13 @@ namespace DotVVM.Framework.Controls
         public override void CreateControls(IDotvvmRequestContext context, DotvvmControl container)
         {
             var checkBox = new CheckBox { Enabled = false };
+
+            // TODO: rewrite this
+            if (Properties.TryGetValue(Properties.First(p => p.Key.ToString() == "UITests.Name").Key, out var property))
+            {
+                checkBox.Properties.Add(Properties.First(p => p.Key.ToString() == "UITests.Name").Key, property);
+            }
+
             checkBox.SetBinding(CheckBox.CheckedProperty, GetValueBinding(ValueBindingProperty));
             container.Children.Add(checkBox);
         }

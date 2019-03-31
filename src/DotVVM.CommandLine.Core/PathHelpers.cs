@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Runtime.InteropServices;
-using System.Text;
-using DotVVM.CommandLine.Metadata;
+using DotVVM.CommandLine.Core.Metadata;
 
-namespace DotVVM.CommandLine
+namespace DotVVM.CommandLine.Core
 {
     public static class PathHelpers
     {

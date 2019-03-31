@@ -45,7 +45,7 @@ namespace DotVVM.CommandLine
                 new RegenNswagCommandHandler(),
                 new CompilerConfigurationExportCommandHandler(),
                 new VersionCommandHandler(), 
-                //new GenerateUiTestStubCommandHandler()
+                new GenerateUiTestStubCommandHandler()
             };
             var arguments = new Arguments(args);
             var command = commands.FirstOrDefault(c => c.TryConsumeArgs(arguments, metadata));

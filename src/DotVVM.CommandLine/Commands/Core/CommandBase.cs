@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using DotVVM.CommandLine.Metadata;
+using DotVVM.CommandLine.Core.Metadata;
 
 namespace DotVVM.CommandLine.Commands.Core
 {
