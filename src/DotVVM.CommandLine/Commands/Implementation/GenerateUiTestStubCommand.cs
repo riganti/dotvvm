@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using DotVVM.CommandLine.Commands.Templates;
 using DotVVM.CommandLine.Core;
 using DotVVM.CommandLine.Core.Metadata;
@@ -39,7 +41,6 @@ namespace DotVVM.CommandLine.Commands.Implementation
 
         public override void Handle(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
         {
-
             // make sure the test directory exists
             if (string.IsNullOrEmpty(dotvvmProjectMetadata.UITestProjectPath))
             {
@@ -59,34 +60,72 @@ namespace DotVVM.CommandLine.Commands.Implementation
                 dotvvmProjectMetadata.UITestProjectRootNamespace = Path.GetFileName(testProjectDirectory);
             }
 
-            // generate the test stubs
-            var name = args[0];
-            var files = ExpandFileNames(name);
+            IEnumerable<string> controlFiles = new List<string>();
+            IEnumerable<string> viewFiles;
 
-            foreach (var file in files)
+            if (args[0] != null)
             {
-                Console.WriteLine($"Generating stub for {file}...");
+                viewFiles = GetViewsFiles(args);
+            }
+            else
+            {
+                // generate all views and user controls files if no argument was specified
+                controlFiles = GetUserControlFiles(dotvvmProjectMetadata);
+                viewFiles = GetViewFiles(dotvvmProjectMetadata);
+            }
+
+            GeneratePageObjects(dotvvmProjectMetadata, controlFiles, viewFiles);
+        }
+
+        private void GeneratePageObjects(DotvvmProjectMetadata dotvvmProjectMetadata,
+            IEnumerable<string> controlFiles,
+            IEnumerable<string> viewFiles)
+        {
+            var dotvvmConfig = DotvvmConfiguration.CreateDefault(services => services.TryAddSingleton<IViewModelProtector, FakeViewModelProtector>());
+            var generator = new SeleniumPageObjectGenerator();
+
+            var allFiles = controlFiles.Concat(viewFiles);
+
+            foreach (var file in allFiles)
+            {
+                Console.WriteLine($@"Generating stub for {file}...");
 
                 // determine full type name and target file
                 var relativePath = PathHelpers.GetDothtmlFileRelativePath(dotvvmProjectMetadata, file);
                 var relativeTypeName = $"{PathHelpers.TrimFileExtension(relativePath)}PageObject";
-                var fullTypeName = $"{dotvvmProjectMetadata.UITestProjectRootNamespace}.{PageObjectsText}.{PathHelpers.CreateTypeNameFromPath(relativeTypeName)}";
+                var fullTypeName =
+                    $"{dotvvmProjectMetadata.UITestProjectRootNamespace}.{PageObjectsText}.{PathHelpers.CreateTypeNameFromPath(relativeTypeName)}";
                 var targetFileName = Path.Combine(dotvvmProjectMetadata.UITestProjectPath, PageObjectsText, relativeTypeName + ".cs");
 
-                // generate the file
-                var generator = new SeleniumPageObjectGenerator();
-                var config = new SeleniumGeneratorConfiguration() {
-                    TargetNamespace = PathHelpers.GetNamespaceFromFullType(fullTypeName),
-                    HelperName = PathHelpers.GetTypeNameFromFullType(fullTypeName),
-                    HelperFileFullPath = targetFileName,
-                    ViewFullPath = file
-                };
+                var config = GetSeleniumGeneratorConfiguration(fullTypeName, targetFileName, file);
 
-                generator.ProcessMarkupFile(
-                    DotvvmConfiguration.CreateDefault(services
-                        => services.TryAddSingleton<IViewModelProtector, FakeViewModelProtector>()),
-                    config);
+                GeneratePageObject(generator, dotvvmConfig, config);
             }
+        }
+
+        private void GeneratePageObject(SeleniumPageObjectGenerator generator, DotvvmConfiguration dotvvmConfig, SeleniumGeneratorConfiguration config)
+            => generator.ProcessMarkupFile(dotvvmConfig, config);
+
+        private IEnumerable<string> GetUserControlFiles(DotvvmProjectMetadata dotvvmProjectMetadata)
+            => Directory.GetFiles(dotvvmProjectMetadata.ProjectDirectory, "*.dotcontrol", SearchOption.AllDirectories);
+
+        private IEnumerable<string> GetViewFiles(DotvvmProjectMetadata dotvvmProjectMetadata)
+            => Directory.GetFiles(dotvvmProjectMetadata.ProjectDirectory, "*.dothtml", SearchOption.AllDirectories);
+
+        private IEnumerable<string> GetViewsFiles(Arguments args)
+            => ExpandFileNames(args[0]);
+
+
+        private SeleniumGeneratorConfiguration GetSeleniumGeneratorConfiguration(string fullTypeName,
+            string targetFileName, string file)
+        {
+            var config = new SeleniumGeneratorConfiguration() {
+                TargetNamespace = PathHelpers.GetNamespaceFromFullType(fullTypeName),
+                PageObjectName = PathHelpers.GetTypeNameFromFullType(fullTypeName),
+                PageObjectFileFullPath = targetFileName,
+                ViewFullPath = file
+            };
+            return config;
         }
 
         private void GenerateTestProject(string projectDirectory)
@@ -100,7 +139,7 @@ namespace DotVVM.CommandLine.Commands.Implementation
             CreatePageObjectsDirectory(projectDirectory);
         }
 
-        private static void CreatePageObjectsDirectory(string projectDirectory)
+        private void CreatePageObjectsDirectory(string projectDirectory)
         {
             var objectsDirectory = Path.Combine(projectDirectory, PageObjectsText);
             if (!Directory.Exists(objectsDirectory))
