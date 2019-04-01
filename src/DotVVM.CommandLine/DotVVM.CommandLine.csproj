@@ -44,6 +44,7 @@
   <ItemGroup>
     <ProjectReference Include="..\DotVVM.CommandLine.Core\DotVVM.CommandLine.Core.csproj" />
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
+    <ProjectReference Include="..\DotVVM.Utils.ProjectService\DotVVM.Utils.ProjectService.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
@@ -55,11 +56,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Commands\Logic\Compiler\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="DotVVM.Utils.ProjectService">
-      <HintPath>..\DotVVM.Utils.ProjectService\bin\Debug\netstandard2.0\DotVVM.Utils.ProjectService.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>
