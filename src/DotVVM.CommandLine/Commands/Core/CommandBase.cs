@@ -13,13 +13,5 @@ namespace DotVVM.CommandLine.Commands.Core
         public abstract bool TryConsumeArgs(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata);
 
         public abstract void Handle(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata);
-
-
-        protected string[] ExpandFileNames(string name)
-        {
-            // TODO: add wildcard support
-            return new[] { Path.GetFullPath(name) };
-        }
-
     }
 }

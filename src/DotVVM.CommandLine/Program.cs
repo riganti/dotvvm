@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using DotVVM.CommandLine.Commands;
 using DotVVM.CommandLine.Commands.Core;
 using DotVVM.CommandLine.Commands.Handlers;
+using DotVVM.CommandLine.Core;
 using DotVVM.CommandLine.Metadata;
-using Microsoft.CodeAnalysis;
 
 namespace DotVVM.CommandLine
 {

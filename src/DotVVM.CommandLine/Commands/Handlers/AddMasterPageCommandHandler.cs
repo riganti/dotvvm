@@ -1,10 +1,9 @@
 ﻿using System;
 using DotVVM.CommandLine.Commands.Core;
 using DotVVM.CommandLine.Commands.Logic;
-using DotVVM.CommandLine.Commands.Templates;
 using DotVVM.CommandLine.Core;
 using DotVVM.CommandLine.Core.Metadata;
-using DotVVM.CommandLine.Metadata;
+using DotVVM.CommandLine.Core.Templates;
 
 namespace DotVVM.CommandLine.Commands.Handlers
 {

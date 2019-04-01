@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
 using DotVVM.CommandLine.Commands.Core;
-using DotVVM.CommandLine.Commands.Templates;
 using DotVVM.CommandLine.Core.Metadata;
 
 namespace DotVVM.CommandLine.Commands.Handlers
