@@ -195,7 +195,7 @@ namespace DotVVM.Framework.Compilation
                 .ToArray();
             foreach (var initMethod in initMethods)
             {
-                var args = initMethod.GetParameters().Select(p => configuration.ServiceProvider.GetService(p.ParameterType)).ToArray();
+                var args = initMethod.GetParameters().Select(p => configuration.ServiceProvider.GetRequiredService(p.ParameterType)).ToArray();
                 initMethod.Invoke(null, args);
             }
             var builders = assembly.GetTypes().Select(t => new

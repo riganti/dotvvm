@@ -144,7 +144,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         private object ResolveStaticCommandService(DotvvmBindableObject c, Type type)
         {
             var context = (IDotvvmRequestContext)c.GetValue(Internal.RequestContextProperty, true);
-            return context.Services.GetService<IStaticCommandServiceLoader>().GetStaticCommandService(type, context);
+            return context.Services.GetRequiredService<IStaticCommandServiceLoader>().GetStaticCommandService(type, context);
         }
 
         public override JsExpression GetJsTranslation(JsExpression dataContext)

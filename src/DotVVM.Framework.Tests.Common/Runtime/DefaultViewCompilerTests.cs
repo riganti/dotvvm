@@ -446,7 +446,7 @@ test <dot:Literal><a /></dot:Literal>";
             context.Configuration = DotvvmTestHelper.CreateConfiguration(services =>
             {
                 services.AddSingleton<IMarkupFileLoader>(new FakeMarkupFileLoader(markupFiles));
-                services.AddSingleton<Func<IServiceProvider, Type, DotvvmControl>>((s, t) =>
+                services.AddSingleton<CustomControlFactory>((s, t) =>
                     t == typeof(TestCustomDependencyInjectionControl) ? new TestCustomDependencyInjectionControl("") { IsCorrectlyCreated = true } :
                     throw new Exception());
             });
@@ -535,7 +535,9 @@ test <dot:Literal><a /></dot:Literal>";
             DotvvmProperty.Register<FlaggyEnum, TestCodeControl>(nameof(Flags));
     }
 
-    [RequireDependencyInjection]
+    public delegate DotvvmControl CustomControlFactory(IServiceProvider sp, Type controlType);
+
+    [RequireDependencyInjection(typeof(CustomControlFactory))]
     public class TestCustomDependencyInjectionControl: DotvvmControl
     {
         public bool IsCorrectlyCreated { get; set; } = false;

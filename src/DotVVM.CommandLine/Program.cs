@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using DotVVM.CommandLine.Commands;
-using DotVVM.CommandLine.Commands.Implementation;
+using DotVVM.CommandLine.Commands.Core;
+using DotVVM.CommandLine.Commands.Handlers;
+using DotVVM.CommandLine.Core;
 using DotVVM.CommandLine.Metadata;
 
 namespace DotVVM.CommandLine
@@ -35,14 +34,15 @@ namespace DotVVM.CommandLine
             // find applicable command
             var commands = new CommandBase[]
             {
-                new AddPageCommand(),
-                new AddMasterPageCommand(),
-                new AddViewModelCommand(),
-                new AddControlCommand(),
-                new AddNswagCommand(),
-                new RegenNswagCommand(),
-
-                new GenerateUiTestStubCommand()
+                new AddPageCommandHandler(),
+                new AddMasterPageCommandHandler(),
+                new AddViewModelCommandHandler(),
+                new AddControlCommandHandler(),
+                new AddNswagCommandHandler(),
+                new RegenNswagCommandHandler(),
+                new CompilerConfigurationExportCommandHandler(),
+                new VersionCommandHandler(), 
+                new GenerateUiTestStubCommandHandler()
             };
             var arguments = new Arguments(args);
             var command = commands.FirstOrDefault(c => c.TryConsumeArgs(arguments, metadata));
@@ -59,7 +59,8 @@ namespace DotVVM.CommandLine
                 }
                 else
                 {
-                    throw new InvalidCommandUsageException("Unknown command!");
+                    WriteHelp(commands);
+
                 }
             }
             catch (InvalidCommandUsageException ex)
@@ -72,6 +73,26 @@ namespace DotVVM.CommandLine
                 Console.Error.WriteLine(ex.ToString());
                 Environment.Exit(1);
             }
+        }
+
+        private static void WriteHelp(CommandBase[] commands )
+        {
+            var indent = "    ";
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Error.WriteLine("Command could not be found.");
+            Console.ResetColor();
+
+            Console.WriteLine();
+            Console.WriteLine("DotVVM CLI");
+            foreach (var command in commands)
+            {
+                Console.WriteLine();
+                Console.WriteLine(indent + "- " + command.Name);
+                foreach (var usage in command.Usages) Console.WriteLine(indent + indent + usage);
+            }
+            Console.WriteLine();
+            Console.WriteLine();
+            Environment.Exit(1);
         }
     }
 }

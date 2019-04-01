@@ -1,7 +1,7 @@
 ﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyTitle>DotVVM</AssemblyTitle>
-    <VersionPrefix>2.2.0-preview01-final</VersionPrefix>
+    <VersionPrefix>2.2.0-preview03-final</VersionPrefix>
     <TargetFrameworks>netstandard2.0;net451</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -9,7 +9,7 @@
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>DotVVM</PackageId>
-    <PackageVersion>2.2.0-preview01-final</PackageVersion>
+    <PackageVersion>2.2.0-preview03-final</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>DotVVM is an open source ASP.NET-based framework which allows to build modern web apps without writing any JavaScript code.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
@@ -28,37 +28,37 @@
     <LangVersion>7.2</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="..\DotVVM.Compiler\bin\$(Configuration)\net461\DotVVM.Compiler.exe">
+    <Content Include="..\Tools\DotVVM.Compiler\bin\$(Configuration)\net461\DotVVM.Compiler.exe">
       <Pack>true</Pack>
       <InProject>false</InProject>
       <PackagePath>tools\DotVVM.Compiler.exe</PackagePath>
       <Visible>false</Visible>
     </Content>
-    <Content Include="..\DotVVM.Compiler\bin\$(Configuration)\netcoreapp2.0\DotVVM.Compiler.dll">
+    <Content Include="..\Tools\DotVVM.Compiler\bin\$(Configuration)\netcoreapp2.0\DotVVM.Compiler.dll">
       <Pack>true</Pack>
       <InProject>false</InProject>
       <PackagePath>tools\dnc\DotVVM.Compiler.dll</PackagePath>
       <Visible>false</Visible>
     </Content>
-    <Content Include="..\DotVVM.Compiler\bin\$(Configuration)\netcoreapp2.0\DotVVM.Compiler.pdb">
+    <Content Include="..\Tools\DotVVM.Compiler\bin\$(Configuration)\netcoreapp2.0\DotVVM.Compiler.pdb">
       <Pack>true</Pack>
       <InProject>false</InProject>
       <PackagePath>tools\dnc\DotVVM.Compiler.pdb</PackagePath>
       <Visible>false</Visible>
     </Content>
-    <Content Include="..\DotVVM.Compiler\bin\$(Configuration)\netcoreapp2.0\DotVVM.Compiler.runtimeconfig.json">
+    <Content Include="..\Tools\DotVVM.Compiler\bin\$(Configuration)\netcoreapp2.0\DotVVM.Compiler.runtimeconfig.json">
       <Pack>true</Pack>
       <InProject>false</InProject>
       <PackagePath>tools\dnc\DotVVM.Compiler.runtimeconfig.json</PackagePath>
       <Visible>false</Visible>
     </Content>
-    <Content Include="..\DotVVM.Compiler\bin\$(Configuration)\netcoreapp2.0\Newtonsoft.Json.dll">
+    <Content Include="..\Tools\DotVVM.Compiler\bin\$(Configuration)\netcoreapp2.0\Newtonsoft.Json.dll">
       <Pack>true</Pack>
       <InProject>false</InProject>
       <PackagePath>tools\dnc\Newtonsoft.Json.dll</PackagePath>
       <Visible>false</Visible>
     </Content>
-    <Content Include="..\DotVVM.Compiler\DotVVM.Compiler.deps.json">
+    <Content Include="..\Tools\DotVVM.Compiler\DotVVM.Compiler.deps.json">
       <Pack>true</Pack>
       <InProject>false</InProject>
       <PackagePath>tools\dnc\DotVVM.Compiler.deps.json</PackagePath>

@@ -2,14 +2,14 @@
   "profiles": {
     "DotVVM.Compiler": {
       "commandName": "Project",
-      "commandLineArgs": "--debugger --json \"{\\\"WebSiteAssembly\\\":\\\"C:\\\\dev\\\\dotvvm-web\\\\src\\\\DotvvmWeb\\\\DotvvmWeb\\\\bin\\\\DotvvmWeb.dll\\\",\\\"WebSitePath\\\":\\\"C:\\\\dev\\\\dotvvm-web\\\\src\\\\DotvvmWeb\\\\DotvvmWeb\\\",\\\"FullCompile\\\":false,\\\"SerializeConfig\\\":true,\\\"DothtmlFiles\\\":[],\\\"OutputResolvedDothtmlMap\\\":true,\\\"CheckBindingErrors\\\":false}\""
+      "commandLineArgs": "--debugger --json \"{    \\\"WebSiteAssembly\\\": \\\"C:\\\\dev\\\\dotvvm\\\\src\\\\DotVVM.Samples.Compiler.Net461.Owin\\\\bin\\\\DotVVM.Samples.Compiler.Net461.Owin.dll\\\",    \\\"WebSitePath\\\": \\\"C:\\\\dev\\\\dotvvm\\\\src\\\\DotVVM.Samples.Compiler.Net461.Owin\\\",    \\\"FullCompile\\\": false,    \\\"SerializeConfig\\\": true,    \\\"DothtmlFiles\\\": null,    \\\"OutputResolvedDothtmlMap\\\": true,    \\\"CheckBindingErrors\\\": true}\""
     },
     "NetCoreApp": {
       "commandName": "Project",
-      "commandLineArgs": "--debugger --json \"{\\\"WebSiteAssembly\\\":\\\"C:\\\\dev\\\\dotvvm\\\\src\\\\DotVVM.Samples.BasicSamples.AspNetCore\\\\bin\\\\Debug\\\\netcoreapp2.0\\\\DotVVM.Samples.BasicSamples.AspNetCore.dll\\\",\\\"WebSitePath\\\":\\\"C:\\\\dev\\\\dotvvm\\\\src\\\\DotVVM.Samples.BasicSamples.AspNetCore\\\",\\\"FullCompile\\\":false,\\\"SerializeConfig\\\":true,\\\"DothtmlFiles\\\":[],\\\"OutputResolvedDothtmlMap\\\":true,\\\"CheckBindingErrors\\\":true}\"",
+      "commandLineArgs": "--debugger --json \"{\\\"WebSiteAssembly\\\":\\\"C:\\\\dev\\\\dotvvm\\\\src\\\\DotVVM.Samples.Compiler.ANC22\\\\bin\\\\Debug\\\\netcoreapp2.2\\\\DotVVM.Samples.Compiler.ANC22.dll\\\",\\\"WebSitePath\\\":\\\"C:\\\\dev\\\\dotvvm\\\\src\\\\DotVVM.Samples.Compiler.ANC22\\\",\\\"FullCompile\\\":false,\\\"SerializeConfig\\\":true,\\\"DothtmlFiles\\\":null,\\\"OutputResolvedDothtmlMap\\\":true,\\\"CheckBindingErrors\\\":true}\"",
       "environmentVariables": {
-        "webAssemblyPath": "C:\\dev\\dotvvm\\src\\DotVVM.Samples.BasicSamples.AspNetCore\\bin\\Release\\netcoreapp2.0\\DotVVM.Samples.BasicSamples.AspNetCore.dll",
-        "assemblySearchPath": "C:\\dev\\dotvvm\\src\\DotVVM.Samples.BasicSamples.AspNetCore\\bin\\Release\\netcoreapp2.0"
+        "webAssemblyPath": "C:\\dev\\dotvvm\\src\\DotVVM.Samples.Compiler.ANC22\\bin\\Debug\\netcoreapp2.2\\DotVVM.Samples.Compiler.ANC22.dll",
+        "assemblySearchPath": "C:\\dev\\dotvvm\\src\\DotVVM.Samples.Compiler.ANC22\\bin\\Debug\\netcoreapp2.2\\"
       }
     }
   }

@@ -1,6 +1,6 @@
 using System;
 
-namespace DotVVM.CommandLine
+namespace DotVVM.CommandLine.Core
 {
     public static class ConsoleHelpers
     {

@@ -57,7 +57,7 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Tests
                 .AddApplicationPart(typeof(CompaniesController).Assembly);
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
-            var apiDescriptionGroupCollectionProvider = serviceProvider.GetService<IApiDescriptionGroupCollectionProvider>();
+            var apiDescriptionGroupCollectionProvider = serviceProvider.GetRequiredService<IApiDescriptionGroupCollectionProvider>();
 
             var schemaSettings = new SchemaRegistrySettings() {
                 SchemaFilters = {
