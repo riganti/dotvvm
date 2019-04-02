@@ -22,11 +22,10 @@ namespace DotVVM.CommandLine.Core.Metadata
         [JsonProperty("uiTestProjectRootNamespace")]
         public string UITestProjectRootNamespace { get; set; }
 
-
-        [JsonIgnore()]
+        [JsonProperty("metadataFilePath")]
         public string MetadataFilePath { get; set; }
 
-        [JsonIgnore()]
+        [JsonProperty("projectDirectory")]
         public string ProjectDirectory { get; set; }
 
         [JsonProperty("apiClients")]

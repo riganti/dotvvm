@@ -1,6 +1,13 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Linq;
 using DotVVM.CommandLine.Commands.Core;
+using DotVVM.CommandLine.Commands.Logic.SeleniumGenerator;
 using DotVVM.CommandLine.Core.Metadata;
+using DotVVM.Compiler;
+using DotVVM.Utils.ProjectService;
+using DotVVM.Utils.ProjectService.Lookup;
+using Newtonsoft.Json;
 
 namespace DotVVM.CommandLine.Commands.Handlers
 {
@@ -34,8 +41,14 @@ namespace DotVVM.CommandLine.Commands.Handlers
         {
             // TODO: call generator project
 
+            var configuration = new ProjectServiceConfiguration {
+                Version = CsprojVersion.DotNetSdk,
+                LookupFolder = Environment.CurrentDirectory
+            };
 
+            var results = new ProjectSystemSearcher().Search(configuration).ToList();
 
+            SeleniumGeneratorLauncher.Start(args, dotvvmProjectMetadata);
         }
     }
 }
