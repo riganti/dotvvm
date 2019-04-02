@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using DotVVM.CommandLine.Core.Metadata;
-using DotVVM.CommandLine.ProjectSystem;
+using DotVVM.CommandLine.Core.ProjectSystem;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace DotVVM.CommandLine.Metadata
+namespace DotVVM.CommandLine.Core.Metadata
 {
     public class DotvvmProjectMetadataService
     {
@@ -58,8 +52,7 @@ namespace DotVVM.CommandLine.Metadata
 
         public DotvvmProjectMetadata CreateDefaultConfiguration(string directory)
         {
-            var metadata = new DotvvmProjectMetadata()
-            {
+            var metadata = new DotvvmProjectMetadata() {
                 Version = 1,
                 ProjectDirectory = directory,
                 MetadataFilePath = Path.Combine(directory, MetadataFileName)

@@ -1,18 +1,15 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using DotVVM.CommandLine.Core;
 using DotVVM.CommandLine.Core.Metadata;
-using DotVVM.CommandLine.Metadata;
 using NJsonSchema;
 using NJsonSchema.CodeGeneration.CSharp;
 using NJsonSchema.CodeGeneration.TypeScript;
 using NSwag;
 using NSwag.CodeGeneration.CSharp;
-using NSwag.CodeGeneration.OperationNameGenerators;
 using NSwag.CodeGeneration.TypeScript;
 
 namespace DotVVM.CommandLine.Commands.Logic
