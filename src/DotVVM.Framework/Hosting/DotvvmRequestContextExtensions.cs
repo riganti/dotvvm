@@ -86,6 +86,19 @@ public static class DotvvmRequestContextExtensions
     }
 
     /// <summary>
+    /// Verifies that the URL is local and returns the redirect response and interrupts the execution of current request.
+    /// </summary>
+    public static void RedirectToLocalUrl(this IDotvvmRequestContext context, string url, bool replaceInHistory = false, bool allowSpaRedirect = false)
+    {
+        if (!UrlHelper.IsLocalUrl(url))
+        {
+            throw new InvalidOperationException($"The URL '{url}' is not local!");
+        }
+
+        context.RedirectToUrl(url, replaceInHistory, allowSpaRedirect);
+    }
+
+    /// <summary>
     /// Returns the redirect response and interrupts the execution of current request.
     /// </summary>
     public static void RedirectToRoute(this IDotvvmRequestContext context, string routeName, object newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true, string urlSuffix = null, object query = null)
