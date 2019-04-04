@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DotVVM.CommandLine.Commands.Core;
 using DotVVM.CommandLine.Commands.Logic;
+using DotVVM.CommandLine.Core.Arguments;
 using DotVVM.CommandLine.Core.Metadata;
 using DotVVM.Framework.Utils;
 
