@@ -81,7 +81,7 @@ namespace DotVVM.Framework.Routing
         {
             // find the end of the route parameter name
             var startIndex = index;
-            index = url.IndexOfAny(new[] { '}', ':' }, index);
+            index = url.IndexOfAny(new[] { '}', ':', '=' }, index);
             if (index < 0)
             {
                 throw new ArgumentException($"The route URL '{url}' is not valid! It contains an unclosed parameter.");
@@ -104,7 +104,7 @@ namespace DotVVM.Framework.Routing
             while (url[index] == ':')
             {
                 startIndex = index + 1;
-                index = url.IndexOfAny("}(:".ToArray(), index + 1);
+                index = url.IndexOfAny(new[] { '}', '(', ':', '=' }, index + 1);
                 if (index < 0)
                 {
                     throw new ArgumentException($"The route URL '{url}' is not valid! It contains an unclosed parameter.");
@@ -136,7 +136,21 @@ namespace DotVVM.Framework.Routing
 
                 constraints.Add(new ConstraintWithParameter() { Constraint = constraint, Parameter = parameter });
             }
-            if (url[index] != '}') throw new AggregateException($"Route parameter { name } should be closed with curly bracket");
+            if (url[index] == '=')
+            {
+                // read the default value
+                startIndex = index + 1;
+                index = url.IndexOf('}', index + 1);
+
+                var defaultValue = url.Substring(startIndex, index - startIndex);
+                if (defaultValues.ContainsKey(name))
+                {
+                    throw new ArgumentException($"The route parameter {name} specifies the default value in both route URL and defaultValues collection!");
+                }
+                defaultValues[name] = defaultValue;
+                isOptional = true;
+            }
+            if (url[index] != '}') throw new AggregateException($"Route parameter { name } should be closed with curly bracket.");
 
             Func<Dictionary<string, object>, string> urlBuilder;
             // generate the URL builder

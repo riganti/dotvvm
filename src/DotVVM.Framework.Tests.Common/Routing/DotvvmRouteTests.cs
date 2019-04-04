@@ -238,6 +238,45 @@ namespace DotVVM.Framework.Tests.Routing
         }
 
         [TestMethod]
+        public void DotvvmRoute_IsMatch_OneParameter_DefaultValueInRoute_DefaultValueUsed()
+        {
+            var route = new DotvvmRoute("Article/{Id=abc}", null, null, null, configuration);
+
+            IDictionary<string, object> parameters;
+            var result = route.IsMatch("Article", out parameters);
+
+            Assert.IsTrue(result);
+            Assert.AreEqual(1, parameters.Count);
+            Assert.AreEqual("abc", parameters["Id"]);
+        }
+
+        [TestMethod]
+        public void DotvvmRoute_IsMatch_OneParameter_DefaultValueInRoute_ExplicitValueUsed()
+        {
+            var route = new DotvvmRoute("Article/{Id=abc}", null, null, null, configuration);
+
+            IDictionary<string, object> parameters;
+            var result = route.IsMatch("Article/15", out parameters);
+
+            Assert.IsTrue(result);
+            Assert.AreEqual(1, parameters.Count);
+            Assert.AreEqual("15", parameters["Id"]);
+        }
+
+        [TestMethod]
+        public void DotvvmRoute_IsMatch_OneParameter_DefaultValueInRoute_WithConstraint_DefaultValueUsed()
+        {
+            var route = new DotvvmRoute("Article/{Id:int=15}", null, null, null, configuration);
+
+            IDictionary<string, object> parameters;
+            var result = route.IsMatch("Article", out parameters);
+
+            Assert.IsTrue(result);
+            Assert.AreEqual(1, parameters.Count);
+            Assert.AreEqual("15", parameters["Id"]);        // TODO: make sure MVC does the same thing - should this be an int?
+        }
+
+        [TestMethod]
         public void DotvvmRoute_BuildUrl_UrlTwoParameters()
         {
             var route = new DotvvmRoute("Article/id_{Id}/{Title}", null, null, null, configuration);
