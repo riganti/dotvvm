@@ -100,9 +100,8 @@ namespace DotVVM.Framework.Routing
             }
 
             // determine route parameter constraint
-            IRouteParameterConstraint type = null;
-            string parameter = null;
-            if (url[index] == ':')
+            var constraints = new List<ConstraintWithParameter>();
+            while (url[index] == ':')
             {
                 startIndex = index + 1;
                 index = url.IndexOfAny("}(:".ToArray(), index + 1);
@@ -116,7 +115,9 @@ namespace DotVVM.Framework.Routing
                 {
                     throw new ArgumentException($"The route parameter constraint '{typeName}' is not valid!");
                 }
-                type = routeConstraints[typeName];
+
+                var constraint = routeConstraints[typeName];
+                string parameter = null;
                 if (url[index] == '(') // parameters
                 {
                     index++;
@@ -127,13 +128,13 @@ namespace DotVVM.Framework.Routing
                         if (url[index] == '(') plevel++;
                         else if (url[index] == ')') plevel--;
                         index++;
-                        if (url.Length == index) throw new AggregateException($"The route constraint parameter of '{name}:{type}' is not closed: {url}");
+                        if (url.Length == index) throw new AggregateException($"The route constraint parameter of '{name}:{constraint}' is not closed: {url}");
                     }
                     parameter = url.Substring(startIndex, index - startIndex);
                     index++;
                 }
-                if (url[index] == ':') throw new NotImplementedException("Support for multiple route constraints is not implemented."); // TODO
 
+                constraints.Add(new ConstraintWithParameter() { Constraint = constraint, Parameter = parameter });
             }
             if (url[index] != '}') throw new AggregateException($"Route parameter { name } should be closed with curly bracket");
 
@@ -158,12 +159,17 @@ namespace DotVVM.Framework.Routing
                 urlBuilder = v => prefix + (v[name]?.ToString() ?? throw new ArgumentNullException($"Could not build route, parameter '{name}' is null"));
             }
 
-            var parameterParser = type != null
-                ? new KeyValuePair<string, Func<string, ParameterParseResult>>(name, s => type.ParseString(s, parameter))
+            var parameterParser = constraints.Any()
+                ? new KeyValuePair<string, Func<string, ParameterParseResult>>(name, s => ParseConstraints(s, constraints))
                 : new KeyValuePair<string, Func<string, ParameterParseResult>>(name, null);
 
             // generate the regex
-            var pattern = type?.GetPartRegex(parameter) ?? "[^/]*?";     // parameters cannot contain /
+            string pattern = null;
+            if (constraints.Any())
+            {
+                pattern = constraints[0].Constraint.GetPartRegex(constraints[0].Parameter);
+            }
+            pattern = pattern ?? "[^/]*?";     // parameters cannot contain /
             var result = $"{ Regex.Escape(prefix) }(?<param{Regex.Escape(name)}>{pattern})";
             if (isOptional)
             {
@@ -176,6 +182,31 @@ namespace DotVVM.Framework.Routing
                 UrlBuilder = urlBuilder,
                 Parameter = parameterParser
             };
+        }
+
+        private ParameterParseResult ParseConstraints(string originalValue, List<ConstraintWithParameter> constraints)
+        {
+            ParameterParseResult result = default;
+            object convertedValue = originalValue;
+
+            for (int i = 0; i < constraints.Count; i++)
+            {
+                if (constraints[i].Constraint is IConvertedRouteParameterConstraint convertedValueConstraint)
+                {
+                    result = convertedValueConstraint.ParseObject(convertedValue, constraints[i].Parameter);
+                }
+                else
+                {
+                    result = constraints[i].Constraint.ParseString(originalValue, constraints[i].Parameter);
+                }
+
+                if (!result.IsOK)
+                {
+                    break;
+                }
+                convertedValue = result.Value;
+            }
+            return result;
         }
 
         private struct UrlParameterParserResult
@@ -191,5 +222,11 @@ namespace DotVVM.Framework.Routing
         public Regex RouteRegex { get; set; }
         public List<Func<Dictionary<string, object>, string>> UrlBuilders { get; set; }
         public List<KeyValuePair<string, Func<string, ParameterParseResult>>> Parameters { get; set; }
+    }
+
+    public struct ConstraintWithParameter
+    {
+        public IRouteParameterConstraint Constraint { get; set; }
+        public string Parameter { get; set; }
     }
 }

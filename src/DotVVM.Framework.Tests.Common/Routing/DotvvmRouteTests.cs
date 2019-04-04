@@ -129,6 +129,41 @@ namespace DotVVM.Framework.Tests.Routing
         }
 
         [TestMethod]
+        public void DotvvmRoute_IsMatch_UrlOneParameterRequired_WithConstraint()
+        {
+            var route = new DotvvmRoute("Article/{Id:int}", null, null, null, configuration);
+
+            IDictionary<string, object> parameters;
+            var result = route.IsMatch("Article/15", out parameters);
+
+            Assert.IsTrue(result);
+            Assert.AreEqual(15, parameters["Id"]);
+        }
+
+        [TestMethod]
+        public void DotvvmRoute_IsMatch_UrlOneParameterRequired_WithTwoConstraints()
+        {
+            var route = new DotvvmRoute("Article/{Id:int:min(2)}", null, null, null, configuration);
+
+            IDictionary<string, object> parameters;
+            var result = route.IsMatch("Article/15", out parameters);
+
+            Assert.IsTrue(result);
+            Assert.AreEqual(15, parameters["Id"]);
+        }
+
+        [TestMethod]
+        public void DotvvmRoute_IsMatch_UrlOneParameterRequired_WithTwoConstraints_SecondConstraintFailed()
+        {
+            var route = new DotvvmRoute("Article/{Id:int:min(20)}", null, null, null, configuration);
+
+            IDictionary<string, object> parameters;
+            var result = route.IsMatch("Article/15", out parameters);
+
+            Assert.IsFalse(result);
+        }
+
+        [TestMethod]
         public void DotvvmRoute_IsMatch_UrlTwoParametersBothRequired_BothSpecified()
         {
             var route = new DotvvmRoute("Article/id_{Id}/{Title}", null, null, null, configuration);
@@ -158,6 +193,18 @@ namespace DotVVM.Framework.Tests.Routing
         public void DotvvmRoute_IsMatch_OneOptionalSuffixedParameter_WithConstraint()
         {
             var route = new DotvvmRoute("Article/{Id?:int}", null, null, null, configuration);
+
+            IDictionary<string, object> parameters;
+            var result = route.IsMatch("Article", out parameters);
+
+            Assert.IsTrue(result);
+            Assert.AreEqual(0, parameters.Count);
+        }
+
+        [TestMethod]
+        public void DotvvmRoute_IsMatch_OneOptionalSuffixedParameter_WithTwoConstraints()
+        {
+            var route = new DotvvmRoute("Article/{Id?:int:min(1)}", null, null, null, configuration);
 
             IDictionary<string, object> parameters;
             var result = route.IsMatch("Article", out parameters);

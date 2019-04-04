@@ -12,6 +12,11 @@ namespace DotVVM.Framework.Routing
         ParameterParseResult ParseString(string value, string parameter);
     }
 
+    public interface IConvertedRouteParameterConstraint : IRouteParameterConstraint
+    {
+        ParameterParseResult ParseObject(object value, string parameter);
+    }
+
     public struct ParameterParseResult
     {
         public readonly bool IsOK;

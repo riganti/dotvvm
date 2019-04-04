@@ -230,25 +230,59 @@ namespace DotVVM.Framework.Configuration
             configuration.RouteConstraints.Add("posint", GenericRouteParameterType.Create<int>("[0-9]*?", Invariant.TryParse));
             configuration.RouteConstraints.Add("length", new GenericRouteParameterType(p => "[^/]{" + p + "}"));
             configuration.RouteConstraints.Add("long", GenericRouteParameterType.Create<long>("-?[0-9]*?", Invariant.TryParse));
-            configuration.RouteConstraints.Add("max", new GenericRouteParameterType(p => "-?[0-9.e]*?", (valueString, parameter) => {
+
+            configuration.RouteConstraints.Add("max", new GenericConvertedRouteParameterType(p => "-?[0-9.e]*?", (valueString, parameter) => {
                 double value;
                 if (!Invariant.TryParse(valueString, out value)) return ParameterParseResult.Failed;
                 if (double.Parse(parameter, CultureInfo.InvariantCulture) < value) return ParameterParseResult.Failed;
                 return ParameterParseResult.Create(value);
+            },
+            (valueObject, parameter) => {
+                var valueType = valueObject.GetType();
+                if (!ReflectionUtils.IsNumericType(valueType))
+                {
+                    throw new NotSupportedException("The max route constraint only supports numeric types!");
+                }
+                var parameterValue = ReflectionUtils.ConvertValue(parameter, valueType);
+                if (((IComparable)valueObject).CompareTo(parameterValue) > 0) return ParameterParseResult.Failed;
+                return ParameterParseResult.Create(valueObject);
             }));
-            configuration.RouteConstraints.Add("min", new GenericRouteParameterType(p => "-?[0-9.e]*?", (valueString, parameter) => {
+            configuration.RouteConstraints.Add("min", new GenericConvertedRouteParameterType(p => "-?[0-9.e]*?", (valueString, parameter) => {
                 double value;
                 if (!Invariant.TryParse(valueString, out value)) return ParameterParseResult.Failed;
                 if (double.Parse(parameter, CultureInfo.InvariantCulture) > value) return ParameterParseResult.Failed;
                 return ParameterParseResult.Create(value);
+            },
+            (valueObject, parameter) => {
+                var valueType = valueObject.GetType();
+                if (!ReflectionUtils.IsNumericType(valueType))
+                {
+                    throw new NotSupportedException("The min route constraint only supports numeric types!");
+                }
+                var parameterValue = ReflectionUtils.ConvertValue(parameter, valueType);
+                if (((IComparable)valueObject).CompareTo(parameterValue) < 0) return ParameterParseResult.Failed;
+                return ParameterParseResult.Create(valueObject);
             }));
-            configuration.RouteConstraints.Add("range", new GenericRouteParameterType(p => "-?[0-9.e]*?", (valueString, parameter) => {
+            configuration.RouteConstraints.Add("range", new GenericConvertedRouteParameterType(p => "-?[0-9.e]*?", (valueString, parameter) => {
                 double value;
                 if (!Invariant.TryParse(valueString, out value)) return ParameterParseResult.Failed;
                 var split = parameter.Split(',');
                 if (double.Parse(split[0], CultureInfo.InvariantCulture) > value || double.Parse(split[1], CultureInfo.InvariantCulture) < value) return ParameterParseResult.Failed;
                 return ParameterParseResult.Create(value);
+            },
+            (valueObject, parameter) => {
+                var valueType = valueObject.GetType();
+                if (!ReflectionUtils.IsNumericType(valueType))
+                {
+                    throw new NotSupportedException("The range route constraint only supports numeric types!");
+                }
+                var split = parameter.Split(',');
+                var minParameterValue = ReflectionUtils.ConvertValue(split[0], valueType);
+                var maxParameterValue = ReflectionUtils.ConvertValue(split[1], valueType);
+                if (((IComparable)valueObject).CompareTo(minParameterValue) < 0 || ((IComparable)valueObject).CompareTo(maxParameterValue) > 0) return ParameterParseResult.Failed;
+                return ParameterParseResult.Create(valueObject);
             }));
+
             configuration.RouteConstraints.Add("maxLength", new GenericRouteParameterType(p => "[^/]{0," + p + "}"));
             configuration.RouteConstraints.Add("minLength", new GenericRouteParameterType(p => "[^/]{" + p + ",}"));
             configuration.RouteConstraints.Add("regex", new GenericRouteParameterType(p => {

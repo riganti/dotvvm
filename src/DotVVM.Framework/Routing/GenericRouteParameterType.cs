@@ -14,6 +14,7 @@ namespace DotVVM.Framework.Routing
             => partRegex(parameter);
 
         Func<string, string, ParameterParseResult> parser;
+
         public ParameterParseResult ParseString(string value, string parameter)
             => parser == null ? ParameterParseResult.Create(value) : parser(value, parameter);
 
@@ -27,11 +28,12 @@ namespace DotVVM.Framework.Routing
                 else return ParameterParseResult.Failed;
             });
         }
-
-        public GenericRouteParameterType(Func<string, string> partRegex, Func<string, string, ParameterParseResult> parser = null)
+        
+        public GenericRouteParameterType(Func<string, string> partRegex, Func<string, string, ParameterParseResult> parser = null, Func<object, string, ParameterParseResult> convertedParser = null)
         {
             this.partRegex = partRegex;
             this.parser = parser;
         }
+
     }
 }
