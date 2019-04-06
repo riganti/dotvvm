@@ -19,20 +19,22 @@ namespace DotVVM.Framework.Routing.Constraints
 
         public ParameterParseResult ParseValue(object value, string parameter)
         {
+            var valueToTest = value;
+
             if (value is string)
             {
                 if (!Invariant.TryParse((string)value, out double convertedValue))
                 {
                     return ParameterParseResult.Failed;
                 }
-                value = convertedValue;
+                valueToTest = convertedValue;
             }
             else if (value == null || !ReflectionUtils.IsNumericType(value.GetType()))
             {
                 return ParameterParseResult.Failed;
             }
 
-            if (ValidateValue(value, parameter))
+            if (ValidateValue(valueToTest, parameter))
             {
                 return ParameterParseResult.Create(value);
             }
