@@ -51,6 +51,7 @@ namespace DotVVM.Framework.Routing
         /// <summary>
         /// Checks whether the URL is local.
         /// </summary>
+        /// <remarks>The implementation is copied from https://github.com/aspnet/AspNetCore/blob/release/2.2/src/Mvc/Mvc.Core/src/Routing/UrlHelperBase.cs#L45 in order to provide the same behavior for local redirects.</remarks>
         public static bool IsLocalUrl(string url)
         {
             if (string.IsNullOrEmpty(url))
