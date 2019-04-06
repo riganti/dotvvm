@@ -28,6 +28,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using DotVVM.Framework.Runtime.Tracing;
 using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Routing.Constraints;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -220,76 +221,29 @@ namespace DotVVM.Framework.Configuration
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
         static void RegisterConstraints(DotvvmConfiguration configuration)
         {
-            configuration.RouteConstraints.Add("alpha", GenericRouteParameterType.Create("[a-zA-Z]*?"));
-            configuration.RouteConstraints.Add("bool", GenericRouteParameterType.Create<bool>("true|false", bool.TryParse));
-            configuration.RouteConstraints.Add("decimal", GenericRouteParameterType.Create<decimal>("-?[0-9.e]*?", Invariant.TryParse));
-            configuration.RouteConstraints.Add("double", GenericRouteParameterType.Create<double>("-?[0-9.e]*?", Invariant.TryParse));
-            configuration.RouteConstraints.Add("float", GenericRouteParameterType.Create<float>("-?[0-9.e]*?", Invariant.TryParse));
-            configuration.RouteConstraints.Add("guid", GenericRouteParameterType.Create<Guid>("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", Guid.TryParse));
-            configuration.RouteConstraints.Add("int", GenericRouteParameterType.Create<int>("-?[0-9]*?", Invariant.TryParse));
-            configuration.RouteConstraints.Add("posint", GenericRouteParameterType.Create<int>("[0-9]*?", Invariant.TryParse));
-            configuration.RouteConstraints.Add("length", new GenericRouteParameterType(p => "[^/]{" + p + "}"));
-            configuration.RouteConstraints.Add("long", GenericRouteParameterType.Create<long>("-?[0-9]*?", Invariant.TryParse));
+            // patterns
+            configuration.RouteConstraints.Add("alpha", new PatternRouteParameterConstraint("alpha", "[a-zA-Z]*?"));
+            configuration.RouteConstraints.Add("regex", new RegexRouteParameterConstraint("regex"));
 
-            configuration.RouteConstraints.Add("max", new GenericConvertedRouteParameterType(p => "-?[0-9.e]*?", (valueString, parameter) => {
-                double value;
-                if (!Invariant.TryParse(valueString, out value)) return ParameterParseResult.Failed;
-                if (double.Parse(parameter, CultureInfo.InvariantCulture) < value) return ParameterParseResult.Failed;
-                return ParameterParseResult.Create(value);
-            },
-            (valueObject, parameter) => {
-                var valueType = valueObject.GetType();
-                if (!ReflectionUtils.IsNumericType(valueType))
-                {
-                    throw new NotSupportedException("The max route constraint only supports numeric types!");
-                }
-                var parameterValue = ReflectionUtils.ConvertValue(parameter, valueType);
-                if (((IComparable)valueObject).CompareTo(parameterValue) > 0) return ParameterParseResult.Failed;
-                return ParameterParseResult.Create(valueObject);
-            }));
-            configuration.RouteConstraints.Add("min", new GenericConvertedRouteParameterType(p => "-?[0-9.e]*?", (valueString, parameter) => {
-                double value;
-                if (!Invariant.TryParse(valueString, out value)) return ParameterParseResult.Failed;
-                if (double.Parse(parameter, CultureInfo.InvariantCulture) > value) return ParameterParseResult.Failed;
-                return ParameterParseResult.Create(value);
-            },
-            (valueObject, parameter) => {
-                var valueType = valueObject.GetType();
-                if (!ReflectionUtils.IsNumericType(valueType))
-                {
-                    throw new NotSupportedException("The min route constraint only supports numeric types!");
-                }
-                var parameterValue = ReflectionUtils.ConvertValue(parameter, valueType);
-                if (((IComparable)valueObject).CompareTo(parameterValue) < 0) return ParameterParseResult.Failed;
-                return ParameterParseResult.Create(valueObject);
-            }));
-            configuration.RouteConstraints.Add("range", new GenericConvertedRouteParameterType(p => "-?[0-9.e]*?", (valueString, parameter) => {
-                double value;
-                if (!Invariant.TryParse(valueString, out value)) return ParameterParseResult.Failed;
-                var split = parameter.Split(',');
-                if (double.Parse(split[0], CultureInfo.InvariantCulture) > value || double.Parse(split[1], CultureInfo.InvariantCulture) < value) return ParameterParseResult.Failed;
-                return ParameterParseResult.Create(value);
-            },
-            (valueObject, parameter) => {
-                var valueType = valueObject.GetType();
-                if (!ReflectionUtils.IsNumericType(valueType))
-                {
-                    throw new NotSupportedException("The range route constraint only supports numeric types!");
-                }
-                var split = parameter.Split(',');
-                var minParameterValue = ReflectionUtils.ConvertValue(split[0], valueType);
-                var maxParameterValue = ReflectionUtils.ConvertValue(split[1], valueType);
-                if (((IComparable)valueObject).CompareTo(minParameterValue) < 0 || ((IComparable)valueObject).CompareTo(maxParameterValue) > 0) return ParameterParseResult.Failed;
-                return ParameterParseResult.Create(valueObject);
-            }));
+            // type conversions
+            configuration.RouteConstraints.Add("bool", new TryParseDelegateRouteParameterConstraint<bool>("bool", "true|false", bool.TryParse));
+            configuration.RouteConstraints.Add("decimal", new TryParseDelegateRouteParameterConstraint<decimal>("decimal", "-?[0-9.e]*?", Invariant.TryParse));
+            configuration.RouteConstraints.Add("double", new TryParseDelegateRouteParameterConstraint<double>("double", "-?[0-9.e]*?", Invariant.TryParse));
+            configuration.RouteConstraints.Add("float", new TryParseDelegateRouteParameterConstraint<float>("float", "-?[0-9.e]*?", Invariant.TryParse));
+            configuration.RouteConstraints.Add("guid", new TryParseDelegateRouteParameterConstraint<Guid>("guid", "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}", Guid.TryParse));
+            configuration.RouteConstraints.Add("int", new TryParseDelegateRouteParameterConstraint<int>("int", "-?[0-9]*?", Invariant.TryParse));
+            configuration.RouteConstraints.Add("posint", new TryParseDelegateRouteParameterConstraint<int>("posint", "[0-9]*?", Invariant.TryParse));            
+            configuration.RouteConstraints.Add("long", new TryParseDelegateRouteParameterConstraint<long>("long", "-?[0-9]*?", Invariant.TryParse));
 
-            configuration.RouteConstraints.Add("maxLength", new GenericRouteParameterType(p => "[^/]{0," + p + "}"));
-            configuration.RouteConstraints.Add("minLength", new GenericRouteParameterType(p => "[^/]{" + p + ",}"));
-            configuration.RouteConstraints.Add("regex", new GenericRouteParameterType(p => {
-                if (p.StartsWith("^")) throw new ArgumentException("Regex in route constraint should not start with `^`, it's always looking for full-match.");
-                if (p.EndsWith("$")) throw new ArgumentException("Regex in route constraint should not end with `$`, it's always looking for full-match.");
-                return p;
-            }));
+            // string length
+            configuration.RouteConstraints.Add("length", new LengthRouteParameterConstraint("length"));
+            configuration.RouteConstraints.Add("maxLength", new MaxLengthRouteParameterConstraint("maxLength"));
+            configuration.RouteConstraints.Add("minLength", new MinLengthRouteParameterConstraint("minLength"));
+
+            // ranges
+            configuration.RouteConstraints.Add("max", new MaxRouteParameterConstraint("max"));
+            configuration.RouteConstraints.Add("min", new MinRouteParameterConstraint("min"));
+            configuration.RouteConstraints.Add("range", new RangeRouteParameterConstraint("range"));
         }
 
         private static void RegisterResources(DotvvmConfiguration configuration)

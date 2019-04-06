@@ -9,12 +9,8 @@ namespace DotVVM.Framework.Routing
     public interface IRouteParameterConstraint
     {
         string GetPartRegex(string parameter);
-        ParameterParseResult ParseString(string value, string parameter);
-    }
-
-    public interface IConvertedRouteParameterConstraint : IRouteParameterConstraint
-    {
-        ParameterParseResult ParseObject(object value, string parameter);
+        ParameterParseResult ParseValue(object value, string parameter);
+        Type PredictType(Type valueType);
     }
 
     public struct ParameterParseResult

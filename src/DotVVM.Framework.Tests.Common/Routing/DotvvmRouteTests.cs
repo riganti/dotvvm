@@ -273,7 +273,7 @@ namespace DotVVM.Framework.Tests.Routing
 
             Assert.IsTrue(result);
             Assert.AreEqual(1, parameters.Count);
-            Assert.AreEqual("15", parameters["Id"]);        // TODO: make sure MVC does the same thing - should this be an int?
+            Assert.AreEqual(15, parameters["Id"]);
         }
 
         [TestMethod]

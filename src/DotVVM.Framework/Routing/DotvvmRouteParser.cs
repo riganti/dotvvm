@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Routing
 {
@@ -147,10 +148,18 @@ namespace DotVVM.Framework.Routing
                 {
                     throw new ArgumentException($"The route parameter {name} specifies the default value in both route URL and defaultValues collection!");
                 }
-                defaultValues[name] = defaultValue;
+
+                // convert the default to value to the result type
+                var defaultValueType = typeof(string);
+                for (var i = 0; i < constraints.Count; i++)
+                {
+                    defaultValueType = constraints[i].Constraint.PredictType(defaultValueType);
+                }
+
+                defaultValues[name] = ReflectionUtils.ConvertValue(defaultValue, defaultValueType);
                 isOptional = true;
             }
-            if (url[index] != '}') throw new AggregateException($"Route parameter { name } should be closed with curly bracket.");
+            if (url[index] != '}') throw new AggregateException($"Route parameter {name} should be closed with a curly bracket.");
 
             Func<Dictionary<string, object>, string> urlBuilder;
             // generate the URL builder
@@ -205,14 +214,7 @@ namespace DotVVM.Framework.Routing
 
             for (int i = 0; i < constraints.Count; i++)
             {
-                if (constraints[i].Constraint is IConvertedRouteParameterConstraint convertedValueConstraint)
-                {
-                    result = convertedValueConstraint.ParseObject(convertedValue, constraints[i].Parameter);
-                }
-                else
-                {
-                    result = constraints[i].Constraint.ParseString(originalValue, constraints[i].Parameter);
-                }
+                result = constraints[i].Constraint.ParseValue(convertedValue, constraints[i].Parameter);
 
                 if (!result.IsOK)
                 {
