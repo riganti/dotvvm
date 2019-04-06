@@ -312,7 +312,7 @@ namespace DotVVM.Framework.Tests.Routing
 
             Assert.IsTrue(result);
             Assert.AreEqual(1, parameters.Count);
-            Assert.AreEqual("10", parameters["PageNumber"]);
+            Assert.AreEqual(10.0, parameters["PageNumber"]);
         }
 
         [TestMethod]
@@ -527,7 +527,7 @@ namespace DotVVM.Framework.Tests.Routing
 
 
         [TestMethod]
-        public void DotvvmRoute_BuildUrl_ParameterConstraint_Int()
+        public void DotvvmRoute_IsMatch_ParameterConstraint_Int()
         {
             var route = new DotvvmRoute("Article/id_{Id:int}/{Title}", null, null, null, configuration);
 
@@ -540,7 +540,7 @@ namespace DotVVM.Framework.Tests.Routing
             Assert.AreEqual("test", parameters["Title"]);
         }
         [TestMethod]
-        public void DotvvmRoute_BuildUrl_ParameterConstraint_FloatingPoints()
+        public void DotvvmRoute_IsMatch_ParameterConstraint_FloatingPoints()
         {
             var route = new DotvvmRoute("R/{float:float}-{double:double}-{decimal:decimal}", null, null, null, configuration);
 
@@ -555,7 +555,7 @@ namespace DotVVM.Framework.Tests.Routing
         }
 
         [TestMethod]
-        public void DotvvmRoute_BuildUrl_ParameterConstraint_Guid()
+        public void DotvvmRoute_IsMatch_ParameterConstraint_Guid()
         {
             var route = new DotvvmRoute("{guid1:guid}{guid2:guid}{guid3:guid}{guid4:guid}", null, null, null, configuration);
             var guids = new[]
@@ -578,7 +578,7 @@ namespace DotVVM.Framework.Tests.Routing
         }
 
         [TestMethod]
-        public void DotvvmRoute_BuildUrl_ParameterConstraint_Max()
+        public void DotvvmRoute_IsMatch_ParameterConstraint_Max()
         {
             var route = new DotvvmRoute("{p:max(100)}", null, null, null, configuration);
 
@@ -593,7 +593,7 @@ namespace DotVVM.Framework.Tests.Routing
         }
 
         [TestMethod]
-        public void DotvvmRoute_BuildUrl_ParameterConstraint_Ranges()
+        public void DotvvmRoute_IsMatch_ParameterConstraint_Ranges()
         {
             var route = new DotvvmRoute("{range:range(1, 100.1)}/{max:max(100)}/{min:min(-55)}/{negrange:range(-100, -12)}/{posint:posint}", null, null, null, configuration);
 
@@ -616,7 +616,7 @@ namespace DotVVM.Framework.Tests.Routing
         }
 
         [TestMethod]
-        public void DotvvmRoute_BuildUrl_ParameterConstraint_Bool()
+        public void DotvvmRoute_IsMatch_ParameterConstraint_Bool()
         {
             var route = new DotvvmRoute("la{bool:bool}eheh", null, null, null, configuration);
 
@@ -629,7 +629,7 @@ namespace DotVVM.Framework.Tests.Routing
         }
 
         [TestMethod]
-        public void DotvvmRoute_BuildUrl_ParameterConstraintAlpha()
+        public void DotvvmRoute_IsMatch_ParameterConstraintAlpha()
         {
             var route = new DotvvmRoute("la1{aplha:alpha}7huh", null, null, null, configuration);
 
@@ -642,7 +642,7 @@ namespace DotVVM.Framework.Tests.Routing
         }
 
         [TestMethod]
-        public void DotvvmRoute_Performance()
+        public void DotvvmRoute_IsMatch_Performance()
         {
             var route = new DotvvmRoute("Article/{name}@{domain}/{id:int}", null, null, null, configuration);
             IDictionary<string, object> parameters;
@@ -678,7 +678,7 @@ namespace DotVVM.Framework.Tests.Routing
         }
 
         [TestMethod]
-        public void DotvvmRoute_RegexConstraint()
+        public void DotvvmRoute_IsMatch_RegexConstraint()
         {
             var route = new DotvvmRoute("test/{Name:regex((aa|bb|cc))}", null, null, null, configuration);
             Assert.IsTrue(route.IsMatch("test/aa", out var parameters));
