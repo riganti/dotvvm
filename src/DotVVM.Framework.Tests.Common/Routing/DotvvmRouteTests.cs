@@ -277,6 +277,58 @@ namespace DotVVM.Framework.Tests.Routing
         }
 
         [TestMethod]
+        public void DotvvmRoute_IsMatch_OneParameter_DefaultValueInRoute_WithConstraint_DefaultValueUsed_NoPrefix()
+        {
+            var route = new DotvvmRoute("{PageNumber:int:min(1)=1}", null, null, null, configuration);
+
+            IDictionary<string, object> parameters;
+            var result = route.IsMatch("", out parameters);
+
+            Assert.IsTrue(result);
+            Assert.AreEqual(1, parameters.Count);
+            Assert.AreEqual(1, parameters["PageNumber"]);
+        }
+
+        [TestMethod]
+        public void DotvvmRoute_IsMatch_OneParameter_DefaultValueInRoute_WithConstraint_DefaultValueUsed_NoPrefix_WithQuestionMark()
+        {
+            var route = new DotvvmRoute("{PageNumber?:int:min(1)=1}", null, null, null, configuration);
+
+            IDictionary<string, object> parameters;
+            var result = route.IsMatch("", out parameters);
+
+            Assert.IsTrue(result);
+            Assert.AreEqual(1, parameters.Count);
+            Assert.AreEqual(1, parameters["PageNumber"]);
+        }
+
+        [TestMethod]
+        public void DotvvmRoute_IsMatch_OneParameter_MinConstraint_OnString()
+        {
+            var route = new DotvvmRoute("{PageNumber:min(8)}", null, null, null, configuration);
+
+            IDictionary<string, object> parameters;
+            var result = route.IsMatch("10", out parameters);
+
+            Assert.IsTrue(result);
+            Assert.AreEqual(1, parameters.Count);
+            Assert.AreEqual("10", parameters["PageNumber"]);
+        }
+
+        [TestMethod]
+        public void DotvvmRoute_IsMatch_OneParameter_MinConstraint_OnNumber()
+        {
+            var route = new DotvvmRoute("{PageNumber:float:min(8)}", null, null, null, configuration);
+
+            IDictionary<string, object> parameters;
+            var result = route.IsMatch("10", out parameters);
+
+            Assert.IsTrue(result);
+            Assert.AreEqual(1, parameters.Count);
+            Assert.AreEqual(10f, parameters["PageNumber"]);
+        }
+
+        [TestMethod]
         public void DotvvmRoute_BuildUrl_UrlTwoParameters()
         {
             var route = new DotvvmRoute("Article/id_{Id}/{Title}", null, null, null, configuration);

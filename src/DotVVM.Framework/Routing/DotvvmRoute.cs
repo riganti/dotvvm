@@ -91,7 +91,7 @@ namespace DotVVM.Framework.Routing
             foreach (var parameter in parameters)
             {
                 var g = match.Groups["param" + parameter.Key];
-                if (g.Success)
+                if (g.Success && g.Value != string.Empty)
                 {
                     if (parameter.Value != null)
                     {
