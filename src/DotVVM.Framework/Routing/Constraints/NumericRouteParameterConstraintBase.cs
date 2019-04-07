@@ -47,9 +47,13 @@ namespace DotVVM.Framework.Routing.Constraints
 
         public Type PredictType(Type valueType)
         {
-            if (ReflectionUtils.IsNumericType(valueType) || valueType == typeof(string))
+            if (ReflectionUtils.IsNumericType(valueType))
             { 
                 return valueType;
+            }
+            else if (valueType == typeof(string))
+            {
+                return typeof(double);
             }
             else
             {
