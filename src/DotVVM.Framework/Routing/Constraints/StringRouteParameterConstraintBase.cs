@@ -11,7 +11,7 @@ namespace DotVVM.Framework.Routing.Constraints
             this.constraintName = constraintName;
         }
 
-        public string GetPartRegex(string parameter) => null;
+        public abstract string GetPartRegex(string parameter);
 
         public ParameterParseResult ParseValue(object value, string parameter)
         {
