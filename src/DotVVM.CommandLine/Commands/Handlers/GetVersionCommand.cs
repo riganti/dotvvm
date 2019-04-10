@@ -1,5 +1,6 @@
 ﻿using System;
 using DotVVM.CommandLine.Commands.Core;
+using DotVVM.CommandLine.Core.Arguments;
 using DotVVM.CommandLine.Core.Metadata;
 
 namespace DotVVM.CommandLine.Commands.Handlers

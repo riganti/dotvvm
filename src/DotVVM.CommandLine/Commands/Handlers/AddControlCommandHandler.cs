@@ -1,6 +1,7 @@
 ﻿using System;
 using DotVVM.CommandLine.Commands.Core;
 using DotVVM.CommandLine.Core;
+using DotVVM.CommandLine.Core.Arguments;
 using DotVVM.CommandLine.Core.Metadata;
 using DotVVM.CommandLine.Core.Templates;
 
