@@ -23,9 +23,6 @@
 		<PackageReference Include="MiniProfiler.EntityFrameworkCore" Version="4.0.138" />
 	</ItemGroup>
   <ItemGroup>
-    <DotNetCliToolReference Include="DotVVM.Compiler.Light" Version="1.1.0.1" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\src\DotVVM.Tracing.MiniProfiler.AspNetCore\DotVVM.Tracing.MiniProfiler.AspNetCore.csproj" />
   </ItemGroup>
 </Project>
