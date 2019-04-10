@@ -2,10 +2,12 @@
 using System.IO;
 using System.Linq;
 using DotVVM.CommandLine.Commands.Core;
+using DotVVM.CommandLine.Commands.Logic.Compiler;
 using DotVVM.CommandLine.Commands.Logic.SeleniumGenerator;
 using DotVVM.CommandLine.Core;
 using DotVVM.CommandLine.Core.Metadata;
 using DotVVM.CommandLine.Core.Templates;
+using DotVVM.Compiler;
 using DotVVM.Utils.ProjectService;
 using DotVVM.Utils.ProjectService.Lookup;
 
@@ -39,8 +41,50 @@ namespace DotVVM.CommandLine.Commands.Handlers
 
         public override void Handle(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
         {
+            ResolveTestProject(dotvvmProjectMetadata);
+
+            //var configuration = new ProjectServiceConfiguration {
+            //    Version = CsprojVersion.DotNetSdk,
+            //    LookupFolder = dotvvmProjectMetadata.ProjectDirectory
+            //};
+
+            //var results = new ProjectSystemSearcher().Search(configuration).ToList();
+
+            //if (results.Any())
+            //{
+            //    var appProject = results.First();
+
+            //    var appFullPath = Path.GetDirectoryName(Path.GetFullPath(appProject.AssemblyName));
+
+            //    var opts = new CompilerStartupOptions() {
+            //        Options = new CompilerOptions {
+            //            DothtmlFiles = null,
+            //            AssemblyName = appProject.AssemblyName,
+            //            WebSiteAssembly = Path.Combine(appFullPath, "bin", "Debug", "netcoreapp2.0", "SampleApp1.dll"),
+            //            WebSitePath = appFullPath,
+            //            OutputResolvedDothtmlMap = true,
+            //            CheckBindingErrors = true,
+            //            SerializeConfig = true,
+            //            ConfigOutputPath = @"C:\Users\Filip\source\repos\selenium-generator\dotvvm-selenium-generator\src\Samples\SampleApp1"
+            //        },
+            //        WaitForDebugger = false,
+            //        WaitForDebuggerAndBreak = true
+            //    };
+
+            //    DotvvmCompilerLauncher.Start(opts);
+            //}
+
+            var appFullPath = Path.GetDirectoryName(Path.GetFullPath(dotvvmProjectMetadata.ProjectDirectory));
+            var websiteAssemblyPath = Path.Combine(appFullPath, "bin", "Debug", "netcoreapp2.0", "SampleApp1.dll");
+            dotvvmProjectMetadata.WebAssemblyPath = websiteAssemblyPath;
+
+            SeleniumGeneratorLauncher.Start(args, dotvvmProjectMetadata);
+        }
+
+        private static void ResolveTestProject(DotvvmProjectMetadata dotvvmProjectMetadata)
+        {
             var metadataService = new DotvvmProjectMetadataService();
-            
+
             // make sure the test directory exists
             if (string.IsNullOrEmpty(dotvvmProjectMetadata.UITestProjectPath))
             {
@@ -62,15 +106,6 @@ namespace DotVVM.CommandLine.Commands.Handlers
 
             // save the metadata
             metadataService.Save(dotvvmProjectMetadata);
-
-            var configuration = new ProjectServiceConfiguration {
-                Version = CsprojVersion.DotNetSdk,
-                LookupFolder = Environment.CurrentDirectory
-            };
-
-            var results = new ProjectSystemSearcher().Search(configuration).ToList();
-
-            SeleniumGeneratorLauncher.Start(args, dotvvmProjectMetadata);
         }
 
         private static void GenerateTestProject(string projectDirectory)

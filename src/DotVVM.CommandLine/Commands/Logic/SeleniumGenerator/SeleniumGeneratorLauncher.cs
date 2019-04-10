@@ -22,7 +22,8 @@ namespace DotVVM.CommandLine.Commands.Logic.SeleniumGenerator
                 i++;
             }
 
-            var processInfo = new ProcessStartInfo(@"C:\Users\filipkalous\source\repos\dotvvm-selenium-generator.git\src\DotVVM.Framework.Tools.SeleniumGenerator\bin\Debug\netcoreapp2.0\DotVVM.Framework.Tools.SeleniumGenerator.exe") {
+            var processInfo = new ProcessStartInfo(@"C:\Users\filipkalous\source\repos\dotvvm-selenium-generator.git\src\DotVVM.Framework.Tools.SeleniumGenerator\bin\Debug\netcoreapp2.0\DotVVM.Framework.Tools.SeleniumGenerator.exe")
+            {
                 RedirectStandardError = true,
                 RedirectStandardInput = false,
                 RedirectStandardOutput = true,
@@ -30,11 +31,13 @@ namespace DotVVM.CommandLine.Commands.Logic.SeleniumGenerator
                 Arguments = processArgs
             };
 
-            var process = new Process {
+            var process = new Process
+            {
                 StartInfo = processInfo
             };
 
-            process.OutputDataReceived += (sender, eventArgs) => {
+            process.OutputDataReceived += (sender, eventArgs) =>
+            {
                 if (eventArgs?.Data?.StartsWith("#$") ?? false)
                 {
                     exited = true;
@@ -43,7 +46,8 @@ namespace DotVVM.CommandLine.Commands.Logic.SeleniumGenerator
                 Console.WriteLine(eventArgs?.Data);
             };
 
-            process.ErrorDataReceived += (sender, eventArgs) => {
+            process.ErrorDataReceived += (sender, eventArgs) =>
+            {
                 if (eventArgs?.Data?.StartsWith("#$") ?? false)
                 {
                     exited = true;

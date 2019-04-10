@@ -28,6 +28,9 @@ namespace DotVVM.CommandLine.Core.Metadata
         [JsonProperty("projectDirectory")]
         public string ProjectDirectory { get; set; }
 
+        [JsonProperty("webAssemblyPath")]
+        public string WebAssemblyPath { get; set; }
+
         [JsonProperty("apiClients")]
         public List<ApiClientDefinition> ApiClients { get; } = new List<ApiClientDefinition>();
 
