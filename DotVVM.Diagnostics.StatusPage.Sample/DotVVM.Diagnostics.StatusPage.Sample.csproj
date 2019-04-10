@@ -19,12 +19,18 @@
     </ItemGroup>
     <ItemGroup>
         <None Remove="Controls\control.dotcontrol" />
+        <None Remove="Controls\control2.dotcontrol" />
+        <None Remove="Controls\ControlError.dotcontrol" />
+        <None Remove="Controls\NestedControl.dotcontrol" />
         <None Remove="dotvvm_serialized_config.json.tmp" />
+        <None Remove="Views\BindingsTest.dothtml" />
+        <None Remove="Views\BindingsTestError.dothtml" />
+        <None Remove="Views\NestedControlTest.dothtml" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore" Version="2.0.3" />
         <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.3" />
-        <PackageReference Include="DotVVM.AspNetCore" Version="2.1.0" />
+        <PackageReference Include="DotVVM.AspNetCore" Version="2.2.0.1" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\DotVVM.Diagnostics.StatusPage\DotVVM.Diagnostics.StatusPage.csproj" />

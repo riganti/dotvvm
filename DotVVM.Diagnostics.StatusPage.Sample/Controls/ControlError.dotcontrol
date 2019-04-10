@@ -1,0 +1,2 @@
+﻿@viewModel System.Object, mscorlib
+<span{{> {{value:  "Control rendered" }} </span{{>

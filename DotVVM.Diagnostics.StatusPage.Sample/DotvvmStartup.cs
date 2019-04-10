@@ -24,6 +24,9 @@ namespace DotVVM.Diagnostics.StatusPage.Sample
         private void ConfigureControls(DotvvmConfiguration config, string applicationPath)
         {
             config.Markup.AddMarkupControl("cc", "control", "Controls/control.dotcontrol");
+            config.Markup.AddMarkupControl("cc", "control2", "Controls/control2.dotcontrol");
+            config.Markup.AddMarkupControl("cc", "ControlError", "Controls/ControlError.dotcontrol");
+            config.Markup.AddMarkupControl("cc", "NestedControl", "Controls/NestedControl.dotcontrol");
         }
 
         private void ConfigureResources(DotvvmConfiguration config, string applicationPath)
