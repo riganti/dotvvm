@@ -108,15 +108,6 @@ namespace DotVVM.Framework.Controls
 #pragma warning restore
             NeedsFormatting(GetValueBinding(TextProperty));
 
-        protected internal override void OnPreRender(Hosting.IDotvvmRequestContext context)
-        {
-            base.OnPreRender(context);
-
-            if (IsFormattingRequired)
-            {
-            }
-        }
-
         protected struct RenderState
         {
             public object Text;

@@ -912,7 +912,7 @@ class DotVVM {
         }
         else if (source instanceof Array || patch instanceof Array)
             return patch;
-        else if (typeof source == "object" && typeof patch == "object") {
+        else if (typeof source == "object" && typeof patch == "object" && source && patch) {
             for (var p in patch) {
                 if (patch[p] == null) source[p] = null;
                 else if (source[p] == null) source[p] = patch[p];

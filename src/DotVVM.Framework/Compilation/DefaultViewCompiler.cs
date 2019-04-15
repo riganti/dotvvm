@@ -37,6 +37,7 @@ namespace DotVVM.Framework.Compilation
            this.assemblyCache = CompiledAssemblyCache.Instance;
            this.controlValidatorFactory = controlValidatorFactory;
            this.markupConfiguration = markupConfiguration;
+           this.referencedAssembliesCache = new Lazy<IEnumerable<Assembly>>(BuildReferencedAssembliesCache, true);
         }
 
         private readonly CompiledAssemblyCache assemblyCache;
@@ -45,7 +46,7 @@ namespace DotVVM.Framework.Compilation
         private readonly ViewCompilerConfiguration config;
         private readonly Func<Validation.ControlUsageValidationVisitor> controlValidatorFactory;
         private readonly DotvvmMarkupConfiguration markupConfiguration;
-
+        private readonly Lazy<IEnumerable<Assembly>> referencedAssembliesCache;
         /// <summary>
         /// Compiles the view and returns a function that can be invoked repeatedly. The function builds full control tree and activates the page.
         /// </summary>
@@ -116,7 +117,7 @@ namespace DotVVM.Framework.Compilation
             return assemblyCache;
         }
 
-        public virtual CSharpCompilation CreateCompilation(string assemblyName)
+        private IEnumerable<Assembly> BuildReferencedAssembliesCache()
         {
             var diAssembly = typeof(ServiceCollection).Assembly;
 
@@ -139,18 +140,31 @@ namespace DotVVM.Framework.Compilation
 #endif
                 });
 
-            try
+            var netstandardAssembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == "netstandard");
+            if (netstandardAssembly != null)
             {
-                // netstandard assembly is required for netstandard 2.0 and in some cases
-                // for netframework461 and newer. netstandard is not included in netframework452
-                // and will throw FileNotFoundException. Instead of detecting current netframework
-                // version, the exception is swallowed.
-                references = references.Concat(new[] { Assembly.Load(new AssemblyName("netstandard")) });
+                references = references.Concat(new[] { netstandardAssembly });
             }
-            catch (FileNotFoundException) { }
+            else
+            {
+                try
+                {
+                    // netstandard assembly is required for netstandard 2.0 and in some cases
+                    // for netframework461 and newer. netstandard is not included in netframework452
+                    // and will throw FileNotFoundException. Instead of detecting current netframework
+                    // version, the exception is swallowed.
+                    references = references.Concat(new[] { Assembly.Load(new AssemblyName("netstandard")) });
+                }
+                catch (FileNotFoundException) { }
+            }
 
+            return references.Distinct().ToList();
+        }
+
+        public virtual CSharpCompilation CreateCompilation(string assemblyName)
+        {
             return CSharpCompilation.Create(assemblyName, options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
-                .AddReferences(references.Distinct().Select(a => assemblyCache.GetAssemblyMetadata(a)));
+                .AddReferences(referencedAssembliesCache.Value.Select(a => assemblyCache.GetAssemblyMetadata(a)));
         }
 
         protected virtual IControlBuilder GetControlBuilder(Assembly assembly, string namespaceName, string className)
