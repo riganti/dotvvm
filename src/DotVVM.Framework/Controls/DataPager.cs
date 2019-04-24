@@ -8,6 +8,7 @@ using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace DotVVM.Framework.Controls
 {
@@ -272,6 +273,8 @@ namespace DotVVM.Framework.Controls
             // If Visible property was set to something, it will be overwritten by this. TODO: is it how it should behave?
             if (HideWhenOnlyOnePage)
             {
+                if (IsPropertySet(VisibleProperty))
+                    throw new Exception("Visible can't be set on a DataPager when HideWhenOnlyOnePage is true. You can wrap it in an element that hide that or set HideWhenOnlyOnePage to false");
                 writer.AddKnockoutDataBind("visible", $"ko.unwrap({GetDataSetBinding().GetKnockoutBindingExpression(this)}).PagingOptions().PagesCount() > 1");
             }
         }
