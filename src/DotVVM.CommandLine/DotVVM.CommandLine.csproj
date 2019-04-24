@@ -56,9 +56,6 @@
     <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="11.14.1" />
     <PackageReference Include="NSwag.CodeGeneration.Typescript" Version="11.14.1" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Commands\Logic\Compiler\" />
-  </ItemGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>
   </PropertyGroup>

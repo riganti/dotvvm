@@ -5,20 +5,20 @@ namespace DotVVM.Utils.ProjectService.Output.Statistics
 {
     public class DummyStatisticsProvider : IStatisticsProvider
     {
-        public void SaveStatistics(IEnumerable<IResult> results)
+        public void SaveStatistics(IEnumerable<IResolvedProjectMetadata> results)
         {
         }
 
-        public void AddOperationResult(IResult searchResult, OperationResult operationResult)
+        public void AddOperationResult(IResolvedProjectMetadata resolvedMetadata, OperationResult operationResult)
         {
         }
 
-        public IEnumerable<IResult> TransformResults(IEnumerable<IResult> results)
+        public IEnumerable<IResolvedProjectMetadata> TransformResults(IEnumerable<IResolvedProjectMetadata> results)
         {
             return results;
         }
 
-        public string GetDotvvmCompilerLogFileArgument(IResult result)
+        public string GetDotvvmCompilerLogFileArgument(IResolvedProjectMetadata metadata)
         {
             return string.Empty;
         }

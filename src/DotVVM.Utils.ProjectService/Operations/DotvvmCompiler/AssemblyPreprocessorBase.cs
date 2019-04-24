@@ -12,16 +12,16 @@ namespace DotVVM.Utils.ProjectService.Operations.DotvvmCompiler
         protected const string NewVersionAttribute = "newVersion";
         protected const string OldVersionAttribute = "oldVersion";
         protected const string NameAttribute = "name";
-        protected IResult Result { get; }
+        protected IResolvedProjectMetadata Metadata { get; }
         protected string CompilerPath { get; }
         protected XNamespace Ns { get; } = "urn:schemas-microsoft-com:asm.v1";
         protected XmlNamespaceManager NsManager { get; }
         protected XDocument CompilerAppConfig { get; }
         protected string CompilerAppConfigPath { get; }
 
-        protected AssemblyPreprocessorBase(IResult result, string compilerPath)
+        protected AssemblyPreprocessorBase(IResolvedProjectMetadata metadata, string compilerPath)
         {
-            Result = result;
+            Metadata = metadata;
             CompilerPath = compilerPath;
 
             NsManager = new XmlNamespaceManager(new NameTable());

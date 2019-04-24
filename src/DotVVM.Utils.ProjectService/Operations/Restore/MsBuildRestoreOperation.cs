@@ -13,9 +13,9 @@ namespace DotVVM.Utils.ProjectService.Operations.Restore
             MsBuildPath = msBuildPath;
         }
 
-        protected override string ComposeArguments(IResult result)
+        protected override string ComposeArguments(IResolvedProjectMetadata metadata)
         {
-            return $" \"{result.CsprojFullName}\" /v:m /t:restore";
+            return $" \"{metadata.CsprojFullName}\" /v:m /t:restore";
         }
 
         protected override bool RunRestore(IOutputLogger logger, string arguments)

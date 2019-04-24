@@ -19,9 +19,9 @@ namespace DotVVM.Utils.ProjectService.Operations.DotvvmCompiler
             CompilerPath = compilerPath;
         }
 
-        public override OperationResult Execute(IResult result, IOutputLogger logger)
+        public override OperationResult Execute(IResolvedProjectMetadata metadata, IOutputLogger logger)
         {
-            result.VerifyWebsiteAssemblyExistence();
+            metadata.VerifyWebsiteAssemblyExistence();
 
             var operationResult = new OperationResult()
             {
@@ -29,21 +29,21 @@ namespace DotVVM.Utils.ProjectService.Operations.DotvvmCompiler
             };
 
             CompilerPath = CopyCompilerToTempFolder();
-            CreateAssemblyBindings(result);
+            CreateAssemblyBindings(metadata);
 
-            string jsonArgument = GetJsonArgument(result);
+            string jsonArgument = GetJsonArgument(metadata);
             operationResult.Executed = true;
-            logger.WriteInfo($"Starting dotvvm compilation of project {result.CsprojFullName}");
-            var arguments = $"{GetLogFileArgument(result)} {jsonArgument}";
+            logger.WriteInfo($"Starting dotvvm compilation of project {metadata.CsprojFullName}");
+            var arguments = $"{GetLogFileArgument(metadata)} {jsonArgument}";
 
-            operationResult.Successful = RunCompiler(logger, result, arguments);
+            operationResult.Successful = RunCompiler(logger, metadata, arguments);
 
             return operationResult;
         }
 
-        private void CreateAssemblyBindings(IResult result)
+        private void CreateAssemblyBindings(IResolvedProjectMetadata metadata)
         {
-            new AssemblyPreprocessorFactory().GetAssemblyPreprocessor(result, CompilerPath).CreateBindings();
+            new AssemblyPreprocessorFactory().GetAssemblyPreprocessor(metadata, CompilerPath).CreateBindings();
         }
 
         private string CopyCompilerToTempFolder()
@@ -68,20 +68,20 @@ namespace DotVVM.Utils.ProjectService.Operations.DotvvmCompiler
             }
         }
 
-        public abstract bool RunCompiler(IOutputLogger logger, IResult result, string arguments);
+        public abstract bool RunCompiler(IOutputLogger logger, IResolvedProjectMetadata metadata, string arguments);
 
-        protected string GetLogFileArgument(IResult result)
+        protected string GetLogFileArgument(IResolvedProjectMetadata metadata)
         {
-            return StatisticsProvider.GetDotvvmCompilerLogFileArgument(result);
+            return StatisticsProvider.GetDotvvmCompilerLogFileArgument(metadata);
         }
 
-        protected string GetJsonArgument(IResult result)
+        protected string GetJsonArgument(IResolvedProjectMetadata metadata)
         {
             var json = new StringBuilder();
             json.Append("{\"WebSiteAssembly\":");
-            json.Append($"\"{result.GetWebsiteAssemblyPath()}\"");
+            json.Append($"\"{metadata.GetWebsiteAssemblyPath()}\"");
             json.Append(",\"WebSitePath\":");
-            json.Append($"\"{result.GetWebsiteRootPath()}\"");
+            json.Append($"\"{metadata.GetWebsiteRootPath()}\"");
             json.Append(",\"FullCompile\":false");
             json.Append(",\"SerializeConfig\":true");
             json.Append(",\"DothtmlFiles\":[]");

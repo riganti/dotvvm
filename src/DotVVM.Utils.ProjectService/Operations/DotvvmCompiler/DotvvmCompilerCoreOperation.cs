@@ -11,14 +11,14 @@ namespace DotVVM.Utils.ProjectService.Operations.DotvvmCompiler
         {
         }
 
-        public override bool RunCompiler(IOutputLogger logger, IResult result, string arguments)
+        public override bool RunCompiler(IOutputLogger logger, IResolvedProjectMetadata metadata, string arguments)
         {
             return RunCommand(logger, new ProcessStartInfo(CompilerPath, arguments)
             {
                 EnvironmentVariables =
                 {
-                    ["webAssemblyPath"] = result.GetWebsiteAssemblyPath(),
-                    ["assemblySearchPath"] = result.GetWebsiteRootPath()
+                    ["webAssemblyPath"] = metadata.GetWebsiteAssemblyPath(),
+                    ["assemblySearchPath"] = metadata.GetWebsiteRootPath()
                 }
             });
         }

@@ -2,13 +2,13 @@
 {
     public class StatisticsProviderFactory
     {
-        public IStatisticsProvider GetProvider(ProjectServiceConfiguration configuration)
+        public IStatisticsProvider GetProvider(string folderDestination)
         {
-            if (string.IsNullOrWhiteSpace(configuration.StatisticsFolder))
+            if (string.IsNullOrWhiteSpace(folderDestination))
             {
                 return new DummyStatisticsProvider();
             }
-            return new StatisticsProvider(configuration.StatisticsFolder);
+            return new StatisticsProvider(folderDestination);
         }
     }
 }

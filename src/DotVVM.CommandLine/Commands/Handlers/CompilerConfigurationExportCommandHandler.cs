@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using DotVVM.CommandLine.Commands.Core;
 using DotVVM.CommandLine.Commands.Logic.Compiler;
@@ -20,28 +21,38 @@ namespace DotVVM.CommandLine.Commands.Handlers
 
         public override void Handle(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
         {
-            var configuration = new ProjectServiceConfiguration {
-                Version = CsprojVersion.OlderProjectSystem,
-                LookupFolder = Environment.CurrentDirectory
-            };
+            var projectsMetadata = new ProjectSystemProvider().GetProjectMetadata(Environment.CurrentDirectory).ToList();
 
-            var results = new ProjectSystemSearcher().Search(configuration).ToList();
-            
-            var opts = new CompilerStartupOptions() {
-                Options = new CompilerOptions {
-                    DothtmlFiles = null,
-                    AssemblyName = "DotVVM.Samples.Compiler.Net461.Owin",
-                    WebSiteAssembly = "C:\\dev\\dotvvm\\src\\DotVVM.Samples.Compiler.Net461.Owin\\bin\\DotVVM.Samples.Compiler.Net461.Owin.dll",
-                    WebSitePath = "C:\\dev\\dotvvm\\src\\DotVVM.Samples.Compiler.Net461.Owin",
-                    OutputResolvedDothtmlMap = true,
-                    CheckBindingErrors = true,
-                    SerializeConfig = true,
-                },
-                WaitForDebugger = false,
-                WaitForDebuggerAndBreak = false
-            };
+            WriteVerboseInformation(projectsMetadata);
 
-            DotvvmCompilerLauncher.Start(opts);
+            foreach (var meta in projectsMetadata)
+            {
+                var opts = new CompilerStartupOptions() {
+                    Options = new CompilerOptions {
+                        DothtmlFiles = null,
+                        AssemblyName = meta.AssemblyName,
+                        WebSiteAssembly = meta.AssemblyPath,
+                        WebSitePath = meta.ProjectRootDirectory,
+                        OutputResolvedDothtmlMap = true,
+                        CheckBindingErrors = true,
+                        SerializeConfig = true,
+                    },
+                    WaitForDebugger = false,
+                    WaitForDebuggerAndBreak = false,
+                };
+                DotvvmCompilerLauncher.Start(opts, meta);
+            }
+
+        }
+      
+
+        private static void WriteVerboseInformation(List<IResolvedProjectMetadata> results)
+        {
+            Console.WriteLine($"Found {results.Count} project{(results.Count > 1 ? "s" : "")}.");
+            foreach (var result in results)
+            {
+                Console.WriteLine($"  >  {result.CsprojFullName}");
+            }
         }
     }
 
@@ -49,7 +60,7 @@ namespace DotVVM.CommandLine.Commands.Handlers
     {
         public void GetAppMetadata()
         {
-            
+
         }
         public void GetBindingRedirects()
         {

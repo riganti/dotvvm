@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using DotVVM.Utils.ProjectService.Extensions;
@@ -16,7 +18,7 @@ namespace DotVVM.Utils.ProjectService.Lookup
                 case CsprojVersion.DotNetSdk:
                     return GetFrameworkFromNewCsproj(xml, ns);
                 default:
-                    return TargetFramework.NetCore;
+                    return TargetFramework.NetStandard;
             }
         }
 
@@ -25,20 +27,25 @@ namespace DotVVM.Utils.ProjectService.Lookup
             var target = xml.Descendant(ns + "TargetFramework");
             if (target != null)
             {
-                return Regex.IsMatch(target.Value, "^net\\d{2,3}$")
-                    ? TargetFramework.NetFramework
-                    : TargetFramework.NetCore;
+                return ConvertTargetsIntoEnum(new List<string> { target.Value }).FirstOrDefault();
             }
 
             target = xml.Descendant(ns + "TargetFrameworks");
             if (target != null)
             {
-                return target.Value.Split(';').Any(t => Regex.IsMatch(t, "^net(coreapp|standard)\\d\\.\\d$"))
-                    ? TargetFramework.NetCore
-                    : TargetFramework.NetFramework;
+                return ConvertTargetsIntoEnum(target.Value.Split(';').ToList()).FirstOrDefault();
             }
-
-            return TargetFramework.NetCore;
+            return TargetFramework.NetStandard;
         }
+
+        private List<TargetFramework> ConvertTargetsIntoEnum(List<string> values)
+        {
+            var names = Enum.GetNames(typeof(TargetFramework));
+            return values.Select(s => s.Replace(".", "").Trim())
+                        .Select(s => names.FirstOrDefault(b => b.Equals(s, StringComparison.OrdinalIgnoreCase)))
+                        .Where(s => s is object)
+                        .Select(s => { Enum.TryParse<TargetFramework>(s, out var a); return a; }).ToList();
+        }
+
     }
 }

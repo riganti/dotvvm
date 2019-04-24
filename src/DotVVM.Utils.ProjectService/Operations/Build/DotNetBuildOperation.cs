@@ -10,9 +10,9 @@ namespace DotVVM.Utils.ProjectService.Operations.Build
             SupportedCsprojVersion = CsprojVersion.DotNetSdk;
         }
 
-        protected override string ComposeArguments(IResult result)
+        protected override string ComposeArguments(IResolvedProjectMetadata metadata)
         {
-            return $" {OperationName} \"{result.CsprojFullName}\" -v m --output {Constants.BuildPath}";
+            return $" {OperationName} \"{metadata.CsprojFullName}\" -v m --output {Constants.BuildPath}";
         }
 
         protected override bool RunBuild(IOutputLogger logger, string arguments)

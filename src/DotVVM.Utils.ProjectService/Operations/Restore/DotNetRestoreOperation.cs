@@ -10,9 +10,9 @@ namespace DotVVM.Utils.ProjectService.Operations.Restore
             SupportedCsprojVersion = CsprojVersion.DotNetSdk;
         }
 
-        protected override string ComposeArguments(IResult result)
+        protected override string ComposeArguments(IResolvedProjectMetadata metadata)
         {
-            return $" {OperationName} \"{result.CsprojFullName}\" -v m";
+            return $" {OperationName} \"{metadata.CsprojFullName}\" -v m";
         }
 
         protected override bool RunRestore(IOutputLogger logger, string arguments)

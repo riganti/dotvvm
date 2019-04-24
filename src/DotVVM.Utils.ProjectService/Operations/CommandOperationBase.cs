@@ -15,13 +15,13 @@ namespace DotVVM.Utils.ProjectService.Operations
         {
             SupportedCsprojVersion = supportedCsprojVersion;
         }
-        public abstract OperationResult Execute(IResult result, IOutputLogger logger);
-        protected void VerifyCsprojVersion(IResult result)
+        public abstract OperationResult Execute(IResolvedProjectMetadata metadata, IOutputLogger logger);
+        protected void VerifyCsprojVersion(IResolvedProjectMetadata metadata)
         {
             if (!SupportedCsprojVersion.HasValue) return;
-            if (result.CsprojVersion != SupportedCsprojVersion)
+            if (metadata.CsprojVersion != SupportedCsprojVersion)
             {
-                throw new ArgumentException($"{Enum.GetName(typeof(CsprojVersion), result.CsprojVersion)} csproj is not supported in current operation.");
+                throw new ArgumentException($"{Enum.GetName(typeof(CsprojVersion), metadata.CsprojVersion)} csproj is not supported in current operation.");
             }
         }
     }

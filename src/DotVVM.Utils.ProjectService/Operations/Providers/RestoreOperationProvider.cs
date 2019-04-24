@@ -9,16 +9,16 @@ namespace DotVVM.Utils.ProjectService.Operations.Providers
         private MsBuildRestoreOperation MsBuildRestore { get; }
         private SkipRestoreOperation SkipRestore { get; }
 
-        public RestoreOperationProvider(ProjectServiceConfiguration configuration)
+        public RestoreOperationProvider(string msbuildPath)
         {
             DotNetRestore = new DotNetRestoreOperation();
-            MsBuildRestore = new MsBuildRestoreOperation(configuration.MsBuildPath);
+            MsBuildRestore = new MsBuildRestoreOperation(msbuildPath);
             SkipRestore = new SkipRestoreOperation();
         }
 
-        public IOperation GetOperation(IResult result)
+        public IOperation GetOperation(IResolvedProjectMetadata metadata)
         {
-            switch (result.CsprojVersion)
+            switch (metadata.CsprojVersion)
             {
                 case CsprojVersion.DotNetSdk:
                     return DotNetRestore;

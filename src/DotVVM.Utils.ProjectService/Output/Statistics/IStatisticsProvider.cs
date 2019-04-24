@@ -5,9 +5,9 @@ namespace DotVVM.Utils.ProjectService.Output.Statistics
 {
     public interface IStatisticsProvider
     {
-        void SaveStatistics(IEnumerable<IResult> results);
-        void AddOperationResult(IResult searchResult, OperationResult operationResult);
-        IEnumerable<IResult> TransformResults(IEnumerable<IResult> results);
-        string GetDotvvmCompilerLogFileArgument(IResult result);
+        void SaveStatistics(IEnumerable<IResolvedProjectMetadata> results);
+        void AddOperationResult(IResolvedProjectMetadata resolvedMetadata, OperationResult operationResult);
+        IEnumerable<IResolvedProjectMetadata> TransformResults(IEnumerable<IResolvedProjectMetadata> results);
+        string GetDotvvmCompilerLogFileArgument(IResolvedProjectMetadata metadata);
     }
 }

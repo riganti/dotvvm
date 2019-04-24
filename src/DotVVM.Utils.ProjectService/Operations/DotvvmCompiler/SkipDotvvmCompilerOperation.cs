@@ -9,13 +9,13 @@ namespace DotVVM.Utils.ProjectService.Operations.DotvvmCompiler
         {
         }
 
-        public override OperationResult Execute(IResult result, IOutputLogger logger)
+        public override OperationResult Execute(IResolvedProjectMetadata metadata, IOutputLogger logger)
         {
-            logger.WriteInfo($"Skipped dotvvm compiling of project: {result.CsprojFullName}");
+            logger.WriteInfo($"Skipped dotvvm compiling of project: {metadata.CsprojFullName}");
             return new OperationResult() {OperationName = OperationName};
         }
 
-        public override bool RunCompiler(IOutputLogger logger, IResult result, string arguments)
+        public override bool RunCompiler(IOutputLogger logger, IResolvedProjectMetadata metadata, string arguments)
         {
             return false;
         }

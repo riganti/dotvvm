@@ -15,15 +15,14 @@ namespace DotVVM.Utils.ProjectService
 
         private void Execute()
         {
-            var configuration = new ProjectServiceConfiguration();
-            var results = new ProjectSystemSearcher().Search(configuration).ToList();
+            var results = new ProjectSystemProvider().GetProjectMetadata(Environment.CurrentDirectory).ToList();
 
-            var statisticsProvider = new StatisticsProviderFactory().GetProvider(configuration);
+            var statisticsProvider = new StatisticsProviderFactory().GetProvider("folder");
             var executor = new OperationExecutor(results, Logger, statisticsProvider);
 
-            executor.Execute(configuration.Restore, new RestoreOperationProvider(configuration));
-            executor.Execute(configuration.Build, new BuildOperationProvider(configuration));
-            executor.Execute(configuration.DotvvmCompiler, new DotvvmCompilerOperationProvider(statisticsProvider, configuration));
+            executor.Execute(false, new RestoreOperationProvider(""));
+            executor.Execute(false, new BuildOperationProvider(""));
+            executor.Execute(false, new DotvvmCompilerOperationProvider(statisticsProvider, new DotvvmCompilerMetadata()));
 
             statisticsProvider.SaveStatistics(executor.Results);
         }

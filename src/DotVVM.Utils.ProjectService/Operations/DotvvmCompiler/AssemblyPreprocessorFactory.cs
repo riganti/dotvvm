@@ -5,18 +5,18 @@ namespace DotVVM.Utils.ProjectService.Operations.DotvvmCompiler
 {
     public class AssemblyPreprocessorFactory
     {
-        public IAssemblyPreprocessor GetAssemblyPreprocessor(IResult result, string compilerPath)
+        public IAssemblyPreprocessor GetAssemblyPreprocessor(IResolvedProjectMetadata metadata, string compilerPath)
         {
-            switch (result.CsprojVersion)
+            switch (metadata.CsprojVersion)
             {
                 case CsprojVersion.OlderProjectSystem:
-                    return new AssemblyPreprocessorOldCsproj(result, compilerPath);
-                case CsprojVersion.DotNetSdk when result.TargetFramework == TargetFramework.NetCore:
-                    return new AssemblyPreprocessorNetSdkCore(result, compilerPath);
-                case CsprojVersion.DotNetSdk when result.TargetFramework == TargetFramework.NetFramework:
-                    return new AssemblyPreprocessorNetSdkNet(result, compilerPath);
+                    return new AssemblyPreprocessorOldCsproj(metadata, compilerPath);
+                case CsprojVersion.DotNetSdk when (metadata.TargetFramework & TargetFramework.NetStandard) > 0:
+                    return new AssemblyPreprocessorNetSdkCore(metadata, compilerPath);
+                case CsprojVersion.DotNetSdk when (metadata.TargetFramework & TargetFramework.NetFramework) > 0:
+                    return new AssemblyPreprocessorNetSdkNet(metadata, compilerPath);
                 default:
-                    throw new Exception("Project for dotvvm compilation must have valid project system.");
+                    throw new Exception("Project for a DotVVM compilation must have valid project system.");
             }
         }
     }

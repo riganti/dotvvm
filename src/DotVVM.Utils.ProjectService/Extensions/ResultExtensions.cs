@@ -7,46 +7,46 @@ namespace DotVVM.Utils.ProjectService.Extensions
 {
     public static class ResultExtensions
     {
-        public static StatisticsResult ToStatisticsResult(this IResult searchResult)
+        public static ResolvedProjectStatistics ToStatisticsResult(this IResolvedProjectMetadata resolvedMetadata)
         {
-            return new StatisticsResult()
+            return new ResolvedProjectStatistics()
             {
-                CsprojFullName = searchResult.CsprojFullName,
-                CsprojVersion = searchResult.CsprojVersion,
-                DotvvmPackagesVersions = searchResult.DotvvmPackagesVersions,
-                OperationResults = (searchResult as StatisticsResult)?.OperationResults ?? new List<OperationResult>(),
-                TargetFramework = searchResult.TargetFramework,
-                RunDotvvmCompiler = searchResult.RunDotvvmCompiler,
-                AssemblyName = searchResult.AssemblyName
+                CsprojFullName = resolvedMetadata.CsprojFullName,
+                CsprojVersion = resolvedMetadata.CsprojVersion,
+                DotvvmPackagesVersions = resolvedMetadata.DotvvmPackagesVersions,
+                OperationResults = (resolvedMetadata as ResolvedProjectStatistics)?.OperationResults ?? new List<OperationResult>(),
+                TargetFramework = resolvedMetadata.TargetFramework,
+                RunDotvvmCompiler = resolvedMetadata.RunDotvvmCompiler,
+                AssemblyName = resolvedMetadata.AssemblyName
             };
         }
-        public static bool HasDotvvmFramework(this IResult result)
+        public static bool HasDotvvmFramework(this IResolvedProjectMetadata metadata)
         {
-            return File.Exists(Path.Combine(GetWebsiteRootPath(result), Constants.BuildPath, Constants.DotvvmFrameworkAssembly));
+            return File.Exists(Path.Combine(GetWebsiteRootPath(metadata), Constants.BuildPath, Constants.DotvvmFrameworkAssembly));
         }
 
-        public static string GetWebsiteRootPath(this IResult result)
+        public static string GetWebsiteRootPath(this IResolvedProjectMetadata metadata)
         {
-            return Path.GetDirectoryName(result.CsprojFullName);
+            return Path.GetDirectoryName(metadata.CsprojFullName);
         }
 
-        public static string GetWebsiteAssemblyPath(this IResult result)
+        public static string GetWebsiteAssemblyPath(this IResolvedProjectMetadata metadata)
         {
-            var defaultPath = GetWebsiteAssemblyPath(result, ".dll");
+            var defaultPath = GetWebsiteAssemblyPath(metadata, ".dll");
             if (File.Exists(defaultPath)) return defaultPath;
-            var secondaryPath = GetWebsiteAssemblyPath(result, ".exe");
+            var secondaryPath = GetWebsiteAssemblyPath(metadata, ".exe");
             return File.Exists(defaultPath) ? secondaryPath : defaultPath;
         }
 
-        public static string GetWebsiteAssemblyPath(this IResult result, string extenstion)
+        public static string GetWebsiteAssemblyPath(this IResolvedProjectMetadata metadata, string extenstion)
         {
-            return Path.Combine(GetWebsiteRootPath(result), Constants.BuildPath,
-                result.AssemblyName + extenstion);
+            return Path.Combine(GetWebsiteRootPath(metadata), Constants.BuildPath,
+                metadata.AssemblyName + extenstion);
         }
 
-        public static void VerifyWebsiteAssemblyExistence(this IResult result)
+        public static void VerifyWebsiteAssemblyExistence(this IResolvedProjectMetadata metadata)
         {
-            var assemblyPath = GetWebsiteAssemblyPath(result);
+            var assemblyPath = GetWebsiteAssemblyPath(metadata);
             if (!File.Exists(assemblyPath)) throw new FileNotFoundException("Dll was not found.", assemblyPath);
         }
     }

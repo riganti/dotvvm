@@ -6,24 +6,24 @@ namespace DotVVM.Utils.ProjectService.Operations.Restore
     {
         public sealed override string OperationName { get; set; } = "restore";
         
-        public override OperationResult Execute(IResult result, IOutputLogger logger)
+        public override OperationResult Execute(IResolvedProjectMetadata metadata, IOutputLogger logger)
         {
-            VerifyCsprojVersion(result);
+            VerifyCsprojVersion(metadata);
 
             var operationResult = new OperationResult()
             {
                 OperationName = OperationName
             };
 
-            logger.WriteInfo($"{OperationName} project: {result.CsprojFullName}");
+            logger.WriteInfo($"{OperationName} project: {metadata.CsprojFullName}");
 
             operationResult.Executed = true;
-            var arguments = ComposeArguments(result);
+            var arguments = ComposeArguments(metadata);
             operationResult.Successful = RunRestore(logger,arguments);
             return operationResult;
         }
 
-        protected abstract string ComposeArguments(IResult result);
+        protected abstract string ComposeArguments(IResolvedProjectMetadata metadata);
 
         protected abstract bool RunRestore(IOutputLogger logger, string arguments);
     }

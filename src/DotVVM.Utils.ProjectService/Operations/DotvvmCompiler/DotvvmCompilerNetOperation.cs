@@ -10,7 +10,7 @@ namespace DotVVM.Utils.ProjectService.Operations.DotvvmCompiler
         {
         }
 
-        public override bool RunCompiler(IOutputLogger logger, IResult result, string arguments)
+        public override bool RunCompiler(IOutputLogger logger, IResolvedProjectMetadata metadata, string arguments)
         {
             return RunCommand(logger, CompilerPath, arguments);
         }

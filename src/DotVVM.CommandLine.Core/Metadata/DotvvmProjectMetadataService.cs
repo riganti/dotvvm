@@ -52,10 +52,11 @@ namespace DotVVM.CommandLine.Core.Metadata
 
         public DotvvmProjectMetadata CreateDefaultConfiguration(string directory)
         {
-            var metadata = new DotvvmProjectMetadata() {
-                Version = 1,
+            var metadata = new DotvvmProjectMetadata()
+            {
+                Version = 2,
                 ProjectDirectory = directory,
-                MetadataFilePath = Path.Combine(directory, MetadataFileName)
+                MetadataFilePath = Path.Combine(directory, MetadataFileName),
             };
 
             // find *.csproj file in the directory

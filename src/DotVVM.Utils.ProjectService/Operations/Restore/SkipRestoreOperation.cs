@@ -4,13 +4,13 @@ namespace DotVVM.Utils.ProjectService.Operations.Restore
 {
     public class SkipRestoreOperation : RestoreOperation
     {
-        public override OperationResult Execute(IResult result, IOutputLogger logger)
+        public override OperationResult Execute(IResolvedProjectMetadata metadata, IOutputLogger logger)
         {
-            logger.WriteInfo($"Skipped restoring project: {result.CsprojFullName}");
+            logger.WriteInfo($"Skipped restoring project: {metadata.CsprojFullName}");
             return new OperationResult() {OperationName = OperationName};
         }
 
-        protected override string ComposeArguments(IResult result)
+        protected override string ComposeArguments(IResolvedProjectMetadata metadata)
         {
             return null;
         }

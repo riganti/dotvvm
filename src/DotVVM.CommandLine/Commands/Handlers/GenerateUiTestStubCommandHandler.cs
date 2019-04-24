@@ -4,6 +4,7 @@ using DotVVM.CommandLine.Commands.Core;
 using DotVVM.CommandLine.Commands.Logic.SeleniumGenerator;
 using DotVVM.CommandLine.Core.Arguments;
 using DotVVM.CommandLine.Core.Metadata;
+using DotVVM.Utils.ProjectService.Lookup;
 
 namespace DotVVM.CommandLine.Commands.Handlers
 {
@@ -34,6 +35,9 @@ namespace DotVVM.CommandLine.Commands.Handlers
         public override void Handle(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
         {
             var appFullPath = Path.GetDirectoryName(Path.GetFullPath(dotvvmProjectMetadata.ProjectDirectory));
+            var searcher = new ProjectSystemProvider();
+            var results = searcher.GetProjectMetadata(appFullPath);
+
             var websiteAssemblyPath = Path.Combine(appFullPath, "bin", "Debug", "netcoreapp2.0", "SampleApp1.dll");
             dotvvmProjectMetadata.WebAssemblyPath = websiteAssemblyPath;
 

@@ -13,9 +13,9 @@ namespace DotVVM.Utils.ProjectService.Operations.DotvvmCompiler
         private const string CultureAttribute = "culture";
         private XDocument WebConfig { get; }
 
-        public AssemblyPreprocessorOldCsproj(IResult result, string compilerPath) : base(result, compilerPath)
+        public AssemblyPreprocessorOldCsproj(IResolvedProjectMetadata metadata, string compilerPath) : base(metadata, compilerPath)
         {
-            var webConfigPath = Path.Combine(Path.GetDirectoryName(result.CsprojFullName), "Web.config");
+            var webConfigPath = Path.Combine(Path.GetDirectoryName(metadata.CsprojFullName), "Web.config");
             if (!File.Exists(webConfigPath)) return;
             WebConfig = XDocument.Load(webConfigPath);
         }
@@ -31,7 +31,7 @@ namespace DotVVM.Utils.ProjectService.Operations.DotvvmCompiler
         private void ProcessWebAssemblyReferences()
         {
             var compilerAssemblyBindingNode = GetCompilerAssemblyBindingNode();
-            foreach (var assembly in Assembly.ReflectionOnlyLoadFrom(Result.GetWebsiteAssemblyPath()).GetReferencedAssemblies())
+            foreach (var assembly in Assembly.ReflectionOnlyLoadFrom(Metadata.GetWebsiteAssemblyPath()).GetReferencedAssemblies())
             {
                 compilerAssemblyBindingNode
                     .Add(new XElement(Ns + DependentAssemblyNode,

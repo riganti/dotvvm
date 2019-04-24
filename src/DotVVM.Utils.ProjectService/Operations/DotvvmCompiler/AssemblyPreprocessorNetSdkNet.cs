@@ -2,7 +2,7 @@
 {
     public class AssemblyPreprocessorNetSdkNet : AssemblyPreprocessorBase
     {
-        public AssemblyPreprocessorNetSdkNet(IResult result, string compilerPath) : base(result, compilerPath)
+        public AssemblyPreprocessorNetSdkNet(IResolvedProjectMetadata metadata, string compilerPath) : base(metadata, compilerPath)
         {
         }
 

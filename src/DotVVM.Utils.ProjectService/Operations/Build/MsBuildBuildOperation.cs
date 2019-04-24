@@ -13,9 +13,9 @@ namespace DotVVM.Utils.ProjectService.Operations.Build
             MsBuildPath = msBuildPath;
         }
 
-        protected override string ComposeArguments(IResult result)
+        protected override string ComposeArguments(IResolvedProjectMetadata metadata)
         {
-            return $" \"{result.CsprojFullName}\" /restore /v:m /p:OutDir={Constants.BuildPath}";
+            return $" \"{metadata.CsprojFullName}\" /restore /v:m /p:OutDir={Constants.BuildPath}";
         }
 
         protected override bool RunBuild(IOutputLogger logger, string arguments)

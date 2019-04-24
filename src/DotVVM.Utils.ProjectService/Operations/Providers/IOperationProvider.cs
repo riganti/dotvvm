@@ -2,6 +2,6 @@
 {
     public interface IOperationProvider
     {
-        IOperation GetOperation(IResult result);
+        IOperation GetOperation(IResolvedProjectMetadata metadata);
     }
 }

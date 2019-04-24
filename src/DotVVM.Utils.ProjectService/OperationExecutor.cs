@@ -12,9 +12,9 @@ namespace DotVVM.Utils.ProjectService
     {
         private IOutputLogger Logger { get; }
         public IStatisticsProvider StatisticsProvider { get; }
-        public IEnumerable<IResult> Results { get; }
+        public IEnumerable<IResolvedProjectMetadata> Results { get; }
 
-        public OperationExecutor(IEnumerable<IResult> results, IOutputLogger logger,
+        public OperationExecutor(IEnumerable<IResolvedProjectMetadata> results, IOutputLogger logger,
             IStatisticsProvider statisticsProvider)
         {
             Logger = logger;

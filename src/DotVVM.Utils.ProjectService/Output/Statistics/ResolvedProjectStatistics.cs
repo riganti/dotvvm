@@ -4,7 +4,7 @@ using DotVVM.Utils.ProjectService.Operations;
 
 namespace DotVVM.Utils.ProjectService.Output.Statistics
 {
-    public class StatisticsResult : IResult
+    public class ResolvedProjectStatistics : IResolvedProjectMetadata
     {
         public CsprojVersion CsprojVersion { get; set; }
         public TargetFramework TargetFramework { get; set; }
@@ -13,5 +13,8 @@ namespace DotVVM.Utils.ProjectService.Output.Statistics
         public bool RunDotvvmCompiler { get; set; }
         public List<OperationResult> OperationResults { get; set; }
         public List<PackageVersion> DotvvmPackagesVersions { get; set; }
+        public string AssemblyPath { get; set; }
+        public string ProjectRootDirectory { get; set; }
+        public string DotvvmPackageNugetFolder { get; set; }
     }
 }

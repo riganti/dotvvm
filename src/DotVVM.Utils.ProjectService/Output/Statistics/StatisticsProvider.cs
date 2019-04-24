@@ -25,22 +25,22 @@ namespace DotVVM.Utils.ProjectService.Output.Statistics
             Directory.CreateDirectory(SaveDirectory);
         }
 
-        public void AddOperationResult(IResult searchResult, OperationResult operationResult)
+        public void AddOperationResult(IResolvedProjectMetadata resolvedMetadata, OperationResult operationResult)
         {
-            if (searchResult is StatisticsResult statisticsResult)
+            if (resolvedMetadata is ResolvedProjectStatistics statisticsResult)
             {
                 statisticsResult.OperationResults.Add(operationResult);
             }
         }
 
-        public IEnumerable<IResult> TransformResults(IEnumerable<IResult> results)
+        public IEnumerable<IResolvedProjectMetadata> TransformResults(IEnumerable<IResolvedProjectMetadata> results)
         {
             return TransformResultsToStatisticsResults(results);
         }
 
-        public string GetDotvvmCompilerLogFileArgument(IResult result)
+        public string GetDotvvmCompilerLogFileArgument(IResolvedProjectMetadata metadata)
         {
-            var outputFileName = Path.GetFileNameWithoutExtension(result.CsprojFullName) + ".json";
+            var outputFileName = Path.GetFileNameWithoutExtension(metadata.CsprojFullName) + ".json";
             var compilerDirectory = Path.Combine(SaveDirectory, Constants.DotvvmCompilerOutputDirectory);
             Directory.CreateDirectory(compilerDirectory);
             var path = Path.Combine(compilerDirectory, outputFileName);
@@ -70,12 +70,12 @@ namespace DotVVM.Utils.ProjectService.Output.Statistics
             return newFullPath;
         }
 
-        private IEnumerable<StatisticsResult> TransformResultsToStatisticsResults(IEnumerable<IResult> results)
+        private IEnumerable<ResolvedProjectStatistics> TransformResultsToStatisticsResults(IEnumerable<IResolvedProjectMetadata> results)
         {
             return results.Select(r => r.ToStatisticsResult());
         }
 
-        public void SaveStatistics(IEnumerable<IResult> results)
+        public void SaveStatistics(IEnumerable<IResolvedProjectMetadata> results)
         {
             var resultList = TransformResultsToStatisticsResults(results).ToList();
             var statistics = new Statistics
@@ -91,7 +91,7 @@ namespace DotVVM.Utils.ProjectService.Output.Statistics
             SaveToFile(statistics);
         }
 
-        private OperationsStatistics GetOperationsStatistics(IReadOnlyCollection<StatisticsResult> resultList)
+        private OperationsStatistics GetOperationsStatistics(IReadOnlyCollection<ResolvedProjectStatistics> resultList)
         {
             return new OperationsStatistics()
             {
@@ -106,7 +106,7 @@ namespace DotVVM.Utils.ProjectService.Output.Statistics
             };
         }
 
-        private CsprojVersionStatistics GetCsprojVersionStatistics(IReadOnlyCollection<IResult> resultList)
+        private CsprojVersionStatistics GetCsprojVersionStatistics(IReadOnlyCollection<IResolvedProjectMetadata> resultList)
         {
             return new CsprojVersionStatistics()
             {
@@ -115,14 +115,14 @@ namespace DotVVM.Utils.ProjectService.Output.Statistics
             };
         }
 
-        private string GetOldestDotvvmVersion(IReadOnlyCollection<IResult> resultList)
+        private string GetOldestDotvvmVersion(IReadOnlyCollection<IResolvedProjectMetadata> resultList)
         {
             return resultList.SelectMany(r =>
                     r.DotvvmPackagesVersions.Where(IsBasicDotvvmPackage))
                 .OrderBy(v => new NuGetVersion(v.Version)).FirstOrDefault()?.Version;
         }
 
-        private DotvvmStatistics GetDotvvmStatistics(IReadOnlyCollection<IResult> resultList)
+        private DotvvmStatistics GetDotvvmStatistics(IReadOnlyCollection<IResolvedProjectMetadata> resultList)
         {
             return new DotvvmStatistics()
             {
@@ -134,7 +134,7 @@ namespace DotVVM.Utils.ProjectService.Output.Statistics
             };
         }
 
-        private int GetProjectsCount(IReadOnlyCollection<IResult> resultList, string filter)
+        private int GetProjectsCount(IReadOnlyCollection<IResolvedProjectMetadata> resultList, string filter)
         {
             return resultList.Count(r => r.DotvvmPackagesVersions.Any(p => p.Name.Contains(filter)));
         }
@@ -162,7 +162,9 @@ namespace DotVVM.Utils.ProjectService.Output.Statistics
                 "DotVVM.Owin",
                 "DotVVM.Templates",
                 "DotVVM.Compiler.Light",
-                "DotVVM.CommandLine"
+                "DotVVM.CommandLine",
+                "DotVVM.CommandLine.Core",
+                "DotVVM.SeleniumHelpers"
             };
             return packages.Contains(packageVersion.Name);
         }

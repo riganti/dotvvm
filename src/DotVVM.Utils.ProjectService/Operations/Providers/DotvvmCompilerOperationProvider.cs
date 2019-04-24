@@ -10,24 +10,24 @@ namespace DotVVM.Utils.ProjectService.Operations.Providers
         private IOperation CompilerCore { get; }
         private IOperation SkipCompiler { get; }
 
-        public DotvvmCompilerOperationProvider(IStatisticsProvider statisticsProvider, ProjectServiceConfiguration configuration)
+        public DotvvmCompilerOperationProvider(IStatisticsProvider statisticsProvider, DotvvmCompilerMetadata metadata)
         {
             SkipCompiler = new SkipDotvvmCompilerOperation(statisticsProvider);
-            CompilerNet = string.IsNullOrWhiteSpace(configuration.DotvvmCompilerNetPath) ?
+            CompilerNet = string.IsNullOrWhiteSpace(metadata.MainModulePath) ?
                 SkipCompiler :
-                new DotvvmCompilerNetOperation(statisticsProvider, configuration.DotvvmCompilerNetPath);
+                new DotvvmCompilerNetOperation(statisticsProvider, metadata.MainModulePath);
 
-            CompilerCore = string.IsNullOrWhiteSpace(configuration.DotvvmCompilerCorePath) ?
+            CompilerCore = string.IsNullOrWhiteSpace(metadata.MainModulePath) ?
                 SkipCompiler :
-                new DotvvmCompilerCoreOperation(statisticsProvider, configuration.DotvvmCompilerCorePath);
+                new DotvvmCompilerCoreOperation(statisticsProvider, metadata.MainModulePath);
         }
 
-        public IOperation GetOperation(IResult result)
+        public IOperation GetOperation(IResolvedProjectMetadata metadata)
         {
-            if (!result.RunDotvvmCompiler) return SkipCompiler;
-            switch (result.TargetFramework)
+            if (!metadata.RunDotvvmCompiler) return SkipCompiler;
+            switch (metadata.TargetFramework)
             {
-                case TargetFramework.NetCore:
+                case TargetFramework.NetStandard:
                     return CompilerCore;
                 case TargetFramework.NetFramework:
                     return CompilerNet;
@@ -36,5 +36,18 @@ namespace DotVVM.Utils.ProjectService.Operations.Providers
             }
 
         }
+    }
+
+    public class DotvvmCompilerMetadata
+    {
+        public DotvvmCompilerExecutableVersion Version { get; set; }
+        public string MainModulePath { get; set; }
+
+
+    }
+    public enum DotvvmCompilerExecutableVersion
+    {
+        FullFramework,
+        DotNetCore
     }
 }

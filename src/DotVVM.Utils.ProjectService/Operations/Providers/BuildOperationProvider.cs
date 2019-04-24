@@ -9,16 +9,16 @@ namespace DotVVM.Utils.ProjectService.Operations.Providers
         private MsBuildBuildOperation MsBuild { get; }
         private SkipBuildOperation SkipBuild { get; }
 
-        public BuildOperationProvider(ProjectServiceConfiguration configuration)
+        public BuildOperationProvider(string msbuildPath)
         {
             DotNetBuild = new DotNetBuildOperation();
             SkipBuild = new SkipBuildOperation();
-            MsBuild = new MsBuildBuildOperation(configuration.MsBuildPath);
+            MsBuild = new MsBuildBuildOperation(msbuildPath);
         }
 
-        public IOperation GetOperation(IResult result)
+        public IOperation GetOperation(IResolvedProjectMetadata metadata)
         {
-            switch (result.CsprojVersion)
+            switch (metadata.CsprojVersion)
             {
                 case CsprojVersion.DotNetSdk:
                     return DotNetBuild;
