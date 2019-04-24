@@ -2,6 +2,7 @@
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using OpenQA.Selenium;
+using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
 using Xunit;
 using Xunit.Abstractions;
@@ -26,6 +27,20 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 ReturnedFileDownload(browser, "");
+            });
+        }
+
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ReturnedFile_ReturnedFileSample))]
+        public void Feature_ReturnedFile_ReturnedFileSample_Inline()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ReturnedFile_ReturnedFileSample);
+
+                browser.First("textarea").SendKeys("hello world");
+                browser.Last("input[type=button]").Click();
+
+                AssertUI.TextEquals(browser.First("pre"), "hello world");
             });
         }
 
