@@ -14,9 +14,9 @@
     <EmbeddedResource Include="compiler\resources\**\*" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\dotvvm\src\DotVVM.CommandLine.Core\DotVVM.CommandLine.Core.csproj" />
-    <ProjectReference Include="..\..\dotvvm\src\DotVVM.Framework\DotVVM.Framework.csproj" />
-    <ProjectReference Include="..\..\dotvvm\src\DotVVM.Utils.ConfigurationHost\DotVVM.Utils.ConfigurationHost.csproj" />
+    <ProjectReference Include="..\DotVVM.CommandLine.Core\DotVVM.CommandLine.Core.csproj" />
+    <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
+    <ProjectReference Include="..\DotVVM.Utils.ConfigurationHost\DotVVM.Utils.ConfigurationHost.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />

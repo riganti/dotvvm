@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\DotVVM.Framework.Testing.SeleniumHelpers\DotVVM.Framework.Testing.SeleniumHelpers.csproj" />
+    <ProjectReference Include="..\DotVVM.Framework.Testing.SeleniumHelpers\DotVVM.Framework.Testing.SeleniumHelpers.csproj" />
     <ProjectReference Include="<#= WebProjectPath #>" />
   </ItemGroup>
 
