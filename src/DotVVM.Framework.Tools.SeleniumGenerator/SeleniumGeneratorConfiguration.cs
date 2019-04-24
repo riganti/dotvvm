@@ -4,9 +4,9 @@
     {
         public string TargetNamespace { get; set; }
 
-        public string HelperName { get; set; }
+        public string PageObjectName { get; set; }
 
-        public string HelperFileFullPath { get; set; }
+        public string PageObjectFileFullPath { get; set; }
 
         public string ViewFullPath { get; set; }
     }

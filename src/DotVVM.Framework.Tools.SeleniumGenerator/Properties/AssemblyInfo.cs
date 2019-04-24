@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("DotVVM.Framework.Tools.UiTestStubs")]
 [assembly: AssemblyTrademark("")]
+[assembly: InternalsVisibleTo("DotVVM.Testing.SeleniumGenerator.Tests")]
 
 // Setting ComVisible to false makes the types in this assembly not visible
 // to COM components.  If you need to access a type in this assembly from
