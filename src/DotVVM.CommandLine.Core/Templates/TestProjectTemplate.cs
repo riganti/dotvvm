@@ -18,7 +18,7 @@ namespace DotVVM.CommandLine.Core.Templates
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Users\Filip\source\repos\selenium-generator\dotvvm-selenium-generator\dotvvm\src\DotVVM.CommandLine.Core\Templates\TestProjectTemplate.tt"
+    #line 1 "C:\Users\filipkalous\source\repos\dotvvm-selenium-generator.git\dotvvm\src\DotVVM.CommandLine.Core\Templates\TestProjectTemplate.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "16.0.0.0")]
     public partial class TestProjectTemplate : TestProjectTemplateBase
     {
@@ -41,17 +41,37 @@ namespace DotVVM.CommandLine.Core.Templates
     <PackageReference Include=""Microsoft.NET.Test.Sdk"" Version=""15.9.0"" />
     <PackageReference Include=""MSTest.TestAdapter"" Version=""1.3.2"" />
     <PackageReference Include=""MSTest.TestFramework"" Version=""1.3.2"" />
-    <PackageReference Include=""Selenium.WebDriver"" Version=""3.12.1"" />
+    <PackageReference Include=""Selenium.WebDriver"" Version=""3.141.0"" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include=""..\DotVVM.Framework.Testing.SeleniumHelpers.csproj"" />
-  </ItemGroup>
-
-</Project>
-");
+    <ProjectReference Include=""..\..\DotVVM.Framework.Testing.SeleniumHelpers\DotVVM.Framework.Testing.SeleniumHelpers.csproj"" />
+    <ProjectReference Include=""");
+            
+            #line 24 "C:\Users\filipkalous\source\repos\dotvvm-selenium-generator.git\dotvvm\src\DotVVM.CommandLine.Core\Templates\TestProjectTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(WebProjectPath));
+            
+            #line default
+            #line hidden
+            this.Write("\" />\r\n  </ItemGroup>\r\n\r\n  <Target Name=\"SeleniumGeneratorTarget\" BeforeTargets=\"B" +
+                    "uild\">\r\n    <Exec Command=\"dotnet dotvvm gut\" WorkingDirectory=\"");
+            
+            #line 28 "C:\Users\filipkalous\source\repos\dotvvm-selenium-generator.git\dotvvm\src\DotVVM.CommandLine.Core\Templates\TestProjectTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(WebProjectPath));
+            
+            #line default
+            #line hidden
+            this.Write("\" />\r\n  </Target>\r\n\r\n</Project>\r\n\r\n");
             return this.GenerationEnvironment.ToString();
         }
+        
+        #line 33 "C:\Users\filipkalous\source\repos\dotvvm-selenium-generator.git\dotvvm\src\DotVVM.CommandLine.Core\Templates\TestProjectTemplate.tt"
+
+public string WebProjectPath { get; set; }
+
+        
+        #line default
+        #line hidden
     }
     
     #line default

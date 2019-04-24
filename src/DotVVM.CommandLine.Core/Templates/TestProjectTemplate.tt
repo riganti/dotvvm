@@ -16,11 +16,20 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.3.2" />
     <PackageReference Include="MSTest.TestFramework" Version="1.3.2" />
-    <PackageReference Include="Selenium.WebDriver" Version="3.12.1" />
+    <PackageReference Include="Selenium.WebDriver" Version="3.141.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DotVVM.Framework.Testing.SeleniumHelpers.csproj" />
+    <ProjectReference Include="..\..\DotVVM.Framework.Testing.SeleniumHelpers\DotVVM.Framework.Testing.SeleniumHelpers.csproj" />
+    <ProjectReference Include="<#= WebProjectPath #>" />
   </ItemGroup>
 
+  <Target Name="SeleniumGeneratorTarget" BeforeTargets="Build">
+    <Exec Command="dotnet dotvvm gut" WorkingDirectory="<#= WebProjectPath #>" />
+  </Target>
+
 </Project>
+
+<#+
+public string WebProjectPath { get; set; }
+#>

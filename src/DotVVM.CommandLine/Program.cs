@@ -67,6 +67,7 @@ namespace DotVVM.CommandLine
             catch (InvalidCommandUsageException ex)
             {
                 Console.WriteLine("Invalid Command Usage: " + ex);
+                Environment.Exit(1);
             }
             catch (Exception ex)
             {
