@@ -32,6 +32,7 @@ namespace DotVVM.Framework.Controls
             var serializedViewModel = ((DotvvmRequestContext) context).GetSerializedViewModel();
             writer.AddAttribute("type", "text");
             writer.AddAttribute("style", "display:none!important;");
+            writer.AddAttribute("autocomplete", "off");
             writer.AddAttribute("id", "__dot_viewmodel_root");
             writer.AddAttribute("value", serializedViewModel);
             writer.RenderSelfClosingTag("input");
