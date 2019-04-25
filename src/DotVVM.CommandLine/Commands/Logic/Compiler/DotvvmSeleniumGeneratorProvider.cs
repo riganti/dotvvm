@@ -4,20 +4,20 @@ using DotVVM.Utils.ProjectService.Operations.Providers;
 
 namespace DotVVM.CommandLine.Commands.Logic.Compiler
 {
-    public class DotvvmCompilerProvider: DotvvmToolProvider
+    public class DotvvmSeleniumGeneratorProvider : DotvvmToolProvider
     {
-        public static DotvvmToolMetadata GetCompilerMetadata(IResolvedProjectMetadata metadata)
+        public static DotvvmToolMetadata GetToolMetadata(IResolvedProjectMetadata metadata)
         {
             if ((metadata.TargetFramework & TargetFramework.NetFramework) > 0)
             {
                 return new DotvvmToolMetadata() {
-                    MainModulePath = CombineNugetPath(metadata, "tools\\DotVVM.Compiler.exe"),
+                    MainModulePath = CombineNugetPath(metadata, "tools\\selenium\\net46\\DotVVM.Framework.Tools.SeleniumGenerator.exe"),
                     Version = DotvvmToolExecutableVersion.FullFramework
                 };
             }
 
             return new DotvvmToolMetadata() {
-                MainModulePath = CombineNugetPath(metadata, "tools\\dnc\\DotVVM.Compiler.dll"),
+                MainModulePath = CombineNugetPath(metadata, "tools\\selenium\\netcoreapp2.0\\DotVVM.Framework.Tools.SeleniumGenerator.exe"),
                 Version = DotvvmToolExecutableVersion.DotNetCore
             };
         }

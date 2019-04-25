@@ -3,7 +3,7 @@
     "DotVVM.CommandLine": {
       "commandName": "Project",
       "commandLineArgs": "compiler export-config ",
-      "workingDirectory": "C:\\dev\\dotvvm\\src\\DotVVM.Samples.Compiler.ANC22"
+      "workingDirectory": "C:\\temp\\test"
     }
   }
 }

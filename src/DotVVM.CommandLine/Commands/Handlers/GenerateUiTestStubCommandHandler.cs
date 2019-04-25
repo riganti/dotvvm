@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using DotVVM.CommandLine.Commands.Core;
 using DotVVM.CommandLine.Commands.Logic.SeleniumGenerator;
 using DotVVM.CommandLine.Core.Arguments;
@@ -36,12 +37,10 @@ namespace DotVVM.CommandLine.Commands.Handlers
         {
             var appFullPath = Path.GetDirectoryName(Path.GetFullPath(dotvvmProjectMetadata.ProjectDirectory));
             var searcher = new ProjectSystemProvider();
-            var results = searcher.GetProjectMetadata(appFullPath);
+            var metadata = searcher.GetProjectMetadata(appFullPath).FirstOrDefault();
+            dotvvmProjectMetadata.WebAssemblyPath = metadata?.AssemblyPath;
 
-            var websiteAssemblyPath = Path.Combine(appFullPath, "bin", "Debug", "netcoreapp2.0", "SampleApp1.dll");
-            dotvvmProjectMetadata.WebAssemblyPath = websiteAssemblyPath;
-
-            SeleniumGeneratorLauncher.Start(args, dotvvmProjectMetadata);
+            SeleniumGeneratorLauncher.Start(args, dotvvmProjectMetadata,metadata);
         }
     }
 }

@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "projectName": "DotVVM.Samples.Compiler.ANC22_ASB1",
+  "rootNamespace": "DotVVM.Samples.Compiler.ANC22_ASB2",
+  "uiTestProjectPath": null,
+  "uiTestProjectRootNamespace": null,
+  "metadataFilePath": "C:\\dev\\dotvvm\\src\\DotVVM.Samples.Compiler.ANC22\\.dotvvm.json",
+  "projectDirectory": "C:\\dev\\dotvvm\\src\\DotVVM.Samples.Compiler.ANC22",
+  "webAssemblyPath": null,
+  "apiClients": []
+}

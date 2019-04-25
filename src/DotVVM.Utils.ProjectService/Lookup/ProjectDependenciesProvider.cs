@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using DotVVM.Utils.ProjectService.Extensions;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace DotVVM.Utils.ProjectService.Lookup
 {
-    public class DotvvmVersionProvider
+    public class ProjectDependenciesProvider
     {
-        public List<PackageVersion> GetVersions(XDocument xml, XNamespace ns, CsprojVersion csprojVersion)
+        public List<PackageVersion> GetDotvvmDependencies(XDocument xml, XNamespace ns, CsprojVersion csprojVersion, JObject assetsFile)
         {
             var versions = new List<PackageVersion>();
             try
@@ -19,7 +22,7 @@ namespace DotVVM.Utils.ProjectService.Lookup
                         FillVersionsFromOldCsproj(xml, ns, versions);
                         return versions;
                     case CsprojVersion.DotNetSdk:
-                        GetVersionsFromNewCsproj(xml, ns, versions);
+                        FillVersionsFromNewCsproj(xml, ns, versions, assetsFile);
                         return versions;
                 }
             }
@@ -73,8 +76,21 @@ namespace DotVVM.Utils.ProjectService.Lookup
                 .Replace(versionStr + "=", "").Trim();
         }
 
-        private void GetVersionsFromNewCsproj(XDocument xml, XNamespace ns, List<PackageVersion> versions)
+        private void FillVersionsFromNewCsproj(XDocument xml, XNamespace ns, List<PackageVersion> versions,
+            JObject assetsFile)
         {
+            var packages = assetsFile["libraries"].Children().Select(s => (s as JProperty)?.Name).Where(s =>
+                  !string.IsNullOrWhiteSpace(s) && s.StartsWith("DotVVM", StringComparison.OrdinalIgnoreCase)).ToList();
+            foreach (var packageVersion in packages.Select(s => {
+                var parts = s.Split('/');
+                return new PackageVersion() { Name = parts[0], Version = parts[1], IsProjectReference = false };
+            }))
+            {
+                versions.Add(packageVersion);
+            }
+
+
+            return;
             var references = xml.Descendants(ns + "PackageReference");
 
             foreach (var reference in references)
@@ -110,6 +126,15 @@ namespace DotVVM.Utils.ProjectService.Lookup
             }
 
             return null;
+        }
+
+        public JObject GetProjectAssetsJson(string projectFolder)
+        {
+            var project = new DirectoryInfo(projectFolder);
+            var objs = project.GetDirectories("obj", SearchOption.TopDirectoryOnly);
+            if (objs.Length != 1) return null;
+            var assetsFile = objs.FirstOrDefault()?.GetFiles("project.assets.json", SearchOption.TopDirectoryOnly).FirstOrDefault();
+            return JObject.Load(new JsonTextReader(new StreamReader(assetsFile.FullName)));
         }
     }
 

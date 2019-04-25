@@ -1,12 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using DotVVM.CommandLine.Commands.Core;
+using DotVVM.CommandLine.Commands.Logic.Compiler;
 using DotVVM.CommandLine.Core;
 using DotVVM.CommandLine.Core.Arguments;
 using DotVVM.CommandLine.Core.Metadata;
 using DotVVM.CommandLine.Core.Templates;
 using DotVVM.Compiler;
+using DotVVM.Utils.ProjectService;
+using DotVVM.Utils.ProjectService.Operations.Providers;
 using Newtonsoft.Json;
 
 namespace DotVVM.CommandLine.Commands.Logic.SeleniumGenerator
@@ -15,7 +19,8 @@ namespace DotVVM.CommandLine.Commands.Logic.SeleniumGenerator
     {
         private const string PageObjectsText = "PageObjects";
 
-        public static void Start(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
+        public static void Start(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata,
+            IResolvedProjectMetadata projectMetadata)
         {
             var metadata = JsonConvert.SerializeObject(JsonConvert.SerializeObject(dotvvmProjectMetadata));
             var exited = false;
@@ -28,8 +33,15 @@ namespace DotVVM.CommandLine.Commands.Logic.SeleniumGenerator
                 i++;
             }
 
-            var processInfo = new ProcessStartInfo(@"C:\Users\filipkalous\source\repos\dotvvm-selenium-generator.git\src\DotVVM.Framework.Tools.SeleniumGenerator\bin\Debug\netcoreapp2.0\DotVVM.Framework.Tools.SeleniumGenerator.exe")
+            var generator = DotvvmSeleniumGeneratorProvider.GetToolMetadata(projectMetadata);
+            var executable = generator.MainModulePath;
+            if (generator.Version == DotvvmToolExecutableVersion.DotNetCore)
             {
+                executable = $"dotnet";
+                processArgs = $"{JsonConvert.SerializeObject(generator.MainModulePath)} {processArgs}";
+            }
+
+            var processInfo = new ProcessStartInfo(executable) {
                 RedirectStandardError = true,
                 RedirectStandardInput = false,
                 RedirectStandardOutput = true,
@@ -37,13 +49,11 @@ namespace DotVVM.CommandLine.Commands.Logic.SeleniumGenerator
                 Arguments = processArgs
             };
 
-            var process = new Process
-            {
+            var process = new Process {
                 StartInfo = processInfo
             };
 
-            process.OutputDataReceived += (sender, eventArgs) =>
-            {
+            process.OutputDataReceived += (sender, eventArgs) => {
                 if (eventArgs?.Data?.StartsWith("#$") ?? false)
                 {
                     exited = true;
@@ -52,8 +62,7 @@ namespace DotVVM.CommandLine.Commands.Logic.SeleniumGenerator
                 Console.WriteLine(eventArgs?.Data);
             };
 
-            process.ErrorDataReceived += (sender, eventArgs) =>
-            {
+            process.ErrorDataReceived += (sender, eventArgs) => {
                 if (eventArgs?.Data?.StartsWith("#$") ?? false)
                 {
                     exited = true;

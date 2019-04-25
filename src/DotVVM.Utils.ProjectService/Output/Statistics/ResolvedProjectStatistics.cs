@@ -15,6 +15,6 @@ namespace DotVVM.Utils.ProjectService.Output.Statistics
         public List<PackageVersion> DotvvmPackagesVersions { get; set; }
         public string AssemblyPath { get; set; }
         public string ProjectRootDirectory { get; set; }
-        public string DotvvmPackageNugetFolder { get; set; }
+        public List<string> DotvvmPackageNugetFolders { get; set; }
     }
 }

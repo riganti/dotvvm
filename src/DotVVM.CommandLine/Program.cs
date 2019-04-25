@@ -13,9 +13,12 @@ namespace DotVVM.CommandLine
     {
         public static void Main(string[] args)
         {
+            var currentDirectory = Directory.GetCurrentDirectory();
+            Console.WriteLine(" > " + currentDirectory);
+
             // get configuration
             var metadataService = new DotvvmProjectMetadataService();
-            var metadata = metadataService.FindInDirectory(Directory.GetCurrentDirectory());
+            var metadata = metadataService.FindInDirectory(currentDirectory);
             if (metadata == null)
             {
                 Console.WriteLine("No DotVVM project metadata file (.dotvvm.json) was found on current path.");

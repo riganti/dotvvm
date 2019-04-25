@@ -11,8 +11,7 @@ namespace DotVVM.CommandLine.Commands.Logic.Compiler
     {
         public static void Start(CompilerStartupOptions options, IResolvedProjectMetadata metadata)
         {
-            var provider = new DotvvmCompilerProvider();
-            var compilerMeta = provider.GetCompilerMetadata(metadata);
+            var compilerMeta = DotvvmCompilerProvider.GetCompilerMetadata(metadata);
 
 
             // serialize object and encode the string for command line
@@ -21,7 +20,7 @@ namespace DotVVM.CommandLine.Commands.Logic.Compiler
 
             var processArgs = $"{(options.WaitForDebugger ? CompilerConstants.Arguments.WaitForDebugger : "")} {(options.WaitForDebugger ? CompilerConstants.Arguments.WaitForDebuggerAndBreak : "")} {CompilerConstants.Arguments.JsonOptions} {opt}";
             var executable = compilerMeta.MainModulePath;
-            if (compilerMeta.Version == DotvvmCompilerExecutableVersion.DotNetCore)
+            if (compilerMeta.Version == DotvvmToolExecutableVersion.DotNetCore)
             {
                 executable = $"dotnet";
                 processArgs = $"{JsonConvert.SerializeObject(compilerMeta.MainModulePath)} {processArgs}";

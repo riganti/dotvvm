@@ -21,8 +21,7 @@ namespace DotVVM.CommandLine.Commands.Handlers
 
         public override void Handle(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
         {
-            var projectsMetadata = new ProjectSystemProvider().GetProjectMetadata(Environment.CurrentDirectory).ToList();
-
+            var projectsMetadata = new ProjectSystemProvider().GetProjectMetadata(dotvvmProjectMetadata.ProjectDirectory).ToList();
             WriteVerboseInformation(projectsMetadata);
 
             foreach (var meta in projectsMetadata)
@@ -51,20 +50,8 @@ namespace DotVVM.CommandLine.Commands.Handlers
             Console.WriteLine($"Found {results.Count} project{(results.Count > 1 ? "s" : "")}.");
             foreach (var result in results)
             {
-                Console.WriteLine($"  >  {result.CsprojFullName}");
+                Console.WriteLine($">  {result.CsprojFullName}");
             }
-        }
-    }
-
-    public class DotvvmAppMetadataProvider
-    {
-        public void GetAppMetadata()
-        {
-
-        }
-        public void GetBindingRedirects()
-        {
-
         }
     }
 }

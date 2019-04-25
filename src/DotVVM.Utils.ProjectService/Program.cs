@@ -22,7 +22,7 @@ namespace DotVVM.Utils.ProjectService
 
             executor.Execute(false, new RestoreOperationProvider(""));
             executor.Execute(false, new BuildOperationProvider(""));
-            executor.Execute(false, new DotvvmCompilerOperationProvider(statisticsProvider, new DotvvmCompilerMetadata()));
+            executor.Execute(false, new DotvvmCompilerOperationProvider(statisticsProvider, new DotvvmToolMetadata()));
 
             statisticsProvider.SaveStatistics(executor.Results);
         }

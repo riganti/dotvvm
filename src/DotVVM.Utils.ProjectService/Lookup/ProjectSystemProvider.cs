@@ -12,19 +12,26 @@ namespace DotVVM.Utils.ProjectService.Lookup
         {
             var allCsprojs = FindProjects(lookupFolder);
             var csprojVersionProvider = new CsprojVersionProvider();
-            var dotvvmVersionProvider = new DotvvmVersionProvider();
+            var projectDependenciesProvider = new ProjectDependenciesProvider();
             var targetFrameworkProvider = new TargetFrameworkProvider();
             var assemblyNameProvider = new AssemblyNameProvider();
             var dotvvmCompilerCompatibilityProvider = new DotvvmCompilerCompatibilityProvider();
-            return
-            allCsprojs.Select(file => {
+
+            return allCsprojs.Select(file => {
                 var xml = XDocument.Load(file.FullName);
+
                 var ns = xml.Root?.GetDefaultNamespace();
                 var csprojVersion = csprojVersionProvider.GetVersion(xml);
-                var packages = dotvvmVersionProvider.GetVersions(xml, ns, csprojVersion);
+
+                var assetsFile = projectDependenciesProvider.GetProjectAssetsJson(file.DirectoryName);
+                var packages = projectDependenciesProvider.GetDotvvmDependencies(xml, ns, csprojVersion, assetsFile);
                 var targetFramework = targetFrameworkProvider.GetFramework(xml, ns, csprojVersion);
                 var assemblyName = assemblyNameProvider.GetAssemblyName(xml, ns, file);
                 var runCompiler = dotvvmCompilerCompatibilityProvider.IsCompatible(xml, ns, csprojVersion);
+                var nugetFolder = NugetMetadataProvider.GetPackagesDirectories(assetsFile);
+                var assemblyPath = ProjectOutputAssemblyProvider.GetAssemblyPath(file, assemblyName, targetFramework);
+                var dotvvmPackageVersion = packages.FirstOrDefault(s => s.Name.Equals("DotVVM", StringComparison.OrdinalIgnoreCase) && !s.IsProjectReference);
+
                 return new ResolvedProjectMetadata() {
                     CsprojVersion = csprojVersion,
                     TargetFramework = targetFramework,
@@ -32,10 +39,10 @@ namespace DotVVM.Utils.ProjectService.Lookup
                     AssemblyName = assemblyName,
                     RunDotvvmCompiler = runCompiler,
                     DotvvmPackagesVersions = packages,
-                    ProjectRootDirectory = Path.GetDirectoryName(file.FullName),
-                    //TODO
-                    AssemblyPath = ((string)null) ?? throw new NotImplementedException(),
-                    DotvvmPackageNugetFolder = ((string)null) ?? throw new NotImplementedException(),
+                    ProjectRootDirectory = file.DirectoryName,
+                    AssemblyPath =  assemblyPath,
+                    PackageNugetFolders = nugetFolder,
+                    DotvvmPackageNugetFolders = dotvvmPackageVersion == null ? new List<string>() : nugetFolder.Select(s => Path.Combine(s, dotvvmPackageVersion.Name, dotvvmPackageVersion.Version)).ToList(),
                 };
             }).ToList();
         }

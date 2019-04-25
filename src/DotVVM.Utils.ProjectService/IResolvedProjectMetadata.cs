@@ -13,6 +13,6 @@ namespace DotVVM.Utils.ProjectService
         List<PackageVersion> DotvvmPackagesVersions { get; set; }
         string AssemblyPath { get; set; }
         string ProjectRootDirectory { get; set; }
-        string DotvvmPackageNugetFolder { get; set; }
+        List<string> DotvvmPackageNugetFolders { get; set; }
     }
 }

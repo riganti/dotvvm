@@ -10,7 +10,7 @@ namespace DotVVM.Utils.ProjectService.Operations.Providers
         private IOperation CompilerCore { get; }
         private IOperation SkipCompiler { get; }
 
-        public DotvvmCompilerOperationProvider(IStatisticsProvider statisticsProvider, DotvvmCompilerMetadata metadata)
+        public DotvvmCompilerOperationProvider(IStatisticsProvider statisticsProvider, DotvvmToolMetadata metadata)
         {
             SkipCompiler = new SkipDotvvmCompilerOperation(statisticsProvider);
             CompilerNet = string.IsNullOrWhiteSpace(metadata.MainModulePath) ?
@@ -36,18 +36,5 @@ namespace DotVVM.Utils.ProjectService.Operations.Providers
             }
 
         }
-    }
-
-    public class DotvvmCompilerMetadata
-    {
-        public DotvvmCompilerExecutableVersion Version { get; set; }
-        public string MainModulePath { get; set; }
-
-
-    }
-    public enum DotvvmCompilerExecutableVersion
-    {
-        FullFramework,
-        DotNetCore
     }
 }

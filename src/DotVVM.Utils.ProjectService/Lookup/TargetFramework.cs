@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace DotVVM.Utils.ProjectService.Lookup
 {
@@ -34,4 +35,30 @@ namespace DotVVM.Utils.ProjectService.Lookup
         NetCoreApp22 = 0x200000,
         NetCoreApp = NetCoreApp10 | NetCoreApp11 | NetCoreApp20 | NetCoreApp21 | NetCoreApp22
     }
+
+
+    public static class TargetFrameworkExtensions
+    {
+        public static string TranslateToFolderName(this TargetFramework t)
+        {
+            if ((t & TargetFramework.NetFramework) > 0)
+            {
+                return t.ToString();
+            }
+            var name = "";
+            if ((t & TargetFramework.NetCoreApp) > 0)
+            {
+                name += "netcoreapp";
+            }
+            if ((t & TargetFramework.NetStandard) > 0)
+            {
+                name += "netstandard";
+            }
+
+            var version = string.Join(".", t.ToString().Where(char.IsDigit).ToArray());
+            return name + version;
+        }
+
+    }
+
 }
