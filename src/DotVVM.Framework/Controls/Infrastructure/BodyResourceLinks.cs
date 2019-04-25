@@ -30,7 +30,8 @@ namespace DotVVM.Framework.Controls
 
             // render the serialized viewmodel
             var serializedViewModel = ((DotvvmRequestContext) context).GetSerializedViewModel();
-            writer.AddAttribute("type", "hidden");
+            writer.AddAttribute("type", "text");
+            writer.AddAttribute("style", "display:none!important;");
             writer.AddAttribute("id", "__dot_viewmodel_root");
             writer.AddAttribute("value", serializedViewModel);
             writer.RenderSelfClosingTag("input");
