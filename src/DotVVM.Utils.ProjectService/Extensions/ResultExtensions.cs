@@ -13,7 +13,7 @@ namespace DotVVM.Utils.ProjectService.Extensions
             {
                 CsprojFullName = resolvedMetadata.CsprojFullName,
                 CsprojVersion = resolvedMetadata.CsprojVersion,
-                DotvvmPackagesVersions = resolvedMetadata.DotvvmPackagesVersions,
+                DotvvmProjectDependencies = resolvedMetadata.DotvvmProjectDependencies,
                 OperationResults = (resolvedMetadata as ResolvedProjectStatistics)?.OperationResults ?? new List<OperationResult>(),
                 TargetFramework = resolvedMetadata.TargetFramework,
                 RunDotvvmCompiler = resolvedMetadata.RunDotvvmCompiler,

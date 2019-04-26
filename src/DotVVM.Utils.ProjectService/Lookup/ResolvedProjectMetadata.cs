@@ -9,7 +9,7 @@ namespace DotVVM.Utils.ProjectService.Lookup
         public string CsprojFullName { get; set; }
         public string AssemblyName { get; set; }
         public bool RunDotvvmCompiler { get; set; }
-        public List<PackageVersion> DotvvmPackagesVersions { get; set; }
+        public List<ProjectDependency> DotvvmProjectDependencies { get; set; }
         public string AssemblyPath { get; set; }
         public string ProjectRootDirectory { get; set; }
         public List<string> DotvvmPackageNugetFolders { get; set; }

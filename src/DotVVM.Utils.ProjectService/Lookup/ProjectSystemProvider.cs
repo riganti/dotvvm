@@ -24,13 +24,13 @@ namespace DotVVM.Utils.ProjectService.Lookup
                 var csprojVersion = csprojVersionProvider.GetVersion(xml);
 
                 var assetsFile = projectDependenciesProvider.GetProjectAssetsJson(file.DirectoryName);
-                var packages = projectDependenciesProvider.GetDotvvmDependencies(xml, ns, csprojVersion, assetsFile);
+                var dependencies = projectDependenciesProvider.GetDotvvmDependencies(xml, ns, csprojVersion, assetsFile);
                 var targetFramework = targetFrameworkProvider.GetFramework(xml, ns, csprojVersion);
                 var assemblyName = assemblyNameProvider.GetAssemblyName(xml, ns, file);
                 var runCompiler = dotvvmCompilerCompatibilityProvider.IsCompatible(xml, ns, csprojVersion);
                 var nugetFolder = NugetMetadataProvider.GetPackagesDirectories(assetsFile);
                 var assemblyPath = ProjectOutputAssemblyProvider.GetAssemblyPath(file, assemblyName, targetFramework);
-                var dotvvmPackageVersion = packages.FirstOrDefault(s => s.Name.Equals("DotVVM", StringComparison.OrdinalIgnoreCase) && !s.IsProjectReference);
+                var dotvvmPackageVersion = dependencies.FirstOrDefault(s => s.Name.Equals("DotVVM", StringComparison.OrdinalIgnoreCase) && !s.IsProjectReference);
 
                 return new ResolvedProjectMetadata() {
                     CsprojVersion = csprojVersion,
@@ -38,7 +38,7 @@ namespace DotVVM.Utils.ProjectService.Lookup
                     CsprojFullName = file.FullName,
                     AssemblyName = assemblyName,
                     RunDotvvmCompiler = runCompiler,
-                    DotvvmPackagesVersions = packages,
+                    DotvvmProjectDependencies = dependencies,
                     ProjectRootDirectory = file.DirectoryName,
                     AssemblyPath =  assemblyPath,
                     PackageNugetFolders = nugetFolder,
