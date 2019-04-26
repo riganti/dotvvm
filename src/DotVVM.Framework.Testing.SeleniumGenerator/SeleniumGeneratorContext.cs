@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 
-namespace DotVVM.Framework.Tools.SeleniumGenerator.Generators
+namespace DotVVM.Framework.Testing.SeleniumGenerator
 {
     public class SeleniumGeneratorContext
     {
@@ -14,6 +14,6 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator.Generators
 
         public HashSet<string> ExistingUsedSelectors { get; set; }
 
-        public SeleniumPageObjectVisitor Visitor { get; set; }
+        public ISeleniumPageObjectVisitor Visitor { get; set; }
     }
 }

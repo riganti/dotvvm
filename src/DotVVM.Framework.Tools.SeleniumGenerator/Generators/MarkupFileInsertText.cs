@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using DotVVM.Framework.Testing.SeleniumGenerator;
 
 namespace DotVVM.Framework.Tools.SeleniumGenerator.Generators
 {

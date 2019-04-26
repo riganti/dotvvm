@@ -1,17 +1,17 @@
 ﻿using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls;
-using DotVVM.Framework.Tools.SeleniumGenerator.Configuration;
 using DotVVM.Framework.Tools.SeleniumGenerator.Generators;
-using DotVVM.Framework.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using DotVVM.Framework.Tools.SeleniumGenerator.Extensions;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Testing.SeleniumGenerator;
+using DotVVM.Framework.Tools.SeleniumGenerator.Extensions;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Tools.SeleniumGenerator
 {
-    public class SeleniumPageObjectVisitor : ResolvedControlTreeVisitor
+    public class SeleniumPageObjectVisitor : ResolvedControlTreeVisitor, ISeleniumPageObjectVisitor
     {
         private readonly SeleniumPageObjectGenerator seleniumGenerator;
 
@@ -32,9 +32,9 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
 
         private static Dictionary<Type, ISeleniumGenerator> GetControlGenerators(SeleniumGeneratorOptions options)
         {
-            var customGenerators = options.CustomGenerators.ToDictionary(t => t.ControlType, t => t);
+            var customGenerators = options.GetCustomGenerators().ToDictionary(t => t.ControlType, t => t);
 
-            var discoveredGenerators = options.Assemblies
+            var discoveredGenerators = options.GetAssemblies()
                 .SelectMany(a => a.GetLoadableTypes())
                 .Where(t => typeof(ISeleniumGenerator).IsAssignableFrom(t) && !t.IsAbstract)
                 .Select(t => (ISeleniumGenerator)Activator.CreateInstance(t))

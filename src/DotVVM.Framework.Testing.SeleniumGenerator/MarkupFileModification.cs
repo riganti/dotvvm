@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace DotVVM.Framework.Tools.SeleniumGenerator.Generators
+namespace DotVVM.Framework.Testing.SeleniumGenerator
 {
     public abstract class MarkupFileModification
     {

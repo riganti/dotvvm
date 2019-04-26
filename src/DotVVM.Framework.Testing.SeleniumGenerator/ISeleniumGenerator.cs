@@ -1,8 +1,6 @@
 using System;
-using System.Collections.Generic;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace DotVVM.Framework.Tools.SeleniumGenerator.Generators
+namespace DotVVM.Framework.Testing.SeleniumGenerator
 {
     public interface ISeleniumGenerator
     {

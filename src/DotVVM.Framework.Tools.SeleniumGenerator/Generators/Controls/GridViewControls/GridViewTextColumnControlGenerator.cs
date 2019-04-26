@@ -1,6 +1,7 @@
 ﻿using System;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Testing.SeleniumGenerator;
 
 namespace DotVVM.Framework.Tools.SeleniumGenerator.Generators.Controls.GridViewControls
 {

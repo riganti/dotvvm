@@ -9,10 +9,12 @@ using DotVVM.CommandLine.Core.Arguments;
 using DotVVM.CommandLine.Core.Metadata;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Diagnostics;
 using DotVVM.Utils.ConfigurationHost.Initialization;
 using System.Reflection;
+using System.Threading;
 using DotVVM.CommandLine.Core.Templates;
-using DotVVM.Framework.Tools.SeleniumGenerator.Configuration;
+using DotVVM.Framework.Testing.SeleniumGenerator;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Tools.SeleniumGenerator
@@ -23,6 +25,14 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
 
         public static void Main(string[] args)
         {
+            Console.WriteLine("pid: " + Process.GetCurrentProcess().Id);
+            while (!Debugger.IsAttached)
+            {
+                Thread.Sleep(1000);
+            }
+
+            Debugger.Break();
+
             try
             {
                 var arguments = new Arguments(args);
@@ -74,7 +84,8 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
 
             if (arguments[0] != null)
             {
-                viewFiles = GetViewsFiles(new[] { arguments[0] });
+                var parsedArguments = SplitArguments(arguments);
+                viewFiles = GetViewsFiles(parsedArguments);
             }
             else
             {
@@ -102,6 +113,19 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
                     GeneratePageObject(generator, config);
                 }
             }
+        }
+
+        private static IEnumerable<string> SplitArguments(Arguments arguments)
+        {
+            var i = 0;
+            var parsedArguments = new List<string>();
+            while (arguments[i] != null)
+            {
+                parsedArguments.Add(arguments[i]);
+                i++;
+            }
+
+            return parsedArguments;
         }
 
         private static void GeneratePageObject(SeleniumPageObjectGenerator generator,
