@@ -54,7 +54,7 @@ namespace DotVVM.CommandLine.Commands.Logic.Compiler
             }
 
             return new DotvvmToolMetadata() {
-                MainModulePath = CombineNugetPath(metadata, "tools\\selenium\\netcoreapp2.0\\DotVVM.Framework.Tools.SeleniumGenerator.exe"),
+                MainModulePath = CombineNugetPath(metadata, "tools\\selenium\\netcoreapp2.0\\DotVVM.Framework.Tools.SeleniumGenerator.dll"),
                 Version = DotvvmToolExecutableVersion.DotNetCore
             };
         }
