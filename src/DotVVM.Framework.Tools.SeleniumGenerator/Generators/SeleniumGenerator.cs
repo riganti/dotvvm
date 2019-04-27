@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
+using DotVVM.Framework.Testing.SeleniumGenerator;
 using DotVVM.Framework.Tools.SeleniumGenerator.Generators.Helpers;
 
 namespace DotVVM.Framework.Tools.SeleniumGenerator.Generators

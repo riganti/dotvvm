@@ -11,9 +11,9 @@ namespace DotVVM.Utils.ProjectService.Lookup
 {
     public class ProjectDependenciesProvider
     {
-        public List<PackageVersion> GetDotvvmDependencies(XDocument xml, XNamespace ns, CsprojVersion csprojVersion, JObject assetsFile)
+        public List<ProjectDependency> GetDotvvmDependencies(XDocument xml, XNamespace ns, CsprojVersion csprojVersion, JObject assetsFile)
         {
-            var versions = new List<PackageVersion>();
+            var versions = new List<ProjectDependency>();
             try
             {
                 switch (csprojVersion)
@@ -34,7 +34,7 @@ namespace DotVVM.Utils.ProjectService.Lookup
             return versions;
         }
 
-        private void FillVersionsFromOldCsproj(XDocument xml, XNamespace ns, List<PackageVersion> versions)
+        private void FillVersionsFromOldCsproj(XDocument xml, XNamespace ns, List<ProjectDependency> versions)
         {
             var references = xml.Descendants(ns + "Reference");
 
@@ -48,7 +48,7 @@ namespace DotVVM.Utils.ProjectService.Lookup
                 var version = GetVersion(s);
 
                 var name = s.Single(IsDotvvmReference).Trim();
-                versions.Add(new PackageVersion() {
+                versions.Add(new ProjectDependency() {
                     Name = name,
                     Version = version
                 });
@@ -62,7 +62,7 @@ namespace DotVVM.Utils.ProjectService.Lookup
 
                 var name = GetDotvvmProjectReferenceName(include);
                 if (name == null) continue;
-                versions.Add(new PackageVersion() {
+                versions.Add(new ProjectDependency() {
                     Name = name,
                     IsProjectReference = true,
                 });
@@ -76,33 +76,34 @@ namespace DotVVM.Utils.ProjectService.Lookup
                 .Replace(versionStr + "=", "").Trim();
         }
 
-        private void FillVersionsFromNewCsproj(XDocument xml, XNamespace ns, List<PackageVersion> versions,
+        private void FillVersionsFromNewCsproj(XDocument xml, XNamespace ns, List<ProjectDependency> projectDependencies,
             JObject assetsFile)
         {
-            var packages = assetsFile["libraries"].Children().Select(s => (s as JProperty)?.Name).Where(s =>
-                  !string.IsNullOrWhiteSpace(s) && s.StartsWith("DotVVM", StringComparison.OrdinalIgnoreCase)).ToList();
-            foreach (var packageVersion in packages.Select(s => {
-                var parts = s.Split('/');
-                return new PackageVersion() { Name = parts[0], Version = parts[1], IsProjectReference = false };
-            }))
+
+            var packages = assetsFile["libraries"]
+                .Children()
+                .OfType<JProperty>()
+                .Where(s => !string.IsNullOrWhiteSpace(s.Name) && s.Name.StartsWith("DotVVM", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            var dependencies = packages.Select(s => {
+                                                var parts = s.Name.Split('/');
+                                                var isProjectReference =
+                                                    (s.Value.Children<JProperty>().FirstOrDefault(b => b.Name == "type")?.Value as JValue)?.Value
+                                                    ?.ToString() == "project";
+
+                                                return new ProjectDependency() {
+                                                    Name = parts[0],
+                                                    Version = parts[1],
+                                                    IsProjectReference = isProjectReference,
+                                                    ProjectPath = (s.Value.Children<JProperty>().FirstOrDefault(b => b.Name == "path")?.Value as JValue)
+                                                        ?.Value?.ToString(),
+                                                };
+            });
+
+            foreach (var dependency in dependencies)
             {
-                versions.Add(packageVersion);
-            }
-
-
-            return;
-            var references = xml.Descendants(ns + "PackageReference");
-
-            foreach (var reference in references)
-            {
-                var name = reference.Attribute("Include")?.Value;
-                if (!IsDotvvmReference(name)) continue;
-                var version = reference.Attribute("Version")?.Value;
-
-                versions.Add(new PackageVersion() {
-                    Name = name,
-                    Version = version
-                });
+                projectDependencies.Add(dependency);
             }
         }
 

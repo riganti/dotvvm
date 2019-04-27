@@ -118,7 +118,7 @@ namespace DotVVM.Utils.ProjectService.Output.Statistics
         private string GetOldestDotvvmVersion(IReadOnlyCollection<IResolvedProjectMetadata> resultList)
         {
             return resultList.SelectMany(r =>
-                    r.DotvvmPackagesVersions.Where(IsBasicDotvvmPackage))
+                    r.DotvvmProjectDependencies.Where(IsBasicDotvvmPackage))
                 .OrderBy(v => new NuGetVersion(v.Version)).FirstOrDefault()?.Version;
         }
 
@@ -136,7 +136,7 @@ namespace DotVVM.Utils.ProjectService.Output.Statistics
 
         private int GetProjectsCount(IReadOnlyCollection<IResolvedProjectMetadata> resultList, string filter)
         {
-            return resultList.Count(r => r.DotvvmPackagesVersions.Any(p => p.Name.Contains(filter)));
+            return resultList.Count(r => r.DotvvmProjectDependencies.Any(p => p.Name.Contains(filter)));
         }
 
         private void SaveToFile(Statistics statistics)
@@ -152,7 +152,7 @@ namespace DotVVM.Utils.ProjectService.Output.Statistics
             return Path.Combine(SaveDirectory, Constants.StatisticsFileName);
         }
 
-        private bool IsBasicDotvvmPackage(PackageVersion packageVersion)
+        private bool IsBasicDotvvmPackage(ProjectDependency projectDependency)
         {
             var packages = new List<string>()
             {
@@ -166,7 +166,7 @@ namespace DotVVM.Utils.ProjectService.Output.Statistics
                 "DotVVM.CommandLine.Core",
                 "DotVVM.SeleniumHelpers"
             };
-            return packages.Contains(packageVersion.Name);
+            return packages.Contains(projectDependency.Name);
         }
     }
 }

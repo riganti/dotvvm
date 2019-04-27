@@ -10,7 +10,7 @@ namespace DotVVM.Utils.ProjectService
         string CsprojFullName { get; set; }
         string AssemblyName { get; set; }
         bool RunDotvvmCompiler { get; set; }
-        List<PackageVersion> DotvvmPackagesVersions { get; set; }
+        List<ProjectDependency> DotvvmProjectDependencies { get; set; }
         string AssemblyPath { get; set; }
         string ProjectRootDirectory { get; set; }
         List<string> DotvvmPackageNugetFolders { get; set; }

@@ -1,7 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System;
+﻿using System;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace DotVVM.Framework.Tools.SeleniumGenerator.Configuration
+namespace DotVVM.Framework.Testing.SeleniumGenerator
 {
     public static class DotvvmServiceCollectionExtensions
     {
