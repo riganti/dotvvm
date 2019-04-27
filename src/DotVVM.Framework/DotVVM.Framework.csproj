@@ -82,6 +82,12 @@
       <PackagePath>tools\selenium\netcoreapp2.0\DotVVM.CommandLine.Core.dll</PackagePath>
       <Visible>false</Visible>
     </Content>
+    <Content Include="..\DotVVM.Framework.Tools.SeleniumGenerator\bin\$(Configuration)\netcoreapp2.0\DotVVM.Framework.Testing.SeleniumGenerator.dll">
+      <Pack>true</Pack>
+      <InProject>false</InProject>
+      <PackagePath>tools\selenium\netcoreapp2.0\DotVVM.Framework.Testing.SeleniumGenerator.dll</PackagePath>
+      <Visible>false</Visible>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="node_modules\**" />
