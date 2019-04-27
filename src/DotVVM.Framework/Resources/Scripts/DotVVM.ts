@@ -26,6 +26,8 @@ interface IDotvvmViewModelInfo {
     renderedResources?: string[];
     url?: string;
     virtualDirectory?: string;
+    resultIdFragment?: string;
+    resources?: { [name: string]: boolean };
 }
 
 interface IDotvvmViewModels {
@@ -218,11 +220,43 @@ class DotVVM {
     public useHistoryApiSpaNavigation: boolean;
     public isPostbackRunning = ko.observable(false);
 
+    public useHistoryApiViewModel = history && ((/Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor)) || /Edge/.test(navigator.userAgent));
+
+    private isBrowserReload(): boolean {
+        if (performance) {
+            if (performance.getEntriesByType) {
+                var entries = performance.getEntriesByType("navigation");
+
+                if (entries.length > 0) {
+                    return (<PerformanceNavigationTiming>entries[0]).type === "reload";
+                }
+            }
+
+            // deprecated in Navigation Timing Level 2 specification
+            if (performance.navigation) {
+                return performance.navigation.type === 1;
+            }
+        }
+
+        return false;
+    }
+
     public init(viewModelName: string, culture: string): void {
         this.addKnockoutBindingHandlers();
 
         // load the viewmodel
-        var thisViewModel = this.viewModels[viewModelName] = JSON.parse((<HTMLInputElement>document.getElementById("__dot_viewmodel_" + viewModelName)).value);
+        var thisViewModel: IDotvvmViewModelInfo;
+        var shouldLoadFromHistoryApi = this.useHistoryApiViewModel && !this.isBrowserReload() && history.state && history.state.dotvvm_viewmodels && history.state.dotvvm_viewmodels[viewModelName];
+
+        if (shouldLoadFromHistoryApi) {
+            // create a new object, otherwise the object in the history state will be changed which will result in serialize errors.
+            thisViewModel = <IDotvvmViewModelInfo>{ ...history.state.dotvvm_viewmodels[viewModelName] };
+        } else {
+            thisViewModel = <IDotvvmViewModelInfo>JSON.parse((<HTMLInputElement>document.getElementById("__dot_viewmodel_" + viewModelName)).value);
+        }
+
+        this.viewModels[viewModelName] = thisViewModel;
+
         if (thisViewModel.resources) {
             for (var r in thisViewModel.resources) {
                 this.resourceSigns[r] = true;
@@ -347,6 +381,24 @@ class DotVVM {
 
     private persistViewModel(viewModelName: string) {
         var viewModel = this.viewModels[viewModelName];
+
+        if (this.useHistoryApiViewModel) {
+            var currentState = history.state ? history.state : {};
+            var persistedViewModels = currentState.dotvvm_viewmodels ? currentState.dotvvm_viewmodels : {};
+
+            // add the new viewmodel to the existing state, otherwise SPA mode will break.
+            var state = {
+                dotvvm_viewmodels: {
+                    [viewModelName]: ko.toJS(viewModel),
+                    ...persistedViewModels
+                },
+                ...currentState
+            };
+
+            console.log(JSON.stringify(state))
+            history.replaceState(state, document.title);
+        }
+
         var persistedViewModel = {};
         for (var p in viewModel) {
             if (viewModel.hasOwnProperty(p)) {
