@@ -21,7 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DotVVM.Framework.Testing.SeleniumHelpers\DotVVM.Framework.Testing.SeleniumHelpers.csproj" />
-    <ProjectReference Include="<#= WebProjectPath #>" />
+    <ProjectReference Include="<#= WebCsProjPath #>" />
   </ItemGroup>
 
   <Target Name="SeleniumGeneratorTarget" BeforeTargets="Build">
@@ -32,4 +32,5 @@
 
 <#+
 public string WebProjectPath { get; set; }
+public string WebCsProjPath { get; set; }
 #>

@@ -49,7 +49,7 @@ namespace DotVVM.CommandLine.Core.Templates
     <ProjectReference Include=""");
             
             #line 24 "C:\Users\Filip\source\repos\selenium-generator\dotvvm-selenium-generator\dotvvm\src\DotVVM.CommandLine.Core\Templates\TestProjectTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(WebProjectPath));
+            this.Write(this.ToStringHelper.ToStringWithCulture(WebCsProjPath));
             
             #line default
             #line hidden
@@ -68,6 +68,7 @@ namespace DotVVM.CommandLine.Core.Templates
         #line 33 "C:\Users\Filip\source\repos\selenium-generator\dotvvm-selenium-generator\dotvvm\src\DotVVM.CommandLine.Core\Templates\TestProjectTemplate.tt"
 
 public string WebProjectPath { get; set; }
+public string WebCsProjPath { get; set; }
 
         
         #line default
