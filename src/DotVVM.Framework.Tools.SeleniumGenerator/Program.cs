@@ -76,7 +76,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
             DotvvmConfiguration dotvvmConfig, 
             Arguments arguments)
         {
-            var options = dotvvmConfig.ServiceProvider.GetService<SeleniumGeneratorOptions>();
+            var options = PrepareSeleniumGeneratorOptions(dotvvmConfig);
             var generator = new SeleniumPageObjectGenerator(options, dotvvmConfig);
 
             IEnumerable<string> controlFiles = new List<string>();
@@ -113,6 +113,13 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
                     GeneratePageObject(generator, config);
                 }
             }
+        }
+
+        private static SeleniumGeneratorOptions PrepareSeleniumGeneratorOptions(DotvvmConfiguration dotvvmConfig)
+        {
+            var options = dotvvmConfig.ServiceProvider.GetService<SeleniumGeneratorOptions>();
+            options.AddAssembly(typeof(Program).Assembly);
+            return options;
         }
 
         private static IEnumerable<string> SplitArguments(Arguments arguments)

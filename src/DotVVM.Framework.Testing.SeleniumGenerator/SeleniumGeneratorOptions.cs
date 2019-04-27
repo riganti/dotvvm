@@ -5,7 +5,7 @@ namespace DotVVM.Framework.Testing.SeleniumGenerator
 {
     public class SeleniumGeneratorOptions
     {
-        private readonly HashSet<Assembly> assemblies  = new HashSet<Assembly> { typeof(SeleniumGeneratorOptions).Assembly };
+        private readonly HashSet<Assembly> assemblies  = new HashSet<Assembly>();
         private readonly HashSet<ISeleniumGenerator> customGenerators = new HashSet<ISeleniumGenerator>();
 
         public HashSet<ISeleniumGenerator> GetCustomGenerators() => customGenerators;
