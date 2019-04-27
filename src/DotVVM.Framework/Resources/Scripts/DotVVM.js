@@ -1126,7 +1126,6 @@ var DotVVM = /** @class */ (function () {
             var persistedViewModels = currentState.dotvvm_viewmodels ? currentState.dotvvm_viewmodels : {};
             // add the new viewmodel to the existing state, otherwise SPA mode will break.
             var state = __assign({ dotvvm_viewmodels: __assign((_a = {}, _a[viewModelName] = ko.toJS(viewModel), _a), persistedViewModels) }, currentState);
-            console.log(JSON.stringify(state));
             history.replaceState(state, document.title);
         }
         var persistedViewModel = {};

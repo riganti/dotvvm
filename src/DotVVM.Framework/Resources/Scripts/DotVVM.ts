@@ -395,7 +395,6 @@ class DotVVM {
                 ...currentState
             };
 
-            console.log(JSON.stringify(state))
             history.replaceState(state, document.title);
         }
 
