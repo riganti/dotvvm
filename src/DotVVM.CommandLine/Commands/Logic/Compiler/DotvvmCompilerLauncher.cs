@@ -12,7 +12,7 @@ namespace DotVVM.CommandLine.Commands.Logic.Compiler
         public static void Start(CompilerStartupOptions options, IResolvedProjectMetadata metadata)
         {
             var compilerMeta = DotvvmCompilerProvider.GetCompilerMetadata(metadata);
-
+            if (compilerMeta == null) throw new Exception("Could not find DotVVM Compiler executable.");
 
             // serialize object and encode the string for command line
             var opt = JsonConvert.SerializeObject(JsonConvert.SerializeObject(options.Options));

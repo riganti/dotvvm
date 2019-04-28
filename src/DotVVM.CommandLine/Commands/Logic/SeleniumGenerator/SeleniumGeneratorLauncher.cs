@@ -34,6 +34,11 @@ namespace DotVVM.CommandLine.Commands.Logic.SeleniumGenerator
             }
 
             var generator = DotvvmSeleniumGeneratorProvider.GetToolMetadata(projectMetadata);
+            if (generator == null)
+            {
+                throw new Exception("Could not find DotVVM Selenium Generator tool. This tool is available in DotVVM 2.3.0 and newer. Make sure you have installed supported version.");
+            }
+
             var executable = generator.MainModulePath;
             if (generator.Version == DotvvmToolExecutableVersion.DotNetCore)
             {

@@ -35,7 +35,7 @@ namespace DotVVM.CommandLine.Commands.Handlers
 
         public override void Handle(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
         {
-            var appFullPath = Path.GetDirectoryName(Path.GetFullPath(dotvvmProjectMetadata.ProjectDirectory));
+            var appFullPath = Path.GetFullPath(dotvvmProjectMetadata.ProjectDirectory);
             var searcher = new ProjectSystemProvider();
             var metadata = searcher.GetProjectMetadata(appFullPath).FirstOrDefault();
             dotvvmProjectMetadata.WebAssemblyPath = metadata?.AssemblyPath;

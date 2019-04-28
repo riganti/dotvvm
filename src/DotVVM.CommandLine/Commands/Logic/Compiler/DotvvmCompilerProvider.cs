@@ -15,31 +15,24 @@ namespace DotVVM.CommandLine.Commands.Logic.Compiler
             {
                 if ((metadata.TargetFramework & TargetFramework.NetFramework) > 0)
                 {
-                    return new DotvvmToolMetadata() {
-                        MainModulePath = CombineDotvvmRepositoryRoot(metadata, dotvvm, @"DotVVM.Compiler\bin\Debug\net461\DotVVM.Compiler.exe"),
-                        Version = DotvvmToolExecutableVersion.FullFramework
-                    };
+                    return CreateMetadataOrDefault(
+                        CombineDotvvmRepositoryRoot(metadata, dotvvm,
+                            @"DotVVM.Compiler\bin\Debug\net461\DotVVM.Compiler.exe"),
+                        DotvvmToolExecutableVersion.FullFramework);
                 }
 
-                return new DotvvmToolMetadata() {
-                    MainModulePath = CombineDotvvmRepositoryRoot(metadata, dotvvm, @"DotVVM.Compiler\bin\Debug\netcoreapp2.0\DotVVM.Compiler.dll"),
-                    Version = DotvvmToolExecutableVersion.DotNetCore
-                };
+                return CreateMetadataOrDefault(
+                    CombineDotvvmRepositoryRoot(metadata, dotvvm,
+                        @"DotVVM.Compiler\bin\Debug\netcoreapp2.0\DotVVM.Compiler.dll"),
+                    DotvvmToolExecutableVersion.DotNetCore);
             }
             if ((metadata.TargetFramework & TargetFramework.NetFramework) > 0)
             {
-                return new DotvvmToolMetadata() {
-                    MainModulePath = CombineNugetPath(metadata, "tools\\DotVVM.Compiler.exe"),
-                    Version = DotvvmToolExecutableVersion.FullFramework
-                };
+                return CreateMetadataOrDefault(CombineNugetPath(metadata, "tools\\DotVVM.Compiler.exe"),DotvvmToolExecutableVersion .FullFramework);
+
             }
 
-            return new DotvvmToolMetadata() {
-                MainModulePath = CombineNugetPath(metadata, "tools\\dnc\\DotVVM.Compiler.dll"),
-                Version = DotvvmToolExecutableVersion.DotNetCore
-            };
+            return CreateMetadataOrDefault(CombineNugetPath(metadata, "tools\\dnc\\DotVVM.Compiler.dll"), DotvvmToolExecutableVersion.DotNetCore);
         }
-
-    
     }
 }
