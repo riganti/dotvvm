@@ -1,4 +1,4 @@
-﻿@viewModel DotVVM.Samples.Compiler.ANC22.ViewModels.DefaultViewModel, DotVVM.Samples.Compiler.ANC22
+﻿@viewModel DotVVM.Samples.Compiler.ANC22.ViewModels.DefaultViewModel, DotVVM.Samples.Compiler.ANC22_ASB1
 @masterPage Views/MasterPage.dotmaster
 <dot:Content ContentPlaceHolderID="MainContent">
 

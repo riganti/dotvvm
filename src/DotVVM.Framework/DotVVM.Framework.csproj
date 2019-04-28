@@ -88,6 +88,18 @@
       <PackagePath>tools\selenium\netcoreapp2.0\DotVVM.Framework.Testing.SeleniumGenerator.dll</PackagePath>
       <Visible>false</Visible>
     </Content>
+    <Content Include="..\DotVVM.Framework.Tools.SeleniumGenerator\bin\$(Configuration)\netcoreapp2.0\DotVVM.Framework.Tools.SeleniumGenerator.deps.json">
+      <Pack>true</Pack>
+      <InProject>false</InProject>
+      <PackagePath>tools\selenium\netcoreapp2.0\DotVVM.Framework.Tools.SeleniumGenerator.deps.json</PackagePath>
+      <Visible>false</Visible>
+    </Content>
+    <Content Include="..\DotVVM.Framework.Tools.SeleniumGenerator\bin\$(Configuration)\netcoreapp2.0\DotVVM.Framework.Tools.SeleniumGenerator.runtimeconfig.json">
+      <Pack>true</Pack>
+      <InProject>false</InProject>
+      <PackagePath>tools\selenium\netcoreapp2.0\DotVVM.Framework.Tools.SeleniumGenerator.runtimeconfig.json</PackagePath>
+      <Visible>false</Visible>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="node_modules\**" />

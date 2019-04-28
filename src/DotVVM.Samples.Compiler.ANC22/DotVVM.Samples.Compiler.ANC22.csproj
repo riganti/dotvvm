@@ -23,13 +23,13 @@
     <None Remove="Views\MasterPage.dotmaster" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="wwwroot\" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore" Version="2.1.6" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.6" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DotVVM.Framework.Hosting.AspNetCore\DotVVM.Framework.Hosting.AspNetCore.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
   </ItemGroup>
 </Project>
