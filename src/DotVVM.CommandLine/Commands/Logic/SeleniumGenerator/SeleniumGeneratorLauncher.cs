@@ -76,7 +76,7 @@ namespace DotVVM.CommandLine.Commands.Logic.SeleniumGenerator
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
 
-            while (!exited && !process.HasExited)
+            while (!exited)
             {
             }
 

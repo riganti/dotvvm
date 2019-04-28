@@ -25,13 +25,13 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
 
         public static void Main(string[] args)
         {
-            Console.WriteLine("pid: " + Process.GetCurrentProcess().Id);
-            while (!Debugger.IsAttached)
-            {
-                Thread.Sleep(1000);
-            }
+            //Console.WriteLine("pid: " + Process.GetCurrentProcess().Id);
+            //while (!Debugger.IsAttached)
+            //{
+            //    Thread.Sleep(1000);
+            //}
 
-            Debugger.Break();
+            //Debugger.Break();
 
             try
             {
