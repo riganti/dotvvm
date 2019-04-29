@@ -64,7 +64,6 @@ namespace DotVVM.CommandLine
                 else
                 {
                     WriteHelp(commands);
-
                 }
             }
             catch (InvalidCommandUsageException ex)
@@ -78,6 +77,8 @@ namespace DotVVM.CommandLine
                 Console.Error.WriteLine(ex.ToString());
                 Environment.Exit(1);
             }
+
+            Environment.Exit(0);
         }
 
         private static void WriteHelp(CommandBase[] commands )

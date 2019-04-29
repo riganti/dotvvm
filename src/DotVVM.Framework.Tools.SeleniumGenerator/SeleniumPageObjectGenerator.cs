@@ -234,7 +234,19 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
                                         SyntaxFactory.IdentifierName("Framework")),
                                     SyntaxFactory.IdentifierName("Testing")),
                                 SyntaxFactory.IdentifierName("SeleniumHelpers")),
-                            SyntaxFactory.IdentifierName("Proxies")))
+                            SyntaxFactory.IdentifierName("Proxies"))),
+                    SyntaxFactory.UsingDirective(
+                        SyntaxFactory.QualifiedName(
+                            SyntaxFactory.QualifiedName(
+                                SyntaxFactory.QualifiedName(
+                                    SyntaxFactory.QualifiedName(
+                                        SyntaxFactory.QualifiedName(
+                                            SyntaxFactory.IdentifierName("DotVVM"),
+                                            SyntaxFactory.IdentifierName("Framework")),
+                                        SyntaxFactory.IdentifierName("Testing")),
+                                    SyntaxFactory.IdentifierName("SeleniumHelpers")),
+                                SyntaxFactory.IdentifierName("Proxies")), 
+                        SyntaxFactory.IdentifierName("GridViewColumns")))
                 });
         }
 
