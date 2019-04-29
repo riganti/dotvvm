@@ -220,8 +220,6 @@ class DotVVM {
     public useHistoryApiSpaNavigation: boolean;
     public isPostbackRunning = ko.observable(false);
 
-    public useHistoryApiViewModel = history && ((/Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor)) || /Edge/.test(navigator.userAgent));
-
     private isBrowserReload(): boolean {
         if (performance) {
             if (performance.getEntriesByType) {

@@ -970,7 +970,6 @@ var DotVVM = /** @class */ (function () {
         this.fileUpload = new DotvvmFileUpload();
         this.extensions = {};
         this.isPostbackRunning = ko.observable(false);
-        this.useHistoryApiViewModel = history && ((/Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor)) || /Edge/.test(navigator.userAgent));
     }
     DotVVM.prototype.createWindowSetTimeoutHandler = function (time) {
         return {
