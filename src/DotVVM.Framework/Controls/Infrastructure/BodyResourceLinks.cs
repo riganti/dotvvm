@@ -35,6 +35,11 @@ namespace DotVVM.Framework.Controls
             writer.AddAttribute("value", serializedViewModel);
             writer.RenderSelfClosingTag("input");
 
+
+            writer.AddAttribute("type", "hidden");
+            writer.AddAttribute("id", "__dot_persisted_viewmodel_root");
+            writer.RenderSelfClosingTag("input");
+
             // init on load
             writer.RenderBeginTag("script");
             writer.WriteUnencodedText($@"

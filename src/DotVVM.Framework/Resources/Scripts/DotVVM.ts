@@ -245,16 +245,18 @@ class DotVVM {
         this.addKnockoutBindingHandlers();
 
         // load the viewmodel
-        var thisViewModel: IDotvvmViewModelInfo;
-        var shouldLoadFromHistoryApi = this.useHistoryApiViewModel && !this.isBrowserReload() && history.state && history.state.dotvvm_viewmodels && history.state.dotvvm_viewmodels[viewModelName];
+        var persistedJson = (<HTMLInputElement>document.getElementById("__dot_persisted_viewmodel_" + viewModelName)).value;
+        var json: string;
 
-        if (shouldLoadFromHistoryApi) {
-            // create a new object, otherwise the object in the history state will be changed which will result in serialize errors.
-            thisViewModel = <IDotvvmViewModelInfo>{ ...history.state.dotvvm_viewmodels[viewModelName] };
+        if (persistedJson) {
+            json = persistedJson;
+        } else if (!this.isBrowserReload() && history.state && history.state.dotvvm_viewmodels && history.state.dotvvm_viewmodels[viewModelName]) {
+            json = history.state.dotvvm_viewmodels[viewModelName];
         } else {
-            thisViewModel = <IDotvvmViewModelInfo>JSON.parse((<HTMLInputElement>document.getElementById("__dot_viewmodel_" + viewModelName)).value);
+            json = (<HTMLInputElement>document.getElementById("__dot_viewmodel_" + viewModelName)).value;
         }
 
+        var thisViewModel = thisViewModel = <IDotvvmViewModelInfo>JSON.parse(json);
         this.viewModels[viewModelName] = thisViewModel;
 
         if (thisViewModel.resources) {
@@ -382,22 +384,6 @@ class DotVVM {
     private persistViewModel(viewModelName: string) {
         var viewModel = this.viewModels[viewModelName];
 
-        if (this.useHistoryApiViewModel) {
-            var currentState = history.state ? history.state : {};
-            var persistedViewModels = currentState.dotvvm_viewmodels ? currentState.dotvvm_viewmodels : {};
-
-            // add the new viewmodel to the existing state, otherwise SPA mode will break.
-            var state = {
-                dotvvm_viewmodels: {
-                    [viewModelName]: ko.toJS(viewModel),
-                    ...persistedViewModels
-                },
-                ...currentState
-            };
-
-            history.replaceState(state, document.title);
-        }
-
         var persistedViewModel = {};
         for (var p in viewModel) {
             if (viewModel.hasOwnProperty(p)) {
@@ -405,7 +391,23 @@ class DotVVM {
             }
         }
         persistedViewModel["viewModel"] = this.serialization.serialize(persistedViewModel["viewModel"], { serializeAll: true });
-        (<HTMLInputElement>document.getElementById("__dot_viewmodel_" + viewModelName)).value = JSON.stringify(persistedViewModel);
+
+        var json = JSON.stringify(persistedViewModel);
+        var currentState = history.state ? history.state : {};
+        var persistedViewModels = currentState.dotvvm_viewmodels ? currentState.dotvvm_viewmodels : {};
+
+        // add the new viewmodel to the existing state, otherwise SPA mode will break.
+        var state = {
+            ...currentState,
+            dotvvm_viewmodels: {
+                ...persistedViewModels,
+                [viewModelName]: json
+            }
+        };
+
+        (<HTMLInputElement>document.getElementById("__dot_viewmodel_" + viewModelName)).value = json;
+        (<HTMLInputElement>document.getElementById("__dot_persisted_viewmodel_" + viewModelName)).value = json;
+        history.replaceState(state, document.title);
     }
 
     private backUpPostBackConter(): number {

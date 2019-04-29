@@ -1,15 +1,21 @@
-var __assign = (this && this.__assign) || Object.assign || function(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
-    }
-    return t;
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
 };
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -1001,15 +1007,18 @@ var DotVVM = /** @class */ (function () {
         var _this = this;
         this.addKnockoutBindingHandlers();
         // load the viewmodel
-        var thisViewModel;
-        var shouldLoadFromHistoryApi = this.useHistoryApiViewModel && !this.isBrowserReload() && history.state && history.state.dotvvm_viewmodels && history.state.dotvvm_viewmodels[viewModelName];
-        if (shouldLoadFromHistoryApi) {
-            // create a new object, otherwise the object in the history state will be changed which will result in serialize errors.
-            thisViewModel = __assign({}, history.state.dotvvm_viewmodels[viewModelName]);
+        var persistedJson = document.getElementById("__dot_persisted_viewmodel_" + viewModelName).value;
+        var json;
+        if (persistedJson) {
+            json = persistedJson;
+        }
+        else if (!this.isBrowserReload() && history.state && history.state.dotvvm_viewmodels && history.state.dotvvm_viewmodels[viewModelName]) {
+            json = history.state.dotvvm_viewmodels[viewModelName];
         }
         else {
-            thisViewModel = JSON.parse(document.getElementById("__dot_viewmodel_" + viewModelName).value);
+            json = document.getElementById("__dot_viewmodel_" + viewModelName).value;
         }
+        var thisViewModel = thisViewModel = JSON.parse(json);
         this.viewModels[viewModelName] = thisViewModel;
         if (thisViewModel.resources) {
             for (var r in thisViewModel.resources) {
@@ -1120,14 +1129,8 @@ var DotVVM = /** @class */ (function () {
         }
     };
     DotVVM.prototype.persistViewModel = function (viewModelName) {
+        var _a;
         var viewModel = this.viewModels[viewModelName];
-        if (this.useHistoryApiViewModel) {
-            var currentState = history.state ? history.state : {};
-            var persistedViewModels = currentState.dotvvm_viewmodels ? currentState.dotvvm_viewmodels : {};
-            // add the new viewmodel to the existing state, otherwise SPA mode will break.
-            var state = __assign({ dotvvm_viewmodels: __assign((_a = {}, _a[viewModelName] = ko.toJS(viewModel), _a), persistedViewModels) }, currentState);
-            history.replaceState(state, document.title);
-        }
         var persistedViewModel = {};
         for (var p in viewModel) {
             if (viewModel.hasOwnProperty(p)) {
@@ -1135,8 +1138,14 @@ var DotVVM = /** @class */ (function () {
             }
         }
         persistedViewModel["viewModel"] = this.serialization.serialize(persistedViewModel["viewModel"], { serializeAll: true });
-        document.getElementById("__dot_viewmodel_" + viewModelName).value = JSON.stringify(persistedViewModel);
-        var _a;
+        var json = JSON.stringify(persistedViewModel);
+        var currentState = history.state ? history.state : {};
+        var persistedViewModels = currentState.dotvvm_viewmodels ? currentState.dotvvm_viewmodels : {};
+        // add the new viewmodel to the existing state, otherwise SPA mode will break.
+        var state = __assign({}, currentState, { dotvvm_viewmodels: __assign({}, persistedViewModels, (_a = {}, _a[viewModelName] = json, _a)) });
+        document.getElementById("__dot_viewmodel_" + viewModelName).value = json;
+        document.getElementById("__dot_persisted_viewmodel_" + viewModelName).value = json;
+        history.replaceState(state, document.title);
     };
     DotVVM.prototype.backUpPostBackConter = function () {
         return ++this.postBackCounter;
@@ -1213,8 +1222,8 @@ var DotVVM = /** @class */ (function () {
     DotVVM.prototype.sortHandlers = function (handlers) {
         var getHandler = (function () {
             var handlerMap = {};
-            for (var _i = 0, handlers_1 = handlers; _i < handlers_1.length; _i++) {
-                var h = handlers_1[_i];
+            for (var _i = 0, handlers_2 = handlers; _i < handlers_2.length; _i++) {
+                var h = handlers_2[_i];
                 if (h.name != null) {
                     handlerMap[h.name] = h;
                 }
@@ -1222,8 +1231,8 @@ var DotVVM = /** @class */ (function () {
             return function (s) { return typeof s == "string" ? handlerMap[s] : s; };
         })();
         var dependencies = handlers.map(function (handler, i) { return (handler["@sort_index"] = i, ({ handler: handler, deps: (handler.after || []).map(getHandler) })); });
-        for (var _i = 0, handlers_2 = handlers; _i < handlers_2.length; _i++) {
-            var h = handlers_2[_i];
+        for (var _i = 0, handlers_1 = handlers; _i < handlers_1.length; _i++) {
+            var h = handlers_1[_i];
             if (h.before)
                 for (var _a = 0, _b = h.before.map(getHandler); _a < _b.length; _a++) {
                     var before = _b[_a];
@@ -1897,6 +1906,7 @@ var DotVVM = /** @class */ (function () {
         ko.virtualElements.allowedBindings["dotvvm-SSR-foreach"] = true;
         ko.bindingHandlers["dotvvm-SSR-foreach"] = {
             init: function (element, valueAccessor, _allBindings, _viewModel, bindingContext) {
+                var _a;
                 if (!bindingContext)
                     throw new Error();
                 var value = valueAccessor();
@@ -1904,7 +1914,6 @@ var DotVVM = /** @class */ (function () {
                 element.innerBindingContext = innerBindingContext;
                 ko.applyBindingsToDescendants(innerBindingContext, element);
                 return { controlsDescendantBindings: true }; // do not apply binding again
-                var _a;
             }
         };
         ko.virtualElements.allowedBindings["dotvvm-SSR-item"] = true;
@@ -1923,6 +1932,7 @@ var DotVVM = /** @class */ (function () {
         ko.virtualElements.allowedBindings["withGridViewDataSet"] = true;
         ko.bindingHandlers["withGridViewDataSet"] = {
             init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+                var _a;
                 if (!bindingContext)
                     throw new Error();
                 var value = valueAccessor();
@@ -1930,7 +1940,6 @@ var DotVVM = /** @class */ (function () {
                 element.innerBindingContext = innerBindingContext;
                 ko.applyBindingsToDescendants(innerBindingContext, element);
                 return { controlsDescendantBindings: true }; // do not apply binding again
-                var _a;
             },
             update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
             }
