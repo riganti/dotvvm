@@ -1,7 +1,9 @@
 ﻿    using System;
-using System.IO;
+    using System.Diagnostics;
+    using System.IO;
 using System.Linq;
-using DotVVM.CommandLine.Commands.Core;
+    using System.Threading;
+    using DotVVM.CommandLine.Commands.Core;
 using DotVVM.CommandLine.Commands.Handlers;
 using DotVVM.CommandLine.Core;
     using DotVVM.CommandLine.Core.Arguments;
@@ -56,6 +58,14 @@ namespace DotVVM.CommandLine
             {
                 if (command != null)
                 {
+                    Console.WriteLine("pid: " + Process.GetCurrentProcess().Id);
+                    while (!Debugger.IsAttached)
+                    {
+                        Thread.Sleep(1000);
+                    }
+
+                    Debugger.Break();
+
                     command.Handle(arguments, metadata);
 
                     // save project metadata
