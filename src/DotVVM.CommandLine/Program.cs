@@ -58,14 +58,6 @@ namespace DotVVM.CommandLine
             {
                 if (command != null)
                 {
-                    Console.WriteLine("pid: " + Process.GetCurrentProcess().Id);
-                    while (!Debugger.IsAttached)
-                    {
-                        Thread.Sleep(1000);
-                    }
-
-                    Debugger.Break();
-
                     command.Handle(arguments, metadata);
 
                     // save project metadata
