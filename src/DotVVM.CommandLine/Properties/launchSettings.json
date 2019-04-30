@@ -2,8 +2,8 @@
   "profiles": {
     "DotVVM.CommandLine": {
       "commandName": "Project",
-      "commandLineArgs": "compiler export-config ",
-      "workingDirectory": "..\\DotVVM.Samples.Compiler.ANC22"
+      "commandLineArgs": "gut Tests",
+      "workingDirectory": "C:\\tmp\\sg-test"
     }
   }
 }

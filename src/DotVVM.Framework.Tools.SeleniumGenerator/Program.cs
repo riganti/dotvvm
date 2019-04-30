@@ -22,9 +22,22 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
     public class Program
     {
         private const string PageObjectsText = "PageObjects";
-
+        private static void WaitForDbg(bool _break = false)
+        {
+            Console.WriteLine("Process ID: " + Process.GetCurrentProcess().Id);
+            while (!Debugger.IsAttached) Thread.Sleep(10);
+            if (_break)
+            {
+                Debugger.Break();
+            }
+        }
         public static void Main(string[] args)
         {
+            if (args[0] == "--debugger-break")
+            {
+                WaitForDbg(true);
+                args = args.Skip(1).ToArray();
+            }
             try
             {
                 var arguments = new Arguments(args);

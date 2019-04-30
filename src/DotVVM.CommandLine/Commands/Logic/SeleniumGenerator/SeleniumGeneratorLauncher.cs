@@ -32,13 +32,12 @@ namespace DotVVM.CommandLine.Commands.Logic.SeleniumGenerator
                 processArgs += $"{args[i]} ";
                 i++;
             }
-
-            var generator = DotvvmSeleniumGeneratorProvider.GetToolMetadata(projectMetadata);
+            
+            var generator = new DotvvmSeleniumGeneratorProvider().GetPreparedTool(projectMetadata);
             if (generator == null)
             {
                 throw new Exception("Could not find DotVVM Selenium Generator tool. This tool is available in DotVVM 2.3.0 and newer. Make sure you have installed supported version.");
             }
-
             var executable = generator.MainModulePath;
             if (generator.Version == DotvvmToolExecutableVersion.DotNetCore)
             {
@@ -89,6 +88,7 @@ namespace DotVVM.CommandLine.Commands.Logic.SeleniumGenerator
             {
                 throw new InvalidCommandUsageException("Selenium generation failed.");
             }
+            DotvvmToolProvider.Clean(generator);
         }
     }
 }

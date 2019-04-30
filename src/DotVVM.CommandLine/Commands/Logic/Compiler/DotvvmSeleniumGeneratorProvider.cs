@@ -8,10 +8,8 @@ namespace DotVVM.CommandLine.Commands.Logic.Compiler
 {
     public class DotvvmSeleniumGeneratorProvider : DotvvmToolProvider
     {
-        public static DotvvmToolMetadata GetToolMetadata(IResolvedProjectMetadata metadata)
+        protected override DotvvmToolMetadata GetToolMetadata(IResolvedProjectMetadata metadata)
         {
-
-
             var dotvvm = metadata.DotvvmProjectDependencies.First(s => s.Name.Equals("DotVVM", StringComparison.OrdinalIgnoreCase));
             if (dotvvm.IsProjectReference)
             {
@@ -60,5 +58,10 @@ namespace DotVVM.CommandLine.Commands.Logic.Compiler
                 version: DotvvmToolExecutableVersion.DotNetCore
             );
         }
+
+     
+
+
     }
+
 }

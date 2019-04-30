@@ -11,12 +11,12 @@ namespace DotVVM.CommandLine.Commands.Logic.Compiler
     {
         public static void Start(CompilerStartupOptions options, IResolvedProjectMetadata metadata)
         {
-            var compilerMeta = DotvvmCompilerProvider.GetCompilerMetadata(metadata);
+            var compilerMeta = new DotvvmCompilerProvider().GetPreparedTool(metadata);
             if (compilerMeta == null) throw new Exception("Could not find DotVVM Compiler executable.");
 
             // serialize object and encode the string for command line
             var opt = JsonConvert.SerializeObject(JsonConvert.SerializeObject(options.Options));
-            bool exited = false;
+            var exited = false;
 
             var processArgs = $"{(options.WaitForDebugger ? CompilerConstants.Arguments.WaitForDebugger : "")} {(options.WaitForDebugger ? CompilerConstants.Arguments.WaitForDebuggerAndBreak : "")} {CompilerConstants.Arguments.JsonOptions} {opt}";
             var executable = compilerMeta.MainModulePath;
@@ -64,6 +64,7 @@ namespace DotVVM.CommandLine.Commands.Logic.Compiler
             while (!exited)
             {
             }
+            DotvvmToolProvider.Clean(compilerMeta);
         }
     }
 }
