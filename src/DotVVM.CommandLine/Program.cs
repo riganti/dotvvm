@@ -1,13 +1,11 @@
-﻿    using System;
-    using System.Diagnostics;
-    using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
-    using System.Threading;
-    using DotVVM.CommandLine.Commands.Core;
+using DotVVM.CommandLine.Commands.Core;
 using DotVVM.CommandLine.Commands.Handlers;
 using DotVVM.CommandLine.Core;
-    using DotVVM.CommandLine.Core.Arguments;
-    using DotVVM.CommandLine.Core.Metadata;
+using DotVVM.CommandLine.Core.Arguments;
+using DotVVM.CommandLine.Core.Metadata;
 
 namespace DotVVM.CommandLine
 {
@@ -23,17 +21,24 @@ namespace DotVVM.CommandLine
             var metadata = metadataService.FindInDirectory(currentDirectory);
             if (metadata == null)
             {
-                Console.WriteLine("No DotVVM project metadata file (.dotvvm.json) was found on current path.");
-                if (ConsoleHelpers.AskForYesNo("Is the current directory the root directory of DotVVM project?"))
+                if (!Console.IsInputRedirected)
                 {
-                    Console.WriteLine();
-                    metadata = metadataService.CreateDefaultConfiguration(Directory.GetCurrentDirectory());
-                    metadataService.Save(metadata);
+                    Console.WriteLine("No DotVVM project metadata file (.dotvvm.json) was found on current path.");
+
+                    if (ConsoleHelpers.AskForYesNo("Is the current directory the root directory of DotVVM project?"))
+                    {
+                        Console.WriteLine();
+                        metadata = SaveDefaultDotvvmMetadata(metadataService);
+                    }
+                    else
+                    {
+                        Console.WriteLine("There is no DotVVM project metadata file!");
+                        Environment.Exit(1);
+                    }
                 }
                 else
                 {
-                    Console.WriteLine("There is no DotVVM project metadata file!");
-                    Environment.Exit(1);
+                    metadata = SaveDefaultDotvvmMetadata(metadataService);
                 }
             }
 
@@ -47,7 +52,7 @@ namespace DotVVM.CommandLine
                 new AddNswagCommandHandler(),
                 new RegenNswagCommandHandler(),
                 new CompilerConfigurationExportCommandHandler(),
-                new VersionCommandHandler(), 
+                new VersionCommandHandler(),
                 new GenerateUiTestStubCommandHandler()
             };
             var arguments = new Arguments(args);
@@ -83,7 +88,14 @@ namespace DotVVM.CommandLine
             Environment.Exit(0);
         }
 
-        private static void WriteHelp(CommandBase[] commands )
+        private static DotvvmProjectMetadata SaveDefaultDotvvmMetadata(DotvvmProjectMetadataService metadataService)
+        {
+            var metadata = metadataService.CreateDefaultConfiguration(Directory.GetCurrentDirectory());
+            metadataService.Save(metadata);
+            return metadata;
+        }
+
+        private static void WriteHelp(CommandBase[] commands)
         {
             var indent = "    ";
             Console.ForegroundColor = ConsoleColor.Red;

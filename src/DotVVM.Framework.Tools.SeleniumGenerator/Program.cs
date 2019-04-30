@@ -9,8 +9,10 @@ using DotVVM.CommandLine.Core.Arguments;
 using DotVVM.CommandLine.Core.Metadata;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Diagnostics;
 using DotVVM.Utils.ConfigurationHost.Initialization;
 using System.Reflection;
+using System.Threading;
 using DotVVM.CommandLine.Core.Templates;
 using DotVVM.Framework.Testing.SeleniumGenerator;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,14 +25,6 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
 
         public static void Main(string[] args)
         {
-            //Console.WriteLine("pid: " + Process.GetCurrentProcess().Id);
-            //while (!Debugger.IsAttached)
-            //{
-            //    Thread.Sleep(1000);
-            //}
-
-            //Debugger.Break();
-
             try
             {
                 var arguments = new Arguments(args);
@@ -80,8 +74,8 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
             IEnumerable<string> controlFiles = new List<string>();
             IEnumerable<string> viewFiles;
 
-            if (arguments[0] != null)
-            {
+            if (arguments[0] != null) {
+           
                 var parsedArguments = SplitArguments(arguments);
                 viewFiles = GetViewsFiles(parsedArguments);
             }
@@ -164,19 +158,31 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
         {
             var metadataService = new DotvvmProjectMetadataService();
 
-            // make sure the test directory exists
             if (string.IsNullOrEmpty(dotvvmProjectMetadata.UITestProjectPath))
             {
                 var hintProjectName = $"..\\{dotvvmProjectMetadata.ProjectName}.Tests";
-                dotvvmProjectMetadata.UITestProjectPath = ConsoleHelpers.AskForValue(
-                    $"Enter the path to the test project\n(relative to DotVVM project directory, e.g. '{hintProjectName}'): ",
-                    hintProjectName);
+
+                if (!Console.IsInputRedirected)
+                {
+                    dotvvmProjectMetadata.UITestProjectPath = 
+                        ConsoleHelpers.AskForValue($"Enter the path to the test project\n(relative to DotVVM project directory, e.g. '{hintProjectName}'): ",
+                        hintProjectName);
+                }
+                else
+                {
+                    dotvvmProjectMetadata.UITestProjectPath = hintProjectName;
+                }
+
+                Console.WriteLine($@"Path to test project is set to ""{dotvvmProjectMetadata.UITestProjectPath}""");
             }
 
+            // make sure the test directory exists
             var testProjectDirectory = dotvvmProjectMetadata.GetUITestProjectFullPath();
             if (!Directory.Exists(testProjectDirectory))
             {
-                GenerateTestProject(testProjectDirectory, dotvvmProjectMetadata.ProjectDirectory);
+                var relativeWebDirectory = Path.GetRelativePath(dotvvmProjectMetadata.GetUITestProjectFullPath(), dotvvmProjectMetadata.ProjectDirectory);
+
+                GenerateTestProject(testProjectDirectory, relativeWebDirectory);
             }
 
             // make sure we know the test project namespace
@@ -189,13 +195,13 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
             metadataService.Save(dotvvmProjectMetadata);
         }
 
-        private static void GenerateTestProject(string testProjectDirectory, string projectDirectory)
+        private static void GenerateTestProject(string testProjectDirectory, string relativeWebDirectory)
         {
             var testProjectFileName = Path.GetFileName(testProjectDirectory);
-            var webProjectFileName = Path.GetFileName(projectDirectory);
             var testProjectPath = Path.Combine(testProjectDirectory, testProjectFileName + ".csproj");
-            var webProjectPath = Path.Combine(projectDirectory, webProjectFileName + ".csproj");
-            var fileContent = GetProjectFileTextContent(webProjectPath);
+            var webProjectPath = Path.Combine(relativeWebDirectory + ".csproj");
+
+            var fileContent = GetProjectFileTextContent(relativeWebDirectory, webProjectPath);
 
             FileSystemHelpers.WriteFile(testProjectPath, fileContent);
         }
@@ -209,11 +215,12 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
             }
         }
 
-        private static string GetProjectFileTextContent(string projectDirectory)
+        private static string GetProjectFileTextContent(string webDirectory, string webProjectPath)
         {
             var projectTemplate = new TestProjectTemplate
             {
-                WebProjectPath = projectDirectory
+                WebProjectPath = webDirectory,
+                WebCsProjPath = webProjectPath
             };
 
             return projectTemplate.TransformText();
