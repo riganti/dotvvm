@@ -96,7 +96,7 @@ namespace DotVVM.Framework.Controls
         /// of items is retrieved.
         /// </summary>
         /// <param name="queryable">The <see cref="IQueryable{T}" /> to modify.</param>
-        protected virtual IQueryable<T> ApplyFilteringToQueryable(IQueryable<T> queryable)
+        public virtual IQueryable<T> ApplyFilteringToQueryable(IQueryable<T> queryable)
         {
             return queryable;
         }
@@ -106,7 +106,7 @@ namespace DotVVM.Framework.Controls
         /// of items is retrieved.
         /// </summary>
         /// <param name="queryable">The <see cref="IQueryable{T}" /> to modify.</param>
-        protected virtual IQueryable<T> ApplyOptionsToQueryable(IQueryable<T> queryable)
+        public virtual IQueryable<T> ApplyOptionsToQueryable(IQueryable<T> queryable)
         {
             queryable = ApplySortingToQueryable(queryable);
             queryable = ApplyPagingToQueryable(queryable);
@@ -162,7 +162,7 @@ namespace DotVVM.Framework.Controls
         /// of items is retrieved.
         /// </summary>
         /// <param name="queryable">The <see cref="IQueryable{T}" /> to modify.</param>
-        protected virtual IQueryable<T> ApplyPagingToQueryable(IQueryable<T> queryable)
+        public virtual IQueryable<T> ApplyPagingToQueryable(IQueryable<T> queryable)
         {
             return PagingOptions != null && PagingOptions.PageSize > 0 ?
                 queryable.Skip(PagingOptions.PageSize * PagingOptions.PageIndex).Take(PagingOptions.PageSize) :
