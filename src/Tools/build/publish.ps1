@@ -59,7 +59,7 @@ function SetVersion() {
 
 
 function PublishTools(){
-	dotnet publish .\DotVVM.Framework.Tools.SeleniumGenerator -c $configuration -f netcoreapp2.0
+	dotnet publish .\DotVVM.Framework.Tools.SeleniumGenerator -c Debug -f netcoreapp2.0
 	dotnet publish .\DotVVM.Compiler -c $configuration -f netcoreapp2.0
 	dotnet publish .\DotVVM.Compiler -c $configuration -f net47
 	dotnet publish .\DotVVM.Compiler -c $configuration -f net461

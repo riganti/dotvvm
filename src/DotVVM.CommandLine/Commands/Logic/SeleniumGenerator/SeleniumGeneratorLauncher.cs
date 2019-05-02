@@ -25,7 +25,7 @@ namespace DotVVM.CommandLine.Commands.Logic.SeleniumGenerator
             var metadata = JsonConvert.SerializeObject(JsonConvert.SerializeObject(dotvvmProjectMetadata));
             var exited = false;
 
-            var processArgs = $"{CompilerConstants.Arguments.JsonOptions} {metadata} ";
+            var processArgs = $" {CompilerConstants.Arguments.JsonOptions} {metadata} ";
             var i = 0;
             while (args[i] != null)
             {
