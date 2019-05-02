@@ -64,52 +64,10 @@
       <PackagePath>tools\dnc\DotVVM.Compiler.deps.json</PackagePath>
       <Visible>false</Visible>
     </Content>
-    <Content Include="..\DotVVM.Framework.Tools.SeleniumGenerator\bin\$(Configuration)\netcoreapp2.0\DotVVM.Framework.Tools.SeleniumGenerator.dll">
+    <Content Include="..\DotVVM.Framework.Tools.SeleniumGenerator\bin\$(Configuration)\netcoreapp2.0\publish\**">
       <Pack>true</Pack>
       <InProject>false</InProject>
-      <PackagePath>tools\selenium\netcoreapp2.0\DotVVM.Framework.Tools.SeleniumGenerator.dll</PackagePath>
-      <Visible>false</Visible>
-    </Content>
-    <Content Include="..\DotVVM.Framework.Tools.SeleniumGenerator\bin\$(Configuration)\netcoreapp2.0\DotVVM.Utils.ConfigurationHost.dll">
-      <Pack>true</Pack>
-      <InProject>false</InProject>
-      <PackagePath>tools\selenium\netcoreapp2.0\DotVVM.Utils.ConfigurationHost.dll</PackagePath>
-      <Visible>false</Visible>
-    </Content>
-    <Content Include="..\DotVVM.Framework.Tools.SeleniumGenerator\bin\$(Configuration)\netcoreapp2.0\DotVVM.CommandLine.Core.dll">
-      <Pack>true</Pack>
-      <InProject>false</InProject>
-      <PackagePath>tools\selenium\netcoreapp2.0\DotVVM.CommandLine.Core.dll</PackagePath>
-      <Visible>false</Visible>
-    </Content>
-    <Content Include="..\DotVVM.Framework.Tools.SeleniumGenerator\bin\$(Configuration)\netcoreapp2.0\DotVVM.Framework.Testing.SeleniumGenerator.dll">
-      <Pack>true</Pack>
-      <InProject>false</InProject>
-      <PackagePath>tools\selenium\netcoreapp2.0\DotVVM.Framework.Testing.SeleniumGenerator.dll</PackagePath>
-      <Visible>false</Visible>
-    </Content>
-    <Content Include="..\DotVVM.Framework.Tools.SeleniumGenerator\bin\$(Configuration)\netcoreapp2.0\DotVVM.Framework.Tools.SeleniumGenerator.deps.json">
-      <Pack>true</Pack>
-      <InProject>false</InProject>
-      <PackagePath>tools\selenium\netcoreapp2.0\DotVVM.Framework.Tools.SeleniumGenerator.deps.json</PackagePath>
-      <Visible>false</Visible>
-    </Content>
-    <Content Include="..\DotVVM.Framework.Tools.SeleniumGenerator\bin\$(Configuration)\netcoreapp2.0\DotVVM.Framework.Tools.SeleniumGenerator.runtimeconfig.json">
-      <Pack>true</Pack>
-      <InProject>false</InProject>
-      <PackagePath>tools\selenium\netcoreapp2.0\DotVVM.Framework.Tools.SeleniumGenerator.runtimeconfig.json</PackagePath>
-      <Visible>false</Visible>
-    </Content>
-    <Content Include="..\DotVVM.Framework.Tools.SeleniumGenerator\bin\$(Configuration)\netcoreapp2.0\DotVVM.Core.dll">
-      <Pack>true</Pack>
-      <InProject>false</InProject>
-      <PackagePath>tools\selenium\netcoreapp2.0\DotVVM.Core.dll</PackagePath>
-      <Visible>false</Visible>
-    </Content>
-    <Content Include="..\DotVVM.Framework.Tools.SeleniumGenerator\bin\$(Configuration)\netcoreapp2.0\DotVVM.Framework.dll">
-      <Pack>true</Pack>
-      <InProject>false</InProject>
-      <PackagePath>tools\selenium\netcoreapp2.0\DotVVM.Framework.dll</PackagePath>
+      <PackagePath>tools\selenium\netcoreapp2.0\</PackagePath>
       <Visible>false</Visible>
     </Content>
   </ItemGroup>

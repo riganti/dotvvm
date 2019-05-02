@@ -1,6 +1,5 @@
 param([String]$version, [String]$apiKey, [String]$server, [String]$branchName, [String]$repoUrl, [String]$nugetRestoreAltSource = "", [bool]$pushTag, [String]$configuration, [String]$apiKeyInternal, [String]$internalServer)
 
-
 ### Helper Functions
 
 function Invoke-Git {
@@ -57,9 +56,20 @@ function SetVersion() {
 	}  
 }
 
+
+
+function PublishTools(){
+	dotnet publish .\DotVVM.Framework.Tools.SeleniumGenerator -c $configuration -f netcoreapp2.0
+	dotnet publish .\DotVVM.Compiler -c $configuration -f netcoreapp2.0
+	dotnet publish .\DotVVM.Compiler -c $configuration -f net47
+	dotnet publish .\DotVVM.Compiler -c $configuration -f net461
+}
+
+
 function BuildPackages() {
 	foreach ($package in $packages) {
 		cd .\$($package.Directory)
+		Write-Host "Creating package $($($package.Package)) ..."
 		
 		if ($nugetRestoreAltSource -eq "") {
 			& dotnet restore | Out-Host
@@ -133,6 +143,7 @@ if ($versionWithoutPre.Contains("-")) {
 CleanOldGeneratedPackages;
 GitCheckout;
 SetVersion;
+PublishTools;
 BuildPackages;
 PushPackages;
 PublishTemplates;
