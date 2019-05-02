@@ -2,7 +2,7 @@
   "profiles": {
     "DotVVM.CommandLine": {
       "commandName": "Project",
-      "commandLineArgs": "gut Tests",
+      "commandLineArgs": "gut Views\\default.dothtml",
       "workingDirectory": "C:\\tmp\\sg-test"
     }
   }
