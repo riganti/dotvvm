@@ -59,6 +59,12 @@ namespace DotVVM.Framework.Routing
                 return false;
             }
 
+            // Check whether the URL contains only allowed characters
+            if (!ContainsOnlyValidUrlChars(url))
+            {
+                return false;
+            }
+
             // Allows "/" or "/foo" but not "//" or "/\".
             if (url[0] == '/')
             {
@@ -98,5 +104,19 @@ namespace DotVVM.Framework.Routing
             return false;
         }
 
+        private static bool ContainsOnlyValidUrlChars(string url)
+        {
+            for (int i = 0; i < url.Length; i++)
+            {
+                if ((url[i] < 'A' || url[i] > 'Z') && (url[i] < 'a' || url[i] > 'z') && (url[i] < '0' || url[i] > '9')
+                    && url[i] != '-' && url[i] != '.' && url[i] != '_' && url[i] != '~' && url[i] != '%'
+                    && url[i] != '!' && url[i] != '$' && url[i] != '$' && url[i] != '\'' && url[i] != '(' && url[i] != ')' && url[i] != '*' && url[i] != '+' && url[i] != ',' && url[i] != ';' && url[i] != '='
+                    && url[i] != ':' && url[i] != '@' && url[i] != '/' && url[i] != '?')
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 }

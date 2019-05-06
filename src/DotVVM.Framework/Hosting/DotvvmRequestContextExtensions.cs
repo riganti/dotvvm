@@ -92,7 +92,7 @@ public static class DotvvmRequestContextExtensions
     {
         if (!UrlHelper.IsLocalUrl(url))
         {
-            throw new InvalidOperationException($"The URL '{url}' is not local!");
+            throw new InvalidOperationException($"The URL '{url}' is not local or contains invalid characters!");
         }
 
         context.RedirectToUrl(url, replaceInHistory, allowSpaRedirect);
