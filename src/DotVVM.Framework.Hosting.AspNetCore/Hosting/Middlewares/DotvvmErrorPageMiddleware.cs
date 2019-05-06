@@ -23,20 +23,17 @@ namespace DotVVM.Framework.Hosting.Middlewares
 
         public async Task Invoke(HttpContext context)
         {
-            Exception error = null;
             try
             {
                 await next(context);
             }
             catch (Exception ex)
             {
-                error = ex;
-            }
+                if (context.Response.HasStarted)
+                    throw; // the response has already started, don't do anything, we can't write anyway
 
-            if (error != null)
-            {
                 context.Response.StatusCode = 500;
-                await RenderErrorResponse(context, error);
+                await RenderErrorResponse(context, ex);
             }
         }
 
@@ -45,10 +42,9 @@ namespace DotVVM.Framework.Hosting.Middlewares
         /// </summary>
         public Task RenderErrorResponse(HttpContext context, Exception error)
         {
-            context.Response.ContentType = "text/html";
-
             try
             {
+                context.Response.ContentType = "text/html";
 
                 var text = (Formatter ?? (Formatter = CreateDefaultWithDemystifier()))
                     .ErrorHtml(error, DotvvmMiddleware.ConvertHttpContext(context));
@@ -56,21 +52,26 @@ namespace DotVVM.Framework.Hosting.Middlewares
             }
             catch (Exception exc)
             {
-                context.Response.ContentType = "text/plain";
-                try
-                {
-                    using (var writer = new StreamWriter(context.Response.Body))
-                    {
-                        writer.WriteLine("Error in Dotvvm Application:");
-                        writer.WriteLine(error.ToString());
-                        writer.WriteLine();
-                        writer.WriteLine("Error occurred while displaying the error page. This is internal error and should not happened, please report it:");
-                        writer.WriteLine(exc.ToString());
-                    }
-                }
-                catch { }
-                throw new Exception("Error occurred inside dotvvm error handler, this is internal error and should not happen; \n Original error:" + error.ToString(), exc);
+                return RenderFallbackMessage(context, error, exc);
             }
+        }
+
+        private static async Task RenderFallbackMessage(HttpContext context, Exception error, Exception exc)
+        {
+            try
+            {
+                context.Response.ContentType = "text/plain";
+                using (var writer = new StreamWriter(context.Response.Body))
+                {
+                    await writer.WriteLineAsync("Error in Dotvvm Application:");
+                    await writer.WriteLineAsync(error.ToString());
+                    await writer.WriteLineAsync();
+                    await writer.WriteLineAsync("Error occurred while displaying the error page. This is internal error and should not happened, please report it:");
+                    await writer.WriteLineAsync(exc.ToString());
+                }
+            }
+            catch { }
+            throw new Exception("Error occurred inside dotvvm error handler, this is internal error and should not happen; \n Original error:" + error.ToString(), exc);
         }
 
         private ErrorFormatter CreateDefaultWithDemystifier()
