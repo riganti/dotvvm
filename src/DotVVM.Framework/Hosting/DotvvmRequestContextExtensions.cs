@@ -141,7 +141,11 @@ public static class DotvvmRequestContextExtensions
         if (!context.ModelState.IsValid)
         {
             context.HttpContext.Response.ContentType = "application/json";
-            context.HttpContext.Response.Write(context.Services.GetRequiredService<IViewModelSerializer>().SerializeModelState(context));
+            context.HttpContext.Response
+                .WriteAsync(context.Services.GetRequiredService<IViewModelSerializer>().SerializeModelState(context))
+                .GetAwaiter().GetResult();
+            //   ^ we just wait for this Task. This API never was async and the response size is small enough that we can't quite safely wait for the result
+            //     .GetAwaiter().GetResult() preserves stack traces across async calls, thus I like it more that .Wait()
             throw new DotvvmInterruptRequestExecutionException(InterruptReason.ModelValidationFailed, "The ViewModel contains validation errors!");
         }
     }
