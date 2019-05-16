@@ -10,7 +10,6 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     public abstract class CheckableControlBase : HtmlGenericControl
     {
-        private bool isLabelRequired;
 
         /// <summary>
         /// Gets or sets the label text that is rendered next to the control.
@@ -69,28 +68,15 @@ namespace DotVVM.Framework.Controls
 
         }
 
-        protected internal override void OnPreRender(IDotvvmRequestContext context)
-        {
-            base.OnPreRender(context);
-
-            isLabelRequired = HasValueBinding(TextProperty) || !string.IsNullOrEmpty(Text) || !HasOnlyWhiteSpaceContent();
-        }
-
         protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            if (isLabelRequired)
-            {
                 writer.RenderBeginTag("label");
-            }
         }
 
         protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             // label end tag
-            if (isLabelRequired)
-            {
-                writer.RenderEndTag();
-            }
+            writer.RenderEndTag();
         }
 
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
@@ -98,26 +84,24 @@ namespace DotVVM.Framework.Controls
             AddAttributesToInput(writer);
             RenderInputTag(writer);
 
-            if (isLabelRequired)
+
+            if (HasValueBinding(TextProperty))
             {
-                if (HasValueBinding(TextProperty))
-                {
-                    writer.AddKnockoutDataBind("text", GetValueBinding(TextProperty).GetKnockoutBindingExpression(this));
-                    writer.RenderBeginTag(TagName);
-                    writer.RenderEndTag();
-                }
-                else if (!string.IsNullOrEmpty(Text))
-                {
-                    writer.RenderBeginTag(TagName);
-                    writer.WriteText(Text);
-                    writer.RenderEndTag();
-                }
-                else if (!HasOnlyWhiteSpaceContent())
-                {
-                    writer.RenderBeginTag(TagName);
-                    RenderChildren(writer, context);
-                    writer.RenderEndTag();
-                }
+                writer.AddKnockoutDataBind("text", GetValueBinding(TextProperty).GetKnockoutBindingExpression(this));
+                writer.RenderBeginTag(TagName);
+                writer.RenderEndTag();
+            }
+            else if (!string.IsNullOrEmpty(Text))
+            {
+                writer.RenderBeginTag(TagName);
+                writer.WriteText(Text);
+                writer.RenderEndTag();
+            }
+            else if (!HasOnlyWhiteSpaceContent())
+            {
+                writer.RenderBeginTag(TagName);
+                RenderChildren(writer, context);
+                writer.RenderEndTag();
             }
         }
 
@@ -131,8 +115,7 @@ namespace DotVVM.Framework.Controls
             }
 
             // handle enabled attribute
-            writer.AddKnockoutDataBind("enable", this, EnabledProperty, () =>
-            {
+            writer.AddKnockoutDataBind("enable", this, EnabledProperty, () => {
                 if (!Enabled)
                 {
                     writer.AddAttribute("disabled", "disabled");
