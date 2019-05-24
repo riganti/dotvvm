@@ -260,7 +260,7 @@ namespace DotVVM.Framework.Controls
                 writer.WriteKnockoutDataBindEndComment();
             }
 
-            if (r.IncludeInPage != null)
+            if (r.IncludeInPage != null && r.IncludeInPage is IValueBinding binding)
             {
                 writer.WriteKnockoutDataBindEndComment();
             }
