@@ -250,6 +250,10 @@ interface IDotvvmViewModelInfo {
     renderedResources?: string[];
     url?: string;
     virtualDirectory?: string;
+    resultIdFragment?: string;
+    resources?: {
+        [name: string]: boolean;
+    };
 }
 interface IDotvvmViewModels {
     [name: string]: IDotvvmViewModelInfo;
@@ -303,6 +307,7 @@ declare class DotVVM {
     extensions: IDotvvmExtensions;
     useHistoryApiSpaNavigation: boolean;
     isPostbackRunning: KnockoutObservable<boolean>;
+    private isBrowserReload;
     init(viewModelName: string, culture: string): void;
     private handlePopState;
     private handleHashChangeWithHistory;

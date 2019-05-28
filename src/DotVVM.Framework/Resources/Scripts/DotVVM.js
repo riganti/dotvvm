@@ -987,11 +987,38 @@ var DotVVM = /** @class */ (function () {
             this.postbackQueues[name] = { queue: [], noRunning: 0 };
         return this.postbackQueues[name];
     };
+    DotVVM.prototype.isBrowserReload = function () {
+        if (performance) {
+            if (performance.getEntriesByType) {
+                var entries = performance.getEntriesByType("navigation");
+                if (entries.length > 0) {
+                    return entries[0].type === "reload";
+                }
+            }
+            // deprecated in Navigation Timing Level 2 specification
+            if (performance.navigation) {
+                return performance.navigation.type === 1;
+            }
+        }
+        return false;
+    };
     DotVVM.prototype.init = function (viewModelName, culture) {
         var _this = this;
         this.addKnockoutBindingHandlers();
         // load the viewmodel
-        var thisViewModel = this.viewModels[viewModelName] = JSON.parse(document.getElementById("__dot_viewmodel_" + viewModelName).value);
+        var persistedJson = document.getElementById("__dot_persisted_viewmodel_" + viewModelName).value;
+        var json;
+        if (persistedJson) {
+            json = persistedJson;
+        }
+        else if (!this.isBrowserReload() && history.state && history.state.dotvvm_viewmodels && history.state.dotvvm_viewmodels[viewModelName]) {
+            json = history.state.dotvvm_viewmodels[viewModelName];
+        }
+        else {
+            json = document.getElementById("__dot_viewmodel_" + viewModelName).value;
+        }
+        var thisViewModel = thisViewModel = JSON.parse(json);
+        this.viewModels[viewModelName] = thisViewModel;
         if (thisViewModel.resources) {
             for (var r in thisViewModel.resources) {
                 this.resourceSigns[r] = true;
@@ -1101,6 +1128,7 @@ var DotVVM = /** @class */ (function () {
         }
     };
     DotVVM.prototype.persistViewModel = function (viewModelName) {
+        var _a;
         var viewModel = this.viewModels[viewModelName];
         var persistedViewModel = {};
         for (var p in viewModel) {
@@ -1109,7 +1137,14 @@ var DotVVM = /** @class */ (function () {
             }
         }
         persistedViewModel["viewModel"] = this.serialization.serialize(persistedViewModel["viewModel"], { serializeAll: true });
-        document.getElementById("__dot_viewmodel_" + viewModelName).value = JSON.stringify(persistedViewModel);
+        var json = JSON.stringify(persistedViewModel);
+        var currentState = history.state ? history.state : {};
+        var persistedViewModels = currentState.dotvvm_viewmodels ? currentState.dotvvm_viewmodels : {};
+        // add the new viewmodel to the existing state, otherwise SPA mode will break.
+        var state = __assign({}, currentState, { dotvvm_viewmodels: __assign({}, persistedViewModels, (_a = {}, _a[viewModelName] = json, _a)) });
+        document.getElementById("__dot_viewmodel_" + viewModelName).value = json;
+        document.getElementById("__dot_persisted_viewmodel_" + viewModelName).value = json;
+        history.replaceState(state, document.title);
     };
     DotVVM.prototype.backUpPostBackConter = function () {
         return ++this.postBackCounter;
