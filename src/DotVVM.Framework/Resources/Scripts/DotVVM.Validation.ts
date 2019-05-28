@@ -260,23 +260,18 @@ class DotvvmValidation {
 
         // add knockout binding handler
         ko.bindingHandlers["dotvvmValidation"] = {
-            init: (element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) => {
-                var observableProperty = valueAccessor();
+            update: (element: HTMLElement, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor) => {
+                const observableProperty = valueAccessor();
                 if (ko.isObservable(observableProperty)) {
                     // try to get the options
-                    var options = allBindingsAccessor.get("dotvvmValidationOptions");
-                    var updateFunction = (element, errorMessages: ValidationError[]) => {
-                        for (var option in options) {
-                            if (options.hasOwnProperty(option)) {
-                                this.elementUpdateFunctions[option](element, errorMessages.map(v => v.errorMessage), options[option]);
-                            }
+                    const options = allBindingsAccessor.get("dotvvmValidationOptions");
+
+                    const validationErrors = ValidationError.getOrCreate(observableProperty)();
+                    for (const option in options) {
+                        if (options.hasOwnProperty(option)) {
+                            this.elementUpdateFunctions[option](element, validationErrors.map(v => v.errorMessage), options[option]);
                         }
                     }
-
-                    // subscribe to the observable property changes
-                    var validationErrors = ValidationError.getOrCreate(observableProperty);
-                    validationErrors.subscribe(newValue => updateFunction(element, newValue));
-                    updateFunction(element, validationErrors());
                 }
             }
         };
