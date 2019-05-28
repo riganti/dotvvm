@@ -2524,8 +2524,10 @@ var DotvvmValidation = /** @class */ (function () {
         if (!validatedObservable || !ko.isObservable(validatedObservable))
             return;
         if (validatedObservable.validationErrors) {
-            for (var _i = 0, _a = validatedObservable.validationErrors(); _i < _a.length; _i++) {
-                var error = _a[_i];
+            var errors = validatedObservable.validationErrors().concat([]);
+            //                                                    ^ clone the array, as `clear` mutates it
+            for (var _i = 0, errors_1 = errors; _i < errors_1.length; _i++) {
+                var error = errors_1[_i];
                 error.clear(this);
             }
         }
@@ -2534,8 +2536,8 @@ var DotvvmValidation = /** @class */ (function () {
             return;
         // Do the same for every object in the array
         if (Array.isArray(validatedObject)) {
-            for (var _b = 0, validatedObject_1 = validatedObject; _b < validatedObject_1.length; _b++) {
-                var item = validatedObject_1[_b];
+            for (var _a = 0, validatedObject_1 = validatedObject; _a < validatedObject_1.length; _a++) {
+                var item = validatedObject_1[_a];
                 this.clearValidationErrors(item);
             }
         }

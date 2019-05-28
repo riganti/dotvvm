@@ -370,7 +370,9 @@ class DotvvmValidation {
     public clearValidationErrors(validatedObservable: KnockoutValidatedObservable<any>) {
         if (!validatedObservable || !ko.isObservable(validatedObservable)) return;
         if (validatedObservable.validationErrors) {
-            for (var error of validatedObservable.validationErrors()) {
+            const errors = validatedObservable.validationErrors().concat([]);
+            //                                                    ^ clone the array, as `clear` mutates it
+            for (var error of errors) {
                 error.clear(this);
             }
         }
