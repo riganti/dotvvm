@@ -350,7 +350,7 @@ namespace DotVVM.Framework.Binding
                 if (node.Name == "_this") return node.AddParameterAnnotation(new BindingParameterAnnotation(DataContext));
                 else if (node.Name == "_parent") return node.AddParameterAnnotation(new BindingParameterAnnotation(DataContext.Parent));
                 else if (node.Name == "_root") return node.AddParameterAnnotation(new BindingParameterAnnotation(DataContext.EnumerableItems().Last()));
-                else if (node.Name.StartsWith("_parent") && int.TryParse(node.Name.Substring("_parent".Length), out int index))
+                else if (node.Name.StartsWith("_parent", StringComparison.Ordinal) && int.TryParse(node.Name.Substring("_parent".Length), out int index))
                     return node.AddParameterAnnotation(new BindingParameterAnnotation(DataContext.EnumerableItems().ElementAt(index)));
                 return base.VisitParameter(node);
             }
