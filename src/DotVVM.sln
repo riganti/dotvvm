@@ -93,6 +93,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.CommandLine.Core", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework.Testing.SeleniumGenerator", "DotVVM.Framework.Testing.SeleniumGenerator\DotVVM.Framework.Testing.SeleniumGenerator.csproj", "{FF37C654-CBE0-47E2-AA85-F1BDC63B78E6}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Framework.Testing.SeleniumHelpers", "DotVVM.Framework.Testing.SeleniumHelpers\DotVVM.Framework.Testing.SeleniumHelpers.csproj", "{50BDD6F2-9598-43DF-A264-21D5C65069EB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -483,6 +485,18 @@ Global
 		{FF37C654-CBE0-47E2-AA85-F1BDC63B78E6}.Release|x64.Build.0 = Release|Any CPU
 		{FF37C654-CBE0-47E2-AA85-F1BDC63B78E6}.Release|x86.ActiveCfg = Release|Any CPU
 		{FF37C654-CBE0-47E2-AA85-F1BDC63B78E6}.Release|x86.Build.0 = Release|Any CPU
+		{50BDD6F2-9598-43DF-A264-21D5C65069EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50BDD6F2-9598-43DF-A264-21D5C65069EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50BDD6F2-9598-43DF-A264-21D5C65069EB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{50BDD6F2-9598-43DF-A264-21D5C65069EB}.Debug|x64.Build.0 = Debug|Any CPU
+		{50BDD6F2-9598-43DF-A264-21D5C65069EB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{50BDD6F2-9598-43DF-A264-21D5C65069EB}.Debug|x86.Build.0 = Debug|Any CPU
+		{50BDD6F2-9598-43DF-A264-21D5C65069EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50BDD6F2-9598-43DF-A264-21D5C65069EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50BDD6F2-9598-43DF-A264-21D5C65069EB}.Release|x64.ActiveCfg = Release|Any CPU
+		{50BDD6F2-9598-43DF-A264-21D5C65069EB}.Release|x64.Build.0 = Release|Any CPU
+		{50BDD6F2-9598-43DF-A264-21D5C65069EB}.Release|x86.ActiveCfg = Release|Any CPU
+		{50BDD6F2-9598-43DF-A264-21D5C65069EB}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

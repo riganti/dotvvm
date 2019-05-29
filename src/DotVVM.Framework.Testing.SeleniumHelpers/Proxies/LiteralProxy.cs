@@ -8,7 +8,7 @@ namespace DotVVM.Framework.Testing.SeleniumHelpers.Proxies
 {
     public class LiteralProxy : WebElementProxyBase
     {
-        public LiteralProxy(SeleniumHelperBase helper, string selector) : base(helper, selector)
+        public LiteralProxy(SeleniumHelperBase helper, PathSelector selector) : base(helper, selector)
         {
         }
 
