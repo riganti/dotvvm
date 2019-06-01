@@ -1,0 +1,33 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.Repeater.RepeaterWrapperTagViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+    <style>
+        .invalid {
+            color: red;
+        }
+    </style>
+    <dot:RequiredResource Name="globalize:cs-CZ" />
+</head>
+<body>
+    <div class="container">
+        <h1>Repeater wrapper tag demo</h1>
+
+        <fieldset id="part1"><legend>Sample 1</legend>
+            <dot:Repeater DataSource="{value: Items}" RenderAsNamedTemplate>
+                <ItemTemplate>
+                    <p>Test {{value: _this}}</p>
+                    <dot:Repeater DataSource="{value: _root.Items}" RenderAsNamedTemplate>
+                        <ItemTemplate>
+                            <p> --- Test {{value: _this}}</p>
+                        </ItemTemplate>
+                    </dot:Repeater>
+                </ItemTemplate>
+            </dot:Repeater>
+        </fieldset>
+
+    </div>
+</body>
+</html>

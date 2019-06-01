@@ -251,9 +251,9 @@ namespace DotVVM.Framework.Hosting
                 }
                 await requestTracer.TraceEvent(RequestTracingConstants.ViewModelSerialized, context);
 
-                // render the output
                 ViewModelSerializer.BuildViewModel(context);
                 if (commandResult != null) context.ViewModelJson["commandResult"] = JToken.FromObject(commandResult);
+
                 if (!context.IsInPartialRenderingMode)
                 {
                     // standard get
@@ -264,6 +264,7 @@ namespace DotVVM.Framework.Hosting
                     // postback or SPA content
                     var postBackUpdates = OutputRenderer.RenderPostbackUpdatedControls(context, page);
                     ViewModelSerializer.AddPostBackUpdatedControls(context, postBackUpdates);
+
                     await OutputRenderer.WriteViewModelResponse(context, page);
                 }
                 await requestTracer.TraceEvent(RequestTracingConstants.OutputRendered, context);

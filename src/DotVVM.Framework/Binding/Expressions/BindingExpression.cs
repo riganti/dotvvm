@@ -18,11 +18,11 @@ namespace DotVVM.Framework.Binding.Expressions
             public readonly object Value;
             public readonly Exception Error;
 
-            public object GetValue(ErrorHandlingMode errorMode) =>
+            public object GetValue(ErrorHandlingMode errorMode, Func<Exception, Exception> exceptionFactory) =>
                 Error == null ? Value :
                 errorMode == ErrorHandlingMode.ReturnNull ? null :
                 errorMode == ErrorHandlingMode.ReturnException ? Error :
-                throw new AggregateException(Error);
+                throw exceptionFactory(Error);
 
             public PropValue(object value, Exception error = null)
             {
@@ -38,6 +38,26 @@ namespace DotVVM.Framework.Binding.Expressions
 
         public BindingExpression(BindingCompilationService service, IEnumerable<object> properties)
         {
+            this.toStringValue = new Lazy<string>(() => {
+                // using Lazy improves performance a bit and most importantly handles StackOverflowException that could occur when OriginalStringBindingProperty getter fails
+                string value;
+                try
+                {
+                    value =
+                        this.GetProperty<OriginalStringBindingProperty>(ErrorHandlingMode.ReturnNull)?.Code ??
+                        this.GetProperty<ParsedExpressionBindingProperty>(ErrorHandlingMode.ReturnNull)?.Expression?.ToString() ??
+                        this.GetProperty<KnockoutExpressionBindingProperty>(ErrorHandlingMode.ReturnNull)?.Code?.ToString(o => new Compilation.Javascript.CodeParameterAssignment($"${o.GetHashCode()}", Compilation.Javascript.OperatorPrecedence.Max)) ??
+                        this.GetProperty<KnockoutJsExpressionBindingProperty>(ErrorHandlingMode.ReturnNull)?.Expression?.ToString() ??
+                        "... unrepresentable binding content ...";
+                }
+                catch (Exception ex)
+                {
+                    // Binding.ToString is used in error handling, so it should not fail
+                    value = $"Unable to get binding string due to {ex.GetType().Name}: {ex.Message}";
+                }
+                return $"{{{this.GetType().Name}: {value}}}";
+            });
+
             foreach (var prop in properties)
                 if (prop != null) this.properties[prop.GetType()] = new PropValue(prop);
             this.bindingService = service;
@@ -66,18 +86,35 @@ namespace DotVVM.Framework.Binding.Expressions
             this.properties.TryAdd(typeof(BindingResolverCollection), new PropValue(null, noResolversException));
         }
 
-        public object GetProperty(Type type, ErrorHandlingMode errorMode = ErrorHandlingMode.ThrowException) =>
-            properties.GetOrAdd(type, ComputeProperty).GetValue(errorMode);
+        static Func<Exception, Exception> GetExceptionFactory(IBinding contextBinding, Type propType) =>
+            innerException =>
+            innerException is BindingPropertyException bpe && bpe.StackTrace == null && bpe.Binding == contextBinding && bpe.Property == propType ?
+            new BindingPropertyException(bpe.Binding, bpe.Property, bpe.CoreMessage, bpe.InnerException) :
+            new BindingPropertyException(contextBinding, propType, innerException);
 
-
-        public override string ToString()
+        public object GetProperty(Type type, ErrorHandlingMode errorMode = ErrorHandlingMode.ThrowException)
         {
-            var value = this.GetProperty<ParsedExpressionBindingProperty>(ErrorHandlingMode.ReturnNull)?.Expression?.ToString() ??
-                this.GetProperty<OriginalStringBindingProperty>(ErrorHandlingMode.ReturnNull)?.Code ??
-                this.GetProperty<KnockoutJsExpressionBindingProperty>(ErrorHandlingMode.ReturnNull)?.Expression?.ToString() ??
-                this.GetProperty<KnockoutExpressionBindingProperty>(ErrorHandlingMode.ReturnNull)?.Code?.ToString(o => new Compilation.Javascript.CodeParameterAssignment($"${o.GetHashCode()}", Compilation.Javascript.OperatorPrecedence.Max));
-            return $"{{{GetType().Name}: {value}}}";
+            if (!properties.TryGetValue(type, out var result))
+            {
+                var r = ComputeProperty(type);
+                if (r.Error != null)
+                {
+                    // overwrite previous error, this has a chance of being more descriptive (due to blocked recursion)
+                    properties[type] = r;
+                    result = r;
+                }
+                else
+                {
+                    // don't overwrite value, it has to be singleton
+                    result = properties.GetOrAdd(type, r);
+                }
+            }
+            return result.GetValue(errorMode, GetExceptionFactory(this, type));
         }
+
+
+        Lazy<string> toStringValue;
+        public override string ToString() => toStringValue.Value;
 
         IEnumerable<object> ICloneableBinding.GetAllComputedProperties()
         {

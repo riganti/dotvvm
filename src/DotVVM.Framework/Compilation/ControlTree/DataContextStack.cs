@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
@@ -122,6 +123,18 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 hashCode = (hashCode * 13) ^ (DataContextType?.FullName?.GetHashCode() ?? 0);
                 return hashCode;
             }
+        }
+
+        public override string ToString()
+        {
+            var features = new [] {
+                $"type={this.DataContextType.FullName}",
+                this.NamespaceImports.Any() ? "imports=[" + string.Join(", ", this.NamespaceImports) + "]" : null,
+                this.ExtensionParameters.Any() ? "ext=[" + string.Join(", ", this.ExtensionParameters.Select(e => e.Identifier + ": " + e.ParameterType.Name)) + "]" : null,
+                this.BindingPropertyResolvers.Any() ? "resolvers=[" + string.Join(", ", this.BindingPropertyResolvers.Select(s => s.Method)) + "]" : null,
+                this.Parent != null ? "par=[" + string.Join(", ", this.Parents().Select(p => p.Name)) + "]" : null
+            };
+            return "(" + features.Where(a => a != null).StringJoin(", ") + ")";
         }
 
 

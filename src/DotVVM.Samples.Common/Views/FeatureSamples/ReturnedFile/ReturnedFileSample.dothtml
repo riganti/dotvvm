@@ -11,6 +11,7 @@
     <%-- TODO: UI Test --%>
     <dot:TextBox Text="{value: Text}" Type="Multiline"></dot:TextBox>
     <dot:Button Text="Get File" Click="{command: GetFile()}" />
+    <dot:Button Text="Get File Inline" Click="{command: GetFileInline()}" />
 </body>
 </html>
 

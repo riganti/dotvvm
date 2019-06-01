@@ -191,13 +191,13 @@ public static class DotvvmRequestContextExtensions
     /// <summary>
     /// Redirects the client to the specified file.
     /// </summary>
-    public static void ReturnFile(this IDotvvmRequestContext context, byte[] bytes, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>> additionalHeaders = null) =>
-        context.ReturnFile(new MemoryStream(bytes), fileName, mimeType, additionalHeaders);
+    public static void ReturnFile(this IDotvvmRequestContext context, byte[] bytes, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>> additionalHeaders = null, string attachmentDispositionType = null) =>
+        context.ReturnFile(new MemoryStream(bytes), fileName, mimeType, additionalHeaders, attachmentDispositionType);
 
     /// <summary>
     /// Redirects the client to the specified file.
     /// </summary>
-    public static void ReturnFile(this IDotvvmRequestContext context, Stream stream, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>> additionalHeaders = null)
+    public static void ReturnFile(this IDotvvmRequestContext context, Stream stream, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>> additionalHeaders = null, string attachmentDispositionType = null)
     {
         var returnedFileStorage = context.Services.GetService<IReturnedFileStorage>();
 
@@ -211,7 +211,8 @@ public static class DotvvmRequestContextExtensions
         {
             FileName = fileName,
             MimeType = mimeType,
-            AdditionalHeaders = additionalHeaders?.GroupBy(k => k.Key, k => k.Value)?.ToDictionary(k => k.Key, k => k.ToArray())
+            AdditionalHeaders = additionalHeaders?.GroupBy(k => k.Key, k => k.Value)?.ToDictionary(k => k.Key, k => k.ToArray()),
+            AttachmentDispositionType = attachmentDispositionType ?? "attachment"
         };
 
         var generatedFileId = returnedFileStorage.StoreFile(stream, metadata).Result;
