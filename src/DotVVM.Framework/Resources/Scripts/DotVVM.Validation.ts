@@ -201,7 +201,7 @@ class DotvvmValidation {
         // sets the error message as the title attribute
         setToolTipText(element: HTMLElement, errorMessages: string[], param: any) {
             if (errorMessages.length > 0) {
-                element.title = errorMessages.join(", ");
+                element.title = errorMessages.join(" ");
             } else {
                 element.title = "";
             }
@@ -209,7 +209,7 @@ class DotvvmValidation {
 
         // displays the error message
         showErrorMessageText(element: any, errorMessages: string[], param: any) {
-            element[element.innerText ? "innerText" : "textContent"] = errorMessages.join(", ");
+            element[element.innerText ? "innerText" : "textContent"] = errorMessages.join(" ");
         }
     }
 

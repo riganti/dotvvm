@@ -2367,7 +2367,7 @@ var DotvvmValidation = /** @class */ (function () {
             // sets the error message as the title attribute
             setToolTipText: function (element, errorMessages, param) {
                 if (errorMessages.length > 0) {
-                    element.title = errorMessages.join(", ");
+                    element.title = errorMessages.join(" ");
                 }
                 else {
                     element.title = "";
@@ -2375,7 +2375,7 @@ var DotvvmValidation = /** @class */ (function () {
             },
             // displays the error message
             showErrorMessageText: function (element, errorMessages, param) {
-                element[element.innerText ? "innerText" : "textContent"] = errorMessages.join(", ");
+                element[element.innerText ? "innerText" : "textContent"] = errorMessages.join(" ");
             }
         };
         var createValidationHandler = function (path) { return ({
