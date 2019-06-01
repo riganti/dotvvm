@@ -7,6 +7,7 @@ using DotVVM.Framework.Compilation.Parser;
 
 namespace DotVVM.Framework.Compilation
 {
+    [Serializable]
     public class DotvvmCompilationException : Exception
     {
 
