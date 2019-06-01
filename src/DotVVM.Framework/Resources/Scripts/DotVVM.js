@@ -2357,11 +2357,10 @@ var DotvvmValidation = /** @class */ (function () {
             // adds a CSS class when the element is not valid
             invalidCssClass: function (element, errorMessages, className) {
                 if (errorMessages.length > 0) {
-                    element.className += " " + className;
+                    element.classList.add(className);
                 }
                 else {
-                    var classNames = className.split(' ');
-                    element.className = element.className.split(' ').filter(function (c) { return classNames.indexOf(c) < 0; }).join(' ');
+                    element.classList.remove(className);
                 }
             },
             // sets the error message as the title attribute

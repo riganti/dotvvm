@@ -229,6 +229,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Validation_EncryptedData = "FeatureSamples/Validation/EncryptedData";
         public const string FeatureSamples_Validation_EnforceClientSideValidationDisabled = "FeatureSamples/Validation/EnforceClientSideValidationDisabled";
         public const string FeatureSamples_Validation_EssentialTypeValidation = "FeatureSamples/Validation/EssentialTypeValidation";
+        public const string FeatureSamples_Validation_InvalidCssClassNotDuplicated = "FeatureSamples/Validation/InvalidCssClassNotDuplicated";
         public const string FeatureSamples_Validation_Localization = "FeatureSamples/Validation/Localization";
         public const string FeatureSamples_Validation_ModelStateErrors = "FeatureSamples/Validation/ModelStateErrors";
         public const string FeatureSamples_Validation_NestedValidation = "FeatureSamples/Validation/NestedValidation";

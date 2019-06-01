@@ -48,6 +48,36 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [Fact]
+        public void Feature_Validation_InvalidCssClassNotDuplicated()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_InvalidCssClassNotDuplicated);
+
+                var textbox = browser.Single("input[type=text]");
+                var button = browser.Single("input[type=button]");
+                var div = browser.Single("div[data-id=validated-div]");
+
+                // empty - one error
+                button.Click();
+                browser.FindElements("li").ThrowIfDifferentCountThan(1);
+                AssertUI.ClassAttribute(div, c => c == "form-group has-error" || c == "has-error form-group");
+
+                // invalid - two errors
+                textbox.SendKeys("abcd");
+                button.Click();
+                browser.FindElements("li").ThrowIfDifferentCountThan(2);
+                AssertUI.ClassAttribute(div, c => c == "form-group has-error" || c == "has-error form-group");
+
+                // valid
+                textbox.Clear();
+                textbox.SendKeys("123");
+                button.Click();
+                browser.FindElements("li").ThrowIfDifferentCountThan(0);
+                AssertUI.ClassAttribute(div, c => c == "form-group");
+            });
+        }
+
+        [Fact]
         public void Feature_Validation_ClientSideValidationDisabling()
         {
             RunInAllBrowsers(browser => {
