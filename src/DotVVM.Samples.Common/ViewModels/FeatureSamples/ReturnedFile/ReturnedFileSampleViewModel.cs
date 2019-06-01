@@ -15,5 +15,9 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ReturnedFile
         {
             Context.ReturnFile(Encoding.UTF8.GetBytes(Text), "file.txt", "text/plain");
         }
+        public void GetFileInline()
+        {
+            Context.ReturnFile(Encoding.UTF8.GetBytes(Text), "file.txt", "text/plain", attachmentDispositionType: "inline");
+        }
     }
 }
