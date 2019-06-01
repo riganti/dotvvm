@@ -32,9 +32,15 @@ namespace DotVVM.Framework.ResourceManagement
             get => _code;
             set
             {
-                if (value?.IndexOf("</script", StringComparison.OrdinalIgnoreCase) >= 0) throw new Exception($"Inline script can't contain `</script>`.");
+                InlineScriptContentGuard(value);
                 _code = value;
             }
+        }
+
+        internal static void InlineScriptContentGuard(string code)
+        {
+            if (code?.IndexOf("</script", StringComparison.OrdinalIgnoreCase) >= 0)
+                throw new Exception($"Inline script can't contain `</script>`.");
         }
 
         /// <summary>

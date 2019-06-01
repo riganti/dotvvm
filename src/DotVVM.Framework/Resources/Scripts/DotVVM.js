@@ -1431,6 +1431,9 @@ var DotVVM = /** @class */ (function () {
             if (el.text) {
                 script.text = el.text;
             }
+            if (el.id) {
+                script.id = el.id;
+            }
             el = script;
         }
         else if (el.tagName.toLowerCase() == "link") {

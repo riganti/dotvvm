@@ -5,6 +5,7 @@ using DotVVM.Framework.Configuration;
 using System.Threading;
 using DotVVM.Framework.Compilation.Parser;
 using System.Globalization;
+using System.Text;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -48,6 +49,25 @@ namespace DotVVM.Framework.ResourceManagement
             }
 
             AddRequiredResourceCore(name, resource);
+        }
+
+        /// <summary>
+        /// Adds the template resource at the end of the HTML document.
+        /// </summary>
+        /// <param name="template">The rendered DOM elements.</param>
+        /// <returns>Resource ID</returns>
+        public string AddTemplateResource(string template)
+        {
+            using (var sha = System.Security.Cryptography.SHA256.Create())
+            {
+                var resourceId = Convert.ToBase64String(sha.ComputeHash(Encoding.Unicode.GetBytes(template)));
+                if (!requiredResources.ContainsKey(resourceId))
+                {
+                    AddRequiredResourceCore(resourceId, new TemplateResource(template));
+                }
+
+                return resourceId;
+            }
         }
 
         private void AddRequiredResourceCore(IResource resource) => AddRequiredResourceCore("__noname_" + nonameCtr++, resource);
@@ -168,7 +188,6 @@ namespace DotVVM.Framework.ResourceManagement
             }
             return result;
         }
-
 
         /// <summary>
         /// Finds the resource in required resources or in the resources registered in the configuration file.
