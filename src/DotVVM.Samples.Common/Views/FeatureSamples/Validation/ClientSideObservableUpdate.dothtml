@@ -1,0 +1,32 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Validation.ClientSideObservableUpdateViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    TODO: UI test
+
+    <p> This sample tests if validator works even if the parent object is swapped dynamically. For this to work, the knockout binding has to implement the update logic.
+
+    <p> The text box is validated for EmailAddress and Required and the validation message should be displayed next to it when you click on "Do postback"
+
+    <div Visible="{value: Test1 == null && Test2 == null}">
+        <p> No test case is loaded - click on "switch tests".
+    </div>
+    <div Visible="{value: Test1 != null}">
+        Test 1: <dot:TextBox Text="{value: Test1.Text}" data-id="textbox1" /> <dot:Validator Value="{value: Test1.Text}" ShowErrorMessageText data-id="validator1" />
+    </div>
+    <div Visible="{value: Test2 != null}">
+        Test 2: <dot:TextBox Text="{value: Test2.Text}" data-id="textbox2" /> <dot:Validator Value="{value: Test2.Text}" ShowErrorMessageText data-id="validator2" />
+    </div>
+
+    <dot:Button Click="{command: SwitchTests()}" Validation.Enabled=false Text="switch tests" />
+    <dot:Button Click="{command: 0}" Text="Do postback" />
+</body>
+</html>
+
+

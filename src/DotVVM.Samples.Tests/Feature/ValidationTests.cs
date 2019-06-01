@@ -12,10 +12,75 @@ namespace DotVVM.Samples.Tests.Feature
     public class ValidationTests : AppSeleniumTest
     {
         [Fact]
+        public void Feature_Validation_ClientSideObservableUpdate()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_ClientSideObservableUpdate);
+
+                var switchTestsButton = browser.ElementAt("input[type=button]", 0);
+                var postbackButton = browser.ElementAt("input[type=button]", 1);
+
+                for (int i = 0; i < 2; i++)
+                {
+                    // load section 1 and validate it
+                    switchTestsButton.Click();
+                    AssertUI.TextEquals(browser.Single("*[data-id=validator1]"), "");
+
+                    postbackButton.Click();
+                    AssertUI.TextEquals(browser.Single("*[data-id=validator1]"), "The Text field is not a valid e-mail address.");
+
+                    browser.Single("input[data-id=textbox1]").Clear();
+                    postbackButton.Click();
+                    AssertUI.TextEquals(browser.Single("*[data-id=validator1]"), "The Text field is required., The Text field is not a valid e-mail address.");
+
+                    // load section 2 and validate it
+                    switchTestsButton.Click();
+                    AssertUI.TextEquals(browser.Single("*[data-id=validator2]"), "");
+
+                    postbackButton.Click();
+                    AssertUI.TextEquals(browser.Single("*[data-id=validator2]"), "The Text field is required., The Text field is not a valid e-mail address.");
+
+                    browser.Single("input[data-id=textbox2]").SendKeys("t@t.tt");
+                    postbackButton.Click();
+                    AssertUI.TextEquals(browser.Single("*[data-id=validator2]"), "");
+                }
+            });
+        }
+
+        [Fact]
+        public void Feature_Validation_InvalidCssClassNotDuplicated()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_InvalidCssClassNotDuplicated);
+
+                var textbox = browser.Single("input[type=text]");
+                var button = browser.Single("input[type=button]");
+                var div = browser.Single("div[data-id=validated-div]");
+
+                // empty - one error
+                button.Click();
+                browser.FindElements("li").ThrowIfDifferentCountThan(1);
+                AssertUI.ClassAttribute(div, c => c == "form-group has-error" || c == "has-error form-group");
+
+                // invalid - two errors
+                textbox.SendKeys("abcd");
+                button.Click();
+                browser.FindElements("li").ThrowIfDifferentCountThan(2);
+                AssertUI.ClassAttribute(div, c => c == "form-group has-error" || c == "has-error form-group");
+
+                // valid
+                textbox.Clear();
+                textbox.SendKeys("123");
+                button.Click();
+                browser.FindElements("li").ThrowIfDifferentCountThan(0);
+                AssertUI.ClassAttribute(div, c => c == "form-group");
+            });
+        }
+
+        [Fact]
         public void Feature_Validation_ClientSideValidationDisabling()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_ClientSideValidationDisabling);
 
                 var requiredValidationResult = browser.Single("requiredValidationResult", SelectBy.Id);
@@ -49,8 +114,7 @@ namespace DotVVM.Samples.Tests.Feature
         [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_Validation_ClientSideValidationDisabling))]
         public void Feature_Validation_ClientSideValidationDisabling_Enabled()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_ClientSideValidationDisabling + "/true");
 
                 var requiredValidationResult = browser.Single("requiredValidationResult", SelectBy.Id);
@@ -82,8 +146,7 @@ namespace DotVVM.Samples.Tests.Feature
         [Fact]
         public void Feature_Validation_DateTimeValidation()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_DateTimeValidation);
 
                 var textBox = browser.First("input[type=text]");
@@ -117,8 +180,7 @@ namespace DotVVM.Samples.Tests.Feature
         [Fact]
         public void Feature_Validation_DateTimeValidation_NullableDateTime()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_DateTimeValidation_NullableDateTime);
                 var textBox1 = browser.ElementAt("input[type=text]", 0);
                 var textBox2 = browser.ElementAt("input[type=text]", 1);
@@ -163,8 +225,7 @@ namespace DotVVM.Samples.Tests.Feature
         [Fact]
         public void Feature_Validation_DynamicValidation()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_DynamicValidation);
 
                 // click the validate button
@@ -198,8 +259,7 @@ namespace DotVVM.Samples.Tests.Feature
         [Fact]
         public void Feature_Validation_EssentialTypeValidation()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_EssentialTypeValidation);
 
                 var addNestedBtn = browser.ElementAt("input[type=button]", 0);
@@ -241,7 +301,7 @@ namespace DotVVM.Samples.Tests.Feature
                 withBtn.Click();
                 browser.WaitForPostback();
                 browser.FindElements("li").ThrowIfDifferentCountThan(2);
-               
+
                 // correct form test
                 browser.First(".NaNTest input[type=text]").Clear();
                 browser.First(".NaNTest input[type=text]").SendKeys("55");
@@ -258,7 +318,7 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_EnforceClientSideValidationDisabled);
-                
+
                 var withBtn = browser.ElementAt("input[type=button]", 0);
                 var withOutBtn = browser.ElementAt("input[type=button]", 1);
 
@@ -286,8 +346,7 @@ namespace DotVVM.Samples.Tests.Feature
         [Fact]
         public void Feature_Validation_ModelStateErrors()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_ModelStateErrors);
 
                 //click first button - viewmodel error
@@ -319,8 +378,7 @@ namespace DotVVM.Samples.Tests.Feature
         [Fact]
         public void Feature_Validation_NestedValidation()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_NestedValidation);
 
                 // ensure validators not visible
@@ -376,8 +434,7 @@ namespace DotVVM.Samples.Tests.Feature
         [Fact]
         public void Feature_Validation_NullValidationTarget()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_NullValidationTarget);
 
                 //get buttons
@@ -466,8 +523,7 @@ namespace DotVVM.Samples.Tests.Feature
         [Fact]
         public void Feature_Validation_RegexValidation()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_RegexValidation);
 
                 browser.ElementAt("input", 0).SendKeys("25");
@@ -489,13 +545,11 @@ namespace DotVVM.Samples.Tests.Feature
         [Fact]
         public void Feature_Validation_SimpleValidation()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_SimpleValidation);
 
                 // ensure validators not visible
-                browser.WaitFor(() =>
-                {
+                browser.WaitFor(() => {
                     browser.FindElements("li").ThrowIfDifferentCountThan(0);
                 }, 1000, 30);
 
@@ -560,8 +614,7 @@ namespace DotVVM.Samples.Tests.Feature
         [Microsoft.VisualStudio.TestTools.UnitTesting.Timeout(120000)]
         public void Feature_Validation_ValidationRulesLoadOnPostback()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_ValidationRulesLoadOnPostback);
 
                 // click the validate button
@@ -593,8 +646,7 @@ namespace DotVVM.Samples.Tests.Feature
         [Fact]
         public void Feature_Validation_ValidationScopes()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_ValidationScopes);
 
                 browser.First("input[type=button]").Click();
@@ -606,8 +658,7 @@ namespace DotVVM.Samples.Tests.Feature
         [Fact]
         public void Feature_Validation_ValidationScopes2()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_ValidationScopes2);
 
                 // we are testing the first button
@@ -672,8 +723,7 @@ namespace DotVVM.Samples.Tests.Feature
         [Fact]
         public void Feature_Validation_Localization()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_Localization);
 
 

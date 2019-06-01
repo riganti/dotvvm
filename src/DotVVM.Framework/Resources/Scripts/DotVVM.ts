@@ -1172,7 +1172,6 @@ class DotVVM {
                 element.innerBindingContext = innerBindingContext
                 ko.applyBindingsToDescendants(innerBindingContext, element)
                 return { controlsDescendantBindings: true } // do not apply binding again
-
             }
         }
         ko.virtualElements.allowedBindings["withGridViewDataSet"] = true;

@@ -118,6 +118,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_UpdateProgress_UpdateProgressDelay = "ControlSamples/UpdateProgress/UpdateProgressDelay";
         public const string ControlSamples_ValidationSummary_IncludeErrorsFromTarget_PropertyPathNotNull = "ControlSamples/ValidationSummary/IncludeErrorsFromTarget_PropertyPathNotNull";
         public const string ControlSamples_ValidationSummary_IncludeErrorsFromTarget_PropertyPathNull = "ControlSamples/ValidationSummary/IncludeErrorsFromTarget_PropertyPathNull";
+        public const string ControlSamples_ValidationSummary_MessagesRendering = "ControlSamples/ValidationSummary/MessagesRendering";
         public const string ControlSamples_ValidationSummary_RecursiveValidationSummary = "ControlSamples/ValidationSummary/RecursiveValidationSummary";
         public const string Errors_BindingInvalidCommand = "Errors/BindingInvalidCommand";
         public const string Errors_BindingInvalidProperty = "Errors/BindingInvalidProperty";
@@ -195,6 +196,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_PostBack_PostbackUpdate = "FeatureSamples/PostBack/PostbackUpdate";
         public const string FeatureSamples_PostBack_PostbackUpdateRepeater = "FeatureSamples/PostBack/PostbackUpdateRepeater";
         public const string FeatureSamples_PostBack_SuppressPostBackHandler = "FeatureSamples/PostBack/SuppressPostBackHandler";
+        public const string FeatureSamples_PostBack_UniqueIdGenerationOnPostbackUpdate = "FeatureSamples/PostBack/UniqueIdGenerationOnPostbackUpdate";
         public const string FeatureSamples_PostbackConcurrency_PostbackConcurrencyMode = "FeatureSamples/PostbackConcurrency/PostbackConcurrencyMode";
         public const string FeatureSamples_Redirect_Redirect = "FeatureSamples/Redirect/Redirect";
         public const string FeatureSamples_RenderSettingsModeServer_RenderSettingModeServerProperty = "FeatureSamples/RenderSettingsModeServer/RenderSettingModeServerProperty";
@@ -218,6 +220,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_StaticCommand_StaticCommand_NullAssignment = "FeatureSamples/StaticCommand/StaticCommand_NullAssignment";
         public const string FeatureSamples_StaticCommand_StaticCommand_NullBinding = "FeatureSamples/StaticCommand/StaticCommand_NullBinding";
         public const string FeatureSamples_StaticCommand_StaticCommand_ValueAssignmentInControl = "FeatureSamples/StaticCommand/StaticCommand_ValueAssignmentInControl";
+        public const string FeatureSamples_Validation_ClientSideObservableUpdate = "FeatureSamples/Validation/ClientSideObservableUpdate";
         public const string FeatureSamples_Validation_ClientSideValidationDisabling = "FeatureSamples/Validation/ClientSideValidationDisabling";
         public const string FeatureSamples_Validation_CustomValidation = "FeatureSamples/Validation/CustomValidation";
         public const string FeatureSamples_Validation_DateTimeValidation = "FeatureSamples/Validation/DateTimeValidation";
@@ -226,6 +229,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Validation_EncryptedData = "FeatureSamples/Validation/EncryptedData";
         public const string FeatureSamples_Validation_EnforceClientSideValidationDisabled = "FeatureSamples/Validation/EnforceClientSideValidationDisabled";
         public const string FeatureSamples_Validation_EssentialTypeValidation = "FeatureSamples/Validation/EssentialTypeValidation";
+        public const string FeatureSamples_Validation_InvalidCssClassNotDuplicated = "FeatureSamples/Validation/InvalidCssClassNotDuplicated";
         public const string FeatureSamples_Validation_Localization = "FeatureSamples/Validation/Localization";
         public const string FeatureSamples_Validation_ModelStateErrors = "FeatureSamples/Validation/ModelStateErrors";
         public const string FeatureSamples_Validation_NestedValidation = "FeatureSamples/Validation/NestedValidation";

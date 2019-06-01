@@ -23,6 +23,7 @@
     <None Remove="Views\FeatureSamples\PostBack\UniqueIdGenerationOnPostbackUpdate.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_NullAssignment.dothtml" />
     <None Remove="Views\FeatureSamples\Validation\EnforceClientSideValidationDisabled.dothtml" />
+    <None Remove="Views\FeatureSamples\Validation\InvalidCssClassNotDuplicated.dothtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Scripts\ClientExtenders.js" />

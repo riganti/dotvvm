@@ -191,17 +191,16 @@ class DotvvmValidation {
         // adds a CSS class when the element is not valid
         invalidCssClass(element: HTMLElement, errorMessages: string[], className: string) {
             if (errorMessages.length > 0) {
-                element.className += " " + className;
+                element.classList.add(className);
             } else {
-                var classNames = className.split(' ');
-                element.className = element.className.split(' ').filter(c => classNames.indexOf(c) < 0).join(' ');
+                element.classList.remove(className);
             }
         },
 
         // sets the error message as the title attribute
         setToolTipText(element: HTMLElement, errorMessages: string[], param: any) {
             if (errorMessages.length > 0) {
-                element.title = errorMessages.join(", ");
+                element.title = errorMessages.join(" ");
             } else {
                 element.title = "";
             }
@@ -209,7 +208,7 @@ class DotvvmValidation {
 
         // displays the error message
         showErrorMessageText(element: any, errorMessages: string[], param: any) {
-            element[element.innerText ? "innerText" : "textContent"] = errorMessages.join(", ");
+            element[element.innerText ? "innerText" : "textContent"] = errorMessages.join(" ");
         }
     }
 
@@ -260,23 +259,18 @@ class DotvvmValidation {
 
         // add knockout binding handler
         ko.bindingHandlers["dotvvmValidation"] = {
-            init: (element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) => {
-                var observableProperty = valueAccessor();
+            update: (element: HTMLElement, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor) => {
+                const observableProperty = valueAccessor();
                 if (ko.isObservable(observableProperty)) {
                     // try to get the options
-                    var options = allBindingsAccessor.get("dotvvmValidationOptions");
-                    var updateFunction = (element, errorMessages: ValidationError[]) => {
-                        for (var option in options) {
-                            if (options.hasOwnProperty(option)) {
-                                this.elementUpdateFunctions[option](element, errorMessages.map(v => v.errorMessage), options[option]);
-                            }
+                    const options = allBindingsAccessor.get("dotvvmValidationOptions");
+
+                    const validationErrors = ValidationError.getOrCreate(observableProperty)();
+                    for (const option in options) {
+                        if (options.hasOwnProperty(option)) {
+                            this.elementUpdateFunctions[option](element, validationErrors.map(v => v.errorMessage), options[option]);
                         }
                     }
-
-                    // subscribe to the observable property changes
-                    var validationErrors = ValidationError.getOrCreate(observableProperty);
-                    validationErrors.subscribe(newValue => updateFunction(element, newValue));
-                    updateFunction(element, validationErrors());
                 }
             }
         };
