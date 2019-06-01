@@ -535,7 +535,7 @@ namespace DotVVM.Framework.Tests.Routing
             });
 
             var table = new DotvvmRouteTable(configuration);
-            table.Add("Article", "", provider => provider.GetService<TestPresenter>(), null);
+            table.Add("Article", "", provider => provider.GetRequiredService<TestPresenter>(), null);
             Assert.IsInstanceOfType(table.First().GetPresenter(configuration.ServiceProvider), typeof(TestPresenter));
         }
 

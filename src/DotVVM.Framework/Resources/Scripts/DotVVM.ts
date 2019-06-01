@@ -159,7 +159,7 @@ class DotVVM {
         const dispatchNext = () => {
             queue.noRunning--;
             if (queue.queue.length > 0) {
-                const callback = queue.queue.shift()
+                const callback = queue.queue.shift()!
                 window.setTimeout(callback, 0)
             }
         }
@@ -801,7 +801,7 @@ class DotVVM {
                 }
 
                 // trigger spaNavigated event
-                var spaNavigatedArgs = new DotvvmSpaNavigatedEventArgs(viewModel, viewModelName, resultObject, result);
+                var spaNavigatedArgs = new DotvvmSpaNavigatedEventArgs(this.viewModels[viewModelName].viewModel, viewModelName, resultObject, result);
                 this.events.spaNavigated.trigger(spaNavigatedArgs);
 
                 if (!isSuccess && !spaNavigatedArgs.isHandled) {
@@ -915,7 +915,7 @@ class DotVVM {
         }
         else if (source instanceof Array || patch instanceof Array)
             return patch;
-        else if (typeof source == "object" && typeof patch == "object") {
+        else if (typeof source == "object" && typeof patch == "object" && source && patch) {
             for (var p in patch) {
                 if (patch[p] == null) source[p] = null;
                 else if (source[p] == null) source[p] = patch[p];
@@ -1282,7 +1282,9 @@ class DotVVM {
                 // find parent table
                 let table: any = element;
                 while (!(table instanceof HTMLTableElement)) table = table.parentElement;
-                let colIndex = [].slice.call(table.rows.item(0).cells).indexOf(element);
+                const row = table.rows.item(0);
+                if (!row) throw Error("Table with dotvvm-table-columnvisible binding handler must not be empty.")
+                let colIndex = [].slice.call(row.cells).indexOf(element);
 
 
                 element['dotvvmChangeVisibility'] = changeVisibility.bind(null, table, colIndex);

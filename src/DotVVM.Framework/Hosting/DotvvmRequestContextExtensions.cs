@@ -86,6 +86,19 @@ public static class DotvvmRequestContextExtensions
     }
 
     /// <summary>
+    /// Verifies that the URL is local and returns the redirect response and interrupts the execution of current request.
+    /// </summary>
+    public static void RedirectToLocalUrl(this IDotvvmRequestContext context, string url, bool replaceInHistory = false, bool allowSpaRedirect = false)
+    {
+        if (!UrlHelper.IsLocalUrl(url))
+        {
+            throw new InvalidOperationException($"The URL '{url}' is not local or contains invalid characters!");
+        }
+
+        context.RedirectToUrl(url, replaceInHistory, allowSpaRedirect);
+    }
+
+    /// <summary>
     /// Returns the redirect response and interrupts the execution of current request.
     /// </summary>
     public static void RedirectToRoute(this IDotvvmRequestContext context, string routeName, object newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true, string urlSuffix = null, object query = null)
@@ -116,7 +129,7 @@ public static class DotvvmRequestContextExtensions
     }
 
     public static void SetRedirectResponse(this IDotvvmRequestContext context, string url, int statusCode = (int)HttpStatusCode.Redirect, bool replaceInHistory = false, bool allowSpaRedirect = false) =>
-        context.Services.GetService<IHttpRedirectService>()?.WriteRedirectResponse(context.HttpContext, url, statusCode, replaceInHistory, allowSpaRedirect);
+        context.Configuration.ServiceProvider.GetRequiredService<IHttpRedirectService>().WriteRedirectResponse(context.HttpContext, url, statusCode, replaceInHistory, allowSpaRedirect);
 
 
     /// <summary>
@@ -128,7 +141,11 @@ public static class DotvvmRequestContextExtensions
         if (!context.ModelState.IsValid)
         {
             context.HttpContext.Response.ContentType = "application/json";
-            context.HttpContext.Response.Write(context.Services.GetRequiredService<IViewModelSerializer>().SerializeModelState(context));
+            context.HttpContext.Response
+                .WriteAsync(context.Services.GetRequiredService<IViewModelSerializer>().SerializeModelState(context))
+                .GetAwaiter().GetResult();
+            //   ^ we just wait for this Task. This API never was async and the response size is small enough that we can't quite safely wait for the result
+            //     .GetAwaiter().GetResult() preserves stack traces across async calls, thus I like it more that .Wait()
             throw new DotvvmInterruptRequestExecutionException(InterruptReason.ModelValidationFailed, "The ViewModel contains validation errors!");
         }
     }

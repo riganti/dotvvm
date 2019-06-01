@@ -1,6 +1,14 @@
 ## How to contribute
 
-Like in any open source project, there is a ton of things to do in DotVVM, from coding smaller features, addressing flaws to engineering new complex areas of functionality. Whether you like designing compilers, tweaking runtime performance, metaprogramming user interface or messing with unmanaged memory, there is something for you. :)
+There are many ways how you can help the DotVVM project - it doesn't need to be a pull-request. You can spread the word about DotVVM in a blog post, forum or a user group. You can build a demo app in DotVVM and publish it on GitHub. You can send us feedback, fix a typo in our [docs repository](https://github.com/riganti/dotvvm-docs), submit an issue or suggest a new feature you'd like.
+
+If you want to dig in the code, like in any open source project, there is a ton of things to do in DotVVM: from coding smaller features, addressing flaws to engineering new complex areas of functionality. Whether you like designing compilers, tweaking runtime performance, metaprogramming user interface or messing with unmanaged memory, there is something for you. :)
+
+You will need to sign a [Contributor License Agreement](https://cla.dotnetfoundation.org/) before submitting your pull request. We kindly ask you to respect the [Code of Conduct](code-of-conduct.md). 
+
+--- 
+
+### Digging in the code
 
 First, start by choosing what you'd like to do - you can have a look at [issues up-for-grabs label](https://github.com/riganti/dotvvm/issues?utf8=%E2%9C%93&q=is%3Aopen%20is%3Aissue%20label%3A%22up%20for%20grabs%22%20sort%3Areactions-%2B1-desc%20). We have also prepared other possibilities for you to have a look at listed below. Then fork the repo, clone it locally and your are ready to develop. Finally, create a pull request to the master branch, make sure that you have merged the latest changes and that the PR has a readable diff **(please avoid reformatting documents, refactoring stuff, changing CRLF to LF or tabs to spaces etc.)**.
 
@@ -11,13 +19,13 @@ First, start by choosing what you'd like to do - you can have a look at [issues 
 * We have a [dotvvm-contrib](https://github.com/riganti/dotvvm-contrib) repository which contains several community-created controls. We'd love to see more of them. There is a brief contributing guide in the repo.
 * Tooling - we already have quite powerful [Visual Studio Extension](https://marketplace.visualstudio.com/items?itemName=TomasHerceg.DotVVMforVisualStudio-17892), but there is only a limited support for **Visual Studio Code** and no for other popular editors. We have a simple [VS Code Extension](https://github.com/riganti/dotvvm-extension-vscode), so you can start from it. If you'd have any questions, I'd recommend you to mention @Mylan719, the author of our Visual Studio Extension.
 * You can also take a look at performance optimization and testing - we have a [repository with benchmarks](https://github.com/riganti/dotvvm-benchmarks) which measure time per request of all our samples. Also have a look at https://github.com/riganti/dotvvm/issues/170 and at [a performance report](https://ipfs.io/ipfs/QmScnYdY8xoPeHPN85edPdLPbi3GvHrUGicvHAuyMdrAQE/reports/BenchmarkRun-001-2017-05-31-10-34-59/report.html)
-* [DotVVM Dynamic Data](https://github.com/riganti/dotvvm-dynamic-data) - a library that generates user interface from reflection metadata and data annotation attributes. This is how you do a form for the EditedEmployee property `<dd:DynamicEntity DataContext="{value: EditedEmployee}" />`. You can have a look at the Roadmap in the README.md, make it faster or try to use it and fix all the problems that you have with it ;)
-* If you'd just like to try using DotVVM in an application instead of hacking its internals, feel free to publish your work on github, we will be happy to link it as a sample application. We would also appreciate any feedback from you.
+* [DotVVM Dynamic Data](https://github.com/riganti/dotvvm-dynamic-data) - a library that generates user interface from reflection metadata and data annotation attributes. This is how you do a form for the EditedEmployee property `<dd:DynamicEntity DataContext="{value: EditedEmployee}" />`. You can have a look at the Roadmap in the README.md, make it faster or try to use it and fix all the problems that you have with it. ;)
+* If you'd just like to try using DotVVM in an application instead of hacking its internals, feel free to publish your work on GitHub, we will be happy to link it as a sample application. We would also appreciate any feedback from you.
 * If you like fixing things in a documentation, it is located at [riganti/dotvvm-docs](https://github.com/riganti/dotvvm-docs)
 * No framework can exist without a large amount of tutorials, blog posts and screencasts. Creating this type of content and publishing it anywhere people can find it, is really appreciated. 
 * You can always just participate in a discussion with your ideas, see [issue marked as proposal](https://github.com/riganti/dotvvm/issues?q=is%3Aopen+is%3Aissue+label%3Aproposal+sort%3Acomments-desc). It is often actually much harder to decide how the API should look like than to do the "real coding", so you may help us a lot.
 
-### Project Setup
+### Project setup
 
 To get started, fork the repository, and clone it on or computer. You can use Visual Studio's Team Explorer window or run `git clone https://github.com/<your_github_username>/dotvvm.git`. 
 
@@ -39,6 +47,7 @@ You may want to try to use DotVVM source codes directly from your project so you
 
 This simple technique only work with the "new" project file format, but it works well with "old" .NET Framework and it's unfortunately almost impossible to do with the old project system.
 
-## Communication
+## Support and communication
 
 If you have any questions or want to ask anything, you can use a [Gitter chat](https://gitter.im/riganti/dotvvm) or post a comment in the issue you'd like to work on. We have the Czech chat at [Gitter](https://gitter.im/riganti/dotvvm-cz) as well.
+

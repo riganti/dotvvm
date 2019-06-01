@@ -15,7 +15,7 @@ namespace DotVVM.Framework.Tests.AspCore
         {
             var config = GetConfig();
 
-            var cache = config.ServiceProvider.GetService<IDotvvmCacheAdapter>();
+            var cache = config.ServiceProvider.GetRequiredService<IDotvvmCacheAdapter>();
             Assert.IsNotNull(cache);
 
             var key = new object();
@@ -37,7 +37,7 @@ namespace DotVVM.Framework.Tests.AspCore
         {
             var config = GetConfig();
 
-            var cache = config.ServiceProvider.GetService<IDotvvmCacheAdapter>();
+            var cache = config.ServiceProvider.GetRequiredService<IDotvvmCacheAdapter>();
             Assert.IsNotNull(cache);
 
             var key = new object();
@@ -55,7 +55,7 @@ namespace DotVVM.Framework.Tests.AspCore
         {
             var config = GetConfig();
 
-            var cache = config.ServiceProvider.GetService<IDotvvmCacheAdapter>();
+            var cache = config.ServiceProvider.GetRequiredService<IDotvvmCacheAdapter>();
             Assert.IsNotNull(cache);
 
             var key = new object();
@@ -72,7 +72,7 @@ namespace DotVVM.Framework.Tests.AspCore
         public void AddGetRemove()
         {
             var config = GetConfig();
-            var cache = config.ServiceProvider.GetService<IDotvvmCacheAdapter>();
+            var cache = config.ServiceProvider.GetRequiredService<IDotvvmCacheAdapter>();
             Assert.IsNotNull(cache);
 
             var key = new object();

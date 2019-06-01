@@ -22,7 +22,7 @@ namespace DotVVM.Core.Common
 
         public bool IsKnownType(Type type)
         {
-            return type.Namespace.StartsWith(@namespace);
+            return type.Namespace.StartsWith(@namespace, StringComparison.Ordinal);
         }
     }
 

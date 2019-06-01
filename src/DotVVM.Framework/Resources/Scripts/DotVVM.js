@@ -1,15 +1,21 @@
-var __assign = (this && this.__assign) || Object.assign || function(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
-    }
-    return t;
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
 };
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -1523,7 +1529,7 @@ var DotVVM = /** @class */ (function () {
                     return;
                 }
                 // trigger spaNavigated event
-                var spaNavigatedArgs = new DotvvmSpaNavigatedEventArgs(viewModel, viewModelName, resultObject, result);
+                var spaNavigatedArgs = new DotvvmSpaNavigatedEventArgs(_this.viewModels[viewModelName].viewModel, viewModelName, resultObject, result);
                 _this.events.spaNavigated.trigger(spaNavigatedArgs);
                 if (!isSuccess && !spaNavigatedArgs.isHandled) {
                     throw "Invalid response from server!";
@@ -1630,7 +1636,7 @@ var DotVVM = /** @class */ (function () {
         }
         else if (source instanceof Array || patch instanceof Array)
             return patch;
-        else if (typeof source == "object" && typeof patch == "object") {
+        else if (typeof source == "object" && typeof patch == "object" && source && patch) {
             for (var p in patch) {
                 if (patch[p] == null)
                     source[p] = null;
@@ -1983,8 +1989,8 @@ var DotVVM = /** @class */ (function () {
                         return;
                     currentVisible = visible;
                     for (var i = 0; i < table.rows.length; i++) {
-                        var row = table.rows.item(i);
-                        var style = row.cells[columnIndex].style;
+                        var row_1 = table.rows.item(i);
+                        var style = row_1.cells[columnIndex].style;
                         if (visible) {
                             style.display = lastDisplay;
                         }
@@ -2000,7 +2006,10 @@ var DotVVM = /** @class */ (function () {
                 var table = element;
                 while (!(table instanceof HTMLTableElement))
                     table = table.parentElement;
-                var colIndex = [].slice.call(table.rows.item(0).cells).indexOf(element);
+                var row = table.rows.item(0);
+                if (!row)
+                    throw Error("Table with dotvvm-table-columnvisible binding handler must not be empty.");
+                var colIndex = [].slice.call(row.cells).indexOf(element);
                 element['dotvvmChangeVisibility'] = changeVisibility.bind(null, table, colIndex);
             },
             update: function (element, valueAccessor) {
@@ -2224,13 +2233,16 @@ var DotvvmEnforceClientFormatValidator = /** @class */ (function (_super) {
     DotvvmEnforceClientFormatValidator.prototype.isValid = function (context, property) {
         // parameters order: AllowNull, AllowEmptyString, AllowEmptyStringOrWhitespaces
         var valid = true;
-        if (!context.parameters[0] && context.valueToValidate == null) {
+        if (!context.parameters[0] && context.valueToValidate == null) // AllowNull
+         {
             valid = false;
         }
-        if (!context.parameters[1] && context.valueToValidate.length === 0) {
+        if (!context.parameters[1] && context.valueToValidate.length === 0) // AllowEmptyString
+         {
             valid = false;
         }
-        if (!context.parameters[2] && this.isEmpty(context.valueToValidate)) {
+        if (!context.parameters[2] && this.isEmpty(context.valueToValidate)) // AllowEmptyStringOrWhitespaces
+         {
             valid = false;
         }
         var metadata = this.getValidationMetadata(property);
@@ -2515,8 +2527,10 @@ var DotvvmValidation = /** @class */ (function () {
         if (!validatedObservable || !ko.isObservable(validatedObservable))
             return;
         if (validatedObservable.validationErrors) {
-            for (var _i = 0, _a = validatedObservable.validationErrors(); _i < _a.length; _i++) {
-                var error = _a[_i];
+            var errors = validatedObservable.validationErrors().concat([]);
+            //                                                    ^ clone the array, as `clear` mutates it
+            for (var _i = 0, errors_1 = errors; _i < errors_1.length; _i++) {
+                var error = errors_1[_i];
                 error.clear(this);
             }
         }
@@ -2525,8 +2539,8 @@ var DotvvmValidation = /** @class */ (function () {
             return;
         // Do the same for every object in the array
         if (Array.isArray(validatedObject)) {
-            for (var _b = 0, validatedObject_1 = validatedObject; _b < validatedObject_1.length; _b++) {
-                var item = validatedObject_1[_b];
+            for (var _a = 0, validatedObject_1 = validatedObject; _a < validatedObject_1.length; _a++) {
+                var item = validatedObject_1[_a];
                 this.clearValidationErrors(item);
             }
         }

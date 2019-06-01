@@ -36,7 +36,7 @@ namespace DotVVM.Framework.Tests
 
             public string Unprotect(string protectedData, IDotvvmRequestContext context)
             {
-                if (!protectedData.StartsWith(WarningPrefix + ": ")) throw new SecurityException($"");
+                if (!protectedData.StartsWith(WarningPrefix + ": ", StringComparison.Ordinal)) throw new SecurityException($"");
                 return protectedData.Remove(0, WarningPrefix.Length + 2);
             }
 
