@@ -7,6 +7,7 @@
     <description>DotVVM Project Templates</description>
     <language>en-US</language>
     <projectUrl>https://github.com/riganti/dotvvm</projectUrl>
+    <license type="expression">Apache-2.0</license>
     <packageTypes>
       <packageType name="Template" />
     </packageTypes>
