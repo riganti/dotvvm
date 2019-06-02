@@ -149,31 +149,48 @@ namespace DotVVM.Samples.Tests.Feature
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_DateTimeValidation);
 
-                var textBox = browser.First("input[type=text]");
                 var button = browser.First("input[type=button]");
+                var textBoxes = browser.FindElements("input[type=text]").ThrowIfDifferentCountThan(5);
 
-                // empty field - should have error
-                textBox.Clear();
-                button.Click();
-                AssertUI.HasClass(textBox, "has-error");
+                void testValue(string value)
+                {
+                    foreach (var textBox in textBoxes)
+                    {
+                        textBox.Clear().SendKeys(value);
+                    }
+                    button.Click();
+                }
+                void assertValidators(params bool[] states)
+                {
+                    if (states.Length != textBoxes.Count)
+                    {
+                        throw new ArgumentException("states");
+                    }
+
+                    for (int i = 0; i < textBoxes.Count; i++)
+                    {
+                        if (states[i])
+                        {
+                            AssertUI.HasClass(textBoxes[i], "has-error");
+                        }
+                        else
+                        {
+                            AssertUI.HasNotClass(textBoxes[i], "has-error");
+                        }
+                    }
+                }
+
+                // empty field - Required validators should be triggered
+                testValue("");
+                assertValidators(false, false, true, false, true);
 
                 // correct value - no error
-                textBox.SendKeys("06/14/2017 8:10:35 AM");
-                browser.Wait(2000);
-                button.Click();
-                AssertUI.HasClass(textBox, "has-error");
+                testValue("06/14/2017 8:10:35 AM");
+                assertValidators(false, false, false, false, false);
 
-                // incorrect value - should have error
-                textBox.Clear();
-                textBox.SendKeys("06-14-2017");
-                button.Click();
-                AssertUI.HasClass(textBox, "has-error");
-
-                // correct value - no error
-                textBox.Clear();
-                textBox.SendKeys("10/13/2017 10:30:50");
-                button.Click();
-                AssertUI.HasNotClass(textBox, "has-error");
+                // incorrect format - all fields should trigger errors except the one where DotvvmClientFormat is disabled
+                testValue("06-14-2017");
+                assertValidators(false, true, true, true, true);
             });
         }
 
