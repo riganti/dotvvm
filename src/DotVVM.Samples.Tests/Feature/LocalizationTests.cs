@@ -24,16 +24,6 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [Fact]
-        public void Feature_Localization()
-        {
-            RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Localization_Localization);
-
-                ChangeAndTestLocalization(browser);
-            });
-        }
-
-        [Fact]
         public void Feature_Localization_Localization_FormatString()
         {
             RunInAllBrowsers(browser => {
