@@ -269,10 +269,19 @@ namespace DotVVM.Samples.Tests
                     ,
                     s =>
                         s.Contains("the page contains @masterpage") &&
-                        s.Contains("Views/Errors/CorruptedContentBetweenContentControls.dothtml") &&
+                        s.Contains("Views/Errors/CorruptedContentBetweenContentControls.dothtml")
+                );
+
+                if (browser.FindElements("label").Any(l => l.GetInnerText().Contains("Features")))
+                {
+                    // AggregateException prints out inner exceptions only on .NET Core
+                    AssertUI.InnerText(browser.First("p.summary")
+                    ,
+                    s =>
                         s.Contains("line: 13") &&
                         s.Contains("line: 15")
                 );
+                }
             });
         }
 
