@@ -65,20 +65,7 @@ namespace DotVVM.Samples.BasicSamples
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
-            var supportedCultures = new[] {
-                new CultureInfo("en-US"),
-                new CultureInfo("cs-CZ")
-            };
             app.UseAuthentication();
-
-            app.UseRequestLocalization(new RequestLocalizationOptions {
-                DefaultRequestCulture = new RequestCulture("en-US"),
-                SupportedCultures = supportedCultures,
-                SupportedUICultures = supportedCultures,
-                RequestCultureProviders = new List<IRequestCultureProvider> {
-                    new QueryStringRequestCultureProvider { QueryStringKey = "lang" }
-                }
-            });
 
             var config = app.UseDotVVM<DotvvmStartup>(GetApplicationPath(env));
             config.RouteTable.Add("AuthorizedPresenter", "ComplexSamples/Auth/AuthorizedPresenter", provider => new AuthorizedPresenter());

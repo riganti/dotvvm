@@ -79,10 +79,10 @@ namespace DotVVM.Samples.Tests.Feature
         public void Feature_PostBack_PostBackHandlers_Localization()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostBack_PostBackHandlers_Localization);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostBack_PostBackHandlers_Localized);
                 ValidatePostbackHandlersComplexSection(".commandBinding", browser);
 
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostBack_PostBackHandlers_Localization);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostBack_PostBackHandlers_Localized);
                 ValidatePostbackHandlersComplexSection(".staticCommandBinding", browser);
             });
         }
