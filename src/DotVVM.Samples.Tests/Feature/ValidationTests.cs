@@ -31,14 +31,14 @@ namespace DotVVM.Samples.Tests.Feature
 
                     browser.Single("input[data-id=textbox1]").Clear();
                     postbackButton.Click();
-                    AssertUI.TextEquals(browser.Single("*[data-id=validator1]"), "The Text field is required., The Text field is not a valid e-mail address.");
+                    AssertUI.TextEquals(browser.Single("*[data-id=validator1]"), "The Text field is required. The Text field is not a valid e-mail address.");
 
                     // load section 2 and validate it
                     switchTestsButton.Click();
                     AssertUI.TextEquals(browser.Single("*[data-id=validator2]"), "");
 
                     postbackButton.Click();
-                    AssertUI.TextEquals(browser.Single("*[data-id=validator2]"), "The Text field is required., The Text field is not a valid e-mail address.");
+                    AssertUI.TextEquals(browser.Single("*[data-id=validator2]"), "The Text field is required. The Text field is not a valid e-mail address.");
 
                     browser.Single("input[data-id=textbox2]").SendKeys("t@t.tt");
                     postbackButton.Click();
