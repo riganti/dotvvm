@@ -82,16 +82,21 @@ namespace DotVVM.Samples.BasicSamples
         private static void AddRoutes(DotvvmConfiguration config)
         {
             config.RouteTable.Add("Default", "", "Views/Default.dothtml");
+
             config.RouteTable.Add("ComplexSamples_SPARedirect_home", "ComplexSamples/SPARedirect", "Views/ComplexSamples/SPARedirect/home.dothtml");
+
             config.RouteTable.Add("ControlSamples_SpaContentPlaceHolder_PageA", "ControlSamples/SpaContentPlaceHolder/PageA/{Id}", "Views/ControlSamples/SpaContentPlaceHolder/PageA.dothtml", new { Id = 0 });
             config.RouteTable.Add("ControlSamples_SpaContentPlaceHolder_PrefixRouteName_PageA", "ControlSamples/SpaContentPlaceHolder_PrefixRouteName/PageA/{Id}", "Views/ControlSamples/SpaContentPlaceHolder_PrefixRouteName/PageA.dothtml", new { Id = 0 });
             config.RouteTable.Add("ControlSamples_SpaContentPlaceHolder_HistoryApi_PageA", "ControlSamples/SpaContentPlaceHolder_HistoryApi/PageA/{Id}", "Views/ControlSamples/SpaContentPlaceHolder_HistoryApi/PageA.dothtml", new { Id = 0 });
             config.RouteTable.Add("ControlSamples_SpaContentPlaceHolder_HistoryApi", "ControlSamples/SpaContentPlaceHolder_HistoryApi", "Views/ControlSamples/SpaContentPlaceHolder_HistoryApi/SpaMaster.dotmaster");
+            config.RouteTable.Add("ControlSamples_TextBox_TextBox_Format", "ControlSamples/TextBox/TextBox_Format", "Views/ControlSamples/TextBox/TextBox_Format.dothtml", presenterFactory: LocalizablePresenter.BasedOnQuery("lang"));
+            config.RouteTable.Add("ControlSamples_TextBox_TextBox_Format_Binding", "ControlSamples/TextBox/TextBox_Format_Binding", "Views/ControlSamples/TextBox/TextBox_Format_Binding.dothtml", presenterFactory: LocalizablePresenter.BasedOnQuery("lang"));
             config.RouteTable.Add("FeatureSamples_ParameterBinding_ParameterBinding", "FeatureSamples/ParameterBinding/ParameterBinding/{A}", "Views/FeatureSamples/ParameterBinding/ParameterBinding.dothtml", new { A = 123 });
             config.RouteTable.Add("FeatureSamples_Localization_Localization", "FeatureSamples/Localization/Localization", "Views/FeatureSamples/Localization/Localization.dothtml", presenterFactory: LocalizablePresenter.BasedOnQuery("lang"));
-            config.RouteTable.Add("FeatureSamples_Localization-Localization_NestedPage_Type", "FeatureSamples/Localization/Localization_NestedPage_Type", "Views/FeatureSamples/Localization/Localization_NestedPage_Type.dothtml", presenterFactory: LocalizablePresenter.BasedOnQuery("lang"));
+            config.RouteTable.Add("FeatureSamples_Localization_Localization_NestedPage_Type", "FeatureSamples/Localization/Localization_NestedPage_Type", "Views/FeatureSamples/Localization/Localization_NestedPage_Type.dothtml", presenterFactory: LocalizablePresenter.BasedOnQuery("lang"));
             config.RouteTable.Add("FeatureSamples_ParameterBinding_OptionalParameterBinding", "FeatureSamples/ParameterBinding/OptionalParameterBinding/{Id?}", "Views/FeatureSamples/ParameterBinding/OptionalParameterBinding.dothtml");
             config.RouteTable.Add("FeatureSamples_ParameterBinding_OptionalParameterBinding2", "FeatureSamples/ParameterBinding/OptionalParameterBinding2/{Id?}", "Views/FeatureSamples/ParameterBinding/OptionalParameterBinding.dothtml", new { Id = 300 });
+            config.RouteTable.Add("FeatureSamples_Validation_Localization", "FeatureSamples/Validation/Localization", "Views/FeatureSamples/Validation/Localization.dothtml", presenterFactory: LocalizablePresenter.BasedOnQuery("lang"));
 
             config.RouteTable.AutoDiscoverRoutes(new DefaultRouteStrategy(config));
 
