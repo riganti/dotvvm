@@ -20,9 +20,10 @@
 
     <h1>InvalidCssClass should be added only once</h1>
 
-    <div Validator.InvalidCssClass="has-error" Validator.Value="{value: Value}" class="form-group" data-id="validated-div">
+    <div Validator.InvalidCssClass="has-error abc" Validator.Value="{value: Value}" class="form-group" data-id="validated-div">
         <dot:TextBox Text="{value: Value}" />
     </div>
+
 
     <dot:Button Text="Validate" Click="{command: Validate()}" />
 
