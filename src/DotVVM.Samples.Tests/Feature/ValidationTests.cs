@@ -60,13 +60,13 @@ namespace DotVVM.Samples.Tests.Feature
                 // empty - one error
                 button.Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
-                AssertUI.ClassAttribute(div, c => c == "form-group has-error" || c == "has-error form-group");
+                AssertUI.ClassAttribute(div, c => c == "form-group has-error abc");
 
                 // invalid - two errors
                 textbox.SendKeys("abcd");
                 button.Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(2);
-                AssertUI.ClassAttribute(div, c => c == "form-group has-error" || c == "has-error form-group");
+                AssertUI.ClassAttribute(div, c => c == "form-group has-error abc");
 
                 // valid
                 textbox.Clear();

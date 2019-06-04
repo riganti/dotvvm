@@ -190,10 +190,15 @@ class DotvvmValidation {
 
         // adds a CSS class when the element is not valid
         invalidCssClass(element: HTMLElement, errorMessages: string[], className: string) {
-            if (errorMessages.length > 0) {
-                element.classList.add(className);
-            } else {
-                element.classList.remove(className);
+            let classes = className.split(/\s+/).filter(c => c.length > 0);
+            for (let i = 0; i < classes.length; i++) {
+                let className = classes[i];
+
+                if (errorMessages.length > 0) {
+                    element.classList.add(className);
+                } else {
+                    element.classList.remove(className);
+                }
             }
         },
 
