@@ -112,7 +112,8 @@ namespace DotVVM.Framework.Controls
         {
             var itemType = control.GetValue(CheckedItemProperty)?.GetResultType();
             var valueType = control.GetValue(CheckedValueProperty)?.GetResultType();
-            if (itemType != null && valueType != null && itemType != valueType)
+
+            if (itemType != null && valueType != null && itemType != valueType && itemType.UnwrapNullableType() != valueType)
             {
                 yield return new ControlUsageError(
                     $"CheckedItem type \'{itemType}\' must be same as CheckedValue type \'{valueType}.",
