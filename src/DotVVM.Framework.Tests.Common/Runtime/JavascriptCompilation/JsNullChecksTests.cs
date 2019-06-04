@@ -93,5 +93,24 @@ namespace DotVVM.Framework.Tests.Common.Runtime.JavascriptCompilation
             var node = JsTemporaryVariableResolver.ResolveVariables(expr);
             Assert.AreEqual("(a&&a(G)||eval)()", node.FormatScript(), node.FormatScript(niceMode: true));
         }
+
+        [TestMethod]
+        public void NestedConditionals()
+        {
+            JsExpression expr =
+                new JsMemberAccessExpression(
+                    new JsConditionalExpression(
+                        new JsIdentifierExpression("c"),
+                        new JsIdentifierExpression("a"),
+                        new JsConditionalExpression(
+                            new JsIdentifierExpression("c2"),
+                            new JsIdentifierExpression("a2").WithAnnotation(MayBeNullAnnotation.Instance),
+                            new JsIdentifierExpression("a3"))),
+                "length");
+
+            expr = JavascriptNullCheckAdder.AddNullChecks(expr);
+            var node = JsTemporaryVariableResolver.ResolveVariables(expr);
+            Assert.AreEqual("function(b){return (b=c?a:c2?a2:a3)==null?null:b.length;}()", node.FormatScript(), node.FormatScript(niceMode: true));
+        }
     }
 }
