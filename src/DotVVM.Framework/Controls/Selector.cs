@@ -41,6 +41,9 @@ namespace DotVVM.Framework.Controls
             var valueType = control.GetValue(SelectedValueProperty)?.GetResultType();
             var collectionValueType = itemKeyType ?? collectionType?.Apply(ReflectionUtils.GetEnumerableType);
 
+            if (!control.HasProperty(ItemValueBindingProperty) && control.HasProperty(ValueMemberProperty))
+                collectionValueType = null; // When ValueMember is used, we can't check anything
+
             if (collectionValueType != null && valueType != null && valueType != collectionValueType && valueType.UnwrapNullableType() != collectionValueType)
             {
                 yield return new ControlUsageError(
