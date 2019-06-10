@@ -18,6 +18,7 @@ namespace DotVVM.Diagnostics.StatusPage
 
         public List<DotHtmlFileInfo> Controls { get; set; }
         public string ApplicationPath { get; set; }
+        public bool CompileAfterLoad { get; set; }
 
         public StatusViewModel(StatusPageOptions statusPageOptions)
         {
@@ -40,6 +41,7 @@ namespace DotVVM.Diagnostics.StatusPage
                 MasterPages = new List<DotHtmlFileInfo>();
             }
             ApplicationPath = Context.Configuration.ApplicationPhysicalPath;
+            CompileAfterLoad = _statusPageOptions.CompileAfterPageLoads;
             await base.Init();
         }
 

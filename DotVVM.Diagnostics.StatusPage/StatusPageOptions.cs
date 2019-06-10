@@ -10,6 +10,8 @@ namespace DotVVM.Diagnostics.StatusPage
 
         public string Url { get; set; } = "_diagnostics/status";
 
+        public bool CompileAfterPageLoads { get; set; } = true;
+
         public Func<IDotvvmRequestContext, Task<bool>> Authorize { get; set; }
             = context => Task.FromResult(context.HttpContext.Request.Url.IsLoopback);
 
