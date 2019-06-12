@@ -2,8 +2,6 @@
 
 Reimplementation of **ASP.NET Dynamic Data** for [DotVVM](https://github.com/riganti/dotvvm). 
 
-Please note that this library is in a very early stage and we expect breaking changes. 
-
 
 ## Data Annotations
 
@@ -19,7 +17,7 @@ The main goal of this library is to generate user interface from metadata. Curre
 First, install the `DotVVM.DynamicData` NuGet package in your project.
 
 ```
-Install-Package DotVVM.DynamicData -pre
+Install-Package DotVVM.DynamicData
 ```
 
 To use Dynamic Data, add the following line to the `Startup.cs` file.

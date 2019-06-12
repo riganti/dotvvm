@@ -5,7 +5,6 @@
     /// </summary>
     public interface IVisibilityFilter
     {
-
         /// <summary>
         /// Evaluates whether the field should be shown or hidden. If this method returns null, the next filter attribute will be evaluated.
         /// </summary>
