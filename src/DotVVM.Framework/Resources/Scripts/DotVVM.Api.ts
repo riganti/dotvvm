@@ -1,6 +1,3 @@
-/// <reference path="typings/knockout/knockout.d.ts" />
-/// <reference path="DotVVM.ts" />
-
 type ApiComputed<T> = KnockoutObservable<T | null> & { refreshValue: (throwOnError?: boolean) => PromiseLike<any> | undefined }
 type Result<T> = { type: 'error', error: any } | { type: 'result', result: T }
 interface DotVVM {

@@ -1,6 +1,3 @@
-/// <reference path="typings/knockout/knockout.d.ts" />
-/// <reference path="DotVVM.ts" />
-
 class DotvvmValidationContext {
     constructor(public valueToValidate: any, public parentViewModel: any, public parameters: any[]) {
     }

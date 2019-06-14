@@ -69,8 +69,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="node_modules\**" />
+    <Compile Remove="Resources\Scripts\typings\knockout.mapper\**" />
     <EmbeddedResource Remove="node_modules\**" />
+    <EmbeddedResource Remove="Resources\Scripts\typings\knockout.mapper\**" />
     <None Remove="node_modules\**" />
+    <None Remove="Resources\Scripts\typings\knockout.mapper\**" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Scripts\DotVVM.FileUpload.css" />
@@ -93,7 +96,6 @@
     <None Include="Resources\Scripts\DotVVM.ts" />
     <None Include="Resources\Scripts\DotVVM.Validation.ts" />
     <None Include="Resources\Scripts\typings\globalize\globalize.d.ts" />
-    <None Include="Resources\Scripts\typings\knockout.mapper\knockout.mapper.d.ts" />
     <None Include="Resources\Scripts\typings\knockout\knockout.d.ts" />
   </ItemGroup>
   <ItemGroup>
