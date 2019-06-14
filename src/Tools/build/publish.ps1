@@ -121,6 +121,25 @@ function PublishTemplates() {
 	& .\Tools\nuget.exe push .\Templates\DotVVM.Templates.$version.nupkg -source $server -apiKey $apiKey | Out-Host 
 }
 
+function PublishTypeScriptDefinitions() {
+	del .\DotVVM.TypeScript.Definitions\*.nupkg -ErrorAction SilentlyContinue
+	
+    del .\DotVVM.TypeScript.Definitions\content -ErrorAction SilentlyContinue  
+    mkdir .\DotVVM.TypeScript.Definitions\content\Scripts\typings\dotvvm
+    copy .\DotVVM.Framework\Resources\Scripts\DotVVM.d.ts .\DotVVM.TypeScript.Definitions\content\Scripts\typings\dotvvm\
+    copy .\DotVVM.Framework\Resources\Scripts\typings\globalize\globalize.d.ts .\DotVVM.TypeScript.Definitions\content\Scripts\typings\dotvvm\ 
+    copy .\DotVVM.Framework\Resources\Scripts\typings\knockout\knockout.d.ts .\DotVVM.TypeScript.Definitions\content\Scripts\typings\dotvvm\
+    copy .\DotVVM.Framework\Resources\Scripts\typings\knockout\knockout.dotvvm.d.ts .\DotVVM.TypeScript.Definitions\content\Scripts\typings\dotvvm\
+    
+	$filePath = ".\DotVVM.TypeScript.Definitions\DotVVM.TypeScript.Definitions.nuspec"
+	$file = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::UTF8)
+	$file = [System.Text.RegularExpressions.Regex]::Replace($file, "\<version\>([^<]+)\</version\>", "<version>" + $version + "</version>")
+	[System.IO.File]::WriteAllText($filePath, $file, [System.Text.Encoding]::UTF8)
+	
+	& .\Tools\nuget.exe pack .\DotVVM.TypeScript.Definitions\DotVVM.TypeScript.Definitions.nuspec -outputdirectory .\DotVVM.TypeScript.Definitions | Out-Host 
+	& .\Tools\nuget.exe push .\DotVVM.TypeScript.Definitions\DotVVM.TypeScript.Definitions.$version.nupkg -source $server -apiKey $apiKey | Out-Host 
+}
+
 
 ### Publish Workflow
 
@@ -135,4 +154,5 @@ SetVersion;
 BuildPackages;
 PushPackages;
 PublishTemplates;
+PublishTypeScriptDefinitions;
 GitPush;

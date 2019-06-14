@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>DotVVM.TypeScript.Definitions</id>
+    <version>2.3.0</version>
+    <authors>RIGANTI</authors>
+    <description>DotVVM TypeScript Definitions</description>
+    <language>en-US</language>
+    <projectUrl>https://github.com/riganti/dotvvm</projectUrl>
+    <license type="expression">Apache-2.0</license>  
+  </metadata>
+  <files>
+    <file src="content/**/*.d.ts" target="" />
+    <file src="build/DotVVM.TypeScript.Definitions.targets" target="build" />
+  </files>
+</package>
