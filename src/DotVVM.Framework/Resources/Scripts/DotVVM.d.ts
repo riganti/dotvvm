@@ -247,6 +247,8 @@ interface IDotvvmExtensions {
 }
 interface IDotvvmViewModelInfo {
     viewModel?: any;
+    viewModelCacheId?: string;
+    viewModelCache?: any;
     renderedResources?: string[];
     url?: string;
     virtualDirectory?: string;
@@ -333,6 +335,8 @@ declare class DotVVM {
     private addLeadingSlash;
     private concatUrl;
     patch(source: any, patch: any): any;
+    diff(source: any, modified: any): any;
+    readonly diffEqual: {};
     private updateDynamicPathFragments;
     private postJSON;
     private getJSON;

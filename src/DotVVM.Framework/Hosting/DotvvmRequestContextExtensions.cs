@@ -131,6 +131,12 @@ public static class DotvvmRequestContextExtensions
     public static void SetRedirectResponse(this IDotvvmRequestContext context, string url, int statusCode = (int)HttpStatusCode.Redirect, bool replaceInHistory = false, bool allowSpaRedirect = false) =>
         context.Configuration.ServiceProvider.GetRequiredService<IHttpRedirectService>().WriteRedirectResponse(context.HttpContext, url, statusCode, replaceInHistory, allowSpaRedirect);
 
+    internal static void SetCachedViewModelMissingResponse(this IDotvvmRequestContext context)
+    {
+        context.HttpContext.Response.StatusCode = 200;
+        context.HttpContext.Response.ContentType = "application/json";
+        context.HttpContext.Response.Write(DefaultViewModelSerializer.GenerateMissingCachedViewModelResponse());
+    }
 
     /// <summary>
     /// Ends the request execution when the <see cref="ModelState"/> is not valid and displays the validation errors in <see cref="ValidationSummary"/> control.

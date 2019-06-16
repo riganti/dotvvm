@@ -7,6 +7,7 @@ namespace DotVVM.Framework.Hosting
         Redirect,
         RedirectPermanent,
         ReturnFile,
-        ModelValidationFailed
+        ModelValidationFailed,
+        CachedViewModelMissing
     }
 }
