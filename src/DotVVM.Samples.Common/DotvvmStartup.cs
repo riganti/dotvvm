@@ -23,6 +23,7 @@ namespace DotVVM.Samples.BasicSamples
         {
             config.DefaultCulture = "en-US";
             config.UseHistoryApiSpaNavigation = true;
+            config.CsrfTokenLazyLoading = true;
 
             AddControls(config);
             AddStyles(config);

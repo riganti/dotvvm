@@ -239,7 +239,7 @@ namespace DotVVM.Framework.Hosting
                 await requestTracer.TraceEvent(RequestTracingConstants.PreRenderCompleted, context);
 
                 // generate CSRF token if required
-                if (string.IsNullOrEmpty(context.CsrfToken))
+                if (string.IsNullOrEmpty(context.CsrfToken) && !context.Configuration.CsrfTokenLazyLoading)
                 {
                     context.CsrfToken = CsrfProtector.GenerateToken(context);
                 }

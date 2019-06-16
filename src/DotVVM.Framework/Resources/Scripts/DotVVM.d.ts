@@ -310,6 +310,7 @@ declare class DotVVM {
     private persistViewModel;
     private backUpPostBackConter;
     private isPostBackStillActive;
+    private fetchCsrfToken;
     staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback?: (_: any) => void, errorCallback?: (xhr: XMLHttpRequest, error?: any) => void): void;
     private processPassedId;
     protected getPostbackHandler(name: string): (options: any) => DotvvmPostbackHandler;

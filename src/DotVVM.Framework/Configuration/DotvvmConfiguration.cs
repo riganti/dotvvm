@@ -94,8 +94,16 @@ namespace DotVVM.Framework.Configuration
         public bool UseHistoryApiSpaNavigation { get; set; } = true;
 
         /// <summary>
+        /// If the CSRF token should be lazy-loaded.
+        /// When disabled, the token is always present in the generated HTML - it can be hardly cached.
+        /// When enabled, the token will not be there and it will be loaded before the first request - requires two requests for first postback.
+        /// </summary>
+        [JsonProperty("allowCsrfTokenLazyLoading", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public bool CsrfTokenLazyLoading { get; set; } = false;
+
+        /// <summary>
         /// Gets or sets whether the application should run in debug mode.
-        /// For ASP.NET Core checkout <see cref="!:https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments" >https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments</see>   
+        /// For ASP.NET Core checkout <see cref="!:https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments" >https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments</see>
         /// </summary>
         [JsonProperty("debug", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public bool Debug

@@ -365,35 +365,48 @@ class DotVVM {
         return this.postBackCounter === currentPostBackCounter;
     }
 
-    public staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback = _ => { }, errorCallback = (xhr: XMLHttpRequest, error?) => { }) {
-        var data = this.serialization.serialize({
-            "args": args,
-            "command": command,
-            "$csrfToken": this.viewModels[viewModelName].viewModel.$csrfToken
-        });
-        dotvvm.events.staticCommandMethodInvoking.trigger(data);
+    private async fetchCsrfToken(viewModelName: string): Promise<string> {
+        const vm = this.viewModels[viewModelName].viewModel
+        if (vm.$csrfToken == null) {
+            const response = await fetch((this.viewModels[viewModelName].virtualDirectory || "") + "/dotvvmCreateCsrfToken")
+            if (response.status != 200)
+                throw new Error(`Can't fetch CSRF token: ${response.statusText}`)
+            vm.$csrfToken = await response.text()
+        }
+        return vm.$csrfToken
+    }
 
-        this.postJSON(<string>this.viewModels[viewModelName].url, "POST", ko.toJSON(data), response => {
-            try {
-                this.isViewModelUpdating = true;
-                const result = JSON.parse(response.responseText);
-                dotvvm.events.staticCommandMethodInvoked.trigger({ ...data, result, xhr: response });
-                callback(result);
-            } catch (error) {
-                dotvvm.events.staticCommandMethodFailed.trigger({ ...data, xhr: response, error: error })
-                errorCallback(response, error);
-            } finally {
-                this.isViewModelUpdating = false;
-            }
-        }, (xhr) => {
-            this.events.error.trigger(new DotvvmErrorEventArgs(sender, this.viewModels[viewModelName].viewModel, viewModelName, xhr, null));
-            console.warn(`StaticCommand postback failed: ${xhr.status} - ${xhr.statusText}`, xhr);
-            errorCallback(xhr);
-            dotvvm.events.staticCommandMethodFailed.trigger({ ...data, xhr })
-        },
+    public staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback = _ => { }, errorCallback = (xhr: XMLHttpRequest, error?) => { }) {
+        (async () => {
+            var data = this.serialization.serialize({
+                args,
+                command,
+                "$csrfToken": await this.fetchCsrfToken(viewModelName)
+            });
+            dotvvm.events.staticCommandMethodInvoking.trigger(data);
+
+            this.postJSON(<string>this.viewModels[viewModelName].url, "POST", ko.toJSON(data), response => {
+                try {
+                    this.isViewModelUpdating = true;
+                    const result = JSON.parse(response.responseText);
+                    dotvvm.events.staticCommandMethodInvoked.trigger({ ...data, result, xhr: response });
+                    callback(result);
+                } catch (error) {
+                    dotvvm.events.staticCommandMethodFailed.trigger({ ...data, xhr: response, error: error })
+                    errorCallback(response, error);
+                } finally {
+                    this.isViewModelUpdating = false;
+                }
+            }, (xhr) => {
+                this.events.error.trigger(new DotvvmErrorEventArgs(sender, this.viewModels[viewModelName].viewModel, viewModelName, xhr, null));
+                console.warn(`StaticCommand postback failed: ${xhr.status} - ${xhr.statusText}`, xhr);
+                errorCallback(xhr);
+                dotvvm.events.staticCommandMethodFailed.trigger({ ...data, xhr })
+            },
             xhr => {
                 xhr.setRequestHeader("X-PostbackType", "StaticCommand");
             });
+        })()
     }
 
     private processPassedId(id: any, context: any): string {
@@ -496,8 +509,9 @@ class DotVVM {
     }
 
     public postbackCore(options: PostbackOptions, path: string[], command: string, controlUniqueId: string, context: any, commandArgs?: any[]) {
-        return new Promise<() => Promise<DotvvmAfterPostBackEventArgs>>((resolve, reject) => {
+        return new Promise<() => Promise<DotvvmAfterPostBackEventArgs>>(async (resolve, reject) => {
             const viewModelName = options.viewModelName!;
+            await this.fetchCsrfToken(viewModelName)
             const viewModel = this.viewModels[viewModelName].viewModel;
 
             this.lastStartedPostack = options.postbackId
