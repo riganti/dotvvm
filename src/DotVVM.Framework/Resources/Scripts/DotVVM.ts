@@ -593,6 +593,17 @@ class DotVVM {
                     });
                 }));
             }, xhr => {
+                if (/^application\/json(;|$)/.test(xhr.getResponseHeader("Content-Type")!)) {
+                    const errObject = JSON.parse(xhr.responseText)
+
+                    if (errObject.action === "invalidCsrfToken") {
+                        // ok, renew the token and try again. Do that before any event is triggered
+                        this.viewModels[viewModelName].viewModel.$csrfToken = null
+                        console.log("Resending postback due to invalid CSRF token.") // this may loop indefinitely (in some extreme case), we don't currently have any loop detection mechanism, so at least we can log it.
+                        this.postbackCore(options, path, command, controlUniqueId, context, commandArgs).then(resolve, reject)
+                        return;
+                    }
+                }
                 reject({ type: 'network', options: options, args: new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, xhr, options.postbackId) });
             });
         });

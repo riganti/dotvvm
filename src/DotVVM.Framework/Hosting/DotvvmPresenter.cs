@@ -271,6 +271,13 @@ namespace DotVVM.Framework.Hosting
 
                 foreach (var f in requestFilters) await f.OnPageRenderedAsync(context);
             }
+            catch (CorruptedCsrfTokenException e) when (context.IsPostBack)
+            {
+                // TODO this should be done by IOutputRender or something like that. IOutputRenderer does not support that, so should we make another IJsonErrorOutputWriter?
+                context.HttpContext.Response.StatusCode = 400;
+                context.HttpContext.Response.ContentType = "application/json; charset=utf-8";
+                await context.HttpContext.Response.WriteAsync(JsonConvert.SerializeObject(new { action = "invalidCsrfToken", message = e.Message }));
+            }
             catch (DotvvmInterruptRequestExecutionException) { throw; }
             catch (DotvvmHttpException) { throw; }
             catch (Exception ex)
