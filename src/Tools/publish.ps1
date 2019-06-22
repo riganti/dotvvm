@@ -1,5 +1,5 @@
 param([String]$version, [String]$apiKey, [String]$server, [String]$branchName, [String]$repoUrl, [String]$nugetRestoreAltSource = "", [bool]$pushTag, [String]$configuration, [String]$apiKeyInternal, [String]$internalServer)
-$curretDirectory = $PWD
+$currentDirectory = $PWD
 
 ### Helper Functions
 
@@ -43,12 +43,12 @@ function CleanOldGeneratedPackages() {
 
 function SetVersion() {
 	Write-Host "Setting version: $version ..."
-	Write-Host "Current directory: $curretDirectory"  
+	Write-Host "Current directory: $currentDirectory"  
 	foreach ($package in $packages) {
 
         Write-Host --------------------------------
 
-		$filePath = Join-Path $curretDirectory ".\$($package.Directory)\$($package.Directory).csproj" -Resolve
+		$filePath = Join-Path $currentDirectory ".\$($package.Directory)\$($package.Directory).csproj" -Resolve
 	        Write-Host "Updating $filePath" 
 	
 	
@@ -57,7 +57,7 @@ function SetVersion() {
 		$file = [System.Text.RegularExpressions.Regex]::Replace($file, "\<PackageVersion\>([^<]+)\</PackageVersion\>", "<PackageVersion>" + $version + "</PackageVersion>")
 		[System.IO.File]::WriteAllText($filePath, $file, [System.Text.Encoding]::UTF8)
 				
-		$filePath = Join-Path $curretDirectory ".\$($package.Directory)\Properties\AssemblyInfo.cs" 
+		$filePath = Join-Path $currentDirectory ".\$($package.Directory)\Properties\AssemblyInfo.cs" 
         if(Test-Path $filePath) {
 	        Write-Host "Updating $filePath" 
             $file = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::UTF8)
@@ -130,8 +130,8 @@ if ($versionWithoutPre.Contains("-")) {
 }
 
 CleanOldGeneratedPackages;
-#GitCheckout;
+GitCheckout;
 SetVersion;
 BuildPackages;
 PushPackages;
-#GitPush;
+GitPush;
