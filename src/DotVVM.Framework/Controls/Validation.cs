@@ -6,6 +6,7 @@ namespace DotVVM.Framework.Controls
     public class Validation
     {
         [AttachedProperty(typeof(bool))]
+        [MarkupOptions(AllowBinding = false)]
         public static DotvvmProperty EnabledProperty = DotvvmProperty.Register<bool, Validation>(() => EnabledProperty, true, true);
 
         [AttachedProperty(typeof(object))]
