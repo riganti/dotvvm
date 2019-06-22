@@ -14,7 +14,7 @@
 	  <Content Include="Views\default.dotmaster" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore" Version="2.0.3" />
+		<PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
 		<PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.2" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="2.0.3" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.0.3" />
