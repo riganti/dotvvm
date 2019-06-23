@@ -15,9 +15,9 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DotVVM.CommandLine.Core\DotVVM.CommandLine.Core.csproj" />
-    <ProjectReference Include="..\DotVVM.Framework.Testing.SeleniumGenerator\DotVVM.Framework.Testing.SeleniumGenerator.csproj" />
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
     <ProjectReference Include="..\DotVVM.Utils.ConfigurationHost\DotVVM.Utils.ConfigurationHost.csproj" />
+    <ProjectReference Include="..\DotVVM.Framework.Testing.SeleniumGenerator\DotVVM.Framework.Testing.SeleniumGenerator.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />

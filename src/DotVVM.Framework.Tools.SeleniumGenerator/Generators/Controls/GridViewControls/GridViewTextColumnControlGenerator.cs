@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator.Generators.Controls.GridViewC
 
         protected override void AddDeclarationsCore(PageObjectDefinition pageObject, SeleniumGeneratorContext context)
         {
-            const string type = "GridViewColumns.GridViewTextColumnProxy";
+            const string type = "GridViewTextColumnProxy";
             AddPageObjectProperties(pageObject, context, type);
         }
     }
