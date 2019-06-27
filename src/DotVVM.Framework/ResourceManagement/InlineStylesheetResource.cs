@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 namespace DotVVM.Framework.ResourceManagement
 {
     /// <summary>
-    /// CSS in header. It's perfect for critical CSS.
+    /// CSS in header. It's perfect for small css. For example critical CSS.
     /// </summary>
     public class InlineStylesheetResource : ResourceBase
     {
@@ -27,7 +27,10 @@ namespace DotVVM.Framework.ResourceManagement
             {
                 using (var resourceStream = resourceLocation.LoadResource(context))
                 {
-                    code = new StreamReader(resourceStream).ReadToEnd();
+                    using (var resourceStreamReader = new StreamReader(resourceStream))
+                    {
+                        code = resourceStreamReader.ReadToEnd();
+                    }
                 }
             }
 
