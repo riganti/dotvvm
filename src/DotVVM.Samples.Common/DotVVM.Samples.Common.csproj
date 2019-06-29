@@ -14,6 +14,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="Views\ControlSamples\Literal\Literal_NumberBinding.dothtml" />
+    <None Remove="Views\ControlSamples\MultiSelect\binded.dothtml" />
+    <None Remove="Views\ControlSamples\MultiSelect\hardcoded.dothtml" />
     <None Remove="Views\ControlSamples\Repeater\NamedTemplate.dothtml" />
     <None Remove="Views\ControlSamples\ValidationSummary\MessagesRendering.dothtml" />
     <None Remove="Views\Errors\CorruptedContentBetweenContentControls.dothtml" />
