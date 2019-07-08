@@ -80,13 +80,17 @@ namespace DotVVM.Framework.Controls
             });
 
             var enabledValue = GetValueRaw(EnabledProperty);
-            if (enabledValue is bool)
+            if (enabledValue is bool isEnabled)
             {
-                writer.AddKnockoutDataBind(EnableKnockoutBinding, enabledValue.ToString().ToLower());
+                writer.AddKnockoutDataBind(EnableKnockoutBinding, isEnabled.ToString().ToLower());
             }
             else if (enabledValue is IValueBinding enabledBinding)
             {
                 writer.AddKnockoutDataBind(EnableKnockoutBinding, enabledBinding.GetKnockoutBindingExpression(this));
+            }
+            if (!GetValue<bool>(EnabledProperty))
+            {
+                writer.AddAttribute("disabled", "disabled");
             }
 
             WriteOnClickAttribute(writer, context);
