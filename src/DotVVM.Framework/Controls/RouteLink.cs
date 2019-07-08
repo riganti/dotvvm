@@ -11,6 +11,10 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     public class RouteLink : HtmlGenericControl
     {
+        private const string EnableKnockoutBinding = "dotvvmEnable";
+
+        private bool shouldRenderText = false;
+
         /// <summary>
         /// Gets or sets the name of the route in the route table.
         /// </summary>
@@ -39,8 +43,8 @@ namespace DotVVM.Framework.Controls
             get { return (string)GetValue(UrlSuffixProperty); }
             set { SetValue(UrlSuffixProperty, value); }
         }
-        public static readonly DotvvmProperty UrlSuffixProperty
-            = DotvvmProperty.Register<string, RouteLink>(c => c.UrlSuffix, null);
+        public static readonly DotvvmProperty UrlSuffixProperty =
+            DotvvmProperty.Register<string, RouteLink>(c => c.UrlSuffix, null);
 
 
         /// <summary>
@@ -67,27 +71,22 @@ namespace DotVVM.Framework.Controls
         {
         }
 
-
-        private bool shouldRenderText = false;
-
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             RouteLinkHelpers.WriteRouteLinkHrefAttribute(this, writer, context);
 
-            writer.AddKnockoutDataBind("text", this, TextProperty, () =>
-            {
+            writer.AddKnockoutDataBind("text", this, TextProperty, () => {
                 shouldRenderText = true;
             });
 
-            var enabledBinding = GetValueRaw(EnabledProperty);
-
-            if (enabledBinding is bool)
+            var enabledValue = GetValueRaw(EnabledProperty);
+            if (enabledValue is bool)
             {
-                WriteEnabledBinding(writer, (bool) enabledBinding);
+                writer.AddKnockoutDataBind(EnableKnockoutBinding, enabledValue.ToString().ToLower());
             }
-            else if (enabledBinding is IValueBinding)
+            else if (enabledValue is IValueBinding enabledBinding)
             {
-                WriteEnabledBinding(writer, (IValueBinding) enabledBinding);
+                writer.AddKnockoutDataBind(EnableKnockoutBinding, enabledBinding.GetKnockoutBindingExpression(this));
             }
 
             WriteOnClickAttribute(writer, context);
@@ -95,28 +94,20 @@ namespace DotVVM.Framework.Controls
             base.AddAttributesToRender(writer, context);
         }
 
-        protected virtual void WriteEnabledBinding(IHtmlWriter writer, bool binding)
-        {
-            writer.AddKnockoutDataBind("dotvvmEnable", binding.ToString().ToLower());
-        }
-
-        protected virtual void WriteEnabledBinding(IHtmlWriter writer, IValueBinding binding)
-        {
-            writer.AddKnockoutDataBind("dotvvmEnable", binding.GetKnockoutBindingExpression(this));
-        }
-
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            if (shouldRenderText)
+            if (!shouldRenderText)
             {
-                if (!HasOnlyWhiteSpaceContent())
-                {
-                    base.RenderContents(writer, context);
-                }
-                else
-                {
-                    writer.WriteText(Text);
-                }
+                return;
+            }
+
+            if (!HasOnlyWhiteSpaceContent())
+            {
+                base.RenderContents(writer, context);
+            }
+            else
+            {
+                writer.WriteText(Text);
             }
         }
 
