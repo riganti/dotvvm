@@ -96,6 +96,7 @@ namespace DotVVM.Framework.ResourceManagement
 
             ValidateResourceName(name);
             ValidateResourceLocation(resource, name);
+            ValidateDependencies(resource, name);
             if (replaceIfExists)
             {
                 Resources.AddOrUpdate(name, resource, (key, res) => resource);
@@ -119,7 +120,11 @@ namespace DotVVM.Framework.ResourceManagement
         {
             if (!Regex.IsMatch(name, @"^[a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*$"))
             {
-                throw new ArgumentException($"The resource name {name} is not valid! Only alphanumeric characters, dots, underscores and dashes are allowed! Also please note that two or more subsequent dots, underscores and dashes are reserved for internal use, and are allowed only in the middle of the resource name.");
+                throw new ArgumentException($"The resource name {name} is not valid!" +
+                    $"Only alphanumeric characters, dots, underscores and dashes are allowed!" +
+                    $"Also please note that two or more subsequent dots, underscores and dashes" +
+                    $"are reserved for internal use, and are allowed only in the middle of the" +
+                    $"resource name.");
             }
         }
 
@@ -131,6 +136,35 @@ namespace DotVVM.Framework.ResourceManagement
                 if (linkResource.Location == null)
                 {
                     throw new DotvvmLinkResourceException($"The Location property of the resource '{name}' is not set.");
+                }
+            }
+        }
+
+        private void ValidateDependencies(IResource resource, string name)
+        {
+            var visited = new HashSet<string> { name };
+            var queue = new Queue<string>();
+            foreach(var dependency in resource.Dependencies)
+            {
+                queue.Enqueue(dependency);
+            }
+            while(queue.Count > 0)
+            {
+                var currentName = queue.Dequeue();
+                if (visited.Contains(currentName))
+                {
+                    // dependency cycle detected
+                    throw new DotvvmResourceException($"Resource \"{name}\" has a cyclic " +
+                        $"dependency.");
+                }
+                visited.Add(currentName);
+                var current = FindResource(currentName);
+                if (current != null)
+                {
+                    foreach(var dependency in current.Dependencies)
+                    {
+                        queue.Enqueue(dependency);
+                    }
                 }
             }
         }
