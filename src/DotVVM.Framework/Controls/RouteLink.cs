@@ -88,7 +88,7 @@ namespace DotVVM.Framework.Controls
             {
                 writer.AddKnockoutDataBind(EnableKnockoutBinding, enabledBinding.GetKnockoutBindingExpression(this));
             }
-            if (!GetValue<bool>(EnabledProperty))
+            if (GetValue<bool?>(EnabledProperty) == false)
             {
                 writer.AddAttribute("disabled", "disabled");
             }
