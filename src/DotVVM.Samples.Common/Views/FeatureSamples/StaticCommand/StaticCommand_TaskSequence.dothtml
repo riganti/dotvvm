@@ -13,8 +13,8 @@
 
     <dot:TextBox Text="{value: Value}" />
 
-    <dot:Button Text="Test" Click="{command: Increment(); Value = Value + 10; Multiply()}" />
-    <dot:Button Text="Test" Click="{staticCommand: Value = StaticCommand_TaskSequenceViewModel.StaticIncrement(Value).Result; Value = Value + 10; Value = StaticCommand_TaskSequenceViewModel.StaticMultiply(Value).Result}" />
+    <dot:Button Text="Test Command" Click="{command: Increment(); Value = Value + 10; Multiply()}" />
+    <%--<dot:Button Text="Test Static Command" Click="{staticCommand: Value = StaticCommand_TaskSequenceViewModel.StaticIncrement(Value).Result; Value = Value + 10; Value = StaticCommand_TaskSequenceViewModel.StaticMultiply(Value).Result}" />--%>
 
 </body>
 </html>

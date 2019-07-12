@@ -222,6 +222,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_StaticCommand_StaticCommand_ComboBoxSelectionChanged_Objects = "FeatureSamples/StaticCommand/StaticCommand_ComboBoxSelectionChanged_Objects";
         public const string FeatureSamples_StaticCommand_StaticCommand_NullAssignment = "FeatureSamples/StaticCommand/StaticCommand_NullAssignment";
         public const string FeatureSamples_StaticCommand_StaticCommand_NullBinding = "FeatureSamples/StaticCommand/StaticCommand_NullBinding";
+        public const string FeatureSamples_StaticCommand_StaticCommand_TaskSequence = "FeatureSamples/StaticCommand/StaticCommand_TaskSequence";
         public const string FeatureSamples_StaticCommand_StaticCommand_ValueAssignmentInControl = "FeatureSamples/StaticCommand/StaticCommand_ValueAssignmentInControl";
         public const string FeatureSamples_Validation_ClientSideObservableUpdate = "FeatureSamples/Validation/ClientSideObservableUpdate";
         public const string FeatureSamples_Validation_ClientSideValidationDisabling = "FeatureSamples/Validation/ClientSideValidationDisabling";
