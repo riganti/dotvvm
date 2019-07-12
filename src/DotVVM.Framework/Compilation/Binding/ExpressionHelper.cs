@@ -5,6 +5,7 @@ using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
@@ -281,13 +282,61 @@ namespace DotVVM.Framework.Compilation.Binding
             throw new NotSupportedException("IComparable is not implemented on any of specified types");
         }
 
+        public static Expression ConcatenateTasks(Expression left, Expression right)
+        {
+            // if the left side is a task, make the right side also a task and join them
+            Expression rightTask;
+            if (right.Type == typeof(void))
+            {
+                // return Task.CompletedTask
+                rightTask = Expression.Constant(TaskUtils.GetCompletedTask());
+            }
+            else if (!typeof(Task).IsAssignableFrom(right.Type))
+            {
+                // wrap the right expression into Task.FromResult
+                rightTask = Expression.Call(typeof(Task), "FromResult", new[] { right.Type }, right);
+            }
+            else
+            {
+                // right side is also a task
+                rightTask = right;
+            }
+            
+            // join the tasks
+            var joinedTask = Expression.Call(Expression.Convert(left, typeof(Task)), "ContinueWith", new[] { rightTask.Type }, Expression.Lambda(rightTask, Expression.Parameter(typeof(Task))));
+            if (rightTask.Type.IsGenericType)
+            {
+                return Expression.Call(typeof(TaskExtensions), "Unwrap", new[] { rightTask.Type.GetGenericArguments()[0] }, joinedTask);
+            }
+            else
+            {
+                return Expression.Call(typeof(TaskExtensions), "Unwrap", Type.EmptyTypes, joinedTask);
+            }
+        }
+
         public static Expression UnwrapNullable(this Expression expression) =>
             expression.Type.IsNullable() ? Expression.Property(expression, "Value") : expression;
 
         public static Expression GetBinaryOperator(Expression left, Expression right, ExpressionType operation)
         {
             if (operation == ExpressionType.Coalesce) return Expression.Coalesce(left, right);
-            if (operation == ExpressionType.Assign) return Expression.Assign(left, TypeConversion.ImplicitConversion(right, left.Type, true, true));
+            if (operation == ExpressionType.Assign)
+            {
+                if (typeof(Task).IsAssignableFrom(right.Type))
+                {
+                    // if we assign a task (e.g. vm.String = GetStringAsync()), defer the assignment after the task is completed and unwrap the task automatically
+                    var resultType = right.Type.GetGenericArguments()[0];
+                    var paramExpression = Expression.Parameter(right.Type);
+                    var body = GetBinaryOperator(left, Expression.Property(paramExpression, "Result"), operation);
+                    var continueExpression = Expression.Lambda(body, paramExpression);
+                    return Expression.Call(right, "ContinueWith", new[] { resultType }, continueExpression);
+                }
+                else
+                {
+                    // perform normal assignment
+                    return Expression.Assign(left, TypeConversion.ImplicitConversion(right, left.Type, true, true));
+                }
+            }
 
             // TODO: type conversions
             if (operation == ExpressionType.AndAlso) return Expression.AndAlso(left, right);

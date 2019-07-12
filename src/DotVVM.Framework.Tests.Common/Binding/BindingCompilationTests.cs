@@ -295,6 +295,15 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual("42", vm.TestViewModel2.SomeString);
         }
 
+        [TestMethod]
+        public void BindingCompiler_Valid_MemberAssignment_TaskUnwrap()
+        {
+            var vm = new TestViewModel() { StringProp = "abc", TestViewModel2 = new TestViewModel2() };
+            var resultTask = ExecuteBinding($"TestViewModel2.SomeString = GetStringPropAsync()", vm) as Task;
+            resultTask.Wait();
+            Assert.AreEqual(vm.StringProp, vm.TestViewModel2.SomeString);
+        }
+
 
         [TestMethod]
         public void BindingCompiler_Valid_NamespaceAlias()
@@ -409,6 +418,42 @@ namespace DotVVM.Framework.Tests.Binding
             var result = ExecuteBinding("SetStringProp2(StringProp + 'kk'); StringProp = StringProp2 + 'll'", new [] { new TestViewModel { StringProp = "a" } });
             Assert.AreEqual("akkll", result);
         }
+
+        [TestMethod]
+        public void BindingCompiler_SimpleBlockExpression_TaskSequence_TaskNonTask()
+        {
+            var vm = new TestViewModel4();
+            var resultTask = ExecuteBinding("Increment(); Number = Number * 5", new[] { vm }) as Task;
+            resultTask.Wait();
+            Assert.AreEqual(5, vm.Number);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_SimpleBlockExpression_TaskSequence_NonTaskTask()
+        {
+            var vm = new TestViewModel4();
+            var resultTask = ExecuteBinding("Number = 10; Increment();", new[] { vm }) as Task;
+            resultTask.Wait();
+            Assert.AreEqual(11, vm.Number);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_SimpleBlockExpression_TaskSequence_VoidTaskJoining()
+        {
+            var vm = new TestViewModel4();
+            var resultTask = ExecuteBinding("Increment(); Multiply()", new[] { vm }) as Task;
+            resultTask.Wait();
+            Assert.AreEqual(10, vm.Number);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_SimpleBlockExpression_TaskSequence_AssignmentTaskUnwrap()
+        {
+            var resultTask = ExecuteBinding("StringProp = GetStringPropAsync(); StringProp = 'b'", new[] { new TestViewModel { StringProp = "a" } }) as Task<string>;
+            var result = resultTask.Result;
+            Assert.AreEqual("b", result);
+        }
+
 
         [TestMethod]
         public void BindingCompiler_MultiBlockExpression()
@@ -608,6 +653,23 @@ namespace DotVVM.Framework.Tests.Binding
     class TestViewModel3 : DotvvmViewModelBase
     {
         public string SomeString { get; set; }
+    }
+
+    class TestViewModel4
+    {
+        public int Number { get; set; }
+
+        public async Task Increment()
+        {
+            await Task.Delay(100);
+            Number += 1;
+        }
+
+        public Task Multiply()
+        {
+            Number *= 10;
+            return Task.Delay(100);
+        }
     }
 
     class Something

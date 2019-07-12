@@ -5,6 +5,7 @@ using DotVVM.Framework.Compilation.Parser.Binding.Parser;
 using DotVVM.Framework.Compilation.Parser.Binding.Tokenizer;
 using DotVVM.Framework.Utils;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
@@ -276,6 +277,11 @@ namespace DotVVM.Framework.Compilation.Binding
             var right = HandleErrors(node.SecondExpression, Visit) ?? Expression.Default(typeof(void));
             ThrowOnErrors();
 
+            if (typeof(Task).IsAssignableFrom(left.Type))
+            {
+                return ExpressionHelper.ConcatenateTasks(left, right);
+            }
+
             if (right is BlockExpression rightBlock)
             {
                 // flat the `(a; b; c; d; e; ...)` expression down
@@ -283,6 +289,7 @@ namespace DotVVM.Framework.Compilation.Binding
             }
             else return Expression.Block(left, right);
         }
+               
 
         private Expression GetMemberOrTypeExpression(IdentifierNameBindingParserNode node, Type[] typeParameters)
         {
