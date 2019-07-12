@@ -16,17 +16,14 @@ namespace DotVVM.Framework.Tests.Common.ResourceManagement
         [TestMethod]
         public void ResourceRepository_CyclicDependency_Throws()
         {
-            try
+            Assert.ThrowsException<DotvvmResourceException>(() =>
             {
                 var configuration = DotvvmConfiguration.CreateDefault();
                 configuration.Resources.Register("one", new NullResource { Dependencies = new[] { "two" } });
                 configuration.Resources.Register("two", new NullResource { Dependencies = new[] { "one" } });
                 var manager = configuration.ServiceProvider.GetRequiredService<ResourceManager>();
                 manager.AddRequiredResource("one");
-            }
-            catch(DotvvmResourceException)
-            {
-            }
+            });
         }
     }
 }
