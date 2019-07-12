@@ -1,0 +1,37 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Localization.GlobalizeViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Globalize Load Sample</title>
+
+</head>
+<body Validation.Enabled="false" class="page-body">
+    <div>
+        <dot:RouteLink RouteName="{resource: Context.Route.RouteName}" Query-lang="cs-CZ" Text="Switch to 'cs-CZ' first!"/>
+    </div>
+    <div>
+        <div>
+            <dot:Button Click="{command: SayHello()}" Text="Say Hello" class="page-button" />
+            <span InnerText="{value: SayHelloText}" />
+        </div>
+        <div>
+            <dot:Button Click="{command: Parse(ParseTextInput)}" Text="Parse" class="page-button" />
+            <dot:TextBox Text="{value: ParseTextInput}" placeholder="type number" class="input-text-only" /> =>
+            <span InnerText="{value: ParseResult}" />
+        </div>
+        <div>
+            <dot:Button Click="{command: Multiply(MultiplyInputA,MultiplyInputB)}" Text="Multiply" class="page-button" />
+            <dot:TextBox Text="{value: MultiplyInputA}" Type="Number" placeholder="type number" class="input-text-only" />
+            *
+            <dot:TextBox Text="{value: MultiplyInputB}" Type="Number" placeholder="type number" class="input-text-only" />
+            =
+            <b><span InnerText="{value: MultiplyResult}" /></b>
+        </div>
+    </div>
+    <div class="postback-box">
+        <span class="postback-counter">PostBack counter: <b>{{value: PostBackCounter}}</b></span>
+    </div>
+</body>
+</html>
