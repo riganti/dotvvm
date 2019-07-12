@@ -279,7 +279,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
             if (typeof(Task).IsAssignableFrom(left.Type))
             {
-                return ExpressionHelper.ConcatenateTasks(left, right);
+                return ExpressionHelper.RewriteTaskSequence(left, right);
             }
 
             if (right is BlockExpression rightBlock)

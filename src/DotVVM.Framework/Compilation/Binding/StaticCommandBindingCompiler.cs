@@ -59,6 +59,10 @@ namespace DotVVM.Framework.Compilation.Binding
             var currentContextVariable = new JsTemporaryVariableParameter(knockoutContext);
             // var resultPromiseVariable = new JsNewExpression("DotvvmPromise"));
             var senderVariable = new JsTemporaryVariableParameter(new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter));
+
+            var rewriter = new TaskSequenceRewriterExpressionVisitor();
+            expression = rewriter.Visit(expression);
+
             var visitor = new ExtractExpressionVisitor(ex => {
                 if (ex.NodeType == ExpressionType.Call && ex is MethodCallExpression methodCall)
                 {

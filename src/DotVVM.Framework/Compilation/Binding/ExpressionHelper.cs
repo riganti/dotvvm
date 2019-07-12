@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Utils;
 using Microsoft.CSharp.RuntimeBinder;
 
@@ -282,38 +283,40 @@ namespace DotVVM.Framework.Compilation.Binding
             throw new NotSupportedException("IComparable is not implemented on any of specified types");
         }
 
-        public static Expression ConcatenateTasks(Expression left, Expression right)
+        public static Expression RewriteTaskSequence(Expression left, Expression right)
         {
             // if the left side is a task, make the right side also a task and join them
             Expression rightTask;
             if (right.Type == typeof(void))
             {
                 // return Task.CompletedTask
-                rightTask = Expression.Constant(TaskUtils.GetCompletedTask());
+                rightTask = Expression.Call(typeof(CommandTaskSequenceHelper), nameof(CommandTaskSequenceHelper.WrapAsTask),
+                    Type.EmptyTypes, Expression.Lambda(right));
             }
             else if (!typeof(Task).IsAssignableFrom(right.Type))
             {
                 // wrap the right expression into Task.FromResult
-                rightTask = Expression.Call(typeof(Task), "FromResult", new[] { right.Type }, right);
+                rightTask = Expression.Call(typeof(CommandTaskSequenceHelper), nameof(CommandTaskSequenceHelper.WrapAsTask),
+                    new[] { right.Type }, Expression.Lambda(right)); 
             }
             else
             {
                 // right side is also a task
                 rightTask = right;
             }
-            
-            // join the tasks
-            var joinedTask = Expression.Call(Expression.Convert(left, typeof(Task)), "ContinueWith", new[] { rightTask.Type }, Expression.Lambda(rightTask, Expression.Parameter(typeof(Task))));
+
+            // join the tasks using CommandTaskSequenceHelper
             if (rightTask.Type.IsGenericType)
             {
-                return Expression.Call(typeof(TaskExtensions), "Unwrap", new[] { rightTask.Type.GetGenericArguments()[0] }, joinedTask);
+                return Expression.Call(typeof(CommandTaskSequenceHelper), nameof(CommandTaskSequenceHelper.JoinTasks), new[] { rightTask.Type.GetGenericArguments()[0] }, left, Expression.Lambda(rightTask));
             }
             else
             {
-                return Expression.Call(typeof(TaskExtensions), "Unwrap", Type.EmptyTypes, joinedTask);
+                return Expression.Call(typeof(CommandTaskSequenceHelper), nameof(CommandTaskSequenceHelper.JoinTasks), Type.EmptyTypes, left, Expression.Lambda(rightTask));
             }
         }
 
+        
         public static Expression UnwrapNullable(this Expression expression) =>
             expression.Type.IsNullable() ? Expression.Property(expression, "Value") : expression;
 
@@ -326,10 +329,11 @@ namespace DotVVM.Framework.Compilation.Binding
                 {
                     // if we assign a task (e.g. vm.String = GetStringAsync()), defer the assignment after the task is completed and unwrap the task automatically
                     var resultType = right.Type.GetGenericArguments()[0];
-                    var paramExpression = Expression.Parameter(right.Type);
-                    var body = GetBinaryOperator(left, Expression.Property(paramExpression, "Result"), operation);
-                    var continueExpression = Expression.Lambda(body, paramExpression);
-                    return Expression.Call(right, "ContinueWith", new[] { resultType }, continueExpression);
+                    var param = Expression.Parameter(resultType);
+                    var body = GetBinaryOperator(left, param, ExpressionType.Assign);
+                    var assignMethod = Expression.Lambda(body, param);                    
+                    return Expression.Call(typeof(CommandTaskSequenceHelper), nameof(CommandTaskSequenceHelper.AssignTaskResult),
+                        new[] { resultType }, right, assignMethod);
                 }
                 else
                 {

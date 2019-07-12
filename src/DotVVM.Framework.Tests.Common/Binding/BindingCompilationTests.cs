@@ -423,7 +423,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void BindingCompiler_SimpleBlockExpression_TaskSequence_TaskNonTask()
         {
             var vm = new TestViewModel4();
-            var resultTask = ExecuteBinding("Increment(); Number = Number * 5", new[] { vm }) as Task;
+            var resultTask = (Task)ExecuteBinding("Increment(); Number = Number * 5", new[] { vm });
             resultTask.Wait();
             Assert.AreEqual(5, vm.Number);
         }
@@ -432,7 +432,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void BindingCompiler_SimpleBlockExpression_TaskSequence_NonTaskTask()
         {
             var vm = new TestViewModel4();
-            var resultTask = ExecuteBinding("Number = 10; Increment();", new[] { vm }) as Task;
+            var resultTask = (Task)ExecuteBinding("Number = 10; Increment();", new[] { vm });
             resultTask.Wait();
             Assert.AreEqual(11, vm.Number);
         }
@@ -441,7 +441,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void BindingCompiler_SimpleBlockExpression_TaskSequence_VoidTaskJoining()
         {
             var vm = new TestViewModel4();
-            var resultTask = ExecuteBinding("Increment(); Multiply()", new[] { vm }) as Task;
+            var resultTask = (Task)ExecuteBinding("Increment(); Multiply()", new[] { vm });
             resultTask.Wait();
             Assert.AreEqual(10, vm.Number);
         }
@@ -449,7 +449,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void BindingCompiler_SimpleBlockExpression_TaskSequence_AssignmentTaskUnwrap()
         {
-            var resultTask = ExecuteBinding("StringProp = GetStringPropAsync(); StringProp = 'b'", new[] { new TestViewModel { StringProp = "a" } }) as Task<string>;
+            var resultTask = (Task<string>)ExecuteBinding("StringProp = GetStringPropAsync(); StringProp = 'b'", new[] { new TestViewModel { StringProp = "a" } });
             var result = resultTask.Result;
             Assert.AreEqual("b", result);
         }
