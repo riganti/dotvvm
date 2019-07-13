@@ -94,6 +94,12 @@ namespace DotVVM.Framework.Configuration
         public bool UseHistoryApiSpaNavigation { get; set; } = true;
 
         /// <summary>
+        /// Gets or sets the configuration for experimental features.
+        /// </summary>
+        [JsonProperty("experimentalFeatures", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public DotvvmExperimentalFeaturesConfiguration ExperimentalFeatures { get; set; } = new DotvvmExperimentalFeaturesConfiguration();
+
+        /// <summary>
         /// Gets or sets whether the application should run in debug mode.
         /// For ASP.NET Core checkout <see cref="!:https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments" >https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments</see>   
         /// </summary>
