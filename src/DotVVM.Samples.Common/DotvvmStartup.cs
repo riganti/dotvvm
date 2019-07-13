@@ -17,6 +17,8 @@ using System.Collections.Generic;
 using System;
 using System.IO;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Linq;
 
 namespace DotVVM.Samples.BasicSamples
 {
@@ -52,8 +54,16 @@ namespace DotVVM.Samples.BasicSamples
 
         private void LoadSampleConfiguration(DotvvmConfiguration config, string applicationPath)
         {
-            var json = File.ReadAllText(Path.Combine(applicationPath, "sampleConfig.json"));
-            JsonConvert.PopulateObject(json, config);
+            var jsonText = File.ReadAllText(Path.Combine(applicationPath, "sampleConfig.json"));
+            var json = JObject.Parse(jsonText);
+
+            // find active profile
+            var activeProfile = json.Value<string>("activeProfile");
+
+            var profiles = json.Value<JArray>("profiles");
+            var profile = profiles.Single(p => p.Value<string>("name") == activeProfile);
+            
+            JsonConvert.PopulateObject(profile.Value<JObject>("config").ToString(), config);
         }
 
         public static void AddStyles(DotvvmConfiguration config)
