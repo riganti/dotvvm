@@ -13,6 +13,10 @@ using DotVVM.Framework.Routing;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
 using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand;
 using DotVVM.Samples.Common;
+using System;
+using System.Configuration;
+using DotVVM.Framework.Utils;
+using System.Linq;
 
 [assembly: OwinStartup(typeof(Startup))]
 
@@ -62,7 +66,7 @@ namespace DotVVM.Samples.BasicSamples
 #endif
             app.UseStaticFiles();
         }
-
+        
         private string GetApplicationPath()
             => Path.Combine(Path.GetDirectoryName(HostingEnvironment.ApplicationPhysicalPath.TrimEnd('\\', '/')), "DotVVM.Samples.Common");
     }

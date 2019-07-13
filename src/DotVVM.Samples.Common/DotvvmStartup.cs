@@ -14,6 +14,11 @@ using DotVVM.Samples.Common.ViewModels.FeatureSamples.ServerSideStyles;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Controls;
 using System.Collections.Generic;
+using System;
+using System.IO;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Linq;
 
 namespace DotVVM.Samples.BasicSamples
 {
@@ -23,7 +28,6 @@ namespace DotVVM.Samples.BasicSamples
         {
             config.DefaultCulture = "en-US";
             config.UseHistoryApiSpaNavigation = true;
-            config.CsrfTokenLazyLoading = true;
 
             AddControls(config);
             AddStyles(config);
@@ -44,6 +48,22 @@ namespace DotVVM.Samples.BasicSamples
 
             config.RegisterApiGroup(typeof(GithubApiClient.GithubApiClient), "https://api.github.com/", "Scripts/GithubApiClient.js", "_github", customFetchFunction: "basicAuthenticatedFetch");
             config.RegisterApiClient(typeof(AzureFunctionsApi.Client), "https://dotvvmazurefunctionstest.azurewebsites.net/", "Scripts/AzureFunctionsApiClient.js", "_azureFuncApi");
+
+            LoadSampleConfiguration(config, applicationPath);
+        }
+
+        private void LoadSampleConfiguration(DotvvmConfiguration config, string applicationPath)
+        {
+            var jsonText = File.ReadAllText(Path.Combine(applicationPath, "sampleConfig.json"));
+            var json = JObject.Parse(jsonText);
+
+            // find active profile
+            var activeProfile = json.Value<string>("activeProfile");
+
+            var profiles = json.Value<JArray>("profiles");
+            var profile = profiles.Single(p => p.Value<string>("name") == activeProfile);
+            
+            JsonConvert.PopulateObject(profile.Value<JObject>("config").ToString(), config);
         }
 
         public static void AddStyles(DotvvmConfiguration config)

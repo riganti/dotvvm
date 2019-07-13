@@ -79,9 +79,12 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_Literal_Literal_CollectionLength = "ControlSamples/Literal/Literal_CollectionLength";
         public const string ControlSamples_Literal_Literal_FormatString = "ControlSamples/Literal/Literal_FormatString";
         public const string ControlSamples_Literal_Literal_NumberBinding = "ControlSamples/Literal/Literal_NumberBinding";
+        public const string ControlSamples_MultiSelect_binded = "ControlSamples/MultiSelect/binded";
+        public const string ControlSamples_MultiSelect_hardcoded = "ControlSamples/MultiSelect/hardcoded";
         public const string ControlSamples_RadioButton_RadioButton = "ControlSamples/RadioButton/RadioButton";
         public const string ControlSamples_Repeater_CollectionIndex = "ControlSamples/Repeater/CollectionIndex";
         public const string ControlSamples_Repeater_DataSourceNull = "ControlSamples/Repeater/DataSourceNull";
+        public const string ControlSamples_Repeater_NamedTemplate = "ControlSamples/Repeater/NamedTemplate";
         public const string ControlSamples_Repeater_NestedRepeater = "ControlSamples/Repeater/NestedRepeater";
         public const string ControlSamples_Repeater_NestedRepeaterWithControl = "ControlSamples/Repeater/NestedRepeaterWithControl";
         public const string ControlSamples_Repeater_RepeaterAsSeparator = "ControlSamples/Repeater/RepeaterAsSeparator";
