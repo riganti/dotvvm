@@ -10,7 +10,7 @@
         public const string ResourceHandlerMatchUrl = "dotvvmEmbeddedResource";
 
         public const string FileUploadHandlerMatchUrl = "dotvvmFileUpload";
-        public const string CsrfTokenMatchUrl = "dotvvmCreateCsrfToken";
+        public const string CsrfTokenMatchUrl = "___dotvvm-create-csrf-token___";
 
         public const string SpaContentPlaceHolderHeaderName = "X-DotVVM-SpaContentPlaceHolder";
         public const string SpaPostBackHeaderName = "X-DotVVM-PostBack";

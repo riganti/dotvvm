@@ -1160,7 +1160,7 @@ var DotVVM = /** @class */ (function () {
                     case 0:
                         vm = this.viewModels[viewModelName].viewModel;
                         if (!(vm.$csrfToken == null)) return [3 /*break*/, 3];
-                        return [4 /*yield*/, fetch((this.viewModels[viewModelName].virtualDirectory || "") + "/dotvvmCreateCsrfToken")];
+                        return [4 /*yield*/, fetch((this.viewModels[viewModelName].virtualDirectory || "") + "/___dotvvm-create-csrf-token___")];
                     case 1:
                         response = _b.sent();
                         if (response.status != 200)
