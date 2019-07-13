@@ -14,6 +14,9 @@ using DotVVM.Samples.Common.ViewModels.FeatureSamples.ServerSideStyles;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Controls;
 using System.Collections.Generic;
+using System;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace DotVVM.Samples.BasicSamples
 {
@@ -43,6 +46,14 @@ namespace DotVVM.Samples.BasicSamples
 
             config.RegisterApiGroup(typeof(GithubApiClient.GithubApiClient), "https://api.github.com/", "Scripts/GithubApiClient.js", "_github", customFetchFunction: "basicAuthenticatedFetch");
             config.RegisterApiClient(typeof(AzureFunctionsApi.Client), "https://dotvvmazurefunctionstest.azurewebsites.net/", "Scripts/AzureFunctionsApiClient.js", "_azureFuncApi");
+
+            LoadSampleConfiguration(config, applicationPath);
+        }
+
+        private void LoadSampleConfiguration(DotvvmConfiguration config, string applicationPath)
+        {
+            var json = File.ReadAllText(Path.Combine(applicationPath, "sampleConfig.json"));
+            JsonConvert.PopulateObject(json, config);
         }
 
         public static void AddStyles(DotvvmConfiguration config)
