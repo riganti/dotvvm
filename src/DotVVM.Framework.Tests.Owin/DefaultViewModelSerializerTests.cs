@@ -20,6 +20,7 @@ using Newtonsoft.Json.Linq;
 using Microsoft.Owin.Infrastructure;
 using DotVVM.Framework.Runtime.Caching;
 using DotVVM.Framework.Hosting.Owin.Runtime.Caching;
+using DotVVM.Framework.Routing;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -57,11 +58,11 @@ namespace DotVVM.Framework.Tests.Runtime
 
 
 			serializer = configuration.ServiceLocator.GetService<IViewModelSerializer>() as DefaultViewModelSerializer;
-            context = new DotvvmRequestContext()
-            {
+            context = new DotvvmRequestContext() {
                 Configuration = configuration,
                 HttpContext = contextMock.Object,
                 Presenter = configuration.RouteTable.GetDefaultPresenter(configuration.ServiceProvider),
+                Route = new DotvvmRoute("TestRoute", "test.dothtml", new { }, p => p.GetService<DotvvmPresenter>(), configuration)
             };
         }
 
