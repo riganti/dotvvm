@@ -155,9 +155,11 @@ class DotVVM {
     private commonConcurrencyHandler = <T>(promise: Promise<PostbackCommitFunction>, options: PostbackOptions, queueName: string): Promise<PostbackCommitFunction> => {
         const queue = this.getPostbackQueue(queueName)
         queue.noRunning++
+        dotvvm.updateProgressChangeCounter(dotvvm.updateProgressChangeCounter() + 1);
 
         const dispatchNext = () => {
             queue.noRunning--;
+            dotvvm.updateProgressChangeCounter(dotvvm.updateProgressChangeCounter() - 1);
             if (queue.queue.length > 0) {
                 const callback = queue.queue.shift()!
                 window.setTimeout(callback, 0)
@@ -217,6 +219,7 @@ class DotVVM {
 
     public useHistoryApiSpaNavigation: boolean;
     public isPostbackRunning = ko.observable(false);
+    public updateProgressChangeCounter = ko.observable(0);
 
     public init(viewModelName: string, culture: string): void {
         this.addKnockoutBindingHandlers();
@@ -1226,6 +1229,12 @@ class DotVVM {
             init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
                 element.style.display = "none";
                 var delay = element.getAttribute("data-delay");
+
+                var includedQueues = element.getAttribute("data-included-queues");
+                includedQueues = includedQueues ? includedQueues.split(",").map(q => q.trim()) : [];
+                var excludedQueues = element.getAttribute("data-excluded-queues");
+                excludedQueues = excludedQueues ? excludedQueues.split(",").map(q => q.trim()) : [];
+
                 var timeout;
                 var running = false;
 
@@ -1246,8 +1255,21 @@ class DotVVM {
                     element.style.display = "none";
                 }
 
-                dotvvm.isPostbackRunning.subscribe(e => {
-                    if (e) {
+                dotvvm.updateProgressChangeCounter.subscribe(e => {
+                    let shouldRun = false;
+
+                    if (includedQueues.length === 0) {
+                        for (let queue in dotvvm.postbackQueues) {
+                            if (excludedQueues.indexOf(queue) < 0 && dotvvm.postbackQueues[queue].noRunning) {
+                                shouldRun = true;
+                                break;
+                            }
+                        }
+                    } else {
+                        shouldRun = includedQueues.some(q => dotvvm.postbackQueues[q] && dotvvm.postbackQueues[q].noRunning);
+                    }
+
+                    if (shouldRun) {
                         if (!running) {
                             show();
                         }

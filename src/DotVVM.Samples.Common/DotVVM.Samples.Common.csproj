@@ -18,6 +18,7 @@
     <None Remove="Views\ControlSamples\MultiSelect\binded.dothtml" />
     <None Remove="Views\ControlSamples\MultiSelect\hardcoded.dothtml" />
     <None Remove="Views\ControlSamples\Repeater\NamedTemplate.dothtml" />
+    <None Remove="Views\ControlSamples\UpdateProgress\UpdateProgress_Queues.dothtml" />
     <None Remove="Views\ControlSamples\ValidationSummary\MessagesRendering.dothtml" />
     <None Remove="Views\Errors\CorruptedContentBetweenContentControls.dothtml" />
     <None Remove="Views\FeatureSamples\Caching\CachedValues.dothtml" />
