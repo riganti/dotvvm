@@ -29,8 +29,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         public bool SendDiff { get; set; } = true;
 
-        public bool CacheViewModelsOnServer { get; set; } = true;
-
         public Formatting JsonFormatting { get; set; }
 
 
@@ -81,7 +79,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var viewModelToken = writer.Token;
 
             string viewModelCacheId = null;
-            if (CacheViewModelsOnServer)
+            if (context.Configuration.ExperimentalFeatures.ServerSideViewModelCache.IsEnabledForRoute(context.Route.RouteName))
             {
                 viewModelCacheId = viewModelServerCache.StoreViewModel(context, (JObject)viewModelToken);
             }
@@ -245,6 +243,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
             JObject viewModelToken;
             if (data["viewModelCacheId"] != null)
             {
+                if (!context.Configuration.ExperimentalFeatures.ServerSideViewModelCache.IsEnabledForRoute(context.Route.RouteName))
+                {
+                    throw new InvalidOperationException("The server-side viewmodel caching is not enabled for the current route!");
+                }
+
                 viewModelToken = viewModelServerCache.TryRestoreViewModel(context, (string)data["viewModelCacheId"], (JObject)data["viewModelDiff"]);
                 data["viewModel"] = viewModelToken;
             }
