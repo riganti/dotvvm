@@ -144,11 +144,11 @@ namespace DotVVM.Framework.Controls
 
             if (!isTypeImplicitlyFormatted || implicitFormatString != null)
             {
-                isFormattingRequired = !string.IsNullOrEmpty(FormatString) ||
+                isFormattingRequired = !string.IsNullOrEmpty(FormatString)
 #pragma warning disable
-                    ValueType != FormatValueType.Text ||
+                    || ValueType != FormatValueType.Text
 #pragma warning restore
-                    NeedsFormatting(GetValueBinding(TextProperty));
+                    || NeedsFormatting(GetValueBinding(TextProperty));
             }
 
             if (isFormattingRequired)
