@@ -1,0 +1,20 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.RadioButton.NullableViewModel, DotVVM.Samples.Common
+@import SampleEnum = DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.RadioButton.NullableViewModel.SampleEnum
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>RadioButton with a nullable CheckedItem</title>
+</head>
+<body>
+    <div>
+        <dot:RadioButton CheckedValue="{resource: SampleEnum.First}" CheckedItem="{value: SampleItem}" Text="SampleEnum.First" />
+        <dot:RadioButton CheckedValue="{resource: SampleEnum.Second}" CheckedItem="{value: SampleItem}" Text="SampleEnum.Second" />
+    </div>
+    <div>
+        SampleItem: {{value: SampleItem}}
+    </div>
+    <div>
+        <dot:Button Click="{command:  0}" Text="Empty Postback" />
+    </div>
+</body>
+</html>
