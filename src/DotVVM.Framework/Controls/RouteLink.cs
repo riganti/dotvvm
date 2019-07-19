@@ -89,6 +89,11 @@ namespace DotVVM.Framework.Controls
                 WriteEnabledBinding(writer, (IValueBinding)enabledBinding);
             }
 
+            if (GetValue<bool?>(EnabledProperty) == false)
+            {
+                writer.AddAttribute("disabled", "disabled");
+            }
+
             WriteOnClickAttribute(writer, context);
 
             base.AddAttributesToRender(writer, context);
