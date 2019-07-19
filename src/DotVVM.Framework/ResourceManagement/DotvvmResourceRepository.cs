@@ -1,3 +1,4 @@
+
 using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
@@ -20,25 +21,13 @@ namespace DotVVM.Framework.ResourceManagement
         /// Dictionary of resources
         /// </summary>
         [JsonIgnore]
-        public ConcurrentDictionary<string, IResource> Resources { get; }
-            = new ConcurrentDictionary<string, IResource>();
+        public ConcurrentDictionary<string, IResource> Resources { get; } = new ConcurrentDictionary<string, IResource>();
 
         [JsonIgnore]
-        public ConcurrentDictionary<string, IDotvvmResourceRepository> Parents { get; }
-            = new ConcurrentDictionary<string, IDotvvmResourceRepository>();
+        public ConcurrentDictionary<string, IDotvvmResourceRepository> Parents { get; } = new ConcurrentDictionary<string, IDotvvmResourceRepository>();
 
         [JsonIgnore]
-        public IList<IResourceProcessor> DefaultResourceProcessors { get; }
-            = new List<IResourceProcessor>();
-
-        public DotvvmResourceRepository()
-        {
-        }
-
-        public DotvvmResourceRepository(DotvvmResourceRepository parent)
-        {
-            Parents.TryAdd("", parent);
-        }
+        public IList<IResourceProcessor> DefaultResourceProcessors { get; } = new List<IResourceProcessor>();
 
         /// <summary>
         /// Finds the resource with the specified name.
@@ -63,25 +52,9 @@ namespace DotVVM.Framework.ResourceManagement
             if (Parents.TryGetValue("", out parent))
             {
                 var resource = parent.FindResource(name);
-                if (resource != null)
-                {
-                    return resource;
-                }
+                if (resource != null) return resource;
             }
             return null;
-        }
-
-        public NamedResource FindNamedResource(string name)
-        {
-            return new NamedResource(name, FindResource(name));
-        }
-
-        /// <summary>
-        /// Creates nested repository. All new registrations in the nested repo will not apply to this.
-        /// </summary>
-        public DotvvmResourceRepository Nest()
-        {
-            return new DotvvmResourceRepository(this);
         }
 
         /// <summary>
@@ -107,6 +80,18 @@ namespace DotVVM.Framework.ResourceManagement
             }
         }
 
+        private void ValidateResourceLocation(IResource resource, string name)
+        {
+            var linkResource = resource as LinkResourceBase;
+            if (linkResource != null)
+            {
+                if (linkResource.Location == null)
+                {
+                    throw new DotvvmLinkResourceException($"The Location property of the resource '{name}' is not set.");
+                }
+            }
+        }
+
         /// <summary>
         /// Registers a child resource repository.
         /// </summary>
@@ -128,16 +113,28 @@ namespace DotVVM.Framework.ResourceManagement
             }
         }
 
-        private void ValidateResourceLocation(IResource resource, string name)
+
+        /// <summary>
+        /// Creates nested repository. All new registrations in the nested repo will not apply to this.
+        /// </summary>
+        public DotvvmResourceRepository Nest()
         {
-            var linkResource = resource as LinkResourceBase;
-            if (linkResource != null)
-            {
-                if (linkResource.Location == null)
-                {
-                    throw new DotvvmLinkResourceException($"The Location property of the resource '{name}' is not set.");
-                }
-            }
+            return new DotvvmResourceRepository(this);
+        }
+
+        public DotvvmResourceRepository()
+        {
+            
+        }
+
+        public DotvvmResourceRepository(DotvvmResourceRepository parent)
+        {
+            this.Parents.TryAdd("", parent);
+        }
+
+        public NamedResource FindNamedResource(string name)
+        {
+            return new NamedResource(name, FindResource(name));
         }
 
         private void ValidateDependencies(IResource resource, string name)
