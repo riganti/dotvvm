@@ -36,26 +36,26 @@ namespace DotVVM.Framework.Controls
         /// If not set, all queues are included automatically.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
-        public string IncludedQueues
+        public string[] IncludedQueues
         {
-            get { return (string)GetValue(IncludedQueuesProperty); }
+            get { return (string[])GetValue(IncludedQueuesProperty); }
             set { SetValue(IncludedQueuesProperty, value); }
         }
         public static readonly DotvvmProperty IncludedQueuesProperty
-            = DotvvmProperty.Register<string, UpdateProgress>(c => c.IncludedQueues, "");
+            = DotvvmProperty.Register<string[], UpdateProgress>(c => c.IncludedQueues, null);
 
         /// <summary>
         /// Gets or sets the comma-separated names of PostBack.ConcurrencyQueue names that should be ignored by this control.
         /// If you don't want to exclude any queue, use an empty string.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
-        public string ExcludedQueues
+        public string[] ExcludedQueues
         {
-            get { return (string)GetValue(ExcludedQueuesProperty); }
+            get { return (string[])GetValue(ExcludedQueuesProperty); }
             set { SetValue(ExcludedQueuesProperty, value); }
         }
         public static readonly DotvvmProperty ExcludedQueuesProperty
-            = DotvvmProperty.Register<string, UpdateProgress>(c => c.ExcludedQueues, "");
+            = DotvvmProperty.Register<string[], UpdateProgress>(c => c.ExcludedQueues, null);
 
 
         public UpdateProgress() : base("div")
@@ -70,8 +70,14 @@ namespace DotVVM.Framework.Controls
             {
                 writer.AddAttribute("data-delay", Delay.ToString());
             }
-            writer.AddAttribute("data-included-queues", IncludedQueues);
-            writer.AddAttribute("data-excluded-queues", ExcludedQueues);
+            if (IncludedQueues != null)
+            {
+                writer.AddAttribute("data-included-queues", string.Join(",", IncludedQueues));
+            }
+            if (ExcludedQueues != null)
+            {
+                writer.AddAttribute("data-excluded-queues", string.Join(",", ExcludedQueues));
+            }
 
             base.AddAttributesToRender(writer, context);
         }
@@ -91,26 +97,25 @@ namespace DotVVM.Framework.Controls
             }
 
             // validate queue settings
-            var includedQueues = (control.GetValue(IncludedQueuesProperty) as ResolvedPropertyValue)?.Value as string ?? "";
-            var excludedQueues = (control.GetValue(ExcludedQueuesProperty) as ResolvedPropertyValue)?.Value as string ?? "";
-            if (!string.IsNullOrEmpty(includedQueues) && !string.IsNullOrEmpty(excludedQueues))
+            var includedQueues = (control.GetValue(IncludedQueuesProperty) as ResolvedPropertyValue)?.Value as string[];
+            var excludedQueues = (control.GetValue(ExcludedQueuesProperty) as ResolvedPropertyValue)?.Value as string[];
+            if (includedQueues != null && excludedQueues != null)
             {
                 yield return new ControlUsageError("The IncludedQueues and ExcludedQueues cannot be used together!");
             }
-            if (!string.IsNullOrEmpty(includedQueues) && !ValidateQueueNames(includedQueues))
+            if (includedQueues != null && !ValidateQueueNames(includedQueues))
             {
                 yield return new ControlUsageError("The IncludedQueues must contain comma-separated list of queue names (which can contain alphanumeric characters, underscore or dash)!");
             }
-            if (!string.IsNullOrEmpty(excludedQueues) && !ValidateQueueNames(excludedQueues))
+            if (excludedQueues != null && !ValidateQueueNames(excludedQueues))
             {
                 yield return new ControlUsageError("The ExcludedQueues must contain comma-separated list of queue names (which can contain alphanumeric characters, underscore or dash)!");
             }
         }
 
-        private static bool ValidateQueueNames(string queues)
+        private static bool ValidateQueueNames(string[] queues)
         {
-            var parts = queues.Split(',').Select(p => p.Trim());
-            return parts.All(p => Regex.IsMatch(p, @"^[a-zA-Z_][a-zA-Z0-9-_]*$"));
+            return queues.All(NamingUtils.IsValidConcurrencyQueueName);
         }
     }
 }

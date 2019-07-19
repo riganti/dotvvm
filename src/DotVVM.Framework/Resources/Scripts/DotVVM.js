@@ -1953,10 +1953,8 @@ var DotVVM = /** @class */ (function () {
             init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
                 element.style.display = "none";
                 var delay = element.getAttribute("data-delay");
-                var includedQueues = element.getAttribute("data-included-queues");
-                includedQueues = includedQueues ? includedQueues.split(",").map(function (q) { return q.trim(); }) : [];
-                var excludedQueues = element.getAttribute("data-excluded-queues");
-                excludedQueues = excludedQueues ? excludedQueues.split(",").map(function (q) { return q.trim(); }) : [];
+                var includedQueues = (element.getAttribute("data-included-queues") || "").split(",").filter(function (i) { return i.length > 0; });
+                var excludedQueues = (element.getAttribute("data-excluded-queues") || "").split(",").filter(function (i) { return i.length > 0; });
                 var timeout;
                 var running = false;
                 var show = function () {
@@ -1979,14 +1977,14 @@ var DotVVM = /** @class */ (function () {
                     var shouldRun = false;
                     if (includedQueues.length === 0) {
                         for (var queue in dotvvm.postbackQueues) {
-                            if (excludedQueues.indexOf(queue) < 0 && dotvvm.postbackQueues[queue].noRunning) {
+                            if (excludedQueues.indexOf(queue) < 0 && dotvvm.postbackQueues[queue].noRunning > 0) {
                                 shouldRun = true;
                                 break;
                             }
                         }
                     }
                     else {
-                        shouldRun = includedQueues.some(function (q) { return dotvvm.postbackQueues[q] && dotvvm.postbackQueues[q].noRunning; });
+                        shouldRun = includedQueues.some(function (q) { return dotvvm.postbackQueues[q] && dotvvm.postbackQueues[q].noRunning > 0; });
                     }
                     if (shouldRun) {
                         if (!running) {

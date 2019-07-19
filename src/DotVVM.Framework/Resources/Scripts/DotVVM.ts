@@ -1230,10 +1230,8 @@ class DotVVM {
                 element.style.display = "none";
                 var delay = element.getAttribute("data-delay");
 
-                var includedQueues = element.getAttribute("data-included-queues");
-                includedQueues = includedQueues ? includedQueues.split(",").map(q => q.trim()) : [];
-                var excludedQueues = element.getAttribute("data-excluded-queues");
-                excludedQueues = excludedQueues ? excludedQueues.split(",").map(q => q.trim()) : [];
+                let includedQueues = (element.getAttribute("data-included-queues") || "").split(",").filter(i => i.length > 0);
+                let excludedQueues = (element.getAttribute("data-excluded-queues") || "").split(",").filter(i => i.length > 0);
 
                 var timeout;
                 var running = false;
@@ -1260,13 +1258,13 @@ class DotVVM {
 
                     if (includedQueues.length === 0) {
                         for (let queue in dotvvm.postbackQueues) {
-                            if (excludedQueues.indexOf(queue) < 0 && dotvvm.postbackQueues[queue].noRunning) {
+                            if (excludedQueues.indexOf(queue) < 0 && dotvvm.postbackQueues[queue].noRunning > 0) {
                                 shouldRun = true;
                                 break;
                             }
                         }
                     } else {
-                        shouldRun = includedQueues.some(q => dotvvm.postbackQueues[q] && dotvvm.postbackQueues[q].noRunning);
+                        shouldRun = includedQueues.some(q => dotvvm.postbackQueues[q] && dotvvm.postbackQueues[q].noRunning > 0);
                     }
 
                     if (shouldRun) {
