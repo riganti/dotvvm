@@ -271,6 +271,12 @@ namespace DotVVM.Framework.Hosting
 
                 foreach (var f in requestFilters) await f.OnPageRenderedAsync(context);
             }
+            catch (DotvvmInterruptRequestExecutionException ex) when (ex.InterruptReason == InterruptReason.CachedViewModelMissing)
+            {
+                // the client needs to repeat the postback and send the full viewmodel
+                context.SetCachedViewModelMissingResponse();
+                throw;
+            }
             catch (DotvvmInterruptRequestExecutionException) { throw; }
             catch (DotvvmHttpException) { throw; }
             catch (Exception ex)

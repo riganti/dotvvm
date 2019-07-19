@@ -1,29 +1,28 @@
 ﻿using System;
+using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
+using Newtonsoft.Json.Bson;
 using Newtonsoft.Json.Linq;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
     public class DefaultViewModelServerCache : IViewModelServerCache
     {
-        private readonly SHA256 sha256;
         private readonly IViewModelServerStore viewModelStore;
 
         public DefaultViewModelServerCache(IViewModelServerStore viewModelStore)
         {
-            sha256 = SHA256.Create();
             this.viewModelStore = viewModelStore;
         }
 
         public string StoreViewModel(IDotvvmRequestContext context, JObject viewModelToken)
         {
-            var cacheData = viewModelToken.ToString(Newtonsoft.Json.Formatting.None);
-            var hash = Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(cacheData)));
-            
+            var cacheData = PackViewModel(viewModelToken);
+            var hash = Convert.ToBase64String(SHA256.Create().ComputeHash(cacheData));
             viewModelStore.Store(hash, cacheData);
             return hash;
         }
@@ -33,14 +32,33 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var cachedData = viewModelStore.Retrieve(viewModelCacheId);
             if (cachedData == null)
             {
-                // the client needs to repeat the postback and send the full viewmode
-                context.SetCachedViewModelMissingResponse();
                 throw new DotvvmInterruptRequestExecutionException(InterruptReason.CachedViewModelMissing);
             }
 
-            var result = JObject.Parse(cachedData);
+            var result = UnpackViewModel(cachedData);
             JsonUtils.Patch(result, viewModelDiffToken);
             return result;
+        }
+
+        protected virtual byte[] PackViewModel(JObject viewModelToken)
+        {
+            using (var ms = new MemoryStream())
+            using (var bsonWriter = new BsonDataWriter(ms))
+            {
+                viewModelToken.WriteTo(bsonWriter);
+                bsonWriter.Flush();
+
+                return ms.ToArray();
+            }
+        }
+
+        protected virtual JObject UnpackViewModel(byte[] cachedData)
+        {
+            using (var ms = new MemoryStream(cachedData))
+            using (var bsonReader = new BsonDataReader(ms))
+            {
+                return (JObject)JToken.ReadFrom(bsonReader);                
+            }
         }
     }
 }

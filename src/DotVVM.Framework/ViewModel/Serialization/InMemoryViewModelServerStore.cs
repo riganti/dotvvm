@@ -15,14 +15,14 @@ namespace DotVVM.Framework.ViewModel.Serialization
             this.cacheAdapter = cacheAdapter;
         }
 
-        public string Retrieve(string hash)
+        public byte[] Retrieve(string hash)
         {
-            return cacheAdapter.Get<string>(BuildKey(hash));
+            return cacheAdapter.Get<byte[]>(BuildKey(hash));
         }
 
-        public void Store(string hash, string cacheData)
+        public void Store(string hash, byte[] cacheData)
         {
-            cacheAdapter.GetOrAdd(BuildKey(hash), k => new DotvvmCachedItem<string>(cacheData, slidingExpiration: CacheLifetime));
+            cacheAdapter.GetOrAdd(BuildKey(hash), k => new DotvvmCachedItem<byte[]>(cacheData, slidingExpiration: CacheLifetime));
         }
 
         private static string BuildKey(string hash)

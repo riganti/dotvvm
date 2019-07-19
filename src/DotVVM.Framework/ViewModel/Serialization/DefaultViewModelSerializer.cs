@@ -122,7 +122,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             // TODO: do not send on postbacks
             if (validationRules?.Count > 0) result["validationRules"] = validationRules;
-            
+
             context.ViewModelJson = result;
         }
 
@@ -254,7 +254,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             else
             {
                 viewModelToken = (JObject)data["viewModel"];
-            }            
+            }
 
             // load CSRF token
             context.CsrfToken = viewModelToken["$csrfToken"].Value<string>();

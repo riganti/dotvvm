@@ -7,9 +7,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
     public interface IViewModelServerStore
     {
 
-        void Store(string hash, string cacheData);
+        void Store(string hash, byte[] cacheData);
 
-        string Retrieve(string hash);
+        byte[] Retrieve(string hash);
 
     }
 }
