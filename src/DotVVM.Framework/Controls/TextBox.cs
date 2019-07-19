@@ -29,6 +29,7 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty EnabledProperty =
             DotvvmPropertyWithFallback.Register<bool, TextBox>(nameof(Enabled), FormControls.EnabledProperty);
 
+
         /// <summary>
         /// Gets or sets a format of presentation of value to client.
         /// </summary>
@@ -121,25 +122,16 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty ValueTypeProperty =
             DotvvmProperty.Register<FormatValueType, TextBox>(t => t.ValueType);
 
-        public static bool NeedsFormatting(IValueBinding binding)
-        {
-            if (binding == null)
-            {
-                return false;
-            }
-            return binding.ResultType == typeof(DateTime)
-                || binding.ResultType == typeof(DateTime?)
-                || binding.ResultType.IsNumericType()
-                || Nullable.GetUnderlyingType(binding.ResultType).IsNumericType();
-        }
+        public static bool NeedsFormatting(IValueBinding binding) => binding != null && (binding.ResultType == typeof(DateTime) || binding.ResultType == typeof(DateTime?)
+            || binding.ResultType.IsNumericType() || Nullable.GetUnderlyingType(binding.ResultType).IsNumericType());
 
         protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
             var isTypeImplicitlyFormatted = Type.TryGetFormatString(out implicitFormatString);
             if (!string.IsNullOrEmpty(FormatString) && isTypeImplicitlyFormatted)
             {
-                throw new NotSupportedException($"Property FormatString cannot be used with Type " +
-                    $"set to '{ Type }'. In this case browsers localize '{ Type }' themselves.");
+                throw new NotSupportedException($"Property FormatString cannot be used with Type set to '{ Type }'." +
+                    $" In this case browsers localize '{ Type }' themselves.");
             }
 
             if (!isTypeImplicitlyFormatted || implicitFormatString != null)
