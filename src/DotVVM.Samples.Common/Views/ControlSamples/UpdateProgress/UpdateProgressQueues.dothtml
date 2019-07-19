@@ -1,4 +1,4 @@
-﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.UpdateProgress.UpdateProgress_QueuesViewModel, DotVVM.Samples.Common
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.UpdateProgress.UpdateProgressQueuesViewModel, DotVVM.Samples.Common
 
 <!DOCTYPE html>
 

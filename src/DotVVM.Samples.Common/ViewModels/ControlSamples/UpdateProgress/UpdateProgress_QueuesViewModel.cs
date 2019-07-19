@@ -7,7 +7,7 @@ using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Samples.Common.ViewModels.ControlSamples.UpdateProgress
 {
-    public class UpdateProgress_QueuesViewModel : DotvvmViewModelBase
+    public class UpdateProgressQueuesViewModel : DotvvmViewModelBase
     {
 
         public int Counter { get; set; }

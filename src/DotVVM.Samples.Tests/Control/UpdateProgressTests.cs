@@ -124,10 +124,10 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [Fact]
-        public void Control_UpdateProgress_UpdateProgress_Queues()
+        public void Control_UpdateProgress_UpdateProgressQueues()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_UpdateProgress_UpdateProgress_Queues);
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_UpdateProgress_UpdateProgressQueues);
                 browser.Wait();
 
                 var button1 = browser.ElementAt("input[type=button]", 0);
