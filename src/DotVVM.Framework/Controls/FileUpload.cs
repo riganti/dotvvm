@@ -210,7 +210,7 @@ namespace DotVVM.Framework.Controls
             writer.AddAttribute("class", "dotvvm-upload-button");
             writer.AddKnockoutDataBind("visible", "!IsBusy()");
             writer.RenderBeginTag("span");
-            writer.AddAttribute("href", "#");
+            writer.AddAttribute("href", "c");
             writer.AddAttribute("onclick", "dotvvm.fileUpload.showUploadDialog(this); return false;");
             writer.RenderBeginTag("a");
             writer.WriteText(UploadButtonText);
