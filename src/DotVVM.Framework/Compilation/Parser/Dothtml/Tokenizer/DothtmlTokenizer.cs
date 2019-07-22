@@ -19,8 +19,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
 
         public bool TokenizeBinding(string sourceText, bool usesDoubleBraces = false)
         {
-            return TokenizeInternal(sourceText, () => 
-            {
+            return TokenizeInternal(sourceText, () => {
                 ReadBinding(usesDoubleBraces);
                 //Finished?
                 Assert(Peek() == NullChar);
@@ -147,9 +146,14 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
             }
         }
 
+        private static readonly HashSet<char> EnabledIdentifierFirstChars = new HashSet<char>()
+        {
+            '_', '[', '('
+        };
+
         private static readonly HashSet<char> EnabledIdentifierChars = new HashSet<char>()
         {
-            ':', '_', '-', '.'
+            ':', '_', '-', '.', '[', ']', '(', ')'
         };
 
         /// <summary>
@@ -158,7 +162,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
         private bool ReadIdentifier(DothtmlTokenType tokenType, params char[] stopChars)
         {
             // read first character
-            if ((!char.IsLetter(Peek()) && Peek() != '_') || stopChars.Contains(Peek()))
+            if ((!char.IsLetter(Peek()) && !EnabledIdentifierFirstChars.Contains(Peek())) || stopChars.Contains(Peek()))
                 return false;
 
             // read identifier
