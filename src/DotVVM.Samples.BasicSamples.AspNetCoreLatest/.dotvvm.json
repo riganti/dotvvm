@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "projectName": "DotVVM.Samples.BasicSamples.AspNetCore",
+  "rootNamespace": "DotVVM.Samples.BasicSamples.AspNetCore",
+  "uiTestProjectPath": null,
+  "uiTestProjectRootNamespace": null,
+  "apiClients": [
+
+  ]
+}
