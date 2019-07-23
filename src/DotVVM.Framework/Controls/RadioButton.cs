@@ -28,8 +28,7 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<bool, RadioButton>(t => t.Checked, false);
 
         /// <summary>
-        /// Gets or sets the <see cref="CheckableControlBase.CheckedValue"/> of the first
-        /// <see cref="RadioButton" /> that is checked and bound to this collection.
+        /// Gets or sets the <see cref="CheckableControlBase.CheckedValue"/> of the first <see cref="RadioButton" /> that is checked and bound to this collection.
         /// </summary>
         [MarkupOptions(AllowHardCodedValue = false)]
         public object CheckedItem
@@ -37,7 +36,6 @@ namespace DotVVM.Framework.Controls
             get { return GetValue(CheckedItemProperty); }
             set { SetValue(CheckedItemProperty, value); }
         }
-
         public static readonly DotvvmProperty CheckedItemProperty =
             DotvvmProperty.Register<object, RadioButton>(t => t.CheckedItem, null);
 
@@ -50,7 +48,6 @@ namespace DotVVM.Framework.Controls
             get { return (string)GetValue(GroupNameProperty); }
             set { SetValue(GroupNameProperty, value); }
         }
-
         public static readonly DotvvmProperty GroupNameProperty =
             DotvvmProperty.Register<string, RadioButton>(t => t.GroupName, "");
 
@@ -67,8 +64,7 @@ namespace DotVVM.Framework.Controls
         protected virtual void RenderGroupNameAttribute(IHtmlWriter writer)
         {
             var group = new KnockoutBindingGroup();
-            group.Add("name", this, GroupNameProperty, () =>
-            {
+            group.Add("name", this, GroupNameProperty, () => {
                 writer.AddAttribute("name", GroupName);
             });
             writer.AddKnockoutDataBind("attr", group);
@@ -82,8 +78,7 @@ namespace DotVVM.Framework.Controls
 
         protected virtual void RenderCheckedValueAttribute(IHtmlWriter writer)
         {
-            writer.AddKnockoutDataBind("checkedValue", this, CheckedValueProperty, () =>
-            {
+            writer.AddKnockoutDataBind("checkedValue", this, CheckedValueProperty, () => {
                 var checkedValue = (CheckedValue ?? string.Empty).ToString();
                 if (!string.IsNullOrEmpty(checkedValue))
                 {
@@ -100,9 +95,7 @@ namespace DotVVM.Framework.Controls
                 writer.AddKnockoutDataBind("checked", this, CheckedProperty, () => { });
                 if (!IsPropertySet(CheckedValueProperty))
                 {
-                    throw new DotvvmControlException(this, "The 'CheckedValue' of the RadioButton " +
-                        "control must be set. Remember that all RadioButtons with the same " +
-                        "GroupName have to be bound to the same property in the viewmodel.");
+                    throw new DotvvmControlException(this, "The 'CheckedValue' of the RadioButton control must be set. Remember that all RadioButtons with the same GroupName have to be bound to the same property in the viewmodel.");
                 }
             }
             else
@@ -116,17 +109,15 @@ namespace DotVVM.Framework.Controls
         public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
         {
             var itemType = control.GetValue(CheckedItemProperty)?.GetResultType();
-            var nonNullItemType = itemType;
-            if (itemType.IsNullable())
-            {
-                nonNullItemType = itemType.GetGenericArguments()[0];
-            }
+            var nonNullItemType = itemType.IsNullable()
+                ? itemType.GetGenericArguments()[0]
+                : itemType;
             var valueType = control.GetValue(CheckedValueProperty)?.GetResultType();
             if (nonNullItemType != null && valueType != null && nonNullItemType != valueType)
             {
                 yield return new ControlUsageError(
-                    $"CheckedItem type \'{itemType}\' must be the same as or a nullable variant of " +
-                    $"the CheckedValue type \'{valueType}\'.",
+                    $"CheckedItem type \'{itemType}\' must be the same as or a nullable " +
+                    $"variant of the CheckedValue type \'{valueType}\'.",
                     control.GetValue(CheckedItemProperty).DothtmlNode,
                     control.GetValue(CheckedValueProperty).DothtmlNode
                 );
