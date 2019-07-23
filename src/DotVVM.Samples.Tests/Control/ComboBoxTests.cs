@@ -142,13 +142,33 @@ namespace DotVVM.Samples.Tests.Control
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_Nullable);
                 browser.WaitUntilDotvvmInited();
 
-                var span = browser.Single("selected-value", SelectByDataUi);
                 // null value
+                var span = browser.Single("selected-value", SelectByDataUi);
                 AssertUI.InnerTextEquals(span, "");
 
                 // check combobox works
-                browser.Single("combobox", SelectByDataUi).Select(0);
+                var combobox = browser.Single("combobox", SelectByDataUi);
+                combobox.Select(0);
                 browser.WaitFor(() => AssertUI.InnerTextEquals(span, "First"), 1000);
+
+                // test buttons
+                browser.ElementAt("input[type=button]", 0).Click();
+                AssertUI.InnerTextEquals(span, "First");
+                AssertUI.IsSelected(combobox.FindElements("option")[0]);
+
+                browser.ElementAt("input[type=button]", 1).Click();
+                AssertUI.InnerTextEquals(span, "");
+                AssertUI.IsNotSelected(combobox.FindElements("option")[0]);
+                AssertUI.IsNotSelected(combobox.FindElements("option")[1]);
+                AssertUI.IsNotSelected(combobox.FindElements("option")[2]);
+                
+                browser.ElementAt("input[type=button]", 2).Click();
+                AssertUI.InnerTextEquals(span, "First");
+                AssertUI.IsSelected(combobox.FindElements("option")[0]);
+
+                browser.ElementAt("input[type=button]", 3).Click();
+                AssertUI.InnerTextEquals(span, "Second");
+                AssertUI.IsSelected(combobox.FindElements("option")[1]);
             });
         }
     }

@@ -16,5 +16,9 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.RadioButton
         }
 
         public SampleEnum? SampleItem { get; set; }
+
+        public void SetNull() => SampleItem = null;
+        public void SetFirst() => SampleItem = SampleEnum.First;
+        public void SetSecond() => SampleItem = SampleEnum.Second;
     }
 }

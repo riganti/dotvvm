@@ -21,6 +21,9 @@
     </div>
     <div>
         <dot:Button Click="{command:  0}" Text="Empty Postback" />
+        <dot:Button Click="{command: SetNull()}" Text="Set null" />
+        <dot:Button Click="{command: SetFirst()}" Text="Set first" />
+        <dot:Button Click="{command: SetSecond()}" Text="Set second" />
     </div>
 </body>
 </html>

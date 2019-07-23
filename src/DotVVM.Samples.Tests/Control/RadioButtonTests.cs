@@ -44,15 +44,35 @@ namespace DotVVM.Samples.Tests.Control
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_RadioButton_Nullable);
                 browser.WaitUntilDotvvmInited();
 
-                var span = browser.Single("sample-item", SelectByDataUi);
+                var radio1 = browser.Single("radiobutton-first", SelectByDataUi).Single("input");
+                var radio2 = browser.Single("radiobutton-second", SelectByDataUi).Single("input");
+
                 // null value
+                var span = browser.Single("sample-item", SelectByDataUi);
                 AssertUI.InnerTextEquals(span, "");
 
-                browser.Single("radiobutton-first", SelectByDataUi).Click();
+                radio1.Click();
                 browser.WaitFor(() => AssertUI.InnerTextEquals(span, "First"), 1000);
 
-                browser.Single("radiobutton-second", SelectByDataUi).Click();
+                radio2.Click();
                 browser.WaitFor(() => AssertUI.InnerTextEquals(span, "Second"), 1000);
+
+                browser.ElementAt("input[type=button]", 0).Click();
+                AssertUI.InnerTextEquals(span, "Second");
+                AssertUI.IsChecked(radio2);
+
+                browser.ElementAt("input[type=button]", 1).Click();
+                AssertUI.InnerTextEquals(span, "");
+                AssertUI.IsNotChecked(radio1);
+                AssertUI.IsNotChecked(radio2);
+
+                browser.ElementAt("input[type=button]", 2).Click();
+                AssertUI.InnerTextEquals(span, "First");
+                AssertUI.IsChecked(radio1);
+
+                browser.ElementAt("input[type=button]", 3).Click();
+                AssertUI.InnerTextEquals(span, "Second");
+                AssertUI.IsChecked(radio2);
             });
         }
 
