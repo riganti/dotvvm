@@ -109,7 +109,7 @@ namespace DotVVM.Framework.Controls
         public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
         {
             var itemType = control.GetValue(CheckedItemProperty)?.GetResultType();
-            var nonNullItemType = itemType.IsNullable()
+            var nonNullItemType = itemType?.IsNullable() == true
                 ? itemType.GetGenericArguments()[0]
                 : itemType;
             var valueType = control.GetValue(CheckedValueProperty)?.GetResultType();
