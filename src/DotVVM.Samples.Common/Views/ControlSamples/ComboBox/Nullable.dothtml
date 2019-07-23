@@ -10,10 +10,11 @@
         <dot:ComboBox DataSource="{value: Items}"
                       ItemTextBinding="{value: Text}"
                       ItemValueBinding="{value: Value}"
-                      SelectedValue="{value: SelectedValue}"/>
+                      SelectedValue="{value: SelectedValue}"
+                      data-ui="combobox"/>
     </div>
     <div>
-        <p>SelectedValue: {{value: SelectedValue}}</p>
+        <p>SelectedValue: <span data-ui="selected-value">{{value: SelectedValue}}</span></p>
     </div>
     <div>
         <dot:Button Click="{command: 0}"

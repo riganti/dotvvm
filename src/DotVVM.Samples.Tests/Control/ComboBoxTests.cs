@@ -1,6 +1,7 @@
 ﻿using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
+using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -131,6 +132,23 @@ namespace DotVVM.Samples.Tests.Control
 
                 AssertUI.Attribute(browser.ElementAt("select option", 0), "title", "Nice title");
                 AssertUI.Attribute(browser.ElementAt("select option", 1), "title", "Even nicer title");
+            });
+        }
+
+        [Fact]
+        public void Control_ComboBox_Nullable()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_Nullable);
+                browser.WaitUntilDotvvmInited();
+
+                var span = browser.Single("selected-value", SelectByDataUi);
+                // null value
+                AssertUI.InnerTextEquals(span, "");
+
+                // check combobox works
+                browser.Single("combobox", SelectByDataUi).Select(0);
+                browser.WaitFor(() => AssertUI.InnerTextEquals(span, "First"), 1000);
             });
         }
     }

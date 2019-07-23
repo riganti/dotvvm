@@ -9,6 +9,7 @@ using DotVVM.Testing.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Xunit;
 using Xunit.Abstractions;
+using Riganti.Selenium.DotVVM;
 
 namespace DotVVM.Samples.Tests.Control
 {
@@ -33,6 +34,25 @@ namespace DotVVM.Samples.Tests.Control
                 browser.Wait();
 
                 AssertUI.InnerTextEquals(browser.Last("span"), "2");
+            });
+        }
+
+        [Fact]
+        public void Control_RadioButton_Nullable()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_RadioButton_Nullable);
+                browser.WaitUntilDotvvmInited();
+
+                var span = browser.Single("sample-item", SelectByDataUi);
+                // null value
+                AssertUI.InnerTextEquals(span, "");
+
+                browser.Single("radiobutton-first", SelectByDataUi).Click();
+                browser.WaitFor(() => AssertUI.InnerTextEquals(span, "First"), 1000);
+
+                browser.Single("radiobutton-second", SelectByDataUi).Click();
+                browser.WaitFor(() => AssertUI.InnerTextEquals(span, "Second"), 1000);
             });
         }
 
