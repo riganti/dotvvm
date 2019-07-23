@@ -49,6 +49,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_ComboBox_ComboBoxDelaySync2 = "ControlSamples/ComboBox/ComboBoxDelaySync2";
         public const string ControlSamples_ComboBox_ComboBoxDelaySync3 = "ControlSamples/ComboBox/ComboBoxDelaySync3";
         public const string ControlSamples_ComboBox_ComboBoxTitle = "ControlSamples/ComboBox/ComboBoxTitle";
+        public const string ControlSamples_ComboBox_Nullable = "ControlSamples/ComboBox/Nullable";
         public const string ControlSamples_ContentPlaceHolder_ContentPlaceHolderPage = "ControlSamples/ContentPlaceHolder/ContentPlaceHolderPage";
         public const string ControlSamples_ContentPlaceHolder_ContentPlaceHolderPage_ContentTest = "ControlSamples/ContentPlaceHolder/ContentPlaceHolderPage_ContentTest";
         public const string ControlSamples_ContentPlaceHolder_DoubleContentPlaceHolderPage_ContentTest = "ControlSamples/ContentPlaceHolder/DoubleContentPlaceHolderPage_ContentTest";
@@ -81,6 +82,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_Literal_Literal_NumberBinding = "ControlSamples/Literal/Literal_NumberBinding";
         public const string ControlSamples_MultiSelect_binded = "ControlSamples/MultiSelect/binded";
         public const string ControlSamples_MultiSelect_hardcoded = "ControlSamples/MultiSelect/hardcoded";
+        public const string ControlSamples_RadioButton_Nullable = "ControlSamples/RadioButton/Nullable";
         public const string ControlSamples_RadioButton_RadioButton = "ControlSamples/RadioButton/RadioButton";
         public const string ControlSamples_Repeater_CollectionIndex = "ControlSamples/Repeater/CollectionIndex";
         public const string ControlSamples_Repeater_DataSourceNull = "ControlSamples/Repeater/DataSourceNull";
