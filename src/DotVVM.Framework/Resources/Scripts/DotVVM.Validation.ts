@@ -273,30 +273,30 @@ class DotvvmValidation {
 
         // add knockout binding handler
         ko.bindingHandlers["dotvvmValidation"] = {
-            update: (element: HTMLElement, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor) => {
-                const observableProperty = valueAccessor();
-                if (ko.isObservable(observableProperty)) {
-                    // try to get the options
-                    const options = allBindingsAccessor.get("dotvvmValidationOptions");
-
-                    if (!(ErrorsPropertyName in observableProperty)) {
+            init: function (element: HTMLElement, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor) {
+                dotvvm.validation.events.validationErrorsChanged.subscribe(e => {
+                    const observableProperty = valueAccessor();
+                    if (!ko.isObservable(observableProperty)
+                        || !(ErrorsPropertyName in observableProperty)) {
                         return;
                     }
 
+                    const options = allBindingsAccessor.get("dotvvmValidationOptions");
+                    // try to get the options
                     const validationErrors = <ValidationError[]>observableProperty[ErrorsPropertyName];
                     for (const option in options) {
                         if (options.hasOwnProperty(option)) {
-                            this.elementUpdateFunctions[option](element, validationErrors.map(v => v.errorMessage), options[option]);
+                            dotvvm.validation.elementUpdateFunctions[option](element, validationErrors.map(v => v.errorMessage), options[option]);
                         }
                     }
-                }
+                })
             }
         };
 
         ko.bindingHandlers["dotvvm-validationSummary"] = {
             init: function (element: HTMLElement, valueAccessor: () => ValidationSummaryBinding) {
                 let binding = valueAccessor();
-                dotvvm.validation.events.validationErrorsChanged.subscribe((e) => {
+                dotvvm.validation.events.validationErrorsChanged.subscribe(e => {
                     element.innerHTML = "";
                     let errors = dotvvm.validation.getValidationErrors(
                         binding.target,

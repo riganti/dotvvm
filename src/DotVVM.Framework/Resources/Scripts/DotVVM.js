@@ -2428,21 +2428,22 @@ var DotvvmValidation = /** @class */ (function () {
         });
         // add knockout binding handler
         ko.bindingHandlers["dotvvmValidation"] = {
-            update: function (element, valueAccessor, allBindingsAccessor) {
-                var observableProperty = valueAccessor();
-                if (ko.isObservable(observableProperty)) {
-                    // try to get the options
-                    var options = allBindingsAccessor.get("dotvvmValidationOptions");
-                    if (!(ErrorsPropertyName in observableProperty)) {
+            init: function (element, valueAccessor, allBindingsAccessor) {
+                dotvvm.validation.events.validationErrorsChanged.subscribe(function (e) {
+                    var observableProperty = valueAccessor();
+                    if (!ko.isObservable(observableProperty)
+                        || !(ErrorsPropertyName in observableProperty)) {
                         return;
                     }
+                    var options = allBindingsAccessor.get("dotvvmValidationOptions");
+                    // try to get the options
                     var validationErrors = observableProperty[ErrorsPropertyName];
                     for (var option in options) {
                         if (options.hasOwnProperty(option)) {
-                            _this.elementUpdateFunctions[option](element, validationErrors.map(function (v) { return v.errorMessage; }), options[option]);
+                            dotvvm.validation.elementUpdateFunctions[option](element, validationErrors.map(function (v) { return v.errorMessage; }), options[option]);
                         }
                     }
-                }
+                });
             }
         };
         ko.bindingHandlers["dotvvm-validationSummary"] = {
