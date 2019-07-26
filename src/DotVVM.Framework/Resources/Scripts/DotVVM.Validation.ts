@@ -117,10 +117,11 @@ class DotvvmEmailAddressValidator extends DotvvmValidatorBase {
     }
 }
 
-type KnockoutValidatedObservable<T> = KnockoutObservable<T> & { validationErrors: ValidationError[] }
+const ErrorsPropertyName = "validationErrors";
 
 class ValidationError {
-    private constructor(public errorMessage: string, public validatedObservable: KnockoutValidatedObservable<any>) {
+
+    private constructor(public errorMessage: string, public validatedObservable: KnockoutObservable<any>) {
     }
 
     static attach(errorMessage: string, observable: KnockoutObservable<any>): ValidationError {
@@ -131,12 +132,11 @@ class ValidationError {
             throw new Error(`ValidationError cannot be attached to "${observable}".`);
         }
 
-        if (!("validationErrors" in observable)) {
-            observable["validationErrors"] = [];
+        if (!(ErrorsPropertyName in observable)) {
+            observable[ErrorsPropertyName] = [];
         }
-        let validatedObservable = <KnockoutValidatedObservable<any>>observable;
-        let error = new ValidationError(errorMessage, validatedObservable);
-        validatedObservable.validationErrors.push(error);
+        let error = new ValidationError(errorMessage, observable);
+        observable[ErrorsPropertyName].push(error);
         dotvvm.validation.errors.push(error);
         return error;
     }
@@ -279,11 +279,11 @@ class DotvvmValidation {
                     // try to get the options
                     const options = allBindingsAccessor.get("dotvvmValidationOptions");
 
-                    if (!("validationErrors" in observableProperty)) {
+                    if (!(ErrorsPropertyName in observableProperty)) {
                         return;
                     }
 
-                    const validationErrors = <ValidationError[]>observableProperty["validationErrors"];
+                    const validationErrors = <ValidationError[]>observableProperty[ErrorsPropertyName];
                     for (const option in options) {
                         if (options.hasOwnProperty(option)) {
                             this.elementUpdateFunctions[option](element, validationErrors.map(v => v.errorMessage), options[option]);
@@ -404,9 +404,9 @@ class DotvvmValidation {
         if (!observable || !ko.isObservable(observable)) {
             return;
         }
-        if (observable["validationErrors"]) {
+        if (observable[ErrorsPropertyName]) {
             // clone the array as `detach` mutates it
-            const errors = (<KnockoutValidatedObservable<any>>observable).validationErrors.concat([]);
+            const errors = observable[ErrorsPropertyName].concat([]);
             for (var error of errors) {
                 error.detach();
             }
@@ -451,7 +451,7 @@ class DotvvmValidation {
 
         var errors: ValidationError[] = [];
 
-        if (includeErrorsFromTarget && "validationErrors" in validationTargetObservable) {
+        if (includeErrorsFromTarget && ErrorsPropertyName in validationTargetObservable) {
             errors = errors.concat(validationTargetObservable["validationTarget"]);
         }
 
@@ -497,8 +497,9 @@ class DotvvmValidation {
     public showValidationErrorsFromServer(args: DotvvmAfterPostBackEventArgs) {
         // resolve validation target
         var context = ko.contextFor(args.sender);
-        var validationTarget: KnockoutValidatedObservable<any>
-            = dotvvm.evaluator.evaluateOnViewModel(context, args.postbackOptions.additionalPostbackData.validationTargetPath);
+        var validationTarget = <KnockoutObservable<any>>dotvvm.evaluator.evaluateOnViewModel(
+            context,
+            args.postbackOptions.additionalPostbackData.validationTargetPath);
         if (!validationTarget) return;
 
         // add validation errors
@@ -523,7 +524,7 @@ class DotvvmValidation {
     }
 
     private static hasErrors(observable: KnockoutObservable<any>): boolean {
-        return "validationErrors" in observable && observable["validationErrors"].length > 0;
+        return ErrorsPropertyName in observable && observable[ErrorsPropertyName].length > 0;
     }
 };
 

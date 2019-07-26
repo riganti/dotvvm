@@ -2305,6 +2305,7 @@ var DotvvmEmailAddressValidator = /** @class */ (function (_super) {
     };
     return DotvvmEmailAddressValidator;
 }(DotvvmValidatorBase));
+var ErrorsPropertyName = "validationErrors";
 var ValidationError = /** @class */ (function () {
     function ValidationError(errorMessage, validatedObservable) {
         this.errorMessage = errorMessage;
@@ -2317,12 +2318,11 @@ var ValidationError = /** @class */ (function () {
         if (!observable) {
             throw new Error("ValidationError cannot be attached to \"" + observable + "\".");
         }
-        if (!("validationErrors" in observable)) {
-            observable["validationErrors"] = [];
+        if (!(ErrorsPropertyName in observable)) {
+            observable[ErrorsPropertyName] = [];
         }
-        var validatedObservable = observable;
-        var error = new ValidationError(errorMessage, validatedObservable);
-        validatedObservable.validationErrors.push(error);
+        var error = new ValidationError(errorMessage, observable);
+        observable[ErrorsPropertyName].push(error);
         dotvvm.validation.errors.push(error);
         return error;
     };
@@ -2433,10 +2433,10 @@ var DotvvmValidation = /** @class */ (function () {
                 if (ko.isObservable(observableProperty)) {
                     // try to get the options
                     var options = allBindingsAccessor.get("dotvvmValidationOptions");
-                    if (!("validationErrors" in observableProperty)) {
+                    if (!(ErrorsPropertyName in observableProperty)) {
                         return;
                     }
-                    var validationErrors = observableProperty["validationErrors"];
+                    var validationErrors = observableProperty[ErrorsPropertyName];
                     for (var option in options) {
                         if (options.hasOwnProperty(option)) {
                             _this.elementUpdateFunctions[option](element, validationErrors.map(function (v) { return v.errorMessage; }), options[option]);
@@ -2547,9 +2547,9 @@ var DotvvmValidation = /** @class */ (function () {
         if (!observable || !ko.isObservable(observable)) {
             return;
         }
-        if (observable["validationErrors"]) {
+        if (observable[ErrorsPropertyName]) {
             // clone the array as `detach` mutates it
-            var errors = observable.validationErrors.concat([]);
+            var errors = observable[ErrorsPropertyName].concat([]);
             for (var _i = 0, errors_1 = errors; _i < errors_1.length; _i++) {
                 var error = errors_1[_i];
                 error.detach();
@@ -2587,7 +2587,7 @@ var DotvvmValidation = /** @class */ (function () {
             return [];
         }
         var errors = [];
-        if (includeErrorsFromTarget && "validationErrors" in validationTargetObservable) {
+        if (includeErrorsFromTarget && ErrorsPropertyName in validationTargetObservable) {
             errors = errors.concat(validationTargetObservable["validationTarget"]);
         }
         if (!includeErrorsFromChildren) {
@@ -2644,7 +2644,7 @@ var DotvvmValidation = /** @class */ (function () {
         }
     };
     DotvvmValidation.hasErrors = function (observable) {
-        return "validationErrors" in observable && observable["validationErrors"].length > 0;
+        return ErrorsPropertyName in observable && observable[ErrorsPropertyName].length > 0;
     };
     return DotvvmValidation;
 }());

@@ -387,12 +387,10 @@ declare class DotvvmNotNullValidator extends DotvvmValidatorBase {
 declare class DotvvmEmailAddressValidator extends DotvvmValidatorBase {
     isValid(context: DotvvmValidationContext): boolean;
 }
-declare type KnockoutValidatedObservable<T> = KnockoutObservable<T> & {
-    validationErrors: ValidationError[];
-};
+declare const ErrorsPropertyName = "validationErrors";
 declare class ValidationError {
     errorMessage: string;
-    validatedObservable: KnockoutValidatedObservable<any>;
+    validatedObservable: KnockoutObservable<any>;
     private constructor();
     static attach(errorMessage: string, observable: KnockoutObservable<any>): ValidationError;
     detach(): void;
