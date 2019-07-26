@@ -437,6 +437,7 @@ declare class DotvvmValidation {
      * and from the DotvvmValidation.errors array
      */
     clearValidationErrors(observable: KnockoutObservable<any>): void;
+    detachAllErrors(): void;
     /**
      * Gets validation errors from the passed object and its children.
      * @param validationTargetObservable Object that is supposed to contain the errors or properties with the errors
@@ -449,6 +450,7 @@ declare class DotvvmValidation {
      */
     showValidationErrorsFromServer(args: DotvvmAfterPostBackEventArgs): void;
     private static hasErrors;
+    private applyValidatorOptions;
 }
 declare var dotvvm: DotVVM;
 declare class DotvvmEvaluator {

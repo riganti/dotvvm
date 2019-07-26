@@ -132,7 +132,10 @@ class ValidationError {
             throw new Error(`ValidationError cannot be attached to "${observable}".`);
         }
 
-        if (!(ErrorsPropertyName in observable)) {
+        if ("wrappedProperty" in observable) {
+            observable = observable["wrappedProperty"]();
+        }
+        if (!observable.hasOwnProperty(ErrorsPropertyName)) {
             observable[ErrorsPropertyName] = [];
         }
         let error = new ValidationError(errorMessage, observable);
@@ -236,7 +239,7 @@ class DotvvmValidation {
                     var context = ko.contextFor(options.sender);
                     var validationTarget = dotvvm.evaluator.evaluateOnViewModel(context, path);
 
-                    this.clearValidationErrors(dotvvm.viewModelObservables[options.viewModelName || 'root']);
+                    this.detachAllErrors();
                     this.validateViewModel(validationTarget);
                     this.events.validationErrorsChanged.trigger({ viewModel: options.viewModel });
                     if (this.errors.length > 0) {
@@ -259,6 +262,7 @@ class DotvvmValidation {
                     args.isHandled = true;
                 } else if (args.serverResponseObject.action === "validationErrors") {
                     // apply validation errors from server
+                    this.detachAllErrors();
                     this.showValidationErrorsFromServer(args);
                     this.events.validationErrorsChanged.trigger(args);
                     args.isHandled = true;
@@ -268,31 +272,23 @@ class DotvvmValidation {
         });
 
         dotvvm.events.spaNavigating.subscribe(args => {
-            this.clearValidationErrors(dotvvm.viewModelObservables[args.viewModelName]);
+            this.detachAllErrors();
+            this.events.validationErrorsChanged.trigger({ viewModel: args.viewModel });
         });
 
-        // add knockout binding handler
+        // Validator
         ko.bindingHandlers["dotvvmValidation"] = {
-            init: function (element: HTMLElement, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor) {
+            init: (element: HTMLElement, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor) => {
                 dotvvm.validation.events.validationErrorsChanged.subscribe(e => {
-                    const observableProperty = valueAccessor();
-                    if (!ko.isObservable(observableProperty)
-                        || !(ErrorsPropertyName in observableProperty)) {
-                        return;
-                    }
-
-                    const options = allBindingsAccessor.get("dotvvmValidationOptions");
-                    // try to get the options
-                    const validationErrors = <ValidationError[]>observableProperty[ErrorsPropertyName];
-                    for (const option in options) {
-                        if (options.hasOwnProperty(option)) {
-                            dotvvm.validation.elementUpdateFunctions[option](element, validationErrors.map(v => v.errorMessage), options[option]);
-                        }
-                    }
-                })
+                    this.applyValidatorOptions(element, valueAccessor(), allBindingsAccessor.get("dotvvmValidationOptions"));
+                });
+            },
+            update: (element: HTMLElement, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor) => {
+                this.applyValidatorOptions(element, valueAccessor(), allBindingsAccessor.get("dotvvmValidationOptions"));
             }
         };
 
+        // ValidationSummary
         ko.bindingHandlers["dotvvm-validationSummary"] = {
             init: function (element: HTMLElement, valueAccessor: () => ValidationSummaryBinding) {
                 let binding = valueAccessor();
@@ -440,6 +436,12 @@ class DotvvmValidation {
         }
     }
 
+    public detachAllErrors(): void {
+        while (this.errors.length > 0) {
+            this.errors[0].detach();
+        }
+    }
+
     /**
      * Gets validation errors from the passed object and its children.
      * @param validationTargetObservable Object that is supposed to contain the errors or properties with the errors
@@ -457,7 +459,7 @@ class DotvvmValidation {
 
         var errors: ValidationError[] = [];
 
-        if (includeErrorsFromTarget && ErrorsPropertyName in validationTargetObservable) {
+        if (includeErrorsFromTarget && validationTargetObservable.hasOwnProperty(ErrorsPropertyName)) {
             errors = errors.concat(validationTargetObservable[ErrorsPropertyName]);
         }
 
@@ -506,10 +508,11 @@ class DotvvmValidation {
         var validationTarget = <KnockoutObservable<any>>dotvvm.evaluator.evaluateOnViewModel(
             context,
             args.postbackOptions.additionalPostbackData.validationTargetPath);
-        if (!validationTarget) return;
+        if (!validationTarget) {
+            return;
+        }
 
         // add validation errors
-        this.clearValidationErrors(dotvvm.viewModelObservables[args.viewModelName]);
         var modelState = args.serverResponseObject.modelState;
         for (var i = 0; i < modelState.length; i++) {
             // find the property
@@ -525,12 +528,39 @@ class DotvvmValidation {
                 property = validationTarget
             }
 
-            ValidationError.attach(modelState[i], property);
+            ValidationError.attach(modelState[i].errorMessage, property);
         }
     }
 
     private static hasErrors(observable: KnockoutObservable<any>): boolean {
-        return ErrorsPropertyName in observable && observable[ErrorsPropertyName].length > 0;
+        if ("wrappedProperty" in observable) {
+            observable = observable["wrappedProperty"]();
+        }
+        return observable.hasOwnProperty(ErrorsPropertyName)
+            && observable[ErrorsPropertyName].length > 0;
+    }
+
+    private applyValidatorOptions(validator: HTMLElement,
+        observable: any,
+        validatorOptions: any): void {
+
+        if (!ko.isObservable(observable)) {
+            return;
+        }
+        if ("wrappedProperty" in observable) {
+            observable = observable["wrappedProperty"]();
+        }
+
+        let errors = <ValidationError[]>observable[ErrorsPropertyName] || [];
+        let errorMessages = errors.map(v => v.errorMessage);
+        for (const option in validatorOptions) {
+            if (validatorOptions.hasOwnProperty(option)) {
+                dotvvm.validation.elementUpdateFunctions[option](
+                    validator,
+                    errorMessages,
+                    validatorOptions[option]);
+            }
+        }
     }
 };
 
