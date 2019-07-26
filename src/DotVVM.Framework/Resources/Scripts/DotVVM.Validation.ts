@@ -238,11 +238,11 @@ class DotvvmValidation {
 
                     this.clearValidationErrors(dotvvm.viewModelObservables[options.viewModelName || 'root']);
                     this.validateViewModel(validationTarget);
+                    this.events.validationErrorsChanged.trigger({ viewModel: options.viewModel });
                     if (this.errors.length > 0) {
                         console.log("Validation failed: postback aborted; errors: ", this.errors);
                         return Promise.reject({ type: "handler", handler: this, message: "Validation failed" })
                     }
-                    this.events.validationErrorsChanged.trigger({ viewModel: options.viewModel });
                 }
                 return callback()
             }
@@ -260,11 +260,11 @@ class DotvvmValidation {
                 } else if (args.serverResponseObject.action === "validationErrors") {
                     // apply validation errors from server
                     this.showValidationErrorsFromServer(args);
+                    this.events.validationErrorsChanged.trigger(args);
                     args.isHandled = true;
                 }
             }
 
-            this.events.validationErrorsChanged.trigger(args);
         });
 
         dotvvm.events.spaNavigating.subscribe(args => {

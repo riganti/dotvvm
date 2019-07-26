@@ -2396,11 +2396,11 @@ var DotvvmValidation = /** @class */ (function () {
                     var validationTarget = dotvvm.evaluator.evaluateOnViewModel(context, path);
                     _this.clearValidationErrors(dotvvm.viewModelObservables[options.viewModelName || 'root']);
                     _this.validateViewModel(validationTarget);
+                    _this.events.validationErrorsChanged.trigger({ viewModel: options.viewModel });
                     if (_this.errors.length > 0) {
                         console.log("Validation failed: postback aborted; errors: ", _this.errors);
                         return Promise.reject({ type: "handler", handler: _this, message: "Validation failed" });
                     }
-                    _this.events.validationErrorsChanged.trigger({ viewModel: options.viewModel });
                 }
                 return callback();
             }
@@ -2418,10 +2418,10 @@ var DotvvmValidation = /** @class */ (function () {
                 else if (args.serverResponseObject.action === "validationErrors") {
                     // apply validation errors from server
                     _this.showValidationErrorsFromServer(args);
+                    _this.events.validationErrorsChanged.trigger(args);
                     args.isHandled = true;
                 }
             }
-            _this.events.validationErrorsChanged.trigger(args);
         });
         dotvvm.events.spaNavigating.subscribe(function (args) {
             _this.clearValidationErrors(dotvvm.viewModelObservables[args.viewModelName]);
