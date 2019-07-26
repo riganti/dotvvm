@@ -53,29 +53,21 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            var expression = KnockoutHelper.GetValidationTargetExpression(this);
-            if (expression != null)
-            {
-                writer.AddKnockoutDataBind("foreach", $"dotvvm.validation.getValidationErrors({expression}, " +
-                    $"{IncludeErrorsFromChildren.ToString().ToLower()}, {IncludeErrorsFromTarget.ToString().ToLower()})");
-            }
-            else
-            {
-                writer.AddKnockoutDataBind("foreach", $"[]");
-            }
-
             base.AddAttributesToRender(writer, context);
-        }
 
-        /// <summary>
-        /// Renders the contents inside the control begin and end tags.
-        /// </summary>
-        protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
-        {
-            // render template
-            writer.AddKnockoutDataBind("text", "errorMessage");
-            writer.RenderBeginTag("li");
-            writer.RenderEndTag();
+            var expression = KnockoutHelper.GetValidationTargetExpression(this);
+            if(expression == null)
+            {
+                return;
+            }
+
+            var group = new KnockoutBindingGroup();
+            {
+                group.Add("target", expression);
+                group.Add("includeErrorsFromChildren", IncludeErrorsFromChildren.ToString().ToLower());
+                group.Add("includeErrorsFromTarget", IncludeErrorsFromTarget.ToString().ToLower());
+            }
+            writer.AddKnockoutDataBind("dotvvm-validationSummary", group);
         }
     }
 }
