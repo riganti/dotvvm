@@ -7,6 +7,7 @@ using DotVVM.Framework.Security;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.AspNetCore.Builder;
+using System.Reflection;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -42,9 +43,15 @@ namespace Microsoft.Extensions.DependencyInjection
         // ReSharper disable once InconsistentNaming
         private static void AddDotVVMServices(IServiceCollection services)
         {
-            services
-                .AddAuthorization()
-                .AddDataProtection();
+            var addAuthorizationMethod =
+                Type.GetType("Microsoft.Extensions.DependencyInjection.AuthorizationServiceCollectionExtensions, Microsoft.AspNetCore.Authorization", throwOnError: false)
+                    ?.GetMethod("AddAuthorization", new[] { typeof(IServiceCollection) })
+                ?? Type.GetType("Microsoft.Extensions.DependencyInjection.PolicyServiceCollectionExtensions, Microsoft.AspNetCore.Authorization.Policy", throwOnError: false)
+                    ?.GetMethod("AddAuthorization", new[] { typeof(IServiceCollection) })
+                ?? throw new InvalidOperationException("Unable to find ASP.NET Core AddAuthorization method. You are probably using an incompatible version of ASP.NET Core.");
+            addAuthorizationMethod.Invoke(null, new object[] { services });
+
+            services.AddDataProtection();
             services.AddMemoryCache();
             DotvvmServiceCollectionExtensions.RegisterDotVVMServices(services);
 

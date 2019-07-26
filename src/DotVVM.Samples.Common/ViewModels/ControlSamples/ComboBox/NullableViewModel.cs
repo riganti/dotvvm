@@ -38,5 +38,10 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.ComboBox
 
             public SampleEnum Value { get; set; }
         }
+
+
+        public void SetNull() => SelectedValue = null;
+        public void SetFirst() => SelectedValue = SampleEnum.First;
+        public void SetSecond() => SelectedValue = SampleEnum.Second;
     }
 }

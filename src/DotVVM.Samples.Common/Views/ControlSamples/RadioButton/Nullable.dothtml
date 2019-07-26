@@ -7,14 +7,23 @@
 </head>
 <body>
     <div>
-        <dot:RadioButton CheckedValue="{resource: SampleEnum.First}" CheckedItem="{value: SampleItem}" Text="SampleEnum.First" />
-        <dot:RadioButton CheckedValue="{resource: SampleEnum.Second}" CheckedItem="{value: SampleItem}" Text="SampleEnum.Second" />
+        <dot:RadioButton CheckedValue="{resource: SampleEnum.First}"
+                         CheckedItem="{value: SampleItem}"
+                         Text="SampleEnum.First"
+                         data-ui="radiobutton-first"/>
+        <dot:RadioButton CheckedValue="{resource: SampleEnum.Second}"
+                         CheckedItem="{value: SampleItem}"
+                         Text="SampleEnum.Second"
+                         data-ui="radiobutton-second"/>
     </div>
     <div>
-        SampleItem: {{value: SampleItem}}
+        SampleItem: <span data-ui="sample-item">{{value: SampleItem}}</span>
     </div>
     <div>
         <dot:Button Click="{command:  0}" Text="Empty Postback" />
+        <dot:Button Click="{command: SetNull()}" Text="Set null" />
+        <dot:Button Click="{command: SetFirst()}" Text="Set first" />
+        <dot:Button Click="{command: SetSecond()}" Text="Set second" />
     </div>
 </body>
 </html>
