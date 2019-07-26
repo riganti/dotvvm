@@ -74,8 +74,7 @@ namespace DotVVM.Framework.Controls
         {
             RouteLinkHelpers.WriteRouteLinkHrefAttribute(this, writer, context);
 
-            writer.AddKnockoutDataBind("text", this, TextProperty, () =>
-            {
+            writer.AddKnockoutDataBind("text", this, TextProperty, () => {
                 shouldRenderText = true;
             });
 
@@ -83,11 +82,16 @@ namespace DotVVM.Framework.Controls
 
             if (enabledBinding is bool)
             {
-                WriteEnabledBinding(writer, (bool) enabledBinding);
+                WriteEnabledBinding(writer, (bool)enabledBinding);
             }
             else if (enabledBinding is IValueBinding)
             {
-                WriteEnabledBinding(writer, (IValueBinding) enabledBinding);
+                WriteEnabledBinding(writer, (IValueBinding)enabledBinding);
+            }
+
+            if (GetValue<bool?>(EnabledProperty) == false)
+            {
+                writer.AddAttribute("disabled", "disabled");
             }
 
             WriteOnClickAttribute(writer, context);
