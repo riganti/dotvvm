@@ -2447,10 +2447,12 @@ var DotvvmValidation = /** @class */ (function () {
         };
         ko.bindingHandlers["dotvvm-validationSummary"] = {
             init: function (element, valueAccessor) {
+                var binding = valueAccessor();
                 dotvvm.validation.events.validationErrorsChanged.subscribe(function (e) {
                     element.innerHTML = "";
-                    for (var _i = 0, _a = dotvvm.validation.errors; _i < _a.length; _i++) {
-                        var error = _a[_i];
+                    var errors = dotvvm.validation.getValidationErrors(binding.target, binding.includeErrorsFromChildren, binding.includeErrorsFromTarget);
+                    for (var _i = 0, errors_1 = errors; _i < errors_1.length; _i++) {
+                        var error = errors_1[_i];
                         var item = document.createElement("li");
                         item.innerText = error.errorMessage;
                         element.appendChild(item);
@@ -2550,8 +2552,8 @@ var DotvvmValidation = /** @class */ (function () {
         if (observable[ErrorsPropertyName]) {
             // clone the array as `detach` mutates it
             var errors = observable[ErrorsPropertyName].concat([]);
-            for (var _i = 0, errors_1 = errors; _i < errors_1.length; _i++) {
-                var error = errors_1[_i];
+            for (var _i = 0, errors_2 = errors; _i < errors_2.length; _i++) {
+                var error = errors_2[_i];
                 error.detach();
             }
         }
@@ -2588,7 +2590,7 @@ var DotvvmValidation = /** @class */ (function () {
         }
         var errors = [];
         if (includeErrorsFromTarget && ErrorsPropertyName in validationTargetObservable) {
-            errors = errors.concat(validationTargetObservable["validationTarget"]);
+            errors = errors.concat(validationTargetObservable[ErrorsPropertyName]);
         }
         if (!includeErrorsFromChildren) {
             return errors;
@@ -2603,10 +2605,10 @@ var DotvvmValidation = /** @class */ (function () {
             return errors;
         }
         for (var propertyName in validationTarget) {
-            if (!validationTargetObservable.hasOwnProperty(propertyName) || propertyName.indexOf("$") === 0) {
+            if (!validationTarget.hasOwnProperty(propertyName) || propertyName.indexOf("$") === 0) {
                 continue;
             }
-            var property = validationTargetObservable[propertyName];
+            var property = validationTarget[propertyName];
             if (!property || !ko.isObservable(property)) {
                 continue;
             }

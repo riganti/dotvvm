@@ -295,9 +295,15 @@ class DotvvmValidation {
 
         ko.bindingHandlers["dotvvm-validationSummary"] = {
             init: function (element: HTMLElement, valueAccessor: () => ValidationSummaryBinding) {
+                let binding = valueAccessor();
                 dotvvm.validation.events.validationErrorsChanged.subscribe((e) => {
                     element.innerHTML = "";
-                    for (let error of dotvvm.validation.errors) {
+                    let errors = dotvvm.validation.getValidationErrors(
+                        binding.target,
+                        binding.includeErrorsFromChildren,
+                        binding.includeErrorsFromTarget
+                    );
+                    for (let error of errors) {
                         let item = document.createElement("li");
                         item.innerText = error.errorMessage;
                         element.appendChild(item);
@@ -452,7 +458,7 @@ class DotvvmValidation {
         var errors: ValidationError[] = [];
 
         if (includeErrorsFromTarget && ErrorsPropertyName in validationTargetObservable) {
-            errors = errors.concat(validationTargetObservable["validationTarget"]);
+            errors = errors.concat(validationTargetObservable[ErrorsPropertyName]);
         }
 
         if (!includeErrorsFromChildren) {
@@ -472,11 +478,11 @@ class DotvvmValidation {
             return errors;
         }
         for (var propertyName in validationTarget) {
-            if (!validationTargetObservable.hasOwnProperty(propertyName) || propertyName.indexOf("$") === 0) {
+            if (!validationTarget.hasOwnProperty(propertyName) || propertyName.indexOf("$") === 0) {
                 continue;
             }
 
-            var property = validationTargetObservable[propertyName];
+            var property = validationTarget[propertyName];
             if (!property || !ko.isObservable(property)) {
                 continue;
             }
