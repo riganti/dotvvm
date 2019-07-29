@@ -33,17 +33,21 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Tests
 
             knownTypesOptions.Value.AddKnownType(typeof(Company<string>));
 
-            var options = new SwaggerGeneratorSettings {
+            var options = new SwaggerGeneratorOptions
+            {
                 DocInclusionPredicate = (version, api) => true,
-                OperationFilters = {
+                OperationFilters =
+                {
                     new RemoveReadOnlyFromUriParametersOperationFilter(),
                     new RemoveBindNoneFromUriParametersOperationFilter(),
                     new AddAsObjectOperationFilter(knownTypesOptions)
                 },
-                DocumentFilters = {
+                DocumentFilters =
+                {
                     new HandleKnownTypesDocumentFilter(knownTypesOptions)
                 },
-                SwaggerDocs = {
+                SwaggerDocs =
+                {
                     { "v1", new Info() { Title = "Test API", Version = "v1" }}
                 }
             };
@@ -59,8 +63,10 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Tests
             var serviceProvider = serviceCollection.BuildServiceProvider();
             var apiDescriptionGroupCollectionProvider = serviceProvider.GetRequiredService<IApiDescriptionGroupCollectionProvider>();
 
-            var schemaSettings = new SchemaRegistrySettings() {
-                SchemaFilters = {
+            var schemaSettings = new SchemaRegistryOptions()
+            {
+                SchemaFilters =
+                {
                     new AddTypeToModelSchemaFilter()
                 }
             };
