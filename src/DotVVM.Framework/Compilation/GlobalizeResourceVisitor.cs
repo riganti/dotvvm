@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Compilation
     {
         private readonly ControlResolverMetadata globalizeResourceControl;
         private bool isGlobalizeRequired = false;
-        private bool isVisiting = false;
+        private bool isResourcePlaced = false;
 
         public GlobalizeResourceVisitor(ControlResolverMetadata globalizeResourceControl)
         {
@@ -30,13 +30,12 @@ namespace DotVVM.Framework.Compilation
 
         public override void VisitControl(ResolvedControl control)
         {
-            if(control.Metadata.Type != typeof(Content))
+            if(control.Metadata.Type == typeof(Content))
             {
-                base.VisitControl(control);
+                Visit(control, control.Content, base.VisitControl);
                 return;
             }
-
-            Visit(control, control.Content, base.VisitControl);
+            base.VisitControl(control);
         }
 
         public override void VisitPropertyTemplate(ResolvedPropertyTemplate propertyTemplate)
@@ -60,23 +59,16 @@ namespace DotVVM.Framework.Compilation
             Action<TNode> visitBase)
             where TNode : ResolvedTreeNode
         {
-            if (isVisiting)
-            {
-                // visiting has already started
-                // we don't want to add duplicates
-                visitBase(node);
-            }
-
-            isVisiting = true;
             visitBase(node);
-            if (!isGlobalizeRequired)
+            if (isGlobalizeRequired && !isResourcePlaced)
             {
-                return;
+                // the just-visited subtree requires globalize
+                content.Add(new ResolvedControl(
+                    globalizeResourceControl,
+                    node.DothtmlNode,
+                    node.TreeRoot.DataContextTypeStack));
+                isResourcePlaced = true;
             }
-            content.Add(new ResolvedControl(
-                globalizeResourceControl,
-                node.DothtmlNode,
-                node.TreeRoot.DataContextTypeStack));
         }
     }
 }
