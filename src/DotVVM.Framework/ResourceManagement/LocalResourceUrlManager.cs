@@ -27,7 +27,7 @@ namespace DotVVM.Framework.ResourceManagement
         public LocalResourceUrlManager(DotvvmConfiguration configuration, IResourceHashService hasher)
         {
             this.resourceRoute = new DotvvmRoute(
-                url: $"dotvvmResource/{{{HashParameterName}}}/{{{NameParameterName}:regex(.*)}}",
+                url: $"{HostingConstants.ResourceRouteName}/{{{HashParameterName}}}/{{{NameParameterName}:regex(.*)}}",
                 virtualPath: null,
                 defaultValues: null,
                 presenterFactory: null,
