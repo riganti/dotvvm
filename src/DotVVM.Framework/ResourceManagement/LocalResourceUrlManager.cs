@@ -144,8 +144,12 @@ namespace DotVVM.Framework.ResourceManagement
                     .OfType<ILocalResourceLocation>()
                     .FirstOrDefault();
             }
-            // unless the order of locations changes, the location has to be local
-            return (ILocalResourceLocation)locations.ElementAtOrDefault(locationIndex.Value);
+
+            if (locations.ElementAtOrDefault(locationIndex.Value) is ILocalResourceLocation location)
+            {
+                return location;
+            }
+            return null;
         }
     }
 }
