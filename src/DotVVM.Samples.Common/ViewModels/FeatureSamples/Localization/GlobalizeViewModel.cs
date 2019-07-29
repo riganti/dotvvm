@@ -39,7 +39,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Localization
 
         public void SayHello()
         {
-            SayHelloText = "Hello from DotVVM";
+            SayHelloText = "Hello";
         }
 
         public void Multiply(int a, int b)
