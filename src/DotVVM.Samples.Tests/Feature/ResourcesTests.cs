@@ -1,6 +1,7 @@
 ﻿using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
+using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -47,6 +48,18 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.WaitFor(browser.HasAlert, 5000, "An alert was expected to open!");
                 AssertUI.AlertTextEquals(browser, "resource loaded");
                 browser.ConfirmAlert();
+            });
+        }
+
+        [Fact]
+        public void Feature_Resources_LocationFallback()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Resources_LocationFallback);
+                browser.WaitUntilDotvvmInited();
+
+                AssertUI.TextEquals(browser.Single("h1:nth-of-type(2)", SelectBy.CssSelector),
+                    "The \"testResource_locationFallback\" script has been loaded.");
             });
         }
 

@@ -153,6 +153,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Api_GithubRepoApi = "FeatureSamples/Api/GithubRepoApi";
         public const string FeatureSamples_Api_GridViewDataSetAspNetCore = "FeatureSamples/Api/GridViewDataSetAspNetCore";
         public const string FeatureSamples_Api_GridViewDataSetOwin = "FeatureSamples/Api/GridViewDataSetOwin";
+        public const string FeatureSamples_Attribute_SpecialCharacters = "FeatureSamples/Attribute/SpecialCharacters";
         public const string FeatureSamples_BindableCssStyles_BindableCssStyles = "FeatureSamples/BindableCssStyles/BindableCssStyles";
         public const string FeatureSamples_BindingContexts_BindingContext = "FeatureSamples/BindingContexts/BindingContext";
         public const string FeatureSamples_BindingContexts_CollectionContext = "FeatureSamples/BindingContexts/CollectionContext";
@@ -207,6 +208,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_RenderSettingsModeServer_RenderSettingModeServerProperty = "FeatureSamples/RenderSettingsModeServer/RenderSettingModeServerProperty";
         public const string FeatureSamples_Resources_CdnScriptPriority = "FeatureSamples/Resources/CdnScriptPriority";
         public const string FeatureSamples_Resources_CdnUnavailableResourceLoad = "FeatureSamples/Resources/CdnUnavailableResourceLoad";
+        public const string FeatureSamples_Resources_LocationFallback = "FeatureSamples/Resources/LocationFallback";
         public const string FeatureSamples_Resources_OnlineNonameResourceLoad = "FeatureSamples/Resources/OnlineNonameResourceLoad";
         public const string FeatureSamples_ReturnedFile_ReturnedFileSample = "FeatureSamples/ReturnedFile/ReturnedFileSample";
         public const string FeatureSamples_Serialization_EnumSerializationWithJsonConverter = "FeatureSamples/Serialization/EnumSerializationWithJsonConverter";
