@@ -1,0 +1,12 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.NestedComboBox.HeavilyNestedViewModel
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+    <sample:OuterWrapper InnerViewModel="{value: Inner}"
+                         SelectedValue="{value: SelectedValue}"/>
+</body>
+</html>
