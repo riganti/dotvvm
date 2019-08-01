@@ -22,15 +22,7 @@ namespace DotVVM.Samples.BasicSamples.Views.ComplexSamples.NestedComboBox
         {
             if (SelectedValue <= 1)
             {
-                // HACK
-                //if (Parent.Parent.Parent is OuterWrapper outer)
-                //{
-                    //outer.SelectedValue = null;
-                //}
-                //else
-                //{
-                    SelectedValue = null;
-                //}
+                SelectedValue = null;
             }
         }
     }

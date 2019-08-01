@@ -8,5 +8,8 @@
 <body>
     <sample:OuterWrapper InnerViewModel="{value: Inner}"
                          SelectedValue="{value: SelectedValue}"/>
+    <p>
+        SelectedValue: <span data-ui="selected-value">{{value: SelectedValue}}</span>
+    </p>
 </body>
 </html>

@@ -6,5 +6,6 @@
                   SelectedValue="{controlProperty: SelectedValue}"
                   ItemValueBinding="{value: Value}"
                   ItemTextBinding="{value: Label}"
-                  SelectionChanged="{controlCommand: Change()}"/>
+                  SelectionChanged="{controlCommand: Change()}"
+                  data-ui="combobox"/>
 </div>
