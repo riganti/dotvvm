@@ -34,9 +34,9 @@ namespace DotVVM.Framework.Compilation.Binding
                 GetDotvvmPropertyMember(target, name) is Expression result) return result;
 
             var members = type.GetAllMembers(BindingFlags.Public | (isStatic ? BindingFlags.Static : BindingFlags.Instance))
-                .Where(m => ((isGeneric && m is TypeInfo) ? genericName : name) == m.Name )
+                .Where(m => ((isGeneric && m is TypeInfo) ? genericName : name) == m.Name)
                 .ToArray();
-            
+
             if (members.Length == 0)
             {
                 if (throwExceptions) throw new Exception($"Could not find { (isStatic ? "static" : "instance") } member { name } on type { type.FullName }.");
@@ -44,7 +44,7 @@ namespace DotVVM.Framework.Compilation.Binding
             }
             if (members.Length == 1)
             {
-                if(!(members[0] is TypeInfo) && onlyMemberTypes) { throw new Exception("Only type names are supported."); } 
+                if (!(members[0] is TypeInfo) && onlyMemberTypes) { throw new Exception("Only type names are supported."); }
 
                 var instance = isStatic ? null : target;
                 if (members[0] is PropertyInfo)
@@ -60,7 +60,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 else if (members[0] is TypeInfo)
                 {
                     var nonGenericType = (TypeInfo)members[0];
-                    return isGeneric 
+                    return isGeneric
                         ? new StaticClassIdentifierExpression(nonGenericType.MakeGenericType(typeArguments))
                         : new StaticClassIdentifierExpression(nonGenericType.UnderlyingSystemType);
                 }
@@ -83,6 +83,42 @@ namespace DotVVM.Framework.Compilation.Binding
                 ),
                 property.PropertyType
             );
+        }
+
+        public static Expression SetMember(Expression node, Expression value)
+        {
+            if ((node.NodeType == ExpressionType.MemberAccess
+                && node is MemberExpression member
+                && member.Member is PropertyInfo property
+                && property.CanWrite)
+                || node.NodeType == ExpressionType.Parameter
+                || node.NodeType == ExpressionType.Index)
+            {
+                return Expression.Assign(node, Expression.Convert(value, node.Type));
+            }
+
+            var current = node;
+            while (current.NodeType == ExpressionType.Convert
+                && current is UnaryExpression unary)
+            {
+                current = unary.Operand;
+            }
+
+            if (current.NodeType == ExpressionType.Call
+                && current is MethodCallExpression call
+                && call.Method.DeclaringType == typeof(DotvvmBindableObject)
+                && call.Method.Name == nameof(DotvvmBindableObject.GetValue)
+                && call.Arguments.Count == 2
+                && call.Arguments[0].Type == typeof(DotvvmProperty))
+            {
+                var propertyArgument = call.Arguments[0];
+                var setValue = typeof(DotvvmBindableObject)
+                    .GetMethod(nameof(DotvvmBindableObject.SetValue),
+                        new[] { typeof(DotvvmProperty), typeof(object) });
+                return Expression.Call(call.Object, setValue, propertyArgument, value);
+            }
+
+            return null;
         }
 
         public static Expression Call(Expression target, Expression[] arguments)
@@ -197,8 +233,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
             }
 
-            return new MethodRecognitionResult
-            {
+            return new MethodRecognitionResult {
                 CastCount = castCount,
                 AutomaticTypeArgCount = automaticTypeArgs,
                 Method = method,

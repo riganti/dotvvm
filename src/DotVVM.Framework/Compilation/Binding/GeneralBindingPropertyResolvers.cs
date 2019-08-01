@@ -70,15 +70,18 @@ namespace DotVVM.Framework.Compilation.Binding
         public Expression<BindingUpdateDelegate> CompileToUpdateDelegate(ParsedExpressionBindingProperty binding, DataContextStack dataContext)
         {
             var valueParameter = Expression.Parameter(typeof(object), "value");
-            var expr = BindingCompiler.ReplaceParameters(binding.Expression, dataContext);
+            var body = BindingCompiler.ReplaceParameters(binding.Expression, dataContext);
+            body = ExpressionHelper.SetMember(body, valueParameter);
+            if (body == null)
+            {
+                return null;
+            }
 
-            // don't throw exception, it is annoying to debug.
-            if (expr.NodeType != ExpressionType.Parameter &&
-                (expr.NodeType != ExpressionType.MemberAccess || (!expr.CastTo<MemberExpression>().Member.As<PropertyInfo>()?.CanWrite ?? false)) &&
-                expr.NodeType != ExpressionType.Index) return null;
-
-            var assignment = Expression.Assign(expr, Expression.Convert(valueParameter, expr.Type));
-            return Expression.Lambda<BindingUpdateDelegate>(assignment, BindingCompiler.ViewModelsParameter, BindingCompiler.CurrentControlParameter, valueParameter);
+            return Expression.Lambda<BindingUpdateDelegate>(
+                body,
+                BindingCompiler.ViewModelsParameter,
+                BindingCompiler.CurrentControlParameter,
+                valueParameter);
         }
 
         public BindingParserOptions GetDefaultBindingParserOptions(IBinding binding)
