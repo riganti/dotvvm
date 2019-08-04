@@ -10,7 +10,7 @@
 		<h1>Event Changed</h1>
 		
 		<h3>Changed event TextBox</h3>
-		<p><dot:TextBox Text="{value: Text}" UpdateTextAfterKeydown="true" Changed="{command: OnChanged()}" /></p>
+		<p><dot:TextBox Text="{value: Text}" UpdateTextOnInput="true" Changed="{command: OnChanged()}" /></p>
 		<p data-id="first-textbox"><dot:Literal Text="{value: Text}" /></p>
 
 		<p><dot:TextBox Text="{value: Text2}" Changed="{command: OnChanged()}" /></p>
