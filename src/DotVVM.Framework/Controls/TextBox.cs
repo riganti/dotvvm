@@ -56,6 +56,19 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<Command, TextBox>(t => t.Changed, null);
 
         /// <summary>
+        /// Gets or sets the command that will be triggered when the user is typing in the field.
+        /// Be careful when using this event - triggering frequent postbacks can make bad user experience. Consider using static commands or a throttling postback handler.
+        /// </summary>
+        public Command TextInput
+        {
+            get { return (Command)GetValue(TextInputProperty); }
+            set { SetValue(TextInputProperty, value); }
+        }
+
+        public static readonly DotvvmProperty TextInputProperty =
+            DotvvmProperty.Register<Command, TextBox>(t => t.TextInput, null);
+
+        /// <summary>
         /// Gets or sets whether all text inside the TextBox becomes selected when the element gets focused.
         /// </summary>
         public bool SelectAllOnFocus
@@ -246,6 +259,7 @@ namespace DotVVM.Framework.Controls
         {
             // prepare changed event attribute
             var changedBinding = GetCommandBinding(ChangedProperty);
+            var textInputBinding = GetCommandBinding(TextInputProperty);
 
             base.AddAttributesToRender(writer, context);
 
@@ -253,6 +267,11 @@ namespace DotVVM.Framework.Controls
             {
                 writer.AddAttribute("onchange", KnockoutHelper.GenerateClientPostBackScript(nameof(Changed),
                     changedBinding, this, useWindowSetTimeout: true, isOnChange: true), true, ";");
+            }
+            if (textInputBinding != null)
+            {
+                writer.AddAttribute("oninput", KnockoutHelper.GenerateClientPostBackScript(nameof(TextInput),
+                    textInputBinding, this, useWindowSetTimeout: true, isOnChange: true), true, ";");
             }
         }
 
