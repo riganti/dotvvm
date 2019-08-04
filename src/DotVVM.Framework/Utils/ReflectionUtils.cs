@@ -226,8 +226,18 @@ namespace DotVVM.Framework.Utils
             // convert
             return Convert.ChangeType(value, type, CultureInfo.InvariantCulture);
         }
-
+        private static ConcurrentDictionary<string, Type> cache_FindTypeHash = new ConcurrentDictionary<string, Type>();
+        private static ConcurrentDictionary<string, Type> cache_FindTypeHashIgnoreCase = new ConcurrentDictionary<string, Type>();
         public static Type FindType(string name, bool ignoreCase = false)
+        {
+            if (ignoreCase)
+            {
+                return cache_FindTypeHashIgnoreCase.GetOrAdd(name, a => FindTypeCore(a, true));
+            }
+            return cache_FindTypeHash.GetOrAdd(name, a => FindTypeCore(a, false));
+        }
+
+        private static Type FindTypeCore(string name, bool ignoreCase)
         {
             var stringComparison = ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
 
@@ -238,14 +248,16 @@ namespace DotVVM.Framework.Utils
             var split = name.Split(',');
             name = split[0];
 
-            var assemblies = ReflectionUtils.GetAllAssemblies();
+            var assemblies = ReflectionUtils.GetAllAssemblies().ToList();
             if (split.Length > 1)
             {
                 var assembly = split[1];
-                return assemblies.Where(a => a.GetName().Name == assembly).Select(a => a.GetType(name)).FirstOrDefault(t => t != null);
+                return assemblies.Where(a => a.GetName().Name == assembly).Select(a => a.GetType(name))
+                    .FirstOrDefault(t => t != null);
             }
 
-            type = assemblies.Where(a => name.StartsWith(a.GetName().Name, stringComparison)).Select(a => a.GetType(name, false, ignoreCase)).FirstOrDefault(t => t != null);
+            type = assemblies.Where(a => name.StartsWith(a.GetName().Name, stringComparison))
+                .Select(a => a.GetType(name, false, ignoreCase)).FirstOrDefault(t => t != null);
             if (type != null) return type;
             return assemblies.Select(a => a.GetType(name, false, ignoreCase)).FirstOrDefault(t => t != null);
         }
