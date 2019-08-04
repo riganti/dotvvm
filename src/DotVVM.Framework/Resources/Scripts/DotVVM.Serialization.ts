@@ -13,13 +13,26 @@ class DotvvmSerialization {
     public deserialize(viewModel: any, target?: any, deserializeAll: boolean = false) {
 
         if (typeof (viewModel) == "undefined" || viewModel == null) {
+            if (ko.isObservable(target)) {
+                target(viewModel);
+                return target;
+            }
             return viewModel;
         }
         if (typeof (viewModel) == "string" || typeof (viewModel) == "number" || typeof (viewModel) == "boolean") {
+            if (ko.isObservable(target)) {
+                target(viewModel);
+                return target;
+            }
             return viewModel;
         }
         if (viewModel instanceof Date) {
-            return dotvvm.serialization.serializeDate(viewModel);
+            viewModel = dotvvm.serialization.serializeDate(viewModel);
+            if (ko.isObservable(target)) {
+                target(viewModel);
+                return target;
+            }
+            return viewModel;
         }
 
         // handle arrays
@@ -62,8 +75,14 @@ class DotvvmSerialization {
             target = {};
         }
         var result = ko.unwrap(target);
+        var updateTarget = false;
         if (result == null) {
-            target = result = {};
+            result = {};
+			if (ko.isObservable(target)) {
+			    updateTarget = true;
+			} else {
+				target = result;
+			}
         }
         for (var prop in viewModel) {
             if (viewModel.hasOwnProperty(prop) && !/\$options$/.test(prop)) {
@@ -94,7 +113,8 @@ class DotvvmSerialization {
                             result[prop](deserialized());
                         }
                     } else {
-                        result[prop] = deserialized;
+                        const unwrapped = ko.unwrap(deserialized);
+                        result[prop] = Array.isArray(unwrapped) ? ko.observableArray(unwrapped) : ko.observable(unwrapped);      // don't reuse the same observable from the source
                     }
                 } else {
                     if (ko.isObservable(result[prop])) {
@@ -134,6 +154,9 @@ class DotvvmSerialization {
             }
         }
 
+        if (updateTarget) {
+            target(result);
+        }
         return target;
     }
 
@@ -265,7 +288,7 @@ class DotvvmSerialization {
             var minValue = 0;
             var maxValue = Math.pow(2, bits) - 1;
             if (!unsigned) {
-                minValue = -((maxValue / 2) | 0);
+                minValue = -Math.floor(maxValue / 2);
                 maxValue = maxValue + minValue;
             }
             var int = parseInt(value);
@@ -316,12 +339,14 @@ class DotvvmSerialization {
         return value;
     }
 
-    public serializeDate(date: string | Date, convertToUtc: boolean = true): string {
-        if (typeof date == "string") {
+    public serializeDate(date: string | Date | null, convertToUtc: boolean = true): string | null {
+        if (date == null) {
+            return null;
+        } else if (typeof date == "string") {
             // just print in the console if it's invalid
-            if (dotvvm.globalize.parseDotvvmDate(date) != null)
-                console.error(new Error(`Date ${date} is invalid.`))
-            return date
+            if (dotvvm.globalize.parseDotvvmDate(date) == null)
+                console.error(new Error(`Date ${date} is invalid.`));
+            return date;
         }
         var date2 = new Date(date.getTime());
         if (convertToUtc) {

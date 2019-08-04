@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -48,7 +49,16 @@ namespace DotVVM.Framework.Compilation.Javascript
                 else if (propAnnotation.MemberInfo is FieldInfo)
                     throw new NotSupportedException($"Can not translate field '{propAnnotation.MemberInfo}' to Javascript");
 
-                if (containsObservables) node.AddAnnotation(ResultIsObservableAnnotation.Instance);
+                if (containsObservables)
+                {
+                    node.AddAnnotation(ResultIsObservableAnnotation.Instance);
+
+                    if (ViewModelJsonConverter.IsCollection(propertyType))
+                    {
+                        node.AddAnnotation(ResultIsObservableArrayAnnotation.Instance);
+                    }
+                }
+
                 node.AddAnnotation(new ViewModelInfoAnnotation(propertyType, containsObservables: containsObservables));
                 node.AddAnnotation(MayBeNullAnnotation.Instance);
             }
@@ -75,6 +85,11 @@ namespace DotVVM.Framework.Compilation.Javascript
         private ResultIsObservableAnnotation() { }
         public static ResultIsObservableAnnotation Instance = new ResultIsObservableAnnotation();
     }
+    public sealed class ResultIsObservableArrayAnnotation
+    {
+        private ResultIsObservableArrayAnnotation() { }
+        public static ResultIsObservableArrayAnnotation Instance = new ResultIsObservableArrayAnnotation();
+    }
     public sealed class ResultMayBeObservableAnnotation
     {
         private ResultMayBeObservableAnnotation() { }
@@ -84,5 +99,17 @@ namespace DotVVM.Framework.Compilation.Javascript
     {
         private ShouldBeObservableAnnotation() { }
         public static ShouldBeObservableAnnotation Instance = new ShouldBeObservableAnnotation();
+    }
+    /// Instruct the <see cref="KnockoutObservableHandlingVisitor" /> to process the node after it's children are resolved and before it is handled itself by the rules
+    public sealed class ObservableTransformationAnnotation
+    {
+        public readonly Func<JsExpression, JsExpression> TransformExpression;
+        public ObservableTransformationAnnotation(Func<JsExpression, JsExpression> transformExpression)
+        {
+            TransformExpression = transformExpression;
+        }
+
+        /// Makes sure that the observable is fully wrapped in observable (i.e. wraps the expression in `ko.pureComputed(...)` when needed)
+        public static readonly ObservableTransformationAnnotation EnsureWrapped = new ObservableTransformationAnnotation(JsAstHelpers.EnsureObservableWrapped);
     }
 }

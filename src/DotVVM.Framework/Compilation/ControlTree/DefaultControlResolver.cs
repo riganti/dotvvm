@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -13,16 +14,15 @@ namespace DotVVM.Framework.Compilation.ControlTree
 {
     public class DefaultControlResolver : ControlResolverBase
     {
-
         private readonly IControlBuilderFactory controlBuilderFactory;
 
         private static object locker = new object();
         private static bool isInitialized = false;
-        
 
-        public DefaultControlResolver(DotvvmConfiguration configuration) : base(configuration)
+
+        public DefaultControlResolver(DotvvmMarkupConfiguration configuration, IControlBuilderFactory controlBuilderFactory) : base(configuration)
         {
-            this.controlBuilderFactory = configuration.ServiceLocator.GetService<IControlBuilderFactory>();
+            this.controlBuilderFactory = controlBuilderFactory;
 
             if (!isInitialized)
             {
@@ -44,10 +44,29 @@ namespace DotVVM.Framework.Compilation.ControlTree
         {
             // PERF: too many allocations - type.GetCustomAttribute<T> does ~220k allocs -> 4MB, get all types allocates additional 1.5MB
             var dotvvmAssembly = typeof(DotvvmControl).GetTypeInfo().Assembly.GetName().Name;
+
+#if DotNetCore
             var allTypes = ReflectionUtils.GetAllAssemblies()
+               .Where(a => a.GetReferencedAssemblies().Any(r => r.Name == dotvvmAssembly))
+               .Concat(new[] { typeof(DotvvmControl).GetTypeInfo().Assembly })
+               .SelectMany(a => a.GetLoadableTypes()).Where(t => t.GetTypeInfo().IsClass).ToList();
+#else
+ 
+            var loadedAssemblies = ReflectionUtils.GetAllAssemblies()
+                .Where(a => a.GetReferencedAssemblies().Any(r => r.Name == dotvvmAssembly));
+
+            var visitedAssemblies = new HashSet<string>();
+
+            // ReflectionUtils.GetAllAssemblies() in netframework returns only assemblies which have already been loaded into
+            // the current AppDomain, to return all assemblies we traverse recursively all referenced Assemblies
+            var allTypes = loadedAssemblies
+                .SelectRecursively(a => a.GetReferencedAssemblies().Where(an => visitedAssemblies.Add(an.FullName)).Select(an => Assembly.Load(an)))
                 .Where(a => a.GetReferencedAssemblies().Any(r => r.Name == dotvvmAssembly))
+                .Distinct()
                 .Concat(new[] { typeof(DotvvmControl).GetTypeInfo().Assembly })
-                .SelectMany(a => a.GetTypes()).Where(t => t.GetTypeInfo().IsClass).ToList();
+                .SelectMany(a => a.GetLoadableTypes()).Where(t => t.GetTypeInfo().IsClass);
+#endif
+
             foreach (var type in allTypes)
             {
                 if (type.GetTypeInfo().GetCustomAttribute<ContainsDotvvmPropertiesAttribute>(true) != null)
@@ -62,7 +81,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 }
             }
         }
-
 
         /// <summary>
         /// Resolves the control metadata for specified type.

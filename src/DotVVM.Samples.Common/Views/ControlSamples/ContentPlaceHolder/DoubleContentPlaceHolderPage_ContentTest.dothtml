@@ -1,0 +1,12 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.ContentPlaceHolder.DoubleContentPlaceHolderPage_ContentTestViewModel, DotVVM.Samples.Common
+@masterPage Views/ControlSamples/ContentPlaceHolder/DoubleContentPlaceHolderMasterPage.dotmaster
+
+<dot:Content ContentPlaceHolderID="TitleContent">
+    <span data-ui="title"> Title</span>
+</dot:Content>
+<dot:Content ContentPlaceHolderID="MainContent">
+    <span data-ui="content"> Content</span>
+    <dot:Literal FormatString="G" Text="{value:  Date}" />
+    <span data-ui="innerText" InnerText="{value: Date}"></span>
+</dot:Content>
+

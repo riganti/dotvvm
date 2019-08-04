@@ -29,6 +29,7 @@ namespace DotVVM.Framework.Tests.Runtime
 
         public Action<HtmlGenericControl, IDotvvmRequestContext> PreRenderCompleteAction { get; set; } = (control, context) => { };
 
+        public Action<HtmlGenericControl, IDotvvmRequestContext> RenderAction { get; set; } = (control, context) => { };
 
         internal override void OnPreInit(IDotvvmRequestContext context)
         {
@@ -44,6 +45,12 @@ namespace DotVVM.Framework.Tests.Runtime
             InitAction(this, context);
             eventLog?.Add(new ControlLifeCycleEvent(this, LifeCycleEventType.Init, false));
             base.OnInit(context);
+        }
+
+        public override void Render(IHtmlWriter writer, IDotvvmRequestContext context)
+        {
+            RenderAction(this, context);
+            //base.Render(writer, context);
         }
 
         protected internal override void OnLoad(IDotvvmRequestContext context)

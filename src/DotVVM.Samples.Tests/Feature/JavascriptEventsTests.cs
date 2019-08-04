@@ -1,50 +1,48 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OpenQA.Selenium;
-using OpenQA.Selenium.Interactions;
-using Riganti.Utils.Testing.Selenium.Core;
-using System;
-using System.Globalization;
-using System.Linq;
-using System.Threading;
-using Dotvvm.Samples.Tests;
+﻿using DotVVM.Samples.Tests.Base;
+using DotVVM.Testing.Abstractions;
+using Riganti.Selenium.Core;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace DotVVM.Samples.Tests.Feature
 {
-    [TestClass]
-    public class JavascriptEventsTests : SeleniumTest
+    public class JavascriptEventsTests : AppSeleniumTest
     {
-        [TestMethod]
+        [Fact]
         public void Feature_JavascriptEvents_JavascriptEvents()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptEvents_JavascriptEvents);
 
                 // init alert
                 browser.Wait();
-                browser.CheckIfAlertTextEquals("init");
+                AssertUI.AlertTextEquals(browser, "init");
                 browser.ConfirmAlert();
 
                 // postback alerts
                 browser.ElementAt("input[type=button]", 0).Click();
 
-                browser.CheckIfAlertTextEquals("beforePostback");
+                AssertUI.AlertTextEquals(browser, "beforePostback");
                 browser.ConfirmAlert();
                 browser.Wait();
 
-                browser.CheckIfAlertTextEquals("afterPostback");
+                AssertUI.AlertTextEquals(browser, "afterPostback");
                 browser.ConfirmAlert();
 
                 // error alerts
                 browser.ElementAt("input[type=button]", 1).Click();
 
-                browser.CheckIfAlertTextEquals("beforePostback");
+                AssertUI.AlertTextEquals(browser, "beforePostback");
                 browser.ConfirmAlert();
                 browser.Wait();
 
-                browser.CheckIfAlertTextEquals("custom error handler");
+                AssertUI.AlertTextEquals(browser, "custom error handler");
                 browser.ConfirmAlert();
             });
+        }
+
+        public JavascriptEventsTests(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

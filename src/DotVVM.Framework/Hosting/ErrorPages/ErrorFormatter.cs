@@ -8,20 +8,28 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Runtime.Commands;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Hosting.ErrorPages
 {
     public class ErrorFormatter
     {
-        public ExceptionModel LoadException(Exception exception, StackFrameModel[] existingTrace = null)
+        public ExceptionModel LoadException(Exception exception, StackFrameModel[] existingTrace = null, Func<Exception, StackFrame[]> stackFrameGetter = null,
+            Func<StackFrame, string> methodFormatter = null)
         {
-            var m = new ExceptionModel();
-            m.Message = exception.Message;
-            m.OriginalException = exception;
-            m.TypeName = exception.GetType().FullName;
-            var frames = new StackTrace(exception, true).GetFrames() ?? new StackFrame[0];
+            stackFrameGetter = stackFrameGetter ?? (ex => new StackTrace(ex, true).GetFrames());
+
+            var m = new ExceptionModel {
+                Message = exception.Message,
+                OriginalException = exception,
+                TypeName = exception.GetType().FullName
+            };
+
+            var frames = stackFrameGetter(exception) ?? new StackFrame[0];
             var stack = new List<StackFrameModel>();
             bool skipping = existingTrace != null;
             for (int i = frames.Length - 1; i >= 0; i--)
@@ -30,9 +38,9 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                 if (skipping && existingTrace.Length > i && f.GetMethod() == existingTrace[i].Method) continue;
                 skipping = false;
 
-                stack.Add(AddMoreInfo(new StackFrameModel
-                {
+                stack.Add(AddMoreInfo(new StackFrameModel {
                     Method = f.GetMethod(),
+                    FormattedMethod = methodFormatter?.Invoke(f),
                     At = LoadSourcePiece(f.GetFileName(), f.GetFileLineNumber(),
                         errorColumn: f.GetFileColumnNumber())
                 }));
@@ -48,7 +56,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             }
             stack.Reverse();
             m.Stack = stack.ToArray();
-            if (exception.InnerException != null) m.InnerException = LoadException(exception.InnerException, m.Stack);
+            if (exception.InnerException != null) m.InnerException = LoadException(exception.InnerException, m.Stack, stackFrameGetter, methodFormatter);
             return m;
         }
 
@@ -60,6 +68,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             }
             catch
             {
+                frame.MoreInfo = new IFrameMoreInfo[0];
             }
 
             return frame;
@@ -95,7 +104,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             if (frame.Method?.DeclaringType?.GetTypeInfo()?.Assembly == typeof(ErrorFormatter).GetTypeInfo().Assembly)
             {
                 // dotvvm github
-                if (frame.At?.FileName != null)
+                if (!string.IsNullOrEmpty(frame.At?.FileName))
                 {
                     var fileName =
                         frame.At.FileName.Substring(
@@ -174,7 +183,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             if (frame.Method?.DeclaringType?.GetTypeInfo()?.Assembly != null &&
                 ReferenceSourceAssemblies.Contains(frame.Method.DeclaringType.GetTypeInfo().Assembly.GetName().Name))
             {
-                if (frame.At?.FileName != null)
+                if (!String.IsNullOrEmpty(frame.At?.FileName))
                 {
                     throw new NotImplementedException();
                 }
@@ -231,9 +240,8 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         public void AddInfoLoader<T>(Func<T, ExceptionAdditionalInfo> func)
             where T : Exception
         {
-            InfoLoaders.Add(e =>
-            {
-                if (e is T) return func((T) e);
+            InfoLoaders.Add(e => {
+                if (e is T) return func((T)e);
                 else return null;
             });
         }
@@ -246,9 +254,8 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         public void AddInfoCollectionLoader<T>(Func<T, IEnumerable<ExceptionAdditionalInfo>> func)
             where T : Exception
         {
-            InfoCollectionLoader.Add(e =>
-            {
-                if (e is T) return func((T) e);
+            InfoCollectionLoader.Add(e => {
+                if (e is T) return func((T)e);
                 else return null;
             });
         }
@@ -258,11 +265,13 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             int errorColumn = 0,
             int errorLength = 0)
         {
-            var result = new SourceModel();
-            result.FileName = fileName;
-            result.LineNumber = lineNumber;
-            result.ErrorColumn = errorColumn;
-            result.ErrorLength = errorLength;
+            var result = new SourceModel {
+                FileName = fileName,
+                LineNumber = lineNumber,
+                ErrorColumn = errorColumn,
+                ErrorLength = errorLength
+            };
+
             if (fileName != null)
             {
                 try
@@ -291,35 +300,56 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 
         public string ErrorHtml(Exception exception, IHttpContext context)
         {
-            var template = new ErrorPageTemplate();
-            template.Formatters = Formatters.Select(f => f(exception, context))
-                .Concat(context.GetEnvironmentTabs()
-                    .Select(o => DictionarySection.Create(o.Item1, "env_" + o.Item1.GetHashCode(), o.Item2)))
-                .Where(t => t != null).ToArray();
-            template.ErrorCode = context.Response.StatusCode;
-            template.ErrorDescription = "Unhandled exception occured";
-            template.Summary = exception.GetType().FullName + ": " + LimitLength(exception.Message, 600);
+            var template = new ErrorPageTemplate {
+                Formatters = Formatters
+                    .Select(f => f(exception, context))
+                    .Concat(context.GetEnvironmentTabs().Select(o => DictionarySection.Create(o.Item1, "env_" + o.Item1.GetHashCode(), o.Item2)))
+                    .Where(t => t != null)
+                    .ToArray(),
+                ErrorCode = context.Response.StatusCode,
+                ErrorDescription = "Unhandled exception occurred",
+                Summary = exception.GetType().FullName + ": " + exception.Message.LimitLength(600)
+            };
 
             return template.TransformText();
         }
+
+        static (string name, object value) StripBindingProperty(string name, object value)
+        {
+            var t = value.GetType();
+            var fields = t.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            if (fields.Length != 1 || !fields[0].IsInitOnly)
+                return (name, value);
+
+            return (name + "." + fields[0].Name, fields[0].GetValue(value));
+        }
+
 
         public static ErrorFormatter CreateDefault()
         {
             var f = new ErrorFormatter();
             f.Formatters.Add((e, o) => DotvvmMarkupErrorSection.Create(e));
-            f.Formatters.Add((e, o) => new ExceptionSectionFormatter {Exception = f.LoadException(e)});
+            f.Formatters.Add((e, o) => new ExceptionSectionFormatter(f.LoadException(e), "Raw Stack Trace", "raw_stack_trace"));
             f.Formatters.Add((e, o) => DictionarySection.Create("Cookies", "cookies", o.Request.Cookies));
             f.Formatters.Add((e, o) => DictionarySection.Create("Request Headers", "reqHeaders", o.Request.Headers));
-            f.AddInfoLoader<ReflectionTypeLoadException>(e => new ExceptionAdditionalInfo
-            {
+            f.Formatters.Add((e, o) => {
+                var b = e.AllInnerExceptions().OfType<BindingPropertyException>().Select(a => a.Binding).OfType<ICloneableBinding>().FirstOrDefault();
+                if (b == null) return null;
+                return DictionarySection.Create("Binding", "binding",
+                    new []{ new KeyValuePair<object, object>("Type", b.GetType().FullName) }
+                    .Concat(
+                        b.GetAllComputedProperties()
+                        .Select(a => StripBindingProperty(a.GetType().Name, a))
+                        .Select(a => new KeyValuePair<object, object>(a.name, a.value))
+                    ).ToArray());
+            });
+            f.AddInfoLoader<ReflectionTypeLoadException>(e => new ExceptionAdditionalInfo {
                 Title = "Loader Exceptions",
                 Objects = e.LoaderExceptions.Select(lde => lde.GetType().Name + ": " + lde.Message).ToArray(),
                 Display = ExceptionAdditionalInfo.DisplayMode.ToString
             });
-            f.AddInfoLoader<DotvvmCompilationException>(e =>
-            {
-                var info = new ExceptionAdditionalInfo()
-                {
+            f.AddInfoLoader<DotvvmCompilationException>(e => {
+                var info = new ExceptionAdditionalInfo() {
                     Title = "DotVVM Compiler",
                     Objects = null,
                     Display = ExceptionAdditionalInfo.DisplayMode.ToString
@@ -334,8 +364,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                 return info;
             });
 
-            f.AddInfoCollectionLoader<InvalidCommandInvocationException>(e =>
-            {
+            f.AddInfoCollectionLoader<InvalidCommandInvocationException>(e => {
                 if (e.AdditionData == null || !e.AdditionData.Any())
                 {
                     return null;
@@ -343,8 +372,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                 var infos = new List<ExceptionAdditionalInfo>();
                 foreach (var data in e.AdditionData)
                 {
-                    infos.Add(new ExceptionAdditionalInfo()
-                    {
+                    infos.Add(new ExceptionAdditionalInfo() {
                         Title = data.Key,
                         Objects = data.Value,
                         Display = ExceptionAdditionalInfo.DisplayMode.ToHtmlList
@@ -354,18 +382,6 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             });
 
             return f;
-        }
-
-        public string LimitLength(string source, int length, string ending = "...")
-        {
-            if (length < source.Length)
-            {
-                return source.Substring(0, length - ending.Length) + ending;
-            }
-            else
-            {
-                return source;
-            }
         }
     }
 }

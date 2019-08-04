@@ -1,58 +1,57 @@
-﻿using Dotvvm.Samples.Tests;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DotVVM.Samples.Tests.Base;
+using DotVVM.Testing.Abstractions;
+using Riganti.Selenium.Core;
+using Xunit;
 
 namespace DotVVM.Samples.Tests.Complex
 {
-    [TestClass]
-    public class CascadeSelectorsTests : SeleniumTest
+    public class CascadeSelectorsTests : AppSeleniumTest
     {
-        [TestMethod]
+        public CascadeSelectorsTests(Xunit.Abstractions.ITestOutputHelper output) : base(output)
+        {
+        }
+
+        [Fact]
         public void Complex_CascadeSelectors_CascadeSelectors()
         {
             Complex_CascadeSelectorsBase(SamplesRouteUrls.ComplexSamples_CascadeSelectors_CascadeSelectors);
         }
 
-        [TestMethod]
+        [Fact]
         public void Complex_CascadeSelectors_CascadeSelectorsServerRender()
         {
             Complex_CascadeSelectorsBase(SamplesRouteUrls.ComplexSamples_CascadeSelectors_CascadeSelectorsServerRender);
         }
 
-        [TestMethod]
+        [Fact]
         public void Complex_CascadeSelectors_TripleComboBoxes()
         {
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_CascadeSelectors_TripleComboBoxes);
                 browser.ElementAt("input[type=button]", 0).Click().Wait();
-                browser.ElementAt(".active", 0).CheckIfInnerTextEquals("North America: 1");
-                browser.ElementAt(".active", 1).CheckIfInnerTextEquals("USA: 11");
-                browser.ElementAt(".active", 2).CheckIfInnerTextEquals("New York: 111");
+                AssertUI.InnerTextEquals(browser.ElementAt(".active", 0), "North America: 1");
+                AssertUI.InnerTextEquals(browser.ElementAt(".active", 1), "USA: 11");
+                AssertUI.InnerTextEquals(browser.ElementAt(".active", 2), "New York: 111");
 
                 browser.ElementAt("input[type=button]", 2).Click().Wait();
-                browser.ElementAt(".active", 0).CheckIfInnerTextEquals("North America: 1");
-                browser.ElementAt(".active", 1).CheckIfInnerTextEquals("Canada: 12");
-                browser.ElementAt(".active", 2).CheckIfInnerTextEquals("Toronto: 121");
+                AssertUI.InnerTextEquals(browser.ElementAt(".active", 0), "North America: 1");
+                AssertUI.InnerTextEquals(browser.ElementAt(".active", 1), "Canada: 12");
+                AssertUI.InnerTextEquals(browser.ElementAt(".active", 2), "Toronto: 121");
 
                 browser.ElementAt("input[type=button]", 5).Click().Wait();
-                browser.ElementAt(".active", 0).CheckIfInnerTextEquals("Europe: 2");
-                browser.ElementAt(".active", 1).CheckIfInnerTextEquals("Germany: 21");
-                browser.ElementAt(".active", 2).CheckIfInnerTextEquals("Munich: 212");
+                AssertUI.InnerTextEquals(browser.ElementAt(".active", 0), "Europe: 2");
+                AssertUI.InnerTextEquals(browser.ElementAt(".active", 1), "Germany: 21");
+                AssertUI.InnerTextEquals(browser.ElementAt(".active", 2), "Munich: 212");
 
                 browser.ElementAt("input[type=button]", 8).Click().Wait();
-                browser.ElementAt(".active", 0).CheckIfInnerTextEquals("Asia: 3");
-                browser.ElementAt(".active", 1).CheckIfInnerTextEquals("China: 31");
-                browser.ElementAt(".active", 2).CheckIfInnerTextEquals("Beijing: 311");
+                AssertUI.InnerTextEquals(browser.ElementAt(".active", 0), "Asia: 3");
+                AssertUI.InnerTextEquals(browser.ElementAt(".active", 1), "China: 31");
+                AssertUI.InnerTextEquals(browser.ElementAt(".active", 2), "Beijing: 311");
             });
         }
 
-        public void Complex_CascadeSelectorsBase(string url)
+        private void Complex_CascadeSelectorsBase(string url)
         {
             RunInAllBrowsers(browser =>
             {
@@ -66,7 +65,7 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.Last("select").Select(1);
                 browser.Last("input[type=button]").Click().Wait();
 
-                browser.First("h2").CheckIfInnerTextEquals("Hotel Seattle #2");
+                AssertUI.InnerTextEquals(browser.First("h2"), "Hotel Seattle #2");
 
                 // select city
                 browser.First("select").Select(0);
@@ -76,7 +75,7 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.Last("select").Select(0);
                 browser.Last("input[type=button]").Click().Wait();
 
-                browser.First("h2").CheckIfInnerTextEquals("Hotel Prague #1");
+                AssertUI.InnerTextEquals(browser.First("h2"), "Hotel Prague #1");
             });
         }
     }

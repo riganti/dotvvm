@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using DotVVM.Framework.Compilation.Javascript;
+using System.Runtime.CompilerServices;
 
 namespace DotVVM.Framework.Controls
 {
@@ -46,7 +47,6 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     public abstract class DotvvmControl : DotvvmBindableObject, IDotvvmControl
     {
-
         /// <summary>
         /// Gets the child controls.
         /// </summary>
@@ -111,6 +111,12 @@ namespace DotVVM.Framework.Controls
             set { SetValue(IncludeInPageProperty, value); }
         }
 
+        DotvvmControlCollection IDotvvmControl.Children => throw new NotImplementedException();
+
+        ClientIDMode IDotvvmControl.ClientIDMode { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        string IDotvvmControl.ID { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        DotvvmBindableObject IDotvvmControl.Parent { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
         public static readonly DotvvmProperty IncludeInPageProperty =
             DotvvmProperty.Register<bool, DotvvmControl>(t => t.IncludeInPage, true);
 
@@ -171,7 +177,9 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public virtual void Render(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            if (Properties.ContainsKey(PostBack.UpdateProperty))
+            this.Children.ValidateParentsLifecycleEvents(); // debug check
+
+            if (properties.Contains(PostBack.UpdateProperty))
             {
                 AddDotvvmUniqueIdAttribute();
             }
@@ -183,7 +191,7 @@ namespace DotVVM.Framework.Controls
             catch (DotvvmControlException) { throw; }
             catch (Exception e)
             {
-                throw new DotvvmControlException(this, "Error occured in Render method", e);
+                throw new DotvvmControlException(this, "Error occurred in Render method", e);
             }
         }
 
@@ -200,14 +208,42 @@ namespace DotVVM.Framework.Controls
             htmlAttributes.Attributes["data-dotvvm-id"] = GetDotvvmUniqueId();
         }
 
-        /// <summary>
-        /// Renders the control into the specified writer.
-        /// </summary>
-        protected virtual void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
+        protected struct RenderState
         {
-            RenderBeginWithDataBindAttribute(writer);
+            internal object IncludeInPage;
+            internal IValueBinding DataContext;
+            internal bool HasActives;
+        }
 
-            foreach (var item in properties)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected static bool TouchProperty(DotvvmProperty property, object val, ref RenderState r)
+        {
+            if (property == DotvvmControl.IncludeInPageProperty)
+                r.IncludeInPage = val;
+            else if (property == DotvvmControl.DataContextProperty)
+                r.DataContext = val as IValueBinding;
+            else if (property is ActiveDotvvmProperty)
+                r.HasActives = true;
+            else return false;
+            return true;
+        }
+        /// <returns>true means that rendering of the rest of this control should be skipped</returns>
+        protected bool RenderBeforeControl(in RenderState r, IHtmlWriter writer, IDotvvmRequestContext context)
+        {
+            if (r.IncludeInPage != null && !(r.IncludeInPage is IValueBinding) && !this.IncludeInPage)
+                return true;
+
+            if (r.DataContext != null)
+            {
+                writer.WriteKnockoutWithComment(r.DataContext.GetKnockoutBindingExpression(Parent));
+            }
+
+            if (r.IncludeInPage != null && r.IncludeInPage is IValueBinding binding)
+            {
+                writer.WriteKnockoutDataBindComment("if", binding.GetKnockoutBindingExpression(this));
+            }
+
+            if (r.HasActives) foreach (var item in properties)
             {
                 if (item.Key is ActiveDotvvmProperty activeProp)
                 {
@@ -215,12 +251,42 @@ namespace DotVVM.Framework.Controls
                 }
             }
 
+            return false;
+        }
+        protected void RenderAfterControl(in RenderState r, IHtmlWriter writer)
+        {
+            if (r.DataContext != null)
+            {
+                writer.WriteKnockoutDataBindEndComment();
+            }
+
+            if (r.IncludeInPage != null && r.IncludeInPage is IValueBinding binding)
+            {
+                writer.WriteKnockoutDataBindEndComment();
+            }
+        }
+
+
+        /// <summary>
+        /// Renders the control into the specified writer.
+        /// </summary>
+        protected virtual void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
+        {
+            RenderState r = default;
+            var ip = GetValueRaw(IncludeInPageProperty);
+            r.IncludeInPage = true.Equals(ip) ? null : ip;
+            this.properties.TryGet(DataContextProperty, out var dc);
+            r.DataContext = dc as IValueBinding;
+            r.HasActives = true;
+            if (RenderBeforeControl(in r, writer, context))
+                return;
+
             AddAttributesToRender(writer, context);
             RenderBeginTag(writer, context);
             RenderContents(writer, context);
             RenderEndTag(writer, context);
 
-            RenderEndWithDataBindAttribute(writer);
+            RenderAfterControl(in r, writer);
         }
 
         private void RenderBeginWithDataBindAttribute(IHtmlWriter writer)
@@ -232,7 +298,7 @@ namespace DotVVM.Framework.Controls
             }
 
             // if the IncludeInPage has binding, render the "if" binding
-            if (HasBinding(IncludeInPageProperty))
+            if (HasValueBinding(IncludeInPageProperty))
             {
                 writer.WriteKnockoutDataBindComment("if", this, IncludeInPageProperty);
             }
@@ -240,7 +306,7 @@ namespace DotVVM.Framework.Controls
 
         private void RenderEndWithDataBindAttribute(IHtmlWriter writer)
         {
-            if (HasBinding(IncludeInPageProperty))
+            if (HasValueBinding(IncludeInPageProperty))
             {
                 writer.WriteKnockoutDataBindEndComment();
             }
@@ -398,10 +464,6 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         internal virtual void OnPreInit(IDotvvmRequestContext context)
         {
-            foreach (var property in GetDeclaredProperties())
-            {
-                property.OnControlInitialized(this);
-            }
         }
 
         /// <summary>
@@ -409,11 +471,6 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         internal virtual void OnPreRenderComplete(IDotvvmRequestContext context)
         {
-            // events on properties
-            foreach (var property in GetDeclaredProperties())
-            {
-                property.OnControlRendering(this);
-            }
         }
 
         /// <summary>
@@ -446,7 +503,9 @@ namespace DotVVM.Framework.Controls
 
         private object JoinValuesOrBindings(IList<object> fragments)
         {
-            if (fragments.All(f => f is string))
+            if (fragments == null)
+                return null;
+            else if (fragments.All(f => f is string))
             {
                 return string.Join("_", fragments);
             }
@@ -462,12 +521,12 @@ namespace DotVVM.Framework.Controls
                     if (f is IValueBinding binding)
                     {
                         service = service ?? binding.GetProperty<BindingCompilationService>(ErrorHandlingMode.ReturnNull);
-                        result.Add(binding.GetParametrizedKnockoutExpression(this, unwraped: true), 14);
+                        result.Add(binding.GetParametrizedKnockoutExpression(this, unwrapped: true), 14);
                     }
                     else result.Add(JavascriptCompilationHelper.CompileConstant(f));
                 }
                 if (service == null) throw new NotSupportedException();
-                return ValueBindingExpression.CreateBinding<string>(service.WithoutInitialization(), h => null, result.Build(new OperatorPrecedence()));
+                return ValueBindingExpression.CreateBinding<string>(service.WithoutInitialization(), h => null, result.Build(new OperatorPrecedence()), this.GetDataContextType());
             }
         }
 
@@ -475,7 +534,7 @@ namespace DotVVM.Framework.Controls
         /// Adds the corresponding attribute for the Id property.
         /// </summary>
         protected virtual object CreateClientId() => 
-            string.IsNullOrEmpty(ID) ? null :
+            !this.IsPropertySet(IDProperty) ? null :
                 // build the client ID
                 JoinValuesOrBindings(GetClientIdFragments());
 
@@ -502,7 +561,7 @@ namespace DotVVM.Framework.Controls
             if (ClientIDMode == ClientIDMode.Static)
             {
                 // just rewrite Static mode ID
-                return new[] { ID };
+                return new[] { GetValueRaw(IDProperty) };
             }
 
             var fragments = new List<object> { rawId };
@@ -523,10 +582,10 @@ namespace DotVVM.Framework.Controls
                     {
                         fragments.Add(clientIdExpression);
                     }
-                    else if (!string.IsNullOrEmpty(ancestor.ID))
+                    else if (ancestor.GetValueRaw(IDProperty) is object ancestorId && "" != ancestorId as string)
                     {
                         // add the ID fragment
-                        fragments.Add(ancestor.ID);
+                        fragments.Add(ancestorId);
                     }
                     else
                     {
@@ -568,5 +627,7 @@ namespace DotVVM.Framework.Controls
         {
             return Children;
         }
+
+        IEnumerable<DotvvmBindableObject> IDotvvmControl.GetAllAncestors(bool incudingThis) => this.GetAllAncestors(incudingThis);
     }
 }

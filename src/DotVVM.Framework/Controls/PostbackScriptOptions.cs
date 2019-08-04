@@ -10,13 +10,15 @@ namespace DotVVM.Framework.Controls
         public CodeParameterAssignment ElementAccessor { get; set; }
         public CodeParameterAssignment? KoContext { get; set; }
         public CodeParameterAssignment? CommandArgs { get; set; }
+        public bool AllowPostbackHandlers { get; }
 
         public PostbackScriptOptions(bool useWindowSetTimeout = false,
             bool? returnValue = false,
             bool isOnChange = false,
             string elementAccessor = "this",
             CodeParameterAssignment? koContext = null,
-            CodeParameterAssignment? commandArgs = null)
+            CodeParameterAssignment? commandArgs = null,
+            bool allowPostbackHandlers = true)
         {
             this.UseWindowSetTimeout = useWindowSetTimeout;
             this.ReturnValue = returnValue;
@@ -24,6 +26,7 @@ namespace DotVVM.Framework.Controls
             this.ElementAccessor = new CodeParameterAssignment(elementAccessor, OperatorPrecedence.Max);
             this.KoContext = koContext;
             this.CommandArgs = commandArgs;
+            this.AllowPostbackHandlers = allowPostbackHandlers;
         }
     }
 }

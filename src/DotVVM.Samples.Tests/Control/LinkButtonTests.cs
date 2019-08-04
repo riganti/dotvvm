@@ -1,63 +1,99 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OpenQA.Selenium;
-using OpenQA.Selenium.Interactions;
-using Riganti.Utils.Testing.Selenium.Core;
-using System;
-using System.Globalization;
-using System.Linq;
-using System.Threading;
-using Dotvvm.Samples.Tests;
+﻿using DotVVM.Samples.Tests.Base;
+using DotVVM.Testing.Abstractions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Riganti.Selenium.Core;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace DotVVM.Samples.Tests.Control
 {
-    [TestClass]
-    public class LinkButtonTests : SeleniumTest
+    public class LinkButtonTests : AppSeleniumTest
     {
-        [TestMethod]
+        [Fact]
         public void Control_LinkButton_LinkButton()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_LinkButton_LinkButton);
 
-                browser.First("#ButtonTextProperty").CheckTagName("a");
-                browser.First("#ButtonTextBinding").CheckTagName("a");
-                browser.First("#ButtonInnerText").CheckTagName("a");
+                AssertUI.TagName(browser.First("#ButtonTextProperty"), "a");
+                AssertUI.TagName(browser.First("#ButtonTextBinding"), "a");
+                AssertUI.TagName(browser.First("#ButtonInnerText"), "a");
 
                 // try to click on a disabled button
                 browser.Click("#EnabledLinkButton");
                 browser.Wait();
-                browser.Last("span").CheckIfInnerTextEquals("0");
+                AssertUI.InnerTextEquals(browser.Last("span"), "0");
 
                 // enable it
                 browser.Click("input[type=checkbox]");
                 browser.Wait();
                 browser.Click("#EnabledLinkButton");
                 browser.Wait();
-                browser.Last("span").CheckIfInnerTextEquals("1");
+                AssertUI.InnerTextEquals(browser.Last("span"), "1");
 
                 // try to click on a disabled button again
                 browser.Click("#EnabledLinkButton");
                 browser.Wait();
-                browser.Last("span").CheckIfInnerTextEquals("1");
+                AssertUI.InnerTextEquals(browser.Last("span"), "1");
             });
         }
 
-        [TestMethod]
-        public void Control_LinkButton_LinkButtonOnClick()
+        [Fact]
+        public void Control_LinkButton_LinkButtonOnclick()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_LinkButton_LinkButtonOnclick);
-                var onclickResult = browser.First("span.result1").Check();
-                var clickResult = browser.First("span.result2").Check();
-                clickResult.InnerText(s => s.Equals(""));
-                onclickResult.InnerText(s => s.Equals(""));
+                var onclickResult = browser.First("span.result1");
+                var clickResult = browser.First("span.result2");
+                AssertUI.InnerText(clickResult, s => s.Equals(""));
+                AssertUI.InnerText(onclickResult, s => s.Equals(""));
 
                 browser.Click("#LinkButton");
-                clickResult.InnerText(s => s.Equals("Changed from command binding"));
-                onclickResult.InnerText(s => s.Contains("Changed from onclick"));
+                AssertUI.InnerText(clickResult, s => s.Equals("Changed from command binding"));
+                AssertUI.InnerText(onclickResult, s => s.Contains("Changed from onclick"));
             });
+        }
+
+        [Fact]
+        public void Control_LinkButton_LinkButtonEnabled()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_LinkButton_LinkButtonEnabled);
+
+                var commandResult = browser.First("[data-ui=command-result]");
+                var staticCommandResult = browser.First("[data-ui=static-command-result]");
+                var clientStaticCommandResult = browser.First("[data-ui=client-static-command-result]");
+
+                AssertUI.InnerTextEquals(commandResult, "");
+                AssertUI.InnerTextEquals(staticCommandResult, "");
+                AssertUI.InnerTextEquals(clientStaticCommandResult, "");
+
+                var commandLinkButton = browser.First("[data-ui=command-linkbutton]");
+                var staticCommandLinkButton = browser.First("[data-ui=static-command-linkbutton]");
+                var clientStaticCommandLinkButton = browser.First("[data-ui=client-static-command-linkbutton]");
+
+                commandLinkButton.Click();
+                staticCommandLinkButton.Click();
+                clientStaticCommandLinkButton.Click();
+
+                AssertUI.InnerTextEquals(commandResult, "");
+                AssertUI.InnerTextEquals(staticCommandResult, "");
+                AssertUI.InnerTextEquals(clientStaticCommandResult, "");
+
+                browser.First("[data-ui=toggle-enabled]").Click();
+
+                commandLinkButton.Click();
+                staticCommandLinkButton.Click();
+                clientStaticCommandLinkButton.Click();
+
+                AssertUI.InnerTextEquals(commandResult, "Changed from command binding");
+                AssertUI.InnerTextEquals(staticCommandResult, "Changed from static command on server");
+                AssertUI.InnerTextEquals(clientStaticCommandResult, "Changed from static command");
+            });
+        }
+
+        public LinkButtonTests(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

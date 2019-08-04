@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using DotVVM.Framework.ViewModel;
 using System.ComponentModel.DataAnnotations;
+using DotVVM.Samples.BasicSamples.Utilities;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation
 {
@@ -17,7 +18,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation
 
     public class SomeValidatebleObject
     {
-        [EmailAddress]
+        [OnlyServerSideEmailAddress]
         public string Email { get; set; }
         [Required]
         public string Required { get; set; }

@@ -17,7 +17,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 	/// </summary>
 	public abstract class ControlResolverBase : IControlResolver
 	{
-		private readonly DotvvmConfiguration configuration;
+		private readonly DotvvmMarkupConfiguration configuration;
 
 		private readonly ConcurrentDictionary<string, IControlType> cachedTagMappings = new ConcurrentDictionary<string, IControlType>(StringComparer.OrdinalIgnoreCase);
 		private readonly ConcurrentDictionary<IControlType, IControlResolverMetadata> cachedMetadata = new ConcurrentDictionary<IControlType, IControlResolverMetadata>();
@@ -27,12 +27,12 @@ namespace DotVVM.Framework.Compilation.ControlTree
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ControlResolverBase"/> class.
 		/// </summary>
-		public ControlResolverBase(DotvvmConfiguration configuration)
+		public ControlResolverBase(DotvvmMarkupConfiguration configuration)
 		{
 			this.configuration = configuration;
 			foreach (var ccc in this.BindingTypes.Keys.ToArray())
 			{
-				BindingTypes[ccc] = BindingTypes[ccc].AddImports(configuration.Markup.ImportedNamespaces).AddParameters(configuration.Markup.DefaultExtensionParameters);
+				BindingTypes[ccc] = BindingTypes[ccc].AddImports(configuration.ImportedNamespaces).AddParameters(configuration.DefaultExtensionParameters);
 			}
 
 
@@ -111,7 +111,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 		protected virtual IControlType FindControlType(string tagPrefix, string tagName)
 		{
 			// try to match the tag prefix and tag name
-			var rules = configuration.Markup.Controls.Where(r => r.IsMatch(tagPrefix, tagName)).ToArray();
+			var rules = configuration.Controls.Where(r => r.IsMatch(tagPrefix, tagName)).ToArray();
 			// first try find markup control (see #155)
 			foreach (var rule in rules)
 			{

@@ -16,11 +16,14 @@ namespace DotVVM.Framework.ViewModel.Serialization
     {
         private readonly IValidationRuleTranslator validationRuleTranslator;
         private readonly IViewModelValidationMetadataProvider validationMetadataProvider;
+        private readonly IPropertySerialization propertySerialization;
 
-        public ViewModelSerializationMapper(IValidationRuleTranslator validationRuleTranslator, IViewModelValidationMetadataProvider validationMetadataProvider)
+        public ViewModelSerializationMapper(IValidationRuleTranslator validationRuleTranslator, IViewModelValidationMetadataProvider validationMetadataProvider,
+            IPropertySerialization propertySerialization)
         {
             this.validationRuleTranslator = validationRuleTranslator;
             this.validationMetadataProvider = validationMetadataProvider;
+            this.propertySerialization = propertySerialization;
         }
 
         private readonly ConcurrentDictionary<Type, ViewModelSerializationMap> serializationMapCache = new ConcurrentDictionary<Type, ViewModelSerializationMap>();
@@ -43,10 +46,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 if (property.GetCustomAttribute<JsonIgnoreAttribute>() != null) continue;
 
-                var propertyMap = new ViewModelPropertyMap()
-                {
+                var propertyMap = new ViewModelPropertyMap() {
                     PropertyInfo = property,
-                    Name = property.Name,
+                    Name = propertySerialization.ResolveName(property),
                     ViewModelProtection = ProtectMode.None,
                     Type = property.PropertyType,
                     TransferAfterPostback = property.GetMethod != null && property.GetMethod.IsPublic,
@@ -65,7 +67,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 if (bindAttribute != null)
                 {
                     propertyMap.Bind(bindAttribute.Direction);
-                    if (bindAttribute.Name != null) propertyMap.Name = bindAttribute.Name;
                 }
 
                 var viewModelProtectionAttribute = property.GetCustomAttribute<ProtectAttribute>();
@@ -82,6 +83,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
                 var validationAttributes = validationMetadataProvider.GetAttributesForProperty(property);
                 propertyMap.ValidationRules = validationRuleTranslator.TranslateValidationRules(property, validationAttributes).ToList();
+
+                propertyMap.ValidateSettings();
 
                 yield return propertyMap;
             }

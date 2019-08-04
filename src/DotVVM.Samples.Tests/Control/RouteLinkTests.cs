@@ -1,50 +1,101 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Dotvvm.Samples.Tests;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
+using DotVVM.Samples.Tests.Base;
+using DotVVM.Testing.Abstractions;
+using Riganti.Selenium.Core;
+using Riganti.Selenium.Core.Abstractions;
+using Xunit;
+using Xunit.Abstractions;
+using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace DotVVM.Samples.Tests.Control
 {
-    [TestClass]
-    public class RouteLinkTests : SeleniumTest
+    public class RouteLinkTests : AppSeleniumTest
     {
-        [TestMethod]
+        [Fact]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_RouteLink_TestRoute))]
         public void Control_RouteLink_RouteLinkEnabled()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_RouteLink_RouteLinkEnabled);
-                browser.Single("body > div.container > p:nth-child(2) > label > input[type=\"checkbox\"]")
-                    .CheckIfIsNotChecked();
+                AssertUI.IsNotChecked(browser.Single("body > div.container > p:nth-child(2) > label > input[type=\"checkbox\"]"));
                 browser.Single("body > div.container > p:nth-child(3) > a").Click();
 
                 browser.Single("body > div.container > p:nth-child(2) > label > input[type=\"checkbox\"]").Click();
                 browser.Single("body > div.container > p:nth-child(3) > a").Click();
-                browser.CompareUrl("http://localhost:60320/ControlSamples/Repeater/RouteLink/0");
+                AssertUI.Url(browser, "/ControlSamples/Repeater/RouteLink/0", UrlKind.Relative, UriComponents.PathAndQuery);
+                browser.NavigateBack();
             });
         }
 
-        [TestMethod]
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_RouteLink_RouteLinkUrlGen))]
+        public void Control_RouteLink_RouteLinkUrlGeneration()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_RouteLink_RouteLinkUrlGen);
+
+                CheckUrlGenerationMethod(browser);
+            });
+        }
+
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_RouteLink_RouteLinkSpaUrlGen))]
+        public void Control_RouteLink_RouteLinkSpaUrlGeneration()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_RouteLink_RouteLinkSpaUrlGen);
+
+                CheckUrlGenerationMethod(browser, true);
+            });
+        }
+
+        private static void CheckUrlGenerationMethod(IBrowserWrapper browser, bool isSpaLink = false)
+        {
+            void checkNavigatedUrl(string selector, string relativeUrl)
+            {
+                var href = browser.Single(selector).GetAttribute("href");
+
+                Assert.AreEqual(relativeUrl, new Uri(href).AbsolutePath);
+            }
+
+            checkNavigatedUrl("a[data-ui='optional-parameter-client']", "/ControlSamples/Repeater/RouteLink");
+            checkNavigatedUrl("a[data-ui='optional-parameter-server']", "/ControlSamples/Repeater/RouteLink");
+
+            checkNavigatedUrl("a[data-ui='0-parameters-client']", "/");
+            checkNavigatedUrl("a[data-ui='0-parameters-server']", "/");
+
+            checkNavigatedUrl("a[data-ui='optional-parameter-prefixed-client']", "/ControlSamples/Repeater/RouteLink");
+            checkNavigatedUrl("a[data-ui='optional-parameter-prefixed-server']", "/ControlSamples/Repeater/RouteLink");
+
+            checkNavigatedUrl("a[data-ui='parameter-prefixed-client']", "/ControlSamples/Repeater/RouteLink/id-1");
+            checkNavigatedUrl("a[data-ui='parameter-prefixed-server']", "/ControlSamples/Repeater/RouteLink/id-1");
+
+            checkNavigatedUrl("a[data-ui='optional-parameter-at-start-client']", "/ControlSamples/Repeater/RouteLink");
+            checkNavigatedUrl("a[data-ui='optional-parameter-at-start-server']", "/ControlSamples/Repeater/RouteLink");
+
+            checkNavigatedUrl("a[data-ui='optional-prefixed-parameter-at-start-client']", "/id-1/ControlSamples/Repeater/RouteLink");
+            checkNavigatedUrl("a[data-ui='optional-prefixed-parameter-at-start-client']", "/id-1/ControlSamples/Repeater/RouteLink");
+        }
+
+        [Fact]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_RouteLink_TestRoute))]
         public void Control_RouteLink_RouteLinkEnabledFalse()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_RouteLink_RouteLinkEnabledFalse);
 
                 //this RouteLink does not contain a binding (<dot:RouteLink Enabled="false" ... ) and should not redirect
                 browser.First("a").Click();
-                browser.CompareUrl("http://localhost:60320/ControlSamples/RouteLink/RouteLinkEnabledFalse");
+                AssertUI.Url(browser, "/ControlSamples/RouteLink/RouteLinkEnabledFalse", UrlKind.Relative, UriComponents.PathAndQuery);
 
                 //this RouteLink contains a binding ( <dot:RouteLink Enabled={{value: "false" ... }} and should not redirect
                 browser.Last("a").Click();
-                browser.CompareUrl("http://localhost:60320/ControlSamples/RouteLink/RouteLinkEnabledFalse");
+                AssertUI.Url(browser, "/ControlSamples/RouteLink/RouteLinkEnabledFalse", UrlKind.Relative, UriComponents.PathAndQuery);
             });
+        }
+
+        public RouteLinkTests(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

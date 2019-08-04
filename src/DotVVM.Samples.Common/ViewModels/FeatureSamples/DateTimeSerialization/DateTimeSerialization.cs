@@ -35,9 +35,17 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.DateTimeSerializ
         {
             Date2String = Date2?.ToString("g") ?? "null";
         }
+
         public void SetDate2()
         {
             Date2 = DateTime.Now;
+        }
+
+        public DateTime? Date3 { get; set; }
+
+        public void SetStaticDate()
+        {
+            Date3 = new DateTime(2000, 1, 1);
         }
     }
 }

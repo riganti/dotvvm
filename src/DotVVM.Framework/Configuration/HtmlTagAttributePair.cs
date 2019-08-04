@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Configuration
 {
-    public struct HtmlTagAttributePair 
+    public struct HtmlTagAttributePair : IEquatable<HtmlTagAttributePair>
     {
 
         public string TagName { get; set; }
@@ -31,19 +31,11 @@ namespace DotVVM.Framework.Configuration
         }
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj))
+            if (obj is HtmlTagAttributePair o)
             {
-                return false;
+                return Equals(o);
             }
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-            if (obj.GetType() != this.GetType())
-            {
-                return false;
-            }
-            return Equals((HtmlTagAttributePair) obj);
+            return false;
         }
     }
 

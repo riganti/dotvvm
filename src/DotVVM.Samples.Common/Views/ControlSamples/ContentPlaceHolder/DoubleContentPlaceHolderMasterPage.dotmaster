@@ -1,0 +1,24 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.ContentPlaceHolder.DoubleContentPlaceHolderMasterPageViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+
+    <h2>
+        <dot:ContentPlaceHolder ID="TitleContent" />
+    </h2>
+    <p>
+
+        <dot:ContentPlaceHolder ID="MainContent" />
+    </p>
+
+</body>
+</html>
+
+

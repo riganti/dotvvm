@@ -26,6 +26,9 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty IsSpaPageProperty =
             DotvvmProperty.Register<bool, Internal>(() => IsSpaPageProperty, defaultValue: false, isValueInherited: true);
 
+        public static readonly DotvvmProperty UseHistoryApiSpaNavigationProperty =
+            DotvvmProperty.Register<bool, Internal>(() => UseHistoryApiSpaNavigationProperty, defaultValue: true, isValueInherited: true);
+
         public static readonly DotvvmProperty PathFragmentProperty =
             DotvvmProperty.Register<string, Internal>(() => PathFragmentProperty);
 
@@ -54,9 +57,11 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<IValueBinding, Internal>(() => CurrentIndexBindingProperty);
     }
 
-    public static class InternalPropertyExceptions
+    public static class InternalPropertyExtensions
     {
+        /// Gets an expected data context type (usually determined by the compiler)
         public static DataContextStack GetDataContextType(this DotvvmBindableObject obj) => (DataContextStack)obj.GetValue(Internal.DataContextTypeProperty);
+        /// Sets an expected data context type
         public static void SetDataContextType(this DotvvmBindableObject obj, DataContextStack stack) => obj.SetValue(Internal.DataContextTypeProperty, stack);
     }
 }

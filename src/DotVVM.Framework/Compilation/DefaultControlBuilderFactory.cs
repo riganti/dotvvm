@@ -7,6 +7,7 @@ using System.Reflection;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -15,15 +16,15 @@ namespace DotVVM.Framework.Compilation
     /// </summary>
     public class DefaultControlBuilderFactory : IControlBuilderFactory
     {
-        private DotvvmConfiguration configuration;
-        private IMarkupFileLoader markupFileLoader;
+        private readonly DotvvmConfiguration configuration;
+        private readonly IMarkupFileLoader markupFileLoader;
 
         public Func<IViewCompiler> ViewCompilerFactory { get; private set; }
 
         private ConcurrentDictionary<MarkupFile, (ControlBuilderDescriptor, Lazy<IControlBuilder>)> controlBuilders = new ConcurrentDictionary<MarkupFile, (ControlBuilderDescriptor, Lazy<IControlBuilder>)>();
 
 
-        public DefaultControlBuilderFactory(DotvvmConfiguration configuration)
+        public DefaultControlBuilderFactory(DotvvmConfiguration configuration, IMarkupFileLoader markupFileLoader)
         {
             for (int i = 0; i < compilationLocks.Length; i++)
             {
@@ -32,8 +33,10 @@ namespace DotVVM.Framework.Compilation
 
             this.configuration = configuration;
 
-            ViewCompilerFactory = () => configuration.ServiceLocator.GetService<IViewCompiler>();
-            markupFileLoader = configuration.ServiceLocator.GetService<IMarkupFileLoader>();
+            // WORKAROUND: there is a circular dependency
+            // TODO: get rid of that
+            this.ViewCompilerFactory = () => configuration.ServiceProvider.GetRequiredService<IViewCompiler>();
+            this.markupFileLoader = markupFileLoader;
 
             if (configuration.CompiledViewsAssemblies != null)
                 foreach (var assembly in configuration.CompiledViewsAssemblies)
@@ -48,7 +51,7 @@ namespace DotVVM.Framework.Compilation
         /// </summary>
         public (ControlBuilderDescriptor descriptor, Lazy<IControlBuilder> builder) GetControlBuilder(string virtualPath)
         {
-            var markupFile = markupFileLoader.GetMarkup(configuration, virtualPath);
+            var markupFile = markupFileLoader.GetMarkup(configuration, virtualPath) ?? throw  new DotvvmCompilationException($"File '{virtualPath}' was not found. This exception is possibly caused because of incorrect route registration.");
             return controlBuilders.GetOrAdd(markupFile, CreateControlBuilder);
         }
 
@@ -171,11 +174,30 @@ namespace DotVVM.Framework.Compilation
                     if (File.Exists(possibleFileName)) return AssemblyLoader.LoadFile(possibleFileName);
                 }
             }
+            foreach (var assembly in ReflectionUtils.GetAllAssemblies())
+            {
+                // get already loaded assembly
+                if (assembly.GetName().Name == cleanName)
+                {
+                    var codeBase = assembly.GetCodeBasePath();
+                    if (codeBase.EndsWith(fileName, StringComparison.OrdinalIgnoreCase)) return assembly;
+                }
+            }
             return null;
         }
 
         public void LoadCompiledViewsAssembly(Assembly assembly)
         {
+            var initMethods = assembly.GetTypes()
+                .Where(t => t.Name == "SerializedObjects")
+                .SelectMany(t => t.GetMethods(BindingFlags.Public | BindingFlags.Static))
+                .Where(m => m.Name == "Init")
+                .ToArray();
+            foreach (var initMethod in initMethods)
+            {
+                var args = initMethod.GetParameters().Select(p => configuration.ServiceProvider.GetRequiredService(p.ParameterType)).ToArray();
+                initMethod.Invoke(null, args);
+            }
             var builders = assembly.GetTypes().Select(t => new
             {
                 type = t,

@@ -3,21 +3,19 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Reflection;
-using System.Text;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
-using System.Linq.Expressions;
 using DotVVM.Framework.Compilation.Javascript;
-using System.Threading.Tasks;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.Utils;
-using System.Diagnostics;
 using DotVVM.Framework.Binding.Properties;
 using Newtonsoft.Json;
-using System.Runtime.CompilerServices;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -44,10 +42,9 @@ namespace DotVVM.Framework.Configuration
                     !ViewModelJsonConverter.IsEnumerable(obj) && ViewModelJsonConverter.IsComplexType(obj) && !ViewModelJsonConverter.IsTuple(obj))
                 {
 
-                    config.ServiceLocator.GetService<IViewModelSerializationMapper>().Map(obj, m => {
+                    config.GetSerializationMapper().Map(obj, m => {
                         foreach (var prop in m.Properties)
                         {
-                            prop.Name = KnockoutHelper.ConvertToCamelCase(prop.Name);
                             if (isSameAssembly(prop.Type))
                                 RegisterApiDtoProperties(prop.Type, config, currentAssembly);
                         }
@@ -105,7 +102,7 @@ namespace DotVVM.Framework.Configuration
 
                     if (registerJS)
                     {
-                        var isRead = method.Name.StartsWith("get", StringComparison.OrdinalIgnoreCase);
+                        var isRead = IsHttpReadMethod(method);
 
                         config.Markup.JavascriptTranslator.MethodCollection.AddMethodTranslator(method, new GenericMethodCompiler(
                             a => new JsIdentifierExpression("dotvvm").Member("invokeApiFn").Invoke(
@@ -139,6 +136,7 @@ namespace DotVVM.Framework.Configuration
                 jsidentifier.Clone(),
                 new JsNewExpression(
                     new JsIdentifierExpression(clientType.FullName),
+                    new JsLiteral(apiServerUrl),
                     CreateHttpObj(customFetchFunction)
                 )
             ));
@@ -199,6 +197,22 @@ namespace DotVVM.Framework.Configuration
             }
         }
 
+        private const string HttpGetVerb = "Get";
+        private const string HttpHeadVerb = "Head";
+        private static bool IsHttpReadMethod(MethodInfo method)
+        {
+            var httpMethod = method.GetCustomAttribute<HttpMethodAttribute>()?.Method;
+
+            if (httpMethod != null)
+            {
+                return httpMethod.Equals(HttpGetVerb, StringComparison.OrdinalIgnoreCase)
+                    || httpMethod.Equals(HttpHeadVerb, StringComparison.OrdinalIgnoreCase);
+            }
+
+            return method.Name.StartsWith(HttpGetVerb, StringComparison.OrdinalIgnoreCase)
+                || method.Name.StartsWith(HttpHeadVerb, StringComparison.OrdinalIgnoreCase);
+        }
+
         public class ApiGroupDescriptor
         {
             public object Instance { get; }
@@ -229,6 +243,17 @@ namespace DotVVM.Framework.Configuration
                 expression.Freeze();
                 this.JsExpression = expression;
             }
+        }
+
+        [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+        public sealed class HttpMethodAttribute : Attribute
+        {
+            public HttpMethodAttribute(string method)
+            {
+                Method = method;
+            }
+
+            public string Method { get; }
         }
 
         public class ApiExtensionParameter : BindingExtensionParameter

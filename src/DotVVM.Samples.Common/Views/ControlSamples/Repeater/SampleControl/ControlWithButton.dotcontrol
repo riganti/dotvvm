@@ -1,0 +1,9 @@
+﻿@viewModel System.Object, mscorlib
+@baseType DotVVM.Samples.Common.Views.ControlSamples.Repeater.SampleControl.ControlWithButton
+
+<div>
+    <dot:Button Text="XXX"
+                Click="{controlCommand: OnGoToDetail()}" />
+
+    <sample:ControlWithButton2 DataContext="{value: _this}" GoToDetailAction="{command: _control.OnGoToDetail}"/>
+</div>

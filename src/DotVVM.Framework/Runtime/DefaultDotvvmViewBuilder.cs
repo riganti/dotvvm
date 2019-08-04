@@ -14,13 +14,14 @@ namespace DotVVM.Framework.Runtime
 {
     public class DefaultDotvvmViewBuilder : IDotvvmViewBuilder
     {
+        protected readonly IMarkupFileLoader markupFileLoader;
 
-        protected IMarkupFileLoader markupFileLoader;
+        protected readonly IControlBuilderFactory controlBuilderFactory;
+        protected readonly DotvvmMarkupConfiguration markupConfiguration;
 
-        protected IControlBuilderFactory controlBuilderFactory;
-
-        public DefaultDotvvmViewBuilder(IMarkupFileLoader markupFileLoader, IControlBuilderFactory builderFactory)
+        public DefaultDotvvmViewBuilder(IMarkupFileLoader markupFileLoader, IControlBuilderFactory builderFactory, DotvvmMarkupConfiguration markupConfiguration)
         {
+            this.markupConfiguration = markupConfiguration;
             this.markupFileLoader = markupFileLoader;
             this.controlBuilderFactory = builderFactory;
         }
@@ -33,12 +34,11 @@ namespace DotVVM.Framework.Runtime
             // get the page markup
             var markup = markupFileLoader.GetMarkupFileVirtualPath(context);
 
-
             // build the page
             var (_, pageBuilder) = controlBuilderFactory.GetControlBuilder(markup);
             var contentPage = pageBuilder.Value.BuildControl(controlBuilderFactory, context.Services) as DotvvmView;
 
-            FillsDefaultDirectives(contentPage, context.Configuration);
+            FillsDefaultDirectives(contentPage);
 
             // check for master page and perform composition recursively
             while (IsNestedInMasterPage(contentPage))
@@ -47,7 +47,7 @@ namespace DotVVM.Framework.Runtime
                 var masterPageFile = contentPage.Directives[ParserConstants.MasterPageDirective];
                 var masterPage = (DotvvmView)controlBuilderFactory.GetControlBuilder(masterPageFile).builder.Value.BuildControl(controlBuilderFactory, context.Services);
 
-                FillsDefaultDirectives(masterPage, context.Configuration);
+                FillsDefaultDirectives(masterPage);
                 PerformMasterPageComposition(contentPage, masterPage);
 
                 masterPage.ViewModelType = contentPage.ViewModelType;
@@ -88,20 +88,20 @@ namespace DotVVM.Framework.Runtime
         {
             return page.Directives.ContainsKey(ParserConstants.MasterPageDirective);
         }
+
         /// <summary>
         /// Fills default directives if specific directives are not set
         /// </summary>
-        private void FillsDefaultDirectives(DotvvmView page, DotvvmConfiguration configuration)
+        private void FillsDefaultDirectives(DotvvmView page)
         {
-            foreach (var key in configuration.Markup.DefaultDirectives.Keys)
+            foreach (var key in markupConfiguration.DefaultDirectives.Keys)
             {
                 if (!page.Directives.Keys.Contains(key))
                 {
-                    page.Directives[key] = configuration.Markup.DefaultDirectives[key];
+                    page.Directives[key] = markupConfiguration.DefaultDirectives[key];
                 }
             }
         }
-
 
         /// <summary>
         /// Performs the master page nesting.
@@ -128,14 +128,18 @@ namespace DotVVM.Framework.Runtime
                 }
 
                 // replace the contents
+                var contentPlaceHolder = new PlaceHolder();
+                contentPlaceHolder.SetDataContextType(content.Parent.GetDataContextType());
                 (content.Parent as DotvvmControl)?.Children.Remove(content);
+
                 placeHolder.Children.Clear();
-                placeHolder.Children.Add(content);
+                placeHolder.Children.Add(contentPlaceHolder);
+
+                contentPlaceHolder.Children.Add(content);
                 content.SetValue(Internal.IsMasterPageCompositionFinishedProperty, true);
                 content.SetValue(DotvvmView.DirectivesProperty, childPage.Directives);
                 content.SetValue(Internal.MarkupFileNameProperty, childPage.GetValue(Internal.MarkupFileNameProperty));
             }
-
 
             // copy the directives from content page to the master page (except the @masterpage)
             masterPage.ViewModelType = childPage.ViewModelType;
@@ -166,9 +170,17 @@ namespace DotVVM.Framework.Runtime
         private List<Content> GetChildPageContents(DotvvmView childPage, List<ContentPlaceHolder> parentPlaceHolders)
         {
             // make sure that the body contains only whitespace and Content controls
-            if (!childPage.Children.All(c => (c is RawLiteral && ((RawLiteral)c).IsWhitespace) || (c is Content)))
+            var nonContentElements =
+                childPage.Children.Where(c => !((c is RawLiteral && ((RawLiteral)c).IsWhitespace) || (c is Content)));
+            if (nonContentElements.Any())
             {
-                throw new Exception("If the page contains @masterpage directive, it can only contain white space and <dot:Content /> controls!");    // TODO: exception handling
+                // show all error lines
+                var innerExceptions = nonContentElements.Select(s =>
+                        new Exception($"Error occurred near line: {(s.GetValue(Internal.MarkupLineNumberProperty)?.ToString() ?? "")}.")).ToList(); // the message cannot be specifically to the line, because MarkupLineNumber shows the last character position which is a line under the error in some cases.
+
+                var corruptedFile = childPage.GetValue(Internal.MarkupFileNameProperty)?.ToString();
+                throw new AggregateException("If the page contains @masterpage directive, it can only contain white space and <dot:Content /> controls! \r\n"
+                    + (string.IsNullOrWhiteSpace(corruptedFile) ? "" : $"Corrupted file name: {corruptedFile}"), innerExceptions);
             }
 
             // make sure that the Content controls are not nested in other elements
@@ -182,6 +194,5 @@ namespace DotVVM.Framework.Runtime
 
             return contents;
         }
-
     }
 }

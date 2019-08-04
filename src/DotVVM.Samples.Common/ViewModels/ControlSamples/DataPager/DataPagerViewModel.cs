@@ -14,25 +14,32 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.DataPager
 
         public int ItemsInDatabaseCount { get; set; } = 2;
 
-        public bool ShouldLoadAsync { get; set; }
-
         public override Task Init()
         {
-            if (ShouldLoadAsync)
+            DataSet = new GridViewDataSet<Data>()
             {
-                DataSet = GridViewDataSet.Create(GetDataAsync, pageSize: 3);
-            }
-            else
-            {
-                DataSet = GridViewDataSet.Create(GetData, pageSize: 3);
-            }
+                PagingOptions = new PagingOptions()
+                {
+                    PageSize = 3
+                }
+            };
             return base.Init();
+        }
+
+        public override Task PreRender()
+        {
+            if (DataSet.IsRefreshRequired)
+            {
+                DataSet.LoadFromQueryable(FakeDB(ItemsInDatabaseCount));
+            }
+
+            return base.PreRender();
         }
 
         public void Populate()
         {
-            ItemsInDatabaseCount = 20;
-            DataSet.RequestRefresh(forceRefresh: true);
+            ItemsInDatabaseCount = 50;
+            DataSet.RequestRefresh();
         }
 
         private IQueryable<Data> FakeDB(int itemsCreatorCounter)
@@ -46,18 +53,6 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.DataPager
                 });
             }
             return dbdata.AsQueryable();
-        }
-
-        private GridViewDataSetLoadedData<Data> GetData(IGridViewDataSetLoadOptions gridViewDataSetLoadOptions)
-        {
-            var queryable = FakeDB(ItemsInDatabaseCount);
-            return queryable.GetDataFromQueryable(gridViewDataSetLoadOptions);
-        }
-
-        private async Task<GridViewDataSetLoadedData<Data>> GetDataAsync(IGridViewDataSetLoadOptions gridViewDataSetLoadOptions)
-        {
-            var queryable = FakeDB(ItemsInDatabaseCount);
-            return await Task.Run(() => queryable.GetDataFromQueryable(gridViewDataSetLoadOptions));
         }
 
         public class Data

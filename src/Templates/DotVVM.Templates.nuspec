@@ -2,11 +2,12 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>DotVVM.Templates</id>
-    <version>1.2.0-alpha2</version>
+    <version>2.3.0</version>
     <authors>RIGANTI</authors>
     <description>DotVVM Project Templates</description>
     <language>en-US</language>
     <projectUrl>https://github.com/riganti/dotvvm</projectUrl>
+    <license type="expression">Apache-2.0</license>
     <packageTypes>
       <packageType name="Template" />
     </packageTypes>

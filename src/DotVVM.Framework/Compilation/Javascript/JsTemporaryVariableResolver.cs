@@ -20,9 +20,6 @@ namespace DotVVM.Framework.Compilation.Javascript
             var eulerPath = new List<(JsNode node, bool isFirst)>();
             walkNode(eulerPath, node);
 
-            JsNode lca(JsNode a, JsNode b) =>
-                a.Ancestors.First(b.Ancestors.Contains);
-
             var allVariables = new Dictionary<JsTemporaryVariableParameter, (int from, int to)>();
             var usedNames = new HashSet<string>();
             foreach (var n in node.DescendantNodesAndSelf())
@@ -97,12 +94,13 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
 
     }
-    public sealed class JsTemporaryVariableParameter
+    public sealed class JsTemporaryVariableParameter: CodeSymbolicParameter
     {
         public JsExpression Initializer { get; }
         public string PreferedName { get; }
 
         public JsTemporaryVariableParameter(JsExpression initializer = null)
+            : base("tmp_var[" + initializer?.ToString() + "]")
         {
             this.Initializer = initializer;
         }

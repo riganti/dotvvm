@@ -6,11 +6,11 @@ namespace DotVVM.CommandLine
 {
     public static class FileSystemHelpers
     {
-        public static void WriteFile(string fileName, string contents)
+        public static void WriteFile(string fileName, string contents, bool promptOnFileOverwrite = true)
         {
             fileName = Path.GetFullPath(fileName);
 
-            if (File.Exists(fileName))
+            if (File.Exists(fileName) && promptOnFileOverwrite)
             {
                 if (!ConsoleHelpers.AskForYesNo($"The file '{fileName}' already exists! Overwrite?"))
                 {

@@ -1,0 +1,31 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.ParameterBinding.OptionParameterBindingViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <h2> Without default value</h2>
+    <dot:RouteLink ID="opt1_empty" RouteName="FeatureSamples_ParameterBinding_OptionalParameterBinding" Text="Link A1" /><br />
+    <dot:RouteLink ID="opt1_param_empty" RouteName="FeatureSamples_ParameterBinding_OptionalParameterBinding" Text="Link A2" Param-A="" /><br />
+    <dot:RouteLink ID="opt1_param_A2" RouteName="FeatureSamples_ParameterBinding_OptionalParameterBinding" Text="Link A3" Param-A="3" /><br />
+    <dot:RouteLink ID="opt1_param_ID2" RouteName="FeatureSamples_ParameterBinding_OptionalParameterBinding" Text="Link A4" Param-ID="4" /><br />
+    <dot:RouteLink ID="opt1_param_ID2A2" RouteName="FeatureSamples_ParameterBinding_OptionalParameterBinding" Text="Link A5" Param-ID="5" param-A="2" /><br />
+
+    <br /><br />
+    <h2> With default 300 </h2>
+    <dot:RouteLink ID="opt2_empty" RouteName="FeatureSamples_ParameterBinding_OptionalParameterBinding2" Text="Link B1"  /><br />
+    <dot:RouteLink ID="opt2_param_A" RouteName="FeatureSamples_ParameterBinding_OptionalParameterBinding2" Text="Link B2" Param-A="2" /><br />
+    <dot:RouteLink ID="opt2_param_2" RouteName="FeatureSamples_ParameterBinding_OptionalParameterBinding2" Text="Link B3" Param-Id="3" /><br />
+    <dot:RouteLink ID="opt2_param_ID2A2" RouteName="FeatureSamples_ParameterBinding_OptionalParameterBinding2" Text="Link B4" Param-Id="4" Param-A="1" /><br />
+
+    <br /><br /><br />
+    Result:
+    <dot:Literal ID="Result" RenderSettings.Mode="Server" Text="{value: Param }" />
+</body>
+</html>
+
+

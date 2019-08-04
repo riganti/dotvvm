@@ -39,7 +39,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
                                .Aggregate(ControlLifecycleRequirements.None, (a, b) => a | b);
                 var value = req | childReq;
                 // don't have to do the assignment for RawLiteral, as it has None by default
-                if (!(value == ControlLifecycleRequirements.None && control.Metadata.Type == typeof(RawLiteral)))
+                if (!(value == ControlLifecycleRequirements.None && control.Metadata.Type == typeof(RawLiteral)) &&
+                    // don't assign for markup controls, they already contain content when created
+                    control.Metadata.VirtualPath == null)
                     control.SetProperty(new ResolvedPropertyValue(CompileTimeLifecycleRequirementsProperty, value));
             }
         }

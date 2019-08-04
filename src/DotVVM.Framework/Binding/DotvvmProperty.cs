@@ -109,8 +109,7 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public virtual object GetValue(DotvvmBindableObject control, bool inherit = true)
         {
-            object value;
-            if (control.properties != null && control.properties.TryGetValue(this, out value))
+            if (control.properties.TryGet(this, out var value))
             {
                 return value;
             }
@@ -127,7 +126,7 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public virtual bool IsSet(DotvvmBindableObject control, bool inherit = true)
         {
-            if (control.properties != null && control.properties.ContainsKey(this))
+            if (control.properties.Contains(this))
             {
                 return true;
             }
@@ -146,7 +145,7 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public virtual void SetValue(DotvvmBindableObject control, object value)
         {
-            control.Properties[this] = value;
+            control.properties.Set(this, value);
         }
 
         /// <summary>
@@ -181,7 +180,7 @@ namespace DotVVM.Framework.Binding
             return Register(propertyName, typeof(TPropertyType), typeof(TDeclaringType), defaultValue, isValueInherited, property, field);
         }
 
-        public static DotvvmProperty Register(string propertyName, Type propertyType, Type declaringType, object defaultValue, bool isValueInherited, DotvvmProperty property, ICustomAttributeProvider attributeProvider)
+        public static DotvvmProperty Register(string propertyName, Type propertyType, Type declaringType, object defaultValue, bool isValueInherited, DotvvmProperty property, ICustomAttributeProvider attributeProvider, bool throwOnDuplicitRegistration = true)
         {
             var fullName = declaringType.FullName + "." + propertyName;
 
@@ -195,7 +194,13 @@ namespace DotVVM.Framework.Binding
 
             InitializeProperty(property, attributeProvider);
 
-            if (!registeredProperties.TryAdd(property.DeclaringType.FullName + "." + property.Name, property)) throw new ArgumentException($"Property is already registered: {fullName}");
+            if (!registeredProperties.TryAdd(fullName, property))
+            {
+                if (throwOnDuplicitRegistration)
+                    throw new ArgumentException($"Property is already registered: {fullName}");
+                else
+                    property = registeredProperties[fullName];
+            }
 
             return property;
         }
@@ -292,19 +297,9 @@ namespace DotVVM.Framework.Binding
             return registeredProperties.Values.Where(p => types.Contains(p.DeclaringType)).ToArray();
         }
 
-        /// <summary>
-        /// Called when a control of the property type is created and initialized.
-        /// </summary>
-        [Obsolete("Does not work as you would expect and will be changed/removed")]
-        protected internal virtual void OnControlInitialized(DotvvmBindableObject dotvvmControl)
+        public override string ToString()
         {
-        }
-
-        /// <summary>
-        /// Called right before the page is rendered.
-        /// </summary>
-        public void OnControlRendering(DotvvmBindableObject dotvvmControl)
-        {
+            return $"{this.FullName}";
         }
     }
 }

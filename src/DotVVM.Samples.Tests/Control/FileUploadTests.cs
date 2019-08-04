@@ -1,16 +1,20 @@
 ﻿using System.IO;
 using System.Linq;
-using Dotvvm.Samples.Tests;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
-using Riganti.Utils.Testing.Selenium.DotVVM;
+using DotVVM.Samples.Tests.Base;
+using DotVVM.Testing.Abstractions;
+using Riganti.Selenium.Core;
+using Riganti.Selenium.DotVVM;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace DotVVM.Samples.Tests.Control
 {
-    [TestClass]
-    public class FileUploadTests : SeleniumTest
+    public class FileUploadTests : AppSeleniumTest
     {
-        [TestMethod]
+        public FileUploadTests(ITestOutputHelper output) : base(output)
+        {
+        }
+        [Fact]
         [Timeout(120000)]
         public void Control_FileUpload_FileUpload()
         {
@@ -28,14 +32,15 @@ namespace DotVVM.Samples.Tests.Control
                 File.WriteAllText(tempFile, string.Join(",", Enumerable.Range(1, 100000)));
 
                 // write the full path to the dialog
-                browser.First(".dotvvm-upload-button a").UploadFile(tempFile);
+
+                DotVVMAssert.UploadFile((ElementWrapper)browser.First(".dotvvm-upload-button a"), tempFile);
 
                 // wait for the file to be uploaded
 
                 browser.WaitFor(() => browser.First(".dotvvm-upload-files").GetText() == "1 files", 60000,
                     "File was not uploaded in 1 min interval.");
 
-                TestContext.WriteLine("The file was uploaded.");
+                //TODO: TestContext.WriteLine("The file was uploaded.");
 
                 // submit
                 browser.Click("input[type=button]");
@@ -56,7 +61,7 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
-        [TestMethod]
+        [Fact()]
         [Timeout(120000)]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_FileUpload_IsAllowedOrNot))]
         public void Control_FileUpload_IsAllowedOrNot_IsFileAllowed()
@@ -68,21 +73,21 @@ namespace DotVVM.Samples.Tests.Control
 
                 var isFileTypeAllowed = browser.Single("span.isFileTypeAllowed");
                 var isMaxSizeExceeded = browser.Single("span.isMaxSizeExceeded");
-                
+
                 var textFile = CreateTempFile("txt", 1);
-                browser.First(".dotvvm-upload-button a").UploadFile(textFile);
+                DotVVMAssert.UploadFile((ElementWrapper)browser.First(".dotvvm-upload-button a"), textFile);
 
                 browser.WaitFor(() => browser.First(".dotvvm-upload-files").GetText() == "1 files", 60000,
                     "File was not uploaded in 1 min interval.");
 
-                isFileTypeAllowed.CheckIfTextEquals("true");
-                isMaxSizeExceeded.CheckIfTextEquals("false");
+                AssertUI.TextEquals(isFileTypeAllowed, "true");
+                AssertUI.TextEquals(isMaxSizeExceeded, "false");
 
                 File.Delete(textFile);
             });
         }
 
-        [TestMethod]
+        [Fact]
         [Timeout(120000)]
         public void Control_FileUpload_IsFileNotAllowed()
         {
@@ -95,19 +100,19 @@ namespace DotVVM.Samples.Tests.Control
                 var isMaxSizeExceeded = browser.Single("span.isMaxSizeExceeded");
 
                 var mdFile = CreateTempFile("md", 1);
-                browser.First(".dotvvm-upload-button a").UploadFile(mdFile);
+                DotVVMAssert.UploadFile((ElementWrapper)browser.First(".dotvvm-upload-button a"), mdFile);
 
                 browser.WaitFor(() => browser.First(".dotvvm-upload-files").GetText() == "1 files", 60000,
                     "File was not uploaded in 1 min interval.");
 
-                isFileTypeAllowed.CheckIfTextEquals("false");
-                isMaxSizeExceeded.CheckIfTextEquals("false");
+                AssertUI.TextEquals(isFileTypeAllowed, "false");
+                AssertUI.TextEquals(isMaxSizeExceeded, "false");
 
                 File.Delete(mdFile);
             });
         }
 
-        [TestMethod]
+        [Fact]
         [Timeout(120000)]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_FileUpload_IsAllowedOrNot))]
         public void Control_FileUpload_IsAllowedOrNot_FileTooLarge()
@@ -121,19 +126,19 @@ namespace DotVVM.Samples.Tests.Control
                 var isMaxSizeExceeded = browser.Single("span.isMaxSizeExceeded");
 
                 var largeFile = CreateTempFile("txt", 2);
-                browser.First(".dotvvm-upload-button a").UploadFile(largeFile);
+                DotVVMAssert.UploadFile((ElementWrapper)browser.First(".dotvvm-upload-button a"), largeFile);
 
                 browser.WaitFor(() => browser.First(".dotvvm-upload-files").GetText() == "1 files", 60000,
                     "File was not uploaded in 1 min interval.");
 
-                isFileTypeAllowed.CheckIfTextEquals("true");
-                isMaxSizeExceeded.CheckIfTextEquals("true");
+                AssertUI.TextEquals(isFileTypeAllowed, "true");
+                AssertUI.TextEquals(isMaxSizeExceeded, "true");
 
                 File.Delete(largeFile);
             });
         }
 
-        [TestMethod]
+        [Fact]
         [Timeout(120000)]
         public void Control_FileUpload_FileSize()
         {
@@ -145,12 +150,12 @@ namespace DotVVM.Samples.Tests.Control
                 var fileSize = browser.Single("span.fileSize");
 
                 var file = CreateTempFile("txt", 2);
-                browser.First(".dotvvm-upload-button a").UploadFile(file);
+                DotVVMAssert.UploadFile((ElementWrapper)browser.First(".dotvvm-upload-button a"), file);
 
                 browser.WaitFor(() => browser.First(".dotvvm-upload-files").GetText() == "1 files", 60000,
                     "File was not uploaded in 1 min interval.");
 
-                fileSize.CheckIfTextEquals("2 MB");
+                AssertUI.TextEquals(fileSize, "2 MB");
 
                 File.Delete(file);
             });
@@ -169,8 +174,9 @@ namespace DotVVM.Samples.Tests.Control
             return tempFile;
         }
 
-        // TODO: FileUpload with UploadCompleted command
+        //TODO: FileUpload with UploadCompleted command
 
         // TODO: RenderSettings.Mode="Server"
+
     }
 }

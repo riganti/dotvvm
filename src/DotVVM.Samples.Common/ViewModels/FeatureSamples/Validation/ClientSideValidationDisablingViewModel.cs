@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using DotVVM.Framework.ViewModel;
+using DotVVM.Samples.BasicSamples.Utilities;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation
 {
@@ -12,7 +13,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation
         [Required]
         public string RequiredString { get; set; }
 
-        [EmailAddress]
+        [OnlyServerSideEmailAddress]
         public string EmailString { get; set; }
 
         public bool ClientSideValidationEnabled => Context.Configuration.ClientSideValidation;
@@ -24,7 +25,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation
         public override Task Init()
         {
             bool value;
-            //if there`s paremeter ClientSideValidationEnabled which controls if client side valid validation will be active than set it according to it
+            //if there`s parameter ClientSideValidationEnabled which controls if client side valid validation will be active than set it according to it
             //else disable client side validation
             if (Context.Parameters.ContainsKey("ClientSideValidationEnabled") &&
                 Boolean.TryParse(Context.Parameters["ClientSideValidationEnabled"].ToString(), out value))

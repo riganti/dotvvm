@@ -13,7 +13,7 @@ namespace DotVVM.Framework.ResourceManagement
     public abstract class LocalResourceLocation : ILocalResourceLocation
     {
         public string GetUrl(IDotvvmRequestContext context, string name) =>
-            context.Services.GetService<ILocalResourceUrlManager>().GetResourceUrl(this, context, name);
+            context.Services.GetRequiredService<ILocalResourceUrlManager>().GetResourceUrl(this, context, name);
 
         public abstract Stream LoadResource(IDotvvmRequestContext context);
     }

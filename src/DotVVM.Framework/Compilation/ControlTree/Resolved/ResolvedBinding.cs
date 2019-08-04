@@ -29,9 +29,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
         public DataContextStack DataContextTypeStack => Binding.GetProperty<DataContextStack>();
 
-        public IEnumerable<(Type requirement, Exception error, DiagnosticSeverity)> Errors => Binding.GetProperty<BindingErrorReporterProperty>().Errors;
-
-        //public Exception ParsingError { get; set; }
+        public BindingErrorReporterProperty Errors => Binding.GetProperty<BindingErrorReporterProperty>();
 
         public ITypeDescriptor ResultType => ResolvedTypeDescriptor.Create(Binding.GetProperty<ResultTypeBindingProperty>(ErrorHandlingMode.ReturnNull)?.Type);
 
@@ -39,7 +37,6 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
         IAbstractTreeNode IAbstractTreeNode.Parent => Parent;
 
-        //public DebugInfoExpression DebugInfo { get; set; }
 
         public ResolvedBinding(BindingCompilationService bindingService, BindingParserOptions bindingOptions, DataContextStack dataContext, string code = null, Expression parsedExpression = null, DotvvmProperty property = null)
         {

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
@@ -90,10 +91,11 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public bool Equals(DataContextStack stack)
         {
-            return this == stack || hashCode == stack.hashCode
+            return ReferenceEquals(this, stack) || hashCode == stack.hashCode
                 && DataContextType == stack.DataContextType
                 && NamespaceImports.SequenceEqual(stack.NamespaceImports)
-                && Parent.Equals(stack.Parent);
+                && ExtensionParameters.SequenceEqual(stack.ExtensionParameters)
+                && Equals(Parent, stack.Parent);
         }
 
         public override int GetHashCode()
@@ -106,18 +108,33 @@ namespace DotVVM.Framework.Compilation.ControlTree
             unchecked
             {
                 var hashCode = 0;
-                if (NamespaceImports != null)
+                foreach (var import in NamespaceImports)
                 {
-                    foreach (var import in NamespaceImports)
-                    {
-                        hashCode += (hashCode * 47) ^ import.GetHashCode();
-                    }
+                    hashCode += (hashCode * 47) ^ import.GetHashCode();
+                }
+
+                foreach (var parameter in ExtensionParameters)
+                {
+                    hashCode *= 17;
+                    hashCode += parameter.GetHashCode();
                 }
 
                 hashCode = (hashCode * 397) ^ (Parent?.GetHashCode() ?? 0);
                 hashCode = (hashCode * 13) ^ (DataContextType?.FullName?.GetHashCode() ?? 0);
                 return hashCode;
             }
+        }
+
+        public override string ToString()
+        {
+            var features = new [] {
+                $"type={this.DataContextType.FullName}",
+                this.NamespaceImports.Any() ? "imports=[" + string.Join(", ", this.NamespaceImports) + "]" : null,
+                this.ExtensionParameters.Any() ? "ext=[" + string.Join(", ", this.ExtensionParameters.Select(e => e.Identifier + ": " + e.ParameterType.Name)) + "]" : null,
+                this.BindingPropertyResolvers.Any() ? "resolvers=[" + string.Join(", ", this.BindingPropertyResolvers.Select(s => s.Method)) + "]" : null,
+                this.Parent != null ? "par=[" + string.Join(", ", this.Parents().Select(p => p.Name)) + "]" : null
+            };
+            return "(" + features.Where(a => a != null).StringJoin(", ") + ")";
         }
 
 

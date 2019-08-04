@@ -1,89 +1,174 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OpenQA.Selenium;
-using OpenQA.Selenium.Interactions;
-using Riganti.Utils.Testing.Selenium.Core;
-using System;
-using System.Globalization;
-using System.Linq;
-using System.Threading;
-using Dotvvm.Samples.Tests;
+﻿using DotVVM.Samples.Tests.Base;
+using DotVVM.Testing.Abstractions;
+using Riganti.Selenium.Core;
+using Riganti.Selenium.DotVVM;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace DotVVM.Samples.Tests.Control
 {
-    [TestClass]
-    public class ComboBoxTests : SeleniumTest
+    public class ComboBoxTests : AppSeleniumTest
     {
-        [TestMethod]
+        public ComboBoxTests(ITestOutputHelper output) : base(output)
+        {
+        }
+
+        [Fact]
         public void Control_ComboBox_ComboBox()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ComboBox);
 
-                browser.First("select").Select(0).CheckIfIsDisplayed().Wait();
-                browser.First("span").CheckIfInnerTextEquals("1");
+                var comboBox = browser.First("hardcoded-combobox", SelectByDataUi);
+                var selectedValue = browser.First("selected-value", SelectByDataUi);
+
+                AssertUI.IsDisplayed(comboBox.Select(0));
+                browser.WaitFor(() => AssertUI.InnerTextEquals(selectedValue, "1"), 2000, 30);
 
                 // select second option from combobox
-                browser.First("select").Select(1).Wait();
-                browser.First("span").CheckIfInnerTextEquals("2");
+                comboBox.Select(1);
+                browser.WaitFor(() => AssertUI.InnerTextEquals(selectedValue, "2"), 1000, 30);
 
                 // select third option from combobox
-                browser.First("select").Select(2).Wait();
-                browser.First("span").CheckIfInnerTextEquals("3");
+                comboBox.Select(2);
+                browser.WaitFor(() => AssertUI.InnerTextEquals(selectedValue, "3"), 1000, 30);
 
                 // select fourth option from combobox
-                browser.First("select").Select(3).Wait();
-                browser.First("span").CheckIfInnerTextEquals("4");
+                comboBox.Select(3);
+                browser.WaitFor(() => AssertUI.InnerTextEquals(selectedValue, "4"), 1000, 30);
             });
         }
 
-        [TestMethod]
+        [Fact]
+        [SampleReference(SamplesRouteUrls.ControlSamples_ComboBox_ComboBox)]
+        public void Control_ComboBox_ComboBoxBinded()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ComboBox);
+
+                var comboBox = browser.First("binded-combobox", SelectByDataUi);
+                var selectedText = browser.First("selected-text", SelectByDataUi);
+
+                AssertUI.IsDisplayed(comboBox.Select(0));
+                browser.WaitFor(() => AssertUI.InnerTextEquals(selectedText, "A"), 2000, 30);
+
+                // select second option from combobox
+                comboBox.Select(1);
+                browser.WaitFor(() => AssertUI.InnerTextEquals(selectedText, "AA"), 1000, 30);
+
+                // select third option from combobox
+                comboBox.Select(2);
+                browser.WaitFor(() => AssertUI.InnerTextEquals(selectedText, "AAA"), 1000, 30);
+
+                // select fourth option from combobox
+                comboBox.Select(3);
+                browser.WaitFor(() => AssertUI.InnerTextEquals(selectedText, "AAAA"), 1000, 30);
+            });
+        }
+
+        [Fact]
         public void Control_ComboBox_ComboBoxDelaySync()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ComboBoxDelaySync);
 
                 // check that the second item is selected in both ComboBoxes on the page start
-                browser.ElementAt("select", 0).ElementAt("option", 1).CheckIfIsSelected();
-                browser.ElementAt("select", 1).ElementAt("option", 1).CheckIfIsSelected();
+                AssertUI.IsSelected(browser.ElementAt("select", 0).ElementAt("option", 1));
+                AssertUI.IsSelected(browser.ElementAt("select", 1).ElementAt("option", 1));
 
                 // change the DataSource collection on the server and verify that the second item is selected in both ComboBoxes
-                browser.First("input").Click().Wait();
-                browser.ElementAt("select", 0).ElementAt("option", 1).CheckIfIsSelected();
-                browser.ElementAt("select", 1).ElementAt("option", 1).CheckIfIsSelected();
+                browser.First("input").Click();
+
+                browser.WaitFor(() => {
+                    AssertUI.IsSelected(browser.ElementAt("select", 0).ElementAt("option", 1));
+                    AssertUI.IsSelected(browser.ElementAt("select", 1).ElementAt("option", 1));
+                }, 800, 30);
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void Control_ComboBox_ComboBoxDelaySync2()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ComboBoxDelaySync2);
-                browser.First("input[type=button]").Click().Wait();
+                browser.First("input[type=button]").Click();
 
-                // check the comboboxes
-                browser.ElementAt("select", 0).ElementAt("option", 0).CheckIfIsSelected();
-                browser.ElementAt("select", 1).ElementAt("option", 1).CheckIfIsSelected();
+                browser.WaitFor(() => {
 
-                // check the labels
-                browser.ElementAt(".result", 0).CheckIfInnerTextEquals("1");
-                browser.ElementAt(".result", 1).CheckIfInnerTextEquals("2");
+
+                    // check the comboboxes
+                    AssertUI.IsSelected(browser.ElementAt("select", 0).ElementAt("option", 0));
+                    AssertUI.IsSelected(browser.ElementAt("select", 1).ElementAt("option", 1));
+
+                    // check the labels
+                    AssertUI.InnerTextEquals(browser.ElementAt(".result", 0), "1");
+                    AssertUI.InnerTextEquals(browser.ElementAt(".result", 1), "2");
+                }, 1000, 30);
             });
         }
 
-
-        [TestMethod]
+        [Fact]
         public void Control_ComboBox_ComboBoxDelaySync3()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ComboBoxDelaySync3);
-                browser.First("input[type=button]").Click().Wait();
+                browser.First("input[type=button]").Click();
 
+                browser.WaitFor(() => {
                 // check that the combobox appears
-                browser.ElementAt("select", 0).ElementAt("option", 0).CheckIfIsSelected();
+                    AssertUI.IsSelected(browser.ElementAt("select", 0).ElementAt("option", 0));
+                }, 1000, 30);
+            });
+        }
+
+        [Fact]
+        public void Control_ComboBox_ComboBoxTitle()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ComboBoxTitle);
+
+                AssertUI.InnerTextEquals(browser.ElementAt("select option", 0), "Too lo...");
+                AssertUI.InnerTextEquals(browser.ElementAt("select option", 1), "Text");
+
+                AssertUI.Attribute(browser.ElementAt("select option", 0), "title", "Nice title");
+                AssertUI.Attribute(browser.ElementAt("select option", 1), "title", "Even nicer title");
+            });
+        }
+
+        [Fact]
+        public void Control_ComboBox_Nullable()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_Nullable);
+                browser.WaitUntilDotvvmInited();
+
+                // null value
+                var span = browser.Single("selected-value", SelectByDataUi);
+                AssertUI.InnerTextEquals(span, "");
+
+                // check combobox works
+                var combobox = browser.Single("combobox", SelectByDataUi);
+                combobox.Select(0);
+                browser.WaitFor(() => AssertUI.InnerTextEquals(span, "First"), 1000);
+
+                // test buttons
+                browser.ElementAt("input[type=button]", 0).Click();
+                AssertUI.InnerTextEquals(span, "First");
+                AssertUI.IsSelected(combobox.FindElements("option")[0]);
+
+                browser.ElementAt("input[type=button]", 1).Click();
+                AssertUI.InnerTextEquals(span, "");
+                AssertUI.IsNotSelected(combobox.FindElements("option")[0]);
+                AssertUI.IsNotSelected(combobox.FindElements("option")[1]);
+                AssertUI.IsNotSelected(combobox.FindElements("option")[2]);
+                
+                browser.ElementAt("input[type=button]", 2).Click();
+                AssertUI.InnerTextEquals(span, "First");
+                AssertUI.IsSelected(combobox.FindElements("option")[0]);
+
+                browser.ElementAt("input[type=button]", 3).Click();
+                AssertUI.InnerTextEquals(span, "Second");
+                AssertUI.IsSelected(combobox.FindElements("option")[1]);
             });
         }
     }

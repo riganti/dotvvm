@@ -7,6 +7,7 @@ namespace DotVVM.Framework.Hosting
     {
         IHttpContext HttpContext { get; }
         string Method { get; }
+        [Obsolete("Use the Url.Scheme property instead")]
         string Scheme { get; }
         string ContentType { get; }
         bool IsHttps { get; }
@@ -14,6 +15,7 @@ namespace DotVVM.Framework.Hosting
         IPathString PathBase { get; }
         Stream Body { get; }
         IQueryCollection Query { get; }
+        [Obsolete("Use the Url.Query property instead")]
         string QueryString { get; }
         ICookieCollection Cookies { get; }
         IHeaderCollection Headers { get; }

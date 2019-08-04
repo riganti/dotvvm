@@ -18,13 +18,20 @@
                 </div>
             </ItemTemplate>
             <SeparatorTemplate>
-                <div class="separator"
-                     data-ui="separator">
-                    <dot:Repeater DataSource="{value: Separators}">
-                        <p>{{value: _this}}</p>
+                <div class="separator" data-ui="separator" DataContext="{value: Separators}">
+                    <dot:Repeater DataSource="{value: _this}">
+                        <ItemTemplate>
+                            <p>{{value: _this}}</p>
+                            <dot:Button Click="{command: _root.Increment()}" Text="Increment" data-ui="increment-button" />
+                        </ItemTemplate>
+                        <SeparatorTemplate>
+                            Separator Text
+                        </SeparatorTemplate>
                     </dot:Repeater>
                 </div>
             </SeparatorTemplate>
         </dot:Repeater>
     </div>
+    <dot:Button Click="{command: AddItem()}" Text="Add Item" data-ui="add-item-button" />
+    <dot:Literal data-ui="counter-value" Text="{value: Counter}" />
 </dot:Content>

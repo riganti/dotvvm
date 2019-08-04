@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
 using DotVVM.Framework.Compilation.Parser;
 
 namespace DotVVM.Framework.Compilation
 {
+    [Serializable]
     public class DotvvmCompilationException : Exception
     {
 
@@ -35,5 +37,10 @@ namespace DotVVM.Framework.Compilation
         }
 
         public DotvvmCompilationException(string message, IEnumerable<TokenBase> tokens) : this(message, null, tokens) { }
+        protected DotvvmCompilationException(
+            SerializationInfo info,
+            StreamingContext context) : base(info, context)
+        {
+        }
     }
 }

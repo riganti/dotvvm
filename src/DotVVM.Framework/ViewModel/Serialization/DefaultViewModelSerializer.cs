@@ -61,7 +61,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         {
             // serialize the ViewModel
             var serializer = CreateJsonSerializer();
-            var viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper) {
+            var viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper, context.Services) {
                 UsedSerializationMaps = new HashSet<ViewModelSerializationMap>()
             };
             serializer.Converters.Add(viewModelConverter);
@@ -116,7 +116,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public string BuildStaticCommandResponse(IDotvvmRequestContext context, object result)
         {
             var serializer = CreateJsonSerializer();
-            var viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper) {
+            var viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper, context.Services) {
                 UsedSerializationMaps = new HashSet<ViewModelSerializationMap>()
             };
             serializer.Converters.Add(viewModelConverter);
@@ -171,9 +171,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 var rule = new JObject();
 
-                foreach (var property in map.Properties.Where(p => p.ClientValidationRules.Any()))
+                foreach (var property in map.Properties)
                 {
-                    rule[property.Name] = JToken.FromObject(property.ClientValidationRules);
+                    if (property.ValidationRules.Count > 0 && property.ClientValidationRules.Any())
+                        rule[property.Name] = JToken.FromObject(property.ClientValidationRules);
                 }
                 if (rule.Count > 0) validationRules[map.Type.GetTypeHash()] = rule;
             }
@@ -226,12 +227,12 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 // load encrypted values
                 var encryptedValuesString = viewModelToken["$encryptedValues"].Value<string>();
-                viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper, JObject.Parse(viewModelProtector.Unprotect(encryptedValuesString, context)));
+                viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper, context.Services, JObject.Parse(viewModelProtector.Unprotect(encryptedValuesString, context)));
             }
-            else viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper);
+            else viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper, context.Services);
 
             // get validation path
-            context.ModelState.ValidationTargetPath = data["validationTargetPath"]?.Value<string>();
+            context.ModelState.ValidationTargetPath = data.SelectToken("additionalData.validationTargetPath")?.Value<string>();
 
             // populate the ViewModel
             var serializer = CreateJsonSerializer();
@@ -287,6 +288,12 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 result[controlId] = JValue.CreateString(html);
             }
+
+            if (context.ViewModelJson == null)
+            {
+                context.ViewModelJson = new JObject();
+            }
+
             context.ViewModelJson["updatedControls"] = result;
         }
     }

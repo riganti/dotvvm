@@ -7,14 +7,16 @@ using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
-using DotVVM.Framework.Diagnostics;
+using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Runtime.Tracing;
+using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.ViewModel.Validation;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -28,15 +30,17 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Adds essential DotVVM services to the specified <see cref="IServiceCollection" />.
         /// </summary>
         /// <param name="services">The <see cref="IServiceCollection" /> to add services to.</param>
-        /// <param name="configuration">The DotVVM configuration to use. A default one will be used if the value is <c>null</c>.</param>
-        public static IServiceCollection RegisterDotVVMServices(IServiceCollection services, DotvvmConfiguration configuration = null)
+        public static IServiceCollection RegisterDotVVMServices(IServiceCollection services)
         {
             services.AddOptions();
+
             services.TryAddSingleton<IDotvvmViewBuilder, DefaultDotvvmViewBuilder>();
             services.TryAddSingleton<IViewModelSerializer, DefaultViewModelSerializer>();
             services.TryAddSingleton<IViewModelLoader, DefaultViewModelLoader>();
+            services.TryAddSingleton<IStaticCommandServiceLoader, DefaultStaticCommandServiceLoader>();
             services.TryAddSingleton<IViewModelValidationMetadataProvider, AttributeViewModelValidationMetadataProvider>();
             services.TryAddSingleton<IValidationRuleTranslator, ViewModelValidationRuleTranslator>();
+            services.TryAddSingleton<IPropertySerialization, DefaultPropertySerialization>();
             services.TryAddSingleton<IViewModelValidator, ViewModelValidator>();
             services.TryAddSingleton<IViewModelSerializationMapper, ViewModelSerializationMapper>();
             services.TryAddSingleton<IViewModelParameterBinder, AttributeViewModelParameterBinder>();
@@ -47,6 +51,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IControlResolver, DefaultControlResolver>();
             services.TryAddSingleton<IControlTreeResolver, DefaultControlTreeResolver>();
             services.TryAddSingleton<IAbstractTreeBuilder, ResolvedTreeBuilder>();
+            services.TryAddSingleton<Func<ControlUsageValidationVisitor>>(s => () => ActivatorUtilities.CreateInstance<ControlUsageValidationVisitor>(s));
             services.TryAddSingleton<IViewCompiler, DefaultViewCompiler>();
             services.TryAddSingleton<IBindingCompiler, BindingCompiler>();
             services.TryAddSingleton<IBindingExpressionBuilder, BindingExpressionBuilder>();
@@ -55,51 +60,56 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IControlUsageValidator, DefaultControlUsageValidator>();
             services.TryAddSingleton<ILocalResourceUrlManager, LocalResourceUrlManager>();
             services.TryAddSingleton<IResourceHashService, DefaultResourceHashService>();
-            services.TryAddSingleton<IStopwatch, DefaultStopwatch>();
             services.TryAddSingleton<StaticCommandBindingCompiler, StaticCommandBindingCompiler>();
             services.TryAddSingleton<JavascriptTranslator, JavascriptTranslator>();
             services.TryAddSingleton<IHttpRedirectService, DefaultHttpRedirectService>();
+            services.TryAddSingleton<IExpressionToDelegateCompiler, DefaultExpressionToDelegateCompiler>();
+
 
             services.TryAddScoped<AggregateRequestTracer, AggregateRequestTracer>();
             services.TryAddScoped<ResourceManager, ResourceManager>();
-            services.TryAddSingleton<Func<BindingRequiredResourceVisitor>>(s => {
-               var requiredResourceControl = s.GetRequiredService<IControlResolver>().ResolveControl(new ResolvedTypeDescriptor(typeof(RequiredResource)));
-               return () => new BindingRequiredResourceVisitor((ControlResolverMetadata)requiredResourceControl);
+            services.TryAddSingleton(s => DotvvmConfiguration.CreateDefault(s));
+            services.TryAddSingleton(s => s.GetRequiredService<DotvvmConfiguration>().Markup);
+            services.TryAddSingleton(s => s.GetRequiredService<DotvvmConfiguration>().Resources);
+            services.TryAddSingleton(s => s.GetRequiredService<DotvvmConfiguration>().RouteTable);
+            services.TryAddSingleton(s => s.GetRequiredService<DotvvmConfiguration>().Runtime);
+            services.TryAddSingleton(s => s.GetRequiredService<DotvvmConfiguration>().Security);
+            services.TryAddSingleton(s => s.GetRequiredService<DotvvmConfiguration>().Styles);
+
+            services.ConfigureWithServices<BindingCompilationOptions>((o, s) => {
+                 o.TransformerClasses.Add(ActivatorUtilities.CreateInstance<BindingPropertyResolvers>(s));
             });
 
-            services.AddSingleton(s => configuration ?? (configuration = DotvvmConfiguration.CreateDefault(s)));
-            
-            services.AddDiagnosticServices();
-
-            services.Configure<BindingCompilationOptions>(o => {
-                 o.TransformerClasses.Add(ActivatorUtilities.CreateInstance<BindingPropertyResolvers>(configuration.ServiceLocator.GetServiceProvider()));
+            services.ConfigureWithServices<ViewCompilerConfiguration>((o, s) => {
+                var controlResolver = s.GetRequiredService<IControlResolver>();
+                var requiredResourceControl = controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(RequiredResource)));
+                o.TreeVisitors.Add(() => new BindingRequiredResourceVisitor((ControlResolverMetadata)requiredResourceControl));
+                var requiredGlobalizeControl = controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(GlobalizeResource)));
+                o.TreeVisitors.Add(() => new GlobalizeResourceVisitor((ControlResolverMetadata)requiredGlobalizeControl));
+                o.TreeVisitors.Add(() => ActivatorUtilities.CreateInstance<StylingVisitor>(s));
+                o.TreeVisitors.Add(() => ActivatorUtilities.CreateInstance<DataContextPropertyAssigningVisitor>(s));
+                o.TreeVisitors.Add(() => new LifecycleRequirementsAssigningVisitor());
             });
 
             return services;
         }
 
-        internal static IServiceCollection AddDiagnosticServices(this IServiceCollection services)
+        public static void ConfigureWithServices<TObject, TService>(this IServiceCollection services, Action<TObject, TService> configure)
+            where TObject: class
         {
-            services.TryAddSingleton<DotvvmDiagnosticsConfiguration>();
-            services.TryAddSingleton<IDiagnosticsInformationSender, DiagnosticsInformationSender>();
+            services.AddSingleton<IConfigureOptions<TObject>>(s => new ConfigureOptions<TObject>(o => configure(o, s.GetRequiredService<TService>())));
+        }
 
-            services.AddScoped<IOutputRenderer, DiagnosticsRenderer>();
-            services.AddScoped<IRequestTracer>(s =>
-            {
-                var config = s.GetService<DotvvmConfiguration>();
-                if (config.Debug)
-                {
-                    var sender = s.GetService<IDiagnosticsInformationSender>();
-                    return new DiagnosticsRequestTracer(sender);
-                }
-                else
-                {
-                    return new NullRequestTracer();
-                }
-            });
-            
-            return services;
+        public static void ConfigureWithServices<TObject, TService1, TService2>(this IServiceCollection services, Action<TObject, TService1, TService2> configure)
+            where TObject: class
+        {
+            services.AddSingleton<IConfigureOptions<TObject>>(s => new ConfigureOptions<TObject>(o => configure(o, s.GetRequiredService<TService1>(), s.GetRequiredService<TService2>())));
+        }
+
+        public static void ConfigureWithServices<TObject>(this IServiceCollection services, Action<TObject, IServiceProvider> configure)
+            where TObject: class
+        {
+            services.AddSingleton<IConfigureOptions<TObject>>(s => new ConfigureOptions<TObject>(o => configure(o, s)));
         }
     }
-
 }

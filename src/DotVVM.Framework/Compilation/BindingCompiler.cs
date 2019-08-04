@@ -104,16 +104,20 @@ namespace DotVVM.Framework.Compilation
 
         public virtual IBinding CreateMinimalClone(ResolvedBinding binding)
         {
-            var requirements = binding.BindingService.GetRequirements(binding.Binding);
-
-            var properties = requirements.Required.Concat(requirements.Optional)
-                    .Concat(new[] { typeof(OriginalStringBindingProperty), typeof(DataContextStack), typeof(LocationInfoBindingProperty), typeof(BindingParserOptions) })
-                    .Select(p => binding.Binding.GetProperty(p, ErrorHandlingMode.ReturnNull))
-                    .Where(p => p != null).ToArray();
+            var properties = GetMinimalCloneProperties(binding.Binding);
             return (IBinding)Activator.CreateInstance(binding.BindingType, new object[] {
                 binding.BindingService,
                 properties
             });
+        }
+
+        public static IEnumerable<object> GetMinimalCloneProperties(IBinding binding)
+        {
+            var requirements = binding.GetProperty<BindingCompilationService>().GetRequirements(binding);
+            return requirements.Required.Concat(requirements.Optional)
+                    .Concat(new[] { typeof(OriginalStringBindingProperty), typeof(DataContextStack), typeof(LocationInfoBindingProperty), typeof(BindingParserOptions), typeof(BindingCompilationRequirementsAttribute), typeof(ExpectedTypeBindingProperty), typeof(AssignedPropertyBindingProperty) })
+                    .Select(p => binding.GetProperty(p, ErrorHandlingMode.ReturnNull))
+                    .Where(p => p != null).ToArray();
         }
 
         public virtual ExpressionSyntax EmitCreateBinding(DefaultViewCompilerCodeEmitter emitter, ResolvedBinding binding)

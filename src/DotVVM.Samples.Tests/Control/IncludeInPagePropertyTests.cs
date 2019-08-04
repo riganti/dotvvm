@@ -1,100 +1,98 @@
-﻿using Dotvvm.Samples.Tests;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
+﻿using Riganti.Selenium.Core;
 using System;
+using DotVVM.Samples.Tests.Base;
+using DotVVM.Testing.Abstractions;
+using Riganti.Selenium.Core.Abstractions;
+using Xunit;
+using Xunit.Abstractions;
+using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace DotVVM.Samples.Tests.Control
 {
-    [TestClass]
-    public class IncludeInPagePropertyTests : SeleniumTest
+    public class IncludeInPagePropertyTests : AppSeleniumTest
     {
-        [TestMethod]
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_IncludeInPageProperty_IncludeInPage))]
         public void Control_IncludeInPageProperty_IncludeInPage_GridView()
         {
-            CheckIncludeInPage(browser =>
-            {
+            CheckIncludeInPage(browser => {
                 var gridView = browser.Single("gridView", this.SelectByDataUi);
-                gridView.CheckIfIsDisplayed();
-                gridView.CheckIfContainsElement("thead");
-                gridView.CheckIfContainsElement("tbody");
-            }, browser =>
-            {
+                AssertUI.IsDisplayed(gridView);
+                AssertUI.ContainsElement(gridView, "thead");
+                AssertUI.ContainsElement(gridView, "tbody");
+            }, browser => {
                 Assert.AreEqual(0, browser.FindElements("gridView", this.SelectByDataUi).Count);
             });
         }
 
-        [TestMethod]
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_IncludeInPageProperty_IncludeInPage))]
         public void Control_IncludeInPageProperty_IncludeInPage_GridViewEmptyDataTemplate()
         {
             const string gridViewDataUi = "gridView-emptyDataTemplate";
             const string messageDataUi = "emptyDataTemplate";
 
-            CheckIncludeInPage(browser =>
-            {
-                browser.CheckIfIsNotDisplayed(gridViewDataUi, this.SelectByDataUi);
+            CheckIncludeInPage(browser => {
+                AssertUI.IsNotDisplayed(browser, gridViewDataUi, this.SelectByDataUi);
                 var message = browser.Single(messageDataUi, this.SelectByDataUi);
-                message.CheckIfIsDisplayed();
-                message.CheckIfTextEquals("There are no Customers to display");
-            }, browser =>
-            {
+                AssertUI.IsDisplayed(message);
+                AssertUI.TextEquals(message, "There are no Customers to display");
+            }, browser => {
                 Assert.AreEqual(0, browser.FindElements(gridViewDataUi).Count);
                 Assert.AreEqual(0, browser.FindElements(messageDataUi).Count);
             });
         }
 
-        [TestMethod]
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_IncludeInPageProperty_IncludeInPage))]
         public void Control_IncludeInPageProperty_IncludeInPage_Literal()
         {
-            CheckIncludeInPage(browser =>
-            {
+            CheckIncludeInPage(browser => {
                 var literal = browser.Single("literal", this.SelectByDataUi);
-                literal.CheckIfIsDisplayed();
-                literal.CheckIfTextEquals("Test 1");
-            }, browser =>
-            {
+                AssertUI.IsDisplayed(literal);
+                AssertUI.TextEquals(literal, "Test 1");
+            }, browser => {
                 Assert.AreEqual(0, browser.FindElements("literal", this.SelectByDataUi).Count);
             });
         }
 
-        [TestMethod]
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_IncludeInPageProperty_IncludeInPage))]
         public void Control_IncludeInPageProperty_IncludeInPage_LiteralsInRepeater()
         {
-            CheckIncludeInPage(browser =>
-            {
+            CheckIncludeInPage(browser => {
                 var literals = browser.FindElements("literal-repeater", this.SelectByDataUi);
                 Assert.AreEqual(3, literals.Count);
                 foreach (var literal in literals)
                 {
-                    literal.CheckIfIsDisplayed();
+                    AssertUI.IsDisplayed(literal);
                 }
-            }, browser =>
-            {
+            }, browser => {
                 Assert.AreEqual(0, browser.FindElements("literal-repeater", this.SelectByDataUi).Count);
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void Control_IncludeInPageProperty_IncludeInPage_RepeaterFirst() => CheckRepeater("repeater-first", 2);
 
-        [TestMethod]
+        [Fact]
         public void Control_IncludeInPageProperty_IncludeInPage_RepeaterSecond() => CheckRepeater("repeater-second", 3);
 
-        [TestMethod]
+        [Fact]
         public void Control_IncludeInPageProperty_IncludeInPage_TextBox() => CheckTextBox("textbox", "Default text");
 
-        [TestMethod]
+        [Fact]
         public void Control_IncludeInPageProperty_IncludeInPage_TextBoxWithDataContext() => CheckTextBox("textbox-dataContext", "John Smith");
 
-        [TestMethod]
+        [Fact]
         public void Control_IncludeInPageProperty_IncludeInPage_TextBoxWithVisible() => CheckTextBox("textbox-visible", "Default text", true);
 
-        [TestMethod]
+        [Fact]
         public void Control_IncludeInPageProperty_IncludeInPage_TextBoxWithVisibleAndDataContext() => CheckTextBox("textbox-visible-dataContext", "John Smith", true);
 
-        private void CheckIncludeInPage(Action<BrowserWrapper> beforeSwitch, Action<BrowserWrapper> afterSwitch)
+        private void CheckIncludeInPage(Action<IBrowserWrapper> beforeSwitch, Action<IBrowserWrapper> afterSwitch)
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_IncludeInPageProperty_IncludeInPage);
                 browser.Wait();
                 beforeSwitch(browser);
@@ -105,36 +103,36 @@ namespace DotVVM.Samples.Tests.Control
 
         private void CheckRepeater(string dataUi, int childrenCount)
         {
-            CheckIncludeInPage(browser =>
-            {
+            CheckIncludeInPage(browser => {
                 var repeater = browser.First(dataUi, this.SelectByDataUi);
-                repeater.CheckIfIsDisplayed();
+                AssertUI.IsDisplayed(repeater);
                 Assert.AreEqual(childrenCount, repeater.Children.Count);
-            }, browser =>
-            {
+            }, browser => {
                 Assert.AreEqual(0, browser.FindElements(dataUi, this.SelectByDataUi).Count);
             });
         }
 
         private void CheckTextBox(string dataUi, string text, bool checkVisible = false)
         {
-            CheckIncludeInPage(browser =>
-            {
+            CheckIncludeInPage(browser => {
                 var textBox = browser.Single(dataUi, this.SelectByDataUi);
-                textBox.CheckIfTextEquals(text);
-                textBox.CheckIfIsDisplayed();
+                AssertUI.TextEquals(textBox, text);
+                AssertUI.IsDisplayed(textBox);
                 if (checkVisible)
                 {
                     var switchVisible = browser.Single("switch-visible", this.SelectByDataUi);
                     switchVisible.Click().Wait();
-                    textBox.CheckIfIsNotDisplayed();
+                    AssertUI.IsNotDisplayed(textBox);
                     switchVisible.Click().Wait();
-                    textBox.CheckIfIsDisplayed();
+                    AssertUI.IsDisplayed(textBox);
                 }
-            }, browser =>
-            {
+            }, browser => {
                 Assert.AreEqual(0, browser.FindElements(dataUi, this.SelectByDataUi).Count);
             });
+        }
+
+        public IncludeInPagePropertyTests(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

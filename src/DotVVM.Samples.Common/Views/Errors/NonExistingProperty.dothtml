@@ -6,8 +6,9 @@
     <title>Hello from DotVVM!</title>
 </head>
 <body>
-    <!-- DO NOT CHANGE THE TAG NAME AND PROPERTY NAME- the tag name is used in tests-->
-	<dot:GridViewTextColumn NonExistingProperty="test" ValueBinding="{value: 55}" />
+    <!-- DO NOT CHANGE THE TAG NAME AND PROPERTY NAME - the tag name is used in tests-->
+	<dot:InlineScript NonExistingProperty="test" >
+    </dot:InlineScript>
 	
 </body>
 </html>

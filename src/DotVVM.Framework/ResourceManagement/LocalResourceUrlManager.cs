@@ -29,8 +29,7 @@ namespace DotVVM.Framework.ResourceManagement
         }
 
         public string GetResourceUrl(ILocalResourceLocation resource, IDotvvmRequestContext context, string name) =>
-            resourceRoute.BuildUrl(new Dictionary<string, object>
-            {
+            resourceRoute.BuildUrl(new Dictionary<string, object> {
                 ["hash"] = GetVersionHash(resource, context, name),
                 ["name"] = EncodeResourceName(name)
             });

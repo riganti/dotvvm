@@ -19,9 +19,8 @@ namespace DotVVM.Framework.Compilation.Javascript
 {
     public class JavascriptTranslator
     {
-        public static object KnockoutContextParameter = new object();
-        public static object KnockoutViewModelParameter = new object();
-        public static object CurrentIndexParameter = new object();
+        public static readonly CodeSymbolicParameter KnockoutContextParameter = new CodeSymbolicParameter("JavascriptTranslator.KnockoutContextParameter", CodeParameterAssignment.FromIdentifier("$context", true));
+        public static readonly CodeSymbolicParameter KnockoutViewModelParameter = new CodeSymbolicParameter("JavascriptTranslator.KnockoutViewModelParameter", CodeParameterAssignment.FromIdentifier("$data", true));
         private readonly IViewModelSerializationMapper mapper;
 
         public IJavascriptMethodTranslator DefaultMethodTranslator { get; }
@@ -93,7 +92,6 @@ namespace DotVVM.Framework.Compilation.Javascript
             return expression.AssignParameters(o =>
                 o == KnockoutContextParameter ? context :
                 o == KnockoutViewModelParameter ? data :
-                o == CurrentIndexParameter ? CodeParameterAssignment.FromExpression(contextExpresion.Member("$index").Invoke()) :
                 default(CodeParameterAssignment)
             );
         }
@@ -109,10 +107,24 @@ namespace DotVVM.Framework.Compilation.Javascript
         public static string FormatKnockoutScript(ParametrizedCode expression, bool allowDataGlobal = true, int dataContextLevel = 0)
         {
             // TODO(exyi): more symbolic parameters
-            return AdjustKnockoutScriptContext(expression, dataContextLevel)
-                .ToString(o => o == KnockoutContextParameter ? CodeParameterAssignment.FromIdentifier("$context", true) :
+            var adjusted = AdjustKnockoutScriptContext(expression, dataContextLevel);
+            if (allowDataGlobal)
+                return adjusted.ToDefaultString();
+            else
+                return adjusted.ToString(o =>
                                o == KnockoutViewModelParameter ? CodeParameterAssignment.FromIdentifier("$data", allowDataGlobal) :
-                               o == CurrentIndexParameter ? CodeParameterAssignment.FromIdentifier("$index()") :
+                               default);
+        }
+
+        /// <summary>
+        /// Get's Javascript code that can be executed inside knockout data-bind attribute.
+        /// </summary>
+        public static string FormatKnockoutScript(ParametrizedCode expression, ParametrizedCode contextVariable, ParametrizedCode dataVariable = null)
+        {
+            if (dataVariable == null) dataVariable = new ParametrizedCode.Builder { contextVariable, ".$data" }.Build(OperatorPrecedence.Max);
+            return expression
+                .ToString(o => o == KnockoutContextParameter ? new CodeParameterAssignment(contextVariable) :
+                               o == KnockoutViewModelParameter ? dataVariable :
                                throw new Exception());
         }
     }
@@ -131,8 +143,20 @@ namespace DotVVM.Framework.Compilation.Javascript
             IsControl == other.IsControl &&
             ExtensionParameter == other.ExtensionParameter &&
             ContainsObservables == other.ContainsObservables;
-        
+
         public override bool Equals(object obj) => obj is ViewModelInfoAnnotation obj2 && this.Equals(obj2);
+
+        public override int GetHashCode()
+        {
+            var hash = 69848087;
+            hash += Type.GetHashCode();
+            hash *= 444_272_593;
+            hash += ExtensionParameter.GetHashCode();
+            hash *= 444_272_617;
+            if (IsControl) hash *= 444_272_629;
+            if (ContainsObservables) hash *= 444_272_641;
+            return hash;
+        }
 
         public ViewModelInfoAnnotation(Type type, bool isControl = false, BindingExtensionParameter extensionParameter = null, bool containsObservables = true)
         {
@@ -157,9 +181,10 @@ namespace DotVVM.Framework.Compilation.Javascript
         public JavascriptTranslatorConfiguration()
         {
             Translators.Add(MethodCollection = new JavascriptTranslatableMethodCollection());
+            Translators.Add(new EnumToStringMethodTranslator());
         }
 
-        public JsExpression TryTranslateCall(HalfTranslatedExpression context, HalfTranslatedExpression[] arguments, MethodInfo method) =>
+        public JsExpression TryTranslateCall(LazyTranslatedExpression context, LazyTranslatedExpression[] arguments, MethodInfo method) =>
             Translators.Select(t => t.TryTranslateCall(context, arguments, method)).FirstOrDefault(d => d != null);
     }
 }

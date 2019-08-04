@@ -26,7 +26,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowHardCodedValue = false)]
         [BindingCompilationRequirements(
             required: new[] { typeof(DataSourceAccessBinding) },
-            optional: new[] { typeof(DataSourceLengthBinding) })]
+            optional: new[] { typeof(DataSourceLengthBinding), typeof(CollectionElementDataContextBindingProperty) })]
         public object DataSource
         {
             get { return GetValue(DataSourceProperty); }
@@ -65,7 +65,7 @@ namespace DotVVM.Framework.Controls
 
         protected IValueBinding GetItemBinding()
         {
-            return GetForeachDataBindExpression().CastTo<ValueBindingExpression>().GetListIndexer();
+            return (IValueBinding)GetForeachDataBindExpression().GetProperty<DataSourceCurrentElementBinding>().Binding;
         }
 
         public IEnumerable GetIEnumerableFromDataSource() =>
@@ -80,13 +80,12 @@ namespace DotVVM.Framework.Controls
         [ApplyControlStyle]
         public static void OnCompilation(ResolvedControl control, BindingCompilationService bindingService)
         {
-            // ComboBoxed does not have to have the DataSource property and then they don't use the CurrentIndexBindingProperty
-            if (!control.HasProperty(DataSourceProperty)) return;
+            // ComboBox does not have to have the DataSource property and then they don't use the CurrentIndexBindingProperty
+            if (!control.Properties.TryGetValue(DataSourceProperty, out var dataSourceProperty)) return;
+            if (!(dataSourceProperty is ResolvedPropertyBinding dataSourceBinding)) return;
 
-            var dcChange = ControlTreeResolverBase.ApplyContextChange(control.DataContextTypeStack,
-                new DataContextChangeAttribute[] { new ControlPropertyBindingDataContextChangeAttribute(nameof(DataSource)), new CollectionElementDataContextChangeAttribute(0) },
-                control, null);
-            var dataContext = DataContextStack.Create(ResolvedTypeDescriptor.ToSystemType(dcChange.type), control.DataContextTypeStack, extensionParameters: dcChange.extensionParameters);
+            var dataContext = dataSourceBinding.Binding.Binding.GetProperty<CollectionElementDataContextBindingProperty>().DataContext;
+
             control.SetProperty(new ResolvedPropertyBinding(Internal.CurrentIndexBindingProperty,
                 new ResolvedBinding(bindingService, new Compilation.BindingParserOptions(typeof(ValueBindingExpression)), dataContext,
                 parsedExpression: Expression.Parameter(typeof(int), "_index").AddParameterAnnotation(

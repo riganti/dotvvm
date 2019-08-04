@@ -12,6 +12,7 @@ using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Runtime.Caching;
 using DotVVM.Framework.Utils;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Options;
@@ -25,13 +26,17 @@ namespace DotVVM.Framework.Binding
 
     public class BindingCompilationService
     {
+        private readonly IExpressionToDelegateCompiler expressionCompiler;
         private readonly Lazy<BindingCompilationService> noInitService;
+        public DotvvmBindingCacheHelper Cache { get; }
 
-        public BindingCompilationService(IOptions<BindingCompilationOptions> options)
+        public BindingCompilationService(IOptions<BindingCompilationOptions> options, IExpressionToDelegateCompiler expressionCompiler, IDotvvmCacheAdapter cache)
         {
-            noInitService = new Lazy<BindingCompilationService>(() => new NoInitService(options));
+            this.expressionCompiler = expressionCompiler;
+            this.noInitService = new Lazy<BindingCompilationService>(() => new NoInitService(options, expressionCompiler, cache));
             foreach (var p in GetDelegates(options.Value.TransformerClasses))
                 resolvers.AddDelegate(p);
+            this.Cache = new DotvvmBindingCacheHelper(cache, this);
         }
 
         BindingResolverCollection resolvers = new BindingResolverCollection(Enumerable.Empty<Delegate>());
@@ -57,7 +62,6 @@ namespace DotVVM.Framework.Binding
             if (type == typeof(BindingCompilationService)) return this;
             if (type.IsAssignableFrom(binding.GetType())) return binding;
 
-            var typeName = type.ToString();
             var additionalResolvers = GetAdditionalResolvers(binding);
             var bindingResolvers = GetResolversForBinding(binding.GetType());
 
@@ -69,7 +73,7 @@ namespace DotVVM.Framework.Binding
 
             Exception checkArguments(object[] arguments) =>
                 arguments.OfType<Exception>().ToArray() is var exceptions && exceptions.Any() ?
-                new AggregateException($"Could not resolve '{type}'.", exceptions) :
+                new BindingPropertyException(binding, type, "unresolvable arguments", exceptions) :
                 null;
 
             if (resolver != null)
@@ -87,9 +91,16 @@ namespace DotVVM.Framework.Binding
                     if (checkArguments(arguments) is Exception exc) return exc;
                     value = postProcessor.ExceptionSafeDynamicInvoke(arguments) ?? value;
                 }
-                return value ?? new InvalidOperationException($"Could not resolve binding property '{type}'.");
+                return value ?? new BindingPropertyException(binding, type, "resolver returned null");
             }
-            else return new InvalidOperationException($"Could not resolve binding property '{type}', resolver not found."); // don't throw the exception, since it creates noise for debugger
+            if (typeof(Delegate).IsAssignableFrom(type))
+            {
+                var result = ComputeProperty(typeof(Expression<>).MakeGenericType(type), binding);
+                if (result is LambdaExpression lambda)
+                    return expressionCompiler.Compile(lambda);
+                else return result;
+            }
+            else return new BindingPropertyException(binding, type, "resolver not found"); // don't throw the exception, since it creates noise for debugger
         }
 
         protected Exception GetException(IBinding binding, string message) =>
@@ -106,7 +117,6 @@ namespace DotVVM.Framework.Binding
                 new BindingResolverCollection(t.GetTypeInfo().GetCustomAttributes<BindingCompilationOptionsAttribute>(true)
                 .SelectMany(o => o.GetResolvers())));
         }
-        
 
         ConcurrentDictionary<Type, BindingCompilationRequirementsAttribute> defaultRequirementCache = new ConcurrentDictionary<Type, BindingCompilationRequirementsAttribute>();
         protected BindingCompilationRequirementsAttribute GetDefaultRequirements(Type bindingType)
@@ -142,9 +152,8 @@ namespace DotVVM.Framework.Binding
                 if (binding.GetProperty(req, ErrorHandlingMode.ReturnException) is Exception error)
                     reporter.Errors.Push((req, error, DiagnosticSeverity.Error));
             }
-            if (throwException && reporter.Errors.Any())
-                throw new AggregateException($"Could not initialize binding '{binding.GetType()}', requirements {string.Join(", ", reporter.Errors.Select(e => e.req))} was not met",
-                    reporter.Errors.Select(e => e.error));
+            if (throwException && reporter.HasErrors)
+                throw new AggregateException(reporter.GetErrorMessage(binding), reporter.Exceptions);
         }
 
         public static Delegate[] GetDelegates(IEnumerable<object> objects) => (
@@ -154,9 +163,9 @@ namespace DotVVM.Framework.Binding
             select t is Delegate ? (Delegate)t : m.CreateDelegate(MethodGroupExpression.GetDelegateType(m), t)
         ).ToArray();
 
-        class NoInitService: BindingCompilationService
+        class NoInitService : BindingCompilationService
         {
-            public NoInitService(IOptions<BindingCompilationOptions> options) : base(options) { }
+            public NoInitService(IOptions<BindingCompilationOptions> options, IExpressionToDelegateCompiler expressionCompiler, IDotvvmCacheAdapter cache) : base(options, expressionCompiler, cache) { }
 
             public override void InitializeBinding(IBinding binding, IEnumerable<BindingCompilationRequirementsAttribute> bindingRequirements = null)
             {

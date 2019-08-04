@@ -1,0 +1,18 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Localization.Localization_FormatStringViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body ClientIDMode="Static">
+    <!-- DO NOT CHANGE VALUE OF THE TEXT PROPERTY -->
+    <dot:TextBox ID="HardCodedValue" Text="12.3456" FormatString="#0.00" /><br />
+    <dot:TextBox ID="HardCodedValueInBinding" Text="{value: 12.3456}"  FormatString="#0.00" /><br />
+    Culture:   <span ID="culture">{{value:  CultureCode }}</span><br />
+</body>
+</html>
+
+

@@ -13,7 +13,7 @@ using System.Linq;
 
 namespace DotVVM.Framework.Compilation
 {
-    public class BindingRequiredResourceVisitor: ResolvedControlTreeVisitor
+    public class BindingRequiredResourceVisitor : ResolvedControlTreeVisitor
     {
         private readonly ControlResolverMetadata requiredResourceConrolMetadata;
         public BindingRequiredResourceVisitor(ControlResolverMetadata requiredResourceConrolMetadata)
@@ -23,42 +23,57 @@ namespace DotVVM.Framework.Compilation
 
         ImmutableHashSet<string> requiredResources = ImmutableHashSet<string>.Empty;
 
+        public override void VisitPropertyTemplate(ResolvedPropertyTemplate propertyTemplate)
+        {
+            Visit(propertyTemplate, propertyTemplate.Content, base.VisitPropertyTemplate);
+        }
+
         public override void VisitView(ResolvedTreeRoot view)
         {
-            var original = requiredResources;
-            base.VisitView(view);
-            if (original != requiredResources)
+            Visit(view, view.Content, base.VisitView);
+        }
+
+        public override void VisitControl(ResolvedControl control)
+        {
+            if (control.Metadata.Type == typeof(Content))
             {
-                view.Content.AddRange(
-                    requiredResources.Except(original).Select(r => CreateRequiredResourceControl(r, view.DothtmlNode, view.Content.First().DataContextTypeStack)));
-                requiredResources = original;
+                Visit(control, control.Content, base.VisitControl);
+            }
+            else
+            {
+                base.VisitControl(control);
             }
         }
 
-        public override void VisitPropertyTemplate(ResolvedPropertyTemplate propertyTemplate)
+        private void Visit<TNodeType>(TNodeType node, List<ResolvedControl> nodeContent, Action<TNodeType> visitBase) where TNodeType : ResolvedTreeNode
         {
             var original = requiredResources;
-            base.VisitPropertyTemplate(propertyTemplate);
+            visitBase(node);
             if (original != requiredResources)
             {
-                propertyTemplate.Content.AddRange(
-                    requiredResources.Except(original).Select(r => CreateRequiredResourceControl(r, propertyTemplate.DothtmlNode, propertyTemplate.Content.First().DataContextTypeStack)));
+                nodeContent.AddRange(
+                    requiredResources
+                        .Except(original)
+                        .Select(name => CreateRequiredResourceControl(name, node.DothtmlNode, nodeContent.First().DataContextTypeStack)));
                 requiredResources = original;
             }
         }
 
         private ResolvedControl CreateRequiredResourceControl(string resource, Parser.Dothtml.Parser.DothtmlNode node, DataContextStack dataContext)
         {
-            var c = new ResolvedControl(requiredResourceConrolMetadata, node, dataContext);
-            c.SetProperty(new ResolvedPropertyValue(RequiredResource.NameProperty, resource));
-            return c;
+            var control = new ResolvedControl(requiredResourceConrolMetadata, node, dataContext);
+            control.SetProperty(new ResolvedPropertyValue(RequiredResource.NameProperty, resource));
+            return control;
         }
 
         public override void VisitPropertyBinding(ResolvedPropertyBinding propertyBinding)
         {
-            var r = propertyBinding.Binding.Binding.GetProperty<RequiredRuntimeResourcesBindingProperty>(ErrorHandlingMode.ReturnNull);
-            if (r != null)
-                requiredResources = requiredResources.Union(r.Resources);
+            var requiredResourceProperty = propertyBinding.Binding.Binding.GetProperty<RequiredRuntimeResourcesBindingProperty>(ErrorHandlingMode.ReturnNull);
+            if (requiredResourceProperty != null)
+            {
+                requiredResources = requiredResources.Union(requiredResourceProperty.Resources);
+            }
+
             base.VisitPropertyBinding(propertyBinding);
         }
     }

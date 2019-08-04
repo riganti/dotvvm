@@ -1,125 +1,142 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Dotvvm.Samples.Tests;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
+﻿using DotVVM.Samples.Tests.Base;
+using DotVVM.Testing.Abstractions;
+using Riganti.Selenium.Core;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace DotVVM.Samples.Tests.Feature
 {
-    [TestClass]
-    public class ServerSideStylesTests : SeleniumTest
+    public class ServerSideStylesTests : AppSeleniumTest
     {
-        [TestMethod]
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles))]
         public void Feature_ServerSideStyles_DotvvmControlNoAttributes()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles);
-                browser.First("input[id=dotvvmControlNoAttr]").CheckClassAttribute("Class changed");
-                browser.First("input[id=dotvvmControlNoAttr]").CheckIfTextEquals("Text changed");
+                AssertUI.HasClass(browser.First("input[id=dotvvmControlNoAttr]"), "Class changed");
+                AssertUI.TextEquals(browser.First("input[id=dotvvmControlNoAttr]"), "Text changed");
             });
         }
 
-        [TestMethod]
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles))]
         public void Feature_ServerSideStyles_DotvvmControlWithAttributes()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles);
-                browser.First("input[id=dotvvmControlWithAttr]").CheckClassAttribute("Class changed");
-                browser.First("input[id=dotvvmControlWithAttr]").CheckIfTextEquals("Default text");
+                AssertUI.HasClass(browser.First("input[id=dotvvmControlWithAttr]"), "Class changed");
+                AssertUI.TextEquals(browser.First("input[id=dotvvmControlWithAttr]"), "Default text");
             });
         }
 
-        [TestMethod]
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles))]
         public void Feature_ServerSideStyles_HtmlControlNoAttributes()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles);
-                browser.First("customTagName[id=htmlControlNoAttr]").CheckAttribute("append", "Attribute changed");
-                browser.First("customTagName[id=htmlControlNoAttr]").CheckAttribute("noAppend", "Attribute changed");
+                AssertUI.Attribute(browser.First("customTagName[id=htmlControlNoAttr]"), "ignore", "Attribute ignored");
+                AssertUI.Attribute(browser.First("customTagName[id=htmlControlNoAttr]"), "append", "Attribute appended");
+                AssertUI.Attribute(browser.First("customTagName[id=htmlControlNoAttr]"), "overwrite", "Attribute changed");
+                AssertUI.Attribute(browser.First("customTagName[id=htmlControlNoAttr]"), "class", "new-class");
             });
         }
 
-        [TestMethod]
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles))]
         public void Feature_ServerSideStyles_HtmlControlWithAttributes()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles);
-                browser.First("customTagName[id=htmlControlWithAttr]").CheckAttribute("append", "Attribute changed");
-                browser.First("customTagName[id=htmlControlWithAttr]").CheckAttribute("noAppend", "Default attribute");
+                AssertUI.Attribute(browser.First("customTagName[id=htmlControlWithAttr]"), "ignore", "Default attribute");
+                AssertUI.Attribute(browser.First("customTagName[id=htmlControlWithAttr]"), "append", "Default attribute;Attribute appended");
+                AssertUI.Attribute(browser.First("customTagName[id=htmlControlWithAttr]"), "overwrite", "Attribute changed");
+                AssertUI.Attribute(browser.First("customTagName[id=htmlControlWithAttr]"), "class", "default-class new-class");
             });
         }
 
-
-        [TestMethod]
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles_DotvvmProperties))]
         public void Feature_ServerSideStyles_DotvvmControlProperties()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles_DotvvmProperties);
-                browser.First("input[id=dotvvmControlWithAttr]").CheckAttribute("customAttr", "Default value");
-                browser.First("input[id=dotvvmControlNoAttr]").CheckAttribute("customAttr", "Custom property changed");
+                AssertUI.Attribute(browser.First("input[id=dotvvmControlWithAttr]"), "customAttr", "Default value");
+                AssertUI.Attribute(browser.First("input[id=dotvvmControlNoAttr]"), "customAttr", "Custom property changed");
             });
         }
 
-        [TestMethod]
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles_DotvvmProperties))]
         public void Feature_ServerSideStyles_DerivedMatcher()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles_DotvvmProperties);
-                browser.First("input[id=dotvvmControlWithAttr]").CheckIfHasAttribute("derivedAttr");
-                browser.First("input[id=dotvvmControlNoAttr]").CheckIfHasAttribute("derivedAttr");
-                browser.First("input[id=derivedControl]").CheckIfHasNotAttribute("derivedAttr");
+                AssertUI.HasAttribute(browser.First("input[id=dotvvmControlWithAttr]"), "derivedAttr");
+                AssertUI.HasAttribute(browser.First("input[id=dotvvmControlNoAttr]"), "derivedAttr");
+                AssertUI.HasNotAttribute(browser.First("input[id=derivedControl]"), "derivedAttr");
             });
         }
 
-        [TestMethod]
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles_DotvvmProperties))]
         public void Feature_ServerSideStyles_Matcher()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles_DotvvmProperties);
-                browser.First("input[id=dotvvmControlWithAttr]").CheckIfHasAttribute("addedAttr");
-                browser.First("input[id=dotvvmControlNoAttr]").CheckIfHasNotAttribute("addedAttr");
-                browser.First("input[id=derivedControl]").CheckIfHasAttribute("addedAttr");
+                AssertUI.HasAttribute(browser.First("input[id=dotvvmControlWithAttr]"), "addedAttr");
+                AssertUI.HasNotAttribute(browser.First("input[id=dotvvmControlNoAttr]"), "addedAttr");
+                AssertUI.HasAttribute(browser.First("input[id=derivedControl]"), "addedAttr");
             });
         }
 
-        [TestMethod]
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ServerSideStyles_DirectoryStyle_ServerSideStyles))]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ServerSideStyles_NoDirectoryStyle_ServerSideStyles))]
         public void Feature_ServerSideStyles_Directory()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ServerSideStyles_DirectoryStyle_ServerSideStyles);
-                browser.First("input[id=dotvvmControl]").CheckAttribute("directory", "matching");
-                browser.First("customtagname[id=htmlControl]").CheckAttribute("directory", "matching");
+                AssertUI.Attribute(browser.First("input[id=dotvvmControl]"), "directory", "matching");
+                AssertUI.Attribute(browser.First("customtagname[id=htmlControl]"), "directory", "matching");
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ServerSideStyles_NoDirectoryStyle_ServerSideStyles);
-                browser.First("input[id=dotvvmControl]").CheckIfHasNotAttribute("directory");
-                browser.First("customtagname[id=htmlControl]").CheckIfHasNotAttribute("directory");
+                AssertUI.HasNotAttribute(browser.First("input[id=dotvvmControl]"), "directory");
+                AssertUI.HasNotAttribute(browser.First("customtagname[id=htmlControl]"), "directory");
             });
         }
 
-        [TestMethod]
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles_MatchingViewModel))]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles))]
         public void Feature_ServerSideStyles_DataContexts()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles_MatchingViewModel);
-                browser.First("customDataContextTag[id=matchingDataContextAndRoot]").CheckAttribute("dataContextCheck", "matching");
-                browser.First("customDataContextTag[id=matchingDataContextAndRoot]").CheckAttribute("rootDataContextCheck", "matching");
-                browser.First("customDataContextTag[id=matchingRoot]").CheckAttribute("rootDataContextCheck", "matching");
-                browser.First("customDataContextTag[id=matchingRoot]").CheckIfHasNotAttribute("dataContextCheck");
+                AssertUI.Attribute(browser.First("customDataContextTag[id=matchingDataContextAndRoot]"), "dataContextCheck", "matching");
+                AssertUI.Attribute(browser.First("customDataContextTag[id=matchingDataContextAndRoot]"), "rootDataContextCheck", "matching");
+                AssertUI.Attribute(browser.First("customDataContextTag[id=matchingRoot]"), "rootDataContextCheck", "matching");
+                AssertUI.HasNotAttribute(browser.First("customDataContextTag[id=matchingRoot]"), "dataContextCheck");
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles);
-                browser.First("customDataContextTag[id=nonMatchingDataContextAndRoot]").CheckIfHasNotAttribute("rootDataContextCheck");
-                browser.First("customDataContextTag[id=nonMatchingDataContextAndRoot]").CheckIfHasNotAttribute("dataContextCheck");
+                AssertUI.HasNotAttribute(browser.First("customDataContextTag[id=nonMatchingDataContextAndRoot]"), "rootDataContextCheck");
+                AssertUI.HasNotAttribute(browser.First("customDataContextTag[id=nonMatchingDataContextAndRoot]"), "dataContextCheck");
             });
+        }
+
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles_ControlProperties))]
+        public void Feature_ServerSideStyles_ControlProperties()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ServerSideStyles_ServerSideStyles_ControlProperties);
+
+                browser.First("input[server-side-style-attribute]").Click();
+                AssertUI.AlertTextEquals(browser, "ConfirmPostBackHandler Content");
+            });
+        }
+
+        public ServerSideStylesTests(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

@@ -1,89 +1,141 @@
-﻿using Dotvvm.Samples.Tests;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Globalization;
+using System.Threading;
+using DotVVM.Samples.Tests.Base;
+using DotVVM.Testing.Abstractions;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Firefox;
-using Riganti.Utils.Testing.Selenium.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Riganti.Selenium.Core;
+using Riganti.Selenium.Core.Abstractions;
+using Riganti.Selenium.DotVVM;
+using Xunit;
+using Xunit.Abstractions;
+using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace DotVVM.Samples.Tests.Feature
 {
-    [TestClass]
-    public class LocalizationTests : SeleniumTest
+    public class LocalizationTests : AppSeleniumTest
     {
-        [TestMethod]
+        [Fact]
         public void Feature_Localization_Localization()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Localization_Localization);
 
                 ChangeAndTestLocalization(browser);
             });
         }
 
-        private static void ChangeAndTestLocalization(BrowserWrapper browser)
+        [Fact]
+        public void Feature_Localization_Localization_FormatString()
         {
-            browser.First("p").CheckIfInnerTextEquals("This comes from resource file!", false, true);
-            // change language
-            browser.Last("a").Click();
-            browser.First("p").CheckIfInnerTextEquals("Tohle pochází z resource souboru!", false, true);
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Localization_Localization_FormatString);
+                var cultureElement = browser.First("#culture");
+
+                AssertUI.InnerText(cultureElement, s => !string.IsNullOrWhiteSpace(s), "Text is empty and should not be! (Missing current culture code!)");
+
+                var culture = cultureElement.GetText();
+                Thread.CurrentThread.CurrentCulture = Thread.CurrentThread.CurrentUICulture = new CultureInfo(culture);
+                var value = 12.3456;
+
+                //not supported by framework
+                //AssertUI.InnerTextEquals(browser.First("#HardCodedValue"), value.ToString("#0.00"));
+
+                //supported
+                AssertUI.InnerTextEquals(browser.First("#HardCodedValueInBinding"), value.ToString("#0.00"));
+            });
         }
 
+        private static void ChangeAndTestLocalization(IBrowserWrapper browser)
+        {
+            AssertUI.InnerTextEquals(browser.First("p"), "This comes from resource file!", false, true);
+            // change language
+            browser.Last("a").Click();
+            AssertUI.InnerTextEquals(browser.First("p"), "Tohle pochází z resource souboru!", false, true);
+        }
 
-        [TestMethod]
+        [Fact]
         public void Feature_Localization_Localization_NestedPage_Type()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Localization_Localization_NestedPage_Type);
 
-                browser.First("#masterPage").CheckIfInnerTextEquals("Master page", false);
-                browser.First("#fromLocalizationFile1").CheckIfInnerTextEquals("This comes from resource file!", false);
-                browser.First("#fromLocalizationFile2").CheckIfInnerTextEquals("Nested page title", false);
+                AssertUI.InnerTextEquals(browser.First("#masterPage"), "Master page", false);
+                AssertUI.InnerTextEquals(browser.First("#fromLocalizationFile1"), "This comes from resource file!", false);
+                AssertUI.InnerTextEquals(browser.First("#fromLocalizationFile2"), "Nested page title", false);
 
                 // change language
                 browser.Last("a").Click();
-                browser.First("#masterPage").CheckIfInnerTextEquals("Master page", false);
-                browser.First("#fromLocalizationFile1").CheckIfInnerTextEquals("Tohle pochází z resource souboru!", false);
-                browser.First("#fromLocalizationFile2").CheckIfInnerTextEquals("Nested page title", false);
+                AssertUI.InnerTextEquals(browser.First("#masterPage"), "Master page", false);
+                AssertUI.InnerTextEquals(browser.First("#fromLocalizationFile1"), "Tohle pochází z resource souboru!", false);
+                AssertUI.InnerTextEquals(browser.First("#fromLocalizationFile2"), "Nested page title", false);
             });
         }
 
-        [TestMethod]
+        [Fact]
         [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_Localization_Localization_Control_Page))]
         public void Feature_Localization_Localization_Control_Page_FullNames()
         {
-            RunInAllBrowsers(browser =>
-            {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Localization_Localization_Control_Page);
-
-                Assert.AreEqual("Localized label for checkbox inside control", 
-                    browser.Browser.FindElement(By.XPath("//div[@data-ui='localization-control-bare']/label/span")).Text);
-                Assert.AreEqual("Localized literal inside control", 
-                    browser.Browser.FindElement(By.XPath("//div[@data-ui='localization-control-bare']/span")).Text);
-
-            });
-        }
-
-        [TestMethod]
-        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_Localization_Localization_Control_Page))]
-        public void Feature_Localization_Localization_Control_Page_ImportUsed()
-        {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Localization_Localization_Control_Page);
 
                 Assert.AreEqual("Localized label for checkbox inside control",
-                    browser.Browser.FindElement(By.XPath("//div[@data-ui='localization-control-import']/label/span")).Text);
-                Assert.AreEqual("Localized literal inside control", 
-                    browser.Browser.FindElement(By.XPath("//div[@data-ui='localization-control-import']/span")).Text);
-
+                    browser.Driver.FindElement(By.XPath("//div[@data-ui='localization-control-bare']/label/span")).Text);
+                Assert.AreEqual("Localized literal inside control",
+                    browser.Driver.FindElement(By.XPath("//div[@data-ui='localization-control-bare']/span")).Text);
             });
+        }
+
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_Localization_Localization_Control_Page))]
+        public void Feature_Localization_Localization_Control_Page_ImportUsed()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Localization_Localization_Control_Page);
+
+                Assert.AreEqual("Localized label for checkbox inside control",
+                    browser.Driver.FindElement(By.XPath("//div[@data-ui='localization-control-import']/label/span")).Text);
+                Assert.AreEqual("Localized literal inside control",
+                    browser.Driver.FindElement(By.XPath("//div[@data-ui='localization-control-import']/span")).Text);
+            });
+        }
+
+        [Fact]
+        public void Feature_Localization_Globalize()
+        {
+            void CheckForm(IBrowserWrapper browser) {
+                var oldSelectMethod = browser.SelectMethod;
+                browser.SelectMethod = SelectByDataUi;
+
+                browser.Single("button-hello").Click();
+                browser.WaitFor(() => AssertUI.TextEquals(browser.Single("span-hello"), "Hello"), 1000);
+
+                browser.Single("textbox-parse").SendKeys("42");
+                browser.Single("button-parse").Click();
+                browser.WaitFor(() => AssertUI.TextEquals(browser.Single("span-parse"), "42"), 1000);
+
+                browser.Single("textbox-multiplyA").SendKeys("6");
+                browser.Single("textbox-multiplyB").SendKeys("-7");
+                browser.Single("button-multiply").Click();
+                browser.WaitFor(() => AssertUI.TextEquals(browser.Single("span-multiply"), "-42"), 1000);
+
+                AssertUI.TextEquals(browser.Single("postback-counter"), "3");
+
+                browser.SelectMethod = oldSelectMethod;
+            }
+
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Localization_Globalize);
+                browser.WaitUntilDotvvmInited();
+                CheckForm(browser);
+
+                browser.Single("switch-czech", SelectByDataUi).Click();
+                browser.WaitUntilDotvvmInited();
+                CheckForm(browser);
+            });
+        }
+
+        public LocalizationTests(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

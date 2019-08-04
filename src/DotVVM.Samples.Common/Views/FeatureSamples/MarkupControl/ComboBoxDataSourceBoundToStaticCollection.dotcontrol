@@ -1,0 +1,13 @@
+﻿@viewModel System.Object, mscorlib
+@baseType DotVVM.Samples.Common.Views.FeatureSamples.MarkupControl.ComboBoxDataSourceBoundToStaticCollection, DotVVM.Samples.Common
+
+<div>
+
+    <dot:ComboBox data-ui="combobox" DataSource="{controlProperty: DataSource}"
+                  SelectedValue="{controlProperty: SelectedValue}"
+                  ItemTextBinding="{value: InnerText.Text}"
+                  ItemValueBinding="{value: Id}"/>
+
+    <dot:Literal data-ui="inner-control-literal" Text="{controlProperty: Item.InnerText.Text}"/>
+
+</div>

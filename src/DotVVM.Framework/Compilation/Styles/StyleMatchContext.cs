@@ -158,7 +158,7 @@ namespace DotVVM.Framework.Compilation.Styles
                 directoryPath = directoryPath.Substring(2);
             }
 
-            return Control.TreeRoot.FileName.StartsWith(directoryPath);
+            return Control.TreeRoot.FileName.StartsWith(directoryPath, StringComparison.Ordinal);
         }
     }
 }

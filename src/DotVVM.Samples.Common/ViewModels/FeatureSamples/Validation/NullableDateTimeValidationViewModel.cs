@@ -6,17 +6,14 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation
 {
     public class NullableDateTimeValidationViewModel : DotvvmViewModelBase
     {
-
-        [DotvvmEnforceClientFormat]
+        [DotvvmClientFormat]
         public DateTime? DateTimeTestValue { get; set; } = DateTime.Now;
 
         public bool DateTimeTestResult { get; set; }
 
-        private DateTime defaultValue = new DateTime(2016, 3, 1);
-
-
         public void ValidateNullableDateTime()
         {
+            DateTimeTestResult = true;
         }
     }
 }

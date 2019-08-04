@@ -1,37 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Dotvvm.Samples.Tests;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
+﻿using DotVVM.Samples.Tests.Base;
+using DotVVM.Testing.Abstractions;
+using Riganti.Selenium.Core;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace DotVVM.Samples.Tests.Feature
 {
-    [TestClass]
-    public class ConditionalCssClass : SeleniumTest
+    public class ConditionalCssClass : AppSeleniumTest
     {
-        [TestMethod]
+        [Fact]
         public void Feature_ConditionalCssClasses_ConditionalCssClasses()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ConditionalCssClasses_ConditionalCssClasses);
 
-                browser.First("div").CheckIfHasNotClass("italic");
+                AssertUI.HasNotClass(browser.First("div"), "italic");
                 browser.First("input[type=button][value=\"Switch Italic\"]").Click();
-                browser.First("div").CheckIfHasClass("italic");
+                AssertUI.HasClass(browser.First("div"), "italic");
 
-                browser.First("div").CheckIfHasNotClass("bordered");
+                AssertUI.HasNotClass(browser.First("div"), "bordered");
                 browser.First("input[type=button][value=\"Switch Bordered\"]").Click();
-                browser.First("div").CheckIfHasClass("bordered");
+                AssertUI.HasClass(browser.First("div"), "bordered");
 
-                browser.First("div").CheckIfHasNotClass("blue");
+                AssertUI.HasNotClass(browser.First("div"), "blue");
                 browser.First("input[type=button][value=\"Switch Blue\"]").Click();
-                browser.First("div").CheckIfHasClass("blue");
+                AssertUI.HasClass(browser.First("div"), "blue");
             });
+        }
 
+        public ConditionalCssClass(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

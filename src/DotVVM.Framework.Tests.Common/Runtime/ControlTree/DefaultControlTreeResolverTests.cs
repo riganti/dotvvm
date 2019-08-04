@@ -21,6 +21,7 @@ using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Compilation;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Tests.Runtime.ControlTree
 {
@@ -35,7 +36,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         {
             configuration = DotvvmTestHelper.CreateConfiguration();
             configuration.Markup.AddCodeControls("cc", typeof(ClassWithInnerElementProperty));
-            controlTreeResolver = configuration.ServiceLocator.GetService<IControlTreeResolver>();
+            controlTreeResolver = configuration.ServiceProvider.GetRequiredService<IControlTreeResolver>();
         }
 
         [TestMethod]
@@ -400,7 +401,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 </div>
 ");
             var div = root.Content.First(r => r.Metadata.Name == nameof(HtmlGenericControl));
-            Assert.IsTrue((div.Properties[DotvvmBindableObject.DataContextProperty] as ResolvedPropertyBinding).Binding.Errors.Any());
+            Assert.IsTrue((div.Properties[DotvvmBindableObject.DataContextProperty] as ResolvedPropertyBinding).Binding.Errors.HasErrors);
 
         }
 
@@ -550,6 +551,22 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         }
 
         [TestMethod]
+        public void ResolvedTree_InnerElementProperty_WhitespaceString()
+        {
+            var root = ParseSource(@"
+<dot:Button>
+    <PostBack.Handlers>
+        <cc:ClassWithInnerElementProperty><Property>   </Property></cc:ClassWithInnerElementProperty>
+    </PostBack.Handlers>
+</dot:Button>");
+            var control = root.Content.First(n => n.Metadata.Type == typeof(Button))
+                .Properties[PostBack.HandlersProperty].CastTo<ResolvedPropertyControlCollection>().Controls
+                .First(c => c.Metadata.Type == typeof(ClassWithInnerElementProperty));
+            Assert.AreEqual(0, control.Content.Count);
+            Assert.AreEqual("   ", control.Properties[ClassWithInnerElementProperty.PropertyProperty].CastTo<ResolvedPropertyValue>().Value);
+        }
+
+        [TestMethod]
         public void ResolvedTree_Invalid_Content()
         {
             var root = ParseSource(@"
@@ -563,6 +580,55 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
                 .First(c => c.Metadata.Type == typeof(ClassWithoutInnerElementProperty));
             Assert.AreEqual(0, control.Content.Count);
         }
+
+
+        [TestMethod]
+        public void ResolvedTree_InnerElementProperty_Controls()
+        {
+            var root = ParseSource(@"
+<cc:ClassWithDefaultDotvvmControlContent>some text</cc:ClassWithDefaultDotvvmControlContent>");
+            var control = root.Content.First(n => n.Metadata.Type == typeof(ClassWithDefaultDotvvmControlContent));
+            Assert.AreEqual(0, control.Content.Count);
+            Assert.AreEqual(1, control.Properties[ClassWithDefaultDotvvmControlContent.PropertyProperty].CastTo<ResolvedPropertyControlCollection>().Controls.Count);
+        }
+
+        [TestMethod]
+        public void ResolvedTree_InnerElementProperty_WhitespaceControls()
+        {
+            var root = ParseSource(@"
+<cc:ClassWithDefaultDotvvmControlContent>
+
+
+                       </cc:ClassWithDefaultDotvvmControlContent>");
+            var control = root.Content.First(n => n.Metadata.Type == typeof(ClassWithDefaultDotvvmControlContent));
+            Assert.AreEqual(0, control.Content.Count);
+            Assert.IsFalse(control.Properties.ContainsKey(ClassWithDefaultDotvvmControlContent.PropertyProperty));
+        }
+
+        [TestMethod]
+        public void ResolvedTree_InnerElementVirtualProperty_Controls()
+        {
+            var root = ParseSource(@"
+<cc:ClassWithDefaultDotvvmControlContent_NoDotvvmProperty>some text</cc:ClassWithDefaultDotvvmControlContent_NoDotvvmProperty>");
+            var control = root.Content.First(n => n.Metadata.Type == typeof(ClassWithDefaultDotvvmControlContent_NoDotvvmProperty));
+            Assert.AreEqual(0, control.Content.Count);
+            Assert.IsTrue(control.Properties.Any(p => p.Value is ResolvedPropertyControlCollection));
+        }
+
+        [TestMethod]
+        public void ResolvedTree_GridViewWithColumns()
+        {
+            var root = ParseSource(@"
+@viewModel System.Collections.Generic.List<string>
+<dot:GridView DataSource='{value: _this}'>
+    <dot:GridViewTextColumn HeaderText='' ValueBinding='{value: _this}' />
+
+</dot:GridView>");
+            var control = root.Content.First(n => n.Metadata.Type == typeof(GridView));
+            Assert.AreEqual(0, control.Content.Count);
+            Assert.AreEqual(1, control.Properties[GridView.ColumnsProperty].CastTo<ResolvedPropertyControlCollection>().Controls.Count);
+        }
+
 
         [TestMethod]
         public void ResolvedTree_ViewModel_GenericType()
@@ -674,7 +740,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
                 .CastTo<ResolvedTreeRoot>()
                 .ApplyAction(new DataContextPropertyAssigningVisitor().VisitView)
                 .ApplyAction(new StylingVisitor(configuration).VisitView)
-                .ApplyAction(new ControlUsageValidationVisitor(configuration).VisitView);
+                .ApplyAction(ActivatorUtilities.CreateInstance<ControlUsageValidationVisitor>(configuration.ServiceProvider).VisitView);
         }
 
     }
@@ -697,7 +763,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
         protected internal override string ClientHandlerName => null;
 
-        protected internal override Dictionary<string, string> GetHandlerOptionClientExpressions()
+        protected internal override Dictionary<string, object> GetHandlerOptions()
         {
             throw new NotImplementedException();
         }
@@ -716,10 +782,30 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
         protected internal override string ClientHandlerName => null;
 
-        protected internal override Dictionary<string, string> GetHandlerOptionClientExpressions()
+        protected internal override Dictionary<string, object> GetHandlerOptions()
         {
             throw new NotImplementedException();
         }
+    }
+
+    [ControlMarkupOptions(DefaultContentProperty = nameof(Property))]
+    public class ClassWithDefaultDotvvmControlContent: HtmlGenericControl
+    {
+        [MarkupOptions(MappingMode = MappingMode.InnerElement)]
+        public List<DotvvmControl> Property
+        {
+            get { return (List<DotvvmControl>)GetValue(PropertyProperty); }
+            set { SetValue(PropertyProperty, value); }
+        }
+        public static readonly DotvvmProperty PropertyProperty
+            = DotvvmProperty.Register<List<DotvvmControl>, ClassWithDefaultDotvvmControlContent>(c => c.Property, null);
+    }
+
+    [ControlMarkupOptions(DefaultContentProperty = nameof(Property))]
+    public class ClassWithDefaultDotvvmControlContent_NoDotvvmProperty: HtmlGenericControl
+    {
+        [MarkupOptions(MappingMode = MappingMode.InnerElement)]
+        public List<DotvvmControl> Property { get; set; }
     }
 
     [DataContextChanger]
@@ -733,6 +819,11 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             {
                 return new ResolvedTypeDescriptor(typeof(int));
             }
+
+            public override Type GetChildDataContextType(Type dataContext, DataContextStack controlContextStack, DotvvmBindableObject control, DotvvmProperty property = null)
+            {
+                return typeof(int);
+            }
         }
     }
 
@@ -744,6 +835,17 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             public override IDataContextStack ChangeStackForChildren(IDataContextStack original, IAbstractControl control, IPropertyDescriptor property, Func<IDataContextStack, ITypeDescriptor, IDataContextStack> createNewFrame)
             {
                 return DataContextStack.Create(ResolvedTypeDescriptor.ToSystemType(original.DataContextType), (DataContextStack)original.Parent,
+                    bindingPropertyResolvers: new Delegate[]{
+                        new Func<ParsedExpressionBindingProperty, ParsedExpressionBindingProperty>(e => {
+                            if (e.Expression.NodeType == ExpressionType.Constant && (string)((ConstantExpression)e.Expression).Value == "abc") return new ParsedExpressionBindingProperty(Expression.Constant("def"));
+                            else return e;
+                        })
+                    });
+            }
+
+            public override DataContextStack ChangeStackForChildren(DataContextStack original, DotvvmBindableObject obj, DotvvmProperty property, Func<DataContextStack, Type, DataContextStack> createNewFrame)
+            {
+                return DataContextStack.Create(original.DataContextType, original.Parent,
                     bindingPropertyResolvers: new Delegate[]{
                         new Func<ParsedExpressionBindingProperty, ParsedExpressionBindingProperty>(e => {
                             if (e.Expression.NodeType == ExpressionType.Constant && (string)((ConstantExpression)e.Expression).Value == "abc") return new ParsedExpressionBindingProperty(Expression.Constant("def"));

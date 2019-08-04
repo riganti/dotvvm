@@ -1,0 +1,15 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Caching.CachedValuesViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <dot:Button Text="Set Item" Click="{command: SetItem()}" />
+    <dot:Button Text="Remove Item" Click="{command: RemoveItem()}" />
+    <dot:TextBox Text="{value:  Text}" />
+</body>
+</html>

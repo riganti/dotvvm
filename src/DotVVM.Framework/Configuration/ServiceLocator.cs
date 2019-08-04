@@ -1,4 +1,6 @@
 using System;
+using System.Diagnostics;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -6,6 +8,7 @@ namespace DotVVM.Framework.Configuration
 {
     public class ServiceLocator
     {
+        private Func<IServiceCollection, IServiceProvider> serviceProviderFactoryMethod;
         private IServiceCollection serviceCollection;
         private IServiceProvider serviceProvider;
 
@@ -14,8 +17,9 @@ namespace DotVVM.Framework.Configuration
             this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }
 
-        public ServiceLocator(IServiceCollection serviceCollection)
+        public ServiceLocator(IServiceCollection serviceCollection, Func<IServiceCollection, IServiceProvider> serviceProviderFactoryMethod = null)
         {
+            this.serviceProviderFactoryMethod = serviceProviderFactoryMethod;
             this.serviceCollection = serviceCollection ?? throw new ArgumentNullException(nameof(serviceCollection));
         }
 
@@ -23,42 +27,35 @@ namespace DotVVM.Framework.Configuration
         {
             if (serviceProvider == null)
             {
-                serviceProvider = BuildServiceProvider();
+                serviceProvider = (serviceProviderFactoryMethod ?? BuildServiceProvider).Invoke(serviceCollection);
                 serviceCollection = null;
             }
             return serviceProvider;
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
         private IServiceProvider BuildServiceProvider()
         {
-            return serviceCollection.BuildServiceProvider();
+            return BuildServiceProvider(serviceCollection);
         }
 
-        public T GetService<T>() 
+        public T GetService<T>()
             => GetServiceProvider().GetService<T>();
 
-        [Obsolete("You should not register service on ServiceLocator, use IServiceCollection instead", true)]
-        public void RegisterTransient<T>(Func<T> factory)
+        /// <summary>
+        /// Workaround for breaking change introduced in https://github.com/aspnet/DependencyInjection/pull/616
+        /// In Microsoft.Extensions.DependencyInjection 2.0 signature of <see cref="ServiceCollectionContainerBuilderExtensions.BuildServiceProvider(IServiceCollection)"/> has been changed slightly causing <see cref="MissingMethodException"/>.
+        /// Lets bind it dynamically.
+        /// Source: https://github.com/peachpiecompiler/peachpie/blob/eb9213f174fa909459ad0137ff996876eac2ac4c
+        /// </summary>
+        private static IServiceProvider BuildServiceProvider(IServiceCollection services)
         {
-            RegisterService(factory, ServiceLifetime.Transient);
-        }
+            // Template: return ServiceCollectionContainerBuilderExtensions.BuildServiceProvider(services);
 
-        [Obsolete("You should not register service on ServiceLocator, use IServiceCollection instead", true)]
-        public void RegisterSingleton<T>(Func<T> factory)
-        {
-            RegisterService(factory, ServiceLifetime.Singleton);
-        }
+            var t = typeof(ServiceCollectionContainerBuilderExtensions).GetTypeInfo();
+            var BuildServiceProviderMethod = t.GetMethod(nameof(BuildServiceProvider), new Type[] { typeof(IServiceCollection) });
+            Debug.Assert(BuildServiceProviderMethod != null);
 
-        [Obsolete("You should not register service on ServiceLocator, use IServiceCollection instead", true)]
-        private void RegisterService<T>(Func<T> factory, ServiceLifetime lifetime)
-        {
-            if (serviceCollection == null)
-            {
-                throw new InvalidOperationException("Could not register service to ServiceLocator that has already built IServiceProvider.");
-            }
-
-            serviceCollection.Add(new ServiceDescriptor(typeof(T), p => factory(), lifetime));
+            return (IServiceProvider)BuildServiceProviderMethod.Invoke(null, new[] { services });
         }
     }
 }

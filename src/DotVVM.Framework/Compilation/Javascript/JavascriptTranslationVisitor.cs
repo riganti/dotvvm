@@ -64,6 +64,12 @@ namespace DotVVM.Framework.Compilation.Javascript
 
                 case ExpressionType.Block:
                     return TranslateBlock((BlockExpression)expression);
+
+                case ExpressionType.Default:
+                    return TranslateDefault((DefaultExpression)expression);
+
+                case ExpressionType.Invoke:
+                    return TranslateInvoke((InvocationExpression)expression);
             }
             if (expression is BinaryExpression)
             {
@@ -77,7 +83,13 @@ namespace DotVVM.Framework.Compilation.Javascript
             throw new NotSupportedException($"The expression type {expression.NodeType} can not be translated to Javascript!");
         }
 
-        private Expression ReplaceVariables(Expression node, IReadOnlyList<ParameterExpression> variables, object[] args)
+        private JsExpression TranslateInvoke(InvocationExpression expression)
+        {
+            // just invoke the function
+            return Translate(expression.Expression).Invoke(expression.Arguments.Select(Translate));
+        }
+
+        private Expression ReplaceVariables(Expression node, IReadOnlyList<ParameterExpression> variables, CodeSymbolicParameter[] args)
         {
             return ExpressionUtils.Replace(Expression.Lambda(node, variables), args.Zip(variables, (o, a) => Expression.Parameter(a.Type, a.Name).AddParameterAnnotation(
                 new BindingParameterAnnotation(extensionParameter: new FakeExtensionParameter(_ => new JsSymbolicParameter(o), a.Name, new ResolvedTypeDescriptor(a.Type)))
@@ -86,35 +98,49 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public JsExpression TranslateLambda(LambdaExpression expression)
         {
-            var args = expression.Parameters.Select(_ => new object()).ToArray();
+            var args = expression.Parameters.Select(p => new CodeSymbolicParameter($"lambda_param_" + p.Name)).ToArray();
             var (body, additionalVariables, additionalVarNames) = TranslateLambdaBody(ReplaceVariables(expression.Body, expression.Parameters, args));
             var usedNames = new HashSet<string>(body.DescendantNodesAndSelf().OfType<JsIdentifierExpression>().Select(i => i.Identifier));
             var argsNames = expression.Parameters.Select(p => JsTemporaryVariableResolver.GetNames(p.Name).First(usedNames.Add)).ToArray();
             additionalVarNames = additionalVarNames.Select(p => JsTemporaryVariableResolver.GetNames(p).First(usedNames.Add)).ToArray();
-            foreach (var symArg in body.DescendantNodesAndSelf().OfType<JsSymbolicParameter>())
-            {
-                var aIndex = Array.IndexOf(args, symArg.Symbol);
-                if (aIndex >= 0) symArg.ReplaceWith(new JsIdentifierExpression(argsNames[aIndex]).WithAnnotations(symArg.Annotations).WithAnnotation(ResultMayBeObservableAnnotation.Instance, append: false));
-                aIndex = Array.IndexOf(additionalVariables, symArg.Symbol);
-                if (aIndex >= 0) symArg.ReplaceWith(new JsIdentifierExpression(additionalVarNames[aIndex]));
-            }
-            return new JsFunctionExpression(
+
+            var functionExpr = new JsFunctionExpression(
                 argsNames.Concat(additionalVarNames).Select(n => new JsIdentifier(n)),
                 body is JsBlockStatement block ? block :
                 body is JsStatement statement ? new JsBlockStatement(statement) :
                 body is JsExpression bodyExpression ? new JsBlockStatement(new JsReturnStatement(bodyExpression)) :
                 throw new NotSupportedException()
             );
+
+            foreach (var symArg in body.DescendantNodesAndSelf().OfType<JsSymbolicParameter>())
+            {
+                var aIndex = Array.IndexOf(args, symArg.Symbol);
+                if (aIndex >= 0)
+                {
+                    symArg.ReplaceWith(
+                        new JsIdentifierExpression(argsNames[aIndex])
+                            .WithAnnotations(symArg.Annotations)
+                            .WithAnnotation(ResultMayBeObservableAnnotation.Instance, append: false));
+                }
+                aIndex = Array.IndexOf(additionalVariables, symArg.Symbol);
+                if (aIndex >= 0)
+                {
+                    symArg.ReplaceWith(new JsIdentifierExpression(additionalVarNames[aIndex]));
+                }
+            }
+
+            return functionExpr;
         }
+
         (JsNode node, object[] variables, string[] variableNames) TranslateLambdaBody(Expression expression)
         {
             if (expression is BlockExpression block)
             {
-                var args = block.Variables.Select(_ => new object()).ToArray();
+                var args = block.Variables.Select(_ => new CodeSymbolicParameter()).ToArray();
                 var expressions = block.Expressions.Select(s => Translate(ReplaceVariables(s, block.Variables, args))).ToArray();
                 return (
                     new JsBlockStatement(
-                        expressions.Take(expressions.Length - 1).Select(e => (JsStatement)new JsExpressionStatement(e)).Concat(new [] { new JsReturnStatement(expressions.Last()) }).ToArray()
+                        expressions.Take(expressions.Length - 1).Select(e => (JsStatement)new JsExpressionStatement(e)).Concat(new[] { new JsReturnStatement(expressions.Last()) }).ToArray()
                     ),
                     args,
                     block.Variables.Select(a => a.Name).ToArray()
@@ -122,7 +148,6 @@ namespace DotVVM.Framework.Compilation.Javascript
             }
             else return (Translate(expression), new object[0], new string[0]);
         }
-
 
         public JsExpression TranslateBlock(BlockExpression expression)
         {
@@ -161,7 +186,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
 
         private JsExpression SetProperty(JsExpression target, PropertyInfo property, JsExpression value) =>
-            new JsAssignmentExpression(this.TranslateViewModelProperty(target, property), value);
+            new JsAssignmentExpression(TranslateViewModelProperty(target, property), value);
 
         public JsExpression TranslateConditional(ConditionalExpression expression) =>
             new JsConditionalExpression(
@@ -209,8 +234,6 @@ namespace DotVVM.Framework.Compilation.Javascript
                     return new JsSymbolicParameter(JavascriptTranslator.KnockoutViewModelParameter).WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
                 else if (index == 1)
                     return contextParameter("$parent", 0, expression.Type);
-                else if (ContextMap.Count == index + 1)
-                    return contextParameter("$root", 0, expression.Type);
                 else return new JsSymbolicParameter(JavascriptTranslator.KnockoutContextParameter)
                         .Member("$parents").Indexer(new JsLiteral(index - 1))
                         .WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
@@ -223,6 +246,12 @@ namespace DotVVM.Framework.Compilation.Javascript
             else throw new NotSupportedException($"Can't translate parameter '{expression}' to Javascript.");
         }
 
+        public JsLiteral TranslateDefault(DefaultExpression expression) =>
+            new JsLiteral(expression.Type.IsValueType && expression.Type != typeof(void) ?
+                          Activator.CreateInstance(expression.Type) :
+                          null)
+            .WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
+
         public JsLiteral TranslateConstant(ConstantExpression expression) =>
             new JsLiteral(expression.Value).WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
 
@@ -230,12 +259,6 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             var thisExpression = expression.Object == null ? null : Translate(expression.Object);
             var args = expression.Arguments.Select(Translate).ToArray();
-
-            if (expression.Method.Name == "GetValue" && expression.Method.DeclaringType == typeof(DotvvmBindableObject))
-            {
-                var dotvvmproperty = ((DotvvmProperty)((JsLiteral)args[0]).Value);
-                return TranslateViewModelProperty(thisExpression, (MemberInfo)dotvvmproperty.PropertyInfo ?? dotvvmproperty.PropertyType.GetTypeInfo(), name: dotvvmproperty.Name);
-            }
 
             var result = TryTranslateMethodCall(expression.Method, expression.Object, expression.Arguments.ToArray());
             if (result == null)
@@ -255,6 +278,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 if (mTranslate != null) return mTranslate;
             }
             BinaryOperatorType op;
+            bool mayInduceDecimals = false; // whether the operation can have non-integer result just from integer inputs
             switch (expression.NodeType)
             {
                 case ExpressionType.Equal: op = BinaryOperatorType.Equal; break;
@@ -270,7 +294,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 case ExpressionType.SubtractChecked:
                 case ExpressionType.Subtract: op = BinaryOperatorType.Minus; break;
                 case ExpressionType.SubtractAssignChecked:
-                case ExpressionType.Divide: op = BinaryOperatorType.Divide; break;
+                case ExpressionType.Divide: op = BinaryOperatorType.Divide; mayInduceDecimals = true; break;
                 case ExpressionType.Modulo: op = BinaryOperatorType.Modulo; break;
                 case ExpressionType.MultiplyChecked:
                 case ExpressionType.Multiply: op = BinaryOperatorType.Times; break;
@@ -280,11 +304,28 @@ namespace DotVVM.Framework.Compilation.Javascript
                 case ExpressionType.Or: op = BinaryOperatorType.BitwiseOr; break;
                 case ExpressionType.ExclusiveOr: op = BinaryOperatorType.BitwiseXOr; break;
                 case ExpressionType.Coalesce: op = BinaryOperatorType.ConditionalOr; break;
-                case ExpressionType.ArrayIndex: return new JsIndexerExpression(left, right);
+                case ExpressionType.ArrayIndex: return new JsIndexerExpression(left, right).WithAnnotation(ResultIsObservableAnnotation.Instance);
                 default:
                     throw new NotSupportedException($"Unary operator of type { expression.NodeType } is not supported");
             }
-            return new JsBinaryExpression(left, op, right);
+            var result = new JsBinaryExpression(left, op, right);
+            if (mayInduceDecimals && ReflectionUtils.IsNumericType(expression.Type) && expression.Type != typeof(float) && expression.Type != typeof(double) && expression.Type != typeof(decimal))
+            {
+                if (new [] { typeof(Byte), typeof(SByte), typeof(Int16), typeof(UInt16), typeof(Int32) }.Contains(expression.Type))
+                    // `(expr | 0)` to get the integer result type
+                    return new JsBinaryExpression(
+                        result,
+                        BinaryOperatorType.BitwiseOr,
+                        new JsLiteral(0));
+                else if (new [] { typeof(UInt32), typeof(UInt64) }.Contains(expression.Type))
+                    // round down, unsigned integers are always rounded down
+                    return new JsIdentifierExpression("Math").Member("floor").Invoke(result);
+                else
+                    // round to zero, by trimming a string...
+                    return new JsIdentifierExpression("parseInt").Invoke(result);
+            }
+            else
+                return result;
         }
 
         public JsExpression TranslateUnary(UnaryExpression expression)
@@ -341,22 +382,24 @@ namespace DotVVM.Framework.Compilation.Javascript
             }
         }
 
-        public JsExpression TranslateViewModelProperty(JsExpression context, MemberInfo propInfo, string name = null) =>
-            new JsMemberAccessExpression(context, name ?? propInfo.Name).WithAnnotation(new VMPropertyInfoAnnotation { MemberInfo = propInfo }).WithAnnotation(new ViewModelInfoAnnotation(propInfo.GetResultType()));
+        public static JsExpression TranslateViewModelProperty(JsExpression context, MemberInfo propInfo, string name = null) =>
+            new JsMemberAccessExpression(context, name ?? propInfo.Name)
+                .WithAnnotation(new VMPropertyInfoAnnotation { MemberInfo = propInfo })
+                .WithAnnotation(new ViewModelInfoAnnotation(propInfo.GetResultType()));
 
         public JsExpression TryTranslateMethodCall(MethodInfo methodInfo, Expression target, IEnumerable<Expression> arguments) =>
             Translator.TryTranslateCall(
-                new HalfTranslatedExpression(target, Translate),
-                arguments.Select(a => new HalfTranslatedExpression(a, Translate)).ToArray(),
+                new LazyTranslatedExpression(target, Translate),
+                arguments.Select(a => new LazyTranslatedExpression(a, Translate)).ToArray(),
                 methodInfo)
                 ?.WithAnnotation(new ViewModelInfoAnnotation(methodInfo.ReturnType), append: false);
 
-        public class FakeExtensionParameter: BindingExtensionParameter
+        public class FakeExtensionParameter : BindingExtensionParameter
         {
             private readonly Func<JsExpression, JsExpression> getJsTranslation;
 
-            public FakeExtensionParameter(Func<JsExpression, JsExpression> getJsTranslation, string identifier = "__", ITypeDescriptor type = null, bool inherit = false): base(identifier, type, inherit)
-            { 
+            public FakeExtensionParameter(Func<JsExpression, JsExpression> getJsTranslation, string identifier = "__", ITypeDescriptor type = null, bool inherit = false) : base(identifier, type, inherit)
+            {
                 this.getJsTranslation = getJsTranslation;
             }
 
@@ -365,13 +408,14 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
     }
 
-    public class HalfTranslatedExpression
+    /// Represents an Linq.Expression that is being translated to JsAst.
+    public class LazyTranslatedExpression
     {
         private static readonly Lazy<JsExpression> nullLazy = new Lazy<JsExpression>(() => null);
         private readonly Lazy<JsExpression> lazyJsExpression;
         public JsExpression JsExpression() => lazyJsExpression.Value;
         public Expression OriginalExpression { get; }
-        public HalfTranslatedExpression(Expression expr, Func<Expression, JsExpression> translateMethod)
+        public LazyTranslatedExpression(Expression expr, Func<Expression, JsExpression> translateMethod)
         {
             this.OriginalExpression = expr;
             this.lazyJsExpression = expr == null ? nullLazy : new Lazy<JsExpression>(() => translateMethod(expr));

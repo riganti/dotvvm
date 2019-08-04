@@ -10,14 +10,6 @@ using System.Linq;
 
 namespace DotVVM.Framework.Compilation.Styles
 {
-    // not generic interface
-    public interface IStyleBuilder
-    {
-        IStyleBuilder SetDotvvmProperty(DotvvmProperty property, object value);
-        IStyleBuilder WithCondition(Func<StyleMatchContext, bool> condition);
-        IStyle GetStyle();
-    }
-
     public class StyleBuilder<T> : IStyleBuilder
     {
         private Style style;
@@ -29,7 +21,7 @@ namespace DotVVM.Framework.Compilation.Styles
 
         private static DotvvmProperty GetProperty(string name)
         {
-            var field = typeof(T).GetField(name + "Property", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.FlattenHierarchy);
+            var field = typeof(T).GetField(name + "Property", BindingFlags.Static | BindingFlags.Public | BindingFlags.FlattenHierarchy);
             return field.GetValue(null) as DotvvmProperty;
         }
 
@@ -39,22 +31,34 @@ namespace DotVVM.Framework.Compilation.Styles
             return SetDotvvmProperty(GetProperty(propertyName), value);
         }
 
-        public StyleBuilder<T> SetDotvvmProperty(ResolvedPropertySetter setter, bool append = true)
+        public StyleBuilder<T> SetControlProperty<TControlType>(DotvvmProperty property, Action<StyleBuilder<TControlType>> styleBuilder = null,
+            StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
         {
-            style.SetProperties[setter.Property] = new CompileTimeStyleBase.PropertyInsertionInfo(setter, append);
+            var innerControlStyleBuilder = new StyleBuilder<TControlType>(null, false);
+            styleBuilder?.Invoke(innerControlStyleBuilder);
+
+            style.SetProperties[property] = new CompileTimeStyleBase.PropertyControlCollectionInsertionInfo(property, options,
+                new ControlResolverMetadata(typeof(TControlType)), innerControlStyleBuilder.GetStyle());
+
             return this;
         }
 
-        public StyleBuilder<T> SetDotvvmProperty(DotvvmProperty property, object value, bool append = true) => 
-            SetDotvvmProperty(new ResolvedPropertyValue(property, value), append);
-
-        public StyleBuilder<T> SetAttribute(string attribute, object value, bool append = false) => 
-            SetPropertyGroupMember("", attribute, value, append);
-
-        public StyleBuilder<T> SetPropertyGroupMember(string prefix, string memberName, object value, bool append = true)
+        public StyleBuilder<T> SetDotvvmProperty(ResolvedPropertySetter setter, StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
         {
-            var prop = DotvvmPropertyGroup .GetPropertyGroups(typeof(T)).Single(p => p.Prefixes.Contains(prefix));
-            return SetDotvvmProperty(prop.GetDotvvmProperty(memberName), value, append);
+            style.SetProperties[setter.Property] = new CompileTimeStyleBase.PropertyInsertionInfo(setter, options);
+            return this;
+        }
+
+        public StyleBuilder<T> SetDotvvmProperty(DotvvmProperty property, object value, StyleOverrideOptions options = StyleOverrideOptions.Overwrite) =>
+            SetDotvvmProperty(new ResolvedPropertyValue(property, value), options);
+
+        public StyleBuilder<T> SetAttribute(string attribute, object value, StyleOverrideOptions options = StyleOverrideOptions.Ignore) =>
+            SetPropertyGroupMember("", attribute, value, options);
+
+        public StyleBuilder<T> SetPropertyGroupMember(string prefix, string memberName, object value, StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
+        {
+            var prop = DotvvmPropertyGroup.GetPropertyGroups(typeof(T)).Single(p => p.Prefixes.Contains(prefix));
+            return SetDotvvmProperty(prop.GetDotvvmProperty(memberName), value, options);
         }
 
         public StyleBuilder<T> WithCondition(Func<StyleMatchContext, bool> condition)
@@ -89,9 +93,10 @@ namespace DotVVM.Framework.Compilation.Styles
             public override Type ControlType => typeof(T);
 
             public Func<StyleMatchContext, bool> Matcher { get; set; }
-            public override bool Matches(StyleMatchContext matchInfo)
+
+            public override bool Matches(StyleMatchContext context)
             {
-                return Matcher != null ? Matcher(matchInfo) : true;
+                return Matcher != null ? Matcher(context) : true;
             }
         }
     }

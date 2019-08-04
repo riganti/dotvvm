@@ -1,0 +1,41 @@
+﻿<#@ template debug="true" hostspecific="true" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="$(SolutionDir)DotVVM.Framework\bin\Debug\net451\DotVVM.Framework.dll" #>
+<#@ assembly name="$(SolutionDir)packages\Microsoft.Extensions.DependencyInjection.Abstractions.1.0.0\lib\netstandard1.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="DotVVM.Framework.Routing" #>
+<#@ import namespace="DotVVM.Framework.Configuration" #>
+<#@ import namespace="System.IO" #>
+
+<#@ output extension=".designer.cs" #>
+
+// DO NOT MODIFY THIS FILE - THIS FILE IS GENERATED !!!
+
+namespace DotVVM.Testing.Abstractions
+{
+    public partial class SamplesRouteUrls
+    {
+    <# 
+    
+    
+    //define paths
+    var SamplesFolderPath = "DotVVM.Samples.Common";
+    DirectoryInfo dir = new DirectoryInfo(this.Host.ResolveAssemblyReference("$(ProjectDir)"));
+    var samplesProjectDir = Path.Combine(dir.Parent.FullName, SamplesFolderPath);
+    
+    //simulate route strategy
+    var config = DotvvmConfiguration.CreateDefault();
+    config.ApplicationPhysicalPath = samplesProjectDir ;
+    var data = new List<RouteBase> (new DefaultRouteStrategy(config).GetRoutes());
+     #>
+
+    <# 
+    //generate constants
+    foreach (var info in data){
+        #>
+    public const string <#= info.RouteName #> = "<#=  info.Url #>";
+    <# } #>
+    }
+}

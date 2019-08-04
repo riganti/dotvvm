@@ -1,6 +1,6 @@
 ﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <VersionPrefix>1.2.0-alpha2</VersionPrefix>
+    <VersionPrefix>2.3.0</VersionPrefix>
     <TargetFramework>net451</TargetFramework>
     <RuntimeIdentifiers>win7-x64;win7-x86</RuntimeIdentifiers>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -17,7 +17,7 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <PackageId>DotVVM.Owin</PackageId>
-    <PackageVersion>1.2.0-alpha2</PackageVersion>
+    <PackageVersion>2.3.0</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>
       This package contains OWIN middleware and hosting infrastructure for DotVVM apps.
@@ -26,7 +26,7 @@
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>dotvvm;asp.net;mvvm;owin;dotnetcore;dnx</PackageTags>
     <PackageIconUrl>https://dotvvm.com/Content/images/icons/icon-blue-64x64.png</PackageIconUrl>
-    <PackageLicenseUrl>https://github.com/riganti/dotvvm/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="compiler\resources\**\*" />
@@ -42,6 +42,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Ben.Demystifier" Version="0.1.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="1.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="1.0.0" />
     <PackageReference Include="Microsoft.Owin.Security" Version="3.0.1" />
@@ -51,6 +52,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Net" />
+    <Reference Include="System.Web" />
   </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>

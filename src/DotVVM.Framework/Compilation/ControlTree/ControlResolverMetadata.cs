@@ -30,7 +30,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 throw new Exception($"{nameof(DataContextChangeAttributes)} and {nameof(DataContextManipulationAttribute)} can not be set at the same time at control '{controlType.Type.FullName}'.");
         }
 
-        public ControlResolverMetadata(Type type) : base(new ControlType(type))
+        public ControlResolverMetadata(Type type) : this(new ControlType(type))
         {
         }
 

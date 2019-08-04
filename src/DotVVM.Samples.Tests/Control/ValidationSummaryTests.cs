@@ -1,35 +1,38 @@
-﻿using Riganti.Utils.Testing.Selenium.Core;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Dotvvm.Samples.Tests;
+using DotVVM.Samples.Tests.Base;
+using DotVVM.Testing.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Riganti.Selenium.Core;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace DotVVM.Samples.Tests.Control
 {
-    [TestClass]
-    public class ValidationSummaryTests : SeleniumTest
+    public class ValidationSummaryTests : AppSeleniumTest
     {
-
-        [TestMethod]
+        [Fact]
         public void Control_ValidationSummary_RecursiveValidationSummary()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ValidationSummary_RecursiveValidationSummary);
 
                 browser.ElementAt("input[type=button]", 0).Click().Wait();
 
                 browser.ElementAt("ul", 0).FindElements("li").ThrowIfDifferentCountThan(2);
-                browser.First("#result").CheckIfInnerTextEquals("false");
-                
+                AssertUI.InnerTextEquals(browser.First("#result"), "false");
+
                 browser.ElementAt("input[type=button]", 1).Click().Wait();
                 browser.ElementAt("ul", 1).FindElements("li").ThrowIfDifferentCountThan(1);
-                browser.First("#result").CheckIfInnerTextEquals("false");
+                AssertUI.InnerTextEquals(browser.First("#result"), "false");
             });
         }
 
+        public ValidationSummaryTests(ITestOutputHelper output) : base(output)
+        {
+        }
     }
 }

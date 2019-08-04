@@ -11,35 +11,55 @@ using Newtonsoft.Json;
 namespace DotVVM.Framework.Compilation.Javascript
 {
     /// <summary>
-    /// Represens a piece of Javascript code that may contain unresolved symbolic parameters.
+    /// Represents a piece of Javascript code that may contain unresolved symbolic parameters.
     /// </summary>
-    public class ParametrizedCode
+    public sealed class ParametrizedCode
     {
         private readonly string[] stringParts;
         private readonly CodeParameterInfo[] parameters;
+        private string evaluatedDefault;
         public readonly OperatorPrecedence OperatorPrecedence;
 
-        public ParametrizedCode(string[] stringParts, CodeParameterInfo[] parameters, OperatorPrecedence operatorPrecence)
+        public bool HasParameters => parameters != null && parameters.Length > 0;
+        public IEnumerable<CodeParameterInfo> Parameters =>
+            // make sure that it's really immutable
+            parameters?.Select(p => p) ?? Enumerable.Empty<CodeParameterInfo>();
+
+        public ParametrizedCode(string[] stringParts, CodeParameterInfo[] parameters, OperatorPrecedence operatorPrecence, string evaluatedDefault = null)
         {
-            this.stringParts = stringParts;
-            this.parameters = parameters;
+            if (stringParts == null)
+                this.evaluatedDefault = evaluatedDefault ?? throw new ArgumentNullException(nameof(stringParts), "Can't be null, unless evaluatedDefauls is set.");
+            else if (stringParts.Length == 1)
+                this.evaluatedDefault = stringParts[0] ?? throw new ArgumentNullException(nameof(stringParts), "Can't be null, unless evaluatedDefauls is set.");
+            else
+            {
+                this.stringParts = stringParts;
+                this.parameters = parameters ?? throw new ArgumentNullException(nameof(parameters), "Can't be null, unless stringParts.Length == 1");
+                this.evaluatedDefault = evaluatedDefault;
+            }
             this.OperatorPrecedence = operatorPrecence;
         }
 
-        public ParametrizedCode(string code, OperatorPrecedence precedence = new OperatorPrecedence())
-            : this(new[] { code }, null, precedence)
+        public ParametrizedCode(string code, OperatorPrecedence precedence = default)
         {
+            this.evaluatedDefault = code ?? throw new ArgumentNullException(nameof(code));
+            this.OperatorPrecedence = precedence;
         }
 
         // TODO(exyi): add WriteTo(StringBuilder)
         /// <summary>
         /// Converts this to string and assigns all parameters using `parameterAsssignment`. If there is any missing, exception is thrown.
         /// </summary>
-        public string ToString(Func<object, CodeParameterAssignment> parameterAssignment)
+        public string ToString(Func<CodeSymbolicParameter, CodeParameterAssignment> parameterAssignment) => ToString(parameterAssignment, out var _);
+        public string ToString(Func<CodeSymbolicParameter, CodeParameterAssignment> parameterAssignment, out bool allIsDefault)
         {
-            if (stringParts.Length == 1) return stringParts[0];
+            allIsDefault = true;
+            if (stringParts == null) return evaluatedDefault;
 
-            var codes = FindStringAssignment(parameterAssignment);
+            var codes = FindStringAssignment(parameterAssignment, out allIsDefault);
+
+            if (allIsDefault && this.evaluatedDefault != null)
+                return evaluatedDefault;
 
             var sb = new StringBuilder(codes.Sum((p) => p.code.Length) + stringParts.Sum(p => p.Length));
             sb.Append(stringParts[0]);
@@ -58,18 +78,38 @@ namespace DotVVM.Framework.Compilation.Javascript
                     sb.Append(stringParts[++i]);
                 }
             }
-            return sb.ToString();
+            var result = sb.ToString();
+            if (allIsDefault)
+                this.evaluatedDefault = result;
+            return result;
+        }
+
+        [Obsolete("ParametrizedCode.ToString use is discouraged, this overload does not return the code, please use the ToString(Func<...> parameterAssigner) overload or ToDefaultString method. Note that these methods may throw an exception.", true)]
+        public override string ToString()
+        {
+            // leave for debug purposes.
+            return base.ToString();
+        }
+
+        public string ToDefaultString()
+        {
+            if (this.evaluatedDefault != null)
+                return this.evaluatedDefault;
+            return ToString(_ => default);
         }
 
         /// <summary>
         /// Assigns parameters and return new ParametrizedCode. If parameter is not assigned, it is copied to the resulting parameter. Assigner can also replace parameter by script that contains another parameters.
         /// </summary>
-        public ParametrizedCode AssignParameters(Func<object, CodeParameterAssignment> parameterAssignement)
+        public ParametrizedCode AssignParameters(Func<CodeSymbolicParameter, CodeParameterAssignment> parameterAssignment)
         {
-            if (stringParts.Length == 1) return this;
+            if (stringParts == null) return this;
+
+            var assignment = FindAssignment(parameterAssignment, optional: true, allIsDefault: out bool allIsDefault);
+
+            if (allIsDefault) return this;
 
             // PERF: reduce allocations here, used at runtime
-            var assignment = FindAssignment(parameterAssignement, optional: true);
             var builder = new Builder();
 
             builder.Add(stringParts[0]);
@@ -102,32 +142,48 @@ namespace DotVVM.Framework.Compilation.Javascript
         /// </summary>
         public void CopyTo(Builder builder)
         {
-            if (parameters != null) for (int i = 0; i < parameters.Length; i++)
+            if (stringParts == null)
+                builder.Add(evaluatedDefault);
+            else
             {
-                builder.Add(stringParts[i]);
-                builder.Add(parameters[i]);
+                for (int i = 0; i < parameters.Length; i++)
+                {
+                    builder.Add(stringParts[i]);
+                    builder.Add(parameters[i]);
+                }
+                builder.Add(stringParts.Last());
             }
-            builder.Add(stringParts.Last());
         }
 
-        private (CodeParameterAssignment parameter, string code)[] FindStringAssignment(Func<object, CodeParameterAssignment> parameterAssigner)
+        private (CodeParameterAssignment parameter, string code)[] FindStringAssignment(Func<CodeSymbolicParameter, CodeParameterAssignment> parameterAssigner, out bool allIsDefault)
         {
-            var pp = FindAssignment(parameterAssigner, optional: false);
+            var pp = FindAssignment(parameterAssigner, optional: false, allIsDefault: out allIsDefault);
             var codes = new(CodeParameterAssignment parameter, string code)[parameters.Length];
             for (int i = 0; i < parameters.Length; i++)
             {
-                codes[i] = (pp[i], pp[i].Code.ToString(parameterAssigner));
+                codes[i] = (pp[i], pp[i].Code.ToString(parameterAssigner, out bool allIsDefault_local));
+                allIsDefault &= allIsDefault_local;
             }
             return codes;
         }
 
-        private CodeParameterAssignment[] FindAssignment(Func<object, CodeParameterAssignment> parameterAssigner, bool optional)
+        private CodeParameterAssignment[] FindAssignment(Func<CodeSymbolicParameter, CodeParameterAssignment> parameterAssigner, bool optional, out bool allIsDefault)
         {
+            allIsDefault = true;
             var pp = new CodeParameterAssignment[parameters.Length];
             for (int i = 0; i < parameters.Length; i++)
             {
-                if ((pp[i] = parameterAssigner(parameters[i].Parameter)).Code == null && !optional)
-                    throw new InvalidOperationException($"Assignment of paremeter '{parameters[i].Parameter}' was not found.");
+                if ((pp[i] = parameterAssigner(parameters[i].Parameter)).Code == null)
+                {
+                    if (!optional)
+                    {
+                        pp[i] = parameters[i].DefaultAssignment;
+                        if (pp[i].Code == null)
+                            throw new InvalidOperationException($"Assignment of parameter '{parameters[i].Parameter}' was not found.");
+                    }
+                }
+                else
+                    allIsDefault = false;
             }
             return pp;
         }
@@ -180,7 +236,9 @@ namespace DotVVM.Framework.Compilation.Javascript
     /// </summary>
     public struct CodeParameterInfo
     {
-        public readonly object Parameter;
+        public readonly CodeSymbolicParameter Parameter;
+        /// Optional default value
+        public readonly CodeParameterAssignment DefaultAssignment;
         /// <summary>
         /// Operator precedence of the top expression to make sure that the parameter is correctly parenthised.
         /// </summary>
@@ -190,16 +248,17 @@ namespace DotVVM.Framework.Compilation.Javascript
         /// </summary>
         public readonly bool IsSafeMemberAccess;
 
-        public CodeParameterInfo(object parameter, byte operatorPrecence = 20, bool isMemberAccess = false)
+        public CodeParameterInfo(CodeSymbolicParameter parameter, byte operatorPrecedence = 20, bool isSafeMemberAccess = false, CodeParameterAssignment? assignment = null)
         {
             this.Parameter = parameter;
-            this.OperatorPrecedence = operatorPrecence;
-            this.IsSafeMemberAccess = isMemberAccess;
+            this.OperatorPrecedence = operatorPrecedence;
+            this.IsSafeMemberAccess = isSafeMemberAccess;
+            this.DefaultAssignment = assignment ?? parameter.DefaultAssignment;
         }
 
         public static CodeParameterInfo FromExpression(JsSymbolicParameter expression)
         {
-            return new CodeParameterInfo(expression.Symbol, JsParensFixingVisitor.OperatorLevel(expression.Parent as JsExpression), expression.Parent is JsMemberAccessExpression);
+            return new CodeParameterInfo(expression.Symbol, JsParensFixingVisitor.OperatorLevel(expression.Parent as JsExpression), expression.Parent is JsMemberAccessExpression, expression.DefaultAssignment);
         }
     }
 
@@ -209,7 +268,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         public readonly bool IsGlobalContext;
 
         public CodeParameterAssignment(string code, OperatorPrecedence operatorPrecedence, bool isGlobalContext = false)
-            : this(new ParametrizedCode(new[] { code }, null, operatorPrecedence), isGlobalContext) { }
+            : this(new ParametrizedCode(code, operatorPrecedence), isGlobalContext) { }
         public CodeParameterAssignment(ParametrizedCode code, bool isGlobalContext = false)
         {
             this.Code = code;
@@ -228,5 +287,22 @@ namespace DotVVM.Framework.Compilation.Javascript
             new CodeParameterAssignment(JsonConvert.ToString(value), OperatorPrecedence.Max, isGlobalContext);
 
         public static implicit operator CodeParameterAssignment(ParametrizedCode val) => new CodeParameterAssignment(val);
+    }
+
+    /// (Base) class for symbolic parameter descriptors.
+    /// This is mainly a marker class, the parameters are compared by reference equality, but this contains some optional features (default and description).
+    public class CodeSymbolicParameter
+    {
+        public readonly string Description;
+        public readonly CodeParameterAssignment DefaultAssignment;
+        public bool HasDefault => DefaultAssignment.Code != null;
+
+        public CodeSymbolicParameter(string description = "", CodeParameterAssignment defaultAssignment = default)
+        {
+            this.Description = description ?? throw new ArgumentNullException(nameof(description));
+            this.DefaultAssignment = defaultAssignment;
+        }
+
+        public override string ToString() => $"[{this.Description}|{(uint)this.GetHashCode()}]";
     }
 }

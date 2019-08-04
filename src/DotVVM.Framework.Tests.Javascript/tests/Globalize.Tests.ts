@@ -97,3 +97,4 @@ describe("Globalize.js custom number format", () => {
         expect(dotvvm_Globalize.format(-1, "00", "en-US")).toBe("-01");
     });
 });
+

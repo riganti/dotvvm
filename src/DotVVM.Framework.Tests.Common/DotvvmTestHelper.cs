@@ -5,7 +5,9 @@ using System.Security;
 using System.Text;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Runtime.Caching;
 using DotVVM.Framework.Security;
+using DotVVM.Framework.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -16,8 +18,8 @@ namespace DotVVM.Framework.Tests
         class FakeProtector : IViewModelProtector
         {
             // I hope I will not see this message anywhere on the web ;)
-            public const string WarningPrefix = "WARNING: This message should have been encrypted, but you are using a moq IViewModelProtector";
-            public static readonly byte[] WarningPrefixBytes = Encoding.UTF8.GetBytes(WarningPrefix);
+            public const string WarningPrefix = "WARNING - Message not encryped: ";
+            public static readonly byte[] WarningPrefixBytes = Convert.FromBase64String("WARNING/NOT/ENCRYPTED+++");
 
             public string Protect(string serializedData, IDotvvmRequestContext context)
             {
@@ -27,14 +29,14 @@ namespace DotVVM.Framework.Tests
             public byte[] Protect(byte[] plaintextData, params string[] purposes)
             {
                 var result = new List<byte>();
-                result.AddRange(Encoding.UTF8.GetBytes(WarningPrefix));
+                result.AddRange(WarningPrefixBytes);
                 result.AddRange(plaintextData);
                 return result.ToArray();
             }
 
             public string Unprotect(string protectedData, IDotvvmRequestContext context)
             {
-                if (!protectedData.StartsWith(WarningPrefix + ": ")) throw new SecurityException($"");
+                if (!protectedData.StartsWith(WarningPrefix + ": ", StringComparison.Ordinal)) throw new SecurityException($"");
                 return protectedData.Remove(0, WarningPrefix.Length + 2);
             }
 
@@ -48,12 +50,30 @@ namespace DotVVM.Framework.Tests
         public static void RegisterMoqServices(IServiceCollection services)
         {
             services.TryAddSingleton<IViewModelProtector, FakeProtector>();
+            services.TryAddSingleton<IDotvvmCacheAdapter, SimpleDictionaryCacheAdapter>();
         }
+
+        private static Lazy<DotvvmConfiguration> _defaultConfig = new Lazy<DotvvmConfiguration>(() => CreateConfiguration());
+        public static DotvvmConfiguration DefaultConfig => _defaultConfig.Value;
 
         public static DotvvmConfiguration CreateConfiguration(Action<IServiceCollection> customServices = null) =>
             DotvvmConfiguration.CreateDefault(s => {
                 customServices?.Invoke(s);
                 RegisterMoqServices(s);
             });
+
+        public static TestDotvvmRequestContext CreateContext(DotvvmConfiguration configuration)
+        {
+            IServiceProvider services = configuration.ServiceProvider.CreateScope().ServiceProvider;
+            var context = new TestDotvvmRequestContext()
+            {
+                Configuration = configuration,
+                Services = services,
+                CsrfToken = "Test CSRF Token",
+                ModelState = new ModelState(),
+                ResourceManager = services.GetService<ResourceManagement.ResourceManager>()
+            };
+            return context;
+        }
     }
 }

@@ -1,31 +1,25 @@
-﻿using Dotvvm.Samples.Tests;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DotVVM.Samples.Tests.Base;
+using DotVVM.Testing.Abstractions;
+using Riganti.Selenium.Core;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace DotVVM.Samples.Tests.Feature
 {
-    [TestClass]
-    public class ViewModelDeserializationTests : SeleniumTest
+    public class ViewModelDeserializationTests : AppSeleniumTest
     {
-        [TestMethod]
+        [Fact]
         public void Feature_ViewModelDeserialization_DoesNotDropObject()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModelDeserialization_DoesNotDropObject);
 
-
-                browser.First("span").CheckIfInnerTextEquals("0");
+                AssertUI.InnerTextEquals(browser.First("span"), "0");
                 //value++
-                browser.ElementAt("input[type=button]",2).Click();
+                browser.ElementAt("input[type=button]", 2).Click();
                 browser.ElementAt("input[type=button]", 2).Click();
                 //check value
-                browser.First("span").CheckIfInnerTextEquals("2");
+                AssertUI.InnerTextEquals(browser.First("span"), "2");
                 //hide span
                 browser.ElementAt("input[type=button]", 0).Click();
                 //show span
@@ -33,9 +27,33 @@ namespace DotVVM.Samples.Tests.Feature
                 //value++
                 browser.ElementAt("input[type=button]", 2).Click();
                 //check value
-                browser.First("span").CheckIfInnerTextEquals("3");
-               
+                AssertUI.InnerTextEquals(browser.First("span"), "3");
             });
+        }
+
+        [Fact]
+        public void Feature_ViewModelDeserialization_NegativeLongNumber()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModelDeserialization_NegativeLongNumber);
+
+                var postback = browser.Single("[data-ui=decrement-postback]");
+                var longNumber = browser.Single("[data-ui=long-number]");
+
+                AssertUI.InnerTextEquals(longNumber, "0");
+
+                // value--
+                postback.Click();
+                AssertUI.InnerTextEquals(longNumber, "-1");
+
+                // value--
+                postback.Click();
+                AssertUI.InnerTextEquals(longNumber, "-2");
+            });
+        }
+
+        public ViewModelDeserializationTests(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

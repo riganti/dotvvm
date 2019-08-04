@@ -12,6 +12,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.ClaimView
 
         public void SignIn()
         {
+
             var identity = new ClaimsIdentity(
                 new[] {
                         new Claim(ClaimTypes.Name, "test")

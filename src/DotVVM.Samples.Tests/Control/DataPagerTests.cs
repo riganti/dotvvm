@@ -1,108 +1,125 @@
-﻿using Dotvvm.Samples.Tests;
+﻿
+using System.Collections.Generic;
+using System.Linq;
+using DotVVM.Samples.Tests.Base;
+using DotVVM.Testing.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
+using OpenQA.Selenium;
+using Riganti.Selenium.Core;
+using Riganti.Selenium.Core.Abstractions;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace DotVVM.Samples.Tests.Control
 {
-    [TestClass]
-    public class DataPagerTests : SeleniumTest
+    public class DataPagerTests : AppSeleniumTest
     {
-        [TestMethod]
+        public DataPagerTests(ITestOutputHelper output) : base(output)
+        {
+        }
+
+        [Fact]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_DataPager_DataPager))]
         public void Control_DataPager_DataPager_ShowHideControl()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_DataPager_DataPager);
                 browser.Wait();
 
                 // verify the second pager is hidden
-                browser.First(".pagination").CheckIfIsDisplayed();
-                browser.ElementAt(".pagination", 1).CheckIfIsNotDisplayed();
+                AssertUI.IsDisplayed(browser.First(".pagination"));
+                AssertUI.IsNotDisplayed(browser.ElementAt(".pagination", 1));
                 browser.First("ul").FindElements("li").ThrowIfDifferentCountThan(2);
                 // verify the second pager appears
                 browser.Click("input[type=button]");
 
                 // verify the second pager appears
-                browser.First(".pagination").CheckIfIsDisplayed();
-                browser.ElementAt(".pagination", 1).CheckIfIsDisplayed();
+                AssertUI.IsDisplayed(browser.First(".pagination"));
+                AssertUI.IsDisplayed(browser.ElementAt(".pagination", 1));
                 browser.First("ul").FindElements("li").ThrowIfDifferentCountThan(3);
 
                 // switch to another page
                 browser.First(".pagination").ElementAt("li a", 4).Click();
 
                 // verify the second pager is still visible
-                browser.First(".pagination").CheckIfIsDisplayed();
-                browser.ElementAt(".pagination", 1).CheckIfIsDisplayed();
+                AssertUI.IsDisplayed(browser.First(".pagination"));
+                AssertUI.IsDisplayed(browser.ElementAt(".pagination", 1));
                 browser.First("ul").FindElements("li").ThrowIfDifferentCountThan(3);
             });
         }
 
-        [TestMethod]
+        [Fact]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_DataPager_DataPager))]
         public void Control_DataPager_DataPager_ActiveCssClass()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_DataPager_DataPager);
                 browser.Wait();
 
                 // the first li should be visible because it contains text, the second with the link should be hidden
-                browser.ElementAt(".pagination", 0).ElementAt("li", 2).CheckIfNotContainsElement("a").CheckIfHasClass("active").CheckIfIsDisplayed();
-                browser.ElementAt(".pagination", 0).ElementAt("li", 3).CheckIfContainsElement("a").CheckIfHasClass("active").CheckIfIsNotDisplayed();
+                var pageIndex1 = browser.ElementAt(".pagination", 0).ElementAt("li", 2);
+                AssertUI.NotContainsElement(pageIndex1, "a");
+                AssertUI.HasClass(pageIndex1, "active");
+                AssertUI.IsDisplayed(pageIndex1);
+
+                var pageIndex2 = browser.ElementAt(".pagination", 0).ElementAt("li", 3);
+                AssertUI.ContainsElement(pageIndex2, "a");
+                AssertUI.HasClass(pageIndex2, "active");
+                AssertUI.IsNotDisplayed(pageIndex2);
 
                 // the first li should note be there because only hyperlinks are rendered
-                browser.ElementAt(".pagination", 2).ElementAt("li", 2).CheckIfContainsElement("a").CheckIfHasClass("active").CheckIfIsDisplayed();
+                var pageIndex3 = browser.ElementAt(".pagination", 2).ElementAt("li", 2);
+                AssertUI.ContainsElement(pageIndex3, "a");
+                AssertUI.HasClass(pageIndex3, "active");
+                AssertUI.IsDisplayed(pageIndex3);
             });
         }
 
-        [TestMethod]
+        [Fact]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_DataPager_DataPager))]
         public void Control_DataPager_DataPager_DisabledAttribute()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_DataPager_DataPager);
                 browser.Wait();
 
                 // the first ul should not be disabled
-                browser.Single("#pager1").ElementAt("li a", 0).CheckIfHasNotAttribute("disabled");
-                browser.Single("#pager1").ElementAt("li a", 1).CheckIfHasNotAttribute("disabled");
-                browser.Single("#pager1").ElementAt("li a", 2).CheckIfHasNotAttribute("disabled");
-                browser.Single("#pager1").ElementAt("li a", 3).CheckIfHasNotAttribute("disabled");
-                browser.Single("#pager1").ElementAt("li a", 4).CheckIfHasNotAttribute("disabled");
+                AssertUI.HasNotAttribute(browser.Single("#pager1").ElementAt("li a", 0), "disabled");
+                AssertUI.HasNotAttribute(browser.Single("#pager1").ElementAt("li a", 1), "disabled");
+                AssertUI.HasNotAttribute(browser.Single("#pager1").ElementAt("li a", 2), "disabled");
+                AssertUI.HasNotAttribute(browser.Single("#pager1").ElementAt("li a", 3), "disabled");
+                AssertUI.HasNotAttribute(browser.Single("#pager1").ElementAt("li a", 4), "disabled");
 
                 // the forth ul should be disabled
-                browser.Single("#pager4").ElementAt("li a", 0).CheckIfHasAttribute("disabled");
-                browser.Single("#pager4").ElementAt("li a", 1).CheckIfHasAttribute("disabled");
-                browser.Single("#pager4").ElementAt("li a", 2).CheckIfHasAttribute("disabled");
-                browser.Single("#pager4").ElementAt("li a", 3).CheckIfHasAttribute("disabled");
-                browser.Single("#pager4").ElementAt("li a", 4).CheckIfHasAttribute("disabled");
+                AssertUI.HasAttribute(browser.Single("#pager4").ElementAt("li a", 0), "disabled");
+                AssertUI.HasAttribute(browser.Single("#pager4").ElementAt("li a", 1), "disabled");
+                AssertUI.HasAttribute(browser.Single("#pager4").ElementAt("li a", 2), "disabled");
+                AssertUI.HasAttribute(browser.Single("#pager4").ElementAt("li a", 3), "disabled");
+                AssertUI.HasAttribute(browser.Single("#pager4").ElementAt("li a", 4), "disabled");
 
                 // verify element is disabled after click
                 browser.Single("#enableCheckbox input[type=checkbox]").Click();
-                browser.Single("#pager1").ElementAt("li a", 0).CheckIfHasAttribute("disabled");
-                browser.Single("#pager1").ElementAt("li a", 1).CheckIfHasAttribute("disabled");
-                browser.Single("#pager1").ElementAt("li a", 2).CheckIfHasAttribute("disabled");
-                browser.Single("#pager1").ElementAt("li a", 3).CheckIfHasAttribute("disabled");
-                browser.Single("#pager1").ElementAt("li a", 4).CheckIfHasAttribute("disabled");
+                AssertUI.HasAttribute(browser.Single("#pager1").ElementAt("li a", 0), "disabled");
+                AssertUI.HasAttribute(browser.Single("#pager1").ElementAt("li a", 1), "disabled");
+                AssertUI.HasAttribute(browser.Single("#pager1").ElementAt("li a", 2), "disabled");
+                AssertUI.HasAttribute(browser.Single("#pager1").ElementAt("li a", 3), "disabled");
+                AssertUI.HasAttribute(browser.Single("#pager1").ElementAt("li a", 4), "disabled");
 
                 // verify element is not disabled after another click
                 browser.Single("#enableCheckbox input[type=checkbox]").Click();
-                browser.Single("#pager1").ElementAt("li a", 0).CheckIfHasNotAttribute("disabled");
-                browser.Single("#pager1").ElementAt("li a", 1).CheckIfHasNotAttribute("disabled");
-                browser.Single("#pager1").ElementAt("li a", 2).CheckIfHasNotAttribute("disabled");
-                browser.Single("#pager1").ElementAt("li a", 3).CheckIfHasNotAttribute("disabled");
-                browser.Single("#pager1").ElementAt("li a", 4).CheckIfHasNotAttribute("disabled");
+                AssertUI.HasNotAttribute(browser.Single("#pager1").ElementAt("li a", 0), "disabled");
+                AssertUI.HasNotAttribute(browser.Single("#pager1").ElementAt("li a", 1), "disabled");
+                AssertUI.HasNotAttribute(browser.Single("#pager1").ElementAt("li a", 2), "disabled");
+                AssertUI.HasNotAttribute(browser.Single("#pager1").ElementAt("li a", 3), "disabled");
+                AssertUI.HasNotAttribute(browser.Single("#pager1").ElementAt("li a", 4), "disabled");
             });
         }
 
-        [TestMethod]
+        [Fact]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_DataPager_DataPager))]
         public void Control_DataPager_DataPager_DisabledControlClick()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_DataPager_DataPager);
                 browser.Wait();
 
@@ -114,16 +131,16 @@ namespace DotVVM.Samples.Tests.Control
 
                 // try to switch to next page
                 browser.Single("#pager1").ElementAt("li a", browser.Single("#pager1").FindElements("li a").Count - 2).ScrollTo().Click();
-                browser.First("ul").First("li").CheckIfInnerTextEquals("Item 0");
+                AssertUI.InnerTextEquals(browser.First("ul").First("li"), "Item 0");
 
                 // try to switch to last page
                 browser.Single("#pager1").ElementAt("li a", browser.Single("#pager1").FindElements("li a").Count - 1).ScrollTo().Click();
-                browser.First("ul").First("li").CheckIfInnerTextEquals("Item 0");
+                AssertUI.InnerTextEquals(browser.First("ul").First("li"), "Item 0");
 
                 for (int i = browser.Single("#pager1").FindElements("li a").Count - 3; i > 2; i--)
                 {
                     browser.Single("#pager1").ElementAt("li a", i).ScrollTo().Click();
-                    browser.First("ul").First("li").CheckIfInnerTextEquals("Item 0");
+                    AssertUI.InnerTextEquals(browser.First("ul").First("li"), "Item 0");
                 }
 
                 // enable pager
@@ -135,24 +152,23 @@ namespace DotVVM.Samples.Tests.Control
 
                 // try to switch to first page
                 browser.Single("#pager1").ElementAt("li a", 2).ScrollTo().Click();
-                browser.First("ul").First("li").CheckIfInnerTextEquals("Item 18");
+                AssertUI.InnerTextEquals(browser.First("ul").First("li"), "Item 48");
 
                 // try to switch to previous page
                 browser.Single("#pager1").ElementAt("li a", 1).ScrollTo().Click();
-                browser.First("ul").First("li").CheckIfInnerTextEquals("Item 18");
+                AssertUI.InnerTextEquals(browser.First("ul").First("li"), "Item 48");
 
                 // try to switch to first
                 browser.Single("#pager1").ElementAt("li a", 0).ScrollTo().Click();
-                browser.First("ul").First("li").CheckIfInnerTextEquals("Item 18");
+                AssertUI.InnerTextEquals(browser.First("ul").First("li"), "Item 48");
             });
         }
 
-        [TestMethod]
+        [Fact]
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_DataPager_DataPager))]
         public void Control_DataPager_DataPager_DisabledByBindingControlClick()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_DataPager_DataPager);
                 browser.Wait();
 
@@ -162,81 +178,113 @@ namespace DotVVM.Samples.Tests.Control
                 // pager 4 should be disabled by value
                 // try to switch to next page
                 browser.Single("#pager4").ElementAt("li a", browser.Single("#pager4").FindElements("li a").Count - 2).ScrollTo().Click().Wait();
-                browser.First("ul").First("li").CheckIfInnerTextEquals("Item 0");
+                AssertUI.InnerTextEquals(browser.First("ul").First("li"), "Item 0");
 
                 // try to switch to last page
                 browser.Single("#pager4").ElementAt("li a", browser.Single("#pager4").FindElements("li a").Count - 1).ScrollTo().Click();
-                browser.First("ul").First("li").CheckIfInnerTextEquals("Item 0");
+                AssertUI.InnerTextEquals(browser.First("ul").First("li"), "Item 0");
 
                 for (int i = browser.Single("#pager4").FindElements("li a").Count - 3; i > 2; i--)
                 {
                     // try to switch to pages
                     browser.Single("#pager4").ElementAt("li a", i).ScrollTo().Click();
-                    browser.First("ul").First("li").CheckIfInnerTextEquals("Item 0");
+                    AssertUI.InnerTextEquals(browser.First("ul").First("li"), "Item 0");
                 }
                 // switch to last page
                 browser.Single("#pager1").ElementAt("li a", browser.Single("#pager1").FindElements("li a").Count - 1).ScrollTo().Click();
 
                 // try to switch to first page
                 browser.Single("#pager4").ElementAt("li a", 2).ScrollTo().Click();
-                browser.First("ul").First("li").CheckIfInnerTextEquals("Item 18");
+                AssertUI.InnerTextEquals(browser.First("ul").First("li"), "Item 48");
 
                 // try to swwitch to previous page
                 browser.Single("#pager4").ElementAt("li a", 1).ScrollTo().Click();
-                browser.First("ul").First("li").CheckIfInnerTextEquals("Item 18");
+                AssertUI.InnerTextEquals(browser.First("ul").First("li"), "Item 48");
 
                 // try to swwitch to first
                 browser.Single("#pager4").ElementAt("li a", 0).ScrollTo().Click();
-                browser.First("ul").First("li").CheckIfInnerTextEquals("Item 18");
+                AssertUI.InnerTextEquals(browser.First("ul").First("li"), "Item 48");
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void Control_DataPager_ShowHideControl()
         {
-            RunInAllBrowsers(browser =>
-            {
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_DataPager_DataPager);
-                browser.Wait();
-                ShowHideControl(browser);
-            });
-        }
-
-        [TestMethod]
-        public void Control_DataPager_ShowHideControlAsync()
-        {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_DataPager_DataPager);
                 browser.Wait();
 
-                browser.Single("shouldLoadAsync-button", this.SelectByDataUi).Click().Wait();
+                // verify the second pager is hidden
+                AssertUI.IsDisplayed(browser.First(".pagination"));
+                AssertUI.IsNotDisplayed(browser.ElementAt(".pagination", 1));
+                browser.First("ul").FindElements("li").ThrowIfDifferentCountThan(2);
+                // verify the second pager appears
+                browser.Single("populate-button", this.SelectByDataUi).Click();
 
-                ShowHideControl(browser);
+                // verify the second pager appears
+                AssertUI.IsDisplayed(browser.First(".pagination"));
+                AssertUI.IsDisplayed(browser.ElementAt(".pagination", 1));
+                browser.First("ul").FindElements("li").ThrowIfDifferentCountThan(3);
+
+                // switch to another page
+                browser.First(".pagination").ElementAt("li a", 4).Click();
+
+                // verify the second pager is still visible
+                AssertUI.IsDisplayed(browser.First(".pagination"));
+                AssertUI.IsDisplayed(browser.ElementAt(".pagination", 1));
+                browser.First("ul").FindElements("li").ThrowIfDifferentCountThan(3);
             });
         }
 
-        private void ShowHideControl(BrowserWrapper browser)
+        [Fact]
+        public void Control_DataPager_NearPageIndexes()
         {
-            // verify the second pager is hidden
-            browser.First(".pagination").CheckIfIsDisplayed();
-            browser.ElementAt(".pagination", 1).CheckIfIsNotDisplayed();
-            browser.First("ul").FindElements("li").ThrowIfDifferentCountThan(2);
-            // verify the second pager appears
-            browser.Single("populate-button", this.SelectByDataUi).Click();
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_DataPager_DataPager);
+                browser.Wait();
 
-            // verify the second pager appears
-            browser.First(".pagination").CheckIfIsDisplayed();
-            browser.ElementAt(".pagination", 1).CheckIfIsDisplayed();
-            browser.First("ul").FindElements("li").ThrowIfDifferentCountThan(3);
+                void CheckNearPageIndexes(IEnumerable<int> indexes)
+                {
+                    var elements = browser.First("#pager1")
+                        .FindElements("li:not([style*='none'])");
 
-            // switch to another page
-            browser.First(".pagination").ElementAt("li a", 4).Click();
+                    var nearPageIndexesCount = indexes.Count();
+                    // Including first page, previous page, next page, last page links
+                    elements.ThrowIfDifferentCountThan(nearPageIndexesCount + 4);
 
-            // verify the second pager is still visible
-            browser.First(".pagination").CheckIfIsDisplayed();
-            browser.ElementAt(".pagination", 1).CheckIfIsDisplayed();
-            browser.First("ul").FindElements("li").ThrowIfDifferentCountThan(3);
+                    foreach (var value in indexes.Zip(elements.Skip(2), (i, e) => new { Index = i, Element = e }))
+                    {
+                        // Skip first and previous links
+                        AssertUI.InnerTextEquals(value.Element.Single("span,a"), value.Index.ToString());
+                    }
+                }
+
+                IElementWrapper GetPageIndex(int index)
+                {
+                    foreach (var element in browser.Single("#pager1").FindElements("li a"))
+                    {
+                        if (string.Equals(element.GetInnerText(), index.ToString(), System.StringComparison.InvariantCulture))
+                        {
+                            return element;
+                        }
+                    }
+                    throw new NoSuchElementException();
+                }
+
+                // populate with data
+                browser.Single("populate-button", this.SelectByDataUi).Click();
+
+                CheckNearPageIndexes(Enumerable.Range(1, 6));
+
+                GetPageIndex(6).ScrollTo().Click();
+                CheckNearPageIndexes(Enumerable.Range(1, 11));
+
+                GetPageIndex(11).ScrollTo().Click();
+                CheckNearPageIndexes(Enumerable.Range(6, 11));
+
+                GetPageIndex(16).ScrollTo().Click();
+                CheckNearPageIndexes(Enumerable.Range(11, 7));
+            });
         }
     }
 }

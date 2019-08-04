@@ -25,12 +25,12 @@ namespace DotVVM.Framework.Hosting
 {
     public interface IHttpRedirectService
     {
-        void WriteRedirectReponse(IHttpContext httpContext, string url, int statusCode = (int)HttpStatusCode.Redirect, bool replaceInHistory = false, bool allowSpaRedirect = false);
+        void WriteRedirectResponse(IHttpContext httpContext, string url, int statusCode = (int)HttpStatusCode.Redirect, bool replaceInHistory = false, bool allowSpaRedirect = false);
     }
 
     public class DefaultHttpRedirectService: IHttpRedirectService
     {
-        public void WriteRedirectReponse(IHttpContext httpContext, string url, int statusCode = (int)HttpStatusCode.Redirect, bool replaceInHistory = false, bool allowSpaRedirect = false)
+        public void WriteRedirectResponse(IHttpContext httpContext, string url, int statusCode = (int)HttpStatusCode.Redirect, bool replaceInHistory = false, bool allowSpaRedirect = false)
         {
             if (!DotvvmPresenter.DeterminePartialRendering(httpContext))
             {
@@ -41,7 +41,11 @@ namespace DotVVM.Framework.Hosting
             {
                 httpContext.Response.StatusCode = 200;
                 httpContext.Response.ContentType = "application/json";
-                httpContext.Response.Write(DefaultViewModelSerializer.GenerateRedirectActionResponse(url, replaceInHistory, allowSpaRedirect));
+                httpContext.Response
+                    .WriteAsync(DefaultViewModelSerializer.GenerateRedirectActionResponse(url, replaceInHistory, allowSpaRedirect))
+                    .GetAwaiter().GetResult();
+               //   ^ we just wait for this Task. Redirect API never was async and the response size is small enough that we can't quite safely wait for the result
+               //     .GetAwaiter().GetResult() preserves stack traces across async calls, thus I like it more that .Wait()
             }
         }
     }

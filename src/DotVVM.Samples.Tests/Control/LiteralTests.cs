@@ -1,19 +1,19 @@
-﻿using Riganti.Utils.Testing.Selenium.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Dotvvm.Samples.Tests;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using DotVVM.Samples.Tests.Base;
+using DotVVM.Testing.Abstractions;
+using Riganti.Selenium.Core;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace DotVVM.Samples.Tests.Control
 {
-    [TestClass]
-    public class LiteralTests : SeleniumTest
+    public class LiteralTests : AppSeleniumTest
     {
+        public LiteralTests(ITestOutputHelper output) : base(output)
+        {
+        }
 
-        [TestMethod]
+        [Fact]
         public void Control_Literal_Literal()
         {
             RunInAllBrowsers(browser =>
@@ -22,22 +22,23 @@ namespace DotVVM.Samples.Tests.Control
 
                 foreach (var column in browser.FindElements("td"))
                 {
-                    column.ElementAt("fieldset", 0).Single("span").Check().InnerText(s=> s.Equals("Hardcoded value"));
-                    column.ElementAt("fieldset", 1).Single("span").Check().InnerText(s => s.Equals("Hello"));
-                    column.ElementAt("fieldset", 2).Single("span").Check().InnerText(s => s.Equals("1/1/2000"));
+                    AssertUI.InnerTextEquals(column.ElementAt("fieldset", 0).Single("span"), "Hardcoded value");
+                    AssertUI.InnerTextEquals(column.ElementAt("fieldset", 1).Single("span"), "Hello");
+                    AssertUI.InnerTextEquals(column.ElementAt("fieldset", 2).Single("span"), "1/1/2000");
 
-                    column.ElementAt("fieldset", 3).FindElements("span").ThrowIfDifferentCountThan(0);
-                    column.ElementAt("fieldset", 3).Check().InnerText(t => t.Contains("Hardcoded value"));
+                    AssertUI.NotContainsElement(column.ElementAt("fieldset", 3), "span");
+                    AssertUI.InnerText(column.ElementAt("fieldset", 3), text => text.Contains("Hardcoded value"));
 
-                    column.ElementAt("fieldset", 4).FindElements("span").ThrowIfDifferentCountThan(0);
-                    column.ElementAt("fieldset", 4).Check().InnerText(t => t.Contains("Hello"));
+                    AssertUI.NotContainsElement(column.ElementAt("fieldset", 4), "span");
+                    AssertUI.InnerText(column.ElementAt("fieldset", 4), text => text.Contains("Hello"));
 
-                    column.ElementAt("fieldset", 5).FindElements("span").ThrowIfDifferentCountThan(0);
-                    column.ElementAt("fieldset", 5).Check().InnerText(t => t.Contains("1/1/2000"));
+                    AssertUI.NotContainsElement(column.ElementAt("fieldset", 5), "span");
+                    AssertUI.InnerText(column.ElementAt("fieldset", 5), text => text.Contains("1/1/2000"));
                 }
             });
         }
-        [TestMethod]
+
+        [Fact]
         public void Control_Literal_Literal_FormatString()
         {
             RunInAllBrowsers(browser =>
@@ -46,10 +47,11 @@ namespace DotVVM.Samples.Tests.Control
                 {
                     //check format d
                     var text = browser.First("#results-" + format).GetText();
-                    browser.First("#client-format-" + format).CheckIfInnerTextEquals(text, false);
-                    browser.First("#server-render-format-" + format).Check().InnerText(s=> s.Equals(text, StringComparison.OrdinalIgnoreCase));
-
+                    AssertUI.InnerTextEquals(browser.First("#client-format-" + format), text, false);
+                    AssertUI.InnerTextEquals(browser.First("#client-format-" + format), text, false);
+                    AssertUI.InnerText(browser.First("#client-format-" + format), s => s.Equals(text, StringComparison.OrdinalIgnoreCase));
                 };
+
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Literal_Literal_FormatString);
                 browser.First("#change-culture").Click();
 
@@ -59,32 +61,32 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void Control_Literal_Literal_CollectionLength()
         {
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Literal_Literal_CollectionLength);
 
-                
-                browser.Single("span").CheckIfInnerText(s => s.Contains("0"));
-                browser.Single("#second").CheckIfIsNotDisplayed();
+                AssertUI.InnerText(browser.Single("span"), s => s.Contains("0"));
+                AssertUI.IsNotDisplayed(browser.Single("#second"));
                 browser.First("#first").Click();
 
-                browser.Single("span").Check().InnerText(s => s.Contains("1"));
-                browser.Single("#second").CheckIfIsNotDisplayed();
+                AssertUI.InnerText(browser.Single("span"), s => s.Contains("1"));
+                AssertUI.IsNotDisplayed(browser.Single("#second"));
                 browser.First("#first").Click();
 
-
-                browser.Single("span").Check().InnerText(s => s.Contains("2"));
-                browser.Single("#second").CheckIfIsNotDisplayed();
+                AssertUI.InnerText(browser.Single("span"), s => s.Contains("2"));
+                AssertUI.IsNotDisplayed(browser.Single("#second"));
                 browser.First("#first").Click();
 
-                browser.Single("span").Check().InnerText(s => s.Contains("3"));
-                browser.Single("#second").CheckIfIsDisplayed();
+                AssertUI.InnerText(browser.Single("span"), s => s.Contains("3"));
+                AssertUI.IsDisplayed(browser.Single("#second"));
+
             });
         }
-        [TestMethod]
+
+        [Fact]
         public void Control_Literal_Literal_ArrayLength()
         {
             RunInAllBrowsers(browser =>
@@ -92,23 +94,21 @@ namespace DotVVM.Samples.Tests.Control
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Literal_Literal_ArrayLength);
 
 
-                browser.Single("span").Check().InnerText(s => s.Contains("0"));
-                browser.Single("#second").CheckIfIsNotDisplayed();
+                AssertUI.InnerText(browser.Single("span"), s => s.Contains("0"));
+                AssertUI.IsNotDisplayed(browser.Single("#second"));
                 browser.First("#first").Click();
 
-                browser.Single("span").Check().InnerText(s => s.Contains("1"));
-                browser.Single("#second").CheckIfIsNotDisplayed();
+                AssertUI.InnerText(browser.Single("span"), s => s.Contains("1"));
+                AssertUI.IsNotDisplayed(browser.Single("#second"));
                 browser.First("#first").Click();
 
-
-                browser.Single("span").Check().InnerText(s => s.Contains("2"));
-                browser.Single("#second").CheckIfIsNotDisplayed();
+                AssertUI.InnerText(browser.Single("span"), s => s.Contains("2"));
+                AssertUI.IsNotDisplayed(browser.Single("#second"));
                 browser.First("#first").Click();
 
-                browser.Single("span").Check().InnerText(s => s.Contains("3"));
-                browser.Single("#second").CheckIfIsDisplayed();
+                AssertUI.InnerText(browser.Single("span"), s => s.Contains("3"));
+                AssertUI.IsDisplayed(browser.Single("#second"));
             });
         }
-
     }
 }

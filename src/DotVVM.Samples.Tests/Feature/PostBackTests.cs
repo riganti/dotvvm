@@ -1,25 +1,19 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OpenQA.Selenium;
-using OpenQA.Selenium.Interactions;
-using Riganti.Utils.Testing.Selenium.Core;
-using System;
-using System.Globalization;
-using System.Linq;
-using System.Runtime.Remoting.Messaging;
-using System.Text.RegularExpressions;
-using System.Threading;
-using Dotvvm.Samples.Tests;
+﻿using DotVVM.Samples.Tests.Base;
+using DotVVM.Testing.Abstractions;
+using Riganti.Selenium.Core;
+using Riganti.Selenium.Core.Abstractions;
+using Xunit;
+using Xunit.Abstractions;
+using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace DotVVM.Samples.Tests.Feature
 {
-    [TestClass]
-    public class PostBackTests : SeleniumTest
+    public class PostBackTests : AppSeleniumTest
     {
-        [TestMethod]
+        [Fact]
         public void Feature_PostBack_PostbackUpdate()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostBack_PostbackUpdate);
 
                 // enter number of lines and click the button
@@ -40,11 +34,10 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void Feature_PostBack_PostbackUpdateRepeater()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostBack_PostbackUpdateRepeater);
 
                 // enter the text and click the button
@@ -54,103 +47,193 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.Wait();
 
                 // check the inner text of generated items
-                browser.FindElements("p.item").ThrowIfDifferentCountThan(5).ForEach(e => e.CheckIfInnerTextEquals("test"));
-                
+                browser.FindElements(".render-server p.item")
+                    .ThrowIfDifferentCountThan(5).ForEach(e => {
+                        AssertUI.InnerTextEquals(e, "test");
+                    });
+                browser.FindElements(".render-client p.item")
+                    .ThrowIfDifferentCountThan(5).ForEach(e => {
+                        AssertUI.InnerTextEquals(e, "test");
+                    });
+
                 // change the text and client the button
                 browser.ClearElementsContent("input[type=text]");
                 browser.SendKeys("input[type=text]", "xxx");
                 browser.Click("input[type=button]");
                 browser.Wait();
 
-                browser.FindElements("p.item").ThrowIfDifferentCountThan(5).ForEach(e => e.CheckIfInnerTextEquals("xxx"));
+                // check the inner text of generated items
+                browser.FindElements(".render-server p.item")
+                    .ThrowIfDifferentCountThan(5).ForEach(e => {
+                        AssertUI.InnerTextEquals(e, "xxx");
+                    });
+                browser.FindElements(".render-client p.item")
+                    .ThrowIfDifferentCountThan(5).ForEach(e => {
+                        AssertUI.InnerTextEquals(e, "xxx");
+                    });
             });
         }
 
-        [TestMethod]
-        public void Feature_PostBack_PostBackHandlers()
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_PostBack_ConfirmPostBackHandler))]
+        public void Feature_PostBack_PostBackHandlers_Localization()
         {
-            RunInAllBrowsers(browser =>
-            {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostBack_PostBackHandlers);
-                browser.Wait();
-                var index = browser.First("[data-ui=\"command-index\"]");
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostBack_PostBackHandlers_Localized);
+                ValidatePostbackHandlersComplexSection(".commandBinding", browser);
 
-                // confirm first
-                browser.ElementAt("input[type=button]", 0).Click();
-                browser.CheckIfAlertTextEquals("Confirmation 1");
-                browser.ConfirmAlert();
-                browser.Wait();
-                index.CheckIfInnerTextEquals("1");
-
-                // cancel second
-                browser.ElementAt("input[type=button]", 1).Click();
-                browser.CheckIfAlertTextEquals("Confirmation 1");
-                browser.ConfirmAlert();
-                browser.Wait();
-
-                browser.CheckIfAlertTextEquals("Confirmation 2");
-                browser.GetAlert().Dismiss();
-                browser.Wait();
-                index.CheckIfInnerTextEquals("1");
-                // confirm second
-                browser.ElementAt("input[type=button]", 1).Click();
-                browser.CheckIfAlertTextEquals("Confirmation 1");
-                browser.ConfirmAlert();
-                browser.Wait();
-                browser.CheckIfAlertTextEquals("Confirmation 2");
-                browser.ConfirmAlert();
-                browser.Wait();
-                index.CheckIfInnerTextEquals("2");
-
-                // confirm third
-                browser.ElementAt("input[type=button]", 2).Click();
-                Assert.IsFalse(browser.HasAlert());
-                browser.Wait();
-                index.CheckIfInnerTextEquals("3");
-
-                // confirm fourth
-                browser.ElementAt("input[type=button]", 3).Click();
-                browser.CheckIfAlertTextEquals("Generated 1");
-                browser.ConfirmAlert();
-                browser.Wait();
-                index.CheckIfInnerTextEquals("4");
-
-                // confirm fifth
-                browser.ElementAt("input[type=button]", 4).Click();
-                browser.CheckIfAlertTextEquals("Generated 2");
-                browser.ConfirmAlert();
-                browser.Wait();
-                index.CheckIfInnerTextEquals("5");
-
-                // confirm conditional
-                browser.ElementAt("input[type=button]", 5).Click();
-                Assert.IsFalse(browser.HasAlert());
-                browser.Wait();
-                index.CheckIfInnerTextEquals("6");
-
-                browser.First("input[type=checkbox]").Click();
-
-                browser.ElementAt("input[type=button]", 5).Click();
-                browser.CheckIfAlertTextEquals("Conditional 1");
-                browser.ConfirmAlert();
-                browser.Wait();
-                index.CheckIfInnerTextEquals("6");
-
-                browser.First("input[type=checkbox]").Click();
-
-                browser.ElementAt("input[type=button]", 5).Click();
-                Assert.IsFalse(browser.HasAlert());
-                browser.Wait();
-                index.CheckIfInnerTextEquals("6");
-
-                browser.First("input[type=checkbox]").Click();
-
-                browser.ElementAt("input[type=button]", 5).Click();
-                browser.CheckIfAlertTextEquals("Conditional 1");
-                browser.ConfirmAlert();
-                browser.Wait();
-                index.CheckIfInnerTextEquals("6");
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostBack_PostBackHandlers_Localized);
+                ValidatePostbackHandlersComplexSection(".staticCommandBinding", browser);
             });
+        }
+
+        private void ValidatePostbackHandlersComplexSection(string sectionSelector, IBrowserWrapper browser)
+        {
+            IElementWrapper section = null;
+            browser.WaitFor(() => {
+                section = browser.First(sectionSelector);
+            }, 2000, "Cannot find static commands section.");
+
+            var index = browser.First("[data-ui=\"command-index\"]");
+
+            // confirm first
+            section.ElementAt("input[type=button]", 0).Click();
+            AssertUI.AlertTextEquals(browser, "Confirmation 1");
+            browser.ConfirmAlert();
+            browser.Wait();
+            AssertUI.InnerTextEquals(index, "1");
+
+            // cancel second
+            section.ElementAt("input[type=button]", 1).Click();
+            AssertUI.AlertTextEquals(browser, "Confirmation 1");
+            browser.ConfirmAlert();
+            browser.Wait();
+
+            AssertUI.AlertTextEquals(browser, "Confirmation 2");
+            browser.DismissAlert();
+            browser.Wait();
+            AssertUI.InnerTextEquals(index, "1");
+            // confirm second
+            section.ElementAt("input[type=button]", 1).Click();
+            AssertUI.AlertTextEquals(browser, "Confirmation 1");
+            browser.ConfirmAlert();
+            browser.Wait();
+            AssertUI.AlertTextEquals(browser, "Confirmation 2");
+            browser.ConfirmAlert();
+            browser.Wait();
+            AssertUI.InnerTextEquals(index, "2");
+
+            // confirm third
+            section.ElementAt("input[type=button]", 2).Click();
+            Assert.IsFalse(browser.HasAlert());
+            browser.Wait();
+            AssertUI.InnerTextEquals(index, "3");
+
+            // confirm fourth
+            section.ElementAt("input[type=button]", 3).Click();
+            AssertUI.AlertTextEquals(browser, "Generated 1");
+            browser.ConfirmAlert();
+            browser.Wait();
+            AssertUI.InnerTextEquals(index, "4");
+
+            // confirm fifth
+            section.ElementAt("input[type=button]", 4).Click();
+            AssertUI.AlertTextEquals(browser, "Generated 2");
+            browser.ConfirmAlert();
+            browser.Wait();
+            AssertUI.InnerTextEquals(index, "5");
+
+            // confirm conditional
+            section.ElementAt("input[type=button]", 5).Click();
+            Assert.IsFalse(browser.HasAlert());
+            browser.Wait();
+            AssertUI.InnerTextEquals(index, "6");
+
+            browser.First("input[type=checkbox]").Click();
+
+            section.ElementAt("input[type=button]", 5).Click();
+            AssertUI.AlertTextEquals(browser, "Conditional 1");
+            browser.ConfirmAlert();
+            browser.Wait();
+            AssertUI.InnerTextEquals(index, "6");
+
+            browser.First("input[type=checkbox]").Click();
+
+            section.ElementAt("input[type=button]", 5).Click();
+            Assert.IsFalse(browser.HasAlert());
+            browser.Wait();
+            AssertUI.InnerTextEquals(index, "6");
+
+            browser.First("input[type=checkbox]").Click();
+
+            section.ElementAt("input[type=button]", 5).Click();
+            AssertUI.AlertTextEquals(browser, "Conditional 1");
+            browser.ConfirmAlert();
+            browser.Wait();
+            AssertUI.InnerTextEquals(index, "6");
+
+            //localization - resource binding in confirm postback handler message
+
+            section.ElementAt("input[type=button]", 6).Click();
+            AssertUI.AlertTextEquals(browser, "EnglishValue");
+            browser.ConfirmAlert();
+            browser.Wait();
+            AssertUI.InnerTextEquals(index, "7");
+
+            browser.First("#ChangeLanguageCZ").Click();
+
+            browser.WaitFor(() => {
+                index = browser.First("[data-ui=\"command-index\"]");
+                AssertUI.InnerTextEquals(index, "0");
+            }, 1500, "Redirect to CZ localization failed.");
+
+            section = browser.First(sectionSelector);
+
+            //ChangeLanguageEN
+            section.ElementAt("input[type=button]", 6).Click();
+            AssertUI.AlertTextEquals(browser, "CzechValue");
+            browser.DismissAlert();
+            browser.Wait();
+            AssertUI.InnerTextEquals(index, "0");
+
+            section.ElementAt("input[type=button]", 6).Click();
+            AssertUI.AlertTextEquals(browser, "CzechValue");
+            browser.ConfirmAlert();
+            browser.Wait();
+            AssertUI.InnerTextEquals(index, "7");
+        }
+
+        [Fact]
+        public void Feature_PostBack_SuppressPostBackHandler()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostBack_SuppressPostBackHandler);
+
+                var counter = browser.First("span[data-ui=counter]");
+                AssertUI.InnerTextEquals(counter, "0");
+
+                browser.First("input[data-ui=static-suppress-value]").Click();
+                AssertUI.InnerTextEquals(counter, "0");
+
+                browser.First("input[data-ui=multiple-suppress-handlers]").Click();
+                AssertUI.InnerTextEquals(counter, "0");
+
+                var conditionValue = browser.First("span[data-ui=condition]");
+                AssertUI.InnerTextEquals(conditionValue, "true");
+
+                browser.First("input[data-ui=value-binding-suppress]").Click();
+                AssertUI.InnerTextEquals(counter, "0");
+
+                browser.First("input[data-ui=change-condition]").Click();
+                AssertUI.InnerTextEquals(conditionValue, "false");
+
+                browser.First("input[data-ui=value-binding-suppress]").Click();
+                AssertUI.InnerTextEquals(counter, "1");
+            });
+        }
+
+        public PostBackTests(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

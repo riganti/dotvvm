@@ -220,6 +220,27 @@ test <dot:Literal><a /></dot:Literal>";
         }
 
         [TestMethod]
+        public void DefaultViewCompiler_CodeGeneration_MarkupControlWithDI()
+        {
+            var markup = @"@viewModel System.Object, mscorlib
+<cc:Test5 />";
+            var page = CompileMarkup(markup, new Dictionary<string, string>()
+            {
+                { "test5.dothtml", $"@baseType {typeof(TestMarkupDIControl)}\n@viewModel System.Object, mscorlib\n<dot:Literal Text='aaa' />" }
+            });
+
+            Assert.IsInstanceOfType(page, typeof(DotvvmView));
+            Assert.IsInstanceOfType(page.Children[0], typeof(TestMarkupDIControl));
+
+            var control = (TestMarkupDIControl)page.Children[0];
+            Assert.IsNotNull(control.config);
+
+            var literal = page.Children[0].Children[0].Children[0];
+            Assert.IsInstanceOfType(literal, typeof(Literal));
+            Assert.AreEqual("aaa", ((Literal)literal).Text);
+        }
+
+        [TestMethod]
         public void DefaultViewCompiler_CodeGeneration_MarkupControl_InTemplate()
         {
             var markup = string.Format("@viewModel {0}, {1}\r\n", typeof(ViewCompilerTestViewModel).FullName, typeof(ViewCompilerTestViewModel).GetTypeInfo().Assembly.GetName().Name) +
@@ -370,6 +391,49 @@ test <dot:Literal><a /></dot:Literal>";
             Assert.IsTrue(context.ResourceManager.RequiredResources.Contains("testscript"));
         }
 
+        [TestMethod]
+        public void DefaultViewCompiler_ControlWithDependentProperties()
+        {
+            var markup = @"
+@viewModel System.Collections.Generic.List<string>
+<ff:ControlWithCompileDependentProperties OtherProperty='{value: _this.Length}' DataSource='{value: _this}'>
+</ff:ControlWithCompileDependentProperties>
+";
+            var page = CompileMarkup(markup);
+	}
+
+        [TestMethod]
+        public void DefaultViewCompiler_ExcludedBindingProperty()
+        {
+            var markup = @"
+@viewModel object
+<ff:ControlWithCustomBindingProperties SomeProperty='{value: System.Environment.GetCommandLineArgs()}' />
+            ";
+
+            var page = CompileMarkup(markup);
+            var control = page.GetThisAndAllDescendants().OfType<ControlWithCustomBindingProperties>().Single();
+            var assemblies = ((IEnumerable<object>)control.SomeProperty).ToArray();
+            Assert.IsNotNull(assemblies);
+            var lengthBinding = control.GetValueBinding(ControlWithCustomBindingProperties.SomePropertyProperty).GetProperty<DataSourceLengthBinding>().Binding;
+            var lengthValue = BindingHelper.Evaluate((IStaticValueBinding)lengthBinding, control);
+            Assert.AreEqual(assemblies.Length, lengthValue);
+        }
+
+        [TestMethod]
+        public void DefaultViewCompiler_RequiredBindingProperty()
+        {
+            var markup = @"
+@viewModel object
+@import AppDomain = System.AppDomain
+<ff:ControlWithCustomBindingProperties SomeProperty='{value: _this}' />
+            ";
+            var ex = Assert.ThrowsException<DotvvmCompilationException>(() => {
+                CompileMarkup(markup);
+            });
+            Assert.IsTrue(ex.ToString().Contains("DotVVM.Framework.Binding.Properties.DataSourceLengthBinding"));
+            Assert.IsTrue(ex.ToString().Contains("Can not find collection length from binding '_this'"));
+        }
+
         private DotvvmControl CompileMarkup(string markup, Dictionary<string, string> markupFiles = null, bool compileTwice = false, [CallerMemberName]string fileName = null)
         {
             if (markupFiles == null)
@@ -382,21 +446,22 @@ test <dot:Literal><a /></dot:Literal>";
             context.Configuration = DotvvmTestHelper.CreateConfiguration(services =>
             {
                 services.AddSingleton<IMarkupFileLoader>(new FakeMarkupFileLoader(markupFiles));
-                services.AddSingleton<Func<IServiceProvider, Type, DotvvmControl>>((s, t) =>
+                services.AddSingleton<CustomControlFactory>((s, t) =>
                     t == typeof(TestCustomDependencyInjectionControl) ? new TestCustomDependencyInjectionControl("") { IsCorrectlyCreated = true } :
                     throw new Exception());
             });
-            context.Services = context.Configuration.ServiceLocator.GetServiceProvider().GetRequiredService<IServiceScopeFactory>().CreateScope().ServiceProvider;
+            context.Services = context.Services.GetRequiredService<IServiceScopeFactory>().CreateScope().ServiceProvider;
             context.Configuration.ApplicationPhysicalPath = Path.GetTempPath();
 
             context.Configuration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test1", Src = "test1.dothtml" });
             context.Configuration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test2", Src = "test2.dothtml" });
             context.Configuration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test3", Src = "test3.dothtml" });
             context.Configuration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test4", Src = "test4.dothtml" });
+            context.Configuration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test5", Src = "test5.dothtml" });
             context.Configuration.Markup.AddCodeControls("ff", typeof(TestControl));
             context.Configuration.Markup.AddAssembly(typeof(DefaultViewCompilerTests).GetTypeInfo().Assembly.GetName().Name);
 
-            var controlBuilderFactory = context.Configuration.ServiceLocator.GetService<IControlBuilderFactory>();
+            var controlBuilderFactory = context.Services.GetRequiredService<IControlBuilderFactory>();
             var (_, controlBuilder) = controlBuilderFactory.GetControlBuilder(fileName + ".dothtml");
 
             var result = controlBuilder.Value.BuildControl(controlBuilderFactory, context.Services);
@@ -419,9 +484,9 @@ test <dot:Literal><a /></dot:Literal>";
 
         protected internal override string ClientHandlerName => "something";
 
-        protected internal override Dictionary<string, string> GetHandlerOptionClientExpressions()
+        protected internal override Dictionary<string, object> GetHandlerOptions()
         {
-            return new Dictionary<string, string>();
+            return new Dictionary<string, object>();
         }
     }
 
@@ -433,6 +498,16 @@ test <dot:Literal><a /></dot:Literal>";
     public class TestControl : DotvvmMarkupControl
     {
 
+    }
+
+    public class TestMarkupDIControl : DotvvmMarkupControl
+    {
+        public readonly DotvvmConfiguration config;
+
+        public TestMarkupDIControl(DotvvmConfiguration configuration)
+        {
+            this.config = configuration;
+        }
     }
 
     public class TestDIControl : DotvvmControl
@@ -460,7 +535,9 @@ test <dot:Literal><a /></dot:Literal>";
             DotvvmProperty.Register<FlaggyEnum, TestCodeControl>(nameof(Flags));
     }
 
-    [RequireDependencyInjection]
+    public delegate DotvvmControl CustomControlFactory(IServiceProvider sp, Type controlType);
+
+    [RequireDependencyInjection(typeof(CustomControlFactory))]
     public class TestCustomDependencyInjectionControl: DotvvmControl
     {
         public bool IsCorrectlyCreated { get; set; } = false;
@@ -486,5 +563,42 @@ test <dot:Literal><a /></dot:Literal>";
         {
             throw new NotImplementedException();
         }
+    }
+
+    public class ControlWithCompileDependentProperties: DotvvmControl
+    {
+        public IEnumerable<object> DataSource
+        {
+            get { return (IEnumerable<object>)GetValue(DataSourceProperty); }
+            set { SetValue(DataSourceProperty, value); }
+        }
+        public static readonly DotvvmProperty DataSourceProperty =
+            DotvvmProperty.Register<IEnumerable<object>, ControlWithCompileDependentProperties>(nameof(DataSource));
+
+
+        [ControlPropertyBindingDataContextChange("DataSource")]
+        [CollectionElementDataContextChange(1)]
+        public IValueBinding OtherProperty
+        {
+            get { return (IValueBinding)GetValue(OtherPropertyProperty); }
+            set { SetValue(OtherPropertyProperty, value); }
+        }
+        public static readonly DotvvmProperty OtherPropertyProperty =
+            DotvvmProperty.Register<IValueBinding, ControlWithCompileDependentProperties>(nameof(OtherProperty));
+    }
+
+    public class ControlWithCustomBindingProperties : DotvvmControl
+    {
+        [BindingCompilationRequirements(
+            excluded: new [] { typeof(KnockoutExpressionBindingProperty) },
+            required: new [] { typeof(DataSourceLengthBinding) }
+        )]
+        public object SomeProperty
+        {
+            get { return GetValue(SomePropertyProperty); }
+            set { SetValue(SomePropertyProperty, value); }
+        }
+        public static readonly DotvvmProperty SomePropertyProperty =
+            DotvvmProperty.Register<object, ControlWithCustomBindingProperties>(nameof(SomeProperty));
     }
 }

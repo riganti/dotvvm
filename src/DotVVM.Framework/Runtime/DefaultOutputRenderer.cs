@@ -9,24 +9,22 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Binding;
+using System.Text;
 
 namespace DotVVM.Framework.Runtime
 {
     public class DefaultOutputRenderer : IOutputRenderer
     {
-        protected virtual string RenderPage(IDotvvmRequestContext context, DotvvmView view)
+        protected virtual MemoryStream RenderPage(IDotvvmRequestContext context, DotvvmView view)
         {
-            // embed resource links
-            EmbedResourceLinks(view);
-
-            // prepare the render context
-            // get the HTML
-            using (var textWriter = new StringWriter())
+            var outStream = new MemoryStream();
+            using (var textWriter = new StreamWriter(outStream, Encoding.UTF8, 4096, leaveOpen: true))
             {
                 var htmlWriter = new HtmlWriter(textWriter, context);
                 view.Render(htmlWriter, context);
-                return textWriter.ToString();
             }
+            outStream.Position = 0;
+            return outStream;
         }
 
         public virtual async Task WriteHtmlResponse(IDotvvmRequestContext context, DotvvmView view)
@@ -34,8 +32,19 @@ namespace DotVVM.Framework.Runtime
             // return the response
             context.HttpContext.Response.ContentType = "text/html; charset=utf-8";
             SetCacheHeaders(context.HttpContext);
-            var html = RenderPage(context, view);
-            await context.HttpContext.Response.WriteAsync(html);
+            using (var html = RenderPage(context, view))
+            {
+                context.HttpContext.Response.Headers["Content-Length"] = html.Length.ToString();
+                CheckRenderedResources(context);
+                await html.CopyToAsync(context.HttpContext.Response.Body);
+            }
+        }
+
+        private void CheckRenderedResources(IDotvvmRequestContext context)
+        {
+            var resourceManager = context.ResourceManager;
+            if (!resourceManager.BodyRendered || !resourceManager.HeadRendered)
+                throw new Exception($"Required resources were not rendered, make sure that page contains <head> and <body> elements or <dot:HeadResourceLinks> and <dot:BodyResourceLinks> controls.");
         }
 
         public virtual IEnumerable<(string name, string html)> RenderPostbackUpdatedControls(IDotvvmRequestContext context, DotvvmView page)
@@ -46,10 +55,7 @@ namespace DotVVM.Framework.Runtime
             {
                 var control = stack.Pop();
 
-                object val;
-                if (control.properties != null &&
-                    control.properties.TryGetValue(PostBack.UpdateProperty, out val) &&
-                    val is bool && (bool)val)
+                if (control.properties.TryGet(PostBack.UpdateProperty, out var val) && true.Equals(val))
                 {
                     using (var w = new StringWriter())
                     {
@@ -84,6 +90,13 @@ namespace DotVVM.Framework.Runtime
             await context.HttpContext.Response.WriteAsync(serializedViewModel);
         }
 
+        public virtual async Task WriteStaticCommandResponse(IDotvvmRequestContext context, string json)
+        {
+            context.HttpContext.Response.ContentType = "application/json; charset=utf-8";
+            SetCacheHeaders(context.HttpContext);
+            await context.HttpContext.Response.WriteAsync(json);
+        }
+
         public virtual async Task RenderPlainJsonResponse(IHttpContext context, object data)
         {
             context.Response.StatusCode = (int)HttpStatusCode.OK;
@@ -114,28 +127,5 @@ namespace DotVVM.Framework.Runtime
             context.Response.Headers["Pragma"] = "no-cache";
             context.Response.Headers["Expires"] = "-1";
         }
-
-
-        /// <summary>
-        /// Embeds the resource links in the page.
-        /// </summary>
-        private void EmbedResourceLinks(DotvvmView view)
-        {
-            // PERF: 
-            var sections = view.GetThisAndAllDescendants()
-                .OfType<HtmlGenericControl>()
-                .Where(t => t.TagName == "head" || t.TagName == "body")
-                .OrderBy(t => t.TagName)
-                .ToList();
-
-            if (sections.Count != 2 || sections[0].TagName == sections[1].TagName)
-            {
-                throw new Exception("The page must have exactly one <head> and one <body> section!");
-            }
-
-            sections[0].Children.Add(new BodyResourceLinks());
-            sections[1].Children.Add(new HeadResourceLinks());
-        }
-
     }
 }

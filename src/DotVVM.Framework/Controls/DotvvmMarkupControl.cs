@@ -1,14 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using DotVVM.Framework.Runtime;
-using Newtonsoft.Json;
 using DotVVM.Framework.Binding;
-using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.Parser;
-using System.Reflection;
+using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ViewModel.Serialization;
+using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Controls
 {
@@ -27,7 +25,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public DotvvmMarkupControl() : this("div")
         {
-            this.LifecycleRequirements |= ControlLifecycleRequirements.PreInit;
+            LifecycleRequirements |= ControlLifecycleRequirements.PreInit;
         }
 
         /// <summary>
@@ -43,6 +41,13 @@ namespace DotVVM.Framework.Controls
         internal override void OnPreInit(IDotvvmRequestContext context)
         {
             string wrapperTagName;
+
+            if (Directives.ContainsKey(ParserConstants.WrapperTagNameDirective) &&
+                Directives.ContainsKey(ParserConstants.NoWrapperTagNameDirective))
+            {
+                throw new DotvvmControlException(this, $"Control cannot have {ParserConstants.WrapperTagNameDirective} and {ParserConstants.NoWrapperTagNameDirective} at the same time");
+            }
+
             if (Directives.TryGetValue(ParserConstants.WrapperTagNameDirective, out wrapperTagName))
             {
                 rendersWrapperTag = true;
@@ -67,7 +72,7 @@ namespace DotVVM.Framework.Controls
                 .Where(p => !p.DeclaringType.IsAssignableFrom(typeof(DotvvmMarkupControl)))
                 .Select(GetPropertySerializationInfo)
                 .Where(p => p.IsSerializable)
-                .Select(p => JsonConvert.SerializeObject(p.Property.Name) + ": " + p.Js);
+                .Select(p => JsonConvert.ToString(p.Property.Name, '"', StringEscapeHandling.EscapeHtml) + ": " + p.Js);
 
             writer.WriteKnockoutDataBindComment("dotvvm_withControlProperties", "{ " + string.Join(", ", properties) + " }");
             base.RenderContents(writer, context);
@@ -76,30 +81,38 @@ namespace DotVVM.Framework.Controls
 
         private PropertySerializeInfo GetPropertySerializationInfo(DotvvmProperty property)
         {
-            var binding = GetBinding(property);
-
-            if (binding == null)
+            if (ContainsPropertyStaticValue(property))
             {
+                JsonSerializerSettings settings = DefaultViewModelSerializer.CreateDefaultSettings();
+                settings.StringEscapeHandling = StringEscapeHandling.EscapeHtml;
 
                 return new PropertySerializeInfo {
                     Property = property,
-                    Js = JsonConvert.SerializeObject(GetValue(property), Formatting.None, DefaultViewModelSerializer.CreateDefaultSettings()),
+                    Js = JsonConvert.SerializeObject(GetValue(property), Formatting.None, settings),
                     IsSerializable = true
                 };
             }
-            else if (binding is IValueBinding)
+            else if (GetBinding(property) is IValueBinding valueBinding)
             {
                 return new PropertySerializeInfo {
                     Property = property,
-                    Js = (binding as IValueBinding).GetKnockoutBindingExpression(this),
+                    Js = valueBinding.GetKnockoutBindingExpression(this),
                     IsSerializable = true
-
                 };
             }
             else
             {
                 return new PropertySerializeInfo { Property = property };
             }
+        }
+
+        private bool ContainsPropertyStaticValue(DotvvmProperty property)
+        {
+            var binding = GetBinding(property);
+
+            var isValueOrServerSideValueBinding = binding == null || (binding is IStaticValueBinding && !(binding is IValueBinding));
+
+            return isValueOrServerSideValueBinding && !typeof(ITemplate).IsAssignableFrom(property.PropertyType);
         }
 
         private class PropertySerializeInfo

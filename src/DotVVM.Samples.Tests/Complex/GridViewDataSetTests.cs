@@ -1,55 +1,57 @@
-﻿using Dotvvm.Samples.Tests;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using DotVVM.Samples.Tests.Base;
+using DotVVM.Testing.Abstractions;
 using OpenQA.Selenium;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.Core;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace DotVVM.Samples.Tests.Complex
 {
-    [TestClass]
-    public class GridViewDataSetTests : SeleniumTest
+    public class GridViewDataSetTests : AppSeleniumTest
     {
-        [TestMethod]
+        public GridViewDataSetTests(ITestOutputHelper output) : base(output)
+        {
+        }
+
+        [Fact]
         public void Complex_GridViewDataSet_GridViewDataSet()
         {
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_GridViewDataSet_GridViewDataSet);
                 browser.First(".GridView");
+
+                var buttonsInGridView = browser.FindElements(SelectByDataUiId("button-with-html-content"));
+
+                foreach (var button in buttonsInGridView)
+                {
+                    AssertUI.ContainsElement(button, "h4");
+                    AssertUI.InnerTextEquals(button, "Choose");
+                }
+
+                Assert.Equal(3, buttonsInGridView.Count);
             });
         }
 
-        [TestMethod]
-        public void Complex_GridViewDataSet_GridViewDataSetDelegate()
+        [Fact]
+        public void Complex_GridViewDataSet_ControlWithITemplateInColumn()
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_GridViewDataSet_GridViewDataSetDelegate);
+                browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_GridViewDataSet_GridViewDataSet);
+                browser.First(".GridView");
 
-                var counter = browser.First("CallDelegateCounter", SelectByDataUiId);
-                //init load
-                counter.CheckIfInnerText(text => text == "1");
+                var templateContents = browser.FindElements(SelectByDataUiId("template-content"));
 
-
-                var datapager1 = browser.First("DataPager1", SelectByDataUiId);
-                datapager1.ElementAt("li a", 4).Click();
-
-                //second reload
-                counter.CheckIfInnerText(text => text == "2");
-
-                var datapager2 = browser.First("DataPager2", SelectByDataUiId);
-                datapager2.ElementAt("li a", 5).Click();
-
-                //third reload
-                counter.CheckIfInnerText(text => text == "3");
-
-                //fourth reload
-                datapager1.ElementAt("li a", 1).Click();
-                counter.CheckIfInnerText(text => text == "4");
-
+                foreach (var content in templateContents)
+                {
+                    AssertUI.InnerTextEquals(content, "Not Authenticated");
+                }
+                Assert.Equal(3, templateContents.Count);
             });
         }
+
         protected By SelectByDataUiId(string selector)
           => By.CssSelector($"[data-ui='{selector}']");
-
     }
 }

@@ -1,31 +1,31 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OpenQA.Selenium;
-using OpenQA.Selenium.Interactions;
-using Riganti.Utils.Testing.Selenium.Core;
-using System;
-using System.Globalization;
-using System.Linq;
-using System.Threading;
-using Dotvvm.Samples.Tests;
+﻿using DotVVM.Samples.Tests.Base;
+using DotVVM.Testing.Abstractions;
+using Riganti.Selenium.Core;
+using Xunit;
 
 namespace DotVVM.Samples.Tests.Feature
-{   
-    [TestClass]
-    public class BindingPageInfoTests : SeleniumTest
+{
+    public class BindingPageInfoTests : AppSeleniumTest
     {
-        [TestMethod]
+        public BindingPageInfoTests(Xunit.Abstractions.ITestOutputHelper output) : base(output)
+        {
+        }
+
+        [Fact]
         public void Feature_BindingPageInfo_BindingPageInfo()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_BindingPageInfo_BindingPageInfo);
 
-                // verify the first date
-                browser.ElementAt("p", 1).CheckIfInnerText(s => s.Contains("server"));
-                browser.ElementAt("p", 2).CheckIfInnerText(s => s.Contains("client"));
+                var text = browser.Single("[data-ui=postback-text]");
+                var button = browser.Single("[data-ui=long-postback-button]");
 
-                browser.ElementAt("input[type=button]", 0).Click();
-                browser.ElementAt("p", 0).CheckIfInnerText(s => s.Contains("running"));
+                AssertUI.InnerTextEquals(text, "no postback");
+                button.Click();
+                AssertUI.InnerTextEquals(text, "postback running");
+
+                browser.Wait(1000);
+                AssertUI.InnerTextEquals(text, "no postback");
             });
         }
     }

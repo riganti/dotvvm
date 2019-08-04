@@ -87,7 +87,7 @@ namespace DotVVM.Framework.Resources {
         }
         
         /// <summary>
-        ///    Looks up a localized string similar to Error occured..
+        ///    Looks up a localized string similar to Error occurred..
         /// </summary>
         public static string FileUpload_UploadErrorMessageText {
             get {

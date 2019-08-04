@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
@@ -28,9 +29,7 @@ namespace Microsoft.AspNetCore.Builder
         public static DotvvmConfiguration UseDotVVM<TStartup>(this IApplicationBuilder app, string applicationRootPath = null, bool? useErrorPages = null)
             where TStartup : IDotvvmStartup, new()
         {
-            var config = app.UseDotVVM(applicationRootPath, useErrorPages);
-            new TStartup().Configure(config, applicationRootPath);
-            return config;
+            return app.UseDotVVM(applicationRootPath, useErrorPages, new TStartup());
         }
 
         /// <summary>
@@ -47,30 +46,31 @@ namespace Microsoft.AspNetCore.Builder
         /// </param>
         public static DotvvmConfiguration UseDotVVM(this IApplicationBuilder app, string applicationRootPath, bool? useErrorPages)
         {
+            return UseDotVVM(app, applicationRootPath, useErrorPages, null);
+        }
+
+        private static DotvvmConfiguration UseDotVVM(this IApplicationBuilder app, string applicationRootPath, bool? useErrorPages, IDotvvmStartup startup)
+        {
+
             var env = app.ApplicationServices.GetRequiredService<IHostingEnvironment>();
             var config = app.ApplicationServices.GetRequiredService<DotvvmConfiguration>();
-
             config.Debug = env.IsDevelopment();
             config.ApplicationPhysicalPath = applicationRootPath ?? env.ContentRootPath;
+            startup.Configure(config, applicationRootPath);
 
-            if (useErrorPages ?? env.IsDevelopment())
+            if (useErrorPages ?? config.Debug)
             {
                 app.UseMiddleware<DotvvmErrorPageMiddleware>();
             }
 
-            app.UseMiddleware<DotvvmMiddleware>(config, new List<IMiddleware> {
+            app.UseMiddleware<DotvvmMiddleware>(config, new List<IMiddleware>
+            {
                 ActivatorUtilities.CreateInstance<DotvvmLocalResourceMiddleware>(app.ApplicationServices),
-                new DotvvmFileUploadMiddleware(),
+                DotvvmFileUploadMiddleware.TryCreate(app.ApplicationServices),
                 new DotvvmReturnedFileMiddleware(),
                 new DotvvmRoutingMiddleware()
-            });
-
-            var configurators = config.ServiceLocator.GetServiceProvider().GetServices<IConfigureOptions<DotvvmConfiguration>>();
-            foreach (var configurator in configurators)
-            {
-                configurator.Configure(config);
-            }
-
+            }.Where(t => t != null).ToArray());
+            config.Freeze();
             return config;
         }
     }

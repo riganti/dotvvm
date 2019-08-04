@@ -15,7 +15,7 @@
         <br />
         Number: {{value: Data.Number}}
         <br />
-        Date: {{value: Data.Date}}
+        Date: <span class="id-date1">{{value: Data.Date}}</span>
         <br />
         Bool: {{value: Data.Bool}}
     </p>
@@ -26,10 +26,10 @@
         <br />
         Number: {{value: PostResult.Number}}
         <br />
-        Date: {{value: PostResult.Date}}
-        <br />
-        Bool: {{value: PostResult.Bool}}
-    </p>
+        Date: <span class="id-date2">{{value: PostResult.Date}}</span>
+    <br />
+    Bool: {{value: PostResult.Bool}}
+</p>
 
     <dot:Button Text="Get data" Click="{staticCommand: Data = _azureFuncApi._api_HttpGet_get()}" />
     <dot:Button Text="Post data" Click="{staticCommand: PostResult = _azureFuncApi._api_HttpPost_post(Data)}" />
@@ -38,12 +38,15 @@
     <h3>Countries</h3>
     <p>
         Country name: {{value: Country.Name}}
-        <dot:GridView DataSource="{value: Country.Regions}">
-            <EmptyDataTemplate>No regions</EmptyDataTemplate>
+    </p>
+    <dot:GridView DataSource="{value: Country.Regions}">
+        <Columns>
             <dot:GridViewTextColumn ValueBinding="{value: Id}" HeaderText="ID" />
             <dot:GridViewTextColumn ValueBinding="{value: Name}" HeaderText="Name" />
-        </dot:GridView>
-    </p>
+        </Columns>
+        <EmptyDataTemplate>No regions</EmptyDataTemplate>
+    </dot:GridView>
+    
     <dot:Button Text="Get country" Click="{staticCommand: Country = _azureFuncApi._api_HttpGetCountry_get()}" />
 </body>
 </html>

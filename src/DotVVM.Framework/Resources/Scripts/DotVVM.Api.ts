@@ -6,6 +6,7 @@ type Result<T> = { type: 'error', error: any } | { type: 'result', result: T }
 interface DotVVM {
     invokeApiFn<T>(callback: () => PromiseLike<T>): ApiComputed<T>;
     apiRefreshOn<T>(value: KnockoutObservable<T>, refreshOn: KnockoutObservable<any>) : KnockoutObservable<T>;
+    apiStore<T>(value: KnockoutObservable<T>, targetProperty: KnockoutObservable<any>) : KnockoutObservable<T>;
     api: { [name: string]: any };
     eventHub: DotvvmEventHub;
 }
@@ -103,7 +104,7 @@ function basicAuthenticatedFetch(input: RequestInfo, init: RequestInit) {
         refreshOn.subscribe(() => {
             if (typeof value.refreshValue != "function") console.error(`The object is not refreshable`);
             value.refreshValue && value.refreshValue();
-        })
+        });
         return value;
     }
     DotVVM.prototype.api = {}

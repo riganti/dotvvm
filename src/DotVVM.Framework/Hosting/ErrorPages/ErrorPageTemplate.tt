@@ -152,7 +152,7 @@ hr{
 						} else if (p is JArray) {
 							ObjectBrowser((JArray)p);
 						} else {
-							this.Write(p.ToString());
+							this.WriteText(p.ToString());
 						}
 					}
 			
@@ -199,8 +199,8 @@ hr{
 	    Write(@"</div></label></div>");
 		if (!string.IsNullOrEmpty(source.FileName)) {
 			Write("<p class='source file'>Source File: <strong>");
-			Write(source.SystemFileName);
-			Write("</strong></p>");
+			WriteText(source.SystemFileName);
+			Write($"</strong> +{source.LineNumber}</p>");;
 		}
 	}
 
@@ -240,7 +240,7 @@ hr{
 	    if (!string.IsNullOrWhiteSpace(errorUnderline))
 	    {
 	        Write("<span class='errorUnderline'>");
-			Write(errorUnderline );
+			WriteText(errorUnderline );
 			Write("</span>");    
 	    }
 		

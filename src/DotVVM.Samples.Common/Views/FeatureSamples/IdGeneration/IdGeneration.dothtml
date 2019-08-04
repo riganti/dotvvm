@@ -48,6 +48,10 @@
 			</ItemTemplate>
 		</dot:Repeater>
 
+		<dot:Repeater DataSource="{value: Items}" data-ui="repeater3">
+			<span ClientIDMode="Static" id="{value: "test_span_" + _this}" data-ui="{value: "test_span_" + _this}">{{value: _this}}</span>
+		</dot:Repeater>
+
     </div>
 </body>
 </html>

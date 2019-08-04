@@ -156,7 +156,7 @@ namespace DotVVM.Framework.Utils
             // handle exceptions
             if (value is string && type == typeof(Guid))
             {
-                return new Guid((string) value);
+                return new Guid((string)value);
             }
             if (type == typeof(object))
             {
@@ -207,6 +207,22 @@ namespace DotVVM.Framework.Utils
                 return array;
             }
 
+            // numbers
+            const NumberStyles numberStyle = NumberStyles.AllowDecimalPoint | NumberStyles.AllowExponent | NumberStyles.AllowLeadingSign | NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite;
+            if (value is string str2)
+            {
+                if (type == typeof(double))
+                    return double.Parse(str2, numberStyle & NumberStyles.Float, CultureInfo.InvariantCulture);
+                else if (type == typeof(float))
+                    return float.Parse(str2, numberStyle & NumberStyles.Float, CultureInfo.InvariantCulture);
+                else if (type == typeof(decimal))
+                    return decimal.Parse(str2, numberStyle & NumberStyles.Float, CultureInfo.InvariantCulture);
+                else if (type == typeof(ulong))
+                    return ulong.Parse(str2, numberStyle & NumberStyles.Integer, CultureInfo.InvariantCulture);
+                else if (type.IsNumericType())
+                    return Convert.ChangeType(long.Parse(str2, numberStyle & NumberStyles.Integer, CultureInfo.InvariantCulture), type, CultureInfo.InvariantCulture);
+            }
+
             // convert
             return Convert.ChangeType(value, type, CultureInfo.InvariantCulture);
         }
@@ -240,6 +256,13 @@ namespace DotVVM.Framework.Utils
             if (result == null) return null;
             return ResolvedTypeDescriptor.ToSystemType(result);
         }
+        public static readonly HashSet<Type> DateTimeTypes = new HashSet<Type>()
+            {
+                typeof(DateTime),
+                typeof(DateTimeOffset),
+                typeof(TimeSpan)
+            };
+
 
         public static readonly HashSet<Type> NumericTypes = new HashSet<Type>()
         {
@@ -262,7 +285,10 @@ namespace DotVVM.Framework.Utils
             return NumericTypes.Contains(type);
         }
 
-
+        public static bool IsDateOrTimeType(this Type type)
+        {
+            return DateTimeTypes.Contains(type);
+        }
         public static bool IsDynamicOrObject(this Type type)
         {
             return type.GetInterfaces().Contains(typeof(IDynamicMetaObjectProvider)) ||
@@ -273,6 +299,11 @@ namespace DotVVM.Framework.Utils
         {
             return typeof(Delegate).IsAssignableFrom(type);
         }
+
+        public static ParameterInfo[] GetDelegateArguments(this Type type) =>
+            type.IsDelegate() ?
+            type.GetMethod("Invoke").GetParameters() :
+            null;
 
         public static bool IsReferenceType(this Type type)
         {
@@ -311,14 +342,15 @@ namespace DotVVM.Framework.Utils
         {
             return Nullable.GetUnderlyingType(type) != null;
         }
-
+        public static Type UnwrapNullableType(this Type type)
+        {
+            return Nullable.GetUnderlyingType(type) ?? type;
+        }
         public static Type MakeNullableType(this Type type)
         {
             return type.GetTypeInfo().IsValueType && Nullable.GetUnderlyingType(type) == null && type != typeof(void) ? typeof(Nullable<>).MakeGenericType(type) : type;
         }
 
-        public static Type UnwrapNullable(this Type type) =>
-            Nullable.GetUnderlyingType(type) ?? type;
 
         public static T GetCustomAttribute<T>(this ICustomAttributeProvider attributeProvider, bool inherit = true) =>
             (T)attributeProvider.GetCustomAttributes(typeof(T), inherit).FirstOrDefault();
@@ -326,14 +358,18 @@ namespace DotVVM.Framework.Utils
         public static IEnumerable<T> GetCustomAttributes<T>(this ICustomAttributeProvider attributeProvider, bool inherit = true) =>
             attributeProvider.GetCustomAttributes(typeof(T), inherit).Cast<T>();
 
+
+        private static ConcurrentDictionary<Type, string> cache_GetTypeHash = new ConcurrentDictionary<Type, string>();
         public static string GetTypeHash(this Type type)
         {
-            using (var sha1 = SHA1.Create())
-            {
-                var hashBytes = sha1.ComputeHash(Encoding.UTF8.GetBytes(type.AssemblyQualifiedName));
+            return cache_GetTypeHash.GetOrAdd(type, t => {
+                using (var sha1 = SHA1.Create())
+                {
+                    var hashBytes = sha1.ComputeHash(Encoding.UTF8.GetBytes(t.AssemblyQualifiedName));
 
-                return Convert.ToBase64String(hashBytes);
-            }
+                    return Convert.ToBase64String(hashBytes);
+                }
+            });
         }
 
         private static ConcurrentDictionary<Type, Func<Delegate, object[], object>> delegateInvokeCache = new ConcurrentDictionary<Type, Func<Delegate, object[], object>>();
@@ -355,5 +391,10 @@ namespace DotVVM.Framework.Utils
             member is TypeInfo type ? type.AsType() :
             throw new NotImplementedException($"Could not get return type of member {member.GetType().FullName}");
 
+        public static Type GetPublicBaseType(this Type type)
+        {
+            while (!(type.GetTypeInfo().IsPublic || type.GetTypeInfo().IsNestedPublic)) type = type.GetTypeInfo().BaseType;
+            return type;
+        }
     }
 }

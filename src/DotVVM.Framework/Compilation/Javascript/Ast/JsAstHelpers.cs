@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace DotVVM.Framework.Compilation.Javascript.Ast
 {
@@ -58,7 +57,8 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         /// </summary>
         public static IEnumerable<JsExpression> GetLeafResultNodes(this JsExpression expr)
         {
-            switch (expr) {
+            switch (expr)
+            {
                 case JsConditionalExpression condition:
                     return condition.TrueExpression.GetLeafResultNodes()
                         .Concat(condition.FalseExpression.GetLeafResultNodes());
@@ -77,6 +77,44 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         {
             node.Remove();
             return node;
+        }
+
+        /// Wraps the expression in `dotvvm.evaluator.wrapObservable` if needed
+        /// Note that this method may be used to process nodes that are already fully handled by all the transformation regarding observables -> it's fine to use to post-process a generate expression, but you shall not use it in custom method translator (see <see cref="ObservableTransformationAnnotation.EnsureWrapped"/> annotation instead)
+        public static JsExpression EnsureObservableWrapped(this JsExpression expression)
+        {
+            // It's not needed to wrap if none of the descendants return an observable
+            if (!expression.DescendantNodes().Any(n => (n.HasAnnotation<ResultIsObservableAnnotation>() && !n.HasAnnotation<ShouldBeObservableAnnotation>()) || n.HasAnnotation<ObservableUnwrapInvocationAnnotation>()))
+            {
+                return expression.WithAnnotation(ShouldBeObservableAnnotation.Instance);
+            }
+            else if (expression.SatisfyResultCondition(n => n.HasAnnotation<ResultIsObservableAnnotation>()))
+            {
+                var arguments = new List<JsExpression>(2) {
+                    new JsFunctionExpression(
+                        parameters: Enumerable.Empty<JsIdentifier>(),
+                        bodyBlock: new JsBlockStatement(new JsReturnStatement(expression.WithAnnotation(ShouldBeObservableAnnotation.Instance)))
+                    )
+                };
+
+                if (expression.SatisfyResultCondition(n => n.HasAnnotation<ResultIsObservableArrayAnnotation>()))
+                {
+                    arguments.Add(new JsLiteral(true));
+                }
+
+                return new JsIdentifierExpression("dotvvm").Member("evaluator").Member("wrapObservable").Invoke(arguments)
+                    .WithAnnotation(ResultIsObservableAnnotation.Instance)
+                    .WithAnnotation(ShouldBeObservableAnnotation.Instance);
+            }
+            else
+            {
+                return new JsIdentifierExpression("ko").Member("pureComputed").Invoke(new JsFunctionExpression(
+                        parameters: Enumerable.Empty<JsIdentifier>(),
+                        bodyBlock: new JsBlockStatement(new JsReturnStatement(expression))
+                    ))
+                    .WithAnnotation(ResultIsObservableAnnotation.Instance)
+                    .WithAnnotation(ShouldBeObservableAnnotation.Instance);
+            }
         }
     }
 }

@@ -3,34 +3,46 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Dotvvm.Samples.Tests;
+using DotVVM.Samples.Tests.Base;
+using DotVVM.Testing.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Selenium.Core;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace DotVVM.Samples.Tests.Control
 {
-    [TestClass]
-    public class ContentPlaceHolderTests : SeleniumTest
+    public class ContentPlaceHolderTests : AppSeleniumTest
     {
-        [TestMethod]
+        [Fact]
         public void Control_ContentPlaceHolder_ContentPlaceHolderPage()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ContentPlaceHolder_ContentPlaceHolderPage);
-                browser.First("#innerHtmlTest").CheckIfJsPropertyInnerHtml(html => string.IsNullOrWhiteSpace(System.Net.WebUtility.HtmlDecode(html)), "Inner html has to be empty.");
+                AssertUI.JsPropertyInnerHtml(browser.First("#innerHtmlTest"), html => string.IsNullOrWhiteSpace(System.Net.WebUtility.HtmlDecode(html)), "Inner html has to be empty.");
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void Control_ContentPlaceHolder_ContentPlaceHolderPage_ContentTest()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ContentPlaceHolder_ContentPlaceHolderPage_ContentTest);
-                browser.First("#innerHtmlTest").CheckIfJsPropertyInnerHtml(html => !string.IsNullOrWhiteSpace(System.Net.WebUtility.HtmlDecode(html)), "Inner html has to contain specified content.");
+                AssertUI.JsPropertyInnerHtml(browser.First("#innerHtmlTest"), html => !string.IsNullOrWhiteSpace(System.Net.WebUtility.HtmlDecode(html)), "Inner html has to contain specified content.");
             });
         }
+        [Fact]
+        public void Control_ContentPlaceHolder_DoubleContentPlaceHolderPage_ContentTest()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ContentPlaceHolder_DoubleContentPlaceHolderPage_ContentTest);
+                AssertUI.InnerTextEquals(browser.First("title", SelectByDataUi), "Title", failureMessage: "Inner html has to contain specified content.");
 
+                AssertUI.InnerTextEquals(browser.First("content", SelectByDataUi), "Content", failureMessage: "Inner html has to contain specified content.");
+            });
+        }
+        public ContentPlaceHolderTests(ITestOutputHelper output) : base(output)
+        {
+        }
     }
 }

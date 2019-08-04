@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -11,7 +12,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
     {
         // TODO: tests
         // TODO: docs
-        public static IViewModelSerializationMapper GetSerializationMapper(this Configuration.DotvvmConfiguration configuration) => configuration.ServiceLocator.GetService<IViewModelSerializationMapper>();
+        public static IViewModelSerializationMapper GetSerializationMapper(this Configuration.DotvvmConfiguration configuration) => configuration.ServiceProvider.GetRequiredService<IViewModelSerializationMapper>();
 
         public static IViewModelSerializationMapper Map(this IViewModelSerializationMapper mapper, Type type, Action<ViewModelSerializationMap> action)
         {
@@ -19,6 +20,16 @@ namespace DotVVM.Framework.ViewModel.Serialization
             action(map);
             map.ResetFunctions();
             return mapper;
+        }
+
+        public static void SetConstructor(this ViewModelSerializationMap map, ObjectFactory factory)
+        {
+            map.SetConstructor(p => factory.Invoke(p, new object[0]));
+        }
+
+        public static void AllowDependencyInjection(this ViewModelSerializationMap map)
+        {
+            map.SetConstructor(ActivatorUtilities.CreateFactory(map.Type, Type.EmptyTypes));
         }
 
         public static ViewModelPropertyMap Property(this ViewModelSerializationMap map, string name) =>

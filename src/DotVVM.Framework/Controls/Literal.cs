@@ -1,8 +1,10 @@
 using System;
 using System.Linq;
 using System.Net;
+using System.Runtime.CompilerServices;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Utils;
@@ -14,9 +16,8 @@ namespace DotVVM.Framework.Controls
     /// Renders a text into the page.
     /// </summary>
     [ControlMarkupOptions(AllowContent = false)]
-    public class Literal : HtmlGenericControl
+    public sealed class Literal : HtmlGenericControl
     {
-
         /// <summary>
         /// Gets or sets the text displayed in the control.
         /// </summary>
@@ -25,9 +26,9 @@ namespace DotVVM.Framework.Controls
             get { return (string)GetValue(TextProperty); }
             set { SetValue(TextProperty, value); }
         }
+
         public static readonly DotvvmProperty TextProperty =
             DotvvmProperty.Register<object, Literal>(t => t.Text, "");
-
 
         /// <summary>
         /// Gets or sets the format string that will be applied to numeric or date-time values.
@@ -38,6 +39,7 @@ namespace DotVVM.Framework.Controls
             get { return (string)GetValue(FormatStringProperty); }
             set { SetValue(FormatStringProperty, value); }
         }
+
         public static readonly DotvvmProperty FormatStringProperty =
             DotvvmProperty.Register<string, Literal>(c => c.FormatString, "");
 
@@ -51,6 +53,8 @@ namespace DotVVM.Framework.Controls
             get { return (FormatValueType)GetValue(ValueTypeProperty); }
             set { SetValue(ValueTypeProperty, value); }
         }
+
+        [Obsolete("ValueType property is no longer required, it is automatically inferred from compile-time type of Text binding")]
         public static readonly DotvvmProperty ValueTypeProperty =
             DotvvmProperty.Register<FormatValueType, Literal>(t => t.ValueType);
 
@@ -63,18 +67,16 @@ namespace DotVVM.Framework.Controls
             get { return (bool)GetValue(RenderSpanElementProperty); }
             set { SetValue(RenderSpanElementProperty, value); }
         }
+
         public static readonly DotvvmProperty RenderSpanElementProperty =
             DotvvmProperty.Register<bool, Literal>(t => t.RenderSpanElement, true);
-
-        private bool renderAsKnockoutBinding;
-        private string knockoutBindingExpression;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Literal"/> class.
         /// </summary>
         public Literal(bool allowImplicitLifecycleRequirements = true) : base("span")
         {
-            if (allowImplicitLifecycleRequirements && GetType() == typeof(Literal)) LifecycleRequirements = ControlLifecycleRequirements.PreRender;
+            if (allowImplicitLifecycleRequirements) LifecycleRequirements = ControlLifecycleRequirements.PreRender;
         }
 
         /// <summary>
@@ -84,92 +86,128 @@ namespace DotVVM.Framework.Controls
         {
             Text = text;
             RenderSpanElement = false;
-            if (allowImplicitLifecycleRequirements && GetType() == typeof(Literal)) LifecycleRequirements = ControlLifecycleRequirements.None;
+            if (allowImplicitLifecycleRequirements) LifecycleRequirements = ControlLifecycleRequirements.None;
         }
 
-        public static bool NeedsFormatting(IValueBinding binding) => binding != null && (binding.ResultType == typeof(DateTime) || ReflectionUtils.IsNumericType(binding.ResultType));
+        public static bool NeedsFormatting(IValueBinding binding)
+        {
+            bool isFormattedType(Type type) =>
+                type != null && (type == typeof(float) || type == typeof(double) || type == typeof(decimal) || type == typeof(DateTime) || isFormattedType(Nullable.GetUnderlyingType(type)));
+
+            bool isFormattedTypeOrObj(Type type) => type == typeof(object) || isFormattedType(type);
+
+            return isFormattedType(binding?.ResultType) && isFormattedTypeOrObj(binding?.GetProperty<ExpectedTypeBindingProperty>(ErrorHandlingMode.ReturnNull)?.Type);
+        }
 
         protected override bool RendersHtmlTag => RenderSpanElement;
 
-        public bool IsFormattingRequired => !string.IsNullOrEmpty(FormatString) || ValueType != FormatValueType.Text || NeedsFormatting(GetValueBinding(TextProperty));
+        public bool IsFormattingRequired =>
+            !string.IsNullOrEmpty(FormatString) ||
+#pragma warning disable
+            ValueType != FormatValueType.Text ||
+#pragma warning restore
+            NeedsFormatting(GetValueBinding(TextProperty));
 
-        protected internal override void OnPreRender(Hosting.IDotvvmRequestContext context)
+        protected struct RenderState
         {
-            base.OnPreRender(context);
-
-            if (IsFormattingRequired)
-            {
-                context.ResourceManager.AddCurrentCultureGlobalizationResource();
-            }
+            public object Text;
+            public bool RenderSpanElement;
+            public bool HasFormattingStuff;
+            public DotvvmControl.RenderState BaseState;
+            public HtmlGenericControl.RenderState HtmlState;
         }
 
-        protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected bool TouchProperty(DotvvmProperty prop, object value, ref RenderState r)
         {
-            base.AddAttributesToRender(writer, context);
+            if (prop == TextProperty)
+                r.Text = value;
+            else if (prop == RenderSpanElementProperty)
+                r.RenderSpanElement = (bool)EvalPropertyValue(RenderSpanElementProperty, value);
+            else if (prop == FormatStringProperty || prop == ValueTypeProperty)
+                r.HasFormattingStuff = true;
+            else if (base.TouchProperty(prop, value, ref r.HtmlState)) { }
+            else if (DotvvmControl.TouchProperty(prop, value, ref r.BaseState)) { }
+            else return false;
+            return true;
+        }
+
+        protected override void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
+        {
+            RenderState r = default;
+            r.RenderSpanElement = true;
+            foreach (var (prop, value) in properties)
+                TouchProperty(prop, value, ref r);
+
+            r.HtmlState.RendersHtmlTag = r.RenderSpanElement;
+
+            if (base.RenderBeforeControl(in r.BaseState, writer, context))
+                return;
+
+            base.AddAttributesCore(writer, ref r.HtmlState);
+
+            var textBinding = r.Text as IValueBinding;
+            var isFormattingRequired = (r.HasFormattingStuff || textBinding != null) && this.IsFormattingRequired;
 
             // render Knockout data-bind
-            renderAsKnockoutBinding = HasBinding<IValueBinding>(TextProperty) && !RenderOnServer;
-            if (renderAsKnockoutBinding)
+            string expression = null;
+            if (textBinding != null && !r.HtmlState.RenderOnServer(this))
             {
-                var expression = GetValueBinding(TextProperty).GetKnockoutBindingExpression(this);
-                if (IsFormattingRequired)
+                expression = textBinding.GetKnockoutBindingExpression(this);
+                if (isFormattingRequired)
                 {
-                    expression = "dotvvm.globalize.formatString(" + JsonConvert.SerializeObject(FormatString) + ", " + expression + ")";
-                }
-                knockoutBindingExpression = expression;
+                    // almost always the Literal will be rendered before script resources are, so requesting the resource in render should be safe. In case it's not, user can always add it manually (the error message should be quite clear).
+                    context.ResourceManager.AddCurrentCultureGlobalizationResource();
 
-                if (RenderSpanElement)
+                    expression = "dotvvm.globalize.formatString(" + JsonConvert.ToString(FormatString) + ", " + expression + ")";
+                }
+
+                if (r.RenderSpanElement)
                 {
                     writer.AddKnockoutDataBind("text", expression);
                 }
             }
-        }
 
-        protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
-        {
-            if (RenderSpanElement)
+            // render start tag
+            if (r.RenderSpanElement)
             {
-                base.RenderBeginTag(writer, context);
+                writer.RenderBeginTag(TagName);
             }
-            else if (renderAsKnockoutBinding)
+            else if (expression != null)
             {
-                writer.WriteKnockoutDataBindComment("text", knockoutBindingExpression);
+                writer.WriteKnockoutDataBindComment("text", expression);
             }
-        }
 
-        protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
-        {
-            if (!renderAsKnockoutBinding)
+            if (expression == null)
             {
-                var textToDisplay = "";
-                if (IsFormattingRequired)
+                string textToDisplay;
+                if (isFormattingRequired)
                 {
                     var formatString = FormatString;
                     if (string.IsNullOrEmpty(formatString))
                     {
                         formatString = "G";
                     }
-                    textToDisplay = string.Format("{0:" + formatString + "}", GetValue(TextProperty));
+                    textToDisplay = string.Format("{0:" + formatString + "}", EvalPropertyValue(TextProperty, r.Text));
                 }
                 else
                 {
-                    textToDisplay = GetValue(TextProperty)?.ToString() ?? "";
+                    textToDisplay = EvalPropertyValue(TextProperty, r.Text)?.ToString() ?? "";
                 }
-
                 writer.WriteText(textToDisplay);
             }
-        }
 
-        protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
-        {
-            if (RenderSpanElement)
+            // render end tag
+            if (r.RenderSpanElement)
             {
-                base.RenderEndTag(writer, context);
+                writer.RenderEndTag();
             }
-            else if (renderAsKnockoutBinding)
+            else if (expression != null)
             {
                 writer.WriteKnockoutDataBindEndComment();
             }
+
+            base.RenderAfterControl(in r.BaseState, writer);
         }
     }
 }

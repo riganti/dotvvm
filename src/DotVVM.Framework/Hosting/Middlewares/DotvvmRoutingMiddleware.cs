@@ -41,7 +41,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
         public static RouteBase FindMatchingRoute(IEnumerable<RouteBase> routes, IDotvvmRequestContext context, out IDictionary<string, object> parameters)
         {
             string url;
-            if (!TryParseGooglebotHashbangEscapedFragment(context.HttpContext.Request.QueryString, out url))
+            if (!TryParseGooglebotHashbangEscapedFragment(context.HttpContext.Request.Url.Query, out url))
             {
                 url = context.HttpContext.Request.Path.Value;
             }
@@ -79,14 +79,15 @@ namespace DotVVM.Framework.Hosting.Middlewares
             context.Route = route;
             context.Parameters = parameters;
 
-            var presenter = context.Presenter = route.GetPresenter();
-            var filters = ActionFilterHelper.GetActionFilters<IPageActionFilter>(presenter.GetType().GetTypeInfo());
-            filters.AddRange(context.Configuration.Runtime.GlobalFilters.OfType<IPageActionFilter>());
+            var presenter = context.Presenter = route.GetPresenter(context.Services);
+            var filters =
+                ActionFilterHelper.GetActionFilters<IPresenterActionFilter>(presenter.GetType().GetTypeInfo())
+                .Concat(context.Configuration.Runtime.GlobalFilters.OfType<IPresenterActionFilter>());
             try
             {
-                foreach (var f in filters) await f.OnPageLoadingAsync(context);
+                foreach (var f in filters) await f.OnPresenterExecutingAsync(context);
                 await presenter.ProcessRequest(context);
-                foreach (var f in filters) await f.OnPageLoadedAsync(context);
+                foreach (var f in filters) await f.OnPresenterExecutedAsync(context);
             }
             catch (DotvvmInterruptRequestExecutionException) { } // the response has already been generated, do nothing
             catch (DotvvmHttpException) { throw; }
@@ -94,7 +95,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
             {
                 foreach (var f in filters)
                 {
-                    await f.OnPageExceptionAsync(context, exception);
+                    await f.OnPresenterExceptionAsync(context, exception);
                     if (context.IsPageExceptionHandled) context.InterruptRequest();
                 }
                 await requestTracer.EndRequest(context, exception);

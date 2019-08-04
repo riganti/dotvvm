@@ -15,8 +15,6 @@ namespace DotVVM.Framework.Runtime.Filters
     /// </summary>
     public class AuthorizeAttribute : ActionFilterAttribute
     {
-        private static readonly ConcurrentDictionary<Type, bool> canBeAuthorizedCache = new ConcurrentDictionary<Type, bool>();
-
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthorizeAttribute" /> class.
         /// </summary>
@@ -53,7 +51,7 @@ namespace DotVVM.Framework.Runtime.Filters
         }
 
         /// <inheritdoc />
-        protected override Task OnPageLoadingAsync(IDotvvmRequestContext context)
+        protected override Task OnPresenterExecutingAsync(IDotvvmRequestContext context)
         {
             Authorize(context, context.Presenter);
             return TaskUtils.GetCompletedTask();
@@ -67,7 +65,7 @@ namespace DotVVM.Framework.Runtime.Filters
         /// <param name="appliedOn">The object which can contain [NotAuthorizedAttribute] that could suppress it.</param>
         protected virtual void Authorize(IDotvvmRequestContext context, object appliedOn)
         {
-            if (!CanBeAuthorized(appliedOn))
+            if (!CanBeAuthorized(appliedOn ?? context.ViewModel))
             {
                 return;
             }
@@ -84,6 +82,7 @@ namespace DotVVM.Framework.Runtime.Filters
             }
         }
 
+        private static readonly ConcurrentDictionary<Type, bool> canBeAuthorizedCache = new ConcurrentDictionary<Type, bool>();
         /// <summary>
         /// Returns whether the view model does require authorization.
         /// </summary>

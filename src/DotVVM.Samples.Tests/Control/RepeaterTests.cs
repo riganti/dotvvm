@@ -1,25 +1,32 @@
-﻿using Dotvvm.Samples.Tests;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
+﻿using System;
+using System.Linq;
+using DotVVM.Samples.Tests.Base;
+using DotVVM.Testing.Abstractions;
+using Riganti.Selenium.Core;
+using Riganti.Selenium.Core.Abstractions;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace DotVVM.Samples.Tests.Control
 {
-    [TestClass]
-    public class RepeaterTests : SeleniumTest
+    public class RepeaterTests : AppSeleniumTest
     {
-        [TestMethod]
+        public RepeaterTests(ITestOutputHelper output) : base(output)
+        {
+        }
+
+        [Fact]
         public void Control_Repeater_DataSourceNull()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_DataSourceNull);
                 browser.Wait();
 
                 var clientRepeater = browser.Single("client-repeater", this.SelectByDataUi);
                 var serverRepeater = browser.Single("server-repeater", this.SelectByDataUi);
 
-                Assert.AreEqual(0, clientRepeater.Children.Count);
-                Assert.AreEqual(0, serverRepeater.Children.Count);
+                Assert.Equal(0, clientRepeater.Children.Count);
+                Assert.Equal(0, serverRepeater.Children.Count);
 
                 var button = browser.Single("set-collection-button", this.SelectByDataUi);
                 button.Click().Wait();
@@ -27,256 +34,284 @@ namespace DotVVM.Samples.Tests.Control
                 clientRepeater = browser.Single("client-repeater", this.SelectByDataUi);
                 serverRepeater = browser.Single("server-repeater", this.SelectByDataUi);
 
-                Assert.AreEqual(3, clientRepeater.Children.Count);
-                Assert.AreEqual(3, serverRepeater.Children.Count);
+                Assert.Equal(3, clientRepeater.Children.Count);
+                Assert.Equal(3, serverRepeater.Children.Count);
             });
         }
 
-        [TestMethod]
-        public void Control_Repeater_NestedRepeater()
-        {
-            RunInAllBrowsers(browser =>
-            {
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_NestedRepeater);
-                browser.Wait();
-
-                browser.ElementAt("a", 0).Click();
-
-                browser.First("#result").CheckIfInnerTextEquals("Child 1 Subchild 1");
-
-                browser.ElementAt("a", 1).Click();
-
-                browser.First("#result").CheckIfInnerTextEquals("Child 1 Subchild 2");
-
-                browser.ElementAt("a", 2).Click();
-
-                browser.First("#result").CheckIfInnerTextEquals("Child 1 Subchild 3");
-
-                browser.ElementAt("a", 3).Click();
-
-                browser.First("#result").CheckIfInnerTextEquals("Child 2 Subchild 1");
-
-                browser.ElementAt("a", 4).Click();
-
-                browser.First("#result").CheckIfInnerTextEquals("Child 2 Subchild 2");
-
-                browser.ElementAt("a", 5).Click();
-
-                browser.First("#result").CheckIfInnerTextEquals("Child 3 Subchild 1");
-
-                browser.ElementAt("a", 6).Click();
-
-                browser.First("#result").CheckIfInnerTextEquals("Child 1 Subchild 1");
-
-                browser.ElementAt("a", 7).Click();
-
-                browser.First("#result").CheckIfInnerTextEquals("Child 1 Subchild 2");
-
-                browser.ElementAt("a", 8).Click();
-
-                browser.First("#result").CheckIfInnerTextEquals("Child 1 Subchild 3");
-
-                browser.ElementAt("a", 9).Click();
-
-                browser.First("#result").CheckIfInnerTextEquals("Child 2 Subchild 1");
-
-                browser.ElementAt("a", 10).Click();
-
-                browser.First("#result").CheckIfInnerTextEquals("Child 2 Subchild 2");
-
-                browser.ElementAt("a", 11).Click();
-
-                browser.First("#result").CheckIfInnerTextEquals("Child 3 Subchild 1");
-            });
-        }
-
-        [TestMethod]
+        [Fact]
         public void Control_Repeater_RepeaterAsSeparator()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_RepeaterAsSeparator);
                 browser.Wait();
 
                 var repeater = browser.Single("root-repeater", this.SelectByDataUi);
-                var separators = repeater.FindElements("separator", this.SelectByDataUi);
-                Assert.AreEqual(2, separators.Count);
 
-                foreach (var separator in separators)
+                for (int i = 2; i < 5; i++)
                 {
-                    var texts = separator.FindElements("p");
-                    Assert.AreEqual(3, texts.Count);
-                    texts[0].CheckIfTextEquals("First separator");
-                    texts[1].CheckIfTextEquals("Second separator");
-                    texts[2].CheckIfTextEquals("Third separator");
+                    var separators = repeater.FindElements("separator", this.SelectByDataUi);
+
+                    Assert.Equal(i, separators.Count);
+
+                    foreach (var separator in separators)
+                    {
+                        var texts = separator.FindElements("p");
+                        Assert.Equal(3, texts.Count);
+                        AssertUI.InnerTextEquals(texts[0], "First separator");
+                        AssertUI.InnerTextEquals(texts[1], "Second separator");
+                        AssertUI.InnerTextEquals(texts[2], "Third separator");
+                    }
+
+                    browser.Single("add-item-button", SelectByDataUi).Click();
                 }
             });
         }
 
-        [TestMethod]
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_Repeater_RepeaterAsSeparator))]
+        public void Control_Repeater_RepeaterAsSeparator_CorrectBindingContext()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_RepeaterAsSeparator);
+                browser.Wait();
+
+                var repeater = browser.Single("root-repeater", this.SelectByDataUi);
+
+                var incrementButtons = repeater.FindElements("increment-button", this.SelectByDataUi);
+
+                var counterValue = browser.Single("counter-value", this.SelectByDataUi);
+
+                AssertUI.InnerTextEquals(counterValue, "0");
+
+                var counter = 1;
+                foreach (var button in incrementButtons)
+                {
+                    button.Click();
+                    AssertUI.InnerTextEquals(counterValue, counter.ToString());
+                    counter++;
+                }
+
+                browser.Single("add-item-button", SelectByDataUi).Click();
+                incrementButtons = repeater.FindElements("increment-button", this.SelectByDataUi);
+
+                foreach (var button in incrementButtons)
+                {
+                    button.Click();
+                    AssertUI.InnerTextEquals(counterValue, counter.ToString());
+                    counter++;
+                }
+            });
+        }
+
+        [Fact]
         public void Control_Repeater_RepeaterWrapperTag()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_RepeaterWrapperTag);
 
                 browser.FindElements("#part1>div").ThrowIfDifferentCountThan(1);
                 browser.FindElements("#part1>div>p").ThrowIfDifferentCountThan(4);
 
-                browser.ElementAt("#part1>div>p", 0).CheckIfInnerTextEquals("Test 1");
-                browser.ElementAt("#part1>div>p", 1).CheckIfInnerTextEquals("Test 2");
-                browser.ElementAt("#part1>div>p", 2).CheckIfInnerTextEquals("Test 3");
-                browser.ElementAt("#part1>div>p", 3).CheckIfInnerTextEquals("Test 4");
+                AssertUI.InnerTextEquals(browser.ElementAt("#part1>div>p", 0), "Test 1");
+                AssertUI.InnerTextEquals(browser.ElementAt("#part1>div>p", 1), "Test 2");
+                AssertUI.InnerTextEquals(browser.ElementAt("#part1>div>p", 2), "Test 3");
+                AssertUI.InnerTextEquals(browser.ElementAt("#part1>div>p", 3), "Test 4");
 
                 browser.FindElements("#part2>ul").ThrowIfDifferentCountThan(1);
                 browser.FindElements("#part2>ul>li").ThrowIfDifferentCountThan(4);
 
-                browser.ElementAt("#part2>ul>li", 0).CheckIfInnerTextEquals("Test 1");
-                browser.ElementAt("#part2>ul>li", 1).CheckIfInnerTextEquals("Test 2");
-                browser.ElementAt("#part2>ul>li", 2).CheckIfInnerTextEquals("Test 3");
-                browser.ElementAt("#part2>ul>li", 3).CheckIfInnerTextEquals("Test 4");
+                AssertUI.InnerTextEquals(browser.ElementAt("#part2>ul>li", 0), "Test 1");
+                AssertUI.InnerTextEquals(browser.ElementAt("#part2>ul>li", 1), "Test 2");
+                AssertUI.InnerTextEquals(browser.ElementAt("#part2>ul>li", 2), "Test 3");
+                AssertUI.InnerTextEquals(browser.ElementAt("#part2>ul>li", 3), "Test 4");
 
                 browser.FindElements("#part3>p").ThrowIfDifferentCountThan(4);
 
-                browser.ElementAt("#part3>p", 0).CheckIfInnerTextEquals("Test 1");
-                browser.ElementAt("#part3>p", 1).CheckIfInnerTextEquals("Test 2");
-                browser.ElementAt("#part3>p", 2).CheckIfInnerTextEquals("Test 3");
-                browser.ElementAt("#part3>p", 3).CheckIfInnerTextEquals("Test 4");
+                AssertUI.InnerTextEquals(browser.ElementAt("#part3>p", 0), "Test 1");
+                AssertUI.InnerTextEquals(browser.ElementAt("#part3>p", 1), "Test 2");
+                AssertUI.InnerTextEquals(browser.ElementAt("#part3>p", 2), "Test 3");
+                AssertUI.InnerTextEquals(browser.ElementAt("#part3>p", 3), "Test 4");
 
                 browser.FindElements("#part1_server>div").ThrowIfDifferentCountThan(1);
                 browser.FindElements("#part1_server>div>p").ThrowIfDifferentCountThan(4);
 
-                browser.ElementAt("#part1_server>div>p", 0).CheckIfInnerTextEquals("Test 1");
-                browser.ElementAt("#part1_server>div>p", 1).CheckIfInnerTextEquals("Test 2");
-                browser.ElementAt("#part1_server>div>p", 2).CheckIfInnerTextEquals("Test 3");
-                browser.ElementAt("#part1_server>div>p", 3).CheckIfInnerTextEquals("Test 4");
+                AssertUI.InnerTextEquals(browser.ElementAt("#part1_server>div>p", 0), "Test 1");
+                AssertUI.InnerTextEquals(browser.ElementAt("#part1_server>div>p", 1), "Test 2");
+                AssertUI.InnerTextEquals(browser.ElementAt("#part1_server>div>p", 2), "Test 3");
+                AssertUI.InnerTextEquals(browser.ElementAt("#part1_server>div>p", 3), "Test 4");
 
                 browser.FindElements("#part2_server>ul").ThrowIfDifferentCountThan(1);
                 browser.FindElements("#part2_server>ul>li").ThrowIfDifferentCountThan(4);
 
-                browser.ElementAt("#part2_server>ul>li", 0).CheckIfInnerTextEquals("Test 1");
-                browser.ElementAt("#part2_server>ul>li", 1).CheckIfInnerTextEquals("Test 2");
-                browser.ElementAt("#part2_server>ul>li", 2).CheckIfInnerTextEquals("Test 3");
-                browser.ElementAt("#part2_server>ul>li", 3).CheckIfInnerTextEquals("Test 4");
+                AssertUI.InnerTextEquals(browser.ElementAt("#part2_server>ul>li", 0), "Test 1");
+                AssertUI.InnerTextEquals(browser.ElementAt("#part2_server>ul>li", 1), "Test 2");
+                AssertUI.InnerTextEquals(browser.ElementAt("#part2_server>ul>li", 2), "Test 3");
+                AssertUI.InnerTextEquals(browser.ElementAt("#part2_server>ul>li", 3), "Test 4");
 
                 browser.FindElements("#part3_server>p").ThrowIfDifferentCountThan(4);
-                browser.ElementAt("#part3_server>p", 0).CheckIfInnerTextEquals("Test 1");
-                browser.ElementAt("#part3_server>p", 1).CheckIfInnerTextEquals("Test 2");
-                browser.ElementAt("#part3_server>p", 2).CheckIfInnerTextEquals("Test 3");
-                browser.ElementAt("#part3_server>p", 3).CheckIfInnerTextEquals("Test 4");
+                AssertUI.InnerTextEquals(browser.ElementAt("#part3_server>p", 0), "Test 1");
+                AssertUI.InnerTextEquals(browser.ElementAt("#part3_server>p", 1), "Test 2");
+                AssertUI.InnerTextEquals(browser.ElementAt("#part3_server>p", 2), "Test 3");
+                AssertUI.InnerTextEquals(browser.ElementAt("#part3_server>p", 3), "Test 4");
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void Control_Repeater_RouteLink()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_RouteLink);
 
                 // verify link urls
                 var url = browser.CurrentUrl;
-                browser.ElementAt("a", 0).CheckAttribute("href", url + "/1");
-                browser.ElementAt("a", 1).CheckAttribute("href", url + "/2");
-                browser.ElementAt("a", 2).CheckAttribute("href", url + "/3");
-                browser.ElementAt("a", 3).CheckAttribute("href", url + "/1");
-                browser.ElementAt("a", 4).CheckAttribute("href", url + "/2");
-                browser.ElementAt("a", 5).CheckAttribute("href", url + "/3");
-                browser.ElementAt("a", 6).CheckAttribute("href", url + "/1");
-                browser.ElementAt("a", 7).CheckAttribute("href", url + "/2");
-                browser.ElementAt("a", 8).CheckAttribute("href", url + "/3");
-                browser.ElementAt("a", 9).CheckAttribute("href", url + "/1");
-                browser.ElementAt("a", 10).CheckAttribute("href", url + "/2");
-                browser.ElementAt("a", 11).CheckAttribute("href", url + "/3");
+                AssertUI.Attribute(browser.ElementAt("a", 0), "href", url + "/1");
+                AssertUI.Attribute(browser.ElementAt("a", 1), "href", url + "/2");
+                AssertUI.Attribute(browser.ElementAt("a", 2), "href", url + "/3");
+                AssertUI.Attribute(browser.ElementAt("a", 3), "href", url + "/1");
+                AssertUI.Attribute(browser.ElementAt("a", 4), "href", url + "/2");
+                AssertUI.Attribute(browser.ElementAt("a", 5), "href", url + "/3");
+                AssertUI.Attribute(browser.ElementAt("a", 6), "href", url + "/1");
+                AssertUI.Attribute(browser.ElementAt("a", 7), "href", url + "/2");
+                AssertUI.Attribute(browser.ElementAt("a", 8), "href", url + "/3");
+                AssertUI.Attribute(browser.ElementAt("a", 9), "href", url + "/1");
+                AssertUI.Attribute(browser.ElementAt("a", 10), "href", url + "/2");
+                AssertUI.Attribute(browser.ElementAt("a", 11), "href", url + "/3");
 
                 for (int i = 0; i < 12; i++)
                 {
-                    browser.ElementAt("a", i).CheckIfInnerText(s => !string.IsNullOrWhiteSpace(s), "Not rendered Name");
+                    AssertUI.InnerText(browser.ElementAt("a", i), s => !string.IsNullOrWhiteSpace(s), "Not rendered Name");
                 }
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void Control_Repeater_RouteLinkUrlSuffix()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_RouteLinkUrlSuffix);
 
                 // verify link urls
                 var url = browser.CurrentUrl;
-                browser.ElementAt("a", 0).CheckAttribute("href", url + "/1?test");
-                browser.ElementAt("a", 1).CheckAttribute("href", url + "/2?test");
-                browser.ElementAt("a", 2).CheckAttribute("href", url + "/3?test");
-                browser.ElementAt("a", 3).CheckAttribute("href", url + "/1?test");
-                browser.ElementAt("a", 4).CheckAttribute("href", url + "/2?test");
-                browser.ElementAt("a", 5).CheckAttribute("href", url + "/3?test");
-                browser.ElementAt("a", 6).CheckAttribute("href", url + "/1?id=1");
-                browser.ElementAt("a", 7).CheckAttribute("href", url + "/2?id=2");
-                browser.ElementAt("a", 8).CheckAttribute("href", url + "/3?id=3");
-                browser.ElementAt("a", 9).CheckAttribute("href", url + "/1?id=1");
-                browser.ElementAt("a", 10).CheckAttribute("href", url + "/2?id=2");
-                browser.ElementAt("a", 11).CheckAttribute("href", url + "/3?id=3");
+                AssertUI.Attribute(browser.ElementAt("a", 0), "href", url + "/1?test");
+                AssertUI.Attribute(browser.ElementAt("a", 1), "href", url + "/2?test");
+                AssertUI.Attribute(browser.ElementAt("a", 2), "href", url + "/3?test");
+                AssertUI.Attribute(browser.ElementAt("a", 3), "href", url + "/1?test");
+                AssertUI.Attribute(browser.ElementAt("a", 4), "href", url + "/2?test");
+                AssertUI.Attribute(browser.ElementAt("a", 5), "href", url + "/3?test");
+                AssertUI.Attribute(browser.ElementAt("a", 6), "href", url + "/1?id=1");
+                AssertUI.Attribute(browser.ElementAt("a", 7), "href", url + "/2?id=2");
+                AssertUI.Attribute(browser.ElementAt("a", 8), "href", url + "/3?id=3");
+                AssertUI.Attribute(browser.ElementAt("a", 9), "href", url + "/1?id=1");
+                AssertUI.Attribute(browser.ElementAt("a", 10), "href", url + "/2?id=2");
+                AssertUI.Attribute(browser.ElementAt("a", 11), "href", url + "/3?id=3");
 
                 for (int i = 0; i < 12; i++)
                 {
-                    browser.ElementAt("a", i).CheckIfInnerText(s => !string.IsNullOrWhiteSpace(s), "Not rendered Name");
+                    AssertUI.InnerText(browser.ElementAt("a", i), s => !string.IsNullOrWhiteSpace(s), "Not rendered Name");
                 }
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void Control_Repeater_RouteLinkQuery()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_RouteLinkQuery);
 
                 // verify link urls
                 var url = browser.CurrentUrl;
-                browser.ElementAt("a", 0).CheckAttribute("href", url + "?Static=query&Id=1");
-                browser.ElementAt("a", 1).CheckAttribute("href", url + "?Static=query&Id=2");
-                browser.ElementAt("a", 2).CheckAttribute("href", url + "?Static=query&Id=3");
-                browser.ElementAt("a", 3).CheckAttribute("href", url + "?Static=query&Id=1");
-                browser.ElementAt("a", 4).CheckAttribute("href", url + "?Static=query&Id=2");
-                browser.ElementAt("a", 5).CheckAttribute("href", url + "?Static=query&Id=3");
-                browser.ElementAt("a", 6).CheckAttribute("href", url + "?first=param&Static=query&Id=1#test");
-                browser.ElementAt("a", 7).CheckAttribute("href", url + "?first=param&Static=query&Id=2#test");
-                browser.ElementAt("a", 8).CheckAttribute("href", url + "?first=param&Static=query&Id=3#test");
-                browser.ElementAt("a", 9).CheckAttribute("href", url + "?first=param&Static=query&Id=1#test");
-                browser.ElementAt("a", 10).CheckAttribute("href", url + "?first=param&Static=query&Id=2#test");
-                browser.ElementAt("a", 11).CheckAttribute("href", url + "?first=param&Static=query&Id=3#test");
+
+                AssertUI.HyperLinkEquals(browser.ElementAt("a", 0), url + "?Static=query&Id=1", UrlKind.Absolute, false, UriComponents.PathAndQuery);
+                AssertUI.HyperLinkEquals(browser.ElementAt("a", 1), url + "?Static=query&Id=2", UrlKind.Absolute, false, UriComponents.PathAndQuery);
+                AssertUI.HyperLinkEquals(browser.ElementAt("a", 2), url + "?Static=query&Id=3", UrlKind.Absolute, false, UriComponents.PathAndQuery);
+                AssertUI.HyperLinkEquals(browser.ElementAt("a", 3), url + "?Static=query&Id=1", UrlKind.Absolute, false, UriComponents.PathAndQuery);
+                AssertUI.HyperLinkEquals(browser.ElementAt("a", 4), url + "?Static=query&Id=2", UrlKind.Absolute, false, UriComponents.PathAndQuery);
+                AssertUI.HyperLinkEquals(browser.ElementAt("a", 5), url + "?Static=query&Id=3", UrlKind.Absolute, false, UriComponents.PathAndQuery);
+                AssertUI.HyperLinkEquals(browser.ElementAt("a", 6), url + "?first=param&Static=query&Id=1#test", UrlKind.Absolute, false, UriComponents.PathAndQuery | UriComponents.Fragment);
+                AssertUI.HyperLinkEquals(browser.ElementAt("a", 7), url + "?first=param&Static=query&Id=2#test", UrlKind.Absolute, false, UriComponents.PathAndQuery | UriComponents.Fragment);
+                AssertUI.HyperLinkEquals(browser.ElementAt("a", 8), url + "?first=param&Static=query&Id=3#test", UrlKind.Absolute, false, UriComponents.PathAndQuery | UriComponents.Fragment);
+                AssertUI.HyperLinkEquals(browser.ElementAt("a", 9), url + "?first=param&Static=query&Id=1#test", UrlKind.Absolute, false, UriComponents.PathAndQuery | UriComponents.Fragment);
+                AssertUI.HyperLinkEquals(browser.ElementAt("a", 10), url + "?first=param&Static=query&Id=2#test", UrlKind.Absolute, false, UriComponents.PathAndQuery | UriComponents.Fragment);
+                AssertUI.HyperLinkEquals(browser.ElementAt("a", 11), url + "?first=param&Static=query&Id=3#test", UrlKind.Absolute, false, UriComponents.PathAndQuery | UriComponents.Fragment);
 
                 for (int i = 0; i < 12; i++)
                 {
-                    browser.ElementAt("a", i).CheckIfInnerText(s => !string.IsNullOrWhiteSpace(s), "Not rendered Name");
+                    AssertUI.InnerText(browser.ElementAt("a", i), s => !string.IsNullOrWhiteSpace(s), "Not rendered Name");
                 }
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void Control_Repeater_Separator()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_Separator);
 
                 CheckSeparators(browser, "server-repeater");
                 CheckSeparators(browser, "client-repeater");
             });
         }
-        private void CheckSeparators(BrowserWrapper browser, string repeaterDataUi)
+
+        [Fact]
+        public void Control_Repeater_RequiredResource()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_RequiredResource);
+                browser.Wait();
+
+                var clientRepeater = browser.Single("client-repeater", this.SelectByDataUi);
+                var serverRepeater = browser.Single("server-repeater", this.SelectByDataUi);
+
+                Assert.Equal(0, clientRepeater.Children.Count);
+                Assert.Equal(0, serverRepeater.Children.Count);
+            });
+        }
+
+        [Fact]
+        public void Control_Repeater_CollectionIndex()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Repeater_CollectionIndex);
+                browser.Wait();
+
+                var clientRenderedItems = browser.FindElements("client-rendered-item", this.SelectByDataUi);
+                var serverRenderedItems = browser.FindElements("server-rendered-item", this.SelectByDataUi);
+                var counterElement = browser.Single("counter", this.SelectByDataUi);
+
+                var allItems = clientRenderedItems.Select((element, index) => (element, index))
+                    .Concat(serverRenderedItems.Select((element, index) => (element, index)));
+
+                var counter = 0;
+                void CheckCounter() => AssertUI.InnerTextEquals(counterElement, counter.ToString());
+                foreach (var item in allItems)
+                {
+                    CheckCounter();
+
+                    foreach (var button in item.element.FindElements("input"))
+                    {
+                        button.Click();
+                        counter += item.index;
+                        CheckCounter();
+                    }
+
+                    AssertUI.InnerTextEquals(item.element.First("span"), item.index.ToString());
+                }
+            });
+        }
+
+        private void CheckSeparators(IBrowserWrapper browser, string repeaterDataUi)
         {
             var repeater = browser.Single(repeaterDataUi, this.SelectByDataUi);
             for (int i = 0; i < repeater.Children.Count; i++)
             {
                 if (i % 2 == 0)
                 {
-                    repeater.Children[i].CheckAttribute("data-ui", s => s == "item");
+                    AssertUI.Attribute(repeater.Children[i], "data-ui", s => s == "item");
                 }
                 else
                 {
-                    repeater.Children[i].CheckAttribute("data-ui", s => s == "separator");
+                    AssertUI.Attribute(repeater.Children[i], "data-ui", s => s == "separator");
                 }
             }
         }

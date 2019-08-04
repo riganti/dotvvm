@@ -5,6 +5,7 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Binding
 {
@@ -19,10 +20,10 @@ namespace DotVVM.Framework.Binding
         public static CommandBindingExpression RegisterExtensionCommand(this DotvvmControl control, Delegate action, string methodUsageId)
         {
             var bindingService = control.GetValue(Internal.RequestContextProperty).CastTo<IDotvvmRequestContext>()
-                .Configuration.ServiceLocator.GetService<BindingCompilationService>();
+                .Configuration.ServiceProvider.GetRequiredService<BindingCompilationService>();
             var id = control.GetDotvvmUniqueId() + methodUsageId;
             var propertyName = control.GetType().FullName + "/" + methodUsageId;
-            var property = DotvvmProperty.Register<object, PropertyBox>(propertyName);
+            var property = DotvvmProperty.ResolveProperty(typeof(PropertyBox), propertyName) ?? DotvvmProperty.Register(propertyName, typeof(object), typeof(PropertyBox), null, false, null, typeof(PropertyBox), throwOnDuplicitRegistration: false);
             var binding = new CommandBindingExpression(bindingService, action, id);
             control.SetBinding(property, binding);
             return binding;

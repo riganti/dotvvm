@@ -1,10 +1,11 @@
 using DotVVM.Framework;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Routing;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotvvmApplication1
 {
-    public class DotvvmStartup : IDotvvmStartup
+    public class DotvvmStartup : IDotvvmStartup, IDotvvmServiceConfigurator
     {
         // For more information about this class, visit https://dotvvm.com/docs/tutorials/basics-project-structure
         public void Configure(DotvvmConfiguration config, string applicationPath)
@@ -30,6 +31,12 @@ namespace DotvvmApplication1
         private void ConfigureResources(DotvvmConfiguration config, string applicationPath)
         {
             // register custom resources and adjust paths to the built-in resources
+        }
+
+        public void ConfigureServices(IDotvvmServiceCollection options)
+        {
+            //register only services that are supported by DotVVM (otherwise, register your services in Startup.cs)
+            options.AddDefaultTempStorages("Temp");
         }
     }
 }

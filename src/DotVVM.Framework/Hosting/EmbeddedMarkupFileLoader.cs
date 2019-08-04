@@ -14,7 +14,7 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public MarkupFile GetMarkup(DotvvmConfiguration configuration, string virtualPath)
         {
-            if (!virtualPath.StartsWith("embedded://"))
+            if (!virtualPath.StartsWith("embedded://", StringComparison.Ordinal))
             {
                 return null;
             }
@@ -42,15 +42,15 @@ namespace DotVVM.Framework.Hosting
 
             //no such resource found
             resourceName = resourceName.Replace('/', '.');
-            if( assembly.GetManifestResourceInfo(resourceName) == null)
+            if (assembly.GetManifestResourceInfo(resourceName) == null)
             {
                 throw new ArgumentException("No such resource was found", "virtualPath");
             }
 
             //load the file
-            Stream stream = assembly.GetManifestResourceStream(resourceName);
-            StreamReader sr = new StreamReader(stream);
-            return new MarkupFile(resourceName, resourceName, sr.ReadToEnd());
+            using (Stream stream = assembly.GetManifestResourceStream(resourceName))
+            using (StreamReader sr = new StreamReader(stream))
+                return new MarkupFile(resourceName, resourceName, sr.ReadToEnd());
         }
 
         /// <summary>

@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 using DotVVM.Framework.Binding;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace DotVVM.Framework.Controls
 {
@@ -12,14 +10,12 @@ namespace DotVVM.Framework.Controls
     {
         protected internal override string ClientHandlerName => "confirm";
 
-        protected internal override Dictionary<string, string> GetHandlerOptionClientExpressions()
+        protected internal override Dictionary<string, object> GetHandlerOptions()
         {
-            return new Dictionary<string, string>()
-            {
-                ["message"] = TranslateValueOrBinding(MessageProperty)
+            return new Dictionary<string, object>() {
+                ["message"] = this.GetValueRaw(MessageProperty)
             };
         }
-
 
         /// <summary>
         /// Gets or sets the message of the confirmation dialog.
@@ -31,7 +27,5 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty MessageProperty
             = DotvvmProperty.Register<string, ConfirmPostBackHandler>(c => c.Message, null);
-
-
     }
 }

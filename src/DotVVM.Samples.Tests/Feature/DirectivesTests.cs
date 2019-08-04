@@ -1,47 +1,48 @@
-﻿using Dotvvm.Samples.Tests;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.Selenium.Core;
+﻿using DotVVM.Samples.Tests.Base;
+using DotVVM.Testing.Abstractions;
+using Riganti.Selenium.Core;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace DotVVM.Samples.Tests.Feature
 {
-    [TestClass]
-    public class DirectivesTests : SeleniumTest
+    public class DirectivesTests : AppSeleniumTest
     {
-        [TestMethod]
+        [Fact]
         public void Feature_Directives_ViewModelMissingAssembly()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Directives_ViewModelMissingAssembly);
                 browser.FindElements("#failed").ThrowIfDifferentCountThan(0);
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void Feature_Directives_ImportDirectiveInvalid()
         {
-            
-
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Directives_ImportDirectiveInvalid);
                 browser.FindElements("#failed").ThrowIfDifferentCountThan(0);
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void Feature_Directives_ImportDirective()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Directives_ImportDirective);
 
-                // check all textxs from resources
-                browser.ElementAt("p", 0).CheckIfInnerTextEquals("Hello from ImportDirectiveViewModel");
-                browser.ElementAt("p", 1).CheckIfInnerTextEquals("Hello TestClass1");
-                browser.ElementAt("p", 2).CheckIfInnerTextEquals("Hello TestClassNonAlias");
-                browser.ElementAt("p", 3).CheckIfInnerTextEquals("Default from configuration"); // maybe more posibilities?
+                // check all texts from resources
+                AssertUI.InnerTextEquals(browser.ElementAt("p", 0), "Hello from ImportDirectiveViewModel");
+                AssertUI.InnerTextEquals(browser.ElementAt("p", 1), "Hello TestClass1");
+                AssertUI.InnerTextEquals(browser.ElementAt("p", 2), "Hello TestClassNonAlias");
+                AssertUI.InnerTextEquals(browser.ElementAt("p", 3), "Default from configuration");
+                AssertUI.InnerTextEquals(browser.ElementAt("p", 4), "Hello From Nested Class"); // maybe more possibilities?
             });
+        }
+
+        public DirectivesTests(ITestOutputHelper output) : base(output)
+        {
         }
     }
 }

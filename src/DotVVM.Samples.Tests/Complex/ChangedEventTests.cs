@@ -1,92 +1,118 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using DotVVM.Samples.Tests.Base;
+using DotVVM.Testing.Abstractions;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
-using Riganti.Utils.Testing.Selenium.Core;
-using System;
-using System.Globalization;
-using System.Linq;
-using System.Threading;
-using Dotvvm.Samples.Tests;
+using Riganti.Selenium.Core;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace DotVVM.Samples.Tests.Complex
 {
-    [TestClass]
-    public class ChangedEventTests : SeleniumTest
+    public class ChangedEventTests : AppSeleniumTest
     {
-        [TestMethod]
+        public ChangedEventTests(ITestOutputHelper output) : base(output)
+        {
+        }
+        [Fact]
         public void Complex_ChangedEvent_ChangedEvent()
         {
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_ChangedEvent_ChangedEvent);
 
-                browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("0");
+                var totalChanges = browser.First("*[data-id='total-changes']");
+                AssertUI.InnerTextEquals(totalChanges, "0");
 
                 // first textbox with update mode on key press
                 var textBox1 = browser.First("input[type=text]");
-                new Actions(browser.Browser).Click(textBox1.WebElement).Perform();
-                browser.Wait();
-                new Actions(browser.Browser).SendKeys("test").Perform();
+                textBox1.SetFocus();
 
-                browser.Wait();
-                browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("0");
-                browser.First("*[data-id='first-textbox']").CheckIfInnerTextEquals("Valuetest");
+                new Actions(browser.Driver).SendKeys("test").Perform();
+                AssertUI.InnerTextEquals(totalChanges, "0");
 
-                new Actions(browser.Browser).SendKeys(Keys.Enter).SendKeys(Keys.Tab).Perform();
-                browser.First("*[data-id='first-textbox']").CheckIfInnerTextEquals("Valuetest");
-                browser.Wait();
-                browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("1");
+                var firstTextbox = browser.First("*[data-id='first-textbox']");
+                browser.WaitFor(() =>
+                {
+                    AssertUI.InnerText(firstTextbox, s=> s.Contains("Valuetes"));
+                }, 1000, 100);
+
+                new Actions(browser.Driver).SendKeys(Keys.Enter).SendKeys(Keys.Tab).Perform();
+                browser.WaitFor(() => {
+                    AssertUI.InnerTextEquals(firstTextbox, "Valuetest");
+                }, 1000, 100);
+                AssertUI.InnerTextEquals(totalChanges, "1");
 
                 // second textbox
                 var textBox2 = browser.ElementAt("input[type=text]", 1);
-                new Actions(browser.Browser).Click(textBox2.WebElement).Perform();
-                browser.Wait();
-                new Actions(browser.Browser).SendKeys("test").Perform();
+                browser.FireJsBlur();
+                textBox2.SetFocus();
+                new Actions(browser.Driver).SendKeys("test").Perform();
 
-                browser.Wait();
-                browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("1");
-                browser.First("*[data-id='second-textbox']").CheckIfInnerTextEquals("Value");
+                browser.WaitFor(() =>
+                {
+                    AssertUI.InnerTextEquals(totalChanges, "1");
+                }, 1000, 100);
+                var secondTextbox = browser.First("*[data-id='second-textbox']");
+                AssertUI.InnerTextEquals(secondTextbox, "Value");
 
-                new Actions(browser.Browser).SendKeys(Keys.Enter).SendKeys(Keys.Tab).Perform();
-                browser.First("*[data-id='second-textbox']").CheckIfInnerTextEquals("Valuetest");
-                browser.Wait();
-                browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("2");
+                new Actions(browser.Driver).SendKeys(Keys.Enter).SendKeys(Keys.Tab).Perform();
+                browser.WaitFor(() =>
+                {
+                    AssertUI.InnerTextEquals(secondTextbox, "Valuetest");
+                }, 1000, 100);
+
+                AssertUI.InnerTextEquals(totalChanges, "2");
 
                 // click on checkbox
                 browser.Click("input[type=checkbox]");
-                browser.Wait();
-                browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("3");
+                browser.WaitFor(() =>
+                {
+                    AssertUI.InnerTextEquals(totalChanges, "3");
+                }, 1000, 100);
 
                 browser.Click("input[type=checkbox]");
-                browser.Wait();
-                browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("4");
+                browser.WaitFor(() =>
+                {
+                    AssertUI.InnerTextEquals(totalChanges, "4");
+                }, 1000, 100);
 
                 // click on radio button
                 browser.ElementAt("input[type=radio]", 0).Click();
-                browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("5");
+                AssertUI.InnerTextEquals(totalChanges, "5");
 
                 browser.ElementAt("input[type=radio]", 1).Click();
-                browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("6");
+                AssertUI.InnerTextEquals(totalChanges, "6");
 
                 browser.ElementAt("input[type=radio]", 2).Click();
-                browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("7");
+                AssertUI.InnerTextEquals(totalChanges, "7");
 
                 browser.ElementAt("input[type=radio]", 3).Click();
-                browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("8");
+                AssertUI.InnerTextEquals(totalChanges, "8");
 
                 browser.ElementAt("input[type=radio]", 4).Click();
-                browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("9");
+                AssertUI.InnerTextEquals(totalChanges, "9");
 
                 // combo box
-                browser.First("select").Select(1).Wait();
-                browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("10");
+                browser.First("select").Select(1);
+                browser.WaitFor(() =>
+                {
+                    AssertUI.InnerTextEquals(totalChanges, "10");
+                }, 1000, 100);
+                browser.First("select").Select(2);
+                browser.WaitFor(() =>
+                {
+                    AssertUI.InnerTextEquals(totalChanges, "11");
+                }, 1000, 100);
 
-                browser.First("select").Select(2).Wait();
-                browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("11");
+                browser.First("select").Select(0);
+                browser.WaitFor(() =>
+                {
+                    AssertUI.InnerTextEquals(totalChanges, "12");
+                }, 1000, 100);
 
-                browser.First("select").Select(0).Wait();
-                browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("12");
             });
         }
+
+
     }
 }

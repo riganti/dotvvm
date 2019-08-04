@@ -12,6 +12,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand
     {
         public string Name { get; set; } = "Deep Thought";
         public string Greeting { get; set; }
+        public StaticCommandTestObject Child { get; set; }
 
         [AllowStaticCommand]
         public static string GetGreeting(string name)
@@ -25,17 +26,36 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand
         [AllowStaticCommand]
         string GetGreeting(string name);
     }
+
     public interface IAsyncGreetingComputationServiceBase
     {
         [AllowStaticCommand]
         Task<string> GetGreetingAsync(string name);
     }
-    
-    public interface IGreetingComputationService: IGreetingComputationServiceBase, IAsyncGreetingComputationServiceBase
+
+    public interface IGreetingComputationService : IGreetingComputationServiceBase,
+        IAsyncGreetingComputationServiceBase, IObjectServiceBase
     {
     }
 
-    public class HelloGreetingComputationService: IGreetingComputationService
+    public interface IObjectServiceBase
+    {
+        [AllowStaticCommand]
+        StaticCommandTestObject GetObject();
+
+        [AllowStaticCommand]
+        StaticCommandTestObject GetNull();
+
+    }
+
+    public class StaticCommandTestObject
+    {
+        public string Name { get; set; }
+        public int Value { get; set; }
+    }
+
+
+    public class HelloGreetingComputationService : IGreetingComputationService
     {
         public string GetGreeting(string name)
         {
@@ -48,5 +68,19 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand
             return GetGreeting(name);
         }
 
+        public StaticCommandTestObject GetObject() => new StaticCommandTestObject()
+            {Name = GetGreeting("DotVVM"), Value = 1};
+
+        public StaticCommandTestObject GetNull() => null;
     }
+
+    public  class StaticCommandTestMethods
+    {
+        [AllowStaticCommand]
+        public static StaticCommandTestObject GetNull()
+        {
+            return null;
+        }
+    }
+
 }
