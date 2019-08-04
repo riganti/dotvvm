@@ -14,7 +14,7 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public MarkupFile GetMarkup(DotvvmConfiguration configuration, string virtualPath)
         {
-            if (!virtualPath.StartsWith("embedded://"))
+            if (!virtualPath.StartsWith("embedded://", StringComparison.Ordinal))
             {
                 return null;
             }

@@ -41,7 +41,7 @@ namespace DotVVM.Framework.Controls
 
             if ((bool)control.GetValue(Internal.IsSpaPageProperty) && !(bool)control.GetValue(Internal.UseHistoryApiSpaNavigationProperty))
             {
-                return "#!/" + (coreUrl.StartsWith("~/") ? coreUrl.Substring(2) : coreUrl);
+                return "#!/" + (coreUrl.StartsWith("~/", StringComparison.Ordinal) ? coreUrl.Substring(2) : coreUrl);
             }
             else
             {

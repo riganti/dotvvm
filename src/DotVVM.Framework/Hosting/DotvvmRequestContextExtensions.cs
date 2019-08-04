@@ -86,6 +86,19 @@ public static class DotvvmRequestContextExtensions
     }
 
     /// <summary>
+    /// Verifies that the URL is local and returns the redirect response and interrupts the execution of current request.
+    /// </summary>
+    public static void RedirectToLocalUrl(this IDotvvmRequestContext context, string url, bool replaceInHistory = false, bool allowSpaRedirect = false)
+    {
+        if (!UrlHelper.IsLocalUrl(url))
+        {
+            throw new InvalidOperationException($"The URL '{url}' is not local or contains invalid characters!");
+        }
+
+        context.RedirectToUrl(url, replaceInHistory, allowSpaRedirect);
+    }
+
+    /// <summary>
     /// Returns the redirect response and interrupts the execution of current request.
     /// </summary>
     public static void RedirectToRoute(this IDotvvmRequestContext context, string routeName, object newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true, string urlSuffix = null, object query = null)
@@ -128,7 +141,11 @@ public static class DotvvmRequestContextExtensions
         if (!context.ModelState.IsValid)
         {
             context.HttpContext.Response.ContentType = "application/json";
-            context.HttpContext.Response.Write(context.Services.GetRequiredService<IViewModelSerializer>().SerializeModelState(context));
+            context.HttpContext.Response
+                .WriteAsync(context.Services.GetRequiredService<IViewModelSerializer>().SerializeModelState(context))
+                .GetAwaiter().GetResult();
+            //   ^ we just wait for this Task. This API never was async and the response size is small enough that we can't quite safely wait for the result
+            //     .GetAwaiter().GetResult() preserves stack traces across async calls, thus I like it more that .Wait()
             throw new DotvvmInterruptRequestExecutionException(InterruptReason.ModelValidationFailed, "The ViewModel contains validation errors!");
         }
     }
@@ -174,13 +191,13 @@ public static class DotvvmRequestContextExtensions
     /// <summary>
     /// Redirects the client to the specified file.
     /// </summary>
-    public static void ReturnFile(this IDotvvmRequestContext context, byte[] bytes, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>> additionalHeaders = null) =>
-        context.ReturnFile(new MemoryStream(bytes), fileName, mimeType, additionalHeaders);
+    public static void ReturnFile(this IDotvvmRequestContext context, byte[] bytes, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>> additionalHeaders = null, string attachmentDispositionType = null) =>
+        context.ReturnFile(new MemoryStream(bytes), fileName, mimeType, additionalHeaders, attachmentDispositionType);
 
     /// <summary>
     /// Redirects the client to the specified file.
     /// </summary>
-    public static void ReturnFile(this IDotvvmRequestContext context, Stream stream, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>> additionalHeaders = null)
+    public static void ReturnFile(this IDotvvmRequestContext context, Stream stream, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>> additionalHeaders = null, string attachmentDispositionType = null)
     {
         var returnedFileStorage = context.Services.GetService<IReturnedFileStorage>();
 
@@ -194,7 +211,8 @@ public static class DotvvmRequestContextExtensions
         {
             FileName = fileName,
             MimeType = mimeType,
-            AdditionalHeaders = additionalHeaders?.GroupBy(k => k.Key, k => k.Value)?.ToDictionary(k => k.Key, k => k.ToArray())
+            AdditionalHeaders = additionalHeaders?.GroupBy(k => k.Key, k => k.Value)?.ToDictionary(k => k.Key, k => k.ToArray()),
+            AttachmentDispositionType = attachmentDispositionType ?? "attachment"
         };
 
         var generatedFileId = returnedFileStorage.StoreFile(stream, metadata).Result;

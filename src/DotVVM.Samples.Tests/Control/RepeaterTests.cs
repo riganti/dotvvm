@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
@@ -220,18 +221,19 @@ namespace DotVVM.Samples.Tests.Control
 
                 // verify link urls
                 var url = browser.CurrentUrl;
-                AssertUI.Attribute(browser.ElementAt("a", 0), "href", url + "?Static=query&Id=1");
-                AssertUI.Attribute(browser.ElementAt("a", 1), "href", url + "?Static=query&Id=2");
-                AssertUI.Attribute(browser.ElementAt("a", 2), "href", url + "?Static=query&Id=3");
-                AssertUI.Attribute(browser.ElementAt("a", 3), "href", url + "?Static=query&Id=1");
-                AssertUI.Attribute(browser.ElementAt("a", 4), "href", url + "?Static=query&Id=2");
-                AssertUI.Attribute(browser.ElementAt("a", 5), "href", url + "?Static=query&Id=3");
-                AssertUI.Attribute(browser.ElementAt("a", 6), "href", url + "?first=param&Static=query&Id=1#test");
-                AssertUI.Attribute(browser.ElementAt("a", 7), "href", url + "?first=param&Static=query&Id=2#test");
-                AssertUI.Attribute(browser.ElementAt("a", 8), "href", url + "?first=param&Static=query&Id=3#test");
-                AssertUI.Attribute(browser.ElementAt("a", 9), "href", url + "?first=param&Static=query&Id=1#test");
-                AssertUI.Attribute(browser.ElementAt("a", 10), "href", url + "?first=param&Static=query&Id=2#test");
-                AssertUI.Attribute(browser.ElementAt("a", 11), "href", url + "?first=param&Static=query&Id=3#test");
+
+                AssertUI.HyperLinkEquals(browser.ElementAt("a", 0), url + "?Static=query&Id=1", UrlKind.Absolute, false, UriComponents.PathAndQuery);
+                AssertUI.HyperLinkEquals(browser.ElementAt("a", 1), url + "?Static=query&Id=2", UrlKind.Absolute, false, UriComponents.PathAndQuery);
+                AssertUI.HyperLinkEquals(browser.ElementAt("a", 2), url + "?Static=query&Id=3", UrlKind.Absolute, false, UriComponents.PathAndQuery);
+                AssertUI.HyperLinkEquals(browser.ElementAt("a", 3), url + "?Static=query&Id=1", UrlKind.Absolute, false, UriComponents.PathAndQuery);
+                AssertUI.HyperLinkEquals(browser.ElementAt("a", 4), url + "?Static=query&Id=2", UrlKind.Absolute, false, UriComponents.PathAndQuery);
+                AssertUI.HyperLinkEquals(browser.ElementAt("a", 5), url + "?Static=query&Id=3", UrlKind.Absolute, false, UriComponents.PathAndQuery);
+                AssertUI.HyperLinkEquals(browser.ElementAt("a", 6), url + "?first=param&Static=query&Id=1#test", UrlKind.Absolute, false, UriComponents.PathAndQuery | UriComponents.Fragment);
+                AssertUI.HyperLinkEquals(browser.ElementAt("a", 7), url + "?first=param&Static=query&Id=2#test", UrlKind.Absolute, false, UriComponents.PathAndQuery | UriComponents.Fragment);
+                AssertUI.HyperLinkEquals(browser.ElementAt("a", 8), url + "?first=param&Static=query&Id=3#test", UrlKind.Absolute, false, UriComponents.PathAndQuery | UriComponents.Fragment);
+                AssertUI.HyperLinkEquals(browser.ElementAt("a", 9), url + "?first=param&Static=query&Id=1#test", UrlKind.Absolute, false, UriComponents.PathAndQuery | UriComponents.Fragment);
+                AssertUI.HyperLinkEquals(browser.ElementAt("a", 10), url + "?first=param&Static=query&Id=2#test", UrlKind.Absolute, false, UriComponents.PathAndQuery | UriComponents.Fragment);
+                AssertUI.HyperLinkEquals(browser.ElementAt("a", 11), url + "?first=param&Static=query&Id=3#test", UrlKind.Absolute, false, UriComponents.PathAndQuery | UriComponents.Fragment);
 
                 for (int i = 0; i < 12; i++)
                 {

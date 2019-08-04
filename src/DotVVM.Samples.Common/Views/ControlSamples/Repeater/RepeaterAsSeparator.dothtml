@@ -24,7 +24,9 @@
                             <p>{{value: _this}}</p>
                             <dot:Button Click="{command: _root.Increment()}" Text="Increment" data-ui="increment-button" />
                         </ItemTemplate>
-              
+                        <SeparatorTemplate>
+                            Separator Text
+                        </SeparatorTemplate>
                     </dot:Repeater>
                 </div>
             </SeparatorTemplate>

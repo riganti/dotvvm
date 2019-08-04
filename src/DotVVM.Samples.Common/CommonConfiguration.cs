@@ -57,6 +57,7 @@ namespace DotVVM.Samples.Common
             });
 
             // dev files
+            resources.SetEmbeddedResourceDebugFile("knockout", "C:/Users/adamj/source/repos/knockout/build/output/knockout-latest.debug.js");
             resources.SetEmbeddedResourceDebugFile("dotvvm.internal", "../DotVVM.Framework/Resources/Scripts/DotVVM.js");
             resources.SetEmbeddedResourceDebugFile("dotvvm.debug", "../DotVVM.Framework/Resources/Scripts/DotVVM.Debug.js");
             resources.SetEmbeddedResourceDebugFile("dotvvm.fileupload-css", "../DotVVM.Framework/Resources/Scripts/DotVVM.FileUploads.css");

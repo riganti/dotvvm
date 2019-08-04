@@ -29,7 +29,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.ElementAt("input[type=button]", 1).Click();
 
                 AssertUI.InnerText(browser.ElementAt("span", 0), s => DateTime.Parse(s).Equals(new DateTime(1988, 2, 18)));
-                browser.ElementAt("input[type=text]", 0).Clear().SendKeys("test");
+                browser.ElementAt("input[type=text]", 0).Clear();
                 browser.ElementAt("input[type=button]", 1).Click();
 
                 AssertUI.InnerText(browser.ElementAt("span", 0),
@@ -42,7 +42,7 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.InnerText(browser.ElementAt("span", 1),
                     s => DateTime.Parse(s).Equals(new DateTime(2011, 3, 19, 16, 48, 0)));
 
-                browser.ElementAt("input[type=text]", 1).Clear().SendKeys("test");
+                browser.ElementAt("input[type=text]", 1).Clear();
                 browser.ElementAt("input[type=button]", 3).Click();
 
                 AssertUI.InnerTextEquals(browser.ElementAt("span", 1), "null");
@@ -64,6 +64,7 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.FeatureSamples_DateTimeSerialization_DateTimeSerialization))]
         public void Feature_DateTimeSerialization_StaticDateTime()
         {
             var culture = new CultureInfo("cs-CZ");

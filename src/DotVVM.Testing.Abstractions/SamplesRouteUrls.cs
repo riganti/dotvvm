@@ -13,7 +13,7 @@
         public const string FeatureSamples_Localization = "FeatureSamples/Localization";
 
         public const string Errors_Routing_NonExistingView = "Errors/Routing/NonExistingView";
-        public const string FeatureSamples_PostBack_PostBackHandlers_Localization = "FeatureSamples/PostBack/PostBackHandlers_Localized";
+        public const string FeatureSamples_PostBack_PostBackHandlers_Localized = "FeatureSamples/PostBack/PostBackHandlers_Localized";
         public const string ControlSamples_SpaContentPlaceHolder_HistoryApi = "ControlSamples/SpaContentPlaceHolder_HistoryApi";
     }
 }

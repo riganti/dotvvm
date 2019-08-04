@@ -688,6 +688,9 @@ class DotVVM {
             if (el.text) {
                 script.text = el.text;
             }
+            if (el.id) {
+                script.id = el.id;
+            }
             el = script;
         }
         else if (el.tagName.toLowerCase() == "link") {
@@ -1169,7 +1172,6 @@ class DotVVM {
                 element.innerBindingContext = innerBindingContext
                 ko.applyBindingsToDescendants(innerBindingContext, element)
                 return { controlsDescendantBindings: true } // do not apply binding again
-
             }
         }
         ko.virtualElements.allowedBindings["withGridViewDataSet"] = true;

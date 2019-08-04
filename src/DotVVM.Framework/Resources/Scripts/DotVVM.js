@@ -1431,6 +1431,9 @@ var DotVVM = /** @class */ (function () {
             if (el.text) {
                 script.text = el.text;
             }
+            if (el.id) {
+                script.id = el.id;
+            }
             el = script;
         }
         else if (el.tagName.toLowerCase() == "link") {
@@ -2356,18 +2359,21 @@ var DotvvmValidation = /** @class */ (function () {
             },
             // adds a CSS class when the element is not valid
             invalidCssClass: function (element, errorMessages, className) {
-                if (errorMessages.length > 0) {
-                    element.className += " " + className;
-                }
-                else {
-                    var classNames = className.split(' ');
-                    element.className = element.className.split(' ').filter(function (c) { return classNames.indexOf(c) < 0; }).join(' ');
+                var classes = className.split(/\s+/).filter(function (c) { return c.length > 0; });
+                for (var i = 0; i < classes.length; i++) {
+                    var className_1 = classes[i];
+                    if (errorMessages.length > 0) {
+                        element.classList.add(className_1);
+                    }
+                    else {
+                        element.classList.remove(className_1);
+                    }
                 }
             },
             // sets the error message as the title attribute
             setToolTipText: function (element, errorMessages, param) {
                 if (errorMessages.length > 0) {
-                    element.title = errorMessages.join(", ");
+                    element.title = errorMessages.join(" ");
                 }
                 else {
                     element.title = "";
@@ -2375,7 +2381,7 @@ var DotvvmValidation = /** @class */ (function () {
             },
             // displays the error message
             showErrorMessageText: function (element, errorMessages, param) {
-                element[element.innerText ? "innerText" : "textContent"] = errorMessages.join(", ");
+                element[element.innerText ? "innerText" : "textContent"] = errorMessages.join(" ");
             }
         };
         var createValidationHandler = function (path) { return ({
@@ -2420,22 +2426,17 @@ var DotvvmValidation = /** @class */ (function () {
         });
         // add knockout binding handler
         ko.bindingHandlers["dotvvmValidation"] = {
-            init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+            update: function (element, valueAccessor, allBindingsAccessor) {
                 var observableProperty = valueAccessor();
                 if (ko.isObservable(observableProperty)) {
                     // try to get the options
                     var options = allBindingsAccessor.get("dotvvmValidationOptions");
-                    var updateFunction = function (element, errorMessages) {
-                        for (var option in options) {
-                            if (options.hasOwnProperty(option)) {
-                                _this.elementUpdateFunctions[option](element, errorMessages.map(function (v) { return v.errorMessage; }), options[option]);
-                            }
+                    var validationErrors = ValidationError.getOrCreate(observableProperty)();
+                    for (var option in options) {
+                        if (options.hasOwnProperty(option)) {
+                            _this.elementUpdateFunctions[option](element, validationErrors.map(function (v) { return v.errorMessage; }), options[option]);
                         }
-                    };
-                    // subscribe to the observable property changes
-                    var validationErrors = ValidationError.getOrCreate(observableProperty);
-                    validationErrors.subscribe(function (newValue) { return updateFunction(element, newValue); });
-                    updateFunction(element, validationErrors());
+                    }
                 }
             }
         };
@@ -2524,8 +2525,10 @@ var DotvvmValidation = /** @class */ (function () {
         if (!validatedObservable || !ko.isObservable(validatedObservable))
             return;
         if (validatedObservable.validationErrors) {
-            for (var _i = 0, _a = validatedObservable.validationErrors(); _i < _a.length; _i++) {
-                var error = _a[_i];
+            var errors = validatedObservable.validationErrors().concat([]);
+            //                                                    ^ clone the array, as `clear` mutates it
+            for (var _i = 0, errors_1 = errors; _i < errors_1.length; _i++) {
+                var error = errors_1[_i];
                 error.clear(this);
             }
         }
@@ -2534,8 +2537,8 @@ var DotvvmValidation = /** @class */ (function () {
             return;
         // Do the same for every object in the array
         if (Array.isArray(validatedObject)) {
-            for (var _b = 0, validatedObject_1 = validatedObject; _b < validatedObject_1.length; _b++) {
-                var item = validatedObject_1[_b];
+            for (var _a = 0, validatedObject_1 = validatedObject; _a < validatedObject_1.length; _a++) {
+                var item = validatedObject_1[_a];
                 this.clearValidationErrors(item);
             }
         }

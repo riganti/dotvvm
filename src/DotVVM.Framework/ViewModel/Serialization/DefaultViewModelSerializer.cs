@@ -288,6 +288,12 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 result[controlId] = JValue.CreateString(html);
             }
+
+            if (context.ViewModelJson == null)
+            {
+                context.ViewModelJson = new JObject();
+            }
+
             context.ViewModelJson["updatedControls"] = result;
         }
     }
