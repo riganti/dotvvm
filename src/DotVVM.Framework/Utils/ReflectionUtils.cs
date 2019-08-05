@@ -226,8 +226,9 @@ namespace DotVVM.Framework.Utils
             // convert
             return Convert.ChangeType(value, type, CultureInfo.InvariantCulture);
         }
-        private static ConcurrentDictionary<string, Type> cache_FindTypeHash = new ConcurrentDictionary<string, Type>();
-        private static ConcurrentDictionary<string, Type> cache_FindTypeHashIgnoreCase = new ConcurrentDictionary<string, Type>();
+
+        private static ConcurrentDictionary<string, Type> cache_FindTypeHash = new ConcurrentDictionary<string, Type>(StringComparer.Ordinal);
+        private static ConcurrentDictionary<string, Type> cache_FindTypeHashIgnoreCase = new ConcurrentDictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
         public static Type FindType(string name, bool ignoreCase = false)
         {
             if (ignoreCase)
