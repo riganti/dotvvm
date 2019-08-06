@@ -1,0 +1,21 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.ButtonInMarkupControl.EnabledViewModel
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+    <sample:ButtonWrapper Enabled="{value: Enabled}"
+                          ClickCommand="{command: Enabled = !Enabled}"/>
+    <div>
+        <label>Enabled</label>
+        <dot:CheckBox Checked="{value: Enabled}"/>
+        <span>{{value: Enabled}}</span>
+    </div>
+    <div>
+        <dot:Button Text="Flip"
+                    Click="{command: Enabled = !Enabled}" />
+    </div>
+</body>
+</html>
