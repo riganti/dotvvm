@@ -56,6 +56,19 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<Command, TextBox>(t => t.Changed, null);
 
         /// <summary>
+        /// Gets or sets the command that will be triggered when the user is typing in the field.
+        /// Be careful when using this event - triggering frequent postbacks can make bad user experience. Consider using static commands or a throttling postback handler.
+        /// </summary>
+        public Command TextInput
+        {
+            get { return (Command)GetValue(TextInputProperty); }
+            set { SetValue(TextInputProperty, value); }
+        }
+
+        public static readonly DotvvmProperty TextInputProperty =
+            DotvvmProperty.Register<Command, TextBox>(t => t.TextInput, null);
+
+        /// <summary>
         /// Gets or sets whether all text inside the TextBox becomes selected when the element gets focused.
         /// </summary>
         public bool SelectAllOnFocus
@@ -98,14 +111,22 @@ namespace DotVVM.Framework.Controls
         /// By default, the viewmodel is updated after the control loses its focus.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
-        public bool UpdateTextAfterKeydown
-        {
-            get { return (bool)GetValue(UpdateTextAfterKeydownProperty); }
-            set { SetValue(UpdateTextAfterKeydownProperty, value); }
-        }
-
+        [Obsolete("Use `UpdateTextOnInput` instead.")]
         public static readonly DotvvmProperty UpdateTextAfterKeydownProperty =
-            DotvvmProperty.Register<bool, TextBox>(c => c.UpdateTextAfterKeydown, false);
+            DotvvmProperty.Register<bool, TextBox>("UpdateTextAfterKeydown", false);
+        
+        /// <summary>
+        /// Gets or sets whether the viewmodel property will be updated immediately after change. 
+        /// By default, the viewmodel is updated after the control loses its focus.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
+        public bool UpdateTextOnInput
+        {
+            get { return (bool)GetValue(UpdateTextOnInputProperty); }
+            set { SetValue(UpdateTextOnInputProperty, value); }
+        }
+        public static readonly DotvvmProperty UpdateTextOnInputProperty =
+            DotvvmPropertyWithFallback.Register<bool, TextBox>(nameof(UpdateTextOnInput), UpdateTextAfterKeydownProperty, isValueInherited: true);
 
         /// <summary>
         /// Gets or sets the type of value being formatted - Number or DateTime.
@@ -207,7 +228,7 @@ namespace DotVVM.Framework.Controls
                 {
                     writer.AddAttribute("value", Text);
                 }
-            }, UpdateTextAfterKeydown ? "afterkeydown" : null, renderEvenInServerRenderingMode: true);
+            }, UpdateTextOnInput ? "afterkeydown" : null, renderEvenInServerRenderingMode: true);
             var binding = GetValueBinding(TextProperty);
             var resultType = binding?.ResultType;
             var formatString = FormatString;
@@ -238,6 +259,7 @@ namespace DotVVM.Framework.Controls
         {
             // prepare changed event attribute
             var changedBinding = GetCommandBinding(ChangedProperty);
+            var textInputBinding = GetCommandBinding(TextInputProperty);
 
             base.AddAttributesToRender(writer, context);
 
@@ -245,6 +267,11 @@ namespace DotVVM.Framework.Controls
             {
                 writer.AddAttribute("onchange", KnockoutHelper.GenerateClientPostBackScript(nameof(Changed),
                     changedBinding, this, useWindowSetTimeout: true, isOnChange: true), true, ";");
+            }
+            if (textInputBinding != null)
+            {
+                writer.AddAttribute("oninput", KnockoutHelper.GenerateClientPostBackScript(nameof(TextInput),
+                    textInputBinding, this, useWindowSetTimeout: true, isOnChange: true), true, ";");
             }
         }
 
@@ -294,12 +321,13 @@ namespace DotVVM.Framework.Controls
         private void AddValueBindingToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             // use standard value binding
-            writer.AddKnockoutDataBind("value", this, TextProperty, () => {
+            writer.AddKnockoutDataBind(UpdateTextOnInput ? "textInput" : "value", this, TextProperty, () =>
+            {
                 if (Type != TextBoxType.MultiLine)
                 {
                     writer.AddAttribute("value", Text);
                 }
-            }, UpdateTextAfterKeydown ? "afterkeydown" : null, renderEvenInServerRenderingMode: true);
+            }, UpdateTextOnInput ? "afterkeydown" : null, renderEvenInServerRenderingMode: true);
         }
     }
 }

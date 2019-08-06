@@ -317,7 +317,7 @@ namespace DotVVM.Framework.Hosting
                 JObject postData;
                 using (var jsonReader = new JsonTextReader(new StreamReader(context.HttpContext.Request.Body)))
                 {
-                    postData = JObject.Load(jsonReader);
+                    postData = await JObject.LoadAsync(jsonReader);
                 }
 
                 // validate csrf token

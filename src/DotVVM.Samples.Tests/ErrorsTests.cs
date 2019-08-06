@@ -81,8 +81,8 @@ namespace DotVVM.Samples.Tests
                 AssertUI.InnerText(browser.First("[class='exceptionMessage']")
                 ,
                         s =>
-                            s.ToLower().Contains("String was not recognized as a valid Boolean.".ToLower())
-                            , "Expected message is 'String was not recognized as a valid Boolean.'");
+                            s.ToLower().Contains("was not recognized as a valid Boolean.".ToLower())
+                            , "Expected message is 'was not recognized as a valid Boolean.'");
 
                 AssertUI.InnerText(browser.First("[class='errorUnderline']")
                     , s => s.Contains("NotAllowedHardCodedValue"));
