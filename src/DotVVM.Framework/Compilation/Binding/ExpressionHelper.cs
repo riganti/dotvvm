@@ -119,7 +119,8 @@ namespace DotVVM.Framework.Compilation.Binding
                 && call.Method.DeclaringType == typeof(DotvvmBindableObject)
                 && call.Method.Name == nameof(DotvvmBindableObject.GetValue)
                 && call.Arguments.Count == 2
-                && call.Arguments[0].Type == typeof(DotvvmProperty))
+                && call.Arguments[0].Type == typeof(DotvvmProperty)
+                && call.Arguments[1].Type == typeof(object))
             {
                 var propertyArgument = call.Arguments[0];
                 var setValue = typeof(DotvvmBindableObject)
