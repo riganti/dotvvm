@@ -429,7 +429,7 @@ namespace DotVVM.Framework.Controls
             for (var i = 0; i < parts.Length; i++)
             {
                 result = result.GetAllDescendants(c => !IsNamingContainer(c))
-                    .SingleOrDefault(c => c.GetValue(Internal.UniqueIDProperty).Equals(parts[i]));
+                    .SingleOrDefault(c => c.GetValue(Internal.UniqueIDProperty) as string == parts[i]);
                 if (result == null)
                 {
                     return null;
