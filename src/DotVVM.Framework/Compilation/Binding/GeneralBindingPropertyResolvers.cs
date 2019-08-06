@@ -71,7 +71,7 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             var valueParameter = Expression.Parameter(typeof(object), "value");
             var body = BindingCompiler.ReplaceParameters(binding.Expression, dataContext);
-            body = ExpressionHelper.SetMember(body, valueParameter);
+            body = ExpressionHelper.UpdateMember(body, valueParameter);
             if (body == null)
             {
                 return null;

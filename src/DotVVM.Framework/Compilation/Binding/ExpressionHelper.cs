@@ -85,7 +85,17 @@ namespace DotVVM.Framework.Compilation.Binding
             );
         }
 
-        public static Expression SetMember(Expression node, Expression value)
+        /// <summary>
+        /// Creates an expression that updates the member inside <paramref name="node"/> with a
+        /// new <paramref name="value"/>.
+        /// </summary>
+        /// <remarks>
+        /// Should <paramref name="node"/> contain a call to the
+        /// <see cref="DotvvmBindableObject.GetValue(DotvvmProperty, bool)"/> method, it will be
+        /// replaced with a <see cref="DotvvmBindableObject.SetValue(DotvvmProperty, object)"/>
+        /// call.
+        /// </remarks>
+        public static Expression UpdateMember(Expression node, Expression value)
         {
             if ((node.NodeType == ExpressionType.MemberAccess
                 && node is MemberExpression member
