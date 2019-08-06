@@ -5,6 +5,7 @@ using DotVVM.Testing.Abstractions;
 using OpenQA.Selenium;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
+using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
@@ -95,6 +96,41 @@ namespace DotVVM.Samples.Tests.Feature
                     browser.Driver.FindElement(By.XPath("//div[@data-ui='localization-control-import']/label/span")).Text);
                 Assert.AreEqual("Localized literal inside control",
                     browser.Driver.FindElement(By.XPath("//div[@data-ui='localization-control-import']/span")).Text);
+            });
+        }
+
+        [Fact]
+        public void Feature_Localization_Globalize()
+        {
+            void CheckForm(IBrowserWrapper browser) {
+                var oldSelectMethod = browser.SelectMethod;
+                browser.SelectMethod = SelectByDataUi;
+
+                browser.Single("button-hello").Click();
+                browser.WaitFor(() => AssertUI.TextEquals(browser.Single("span-hello"), "Hello"), 1000);
+
+                browser.Single("textbox-parse").SendKeys("42");
+                browser.Single("button-parse").Click();
+                browser.WaitFor(() => AssertUI.TextEquals(browser.Single("span-parse"), "42"), 1000);
+
+                browser.Single("textbox-multiplyA").SendKeys("6");
+                browser.Single("textbox-multiplyB").SendKeys("-7");
+                browser.Single("button-multiply").Click();
+                browser.WaitFor(() => AssertUI.TextEquals(browser.Single("span-multiply"), "-42"), 1000);
+
+                AssertUI.TextEquals(browser.Single("postback-counter"), "3");
+
+                browser.SelectMethod = oldSelectMethod;
+            }
+
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Localization_Globalize);
+                browser.WaitUntilDotvvmInited();
+                CheckForm(browser);
+
+                browser.Single("switch-czech", SelectByDataUi).Click();
+                browser.WaitUntilDotvvmInited();
+                CheckForm(browser);
             });
         }
 
