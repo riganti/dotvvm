@@ -30,19 +30,26 @@ namespace DotVVM.Framework.Utils
                     else
                     {
                         var sourceTime = sourceItem.ToObject<DateTime>();
-
-                        DateTime targetTime;
-                        if (item.Value.Type == JTokenType.Date)
+                        try
                         {
-                            targetTime = item.Value.ToObject<DateTime>();
-                        }
-                        else
-                        {
-                            var targetJson = $@"{{""Time"": ""{item.Value}""}}";
-                            targetTime = JObject.Parse(targetJson)["Time"].ToObject<DateTime>();
-                        }
+                            DateTime targetTime;
+                            if (item.Value.Type == JTokenType.Date)
+                            {
+                                targetTime = item.Value.ToObject<DateTime>();
+                            }
+                            else
+                            {
+                                var targetJson = $@"{{""Time"": ""{item.Value}""}}";
+                                targetTime = JObject.Parse(targetJson)["Time"].ToObject<DateTime>();
+                            }
 
-                        if (!sourceTime.Equals(targetTime)) {
+                            if (!sourceTime.Equals(targetTime))
+                            {
+                                diff[item.Key] = item.Value;
+                            }
+                        }
+                        catch(FormatException)
+                        {
                             diff[item.Key] = item.Value;
                         }
                     }

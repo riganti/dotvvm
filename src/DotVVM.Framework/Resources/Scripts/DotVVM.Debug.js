@@ -105,7 +105,7 @@
 
     dotvvm.events.afterPostback.subscribe(function (e) {
         if (e.wasInterrupted) {
-            if (dotvvm.validation.errors().length > 0) {
+            if (dotvvm.validation.errors.length > 0) {
                 displayPostbackAbortedWarning("Postback aborted because validation failed.");
             } else displayPostbackAbortedWarning("Postback interrupted");
         }
