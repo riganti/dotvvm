@@ -13,12 +13,28 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
     public class ValidationErrorFactoryTests
     {
         [TestMethod]
-        public void ValidationErrorFactory_GetPathFromExpression_WithLocalVariable()
+        public void ValidationErrorFactory_GetPathFromExpression_WithPrimitiveLocal()
         {
             var index = 1;
             var expression = ValidationErrorFactory.GetPathFromExpression(
                 DotvvmTestHelper.DefaultConfig,
                 (Expression<Func<TestViewModel, int>>)(vm => vm.Numbers[index]));
+            Assert.AreEqual("Numbers()[1]", expression);
+        }
+
+        [TestMethod]
+        public void ValidationErrorFactory_GetPathFromExpression_WithComplexLocal()
+        {
+            var sample = new Sample { Index = 42 };
+            var expression = ValidationErrorFactory.GetPathFromExpression(
+                DotvvmTestHelper.DefaultConfig,
+                (Expression<Func<TestViewModel, int>>)(vm => vm.Numbers[sample.Index]));
+            Assert.AreEqual("Numbers()[42]", expression);
+        }
+
+        private class Sample
+        {
+            public int Index { get; set; }
         }
 
         private class TestViewModel
