@@ -5,9 +5,10 @@ Param(
     [string]$apiKey,
     [string]$packageId
 )
-    Write-Host "Copping package: " + $packageId + "." + $version   
+    Write-Host "Copping package: $packageId.$version"   
     $webClient = New-Object System.Net.WebClient
-    $url = "$internalServer/package/" + $packageId + "/" + $version
+        
+    $url = "$internalServer/packages/$packageId/$version/$packageId.$version.nupkg"
     $nupkgFile = Join-Path $PSScriptRoot ($packageId + "." + $version + ".nupkg")
 
     Write-Host "Downloading from $url"
