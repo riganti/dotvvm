@@ -521,6 +521,14 @@ namespace DotVVM.Framework.Tests.Binding
             var result = ExecuteBinding("LongProperty < TestViewModel2.MyProperty && LongProperty > TestViewModel2.MyProperty", new [] { new TestViewModel { TestViewModel2 = new TestViewModel2() } });
             Assert.AreEqual(false, result);
         }
+
+        [TestMethod]
+        public void BindingCompiler_Errors_AssigningToType()
+        {
+            var aggEx = Assert.ThrowsException<AggregateException>(() => ExecuteBinding("System.String = 123", new [] { new TestViewModel() }));
+            var ex = aggEx.AllInnerExceptions().Single(e => e.InnerException == null);
+            Assert.AreEqual("", ex.Message);
+        }
     }
     class TestViewModel
     {
