@@ -12,6 +12,7 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
     [TestClass]
     public class ValidationErrorFactoryTests
     {
+
         [TestMethod]
         public void ValidationErrorFactory_GetPathFromExpression_WithPrimitiveLocal()
         {
@@ -30,6 +31,35 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
                 DotvvmTestHelper.DefaultConfig,
                 (Expression<Func<TestViewModel, int>>)(vm => vm.Numbers[sample.Index]));
             Assert.AreEqual("Numbers()[42]", expression);
+        }
+
+
+        string GetNumbers(int index) =>
+            ValidationErrorFactory.GetPathFromExpression(
+                DotvvmTestHelper.DefaultConfig,
+                (Expression<Func<TestViewModel, int>>)(vm => vm.Numbers[index])
+            );
+
+        [TestMethod]
+        public void TestMultipleValues()
+        {
+            // test that the cache built into ValidationErrorFactory does not leak
+
+            Assert.AreEqual("Numbers()[1]", GetNumbers(1));
+            Assert.AreEqual("Numbers()[2]", GetNumbers(2));
+            Assert.AreEqual("Numbers()[3]", GetNumbers(3));
+        }
+
+        [TestMethod]
+        public void TestValidationErrorCache()
+        {
+            // test that the cache built into ValidationErrorFactory actually works
+
+            var expr1 = GetNumbers(1);
+            var expr2 = GetNumbers(1);
+
+            // the expression must be referentially equal if they are from the cache
+            Assert.IsTrue((object)expr1 == expr2);
         }
 
         private class Sample
