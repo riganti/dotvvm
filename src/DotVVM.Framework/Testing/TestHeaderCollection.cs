@@ -44,7 +44,7 @@ namespace DotVVM.Framework.Testing
         public void Append(string key, string value)
         {
             if (this.TryGetValue(key, out var currentVal))
-                this[key] = currentVal.Append(value).ToArray();
+                this[key] = currentVal.Concat(new [] { value }).ToArray();
             else
                 this[key] = new [] { value };
         }
