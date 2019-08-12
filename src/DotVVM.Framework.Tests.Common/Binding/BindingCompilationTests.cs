@@ -527,7 +527,7 @@ namespace DotVVM.Framework.Tests.Binding
         {
             var aggEx = Assert.ThrowsException<AggregateException>(() => ExecuteBinding("System.String = 123", new [] { new TestViewModel() }));
             var ex = aggEx.AllInnerExceptions().Single(e => e.InnerException == null);
-            Assert.AreEqual("Expression must be writeable\nParameter name: left", ex.Message);
+            Assert.IsTrue(ex.Message.Contains("Expression must be writeable"));
         }
     }
     class TestViewModel
