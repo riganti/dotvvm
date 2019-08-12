@@ -367,12 +367,6 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public JsExpression TranslateMemberAccess(MemberExpression expression)
         {
-            if (TryGetLocalValue(expression, out var localValue))
-            {
-                return new JsLiteral(localValue)
-                    .WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
-            }
-
             var getter = (expression.Member as PropertyInfo)?.GetMethod;
             if (expression.Expression == null)
             {
@@ -386,23 +380,6 @@ namespace DotVVM.Framework.Compilation.Javascript
                 return TryTranslateMethodCall(getter, expression.Expression, new Expression[0]) ??
                     TranslateViewModelProperty(Translate(expression.Expression), expression.Member);
             }
-        }
-
-        private bool TryGetLocalValue(MemberExpression expression, out object value)
-        {
-            Expression current = expression;
-            while(current is MemberExpression member)
-            {
-                current = member.Expression;
-            }
-            if (current is ConstantExpression)
-            {
-                value = Expression.Lambda(expression).Compile().DynamicInvoke();
-                return true;
-            }
-
-            value = null;
-            return false;
         }
 
         public static JsExpression TranslateViewModelProperty(JsExpression context, MemberInfo propInfo, string name = null) =>

@@ -14,7 +14,7 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
     {
 
         [TestMethod]
-        public void ValidationErrorFactory_GetPathFromExpression_WithPrimitiveLocal()
+        public void GetPathFromExpression_WithPrimitiveLocal_CorrectExpression()
         {
             var index = 1;
             var expression = ValidationErrorFactory.GetPathFromExpression(
@@ -24,7 +24,7 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
         }
 
         [TestMethod]
-        public void ValidationErrorFactory_GetPathFromExpression_WithComplexLocal()
+        public void GetPathFromExpression_WithComplexLocal_CorrectExpression()
         {
             var sample = new Sample { Index = 42 };
             var expression = ValidationErrorFactory.GetPathFromExpression(
@@ -33,15 +33,8 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
             Assert.AreEqual("Numbers()[42]", expression);
         }
 
-
-        string GetNumbers(int index) =>
-            ValidationErrorFactory.GetPathFromExpression(
-                DotvvmTestHelper.DefaultConfig,
-                (Expression<Func<TestViewModel, int>>)(vm => vm.Numbers[index])
-            );
-
         [TestMethod]
-        public void TestMultipleValues()
+        public void GetPathFromExpression_MultipleLocals_CorrectExpression()
         {
             // test that the cache built into ValidationErrorFactory does not leak
 
@@ -51,7 +44,7 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
         }
 
         [TestMethod]
-        public void TestValidationErrorCache()
+        public void GetPathFromExpression_SameLocalValue_SameReference()
         {
             // test that the cache built into ValidationErrorFactory actually works
 
@@ -60,6 +53,13 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
 
             // the expression must be referentially equal if they are from the cache
             Assert.IsTrue((object)expr1 == expr2);
+        }
+
+        private string GetNumbers(int index)
+        {
+            return ValidationErrorFactory.GetPathFromExpression(
+                DotvvmTestHelper.DefaultConfig,
+                (Expression<Func<TestViewModel, int>>)(vm => vm.Numbers[index]));
         }
 
         private class Sample
