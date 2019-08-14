@@ -19,7 +19,7 @@ namespace DotVVM.Samples.Tests.Complex
         }
 
         [Fact]
-        public void Comples_NestedComboBox_HeavilyNested()
+        public void Complex_NestedComboBox_HeavilyNested()
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_NestedComboBox_HeavilyNested);
