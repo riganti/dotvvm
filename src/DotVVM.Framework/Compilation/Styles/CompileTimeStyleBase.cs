@@ -5,6 +5,8 @@ using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Configuration;
 using System.Linq;
+using DotVVM.Framework.Controls;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.Styles
 {
@@ -71,27 +73,61 @@ namespace DotVVM.Framework.Compilation.Styles
 
         public class PropertyControlCollectionInsertionInfo : IPropertyInsertionInfo
         {
+            enum PropertyKind
+            {
+                Template,
+                Collection,
+                SingleControl
+            }
+
             private readonly DotvvmProperty dotvvmProperty;
+            private readonly PropertyKind propertyKind;
             private readonly ControlResolverMetadata metadata;
             private readonly IStyle innerControlStyle;
+            private readonly object[] ctorParameters;
 
             public StyleOverrideOptions Type { get; }
 
             public PropertyControlCollectionInsertionInfo(DotvvmProperty dotvvmProperty, StyleOverrideOptions type,
-                ControlResolverMetadata metadata, IStyle innerControlStyle)
+                ControlResolverMetadata metadata, IStyle innerControlStyle, object[] ctorParameters)
             {
                 this.dotvvmProperty = dotvvmProperty;
                 this.Type = type;
                 this.metadata = metadata;
                 this.innerControlStyle = innerControlStyle;
+                this.ctorParameters = ctorParameters;
+                this.propertyKind = DeterminePropertyKind(dotvvmProperty, metadata);
+            }
+
+            static PropertyKind DeterminePropertyKind(DotvvmProperty property, ControlResolverMetadata controlMetadata)
+            {
+                var propType = property.PropertyType;
+                if (typeof(ITemplate).IsAssignableFrom(propType))
+                    return PropertyKind.Template;
+                else if (typeof(System.Collections.ICollection).IsAssignableFrom(propType) &&
+                         ReflectionUtils.GetEnumerableType(propType).IsAssignableFrom(controlMetadata.Type))
+                    return PropertyKind.Collection;
+                else if (typeof(DotvvmBindableObject).IsAssignableFrom(propType) &&
+                         propType.IsAssignableFrom(controlMetadata.Type))
+                    return PropertyKind.SingleControl;
+                else
+                    throw new Exception($"Can not set a control of type {controlMetadata.Type} to a property of type {propType}.");
             }
 
             public ResolvedPropertySetter GetPropertySetter(ResolvedControl resolvedControl, DotvvmConfiguration configuration)
             {
                 var resolvedInnerControl = new ResolvedControl(metadata, null, resolvedControl.DataContextTypeStack);
+                resolvedInnerControl.ConstructorParameters = this.ctorParameters;
                 innerControlStyle.Applicator.ApplyStyle(resolvedInnerControl, configuration);
 
-                return new ResolvedPropertyControlCollection(dotvvmProperty, new List<ResolvedControl> { resolvedInnerControl });
+                if (this.propertyKind == PropertyKind.Template)
+                    return new ResolvedPropertyTemplate(dotvvmProperty, new List<ResolvedControl> { resolvedInnerControl });
+                else if (this.propertyKind == PropertyKind.Collection)
+                    return new ResolvedPropertyControlCollection(dotvvmProperty, new List<ResolvedControl> { resolvedInnerControl });
+                else if (this.propertyKind == PropertyKind.SingleControl)
+                    return new ResolvedPropertyControl(dotvvmProperty, resolvedInnerControl);
+                else
+                    throw new Exception();
             }
         }
     }

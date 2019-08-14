@@ -5,10 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
-using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
-using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -28,15 +26,13 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
     [TestClass]
     public class DefaultControlTreeResolverTests
     {
-        private DotvvmConfiguration configuration;
-        private IControlTreeResolver controlTreeResolver;
-
+        private TestControlResolver resolver;
         [TestInitialize()]
         public void TestInit()
         {
-            configuration = DotvvmTestHelper.CreateConfiguration();
-            configuration.Markup.AddCodeControls("cc", typeof(ClassWithInnerElementProperty));
-            controlTreeResolver = configuration.ServiceProvider.GetRequiredService<IControlTreeResolver>();
+            resolver = new TestControlResolver(configuration => {
+                configuration.Markup.AddCodeControls("cc", exampleControl: typeof(ClassWithInnerElementProperty));
+            });
         }
 
         [TestMethod]
@@ -728,20 +724,8 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.IsFalse(control3[2].DothtmlNode.HasNodeErrors);
         }
 
-        private ResolvedTreeRoot ParseSource(string markup, string fileName = "default.dothtml")
-        {
-            var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(markup);
-
-            var parser = new DothtmlParser();
-            var tree = parser.Parse(tokenizer.Tokens);
-
-            return controlTreeResolver.ResolveTree(tree, fileName)
-                .CastTo<ResolvedTreeRoot>()
-                .ApplyAction(new DataContextPropertyAssigningVisitor().VisitView)
-                .ApplyAction(new StylingVisitor(configuration).VisitView)
-                .ApplyAction(ActivatorUtilities.CreateInstance<ControlUsageValidationVisitor>(configuration.ServiceProvider).VisitView);
-        }
+        private ResolvedTreeRoot ParseSource(string markup, string fileName = "default.dothtml") =>
+            this.resolver.ParseSource(markup, fileName);
 
     }
 

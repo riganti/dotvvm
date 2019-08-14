@@ -7,6 +7,9 @@ using DotVVM.Framework.Utils;
 using System.Reflection;
 using DotVVM.Framework.Compilation.ControlTree;
 using System.Linq;
+using DotVVM.Framework.Controls;
+using DotVVM.Framework.Controls.Infrastructure;
+using System.Net;
 
 namespace DotVVM.Framework.Compilation.Styles
 {
@@ -38,7 +41,37 @@ namespace DotVVM.Framework.Compilation.Styles
             styleBuilder?.Invoke(innerControlStyleBuilder);
 
             style.SetProperties[property] = new CompileTimeStyleBase.PropertyControlCollectionInsertionInfo(property, options,
-                new ControlResolverMetadata(typeof(TControlType)), innerControlStyleBuilder.GetStyle());
+                new ControlResolverMetadata(typeof(TControlType)), innerControlStyleBuilder.GetStyle(), ctorParameters: null);
+
+            return this;
+        }
+
+        public StyleBuilder<T> SetHtmlControlProperty(DotvvmProperty property, string tag, Action<StyleBuilder<HtmlGenericControl>> styleBuilder = null, StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
+        {
+            if (tag == null)
+                throw new ArgumentNullException(nameof(tag));
+
+            var innerControlStyleBuilder = new StyleBuilder<HtmlGenericControl>(null, false);
+            styleBuilder?.Invoke(innerControlStyleBuilder);
+
+            style.SetProperties[property] = new CompileTimeStyleBase.PropertyControlCollectionInsertionInfo(property, options,
+                new ControlResolverMetadata(typeof(HtmlGenericControl)), innerControlStyleBuilder.GetStyle(), ctorParameters: new object[] { tag });
+
+            return this;
+        }
+
+        public StyleBuilder<T> SetLiteralControlProperty(DotvvmProperty property, string text, StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
+        {
+            var innerControlStyleBuilder = new StyleBuilder<RawLiteral>(null, false);
+
+            var ctorParameters = new object[] {
+                WebUtility.HtmlEncode(text),
+                text,
+                String.IsNullOrWhiteSpace(text)
+            };
+
+            style.SetProperties[property] = new CompileTimeStyleBase.PropertyControlCollectionInsertionInfo(property, options,
+                new ControlResolverMetadata(typeof(RawLiteral)), innerControlStyleBuilder.GetStyle(), ctorParameters);
 
             return this;
         }

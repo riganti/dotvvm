@@ -1,0 +1,92 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Compilation.Styles;
+using DotVVM.Framework.Controls;
+using DotVVM.Framework.Utils;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace DotVVM.Framework.Tests.Runtime.ControlTree
+{
+    [TestClass]
+    public class ServerSideStyleTests
+    {
+        TestControlResolver resolver = new TestControlResolver(config => {
+
+            config.Styles
+                .Register<Button>(m => m.HasHtmlAttribute("data-dangerous"))
+                .SetControlProperty<ConfirmPostBackHandler>(PostBack.HandlersProperty, s => s.SetProperty(c => c.Message, "Are you sure?"), StyleOverrideOptions.Append);
+
+            config.Styles
+                .Register<Repeater>()
+                .SetHtmlControlProperty(Repeater.SeparatorTemplateProperty, "hr", options: StyleOverrideOptions.Ignore);
+
+        });
+
+        [TestMethod]
+        public void SetControlProperty_AddPostbackHandler()
+        {
+            var button = resolver.ParseSource(@"<dot:Button data-dangerous />")
+                                 .Content.SelectRecursively(c => c.Content)
+                                 .Single(c => c.Metadata.Type == typeof(Button));
+            var handler = button.Properties[PostBack.HandlersProperty].CastTo<ResolvedPropertyControlCollection>().Controls.Single();
+            Assert.AreEqual(typeof(ConfirmPostBackHandler), handler.Metadata.Type);
+            var message = handler.Properties[ConfirmPostBackHandler.MessageProperty].CastTo<ResolvedPropertyValue>().Value.CastTo<string>();
+            Assert.AreEqual("Are you sure?", message);
+        }
+
+        [TestMethod]
+        public void SetControlProperty_AppendPostbackHandler()
+        {
+            var button = resolver.ParseSource(
+@"<dot:Button data-dangerous>
+    <PostBack.Handlers>
+        <dot:ConfirmPostBackHandler Message='This is dangerous!' />
+    </PostBack.Handlers>
+</dot:Button>")
+                .Content.SelectRecursively(c => c.Content)
+                .Single(c => c.Metadata.Type == typeof(Button));
+            var handlers = button.Properties[PostBack.HandlersProperty].CastTo<ResolvedPropertyControlCollection>().Controls;
+            Assert.AreEqual(2, handlers.Count);
+            var oldHandler = handlers[0];
+            var appendedHandler = handlers[1];
+            Assert.AreEqual(typeof(ConfirmPostBackHandler), appendedHandler.Metadata.Type);
+            var message1 = oldHandler.Properties[ConfirmPostBackHandler.MessageProperty].CastTo<ResolvedPropertyValue>().Value.CastTo<string>();
+            var message2 = appendedHandler.Properties[ConfirmPostBackHandler.MessageProperty].CastTo<ResolvedPropertyValue>().Value.CastTo<string>();
+            Assert.AreEqual("This is dangerous!", message1);
+            Assert.AreEqual("Are you sure?", message2);
+        }
+
+        [TestMethod]
+        public void SetControlProperty_RepeaterTemplate()
+        {
+            var repeater = resolver.ParseSource(
+@"@viewModel System.List<System.String>
+<dot:Repeater DataSource='{value: _this}'>
+    {{value: _this}}
+</dot:Repeater>")
+                .Content.SelectRecursively(c => c.Content)
+                .Single(c => c.Metadata.Type == typeof(Repeater));
+            var separator = repeater.Properties[Repeater.SeparatorTemplateProperty].CastTo<ResolvedPropertyTemplate>().Content.Single();
+            Assert.AreEqual(typeof(HtmlGenericControl), separator.Metadata.Type);
+            Assert.AreEqual("hr", separator.ConstructorParameters.Single());
+        }
+
+        [TestMethod]
+        public void SetControlProperty_IgnoredTemplate()
+        {
+            var repeater = resolver.ParseSource(
+@"@viewModel System.List<System.String>
+<dot:Repeater DataSource='{value: _this}'>
+    <SeparatorTemplate><div class='sep'/></SeparatorTemplate>
+    {{value: _this}}
+</dot:Repeater>")
+                .Content.SelectRecursively(c => c.Content)
+                .Single(c => c.Metadata.Type == typeof(Repeater));
+            var separator = repeater.Properties[Repeater.SeparatorTemplateProperty].CastTo<ResolvedPropertyTemplate>().Content.Single();
+            Assert.AreEqual(typeof(HtmlGenericControl), separator.Metadata.Type);
+            Assert.AreEqual("div", separator.ConstructorParameters.Single());
+        }
+    }
+}
