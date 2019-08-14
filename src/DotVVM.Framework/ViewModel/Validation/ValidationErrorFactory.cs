@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
@@ -98,28 +99,41 @@ namespace DotVVM.Framework.ViewModel.Validation
         {
             protected override Expression VisitMember(MemberExpression node)
             {
-                if (TryGetLocalValue(node, out var constant))
+                var localValue = Expand(node);
+                if (localValue != null)
                 {
-                    return Expression.Constant(constant, node.Type);
+                    return Expression.Constant(localValue, node.Type);
                 }
                 return base.VisitMember(node);
             }
 
-            private bool TryGetLocalValue(MemberExpression expression, out object value)
+            private object Expand(Expression current)
             {
-                Expression current = expression;
-                while (current is MemberExpression member)
+                if (current is ConstantExpression constant)
                 {
-                    current = member.Expression;
+                    return constant.Value;
                 }
-                if (current is ConstantExpression)
+                if (!(current is MemberExpression member))
                 {
-                    value = Expression.Lambda(expression).Compile().DynamicInvoke();
-                    return true;
+                    return null;
                 }
 
-                value = null;
-                return false;
+                var inner = Expand(member.Expression);
+                if (inner == null)
+                {
+                    return null;
+                }
+
+                if (member.Member is FieldInfo field)
+                {
+                    return field.GetValue(inner);
+                }
+                if (member.Member is PropertyInfo property)
+                {
+                    return property.GetValue(inner);
+                }
+
+                return null;
             }
         }
     }

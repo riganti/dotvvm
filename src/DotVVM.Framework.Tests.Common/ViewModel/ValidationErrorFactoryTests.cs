@@ -27,10 +27,11 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
         public void GetPathFromExpression_WithComplexLocal_CorrectExpression()
         {
             var sample = new Sample { Index = 42 };
-            var expression = ValidationErrorFactory.GetPathFromExpression(
+
+            var complex = ValidationErrorFactory.GetPathFromExpression(
                 DotvvmTestHelper.DefaultConfig,
                 (Expression<Func<TestViewModel, int>>)(vm => vm.Numbers[sample.Index]));
-            Assert.AreEqual("Numbers()[42]", expression);
+            Assert.AreEqual("Numbers()[42]", complex);
         }
 
         [TestMethod]
@@ -64,6 +65,8 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
 
         private class Sample
         {
+            public int[] Indices = { 3, 2, 1 };
+
             public int Index { get; set; }
         }
 
