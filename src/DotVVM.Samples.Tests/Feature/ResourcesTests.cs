@@ -51,18 +51,6 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
-        [Fact]
-        public void Feature_Resources_LocationFallback()
-        {
-            RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Resources_LocationFallback);
-                browser.WaitUntilDotvvmInited();
-
-                AssertUI.TextEquals(browser.Single("h1:nth-of-type(2)", SelectBy.CssSelector),
-                    "The \"testResource_locationFallback\" script has been loaded.");
-            });
-        }
-
         public ResourcesTests(ITestOutputHelper output) : base(output)
         {
         }
