@@ -51,6 +51,11 @@ namespace DotVVM.Samples.Common
                 LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new FileResourceLocation("~/Scripts/testResource2.js"))
             });
 
+            resources.Register("Errors_InvalidLocationFallback", new ScriptResource {
+                Location = new FileResourceLocation("~/Scripts/testResource.js"),
+                LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new FileResourceLocation("~/Scripts/testResource2.js"))
+            });
+
             resources.Register("extenders", new ScriptResource
             {
                 Location = new FileResourceLocation("Scripts/ClientExtenders.js")
