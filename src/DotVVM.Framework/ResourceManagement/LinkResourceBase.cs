@@ -48,6 +48,13 @@ namespace DotVVM.Framework.ResourceManagement
             RenderLink(Location, writer, context, resourceName);
             if (LocationFallback != null)
             {
+                if (Location is ILocalResourceLocation
+                    && LocationFallback.AlternativeLocations.Count > 0)
+                {
+                    throw new NotSupportedException("LocationFallback does not support " +
+                        "ILocalResourceLocations.");
+                }
+
                 foreach (var fallback in LocationFallback.AlternativeLocations)
                 {
                     var link = RenderLinkToString(fallback, context, resourceName);
