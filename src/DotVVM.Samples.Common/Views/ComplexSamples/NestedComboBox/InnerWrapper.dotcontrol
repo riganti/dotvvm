@@ -1,0 +1,11 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.NestedComboBox.InnerViewModel, DotVVM.Samples.Common
+@baseType DotVVM.Samples.BasicSamples.Views.ComplexSamples.NestedComboBox.InnerWrapper, DotVVM.Samples.Common
+
+<div data-ui="inner-wrapper">
+    <dot:ComboBox DataSource="{value: Data}"
+                  SelectedValue="{controlProperty: SelectedValue}"
+                  ItemValueBinding="{value: Value}"
+                  ItemTextBinding="{value: Label}"
+                  SelectionChanged="{controlCommand: Change()}"
+                  data-ui="combobox"/>
+</div>

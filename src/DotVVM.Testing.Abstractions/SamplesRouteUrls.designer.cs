@@ -19,6 +19,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ComplexSamples_GridViewDataSet_GridViewDataSet = "ComplexSamples/GridViewDataSet/GridViewDataSet";
         public const string ComplexSamples_InvoiceCalculator_InvoiceCalculator = "ComplexSamples/InvoiceCalculator/InvoiceCalculator";
         public const string ComplexSamples_NamespaceCollision_NamespaceCollision = "ComplexSamples/NamespaceCollision/NamespaceCollision";
+        public const string ComplexSamples_NestedComboBox_HeavilyNested = "ComplexSamples/NestedComboBox/HeavilyNested";
         public const string ComplexSamples_RedirectAndUrl_ScrollingPage = "ComplexSamples/RedirectAndUrl/ScrollingPage";
         public const string ComplexSamples_ServerRendering_AddingIntoEmptyRepeater = "ComplexSamples/ServerRendering/AddingIntoEmptyRepeater";
         public const string ComplexSamples_ServerRendering_ControlUsageSample = "ComplexSamples/ServerRendering/ControlUsageSample";
