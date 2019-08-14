@@ -48,13 +48,17 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 
         public void ObjectBrowser(object obj)
         {
-            var jobject = JObject.FromObject(obj, new JsonSerializer()
-            {
+            var settings = new JsonSerializerSettings() {
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
                 Converters = {
                     new ReflectionAssemblyJsonConverter()
+                },
+                // suppress any errors that occur during serialization (getters may throw exception, ...)
+                Error = (sender, args) => {
+                    args.ErrorContext.Handled = true;
                 }
-            });
+            };
+            var jobject = JObject.FromObject(obj, JsonSerializer.Create(settings));
             ObjectBrowser(jobject);
         }
 

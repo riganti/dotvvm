@@ -60,6 +60,16 @@ namespace DotVVM.Framework.Binding.Expressions
                     return resources.Length == 0
                         ? RequiredRuntimeResourcesBindingProperty.Empty
                         : new RequiredRuntimeResourcesBindingProperty(resources);
+                }),
+                new Func<KnockoutJsExpressionBindingProperty, GlobalizeResourceBindingProperty>(js =>
+                {
+                    var isGlobalizeRequired = js.Expression.DescendantNodesAndSelf()
+                        .Any(n => n.Annotation<GlobalizeResourceBindingProperty>() != null);
+                    if (isGlobalizeRequired)
+                    {
+                        return new GlobalizeResourceBindingProperty();
+                    }
+                    return null;
                 })
             };
         }

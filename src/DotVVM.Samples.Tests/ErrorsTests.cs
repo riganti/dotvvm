@@ -7,6 +7,8 @@ using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
 using Xunit;
 using Xunit.Abstractions;
+using Riganti.Selenium.DotVVM;
+using OpenQA.Selenium;
 
 namespace DotVVM.Samples.Tests
 {
@@ -361,6 +363,19 @@ namespace DotVVM.Samples.Tests
                         throw new Exception($"GitHub link does not exist. Link: {link}");
                     }
                 }
+            });
+        }
+
+        [Fact]
+        public void Error_InvalidServiceDirective()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_InvalidServiceDirective);
+
+                AssertUI.TextEquals(browser.First("exceptionType", By.ClassName),
+                    "DotVVM.Framework.Compilation.DotvvmCompilationException");
+                AssertUI.TextEquals(browser.First("exceptionMessage", By.ClassName),
+                    "DotVVM.InvalidNamespace.NonExistingService is not a valid type.");
             });
         }
 

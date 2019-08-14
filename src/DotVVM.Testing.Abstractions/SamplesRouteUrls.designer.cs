@@ -19,6 +19,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ComplexSamples_GridViewDataSet_GridViewDataSet = "ComplexSamples/GridViewDataSet/GridViewDataSet";
         public const string ComplexSamples_InvoiceCalculator_InvoiceCalculator = "ComplexSamples/InvoiceCalculator/InvoiceCalculator";
         public const string ComplexSamples_NamespaceCollision_NamespaceCollision = "ComplexSamples/NamespaceCollision/NamespaceCollision";
+        public const string ComplexSamples_NestedComboBox_HeavilyNested = "ComplexSamples/NestedComboBox/HeavilyNested";
         public const string ComplexSamples_RedirectAndUrl_ScrollingPage = "ComplexSamples/RedirectAndUrl/ScrollingPage";
         public const string ComplexSamples_ServerRendering_AddingIntoEmptyRepeater = "ComplexSamples/ServerRendering/AddingIntoEmptyRepeater";
         public const string ComplexSamples_ServerRendering_ControlUsageSample = "ComplexSamples/ServerRendering/ControlUsageSample";
@@ -132,6 +133,7 @@ namespace DotVVM.Testing.Abstractions
         public const string Errors_EmptyBinding = "Errors/EmptyBinding";
         public const string Errors_EncryptedPropertyInValueBinding = "Errors/EncryptedPropertyInValueBinding";
         public const string Errors_FieldInValueBinding = "Errors/FieldInValueBinding";
+        public const string Errors_InvalidServiceDirective = "Errors/InvalidServiceDirective";
         public const string Errors_InvalidLocationFallback = "Errors/InvalidLocationFallback";
         public const string Errors_InvalidViewModel = "Errors/InvalidViewModel";
         public const string Errors_MalformedBinding = "Errors/MalformedBinding";
@@ -181,6 +183,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_IdGeneration_IdGeneration = "FeatureSamples/IdGeneration/IdGeneration";
         public const string FeatureSamples_JavascriptEvents_JavascriptEvents = "FeatureSamples/JavascriptEvents/JavascriptEvents";
         public const string FeatureSamples_LiteralBinding_LiteralBinding_Zero = "FeatureSamples/LiteralBinding/LiteralBinding_Zero";
+        public const string FeatureSamples_Localization_Globalize = "FeatureSamples/Localization/Globalize";
         public const string FeatureSamples_Localization_Localization = "FeatureSamples/Localization/Localization";
         public const string FeatureSamples_Localization_Localization_Control_Page = "FeatureSamples/Localization/Localization_Control_Page";
         public const string FeatureSamples_Localization_Localization_FormatString = "FeatureSamples/Localization/Localization_FormatString";

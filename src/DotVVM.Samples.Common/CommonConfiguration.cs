@@ -3,6 +3,7 @@ using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Samples.BasicSamples;
+using DotVVM.Samples.BasicSamples.Controls;
 using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand;
 using DotVVM.Samples.Common.Utilities;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
@@ -59,6 +60,15 @@ namespace DotVVM.Samples.Common
             resources.Register("extenders", new ScriptResource
             {
                 Location = new FileResourceLocation("Scripts/ClientExtenders.js")
+            });
+
+            resources.Register(nameof(StopwatchPostbackHandler), new ScriptResource {
+                Location = new FileResourceLocation($"~/Scripts/{nameof(StopwatchPostbackHandler)}.js"),
+                Dependencies = new[] { "dotvvm.internal" }
+            });
+            resources.Register(nameof(ErrorCountPostbackHandler), new ScriptResource {
+                Location = new FileResourceLocation($"~/Scripts/{nameof(ErrorCountPostbackHandler)}.js"),
+                Dependencies = new[] { "dotvvm.internal" }
             });
 
             // dev files
