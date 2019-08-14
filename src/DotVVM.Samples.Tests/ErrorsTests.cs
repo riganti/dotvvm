@@ -386,7 +386,8 @@ namespace DotVVM.Samples.Tests
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_InvalidLocationFallback);
 
                 AssertUI.TextEquals(browser.First(".exceptionType"), "System.NotSupportedException");
-                AssertUI.TextEquals(browser.First(".exceptionMessage"), "LocationFallback does not support ILocalResourceLocations.");
+                AssertUI.TextEquals(browser.First(".exceptionMessage"), "LocationFallback is " +
+                    "not supported on resources with Location of type ILocalResourceLocation.");
             });
         }
 

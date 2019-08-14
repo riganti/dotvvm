@@ -51,8 +51,8 @@ namespace DotVVM.Framework.ResourceManagement
                 if (Location is ILocalResourceLocation
                     && LocationFallback.AlternativeLocations.Count > 0)
                 {
-                    throw new NotSupportedException("LocationFallback does not support " +
-                        "ILocalResourceLocations.");
+                    throw new NotSupportedException("LocationFallback is not supported on " +
+                        "resources with Location of type ILocalResourceLocation.");
                 }
 
                 foreach (var fallback in LocationFallback.AlternativeLocations)
