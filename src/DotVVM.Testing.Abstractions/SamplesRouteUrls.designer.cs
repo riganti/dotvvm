@@ -134,6 +134,7 @@ namespace DotVVM.Testing.Abstractions
         public const string Errors_EncryptedPropertyInValueBinding = "Errors/EncryptedPropertyInValueBinding";
         public const string Errors_FieldInValueBinding = "Errors/FieldInValueBinding";
         public const string Errors_InvalidServiceDirective = "Errors/InvalidServiceDirective";
+        public const string Errors_InvalidLocationFallback = "Errors/InvalidLocationFallback";
         public const string Errors_InvalidViewModel = "Errors/InvalidViewModel";
         public const string Errors_MalformedBinding = "Errors/MalformedBinding";
         public const string Errors_MarkupControlInvalidViewModel = "Errors/MarkupControlInvalidViewModel";

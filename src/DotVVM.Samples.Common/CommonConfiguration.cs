@@ -48,6 +48,11 @@ namespace DotVVM.Samples.Common
             });
 
             resources.Register("FeatureSamples_Resources_CdnScriptPriority", new ScriptResource {
+                Location = new UrlResourceLocation("/Scripts/testResource.js"),
+                LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new FileResourceLocation("~/Scripts/testResource2.js"))
+            });
+
+            resources.Register("Errors_InvalidLocationFallback", new ScriptResource {
                 Location = new FileResourceLocation("~/Scripts/testResource.js"),
                 LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new FileResourceLocation("~/Scripts/testResource2.js"))
             });

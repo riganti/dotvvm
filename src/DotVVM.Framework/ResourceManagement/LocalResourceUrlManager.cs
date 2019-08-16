@@ -2,6 +2,7 @@
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Hosting.Middlewares;
 using DotVVM.Framework.Routing;
+using DotVVM.Framework.Utils;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -13,6 +14,9 @@ namespace DotVVM.Framework.ResourceManagement
 {
     public class LocalResourceUrlManager : ILocalResourceUrlManager
     {
+        private const string HashParameterName = "hash";
+        private const string NameParameterName = "name";
+
         private readonly IResourceHashService hasher;
         private readonly RouteBase resourceRoute;
         private readonly DotvvmResourceRepository resources;
@@ -21,18 +25,27 @@ namespace DotVVM.Framework.ResourceManagement
 
         public LocalResourceUrlManager(DotvvmConfiguration configuration, IResourceHashService hasher)
         {
-            this.resourceRoute = new DotvvmRoute("dotvvmResource/{hash}/{name:regex(.*)}", null, null, null, configuration);
+            this.resourceRoute = new DotvvmRoute(
+                url: $"{HostingConstants.ResourceRouteName}/{{{HashParameterName}}}/{{{NameParameterName}:regex(.*)}}",
+                virtualPath: null,
+                defaultValues: null,
+                presenterFactory: null,
+                configuration: configuration);
             this.hasher = hasher;
             this.resources = configuration.Resources;
             this.alternateDirectories = configuration.Debug ? new ConcurrentDictionary<string, string>() : null;
             this.suppressVersionHash = configuration.Debug;
         }
 
-        public string GetResourceUrl(ILocalResourceLocation resource, IDotvvmRequestContext context, string name) =>
-            resourceRoute.BuildUrl(new Dictionary<string, object> {
-                ["hash"] = GetVersionHash(resource, context, name),
-                ["name"] = EncodeResourceName(name)
+        public string GetResourceUrl(ILocalResourceLocation resource,
+            IDotvvmRequestContext context,
+            string name)
+        {
+            return resourceRoute.BuildUrl(new Dictionary<string, object> {
+                [HashParameterName] = GetVersionHash(resource, context, name),
+                [NameParameterName] = EncodeResourceName(name)
             });
+        }
 
         protected virtual string EncodeResourceName(string name)
         {
@@ -52,16 +65,23 @@ namespace DotVVM.Framework.ResourceManagement
         public ILocalResourceLocation FindResource(string url, IDotvvmRequestContext context, out string mimeType)
         {
             mimeType = null;
-            if (DotvvmRoutingMiddleware.FindMatchingRoute(new[] { resourceRoute }, context, out var parameters) == null) return null;
-            var name = DecodeResourceName((string)parameters["name"]);
-            var hash = (string)parameters["hash"];
+            if (DotvvmRoutingMiddleware.FindMatchingRoute(new[] { resourceRoute }, context, out var parameters) == null)
+            {
+                return null;
+            }
+
+            var name = DecodeResourceName((string)parameters[NameParameterName]);
+            var hash = (string)parameters[HashParameterName];
             if (resources.FindResource(name) is IResource resource)
             {
                 var location = FindLocation(resource, out mimeType);
                 if (GetVersionHash(location, context, name) == hash) // check if the resource matches so that nobody can guess the url by chance
                 {
                     if (alternateDirectories != null)
+                    {
                         alternateDirectories.GetOrAdd(hash, _ => (location as IDebugFileLocalLocation)?.GetFilePath(context));
+                    }
+
                     return location;
                 }
             }
@@ -77,7 +97,10 @@ namespace DotVVM.Framework.ResourceManagement
                 if (directory != null)
                 {
                     var sourceFile = Path.Combine(directory, name);
-                    if (File.Exists(sourceFile)) return new FileResourceLocation(sourceFile);
+                    if (File.Exists(sourceFile))
+                    {
+                        return new FileResourceLocation(sourceFile);
+                    }
                 }
             }
             return null;
@@ -85,12 +108,17 @@ namespace DotVVM.Framework.ResourceManagement
 
         protected ILocalResourceLocation FindLocation(IResource resource, out string mimeType)
         {
-            var linkResource = resource as ILinkResource;
-            mimeType = linkResource?.MimeType;
-            return linkResource
-                   ?.GetLocations()
-                   ?.OfType<ILocalResourceLocation>()
-                   ?.FirstOrDefault();
+            if (!(resource is ILinkResource link))
+            {
+                mimeType = null;
+                return null;
+            }
+
+            mimeType = link.MimeType;
+            return link
+                .GetLocations()
+                .OfType<ILocalResourceLocation>()
+                .FirstOrDefault();
         }
     }
 }
