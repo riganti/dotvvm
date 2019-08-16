@@ -93,7 +93,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         {
             // There are two uses for this custom list type:
             // 1) it's private, and thus (unlike List<object>) cannot be confused with real annotations
-            // 2) It allows us to simplify the cloning logic by making the list behave the same as a clonable annotation.
+            // 2) It allows us to simplify the cloning logic by making the list behave the same as a cloneable annotation.
             public AnnotationList(int initialCapacity) : base(initialCapacity)
             {
             }

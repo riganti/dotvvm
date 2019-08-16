@@ -18,7 +18,7 @@ namespace DotVVM.Framework.ResourceManagement
         }
 
         public static string GetRenderedTextCached(this NamedResource resource, IDotvvmRequestContext context) =>
-            // dont use cache when debug, so the resource can be refreshed when file is changed
+            // don't use cache when debug, so the resource can be refreshed when file is changed
             context.Configuration.Debug ?
             RenderToString(resource, context) :
             renderedCache.GetValue(resource.Resource, _ => RenderToString(resource, context));

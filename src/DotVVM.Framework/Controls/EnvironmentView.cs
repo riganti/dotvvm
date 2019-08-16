@@ -19,7 +19,7 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
-        /// Gets or sets a comma-separated list of hosting environments (eg. Development, Production).
+        /// Gets or sets a comma-separated list of hosting environments (e.g. Development, Production).
         /// </summary>
         [MarkupOptions(AllowBinding = false, Required = true)]
         public string[] Environments

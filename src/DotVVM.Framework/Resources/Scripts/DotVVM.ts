@@ -106,7 +106,7 @@ class DotVVM {
         before: ["setIsPostbackRunning", "concurrency-default", "concurrency-queue", "concurrency-deny"],
         execute: <T>(callback: () => Promise<T>, options: PostbackOptions) => {
             if (options.sender && dotvvm.isPostBackProhibited(options.sender)) {
-                return Promise.reject({ type: "handler", handler: this, message: "PostBack is prohitibited on disabled element" })
+                return Promise.reject({ type: "handler", handler: this, message: "PostBack is prohibited on disabled element" })
             }
             else return callback()
         }
