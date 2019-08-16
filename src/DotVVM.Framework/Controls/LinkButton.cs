@@ -26,7 +26,7 @@ namespace DotVVM.Framework.Controls
                 throw new DotvvmControlException(this, "The <dot:LinkButton> control cannot have both inner content and the Text property set!");
             }
 
-            writer.AddAttribute("href", "#");
+            writer.AddAttribute("href", "javascript:;");
 
 			var textbinding = GetValueBinding(TextProperty);
 			if (textbinding != null) writer.AddKnockoutDataBind("text", textbinding.GetKnockoutBindingExpression(this));

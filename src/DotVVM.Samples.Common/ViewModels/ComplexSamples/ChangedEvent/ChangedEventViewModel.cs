@@ -12,6 +12,8 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.ChangedEvent
 
         public string Text2 { get; set; }
 
+        public string Text3 { get; set; }
+
         public bool IsChecked { get; set; }
 
         public int IdChange { get; set; }
