@@ -380,6 +380,18 @@ namespace DotVVM.Samples.Tests
         }
 
         [Fact]
+        public void Error_InvalidLocationFallback()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_InvalidLocationFallback);
+
+                AssertUI.TextEquals(browser.First(".exceptionType"), "System.NotSupportedException");
+                AssertUI.TextEquals(browser.First(".exceptionMessage"), "LocationFallback is " +
+                    "not supported on resources with Location of type ILocalResourceLocation.");
+            });
+        }
+
+        [Fact]
         public void Error_ResourceCircularDependency()
         {
             RunInAllBrowsers(browser => {
