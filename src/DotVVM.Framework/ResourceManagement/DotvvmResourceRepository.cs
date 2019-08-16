@@ -69,7 +69,7 @@ namespace DotVVM.Framework.ResourceManagement
 
             ValidateResourceName(name);
             ValidateResourceLocation(resource, name);
-            ValidateDependencies(resource, name);
+            ResourceUtils.AssertAcyclicDependencies(resource, name, FindResource);
             if (replaceIfExists)
             {
                 Resources.AddOrUpdate(name, resource, (key, res) => resource);
@@ -131,35 +131,6 @@ namespace DotVVM.Framework.ResourceManagement
         public NamedResource FindNamedResource(string name)
         {
             return new NamedResource(name, FindResource(name));
-        }
-
-        private void ValidateDependencies(IResource resource, string name)
-        {
-            var visited = new HashSet<string> { name };
-            var queue = new Queue<string>();
-            foreach(var dependency in resource.Dependencies)
-            {
-                queue.Enqueue(dependency);
-            }
-            while(queue.Count > 0)
-            {
-                var currentName = queue.Dequeue();
-                if (visited.Contains(currentName))
-                {
-                    // dependency cycle detected
-                    throw new DotvvmResourceException($"Resource \"{name}\" has a cyclic " +
-                        $"dependency.");
-                }
-                visited.Add(currentName);
-                var current = FindResource(currentName);
-                if (current != null)
-                {
-                    foreach(var dependency in current.Dependencies)
-                    {
-                        queue.Enqueue(dependency);
-                    }
-                }
-            }
         }
     }
 }

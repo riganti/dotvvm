@@ -379,6 +379,20 @@ namespace DotVVM.Samples.Tests
             });
         }
 
+        [Fact]
+        public void Error_ResourceCircularDependency()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_ResourceCircularDependency);
+
+                AssertUI.TextEquals(browser.First("exceptionType", By.ClassName),
+                    "DotVVM.Framework.ResourceManagement.DotvvmResourceException");
+                AssertUI.TextEquals(browser.First("exceptionMessage", By.ClassName),
+                    "Resource \"Errors_ResourceCircularDependency\" has a cyclic dependency.");
+            });
+
+        }
+
         public ErrorsTests(ITestOutputHelper output) : base(output)
         {
         }
