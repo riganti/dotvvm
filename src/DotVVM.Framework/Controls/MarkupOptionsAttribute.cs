@@ -33,7 +33,7 @@ namespace DotVVM.Framework.Controls
         public bool AllowValueMerging { get; set; }
 
         /// <summary>
-        /// Type with non parametric contstructor which implements IAttributeValueMerger interface
+        /// Type with non parametric constructor which implements IAttributeValueMerger interface
         /// </summary>
         public Type AttributeValueMerger { get; set; } = typeof(DefaultAttributeValueMerger);
 
@@ -43,7 +43,7 @@ namespace DotVVM.Framework.Controls
         public MappingMode MappingMode { get; set; } = MappingMode.Attribute;
 
         /// <summary>
-        /// Determines whether attributes without value are alowed.
+        /// Determines whether attributes without value are allowed.
         /// </summary>
         public bool AllowAttributeWithoutValue { get; set; }
 

@@ -40,7 +40,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
                 ReadBinding(usesDoubleBraces);
                 //Finished?
                 Assert(Peek() == NullChar);
-                //Propertly opened/closed
+                //Properly opened/closed
                 Assert((Tokens.FirstOrDefault()?.Length ?? 0) > 0);
                 Assert((Tokens.LastOrDefault()?.Length ?? 0) > 0);
                 return true;

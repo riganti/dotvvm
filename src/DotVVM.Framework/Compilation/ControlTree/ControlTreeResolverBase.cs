@@ -443,7 +443,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 var name = assigment.FirstExpression as SimpleNameBindingParserNode;
                 if (name == null)
                 {
-                    directiveNode.AddError($"Identifier expected on the left side of the assigment.");
+                    directiveNode.AddError($"Identifier expected on the left side of the assignment.");
                     name = new SimpleNameBindingParserNode(new BindingToken{ Text = "service" });
                 }
                 var type = assigment.SecondExpression;

@@ -394,7 +394,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         }
 
         /// <summary>
-        /// Gets the next node which fullfills a given predicate
+        /// Gets the next node which fulfills a given predicate
         /// </summary>
         /// <returns>The next node.</returns>
         /// <param name="pred">The predicate.</param>
@@ -416,7 +416,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         }
 
         /// <summary>
-        /// Gets the previous node which fullfills a given predicate
+        /// Gets the previous node which fulfills a given predicate
         /// </summary>
         /// <returns>The next node.</returns>
         /// <param name="pred">The predicate.</param>
@@ -429,7 +429,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         }
 
         /// <summary>
-        /// Gets the next sibling which fullfills a given predicate
+        /// Gets the next sibling which fulfills a given predicate
         /// </summary>
         /// <returns>The next node.</returns>
         /// <param name="pred">The predicate.</param>
@@ -442,7 +442,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         }
 
         /// <summary>
-        /// Gets the next sibling which fullfills a given predicate
+        /// Gets the next sibling which fulfills a given predicate
         /// </summary>
         /// <returns>The next node.</returns>
         /// <param name="pred">The predicate.</param>

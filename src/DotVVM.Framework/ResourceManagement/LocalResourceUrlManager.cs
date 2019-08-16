@@ -58,7 +58,7 @@ namespace DotVVM.Framework.ResourceManagement
             if (resources.FindResource(name) is IResource resource)
             {
                 var location = FindLocation(resource, out mimeType);
-                if (GetVersionHash(location, context, name) == hash) // check if the resource matches so that nobody can gues the url by chance
+                if (GetVersionHash(location, context, name) == hash) // check if the resource matches so that nobody can guess the url by chance
                 {
                     if (alternateDirectories != null)
                         alternateDirectories.GetOrAdd(hash, _ => (location as IDebugFileLocalLocation)?.GetFilePath(context));

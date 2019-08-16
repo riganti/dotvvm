@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Binding
     public class DotvvmPropertyWithFallback : DotvvmProperty
     {
         /// <summary>
-        /// Gets the property which value will be used as a follback when this property is not set.
+        /// Gets the property which value will be used as a fallback when this property is not set.
         /// </summary>
         public DotvvmProperty FallbackProperty { get; protected set; }
 
@@ -39,7 +39,7 @@ namespace DotVVM.Framework.Binding
         /// Registers a new DotVVM property which fallbacks to the <paramref name="fallbackProperty" /> when not set.
         /// </summary>
         /// <param name="propertyAccessor">The expression pointing to instance property.</param>
-        /// <param name="fallbackProperty">The property which value will be used as a follback when the new property is not set.</param>
+        /// <param name="fallbackProperty">The property which value will be used as a fallback when the new property is not set.</param>
         /// <param name="isValueInherited">Indicates whether the value can be inherited from the parent controls.</param>
         public static DotvvmProperty Register<TPropertyType, TDeclaringType>(Expression<Func<TDeclaringType, object>> propertyAccessor, DotvvmProperty fallbackProperty, bool isValueInherited = false)
         {
@@ -52,7 +52,7 @@ namespace DotVVM.Framework.Binding
         /// Registers a new DotVVM property which fallbacks to the <paramref name="fallbackProperty" /> when not set.
         /// </summary>
         /// <param name="propertyName">The name of the property.</param>
-        /// <param name="fallbackProperty">The property which value will be used as a follback when the new property is not set.</param>
+        /// <param name="fallbackProperty">The property which value will be used as a fallback when the new property is not set.</param>
         /// <param name="isValueInherited">Indicates whether the value can be inherited from the parent controls.</param>
         public static DotvvmPropertyWithFallback Register<TPropertyType, TDeclaringType>(string propertyName, DotvvmProperty fallbackProperty, bool isValueInherited = false)
         {

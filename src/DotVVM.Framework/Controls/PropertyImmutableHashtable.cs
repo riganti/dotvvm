@@ -84,7 +84,7 @@ namespace DotVVM.Framework.Controls
             return tableCache.GetOrAdd(a, keys => {
                 if (keys.Length < 4)
                 {
-                    // just pad them to make things regural
+                    // just pad them to make things regular
                     var result = new DotvvmProperty[4];
                     Array.Copy(keys, result, keys.Length);
                     return (0, result);

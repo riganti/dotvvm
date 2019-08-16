@@ -888,7 +888,7 @@ var DotVVM = /** @class */ (function () {
             before: ["setIsPostbackRunning", "concurrency-default", "concurrency-queue", "concurrency-deny"],
             execute: function (callback, options) {
                 if (options.sender && dotvvm.isPostBackProhibited(options.sender)) {
-                    return Promise.reject({ type: "handler", handler: _this, message: "PostBack is prohitibited on disabled element" });
+                    return Promise.reject({ type: "handler", handler: _this, message: "PostBack is prohibited on disabled element" });
                 }
                 else
                     return callback();
