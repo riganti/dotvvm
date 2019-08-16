@@ -176,13 +176,6 @@ namespace DotVVM.Framework.ResourceManagement
         public IEnumerable<NamedResource> GetNamedResourcesInOrder()
         {
             var result = requiredResourcesOrdered.Select(k => new NamedResource(k, requiredResources[k]));
-            foreach (var namedResource in result)
-            {
-                ResourceUtils.AssertAcyclicDependencies(
-                    namedResource.Resource,
-                    namedResource.Name,
-                    FindResource);
-            }
 
             foreach (var proc in repository.DefaultResourceProcessors)
             {

@@ -21,7 +21,7 @@ namespace DotVVM.Framework.ResourceManagement
             string name,
             Func<string, IResource> findResource)
         {
-            var visited = new HashSet<string> { name };
+            var visited = new HashSet<IResource> { resource };
             var queue = new Queue<string>();
             foreach (var dependency in resource.Dependencies)
             {
@@ -30,14 +30,14 @@ namespace DotVVM.Framework.ResourceManagement
             while (queue.Count > 0)
             {
                 var currentName = queue.Dequeue();
-                if (visited.Contains(currentName))
+                var current = findResource(currentName);
+                if (visited.Contains(current))
                 {
                     // dependency cycle detected
                     throw new DotvvmResourceException($"Resource \"{name}\" has a cyclic " +
                         $"dependency.");
                 }
-                visited.Add(currentName);
-                var current = findResource(currentName);
+                visited.Add(current);
                 if (current != null)
                 {
                     foreach (var dependency in current.Dependencies)
