@@ -57,8 +57,18 @@ namespace DotVVM.Samples.Common
                 LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new FileResourceLocation("~/Scripts/testResource2.js"))
             });
 
-            resources.Register("extenders", new ScriptResource
-            {
+            // resource that triggers the circular dependency check in the render phase
+            var circular = new ScriptResource { Location = new FileResourceLocation("~/Scripts/testResource.js") };
+            resources.Register("Errors_ResourceCircularDependency", circular);
+            var circular2 = new ScriptResource {
+                Location = new FileResourceLocation("~/Scripts/testResource2.js"),
+                Dependencies = new [] { "Errors_ResourceCircularDependency" }
+            };
+            resources.Register("Errors_ResourceCircularDependency2", circular2);
+            circular.Dependencies = new[] { "Errors_ResourceCircularDependency" };
+            
+
+            resources.Register("extenders", new ScriptResource {
                 Location = new FileResourceLocation("Scripts/ClientExtenders.js")
             });
 
