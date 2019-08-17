@@ -14,5 +14,16 @@ namespace DotVVM.Framework.ResourceManagement
                 return manager.AddTemplateResource(text.ToString());
             }
         }
+
+        public static string ReadToString(this ILocalResourceLocation location, IDotvvmRequestContext context)
+        {
+            using (var resourceStream = location.LoadResource(context))
+            {
+                using (var resourceStreamReader = new StreamReader(resourceStream))
+                {
+                    return resourceStreamReader.ReadToEnd();
+                }
+            }
+        }
     }
 }

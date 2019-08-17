@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using Newtonsoft.Json;
@@ -22,18 +23,25 @@ namespace DotVVM.Framework.ResourceManagement
         {
             this.Code = code;
         }
+        public InlineScriptResource(ILocalResourceLocation resourceLocation, ResourceRenderPosition renderPosition = ResourceRenderPosition.Body) : base(renderPosition)
+        {
+            this.resourceLocation = resourceLocation;
+        }
+
+        private ILocalResourceLocation resourceLocation;
+        private volatile Lazy<string> code;
 
         /// <summary>
         /// Gets or sets the javascript code that will be embedded in the page.
         /// </summary>
-        private string _code;
         public string Code
         {
-            get => _code;
+            get => code?.Value ?? throw new Exception("`ILocalResourceLocation` can not be read using property `Code`.");
             set
             {
                 InlineScriptContentGuard(value);
-                _code = value;
+                this.resourceLocation = new InlineResourceLocation(value);
+                this.code = new Lazy<string>(() => value);
             }
         }
 
@@ -48,10 +56,20 @@ namespace DotVVM.Framework.ResourceManagement
         /// </summary>
         public override void Render(IHtmlWriter writer, IDotvvmRequestContext context, string resourceName)
         {
-            if (string.IsNullOrWhiteSpace(Code)) return;
+            if (this.code == null)
+            {
+                Interlocked.CompareExchange(ref this.code, new Lazy<string>(() => {
+                    var c = resourceLocation.ReadToString(context);
+                    InlineScriptContentGuard(c);
+                    return c;
+                }), null);
+            }
+            var code = this.code.Value;
+
+            if (string.IsNullOrWhiteSpace(code)) return;
             writer.AddAttribute("type", "text/javascript");
             writer.RenderBeginTag("script");
-            writer.WriteUnencodedText(Code);
+            writer.WriteUnencodedText(code);
             writer.RenderEndTag();
         }
     }
