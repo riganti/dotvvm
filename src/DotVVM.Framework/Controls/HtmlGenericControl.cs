@@ -256,7 +256,7 @@ namespace DotVVM.Framework.Controls
                     if (true.Equals(this.GetValue(cssClass)))
                         writer.AddAttribute("class", cssClass.GroupMemberName, append: true, appendSeparator: " ");
                 }
-                catch { }
+                catch when (HasValueBinding(cssClass)) { }
             }
 
             if (!cssClassBindingGroup.IsEmpty) writer.AddKnockoutDataBind("css", cssClassBindingGroup);
