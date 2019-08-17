@@ -281,7 +281,8 @@ namespace DotVVM.Framework.Controls
                         writer.AddStyleAttribute(styleProperty.GroupMemberName, value);
                     }
                 }
-                catch { }
+                // suppress all errors when we have rendered the value binding anyway
+                catch when (HasValueBinding(styleProperty)) { }
             }
 
             if (cssStylesBindingGroup != null)
