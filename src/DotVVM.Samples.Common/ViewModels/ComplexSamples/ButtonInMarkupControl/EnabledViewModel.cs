@@ -9,5 +9,11 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.ButtonInMarkupCo
     public class EnabledViewModel
     {
         public bool Enabled { get; set; }
+
+        public Task Flip()
+        {
+            Enabled = !Enabled;
+            return Task.CompletedTask;
+        }
     }
 }

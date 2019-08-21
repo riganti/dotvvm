@@ -19,12 +19,20 @@ namespace DotVVM.Samples.BasicSamples.Views.ComplexSamples.ButtonInMarkupControl
         public static readonly DotvvmProperty EnabledProperty
             = DotvvmProperty.Register<bool, ButtonWrapper>(c => c.Enabled, true);
 
-        public Command ClickCommand
+        public Command OnCommand
         {
-            get { return (Command)GetValue(ClickCommandProperty); }
-            set { SetValue(ClickCommandProperty, value); }
+            get { return (Command)GetValue(OnCommandProperty); }
+            set { SetValue(OnCommandProperty, value); }
         }
-        public static readonly DotvvmProperty ClickCommandProperty
-            = DotvvmProperty.Register<Command, ButtonWrapper>(c => c.ClickCommand, null);
+        public static readonly DotvvmProperty OnCommandProperty
+            = DotvvmProperty.Register<Command, ButtonWrapper>(c => c.OnCommand, null);
+
+        public Command OffCommand
+        {
+            get { return (Command)GetValue(OffCommandProperty); }
+            set { SetValue(OffCommandProperty, value); }
+        }
+        public static readonly DotvvmProperty OffCommandProperty
+            = DotvvmProperty.Register<Command, ButtonWrapper>(c => c.OffCommand, null);
     }
 }
