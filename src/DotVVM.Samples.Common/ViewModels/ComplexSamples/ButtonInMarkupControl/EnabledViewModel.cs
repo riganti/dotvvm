@@ -10,10 +10,17 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.ButtonInMarkupCo
     {
         public bool Enabled { get; set; }
 
+        public TestDto Dto { get; set; } = new TestDto();
+
         public Task Flip()
         {
             Enabled = !Enabled;
             return Task.CompletedTask;
+        }
+
+        public class TestDto
+        {
+            public string Label { get; set; } = "Hello";
         }
     }
 }
