@@ -34,7 +34,7 @@ namespace DotVVM.Framework.Routing
                 urlBuilders.Add(result.UrlBuilder);
             }
 
-            // We are alwais prepending '/' character to handle optional parameter at the start correctly
+            // We are always prepending '/' character to handle optional parameter at the start correctly
             url = '/' + url;
 
             // go through the route components and parse it

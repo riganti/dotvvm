@@ -6,6 +6,7 @@
 
         public const string GlobalizeCultureUrlPath = "dotvvmGlobalizeCulture";
         public const string GlobalizeCultureUrlIdParameter = "id";
+        public const string ResourceRouteName = "dotvvmResource";
         public const string ResourceHandlerUrl = "~/dotvvmEmbeddedResource?name={0}&assembly={1}";
         public const string ResourceHandlerMatchUrl = "dotvvmEmbeddedResource";
 

@@ -387,18 +387,13 @@ declare class DotvvmNotNullValidator extends DotvvmValidatorBase {
 declare class DotvvmEmailAddressValidator extends DotvvmValidatorBase {
     isValid(context: DotvvmValidationContext): boolean;
 }
-declare type KnockoutValidatedObservable<T> = KnockoutObservable<T> & {
-    validationErrors?: KnockoutObservableArray<ValidationError>;
-};
+declare const ErrorsPropertyName = "validationErrors";
 declare class ValidationError {
-    validatedObservable: KnockoutValidatedObservable<any>;
     errorMessage: string;
-    constructor(validatedObservable: KnockoutValidatedObservable<any>, errorMessage: string);
-    static getOrCreate(validatedObservable: KnockoutValidatedObservable<any> & {
-        wrappedProperty?: any;
-    }): KnockoutObservableArray<ValidationError>;
-    static isValid(validatedObservable: KnockoutValidatedObservable<any>): boolean;
-    clear(validation: DotvvmValidation): void;
+    validatedObservable: KnockoutObservable<any>;
+    private constructor();
+    static attach(errorMessage: string, observable: KnockoutObservable<any>): ValidationError;
+    detach(): void;
 }
 interface IDotvvmViewModelInfo {
     validationRules?: {
@@ -418,9 +413,14 @@ declare type DotvvmValidationRules = {
 declare type DotvvmValidationElementUpdateFunctions = {
     [name: string]: (element: HTMLElement, errorMessages: string[], param: any) => void;
 };
+declare type ValidationSummaryBinding = {
+    target: KnockoutObservable<any>;
+    includeErrorsFromChildren: boolean;
+    includeErrorsFromTarget: boolean;
+};
 declare class DotvvmValidation {
     rules: DotvvmValidationRules;
-    errors: KnockoutObservableArray<ValidationError>;
+    errors: ValidationError[];
     events: {
         validationErrorsChanged: DotvvmEvent<DotvvmEventArgs>;
     };
@@ -430,26 +430,27 @@ declare class DotvvmValidation {
      * Validates the specified view model
     */
     validateViewModel(viewModel: any): void;
-    validateProperty(viewModel: any, property: KnockoutObservable<any>, value: any, rulesForProperty: IDotvvmPropertyValidationRuleInfo[]): void;
+    validateProperty(viewModel: any, property: KnockoutObservable<any>, value: any, propertyRules: IDotvvmPropertyValidationRuleInfo[]): void;
     mergeValidationRules(args: DotvvmAfterPostBackEventArgs): void;
     /**
-      * Clears validation errors from the passed viewModel, from its children
-      * and from the DotvvmValidation.errors array
-    */
-    clearValidationErrors(validatedObservable: KnockoutValidatedObservable<any>): void;
+     * Clears validation errors from the passed viewModel, from its children
+     * and from the DotvvmValidation.errors array
+     */
+    clearValidationErrors(observable: KnockoutObservable<any>): void;
+    detachAllErrors(): void;
     /**
      * Gets validation errors from the passed object and its children.
-     * @param target Object that is supposed to contain the errors or properties with the errors
+     * @param validationTargetObservable Object that is supposed to contain the errors or properties with the errors
      * @param includeErrorsFromGrandChildren Is called "IncludeErrorsFromChildren" in ValidationSummary.cs
-     * @param includeErrorsFromChildren Sets whether to include errors from children at all
      * @returns By default returns only errors from the viewModel's immediate children
      */
-    getValidationErrors(validationTargetObservable: KnockoutValidatedObservable<any>, includeErrorsFromGrandChildren: any, includeErrorsFromTarget: any, includeErrorsFromChildren?: boolean): ValidationError[];
+    getValidationErrors(validationTargetObservable: KnockoutObservable<any>, includeErrorsFromGrandChildren: boolean, includeErrorsFromTarget: boolean, includeErrorsFromChildren?: boolean): ValidationError[];
     /**
      * Adds validation errors from the server to the appropriate arrays
      */
     showValidationErrorsFromServer(args: DotvvmAfterPostBackEventArgs): void;
-    private addValidationError;
+    private static hasErrors;
+    private applyValidatorOptions;
 }
 declare var dotvvm: DotVVM;
 declare class DotvvmEvaluator {

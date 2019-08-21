@@ -14,6 +14,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="sampleConfig.json" />
+    <None Remove="Views\ComplexSamples\NestedComboBox\InnerWrapper.dotcontrol" />
+    <None Remove="Views\ComplexSamples\NestedComboBox\OuterWrapper.dotcontrol" />
+    <None Remove="Views\ControlSamples\ComboBox\HeavilyNested.dothtml" />
     <None Remove="Views\ComplexSamples\ButtonInMarkupControl\ButtonWrapper.dotcontrol" />
     <None Remove="Views\ComplexSamples\ButtonInMarkupControl\Enabled.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\Nullable.dothtml" />
@@ -23,12 +26,17 @@
     <None Remove="Views\ControlSamples\RadioButton\Nullable.dothtml" />
     <None Remove="Views\ControlSamples\Repeater\NamedTemplate.dothtml" />
     <None Remove="Views\ControlSamples\ValidationSummary\MessagesRendering.dothtml" />
+    <None Remove="Views\ControlSamples\ValidationSummary\Performance.dothtml" />
     <None Remove="Views\Errors\CorruptedContentBetweenContentControls.dothtml" />
+    <None Remove="Views\Errors\InvalidServiceDirective.dothtml" />
+    <None Remove="Views\Errors\InvalidLocationFallback.dothtml" />
+    <None Remove="Views\Errors\ResourceCircularDependency.dothtml" />
     <None Remove="Views\FeatureSamples\Caching\CachedValues.dothtml" />
     <None Remove="Views\FeatureSamples\Localization\Globalize.dothtml" />
     <None Remove="Views\FeatureSamples\PostBack\RecursiveTextRepeater.dotcontrol" />
     <None Remove="Views\FeatureSamples\PostBack\RecursiveTextRepeater2.dotcontrol" />
     <None Remove="Views\FeatureSamples\PostBack\UniqueIdGenerationOnPostbackUpdate.dothtml" />
+    <None Remove="Views\FeatureSamples\Resources\LocationFallback.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_NullAssignment.dothtml" />
     <None Remove="Views\FeatureSamples\Validation\EnforceClientSideValidationDisabled.dothtml" />
     <None Remove="Views\FeatureSamples\Validation\InvalidCssClassNotDuplicated.dothtml" />

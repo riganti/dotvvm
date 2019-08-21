@@ -14,7 +14,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         public BindingParserNode TypeSyntax { get; }
         public Type Type { get; }
 
-        ITypeDescriptor IAbstractServiceInjectDirective.Type => new ResolvedTypeDescriptor(Type);
+        ITypeDescriptor IAbstractServiceInjectDirective.Type => ResolvedTypeDescriptor.Create(Type);
 
         public ResolvedServiceInjectDirective(SimpleNameBindingParserNode nameSyntax, BindingParserNode typeSyntax, Type injectedType)
         {
