@@ -365,7 +365,7 @@ class DotVVM {
         return this.postBackCounter === currentPostBackCounter;
     }
 
-    public staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback = _ => { }, errorCallback = (xhr: XMLHttpRequest, error?) => { }) {
+    public staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback = _ => { }, errorCallback = (errorInfo: {xhr: XMLHttpRequest, error?: any}) => { }) {
         var data = this.serialization.serialize({
             "args": args,
             "command": command,
@@ -381,14 +381,14 @@ class DotVVM {
                 callback(result);
             } catch (error) {
                 dotvvm.events.staticCommandMethodFailed.trigger({ ...data, xhr: response, error: error })
-                errorCallback(response, error);
+                errorCallback({ xhr: response, error });
             } finally {
                 this.isViewModelUpdating = false;
             }
         }, (xhr) => {
             this.events.error.trigger(new DotvvmErrorEventArgs(sender, this.viewModels[viewModelName].viewModel, viewModelName, xhr, null));
             console.warn(`StaticCommand postback failed: ${xhr.status} - ${xhr.statusText}`, xhr);
-            errorCallback(xhr);
+            errorCallback({ xhr });
             dotvvm.events.staticCommandMethodFailed.trigger({ ...data, xhr })
         },
             xhr => {
