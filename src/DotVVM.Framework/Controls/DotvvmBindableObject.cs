@@ -81,7 +81,7 @@ namespace DotVVM.Framework.Controls
         internal object EvalPropertyValue(DotvvmProperty property, object value)
         {
             if (property.IsBindingProperty) return value;
-            while (value is IBinding)
+            if (value is IBinding)
             {
                 DotvvmBindableObject control = this;
                 // DataContext is always bound to it's parent, setting it right here is a bit faster
@@ -94,6 +94,10 @@ namespace DotVVM.Framework.Controls
                 else if (value is ICommandBinding command)
                 {
                     value = command.GetCommandDelegate(control);
+                }
+                else
+                {
+                    throw new NotSupportedException($"Can not evaluate binding {value} of type {value.GetType().Name}.");
                 }
             }
             return value;
