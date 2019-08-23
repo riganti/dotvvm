@@ -28,10 +28,10 @@ namespace DotVVM.Framework.Compilation.Styles
             return field.GetValue(null) as DotvvmProperty;
         }
 
-        public StyleBuilder<T> SetProperty<TProperty>(Expression<Func<T, TProperty>> property, TProperty value)
+        public StyleBuilder<T> SetProperty<TProperty>(Expression<Func<T, TProperty>> property, TProperty value, StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
         {
             var propertyName = ReflectionUtils.GetMemberFromExpression(property.Body).Name;
-            return SetDotvvmProperty(GetProperty(propertyName), value);
+            return SetDotvvmProperty(GetProperty(propertyName), value, options);
         }
 
         public StyleBuilder<T> SetControlProperty<TControlType>(DotvvmProperty property, Action<StyleBuilder<TControlType>> styleBuilder = null,
