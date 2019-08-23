@@ -40,8 +40,9 @@ namespace DotVVM.Framework.Compilation.Styles
             var innerControlStyleBuilder = new StyleBuilder<TControlType>(null, false);
             styleBuilder?.Invoke(innerControlStyleBuilder);
 
-            style.SetProperties[property] = new CompileTimeStyleBase.PropertyControlCollectionInsertionInfo(property, options,
+            var value = new CompileTimeStyleBase.PropertyControlCollectionInsertionInfo(property, options,
                 new ControlResolverMetadata(typeof(TControlType)), innerControlStyleBuilder.GetStyle(), ctorParameters: null);
+            style.SetProperties.Add((property, value));
 
             return this;
         }
@@ -54,8 +55,10 @@ namespace DotVVM.Framework.Compilation.Styles
             var innerControlStyleBuilder = new StyleBuilder<HtmlGenericControl>(null, false);
             styleBuilder?.Invoke(innerControlStyleBuilder);
 
-            style.SetProperties[property] = new CompileTimeStyleBase.PropertyControlCollectionInsertionInfo(property, options,
+            var value = new CompileTimeStyleBase.PropertyControlCollectionInsertionInfo(property, options,
                 new ControlResolverMetadata(typeof(HtmlGenericControl)), innerControlStyleBuilder.GetStyle(), ctorParameters: new object[] { tag });
+
+            style.SetProperties.Add((property, value));
 
             return this;
         }
@@ -70,15 +73,16 @@ namespace DotVVM.Framework.Compilation.Styles
                 String.IsNullOrWhiteSpace(text)
             };
 
-            style.SetProperties[property] = new CompileTimeStyleBase.PropertyControlCollectionInsertionInfo(property, options,
+            var value = new CompileTimeStyleBase.PropertyControlCollectionInsertionInfo(property, options,
                 new ControlResolverMetadata(typeof(RawLiteral)), innerControlStyleBuilder.GetStyle(), ctorParameters);
+            style.SetProperties.Add((property, value));;
 
             return this;
         }
 
         public StyleBuilder<T> SetDotvvmProperty(ResolvedPropertySetter setter, StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
         {
-            style.SetProperties[setter.Property] = new CompileTimeStyleBase.PropertyInsertionInfo(setter, options);
+            style.SetProperties.Add((setter.Property, new CompileTimeStyleBase.PropertyInsertionInfo(setter, options)));
             return this;
         }
 

@@ -19,9 +19,19 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
                 .SetControlProperty<ConfirmPostBackHandler>(PostBack.HandlersProperty, s => s.SetProperty(c => c.Message, "Are you sure?"), StyleOverrideOptions.Append);
 
             config.Styles
+                .Register<Button>(m => m.HasHtmlAttribute("data-very-dangerous"))
+                .SetControlProperty<ConfirmPostBackHandler>(PostBack.HandlersProperty, s => s.SetProperty(c => c.Message, "Are you really really sure?"), StyleOverrideOptions.Append);
+
+            config.Styles
+                .Register<LinkButton>(m => m.HasHtmlAttribute("data-manyhandlers"))
+                .SetControlProperty<ConfirmPostBackHandler>(PostBack.HandlersProperty, s => s.SetProperty(c => c.Message, "1"), StyleOverrideOptions.Append)
+                .SetControlProperty<ConfirmPostBackHandler>(PostBack.HandlersProperty, s => s.SetProperty(c => c.Message, "2"), StyleOverrideOptions.Append)
+                .SetControlProperty<ConfirmPostBackHandler>(PostBack.HandlersProperty, s => s.SetProperty(c => c.Message, "3"), StyleOverrideOptions.Append)
+                .SetControlProperty<ConfirmPostBackHandler>(PostBack.HandlersProperty, s => s.SetProperty(c => c.Message, "4"), StyleOverrideOptions.Append);
+
+            config.Styles
                 .Register<Repeater>()
                 .SetHtmlControlProperty(Repeater.SeparatorTemplateProperty, "hr", options: StyleOverrideOptions.Ignore);
-
         });
 
         [TestMethod]
@@ -87,6 +97,41 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             var separator = repeater.Properties[Repeater.SeparatorTemplateProperty].CastTo<ResolvedPropertyTemplate>().Content.Single();
             Assert.AreEqual(typeof(HtmlGenericControl), separator.Metadata.Type);
             Assert.AreEqual("div", separator.ConstructorParameters.Single());
+        }
+
+        [TestMethod]
+        public void SetControlProperty_TwoAppendedStyles()
+        {
+                        var button = resolver.ParseSource(
+@"<dot:Button data-dangerous data-very-dangerous>
+    <PostBack.Handlers>
+        <dot:ConfirmPostBackHandler Message='This is dangerous!' />
+    </PostBack.Handlers>
+</dot:Button>")
+                .Content.SelectRecursively(c => c.Content)
+                .Single(c => c.Metadata.Type == typeof(Button));
+            var handlers = button.Properties[PostBack.HandlersProperty].CastTo<ResolvedPropertyControlCollection>().Controls;
+            Assert.AreEqual(3, handlers.Count);
+            var messages = handlers.Select(h => h.Properties[ConfirmPostBackHandler.MessageProperty].CastTo<ResolvedPropertyValue>().Value.CastTo<string>()).ToArray();
+            Assert.AreEqual("This is dangerous!", messages[0]);
+            Assert.AreEqual("Are you sure?", messages[1]);
+            Assert.AreEqual("Are you really really sure?", messages[2]);
+        }
+
+        [TestMethod]
+        public void SetControlProperty_MoreAppendedStyles()
+        {
+            var button = resolver.ParseSource(
+@"<dot:LinkButton data-manyhandlers />")
+                .Content.SelectRecursively(c => c.Content)
+                .Single(c => c.Metadata.Type == typeof(LinkButton));
+            var handlers = button.Properties[PostBack.HandlersProperty].CastTo<ResolvedPropertyControlCollection>().Controls;
+            Assert.AreEqual(4, handlers.Count);
+            var messages = handlers.Select(h => h.Properties[ConfirmPostBackHandler.MessageProperty].CastTo<ResolvedPropertyValue>().Value.CastTo<string>()).ToArray();
+            Assert.AreEqual("1", messages[0]);
+            Assert.AreEqual("2", messages[1]);
+            Assert.AreEqual("3", messages[2]);
+            Assert.AreEqual("4", messages[3]);
         }
     }
 }

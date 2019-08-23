@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Compilation.Styles
 {
     public abstract class CompileTimeStyleBase : IStyle
     {
-        public Dictionary<DotvvmProperty, IPropertyInsertionInfo> SetProperties { get; } = new Dictionary<DotvvmProperty, IPropertyInsertionInfo>();
+        public List<(DotvvmProperty property, IPropertyInsertionInfo value)> SetProperties { get; } = new List<(DotvvmProperty property, IPropertyInsertionInfo value)>();
 
         public IStyleApplicator Applicator => new StyleApplicator(this);
 
@@ -28,12 +28,12 @@ namespace DotVVM.Framework.Compilation.Styles
             {
                 foreach (var prop in SetProperties)
                 {
-                    if (!control.Properties.ContainsKey(prop.Key)
-                        || prop.Value.Type == StyleOverrideOptions.Append
-                        || prop.Value.Type == StyleOverrideOptions.Overwrite)
+                    if (!control.Properties.ContainsKey(prop.property)
+                        || prop.value.Type == StyleOverrideOptions.Append
+                        || prop.value.Type == StyleOverrideOptions.Overwrite)
                     {
-                        control.SetProperty(prop.Value.GetPropertySetter(control, configuration),
-                            prop.Value.Type == StyleOverrideOptions.Overwrite, out string error);
+                        control.SetProperty(prop.value.GetPropertySetter(control, configuration),
+                            prop.value.Type == StyleOverrideOptions.Overwrite, out string error);
                     }
                 }
             }
