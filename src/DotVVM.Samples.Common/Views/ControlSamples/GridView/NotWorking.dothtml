@@ -1,0 +1,35 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView.NotWorkingViewModel
+
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+    <dot:GridView DataSource="{value: EventRegistrations}"
+                  InlineEditing="true"
+                  RenderSettings.Mode="Server"
+                  PostBack.Update="true">
+        <dot:GridViewTextColumn ValueBinding="{value: FirstName}" HeaderText="First Name" />
+        <dot:GridViewTextColumn ValueBinding="{value: LastName}" HeaderText="Last Name" />
+        <dot:GridViewTextColumn ValueBinding="{value: Email}" HeaderText="E-mail" />
+        <dot:GridViewTextColumn ValueBinding="{value: SkuDescription}" HeaderText="Item" IsEditable="false" />
+        <dot:GridViewTextColumn ValueBinding="{value: Notes}" HeaderText="Notes" />
+        <dot:GridViewTemplateColumn>
+            <ContentTemplate>
+                <dot:LinkButton Click="{command: _root.EditEventRegistration(Id)}">
+                    <span>Pencil</span>
+                </dot:LinkButton>
+            </ContentTemplate>
+            <EditTemplate>
+                <dot:LinkButton Click="{command: _root.SaveEventRegistration(_this)}">
+                    <span>Ok</span>
+                </dot:LinkButton>
+                <dot:LinkButton Click="{command: _root.CancelEventRegistration()}">
+                    <span>Repeat</span>
+                </dot:LinkButton>
+            </EditTemplate>
+        </dot:GridViewTemplateColumn>
+    </dot:GridView>
+</body>
+</html>

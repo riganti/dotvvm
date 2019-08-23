@@ -18,6 +18,7 @@
     <None Remove="Views\ComplexSamples\NestedComboBox\OuterWrapper.dotcontrol" />
     <None Remove="Views\ControlSamples\ComboBox\HeavilyNested.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\Nullable.dothtml" />
+    <None Remove="Views\ControlSamples\GridView\NotWorking.dothtml" />
     <None Remove="Views\ControlSamples\Literal\Literal_NumberBinding.dothtml" />
     <None Remove="Views\ControlSamples\MultiSelect\binded.dothtml" />
     <None Remove="Views\ControlSamples\MultiSelect\hardcoded.dothtml" />
