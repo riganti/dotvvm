@@ -18,7 +18,7 @@ using Newtonsoft.Json;
 namespace DotVVM.Framework.Binding.Expressions
 {
     /// <summary>
-    /// Represents typical command binding delegate, quivalent to Func&lt;Task&gt;
+    /// Represents typical command binding delegate, equivalent to Func&lt;Task&gt;
     /// </summary>
     public delegate Task Command();
 

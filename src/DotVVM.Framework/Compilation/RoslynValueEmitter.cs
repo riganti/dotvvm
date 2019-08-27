@@ -117,7 +117,7 @@ namespace DotVVM.Framework.Compilation
             }
             if (IsImmutableObject(type))
                 return EmitValueReference(value);
-            throw new NotSupportedException($"Emiting value of type '{value.GetType().FullName}' is not supported.");
+            throw new NotSupportedException($"Emitting value of type '{value.GetType().FullName}' is not supported.");
         }
 
         protected ExpressionSyntax EmitCreateArray(Type elementType, System.Collections.IEnumerable values)

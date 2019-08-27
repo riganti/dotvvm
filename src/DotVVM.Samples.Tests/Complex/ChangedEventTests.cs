@@ -63,51 +63,79 @@ namespace DotVVM.Samples.Tests.Complex
 
                 AssertUI.InnerTextEquals(totalChanges, "2");
 
+                // third textbox
+                var textBox3 = browser.ElementAt("input[type=text]", 2);
+                browser.FireJsBlur();
+                textBox3.SetFocus();
+                new Actions(browser.Driver).SendKeys("a").Perform();
+                browser.Wait(100);
+                new Actions(browser.Driver).SendKeys("b").Perform();
+                browser.Wait(100);
+                new Actions(browser.Driver).SendKeys("c").Perform();
+                browser.Wait(100);
+                new Actions(browser.Driver).SendKeys(Keys.Backspace).Perform();
+                browser.Wait(100);
+
+                browser.WaitFor(() =>
+                {
+                    AssertUI.InnerTextEquals(totalChanges, "6");
+                }, 1000, 100);
+                var thirdTextBox = browser.First("*[data-id='third-textbox']");
+                AssertUI.InnerTextEquals(thirdTextBox, "ab");
+
+                new Actions(browser.Driver).SendKeys(Keys.Enter).SendKeys(Keys.Tab).Perform();
+                browser.WaitFor(() =>
+                {
+                    AssertUI.InnerTextEquals(thirdTextBox, "ab");
+                }, 1000, 100);
+
+                AssertUI.InnerTextEquals(totalChanges, "6");
+
                 // click on checkbox
                 browser.Click("input[type=checkbox]");
                 browser.WaitFor(() =>
                 {
-                    AssertUI.InnerTextEquals(totalChanges, "3");
+                    AssertUI.InnerTextEquals(totalChanges, "7");
                 }, 1000, 100);
 
                 browser.Click("input[type=checkbox]");
                 browser.WaitFor(() =>
                 {
-                    AssertUI.InnerTextEquals(totalChanges, "4");
+                    AssertUI.InnerTextEquals(totalChanges, "8");
                 }, 1000, 100);
 
                 // click on radio button
                 browser.ElementAt("input[type=radio]", 0).Click();
-                AssertUI.InnerTextEquals(totalChanges, "5");
+                AssertUI.InnerTextEquals(totalChanges, "9");
 
                 browser.ElementAt("input[type=radio]", 1).Click();
-                AssertUI.InnerTextEquals(totalChanges, "6");
+                AssertUI.InnerTextEquals(totalChanges, "10");
 
                 browser.ElementAt("input[type=radio]", 2).Click();
-                AssertUI.InnerTextEquals(totalChanges, "7");
+                AssertUI.InnerTextEquals(totalChanges, "11");
 
                 browser.ElementAt("input[type=radio]", 3).Click();
-                AssertUI.InnerTextEquals(totalChanges, "8");
+                AssertUI.InnerTextEquals(totalChanges, "12");
 
                 browser.ElementAt("input[type=radio]", 4).Click();
-                AssertUI.InnerTextEquals(totalChanges, "9");
+                AssertUI.InnerTextEquals(totalChanges, "13");
 
                 // combo box
                 browser.First("select").Select(1);
                 browser.WaitFor(() =>
                 {
-                    AssertUI.InnerTextEquals(totalChanges, "10");
+                    AssertUI.InnerTextEquals(totalChanges, "14");
                 }, 1000, 100);
                 browser.First("select").Select(2);
                 browser.WaitFor(() =>
                 {
-                    AssertUI.InnerTextEquals(totalChanges, "11");
+                    AssertUI.InnerTextEquals(totalChanges, "15");
                 }, 1000, 100);
 
                 browser.First("select").Select(0);
                 browser.WaitFor(() =>
                 {
-                    AssertUI.InnerTextEquals(totalChanges, "12");
+                    AssertUI.InnerTextEquals(totalChanges, "16");
                 }, 1000, 100);
 
             });

@@ -194,7 +194,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
                 }
                 else if (AutomaticClosingTags.Contains(startElement.FullTagName))
                 {
-                    // elements than can contain itself like <p> are closed on the first occurance of element with the same name
+                    // elements than can contain itself like <p> are closed on the first occurrence of element with the same name
                     var sameElementIndex = startElement.Content.FindIndex(a => (a as DothtmlElementNode)?.FullTagName == startElement.FullTagName);
                     
                     if(sameElementIndex < 0)

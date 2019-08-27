@@ -8,7 +8,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
     [DebuggerDisplay("{debuggerDisplay,nq}")]
     public class DothtmlElementNode : DothtmlNodeWithContent
     {
-        #region debbuger display
+        #region debugger display
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private string debuggerDisplay
         {

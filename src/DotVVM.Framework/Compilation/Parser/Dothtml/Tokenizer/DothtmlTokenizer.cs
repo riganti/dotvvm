@@ -12,6 +12,23 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
     /// </summary>
     public class DothtmlTokenizer : TokenizerBase<DothtmlToken, DothtmlTokenType>
     {
+
+        private static readonly HashSet<char> AllowedAttributeFirstChars = new HashSet<char>()
+        {
+            '_', '[', '('
+        };
+
+        private static readonly HashSet<char> AllowedAttributeChars = new HashSet<char>()
+        {
+            ':', '_', '-', '.', '[', ']', '(', ')'
+        };
+
+        private static readonly HashSet<char> AllowedIdentifierChars = new HashSet<char>()
+        {
+            ':', '_', '-', '.'
+        };
+
+
         public override void Tokenize(string sourceText)
         {
             TokenizeInternal(sourceText, () => { ReadDocument(); return true; });
@@ -19,12 +36,11 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
 
         public bool TokenizeBinding(string sourceText, bool usesDoubleBraces = false)
         {
-            return TokenizeInternal(sourceText, () => 
-            {
+            return TokenizeInternal(sourceText, () => {
                 ReadBinding(usesDoubleBraces);
                 //Finished?
                 Assert(Peek() == NullChar);
-                //Propertly opened/closed
+                //Properly opened/closed
                 Assert((Tokens.FirstOrDefault()?.Length ?? 0) > 0);
                 Assert((Tokens.LastOrDefault()?.Length ?? 0) > 0);
                 return true;
@@ -147,11 +163,6 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
             }
         }
 
-        private static readonly HashSet<char> EnabledIdentifierChars = new HashSet<char>()
-        {
-            ':', '_', '-', '.'
-        };
-
         /// <summary>
         /// Reads the identifier.
         /// </summary>
@@ -162,7 +173,25 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
                 return false;
 
             // read identifier
-            while ((Char.IsLetterOrDigit(Peek()) || EnabledIdentifierChars.Contains(Peek())) && !stopChars.Contains(Peek()))
+            while ((Char.IsLetterOrDigit(Peek()) || AllowedIdentifierChars.Contains(Peek())) && !stopChars.Contains(Peek()))
+            {
+                Read();
+            }
+            CreateToken(tokenType);
+            return true;
+        }
+
+        /// <summary>
+        /// Reads the attribute name.
+        /// </summary>
+        private bool ReadAttributeName(DothtmlTokenType tokenType, params char[] stopChars)
+        {
+            // read first character
+            if ((!char.IsLetter(Peek()) && !AllowedAttributeFirstChars.Contains(Peek())) || stopChars.Contains(Peek()))
+                return false;
+
+            // read identifier
+            while ((Char.IsLetterOrDigit(Peek()) || AllowedAttributeChars.Contains(Peek())) && !stopChars.Contains(Peek()))
             {
                 Read();
             }
@@ -397,10 +426,12 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
         /// </summary>
         private bool ReadTagOrAttributeName(bool isAttributeName)
         {
+            var readIdentifierFunc = isAttributeName ? (Func<DothtmlTokenType, char[], bool>)ReadAttributeName : (Func<DothtmlTokenType, char[], bool>)ReadIdentifier;
+
             if (Peek() != ':')
             {
                 // read the identifier
-                if (!ReadIdentifier(DothtmlTokenType.Text, ':'))
+                if (!readIdentifierFunc(DothtmlTokenType.Text, new[] { ':' }))
                 {
                     return false;
                 }
@@ -416,7 +447,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
                 Read();
                 CreateToken(DothtmlTokenType.Colon);
 
-                if (!ReadIdentifier(DothtmlTokenType.Text))
+                if (!readIdentifierFunc(DothtmlTokenType.Text, new char[] { }))
                 {
                     CreateToken(DothtmlTokenType.Text, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenTag, DothtmlTokenizerErrors.MissingTagName));
                     return true;

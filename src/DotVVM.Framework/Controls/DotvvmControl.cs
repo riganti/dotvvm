@@ -53,7 +53,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(MappingMode = MappingMode.Exclude)]
         public DotvvmControlCollection Children { get; private set; }
 
-        // automaticaly assign requirements
+        // automatically assign requirements
         public ControlLifecycleRequirements LifecycleRequirements = ControlLifecycleRequirements.Init | ControlLifecycleRequirements.Load | ControlLifecycleRequirements.PreRender;
 
         /// <summary>
@@ -429,7 +429,7 @@ namespace DotVVM.Framework.Controls
             for (var i = 0; i < parts.Length; i++)
             {
                 result = result.GetAllDescendants(c => !IsNamingContainer(c))
-                    .SingleOrDefault(c => c.GetValue(Internal.UniqueIDProperty).Equals(parts[i]));
+                    .SingleOrDefault(c => c.GetValue(Internal.UniqueIDProperty) as string == parts[i]);
                 if (result == null)
                 {
                     return null;
@@ -481,7 +481,7 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
-        /// Occurs after the viewmodel is applied to the page IHtmlWriter writerand before the commands are executed.
+        /// Occurs after the viewmodel is applied to the page IHtmlWriter writer and before the commands are executed.
         /// </summary>
         protected internal virtual void OnLoad(IDotvvmRequestContext context)
         {

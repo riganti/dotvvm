@@ -69,6 +69,7 @@ namespace DotVVM.Framework.ResourceManagement
 
             ValidateResourceName(name);
             ValidateResourceLocation(resource, name);
+            ResourceUtils.AssertAcyclicDependencies(resource, name, FindResource);
             if (replaceIfExists)
             {
                 Resources.AddOrUpdate(name, resource, (key, res) => resource);

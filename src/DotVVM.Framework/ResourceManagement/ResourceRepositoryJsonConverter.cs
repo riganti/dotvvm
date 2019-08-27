@@ -80,7 +80,7 @@ namespace DotVVM.Framework.ResourceManagement
         {
             return null;
         }
-
+        
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             var jobj = JObject.Load(reader);

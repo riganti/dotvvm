@@ -12,12 +12,12 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore
         /// </summary>
         public static void EnableDotvvmIntegration(this SwaggerGenOptions options)
         {
-            options.OperationFilter<RemoveReadOnlyFromUriParametersOperationFilter>();
-            options.OperationFilter<RemoveBindNoneFromUriParametersOperationFilter>();
-            options.OperationFilter<AddAsObjectOperationFilter>();
+            options.OperationFilterDescriptors.Add(new FilterDescriptor() { Type = typeof(RemoveReadOnlyFromUriParametersOperationFilter) });
+            options.OperationFilterDescriptors.Add(new FilterDescriptor() { Type = typeof(RemoveBindNoneFromUriParametersOperationFilter) });
+            options.OperationFilterDescriptors.Add(new FilterDescriptor() { Type = typeof(AddAsObjectOperationFilter) });
 
-            options.SchemaFilter<AddTypeToModelSchemaFilter>();
-            options.DocumentFilter<HandleKnownTypesDocumentFilter>();
+            options.SchemaFilterDescriptors.Add(new FilterDescriptor() { Type = typeof(AddTypeToModelSchemaFilter) });
+            options.DocumentFilterDescriptors.Add(new FilterDescriptor() { Type = typeof(HandleKnownTypesDocumentFilter) });
         }
     }
 }
