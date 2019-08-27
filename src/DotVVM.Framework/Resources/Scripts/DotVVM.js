@@ -923,8 +923,10 @@ var DotVVM = /** @class */ (function () {
         this.commonConcurrencyHandler = function (promise, options, queueName) {
             var queue = _this.getPostbackQueue(queueName);
             queue.noRunning++;
+            dotvvm.updateProgressChangeCounter(dotvvm.updateProgressChangeCounter() + 1);
             var dispatchNext = function () {
                 queue.noRunning--;
+                dotvvm.updateProgressChangeCounter(dotvvm.updateProgressChangeCounter() - 1);
                 if (queue.queue.length > 0) {
                     var callback = queue.queue.shift();
                     window.setTimeout(callback, 0);
@@ -970,6 +972,7 @@ var DotVVM = /** @class */ (function () {
         this.fileUpload = new DotvvmFileUpload();
         this.extensions = {};
         this.isPostbackRunning = ko.observable(false);
+        this.updateProgressChangeCounter = ko.observable(0);
     }
     DotVVM.prototype.createWindowSetTimeoutHandler = function (time) {
         return {
@@ -1964,6 +1967,8 @@ var DotVVM = /** @class */ (function () {
             init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
                 element.style.display = "none";
                 var delay = element.getAttribute("data-delay");
+                var includedQueues = (element.getAttribute("data-included-queues") || "").split(",").filter(function (i) { return i.length > 0; });
+                var excludedQueues = (element.getAttribute("data-excluded-queues") || "").split(",").filter(function (i) { return i.length > 0; });
                 var timeout;
                 var running = false;
                 var show = function () {
@@ -1982,8 +1987,20 @@ var DotVVM = /** @class */ (function () {
                     clearTimeout(timeout);
                     element.style.display = "none";
                 };
-                dotvvm.isPostbackRunning.subscribe(function (e) {
-                    if (e) {
+                dotvvm.updateProgressChangeCounter.subscribe(function (e) {
+                    var shouldRun = false;
+                    if (includedQueues.length === 0) {
+                        for (var queue in dotvvm.postbackQueues) {
+                            if (excludedQueues.indexOf(queue) < 0 && dotvvm.postbackQueues[queue].noRunning > 0) {
+                                shouldRun = true;
+                                break;
+                            }
+                        }
+                    }
+                    else {
+                        shouldRun = includedQueues.some(function (q) { return dotvvm.postbackQueues[q] && dotvvm.postbackQueues[q].noRunning > 0; });
+                    }
+                    if (shouldRun) {
                         if (!running) {
                             show();
                         }
