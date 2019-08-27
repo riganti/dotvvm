@@ -325,21 +325,7 @@ namespace DotVVM.Framework.Compilation.Binding
             if (operation == ExpressionType.Coalesce) return Expression.Coalesce(left, right);
             if (operation == ExpressionType.Assign)
             {
-                if (typeof(Task).IsAssignableFrom(right.Type))
-                {
-                    // if we assign a task (e.g. vm.String = GetStringAsync()), defer the assignment after the task is completed and unwrap the task automatically
-                    var resultType = right.Type.GetGenericArguments()[0];
-                    var param = Expression.Parameter(resultType);
-                    var body = GetBinaryOperator(left, param, ExpressionType.Assign);
-                    var assignMethod = Expression.Lambda(body, param);                    
-                    return Expression.Call(typeof(CommandTaskSequenceHelper), nameof(CommandTaskSequenceHelper.AssignTaskResult),
-                        new[] { resultType }, right, assignMethod);
-                }
-                else
-                {
-                    // perform normal assignment
-                    return Expression.Assign(left, TypeConversion.ImplicitConversion(right, left.Type, true, true));
-                }
+                return Expression.Assign(left, TypeConversion.ImplicitConversion(right, left.Type, true, true));
             }
 
             // TODO: type conversions

@@ -11,11 +11,6 @@ namespace DotVVM.Framework.Runtime
 
         // do not change these methods - they are used by binding compiler to support async methods
 
-        public static Task<T> AssignTaskResult<T>(Task<T> task, Func<T, T> assignAction)
-        {
-            return task.ContinueWith(t => assignAction(t.Result));
-        }
-
         public static Task JoinTasks(Task first, Func<Task> second)
         {
             return first.ContinueWith(t => second()).Unwrap();

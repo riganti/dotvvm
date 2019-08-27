@@ -25,14 +25,6 @@ namespace DotVVM.Framework.Compilation.Javascript
                     }
                     return VisitBlock(Expression.Block(first, second));
                 }
-                else if (expression.Method.Name == nameof(CommandTaskSequenceHelper.AssignTaskResult))
-                {
-                    // decompose assignment of async method
-                    var rightSide = Expression.Property(expression.Arguments[0], "Result");
-                    var assignmentBody = ((LambdaExpression)expression.Arguments[1]).Body;
-                    var leftSide = ((BinaryExpression)assignmentBody).Left;
-                    return VisitBinary(Expression.MakeBinary(ExpressionType.Assign, leftSide, rightSide));
-                }
             }
 
             return base.VisitMethodCall(expression);

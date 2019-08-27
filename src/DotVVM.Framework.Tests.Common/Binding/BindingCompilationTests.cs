@@ -296,16 +296,6 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        public void BindingCompiler_Valid_MemberAssignment_TaskUnwrap()
-        {
-            var vm = new TestViewModel() { StringProp = "abc", TestViewModel2 = new TestViewModel2() };
-            var resultTask = ExecuteBinding($"TestViewModel2.SomeString = GetStringPropAsync()", vm) as Task;
-            resultTask.Wait();
-            Assert.AreEqual(vm.StringProp, vm.TestViewModel2.SomeString);
-        }
-
-
-        [TestMethod]
         public void BindingCompiler_Valid_NamespaceAlias()
         {
             var result = ExecuteBinding("Alias.TestClass2.Property", new object[0], null, new NamespaceImport[] { new NamespaceImport("DotVVM.Framework.Tests.Binding.TestNamespace2", "Alias") });
@@ -444,14 +434,6 @@ namespace DotVVM.Framework.Tests.Binding
             var resultTask = (Task)ExecuteBinding("Increment(); Multiply()", new[] { vm });
             resultTask.Wait();
             Assert.AreEqual(10, vm.Number);
-        }
-
-        [TestMethod]
-        public void BindingCompiler_SimpleBlockExpression_TaskSequence_AssignmentTaskUnwrap()
-        {
-            var resultTask = (Task<string>)ExecuteBinding("StringProp = GetStringPropAsync(); StringProp = 'b'", new[] { new TestViewModel { StringProp = "a" } });
-            var result = resultTask.Result;
-            Assert.AreEqual("b", result);
         }
 
 
