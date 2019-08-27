@@ -97,7 +97,7 @@ namespace DotVVM.Framework.Controls
                 }
                 else
                 {
-                    throw new NotSupportedException($"Can not evaluate binding {value} of type {value.GetType().Name}.");
+                    throw new NotSupportedException($"Cannot evaluate binding {value} of type {value.GetType().Name}.");
                 }
             }
             return value;
