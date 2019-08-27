@@ -102,7 +102,7 @@ namespace DotVVM.Framework.Hosting
                 {
                     var result = cultureGetter(context);
                     if (result?.LCID == 4096)
-                        doRedirect(context); // it seems that when a culture does not exists, the constucotr throws an exception on Mono, but returns an instance on .NET Core (with LCID = 4096)
+                        doRedirect(context); // it seems that when a culture does not exists, the constructor throws an exception on Mono, but returns an instance on .NET Core (with LCID = 4096)
                     return result;
                 }
                 catch(CultureNotFoundException)

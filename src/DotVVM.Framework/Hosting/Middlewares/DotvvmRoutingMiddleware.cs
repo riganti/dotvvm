@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
         /// The query string of the request to try to match the Googlebot hashbang escaped fragment on.
         /// </param>
         /// <param name="url">
-        /// The plain URL string that the hasbang escaped fragment represents.
+        /// The plain URL string that the hashbang escaped fragment represents.
         /// </param>
         /// <returns>
         /// <code>true</code>, if the URL contains valid Googlebot hashbang escaped fragment; otherwise <code>false</code>.

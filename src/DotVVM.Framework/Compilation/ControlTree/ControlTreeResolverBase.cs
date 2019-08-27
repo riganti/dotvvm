@@ -149,6 +149,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         protected virtual ImmutableList<InjectedServiceExtensionParameter> ResolveInjectDirectives(IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives) =>
             directives.Values.SelectMany(d => d).OfType<IAbstractServiceInjectDirective>()
+            .Where(d => d.Type != null)
             .Select(d => new InjectedServiceExtensionParameter(d.NameSyntax.Name, d.Type))
             .ToImmutableList();
 
@@ -442,7 +443,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 var name = assigment.FirstExpression as SimpleNameBindingParserNode;
                 if (name == null)
                 {
-                    directiveNode.AddError($"Identifier expected on the left side of the assigment.");
+                    directiveNode.AddError($"Identifier expected on the left side of the assignment.");
                     name = new SimpleNameBindingParserNode(new BindingToken{ Text = "service" });
                 }
                 var type = assigment.SecondExpression;

@@ -47,7 +47,7 @@ namespace DotVVM.Framework.Controls
 
         /// <summary>
         /// Gets or sets the types of files that the server accepts. It must be a comma-separated list of unique content type
-        /// specifiers (eg. ".jpg,image/png,audio/*"). All file types are allowed by default.
+        /// specifiers (e.g. ".jpg,image/png,audio/*"). All file types are allowed by default.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
         public string AllowedFileTypes
@@ -210,7 +210,7 @@ namespace DotVVM.Framework.Controls
             writer.AddAttribute("class", "dotvvm-upload-button");
             writer.AddKnockoutDataBind("visible", "!IsBusy()");
             writer.RenderBeginTag("span");
-            writer.AddAttribute("href", "#");
+            writer.AddAttribute("href", "javascript:;");
             writer.AddAttribute("onclick", "dotvvm.fileUpload.showUploadDialog(this); return false;");
             writer.RenderBeginTag("a");
             writer.WriteText(UploadButtonText);

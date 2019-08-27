@@ -105,7 +105,7 @@ namespace DotVVM.Framework.Compilation
                     );
                 return emitter.EmitCreateObject(type, arguments == null ? optionalArguments.ToArray() : arguments.Concat(optionalArguments).ToArray());
             }
-            // othervise invoke DI factory
+            // otherwise invoke DI factory
             else
                 return emitter.EmitInjectionFactoryInvocation(
                     type,

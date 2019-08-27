@@ -5,7 +5,7 @@ using System.Linq;
 namespace DotVVM.Framework.Binding
 {
     /// <summary>
-    /// Specifies requirements that binding has to satisfy in order to succesfully Initialize (and compile).
+    /// Specifies requirements that binding has to satisfy in order to successfully Initialize (and compile).
     /// Can be applied on binding class, bound property or instance (as property).
     /// Attribute can be applied multiple times - all values are combined before compilation.
     /// </summary>
@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Binding
         public readonly ImmutableArray<Type> Optional;
         /// <summary>
         /// Properties that does not have to be there - overwrites previous specification of Required or Optional.
-        /// For example may be usefull for property that may contain value binding, but does not need a Javascript translation
+        /// For example may be useful for property that may contain value binding, but does not need a Javascript translation
         /// </summary>
         public readonly ImmutableArray<Type> Excluded;
 
