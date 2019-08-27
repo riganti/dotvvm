@@ -273,7 +273,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
             }
 
-            // nonstandart implicit string conversions
+            // nonstandard implicit string conversions
             if (src.Type == typeof(string))
             {
                 var value = (string)srcValue;

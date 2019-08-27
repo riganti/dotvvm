@@ -15,7 +15,7 @@ using DotVVM.Framework.Compilation.ControlTree;
 namespace DotVVM.Framework.Binding.Properties
 {
     /// <summary>
-    /// Contains evaluatable Javascript in knockout binding, knockout context parameters are represented as symbolic parameters in the ParametrizedCode
+    /// Contains evaluable Javascript in knockout binding, knockout context parameters are represented as symbolic parameters in the ParametrizedCode
     /// </summary>
     public sealed class KnockoutExpressionBindingProperty
     {

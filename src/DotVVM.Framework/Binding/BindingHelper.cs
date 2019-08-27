@@ -55,7 +55,7 @@ namespace DotVVM.Framework.Binding
 
         // PERF: maybe safe last GetValue's target/binding to ThreadLocal variable, so the path does not have to be traversed twice
         /// <summary>
-        /// Finds expected context control of the `binding` and returns (parent index of the correct DataContext, control in the corrent context)
+        /// Finds expected context control of the `binding` and returns (parent index of the correct DataContext, control in the correct context)
         /// </summary>
         public static (int stepsUp, DotvvmBindableObject target) FindDataContextTarget(this IBinding binding, DotvvmBindableObject control)
         {

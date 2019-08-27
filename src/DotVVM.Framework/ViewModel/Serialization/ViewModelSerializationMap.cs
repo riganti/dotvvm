@@ -81,7 +81,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var value = Expression.Variable(Type, "value");
             var currentProperty = Expression.Variable(typeof(string), "currentProperty");
 
-            // add current object to encrypted values, this is needed because one property can potentionaly contain more objects (is a collection)
+            // add current object to encrypted values, this is needed because one property can potentially contain more objects (is a collection)
             block.Add(Expression.Call(encryptedValuesReader, nameof(EncryptedValuesReader.Nest), Type.EmptyTypes));
 
             // curly brackets are used for variables and methods from the context of this factory method
@@ -225,7 +225,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         {
             if (property.JsonConverter?.CanWrite == true)
             {
-                // maybe use the converter. It can't be easily inlined because polymorpism
+                // maybe use the converter. It can't be easily inlined because polymorphism
                 return ExpressionUtils.Replace((JsonSerializer s, JsonWriter w, object v) => Serialize(s, w, property, v), serializer, jsonWriter, Expression.Convert(value, typeof(object)));
             }
             else if (writeValueMethods.TryGetValue(value.Type, out var method))

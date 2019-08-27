@@ -71,7 +71,8 @@ namespace DotVVM.Framework.Tests
                 Services = services,
                 CsrfToken = "Test CSRF Token",
                 ModelState = new ModelState(),
-                ResourceManager = services.GetService<ResourceManagement.ResourceManager>()
+                ResourceManager = services.GetService<ResourceManagement.ResourceManager>(),
+                HttpContext = new TestHttpContext()
             };
             return context;
         }

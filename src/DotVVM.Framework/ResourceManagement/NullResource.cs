@@ -5,7 +5,7 @@ using DotVVM.Framework.Hosting;
 namespace DotVVM.Framework.ResourceManagement
 {
     /// <summary>
-    /// A resource that is not rendered. Use this class if you load the scripts or styles yourself using hte script or style element in the page.
+    /// A resource that is not rendered. Use this class if you load the scripts or styles yourself using the script or style element in the page.
     /// </summary>
     [ResourceConfigurationCollectionName("null")]
     public class NullResource : ResourceBase

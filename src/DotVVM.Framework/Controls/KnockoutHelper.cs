@@ -354,7 +354,7 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
-        /// Returns Javascript expression that represents the property value (even if the property contains hardcoded value)
+        /// Returns Javascript expression that represents the property value (even if the property contains hard-coded value)
         /// </summary>
         public static string GetKnockoutBindingExpression(this DotvvmBindableObject obj, DotvvmProperty property)
         {

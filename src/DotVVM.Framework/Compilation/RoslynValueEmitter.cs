@@ -117,7 +117,7 @@ namespace DotVVM.Framework.Compilation
             }
             if (IsImmutableObject(type))
                 return EmitValueReference(value);
-            throw new NotSupportedException($"Emiting value of type '{value.GetType().FullName}' is not supported.");
+            throw new NotSupportedException($"Emitting value of type '{value.GetType().FullName}' is not supported.");
         }
 
         protected ExpressionSyntax EmitCreateArray(Type elementType, System.Collections.IEnumerable values)
@@ -230,7 +230,7 @@ namespace DotVVM.Framework.Compilation
         public static DotvvmProperty[][] _ViewImmutableObjects_PropArray = new DotvvmProperty[16][];
         public static object[][] _ViewImmutableObjects_ObjArray = new object[16][];
         public static object[] _ViewImmutableObjects = new object[16];
-        private static Func<Type, bool> IsImmutableObject = t => typeof(IBinding).IsAssignableFrom(t) || t == typeof(DataContextStack);
+        private static Func<Type, bool> IsImmutableObject = t => typeof(IBinding).IsAssignableFrom(t) || t.GetCustomAttribute<HandleAsImmutableObjectInDotvvmPropertyAttribute>() is object;
         private static int _viewObjectsCount = 0;
         private static int _viewObjectsCount_PropArray = 0;
         private static int _viewObjectsCount_ObjArray = 0;

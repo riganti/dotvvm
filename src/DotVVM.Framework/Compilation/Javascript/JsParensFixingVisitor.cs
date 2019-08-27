@@ -125,7 +125,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
 
         /// <summary>
-        /// Determines if the expression will have to be parenthised when called from parent expression
+        /// Determines if the expression will have to be parenthesized when called from parent expression
         /// </summary>
         public bool NeedsParens(JsExpression expression)
         {

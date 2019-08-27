@@ -57,6 +57,30 @@ namespace DotVVM.Framework.Tests.ViewModel
             Assert.AreEqual("defaultname", config.RouteTable.Single(r => r.RouteName == "Route3").DefaultValues["Name"]);
         }
 
+        [TestMethod]
+        public void JsonDiff_BusinessPackFilter_NoThrow()
+        {
+            var source = JObject.Parse(
+@"{
+	""FieldName"": ""DateRequiredBy"",
+	""FieldDisplayName"": null,
+	""Operator"": ""LessThan"",
+	""FormatString"": null,
+	""Value"": ""2019-08-07T00:00:00"",
+	""Type"": ""FilterCondition""
+}");
+            var target = JObject.Parse(
+@"{
+	""FieldName"": ""Code"",
+	""FieldDisplayName"": null,
+	""Operator"": ""Equal"",
+	""FormatString"": null,
+	""Value"": ""HHK"",
+	""Type"": ""FilterCondition""
+}");
+            var diff = JsonUtils.Diff(source, target);
+        }
+
         private JObject CreateDiff(Action<DotvvmConfiguration> fn)
         {
             var config = DotvvmTestHelper.CreateConfiguration();
