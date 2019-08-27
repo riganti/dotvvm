@@ -368,7 +368,7 @@ class DotVVM {
     private async fetchCsrfToken(viewModelName: string): Promise<string> {
         const vm = this.viewModels[viewModelName].viewModel
         if (vm.$csrfToken == null) {
-            const response = await fetch((this.viewModels[viewModelName].virtualDirectory || "") + "/dotvvmCreateCsrfToken")
+            const response = await fetch((this.viewModels[viewModelName].virtualDirectory || "") + "/___dotvvm-create-csrf-token___")
             if (response.status != 200)
                 throw new Error(`Can't fetch CSRF token: ${response.statusText}`)
             vm.$csrfToken = await response.text()

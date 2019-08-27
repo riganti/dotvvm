@@ -13,7 +13,10 @@
     <Content Include="**/*.dotmaster;**/*.dotcontrol;**/*.dothtml" Exclude="obj/**/*.*;bin/**/*.*" CopyToPublishDirectory="Always" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="sampleConfig.json" />
     <None Remove="Views\ControlSamples\Literal\Literal_NumberBinding.dothtml" />
+    <None Remove="Views\ControlSamples\MultiSelect\binded.dothtml" />
+    <None Remove="Views\ControlSamples\MultiSelect\hardcoded.dothtml" />
     <None Remove="Views\ControlSamples\Repeater\NamedTemplate.dothtml" />
     <None Remove="Views\ControlSamples\ValidationSummary\MessagesRendering.dothtml" />
     <None Remove="Views\Errors\CorruptedContentBetweenContentControls.dothtml" />
@@ -26,6 +29,9 @@
     <None Remove="Views\FeatureSamples\Validation\InvalidCssClassNotDuplicated.dothtml" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="sampleConfig.json">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
     <Content Include="Scripts\ClientExtenders.js" />
     <Content Include="Scripts\testResource.js" />
     <Content Include="Scripts\testResource2.js" />

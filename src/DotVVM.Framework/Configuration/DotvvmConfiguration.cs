@@ -94,12 +94,10 @@ namespace DotVVM.Framework.Configuration
         public bool UseHistoryApiSpaNavigation { get; set; } = true;
 
         /// <summary>
-        /// If the CSRF token should be lazy-loaded.
-        /// When disabled, the token is always present in the generated HTML - it can be hardly cached.
-        /// When enabled, the token will not be there and it will be loaded before the first request - requires two requests for first postback.
+        /// Gets or sets the configuration for experimental features.
         /// </summary>
-        [JsonProperty("allowCsrfTokenLazyLoading", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public bool CsrfTokenLazyLoading { get; set; } = false;
+        [JsonProperty("experimentalFeatures", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public DotvvmExperimentalFeaturesConfiguration ExperimentalFeatures { get; set; } = new DotvvmExperimentalFeaturesConfiguration();
 
         /// <summary>
         /// Gets or sets whether the application should run in debug mode.

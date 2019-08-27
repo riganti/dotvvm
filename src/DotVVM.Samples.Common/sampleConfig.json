@@ -1,0 +1,20 @@
+{
+  "activeProfile": "LazyCsrfToken",
+  "profiles": [
+    {
+      "name": "Default",
+      "config": {
+      }
+    },
+    {
+      "name": "LazyCsrfToken",
+      "config": {
+        "experimentalFeatures": {
+          "lazyCsrfToken": {
+            "enabled": true
+          }
+        }
+      }
+    }
+  ]
+}
