@@ -1869,47 +1869,61 @@ var DotVVM = /** @class */ (function () {
                 return { controlsDescendantBindings: true }; // do not apply binding again
             }
         };
+        var makeUpdatableChildrenContextHandler = function (makeContextCallback, shouldDisplay) { return function (element, valueAccessor, _allBindings, _viewModel, bindingContext) {
+            if (!bindingContext)
+                throw new Error();
+            var savedNodes;
+            ko.computed(function () {
+                var rawValue = valueAccessor();
+                // Save a copy of the inner nodes on the initial update, but only if we have dependencies.
+                if (!savedNodes && ko.computedContext.getDependenciesCount()) {
+                    savedNodes = ko.utils.cloneNodes(ko.virtualElements.childNodes(element), true /* shouldCleanNodes */);
+                }
+                if (shouldDisplay(rawValue)) {
+                    if (savedNodes) {
+                        ko.virtualElements.setDomNodeChildren(element, ko.utils.cloneNodes(savedNodes));
+                    }
+                    ko.applyBindingsToDescendants(makeContextCallback(bindingContext, rawValue), element);
+                }
+                else {
+                    ko.virtualElements.emptyNode(element);
+                }
+            }, null, { disposeWhenNodeIsRemoved: element });
+            return { controlsDescendantBindings: true }; // do not apply binding again
+        }; };
         var foreachCollectionSymbol = "$foreachCollectionSymbol";
         ko.virtualElements.allowedBindings["dotvvm-SSR-foreach"] = true;
         ko.bindingHandlers["dotvvm-SSR-foreach"] = {
-            init: function (element, valueAccessor, _allBindings, _viewModel, bindingContext) {
+            init: makeUpdatableChildrenContextHandler(function (bindingContext, rawValue) {
                 var _a;
-                if (!bindingContext)
-                    throw new Error();
-                var value = valueAccessor();
-                var innerBindingContext = bindingContext.extend((_a = {}, _a[foreachCollectionSymbol] = value.data, _a));
-                element.innerBindingContext = innerBindingContext;
-                ko.applyBindingsToDescendants(innerBindingContext, element);
-                return { controlsDescendantBindings: true }; // do not apply binding again
-            }
+                return bindingContext.extend((_a = {}, _a[foreachCollectionSymbol] = rawValue.data, _a));
+            }, function (v) { return v.data != null; })
         };
         ko.virtualElements.allowedBindings["dotvvm-SSR-item"] = true;
         ko.bindingHandlers["dotvvm-SSR-item"] = {
             init: function (element, valueAccessor, _allBindings, _viewModel, bindingContext) {
                 if (!bindingContext)
                     throw new Error();
-                var index = valueAccessor();
                 var collection = bindingContext[foreachCollectionSymbol];
-                var innerBindingContext = bindingContext.createChildContext(function () { return ko.unwrap((ko.unwrap(collection) || [])[index]); }).extend({ $index: ko.pureComputed(function () { return index; }) });
-                element.innerBindingContext = innerBindingContext;
-                ko.applyBindingsToDescendants(innerBindingContext, element);
-                return { controlsDescendantBindings: true }; // do not apply binding again
-            }
-        };
-        ko.virtualElements.allowedBindings["withGridViewDataSet"] = true;
-        ko.bindingHandlers["withGridViewDataSet"] = {
-            init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
-                var _a;
-                if (!bindingContext)
-                    throw new Error();
-                var value = valueAccessor();
-                var innerBindingContext = bindingContext.extend((_a = { $gridViewDataSet: value }, _a[foreachCollectionSymbol] = dotvvm.evaluator.getDataSourceItems(value), _a));
+                var innerBindingContext = bindingContext.createChildContext(function () {
+                    return ko.unwrap((ko.unwrap(collection) || [])[valueAccessor()]);
+                }).extend({ $index: ko.pureComputed(valueAccessor) });
                 element.innerBindingContext = innerBindingContext;
                 ko.applyBindingsToDescendants(innerBindingContext, element);
                 return { controlsDescendantBindings: true }; // do not apply binding again
             },
-            update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+            update: function (element) {
+                if (element.seenUpdate)
+                    console.error("dotvvm-SSR-item binding did not expect to see a update");
+                element.seenUpdate = 1;
             }
+        };
+        ko.virtualElements.allowedBindings["withGridViewDataSet"] = true;
+        ko.bindingHandlers["withGridViewDataSet"] = {
+            init: makeUpdatableChildrenContextHandler(function (bindingContext, value) {
+                var _a;
+                return bindingContext.extend((_a = { $gridViewDataSet: value }, _a[foreachCollectionSymbol] = dotvvm.evaluator.getDataSourceItems(value), _a));
+            }, function (d) { return true; })
         };
         ko.bindingHandlers['dotvvmEnable'] = {
             'update': function (element, valueAccessor) {
