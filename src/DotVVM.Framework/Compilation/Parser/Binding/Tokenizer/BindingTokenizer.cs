@@ -185,7 +185,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                         }
                         else
                         {
-                            //I need to take somting like >>>> into accout if it si something like
+                            //I need to take something like >>>> into account if it is something like
                             //>&*% or whatever, it will be other operator's problem.
                             CreateToken(BindingTokenType.GreaterThanOperator);
                         }

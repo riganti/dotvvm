@@ -51,7 +51,7 @@ namespace DotVVM.Framework.Compilation
         /// </summary>
         public (ControlBuilderDescriptor descriptor, Lazy<IControlBuilder> builder) GetControlBuilder(string virtualPath)
         {
-            var markupFile = markupFileLoader.GetMarkup(configuration, virtualPath) ?? throw  new DotvvmCompilationException($"File '{virtualPath}' was not found. This exception is possibly caused because of incorrect route registration.");
+            var markupFile = markupFileLoader.GetMarkup(configuration, virtualPath) ?? throw new DotvvmCompilationException($"File '{virtualPath}' was not found. This exception is possibly caused because of incorrect route registration.");
             return controlBuilders.GetOrAdd(markupFile, CreateControlBuilder);
         }
 
@@ -157,7 +157,8 @@ namespace DotVVM.Framework.Compilation
             if (File.Exists(fileName)) return AssemblyLoader.LoadFile(fileName);
             if (Path.IsPathRooted(fileName)) return null;
             var cleanName = Path.GetFileNameWithoutExtension(Path.GetFileName(fileName));
-            foreach (var assembly in ReflectionUtils.GetAllAssemblies())
+            var assemblies = ReflectionUtils.GetAllAssemblies().ToList();
+            foreach (var assembly in assemblies)
             {
                 // get already loaded assembly
                 if (assembly.GetName().Name == cleanName)
@@ -174,7 +175,7 @@ namespace DotVVM.Framework.Compilation
                     if (File.Exists(possibleFileName)) return AssemblyLoader.LoadFile(possibleFileName);
                 }
             }
-            foreach (var assembly in ReflectionUtils.GetAllAssemblies())
+            foreach (var assembly in assemblies)
             {
                 // get already loaded assembly
                 if (assembly.GetName().Name == cleanName)
@@ -198,8 +199,7 @@ namespace DotVVM.Framework.Compilation
                 var args = initMethod.GetParameters().Select(p => configuration.ServiceProvider.GetRequiredService(p.ParameterType)).ToArray();
                 initMethod.Invoke(null, args);
             }
-            var builders = assembly.GetTypes().Select(t => new
-            {
+            var builders = assembly.GetTypes().Select(t => new {
                 type = t,
                 attribute = t.GetTypeInfo().GetCustomAttribute<LoadControlBuilderAttribute>()
             }).Where(t => t.attribute != null);

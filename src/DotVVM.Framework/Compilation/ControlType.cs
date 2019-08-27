@@ -16,12 +16,18 @@ namespace DotVVM.Framework.Compilation
 
         ITypeDescriptor IControlType.DataContextRequirement => DataContextRequirement != null ? new ResolvedTypeDescriptor(DataContextRequirement) : null;
 
+        protected static void ValidateControlClass(Type control)
+        {
+            if (!control.IsPublic)
+                throw new Exception($"Control {control.FullName} is not publicly accessible. Make sure that control is not internal.");
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ControlType"/> class.
         /// </summary>
         public ControlType(Type type, string virtualPath = null, Type dataContextRequirement = null)
         {
+            ValidateControlClass(type);
             Type = type;
             VirtualPath = virtualPath;
             DataContextRequirement = dataContextRequirement;

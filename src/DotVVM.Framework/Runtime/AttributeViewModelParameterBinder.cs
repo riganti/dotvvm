@@ -74,7 +74,7 @@ namespace DotVVM.Framework.Runtime
                 return propertyInfo;
             }
 
-            // WORKAROUND: When the type contains non-overriden property with the same name as it's parent (using a `new` modifier) the `GetProperty` method throws an AmbiguousMatchException, so we have to find the property using a collection query
+            // WORKAROUND: When the type contains non-overridden property with the same name as it's parent (using a `new` modifier) the `GetProperty` method throws an AmbiguousMatchException, so we have to find the property using a collection query
             return propertyInfo.DeclaringType
                 .GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                 .Single(p => p.Name == propertyInfo.Name && p.DeclaringType == propertyInfo.DeclaringType);

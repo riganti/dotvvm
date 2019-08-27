@@ -9,7 +9,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
     public class DothtmlBindingNode : DothtmlNode
     {
 
-        #region debbuger display
+        #region debugger display
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private string debuggerDisplay
         {
