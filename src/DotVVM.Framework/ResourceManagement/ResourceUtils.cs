@@ -1,5 +1,7 @@
 ﻿using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
+using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace DotVVM.Framework.ResourceManagement
@@ -22,6 +24,37 @@ namespace DotVVM.Framework.ResourceManagement
                 using (var resourceStreamReader = new StreamReader(resourceStream))
                 {
                     return resourceStreamReader.ReadToEnd();
+		}
+            }
+	}
+
+        public static void AssertAcyclicDependencies(IResource resource,
+            string name,
+            Func<string, IResource> findResource)
+        {
+            var visited = new HashSet<IResource> { resource };
+            var queue = new Queue<string>();
+            foreach (var dependency in resource.Dependencies)
+            {
+                queue.Enqueue(dependency);
+            }
+            while (queue.Count > 0)
+            {
+                var currentName = queue.Dequeue();
+                var current = findResource(currentName);
+                if (visited.Contains(current))
+                {
+                    // dependency cycle detected
+                    throw new DotvvmResourceException($"Resource \"{name}\" has a cyclic " +
+                        $"dependency.");
+                }
+                visited.Add(current);
+                if (current != null)
+                {
+                    foreach (var dependency in current.Dependencies)
+                    {
+                        queue.Enqueue(dependency);
+                    }
                 }
             }
         }

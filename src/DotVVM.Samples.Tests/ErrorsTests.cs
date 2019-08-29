@@ -7,6 +7,8 @@ using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
 using Xunit;
 using Xunit.Abstractions;
+using Riganti.Selenium.DotVVM;
+using OpenQA.Selenium;
 
 namespace DotVVM.Samples.Tests
 {
@@ -81,8 +83,8 @@ namespace DotVVM.Samples.Tests
                 AssertUI.InnerText(browser.First("[class='exceptionMessage']")
                 ,
                         s =>
-                            s.ToLower().Contains("String was not recognized as a valid Boolean.".ToLower())
-                            , "Expected message is 'String was not recognized as a valid Boolean.'");
+                            s.ToLower().Contains("was not recognized as a valid Boolean.".ToLower())
+                            , "Expected message is 'was not recognized as a valid Boolean.'");
 
                 AssertUI.InnerText(browser.First("[class='errorUnderline']")
                     , s => s.Contains("NotAllowedHardCodedValue"));
@@ -362,6 +364,45 @@ namespace DotVVM.Samples.Tests
                     }
                 }
             });
+        }
+
+        [Fact]
+        public void Error_InvalidServiceDirective()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_InvalidServiceDirective);
+
+                AssertUI.TextEquals(browser.First("exceptionType", By.ClassName),
+                    "DotVVM.Framework.Compilation.DotvvmCompilationException");
+                AssertUI.TextEquals(browser.First("exceptionMessage", By.ClassName),
+                    "DotVVM.InvalidNamespace.NonExistingService is not a valid type.");
+            });
+        }
+
+        [Fact]
+        public void Error_InvalidLocationFallback()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_InvalidLocationFallback);
+
+                AssertUI.TextEquals(browser.First(".exceptionType"), "System.NotSupportedException");
+                AssertUI.TextEquals(browser.First(".exceptionMessage"), "LocationFallback is " +
+                    "not supported on resources with Location of type ILocalResourceLocation.");
+            });
+        }
+
+        [Fact]
+        public void Error_ResourceCircularDependency()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_ResourceCircularDependency);
+
+                AssertUI.TextEquals(browser.First("exceptionType", By.ClassName),
+                    "DotVVM.Framework.ResourceManagement.DotvvmResourceException");
+                AssertUI.TextEquals(browser.First("exceptionMessage", By.ClassName),
+                    "Resource \"Errors_ResourceCircularDependency\" has a cyclic dependency.");
+            });
+
         }
 
         public ErrorsTests(ITestOutputHelper output) : base(output)

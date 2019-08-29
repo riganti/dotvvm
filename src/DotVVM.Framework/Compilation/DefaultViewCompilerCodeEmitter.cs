@@ -404,7 +404,7 @@ namespace DotVVM.Framework.Compilation
         }
 
         /// Instructs the emitter that this object can receive DotvvmProperties
-        /// Note that the properties have to be commited using <see cref="CommitDotvvmProperties(string)" />
+        /// Note that the properties have to be committed using <see cref="CommitDotvvmProperties(string)" />
         public void RegisterDotvvmProperties(string controlName) =>
             controlProperties.Add(controlName, new List<(DotvvmProperty prop, ExpressionSyntax value)>());
 

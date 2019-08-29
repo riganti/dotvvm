@@ -42,7 +42,7 @@ namespace DotVVM.Framework.Controls
 
         public override void CreateEditControls(IDotvvmRequestContext context, DotvvmControl container)
         {
-            if (EditTemplate == null) throw new DotvvmControlException(this, "EditTemplate must be set, when editting is allowed in a GridView.");
+            if (EditTemplate == null) throw new DotvvmControlException(this, "EditTemplate must be set when editing is allowed in a GridView.");
             EditTemplate.BuildContent(context, container);
         }
     }

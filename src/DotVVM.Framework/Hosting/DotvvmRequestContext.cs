@@ -89,7 +89,7 @@ namespace DotVVM.Framework.Hosting
         public Exception CommandException { get; set; }
 
         /// <summary>
-        /// Gets or sets new url fragment (tha part after #) to be set on client
+        /// Gets or sets new url fragment (the part after #) to be set on client
         /// </summary>
         public string ResultIdFragment { get; set; }
 

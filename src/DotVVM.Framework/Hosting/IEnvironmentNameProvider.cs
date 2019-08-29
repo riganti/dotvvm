@@ -3,7 +3,7 @@
     public interface IEnvironmentNameProvider
     {
         /// <summary>
-        /// Returns the name of the hosting environment (eg. Development, Production).
+        /// Returns the name of the hosting environment (e.g. Development, Production).
         /// </summary>
         string GetEnvironmentName(IDotvvmRequestContext context);
     }

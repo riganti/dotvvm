@@ -123,6 +123,77 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
+        [Fact]
+        public void Control_UpdateProgress_UpdateProgressQueues()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_UpdateProgress_UpdateProgressQueues);
+                browser.Wait();
+
+                var button1 = browser.ElementAt("input[type=button]", 0);
+                var button2 = browser.ElementAt("input[type=button]", 1);
+                var button3 = browser.ElementAt("input[type=button]", 2);
+                var buttonDefault = browser.ElementAt("input[type=button]", 3);
+                var progress1 = browser.Single(".updateprogress-allqueues");
+                var progress2 = browser.Single(".updateprogress-queue1");
+                var progress3 = browser.Single(".updateprogress-queue12");
+                var progress4 = browser.Single(".updateprogress-exclude1default");
+
+                // first button
+                AssertUI.IsNotDisplayed(progress1);
+                AssertUI.IsNotDisplayed(progress2);
+                AssertUI.IsNotDisplayed(progress3);
+                AssertUI.IsNotDisplayed(progress4);
+                button1.Click();
+                AssertUI.IsDisplayed(progress1);
+                AssertUI.IsDisplayed(progress2);
+                AssertUI.IsDisplayed(progress3);
+                AssertUI.IsNotDisplayed(progress4);
+                browser.Wait(1500);
+
+                // second button
+                AssertUI.IsNotDisplayed(progress1);
+                AssertUI.IsNotDisplayed(progress2);
+                AssertUI.IsNotDisplayed(progress3);
+                AssertUI.IsNotDisplayed(progress4);
+                button2.Click();
+                AssertUI.IsDisplayed(progress1);
+                AssertUI.IsNotDisplayed(progress2);
+                AssertUI.IsDisplayed(progress3);
+                AssertUI.IsDisplayed(progress4);
+                browser.Wait(1500);
+
+                // third button
+                AssertUI.IsNotDisplayed(progress1);
+                AssertUI.IsNotDisplayed(progress2);
+                AssertUI.IsNotDisplayed(progress3);
+                AssertUI.IsNotDisplayed(progress4);
+                button3.Click();
+                AssertUI.IsDisplayed(progress1);
+                AssertUI.IsNotDisplayed(progress2);
+                AssertUI.IsNotDisplayed(progress3);
+                AssertUI.IsDisplayed(progress4);
+                browser.Wait(1500);
+
+                // fourth button
+                AssertUI.IsNotDisplayed(progress1);
+                AssertUI.IsNotDisplayed(progress2);
+                AssertUI.IsNotDisplayed(progress3);
+                AssertUI.IsNotDisplayed(progress4);
+                buttonDefault.Click();
+                AssertUI.IsDisplayed(progress1);
+                AssertUI.IsNotDisplayed(progress2);
+                AssertUI.IsNotDisplayed(progress3);
+                AssertUI.IsNotDisplayed(progress4);
+                browser.Wait(1500);
+
+                AssertUI.IsNotDisplayed(progress1);
+                AssertUI.IsNotDisplayed(progress2);
+                AssertUI.IsNotDisplayed(progress3);
+                AssertUI.IsNotDisplayed(progress4);
+            });
+        }
+
         public UpdateProgressTests(ITestOutputHelper output) : base(output)
         {
         }
