@@ -155,9 +155,11 @@ class DotVVM {
     private commonConcurrencyHandler = <T>(promise: Promise<PostbackCommitFunction>, options: PostbackOptions, queueName: string): Promise<PostbackCommitFunction> => {
         const queue = this.getPostbackQueue(queueName)
         queue.noRunning++
+        dotvvm.updateProgressChangeCounter(dotvvm.updateProgressChangeCounter() + 1);
 
         const dispatchNext = () => {
             queue.noRunning--;
+            dotvvm.updateProgressChangeCounter(dotvvm.updateProgressChangeCounter() - 1);
             if (queue.queue.length > 0) {
                 const callback = queue.queue.shift()!
                 window.setTimeout(callback, 0)
@@ -217,6 +219,7 @@ class DotVVM {
 
     public useHistoryApiSpaNavigation: boolean;
     public isPostbackRunning = ko.observable(false);
+    public updateProgressChangeCounter = ko.observable(0);
 
     public init(viewModelName: string, culture: string): void {
         this.addKnockoutBindingHandlers();
@@ -376,7 +379,7 @@ class DotVVM {
         return vm.$csrfToken
     }
 
-    public staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback = _ => { }, errorCallback = (xhr: XMLHttpRequest, error?) => { }) {
+    public staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback = _ => { }, errorCallback = (errorInfo: {xhr: XMLHttpRequest, error?: any}) => { }) {
         (async () => {
             var data = this.serialization.serialize({
                 args,
@@ -393,7 +396,7 @@ class DotVVM {
                     callback(result);
                 } catch (error) {
                     dotvvm.events.staticCommandMethodFailed.trigger({ ...data, xhr: response, error: error })
-                    errorCallback(response, error);
+                    errorCallback({ xhr: response, error });
                 } finally {
                     this.isViewModelUpdating = false;
                 }
@@ -411,7 +414,7 @@ class DotVVM {
                 }
                 this.events.error.trigger(new DotvvmErrorEventArgs(sender, this.viewModels[viewModelName].viewModel, viewModelName, xhr, null));
                 console.warn(`StaticCommand postback failed: ${xhr.status} - ${xhr.statusText}`, xhr);
-                errorCallback(xhr);
+                errorCallback({ xhr });
                 dotvvm.events.staticCommandMethodFailed.trigger({ ...data, xhr })
             },
             xhr => {
@@ -1185,43 +1188,65 @@ class DotVVM {
             }
         }
 
+        const makeUpdatableChildrenContextHandler = (
+            makeContextCallback: (bindingContext: KnockoutBindingContext, value: any) => any,
+            shouldDisplay: (value: any) => boolean
+            ) => (element: Node, valueAccessor, _allBindings, _viewModel, bindingContext: KnockoutBindingContext) => {
+            if (!bindingContext) throw new Error()
+
+            var savedNodes : Node[] | undefined;
+            ko.computed(function() {
+                var rawValue = valueAccessor();
+
+                // Save a copy of the inner nodes on the initial update, but only if we have dependencies.
+                if (!savedNodes && ko.computedContext.getDependenciesCount()) {
+                    savedNodes = ko.utils.cloneNodes(ko.virtualElements.childNodes(element), true /* shouldCleanNodes */);
+                }
+
+                if (shouldDisplay(rawValue)) {
+                    if (savedNodes) {
+                        ko.virtualElements.setDomNodeChildren(element, ko.utils.cloneNodes(savedNodes));
+                    }
+                    ko.applyBindingsToDescendants(makeContextCallback(bindingContext, rawValue), element);
+                } else {
+                    ko.virtualElements.emptyNode(element);
+                }
+
+            }, null, { disposeWhenNodeIsRemoved: element });
+            return { controlsDescendantBindings: true } // do not apply binding again
+        }
+
         const foreachCollectionSymbol = "$foreachCollectionSymbol"
         ko.virtualElements.allowedBindings["dotvvm-SSR-foreach"] = true
         ko.bindingHandlers["dotvvm-SSR-foreach"] = {
-            init(element, valueAccessor, _allBindings, _viewModel, bindingContext) {
-                if (!bindingContext) throw new Error()
-                var value = valueAccessor()
-                var innerBindingContext = bindingContext.extend({ [foreachCollectionSymbol]: value.data })
-                element.innerBindingContext = innerBindingContext
-                ko.applyBindingsToDescendants(innerBindingContext, element)
-                return { controlsDescendantBindings: true } // do not apply binding again
-
-            }
+            init: makeUpdatableChildrenContextHandler(
+                (bindingContext, rawValue) => bindingContext.extend({ [foreachCollectionSymbol]: rawValue.data }),
+                v => v.data != null)
         }
         ko.virtualElements.allowedBindings["dotvvm-SSR-item"] = true
         ko.bindingHandlers["dotvvm-SSR-item"] = {
             init(element, valueAccessor, _allBindings, _viewModel, bindingContext) {
                 if (!bindingContext) throw new Error()
-                var index = valueAccessor()
                 var collection = bindingContext[foreachCollectionSymbol]
-                var innerBindingContext = bindingContext.createChildContext(() => ko.unwrap((ko.unwrap(collection) || [])[index])).extend({$index: ko.pureComputed(() => index)})
+                var innerBindingContext = bindingContext.createChildContext(() => {
+                    return ko.unwrap((ko.unwrap(collection) || [])[valueAccessor()]);
+                }).extend({$index: ko.pureComputed(valueAccessor)});
                 element.innerBindingContext = innerBindingContext
                 ko.applyBindingsToDescendants(innerBindingContext, element)
                 return { controlsDescendantBindings: true } // do not apply binding again
+            },
+            update(element) {
+                if (element.seenUpdate)
+                    console.error(`dotvvm-SSR-item binding did not expect to see a update`);
+                element.seenUpdate = 1;
             }
         }
         ko.virtualElements.allowedBindings["withGridViewDataSet"] = true;
         ko.bindingHandlers["withGridViewDataSet"] = {
-            init: (element, valueAccessor, allBindings, viewModel, bindingContext) => {
-                if (!bindingContext) throw new Error();
-                var value = valueAccessor();
-                var innerBindingContext = bindingContext.extend({ $gridViewDataSet: value, [foreachCollectionSymbol]: dotvvm.evaluator.getDataSourceItems(value) });
-                element.innerBindingContext = innerBindingContext;
-                ko.applyBindingsToDescendants(innerBindingContext, element);
-                return { controlsDescendantBindings: true }; // do not apply binding again
-            },
-            update(element, valueAccessor, allBindings, viewModel, bindingContext) {
-            }
+            init: makeUpdatableChildrenContextHandler(
+                (bindingContext, value) => bindingContext.extend({ $gridViewDataSet: value, [foreachCollectionSymbol]: dotvvm.evaluator.getDataSourceItems(value) }),
+                _ => true
+            )
         };
 
         ko.bindingHandlers['dotvvmEnable'] = {
@@ -1262,6 +1287,10 @@ class DotVVM {
             init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
                 element.style.display = "none";
                 var delay = element.getAttribute("data-delay");
+
+                let includedQueues = (element.getAttribute("data-included-queues") || "").split(",").filter(i => i.length > 0);
+                let excludedQueues = (element.getAttribute("data-excluded-queues") || "").split(",").filter(i => i.length > 0);
+
                 var timeout;
                 var running = false;
 
@@ -1282,8 +1311,21 @@ class DotVVM {
                     element.style.display = "none";
                 }
 
-                dotvvm.isPostbackRunning.subscribe(e => {
-                    if (e) {
+                dotvvm.updateProgressChangeCounter.subscribe(e => {
+                    let shouldRun = false;
+
+                    if (includedQueues.length === 0) {
+                        for (let queue in dotvvm.postbackQueues) {
+                            if (excludedQueues.indexOf(queue) < 0 && dotvvm.postbackQueues[queue].noRunning > 0) {
+                                shouldRun = true;
+                                break;
+                            }
+                        }
+                    } else {
+                        shouldRun = includedQueues.some(q => dotvvm.postbackQueues[q] && dotvvm.postbackQueues[q].noRunning > 0);
+                    }
+
+                    if (shouldRun) {
                         if (!running) {
                             show();
                         }

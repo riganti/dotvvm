@@ -958,8 +958,10 @@ var DotVVM = /** @class */ (function () {
         this.commonConcurrencyHandler = function (promise, options, queueName) {
             var queue = _this.getPostbackQueue(queueName);
             queue.noRunning++;
+            dotvvm.updateProgressChangeCounter(dotvvm.updateProgressChangeCounter() + 1);
             var dispatchNext = function () {
                 queue.noRunning--;
+                dotvvm.updateProgressChangeCounter(dotvvm.updateProgressChangeCounter() - 1);
                 if (queue.queue.length > 0) {
                     var callback = queue.queue.shift();
                     window.setTimeout(callback, 0);
@@ -1005,6 +1007,7 @@ var DotVVM = /** @class */ (function () {
         this.fileUpload = new DotvvmFileUpload();
         this.extensions = {};
         this.isPostbackRunning = ko.observable(false);
+        this.updateProgressChangeCounter = ko.observable(0);
     }
     DotVVM.prototype.createWindowSetTimeoutHandler = function (time) {
         return {
@@ -1178,7 +1181,7 @@ var DotVVM = /** @class */ (function () {
     DotVVM.prototype.staticCommandPostback = function (viewModelName, sender, command, args, callback, errorCallback) {
         var _this = this;
         if (callback === void 0) { callback = function (_) { }; }
-        if (errorCallback === void 0) { errorCallback = function (xhr, error) { }; }
+        if (errorCallback === void 0) { errorCallback = function (errorInfo) { }; }
         (function () { return __awaiter(_this, void 0, void 0, function () {
             var data, _a, _b, _c, _d;
             var _this = this;
@@ -1205,7 +1208,7 @@ var DotVVM = /** @class */ (function () {
                             }
                             catch (error) {
                                 dotvvm.events.staticCommandMethodFailed.trigger(__assign({}, data, { xhr: response, error: error }));
-                                errorCallback(response, error);
+                                errorCallback({ xhr: response, error: error });
                             }
                             finally {
                                 _this.isViewModelUpdating = false;
@@ -1223,7 +1226,7 @@ var DotVVM = /** @class */ (function () {
                             }
                             _this.events.error.trigger(new DotvvmErrorEventArgs(sender, _this.viewModels[viewModelName].viewModel, viewModelName, xhr, null));
                             console.warn("StaticCommand postback failed: " + xhr.status + " - " + xhr.statusText, xhr);
-                            errorCallback(xhr);
+                            errorCallback({ xhr: xhr });
                             dotvvm.events.staticCommandMethodFailed.trigger(__assign({}, data, { xhr: xhr }));
                         }, function (xhr) {
                             xhr.setRequestHeader("X-PostbackType", "StaticCommand");
@@ -1973,47 +1976,61 @@ var DotVVM = /** @class */ (function () {
                 return { controlsDescendantBindings: true }; // do not apply binding again
             }
         };
+        var makeUpdatableChildrenContextHandler = function (makeContextCallback, shouldDisplay) { return function (element, valueAccessor, _allBindings, _viewModel, bindingContext) {
+            if (!bindingContext)
+                throw new Error();
+            var savedNodes;
+            ko.computed(function () {
+                var rawValue = valueAccessor();
+                // Save a copy of the inner nodes on the initial update, but only if we have dependencies.
+                if (!savedNodes && ko.computedContext.getDependenciesCount()) {
+                    savedNodes = ko.utils.cloneNodes(ko.virtualElements.childNodes(element), true /* shouldCleanNodes */);
+                }
+                if (shouldDisplay(rawValue)) {
+                    if (savedNodes) {
+                        ko.virtualElements.setDomNodeChildren(element, ko.utils.cloneNodes(savedNodes));
+                    }
+                    ko.applyBindingsToDescendants(makeContextCallback(bindingContext, rawValue), element);
+                }
+                else {
+                    ko.virtualElements.emptyNode(element);
+                }
+            }, null, { disposeWhenNodeIsRemoved: element });
+            return { controlsDescendantBindings: true }; // do not apply binding again
+        }; };
         var foreachCollectionSymbol = "$foreachCollectionSymbol";
         ko.virtualElements.allowedBindings["dotvvm-SSR-foreach"] = true;
         ko.bindingHandlers["dotvvm-SSR-foreach"] = {
-            init: function (element, valueAccessor, _allBindings, _viewModel, bindingContext) {
+            init: makeUpdatableChildrenContextHandler(function (bindingContext, rawValue) {
                 var _a;
-                if (!bindingContext)
-                    throw new Error();
-                var value = valueAccessor();
-                var innerBindingContext = bindingContext.extend((_a = {}, _a[foreachCollectionSymbol] = value.data, _a));
-                element.innerBindingContext = innerBindingContext;
-                ko.applyBindingsToDescendants(innerBindingContext, element);
-                return { controlsDescendantBindings: true }; // do not apply binding again
-            }
+                return bindingContext.extend((_a = {}, _a[foreachCollectionSymbol] = rawValue.data, _a));
+            }, function (v) { return v.data != null; })
         };
         ko.virtualElements.allowedBindings["dotvvm-SSR-item"] = true;
         ko.bindingHandlers["dotvvm-SSR-item"] = {
             init: function (element, valueAccessor, _allBindings, _viewModel, bindingContext) {
                 if (!bindingContext)
                     throw new Error();
-                var index = valueAccessor();
                 var collection = bindingContext[foreachCollectionSymbol];
-                var innerBindingContext = bindingContext.createChildContext(function () { return ko.unwrap((ko.unwrap(collection) || [])[index]); }).extend({ $index: ko.pureComputed(function () { return index; }) });
-                element.innerBindingContext = innerBindingContext;
-                ko.applyBindingsToDescendants(innerBindingContext, element);
-                return { controlsDescendantBindings: true }; // do not apply binding again
-            }
-        };
-        ko.virtualElements.allowedBindings["withGridViewDataSet"] = true;
-        ko.bindingHandlers["withGridViewDataSet"] = {
-            init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
-                var _a;
-                if (!bindingContext)
-                    throw new Error();
-                var value = valueAccessor();
-                var innerBindingContext = bindingContext.extend((_a = { $gridViewDataSet: value }, _a[foreachCollectionSymbol] = dotvvm.evaluator.getDataSourceItems(value), _a));
+                var innerBindingContext = bindingContext.createChildContext(function () {
+                    return ko.unwrap((ko.unwrap(collection) || [])[valueAccessor()]);
+                }).extend({ $index: ko.pureComputed(valueAccessor) });
                 element.innerBindingContext = innerBindingContext;
                 ko.applyBindingsToDescendants(innerBindingContext, element);
                 return { controlsDescendantBindings: true }; // do not apply binding again
             },
-            update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+            update: function (element) {
+                if (element.seenUpdate)
+                    console.error("dotvvm-SSR-item binding did not expect to see a update");
+                element.seenUpdate = 1;
             }
+        };
+        ko.virtualElements.allowedBindings["withGridViewDataSet"] = true;
+        ko.bindingHandlers["withGridViewDataSet"] = {
+            init: makeUpdatableChildrenContextHandler(function (bindingContext, value) {
+                var _a;
+                return bindingContext.extend((_a = { $gridViewDataSet: value }, _a[foreachCollectionSymbol] = dotvvm.evaluator.getDataSourceItems(value), _a));
+            }, function (_) { return true; })
         };
         ko.bindingHandlers['dotvvmEnable'] = {
             'update': function (element, valueAccessor) {
@@ -2054,6 +2071,8 @@ var DotVVM = /** @class */ (function () {
             init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
                 element.style.display = "none";
                 var delay = element.getAttribute("data-delay");
+                var includedQueues = (element.getAttribute("data-included-queues") || "").split(",").filter(function (i) { return i.length > 0; });
+                var excludedQueues = (element.getAttribute("data-excluded-queues") || "").split(",").filter(function (i) { return i.length > 0; });
                 var timeout;
                 var running = false;
                 var show = function () {
@@ -2072,8 +2091,20 @@ var DotVVM = /** @class */ (function () {
                     clearTimeout(timeout);
                     element.style.display = "none";
                 };
-                dotvvm.isPostbackRunning.subscribe(function (e) {
-                    if (e) {
+                dotvvm.updateProgressChangeCounter.subscribe(function (e) {
+                    var shouldRun = false;
+                    if (includedQueues.length === 0) {
+                        for (var queue in dotvvm.postbackQueues) {
+                            if (excludedQueues.indexOf(queue) < 0 && dotvvm.postbackQueues[queue].noRunning > 0) {
+                                shouldRun = true;
+                                break;
+                            }
+                        }
+                    }
+                    else {
+                        shouldRun = includedQueues.some(function (q) { return dotvvm.postbackQueues[q] && dotvvm.postbackQueues[q].noRunning > 0; });
+                    }
+                    if (shouldRun) {
                         if (!running) {
                             show();
                         }

@@ -1,0 +1,42 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.RenderSettingsModeServer.RepeaterCollectionExchangeViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body RenderSettings.Mode=Server>
+    <p> Tests whether you can change data source in a server-rendered collection </p>
+
+    <dot:CheckBox Checked="{value: UseNull}" Text="use null" />
+    <dot:CheckBox Checked="{value: UseAlternativeCollection}" Text="use alternative collection" />
+
+    <div>
+        <h3> Repeater </h3>
+        <dot:Repeater DataSource="{value: UseNull ? null : UseAlternativeCollection ? Collection2 : Collection1}" WrapperTagName=ul>
+            <li RenderSettings.Mode=Client>
+                {{value: _this}}
+            </li>
+        </dot:Repeater>
+    </div>
+
+    <div>
+        <h3> GridView </h3>
+        <dot:GridView DataSource="{value: UseNull ? null : UseAlternativeCollection ? Collection2 : Collection1}">
+            <dot:GridViewTemplateColumn HeaderText="some column">
+                <span RenderSettings.Mode=Client>{{value: _this}}</span>
+            </dot:GridViewTemplateColumn>
+        </dot:GridView>
+    </div>
+
+    <div>
+        <h3> ComboBox </h3>
+        <dot:ComboBox DataSource="{value: UseNull ? null : UseAlternativeCollection ? Collection2 : Collection1}" ItemTextBinding="{value: _this}" SelectedValue="{value: SelectedValue}" />
+    </div>
+
+</body>
+</html>
+
+

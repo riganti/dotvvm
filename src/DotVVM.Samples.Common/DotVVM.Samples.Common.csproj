@@ -23,6 +23,7 @@
     <None Remove="Views\ControlSamples\MultiSelect\hardcoded.dothtml" />
     <None Remove="Views\ControlSamples\RadioButton\Nullable.dothtml" />
     <None Remove="Views\ControlSamples\Repeater\NamedTemplate.dothtml" />
+    <None Remove="Views\ControlSamples\UpdateProgress\UpdateProgressQueues.dothtml" />
     <None Remove="Views\ControlSamples\ValidationSummary\MessagesRendering.dothtml" />
     <None Remove="Views\ControlSamples\ValidationSummary\Performance.dothtml" />
     <None Remove="Views\Errors\CorruptedContentBetweenContentControls.dothtml" />
@@ -36,6 +37,7 @@
     <None Remove="Views\FeatureSamples\PostBack\UniqueIdGenerationOnPostbackUpdate.dothtml" />
     <None Remove="Views\FeatureSamples\Resources\LocationFallback.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_NullAssignment.dothtml" />
+    <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_TaskSequence.dothtml" />
     <None Remove="Views\FeatureSamples\Validation\EnforceClientSideValidationDisabled.dothtml" />
     <None Remove="Views\FeatureSamples\Validation\InvalidCssClassNotDuplicated.dothtml" />
   </ItemGroup>
