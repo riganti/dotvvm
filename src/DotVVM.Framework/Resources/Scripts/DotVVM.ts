@@ -368,35 +368,59 @@ class DotVVM {
         return this.postBackCounter === currentPostBackCounter;
     }
 
-    public staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback = _ => { }, errorCallback = (errorInfo: {xhr: XMLHttpRequest, error?: any}) => { }) {
-        var data = this.serialization.serialize({
-            "args": args,
-            "command": command,
-            "$csrfToken": this.viewModels[viewModelName].viewModel.$csrfToken
-        });
-        dotvvm.events.staticCommandMethodInvoking.trigger(data);
+    private async fetchCsrfToken(viewModelName: string): Promise<string> {
+        const vm = this.viewModels[viewModelName].viewModel
+        if (vm.$csrfToken == null) {
+            const response = await fetch((this.viewModels[viewModelName].virtualDirectory || "") + "/___dotvvm-create-csrf-token___")
+            if (response.status != 200)
+                throw new Error(`Can't fetch CSRF token: ${response.statusText}`)
+            vm.$csrfToken = await response.text()
+        }
+        return vm.$csrfToken
+    }
 
-        this.postJSON(<string>this.viewModels[viewModelName].url, "POST", ko.toJSON(data), response => {
-            try {
-                this.isViewModelUpdating = true;
-                const result = JSON.parse(response.responseText);
-                dotvvm.events.staticCommandMethodInvoked.trigger({ ...data, result, xhr: response });
-                callback(result);
-            } catch (error) {
-                dotvvm.events.staticCommandMethodFailed.trigger({ ...data, xhr: response, error: error })
-                errorCallback({ xhr: response, error });
-            } finally {
-                this.isViewModelUpdating = false;
-            }
-        }, (xhr) => {
-            this.events.error.trigger(new DotvvmErrorEventArgs(sender, this.viewModels[viewModelName].viewModel, viewModelName, xhr, null));
-            console.warn(`StaticCommand postback failed: ${xhr.status} - ${xhr.statusText}`, xhr);
-            errorCallback({ xhr });
-            dotvvm.events.staticCommandMethodFailed.trigger({ ...data, xhr })
-        },
+    public staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback = _ => { }, errorCallback = (errorInfo: {xhr: XMLHttpRequest, error?: any}) => { }) {
+        (async () => {
+            var data = this.serialization.serialize({
+                args,
+                command,
+                "$csrfToken": await this.fetchCsrfToken(viewModelName)
+            });
+            dotvvm.events.staticCommandMethodInvoking.trigger(data);
+
+            this.postJSON(<string>this.viewModels[viewModelName].url, "POST", ko.toJSON(data), response => {
+                try {
+                    this.isViewModelUpdating = true;
+                    const result = JSON.parse(response.responseText);
+                    dotvvm.events.staticCommandMethodInvoked.trigger({ ...data, result, xhr: response });
+                    callback(result);
+                } catch (error) {
+                    dotvvm.events.staticCommandMethodFailed.trigger({ ...data, xhr: response, error: error })
+                    errorCallback({ xhr: response, error });
+                } finally {
+                    this.isViewModelUpdating = false;
+                }
+            }, (xhr) => {
+                if (/^application\/json(;|$)/.test(xhr.getResponseHeader("Content-Type")!)) {
+                    const errObject = JSON.parse(xhr.responseText)
+
+                    if (errObject.action === "invalidCsrfToken") {
+                        // ok, renew the token and try again. Do that before any event is triggered
+                        this.viewModels[viewModelName].viewModel.$csrfToken = null
+                        console.log("Resending postback due to invalid CSRF token.") // this may loop indefinitely (in some extreme case), we don't currently have any loop detection mechanism, so at least we can log it.
+                        this.staticCommandPostback(viewModelName, sender, command, args, callback, errorCallback)
+                        return;
+                    }
+                }
+                this.events.error.trigger(new DotvvmErrorEventArgs(sender, this.viewModels[viewModelName].viewModel, viewModelName, xhr, null));
+                console.warn(`StaticCommand postback failed: ${xhr.status} - ${xhr.statusText}`, xhr);
+                errorCallback({ xhr });
+                dotvvm.events.staticCommandMethodFailed.trigger({ ...data, xhr })
+            },
             xhr => {
                 xhr.setRequestHeader("X-PostbackType", "StaticCommand");
             });
+        })()
     }
 
     private processPassedId(id: any, context: any): string {
@@ -499,8 +523,9 @@ class DotVVM {
     }
 
     public postbackCore(options: PostbackOptions, path: string[], command: string, controlUniqueId: string, context: any, commandArgs?: any[]) {
-        return new Promise<() => Promise<DotvvmAfterPostBackEventArgs>>((resolve, reject) => {
+        return new Promise<() => Promise<DotvvmAfterPostBackEventArgs>>(async (resolve, reject) => {
             const viewModelName = options.viewModelName!;
+            await this.fetchCsrfToken(viewModelName)
             const viewModel = this.viewModels[viewModelName].viewModel;
 
             this.lastStartedPostack = options.postbackId
@@ -582,6 +607,17 @@ class DotVVM {
                     });
                 }));
             }, xhr => {
+                if (/^application\/json(;|$)/.test(xhr.getResponseHeader("Content-Type")!)) {
+                    const errObject = JSON.parse(xhr.responseText)
+
+                    if (errObject.action === "invalidCsrfToken") {
+                        // ok, renew the token and try again. Do that before any event is triggered
+                        this.viewModels[viewModelName].viewModel.$csrfToken = null
+                        console.log("Resending postback due to invalid CSRF token.") // this may loop indefinitely (in some extreme case), we don't currently have any loop detection mechanism, so at least we can log it.
+                        this.postbackCore(options, path, command, controlUniqueId, context, commandArgs).then(resolve, reject)
+                        return;
+                    }
+                }
                 reject({ type: 'network', options: options, args: new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, xhr, options.postbackId) });
             });
         });
