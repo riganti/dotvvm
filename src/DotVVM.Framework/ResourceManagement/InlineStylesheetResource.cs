@@ -28,7 +28,17 @@ namespace DotVVM.Framework.ResourceManagement
 
         public InlineStylesheetResource(string code) : this(new InlineResourceLocation(code))
         {
+            InlineStyleContentGuard(code);
             this.code = new Lazy<string>(() => code);
+        }
+
+        internal static void InlineStyleContentGuard(string code)
+        {
+            // We have to make sure, that the element is not ended in the middle.
+            // <style> and <script> tags have "raw text" content - https://html.spec.whatwg.org/multipage/syntax.html#raw-text-elements
+            // and those element must not contain "</name-of-the-element" substring - https://html.spec.whatwg.org/multipage/syntax.html#cdata-rcdata-restrictions
+            if (code?.IndexOf("</style", StringComparison.OrdinalIgnoreCase) >= 0)
+                throw new Exception($"Inline style can't contain `</style>`.");
         }
 
         /// <inheritdoc/>
@@ -36,14 +46,20 @@ namespace DotVVM.Framework.ResourceManagement
         {
             if (this.code == null)
             {
-                Interlocked.CompareExchange(ref this.code, new Lazy<string>(() => resourceLocation.ReadToString(context)), null);
+                var newCode = new Lazy<string>(() => {
+                    var c = resourceLocation.ReadToString(context);
+                    InlineStyleContentGuard(c);
+                    return c;
+                });
+                // assign the `newValue` into `this.code` iff it's still null
+                Interlocked.CompareExchange(ref this.code, value: newCode, comparand: null);
             }
             var code = this.code.Value;
 
             if (!string.IsNullOrWhiteSpace(code))
             {
                 writer.RenderBeginTag("style");
-                writer.WriteText(code);
+                writer.WriteUnencodedText(code);
                 writer.RenderEndTag();
             }
         }

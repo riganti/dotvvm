@@ -47,6 +47,9 @@ namespace DotVVM.Framework.ResourceManagement
 
         internal static void InlineScriptContentGuard(string code)
         {
+            // We have to make sure, that the element is not ended in the middle.
+            // <style> and <script> tags have "raw text" content - https://html.spec.whatwg.org/multipage/syntax.html#raw-text-elements
+            // and those element must not contain "</name-of-the-element" substring - https://html.spec.whatwg.org/multipage/syntax.html#cdata-rcdata-restrictions
             if (code?.IndexOf("</script", StringComparison.OrdinalIgnoreCase) >= 0)
                 throw new Exception($"Inline script can't contain `</script>`.");
         }
@@ -58,11 +61,13 @@ namespace DotVVM.Framework.ResourceManagement
         {
             if (this.code == null)
             {
-                Interlocked.CompareExchange(ref this.code, new Lazy<string>(() => {
+                var newCode = new Lazy<string>(() => {
                     var c = resourceLocation.ReadToString(context);
                     InlineScriptContentGuard(c);
                     return c;
-                }), null);
+                });
+                // assign the `newValue` into `this.code` iff it's still null
+                Interlocked.CompareExchange(ref this.code, value: newCode, comparand: null);
             }
             var code = this.code.Value;
 
