@@ -53,7 +53,11 @@ namespace DotVVM.Framework.Tests
             services.TryAddSingleton<IDotvvmCacheAdapter, SimpleDictionaryCacheAdapter>();
         }
 
-        private static Lazy<DotvvmConfiguration> _defaultConfig = new Lazy<DotvvmConfiguration>(() => CreateConfiguration());
+        private static Lazy<DotvvmConfiguration> _defaultConfig = new Lazy<DotvvmConfiguration>(() => {
+            var config = CreateConfiguration();
+            config.Freeze();
+            return config;
+        });
         public static DotvvmConfiguration DefaultConfig => _defaultConfig.Value;
 
         public static DotvvmConfiguration CreateConfiguration(Action<IServiceCollection> customServices = null) =>

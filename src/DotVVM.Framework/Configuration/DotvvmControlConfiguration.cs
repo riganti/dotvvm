@@ -10,19 +10,44 @@ namespace DotVVM.Framework.Configuration
     {
 
         [JsonProperty("tagPrefix", Required = Required.Always)]
-        public string TagPrefix { get; set; }
+        public string TagPrefix
+        {
+            get => _tagPrefix;
+            set { ThrowIfFrozen(); _tagPrefix = value; }
+        }
+        private string _tagPrefix;
 
         [JsonProperty("tagName", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string TagName { get; set; }
+        public string TagName
+        {
+            get => _tagName;
+            set { ThrowIfFrozen(); _tagName = value; }
+        }
+        private string _tagName;
 
         [JsonProperty("namespace", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string Namespace { get; set; }
+        public string Namespace
+        {
+            get => _namespace;
+            set { ThrowIfFrozen(); _namespace = value; }
+        }
+        private string _namespace;
 
         [JsonProperty("assembly", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string Assembly { get; set; }
+        public string Assembly
+        {
+            get => _assembly;
+            set { ThrowIfFrozen(); _assembly = value; }
+        }
+        private string _assembly;
 
         [JsonProperty("src", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string Src { get; set; }
+        public string Src
+        {
+            get => _src;
+            set { ThrowIfFrozen(); _src = value; }
+        }
+        private string _src;
 
 
         /// <summary>
@@ -61,6 +86,18 @@ namespace DotVVM.Framework.Configuration
 {""tagPrefix"": ""value"", ""tagName"": ""value"", ""src"": ""value""}");       // TODO: exception handling    
                 }
             }
+        }
+
+        private bool isFrozen = false;
+
+        private void ThrowIfFrozen()
+        {
+            if (isFrozen)
+                throw new InvalidOperationException("The DotvvmControlConfiguration is frozen and can be no longer modified.");
+        }
+        public void Freeze()
+        {
+            this.isFrozen = true;
         }
     }
 

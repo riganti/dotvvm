@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
 using System.Reflection;
+using System.Collections.ObjectModel;
+using DotVVM.Framework.Configuration;
 
 namespace DotVVM.Framework.Routing
 {
@@ -22,17 +24,21 @@ namespace DotVVM.Framework.Routing
         public string RouteName { get; internal set; }
 
 
-
-
         /// <summary>
         /// Gets the default values of the optional parameters.
         /// </summary>
-        public IDictionary<string, object> DefaultValues { get; private set; }
+        public IDictionary<string, object> DefaultValues => _defaultValues;
+        private IDictionary<string, object> _defaultValues;
 
         /// <summary>
         /// Gets or sets the virtual path to the view.
         /// </summary>
-        public string VirtualPath { get; set; }
+        public string VirtualPath
+        {
+            get => _virtualPath;
+            set { ThrowIfFrozen(); _virtualPath = value; }
+        }
+        private string _virtualPath;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RouteBase"/> class.
@@ -62,11 +68,11 @@ namespace DotVVM.Framework.Routing
 
             if (defaultValues != null)
             {
-                DefaultValues = new Dictionary<string, object>(defaultValues, StringComparer.OrdinalIgnoreCase);
+                _defaultValues = new FreezableDictionary<string, object>(defaultValues, StringComparer.OrdinalIgnoreCase);
             }
             else
             {
-                DefaultValues = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+                _defaultValues = new FreezableDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
             }
         }
 
@@ -186,5 +192,21 @@ namespace DotVVM.Framework.Routing
         /// </summary>
         public abstract IDotvvmPresenter GetPresenter(IServiceProvider provider);
 
+        private bool isFrozen = false;
+
+        private void ThrowIfFrozen()
+        {
+            if (isFrozen)
+                throw new InvalidOperationException($"The {this.GetType().Name} is frozen and can be no longer modified.");
+        }
+        public void Freeze()
+        {
+            this.isFrozen = true;
+            FreezableDictionary.Freeze(ref this._defaultValues);
+
+            Freeze2();
+        }
+
+        protected abstract void Freeze2();
     }
 }

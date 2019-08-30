@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 
@@ -7,14 +8,23 @@ namespace DotVVM.Framework.Compilation.Styles
 {
     public class StyleRepository
     {
-        private DotvvmConfiguration configuration;
+        private readonly DotvvmConfiguration configuration;
 
         public StyleRepository(DotvvmConfiguration configuration)
         {
             this.configuration = configuration;
         }
 
-        public List<IStyle> Styles { get; set; } = new List<IStyle>();
+        public IList<IStyle> Styles
+        {
+            get => _styles;
+            set
+            {
+                ThrowIfFrozen();
+                _styles = value;
+            }
+        }
+        private IList<IStyle> _styles = new FreezableList<IStyle>();
 
         public StyleMatcher CreateMatcher()
         {
@@ -31,6 +41,7 @@ namespace DotVVM.Framework.Compilation.Styles
         public StyleBuilder<T> Register<T>(Func<StyleMatchContext, bool> matcher = null, bool allowDerived = true)
             where T : DotvvmBindableObject
         {
+            ThrowIfFrozen();
             var styleBuilder = new StyleBuilder<T>(matcher, allowDerived);
             Styles.Add(styleBuilder.GetStyle());
             return styleBuilder;
@@ -44,6 +55,7 @@ namespace DotVVM.Framework.Compilation.Styles
         /// <returns>A <see cref="StyleBuilder{T}"/> that can be used to style the control.</returns>
         public StyleBuilder<HtmlGenericControl> Register(string tagName, Func<StyleMatchContext, bool> matcher = null)
         {
+            ThrowIfFrozen();
             if (matcher != null)
             {
                 return Register<HtmlGenericControl>(m => (string)m.Control.ConstructorParameters[0] == tagName && matcher(m), false);
@@ -52,6 +64,18 @@ namespace DotVVM.Framework.Compilation.Styles
             {
                 return Register<HtmlGenericControl>(m => (string)m.Control.ConstructorParameters[0] == tagName, false);
             }
+        }
+
+        private bool isFrozen = false;
+        private void ThrowIfFrozen()
+        {
+            if (isFrozen)
+                throw new InvalidOperationException("The StyleRepository is frozen and can be no longer modified.");
+        }
+        public void Freeze()
+        {
+            this.isFrozen = true;
+            FreezableList.Freeze(ref this._styles);
         }
     }
 }
