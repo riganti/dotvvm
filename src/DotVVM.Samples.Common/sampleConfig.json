@@ -1,5 +1,5 @@
 {
-  "activeProfile": "Default",
+  "activeProfile": "LazyCsrfToken",
   "profiles": [
     {
       "name": "Default",
@@ -11,10 +11,7 @@
       "config": {
         "experimentalFeatures": {
           "lazyCsrfToken": {
-            "enabled": true,
-            "excludedRoutes": [
-              "Default"
-            ]
+            "enabled": true
           }
         }
       }

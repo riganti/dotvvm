@@ -9,6 +9,41 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
@@ -888,7 +923,7 @@ var DotVVM = /** @class */ (function () {
             before: ["setIsPostbackRunning", "concurrency-default", "concurrency-queue", "concurrency-deny"],
             execute: function (callback, options) {
                 if (options.sender && dotvvm.isPostBackProhibited(options.sender)) {
-                    return Promise.reject({ type: "handler", handler: _this, message: "PostBack is prohitibited on disabled element" });
+                    return Promise.reject({ type: "handler", handler: _this, message: "PostBack is prohibited on disabled element" });
                 }
                 else
                     return callback();
@@ -923,8 +958,10 @@ var DotVVM = /** @class */ (function () {
         this.commonConcurrencyHandler = function (promise, options, queueName) {
             var queue = _this.getPostbackQueue(queueName);
             queue.noRunning++;
+            dotvvm.updateProgressChangeCounter(dotvvm.updateProgressChangeCounter() + 1);
             var dispatchNext = function () {
                 queue.noRunning--;
+                dotvvm.updateProgressChangeCounter(dotvvm.updateProgressChangeCounter() - 1);
                 if (queue.queue.length > 0) {
                     var callback = queue.queue.shift();
                     window.setTimeout(callback, 0);
@@ -970,6 +1007,7 @@ var DotVVM = /** @class */ (function () {
         this.fileUpload = new DotvvmFileUpload();
         this.extensions = {};
         this.isPostbackRunning = ko.observable(false);
+        this.updateProgressChangeCounter = ko.observable(0);
     }
     DotVVM.prototype.createWindowSetTimeoutHandler = function (time) {
         return {
@@ -1117,38 +1155,86 @@ var DotVVM = /** @class */ (function () {
     DotVVM.prototype.isPostBackStillActive = function (currentPostBackCounter) {
         return this.postBackCounter === currentPostBackCounter;
     };
+    DotVVM.prototype.fetchCsrfToken = function (viewModelName) {
+        return __awaiter(this, void 0, void 0, function () {
+            var vm, response, _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        vm = this.viewModels[viewModelName].viewModel;
+                        if (!(vm.$csrfToken == null)) return [3 /*break*/, 3];
+                        return [4 /*yield*/, fetch((this.viewModels[viewModelName].virtualDirectory || "") + "/___dotvvm-create-csrf-token___")];
+                    case 1:
+                        response = _b.sent();
+                        if (response.status != 200)
+                            throw new Error("Can't fetch CSRF token: " + response.statusText);
+                        _a = vm;
+                        return [4 /*yield*/, response.text()];
+                    case 2:
+                        _a.$csrfToken = _b.sent();
+                        _b.label = 3;
+                    case 3: return [2 /*return*/, vm.$csrfToken];
+                }
+            });
+        });
+    };
     DotVVM.prototype.staticCommandPostback = function (viewModelName, sender, command, args, callback, errorCallback) {
         var _this = this;
         if (callback === void 0) { callback = function (_) { }; }
-        if (errorCallback === void 0) { errorCallback = function (xhr, error) { }; }
-        var data = this.serialization.serialize({
-            "args": args,
-            "command": command,
-            "$csrfToken": this.viewModels[viewModelName].viewModel.$csrfToken
-        });
-        dotvvm.events.staticCommandMethodInvoking.trigger(data);
-        this.postJSON(this.viewModels[viewModelName].url, "POST", ko.toJSON(data), function (response) {
-            try {
-                _this.isViewModelUpdating = true;
-                var result = JSON.parse(response.responseText);
-                dotvvm.events.staticCommandMethodInvoked.trigger(__assign({}, data, { result: result, xhr: response }));
-                callback(result);
-            }
-            catch (error) {
-                dotvvm.events.staticCommandMethodFailed.trigger(__assign({}, data, { xhr: response, error: error }));
-                errorCallback(response, error);
-            }
-            finally {
-                _this.isViewModelUpdating = false;
-            }
-        }, function (xhr) {
-            _this.events.error.trigger(new DotvvmErrorEventArgs(sender, _this.viewModels[viewModelName].viewModel, viewModelName, xhr, null));
-            console.warn("StaticCommand postback failed: " + xhr.status + " - " + xhr.statusText, xhr);
-            errorCallback(xhr);
-            dotvvm.events.staticCommandMethodFailed.trigger(__assign({}, data, { xhr: xhr }));
-        }, function (xhr) {
-            xhr.setRequestHeader("X-PostbackType", "StaticCommand");
-        });
+        if (errorCallback === void 0) { errorCallback = function (errorInfo) { }; }
+        (function () { return __awaiter(_this, void 0, void 0, function () {
+            var data, _a, _b, _c, _d;
+            var _this = this;
+            return __generator(this, function (_e) {
+                switch (_e.label) {
+                    case 0:
+                        _b = (_a = this.serialization).serialize;
+                        _c = {
+                            args: args,
+                            command: command
+                        };
+                        _d = "$csrfToken";
+                        return [4 /*yield*/, this.fetchCsrfToken(viewModelName)];
+                    case 1:
+                        data = _b.apply(_a, [(_c[_d] = _e.sent(),
+                                _c)]);
+                        dotvvm.events.staticCommandMethodInvoking.trigger(data);
+                        this.postJSON(this.viewModels[viewModelName].url, "POST", ko.toJSON(data), function (response) {
+                            try {
+                                _this.isViewModelUpdating = true;
+                                var result = JSON.parse(response.responseText);
+                                dotvvm.events.staticCommandMethodInvoked.trigger(__assign({}, data, { result: result, xhr: response }));
+                                callback(result);
+                            }
+                            catch (error) {
+                                dotvvm.events.staticCommandMethodFailed.trigger(__assign({}, data, { xhr: response, error: error }));
+                                errorCallback({ xhr: response, error: error });
+                            }
+                            finally {
+                                _this.isViewModelUpdating = false;
+                            }
+                        }, function (xhr) {
+                            if (/^application\/json(;|$)/.test(xhr.getResponseHeader("Content-Type"))) {
+                                var errObject = JSON.parse(xhr.responseText);
+                                if (errObject.action === "invalidCsrfToken") {
+                                    // ok, renew the token and try again. Do that before any event is triggered
+                                    _this.viewModels[viewModelName].viewModel.$csrfToken = null;
+                                    console.log("Resending postback due to invalid CSRF token."); // this may loop indefinitely (in some extreme case), we don't currently have any loop detection mechanism, so at least we can log it.
+                                    _this.staticCommandPostback(viewModelName, sender, command, args, callback, errorCallback);
+                                    return;
+                                }
+                            }
+                            _this.events.error.trigger(new DotvvmErrorEventArgs(sender, _this.viewModels[viewModelName].viewModel, viewModelName, xhr, null));
+                            console.warn("StaticCommand postback failed: " + xhr.status + " - " + xhr.statusText, xhr);
+                            errorCallback({ xhr: xhr });
+                            dotvvm.events.staticCommandMethodFailed.trigger(__assign({}, data, { xhr: xhr }));
+                        }, function (xhr) {
+                            xhr.setRequestHeader("X-PostbackType", "StaticCommand");
+                        });
+                        return [2 /*return*/];
+                }
+            });
+        }); })();
     };
     DotVVM.prototype.processPassedId = function (id, context) {
         if (typeof id == "string" || id == null)
@@ -1257,86 +1343,107 @@ var DotVVM = /** @class */ (function () {
     };
     DotVVM.prototype.postbackCore = function (options, path, command, controlUniqueId, context, commandArgs) {
         var _this = this;
-        return new Promise(function (resolve, reject) {
-            var viewModelName = options.viewModelName;
-            var viewModel = _this.viewModels[viewModelName].viewModel;
-            _this.lastStartedPostack = options.postbackId;
-            // perform the postback
-            _this.updateDynamicPathFragments(context, path);
-            var data = {
-                viewModel: _this.serialization.serialize(viewModel, { pathMatcher: function (val) { return context && val == context.$data; } }),
-                currentPath: path,
-                command: command,
-                controlUniqueId: _this.processPassedId(controlUniqueId, context),
-                additionalData: options.additionalPostbackData,
-                renderedResources: _this.viewModels[viewModelName].renderedResources,
-                commandArgs: commandArgs
-            };
-            _this.postJSON(_this.viewModels[viewModelName].url, "POST", ko.toJSON(data), function (result) {
-                dotvvm.events.postbackResponseReceived.trigger({});
-                resolve(function () { return new Promise(function (resolve, reject) {
-                    dotvvm.events.postbackCommitInvoked.trigger({});
-                    var locationHeader = result.getResponseHeader("Location");
-                    var resultObject = locationHeader != null && locationHeader.length > 0 ?
-                        { action: "redirect", url: locationHeader } :
-                        JSON.parse(result.responseText);
-                    if (!resultObject.viewModel && resultObject.viewModelDiff) {
-                        // TODO: patch (~deserialize) it to ko.observable viewModel
-                        resultObject.viewModel = _this.patch(data.viewModel, resultObject.viewModelDiff);
-                    }
-                    _this.loadResourceList(resultObject.resources, function () {
-                        var isSuccess = false;
-                        if (resultObject.action === "successfulCommand") {
-                            try {
-                                _this.isViewModelUpdating = true;
-                                // remove updated controls
-                                var updatedControls = _this.cleanUpdatedControls(resultObject);
-                                // update the viewmodel
-                                if (resultObject.viewModel) {
-                                    ko.delaySync.pause();
-                                    _this.serialization.deserialize(resultObject.viewModel, _this.viewModels[viewModelName].viewModel);
-                                    ko.delaySync.resume();
+        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+            var viewModelName, viewModel, data;
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        viewModelName = options.viewModelName;
+                        return [4 /*yield*/, this.fetchCsrfToken(viewModelName)];
+                    case 1:
+                        _a.sent();
+                        viewModel = this.viewModels[viewModelName].viewModel;
+                        this.lastStartedPostack = options.postbackId;
+                        // perform the postback
+                        this.updateDynamicPathFragments(context, path);
+                        data = {
+                            viewModel: this.serialization.serialize(viewModel, { pathMatcher: function (val) { return context && val == context.$data; } }),
+                            currentPath: path,
+                            command: command,
+                            controlUniqueId: this.processPassedId(controlUniqueId, context),
+                            additionalData: options.additionalPostbackData,
+                            renderedResources: this.viewModels[viewModelName].renderedResources,
+                            commandArgs: commandArgs
+                        };
+                        this.postJSON(this.viewModels[viewModelName].url, "POST", ko.toJSON(data), function (result) {
+                            dotvvm.events.postbackResponseReceived.trigger({});
+                            resolve(function () { return new Promise(function (resolve, reject) {
+                                dotvvm.events.postbackCommitInvoked.trigger({});
+                                var locationHeader = result.getResponseHeader("Location");
+                                var resultObject = locationHeader != null && locationHeader.length > 0 ?
+                                    { action: "redirect", url: locationHeader } :
+                                    JSON.parse(result.responseText);
+                                if (!resultObject.viewModel && resultObject.viewModelDiff) {
+                                    // TODO: patch (~deserialize) it to ko.observable viewModel
+                                    resultObject.viewModel = _this.patch(data.viewModel, resultObject.viewModelDiff);
                                 }
-                                isSuccess = true;
-                                // remove updated controls which were previously hidden
-                                _this.cleanUpdatedControls(resultObject, updatedControls);
-                                // add updated controls
-                                _this.restoreUpdatedControls(resultObject, updatedControls, true);
+                                _this.loadResourceList(resultObject.resources, function () {
+                                    var isSuccess = false;
+                                    if (resultObject.action === "successfulCommand") {
+                                        try {
+                                            _this.isViewModelUpdating = true;
+                                            // remove updated controls
+                                            var updatedControls = _this.cleanUpdatedControls(resultObject);
+                                            // update the viewmodel
+                                            if (resultObject.viewModel) {
+                                                ko.delaySync.pause();
+                                                _this.serialization.deserialize(resultObject.viewModel, _this.viewModels[viewModelName].viewModel);
+                                                ko.delaySync.resume();
+                                            }
+                                            isSuccess = true;
+                                            // remove updated controls which were previously hidden
+                                            _this.cleanUpdatedControls(resultObject, updatedControls);
+                                            // add updated controls
+                                            _this.restoreUpdatedControls(resultObject, updatedControls, true);
+                                        }
+                                        finally {
+                                            _this.isViewModelUpdating = false;
+                                        }
+                                        dotvvm.events.postbackViewModelUpdated.trigger({});
+                                    }
+                                    else if (resultObject.action === "redirect") {
+                                        // redirect
+                                        _this.handleRedirect(resultObject, viewModelName);
+                                        return resolve();
+                                    }
+                                    var idFragment = resultObject.resultIdFragment;
+                                    if (idFragment) {
+                                        if (_this.getSpaPlaceHolder() || location.hash == "#" + idFragment) {
+                                            var element = document.getElementById(idFragment);
+                                            if (element && "function" == typeof element.scrollIntoView)
+                                                element.scrollIntoView(true);
+                                        }
+                                        else
+                                            location.hash = idFragment;
+                                    }
+                                    // trigger afterPostback event
+                                    if (!isSuccess) {
+                                        reject(new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, result, options.postbackId, resultObject));
+                                    }
+                                    else {
+                                        var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(options, resultObject, resultObject.commandResult, result);
+                                        resolve(afterPostBackArgs);
+                                    }
+                                });
+                            }); });
+                        }, function (xhr) {
+                            if (/^application\/json(;|$)/.test(xhr.getResponseHeader("Content-Type"))) {
+                                var errObject = JSON.parse(xhr.responseText);
+                                if (errObject.action === "invalidCsrfToken") {
+                                    // ok, renew the token and try again. Do that before any event is triggered
+                                    _this.viewModels[viewModelName].viewModel.$csrfToken = null;
+                                    console.log("Resending postback due to invalid CSRF token."); // this may loop indefinitely (in some extreme case), we don't currently have any loop detection mechanism, so at least we can log it.
+                                    _this.postbackCore(options, path, command, controlUniqueId, context, commandArgs).then(resolve, reject);
+                                    return;
+                                }
                             }
-                            finally {
-                                _this.isViewModelUpdating = false;
-                            }
-                            dotvvm.events.postbackViewModelUpdated.trigger({});
-                        }
-                        else if (resultObject.action === "redirect") {
-                            // redirect
-                            _this.handleRedirect(resultObject, viewModelName);
-                            return resolve();
-                        }
-                        var idFragment = resultObject.resultIdFragment;
-                        if (idFragment) {
-                            if (_this.getSpaPlaceHolder() || location.hash == "#" + idFragment) {
-                                var element = document.getElementById(idFragment);
-                                if (element && "function" == typeof element.scrollIntoView)
-                                    element.scrollIntoView(true);
-                            }
-                            else
-                                location.hash = idFragment;
-                        }
-                        // trigger afterPostback event
-                        if (!isSuccess) {
-                            reject(new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, result, options.postbackId, resultObject));
-                        }
-                        else {
-                            var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(options, resultObject, resultObject.commandResult, result);
-                            resolve(afterPostBackArgs);
-                        }
-                    });
-                }); });
-            }, function (xhr) {
-                reject({ type: 'network', options: options, args: new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, xhr, options.postbackId) });
+                            reject({ type: 'network', options: options, args: new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, xhr, options.postbackId) });
+                        });
+                        return [2 /*return*/];
+                }
             });
-        });
+        }); });
     };
     DotVVM.prototype.handleSpaNavigation = function (element) {
         var target = element.getAttribute('target');
@@ -1869,47 +1976,61 @@ var DotVVM = /** @class */ (function () {
                 return { controlsDescendantBindings: true }; // do not apply binding again
             }
         };
+        var makeUpdatableChildrenContextHandler = function (makeContextCallback, shouldDisplay) { return function (element, valueAccessor, _allBindings, _viewModel, bindingContext) {
+            if (!bindingContext)
+                throw new Error();
+            var savedNodes;
+            ko.computed(function () {
+                var rawValue = valueAccessor();
+                // Save a copy of the inner nodes on the initial update, but only if we have dependencies.
+                if (!savedNodes && ko.computedContext.getDependenciesCount()) {
+                    savedNodes = ko.utils.cloneNodes(ko.virtualElements.childNodes(element), true /* shouldCleanNodes */);
+                }
+                if (shouldDisplay(rawValue)) {
+                    if (savedNodes) {
+                        ko.virtualElements.setDomNodeChildren(element, ko.utils.cloneNodes(savedNodes));
+                    }
+                    ko.applyBindingsToDescendants(makeContextCallback(bindingContext, rawValue), element);
+                }
+                else {
+                    ko.virtualElements.emptyNode(element);
+                }
+            }, null, { disposeWhenNodeIsRemoved: element });
+            return { controlsDescendantBindings: true }; // do not apply binding again
+        }; };
         var foreachCollectionSymbol = "$foreachCollectionSymbol";
         ko.virtualElements.allowedBindings["dotvvm-SSR-foreach"] = true;
         ko.bindingHandlers["dotvvm-SSR-foreach"] = {
-            init: function (element, valueAccessor, _allBindings, _viewModel, bindingContext) {
+            init: makeUpdatableChildrenContextHandler(function (bindingContext, rawValue) {
                 var _a;
-                if (!bindingContext)
-                    throw new Error();
-                var value = valueAccessor();
-                var innerBindingContext = bindingContext.extend((_a = {}, _a[foreachCollectionSymbol] = value.data, _a));
-                element.innerBindingContext = innerBindingContext;
-                ko.applyBindingsToDescendants(innerBindingContext, element);
-                return { controlsDescendantBindings: true }; // do not apply binding again
-            }
+                return bindingContext.extend((_a = {}, _a[foreachCollectionSymbol] = rawValue.data, _a));
+            }, function (v) { return v.data != null; })
         };
         ko.virtualElements.allowedBindings["dotvvm-SSR-item"] = true;
         ko.bindingHandlers["dotvvm-SSR-item"] = {
             init: function (element, valueAccessor, _allBindings, _viewModel, bindingContext) {
                 if (!bindingContext)
                     throw new Error();
-                var index = valueAccessor();
                 var collection = bindingContext[foreachCollectionSymbol];
-                var innerBindingContext = bindingContext.createChildContext(function () { return ko.unwrap((ko.unwrap(collection) || [])[index]); }).extend({ $index: ko.pureComputed(function () { return index; }) });
-                element.innerBindingContext = innerBindingContext;
-                ko.applyBindingsToDescendants(innerBindingContext, element);
-                return { controlsDescendantBindings: true }; // do not apply binding again
-            }
-        };
-        ko.virtualElements.allowedBindings["withGridViewDataSet"] = true;
-        ko.bindingHandlers["withGridViewDataSet"] = {
-            init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
-                var _a;
-                if (!bindingContext)
-                    throw new Error();
-                var value = valueAccessor();
-                var innerBindingContext = bindingContext.extend((_a = { $gridViewDataSet: value }, _a[foreachCollectionSymbol] = dotvvm.evaluator.getDataSourceItems(value), _a));
+                var innerBindingContext = bindingContext.createChildContext(function () {
+                    return ko.unwrap((ko.unwrap(collection) || [])[valueAccessor()]);
+                }).extend({ $index: ko.pureComputed(valueAccessor) });
                 element.innerBindingContext = innerBindingContext;
                 ko.applyBindingsToDescendants(innerBindingContext, element);
                 return { controlsDescendantBindings: true }; // do not apply binding again
             },
-            update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+            update: function (element) {
+                if (element.seenUpdate)
+                    console.error("dotvvm-SSR-item binding did not expect to see a update");
+                element.seenUpdate = 1;
             }
+        };
+        ko.virtualElements.allowedBindings["withGridViewDataSet"] = true;
+        ko.bindingHandlers["withGridViewDataSet"] = {
+            init: makeUpdatableChildrenContextHandler(function (bindingContext, value) {
+                var _a;
+                return bindingContext.extend((_a = { $gridViewDataSet: value }, _a[foreachCollectionSymbol] = dotvvm.evaluator.getDataSourceItems(value), _a));
+            }, function (_) { return true; })
         };
         ko.bindingHandlers['dotvvmEnable'] = {
             'update': function (element, valueAccessor) {
@@ -1950,6 +2071,8 @@ var DotVVM = /** @class */ (function () {
             init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
                 element.style.display = "none";
                 var delay = element.getAttribute("data-delay");
+                var includedQueues = (element.getAttribute("data-included-queues") || "").split(",").filter(function (i) { return i.length > 0; });
+                var excludedQueues = (element.getAttribute("data-excluded-queues") || "").split(",").filter(function (i) { return i.length > 0; });
                 var timeout;
                 var running = false;
                 var show = function () {
@@ -1968,8 +2091,20 @@ var DotVVM = /** @class */ (function () {
                     clearTimeout(timeout);
                     element.style.display = "none";
                 };
-                dotvvm.isPostbackRunning.subscribe(function (e) {
-                    if (e) {
+                dotvvm.updateProgressChangeCounter.subscribe(function (e) {
+                    var shouldRun = false;
+                    if (includedQueues.length === 0) {
+                        for (var queue in dotvvm.postbackQueues) {
+                            if (excludedQueues.indexOf(queue) < 0 && dotvvm.postbackQueues[queue].noRunning > 0) {
+                                shouldRun = true;
+                                break;
+                            }
+                        }
+                    }
+                    else {
+                        shouldRun = includedQueues.some(function (q) { return dotvvm.postbackQueues[q] && dotvvm.postbackQueues[q].noRunning > 0; });
+                    }
+                    if (shouldRun) {
                         if (!running) {
                             show();
                         }
@@ -2305,29 +2440,35 @@ var DotvvmEmailAddressValidator = /** @class */ (function (_super) {
     };
     return DotvvmEmailAddressValidator;
 }(DotvvmValidatorBase));
+var ErrorsPropertyName = "validationErrors";
 var ValidationError = /** @class */ (function () {
-    function ValidationError(validatedObservable, errorMessage) {
-        this.validatedObservable = validatedObservable;
+    function ValidationError(errorMessage, validatedObservable) {
         this.errorMessage = errorMessage;
+        this.validatedObservable = validatedObservable;
     }
-    ValidationError.getOrCreate = function (validatedObservable) {
-        if (validatedObservable.wrappedProperty) {
-            var wrapped = validatedObservable.wrappedProperty();
-            if (ko.isObservable(wrapped))
-                validatedObservable = wrapped;
+    ValidationError.attach = function (errorMessage, observable) {
+        if (!errorMessage) {
+            throw new Error("String \"" + errorMessage + "\" is not a valid ValidationError message.");
         }
-        if (!validatedObservable.validationErrors) {
-            validatedObservable.validationErrors = ko.observableArray();
+        if (!observable) {
+            throw new Error("ValidationError cannot be attached to \"" + observable + "\".");
         }
-        return validatedObservable.validationErrors;
+        if ("wrappedProperty" in observable) {
+            observable = observable["wrappedProperty"]();
+        }
+        if (!observable.hasOwnProperty(ErrorsPropertyName)) {
+            observable[ErrorsPropertyName] = [];
+        }
+        var error = new ValidationError(errorMessage, observable);
+        observable[ErrorsPropertyName].push(error);
+        dotvvm.validation.errors.push(error);
+        return error;
     };
-    ValidationError.isValid = function (validatedObservable) {
-        return !validatedObservable.validationErrors || validatedObservable.validationErrors().length === 0;
-    };
-    ValidationError.prototype.clear = function (validation) {
-        var localErrors = this.validatedObservable.validationErrors;
-        localErrors.remove(this);
-        validation.errors.remove(this);
+    ValidationError.prototype.detach = function () {
+        var observableIndex = this.validatedObservable.validationErrors.indexOf(this);
+        this.validatedObservable.validationErrors.splice(observableIndex, 1);
+        var arrayIndex = dotvvm.validation.errors.indexOf(this);
+        dotvvm.validation.errors.splice(arrayIndex, 1);
     };
     return ValidationError;
 }());
@@ -2343,7 +2484,7 @@ var DotvvmValidation = /** @class */ (function () {
             "notnull": new DotvvmNotNullValidator(),
             "enforceClientFormat": new DotvvmEnforceClientFormatValidator()
         };
-        this.errors = ko.observableArray([]);
+        this.errors = [];
         this.events = {
             validationErrorsChanged: new DotvvmEvent("dotvvm.validation.events.validationErrorsChanged")
         };
@@ -2391,14 +2532,13 @@ var DotvvmValidation = /** @class */ (function () {
                     // resolve target
                     var context = ko.contextFor(options.sender);
                     var validationTarget = dotvvm.evaluator.evaluateOnViewModel(context, path);
-                    _this.errors([]);
-                    _this.clearValidationErrors(dotvvm.viewModelObservables[options.viewModelName || 'root']);
+                    _this.detachAllErrors();
                     _this.validateViewModel(validationTarget);
-                    if (_this.errors().length > 0) {
-                        console.log("Validation failed: postback aborted; errors: ", _this.errors());
+                    _this.events.validationErrorsChanged.trigger({ viewModel: options.viewModel });
+                    if (_this.errors.length > 0) {
+                        console.log("Validation failed: postback aborted; errors: ", _this.errors);
                         return Promise.reject({ type: "handler", handler: _this, message: "Validation failed" });
                     }
-                    _this.events.validationErrorsChanged.trigger({ viewModel: options.viewModel });
                 }
                 return callback();
             }
@@ -2415,29 +2555,42 @@ var DotvvmValidation = /** @class */ (function () {
                 }
                 else if (args.serverResponseObject.action === "validationErrors") {
                     // apply validation errors from server
+                    _this.detachAllErrors();
                     _this.showValidationErrorsFromServer(args);
+                    _this.events.validationErrorsChanged.trigger(args);
                     args.isHandled = true;
                 }
             }
-            _this.events.validationErrorsChanged.trigger(args);
         });
         dotvvm.events.spaNavigating.subscribe(function (args) {
-            _this.clearValidationErrors(dotvvm.viewModelObservables[args.viewModelName]);
+            _this.detachAllErrors();
+            _this.events.validationErrorsChanged.trigger({ viewModel: args.viewModel });
         });
-        // add knockout binding handler
+        // Validator
         ko.bindingHandlers["dotvvmValidation"] = {
+            init: function (element, valueAccessor, allBindingsAccessor) {
+                dotvvm.validation.events.validationErrorsChanged.subscribe(function (e) {
+                    _this.applyValidatorOptions(element, valueAccessor(), allBindingsAccessor.get("dotvvmValidationOptions"));
+                });
+            },
             update: function (element, valueAccessor, allBindingsAccessor) {
-                var observableProperty = valueAccessor();
-                if (ko.isObservable(observableProperty)) {
-                    // try to get the options
-                    var options = allBindingsAccessor.get("dotvvmValidationOptions");
-                    var validationErrors = ValidationError.getOrCreate(observableProperty)();
-                    for (var option in options) {
-                        if (options.hasOwnProperty(option)) {
-                            _this.elementUpdateFunctions[option](element, validationErrors.map(function (v) { return v.errorMessage; }), options[option]);
-                        }
+                _this.applyValidatorOptions(element, valueAccessor(), allBindingsAccessor.get("dotvvmValidationOptions"));
+            }
+        };
+        // ValidationSummary
+        ko.bindingHandlers["dotvvm-validationSummary"] = {
+            init: function (element, valueAccessor) {
+                var binding = valueAccessor();
+                dotvvm.validation.events.validationErrorsChanged.subscribe(function (e) {
+                    element.innerHTML = "";
+                    var errors = dotvvm.validation.getValidationErrors(binding.target, binding.includeErrorsFromChildren, binding.includeErrorsFromTarget);
+                    for (var _i = 0, errors_1 = errors; _i < errors_1.length; _i++) {
+                        var error = errors_1[_i];
+                        var item = document.createElement("li");
+                        item.innerText = error.errorMessage;
+                        element.appendChild(item);
                     }
-                }
+                });
             }
         };
     }
@@ -2448,57 +2601,61 @@ var DotvvmValidation = /** @class */ (function () {
         if (ko.isObservable(viewModel)) {
             viewModel = ko.unwrap(viewModel);
         }
-        if (!viewModel)
+        if (!viewModel) {
             return;
-        // find validation rules
+        }
+        // find validation rules for the property type
+        var rootRules = dotvvm.viewModels['root'].validationRules || {};
         var type = ko.unwrap(viewModel.$type);
-        // Event if there is no validation rules, there can be invalid value for given type
-        var validationRules = dotvvm.viewModels['root'].validationRules || {};
-        var rulesForType = validationRules[type] || {};
+        var rules = rootRules[type] || {};
         // validate all properties
-        for (var property in viewModel) {
-            if (!viewModel.hasOwnProperty(property) || property.indexOf("$") === 0)
+        for (var propertyName in viewModel) {
+            if (!viewModel.hasOwnProperty(propertyName) || propertyName.indexOf("$") === 0) {
                 continue;
-            var viewModelProperty = viewModel[property];
-            if (!viewModelProperty || !ko.isObservable(viewModelProperty))
+            }
+            var observable = viewModel[propertyName];
+            if (!observable || !ko.isObservable(observable)) {
                 continue;
-            var value = viewModel[property]();
-            // run validation rules
-            if (rulesForType.hasOwnProperty(property)) {
-                this.validateProperty(viewModel, viewModelProperty, value, rulesForType[property]);
             }
-            var options = viewModel[property + "$options"];
-            if (options && options.type && ValidationError.isValid(viewModelProperty) && !dotvvm.serialization.validateType(value, options.type)) {
-                var error = new ValidationError(viewModelProperty, "The value of property " + property + " (" + value + ") is invalid value for type " + options.type + ".");
-                this.addValidationError(viewModelProperty, error);
+            var propertyValue = observable();
+            // run validators
+            if (rules.hasOwnProperty(propertyName)) {
+                this.validateProperty(viewModel, observable, propertyValue, rules[propertyName]);
             }
-            if (value) {
-                if (Array.isArray(value)) {
-                    // handle collections
-                    for (var _i = 0, value_1 = value; _i < value_1.length; _i++) {
-                        var item = value_1[_i];
-                        this.validateViewModel(item);
-                    }
+            // check the value is even valid for the given type
+            var options = viewModel[propertyName + "$options"];
+            if (options
+                && options.type
+                && !DotvvmValidation.hasErrors(observable)
+                && !dotvvm.serialization.validateType(propertyValue, options.type)) {
+                ValidationError.attach("The value of property " + propertyName + " (" + propertyValue + ") is invalid value for type " + options.type + ".", observable);
+            }
+            if (!propertyValue) {
+                continue;
+            }
+            // recurse
+            if (Array.isArray(propertyValue)) {
+                // handle collections
+                for (var _i = 0, propertyValue_1 = propertyValue; _i < propertyValue_1.length; _i++) {
+                    var item = propertyValue_1[_i];
+                    this.validateViewModel(item);
                 }
-                else if (value && value instanceof Object) {
-                    // handle nested objects
-                    this.validateViewModel(value);
-                }
+            }
+            else if (propertyValue && propertyValue instanceof Object) {
+                // handle nested objects
+                this.validateViewModel(propertyValue);
             }
         }
     };
     // validates the specified property in the viewModel
-    DotvvmValidation.prototype.validateProperty = function (viewModel, property, value, rulesForProperty) {
-        for (var _i = 0, rulesForProperty_1 = rulesForProperty; _i < rulesForProperty_1.length; _i++) {
-            var rule = rulesForProperty_1[_i];
+    DotvvmValidation.prototype.validateProperty = function (viewModel, property, value, propertyRules) {
+        for (var _i = 0, propertyRules_1 = propertyRules; _i < propertyRules_1.length; _i++) {
+            var rule = propertyRules_1[_i];
             // validate the rules
-            var ruleTemplate = this.rules[rule.ruleName];
+            var validator = this.rules[rule.ruleName];
             var context = new DotvvmValidationContext(value, viewModel, rule.parameters);
-            if (!ruleTemplate.isValid(context, property)) {
-                var validationErrors = ValidationError.getOrCreate(property);
-                // add error message
-                var validationError = new ValidationError(property, rule.errorMessage);
-                this.addValidationError(property, validationError);
+            if (!validator.isValid(context, property)) {
+                ValidationError.attach(rule.errorMessage, property);
             }
         }
     };
@@ -2518,75 +2675,83 @@ var DotvvmValidation = /** @class */ (function () {
         }
     };
     /**
-      * Clears validation errors from the passed viewModel, from its children
-      * and from the DotvvmValidation.errors array
-    */
-    DotvvmValidation.prototype.clearValidationErrors = function (validatedObservable) {
-        if (!validatedObservable || !ko.isObservable(validatedObservable))
+     * Clears validation errors from the passed viewModel, from its children
+     * and from the DotvvmValidation.errors array
+     */
+    DotvvmValidation.prototype.clearValidationErrors = function (observable) {
+        if (!observable || !ko.isObservable(observable)) {
             return;
-        if (validatedObservable.validationErrors) {
-            var errors = validatedObservable.validationErrors().concat([]);
-            //                                                    ^ clone the array, as `clear` mutates it
-            for (var _i = 0, errors_1 = errors; _i < errors_1.length; _i++) {
-                var error = errors_1[_i];
-                error.clear(this);
+        }
+        if (observable[ErrorsPropertyName]) {
+            // clone the array as `detach` mutates it
+            var errors = observable[ErrorsPropertyName].concat([]);
+            for (var _i = 0, errors_2 = errors; _i < errors_2.length; _i++) {
+                var error = errors_2[_i];
+                error.detach();
             }
         }
-        var validatedObject = validatedObservable();
-        if (!validatedObject)
+        var validatedObject = ko.unwrap(observable);
+        if (!validatedObject) {
             return;
-        // Do the same for every object in the array
+        }
         if (Array.isArray(validatedObject)) {
+            // element recursion
             for (var _a = 0, validatedObject_1 = validatedObject; _a < validatedObject_1.length; _a++) {
                 var item = validatedObject_1[_a];
                 this.clearValidationErrors(item);
             }
         }
-        // Do the same for every subordinate property
         for (var propertyName in validatedObject) {
-            if (!validatedObject.hasOwnProperty(propertyName) || propertyName.indexOf("$") === 0)
+            // property recursion
+            if (!validatedObject.hasOwnProperty(propertyName) || propertyName.indexOf("$") === 0) {
                 continue;
+            }
             var property = validatedObject[propertyName];
             this.clearValidationErrors(property);
         }
     };
+    DotvvmValidation.prototype.detachAllErrors = function () {
+        while (this.errors.length > 0) {
+            this.errors[0].detach();
+        }
+    };
     /**
      * Gets validation errors from the passed object and its children.
-     * @param target Object that is supposed to contain the errors or properties with the errors
+     * @param validationTargetObservable Object that is supposed to contain the errors or properties with the errors
      * @param includeErrorsFromGrandChildren Is called "IncludeErrorsFromChildren" in ValidationSummary.cs
-     * @param includeErrorsFromChildren Sets whether to include errors from children at all
      * @returns By default returns only errors from the viewModel's immediate children
      */
     DotvvmValidation.prototype.getValidationErrors = function (validationTargetObservable, includeErrorsFromGrandChildren, includeErrorsFromTarget, includeErrorsFromChildren) {
         if (includeErrorsFromChildren === void 0) { includeErrorsFromChildren = true; }
-        // Check the passed viewModel
-        if (!validationTargetObservable)
+        if (!validationTargetObservable) {
             return [];
-        var errors = [];
-        // Include errors from the validation target
-        if (includeErrorsFromTarget) {
-            errors = errors.concat(ValidationError.getOrCreate(validationTargetObservable)());
         }
-        if (includeErrorsFromChildren) {
-            var validationTarget = ko.unwrap(validationTargetObservable);
-            if (Array.isArray(validationTarget)) {
-                for (var _i = 0, validationTarget_1 = validationTarget; _i < validationTarget_1.length; _i++) {
-                    var item = validationTarget_1[_i];
-                    // This is correct because in the next children and further all children are grandchildren
-                    errors = errors.concat(this.getValidationErrors(item, includeErrorsFromGrandChildren, true, includeErrorsFromGrandChildren));
-                }
+        var errors = [];
+        if (includeErrorsFromTarget && validationTargetObservable.hasOwnProperty(ErrorsPropertyName)) {
+            errors = errors.concat(validationTargetObservable[ErrorsPropertyName]);
+        }
+        if (!includeErrorsFromChildren) {
+            return errors;
+        }
+        var validationTarget = ko.unwrap(validationTargetObservable);
+        if (Array.isArray(validationTarget)) {
+            for (var _i = 0, validationTarget_1 = validationTarget; _i < validationTarget_1.length; _i++) {
+                var item = validationTarget_1[_i];
+                // the next children are grandchildren
+                errors = errors.concat(this.getValidationErrors(item, includeErrorsFromGrandChildren, true, includeErrorsFromGrandChildren));
             }
-            else {
-                for (var propertyName in validationTarget) {
-                    if (!validationTarget.hasOwnProperty(propertyName) || propertyName.indexOf("$") === 0)
-                        continue;
-                    var property = validationTarget[propertyName];
-                    if (!property || !ko.isObservable(property))
-                        continue;
-                    // Nested properties are children too
-                    errors = errors.concat(this.getValidationErrors(property, includeErrorsFromGrandChildren, true, includeErrorsFromGrandChildren));
-                }
+            return errors;
+        }
+        for (var propertyName in validationTarget) {
+            if (!validationTarget.hasOwnProperty(propertyName) || propertyName.indexOf("$") === 0) {
+                continue;
             }
+            var property = validationTarget[propertyName];
+            if (!property || !ko.isObservable(property)) {
+                continue;
+            }
+            // consider nested properties to be children
+            errors = errors.concat(this.getValidationErrors(property, includeErrorsFromGrandChildren, true, includeErrorsFromGrandChildren));
         }
         return errors;
     };
@@ -2597,10 +2762,10 @@ var DotvvmValidation = /** @class */ (function () {
         // resolve validation target
         var context = ko.contextFor(args.sender);
         var validationTarget = dotvvm.evaluator.evaluateOnViewModel(context, args.postbackOptions.additionalPostbackData.validationTargetPath);
-        if (!validationTarget)
+        if (!validationTarget) {
             return;
+        }
         // add validation errors
-        this.clearValidationErrors(dotvvm.viewModelObservables[args.viewModelName]);
         var modelState = args.serverResponseObject.modelState;
         for (var i = 0; i < modelState.length; i++) {
             // find the property
@@ -2615,16 +2780,29 @@ var DotvvmValidation = /** @class */ (function () {
             else {
                 property = validationTarget;
             }
-            // add the error to appropriate collections
-            var error = new ValidationError(property, modelState[i].errorMessage);
-            this.addValidationError(property, error);
+            ValidationError.attach(modelState[i].errorMessage, property);
         }
     };
-    DotvvmValidation.prototype.addValidationError = function (validatedProperty, error) {
-        var errors = ValidationError.getOrCreate(validatedProperty);
-        if (errors.indexOf(error) < 0) {
-            validatedProperty.validationErrors.push(error);
-            this.errors.push(error);
+    DotvvmValidation.hasErrors = function (observable) {
+        if ("wrappedProperty" in observable) {
+            observable = observable["wrappedProperty"]();
+        }
+        return observable.hasOwnProperty(ErrorsPropertyName)
+            && observable[ErrorsPropertyName].length > 0;
+    };
+    DotvvmValidation.prototype.applyValidatorOptions = function (validator, observable, validatorOptions) {
+        if (!ko.isObservable(observable)) {
+            return;
+        }
+        if ("wrappedProperty" in observable) {
+            observable = observable["wrappedProperty"]();
+        }
+        var errors = observable[ErrorsPropertyName] || [];
+        var errorMessages = errors.map(function (v) { return v.errorMessage; });
+        for (var option in validatorOptions) {
+            if (validatorOptions.hasOwnProperty(option)) {
+                dotvvm.validation.elementUpdateFunctions[option](validator, errorMessages, validatorOptions[option]);
+            }
         }
     };
     return DotvvmValidation;

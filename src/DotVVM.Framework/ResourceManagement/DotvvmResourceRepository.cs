@@ -9,6 +9,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DotVVM.Framework.Routing;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -69,6 +70,7 @@ namespace DotVVM.Framework.ResourceManagement
 
             ValidateResourceName(name);
             ValidateResourceLocation(resource, name);
+            ResourceUtils.AssertAcyclicDependencies(resource, name, FindResource);
             if (replaceIfExists)
             {
                 Resources.AddOrUpdate(name, resource, (key, res) => resource);
@@ -102,7 +104,7 @@ namespace DotVVM.Framework.ResourceManagement
 
         protected virtual void ValidateResourceName(string name)
         {
-            if (!Regex.IsMatch(name, @"^[a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*$"))
+            if (!NamingUtils.IsValidResourceName(name))
             {
                 throw new ArgumentException($"The resource name {name} is not valid! Only alphanumeric characters, dots, underscores and dashes are allowed! Also please note that two or more subsequent dots, underscores and dashes are reserved for internal use, and are allowed only in the middle of the resource name.");
             }

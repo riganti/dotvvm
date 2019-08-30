@@ -1,5 +1,6 @@
 ﻿using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
+using OpenQA.Selenium;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
 using Riganti.Selenium.DotVVM;
@@ -202,6 +203,28 @@ namespace DotVVM.Samples.Tests.Feature
             browser.ElementAt("input", 2).Click().Wait();
             AssertUI.IsSelected(browser.ElementAt("select", 0).ElementAt("option", 1));
             AssertUI.IsSelected(browser.ElementAt("select", 1).ElementAt("option", 0));
+        }
+
+        [Fact]
+        public void Feature_StaticCommand_StaticCommand_TaskSequence()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_StaticCommand_StaticCommand_TaskSequence);
+
+                var textBox = browser.Single("input[type=text]");
+                var commandButton = browser.ElementAt("input[type=button]", 0);
+                var staticCommandButton = browser.ElementAt("input[type=button]", 1);
+
+                commandButton.Click().Wait();
+                AssertUI.Value(textBox, "55");
+
+                textBox.Clear();
+                textBox.SendKeys("0");
+                textBox.SendKeys(Keys.Tab);
+
+                staticCommandButton.Click().Wait(1000);
+                AssertUI.Value(textBox, "55");
+            });
         }
     }
 }

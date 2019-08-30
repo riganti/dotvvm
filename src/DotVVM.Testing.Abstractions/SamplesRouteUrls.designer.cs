@@ -19,6 +19,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ComplexSamples_GridViewDataSet_GridViewDataSet = "ComplexSamples/GridViewDataSet/GridViewDataSet";
         public const string ComplexSamples_InvoiceCalculator_InvoiceCalculator = "ComplexSamples/InvoiceCalculator/InvoiceCalculator";
         public const string ComplexSamples_NamespaceCollision_NamespaceCollision = "ComplexSamples/NamespaceCollision/NamespaceCollision";
+        public const string ComplexSamples_NestedComboBox_HeavilyNested = "ComplexSamples/NestedComboBox/HeavilyNested";
         public const string ComplexSamples_RedirectAndUrl_ScrollingPage = "ComplexSamples/RedirectAndUrl/ScrollingPage";
         public const string ComplexSamples_ServerRendering_AddingIntoEmptyRepeater = "ComplexSamples/ServerRendering/AddingIntoEmptyRepeater";
         public const string ComplexSamples_ServerRendering_ControlUsageSample = "ComplexSamples/ServerRendering/ControlUsageSample";
@@ -121,9 +122,11 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_TextBox_TextBox_Types = "ControlSamples/TextBox/TextBox_Types";
         public const string ControlSamples_UpdateProgress_UpdateProgress = "ControlSamples/UpdateProgress/UpdateProgress";
         public const string ControlSamples_UpdateProgress_UpdateProgressDelay = "ControlSamples/UpdateProgress/UpdateProgressDelay";
+        public const string ControlSamples_UpdateProgress_UpdateProgressQueues = "ControlSamples/UpdateProgress/UpdateProgressQueues";
         public const string ControlSamples_ValidationSummary_IncludeErrorsFromTarget_PropertyPathNotNull = "ControlSamples/ValidationSummary/IncludeErrorsFromTarget_PropertyPathNotNull";
         public const string ControlSamples_ValidationSummary_IncludeErrorsFromTarget_PropertyPathNull = "ControlSamples/ValidationSummary/IncludeErrorsFromTarget_PropertyPathNull";
         public const string ControlSamples_ValidationSummary_MessagesRendering = "ControlSamples/ValidationSummary/MessagesRendering";
+        public const string ControlSamples_ValidationSummary_Performance = "ControlSamples/ValidationSummary/Performance";
         public const string ControlSamples_ValidationSummary_RecursiveValidationSummary = "ControlSamples/ValidationSummary/RecursiveValidationSummary";
         public const string Errors_BindingInvalidCommand = "Errors/BindingInvalidCommand";
         public const string Errors_BindingInvalidProperty = "Errors/BindingInvalidProperty";
@@ -132,6 +135,8 @@ namespace DotVVM.Testing.Abstractions
         public const string Errors_EmptyBinding = "Errors/EmptyBinding";
         public const string Errors_EncryptedPropertyInValueBinding = "Errors/EncryptedPropertyInValueBinding";
         public const string Errors_FieldInValueBinding = "Errors/FieldInValueBinding";
+        public const string Errors_InvalidServiceDirective = "Errors/InvalidServiceDirective";
+        public const string Errors_InvalidLocationFallback = "Errors/InvalidLocationFallback";
         public const string Errors_InvalidViewModel = "Errors/InvalidViewModel";
         public const string Errors_MalformedBinding = "Errors/MalformedBinding";
         public const string Errors_MarkupControlInvalidViewModel = "Errors/MarkupControlInvalidViewModel";
@@ -142,6 +147,7 @@ namespace DotVVM.Testing.Abstractions
         public const string Errors_NonExistingControl = "Errors/NonExistingControl";
         public const string Errors_NonExistingProperty = "Errors/NonExistingProperty";
         public const string Errors_NotAllowedHardCodedPropertyValue = "Errors/NotAllowedHardCodedPropertyValue";
+        public const string Errors_ResourceCircularDependency = "Errors/ResourceCircularDependency";
         public const string Errors_UnknownInnerControl = "Errors/UnknownInnerControl";
         public const string Errors_WrongPropertyValue = "Errors/WrongPropertyValue";
         public const string FeatureSamples_ActionFilterErrorHandling_ActionFilterErrorHandling = "FeatureSamples/ActionFilterErrorHandling/ActionFilterErrorHandling";
@@ -226,6 +232,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_StaticCommand_StaticCommand_ComboBoxSelectionChanged_Objects = "FeatureSamples/StaticCommand/StaticCommand_ComboBoxSelectionChanged_Objects";
         public const string FeatureSamples_StaticCommand_StaticCommand_NullAssignment = "FeatureSamples/StaticCommand/StaticCommand_NullAssignment";
         public const string FeatureSamples_StaticCommand_StaticCommand_NullBinding = "FeatureSamples/StaticCommand/StaticCommand_NullBinding";
+        public const string FeatureSamples_StaticCommand_StaticCommand_TaskSequence = "FeatureSamples/StaticCommand/StaticCommand_TaskSequence";
         public const string FeatureSamples_StaticCommand_StaticCommand_ValueAssignmentInControl = "FeatureSamples/StaticCommand/StaticCommand_ValueAssignmentInControl";
         public const string FeatureSamples_Validation_ClientSideObservableUpdate = "FeatureSamples/Validation/ClientSideObservableUpdate";
         public const string FeatureSamples_Validation_ClientSideValidationDisabling = "FeatureSamples/Validation/ClientSideValidationDisabling";

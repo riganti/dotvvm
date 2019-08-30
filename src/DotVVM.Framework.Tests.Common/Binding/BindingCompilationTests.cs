@@ -295,7 +295,6 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual("42", vm.TestViewModel2.SomeString);
         }
 
-
         [TestMethod]
         public void BindingCompiler_Valid_NamespaceAlias()
         {
@@ -411,6 +410,34 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void BindingCompiler_SimpleBlockExpression_TaskSequence_TaskNonTask()
+        {
+            var vm = new TestViewModel4();
+            var resultTask = (Task)ExecuteBinding("Increment(); Number = Number * 5", new[] { vm });
+            resultTask.Wait();
+            Assert.AreEqual(5, vm.Number);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_SimpleBlockExpression_TaskSequence_NonTaskTask()
+        {
+            var vm = new TestViewModel4();
+            var resultTask = (Task)ExecuteBinding("Number = 10; Increment();", new[] { vm });
+            resultTask.Wait();
+            Assert.AreEqual(11, vm.Number);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_SimpleBlockExpression_TaskSequence_VoidTaskJoining()
+        {
+            var vm = new TestViewModel4();
+            var resultTask = (Task)ExecuteBinding("Increment(); Multiply()", new[] { vm });
+            resultTask.Wait();
+            Assert.AreEqual(10, vm.Number);
+        }
+
+
+        [TestMethod]
         public void BindingCompiler_MultiBlockExpression()
         {
             TestViewModel vm = new TestViewModel { StringProp = "a" };
@@ -521,6 +548,14 @@ namespace DotVVM.Framework.Tests.Binding
             var result = ExecuteBinding("LongProperty < TestViewModel2.MyProperty && LongProperty > TestViewModel2.MyProperty", new [] { new TestViewModel { TestViewModel2 = new TestViewModel2() } });
             Assert.AreEqual(false, result);
         }
+
+        [TestMethod]
+        public void BindingCompiler_Errors_AssigningToType()
+        {
+            var aggEx = Assert.ThrowsException<AggregateException>(() => ExecuteBinding("System.String = 123", new [] { new TestViewModel() }));
+            var ex = aggEx.AllInnerExceptions().Single(e => e.InnerException == null);
+            Assert.IsTrue(ex.Message.Contains("Expression must be writeable"));
+        }
     }
     class TestViewModel
     {
@@ -608,6 +643,23 @@ namespace DotVVM.Framework.Tests.Binding
     class TestViewModel3 : DotvvmViewModelBase
     {
         public string SomeString { get; set; }
+    }
+
+    class TestViewModel4
+    {
+        public int Number { get; set; }
+
+        public async Task Increment()
+        {
+            await Task.Delay(100);
+            Number += 1;
+        }
+
+        public Task Multiply()
+        {
+            Number *= 10;
+            return Task.Delay(100);
+        }
     }
 
     class Something

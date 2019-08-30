@@ -434,6 +434,52 @@ test <dot:Literal><a /></dot:Literal>";
             Assert.IsTrue(ex.ToString().Contains("Can not find collection length from binding '_this'"));
         }
 
+        [TestMethod]
+        public void DefaultViewCompiler_InternalControl_Error()
+        {
+            var markup = @"
+@viewModel object
+<ff:InternalControl />
+            ";
+            var ex = Assert.ThrowsException<DotvvmCompilationException>(() => {
+                CompileMarkup(markup);
+            });
+            Assert.IsTrue(ex.ToString().Contains("Control DotVVM.Framework.Tests.Runtime.InternalControl is not publicly accessible."));
+            Assert.IsFalse(ex.ToString().Contains("This is most probably bug in the DotVVM framework."));
+        }
+
+        // Well, DotvvmProperties work even whenthey are internal. So I can not add the check in order to remain backwards compatible :/
+
+//         [TestMethod]
+//         public void DefaultViewCompiler_InternalDotvvmProperty_Error()
+//         {
+//             var markup = @"
+// @viewModel object
+// <ff:PublicControl MyInternalDotvvmProperty=1 />
+//             ";
+//             // var ex = Assert.ThrowsException<DotvvmCompilationException>(() => {
+//             var a = CompileMarkup(markup);
+//             var x = a.GetThisAndAllDescendants().OfType<PublicControl>().Single().MyInternalDotvvmProperty;
+//             Assert.AreEqual(1, x);
+//             // });
+//             // Assert.IsTrue(ex.ToString().Contains("Control DotVVM.Framework.Tests.Runtime.InternalControl is not publicly accessible."));
+//             // Assert.IsFalse(ex.ToString().Contains("This is most probably bug in the DotVVM framework."));
+//         }
+
+        [TestMethod]
+        public void DefaultViewCompiler_InternalVirtualProperty_Error()
+        {
+            var markup = @"
+@viewModel object
+<ff:PublicControl MyInternalProperty=1 />
+            ";
+            var ex = Assert.ThrowsException<DotvvmCompilationException>(() => {
+                CompileMarkup(markup);
+            });
+            Assert.IsTrue(ex.ToString().Contains("The control 'DotVVM.Framework.Tests.Runtime.PublicControl' does not have a property 'MyInternalProperty'"));
+            Assert.IsFalse(ex.ToString().Contains("This is most probably bug in the DotVVM framework."));
+        }
+
         private DotvvmControl CompileMarkup(string markup, Dictionary<string, string> markupFiles = null, bool compileTwice = false, [CallerMemberName]string fileName = null)
         {
             if (markupFiles == null)
@@ -473,6 +519,26 @@ test <dot:Literal><a /></dot:Literal>";
             return result;
         }
 
+    }
+
+    internal class InternalControl: DotvvmControl
+    {
+
+    }
+
+    public class PublicControl: DotvvmControl
+    {
+        [MarkupOptions()]
+        internal int MyInternalProperty { get; set; }
+
+
+        internal int MyInternalDotvvmProperty
+        {
+            get { return (int)GetValue(MyInternalDotvvmPropertyProperty); }
+            set { SetValue(MyInternalDotvvmPropertyProperty, value); }
+        }
+        internal static readonly DotvvmProperty MyInternalDotvvmPropertyProperty =
+            DotvvmProperty.Register<int, PublicControl>(nameof(MyInternalDotvvmProperty));
     }
 
     public class PostbackHandlerWithRequiredResource : PostBackHandler

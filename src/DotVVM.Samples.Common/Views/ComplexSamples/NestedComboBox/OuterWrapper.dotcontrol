@@ -1,0 +1,7 @@
+﻿@viewModel System.Object, mscorlib
+@baseType DotVVM.Samples.BasicSamples.Views.ComplexSamples.NestedComboBox.OuterWrapper, DotVVM.Samples.Common
+
+<div data-ui="outer-wrapper">
+    <sample:InnerWrapper DataContext="{controlProperty: InnerViewModel}"
+                         SelectedValue="{controlProperty: SelectedValue}"/>
+</div>
