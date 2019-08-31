@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.Configuration;
+using System.Collections;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -24,13 +25,14 @@ namespace DotVVM.Framework.ResourceManagement
         /// Dictionary of resources
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyDictionary<string, IResource> Resources => _resources;
+        public IReadOnlyDictionary<string, IResource> Resources => ReadOnlyDictionaryWrapper<string, IResource>.WrapIfNeeded(_resources);
+
         // Resources and parent repositories can be added safely even when the page is already running
         // This is an exception from the rule that configuration is frozen after startup
         private readonly ConcurrentDictionary<string, IResource> _resources = new ConcurrentDictionary<string, IResource>();
 
         [JsonIgnore]
-        public IReadOnlyDictionary<string, IDotvvmResourceRepository> Parents => _parents;
+        public IReadOnlyDictionary<string, IDotvvmResourceRepository> Parents => ReadOnlyDictionaryWrapper<string, IDotvvmResourceRepository>.WrapIfNeeded(_parents);
         private readonly ConcurrentDictionary<string, IDotvvmResourceRepository> _parents = new ConcurrentDictionary<string, IDotvvmResourceRepository>();
 
         [JsonIgnore]
