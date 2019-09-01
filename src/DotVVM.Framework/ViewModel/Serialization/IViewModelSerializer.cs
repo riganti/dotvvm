@@ -12,7 +12,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         string BuildStaticCommandResponse(IDotvvmRequestContext context, object result);
 
         string SerializeViewModel(IDotvvmRequestContext context);
-        
+
         string SerializeModelState(IDotvvmRequestContext context);
 
         void PopulateViewModel(IDotvvmRequestContext context, string serializedPostData);
