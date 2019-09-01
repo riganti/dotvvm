@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.AspNetCore.Builder;
 using System.Reflection;
+using DotVVM.Framework.Runtime;
+using DotVVM.Framework.Hosting.AspNetCore;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -62,6 +64,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IEnvironmentNameProvider, DotvvmEnvironmentNameProvider>();
             services.TryAddScoped<DotvvmRequestContextStorage>(_ => new DotvvmRequestContextStorage());
             services.TryAddScoped<IDotvvmRequestContext>(s => s.GetRequiredService<DotvvmRequestContextStorage>().Context);
+
+            services.AddTransient<IDotvvmWarningSink, AspNetCoreLoggerWarningSink>();
         }
     }
 }

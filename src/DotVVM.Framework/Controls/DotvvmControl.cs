@@ -179,6 +179,8 @@ namespace DotVVM.Framework.Controls
         {
             this.Children.ValidateParentsLifecycleEvents(); // debug check
 
+            writer.SetErrorContext(this);
+
             if (properties.Contains(PostBack.UpdateProperty))
             {
                 AddDotvvmUniqueIdAttribute();

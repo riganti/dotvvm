@@ -65,7 +65,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IHttpRedirectService, DefaultHttpRedirectService>();
             services.TryAddSingleton<IExpressionToDelegateCompiler, DefaultExpressionToDelegateCompiler>();
 
-
+            services.TryAddScoped<RuntimeWarningCollector>();
             services.TryAddScoped<AggregateRequestTracer, AggregateRequestTracer>();
             services.TryAddScoped<ResourceManager, ResourceManager>();
             services.TryAddSingleton(s => DotvvmConfiguration.CreateDefault(s));
