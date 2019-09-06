@@ -76,7 +76,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
 
             // persist CSRF token
-            writer.Token["$csrfToken"] = context.CsrfToken;
+            if (context.CsrfToken is object)
+                writer.Token["$csrfToken"] = context.CsrfToken;
 
             // persist encrypted values
             if (viewModelConverter.EncryptedValues.Count > 0)
@@ -220,7 +221,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var viewModelToken = (JObject)data["viewModel"];
 
             // load CSRF token
-            context.CsrfToken = viewModelToken["$csrfToken"].Value<string>();
+            context.CsrfToken = viewModelToken["$csrfToken"]?.Value<string>();
 
             ViewModelJsonConverter viewModelConverter;
             if (viewModelToken["$encryptedValues"] != null)

@@ -31,6 +31,10 @@ namespace DotVVM.Framework.ResourceManagement
             {
                 var currentName = queue.Dequeue();
                 var current = findResource(currentName);
+
+                if (current is null)
+                    continue;
+
                 if (visited.Contains(current))
                 {
                     // dependency cycle detected
@@ -38,12 +42,9 @@ namespace DotVVM.Framework.ResourceManagement
                         $"dependency.");
                 }
                 visited.Add(current);
-                if (current != null)
+                foreach (var dependency in current.Dependencies)
                 {
-                    foreach (var dependency in current.Dependencies)
-                    {
-                        queue.Enqueue(dependency);
-                    }
+                    queue.Enqueue(dependency);
                 }
             }
         }
