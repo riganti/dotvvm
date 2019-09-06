@@ -14,11 +14,13 @@ namespace DotVVM.Framework.Routing
     public class DotvvmRouteTable : IEnumerable<RouteBase>
     {
         private readonly DotvvmConfiguration configuration;
-        private List<KeyValuePair<string, RouteBase>> list
+        private readonly List<KeyValuePair<string, RouteBase>> list
             = new List<KeyValuePair<string, RouteBase>>();
-        private Dictionary<string, RouteBase> dictionary
+
+        // for faster checking of duplicates when adding entries
+        private readonly Dictionary<string, RouteBase> dictionary
             = new Dictionary<string, RouteBase>(StringComparer.OrdinalIgnoreCase);
-        private Dictionary<string, DotvvmRouteTable> routeTableGroups
+        private readonly Dictionary<string, DotvvmRouteTable> routeTableGroups
             = new Dictionary<string, DotvvmRouteTable>();
         private RouteTableGroup group = null;
 
@@ -70,12 +72,12 @@ namespace DotVVM.Framework.Routing
 
             var newGroup = new DotvvmRouteTable(configuration);
             newGroup.group = new RouteTableGroup(
-                groupName: groupName,
+                groupName,
                 routeNamePrefix: group?.RouteNamePrefix + groupName + "_",
-                urlPrefix: urlPrefix,
-                virtualPathPrefix: virtualPathPrefix,
+                urlPrefix,
+                virtualPathPrefix,
                 addToParentRouteTable: Add,
-                presenterFactory: presenterFactory);
+                presenterFactory);
 
             content(newGroup);
             routeTableGroups.Add(groupName, newGroup);
@@ -84,8 +86,20 @@ namespace DotVVM.Framework.Routing
         /// <summary>
         /// Creates the default presenter factory.
         /// </summary>
-        public IDotvvmPresenter GetDefaultPresenter(IServiceProvider provider) =>
-            group?.PresenterFactory(provider) ?? provider.GetRequiredService<IDotvvmPresenter>();
+        public IDotvvmPresenter GetDefaultPresenter(IServiceProvider provider)
+        {
+            if (group != null && group.PresenterFactory != null)
+            {
+                var presenter = group.PresenterFactory(provider);
+                if (presenter == null)
+                {
+                    throw new InvalidOperationException("The presenter factory of a route " +
+                        "group must not return null.");
+                }
+                return presenter;
+            }
+            return provider.GetRequiredService<IDotvvmPresenter>();
+        }
 
         /// <summary>
         /// Adds the specified route name.
