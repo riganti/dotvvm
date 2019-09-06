@@ -43,7 +43,7 @@ namespace DotVVM.Samples.Common
             resources.Register("ControlSamples_SpaContentPlaceHolder_MasterPageResource", new ScriptResource(new FileResourceLocation("Scripts/testResource2.js")));
 
             resources.Register("FeatureSamples_Resources_CdnUnavailableResourceLoad", new ScriptResource() {
-                Location = new UrlResourceLocation("http://unavailable.local/testResource.js"),
+                Location = new UrlResourceLocation("~/nonexistentResource.js"),
                 LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new FileResourceLocation("~/Scripts/testResource.js"))
             });
 
@@ -53,7 +53,7 @@ namespace DotVVM.Samples.Common
             });
 
             resources.Register("FeatureSamples_Resources_RequiredOnPostback", new ScriptResource() {
-                Location = new UrlResourceLocation("http://unavailable.local/testResource.js"),
+                Location = new UrlResourceLocation("~/nonexistentResource.js"),
                 LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new FileResourceLocation("~/Scripts/testResource.js"))
             });
 
