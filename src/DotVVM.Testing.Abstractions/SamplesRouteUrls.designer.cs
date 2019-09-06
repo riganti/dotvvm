@@ -70,6 +70,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_GridView_GridViewServerRender = "ControlSamples/GridView/GridViewServerRender";
         public const string ControlSamples_GridView_GridViewStaticCommand = "ControlSamples/GridView/GridViewStaticCommand";
         public const string ControlSamples_GridView_LargeGrid = "ControlSamples/GridView/LargeGrid";
+        public const string ControlSamples_GridView_RenamedPrimaryKey = "ControlSamples/GridView/RenamedPrimaryKey";
         public const string ControlSamples_HtmlLiteral_HtmlLiteral = "ControlSamples/HtmlLiteral/HtmlLiteral";
         public const string ControlSamples_IncludeInPageProperty_IncludeInPage = "ControlSamples/IncludeInPageProperty/IncludeInPage";
         public const string ControlSamples_LinkButton_LinkButton = "ControlSamples/LinkButton/LinkButton";
@@ -134,8 +135,8 @@ namespace DotVVM.Testing.Abstractions
         public const string Errors_EmptyBinding = "Errors/EmptyBinding";
         public const string Errors_EncryptedPropertyInValueBinding = "Errors/EncryptedPropertyInValueBinding";
         public const string Errors_FieldInValueBinding = "Errors/FieldInValueBinding";
-        public const string Errors_InvalidServiceDirective = "Errors/InvalidServiceDirective";
         public const string Errors_InvalidLocationFallback = "Errors/InvalidLocationFallback";
+        public const string Errors_InvalidServiceDirective = "Errors/InvalidServiceDirective";
         public const string Errors_InvalidViewModel = "Errors/InvalidViewModel";
         public const string Errors_MalformedBinding = "Errors/MalformedBinding";
         public const string Errors_MarkupControlInvalidViewModel = "Errors/MarkupControlInvalidViewModel";

@@ -7,16 +7,19 @@
 </head>
 <body>
     <dot:GridView DataSource="{value: Samples}"
-                  InlineEditing="true">
+                  InlineEditing="true"
+                  data-ui="gridview">
         <dot:GridViewTextColumn ValueBinding="{value: Name}" HeaderText="Name" />
         <dot:GridViewTemplateColumn>
             <ContentTemplate>
-                <dot:LinkButton Click="{command: _root.Edit(Id)}">
+                <dot:LinkButton Click="{command: _root.Edit(Id)}"
+                                data-ui="edit-button">
                     <span>Edit</span>
                 </dot:LinkButton>
             </ContentTemplate>
             <EditTemplate>
-                <dot:LinkButton Click="{command: _root.Save()}">
+                <dot:LinkButton Click="{command: _root.Save()}"
+                                data-ui="save-button">
                     <span>Save</span>
                 </dot:LinkButton>
             </EditTemplate>
