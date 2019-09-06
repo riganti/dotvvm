@@ -27,9 +27,8 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty HtmlProperty =
             DotvvmProperty.Register<string, HtmlLiteral>(t => t.Html, "");
 
-
         /// <summary>
-        /// Gets or sets whether the control should render a wrapper element.
+        /// Gets or sets the name of the tag that wraps the HtmlLiteral.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
         public string WrapperTagName
@@ -40,10 +39,9 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty WrapperTagNameProperty
             = DotvvmProperty.Register<string, HtmlLiteral>(c => c.WrapperTagName, "div");
 
-
         /// <summary>
-        /// Gets or sets the name of the tag that wraps the HtmlLiteral.
-        /// </summary>
+        /// Gets or sets whether the control should render a wrapper element.
+        /// </summary>        
         [MarkupOptions(AllowBinding = false)]
         public bool RenderWrapperTag
         {

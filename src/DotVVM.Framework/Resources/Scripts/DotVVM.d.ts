@@ -303,6 +303,7 @@ declare class DotVVM {
     extensions: IDotvvmExtensions;
     useHistoryApiSpaNavigation: boolean;
     isPostbackRunning: KnockoutObservable<boolean>;
+    updateProgressChangeCounter: KnockoutObservable<number>;
     init(viewModelName: string, culture: string): void;
     private handlePopState;
     private handleHashChangeWithHistory;
@@ -310,7 +311,11 @@ declare class DotVVM {
     private persistViewModel;
     private backUpPostBackConter;
     private isPostBackStillActive;
-    staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback?: (_: any) => void, errorCallback?: (xhr: XMLHttpRequest, error?: any) => void): void;
+    private fetchCsrfToken;
+    staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback?: (_: any) => void, errorCallback?: (errorInfo: {
+        xhr: XMLHttpRequest;
+        error?: any;
+    }) => void): void;
     private processPassedId;
     protected getPostbackHandler(name: string): (options: any) => DotvvmPostbackHandler;
     private isPostbackHandler;

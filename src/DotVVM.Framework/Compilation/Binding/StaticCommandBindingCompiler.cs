@@ -59,6 +59,10 @@ namespace DotVVM.Framework.Compilation.Binding
             var currentContextVariable = new JsTemporaryVariableParameter(knockoutContext);
             // var resultPromiseVariable = new JsNewExpression("DotvvmPromise"));
             var senderVariable = new JsTemporaryVariableParameter(new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter));
+
+            var rewriter = new TaskSequenceRewriterExpressionVisitor();
+            expression = rewriter.Visit(expression);
+
             var visitor = new ExtractExpressionVisitor(ex => {
                 if (ex.NodeType == ExpressionType.Call && ex is MethodCallExpression methodCall)
                 {
@@ -73,6 +77,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 return null;
             });
             var rootCallback = visitor.Visit(expression);
+            var errorCallback = new JsIdentifierExpression("reject");
             var js = SouldCompileCallback(rootCallback) ? new JsIdentifierExpression("resolve").Invoke(javascriptTranslator.CompileToJavascript(rootCallback, dataContext)) : null;
             foreach (var param in visitor.ParameterOrder.Reverse<ParameterExpression>())
             {
@@ -80,7 +85,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 var replacedNode = js.DescendantNodes().SingleOrDefault(n => n is JsIdentifierExpression identifier && identifier.Identifier == param.Name);
                 var callback = new JsFunctionExpression(new[] { new JsIdentifier(param.Name) }, new JsBlockStatement(new JsExpressionStatement(js)));
                 var method = visitor.Replaced[param] as MethodCallExpression;
-                var methodInvocation = CompileMethodCall(method, dataContext, callback);
+                var methodInvocation = CompileMethodCall(method, dataContext, callback, errorCallback.Clone());
 
                 var invocationExpressions =
                     methodInvocation is JsInvocationExpression invocation && invocation.Target.ToString() == "dotvvm.staticCommandPostback" ?
@@ -149,7 +154,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 else
                 {
                     return new JsNewExpression(new JsIdentifierExpression("Promise"), new JsFunctionExpression(
-                        new [] { new JsIdentifier("resolve") },
+                        new [] { new JsIdentifier("resolve"), new JsIdentifier("reject") },
                         new JsBlockStatement(new JsExpressionStatement(js))
                     ));
                 }
@@ -162,7 +167,7 @@ namespace DotVVM.Framework.Compilation.Binding
             return true;
         }
 
-        protected virtual JsExpression CompileMethodCall(MethodCallExpression methodExpression, DataContextStack dataContext, JsExpression callbackFunction = null)
+        protected virtual JsExpression CompileMethodCall(MethodCallExpression methodExpression, DataContextStack dataContext, JsExpression callbackFunction, JsExpression errorCallback)
         {
             var jsTranslation = javascriptTranslator.TryTranslateMethodCall(methodExpression.Object, methodExpression.Arguments.ToArray(), methodExpression.Method, dataContext)
                 ?.ApplyAction(javascriptTranslator.AdjustViewModelProperties);
@@ -170,21 +175,20 @@ namespace DotVVM.Framework.Compilation.Binding
             {
                 if (!(jsTranslation.Annotation<ResultIsPromiseAnnotation>() is ResultIsPromiseAnnotation promiseAnnotation))
                     throw new Exception($"Expected javascript translation that returns a promise");
-                var expr = promiseAnnotation.GetPromiseFromExpression?.Invoke(jsTranslation) ?? jsTranslation;
-                return expr.Member("then").Invoke(callbackFunction);
+                var resultPromise = promiseAnnotation.GetPromiseFromExpression?.Invoke(jsTranslation) ?? jsTranslation;
+                return resultPromise.Member("then").Invoke(callbackFunction, errorCallback);
             }
 
             if (!methodExpression.Method.IsDefined(typeof(AllowStaticCommandAttribute)))
                 throw new Exception($"Method '{methodExpression.Method.DeclaringType.Name}.{methodExpression.Method.Name}' used in static command has to be marked with [AllowStaticCommand] attribute.");
 
-            if (callbackFunction == null) callbackFunction = new JsLiteral(null);
             if (methodExpression == null) throw new NotSupportedException("Static command binding must be a method call!");
 
             var (plan, args) = CreateExecutionPlan(methodExpression, dataContext);
             var encryptedPlan = EncryptJson(SerializePlan(plan), protector).Apply(Convert.ToBase64String);
 
             return new JsIdentifierExpression("dotvvm").Member("staticCommandPostback")
-                .Invoke(new JsSymbolicParameter(CommandBindingExpression.ViewModelNameParameter), new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter), new JsLiteral(encryptedPlan), new JsArrayExpression(args), callbackFunction)
+                .Invoke(new JsSymbolicParameter(CommandBindingExpression.ViewModelNameParameter), new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter), new JsLiteral(encryptedPlan), new JsArrayExpression(args), callbackFunction, errorCallback)
                 .WithAnnotation(new StaticCommandInvocationJsAnnotation(plan));
         }
 
