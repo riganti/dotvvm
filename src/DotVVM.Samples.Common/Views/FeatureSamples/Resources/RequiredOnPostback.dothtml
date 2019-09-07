@@ -1,0 +1,15 @@
+﻿@viewModel object
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Resource required on postback</title>
+</head>
+<body>
+    <h1 data-ui="welcome">Welcome</h1>
+    <cc:ResourceRequiringButton Text="Click on me!"
+                                ResourceName="FeatureSamples_Resources_RequiredOnPostback"
+                                Click="{command: 0}"
+                                data-ui="button"/>
+</body>
+</html>
