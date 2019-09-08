@@ -18,7 +18,7 @@ namespace DotVVM.CommandLine.Core.Templates
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Users\Filip\source\repos\selenium-generator\dotvvm-selenium-generator\dotvvm\src\DotVVM.CommandLine.Core\Templates\TestProjectTemplate.tt"
+    #line 1 "C:\dev\dotvvm\src\DotVVM.CommandLine.Core\Templates\TestProjectTemplate.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "16.0.0.0")]
     public partial class TestProjectTemplate : TestProjectTemplateBase
     {
@@ -28,35 +28,56 @@ namespace DotVVM.CommandLine.Core.Templates
         /// </summary>
         public virtual string TransformText()
         {
+            this.Write("\r\n<Project Sdk=\"Microsoft.NET.Sdk\">\r\n\r\n  <PropertyGroup>\r\n  ");
+            
+            #line 10 "C:\dev\dotvvm\src\DotVVM.CommandLine.Core\Templates\TestProjectTemplate.tt"
+ if(IsNetstandardApp){
+  
+            
+            #line default
+            #line hidden
+            this.Write("  <TargetFramework>netcoreapp2.1</TargetFramework>\r\n  ");
+            
+            #line 13 "C:\dev\dotvvm\src\DotVVM.CommandLine.Core\Templates\TestProjectTemplate.tt"
+ } else { 
+            
+            #line default
+            #line hidden
+            this.Write("  <TargetFramework>net462</TargetFramework>\r\n  ");
+            
+            #line 15 "C:\dev\dotvvm\src\DotVVM.CommandLine.Core\Templates\TestProjectTemplate.tt"
+ }
+            
+            #line default
+            #line hidden
             this.Write(@"
-<Project Sdk=""Microsoft.NET.Sdk"">
-
-  <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
-
-    <IsPackable>false</IsPackable>
+  <IsPackable>false</IsPackable>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include=""Microsoft.NET.Test.Sdk"" Version=""15.9.0"" />
-    <PackageReference Include=""MSTest.TestAdapter"" Version=""1.3.2"" />
-    <PackageReference Include=""MSTest.TestFramework"" Version=""1.3.2"" />
-    <PackageReference Include=""Selenium.WebDriver"" Version=""3.141.0"" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include=""..\DotVVM.Framework.Testing.SeleniumHelpers\DotVVM.Framework.Testing.SeleniumHelpers.csproj"" />
-    <ProjectReference Include=""");
+    <PackageReference Include=""Riganti.Selenium.AssertApi"" Version=""2.0.5-preview04-final"" />
+    <PackageReference Include=""Riganti.Selenium.DotVVM"" Version=""2.0.5-preview04-final"" />
+    <PackageReference Include=""Riganti.Selenium.xUnitIntegration"" Version=""2.0.5-preview04-final"" />
+    <PackageReference Include=""xunit"" Version=""2.4.1"" />
+    <PackageReference Include=""xunit.runner.visualstudio"" Version=""2.4.1""/>
+    <PackageReference Include=""DotVVM.Framework.Testing.SeleniumHelpers"" Version=""");
             
-            #line 24 "C:\Users\Filip\source\repos\selenium-generator\dotvvm-selenium-generator\dotvvm\src\DotVVM.CommandLine.Core\Templates\TestProjectTemplate.tt"
+            #line 26 "C:\dev\dotvvm\src\DotVVM.CommandLine.Core\Templates\TestProjectTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(SeleniumHelpersVersion));
+            
+            #line default
+            #line hidden
+            this.Write("\" />\r\n  </ItemGroup>\r\n  <ItemGroup>\r\n    <ProjectReference Include=\"");
+            
+            #line 29 "C:\dev\dotvvm\src\DotVVM.CommandLine.Core\Templates\TestProjectTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(WebCsProjPath));
             
             #line default
             #line hidden
-            this.Write("\" />\r\n  </ItemGroup>\r\n\r\n  <Target Name=\"SeleniumGeneratorTarget\" BeforeTargets=\"B" +
-                    "uild\">\r\n    <Exec Command=\"dotnet dotvvm gut\" WorkingDirectory=\"");
+            this.Write("\" />\r\n  </ItemGroup>\r\n  <Target Name=\"SeleniumGeneratorTarget\" BeforeTargets=\"Bui" +
+                    "ld\">\r\n    <Exec Command=\"dotnet dotvvm gut\" WorkingDirectory=\"");
             
-            #line 28 "C:\Users\Filip\source\repos\selenium-generator\dotvvm-selenium-generator\dotvvm\src\DotVVM.CommandLine.Core\Templates\TestProjectTemplate.tt"
+            #line 32 "C:\dev\dotvvm\src\DotVVM.CommandLine.Core\Templates\TestProjectTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(WebProjectPath));
             
             #line default
@@ -65,10 +86,12 @@ namespace DotVVM.CommandLine.Core.Templates
             return this.GenerationEnvironment.ToString();
         }
         
-        #line 33 "C:\Users\Filip\source\repos\selenium-generator\dotvvm-selenium-generator\dotvvm\src\DotVVM.CommandLine.Core\Templates\TestProjectTemplate.tt"
+        #line 37 "C:\dev\dotvvm\src\DotVVM.CommandLine.Core\Templates\TestProjectTemplate.tt"
 
 public string WebProjectPath { get; set; }
 public string WebCsProjPath { get; set; }
+public string SeleniumHelpersVersion { get; set; }
+public bool IsNetstandardApp { get; set; }
 
         
         #line default

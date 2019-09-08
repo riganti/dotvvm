@@ -2,8 +2,8 @@
   "profiles": {
     "DotVVM.CommandLine": {
       "commandName": "Project",
-      "commandLineArgs": "gut Views\\default.dothtml",
-      "workingDirectory": "C:\\tmp\\sg-test"
+      "commandLineArgs": "gut",
+      "workingDirectory": "C:\\dev\\dotvvm\\src\\DotVVM.Samples.SeleniumGenerator.ANC"
     }
   }
 }

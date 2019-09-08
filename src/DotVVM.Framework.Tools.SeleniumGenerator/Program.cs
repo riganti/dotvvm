@@ -15,6 +15,7 @@ using System.Reflection;
 using System.Threading;
 using DotVVM.CommandLine.Core.Templates;
 using DotVVM.Framework.Testing.SeleniumGenerator;
+using DotVVM.Framework.Tools.SeleniumGenerator.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Tools.SeleniumGenerator
@@ -23,24 +24,37 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
     {
         private const string PageObjectsText = "PageObjects";
 
+
+        private static void WaitForDebugger(bool _break = false)
+        {
+            Console.WriteLine("Process ID: " + Process.GetCurrentProcess().Id);
+            while (!Debugger.IsAttached) Thread.Sleep(32);
+            if (_break)
+            {
+                Debugger.Break();
+            }
+        }
+
         public static void Main(string[] args)
         {
-            //Console.WriteLine("pid: " + Process.GetCurrentProcess().Id);
-            //while (!Debugger.IsAttached)
-            //{
-            //    Thread.Sleep(1000);
-            //}
-
-            //Debugger.Break();
-
             try
             {
                 var arguments = new Arguments(args);
+                if (arguments[0] == Compiler.CompilerConstants.Arguments.WaitForDebuggerAndBreak)
+                {
+                    arguments.Consume(1);
+                    WaitForDebugger(true);
+                }
+                if (arguments[0] == Compiler.CompilerConstants.Arguments.WaitForDebugger)
+                {
+                    arguments.Consume(1);
+                    WaitForDebugger();
+                }
 
                 DotvvmProjectMetadata dotvvmProjectMetadata = null;
                 if (string.Equals(arguments[0], "--json", StringComparison.CurrentCultureIgnoreCase))
                 {
-                    dotvvmProjectMetadata = JsonConvert.DeserializeObject<DotvvmProjectMetadata>(args[1]);
+                    dotvvmProjectMetadata = JsonConvert.DeserializeObject<DotvvmProjectMetadata>(arguments[1]);
                     dotvvmProjectMetadata.WebAssemblyPath = dotvvmProjectMetadata.WebAssemblyPath.Replace(@"\\", @"\");
                     dotvvmProjectMetadata.ProjectDirectory = dotvvmProjectMetadata.ProjectDirectory.Replace(@"\\", @"\");
                     dotvvmProjectMetadata.MetadataFilePath = dotvvmProjectMetadata.MetadataFilePath.Replace(@"\\", @"\");
@@ -48,8 +62,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
                 }
                 else
                 {
-                    Console.WriteLine(@"Provide correct metadata.");
-                    Environment.Exit(1);
+                    ExitProgram(1, "Parameter --json <data> is missing.");
                 }
 
                 ResolveTestProject(dotvvmProjectMetadata);
@@ -61,9 +74,8 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
 
                 // generate the test stubs
                 GeneratePageObjects(dotvvmProjectMetadata, config, arguments);
+                ExitProgram(0, "DotVVM Selenium Generator Ended");
 
-                Console.WriteLine(@"#$ Exit 0 - DotVVM Selenium Generator Ended");
-                Environment.Exit(0);
             }
             catch (Exception e)
             {
@@ -72,8 +84,14 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
             }
         }
 
+        private static void ExitProgram(int code, string message = "")
+        {
+            Console.WriteLine($@"#$ Exit {code} - {message}");
+            Environment.Exit(code);
+        }
+
         private static void GeneratePageObjects(DotvvmProjectMetadata dotvvmProjectMetadata,
-            DotvvmConfiguration dotvvmConfig, 
+            DotvvmConfiguration dotvvmConfig,
             Arguments arguments)
         {
             var options = PrepareSeleniumGeneratorOptions(dotvvmConfig);
@@ -82,16 +100,22 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
             IEnumerable<string> controlFiles = new List<string>();
             IEnumerable<string> viewFiles;
 
-            if (arguments[0] != null) {
-           
+            if (arguments[0] != null)
+            {
+
                 var parsedArguments = SplitArguments(arguments);
-                viewFiles = GetViewsFiles(parsedArguments);
+                if (parsedArguments.Any())
+                {
+                    viewFiles = GetViewsFiles(parsedArguments);
+                }
+                else
+                {
+                    GetAllViewsAndControlsInProject(dotvvmConfig, out controlFiles, out viewFiles);
+                }
             }
             else
             {
-                // generate all views and user controls files if no argument was specified
-                viewFiles = dotvvmConfig.RouteTable.Where(b => b.VirtualPath != null).Select(r => r.VirtualPath);
-                controlFiles = dotvvmConfig.Markup.Controls.Where(b => b.Src != null).Select(c => c.Src);
+                GetAllViewsAndControlsInProject(dotvvmConfig, out controlFiles, out viewFiles);
             }
 
             var allFiles = controlFiles.Concat(viewFiles).Distinct();
@@ -115,9 +139,20 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
             }
         }
 
+        private static void GetAllViewsAndControlsInProject(DotvvmConfiguration dotvvmConfig, out IEnumerable<string> controlFiles, out IEnumerable<string> viewFiles)
+        {
+            // generate all views and user controls files if no argument was specified
+            viewFiles = dotvvmConfig.RouteTable.Where(b => b.VirtualPath != null).Select(r => r.VirtualPath);
+            controlFiles = dotvvmConfig.Markup.Controls.Where(b => b.Src != null).Select(c => c.Src);
+        }
+
         private static SeleniumGeneratorOptions PrepareSeleniumGeneratorOptions(DotvvmConfiguration dotvvmConfig)
         {
-            var options = dotvvmConfig.ServiceProvider.GetService<SeleniumGeneratorOptions>();
+            var options = dotvvmConfig.ServiceProvider.TryGetService<SeleniumGeneratorOptions>();
+            if (options == null)
+            {
+                ExitProgram(1, "Cannot find any SeleniumGeneratorOptions. Please register DotVVM.Testing.SeleniumHelpers to your web project.");
+            }
             options.AddAssembly(typeof(Program).Assembly);
             return options;
         }
@@ -128,16 +163,17 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
             var parsedArguments = new List<string>();
             while (arguments[i] != null)
             {
-                parsedArguments.Add(arguments[i]);
+                if (arguments[i].StartsWith("-"))
+                {
+                    i++;
+                    continue;
+                }                parsedArguments.Add(arguments[i]);
                 i++;
             }
-
             return parsedArguments;
         }
 
-        private static void GeneratePageObject(SeleniumPageObjectGenerator generator,
-            SeleniumGeneratorConfiguration config)
-           => generator.ProcessMarkupFile(config);
+        private static void GeneratePageObject(SeleniumPageObjectGenerator generator, SeleniumGeneratorConfiguration config) => generator.ProcessMarkupFile(config);
 
         private static IEnumerable<string> GetViewsFiles(IEnumerable<string> filePaths)
         {
@@ -147,8 +183,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
         private static SeleniumGeneratorConfiguration GetSeleniumGeneratorConfiguration(string fullTypeName,
             string targetFileName, string file)
         {
-            return new SeleniumGeneratorConfiguration()
-            {
+            return new SeleniumGeneratorConfiguration() {
                 TargetNamespace = PathHelpers.GetNamespaceFromFullType(fullTypeName),
                 PageObjectName = PathHelpers.GetTypeNameFromFullType(fullTypeName),
                 PageObjectFileFullPath = targetFileName,
@@ -172,7 +207,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
 
                 if (!Console.IsInputRedirected)
                 {
-                    dotvvmProjectMetadata.UITestProjectPath = 
+                    dotvvmProjectMetadata.UITestProjectPath =
                         ConsoleHelpers.AskForValue($"Enter the path to the test project\n(relative to DotVVM project directory, e.g. '{hintProjectName}'): ",
                         hintProjectName);
                 }
@@ -186,10 +221,10 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
 
             // make sure the test directory exists
             var testProjectDirectory = dotvvmProjectMetadata.GetUITestProjectFullPath();
+            Console.WriteLine($"# Directory '{testProjectDirectory}' already exists. Skipping test project scaffolding.");
             if (!Directory.Exists(testProjectDirectory))
             {
                 var relativeWebDirectory = Path.GetRelativePath(dotvvmProjectMetadata.GetUITestProjectFullPath(), dotvvmProjectMetadata.ProjectDirectory);
-
                 GenerateTestProject(testProjectDirectory, relativeWebDirectory);
             }
 
@@ -208,10 +243,25 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
             var testProjectFileName = Path.GetFileName(testProjectDirectory);
             var testProjectPath = Path.Combine(testProjectDirectory, testProjectFileName + ".csproj");
             var webProjectPath = Path.Combine(relativeWebDirectory + ".csproj");
+            var seleniumHelpersVersion = "2.3.0-preview01-43572-selenium-generator";
+            var isNetStandardApp = true;
 
-            var fileContent = GetProjectFileTextContent(relativeWebDirectory, webProjectPath);
+            var fileContent = GetProjectFileTextContent(relativeWebDirectory, webProjectPath, seleniumHelpersVersion, isNetStandardApp);
+            var stContent = GetSeleniumTestBase(testProjectFileName);
 
             FileSystemHelpers.WriteFile(testProjectPath, fileContent);
+
+            // Create base selenium test class
+            Directory.CreateDirectory(Path.Combine(testProjectDirectory, "Core"));
+            FileSystemHelpers.WriteFile(Path.Combine(testProjectDirectory, "Core\\AppSeleniumTest.cs"), stContent);
+        }
+
+        private static string GetSeleniumTestBase(string @namespace)
+        {
+            var projectTemplate = new AppSeleniumTestTemplate() {
+                Namespace = @namespace
+            };
+            return projectTemplate.TransformText();
         }
 
         private static void CreatePageObjectsDirectory(string projectDirectory)
@@ -223,12 +273,13 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
             }
         }
 
-        private static string GetProjectFileTextContent(string webDirectory, string webProjectPath)
+        private static string GetProjectFileTextContent(string webDirectory, string webProjectPath, string seleniumHelpersVersion, bool isNetStandardApp)
         {
-            var projectTemplate = new TestProjectTemplate
-            {
+            var projectTemplate = new TestProjectTemplate {
                 WebProjectPath = webDirectory,
-                WebCsProjPath = webProjectPath
+                WebCsProjPath = webProjectPath,
+                SeleniumHelpersVersion = seleniumHelpersVersion,
+                IsNetstandardApp = isNetStandardApp
             };
 
             return projectTemplate.TransformText();

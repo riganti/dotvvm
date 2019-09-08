@@ -48,5 +48,9 @@ namespace DotVVM.CommandLine.Core.Arguments
         {
             args = args.Skip(argsCount).ToArray();
         }
+        public bool Contains(string arg)
+        {
+            return args.Contains(arg);
+        }
     }
 }

@@ -1,7 +1,8 @@
 ﻿using System;
+using DotVVM.Framework.Testing.SeleniumGenerator;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DotVVM.Framework.Testing.SeleniumGenerator
+namespace DotVVM.Framework.Configuration
 {
     public static class DotvvmServiceCollectionExtensions
     {

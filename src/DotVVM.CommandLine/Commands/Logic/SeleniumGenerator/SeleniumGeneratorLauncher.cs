@@ -24,15 +24,17 @@ namespace DotVVM.CommandLine.Commands.Logic.SeleniumGenerator
         {
             var metadata = JsonConvert.SerializeObject(JsonConvert.SerializeObject(dotvvmProjectMetadata));
             var exited = false;
+            var wfdab = args.Contains(CompilerConstants.Arguments.WaitForDebuggerAndBreak);
+            var wfd = args.Contains(CompilerConstants.Arguments.WaitForDebugger);
 
-            var processArgs = $" {CompilerConstants.Arguments.JsonOptions} {metadata} ";
+            var processArgs = $"{(wfdab ? CompilerConstants.Arguments.WaitForDebuggerAndBreak : "")} {(wfd ? CompilerConstants.Arguments.WaitForDebugger : "")} {CompilerConstants.Arguments.JsonOptions} {metadata} ";
             var i = 0;
             while (args[i] != null)
             {
                 processArgs += $"{args[i]} ";
                 i++;
             }
-            
+
             var generator = new DotvvmSeleniumGeneratorProvider().GetPreparedTool(projectMetadata);
             if (generator == null)
             {
@@ -53,40 +55,39 @@ namespace DotVVM.CommandLine.Commands.Logic.SeleniumGenerator
                 Arguments = processArgs
             };
 
-            var process = new Process {
-                StartInfo = processInfo
-            };
+            using (var process = new Process { StartInfo = processInfo })
+            {
+                process.OutputDataReceived += (sender, eventArgs) => {
+                    if (eventArgs?.Data?.StartsWith("#$") ?? false)
+                    {
+                        exited = true;
+                    }
 
-            process.OutputDataReceived += (sender, eventArgs) => {
-                if (eventArgs?.Data?.StartsWith("#$") ?? false)
+                    Console.WriteLine(eventArgs?.Data);
+                };
+
+                process.ErrorDataReceived += (sender, eventArgs) => {
+                    if (eventArgs?.Data?.StartsWith("#$") ?? false)
+                    {
+                        exited = true;
+                    }
+
+                    Console.WriteLine(eventArgs?.Data);
+                };
+
+                process.Start();
+
+                process.BeginOutputReadLine();
+                process.BeginErrorReadLine();
+
+                while (!process.WaitForExit(1000) || !exited)
                 {
-                    exited = true;
                 }
 
-                Console.WriteLine(eventArgs?.Data);
-            };
-
-            process.ErrorDataReceived += (sender, eventArgs) => {
-                if (eventArgs?.Data?.StartsWith("#$") ?? false)
+                if (process.ExitCode != 0)
                 {
-                    exited = true;
+                    throw new InvalidCommandUsageException("Selenium generation failed.");
                 }
-
-                Console.WriteLine(eventArgs?.Data);
-            };
-
-            process.Start();
-
-            process.BeginOutputReadLine();
-            process.BeginErrorReadLine();
-
-            while (!process.WaitForExit(1000) || !exited)
-            {
-            }
-
-            if (process.ExitCode != 0)
-            {
-                throw new InvalidCommandUsageException("Selenium generation failed.");
             }
             DotvvmToolProvider.Clean(generator);
         }

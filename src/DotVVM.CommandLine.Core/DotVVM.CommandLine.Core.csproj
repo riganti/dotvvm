@@ -21,6 +21,10 @@
       <LastGenOutput>PageTemplate.cs</LastGenOutput>
       <Generator>TextTemplatingFilePreprocessor</Generator>
     </None>
+    <None Update="Templates\AppSeleniumTestTemplate.tt">
+      <LastGenOutput>AppSeleniumTestTemplate.cs</LastGenOutput>
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+    </None>
     <None Update="Templates\TestProjectTemplate.tt">
       <LastGenOutput>TestProjectTemplate.cs</LastGenOutput>
       <Generator>TextTemplatingFilePreprocessor</Generator>
@@ -52,9 +56,14 @@
       <DependentUpon>PageTemplate.tt</DependentUpon>
     </Compile>
     <Compile Update="Templates\TestProjectTemplate.cs">
+      <DependentUpon>TestProjectTemplate.tt</DependentUpon>
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>TestProjectTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Templates\AppSeleniumTestTemplate.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>AppSeleniumTestTemplate.tt</DependentUpon>
     </Compile>
     <Compile Update="Templates\ViewModelTemplate.cs">
       <DesignTime>True</DesignTime>

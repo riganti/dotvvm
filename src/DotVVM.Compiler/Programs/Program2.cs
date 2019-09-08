@@ -148,7 +148,7 @@ JSON structure:
         private static void WaitForDbg(bool _break = false)
         {
             WriteInfo("Process ID: " + Process.GetCurrentProcess().Id);
-            while (!Debugger.IsAttached) Thread.Sleep(10);
+            while (!Debugger.IsAttached) Thread.Sleep(32);
             if (_break)
             {
                 Debugger.Break();
