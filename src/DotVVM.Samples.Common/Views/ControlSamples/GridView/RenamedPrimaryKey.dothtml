@@ -1,0 +1,29 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView.RenamedPrimaryKeyViewModel
+
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+    <dot:GridView DataSource="{value: Samples}"
+                  InlineEditing="true"
+                  data-ui="gridview">
+        <dot:GridViewTextColumn ValueBinding="{value: Name}" HeaderText="Name" />
+        <dot:GridViewTemplateColumn>
+            <ContentTemplate>
+                <dot:LinkButton Click="{command: _root.Edit(Id)}"
+                                data-ui="edit-button">
+                    <span>Edit</span>
+                </dot:LinkButton>
+            </ContentTemplate>
+            <EditTemplate>
+                <dot:LinkButton Click="{command: _root.Save()}"
+                                data-ui="save-button">
+                    <span>Save</span>
+                </dot:LinkButton>
+            </EditTemplate>
+        </dot:GridViewTemplateColumn>
+    </dot:GridView>
+</body>
+</html>
