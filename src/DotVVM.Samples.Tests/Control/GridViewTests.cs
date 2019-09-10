@@ -552,5 +552,25 @@ namespace DotVVM.Samples.Tests.Control
                 browser.WaitFor(() => AssertUI.NotContainsElement(gridview, "input"), 1000);
             });
         }
+
+        [Fact]
+        public void Control_GridView_InvalidCssClass()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_InvalidCssClass);
+                browser.WaitUntilDotvvmInited();
+
+                var gridview = browser.Single("gridview", SelectByDataUi);
+                gridview.First("edit-button", SelectByDataUi).Click();
+
+                IElementWrapper input = null;
+                browser.WaitFor(() => input = browser.First("input"), 1000);
+                AssertUI.HasNotClass(input, "invalid");
+                input.Clear();
+
+                gridview.First("save-button", SelectByDataUi).Click();
+                browser.WaitFor(() => AssertUI.HasClass(input, "invalid"), 1000);
+            });
+        }
     }
 }

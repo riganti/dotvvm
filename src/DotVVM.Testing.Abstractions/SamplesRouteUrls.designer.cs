@@ -69,6 +69,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_GridView_GridViewRowDecorators = "ControlSamples/GridView/GridViewRowDecorators";
         public const string ControlSamples_GridView_GridViewServerRender = "ControlSamples/GridView/GridViewServerRender";
         public const string ControlSamples_GridView_GridViewStaticCommand = "ControlSamples/GridView/GridViewStaticCommand";
+        public const string ControlSamples_GridView_InvalidCssClass = "ControlSamples/GridView/InvalidCssClass";
         public const string ControlSamples_GridView_LargeGrid = "ControlSamples/GridView/LargeGrid";
         public const string ControlSamples_GridView_RenamedPrimaryKey = "ControlSamples/GridView/RenamedPrimaryKey";
         public const string ControlSamples_HtmlLiteral_HtmlLiteral = "ControlSamples/HtmlLiteral/HtmlLiteral";
@@ -214,6 +215,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_PostbackConcurrency_PostbackConcurrencyMode = "FeatureSamples/PostbackConcurrency/PostbackConcurrencyMode";
         public const string FeatureSamples_Redirect_Redirect = "FeatureSamples/Redirect/Redirect";
         public const string FeatureSamples_RenderSettingsModeServer_RenderSettingModeServerProperty = "FeatureSamples/RenderSettingsModeServer/RenderSettingModeServerProperty";
+        public const string FeatureSamples_RenderSettingsModeServer_RepeaterCollectionExchange = "FeatureSamples/RenderSettingsModeServer/RepeaterCollectionExchange";
         public const string FeatureSamples_Resources_CdnScriptPriority = "FeatureSamples/Resources/CdnScriptPriority";
         public const string FeatureSamples_Resources_CdnUnavailableResourceLoad = "FeatureSamples/Resources/CdnUnavailableResourceLoad";
         public const string FeatureSamples_Resources_OnlineNonameResourceLoad = "FeatureSamples/Resources/OnlineNonameResourceLoad";

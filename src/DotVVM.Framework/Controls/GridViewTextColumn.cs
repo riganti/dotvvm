@@ -101,6 +101,8 @@ namespace DotVVM.Framework.Controls
 
             textBox.SetBinding(TextBox.TextProperty, ValueBinding);
             textBox.SetBinding(TextBox.ChangedProperty, ChangedBinding);
+            textBox.SetBinding(Validator.ValueProperty, ValueBinding);
+            textBox.SetValueRaw(Validator.InvalidCssClassProperty, GetValueRaw(Validator.InvalidCssClassProperty));
 
             container.Children.Add(textBox);
         }
