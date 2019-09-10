@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator.Generators.Controls
 
                 // generate child page object class
                 var itemPageObjectName = context.UniqueName + "GridViewPageObject";
-                context.Visitor.PushScope(new PageObjectDefinition { Name = itemPageObjectName });
+                context.Visitor.PushScope(new PageObjectDefinitionImpl(itemPageObjectName, pageObject.Namespace));
                 context.Visitor.VisitPropertyControlCollection(template);
                 pageObject.Children.Add(context.Visitor.PopScope());
 

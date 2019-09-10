@@ -26,6 +26,9 @@ namespace DotVVM.Samples.SeleniumGenerator.ANC
 
         private void ConfigureControls(DotvvmConfiguration config, string applicationPath)
         {
+            config.Markup.AddMarkupControl("uc", "UserControl", "Controls/UserControl.dotcontrol");
+            config.Markup.AddMarkupControl("uc", "NestedUserControl", "Controls/NestedUserControl.dotcontrol");
+
             // register code-only controls and markup controls
         }
 

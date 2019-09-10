@@ -1,8 +1,10 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using DotVVM.CommandLine.Core;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
@@ -22,27 +24,27 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
     public class SeleniumPageObjectGenerator
     {
         private readonly DotvvmConfiguration dotvvmConfig;
-        private readonly ConcurrentDictionary<string, IAbstractTreeRoot> resolvedTreeRoots;
+        private readonly ConcurrentDictionary<string, Task<IAbstractTreeRoot>> resolvedTreeRoots;
 
         public SeleniumPageObjectGenerator(SeleniumGeneratorOptions options, DotvvmConfiguration dotvvmConfig)
         {
             this.dotvvmConfig = dotvvmConfig;
-            this.resolvedTreeRoots = new ConcurrentDictionary<string, IAbstractTreeRoot>();
+            this.resolvedTreeRoots = new ConcurrentDictionary<string, Task<IAbstractTreeRoot>>();
             visitor = new SeleniumPageObjectVisitor(this);
             visitor.DiscoverControlGenerators(options);
         }
 
         private readonly SeleniumPageObjectVisitor visitor;
 
-        public void ProcessMarkupFile(SeleniumGeneratorConfiguration seleniumConfiguration)
+        public async Task ProcessMarkupFile(SeleniumGeneratorConfiguration seleniumConfiguration)
         {
-            var viewTree = ResolveControlTree(seleniumConfiguration.ViewFullPath);
+            var viewTree = await ResolveControlTree(seleniumConfiguration.ViewFullPath);
 
             // get all ui tests selectors used in current view
-            var usedSelectors = GetUsedSelectors(viewTree);
+            var usedSelectors =GetUsedSelectors(viewTree);
 
             // resolve master pages of current page
-            var masterPageObjectDefinitions = ResolveMasterPages(dotvvmConfig, seleniumConfiguration, viewTree);
+            var masterPageObjectDefinitions = await ResolveMasterPages(dotvvmConfig, seleniumConfiguration, viewTree);
 
             // union used unique names across all master pages and current view
             var allUsedNames = UnionUsedUniqueNames(masterPageObjectDefinitions, usedSelectors);
@@ -60,13 +62,13 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
             UpdateMarkupFile(pageObject, seleniumConfiguration.ViewFullPath);
         }
 
-        public IAbstractTreeRoot ResolveControlTree(string filePath)
+        public Task<IAbstractTreeRoot> ResolveControlTree(string filePath)
         {
             return resolvedTreeRoots.GetOrAdd(filePath, ResolveControlTreeUncached);
         }
 
         private HashSet<string> UnionUsedUniqueNames(
-            IEnumerable<MasterPageObjectDefinition> masterPageObjectDefinitions, 
+            IEnumerable<MasterPageObjectDefinition> masterPageObjectDefinitions,
             IEnumerable<string> usedSelectors)
         {
             var masterPagesUsedNames = masterPageObjectDefinitions.SelectMany(m => m.UsedNames);
@@ -96,13 +98,13 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
             return pageObject;
         }
 
-        private List<MasterPageObjectDefinition> ResolveMasterPages(
+        private async Task<List<MasterPageObjectDefinition>> ResolveMasterPages(
             DotvvmConfiguration dotvvmConfiguration,
             SeleniumGeneratorConfiguration seleniumConfiguration,
             IAbstractTreeRoot viewTree)
         {
             var pageObjectDefinitions = new List<MasterPageObjectDefinition>();
-            CreateMasterPageObjectDefinitions(seleniumConfiguration, viewTree, pageObjectDefinitions);
+            await CreateMasterPageObjectDefinitions(seleniumConfiguration, viewTree, pageObjectDefinitions);
 
             foreach (var pageObjectDefinition in pageObjectDefinitions)
             {
@@ -112,7 +114,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
             return pageObjectDefinitions;
         }
 
-        private void CreateMasterPageObjectDefinitions(SeleniumGeneratorConfiguration seleniumConfiguration,
+        private async Task CreateMasterPageObjectDefinitions(SeleniumGeneratorConfiguration seleniumConfiguration,
             IAbstractTreeRoot viewTree,
             ICollection<MasterPageObjectDefinition> pageObjectDefinitions)
         {
@@ -121,7 +123,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
                 var masterPageFile = viewTree.Directives[ParserConstants.MasterPageDirective].FirstOrDefault();
                 if (masterPageFile != null)
                 {
-                    var masterTree = ResolveControlTree(masterPageFile.Value);
+                    var masterTree = await ResolveControlTree(masterPageFile.Value);
                     var usedSelectors = GetUsedSelectors(masterTree);
 
                     var masterPageObjectDefinition = GetMasterPageObjectDefinition(seleniumConfiguration, masterTree, masterPageFile, usedSelectors);
@@ -129,7 +131,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
                     pageObjectDefinitions.Add(masterPageObjectDefinition);
 
                     // recursion
-                    CreateMasterPageObjectDefinitions(seleniumConfiguration, masterTree, pageObjectDefinitions);
+                    await CreateMasterPageObjectDefinitions(seleniumConfiguration, masterTree, pageObjectDefinitions);
                 }
             }
         }
@@ -137,7 +139,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
         private MasterPageObjectDefinition GetMasterPageObjectDefinition(
             SeleniumGeneratorConfiguration seleniumConfiguration,
             IAbstractTreeRoot masterTree,
-            IAbstractDirective masterPageFile, 
+            IAbstractDirective masterPageFile,
             HashSet<string> usedSelectors)
         {
             var definition = CreatePageObjectDefinition(seleniumConfiguration, masterTree, usedSelectors);
@@ -146,14 +148,13 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
 
         private MasterPageObjectDefinition MapPageObjectDefinition(PageObjectDefinition definition, IAbstractDirective masterPageFile)
         {
-            var masterDefinition = new MasterPageObjectDefinition();
+            var masterDefinition = new MasterPageObjectDefinition(masterPageFile.Value);
             masterDefinition.Members.AddRange(definition.Members);
             masterDefinition.MarkupFileModifications.AddRange(definition.MarkupFileModifications);
             masterDefinition.ConstructorStatements.AddRange(definition.ConstructorStatements);
             masterDefinition.DataContextPrefixes.AddRange(definition.DataContextPrefixes);
             masterDefinition.Children.AddRange(definition.Children);
             masterDefinition.UsedNames.UnionWith(definition.UsedNames);
-            masterDefinition.MasterPageFullPath = masterPageFile.Value;
 
             return masterDefinition;
         }
@@ -182,7 +183,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
             }
         }
 
-        private IEnumerable<MarkupFileModification> GetAllModifications(PageObjectDefinition pageObject)
+        private IEnumerable<Testing.SeleniumGenerator.Modifications.MarkupFileModification> GetAllModifications(PageObjectDefinition pageObject)
         {
             var modifications = pageObject.MarkupFileModifications;
             foreach (var child in pageObject.Children)
@@ -197,7 +198,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
         {
             var tree = CSharpSyntaxTree.Create(
                 SyntaxFactory.CompilationUnit()
-                    .WithUsings(GetSeleniumHelpersUsingList())
+                    .WithUsings(GetSeleniumHelpersUsingList(pageObject))
                     .WithMembers(SyntaxFactory.List(new MemberDeclarationSyntax[]
                     {
                         SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(seleniumConfiguration.TargetNamespace))
@@ -212,9 +213,9 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
             FileSystemHelpers.WriteFile(seleniumConfiguration.PageObjectFileFullPath, tree.ToString(), false);
         }
 
-        private static SyntaxList<UsingDirectiveSyntax> GetSeleniumHelpersUsingList()
+        private static SyntaxList<UsingDirectiveSyntax> GetSeleniumHelpersUsingList(PageObjectDefinition pageObject)
         {
-            return new SyntaxList<UsingDirectiveSyntax>(
+            var list = new SyntaxList<UsingDirectiveSyntax>(
                 new[]
                 {
                     SyntaxFactory.UsingDirective(
@@ -245,13 +246,22 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
                                             SyntaxFactory.IdentifierName("Framework")),
                                         SyntaxFactory.IdentifierName("Testing")),
                                     SyntaxFactory.IdentifierName("SeleniumHelpers")),
-                                SyntaxFactory.IdentifierName("Proxies")), 
+                                SyntaxFactory.IdentifierName("Proxies")),
                         SyntaxFactory.IdentifierName("GridViewColumns")))
                 });
+            list.AddRange(ResolveUsingsFromPageObjectDefinition(pageObject));
+            return list;
+
+        }
+
+        private static IEnumerable<UsingDirectiveSyntax> ResolveUsingsFromPageObjectDefinition(PageObjectDefinition pageObject)
+        {
+            throw new NotImplementedException();
+
         }
 
         private PageObjectDefinition CreatePageObjectDefinition(
-            SeleniumGeneratorConfiguration seleniumConfiguration, 
+            SeleniumGeneratorConfiguration seleniumConfiguration,
             IAbstractTreeRoot tree,
             HashSet<string> masterUsedUniqueSelectors = null)
         {
@@ -266,7 +276,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
         private PageObjectDefinition GetPageObjectDefinition(SeleniumGeneratorConfiguration seleniumConfiguration,
             HashSet<string> masterUsedUniqueSelectors)
         {
-            var pageObjectDefinition = new PageObjectDefinition { Name = seleniumConfiguration.PageObjectName };
+            var pageObjectDefinition = new PageObjectDefinitionImpl(seleniumConfiguration.PageObjectName, seleniumConfiguration.TargetNamespace);
             if (masterUsedUniqueSelectors != null)
             {
                 pageObjectDefinition.ExistingUsedSelectors.UnionWith(masterUsedUniqueSelectors);
@@ -334,7 +344,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
             }));
         }
 
-        private IAbstractTreeRoot ResolveControlTreeUncached(string filePath)
+        private Task<IAbstractTreeRoot> ResolveControlTreeUncached(string filePath)
         {
             var markupLoader = dotvvmConfig.ServiceProvider.GetService<IMarkupFileLoader>();
             var markupFile = markupLoader.GetMarkup(dotvvmConfig, filePath);
@@ -346,8 +356,11 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
             var parser = new DothtmlParser();
             var rootNode = parser.Parse(tokenizer.Tokens);
 
-            var treeResolver = dotvvmConfig.ServiceProvider.GetService<IControlTreeResolver>();
-            return treeResolver.ResolveTree(rootNode, filePath);
+            return Task.Run(() => {
+
+                var treeResolver = dotvvmConfig.ServiceProvider.GetService<IControlTreeResolver>();
+                return treeResolver.ResolveTree(rootNode, filePath);
+            });
         }
     }
 }

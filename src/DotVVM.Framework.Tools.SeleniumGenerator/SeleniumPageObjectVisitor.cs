@@ -71,7 +71,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
             var controlType = control.Metadata.Type;
             if (controlType == typeof(DotvvmMarkupControl))
             {
-                var controlTreeRoot = seleniumGenerator.ResolveControlTree(control.Metadata.VirtualPath);
+                var controlTreeRoot = seleniumGenerator.ResolveControlTree(control.Metadata.VirtualPath).GetAwaiter().GetResult();
 
                 if (controlTreeRoot != null 
                     && controlTreeRoot.Directives.TryGetValue("baseType", out var baseTypeDirectives))

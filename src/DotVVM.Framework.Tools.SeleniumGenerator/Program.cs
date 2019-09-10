@@ -17,6 +17,7 @@ using DotVVM.CommandLine.Core.Templates;
 using DotVVM.Framework.Testing.SeleniumGenerator;
 using DotVVM.Framework.Tools.SeleniumGenerator.Extensions;
 using Microsoft.Extensions.DependencyInjection;
+using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Tools.SeleniumGenerator
 {
@@ -90,9 +91,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
             Environment.Exit(code);
         }
 
-        private static void GeneratePageObjects(DotvvmProjectMetadata dotvvmProjectMetadata,
-            DotvvmConfiguration dotvvmConfig,
-            Arguments arguments)
+        private static void GeneratePageObjects(DotvvmProjectMetadata dotvvmProjectMetadata, DotvvmConfiguration dotvvmConfig, Arguments arguments)
         {
             var options = PrepareSeleniumGeneratorOptions(dotvvmConfig);
             var generator = new SeleniumPageObjectGenerator(options, dotvvmConfig);
@@ -119,7 +118,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
             }
 
             var allFiles = controlFiles.Concat(viewFiles).Distinct();
-
+            var tasks = new List<Task>();
             foreach (var file in allFiles)
             {
                 if (File.Exists(file))
@@ -134,9 +133,10 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
 
                     var config = GetSeleniumGeneratorConfiguration(fullTypeName, targetFileName, file);
 
-                    GeneratePageObject(generator, config);
+                    tasks.Add(GeneratePageObject(generator, config));
                 }
             }
+            Task.WhenAll(tasks).GetAwaiter().GetResult();
         }
 
         private static void GetAllViewsAndControlsInProject(DotvvmConfiguration dotvvmConfig, out IEnumerable<string> controlFiles, out IEnumerable<string> viewFiles)
@@ -167,13 +167,14 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
                 {
                     i++;
                     continue;
-                }                parsedArguments.Add(arguments[i]);
+                }
+                parsedArguments.Add(arguments[i]);
                 i++;
             }
             return parsedArguments;
         }
 
-        private static void GeneratePageObject(SeleniumPageObjectGenerator generator, SeleniumGeneratorConfiguration config) => generator.ProcessMarkupFile(config);
+        private static async Task GeneratePageObject(SeleniumPageObjectGenerator generator, SeleniumGeneratorConfiguration config) => await generator.ProcessMarkupFile(config);
 
         private static IEnumerable<string> GetViewsFiles(IEnumerable<string> filePaths)
         {
@@ -252,6 +253,10 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
             FileSystemHelpers.WriteFile(testProjectPath, fileContent);
 
             // Create base selenium test class
+            Directory.CreateDirectory(Path.Combine(testProjectDirectory, "Core"));
+            FileSystemHelpers.WriteFile(Path.Combine(testProjectDirectory, "Core\\AppSeleniumTest.cs"), stContent);
+
+            // Create base seleniumconfig.json
             Directory.CreateDirectory(Path.Combine(testProjectDirectory, "Core"));
             FileSystemHelpers.WriteFile(Path.Combine(testProjectDirectory, "Core\\AppSeleniumTest.cs"), stContent);
         }

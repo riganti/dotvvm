@@ -15,7 +15,6 @@ namespace DotVVM.Testing.SeleniumGenerator.Tests.Visitors
             var selector = VisitorHelper.TryGetNameFromProperty(control, UITests.NameProperty);
             if (selector != null)
             {
-
                 controlSelectors.Add((control.Metadata.Name, selector));
             }
 

@@ -11,9 +11,8 @@ namespace DotVVM.Samples.SeleniumGenerator.ANC.Tests.Tests
         [Fact]
         public void DefaultPageLoadTest() => RunInAllBrowsers<defaultPageObject>((browser, defaultpage) => {
 
-
             defaultpage.Header_SignIn.Click();
-
+            
             var signIn = browser.InitRootPageObject<SignInPageObject>();
             signIn.TextsLabel_Register.Click();
 

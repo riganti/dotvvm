@@ -8,7 +8,7 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Testing.SeleniumGenerator.Helpers;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-
+using DotVVM.Framework.Testing.SeleniumGenerator.Modifications;
 namespace DotVVM.Framework.Testing.SeleniumGenerator
 {
     public abstract class SeleniumGenerator<TControl> : ISeleniumGenerator where TControl : DotvvmBindableObject
@@ -94,12 +94,14 @@ namespace DotVVM.Framework.Testing.SeleniumGenerator
         {
             // find end of the tag
             var token = context.Control.DothtmlNode.Tokens.First(t => t.Type == DothtmlTokenType.CloseTag || t.Type == DothtmlTokenType.Slash);
-
-            pageObject.MarkupFileModifications.Add(new MarkupFileInsertText()
+            if (!pageObject.MarkupFileModifications.OfType<UITestNameMarkupFileInsertText>().Any())
             {
-                Text = " UITests.Name=\"" + uniqueName + "\"",
-                Position = token.StartPosition
-            });
+                pageObject.MarkupFileModifications.Add(new UITestNameMarkupFileInsertText() {
+                    UniqueName = uniqueName,
+                    Position = token.StartPosition
+                });
+            }
+
         }
 
         protected virtual string DetermineName(PageObjectDefinition pageObject, SeleniumGeneratorContext context)

@@ -41,6 +41,11 @@ namespace DotVVM.Samples.SeleniumGenerator.ANC.Tests.PageObjects.Authentication
             get;
         }
 
+        public NestedUserControlPageObject NestedUserControl
+        {
+            get;
+        }
+
         public SignInPageObject(OpenQA.Selenium.IWebDriver webDriver, SeleniumHelperBase parentHelper = null, PathSelector parentSelector = null): base (webDriver, parentHelper, parentSelector)
         {
             UserName = new TextBoxProxy(this, new PathSelector{UiName = "UserName", Parent = parentSelector});
@@ -50,6 +55,7 @@ namespace DotVVM.Samples.SeleniumGenerator.ANC.Tests.PageObjects.Authentication
             Home = new RouteLinkProxy(this, new PathSelector{UiName = "Home", Parent = parentSelector});
             Header_SignOut = new LinkButtonProxy(this, new PathSelector{UiName = "Header_SignOut", Parent = parentSelector});
             Header_SignIn = new RouteLinkProxy(this, new PathSelector{UiName = "Header_SignIn", Parent = parentSelector});
+            NestedUserControl = new NestedUserControlPageObject(webDriver, this, new PathSelector{UiName = "NestedUserControl", Parent = parentSelector});
         }
     }
 }

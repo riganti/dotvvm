@@ -9,7 +9,6 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
     {
         private readonly HashSet<string> selectors = new HashSet<string>();
 
-
         public override void VisitControl(ResolvedControl control)
         {
             var selector = TryGetNameFromProperty(control, UITests.NameProperty);

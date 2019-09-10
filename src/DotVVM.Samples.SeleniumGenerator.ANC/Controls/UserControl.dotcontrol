@@ -1,0 +1,5 @@
+﻿@viewModel System.Object, mscorlib
+@import  DotVVM.Samples.SeleniumGenerator.ANC.Resources
+@baseType DotVVM.Samples.SeleniumGenerator.ANC.Controls.UserControl, DotVVM.Samples.SeleniumGenerator.ANC
+
+<dot:RouteLink RouteName="Default" Text="{resource: Texts.Title_Detail}" UITests.Name="TextsTitle_Detail"></dot:RouteLink>

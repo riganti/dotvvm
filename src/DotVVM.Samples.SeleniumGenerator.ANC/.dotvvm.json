@@ -2,7 +2,7 @@
   "version": 2,
   "projectName": "DotVVM.Samples.SeleniumGenerator.ANC",
   "rootNamespace": "DotVVM.Samples.SeleniumGenerator.ANC",
-  "uiTestProjectPath": "..\\\\\\\\DotVVM.Samples.SeleniumGenerator.ANC.Tests",
+  "uiTestProjectPath": "..\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\DotVVM.Samples.SeleniumGenerator.ANC.Tests",
   "uiTestProjectRootNamespace": "DotVVM.Samples.SeleniumGenerator.ANC.Tests",
   "metadataFilePath": "C:\\dev\\dotvvm\\src\\DotVVM.Samples.SeleniumGenerator.ANC\\.dotvvm.json",
   "projectDirectory": "C:\\dev\\dotvvm\\src\\DotVVM.Samples.SeleniumGenerator.ANC",

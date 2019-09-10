@@ -31,6 +31,11 @@ namespace DotVVM.Samples.SeleniumGenerator.ANC.Tests.PageObjects
             get;
         }
 
+        public NestedUserControlPageObject NestedUserControl
+        {
+            get;
+        }
+
         public defaultPageObject(OpenQA.Selenium.IWebDriver webDriver, SeleniumHelperBase parentHelper = null, PathSelector parentSelector = null): base (webDriver, parentHelper, parentSelector)
         {
             TextsLabel_NewStudent = new RouteLinkProxy(this, new PathSelector{UiName = "TextsLabel_NewStudent", Parent = parentSelector});
@@ -38,6 +43,7 @@ namespace DotVVM.Samples.SeleniumGenerator.ANC.Tests.PageObjects
             Home = new RouteLinkProxy(this, new PathSelector{UiName = "Home", Parent = parentSelector});
             Header_SignOut = new LinkButtonProxy(this, new PathSelector{UiName = "Header_SignOut", Parent = parentSelector});
             Header_SignIn = new RouteLinkProxy(this, new PathSelector{UiName = "Header_SignIn", Parent = parentSelector});
+            NestedUserControl = new NestedUserControlPageObject(webDriver, this, new PathSelector{UiName = "NestedUserControl", Parent = parentSelector});
         }
 
         public class StudentsGridViewPageObject : SeleniumHelperBase

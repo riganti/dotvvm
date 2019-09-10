@@ -22,6 +22,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="PageObjects\" />
+  </ItemGroup>
   <!-- <Target Name="SeleniumGeneratorTarget" BeforeTargets="Build">
     <Exec Command="dotnet dotvvm gut" WorkingDirectory="..\DotVVM.Samples.SeleniumGenerator.ANC" />
   </Target> -->

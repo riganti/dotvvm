@@ -23,7 +23,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator.Generators.Controls
 
                 // generate child helper class
                 var itemHelperName = context.UniqueName + "RepeaterPageObject";
-                context.Visitor.PushScope(new PageObjectDefinition { Name = itemHelperName });
+                context.Visitor.PushScope(new PageObjectDefinitionImpl(itemHelperName, pageObject.Namespace));
                 context.Visitor.VisitPropertyTemplate(template);
                 pageObject.Children.Add(context.Visitor.PopScope());
 

@@ -9,6 +9,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Templates\SeleniumConfigJson.tt">
+      <LastGenOutput>SeleniumConfigJson.cs</LastGenOutput>
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+    </None>
     <None Update="Templates\ControlCodeBehindTemplate.tt">
       <LastGenOutput>ControlCodeBehindTemplate.cs</LastGenOutput>
       <Generator>TextTemplatingFilePreprocessor</Generator>
@@ -22,7 +26,7 @@
       <Generator>TextTemplatingFilePreprocessor</Generator>
     </None>
     <None Update="Templates\AppSeleniumTestTemplate.tt">
-      <LastGenOutput>AppSeleniumTestTemplate.cs</LastGenOutput>
+      <LastGenOutput>seleniumconfig.json.cs</LastGenOutput>
       <Generator>TextTemplatingFilePreprocessor</Generator>
     </None>
     <None Update="Templates\TestProjectTemplate.tt">
@@ -40,6 +44,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Templates\AppSeleniumTestTemplate.cs">
+      <DependentUpon>AppSeleniumTestTemplate.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
     <Compile Update="Templates\ControlCodeBehindTemplate.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -60,10 +69,10 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
     </Compile>
-    <Compile Update="Templates\AppSeleniumTestTemplate.cs">
+    <Compile Update="Templates\SeleniumConfigJson.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>AppSeleniumTestTemplate.tt</DependentUpon>
+      <DependentUpon>SeleniumConfigJson.tt</DependentUpon>
     </Compile>
     <Compile Update="Templates\ViewModelTemplate.cs">
       <DesignTime>True</DesignTime>

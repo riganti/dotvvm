@@ -17,6 +17,8 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Controls\NestedUserControl.dotcontrol" />
+    <None Remove="Controls\UserControl.dotcontrol" />
     <None Remove="dotvvm_serialized_config.json.tmp" />
     <None Remove="Views\Authentication\Register.dothtml" />
     <None Remove="Views\Authentication\SignIn.dothtml" />
