@@ -27,6 +27,6 @@
 	</div>
 
 	<dot:ContentPlaceHolder ID="MainContent" />
-    <uc:NestedUserControl UITests.Name="NestedUserControl" UITests.Name="NestedUserControl" UITests.Name="NestedUserControl" UITests.Name="NestedUserControl" UITests.Name="NestedUserControl"></uc:NestedUserControl>
+    <uc:NestedUserControl ></uc:NestedUserControl>
 </body>
 </html>
