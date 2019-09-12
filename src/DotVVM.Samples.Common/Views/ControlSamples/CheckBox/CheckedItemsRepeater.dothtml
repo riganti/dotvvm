@@ -1,0 +1,10 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.CheckBox.CheckedItemsRepeaterViewModel
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+    <sample:CheckedItemsRepeaterWrapper Data="{value: Data}"/>
+</body>
+</html>
