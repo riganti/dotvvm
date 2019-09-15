@@ -16,7 +16,10 @@
     <None Remove="sampleConfig.json" />
     <None Remove="Views\ComplexSamples\NestedComboBox\InnerWrapper.dotcontrol" />
     <None Remove="Views\ComplexSamples\NestedComboBox\OuterWrapper.dotcontrol" />
-    <None Remove="Views\ControlSamples\ComboBox\ComboxItemBinding.dothtml" />
+    <None Remove="Views\ControlSamples\ComboBox\ComboxItemBinding_ItemVB_Complex_Error.dothtml" />
+    <None Remove="Views\ControlSamples\ComboBox\ComboxItemBinding_ItemVB_Enum.dothtml" />
+    <None Remove="Views\ControlSamples\ComboBox\ComboxItemBinding_ItemVB_Number.dothtml" />
+    <None Remove="Views\ControlSamples\ComboBox\ComboxItemBinding_ItemVB_String.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\HeavilyNested.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\Nullable.dothtml" />
     <None Remove="Views\ControlSamples\GridView\RenamedPrimaryKey.dothtml" />

@@ -14,9 +14,14 @@ namespace DotVVM.Samples.Common.ViewModels.ControlSamples.ComboBox
         {
             if (!Context.IsPostBack)
             {
+                var enumValue =new []{ EnumType.EValue1, EnumType.EValue2, EnumType.EValue3 };
                 ComplexData = Enumerable.Range(1, 10)
                     .Select(s => new ComplexType {
-                        Id = s, Text = $"Text {s}", Date = new DateTime(2019, 10, s), NestedComplex = new NestedComplexType { Text2 = $"Nested text {s}" }
+                        Id = s,
+                        Text = $"Text {s}",
+                        Date = new DateTime(2019, 10, s),
+                        NestedComplex = new NestedComplexType { Text2 = $"Nested text {s}" },
+                        EnumTypeValue = enumValue[s % 3]
                     }).ToList();
             }
             await base.Load();
@@ -31,6 +36,7 @@ namespace DotVVM.Samples.Common.ViewModels.ControlSamples.ComboBox
             public string Text { get; set; }
             public DateTime Date { get; set; }
             public NestedComplexType NestedComplex { get; set; }
+            public EnumType EnumTypeValue { get; set; }
 
         }
         public class NestedComplexType
@@ -39,6 +45,11 @@ namespace DotVVM.Samples.Common.ViewModels.ControlSamples.ComboBox
         }
 
         public object SelectedValue { get; set; }
+        public enum EnumType{
+            EValue1,
+            EValue2,
+            EValue3
+        }
     }
 }
 

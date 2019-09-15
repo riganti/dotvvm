@@ -292,12 +292,10 @@ namespace DotVVM.Framework.Utils
             typeof (double),
             typeof (decimal)
         };
-
         public static bool IsNumericType(this Type type)
         {
             return NumericTypes.Contains(type);
         }
-
         public static bool IsDateOrTimeType(this Type type)
         {
             return DateTimeTypes.Contains(type);
