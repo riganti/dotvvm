@@ -9,6 +9,13 @@ namespace DotVVM.Samples.Common.ViewModels.ControlSamples.ComboBox
 {
     public class ComboxItemBindingViewModel : DotvvmViewModelBase
     {
+        public object SelectedValue { get; set; }
+        public int? SelectedNullableInt{ get; set; }
+        public int SelectedInt{ get; set; }
+
+        public EnumType SelectedEnum { get; set; }
+        public string SelectedString{ get; set; }
+        public ComplexType SelectedComplex{ get; set; }
 
         public async override Task Load()
         {
@@ -23,11 +30,15 @@ namespace DotVVM.Samples.Common.ViewModels.ControlSamples.ComboBox
                         NestedComplex = new NestedComplexType { Text2 = $"Nested text {s}" },
                         EnumTypeValue = enumValue[s % 3]
                     }).ToList();
+                StringData = Enumerable.Range(1, 10).Select(s => $"Text string {s}").ToList();
+                IntData = Enumerable.Range(1, 10).ToList();
             }
             await base.Load();
         }
 
 
+        public List<string> StringData { get; set; }
+        public List<int> IntData { get; set; }
         public List<ComplexType> ComplexData { get; set; }
 
         public class ComplexType
@@ -44,7 +55,6 @@ namespace DotVVM.Samples.Common.ViewModels.ControlSamples.ComboBox
             public string Text2 { get; set; }
         }
 
-        public object SelectedValue { get; set; }
         public enum EnumType{
             EValue1,
             EValue2,

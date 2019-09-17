@@ -1,4 +1,7 @@
+using DotVVM.Framework.Utils;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Compilation.Validation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,5 +31,32 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty SelectedValueProperty =
             DotvvmProperty.Register<object, Selector>(t => t.SelectedValue);
+
+        [ControlUsageValidator]
+        public static new IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
+        {
+            if (!(control.Properties.GetValueOrDefault(Selector.SelectedValueProperty) is ResolvedPropertyBinding selectedValueBinding)) yield break;
+            if (control.Properties.GetValueOrDefault(SelectorBase.ItemValueBindingProperty) is ResolvedPropertyBinding itemValueBinding)
+            {
+                var to = selectedValueBinding.Binding.ResultType;
+                var from = itemValueBinding.Binding.ResultType;
+                if (!from.IsAssignableTo(to))
+                {
+                    yield return new ControlUsageError($"Type '{from.FullName}' is not assignable to '{to.FullName}'.", selectedValueBinding.Binding.DothtmlNode);
+                }
+            }
+            else
+            {
+                if (control.Properties.GetValueOrDefault(ItemsControl.DataSourceProperty) is ResolvedPropertyBinding dataSourceBinding)
+                {
+                    var to = selectedValueBinding.Binding.ResultType;
+                    var from = dataSourceBinding.Binding.ResultType.TryGetArrayElementOrIEnumerableType();
+                    if (!from.IsAssignableTo(to))
+                    {
+                        yield return new ControlUsageError($"Type '{from.FullName}' is not assignable to '{to.FullName}'.", selectedValueBinding.Binding.DothtmlNode);
+                    }
+                }
+            }
+        }
     }
 }
