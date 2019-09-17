@@ -254,6 +254,11 @@ interface IDotvvmViewModelInfo {
 interface IDotvvmViewModels {
     [name: string]: IDotvvmViewModelInfo;
 }
+interface IDotvvmStaticCommandResponse {
+    action: string;
+    url: string;
+    result: any;
+}
 interface IDotvvmPostbackHandlerCollection {
     [name: string]: ((options: any) => DotvvmPostbackHandler);
     confirm: (options: {

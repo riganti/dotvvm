@@ -1202,7 +1202,12 @@ var DotVVM = /** @class */ (function () {
                         this.postJSON(this.viewModels[viewModelName].url, "POST", ko.toJSON(data), function (response) {
                             try {
                                 _this.isViewModelUpdating = true;
-                                var result = JSON.parse(response.responseText);
+                                var responseJson = JSON.parse(response.responseText);
+                                var result = responseJson.result;
+                                if (responseJson.action === "redirect") {
+                                    // redirect
+                                    _this.handleRedirect(responseJson, viewModelName);
+                                }
                                 dotvvm.events.staticCommandMethodInvoked.trigger(__assign({}, data, { result: result, xhr: response }));
                                 callback(result);
                             }
