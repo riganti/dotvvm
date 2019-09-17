@@ -94,23 +94,21 @@ namespace DotVVM.Diagnostics.StatusPage
         public async Task CompileAll()
         {
             var tempMasterPages = new ConcurrentBag<DotHtmlFileInfo>();
+            var compileTasks = Routes.Select(a => Task.Run(() => BuildView(a, tempMasterPages))).ToList();
 
-            var compileTasks = Routes.Select(a => new Task(() => BuildView(a, tempMasterPages))).ToList();
-            compileTasks.AddRange(Controls.Select(a => new Task(() => BuildView(a, tempMasterPages))).ToList());
-
-            compileTasks.ForEach(i => i.Start());
+            compileTasks.AddRange(Controls.Select(a => Task.Run(() => BuildView(a, tempMasterPages))).ToList());
 
             await Task.WhenAll(compileTasks.ToArray());
 
             while (tempMasterPages.Count > 0)
             {
+                tempMasterPages = new ConcurrentBag<DotHtmlFileInfo>(tempMasterPages.Distinct());
                 MasterPages.AddRange(tempMasterPages);
 
                 //.NET Standard 2.1 - better replace with tempMasterPages.Clear()
                 tempMasterPages = new ConcurrentBag<DotHtmlFileInfo>();
 
-                var masterPagesTasks = MasterPages.Select(i => new Task(() => BuildView(i, tempMasterPages))).ToList();
-                masterPagesTasks.ForEach(i => i.Start());
+                var masterPagesTasks = MasterPages.Select(i => Task.Run(() => BuildView(i, tempMasterPages))).ToList();
 
                 await Task.WhenAll(masterPagesTasks.ToArray());
             }
