@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -40,6 +41,7 @@ namespace DotVVM.Diagnostics.StatusPage
             {
                 MasterPages = new List<DotHtmlFileInfo>();
             }
+
             ApplicationPath = Context.Configuration.ApplicationPhysicalPath;
             CompileAfterLoad = _statusPageOptions.CompileAfterPageLoads;
             await base.Init();
@@ -56,7 +58,9 @@ namespace DotVVM.Diagnostics.StatusPage
                     HasParameters = r.ParameterNames.Any(),
                     DefaultValues = r.DefaultValues,
                     RouteName = r.RouteName,
-                    Status = string.IsNullOrWhiteSpace(r.VirtualPath) ? CompilationState.NonCompilable : CompilationState.None
+                    Status = string.IsNullOrWhiteSpace(r.VirtualPath)
+                        ? CompilationState.NonCompilable
+                        : CompilationState.None
                 }).ToList();
 
                 Controls = Context.Configuration.Markup.Controls.Where(s => !string.IsNullOrWhiteSpace(s.Src))
@@ -87,25 +91,35 @@ namespace DotVVM.Diagnostics.StatusPage
 
         public List<DotHtmlFileInfo> MasterPages { get; set; }
 
-        public void CompileAll()
+        public async Task CompileAll()
         {
-            var tempMasterPages = new List<DotHtmlFileInfo>();
-            Routes.ForEach(a => BuildView(a, tempMasterPages));
-            Controls.ForEach(a => BuildView(a,tempMasterPages));
+            var tempMasterPages = new ConcurrentBag<DotHtmlFileInfo>();
+            var compileTasks = Routes.Select(a => Task.Run(() => BuildView(a, tempMasterPages))).ToList();
+
+            compileTasks.AddRange(Controls.Select(a => Task.Run(() => BuildView(a, tempMasterPages))).ToList());
+
+            await Task.WhenAll(compileTasks.ToArray());
+
             while (tempMasterPages.Count > 0)
             {
+                tempMasterPages = new ConcurrentBag<DotHtmlFileInfo>(tempMasterPages.Distinct());
                 MasterPages.AddRange(tempMasterPages);
-                tempMasterPages.Clear();
-                MasterPages.ForEach(a => BuildView(a, tempMasterPages));
+
+                //.NET Standard 2.1 - better replace with tempMasterPages.Clear()
+                tempMasterPages = new ConcurrentBag<DotHtmlFileInfo>();
+
+                var masterPagesTasks = MasterPages.Select(i => Task.Run(() => BuildView(i, tempMasterPages))).ToList();
+
+                await Task.WhenAll(masterPagesTasks.ToArray());
             }
         }
 
         public void BuildView(DotHtmlFileInfo file)
         {
-            BuildView(file, MasterPages);
+            BuildView(file, new ConcurrentBag<DotHtmlFileInfo>(MasterPages));
         }
 
-        private void BuildView(DotHtmlFileInfo file, List<DotHtmlFileInfo> tempList)
+        private void BuildView(DotHtmlFileInfo file, ConcurrentBag<DotHtmlFileInfo> tempList)
         {
             if (file.Status != CompilationState.NonCompilable)
             {
@@ -121,7 +135,8 @@ namespace DotVVM.Diagnostics.StatusPage
                             ParserConstants.MasterPageDirective,
                             out var masterPage))
                     {
-                        if (MasterPages.All(s => s.VirtualPath != masterPage) && tempList.All(s => s.VirtualPath != masterPage))
+                        if (MasterPages.All(s => s.VirtualPath != masterPage) &&
+                            tempList.All(s => s.VirtualPath != masterPage))
                         {
                             tempList.Add(new DotHtmlFileInfo()
                             {
@@ -141,6 +156,7 @@ namespace DotVVM.Diagnostics.StatusPage
             }
         }
     }
+
 
     public class DotHtmlFileInfo
     {
