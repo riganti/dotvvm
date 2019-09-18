@@ -8,12 +8,21 @@
 </head>
 <body>
     <h1>
-
     </h1>
     <dot:ComboBox data-ui="complex-crash"
-                  SelectedValue="{value: SelectedValue}"
+                  name="complex-crash"
+                  SelectedValue="{value: SelectedString}"
                   ItemTextBinding="{value:Text}"
-                  DataSource="{value:  ComplexData}"
-                  ItemValueBinding="{value: Text}" />
+                  ItemValueBinding="{value:Text}"
+                  DataSource="{value:  ComplexData}" />
+
+    <div>
+        <br />
+        String value:
+        <span name="value" data-ui="value">
+            {{value:  SelectedString}}
+        </span>
+    </div>
+
 </body>
 </html>

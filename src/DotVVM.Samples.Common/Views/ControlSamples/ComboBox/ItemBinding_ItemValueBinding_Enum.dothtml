@@ -11,12 +11,19 @@
 
     </h1>
     <dot:ComboBox data-ui="complex-crash"
+                  name="complex-crash"
                   SelectedValue="{value: SelectedEnum}"
                   ItemTextBinding="{value:Text}"
                   DataSource="{value:  ComplexData}"
                   ItemValueBinding="{value: EnumTypeValue}" />
-    <span>
-        {{value:  SelectedEnum}}
-    </span>
+    <div>
+        <br />
+        Enum value:
+        <span name="value" data-ui="value">
+            {{value:  SelectedEnum}}
+        </span>
+    </div>
+    
+    
 </body>
 </html>
