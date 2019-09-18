@@ -14,10 +14,10 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [Fact]
-        public void Control_ComboBox_ComboBox()
+        public void Control_ComboBox_Default()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ComboBox);
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_Default);
 
                 var comboBox = browser.First("hardcoded-combobox", SelectByDataUi);
                 var selectedValue = browser.First("selected-value", SelectByDataUi);
@@ -40,11 +40,11 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [Fact]
-        [SampleReference(SamplesRouteUrls.ControlSamples_ComboBox_ComboBox)]
+        [SampleReference(SamplesRouteUrls.ControlSamples_ComboBox_Default)]
         public void Control_ComboBox_ComboBoxBinded()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ComboBox);
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_Default);
 
                 var comboBox = browser.First("binded-combobox", SelectByDataUi);
                 var selectedText = browser.First("selected-text", SelectByDataUi);
@@ -67,10 +67,10 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [Fact]
-        public void Control_ComboBox_ComboBoxDelaySync()
+        public void Control_ComboBox_DelaySync()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ComboBoxDelaySync);
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_DelaySync);
 
                 // check that the second item is selected in both ComboBoxes on the page start
                 AssertUI.IsSelected(browser.ElementAt("select", 0).ElementAt("option", 1));
@@ -87,10 +87,10 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [Fact]
-        public void Control_ComboBox_ComboBoxDelaySync2()
+        public void Control_ComboBox_DelaySync2()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ComboBoxDelaySync2);
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_DelaySync2);
                 browser.First("input[type=button]").Click();
 
                 browser.WaitFor(() => {
@@ -108,24 +108,10 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [Fact]
-        public void Control_ComboBox_ComboBoxDelaySync3()
+        public void Control_ComboBox_Title()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ComboBoxDelaySync3);
-                browser.First("input[type=button]").Click();
-
-                browser.WaitFor(() => {
-                // check that the combobox appears
-                    AssertUI.IsSelected(browser.ElementAt("select", 0).ElementAt("option", 0));
-                }, 1000, 30);
-            });
-        }
-
-        [Fact]
-        public void Control_ComboBox_ComboBoxTitle()
-        {
-            RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ComboBoxTitle);
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_Title);
 
                 AssertUI.InnerTextEquals(browser.ElementAt("select option", 0), "Too lo...");
                 AssertUI.InnerTextEquals(browser.ElementAt("select option", 1), "Text");
@@ -173,10 +159,10 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [Fact]
-        public void Control_ComboBox_ComboxItemBinding_ItemValueBinding_Complex_Error()
+        public void Control_ComboBox_ItemBinding_ItemValueBinding_Complex_Error()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ComboBoxItemBinding_ItemValueBinding_Error);
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ItemBinding_ItemValueBinding_Error);
 
                 browser.WaitFor(()=> {
                     AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("Return type") && s.Contains("ItemValueBinding") && s.Contains("primitive type"));
@@ -187,10 +173,10 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [Fact]
-        public void Control_ComboBox_ComboBoxItemBinding_ItemValueBinding_Enum()
+        public void Control_ComboBox_ItemBinding_ItemValueBinding_Enum()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ComboBoxItemBinding_ItemValueBinding_Enum);
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ItemBinding_ItemValueBinding_Enum);
 
                 var value = browser.Single("value", OpenQA.Selenium.By.Name);
                 var dropDown = browser.Single("complex-crash", OpenQA.Selenium.By.Name);
@@ -211,10 +197,10 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [Fact]
-        public void Control_ComboBox_ComboBoxItemBinding_ItemValueBinding_Number()
+        public void Control_ComboBox_ItemBinding_ItemValueBinding_Number()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ComboBoxItemBinding_ItemValueBinding_Number);
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ItemBinding_ItemValueBinding_Number);
                
                 var value = browser.Single("value", OpenQA.Selenium.By.Name);
                 var dropDown = browser.Single("complex-crash", OpenQA.Selenium.By.Name);
@@ -235,10 +221,10 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [Fact]
-        public void Control_ComboBox_ComboxItemBinding_ItemValueBinding_SelectedValue_Complex_Error()
+        public void Control_ComboBox_ItemBinding_ItemValueBinding_SelectedValue_Complex_Error()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ComboBoxItemBinding_ItemValueBinding_SelectedValue_ComplexToInt_Error);
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ItemBinding_ItemValueBinding_SelectedValue_ComplexToInt_Error);
 
                 browser.WaitFor(() => {
                     AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("DotVVM.Samples.Common.ViewModels.ControlSamples.ComboBox.ComplexType") && s.Contains("not assignable") && s.Contains("System.Int32"));
@@ -249,10 +235,10 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [Fact]
-        public void Control_ComboBox_ComboxItemBinding_ItemValueBinding_SelectedValue_StringToInt_Error()
+        public void Control_ComboBox_ItemBinding_ItemValueBinding_SelectedValue_StringToInt_Error()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ComboBoxItemBinding_ItemValueBinding_SelectedValue_StringToInt_Error);
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ItemBinding_ItemValueBinding_SelectedValue_StringToInt_Error);
 
                 browser.WaitFor(() => {
                     AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("System.String") && s.Contains("not assignable") && s.Contains("System.Int32"));
@@ -263,10 +249,10 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [Fact]
-        public void Control_ComboBox_ComboBoxItemBinding_ItemValueBinding_String()
+        public void Control_ComboBox_ItemBinding_ItemValueBinding_String()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ComboBoxItemBinding_ItemValueBinding_String);
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ItemBinding_ItemValueBinding_String);
 
                 var value = browser.Single("value", OpenQA.Selenium.By.Name);
                 var dropDown = browser.Single("complex-crash", OpenQA.Selenium.By.Name);
@@ -287,10 +273,10 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [Fact]
-        public void Control_ComboBox_ComboBoxItemBinding_ItemValueBinding_StringToObject()
+        public void Control_ComboBox_ItemBinding_ItemValueBinding_StringToObject()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ComboBoxItemBinding_ItemValueBinding_StringToObject);
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ItemBinding_ItemValueBinding_StringToObject);
 
                 AssertUI.ContainsElement(browser.Single("body",SelectBy.TagName),"select > option");
             });
