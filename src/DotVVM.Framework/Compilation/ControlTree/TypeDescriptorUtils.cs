@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             return NumericTypeDescriptors.Any(a => a.IsEqualTo(type));
         }
 
-        private static bool IsEnumTypeDescriptor(this ITypeDescriptor type)
+        public static bool IsEnumTypeDescriptor(this ITypeDescriptor type)
         {
             return type.IsAssignableTo(EnumTypeDescriptors);
         }
