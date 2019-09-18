@@ -50,6 +50,13 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_ComboBox_ComboBoxDelaySync2 = "ControlSamples/ComboBox/ComboBoxDelaySync2";
         public const string ControlSamples_ComboBox_ComboBoxDelaySync3 = "ControlSamples/ComboBox/ComboBoxDelaySync3";
         public const string ControlSamples_ComboBox_ComboBoxTitle = "ControlSamples/ComboBox/ComboBoxTitle";
+        public const string ControlSamples_ComboBox_ComboBoxItemBinding_ItemValueBinding_Error = "ControlSamples/ComboBox/ComboBoxItemBinding_ItemValueBinding_Complex_Error";
+        public const string ControlSamples_ComboBox_ComboBoxItemBinding_ItemValueBinding_Enum = "ControlSamples/ComboBox/ComboBoxItemBinding_ItemValueBinding_Enum";
+        public const string ControlSamples_ComboBox_ComboBoxItemBinding_ItemValueBinding_Number = "ControlSamples/ComboBox/ComboBoxItemBinding_ItemValueBinding_Number";
+        public const string ControlSamples_ComboBox_ComboBoxItemBinding_ItemValueBinding_SelectedValue_ComplexToInt_Error = "ControlSamples/ComboBox/ComboBoxItemBinding_ItemValueBinding_SelectedValue_ComplexToInt_Error";
+        public const string ControlSamples_ComboBox_ComboBoxItemBinding_ItemValueBinding_SelectedValue_StringToInt_Error = "ControlSamples/ComboBox/ComboBoxItemBinding_ItemValueBinding_SelectedValue_StringToInt_Error";
+        public const string ControlSamples_ComboBox_ComboBoxItemBinding_ItemValueBinding_String = "ControlSamples/ComboBox/ComboBoxItemBinding_ItemValueBinding_String";
+        public const string ControlSamples_ComboBox_ComboBoxItemBinding_ItemValueBinding_StringToObject = "ControlSamples/ComboBox/ComboBoxItemBinding_ItemValueBinding_String";
         public const string ControlSamples_ComboBox_Nullable = "ControlSamples/ComboBox/Nullable";
         public const string ControlSamples_ContentPlaceHolder_ContentPlaceHolderPage = "ControlSamples/ContentPlaceHolder/ContentPlaceHolderPage";
         public const string ControlSamples_ContentPlaceHolder_ContentPlaceHolderPage_ContentTest = "ControlSamples/ContentPlaceHolder/ContentPlaceHolderPage_ContentTest";

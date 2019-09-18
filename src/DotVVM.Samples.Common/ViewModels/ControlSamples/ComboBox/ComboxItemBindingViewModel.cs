@@ -28,7 +28,7 @@ namespace DotVVM.Samples.Common.ViewModels.ControlSamples.ComboBox
                         Text = $"Text {s}",
                         Date = new DateTime(2019, 10, s),
                         NestedComplex = new NestedComplexType { Text2 = $"Nested text {s}" },
-                        EnumTypeValue = enumValue[s % 3]
+                        EnumTypeValue = enumValue[(s-1) % 3]
                     }).ToList();
                 StringData = Enumerable.Range(1, 10).Select(s => $"Text string {s}").ToList();
                 IntData = Enumerable.Range(1, 10).ToList();

@@ -171,5 +171,130 @@ namespace DotVVM.Samples.Tests.Control
                 AssertUI.IsSelected(combobox.FindElements("option")[1]);
             });
         }
+
+        [Fact]
+        public void Control_ComboBox_ComboxItemBinding_ItemValueBinding_Complex_Error()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ComboBoxItemBinding_ItemValueBinding_Error);
+
+                browser.WaitFor(()=> {
+                    AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("Return type") && s.Contains("ItemValueBinding") && s.Contains("primitive type"));
+                    AssertUI.InnerText(browser.First("p.summary"), s => s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException"));
+                    AssertUI.InnerText(browser.First(".errorUnderline"), s => s.Contains("ItemValueBinding=") && s.Contains("{value:"));
+                },1000);
+            });
+        }
+
+        [Fact]
+        public void Control_ComboBox_ComboBoxItemBinding_ItemValueBinding_Enum()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ComboBoxItemBinding_ItemValueBinding_Enum);
+
+                var value = browser.Single("value", OpenQA.Selenium.By.Name);
+                var dropDown = browser.Single("complex-crash", OpenQA.Selenium.By.Name);
+                var dropDownButtons = dropDown.FindElements("option", OpenQA.Selenium.By.TagName);
+
+                AssertUI.InnerTextEquals(value,"EValue1");
+
+                for (int i = 0; i < dropDownButtons.Count; i++)
+                {
+                    dropDown.Click();
+                    dropDownButtons.ElementAt(i).Click();
+
+                    browser.WaitFor(()=> {
+                        AssertUI.InnerTextEquals(value,"EValue"+((i%3)+1).ToString()); 
+                    },2000);
+                }
+            });
+        }
+
+        [Fact]
+        public void Control_ComboBox_ComboBoxItemBinding_ItemValueBinding_Number()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ComboBoxItemBinding_ItemValueBinding_Number);
+               
+                var value = browser.Single("value", OpenQA.Selenium.By.Name);
+                var dropDown = browser.Single("complex-crash", OpenQA.Selenium.By.Name);
+                var dropDownButtons = dropDown.FindElements("option", OpenQA.Selenium.By.TagName);
+
+                AssertUI.TextEmpty(value);
+
+                for (int i = 0; i < dropDownButtons.Count; i++)
+                {
+                    dropDown.Click();
+                    dropDownButtons.ElementAt(i).Click();
+
+                    browser.WaitFor(() => {
+                        AssertUI.InnerTextEquals(value, (i+1).ToString());
+                    }, 2000);
+                }
+            });
+        }
+
+        [Fact]
+        public void Control_ComboBox_ComboxItemBinding_ItemValueBinding_SelectedValue_Complex_Error()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ComboBoxItemBinding_ItemValueBinding_SelectedValue_ComplexToInt_Error);
+
+                browser.WaitFor(() => {
+                    AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("DotVVM.Samples.Common.ViewModels.ControlSamples.ComboBox.ComplexType") && s.Contains("not assignable") && s.Contains("System.Int32"));
+                    AssertUI.InnerText(browser.First("p.summary"), s => s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException"));
+                    AssertUI.InnerText(browser.First(".errorUnderline"), s => s.Contains("{value: SelectedInt}"));
+                }, 1000);
+            });
+        }
+
+        [Fact]
+        public void Control_ComboBox_ComboxItemBinding_ItemValueBinding_SelectedValue_StringToInt_Error()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ComboBoxItemBinding_ItemValueBinding_SelectedValue_StringToInt_Error);
+
+                browser.WaitFor(() => {
+                    AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("System.String") && s.Contains("not assignable") && s.Contains("System.Int32"));
+                    AssertUI.InnerText(browser.First("p.summary"), s => s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException"));
+                    AssertUI.InnerText(browser.First(".errorUnderline"), s => s.Contains("{value: SelectedInt}"));
+                }, 1000);
+            });
+        }
+
+        [Fact]
+        public void Control_ComboBox_ComboBoxItemBinding_ItemValueBinding_String()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ComboBoxItemBinding_ItemValueBinding_String);
+
+                var value = browser.Single("value", OpenQA.Selenium.By.Name);
+                var dropDown = browser.Single("complex-crash", OpenQA.Selenium.By.Name);
+                var dropDownButtons = dropDown.FindElements("option", OpenQA.Selenium.By.TagName);
+
+                AssertUI.TextEmpty(value);
+
+                for (int i = 0; i < dropDownButtons.Count; i++)
+                {
+                    dropDown.Click();
+                    dropDownButtons.ElementAt(i).Click();
+
+                    browser.WaitFor(() => {
+                        AssertUI.InnerTextEquals(value, dropDownButtons.ElementAt(i).GetInnerText());
+                    }, 2000);
+                }
+            });
+        }
+
+        [Fact]
+        public void Control_ComboBox_ComboBoxItemBinding_ItemValueBinding_StringToObject()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ComboBoxItemBinding_ItemValueBinding_StringToObject);
+
+                AssertUI.ContainsElement(browser.Single("body",SelectBy.TagName),"select > option");
+            });
+        }
+
     }
 }
