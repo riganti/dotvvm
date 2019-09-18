@@ -35,10 +35,14 @@ namespace DotVVM.Framework.Compilation.ControlTree
         {
             return type.IsAssignableTo(EnumTypeDescriptors);
         }
+        public static bool IsStringTypeDescriptor(this ITypeDescriptor type)
+        {
+            return StringTypeDescriptors.IsEqualTo(type);
+        }
 
         public static bool IsPrimitiveTypeDescriptor(this ITypeDescriptor type)
         {
-            return StringTypeDescriptors.IsEqualTo(type) || type.IsNumericTypeDescriptor() || type.IsEnumTypeDescriptor();
+            return type.IsStringTypeDescriptor()|| type.IsNumericTypeDescriptor() || type.IsEnumTypeDescriptor();
         }
         public static ITypeDescriptor GetCollectionItemType(ITypeDescriptor type)
         {

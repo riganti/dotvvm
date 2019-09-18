@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.Compilation.ControlTree;
 
 namespace DotVVM.Framework.Controls
 {
@@ -51,7 +52,7 @@ namespace DotVVM.Framework.Controls
                 {
                     var to = selectedValueBinding.Binding.ResultType;
                     var from = dataSourceBinding.Binding.ResultType.TryGetArrayElementOrIEnumerableType();
-                    if (!from.IsAssignableTo(to))
+                    if (!from.IsAssignableTo(to) && !(to.IsEnumTypeDescriptor() && from.IsStringTypeDescriptor()))
                     {
                         yield return new ControlUsageError($"Type '{from.FullName}' is not assignable to '{to.FullName}'.", selectedValueBinding.Binding.DothtmlNode);
                     }

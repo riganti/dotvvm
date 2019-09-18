@@ -16,6 +16,7 @@
     <None Remove="sampleConfig.json" />
     <None Remove="Views\ComplexSamples\NestedComboBox\InnerWrapper.dotcontrol" />
     <None Remove="Views\ComplexSamples\NestedComboBox\OuterWrapper.dotcontrol" />
+    <None Remove="Views\ControlSamples\ComboBox\BindingCTValidation_StringToEnum.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\HeavilyNested.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\ItemBinding_ItemValueBinding_Complex_Error.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\ItemBinding_ItemValueBinding_Enum.dothtml" />
