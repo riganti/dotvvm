@@ -70,6 +70,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_GridView_GridViewServerRender = "ControlSamples/GridView/GridViewServerRender";
         public const string ControlSamples_GridView_GridViewStaticCommand = "ControlSamples/GridView/GridViewStaticCommand";
         public const string ControlSamples_GridView_LargeGrid = "ControlSamples/GridView/LargeGrid";
+        public const string ControlSamples_GridView_RenamedPrimaryKey = "ControlSamples/GridView/RenamedPrimaryKey";
         public const string ControlSamples_HtmlLiteral_HtmlLiteral = "ControlSamples/HtmlLiteral/HtmlLiteral";
         public const string ControlSamples_IncludeInPageProperty_IncludeInPage = "ControlSamples/IncludeInPageProperty/IncludeInPage";
         public const string ControlSamples_LinkButton_LinkButton = "ControlSamples/LinkButton/LinkButton";
