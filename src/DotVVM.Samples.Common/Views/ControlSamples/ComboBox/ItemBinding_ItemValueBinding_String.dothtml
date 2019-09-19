@@ -10,7 +10,6 @@
     <h1>
     </h1>
     <dot:ComboBox data-ui="complex-crash"
-                  name="complex-crash"
                   SelectedValue="{value: SelectedString}"
                   ItemTextBinding="{value:Text}"
                   ItemValueBinding="{value:Text}"
@@ -19,7 +18,7 @@
     <div>
         <br />
         String value:
-        <span name="value" data-ui="value">
+        <span data-ui="value">
             {{value:  SelectedString}}
         </span>
     </div>

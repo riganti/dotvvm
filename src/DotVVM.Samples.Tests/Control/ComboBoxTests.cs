@@ -178,8 +178,8 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ItemBinding_ItemValueBinding_Enum);
 
-                var value = browser.Single("value", OpenQA.Selenium.By.Name);
-                var dropDown = browser.Single("complex-crash", OpenQA.Selenium.By.Name);
+                var value = browser.Single("value", SelectByDataUi);
+                var dropDown = browser.Single("complex-crash", SelectByDataUi);
                 var dropDownButtons = dropDown.FindElements("option", OpenQA.Selenium.By.TagName);
 
                 AssertUI.InnerTextEquals(value,"EValue1");
@@ -202,8 +202,8 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ItemBinding_ItemValueBinding_Number);
                
-                var value = browser.Single("value", OpenQA.Selenium.By.Name);
-                var dropDown = browser.Single("complex-crash", OpenQA.Selenium.By.Name);
+                var value = browser.Single("value", SelectByDataUi);
+                var dropDown = browser.Single("complex-crash", SelectByDataUi);
                 var dropDownButtons = dropDown.FindElements("option", OpenQA.Selenium.By.TagName);
 
                 AssertUI.TextEmpty(value);
@@ -254,8 +254,8 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ItemBinding_ItemValueBinding_String);
 
-                var value = browser.Single("value", OpenQA.Selenium.By.Name);
-                var dropDown = browser.Single("complex-crash", OpenQA.Selenium.By.Name);
+                var value = browser.Single("value", SelectByDataUi);
+                var dropDown = browser.Single("complex-crash", SelectByDataUi);
                 var dropDownButtons = dropDown.FindElements("option", OpenQA.Selenium.By.TagName);
 
                 AssertUI.TextEmpty(value);
@@ -279,6 +279,36 @@ namespace DotVVM.Samples.Tests.Control
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ItemBinding_ItemValueBinding_StringToObject);
 
                 AssertUI.ContainsElement(browser.Single("body",SelectBy.TagName),"select > option");
+            });
+        }
+
+        [Fact]
+        public void Control_ComboBox_BindingCTValidation_StringToEnum()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_BindingCTValidation_StringToEnum);
+
+                var dropDown = browser.Single("string-to-enum", SelectByDataUi);
+                var dropDownButtons = dropDown.FindElements("option", SelectBy.TagName);
+                var setSecondaryFieldButton = browser.Single("set-secondary-field", SelectByDataUi);
+                var enum1 = browser.Single("enum", SelectByDataUi);
+                var enum2 = browser.Single("enum2", SelectByDataUi);
+
+                dropDownButtons.ElementAt(1).Click();
+                setSecondaryFieldButton.Click();
+
+                for (int i = 0; i < dropDownButtons.Count; i++)
+                {
+                    dropDownButtons.ElementAt(i).Click();
+
+                    browser.WaitFor(()=> {
+                        AssertUI.TextEquals(enum1, dropDownButtons.ElementAt(i).GetInnerText());
+                        AssertUI.TextNotEquals(enum2, dropDownButtons.ElementAt(i).GetInnerText());
+                    },2000);
+                    
+                    setSecondaryFieldButton.Click();
+                    browser.WaitFor(()=> {AssertUI.TextEquals(enum2, dropDownButtons.ElementAt(i).GetInnerText()); },2000);
+                }
             });
         }
 
