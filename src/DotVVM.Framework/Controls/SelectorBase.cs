@@ -122,6 +122,16 @@ namespace DotVVM.Framework.Controls
                     yield return new ControlUsageError("Return type of ItemValueBinding has to be a primitive type!", valueBinding.DothtmlNode);
                 }
             }
+
+            // validate usage of obsolete properties
+            if (control.Properties.GetValueOrDefault(DisplayMemberProperty) is ResolvedPropertySetter displayMember) 
+            {
+                yield return new ControlUsageError("Property DisplayMemberProperty is obsolite. Please use ItemTextBinding instead.", displayMember.DothtmlNode);
+            }
+            if (control.Properties.GetValueOrDefault(ValueMemberProperty) is ResolvedPropertySetter valueMember)
+            {
+                yield return new ControlUsageError("Property DisplayMemberProperty is obsolite. Please use ItemTextBinding instead.", valueMember.DothtmlNode);
+            }
         }
     }
 }
