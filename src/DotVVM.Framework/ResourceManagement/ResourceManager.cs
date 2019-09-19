@@ -89,6 +89,7 @@ namespace DotVVM.Framework.ResourceManagement
             {
                 if (this.IsAlreadyRendered(resource.RenderPosition))
                     throw new Exception($"Can't add {resource.GetType().Name} '{name}' to {resource.RenderPosition}, it is already rendered.");
+                ResourceUtils.AssertAcyclicDependencies(resource, name, FindResource);
                 foreach (var dep in resource.Dependencies)
                 {
                     AddRequiredResource(dep);
@@ -108,8 +109,7 @@ namespace DotVVM.Framework.ResourceManagement
         /// </summary>
         public void AddRequiredScriptFile(string name, string url, params string[] dependentResourceNames)
         {
-            AddRequiredResourceCore(name, new ScriptResource(CreateRelativeResourceLocation(url))
-            {
+            AddRequiredResourceCore(name, new ScriptResource(CreateRelativeResourceLocation(url)) {
                 Dependencies = dependentResourceNames,
             });
         }
@@ -126,8 +126,7 @@ namespace DotVVM.Framework.ResourceManagement
         /// </summary>
         public void AddRequiredStylesheetFile(string name, string url, params string[] dependentResourceNames)
         {
-            AddRequiredResourceCore(name, new StylesheetResource(CreateRelativeResourceLocation(url))
-            {
+            AddRequiredResourceCore(name, new StylesheetResource(CreateRelativeResourceLocation(url)) {
                 Dependencies = dependentResourceNames,
             });
         }
@@ -218,7 +217,5 @@ namespace DotVVM.Framework.ResourceManagement
         {
             throw new ArgumentException($"The resource '{name}' could not be found. Make sure it is registered in the startup class.");
         }
-
-
     }
 }

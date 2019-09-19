@@ -38,7 +38,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 }
                 else
                 {
-                    first.NodeErrors.Add($"Unexpected operator: {@operator}, expecting assigment (=).");
+                    first.NodeErrors.Add($"Unexpected operator: {@operator}, expecting assignment (=).");
                 }
             }
             return first;
@@ -320,7 +320,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 {
                     var operatorToken = Read();
                     var target = ReadUnaryExpression();
-                    return CreateNode(new UnaryOperatorBindingParserNode(target, @operator), startIndex, isOperatorUnsupported ? $"Usupported operator {operatorToken.Text}" : null);
+                    return CreateNode(new UnaryOperatorBindingParserNode(target, @operator), startIndex, isOperatorUnsupported ? $"Unsupported operator {operatorToken.Text}" : null);
                 }
             }
             return CreateNode(ReadIdentifierExpression(false), startIndex);
@@ -406,7 +406,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             var token = Peek();
             if (token != null && token.Type == BindingTokenType.OpenParenthesis)
             {
-                // parenthesised expression
+                // parenthesized expression
                 Read();
                 var innerExpression = ReadExpression();
                 var error = IsCurrentTokenIncorrect(BindingTokenType.CloseParenthesis);
@@ -605,7 +605,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 // real number
                 switch (type)
                 {
-                    case NumberLiteralSuffix.None: // double is defualt
+                    case NumberLiteralSuffix.None: // double is default
                     case NumberLiteralSuffix.Double:
                         {
                             numberLiteral = TryParse<double>(double.TryParse, text, out error, decimalStyle);

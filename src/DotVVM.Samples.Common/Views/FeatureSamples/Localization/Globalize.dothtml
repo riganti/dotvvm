@@ -1,0 +1,62 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Localization.GlobalizeViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Globalize Load Sample</title>
+
+</head>
+<body Validation.Enabled="false" class="page-body">
+    <div>
+        <dot:RouteLink RouteName="{resource: Context.Route.RouteName}"
+                       Query-lang="cs-CZ"
+                       Text="Switch to 'cs-CZ' first!"
+                       data-ui="switch-czech" />
+    </div>
+    <div>
+        <div>
+            <dot:Button Click="{command: SayHello()}"
+                        Text="Say Hello"
+                        data-ui="button-hello" />
+            <span InnerText="{value: SayHelloText}"
+                  data-ui="span-hello" />
+        </div>
+        <div>
+            <dot:Button Click="{command: Parse(ParseTextInput)}"
+                        Text="Parse"
+                        data-ui="button-parse" />
+            <dot:TextBox Text="{value: ParseTextInput}"
+                         placeholder="type number"
+                         data-ui="textbox-parse" /> =>
+            <span InnerText="{value: ParseResult}"
+                  data-ui="span-parse" />
+        </div>
+        <div>
+            <dot:Button Click="{command: Multiply(MultiplyInputA,MultiplyInputB)}"
+                        Text="Multiply"
+                        data-ui="button-multiply" />
+            <dot:TextBox Text="{value: MultiplyInputA}"
+                         Type="Number"
+                         placeholder="type number"
+                         data-ui="textbox-multiplyA" />
+            *
+            <dot:TextBox Text="{value: MultiplyInputB}"
+                         Type="Number"
+                         placeholder="type number"
+                         data-ui="textbox-multiplyB" />
+            =
+            <b>
+                <span InnerText="{value: MultiplyResult}"
+                      data-ui="span-multiply" />
+            </b>
+        </div>
+    </div>
+    <div class="postback-box">
+        <span class="postback-counter">
+            PostBack counter:
+            <b data-ui="postback-counter">{{value: PostBackCounter}}</b>
+        </span>
+    </div>
+</body>
+</html>

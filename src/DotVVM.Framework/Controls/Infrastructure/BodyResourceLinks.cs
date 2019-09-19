@@ -21,11 +21,7 @@ namespace DotVVM.Framework.Controls
             var resourceManager = context.ResourceManager;
             if (resourceManager.BodyRendered) return;
             resourceManager.BodyRendered = true;  // set the flag before the resources are rendered, so they can't add more resources to the list during the render
-            foreach (var resource in resourceManager.GetNamedResourcesInOrder())
-            {
-                if (resource.Resource.RenderPosition == ResourceRenderPosition.Body)
-                    resource.RenderResourceCached(writer, context);
-            }
+            ResourcesRenderer.RenderResources(resourceManager, writer, context, ResourceRenderPosition.Body);
 
             // render the serialized viewmodel
             var serializedViewModel = ((DotvvmRequestContext) context).GetSerializedViewModel();

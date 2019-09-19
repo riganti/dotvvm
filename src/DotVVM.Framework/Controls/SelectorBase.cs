@@ -1,7 +1,12 @@
 using System;
+using System.Collections.Generic;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
+using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Compilation.Validation;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls
 {
@@ -104,5 +109,29 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty ItemTitleBindingProperty =
             DotvvmProperty.Register<IValueBinding, SelectorBase>(nameof(ItemTitleBinding));
+
+        [ControlUsageValidator]
+        public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
+        {
+            if (control.Properties.ContainsKey(SelectorBase.ItemValueBindingProperty) &&
+                control.Properties.GetValue(SelectorBase.ItemValueBindingProperty) is ResolvedPropertyBinding valueBinding)
+            {
+                var t = valueBinding.Binding.ResultType;
+                if (!t.IsPrimitiveTypeDescriptor())
+                {
+                    yield return new ControlUsageError("Return type of ItemValueBinding has to be a primitive type!", valueBinding.DothtmlNode);
+                }
+            }
+
+            // validate usage of obsolete properties
+            if (control.Properties.GetValueOrDefault(DisplayMemberProperty) is ResolvedPropertySetter displayMember) 
+            {
+                yield return new ControlUsageError("Property DisplayMemberProperty is obsolite. Please use ItemTextBinding instead.", displayMember.DothtmlNode);
+            }
+            if (control.Properties.GetValueOrDefault(ValueMemberProperty) is ResolvedPropertySetter valueMember)
+            {
+                yield return new ControlUsageError("Property DisplayMemberProperty is obsolite. Please use ItemTextBinding instead.", valueMember.DothtmlNode);
+            }
+        }
     }
 }

@@ -19,6 +19,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ComplexSamples_GridViewDataSet_GridViewDataSet = "ComplexSamples/GridViewDataSet/GridViewDataSet";
         public const string ComplexSamples_InvoiceCalculator_InvoiceCalculator = "ComplexSamples/InvoiceCalculator/InvoiceCalculator";
         public const string ComplexSamples_NamespaceCollision_NamespaceCollision = "ComplexSamples/NamespaceCollision/NamespaceCollision";
+        public const string ComplexSamples_NestedComboBox_HeavilyNested = "ComplexSamples/NestedComboBox/HeavilyNested";
         public const string ComplexSamples_RedirectAndUrl_ScrollingPage = "ComplexSamples/RedirectAndUrl/ScrollingPage";
         public const string ComplexSamples_ServerRendering_AddingIntoEmptyRepeater = "ComplexSamples/ServerRendering/AddingIntoEmptyRepeater";
         public const string ComplexSamples_ServerRendering_ControlUsageSample = "ComplexSamples/ServerRendering/ControlUsageSample";
@@ -44,11 +45,19 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_CheckBox_Indeterminate = "ControlSamples/CheckBox/Indeterminate";
         public const string ControlSamples_CheckBox_InRepeater = "ControlSamples/CheckBox/InRepeater";
         public const string ControlSamples_ClaimView_ClaimViewTest = "ControlSamples/ClaimView/ClaimViewTest";
-        public const string ControlSamples_ComboBox_ComboBox = "ControlSamples/ComboBox/ComboBox";
-        public const string ControlSamples_ComboBox_ComboBoxDelaySync = "ControlSamples/ComboBox/ComboBoxDelaySync";
-        public const string ControlSamples_ComboBox_ComboBoxDelaySync2 = "ControlSamples/ComboBox/ComboBoxDelaySync2";
-        public const string ControlSamples_ComboBox_ComboBoxDelaySync3 = "ControlSamples/ComboBox/ComboBoxDelaySync3";
-        public const string ControlSamples_ComboBox_ComboBoxTitle = "ControlSamples/ComboBox/ComboBoxTitle";
+        public const string ControlSamples_ComboBox_BindingCTValidation_StringToEnum = "ControlSamples/ComboBox/BindingCTValidation_StringToEnum";
+        public const string ControlSamples_ComboBox_Default = "ControlSamples/ComboBox/Default";
+        public const string ControlSamples_ComboBox_DelaySync = "ControlSamples/ComboBox/DelaySync";
+        public const string ControlSamples_ComboBox_DelaySync2 = "ControlSamples/ComboBox/DelaySync2";
+        public const string ControlSamples_ComboBox_Title = "ControlSamples/ComboBox/Title";
+        public const string ControlSamples_ComboBox_ItemBinding_ItemValueBinding_Error = "ControlSamples/ComboBox/ItemBinding_ItemValueBinding_Complex_Error";
+        public const string ControlSamples_ComboBox_ItemBinding_ItemValueBinding_Enum = "ControlSamples/ComboBox/ItemBinding_ItemValueBinding_Enum";
+        public const string ControlSamples_ComboBox_ItemBinding_ItemValueBinding_Number = "ControlSamples/ComboBox/ItemBinding_ItemValueBinding_Number";
+        public const string ControlSamples_ComboBox_ItemBinding_ItemValueBinding_SelectedValue_ComplexToInt_Error = "ControlSamples/ComboBox/ItemBinding_ItemValueBinding_SelectedValue_ComplexToInt_Error";
+        public const string ControlSamples_ComboBox_ItemBinding_ItemValueBinding_SelectedValue_StringToInt_Error = "ControlSamples/ComboBox/ItemBinding_ItemValueBinding_SelectedValue_StringToInt_Error";
+        public const string ControlSamples_ComboBox_ItemBinding_ItemValueBinding_String = "ControlSamples/ComboBox/ItemBinding_ItemValueBinding_String";
+        public const string ControlSamples_ComboBox_ItemBinding_ItemValueBinding_StringToObject = "ControlSamples/ComboBox/ItemBinding_ItemValueBinding_StringToObject";
+        public const string ControlSamples_ComboBox_Nullable = "ControlSamples/ComboBox/Nullable";
         public const string ControlSamples_ContentPlaceHolder_ContentPlaceHolderPage = "ControlSamples/ContentPlaceHolder/ContentPlaceHolderPage";
         public const string ControlSamples_ContentPlaceHolder_ContentPlaceHolderPage_ContentTest = "ControlSamples/ContentPlaceHolder/ContentPlaceHolderPage_ContentTest";
         public const string ControlSamples_ContentPlaceHolder_DoubleContentPlaceHolderPage_ContentTest = "ControlSamples/ContentPlaceHolder/DoubleContentPlaceHolderPage_ContentTest";
@@ -68,6 +77,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_GridView_GridViewServerRender = "ControlSamples/GridView/GridViewServerRender";
         public const string ControlSamples_GridView_GridViewStaticCommand = "ControlSamples/GridView/GridViewStaticCommand";
         public const string ControlSamples_GridView_LargeGrid = "ControlSamples/GridView/LargeGrid";
+        public const string ControlSamples_GridView_RenamedPrimaryKey = "ControlSamples/GridView/RenamedPrimaryKey";
         public const string ControlSamples_HtmlLiteral_HtmlLiteral = "ControlSamples/HtmlLiteral/HtmlLiteral";
         public const string ControlSamples_IncludeInPageProperty_IncludeInPage = "ControlSamples/IncludeInPageProperty/IncludeInPage";
         public const string ControlSamples_LinkButton_LinkButton = "ControlSamples/LinkButton/LinkButton";
@@ -79,9 +89,13 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_Literal_Literal_CollectionLength = "ControlSamples/Literal/Literal_CollectionLength";
         public const string ControlSamples_Literal_Literal_FormatString = "ControlSamples/Literal/Literal_FormatString";
         public const string ControlSamples_Literal_Literal_NumberBinding = "ControlSamples/Literal/Literal_NumberBinding";
+        public const string ControlSamples_MultiSelect_binded = "ControlSamples/MultiSelect/binded";
+        public const string ControlSamples_MultiSelect_hardcoded = "ControlSamples/MultiSelect/hardcoded";
+        public const string ControlSamples_RadioButton_Nullable = "ControlSamples/RadioButton/Nullable";
         public const string ControlSamples_RadioButton_RadioButton = "ControlSamples/RadioButton/RadioButton";
         public const string ControlSamples_Repeater_CollectionIndex = "ControlSamples/Repeater/CollectionIndex";
         public const string ControlSamples_Repeater_DataSourceNull = "ControlSamples/Repeater/DataSourceNull";
+        public const string ControlSamples_Repeater_NamedTemplate = "ControlSamples/Repeater/NamedTemplate";
         public const string ControlSamples_Repeater_NestedRepeater = "ControlSamples/Repeater/NestedRepeater";
         public const string ControlSamples_Repeater_NestedRepeaterWithControl = "ControlSamples/Repeater/NestedRepeaterWithControl";
         public const string ControlSamples_Repeater_RepeaterAsSeparator = "ControlSamples/Repeater/RepeaterAsSeparator";
@@ -116,9 +130,11 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_TextBox_TextBox_Types = "ControlSamples/TextBox/TextBox_Types";
         public const string ControlSamples_UpdateProgress_UpdateProgress = "ControlSamples/UpdateProgress/UpdateProgress";
         public const string ControlSamples_UpdateProgress_UpdateProgressDelay = "ControlSamples/UpdateProgress/UpdateProgressDelay";
+        public const string ControlSamples_UpdateProgress_UpdateProgressQueues = "ControlSamples/UpdateProgress/UpdateProgressQueues";
         public const string ControlSamples_ValidationSummary_IncludeErrorsFromTarget_PropertyPathNotNull = "ControlSamples/ValidationSummary/IncludeErrorsFromTarget_PropertyPathNotNull";
         public const string ControlSamples_ValidationSummary_IncludeErrorsFromTarget_PropertyPathNull = "ControlSamples/ValidationSummary/IncludeErrorsFromTarget_PropertyPathNull";
         public const string ControlSamples_ValidationSummary_MessagesRendering = "ControlSamples/ValidationSummary/MessagesRendering";
+        public const string ControlSamples_ValidationSummary_Performance = "ControlSamples/ValidationSummary/Performance";
         public const string ControlSamples_ValidationSummary_RecursiveValidationSummary = "ControlSamples/ValidationSummary/RecursiveValidationSummary";
         public const string Errors_BindingInvalidCommand = "Errors/BindingInvalidCommand";
         public const string Errors_BindingInvalidProperty = "Errors/BindingInvalidProperty";
@@ -127,6 +143,8 @@ namespace DotVVM.Testing.Abstractions
         public const string Errors_EmptyBinding = "Errors/EmptyBinding";
         public const string Errors_EncryptedPropertyInValueBinding = "Errors/EncryptedPropertyInValueBinding";
         public const string Errors_FieldInValueBinding = "Errors/FieldInValueBinding";
+        public const string Errors_InvalidLocationFallback = "Errors/InvalidLocationFallback";
+        public const string Errors_InvalidServiceDirective = "Errors/InvalidServiceDirective";
         public const string Errors_InvalidViewModel = "Errors/InvalidViewModel";
         public const string Errors_MalformedBinding = "Errors/MalformedBinding";
         public const string Errors_MarkupControlInvalidViewModel = "Errors/MarkupControlInvalidViewModel";
@@ -137,6 +155,7 @@ namespace DotVVM.Testing.Abstractions
         public const string Errors_NonExistingControl = "Errors/NonExistingControl";
         public const string Errors_NonExistingProperty = "Errors/NonExistingProperty";
         public const string Errors_NotAllowedHardCodedPropertyValue = "Errors/NotAllowedHardCodedPropertyValue";
+        public const string Errors_ResourceCircularDependency = "Errors/ResourceCircularDependency";
         public const string Errors_UnknownInnerControl = "Errors/UnknownInnerControl";
         public const string Errors_WrongPropertyValue = "Errors/WrongPropertyValue";
         public const string FeatureSamples_ActionFilterErrorHandling_ActionFilterErrorHandling = "FeatureSamples/ActionFilterErrorHandling/ActionFilterErrorHandling";
@@ -148,6 +167,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Api_GithubRepoApi = "FeatureSamples/Api/GithubRepoApi";
         public const string FeatureSamples_Api_GridViewDataSetAspNetCore = "FeatureSamples/Api/GridViewDataSetAspNetCore";
         public const string FeatureSamples_Api_GridViewDataSetOwin = "FeatureSamples/Api/GridViewDataSetOwin";
+        public const string FeatureSamples_Attribute_SpecialCharacters = "FeatureSamples/Attribute/SpecialCharacters";
         public const string FeatureSamples_BindableCssStyles_BindableCssStyles = "FeatureSamples/BindableCssStyles/BindableCssStyles";
         public const string FeatureSamples_BindingContexts_BindingContext = "FeatureSamples/BindingContexts/BindingContext";
         public const string FeatureSamples_BindingContexts_CollectionContext = "FeatureSamples/BindingContexts/CollectionContext";
@@ -174,6 +194,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_IdGeneration_IdGeneration = "FeatureSamples/IdGeneration/IdGeneration";
         public const string FeatureSamples_JavascriptEvents_JavascriptEvents = "FeatureSamples/JavascriptEvents/JavascriptEvents";
         public const string FeatureSamples_LiteralBinding_LiteralBinding_Zero = "FeatureSamples/LiteralBinding/LiteralBinding_Zero";
+        public const string FeatureSamples_Localization_Globalize = "FeatureSamples/Localization/Globalize";
         public const string FeatureSamples_Localization_Localization = "FeatureSamples/Localization/Localization";
         public const string FeatureSamples_Localization_Localization_Control_Page = "FeatureSamples/Localization/Localization_Control_Page";
         public const string FeatureSamples_Localization_Localization_FormatString = "FeatureSamples/Localization/Localization_FormatString";
@@ -203,6 +224,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Resources_CdnScriptPriority = "FeatureSamples/Resources/CdnScriptPriority";
         public const string FeatureSamples_Resources_CdnUnavailableResourceLoad = "FeatureSamples/Resources/CdnUnavailableResourceLoad";
         public const string FeatureSamples_Resources_OnlineNonameResourceLoad = "FeatureSamples/Resources/OnlineNonameResourceLoad";
+        public const string FeatureSamples_Resources_RequiredOnPostback = "FeatureSamples/Resources/RequiredOnPostback";
         public const string FeatureSamples_ReturnedFile_ReturnedFileSample = "FeatureSamples/ReturnedFile/ReturnedFileSample";
         public const string FeatureSamples_Serialization_EnumSerializationWithJsonConverter = "FeatureSamples/Serialization/EnumSerializationWithJsonConverter";
         public const string FeatureSamples_Serialization_ObservableCollectionShouldContainObservables = "FeatureSamples/Serialization/ObservableCollectionShouldContainObservables";
@@ -219,6 +241,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_StaticCommand_StaticCommand_ComboBoxSelectionChanged_Objects = "FeatureSamples/StaticCommand/StaticCommand_ComboBoxSelectionChanged_Objects";
         public const string FeatureSamples_StaticCommand_StaticCommand_NullAssignment = "FeatureSamples/StaticCommand/StaticCommand_NullAssignment";
         public const string FeatureSamples_StaticCommand_StaticCommand_NullBinding = "FeatureSamples/StaticCommand/StaticCommand_NullBinding";
+        public const string FeatureSamples_StaticCommand_StaticCommand_TaskSequence = "FeatureSamples/StaticCommand/StaticCommand_TaskSequence";
         public const string FeatureSamples_StaticCommand_StaticCommand_ValueAssignmentInControl = "FeatureSamples/StaticCommand/StaticCommand_ValueAssignmentInControl";
         public const string FeatureSamples_Validation_ClientSideObservableUpdate = "FeatureSamples/Validation/ClientSideObservableUpdate";
         public const string FeatureSamples_Validation_ClientSideValidationDisabling = "FeatureSamples/Validation/ClientSideValidationDisabling";

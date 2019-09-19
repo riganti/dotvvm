@@ -1,6 +1,7 @@
 ﻿using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
+using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -40,13 +41,31 @@ namespace DotVVM.Samples.Tests.Feature
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Resources_OnlineNonameResourceLoad);
 
-                //click buton
+                //click button
                 browser.First("input[type=button]").Click();
 
                 //check that alert showed
                 browser.WaitFor(browser.HasAlert, 5000, "An alert was expected to open!");
                 AssertUI.AlertTextEquals(browser, "resource loaded");
                 browser.ConfirmAlert();
+            });
+        }
+
+        [Fact]
+        public void Feature_Resource_RequiredOnPostback()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Resources_RequiredOnPostback);
+                browser.WaitUntilDotvvmInited();
+
+                var welcome = browser.Single("welcome", SelectByDataUi);
+                AssertUI.TextEquals(welcome, "Welcome");
+
+                browser.Single("button", SelectByDataUi).Click();
+                browser.WaitFor(() => AssertUI.AlertTextEquals(browser, "javascript resource loaded!"), 5000);
+
+                browser.ConfirmAlert();
+                browser.WaitFor(() => AssertUI.TextEquals(welcome, "Welcome"), 1000);
             });
         }
 

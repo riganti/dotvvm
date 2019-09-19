@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
@@ -80,13 +81,60 @@ namespace DotVVM.Framework.ViewModel.Validation
         public static string GetPathFromExpression(DotvvmConfiguration config, LambdaExpression expr) =>
             GetPathFromExpression(config.ServiceProvider.GetRequiredService<JavascriptTranslator>(), expr, config.Debug);
 
-        public static string GetPathFromExpression(JavascriptTranslator translator, LambdaExpression expr, bool isDebug = false) =>
-            exprCache.GetOrAdd((translator, expr), e => {
+        public static string GetPathFromExpression(JavascriptTranslator translator,
+            LambdaExpression expr,
+            bool isDebug = false)
+        {
+            expr = (LambdaExpression)new LocalVariableExpansionVisitor().Visit(expr);
+            return exprCache.GetOrAdd((translator, expr), e => {
                 var dataContext = DataContextStack.Create(e.expression.Parameters.Single().Type);
                 var expression = ExpressionUtils.Replace(e.expression, BindingExpressionBuilder.GetParameters(dataContext).First(p => p.Name == "_this"));
                 var jsast = translator.CompileToJavascript(expression, dataContext);
                 var pcode = BindingPropertyResolvers.FormatJavascript(jsast, niceMode: isDebug, nullChecks: false);
                 return JavascriptTranslator.FormatKnockoutScript(pcode, allowDataGlobal: true);
             });
+        }
+
+        private class LocalVariableExpansionVisitor : ExpressionVisitor
+        {
+            protected override Expression VisitMember(MemberExpression node)
+            {
+                var localValue = Expand(node);
+                if (localValue != null)
+                {
+                    return Expression.Constant(localValue, node.Type);
+                }
+                return base.VisitMember(node);
+            }
+
+            private object Expand(Expression current)
+            {
+                if (current is ConstantExpression constant)
+                {
+                    return constant.Value;
+                }
+                if (!(current is MemberExpression member))
+                {
+                    return null;
+                }
+
+                var inner = Expand(member.Expression);
+                if (inner == null)
+                {
+                    return null;
+                }
+
+                if (member.Member is FieldInfo field)
+                {
+                    return field.GetValue(inner);
+                }
+                if (member.Member is PropertyInfo property)
+                {
+                    return property.GetValue(inner);
+                }
+
+                return null;
+            }
+        }
     }
 }

@@ -64,8 +64,7 @@ namespace DotVVM.Framework.Controls
         protected virtual void RenderGroupNameAttribute(IHtmlWriter writer)
         {
             var group = new KnockoutBindingGroup();
-            group.Add("name", this, GroupNameProperty, () =>
-            {
+            group.Add("name", this, GroupNameProperty, () => {
                 writer.AddAttribute("name", GroupName);
             });
             writer.AddKnockoutDataBind("attr", group);
@@ -79,8 +78,7 @@ namespace DotVVM.Framework.Controls
 
         protected virtual void RenderCheckedValueAttribute(IHtmlWriter writer)
         {
-            writer.AddKnockoutDataBind("checkedValue", this, CheckedValueProperty, () =>
-            {
+            writer.AddKnockoutDataBind("checkedValue", this, CheckedValueProperty, () => {
                 var checkedValue = (CheckedValue ?? string.Empty).ToString();
                 if (!string.IsNullOrEmpty(checkedValue))
                 {
@@ -111,12 +109,15 @@ namespace DotVVM.Framework.Controls
         public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
         {
             var itemType = control.GetValue(CheckedItemProperty)?.GetResultType();
+            var nonNullItemType = itemType?.IsNullable() == true
+                ? itemType.GetGenericArguments()[0]
+                : itemType;
             var valueType = control.GetValue(CheckedValueProperty)?.GetResultType();
-
-            if (itemType != null && valueType != null && valueType != itemType && valueType.UnwrapNullableType() != itemType)
+            if (nonNullItemType != null && valueType != null && nonNullItemType != valueType)
             {
                 yield return new ControlUsageError(
-                    $"CheckedItem type \'{itemType}\' must be same as CheckedValue type \'{valueType}.",
+                    $"CheckedItem type \'{itemType}\' must be the same as or a nullable " +
+                    $"variant of the CheckedValue type \'{valueType}\'.",
                     control.GetValue(CheckedItemProperty).DothtmlNode,
                     control.GetValue(CheckedValueProperty).DothtmlNode
                 );

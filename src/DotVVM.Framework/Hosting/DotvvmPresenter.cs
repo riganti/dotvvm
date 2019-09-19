@@ -78,6 +78,13 @@ namespace DotVVM.Framework.Hosting
             {
                 context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
             }
+            catch (CorruptedCsrfTokenException ex)
+            {
+                // TODO this should be done by IOutputRender or something like that. IOutputRenderer does not support that, so should we make another IJsonErrorOutputWriter?
+                context.HttpContext.Response.StatusCode = 400;
+                context.HttpContext.Response.ContentType = "application/json; charset=utf-8";
+                await context.HttpContext.Response.WriteAsync(JsonConvert.SerializeObject(new { action = "invalidCsrfToken", message = ex.Message }));
+            }
             catch (DotvvmControlException ex)
             {
                 if (ex.FileName != null)
@@ -239,7 +246,7 @@ namespace DotVVM.Framework.Hosting
                 await requestTracer.TraceEvent(RequestTracingConstants.PreRenderCompleted, context);
 
                 // generate CSRF token if required
-                if (string.IsNullOrEmpty(context.CsrfToken))
+                if (string.IsNullOrEmpty(context.CsrfToken) && !context.Configuration.ExperimentalFeatures.LazyCsrfToken.IsEnabledForRoute(context.Route.RouteName))
                 {
                     context.CsrfToken = CsrfProtector.GenerateToken(context);
                 }
@@ -271,6 +278,7 @@ namespace DotVVM.Framework.Hosting
 
                 foreach (var f in requestFilters) await f.OnPageRenderedAsync(context);
             }
+            catch (CorruptedCsrfTokenException e) { throw; }
             catch (DotvvmInterruptRequestExecutionException) { throw; }
             catch (DotvvmHttpException) { throw; }
             catch (Exception ex)
@@ -317,7 +325,7 @@ namespace DotVVM.Framework.Hosting
                 JObject postData;
                 using (var jsonReader = new JsonTextReader(new StreamReader(context.HttpContext.Request.Body)))
                 {
-                    postData = JObject.Load(jsonReader);
+                    postData = await JObject.LoadAsync(jsonReader);
                 }
 
                 // validate csrf token

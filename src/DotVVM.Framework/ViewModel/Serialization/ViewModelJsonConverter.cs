@@ -70,7 +70,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             if (reader.TokenType == JsonToken.Null)
             {
                 if (objectType.GetTypeInfo().IsValueType)
-                    throw new InvalidOperationException(string.Format("Recieved NULL for value type. Path: " + reader.Path));
+                    throw new InvalidOperationException(string.Format("Received NULL for value type. Path: " + reader.Path));
 
                 return null;
             }

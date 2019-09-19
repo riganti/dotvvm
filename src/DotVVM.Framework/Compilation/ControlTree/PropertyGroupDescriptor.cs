@@ -106,7 +106,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 return new Tuple<Type, MethodBase>(collectionCtors[0].valueType, collectionCtors[0].ctor);
             }
 
-            throw new NotSupportedException($"Could not initialize {declaringType.Name} as proeprty group collection - no suitable constructor found");
+            throw new NotSupportedException($"Could not initialize {declaringType.Name} as property group collection - no suitable constructor found");
         }
 
         private static ConcurrentDictionary<string, DotvvmPropertyGroup > descriptorDictionary = new ConcurrentDictionary<string, DotvvmPropertyGroup >();

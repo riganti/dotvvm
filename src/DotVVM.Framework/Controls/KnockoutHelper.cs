@@ -136,7 +136,7 @@ namespace DotVVM.Framework.Controls
 
                     options.IsOnChange ? "\"suppressOnUpdating\"" : null,
 
-                    GenerateConcurrencyModeHandler(control)
+                    GenerateConcurrencyModeHandler(propertyName, control)
                 );
             }
             string generatedPostbackHandlers = null;
@@ -251,14 +251,36 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        static string GenerateConcurrencyModeHandler(DotvvmBindableObject obj)
+        static string GenerateConcurrencyModeHandler(string propertyName, DotvvmBindableObject obj)
         {
             var mode = (obj.GetValue(PostBack.ConcurrencyProperty) as PostbackConcurrencyMode?) ?? PostbackConcurrencyMode.Default;
-            var queueName = obj.GetValueRaw(PostBack.ConcurrencyQueueProperty) ?? "default";
-            if (mode == PostbackConcurrencyMode.Default && "default".Equals(queueName)) return null;
+
+            // determine concurrency queue
+            string queueName = null;
+            var queueSettings = obj.GetValueRaw(PostBack.ConcurrencyQueueSettingsProperty) as ConcurrencyQueueSettingsCollection;
+            if (queueSettings != null)
+            {
+                queueName = queueSettings.FirstOrDefault(q => string.Equals(q.EventName, propertyName, StringComparison.OrdinalIgnoreCase))?.ConcurrencyQueue;
+            }
+            if (queueName == null)
+            {
+                queueName = obj.GetValue(PostBack.ConcurrencyQueueProperty) as string ?? "default";
+            }
+
+            // return the handler script
+            if (mode == PostbackConcurrencyMode.Default && "default".Equals(queueName))
+            {
+                return null;
+            }
             var handlerName = $"concurrency-{mode.ToString().ToLower()}";
-            if ("default".Equals(queueName)) return JsonConvert.ToString(handlerName);
-            return $"[{JsonConvert.ToString(handlerName)},{GenerateHandlerOptions(obj, new Dictionary<string, object> { ["q"] = queueName })}]";
+            if ("default".Equals(queueName))
+            {
+                return JsonConvert.ToString(handlerName);
+            }
+            else
+            {
+                return $"[{JsonConvert.ToString(handlerName)},{GenerateHandlerOptions(obj, new Dictionary<string, object> { ["q"] = queueName })}]";
+            }
         }
 
         public static IEnumerable<string> GetContextPath(DotvvmBindableObject control)
@@ -332,7 +354,7 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
-        /// Returns Javascript expression that represents the property value (even if the property contains hardcoded value)
+        /// Returns Javascript expression that represents the property value (even if the property contains hard-coded value)
         /// </summary>
         public static string GetKnockoutBindingExpression(this DotvvmBindableObject obj, DotvvmProperty property)
         {

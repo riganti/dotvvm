@@ -1,3 +1,4 @@
+using DotVVM.Framework.Utils;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Validation;
@@ -34,23 +35,29 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<object, Selector>(t => t.SelectedValue);
 
         [ControlUsageValidator]
-        public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
+        public static new IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
         {
-            var collectionType = control.GetValue(DataSourceProperty)?.GetResultType().UnwrapNullableType();
-            var itemKeyType = control.GetValue(ItemValueBindingProperty)?.GetResultType();
-            var valueType = control.GetValue(SelectedValueProperty)?.GetResultType();
-            var collectionValueType = itemKeyType ?? collectionType?.Apply(ReflectionUtils.GetEnumerableType);
-
-            if (!control.HasProperty(ItemValueBindingProperty) && control.HasProperty(ValueMemberProperty))
-                collectionValueType = null; // When ValueMember is used, we can't check anything
-
-            if (collectionValueType != null && valueType != null && valueType != collectionValueType && valueType.UnwrapNullableType() != collectionValueType)
+            if (!(control.Properties.GetValueOrDefault(Selector.SelectedValueProperty) is ResolvedPropertyBinding selectedValueBinding)) yield break;
+            if (control.Properties.GetValueOrDefault(SelectorBase.ItemValueBindingProperty) is ResolvedPropertyBinding itemValueBinding)
             {
-                yield return new ControlUsageError(
-                    $"Type of items in {(itemKeyType == null ? "DataSource" : "ItemKeyBinding")} \'{collectionValueType}\' must be same as SelectedValue type \'{valueType}\'.",
-                    control.GetValue(SelectedValueProperty).DothtmlNode,
-                    control.GetValue(DataSourceProperty).DothtmlNode
-                );
+                var to = selectedValueBinding.Binding.ResultType;
+                var from = itemValueBinding.Binding.ResultType;
+                if (!from.IsAssignableTo(to))
+                {
+                    yield return new ControlUsageError($"Type '{from.FullName}' is not assignable to '{to.FullName}'.", selectedValueBinding.Binding.DothtmlNode);
+                }
+            }
+            else
+            {
+                if (control.Properties.GetValueOrDefault(ItemsControl.DataSourceProperty) is ResolvedPropertyBinding dataSourceBinding)
+                {
+                    var to = selectedValueBinding.Binding.ResultType;
+                    var from = dataSourceBinding.Binding.ResultType.TryGetArrayElementOrIEnumerableType();
+                    if (!from.IsAssignableTo(to) && !(to.IsEnumTypeDescriptor() && from.IsStringTypeDescriptor()))
+                    {
+                        yield return new ControlUsageError($"Type '{from.FullName}' is not assignable to '{to.FullName}'.", selectedValueBinding.Binding.DothtmlNode);
+                    }
+                }
             }
         }
     }

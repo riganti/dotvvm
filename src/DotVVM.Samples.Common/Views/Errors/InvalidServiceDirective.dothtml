@@ -1,0 +1,12 @@
+﻿@viewModel System.Object
+@service TestService = DotVVM.InvalidNamespace.NonExistingService
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>A page with invalid @service directive</title>
+</head>
+<body>
+    <h1>A page with invalid @service directive</h1>
+</body>
+</html>

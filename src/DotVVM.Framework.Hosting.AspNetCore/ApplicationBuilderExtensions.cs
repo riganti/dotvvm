@@ -63,8 +63,8 @@ namespace Microsoft.AspNetCore.Builder
                 app.UseMiddleware<DotvvmErrorPageMiddleware>();
             }
 
-            app.UseMiddleware<DotvvmMiddleware>(config, new List<IMiddleware>
-            {
+            app.UseMiddleware<DotvvmMiddleware>(config, new List<IMiddleware> {
+                ActivatorUtilities.CreateInstance<DotvvmCsrfTokenMiddleware>(config.ServiceProvider),
                 ActivatorUtilities.CreateInstance<DotvvmLocalResourceMiddleware>(app.ApplicationServices),
                 DotvvmFileUploadMiddleware.TryCreate(app.ApplicationServices),
                 new DotvvmReturnedFileMiddleware(),

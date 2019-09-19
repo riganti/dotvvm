@@ -1,5 +1,6 @@
 ﻿using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
+using Newtonsoft.Json;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -18,7 +19,7 @@ namespace DotVVM.Framework.ResourceManagement
 
             writer.AddAttribute("type", "text/javascript");
             writer.RenderBeginTag("script");
-            writer.WriteUnencodedText($"dotvvm__polyfillUrl = '{resourceUrl}';");
+            writer.WriteUnencodedText($"dotvvm__polyfillUrl = {JsonConvert.ToString(resourceUrl, '\'', StringEscapeHandling.EscapeHtml)};");
             writer.RenderEndTag();
         }
     }

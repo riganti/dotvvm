@@ -54,7 +54,7 @@ namespace DotVVM.Framework.Security
         public void VerifyToken(IDotvvmRequestContext context, string token)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
-            if (string.IsNullOrWhiteSpace(token)) throw new SecurityException("CSRF protection token is missing.");
+            if (string.IsNullOrWhiteSpace(token)) throw new CorruptedCsrfTokenException("CSRF protection token is missing.");
 
             // Construct protector with purposes
             var protector = this.protectionProvider.CreateProtector(PURPOSE_TOKEN);
@@ -69,7 +69,7 @@ namespace DotVVM.Framework.Security
             catch (Exception ex)
             {
                 // Incorrect Base64 formatting of crypto protection error
-                throw new SecurityException("CSRF protection token is invalid.", ex);
+                throw new CorruptedCsrfTokenException("CSRF protection token is invalid.", ex);
             }
 
             // Get SID from cookie and compare with token one
@@ -104,7 +104,7 @@ namespace DotVVM.Framework.Security
                     // Incorrect Base64 formatting of crypto protection error
                     // Generate new one or thow error if can't
                     if (!canGenerate)
-                        throw new SecurityException("Value of the SessionID cookie is corrupted or has been tampered with.", ex);
+                        throw new CorruptedCsrfTokenException("Value of the SessionID cookie is corrupted or has been tampered with.", ex);
                     // else suppress error and generate new SID
                 }
             }
@@ -136,7 +136,7 @@ namespace DotVVM.Framework.Security
             }
             else
             {
-                throw new SecurityException("SessionID cookie is missing, so can't verify CSRF token.");
+                throw new CorruptedCsrfTokenException("SessionID cookie is missing, so can't verify CSRF token.");
             }
         }
 

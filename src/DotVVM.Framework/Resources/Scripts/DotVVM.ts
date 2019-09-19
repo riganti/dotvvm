@@ -106,7 +106,7 @@ class DotVVM {
         before: ["setIsPostbackRunning", "concurrency-default", "concurrency-queue", "concurrency-deny"],
         execute: <T>(callback: () => Promise<T>, options: PostbackOptions) => {
             if (options.sender && dotvvm.isPostBackProhibited(options.sender)) {
-                return Promise.reject({ type: "handler", handler: this, message: "PostBack is prohitibited on disabled element" })
+                return Promise.reject({ type: "handler", handler: this, message: "PostBack is prohibited on disabled element" })
             }
             else return callback()
         }
@@ -155,9 +155,11 @@ class DotVVM {
     private commonConcurrencyHandler = <T>(promise: Promise<PostbackCommitFunction>, options: PostbackOptions, queueName: string): Promise<PostbackCommitFunction> => {
         const queue = this.getPostbackQueue(queueName)
         queue.noRunning++
+        dotvvm.updateProgressChangeCounter(dotvvm.updateProgressChangeCounter() + 1);
 
         const dispatchNext = () => {
             queue.noRunning--;
+            dotvvm.updateProgressChangeCounter(dotvvm.updateProgressChangeCounter() - 1);
             if (queue.queue.length > 0) {
                 const callback = queue.queue.shift()!
                 window.setTimeout(callback, 0)
@@ -217,6 +219,7 @@ class DotVVM {
 
     public useHistoryApiSpaNavigation: boolean;
     public isPostbackRunning = ko.observable(false);
+    public updateProgressChangeCounter = ko.observable(0);
 
     public init(viewModelName: string, culture: string): void {
         this.addKnockoutBindingHandlers();
@@ -365,35 +368,59 @@ class DotVVM {
         return this.postBackCounter === currentPostBackCounter;
     }
 
-    public staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback = _ => { }, errorCallback = (xhr: XMLHttpRequest, error?) => { }) {
-        var data = this.serialization.serialize({
-            "args": args,
-            "command": command,
-            "$csrfToken": this.viewModels[viewModelName].viewModel.$csrfToken
-        });
-        dotvvm.events.staticCommandMethodInvoking.trigger(data);
+    private async fetchCsrfToken(viewModelName: string): Promise<string> {
+        const vm = this.viewModels[viewModelName].viewModel
+        if (vm.$csrfToken == null) {
+            const response = await fetch((this.viewModels[viewModelName].virtualDirectory || "") + "/___dotvvm-create-csrf-token___")
+            if (response.status != 200)
+                throw new Error(`Can't fetch CSRF token: ${response.statusText}`)
+            vm.$csrfToken = await response.text()
+        }
+        return vm.$csrfToken
+    }
 
-        this.postJSON(<string>this.viewModels[viewModelName].url, "POST", ko.toJSON(data), response => {
-            try {
-                this.isViewModelUpdating = true;
-                const result = JSON.parse(response.responseText);
-                dotvvm.events.staticCommandMethodInvoked.trigger({ ...data, result, xhr: response });
-                callback(result);
-            } catch (error) {
-                dotvvm.events.staticCommandMethodFailed.trigger({ ...data, xhr: response, error: error })
-                errorCallback(response, error);
-            } finally {
-                this.isViewModelUpdating = false;
-            }
-        }, (xhr) => {
-            this.events.error.trigger(new DotvvmErrorEventArgs(sender, this.viewModels[viewModelName].viewModel, viewModelName, xhr, null));
-            console.warn(`StaticCommand postback failed: ${xhr.status} - ${xhr.statusText}`, xhr);
-            errorCallback(xhr);
-            dotvvm.events.staticCommandMethodFailed.trigger({ ...data, xhr })
-        },
+    public staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback = _ => { }, errorCallback = (errorInfo: {xhr: XMLHttpRequest, error?: any}) => { }) {
+        (async () => {
+            var data = this.serialization.serialize({
+                args,
+                command,
+                "$csrfToken": await this.fetchCsrfToken(viewModelName)
+            });
+            dotvvm.events.staticCommandMethodInvoking.trigger(data);
+
+            this.postJSON(<string>this.viewModels[viewModelName].url, "POST", ko.toJSON(data), response => {
+                try {
+                    this.isViewModelUpdating = true;
+                    const result = JSON.parse(response.responseText);
+                    dotvvm.events.staticCommandMethodInvoked.trigger({ ...data, result, xhr: response });
+                    callback(result);
+                } catch (error) {
+                    dotvvm.events.staticCommandMethodFailed.trigger({ ...data, xhr: response, error: error })
+                    errorCallback({ xhr: response, error });
+                } finally {
+                    this.isViewModelUpdating = false;
+                }
+            }, (xhr) => {
+                if (/^application\/json(;|$)/.test(xhr.getResponseHeader("Content-Type")!)) {
+                    const errObject = JSON.parse(xhr.responseText)
+
+                    if (errObject.action === "invalidCsrfToken") {
+                        // ok, renew the token and try again. Do that before any event is triggered
+                        this.viewModels[viewModelName].viewModel.$csrfToken = null
+                        console.log("Resending postback due to invalid CSRF token.") // this may loop indefinitely (in some extreme case), we don't currently have any loop detection mechanism, so at least we can log it.
+                        this.staticCommandPostback(viewModelName, sender, command, args, callback, errorCallback)
+                        return;
+                    }
+                }
+                this.events.error.trigger(new DotvvmErrorEventArgs(sender, this.viewModels[viewModelName].viewModel, viewModelName, xhr, null));
+                console.warn(`StaticCommand postback failed: ${xhr.status} - ${xhr.statusText}`, xhr);
+                errorCallback({ xhr });
+                dotvvm.events.staticCommandMethodFailed.trigger({ ...data, xhr })
+            },
             xhr => {
                 xhr.setRequestHeader("X-PostbackType", "StaticCommand");
             });
+        })()
     }
 
     private processPassedId(id: any, context: any): string {
@@ -496,8 +523,9 @@ class DotVVM {
     }
 
     public postbackCore(options: PostbackOptions, path: string[], command: string, controlUniqueId: string, context: any, commandArgs?: any[]) {
-        return new Promise<() => Promise<DotvvmAfterPostBackEventArgs>>((resolve, reject) => {
+        return new Promise<() => Promise<DotvvmAfterPostBackEventArgs>>(async (resolve, reject) => {
             const viewModelName = options.viewModelName!;
+            await this.fetchCsrfToken(viewModelName)
             const viewModel = this.viewModels[viewModelName].viewModel;
 
             this.lastStartedPostack = options.postbackId
@@ -579,6 +607,17 @@ class DotVVM {
                     });
                 }));
             }, xhr => {
+                if (/^application\/json(;|$)/.test(xhr.getResponseHeader("Content-Type")!)) {
+                    const errObject = JSON.parse(xhr.responseText)
+
+                    if (errObject.action === "invalidCsrfToken") {
+                        // ok, renew the token and try again. Do that before any event is triggered
+                        this.viewModels[viewModelName].viewModel.$csrfToken = null
+                        console.log("Resending postback due to invalid CSRF token.") // this may loop indefinitely (in some extreme case), we don't currently have any loop detection mechanism, so at least we can log it.
+                        this.postbackCore(options, path, command, controlUniqueId, context, commandArgs).then(resolve, reject)
+                        return;
+                    }
+                }
                 reject({ type: 'network', options: options, args: new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, xhr, options.postbackId) });
             });
         });
@@ -673,46 +712,48 @@ class DotVVM {
             callback();
             return;
         }
-        var el = <any>elements[offset];
+        var element = elements[offset];
         var waitForScriptLoaded = false;
-        if (el.tagName.toLowerCase() == "script") {
-            // create the script element
+        if (element.tagName.toLowerCase() == "script") {
+            var originalScript = <HTMLScriptElement>element;
             var script = <HTMLScriptElement>document.createElement("script");
-            if (el.src) {
-                script.src = el.src;
+            if (originalScript.src) {
+                script.src = originalScript.src;
                 waitForScriptLoaded = true;
             }
-            if (el.type) {
-                script.type = el.type;
+            if (originalScript.type) {
+                script.type = originalScript.type;
             }
-            if (el.text) {
-                script.text = el.text;
+            if (originalScript.text) {
+                script.text = originalScript.text;
             }
-            if (el.id) {
-                script.id = el.id;
+            if (element.id) {
+                script.id = element.id;
             }
-            el = script;
+            element = script;
         }
-        else if (el.tagName.toLowerCase() == "link") {
+        else if (element.tagName.toLowerCase() == "link") {
             // create link
+            var originalLink = <HTMLLinkElement>element;
             var link = <HTMLLinkElement>document.createElement("link");
-            if (el.href) {
-                link.href = el.href;
+            if (originalLink.href) {
+                link.href = originalLink.href;
             }
-            if (el.rel) {
-                link.rel = el.rel;
+            if (originalLink.rel) {
+                link.rel = originalLink.rel;
             }
-            if (el.type) {
-                link.type = el.type;
+            if (originalLink.type) {
+                link.type = originalLink.type;
             }
-            el = link;
+            element = link;
         }
 
         // load next script when this is finished
         if (waitForScriptLoaded) {
-            el.onload = () => this.loadResourceElements(elements, offset + 1, callback);
+            element.addEventListener("load", () => this.loadResourceElements(elements, offset + 1, callback));
+            element.addEventListener("error", () => this.loadResourceElements(elements, offset + 1, callback));
         }
-        document.head.appendChild(el);
+        document.head.appendChild(element);
         if (!waitForScriptLoaded) {
             this.loadResourceElements(elements, offset + 1, callback);
         }
@@ -1149,43 +1190,65 @@ class DotVVM {
             }
         }
 
+        const makeUpdatableChildrenContextHandler = (
+            makeContextCallback: (bindingContext: KnockoutBindingContext, value: any) => any,
+            shouldDisplay: (value: any) => boolean
+            ) => (element: Node, valueAccessor, _allBindings, _viewModel, bindingContext: KnockoutBindingContext) => {
+            if (!bindingContext) throw new Error()
+
+            var savedNodes : Node[] | undefined;
+            ko.computed(function() {
+                var rawValue = valueAccessor();
+
+                // Save a copy of the inner nodes on the initial update, but only if we have dependencies.
+                if (!savedNodes && ko.computedContext.getDependenciesCount()) {
+                    savedNodes = ko.utils.cloneNodes(ko.virtualElements.childNodes(element), true /* shouldCleanNodes */);
+                }
+
+                if (shouldDisplay(rawValue)) {
+                    if (savedNodes) {
+                        ko.virtualElements.setDomNodeChildren(element, ko.utils.cloneNodes(savedNodes));
+                    }
+                    ko.applyBindingsToDescendants(makeContextCallback(bindingContext, rawValue), element);
+                } else {
+                    ko.virtualElements.emptyNode(element);
+                }
+
+            }, null, { disposeWhenNodeIsRemoved: element });
+            return { controlsDescendantBindings: true } // do not apply binding again
+        }
+
         const foreachCollectionSymbol = "$foreachCollectionSymbol"
         ko.virtualElements.allowedBindings["dotvvm-SSR-foreach"] = true
         ko.bindingHandlers["dotvvm-SSR-foreach"] = {
-            init(element, valueAccessor, _allBindings, _viewModel, bindingContext) {
-                if (!bindingContext) throw new Error()
-                var value = valueAccessor()
-                var innerBindingContext = bindingContext.extend({ [foreachCollectionSymbol]: value.data })
-                element.innerBindingContext = innerBindingContext
-                ko.applyBindingsToDescendants(innerBindingContext, element)
-                return { controlsDescendantBindings: true } // do not apply binding again
-
-            }
+            init: makeUpdatableChildrenContextHandler(
+                (bindingContext, rawValue) => bindingContext.extend({ [foreachCollectionSymbol]: rawValue.data }),
+                v => v.data != null)
         }
         ko.virtualElements.allowedBindings["dotvvm-SSR-item"] = true
         ko.bindingHandlers["dotvvm-SSR-item"] = {
             init(element, valueAccessor, _allBindings, _viewModel, bindingContext) {
                 if (!bindingContext) throw new Error()
-                var index = valueAccessor()
                 var collection = bindingContext[foreachCollectionSymbol]
-                var innerBindingContext = bindingContext.createChildContext(() => ko.unwrap((ko.unwrap(collection) || [])[index])).extend({$index: ko.pureComputed(() => index)})
+                var innerBindingContext = bindingContext.createChildContext(() => {
+                    return ko.unwrap((ko.unwrap(collection) || [])[valueAccessor()]);
+                }).extend({$index: ko.pureComputed(valueAccessor)});
                 element.innerBindingContext = innerBindingContext
                 ko.applyBindingsToDescendants(innerBindingContext, element)
                 return { controlsDescendantBindings: true } // do not apply binding again
+            },
+            update(element) {
+                if (element.seenUpdate)
+                    console.error(`dotvvm-SSR-item binding did not expect to see a update`);
+                element.seenUpdate = 1;
             }
         }
         ko.virtualElements.allowedBindings["withGridViewDataSet"] = true;
         ko.bindingHandlers["withGridViewDataSet"] = {
-            init: (element, valueAccessor, allBindings, viewModel, bindingContext) => {
-                if (!bindingContext) throw new Error();
-                var value = valueAccessor();
-                var innerBindingContext = bindingContext.extend({ $gridViewDataSet: value, [foreachCollectionSymbol]: dotvvm.evaluator.getDataSourceItems(value) });
-                element.innerBindingContext = innerBindingContext;
-                ko.applyBindingsToDescendants(innerBindingContext, element);
-                return { controlsDescendantBindings: true }; // do not apply binding again
-            },
-            update(element, valueAccessor, allBindings, viewModel, bindingContext) {
-            }
+            init: makeUpdatableChildrenContextHandler(
+                (bindingContext, value) => bindingContext.extend({ $gridViewDataSet: value, [foreachCollectionSymbol]: dotvvm.evaluator.getDataSourceItems(value) }),
+                _ => true
+            )
         };
 
         ko.bindingHandlers['dotvvmEnable'] = {
@@ -1226,6 +1289,10 @@ class DotVVM {
             init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
                 element.style.display = "none";
                 var delay = element.getAttribute("data-delay");
+
+                let includedQueues = (element.getAttribute("data-included-queues") || "").split(",").filter(i => i.length > 0);
+                let excludedQueues = (element.getAttribute("data-excluded-queues") || "").split(",").filter(i => i.length > 0);
+
                 var timeout;
                 var running = false;
 
@@ -1246,8 +1313,21 @@ class DotVVM {
                     element.style.display = "none";
                 }
 
-                dotvvm.isPostbackRunning.subscribe(e => {
-                    if (e) {
+                dotvvm.updateProgressChangeCounter.subscribe(e => {
+                    let shouldRun = false;
+
+                    if (includedQueues.length === 0) {
+                        for (let queue in dotvvm.postbackQueues) {
+                            if (excludedQueues.indexOf(queue) < 0 && dotvvm.postbackQueues[queue].noRunning > 0) {
+                                shouldRun = true;
+                                break;
+                            }
+                        }
+                    } else {
+                        shouldRun = includedQueues.some(q => dotvvm.postbackQueues[q] && dotvvm.postbackQueues[q].noRunning > 0);
+                    }
+
+                    if (shouldRun) {
                         if (!running) {
                             show();
                         }

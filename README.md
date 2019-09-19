@@ -1,10 +1,14 @@
-DotVVM: Component-based MVVM framework for ASP.NET
-=======================
+![DotVVM](https://www.dotvvm.com/Content/img/logos/logo-full.png) 
+
+Component-based MVVM framework for ASP.NET
+==================
 
 [![license](https://img.shields.io/github/license/riganti/dotvvm.svg?maxAge=2592000?style=plastic)]()
 [![Join the chat at https://gitter.im/riganti/dotvvm](https://badges.gitter.im/riganti/dotvvm.svg)](https://gitter.im/riganti/dotvvm)
 
-![TFS Build: ](https://rigantitfs.visualstudio.com/_apis/public/build/definitions/8dfab054-d6f0-471d-88c2-4f230395cdd1/4/badge)
+| ASP.NET Core 2.2          | ASP.NET Core 3.0          | OWIN                |
+|---------------------------|---------------------------|---------------------|
+| [![Build status: ASP.NET Core 2.2](https://dev.azure.com/rigantitfs/DotVVM/_apis/build/status/CI/%5B2.1.0%5D%20DotVVM%20Framework%20-%20AspNet%20Core)](https://dev.azure.com/rigantitfs/DotVVM/_build/latest?definitionId=122) | [![Build status: ASP.NET Core 3.0](https://dev.azure.com/rigantitfs/DotVVM/_apis/build/status/CI/%5B2.1.0%5D%20DotVVM%20Framework%20-%20AspNet%20Core%20Latest)](https://dev.azure.com/rigantitfs/DotVVM/_build/latest?definitionId=208) | [![Build status: OWIN](https://dev.azure.com/rigantitfs/DotVVM/_apis/build/status/CI/%5B2.1.0%5D%20DotVVM%20Framework%20-%20Owin)](https://dev.azure.com/rigantitfs/DotVVM/_build/latest?definitionId=181) | 
 
 [DotVVM](https://www.dotvvm.com) lets you build interactive web UIs with **just C# and HTML** using the **MVVM** approach. 
 
@@ -86,7 +90,7 @@ There is also [dotnet new template](https://www.dotvvm.com/docs/tutorials/how-to
 
 |                         | ASP.NET Core              | OWIN                |
 |-------------------------|---------------------------|---------------------|
-| Current stable version  | `DotVVM.AspNetCore 2.2.0` | `DotVVM.Owin 2.2.0` |
+| Current stable version  | `DotVVM.AspNetCore 2.3`   | `DotVVM.Owin 2.3`   |
 | Minimum runtime version | `.NET Core 2.0`           | `.NET 4.5.1`        | 
 | Minimum ASP.NET version | `ASP.NET Core 2.0`        | `OWIN 3.0.1`        |
 

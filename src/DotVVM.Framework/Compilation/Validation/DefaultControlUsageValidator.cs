@@ -59,12 +59,12 @@ namespace DotVVM.Framework.Compilation.Validation
 
         protected virtual MethodInfo[] FindMethods(Type type)
         {
+            if (type == typeof(object)) return new MethodInfo[0];
             var methods = type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
                 .Where(m => m.IsDefined(typeof(ControlUsageValidatorAttribute)))
                 .ToArray();
-            if (methods.Length > 0) return methods;
-            else if (type == typeof(object)) return new MethodInfo[0];
-            else return FindMethods(type.GetTypeInfo().BaseType);
+            var ancestorMethods = FindMethods(type.GetTypeInfo().BaseType);
+            return ancestorMethods.Concat(methods).ToArray();
         }
 
         protected virtual Type GetControlType(IControlResolverMetadata metadata)

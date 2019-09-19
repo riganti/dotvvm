@@ -3,6 +3,7 @@ using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Samples.BasicSamples;
+using DotVVM.Samples.BasicSamples.Controls;
 using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand;
 using DotVVM.Samples.Common.Utilities;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
@@ -42,18 +43,47 @@ namespace DotVVM.Samples.Common
             resources.Register("ControlSamples_SpaContentPlaceHolder_MasterPageResource", new ScriptResource(new FileResourceLocation("Scripts/testResource2.js")));
 
             resources.Register("FeatureSamples_Resources_CdnUnavailableResourceLoad", new ScriptResource() {
-                Location = new UrlResourceLocation("http://unavailable.local/testResource.js"),
+                Location = new UrlResourceLocation("~/nonexistentResource.js"),
                 LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new FileResourceLocation("~/Scripts/testResource.js"))
             });
 
             resources.Register("FeatureSamples_Resources_CdnScriptPriority", new ScriptResource {
+                Location = new UrlResourceLocation("/Scripts/testResource.js"),
+                LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new FileResourceLocation("~/Scripts/testResource2.js"))
+            });
+
+            resources.Register("FeatureSamples_Resources_RequiredOnPostback", new ScriptResource() {
+                Location = new UrlResourceLocation("~/nonexistentResource.js"),
+                LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new FileResourceLocation("~/Scripts/testResource.js"))
+            });
+
+            resources.Register("Errors_InvalidLocationFallback", new ScriptResource {
                 Location = new FileResourceLocation("~/Scripts/testResource.js"),
                 LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new FileResourceLocation("~/Scripts/testResource2.js"))
             });
 
-            resources.Register("extenders", new ScriptResource
-            {
+            // resource that triggers the circular dependency check in the render phase
+            var circular = new ScriptResource { Location = new FileResourceLocation("~/Scripts/testResource.js") };
+            resources.Register("Errors_ResourceCircularDependency", circular);
+            var circular2 = new ScriptResource {
+                Location = new FileResourceLocation("~/Scripts/testResource2.js"),
+                Dependencies = new [] { "Errors_ResourceCircularDependency" }
+            };
+            resources.Register("Errors_ResourceCircularDependency2", circular2);
+            circular.Dependencies = new[] { "Errors_ResourceCircularDependency" };
+            
+
+            resources.Register("extenders", new ScriptResource {
                 Location = new FileResourceLocation("Scripts/ClientExtenders.js")
+            });
+
+            resources.Register(nameof(StopwatchPostbackHandler), new ScriptResource {
+                Location = new FileResourceLocation($"~/Scripts/{nameof(StopwatchPostbackHandler)}.js"),
+                Dependencies = new[] { "dotvvm.internal" }
+            });
+            resources.Register(nameof(ErrorCountPostbackHandler), new ScriptResource {
+                Location = new FileResourceLocation($"~/Scripts/{nameof(ErrorCountPostbackHandler)}.js"),
+                Dependencies = new[] { "dotvvm.internal" }
             });
 
             // dev files

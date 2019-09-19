@@ -75,9 +75,15 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         }
 
+        internal static int GetIndex(DotvvmBindableObject c) =>
+            (c.GetAllAncestors(true, false)
+            .OfType<DataItemContainer>()
+            .FirstOrDefault() ?? throw new DotvvmControlException(c, "Could not find ancestor DataItemContainer that stores the current collection index."))
+            .DataItemIndex ?? throw new DotvvmControlException(c, "Nearest DataItemContainer does have the collection index specified.");
+
         public override Expression GetServerEquivalent(Expression controlParameter)
         {
-            return ExpressionUtils.Replace((DotvvmBindableObject c) => c.GetAllAncestors(true, false).OfType<DataItemContainer>().First().DataItemIndex.Value, controlParameter);
+            return ExpressionUtils.Replace((DotvvmBindableObject c) => GetIndex(c), controlParameter);
         }
 
         public override JsExpression GetJsTranslation(JsExpression dataContext)
@@ -115,7 +121,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         }
 
         public override Expression GetServerEquivalent(Expression controlParameter) =>
-            ExpressionUtils.Replace((DotvvmBindableObject c) => new BindingCollectionInfo(c.GetAllAncestors(true, false).OfType<DataItemContainer>().First().DataItemIndex.Value), controlParameter);
+            ExpressionUtils.Replace((DotvvmBindableObject c) => new BindingCollectionInfo(CurrentCollectionIndexExtensionParameter.GetIndex(c)), controlParameter);
 
         public override JsExpression GetJsTranslation(JsExpression dataContext)
         {

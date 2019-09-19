@@ -78,6 +78,7 @@ namespace Owin
             }
 
             app.Use<DotvvmMiddleware>(config, new List<IMiddleware> {
+                ActivatorUtilities.CreateInstance<DotvvmCsrfTokenMiddleware>(config.ServiceProvider),
                 ActivatorUtilities.CreateInstance<DotvvmLocalResourceMiddleware>(config.ServiceProvider),
                 DotvvmFileUploadMiddleware.TryCreate(config.ServiceProvider),
                 new DotvvmReturnedFileMiddleware(),

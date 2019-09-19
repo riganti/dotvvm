@@ -658,6 +658,52 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
         }
 
         [TestMethod]
+        public void DothtmlTokenizer_ElementParsing_AttributeNameStartWithSquareBracket()
+        {
+            var input = "<a [text]=\"'This is a attribute with special characters ' + (show ? 'true' : 'false')\"/>";
+
+            // parse
+            var tokenizer = new DothtmlTokenizer();
+            tokenizer.Tokenize(input);
+            CheckForErrors(tokenizer, input.Length);
+
+            var i = 0;
+            Assert.AreEqual(DothtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.Equals, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.DoubleQuote, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.DoubleQuote, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.Slash, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
+        }
+
+        [TestMethod]
+        public void DothtmlTokenizer_ElementParsing_AttributeNameStartWithRoundBracket()
+        {
+            var input = "<a (text)=\"'This is a attribute with special characters ' + (show ? 'true' : 'false')\"/>";
+
+            // parse
+            var tokenizer = new DothtmlTokenizer();
+            tokenizer.Tokenize(input);
+            CheckForErrors(tokenizer, input.Length);
+
+            var i = 0;
+            Assert.AreEqual(DothtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.Equals, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.DoubleQuote, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.DoubleQuote, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.Slash, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
+        }
+
+        [TestMethod]
         public void DothtmlTokenizer_ElementParsing_Invalid_AttributeName_MissingTagName()
         {
             var input = @"<a prefix:=''/>";
