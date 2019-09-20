@@ -119,7 +119,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
             }
 
             var allFiles = controlFiles.Concat(viewFiles).Distinct();
-            var tasks = new List<Task>();
+            var configurations = new List<SeleniumGeneratorConfiguration>();
             foreach (var file in allFiles)
             {
                 if (File.Exists(file))
@@ -132,12 +132,10 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
                     var fullTypeName = $"{dotvvmProjectMetadata.UITestProjectRootNamespace}.{PageObjectsText}.{PathHelpers.CreateTypeNameFromPath(relativeTypeName)}";
                     var targetFileName = Path.Combine(dotvvmProjectMetadata.UITestProjectPath, PageObjectsText, relativeTypeName + ".cs");
 
-                    var config = GetSeleniumGeneratorConfiguration(fullTypeName, targetFileName, file);
-
-                    tasks.Add(GeneratePageObject(generator, config));
+                    configurations.Add(GetSeleniumGeneratorConfiguration(fullTypeName, targetFileName, file));
                 }
             }
-            Task.WhenAll(tasks).GetAwaiter().GetResult();
+            generator.ProcessMarkupFiles(configurations).GetAwaiter().GetResult();
         }
 
         private static void GetAllViewsAndControlsInProject(DotvvmConfiguration dotvvmConfig, out IEnumerable<string> controlFiles, out IEnumerable<string> viewFiles)

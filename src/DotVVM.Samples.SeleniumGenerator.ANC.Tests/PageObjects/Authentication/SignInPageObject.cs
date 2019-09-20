@@ -1,6 +1,7 @@
 ﻿using DotVVM.Framework.Testing.SeleniumHelpers;
 using DotVVM.Framework.Testing.SeleniumHelpers.Proxies;
 using DotVVM.Framework.Testing.SeleniumHelpers.Proxies.GridViewColumns;
+using DotVVM.Samples.SeleniumGenerator.ANC.Tests.PageObjects.Controls;
 
 namespace DotVVM.Samples.SeleniumGenerator.ANC.Tests.PageObjects.Authentication
 {

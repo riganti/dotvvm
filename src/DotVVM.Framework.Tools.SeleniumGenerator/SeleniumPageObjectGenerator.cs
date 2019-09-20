@@ -38,12 +38,43 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
 
         private readonly SeleniumPageObjectVisitor visitor;
 
+        public async Task ProcessMarkupFiles(IEnumerable<SeleniumGeneratorConfiguration> configurations)
+        {
+            var results = await Task.WhenAll(configurations.Select(configuration => Task.Run(async () => {
+                var viewTree = await ResolveControlTree(configuration.ViewFullPath);
+
+                // get all ui tests selectors used in current view
+                var usedSelectors = GetUsedSelectors(viewTree);
+
+                // resolve master pages of current page
+                var masterPageObjectDefinitions = await ResolveMasterPages(dotvvmConfig, configuration, viewTree);
+
+                // union used unique names across all master pages and current view
+                var allUsedNames = UnionUsedUniqueNames(masterPageObjectDefinitions, usedSelectors);
+
+                // get content of page object of current view
+                var pageObject = CreatePageObjectDefinition(configuration, viewTree, allUsedNames);
+
+                // combine all master page objects with current page object so we can generate page object class for all proxies
+                pageObject = CombineViewHelperDefinitions(pageObject, masterPageObjectDefinitions);
+                return (configuration, pageObject);
+            })));
+            var pageObjectNamespaces = results.ToDictionary(p => p.pageObject.Name, p => p.pageObject.Namespace);
+            await Task.WhenAll(results.Select(result => Task.Run(async () => {
+                // generate the page object class
+                GeneratePageObjectClass(result.configuration, result.pageObject, pageObjectNamespaces);
+
+                // update view markup file
+                await UpdateMarkupFile(result.pageObject, result.configuration.ViewFullPath);
+            })));
+        }
+
         public async Task ProcessMarkupFile(SeleniumGeneratorConfiguration seleniumConfiguration)
         {
             var viewTree = await ResolveControlTree(seleniumConfiguration.ViewFullPath);
 
             // get all ui tests selectors used in current view
-            var usedSelectors =GetUsedSelectors(viewTree);
+            var usedSelectors = GetUsedSelectors(viewTree);
 
             // resolve master pages of current page
             var masterPageObjectDefinitions = await ResolveMasterPages(dotvvmConfig, seleniumConfiguration, viewTree);
@@ -191,11 +222,28 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
             return modifications;
         }
 
-        private void GeneratePageObjectClass(SeleniumGeneratorConfiguration seleniumConfiguration, PageObjectDefinition pageObject)
+        private void GeneratePageObjectClass(SeleniumGeneratorConfiguration seleniumConfiguration, PageObjectDefinition pageObject, IDictionary<string, string> pageObjectNamespaces = null)
         {
+            var usings = GetSeleniumHelpersUsingList(pageObject);
+            if (pageObjectNamespaces != null)
+            {
+                foreach (var property in pageObject.Members.OfType<PropertyDeclarationSyntax>())
+                {
+                    var name = property.Type.ToString();
+                    if (name == pageObject.Name)
+                    {
+                        continue;
+                    }
+                    if (pageObjectNamespaces.TryGetValue(name, out var @namespace))
+                    {
+                        usings = usings.Add(SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(@namespace)));
+                    }
+                }
+            }
+
             var tree = CSharpSyntaxTree.Create(
                 SyntaxFactory.CompilationUnit()
-                    .WithUsings(GetSeleniumHelpersUsingList(pageObject))
+                    .WithUsings(usings)
                     .WithMembers(SyntaxFactory.List(new MemberDeclarationSyntax[]
                     {
                         SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(seleniumConfiguration.TargetNamespace))
@@ -219,15 +267,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
                     SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("DotVVM.Framework.Testing.SeleniumHelpers.Proxies")),
                     SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("DotVVM.Framework.Testing.SeleniumHelpers.Proxies.GridViewColumns"))
                 });
-            list.AddRange(ResolveUsingsFromPageObjectDefinition(pageObject));
             return list;
-
-        }
-
-        private static IEnumerable<UsingDirectiveSyntax> ResolveUsingsFromPageObjectDefinition(PageObjectDefinition pageObject)
-        {
-            return Enumerable.Empty<UsingDirectiveSyntax>();
-
         }
 
         private PageObjectDefinition CreatePageObjectDefinition(
