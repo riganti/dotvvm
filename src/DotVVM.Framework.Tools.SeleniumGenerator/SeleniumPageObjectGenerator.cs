@@ -25,11 +25,13 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
     {
         private readonly DotvvmConfiguration dotvvmConfig;
         private readonly ConcurrentDictionary<string, Task<IAbstractTreeRoot>> resolvedTreeRoots;
+        private readonly ConcurrentDictionary<string, Task> updatedMarkupFiles;
 
         public SeleniumPageObjectGenerator(SeleniumGeneratorOptions options, DotvvmConfiguration dotvvmConfig)
         {
             this.dotvvmConfig = dotvvmConfig;
             this.resolvedTreeRoots = new ConcurrentDictionary<string, Task<IAbstractTreeRoot>>();
+            updatedMarkupFiles = new ConcurrentDictionary<string, Task>();
             visitor = new SeleniumPageObjectVisitor(this);
             visitor.DiscoverControlGenerators(options);
         }
@@ -59,7 +61,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
             GeneratePageObjectClass(seleniumConfiguration, pageObject);
 
             // update view markup file
-            UpdateMarkupFile(pageObject, seleniumConfiguration.ViewFullPath);
+            await UpdateMarkupFile(pageObject, seleniumConfiguration.ViewFullPath);
         }
 
         public Task<IAbstractTreeRoot> ResolveControlTree(string filePath)
@@ -108,7 +110,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
 
             foreach (var pageObjectDefinition in pageObjectDefinitions)
             {
-                UpdateMarkupFile(pageObjectDefinition, pageObjectDefinition.MasterPageFullPath);
+                await UpdateMarkupFile(pageObjectDefinition, pageObjectDefinition.MasterPageFullPath);
             }
 
             return pageObjectDefinitions;
@@ -164,23 +166,18 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
             return view.Directives.ContainsKey(ParserConstants.MasterPageDirective);
         }
 
-        private void UpdateMarkupFile(PageObjectDefinition pageObject, string viewPath)
+        private Task UpdateMarkupFile(PageObjectDefinition pageObject, string viewPath)
         {
-            var sb = new StringBuilder(File.ReadAllText(viewPath, Encoding.UTF8));
+            return updatedMarkupFiles.GetOrAdd(viewPath, _ => Task.Run(() => {
+                var sb = new StringBuilder(File.ReadAllText(viewPath, Encoding.UTF8));
+                var allModifications = GetAllModifications(pageObject);
 
-            UpdateMarkupFile(pageObject, sb);
-
-            File.WriteAllText(viewPath, sb.ToString(), Encoding.UTF8);
-        }
-
-        private void UpdateMarkupFile(PageObjectDefinition pageObject, StringBuilder stringBuilder)
-        {
-            var allModifications = GetAllModifications(pageObject);
-
-            foreach (var modification in allModifications.OrderByDescending(m => m.Position))
-            {
-                modification.Apply(stringBuilder);
-            }
+                foreach (var modification in allModifications.OrderByDescending(m => m.Position))
+                {
+                    modification.Apply(sb);
+                }
+                File.WriteAllText(viewPath, sb.ToString(), Encoding.UTF8);
+            }));
         }
 
         private IEnumerable<Testing.SeleniumGenerator.Modifications.MarkupFileModification> GetAllModifications(PageObjectDefinition pageObject)
