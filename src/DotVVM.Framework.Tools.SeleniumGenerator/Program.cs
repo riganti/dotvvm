@@ -59,6 +59,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
                     dotvvmProjectMetadata.WebAssemblyPath = dotvvmProjectMetadata.WebAssemblyPath.Replace(@"\\", @"\");
                     dotvvmProjectMetadata.ProjectDirectory = dotvvmProjectMetadata.ProjectDirectory.Replace(@"\\", @"\");
                     dotvvmProjectMetadata.MetadataFilePath = dotvvmProjectMetadata.MetadataFilePath.Replace(@"\\", @"\");
+                    dotvvmProjectMetadata.UITestProjectPath = dotvvmProjectMetadata.UITestProjectPath?.Replace(@"\\", @"\");
                     arguments.Consume(2);
                 }
                 else
