@@ -6,7 +6,7 @@ namespace DotVVM.Samples.Common.Controls
 {
     public class DerivedControlUsageValidationTestControl : ControlUsageValidationTestControl
     {
-        [ControlUsageValidator(Override = false)]
+        [ControlUsageValidator(Override = true)]
         public static new IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
         {
             yield break;
