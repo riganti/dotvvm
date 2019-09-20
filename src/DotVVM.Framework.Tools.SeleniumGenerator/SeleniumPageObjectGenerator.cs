@@ -215,36 +215,9 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
             var list = new SyntaxList<UsingDirectiveSyntax>(
                 new[]
                 {
-                    SyntaxFactory.UsingDirective(
-                        SyntaxFactory.QualifiedName(
-                            SyntaxFactory.QualifiedName(
-                                SyntaxFactory.QualifiedName(
-                                    SyntaxFactory.IdentifierName("DotVVM"),
-                                    SyntaxFactory.IdentifierName("Framework")),
-                                SyntaxFactory.IdentifierName("Testing")),
-                            SyntaxFactory.IdentifierName("SeleniumHelpers"))),
-                    SyntaxFactory.UsingDirective(
-                        SyntaxFactory.QualifiedName(
-                            SyntaxFactory.QualifiedName(
-                                SyntaxFactory.QualifiedName(
-                                    SyntaxFactory.QualifiedName(
-                                        SyntaxFactory.IdentifierName("DotVVM"),
-                                        SyntaxFactory.IdentifierName("Framework")),
-                                    SyntaxFactory.IdentifierName("Testing")),
-                                SyntaxFactory.IdentifierName("SeleniumHelpers")),
-                            SyntaxFactory.IdentifierName("Proxies"))),
-                    SyntaxFactory.UsingDirective(
-                        SyntaxFactory.QualifiedName(
-                            SyntaxFactory.QualifiedName(
-                                SyntaxFactory.QualifiedName(
-                                    SyntaxFactory.QualifiedName(
-                                        SyntaxFactory.QualifiedName(
-                                            SyntaxFactory.IdentifierName("DotVVM"),
-                                            SyntaxFactory.IdentifierName("Framework")),
-                                        SyntaxFactory.IdentifierName("Testing")),
-                                    SyntaxFactory.IdentifierName("SeleniumHelpers")),
-                                SyntaxFactory.IdentifierName("Proxies")),
-                        SyntaxFactory.IdentifierName("GridViewColumns")))
+                    SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("DotVVM.Framework.Testing.SeleniumHelpers")),
+                    SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("DotVVM.Framework.Testing.SeleniumHelpers.Proxies")),
+                    SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("DotVVM.Framework.Testing.SeleniumHelpers.Proxies.GridViewColumns"))
                 });
             list.AddRange(ResolveUsingsFromPageObjectDefinition(pageObject));
             return list;
@@ -253,7 +226,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
 
         private static IEnumerable<UsingDirectiveSyntax> ResolveUsingsFromPageObjectDefinition(PageObjectDefinition pageObject)
         {
-            throw new NotImplementedException();
+            return Enumerable.Empty<UsingDirectiveSyntax>();
 
         }
 
