@@ -78,8 +78,7 @@ namespace DotVVM.Framework.Tests.Common.Runtime.ControlTree
         [TestMethod]
         public void CheckBox_InvalidNullableDifference()
         {
-            var exception = Assert.ThrowsException<DotvvmCompilationException>(() =>
-                ParseControl("<dot:CheckBox CheckedItems='{value: NullableDateList}' CheckedValue='{value: NonNullableDate}' />"));
+            var exception = Assert.ThrowsException<DotvvmCompilationException>(() =>ParseControl("<dot:CheckBox CheckedItems='{value: DateList}' CheckedValue='{value: NullableDate}' />"));
 
             // TODO: check exception message
         }
@@ -87,9 +86,7 @@ namespace DotVVM.Framework.Tests.Common.Runtime.ControlTree
         [TestMethod]
         public void CheckBox_AllowedNullableDifference()
         {
-            var control =
-                ParseControl("<dot:CheckBox CheckedItems='{value: DateList}' CheckedValue='{value: NullableDate}' />");
-
+            var control = ParseControl("<dot:CheckBox CheckedItems='{value: NullableDateList}' CheckedValue='{value: NonNullableDate}' />");
             // TODO: check tree
         }
 
@@ -106,7 +103,7 @@ namespace DotVVM.Framework.Tests.Common.Runtime.ControlTree
         public void Radio_InvalidNullableDifference()
         {
             var exception = Assert.ThrowsException<DotvvmCompilationException>(() =>
-                ParseControl("<dot:RadioButton CheckedItem='{value: NullableDate}' CheckedValue='{value: NonNullableDate}' />"));
+                ParseControl("<dot:RadioButton CheckedItem='{value: NonNullableDate}' CheckedValue='{value: NullableDate}' />"));
 
             // TODO: check exception message
         }
@@ -114,9 +111,7 @@ namespace DotVVM.Framework.Tests.Common.Runtime.ControlTree
         [TestMethod]
         public void Radio_AllowedNullableDifference()
         {
-            var control =
-                ParseControl("<dot:RadioButton CheckedItem='{value: NonNullableDate}' CheckedValue='{value: NullableDate}' />");
-
+            var control = ParseControl("<dot:RadioButton CheckedItem='{value: NullableDate}' CheckedValue='{value: NonNullableDate}' />");
             // TODO: check tree
         }
     }
