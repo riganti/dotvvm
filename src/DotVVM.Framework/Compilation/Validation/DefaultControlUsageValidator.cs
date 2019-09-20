@@ -63,6 +63,9 @@ namespace DotVVM.Framework.Compilation.Validation
             var methods = type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
                 .Where(m => m.IsDefined(typeof(ControlUsageValidatorAttribute)))
                 .ToArray();
+
+            var overrideValidation = methods.Select(s => s.GetCustomAttribute(typeof(ControlUsageValidatorAttribute))).Any(s => ((ControlUsageValidatorAttribute)s).Override);
+            if (overrideValidation) return methods;
             var ancestorMethods = FindMethods(type.GetTypeInfo().BaseType);
             return ancestorMethods.Concat(methods).ToArray();
         }

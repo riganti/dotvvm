@@ -875,7 +875,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
     public class ControlWithOverridenRules : ControlWithValidationRules
     {
-        [ControlUsageValidator]
+        [ControlUsageValidator(Override = true)]
         public static IEnumerable<ControlUsageError> Validate(ResolvedControl control)
         {
             yield break;
