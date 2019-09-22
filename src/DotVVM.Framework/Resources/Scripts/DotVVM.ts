@@ -32,9 +32,9 @@ interface IDotvvmViewModels {
     [name: string]: IDotvvmViewModelInfo
 }
 interface IDotvvmStaticCommandResponse {
-    action: string;
-    url: string;
-    result: any;
+    action?: string;
+    url?: string;
+    result?: any;
 }
 
 
