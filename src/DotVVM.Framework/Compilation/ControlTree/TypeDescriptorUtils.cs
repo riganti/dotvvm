@@ -44,7 +44,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         {
             return type.IsStringTypeDescriptor() || type.IsNumericTypeDescriptor();
         }
-        public static bool IsPrimitiveAndEnumTypeDescriptor(this ITypeDescriptor type)
+        public static bool IsPrimitiveOrEnumTypeDescriptor(this ITypeDescriptor type)
         {
             return type.IsPrimitiveTypeDescriptor() || type.IsEnumTypeDescriptor();
         }
