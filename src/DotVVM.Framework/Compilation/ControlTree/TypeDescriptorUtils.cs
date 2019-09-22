@@ -8,7 +8,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 {
     public static class TypeDescriptorUtils
     {
-        public static readonly HashSet<ResolvedTypeDescriptor> NumericTypeDescriptors = new HashSet<ResolvedTypeDescriptor>()
+        private static readonly HashSet<ResolvedTypeDescriptor> NumericTypeDescriptors = new HashSet<ResolvedTypeDescriptor>()
      {
              new ResolvedTypeDescriptor(typeof(sbyte)),
              new ResolvedTypeDescriptor(typeof(byte)),
@@ -23,8 +23,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
              new ResolvedTypeDescriptor(typeof(double)),
              new ResolvedTypeDescriptor(typeof(decimal))
         };
-        public static readonly ResolvedTypeDescriptor StringTypeDescriptors = new ResolvedTypeDescriptor(typeof(string));
-        public static readonly ResolvedTypeDescriptor EnumTypeDescriptors = new ResolvedTypeDescriptor(typeof(Enum));
+        private static readonly ResolvedTypeDescriptor StringTypeDescriptor = new ResolvedTypeDescriptor(typeof(string));
+        private static readonly ResolvedTypeDescriptor EnumTypeDescriptor = new ResolvedTypeDescriptor(typeof(Enum));
 
         public static bool IsNumericTypeDescriptor(this ITypeDescriptor type)
         {
@@ -33,16 +33,16 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public static bool IsEnumTypeDescriptor(this ITypeDescriptor type)
         {
-            return type.IsAssignableTo(EnumTypeDescriptors);
+            return type.IsAssignableTo(EnumTypeDescriptor);
         }
         public static bool IsStringTypeDescriptor(this ITypeDescriptor type)
         {
-            return StringTypeDescriptors.IsEqualTo(type);
+            return StringTypeDescriptor.IsEqualTo(type);
         }
 
         public static bool IsPrimitiveTypeDescriptor(this ITypeDescriptor type)
         {
-            return type.IsStringTypeDescriptor()|| type.IsNumericTypeDescriptor() || type.IsEnumTypeDescriptor();
+            return type.IsStringTypeDescriptor() || type.IsNumericTypeDescriptor() || type.IsEnumTypeDescriptor();
         }
         public static ITypeDescriptor GetCollectionItemType(ITypeDescriptor type)
         {
@@ -52,7 +52,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             {
                 return iEnumerableType;
             }
-            
+
             // handle GridViewDataSet
             if (type.IsAssignableTo(new ResolvedTypeDescriptor(typeof(IBaseGridViewDataSet))))
             {
