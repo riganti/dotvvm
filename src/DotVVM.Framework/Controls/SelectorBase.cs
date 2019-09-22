@@ -124,7 +124,7 @@ namespace DotVVM.Framework.Controls
             }
 
             // validate usage of obsolete properties
-            if (control.Properties.GetValueOrDefault(DisplayMemberProperty) is ResolvedPropertySetter displayMember) 
+            if (control.Properties.GetValueOrDefault(DisplayMemberProperty) is ResolvedPropertySetter displayMember)
             {
                 yield return new ControlUsageError("Property DisplayMemberProperty is obsolite. Please use ItemTextBinding instead.", displayMember.DothtmlNode);
             }
