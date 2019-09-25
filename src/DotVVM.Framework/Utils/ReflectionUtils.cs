@@ -1,3 +1,4 @@
+#nullable enable
 using DotVVM.Framework.Controls;
 using System;
 using System.Collections;
@@ -56,6 +57,8 @@ namespace DotVVM.Framework.Utils
                 var unaryExpressionBody = (UnaryExpression)expression;
                 body = unaryExpressionBody.Operand as MemberExpression;
             }
+            if (body == null)
+                throw new NotSupportedException($"Can not get member from {expression}");
 
             return body.Member;
         }
@@ -98,7 +101,7 @@ namespace DotVVM.Framework.Utils
         /// <summary>
         /// Gets the specified property of a given object.
         /// </summary>
-        public static object GetObjectPropertyValue(object item, string propertyName, out PropertyInfo prop)
+        public static object? GetObjectPropertyValue(object? item, string propertyName, out PropertyInfo? prop)
         {
             prop = null;
             if (item == null) return null;
@@ -116,27 +119,29 @@ namespace DotVVM.Framework.Utils
         /// Extracts the value of a specified property and converts it to string. If the property name is empty, returns a string representation of a given object.
         /// Null values are converted to empty string.
         /// </summary>
-        public static string ExtractMemberStringValue(object item, string propertyName)
+        public static string ExtractMemberStringValue(object? item, string propertyName)
         {
             if (!string.IsNullOrEmpty(propertyName))
             {
-                PropertyInfo prop;
-                item = GetObjectPropertyValue(item, propertyName, out prop);
+                item = GetObjectPropertyValue(item, propertyName, out var _);
             }
-            return item?.ToString() ?? "";
+            return item + "";
         }
 
         /// <summary>
         /// Converts a value to a specified type
         /// </summary>
-        public static object ConvertValue(object value, Type type)
+        public static object? ConvertValue(object? value, Type type)
         {
             var typeinfo = type.GetTypeInfo();
 
             // handle null values
-            if (value == null && typeinfo.IsValueType)
+            if (value == null)
             {
-                return Activator.CreateInstance(type);
+                if (typeinfo.IsValueType)
+                    return Activator.CreateInstance(type);
+                else
+                    return null;
             }
 
             // handle nullable types
@@ -170,7 +175,7 @@ namespace DotVVM.Framework.Utils
                 var isFlags = type.GetTypeInfo().IsDefined(typeof(FlagsAttribute));
                 if (!isFlags && split.Length > 1) throw new Exception($"Enum {type} does allow multiple values. Use [FlagsAttribute] to allow it.");
 
-                dynamic result = null;
+                dynamic? result = null;
                 foreach (var val in split)
                 {
                     try
@@ -196,9 +201,8 @@ namespace DotVVM.Framework.Utils
             }
 
             // comma-separated array values
-            if (value is string && type.IsArray)
+            if (value is string str && type.IsArray)
             {
-                var str = value as string;
                 var objectArray = str.Split(',')
                     .Select(s => ConvertValue(s.Trim(), typeinfo.GetElementType()))
                     .ToArray();
@@ -263,7 +267,7 @@ namespace DotVVM.Framework.Utils
             return assemblies.Select(a => a.GetType(name, false, ignoreCase)).FirstOrDefault(t => t != null);
         }
 
-        public static Type GetEnumerableType(Type collectionType)
+        public static Type? GetEnumerableType(Type collectionType)
         {
             var result = TypeDescriptorUtils.GetCollectionItemType(new ResolvedTypeDescriptor(collectionType));
             if (result == null) return null;
@@ -313,7 +317,7 @@ namespace DotVVM.Framework.Utils
             return typeof(Delegate).IsAssignableFrom(type);
         }
 
-        public static ParameterInfo[] GetDelegateArguments(this Type type) =>
+        public static ParameterInfo[]? GetDelegateArguments(this Type type) =>
             type.IsDelegate() ?
             type.GetMethod("Invoke").GetParameters() :
             null;

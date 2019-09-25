@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -36,7 +37,7 @@ namespace DotVVM.Framework.Runtime
 
             // build the page
             var (_, pageBuilder) = controlBuilderFactory.GetControlBuilder(markup);
-            var contentPage = pageBuilder.Value.BuildControl(controlBuilderFactory, context.Services) as DotvvmView;
+            var contentPage = (DotvvmView)pageBuilder.Value.BuildControl(controlBuilderFactory, context.Services);
 
             FillsDefaultDirectives(contentPage);
 
@@ -185,7 +186,7 @@ namespace DotVVM.Framework.Runtime
 
             // make sure that the Content controls are not nested in other elements
             var contents = childPage.GetAllDescendants().OfType<Content>()
-                .Where(c => !(bool)c.GetValue(Internal.IsMasterPageCompositionFinishedProperty))
+                .Where(c => !(bool)c.GetValue(Internal.IsMasterPageCompositionFinishedProperty)!)
                 .ToList();
             if (contents.Any(c => c.Parent != childPage))
             {

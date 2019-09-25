@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -43,7 +44,7 @@ namespace DotVVM.Framework.Binding
         [ThreadStatic]
         private static bool LookingForResolvers = false;
 
-        private BindingResolverCollection GetAdditionalResolvers(IBinding binding)
+        private BindingResolverCollection? GetAdditionalResolvers(IBinding binding)
         {
             if (LookingForResolvers) return null;
             try
@@ -66,12 +67,12 @@ namespace DotVVM.Framework.Binding
             var bindingResolvers = GetResolversForBinding(binding.GetType());
 
             var resolver = additionalResolvers?.FindResolver(type) ??
-                bindingResolvers?.FindResolver(type) ??
+                bindingResolvers.FindResolver(type) ??
                 this.resolvers.FindResolver(type);
 
             object getParameterValue(ParameterInfo p) => binding.GetProperty(p.ParameterType, p.HasDefaultValue ? ErrorHandlingMode.ReturnNull : ErrorHandlingMode.ReturnException) ?? p.DefaultValue;
 
-            Exception checkArguments(object[] arguments) =>
+            Exception? checkArguments(object[] arguments) =>
                 arguments.OfType<Exception>().ToArray() is var exceptions && exceptions.Any() ?
                 new BindingPropertyException(binding, type, "unresolvable arguments", exceptions) :
                 null;
@@ -125,7 +126,7 @@ namespace DotVVM.Framework.Binding
                 t.GetTypeInfo().GetCustomAttributes<BindingCompilationRequirementsAttribute>(inherit: true).Aggregate((a, b) => a.ApplySecond(b)));
         }
 
-        public BindingCompilationRequirementsAttribute GetRequirements(IBinding binding, IEnumerable<BindingCompilationRequirementsAttribute> bindingRequirements = null)
+        public BindingCompilationRequirementsAttribute GetRequirements(IBinding binding, IEnumerable<BindingCompilationRequirementsAttribute>? bindingRequirements = null)
         {
             var requirements = GetDefaultRequirements(binding.GetType());
             if (bindingRequirements != null) foreach (var req in bindingRequirements) requirements = requirements.ApplySecond(req);
@@ -137,7 +138,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Resolves required and optional properties
         /// </summary>
-        public virtual void InitializeBinding(IBinding binding, IEnumerable<BindingCompilationRequirementsAttribute> bindingRequirements = null)
+        public virtual void InitializeBinding(IBinding binding, IEnumerable<BindingCompilationRequirementsAttribute>? bindingRequirements = null)
         {
             InitializeBindingCore(binding, GetRequirements(binding, bindingRequirements));
         }
@@ -167,7 +168,7 @@ namespace DotVVM.Framework.Binding
         {
             public NoInitService(IOptions<BindingCompilationOptions> options, IExpressionToDelegateCompiler expressionCompiler, IDotvvmCacheAdapter cache) : base(options, expressionCompiler, cache) { }
 
-            public override void InitializeBinding(IBinding binding, IEnumerable<BindingCompilationRequirementsAttribute> bindingRequirements = null)
+            public override void InitializeBinding(IBinding binding, IEnumerable<BindingCompilationRequirementsAttribute>? bindingRequirements = null)
             {
                 // no-op
             }
@@ -217,7 +218,7 @@ namespace DotVVM.Framework.Binding
         public IEnumerable<Delegate> GetPostProcessors(Type type) =>
             postProcs.TryGetValue(type, out var result) ? result : Enumerable.Empty<Delegate>();
 
-        public Delegate FindResolver(Type type) =>
+        public Delegate? FindResolver(Type type) =>
             resolvers.TryGetValue(type, out var result) ? result : null;
     }
 }

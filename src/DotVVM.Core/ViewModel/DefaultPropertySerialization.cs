@@ -12,7 +12,7 @@ namespace DotVVM.Framework.ViewModel
             {
                 if (!string.IsNullOrEmpty(bindAttribute.Name))
                 {
-                    return bindAttribute.Name;
+                    return bindAttribute.Name!;
                 }
             }
 
@@ -22,7 +22,7 @@ namespace DotVVM.Framework.ViewModel
                 var jsonPropertyAttribute = propertyInfo.GetCustomAttribute<JsonPropertyAttribute>();
                 if (!string.IsNullOrEmpty(jsonPropertyAttribute?.PropertyName))
                 {
-                    return jsonPropertyAttribute.PropertyName;
+                    return jsonPropertyAttribute!.PropertyName!;
                 }
             }
 

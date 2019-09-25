@@ -35,7 +35,11 @@ namespace DotVVM.Framework.Hosting
         /// Initializes a new instance of the <see cref="DotvvmPresenter" /> class.
         /// </summary>
         public DotvvmPresenter(DotvvmConfiguration configuration, IDotvvmViewBuilder viewBuilder, IViewModelLoader viewModelLoader, IViewModelSerializer viewModelSerializer,
-            IOutputRenderer outputRender, ICsrfProtector csrfProtector, IViewModelParameterBinder viewModelParameterBinder, IStaticCommandServiceLoader staticCommandServiceLoader)
+            IOutputRenderer outputRender, ICsrfProtector csrfProtector, IViewModelParameterBinder viewModelParameterBinder,
+#pragma warning disable CS0618
+            IStaticCommandServiceLoader staticCommandServiceLoader
+#pragma warning restore CS0618
+        )
         {
             DotvvmViewBuilder = viewBuilder;
             ViewModelLoader = viewModelLoader;
@@ -43,7 +47,9 @@ namespace DotVVM.Framework.Hosting
             OutputRenderer = outputRender;
             CsrfProtector = csrfProtector;
             ViewModelParameterBinder = viewModelParameterBinder;
+#pragma warning disable CS0618
             StaticCommandServiceLoader = staticCommandServiceLoader;
+#pragma warning restore CS0618
             ApplicationPath = configuration.ApplicationPhysicalPath;
         }
 
@@ -59,9 +65,11 @@ namespace DotVVM.Framework.Hosting
 
         public IViewModelParameterBinder ViewModelParameterBinder { get; }
 
+#pragma warning disable CS0618
         [Obsolete(DefaultStaticCommandServiceLoader.DeprecationNotice)]
 
         public IStaticCommandServiceLoader StaticCommandServiceLoader { get; }
+#pragma warning restore CS0618
 
         public string ApplicationPath { get; }
 
@@ -278,7 +286,7 @@ namespace DotVVM.Framework.Hosting
 
                 foreach (var f in requestFilters) await f.OnPageRenderedAsync(context);
             }
-            catch (CorruptedCsrfTokenException e) { throw; }
+            catch (CorruptedCsrfTokenException) { throw; }
             catch (DotvvmInterruptRequestExecutionException) { throw; }
             catch (DotvvmHttpException) { throw; }
             catch (Exception ex)
@@ -302,7 +310,9 @@ namespace DotVVM.Framework.Hosting
                 {
                     ViewModelLoader.DisposeViewModel(context.ViewModel);
                 }
+#pragma warning disable CS0618
                 StaticCommandServiceLoader.DisposeStaticCommandServices(context);
+#pragma warning restore CS0618
             }
         }
 
@@ -311,7 +321,11 @@ namespace DotVVM.Framework.Hosting
             var methodArgs = plan.Arguments.Select((a, index) =>
                 a.Type == StaticCommandParameterType.Argument ? arguments.Dequeue().ToObject((Type)a.Arg) :
                 a.Type == StaticCommandParameterType.Constant || a.Type == StaticCommandParameterType.DefaultValue ? a.Arg :
-                a.Type == StaticCommandParameterType.Inject ? StaticCommandServiceLoader.GetStaticCommandService((Type)a.Arg, context) :
+                a.Type == StaticCommandParameterType.Inject ?
+#pragma warning disable CS0618
+
+                                                              StaticCommandServiceLoader.GetStaticCommandService((Type)a.Arg, context) :
+#pragma warning restore CS0618
                 a.Type == StaticCommandParameterType.Invocation ? ExecuteStaticCommandPlan((StaticCommandInvocationPlan)a.Arg, arguments, context) :
                 throw new NotSupportedException("" + a.Type)
             ).ToArray();
@@ -353,7 +367,9 @@ namespace DotVVM.Framework.Hosting
             }
             finally
             {
+#pragma warning disable CS0618
                 StaticCommandServiceLoader.DisposeStaticCommandServices(context);
+#pragma warning restore CS0618
             }
         }
 

@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,11 +10,11 @@ namespace DotVVM.Framework.Binding
     {
         public IBinding Binding { get; }
         public Type Property { get; }
-        public string CoreMessage { get; }
+        public string? CoreMessage { get; }
         private Lazy<string> msg;
         public override string Message => msg.Value;
 
-        static string GetMessage(IBinding binding, Type property, string message, Exception innerException)
+        static string GetMessage(IBinding binding, Type property, string? message, Exception? innerException)
         {
             var m = $"Unable to get property {property.Name} of binding {binding?.ToString() ?? "{Unknown binding}"}";
             var suffix = innerException == null ? "." : ". (" + innerException.Message + ")";
@@ -21,16 +22,16 @@ namespace DotVVM.Framework.Binding
             else return m + ", " + message + suffix;
         }
 
-        public BindingPropertyException(IBinding binding, Type property, string message) : this(binding, property, message, (Exception)null) { }
-        public BindingPropertyException(IBinding binding, Type property, Exception innerException) : this(binding, property, null, innerException) { }
-        public BindingPropertyException(IBinding binding, Type property, string message, Exception[] innerExceptions)
+        public BindingPropertyException(IBinding binding, Type property, string message) : this(binding, property, message, (Exception?)null) { }
+        public BindingPropertyException(IBinding binding, Type property, Exception? innerException) : this(binding, property, null, innerException) { }
+        public BindingPropertyException(IBinding binding, Type property, string? message, Exception[] innerExceptions)
             : this(
                 binding,
                 property,
                 message,
                 innerExceptions.Length > 1 ? new AggregateException(innerExceptions) : innerExceptions.SingleOrDefault()
             ) { }
-        public BindingPropertyException(IBinding binding, Type property, string message, Exception innerException) : base((string)null, innerException)
+        public BindingPropertyException(IBinding binding, Type property, string? message, Exception? innerException) : base((string?)null, innerException)
         {
             this.Binding = binding;
             this.Property = property;

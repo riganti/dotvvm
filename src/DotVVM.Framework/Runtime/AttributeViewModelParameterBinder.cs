@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,7 @@ namespace DotVVM.Framework.Runtime
     public class AttributeViewModelParameterBinder : IViewModelParameterBinder
     {
 
-        private readonly ConcurrentDictionary<Type, Action<IDotvvmRequestContext, object>> cache = new ConcurrentDictionary<Type, Action<IDotvvmRequestContext, object>>();
+        private readonly ConcurrentDictionary<Type, Action<IDotvvmRequestContext, object>?> cache = new ConcurrentDictionary<Type, Action<IDotvvmRequestContext, object>?>();
         private readonly MethodInfo setPropertyMethod;
 
         public AttributeViewModelParameterBinder()
@@ -35,7 +36,7 @@ namespace DotVVM.Framework.Runtime
         /// <summary>
         /// Builds a lambda expression which performs the parameter binding for a specified viewmodel type.
         /// </summary>
-        private Action<IDotvvmRequestContext, object> BuildParameterBindingMethod(Type type)
+        private Action<IDotvvmRequestContext, object>? BuildParameterBindingMethod(Type type)
         {
             var properties = FindPropertiesWithParameterBinding(type).ToList();
             if (!properties.Any())

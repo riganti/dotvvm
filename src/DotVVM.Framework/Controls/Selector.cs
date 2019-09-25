@@ -1,4 +1,6 @@
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Compilation.Validation;
 using System;
 using System.Collections.Generic;
 using System.Linq;

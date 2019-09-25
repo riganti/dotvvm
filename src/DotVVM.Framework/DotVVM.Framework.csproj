@@ -3,7 +3,7 @@
     <AssemblyTitle>DotVVM</AssemblyTitle>
     <VersionPrefix>2.4.0-preview01-50213-unstable</VersionPrefix>
     <TargetFrameworks>netstandard2.0;net451</TargetFrameworks>
-    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <NoWarn>$(NoWarn);CS1591;CS1573</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
@@ -25,7 +25,8 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <PreserveCompilationContext>true</PreserveCompilationContext>
-    <LangVersion>7.2</LangVersion>
+    <LangVersion>8.0</LangVersion>
+    <!-- <Nullable>enable</Nullable> -->
   </PropertyGroup>
   <ItemGroup>
     <Content Include="..\DotVVM.Compiler\bin\$(Configuration)\net461\DotVVM.Compiler.exe">

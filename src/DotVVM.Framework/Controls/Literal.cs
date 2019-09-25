@@ -108,7 +108,7 @@ namespace DotVVM.Framework.Controls
 #pragma warning restore
             NeedsFormatting(GetValueBinding(TextProperty));
 
-        protected struct RenderState
+        private new struct RenderState
         {
             public object Text;
             public bool RenderSpanElement;
@@ -118,13 +118,15 @@ namespace DotVVM.Framework.Controls
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected bool TouchProperty(DotvvmProperty prop, object value, ref RenderState r)
+        private bool TouchProperty(DotvvmProperty prop, object value, ref RenderState r)
         {
             if (prop == TextProperty)
                 r.Text = value;
             else if (prop == RenderSpanElementProperty)
                 r.RenderSpanElement = (bool)EvalPropertyValue(RenderSpanElementProperty, value);
+#pragma warning disable CS0618
             else if (prop == FormatStringProperty || prop == ValueTypeProperty)
+#pragma warning restore CS0618
                 r.HasFormattingStuff = true;
             else if (base.TouchProperty(prop, value, ref r.HtmlState)) { }
             else if (DotvvmControl.TouchProperty(prop, value, ref r.BaseState)) { }

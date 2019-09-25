@@ -1,3 +1,4 @@
+#nullable enable
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Controls.Infrastructure;
@@ -13,6 +14,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using DotVVM.Framework.Compilation.Javascript;
 using System.Runtime.CompilerServices;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls
 {
@@ -60,28 +62,28 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the unique control ID.
         /// </summary>
         [MarkupOptions]
-        public string ID
+        public string? ID
         {
-            get { return (string)GetValue(IDProperty); }
+            get { return (string?)GetValue(IDProperty); }
             set { SetValue(IDProperty, value); }
         }
 
         public static readonly DotvvmProperty IDProperty =
-            DotvvmProperty.Register<string, DotvvmControl>(c => c.ID, isValueInherited: false);
+            DotvvmProperty.Register<string?, DotvvmControl>(c => c.ID, isValueInherited: false);
 
         /// <summary>
-        /// Gets id of the control that will be written in 'id' attribute
+        /// Gets id of the control that will be written in 'id' attribute. Gets null if the IDProperty is not set.
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.Exclude)]
-        public string ClientID => (string)GetValue(ClientIDProperty) ?? CreateAndSaveClientId();
+        public string? ClientID => (string?)GetValue(ClientIDProperty) ?? CreateAndSaveClientId();
         public static readonly DotvvmProperty ClientIDProperty
-            = DotvvmProperty.Register<string, DotvvmControl>(c => c.ClientID, null);
+            = DotvvmProperty.Register<string?, DotvvmControl>(c => c.ClientID, null);
 
-        string CreateAndSaveClientId()
+        string? CreateAndSaveClientId()
         {
             var id = CreateClientId();
             if (id != null) SetValue(ClientIDProperty, id);
-            return (string)id;
+            return (string?)id;
         }
 
 
@@ -91,7 +93,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false)]
         public ClientIDMode ClientIDMode
         {
-            get { return (ClientIDMode)GetValue(ClientIDModeProperty); }
+            get { return (ClientIDMode)GetValue(ClientIDModeProperty)!; }
             set { SetValue(ClientIDModeProperty, value); }
         }
 
@@ -107,7 +109,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowHardCodedValue = false)]
         public bool IncludeInPage
         {
-            get { return (bool)GetValue(IncludeInPageProperty); }
+            get { return (bool)GetValue(IncludeInPageProperty)!; }
             set { SetValue(IncludeInPageProperty, value); }
         }
 
@@ -131,7 +133,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets this control and all of its descendants.
         /// </summary>
-        public IEnumerable<DotvvmControl> GetThisAndAllDescendants(Func<DotvvmControl, bool> enumerateChildrenCondition = null)
+        public IEnumerable<DotvvmControl> GetThisAndAllDescendants(Func<DotvvmControl, bool>? enumerateChildrenCondition = null)
         {
             // PERF: non-linear complexity
             yield return this;
@@ -147,7 +149,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets all descendant controls of this control.
         /// </summary>
-        public IEnumerable<DotvvmControl> GetAllDescendants(Func<DotvvmControl, bool> enumerateChildrenCondition = null)
+        public IEnumerable<DotvvmControl> GetAllDescendants(Func<DotvvmControl, bool>? enumerateChildrenCondition = null)
         {
             // PERF: non-linear complexity
             foreach (var child in Children)
@@ -210,13 +212,13 @@ namespace DotVVM.Framework.Controls
 
         protected struct RenderState
         {
-            internal object IncludeInPage;
-            internal IValueBinding DataContext;
+            internal object? IncludeInPage;
+            internal IValueBinding? DataContext;
             internal bool HasActives;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected static bool TouchProperty(DotvvmProperty property, object val, ref RenderState r)
+        protected static bool TouchProperty(DotvvmProperty property, object? val, ref RenderState r)
         {
             if (property == DotvvmControl.IncludeInPageProperty)
                 r.IncludeInPage = val;
@@ -235,7 +237,8 @@ namespace DotVVM.Framework.Controls
 
             if (r.DataContext != null)
             {
-                writer.WriteKnockoutWithComment(r.DataContext.GetKnockoutBindingExpression(Parent));
+                var parent = Parent ?? throw new DotvvmControlException(this, "Can not set DataContext binding on the root control");
+                writer.WriteKnockoutWithComment(r.DataContext.GetKnockoutBindingExpression(parent));
             }
 
             if (r.IncludeInPage != null && r.IncludeInPage is IValueBinding binding)
@@ -292,9 +295,10 @@ namespace DotVVM.Framework.Controls
         private void RenderBeginWithDataBindAttribute(IHtmlWriter writer)
         {
             // if the DataContext is set, render the "with" binding
-            if (HasBinding(DataContextProperty))
+            if (GetValueBinding(DataContextProperty) is IValueBinding dcBinding)
             {
-                writer.WriteKnockoutWithComment(GetValueBinding(DataContextProperty).GetKnockoutBindingExpression(Parent));
+                var parent = Parent ?? throw new DotvvmControlException(this, "Can not set DataContext binding on the root control");
+                writer.WriteKnockoutWithComment(dcBinding.GetKnockoutBindingExpression(parent));
             }
 
             // if the IncludeInPage has binding, render the "if" binding
@@ -359,14 +363,14 @@ namespace DotVVM.Framework.Controls
         }
 
         [Obsolete("Use FindControlInContainer instead. Or FindControlByClientId if you want to be limited only to this container.")]
-        public DotvvmControl FindControl(string id, bool throwIfNotFound = false) => FindControlInContainer(id, throwIfNotFound);
+        public DotvvmControl? FindControl(string id, bool throwIfNotFound = false) => FindControlInContainer(id, throwIfNotFound);
         [Obsolete("Use FindControlInContainer instead. Or FindControlByClientId if you want to be limited only to this container.")]
         public T FindControl<T>(string id, bool throwIfNotFound = false) where T : DotvvmControl => FindControlInContainer<T>(id, throwIfNotFound);
 
         /// <summary>
-        /// Finds the control by its ID coded in markup. Does not recurse into naming containers.
+        /// Finds the control by its ID coded in markup. Does not recurse into naming containers. Returns null the <paramref name="throwIfNotFound" /> is false and the control is not found.
         /// </summary>
-        public DotvvmControl FindControlInContainer(string id, bool throwIfNotFound = false)
+        public DotvvmControl? FindControlInContainer(string id, bool throwIfNotFound = false)
         {
             if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
 
@@ -384,7 +388,7 @@ namespace DotVVM.Framework.Controls
         public T FindControlInContainer<T>(string id, bool throwIfNotFound = false) where T : DotvvmControl
         {
             var control = FindControlInContainer(id, throwIfNotFound);
-            if (!(control is T))
+            if (!(control is T)) // TODO: this does not work
             {
                 throw new DotvvmControlException(this, $"The control with ID '{id}' was found, however it is not an instance of the desired type '{typeof(T)}'.");
             }
@@ -394,7 +398,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Finds the control by its ClientId - the id rendered to output html.
         /// </summary>
-        public DotvvmControl FindControlByClientId(string id, bool throwIfNotFound = false)
+        public DotvvmControl? FindControlByClientId(string id, bool throwIfNotFound = false)
         {
             if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
 
@@ -420,9 +424,9 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
-        /// Finds the control by its unique ID.
+        /// Finds the control by its unique ID. Returns null the control is not found.
         /// </summary>
-        public DotvvmControl FindControlByUniqueId(string controlUniqueId)
+        public DotvvmControl? FindControlByUniqueId(string controlUniqueId)
         {
             var parts = controlUniqueId.Split('_');
             DotvvmControl result = this;
@@ -456,7 +460,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public static bool IsNamingContainer(DotvvmBindableObject control)
         {
-            return (bool)control.GetValue(Internal.IsNamingContainerProperty);
+            return (bool)control.GetValue(Internal.IsNamingContainerProperty)!;
         }
 
         /// <summary>
@@ -501,17 +505,15 @@ namespace DotVVM.Framework.Controls
             // build the client ID
             JoinValuesOrBindings(GetUniqueIdFragments());
 
-        private object JoinValuesOrBindings(IList<object> fragments)
+        private object JoinValuesOrBindings(IList<object?> fragments)
         {
-            if (fragments == null)
-                return null;
-            else if (fragments.All(f => f is string))
+            if (fragments.All(f => f is string))
             {
                 return string.Join("_", fragments);
             }
             else
             {
-                BindingCompilationService service = null;
+                BindingCompilationService? service = null;
                 var result = new ParametrizedCode.Builder();
                 var first = true;
                 foreach (var f in fragments)
@@ -526,21 +528,21 @@ namespace DotVVM.Framework.Controls
                     else result.Add(JavascriptCompilationHelper.CompileConstant(f));
                 }
                 if (service == null) throw new NotSupportedException();
-                return ValueBindingExpression.CreateBinding<string>(service.WithoutInitialization(), h => null, result.Build(new OperatorPrecedence()), this.GetDataContextType());
+                return ValueBindingExpression.CreateBinding<string?>(service.WithoutInitialization(), h => null, result.Build(new OperatorPrecedence()), this.GetDataContextType());
             }
         }
 
         /// <summary>
         /// Adds the corresponding attribute for the Id property.
         /// </summary>
-        protected virtual object CreateClientId() => 
+        protected virtual object? CreateClientId() =>
             !this.IsPropertySet(IDProperty) ? null :
                 // build the client ID
-                JoinValuesOrBindings(GetClientIdFragments());
+                GetClientIdFragments()?.Apply(JoinValuesOrBindings);
 
-        private IList<object> GetUniqueIdFragments()
+        private IList<object?> GetUniqueIdFragments()
         {
-            var fragments = new List<object> { GetValue(Internal.UniqueIDProperty) };
+            var fragments = new List<object?> { GetValue(Internal.UniqueIDProperty) };
             foreach (var ancestor in GetAllAncestors())
             {
                 if (IsNamingContainer(ancestor))
@@ -552,7 +554,7 @@ namespace DotVVM.Framework.Controls
             return fragments;
         }
 
-        private IList<object> GetClientIdFragments()
+        private IList<object?>? GetClientIdFragments()
         {
             var rawId = GetValue(IDProperty);
             // can't generate ID from nothing
@@ -564,8 +566,8 @@ namespace DotVVM.Framework.Controls
                 return new[] { GetValueRaw(IDProperty) };
             }
 
-            var fragments = new List<object> { rawId };
-            DotvvmControl childContainer = null;
+            var fragments = new List<object?> { rawId };
+            DotvvmControl? childContainer = null;
             bool searchingForIdElement = false;
             foreach (DotvvmControl ancestor in GetAllAncestors())
             {
@@ -573,7 +575,7 @@ namespace DotVVM.Framework.Controls
                 {
                     if (searchingForIdElement)
                     {
-                        fragments.Add(childContainer.GetDotvvmUniqueId());
+                        fragments.Add(childContainer!.GetDotvvmUniqueId());
                     }
                     searchingForIdElement = false;
 
@@ -607,7 +609,7 @@ namespace DotVVM.Framework.Controls
             }
             if (searchingForIdElement)
             {
-                fragments.Add(childContainer.GetDotvvmUniqueId());
+                fragments.Add(childContainer!.GetDotvvmUniqueId());
             }
             fragments.Reverse();
             return fragments;

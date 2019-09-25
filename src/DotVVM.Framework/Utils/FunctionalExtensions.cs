@@ -1,5 +1,7 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -12,12 +14,13 @@ namespace DotVVM.Framework.Utils
         public static TValue GetValue<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, TKey key)
             => dictionary[key];
 
+        [return: MaybeNull]
         public static TValue GetValueOrDefault<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, TKey key)
         {
             TValue value;
             if (!dictionary.TryGetValue(key, out value))
             {
-                return default(TValue);
+                return default!;
             }
             return value;
         }
@@ -32,7 +35,7 @@ namespace DotVVM.Framework.Utils
             => outerFunction(target);
 
         public static T Assert<T>(this T target, Func<T, bool> predicate, string message = "A check has failed")
-            => predicate(target) ? target : throw new Exception($"{message} | '{target.ToString()}' checked by {GetDebugFunctionInfo(predicate)}]");
+            => predicate(target) ? target : throw new Exception($"{message} | '{target?.ToString() ?? "null"}' checked by {GetDebugFunctionInfo(predicate)}]");
 
         private static string GetDebugFunctionInfo(Delegate func)
         {
@@ -45,7 +48,7 @@ namespace DotVVM.Framework.Utils
             where TOut : class
             => (TOut)original;
 
-        public static TOut As<TOut>(this object original)
+        public static TOut? As<TOut>(this object original)
             where TOut : class
             => original as TOut;
 
@@ -69,5 +72,9 @@ namespace DotVVM.Framework.Utils
         }
         public static IEnumerable<(int, T)> Indexed<T>(this IEnumerable<T> enumerable) =>
             enumerable.Select((a, b) => (b, a));
+
+        public static T NotNull<T>(this T? target)
+            where T : class =>
+            target ?? throw new Exception("Unexpected null value.");
     }
 }
