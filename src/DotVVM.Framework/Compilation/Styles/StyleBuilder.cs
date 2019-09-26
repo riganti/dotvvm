@@ -23,7 +23,7 @@ namespace DotVVM.Framework.Compilation.Styles
         private static DotvvmProperty? GetProperty(string name)
         {
             var field = typeof(T).GetField(name + "Property", BindingFlags.Static | BindingFlags.Public | BindingFlags.FlattenHierarchy);
-            return field.GetValue(null) as DotvvmProperty;
+            return field?.GetValue(null) as DotvvmProperty;
         }
 
         public StyleBuilder<T> SetProperty<TProperty>(Expression<Func<T, TProperty>> property, TProperty value)

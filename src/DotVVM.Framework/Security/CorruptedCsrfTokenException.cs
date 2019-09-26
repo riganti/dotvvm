@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace DotVVM.Framework.Security
             this.RetryRequest = retry;
         }
 
-        public CorruptedCsrfTokenException(string message, Exception inner, bool retry = true) : base(message, inner)
+        public CorruptedCsrfTokenException(string message, Exception? inner, bool retry = true) : base(message, inner)
         {
             this.RetryRequest = retry;
         }

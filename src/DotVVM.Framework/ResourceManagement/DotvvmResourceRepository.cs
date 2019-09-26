@@ -1,4 +1,5 @@
 
+#nullable enable
 using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
@@ -31,16 +32,16 @@ namespace DotVVM.Framework.ResourceManagement
         public IList<IResourceProcessor> DefaultResourceProcessors { get; } = new List<IResourceProcessor>();
 
         /// <summary>
-        /// Finds the resource with the specified name.
+        /// Finds the resource with the specified name. Returns null when it's not found.
         /// </summary>
-        public IResource FindResource(string name)
+        public IResource? FindResource(string name)
         {
             if (Resources.ContainsKey(name))
             {
                 return Resources[name];
             }
 
-            IDotvvmResourceRepository parent;
+            IDotvvmResourceRepository? parent;
             if (name.Contains(':'))
             {
                 var split = name.Split(new[] { ':' }, 2);
@@ -121,7 +122,6 @@ namespace DotVVM.Framework.ResourceManagement
 
         public DotvvmResourceRepository()
         {
-            
         }
 
         public DotvvmResourceRepository(DotvvmResourceRepository parent)
@@ -129,9 +129,13 @@ namespace DotVVM.Framework.ResourceManagement
             this.Parents.TryAdd("", parent);
         }
 
+        /// <summary> Finds the resource with the specified name. Throws an exception when the resource is not found. </summary>
         public NamedResource FindNamedResource(string name)
         {
-            return new NamedResource(name, FindResource(name));
+            var r = FindResource(name);
+            if (r is null)
+                throw new Exception($"Could not find resource {name}");
+            return new NamedResource(name, r);
         }
     }
 }

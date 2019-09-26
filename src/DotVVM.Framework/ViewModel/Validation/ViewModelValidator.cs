@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -22,7 +23,7 @@ namespace DotVVM.Framework.ViewModel.Validation
         /// <summary>
         /// Validates the view model.
         /// </summary>
-        public IEnumerable<ViewModelValidationError> ValidateViewModel(object viewModel)
+        public IEnumerable<ViewModelValidationError> ValidateViewModel(object? viewModel)
         {
             return ValidateViewModel(viewModel, "", new HashSet<object>());
         }
@@ -30,14 +31,13 @@ namespace DotVVM.Framework.ViewModel.Validation
         /// <summary>
         /// Validates the view model.
         /// </summary>
-        private IEnumerable<ViewModelValidationError> ValidateViewModel(object viewModel, string pathPrefix, HashSet<object> alreadyValidated)
+        private IEnumerable<ViewModelValidationError> ValidateViewModel(object? viewModel, string pathPrefix, HashSet<object> alreadyValidated)
         {
-            if (alreadyValidated.Contains(viewModel)) yield break;
-
             if (viewModel == null)
             {
                 yield break;
             }
+            if (alreadyValidated.Contains(viewModel)) yield break;
             var viewModelType = viewModel.GetType();
             if (ViewModelJsonConverter.IsPrimitiveType(viewModelType) || ViewModelJsonConverter.IsNullableType(viewModelType))
             {

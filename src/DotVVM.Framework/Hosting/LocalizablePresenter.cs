@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -17,10 +18,10 @@ namespace DotVVM.Framework.Hosting
     public class LocalizablePresenter : IDotvvmPresenter
     {
         private readonly Func<IDotvvmRequestContext, Task> nextPresenter;
-        private readonly Func<IDotvvmRequestContext, CultureInfo> getCulture;
+        private readonly Func<IDotvvmRequestContext, CultureInfo?> getCulture;
 
         public LocalizablePresenter(
-            Func<IDotvvmRequestContext, CultureInfo> getCulture,
+            Func<IDotvvmRequestContext, CultureInfo?> getCulture,
             Func<IDotvvmRequestContext, Task> nextPresenter
         )
         {
@@ -53,10 +54,10 @@ namespace DotVVM.Framework.Hosting
                 if (context.Configuration.DefaultCulture.Equals(routeParameters[name]))
                     throw new Exception($"The specified default culture is probably invalid");
                 routeParameters[name] = context.Configuration.DefaultCulture;
-                context.RedirectToRoute(context.Route.RouteName, routeParameters, query: context.HttpContext.Request.Query);
+                context.RedirectToRoute(context.Route!.RouteName, routeParameters, query: context.HttpContext.Request.Query);
             }
-            CultureInfo getCulture(IDotvvmRequestContext context) =>
-                context.Parameters.TryGetValue(name, out var value) && !string.IsNullOrEmpty(value as string) ? CultureInfo.GetCultureInfo((string)value) : null;
+            CultureInfo? getCulture(IDotvvmRequestContext context) =>
+                context.Parameters!.TryGetValue(name, out var value) && !string.IsNullOrEmpty(value as string) ? CultureInfo.GetCultureInfo((string)value!) : null;
             var presenter = new LocalizablePresenter(
                 redirectWhenNotFound ? WithRedirectOnFailure(redirect, getCulture) : getCulture,
                 context => context.Services.GetRequiredService<IDotvvmPresenter>().ProcessRequest(context)
@@ -83,7 +84,7 @@ namespace DotVVM.Framework.Hosting
                     throw new Exception($"The specified default culture is probably invalid");
                 context.RedirectToUrl(url.ToString());
             }
-            CultureInfo getCulture(IDotvvmRequestContext context) =>
+            CultureInfo? getCulture(IDotvvmRequestContext context) =>
                 context.Query.TryGetValue(name, out var value) && !string.IsNullOrEmpty(value) ? CultureInfo.GetCultureInfo(value) : null;
             var presenter = new LocalizablePresenter(
                 redirectWhenNotFound ? WithRedirectOnFailure(redirect, getCulture) : getCulture,
@@ -96,7 +97,7 @@ namespace DotVVM.Framework.Hosting
         /// Wraps cultureGetter with error handling. It calls the doRedirect on errors,
         /// and expects it to throw and exception (probably <see cref="DotvvmInterruptRequestExecutionException"/>)
         /// </summary>
-        public static Func<IDotvvmRequestContext, CultureInfo> WithRedirectOnFailure(Action<IDotvvmRequestContext> doRedirect, Func<IDotvvmRequestContext, CultureInfo> cultureGetter) =>
+        public static Func<IDotvvmRequestContext, CultureInfo?> WithRedirectOnFailure(Action<IDotvvmRequestContext> doRedirect, Func<IDotvvmRequestContext, CultureInfo?> cultureGetter) =>
             context => {
                 try
                 {

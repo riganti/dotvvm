@@ -1,3 +1,4 @@
+#if CSharp8Polyfill
 namespace System.Diagnostics.CodeAnalysis
 {
     /// <summary>Specifies that null is allowed as an input even if the corresponding type disallows it.</summary>
@@ -122,3 +123,4 @@ namespace System.Diagnostics.CodeAnalysis
         public bool ParameterValue { get; }
     }
 }
+#endif

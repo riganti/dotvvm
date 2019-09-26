@@ -257,6 +257,7 @@ namespace DotVVM.Framework.Binding
         /// It thread-safe.
         /// </summary>
         public static Func<TParam, TResult> Cache<TParam, TResult>(this Func<TParam, TResult> func)
+            where TParam: notnull
         {
             var cache = new ConcurrentDictionary<TParam, TResult>();
             return f => cache.GetOrAdd(f, func);

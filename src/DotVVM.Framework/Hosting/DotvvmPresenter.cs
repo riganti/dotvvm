@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -178,7 +179,7 @@ namespace DotVVM.Framework.Hosting
                 // run the init phase in the page
                 DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Init);
                 await requestTracer.TraceEvent(RequestTracingConstants.InitCompleted, context);
-                object commandResult = null;
+                object? commandResult = null;
 
                 if (!isPostBack)
                 {
@@ -212,7 +213,7 @@ namespace DotVVM.Framework.Hosting
                     // validate CSRF token
                     try
                     {
-                        CsrfProtector.VerifyToken(context, context.CsrfToken);
+                        CsrfProtector.VerifyToken(context, context.CsrfToken.NotNull());
                     }
                     catch (SecurityException exc)
                     {
@@ -254,7 +255,7 @@ namespace DotVVM.Framework.Hosting
                 await requestTracer.TraceEvent(RequestTracingConstants.PreRenderCompleted, context);
 
                 // generate CSRF token if required
-                if (string.IsNullOrEmpty(context.CsrfToken) && !context.Configuration.ExperimentalFeatures.LazyCsrfToken.IsEnabledForRoute(context.Route.RouteName))
+                if (string.IsNullOrEmpty(context.CsrfToken) && !context.Configuration.ExperimentalFeatures.LazyCsrfToken.IsEnabledForRoute(context.Route!.RouteName))
                 {
                     context.CsrfToken = CsrfProtector.GenerateToken(context);
                 }
@@ -267,7 +268,7 @@ namespace DotVVM.Framework.Hosting
                 await requestTracer.TraceEvent(RequestTracingConstants.ViewModelSerialized, context);
 
                 ViewModelSerializer.BuildViewModel(context);
-                if (commandResult != null) context.ViewModelJson["commandResult"] = JToken.FromObject(commandResult);
+                if (commandResult != null) context.ViewModelJson!["commandResult"] = JToken.FromObject(commandResult);
 
                 if (!context.IsInPartialRenderingMode)
                 {
@@ -316,7 +317,7 @@ namespace DotVVM.Framework.Hosting
             }
         }
 
-        private object ExecuteStaticCommandPlan(StaticCommandInvocationPlan plan, Queue<JToken> arguments, IDotvvmRequestContext context)
+        private object? ExecuteStaticCommandPlan(StaticCommandInvocationPlan plan, Queue<JToken> arguments, IDotvvmRequestContext context)
         {
             var methodArgs = plan.Arguments.Select((a, index) =>
                 a.Type == StaticCommandParameterType.Argument ? arguments.Dequeue().ToObject((Type)a.Arg) :
@@ -354,7 +355,7 @@ namespace DotVVM.Framework.Hosting
 
                 var actionInfo = new ActionInfo {
                     IsControlCommand = false,
-                    Action = () => { return ExecuteStaticCommandPlan(executionPlan, new Queue<JToken>(arguments), context); }
+                    Action = () => { return ExecuteStaticCommandPlan(executionPlan, new Queue<JToken>(arguments.NotNull()), context); }
                 };
                 var filters = context.Configuration.Runtime.GlobalFilters.OfType<ICommandActionFilter>()
                     .Concat(executionPlan.GetAllMethods().SelectMany(m => ActionFilterHelper.GetActionFilters<ICommandActionFilter>(m)))
@@ -373,7 +374,7 @@ namespace DotVVM.Framework.Hosting
             }
         }
 
-        protected async Task<object> ExecuteCommand(ActionInfo action, IDotvvmRequestContext context, IEnumerable<ICommandActionFilter> methodFilters)
+        protected async Task<object?> ExecuteCommand(ActionInfo action, IDotvvmRequestContext context, IEnumerable<ICommandActionFilter> methodFilters)
         {
             // run OnCommandExecuting on action filters
             foreach (var filter in methodFilters)
@@ -381,8 +382,8 @@ namespace DotVVM.Framework.Hosting
                 await filter.OnCommandExecutingAsync(context, action);
             }
 
-            object result = null;
-            Task resultTask = null;
+            object? result = null;
+            Task? resultTask = null;
 
             try
             {
@@ -396,7 +397,7 @@ namespace DotVVM.Framework.Hosting
             }
             catch (Exception ex)
             {
-                if (ex is TargetInvocationException)
+                if (ex is TargetInvocationException && ex.InnerException is object)
                 {
                     ex = ex.InnerException;
                 }

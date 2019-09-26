@@ -236,7 +236,7 @@ namespace DotVVM.Framework.Binding
 
         public static IEnumerable<DotvvmProperty> GetVirtualProperties(Type controlType)
             => from p in controlType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-               where !registeredProperties.ContainsKey(p.DeclaringType.FullName + "." + p.Name)
+               where !registeredProperties.ContainsKey(p.DeclaringType!.FullName + "." + p.Name)
                let markupOptions = GetVirtualPropertyMarkupOptions(p)
                where markupOptions != null
                where markupOptions.MappingMode != MappingMode.Exclude
@@ -263,14 +263,14 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Resolves the <see cref="DotvvmProperty"/> by the declaring type and name.
         /// </summary>
-        public static DotvvmProperty ResolveProperty(Type type, string name)
+        public static DotvvmProperty? ResolveProperty(Type type, string name)
         {
             var fullName = type.FullName + "." + name;
 
-            DotvvmProperty property;
-            while (!registeredProperties.TryGetValue(fullName, out property) && type.GetTypeInfo().BaseType != null)
+            DotvvmProperty? property;
+            while (!registeredProperties.TryGetValue(fullName, out property) && type.BaseType != null)
             {
-                type = type.GetTypeInfo().BaseType;
+                type = type.BaseType;
                 fullName = type.FullName + "." + name;
             }
             return property;
@@ -279,7 +279,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Resolves the <see cref="DotvvmProperty"/> from the full name (DeclaringTypeName.PropertyName).
         /// </summary>
-        public static DotvvmProperty ResolveProperty(string fullName, bool caseSensitive = true)
+        public static DotvvmProperty? ResolveProperty(string fullName, bool caseSensitive = true)
         {
             return registeredProperties.Values.LastOrDefault(p =>
                 p.FullName.Equals(fullName, caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase));
@@ -291,10 +291,10 @@ namespace DotVVM.Framework.Binding
         public static DotvvmProperty[] ResolveProperties(Type type)
         {
             var types = new HashSet<Type>();
-            while (type.GetTypeInfo().BaseType != null)
+            while (type.BaseType != null)
             {
                 types.Add(type);
-                type = type.GetTypeInfo().BaseType;
+                type = type.BaseType;
             }
 
             return registeredProperties.Values.Where(p => types.Contains(p.DeclaringType)).ToArray();

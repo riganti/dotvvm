@@ -11,6 +11,7 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Resources;
 using DotVVM.Framework.Runtime;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls
 {
@@ -205,9 +206,11 @@ namespace DotVVM.Framework.Controls
             AssertIsValidHtmlName(name);
             writer.Write(name);
 
+#pragma warning disable CS8605
             foreach (DictionaryEntry attr in dataBindAttributes)
+#pragma warning restore CS8605
             {
-                AddAttribute("data-bind", attr.Key + ": " + ConvertHtmlAttributeValue(attr.Value), true, ", ");
+                AddAttribute("data-bind", attr.Key + ": " + ConvertHtmlAttributeValue(attr.Value.NotNull()), true, ", ");
             }
             dataBindAttributes.Clear();
 
@@ -272,8 +275,7 @@ namespace DotVVM.Framework.Controls
         {
             // allow to use the attribute transformer
             var pair = new HtmlTagAttributePair() { TagName = name, AttributeName = attributeName };
-            HtmlAttributeTransformConfiguration transformConfiguration;
-            if (requestContext.Configuration.Markup.HtmlAttributeTransforms.TryGetValue(pair, out transformConfiguration))
+            if (requestContext.Configuration.Markup.HtmlAttributeTransforms.TryGetValue(pair, out var transformConfiguration))
             {
                 // use the transformer
                 var transformer = transformConfiguration.GetInstance();
@@ -287,9 +289,9 @@ namespace DotVVM.Framework.Controls
 
         private string ConvertHtmlAttributeValue(object value)
         {
-            if (value is KnockoutBindingGroup)
+            if (value is KnockoutBindingGroup koGroup)
             {
-                return value.ToString();
+                return koGroup.ToString();
             }
 
             return (string) value;

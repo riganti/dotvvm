@@ -6,6 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Framework.Runtime
@@ -21,7 +22,7 @@ namespace DotVVM.Framework.Runtime
 
         public AttributeViewModelParameterBinder()
         {
-            setPropertyMethod = typeof(AttributeViewModelParameterBinder).GetMethod(nameof(SetProperty), BindingFlags.NonPublic | BindingFlags.Static);
+            setPropertyMethod = typeof(AttributeViewModelParameterBinder).GetMethod(nameof(SetProperty), BindingFlags.NonPublic | BindingFlags.Static).NotNull();
         }
 
         /// <summary>
@@ -76,7 +77,7 @@ namespace DotVVM.Framework.Runtime
             }
 
             // WORKAROUND: When the type contains non-overridden property with the same name as it's parent (using a `new` modifier) the `GetProperty` method throws an AmbiguousMatchException, so we have to find the property using a collection query
-            return propertyInfo.DeclaringType
+            return propertyInfo.DeclaringType!
                 .GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                 .Single(p => p.Name == propertyInfo.Name && p.DeclaringType == propertyInfo.DeclaringType);
         }

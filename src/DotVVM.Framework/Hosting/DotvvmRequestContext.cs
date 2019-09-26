@@ -43,7 +43,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets the values of parameters specified in the <see cref="P:Route" /> property.
         /// </summary>
-        public IDictionary<string, object>? Parameters { get; set; }
+        public IDictionary<string, object?>? Parameters { get; set; }
 
         /// <summary>
         /// Gets the <see cref="IDotvvmPresenter"/> that is responsible for handling this HTTP request.

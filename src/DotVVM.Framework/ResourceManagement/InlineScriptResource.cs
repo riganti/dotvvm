@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,8 +27,8 @@ namespace DotVVM.Framework.ResourceManagement
         /// <summary>
         /// Gets or sets the javascript code that will be embedded in the page.
         /// </summary>
-        private string _code;
-        public string Code
+        private string? _code;
+        public string? Code
         {
             get => _code;
             set
@@ -37,7 +38,7 @@ namespace DotVVM.Framework.ResourceManagement
             }
         }
 
-        internal static void InlineScriptContentGuard(string code)
+        internal static void InlineScriptContentGuard(string? code)
         {
             if (code?.IndexOf("</script", StringComparison.OrdinalIgnoreCase) >= 0)
                 throw new Exception($"Inline script can't contain `</script>`.");

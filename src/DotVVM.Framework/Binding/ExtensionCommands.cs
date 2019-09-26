@@ -34,6 +34,7 @@ namespace DotVVM.Framework.Binding
         {
             var propertyName = control.GetType().FullName + "/" + methodUsageId;
             var property = DotvvmProperty.ResolveProperty(typeof(PropertyBox), propertyName);
+            if (property is null) throw new Exception($"Extension command {propertyName} has not been registered.");
             return control.GetCommandBinding(property) as CommandBindingExpression;
         }
 

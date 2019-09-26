@@ -87,7 +87,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(Required = true)]
         public string Text
         {
-            get { return Convert.ToString(GetValue(TextProperty)); }
+            get { return Convert.ToString(GetValue(TextProperty)).NotNull(); }
             set { SetValue(TextProperty, value); }
         }
 
@@ -150,7 +150,7 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<FormatValueType, TextBox>(t => t.ValueType);
 
         public static bool NeedsFormatting(IValueBinding? binding) => binding != null && (binding.ResultType == typeof(DateTime) || binding.ResultType == typeof(DateTime?)
-            || binding.ResultType.IsNumericType() || Nullable.GetUnderlyingType(binding.ResultType).IsNumericType());
+            || binding.ResultType.IsNumericType() || Nullable.GetUnderlyingType(binding.ResultType)?.IsNumericType() == true);
 
         protected internal override void OnPreRender(IDotvvmRequestContext context)
         {

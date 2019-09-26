@@ -12,10 +12,12 @@ namespace DotVVM.Framework.Utils
     public static class FunctionalExtensions
     {
         public static TValue GetValue<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, TKey key)
+            where TKey: notnull
             => dictionary[key];
 
         [return: MaybeNull]
         public static TValue GetValueOrDefault<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, TKey key)
+            where TKey: notnull
         {
             TValue value;
             if (!dictionary.TryGetValue(key, out value))
@@ -39,16 +41,19 @@ namespace DotVVM.Framework.Utils
 
         private static string GetDebugFunctionInfo(Delegate func)
         {
+            var funcName = $"{func.Method.DeclaringType!.FullName}.{func.Method.Name}";
+            if (func.Target is null)
+                return $"'{funcName}' without closure";
             var fields = func.Target.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             var fieldsFormatted = string.Join("; ", fields.Select(f => f.Name + ": " + f.GetValue(func.Target)?.ToString() ?? "null"));
-            return $"'{func.Method.DeclaringType.FullName}.{func.Method.Name}' with closure [{fieldsFormatted}]";
+            return $"'{funcName}' with closure [{fieldsFormatted}]";
         }
 
         public static TOut CastTo<TOut>(this object original)
             where TOut : class
             => (TOut)original;
 
-        public static TOut? As<TOut>(this object original)
+        public static TOut? As<TOut>(this object? original)
             where TOut : class
             => original as TOut;
 

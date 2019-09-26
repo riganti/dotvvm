@@ -70,16 +70,16 @@ namespace DotVVM.Framework.Binding
                 bindingResolvers.FindResolver(type) ??
                 this.resolvers.FindResolver(type);
 
-            object getParameterValue(ParameterInfo p) => binding.GetProperty(p.ParameterType, p.HasDefaultValue ? ErrorHandlingMode.ReturnNull : ErrorHandlingMode.ReturnException) ?? p.DefaultValue;
+            object? getParameterValue(ParameterInfo p) => binding.GetProperty(p.ParameterType, p.HasDefaultValue ? ErrorHandlingMode.ReturnNull : ErrorHandlingMode.ReturnException) ?? p.DefaultValue;
 
-            Exception? checkArguments(object[] arguments) =>
+            Exception? checkArguments(object?[] arguments) =>
                 arguments.OfType<Exception>().ToArray() is var exceptions && exceptions.Any() ?
                 new BindingPropertyException(binding, type, "unresolvable arguments", exceptions) :
                 null;
 
             if (resolver != null)
             {
-                var arguments = resolver.GetMethodInfo().GetParameters().Select(getParameterValue).ToArray();
+                var arguments = resolver.Method.GetParameters().Select(getParameterValue).ToArray();
                 { if (checkArguments(arguments) is Exception exc) return exc; }
                 var value = resolver.ExceptionSafeDynamicInvoke(arguments);
                 // post process the value
@@ -87,7 +87,7 @@ namespace DotVVM.Framework.Binding
                     .Concat(bindingResolvers.GetPostProcessors(type)
                     .Concat(additionalResolvers?.GetPostProcessors(type) ?? Enumerable.Empty<Delegate>())))
                 {
-                    var method = postProcessor.GetMethodInfo();
+                    var method = postProcessor.Method;
                     arguments = new[] { value }.Concat(method.GetParameters().Skip(1).Select(getParameterValue)).ToArray();
                     if (checkArguments(arguments) is Exception exc) return exc;
                     value = postProcessor.ExceptionSafeDynamicInvoke(arguments) ?? value;
@@ -191,14 +191,14 @@ namespace DotVVM.Framework.Binding
 
         public void AddResolver(Delegate resolver, bool replace = false)
         {
-            if (replace) resolvers[resolver.GetMethodInfo().ReturnType] = resolver;
-            else if (!resolvers.TryAdd(resolver.GetMethodInfo().ReturnType, resolver))
-                throw new NotSupportedException($"Can't insert more resolvers for property of type '{resolver.GetMethodInfo().ReturnType}'.");
+            if (replace) resolvers[resolver.Method.ReturnType] = resolver;
+            else if (!resolvers.TryAdd(resolver.Method.ReturnType, resolver))
+                throw new NotSupportedException($"Can't insert more resolvers for property of type '{resolver.Method.ReturnType}'.");
         }
 
         public void AddPostProcessor(Delegate processor)
         {
-            var method = processor.GetMethodInfo();
+            var method = processor.Method;
             var type = method.GetParameters().First().ParameterType;
             if (method.ReturnType != typeof(void) && method.ReturnType != type)
                 throw new Exception("Binding property post-processing function must return void or first parameter's type.");
@@ -208,7 +208,7 @@ namespace DotVVM.Framework.Binding
 
         public void AddDelegate(Delegate func, bool replace = false)
         {
-            var method = func.GetMethodInfo();
+            var method = func.Method;
             var type = method.GetParameters().FirstOrDefault()?.ParameterType;
             if (method.ReturnType == typeof(void) || method.ReturnType == type)
                 AddPostProcessor(func);

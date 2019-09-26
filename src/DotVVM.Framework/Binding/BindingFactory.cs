@@ -24,8 +24,8 @@ namespace DotVVM.Framework.Binding
         {
             if (binding.GetTypeInfo().ContainsGenericParameters)
             {
-                var nonGenericBase = binding.GetTypeInfo().BaseType;
-                Debug.Assert(!nonGenericBase.GetTypeInfo().ContainsGenericParameters && nonGenericBase.Name  + "`1" == binding.Name);
+                var nonGenericBase = binding.BaseType;
+                Debug.Assert(nonGenericBase != null && !nonGenericBase.ContainsGenericParameters && nonGenericBase.Name  + "`1" == binding.Name);
                 var tmpBinding = CreateBinding(service, nonGenericBase, properties);
                 var type = tmpBinding.GetProperty<ExpectedTypeBindingProperty>(ErrorHandlingMode.ReturnNull)?.Type ??
                            tmpBinding.GetProperty<ResultTypeBindingProperty>().Type;

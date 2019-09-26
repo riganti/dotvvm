@@ -68,7 +68,7 @@ namespace DotVVM.Framework.Binding
                 }
                 return true;
             }
-            public override bool Equals(object obj) => Equals(obj as CacheKey);
+            public override bool Equals(object? obj) => Equals(obj as CacheKey);
             public override int GetHashCode()
             {
                 var hash = 234567643 ^ keys.Length ^ id.GetHashCode() ^ type.GetHashCode();

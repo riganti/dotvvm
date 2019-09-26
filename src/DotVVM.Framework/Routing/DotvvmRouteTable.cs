@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -22,7 +23,7 @@ namespace DotVVM.Framework.Routing
             = new Dictionary<string, RouteBase>(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, DotvvmRouteTable> routeTableGroups
             = new Dictionary<string, DotvvmRouteTable>();
-        private RouteTableGroup group = null;
+        private RouteTableGroup? group = null;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmRouteTable"/> class.
@@ -57,7 +58,7 @@ namespace DotVVM.Framework.Routing
             string urlPrefix,
             string virtualPathPrefix,
             Action<DotvvmRouteTable> content,
-            Func<IServiceProvider, IDotvvmPresenter> presenterFactory = null)
+            Func<IServiceProvider, IDotvvmPresenter>? presenterFactory = null)
         {
             if (string.IsNullOrEmpty(groupName))
             {
@@ -109,7 +110,7 @@ namespace DotVVM.Framework.Routing
         /// <param name="virtualPath">The virtual path of the Dothtml file.</param>
         /// <param name="defaultValues">The default values.</param>
         /// <param name="presenterFactory">Delegate creating the presenter handling this route</param>
-        public void Add(string routeName, string url, string virtualPath, object defaultValues = null, Func<IServiceProvider, IDotvvmPresenter> presenterFactory = null)
+        public void Add(string routeName, string url, string virtualPath, object? defaultValues = null, Func<IServiceProvider, IDotvvmPresenter>? presenterFactory = null)
         {
             Add(group?.RouteNamePrefix + routeName, new DotvvmRoute(CombinePath(group?.UrlPrefix, url), CombinePath(group?.VirtualPathPrefix, virtualPath), defaultValues, presenterFactory ?? GetDefaultPresenter, configuration));
         }
@@ -122,9 +123,9 @@ namespace DotVVM.Framework.Routing
         /// <param name="url">The URL.</param>
         /// <param name="defaultValues">The default values.</param>
         /// <param name="presenterFactory">The presenter factory.</param>
-        public void Add(string routeName, string url, Func<IServiceProvider, IDotvvmPresenter> presenterFactory = null, object defaultValues = null)
+        public void Add(string routeName, string url, Func<IServiceProvider, IDotvvmPresenter>? presenterFactory = null, object? defaultValues = null)
         {
-            Add(group?.RouteNamePrefix + routeName, new DotvvmRoute(CombinePath(group?.UrlPrefix, url), group?.VirtualPathPrefix, defaultValues, presenterFactory ?? GetDefaultPresenter, configuration));
+            Add(group?.RouteNamePrefix + routeName, new DotvvmRoute(CombinePath(group?.UrlPrefix, url), group?.VirtualPathPrefix ?? "", defaultValues, presenterFactory ?? GetDefaultPresenter, configuration));
         }
 
 
@@ -135,7 +136,7 @@ namespace DotVVM.Framework.Routing
         /// <param name="url">The URL.</param>
         /// <param name="presenterType">The presenter factory.</param>
         /// <param name="defaultValues">The default values.</param>
-        public void Add(string routeName, string url, Type presenterType, object defaultValues = null)
+        public void Add(string routeName, string url, Type presenterType, object? defaultValues = null)
         {
             if (!typeof(IDotvvmPresenter).IsAssignableFrom(presenterType))
             {
@@ -197,11 +198,11 @@ namespace DotVVM.Framework.Routing
             return GetEnumerator();
         }
 
-        private string CombinePath(string prefix, string appendedPath)
+        private string CombinePath(string? prefix, string? appendedPath)
         {
             if (string.IsNullOrEmpty(prefix))
             {
-                return appendedPath;
+                return appendedPath ?? "";
             }
 
             if (string.IsNullOrEmpty(appendedPath))
