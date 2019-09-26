@@ -45,7 +45,7 @@ namespace DotVVM.Framework.Runtime
             while (IsNestedInMasterPage(contentPage))
             {
                 // load master page
-                var masterPageFile = contentPage.Directives[ParserConstants.MasterPageDirective];
+                var masterPageFile = contentPage.Directives![ParserConstants.MasterPageDirective];
                 var masterPage = (DotvvmView)controlBuilderFactory.GetControlBuilder(masterPageFile).builder.Value.BuildControl(controlBuilderFactory, context.Services);
 
                 FillsDefaultDirectives(masterPage);
@@ -87,7 +87,7 @@ namespace DotVVM.Framework.Runtime
         /// </summary>
         private bool IsNestedInMasterPage(DotvvmView page)
         {
-            return page.Directives.ContainsKey(ParserConstants.MasterPageDirective);
+            return page.Directives!.ContainsKey(ParserConstants.MasterPageDirective);
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace DotVVM.Framework.Runtime
         {
             foreach (var key in markupConfiguration.DefaultDirectives.Keys)
             {
-                if (!page.Directives.Keys.Contains(key))
+                if (!page.Directives!.Keys.Contains(key))
                 {
                     page.Directives[key] = markupConfiguration.DefaultDirectives[key];
                 }

@@ -1,4 +1,5 @@
-﻿using DotVVM.Framework.Binding;
+﻿#nullable enable
+using DotVVM.Framework.Binding;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,8 +21,8 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false)]
         public string WrapperTagName
         {
-            get { return (string)GetValue(WrapperTagNameProperty); }
-            set { SetValue(WrapperTagNameProperty, value); }
+            get { return (string)GetValue(WrapperTagNameProperty)!; }
+            set { SetValue(WrapperTagNameProperty, value ?? throw new ArgumentNullException(nameof(value))); }
         }
         public static readonly DotvvmProperty WrapperTagNameProperty
             = DotvvmProperty.Register<string, ConfigurableHtmlControl>(c => c.WrapperTagName, "div");
@@ -32,7 +33,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false)]
         public bool RenderWrapperTag
         {
-            get { return (bool)GetValue(RenderWrapperTagProperty); }
+            get { return (bool)GetValue(RenderWrapperTagProperty)!; }
             set { SetValue(RenderWrapperTagProperty, value); }
         }
         public static readonly DotvvmProperty RenderWrapperTagProperty
@@ -40,10 +41,10 @@ namespace DotVVM.Framework.Controls
 
         protected override bool RendersHtmlTag => RenderWrapperTag;
 
-        public ConfigurableHtmlControl(string tagName)
-            : base(tagName)
+        public ConfigurableHtmlControl(string? tagName)
+            : base(tagName ?? "div")
         {
-            WrapperTagName = tagName;
+            WrapperTagName = tagName ?? "div";
             RenderWrapperTag = !string.IsNullOrEmpty(WrapperTagName);
         }
 

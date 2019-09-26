@@ -300,10 +300,8 @@ namespace DotVVM.Framework.Controls
         private void AddTypeAttributeToRender(IHtmlWriter writer)
         {
             var type = this.Type;
-            var isTagName = type.TryGetTagName(out string tagName);
-            var isInputType = type.TryGetInputType(out string inputType);
 
-            if (isTagName)
+            if (type.TryGetTagName(out var tagName))
             {
                 TagName = tagName;
                 // do not overwrite type attribute
@@ -314,7 +312,7 @@ namespace DotVVM.Framework.Controls
                 return;
             }
 
-            if (isInputType)
+            if (type.TryGetInputType(out var inputType))
             {
                 writer.AddAttribute("type", inputType);
                 TagName = "input";

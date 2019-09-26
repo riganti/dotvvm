@@ -24,7 +24,7 @@ namespace DotVVM.Framework.Controls
         public HtmlGenericControl(bool allowImplicitLifecycleRequirements = true)
 #pragma warning restore CS8618
         {
-            Attributes = new Dictionary<string, object>();
+            Attributes = new Dictionary<string, object?>();
             if (allowImplicitLifecycleRequirements && GetType() == typeof(HtmlGenericControl))
             {
                 LifecycleRequirements = ControlLifecycleRequirements.None;
@@ -49,7 +49,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.Attribute, AllowBinding = true, AllowHardCodedValue = true, AllowValueMerging = true, AttributeValueMerger = typeof(HtmlAttributeValueMerger), AllowAttributeWithoutValue = true)]
         [PropertyGroup(new[] { "", "html:" })]
-        public Dictionary<string, object> Attributes { get; private set; }
+        public Dictionary<string, object?> Attributes { get; private set; }
 
         public VirtualPropertyGroupDictionary<bool> CssClasses => new VirtualPropertyGroupDictionary<bool>(this, CssClassesGroupDescriptor);
 
