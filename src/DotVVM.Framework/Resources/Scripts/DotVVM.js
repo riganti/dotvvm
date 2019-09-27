@@ -1207,6 +1207,7 @@ var DotVVM = /** @class */ (function () {
                                 if (responseJson.action === "redirect") {
                                     // redirect
                                     _this.handleRedirect(responseJson, viewModelName);
+                                    return;
                                 }
                                 dotvvm.events.staticCommandMethodInvoked.trigger(__assign({}, data, { result: result, xhr: response }));
                                 callback(result);
