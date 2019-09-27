@@ -66,18 +66,12 @@ namespace DotVVM.Framework.Compilation.Validation
                 .ToArray();
 
             var attributes = methods.Select(s => s.GetCustomAttribute(typeof(ControlUsageValidatorAttribute))).ToList();
-            var overrideValidation = attributes.All(s => ((ControlUsageValidatorAttribute)s).Override);
-            if (attributes.Count > 2)
-            {
+            var overrideValidation = attributes.OfType<ControlUsageValidatorAttribute>().Select(s => s.Override).Distinct().ToList();
 
-                var doNotOverrideValidation = attributes.All(s => !((ControlUsageValidatorAttribute)s).Override);
+            if (overrideValidation.Count > 1)
+                throw new Exception($"ControlUsageValidator attributes on '{type.FullName}' are in an inconsistent state. Make sure all attributes have an Override property set to the same value.");
 
-                if (overrideValidation && doNotOverrideValidation)
-                    throw new Exception($"ControlUsageValidator attributes on '{type.FullName}' are in an inconsistent state. Make sure all attributes have an Override property set to the same value.");
-            }
-
-
-            if (overrideValidation) return methods;
+            if (overrideValidation.Any() && overrideValidation[0]) return methods;
             var ancestorMethods = FindMethods(type.GetTypeInfo().BaseType);
             return ancestorMethods.Concat(methods).ToArray();
         }

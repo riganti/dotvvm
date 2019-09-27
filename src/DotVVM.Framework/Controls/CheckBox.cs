@@ -120,9 +120,9 @@ namespace DotVVM.Framework.Controls
         {
             var collectionType = control.GetValue(CheckedItemsProperty)?.GetResultType().UnwrapNullableType();
             var valueType = control.GetValue(CheckedValueProperty)?.GetResultType();
-            var collectionItemType = collectionType?.Apply(ReflectionUtils.GetEnumerableType);
+            var collectionItemType = collectionType?.Apply(ReflectionUtils.GetEnumerableType)?.UnwrapNullableType();
 
-            if (collectionItemType != null && valueType != null && valueType != collectionItemType && valueType.UnwrapNullableType() != collectionItemType)
+            if (collectionItemType != null && valueType != null && valueType != collectionItemType)
             {
                 yield return new ControlUsageError(
                     $"Type of items in CheckedItems \'{collectionItemType}\' must be same as CheckedValue type \'{valueType}\'.",

@@ -108,12 +108,9 @@ namespace DotVVM.Framework.Controls
         [ControlUsageValidator]
         public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
         {
-            var itemType = control.GetValue(CheckedItemProperty)?.GetResultType();
-            var nonNullItemType = itemType?.IsNullable() == true
-                ? itemType.GetGenericArguments()[0]
-                : itemType;
+            var itemType = control.GetValue(CheckedItemProperty)?.GetResultType()?.UnwrapNullableType();
             var valueType = control.GetValue(CheckedValueProperty)?.GetResultType();
-            if (nonNullItemType != null && valueType != null && nonNullItemType != valueType)
+            if (itemType != null && valueType != null && itemType != valueType)
             {
                 yield return new ControlUsageError(
                     $"CheckedItem type \'{itemType}\' must be the same as or a nullable " +
