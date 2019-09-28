@@ -54,7 +54,7 @@ namespace Owin
             return app.UseDotVVM(applicationRootPath, useErrorPages, debug, startup as IDotvvmServiceConfigurator, startup, serviceProviderFactoryMethod, modifyConfiguration);
         }
 
-        private static DotvvmConfiguration UseDotVVM(this IAppBuilder app, string applicationRootPath, bool useErrorPages, bool debug, IDotvvmServiceConfigurator configurator, IDotvvmStartup startup, Func<IServiceCollection, IServiceProvider> serviceProviderFactoryMethod = null, Action<DotvvmConfiguration> modifyConfiguration)
+        private static DotvvmConfiguration UseDotVVM(this IAppBuilder app, string applicationRootPath, bool useErrorPages, bool debug, IDotvvmServiceConfigurator configurator, IDotvvmStartup startup, Func<IServiceCollection, IServiceProvider> serviceProviderFactoryMethod = null, Action<DotvvmConfiguration> modifyConfiguration = null)
         {
             var config = DotvvmConfiguration.CreateDefault(s => {
                 s.TryAddSingleton<IDataProtectionProvider>(p => new DefaultDataProtectionProvider(app));
