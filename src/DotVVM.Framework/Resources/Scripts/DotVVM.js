@@ -1523,45 +1523,47 @@ var DotVVM = /** @class */ (function () {
             callback();
             return;
         }
-        var el = elements[offset];
+        var element = elements[offset];
         var waitForScriptLoaded = false;
-        if (el.tagName.toLowerCase() == "script") {
-            // create the script element
+        if (element.tagName.toLowerCase() == "script") {
+            var originalScript = element;
             var script = document.createElement("script");
-            if (el.src) {
-                script.src = el.src;
+            if (originalScript.src) {
+                script.src = originalScript.src;
                 waitForScriptLoaded = true;
             }
-            if (el.type) {
-                script.type = el.type;
+            if (originalScript.type) {
+                script.type = originalScript.type;
             }
-            if (el.text) {
-                script.text = el.text;
+            if (originalScript.text) {
+                script.text = originalScript.text;
             }
-            if (el.id) {
-                script.id = el.id;
+            if (element.id) {
+                script.id = element.id;
             }
-            el = script;
+            element = script;
         }
-        else if (el.tagName.toLowerCase() == "link") {
+        else if (element.tagName.toLowerCase() == "link") {
             // create link
+            var originalLink = element;
             var link = document.createElement("link");
-            if (el.href) {
-                link.href = el.href;
+            if (originalLink.href) {
+                link.href = originalLink.href;
             }
-            if (el.rel) {
-                link.rel = el.rel;
+            if (originalLink.rel) {
+                link.rel = originalLink.rel;
             }
-            if (el.type) {
-                link.type = el.type;
+            if (originalLink.type) {
+                link.type = originalLink.type;
             }
-            el = link;
+            element = link;
         }
         // load next script when this is finished
         if (waitForScriptLoaded) {
-            el.onload = function () { return _this.loadResourceElements(elements, offset + 1, callback); };
+            element.addEventListener("load", function () { return _this.loadResourceElements(elements, offset + 1, callback); });
+            element.addEventListener("error", function () { return _this.loadResourceElements(elements, offset + 1, callback); });
         }
-        document.head.appendChild(el);
+        document.head.appendChild(element);
         if (!waitForScriptLoaded) {
             this.loadResourceElements(elements, offset + 1, callback);
         }

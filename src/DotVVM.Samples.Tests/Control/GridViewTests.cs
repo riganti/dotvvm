@@ -3,6 +3,7 @@ using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions;
+using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -531,6 +532,24 @@ namespace DotVVM.Samples.Tests.Control
 
                 // Check last cell
                 AssertUI.TextEquals(tbody.Last("tr").Last("td").Single("span"), LastCell);
+            });
+        }
+
+        [Fact]
+        public void Control_GridView_RenamedPrimaryKey()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_RenamedPrimaryKey);
+                browser.WaitUntilDotvvmInited();
+
+                var gridview = browser.Single("gridview", SelectByDataUi);
+                AssertUI.NotContainsElement(gridview, "input");
+
+                browser.First("edit-button", SelectByDataUi).Click();
+                browser.WaitFor(() => AssertUI.ContainsElement(gridview, "input"), 1000);
+
+                browser.First("save-button", SelectByDataUi).Click();
+                browser.WaitFor(() => AssertUI.NotContainsElement(gridview, "input"), 1000);
             });
         }
     }
