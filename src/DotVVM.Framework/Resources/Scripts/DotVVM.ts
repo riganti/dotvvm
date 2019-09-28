@@ -403,6 +403,7 @@ class DotVVM {
                         if (responseObj.action == "redirect") {
                             // redirect
                             this.handleRedirect(responseObj, viewModelName);
+                            errorCallback({ xhr: response, error: "redirect" });
                             return;
                         } else {
                             throw new Error(`Invalid action ${responseObj.action}`);

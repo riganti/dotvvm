@@ -1207,6 +1207,7 @@ var DotVVM = /** @class */ (function () {
                                     if (responseObj.action == "redirect") {
                                         // redirect
                                         _this.handleRedirect(responseObj, viewModelName);
+                                        errorCallback({ xhr: response, error: "redirect" });
                                         return;
                                     }
                                     else {
