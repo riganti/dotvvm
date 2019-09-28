@@ -1,5 +1,6 @@
 using System;
 using DotVVM.Framework.Compilation.Javascript.Ast;
+using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -50,7 +51,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
 
         public static bool IsComplexType(this JsExpression expr) =>
-            GetResultType(expr) is ViewModelInfoAnnotation vmInfo && ViewModelJsonConverter.IsComplexType(vmInfo.Type);
+            GetResultType(expr) is ViewModelInfoAnnotation vmInfo && ReflectionUtils.IsComplexType(vmInfo.Type);
 
         public static bool IsRootResultExpression(this JsNode node) =>
             SatisfyResultCondition(node, n => n.Parent == null || n.Parent is JsExpressionStatement);
