@@ -209,7 +209,7 @@ namespace DotVVM.Framework.Routing
         private void ThrowIfFrozen()
         {
             if (isFrozen)
-                throw new InvalidOperationException("The HtmlAttributeTransformConfiguration is frozen and can be no longer modified.");
+                throw FreezableUtils.Error(nameof(DotvvmRouteTable))
         }
         public void Freeze()
         {

@@ -93,7 +93,7 @@ namespace DotVVM.Framework.Configuration
         private void ThrowIfFrozen()
         {
             if (isFrozen)
-                throw new InvalidOperationException("The DotvvmControlConfiguration is frozen and can be no longer modified.");
+                FreezableUtils.Error(nameof(DotvvmControlConfiguration));
         }
         public void Freeze()
         {

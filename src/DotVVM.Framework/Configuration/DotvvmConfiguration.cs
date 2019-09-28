@@ -150,6 +150,7 @@ namespace DotVVM.Framework.Configuration
             Markup.Freeze();
             RouteTable.Freeze();
             Resources.Freeze();
+            Runtime.Freeze();
             Security.Freeze();
             ExperimentalFeatures.Freeze();
             _routeConstraints.Freeze();

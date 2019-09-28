@@ -155,7 +155,7 @@ namespace DotVVM.Framework.ResourceManagement
         private void ThrowIfFrozen()
         {
             if (isFrozen)
-                throw new InvalidOperationException("The DotvvmResourceRepository is frozen and can be no longer modified.");
+                throw FreezableUtils.Error(nameof(DotvvmResourceRepository));
         }
         public void Freeze()
         {

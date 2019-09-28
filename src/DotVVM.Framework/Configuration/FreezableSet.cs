@@ -28,7 +28,7 @@ namespace DotVVM.Framework.Configuration
         private void ThrowIfFrozen()
         {
             if (isFrozen)
-                throw new InvalidOperationException("The list is frozen and can be no longer modified.");
+                throw FreezableUtils.Error("set");
         }
         public void Freeze()
         {

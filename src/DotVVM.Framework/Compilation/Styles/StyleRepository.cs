@@ -70,7 +70,7 @@ namespace DotVVM.Framework.Compilation.Styles
         private void ThrowIfFrozen()
         {
             if (isFrozen)
-                throw new InvalidOperationException("The StyleRepository is frozen and can be no longer modified.");
+                throw FreezableUtils.Error(nameof(StyleRepository));
         }
         public void Freeze()
         {

@@ -197,7 +197,7 @@ namespace DotVVM.Framework.Routing
         private void ThrowIfFrozen()
         {
             if (isFrozen)
-                throw new InvalidOperationException($"The {this.GetType().Name} is frozen and can be no longer modified.");
+                throw FreezableUtils.Error(this.GetType().Name);
         }
         public void Freeze()
         {

@@ -40,7 +40,7 @@ namespace DotVVM.Framework.Configuration
             if (isFrozen)
                 return instance.Value;
             else
-                throw new NotSupportedException("Can not use HtmlAttributeTransformConfiguration since it can still be modified");
+                throw new NotSupportedException("This HtmlAttributeTransformConfiguration must be frozen before the IHtmlAttributeTransformer instance can be returned.");
         }
 
 
@@ -67,7 +67,7 @@ namespace DotVVM.Framework.Configuration
         private void ThrowIfFrozen()
         {
             if (isFrozen)
-                throw new InvalidOperationException("The HtmlAttributeTransformConfiguration is frozen and can be no longer modified.");
+                throw FreezableUtils.Error(nameof(HtmlAttributeTransformConfiguration));
         }
         public void Freeze()
         {
