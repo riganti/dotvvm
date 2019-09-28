@@ -117,7 +117,7 @@ namespace DotVVM.Framework.Controls
                 control.Properties.GetValue(SelectorBase.ItemValueBindingProperty) is ResolvedPropertyBinding valueBinding)
             {
                 var t = valueBinding.Binding.ResultType;
-                if (!t.IsPrimitiveOrEnumTypeDescriptor())
+                if (!t.IsPrimitiveTypeDescriptor())
                 {
                     yield return new ControlUsageError("Return type of ItemValueBinding has to be a primitive type!", valueBinding.DothtmlNode);
                 }

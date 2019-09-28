@@ -118,14 +118,15 @@ namespace DotVVM.Framework.Controls
         [ControlUsageValidator]
         public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
         {
-            var collectionType = control.GetValue(CheckedItemsProperty)?.GetResultType().UnwrapNullableType();
-            var valueType = control.GetValue(CheckedValueProperty)?.GetResultType();
-            var collectionItemType = collectionType?.Apply(ReflectionUtils.GetEnumerableType)?.UnwrapNullableType();
+            var to = control.GetValue(CheckedItemsProperty)?.GetResultType()?.UnwrapNullableType()?.GetEnumerableType();
+            var nonNullableTo = to?.UnwrapNullableType();
+            var from = control.GetValue(CheckedValueProperty)?.GetResultType();
 
-            if (collectionItemType != null && valueType != null && valueType != collectionItemType)
+            if (to != null && from != null
+                && !to.IsAssignableFrom(from) && !nonNullableTo.IsAssignableFrom(from))
             {
                 yield return new ControlUsageError(
-                    $"Type of items in CheckedItems \'{collectionItemType}\' must be same as CheckedValue type \'{valueType}\'.",
+                    $"Type of items in CheckedItems \'{to}\' must be same as CheckedValue type \'{from}\'.",
                     control.GetValue(CheckedItemsProperty).DothtmlNode,
                     control.GetValue(CheckedValueProperty).DothtmlNode
                 );

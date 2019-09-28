@@ -37,26 +37,30 @@ namespace DotVVM.Framework.Controls
         [ControlUsageValidator]
         public static new IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
         {
-            if (!(control.GetValue(Selector.SelectedValueProperty) is ResolvedPropertySetter selectedValueBinding)) yield break;
-            if (control.GetValue(SelectorBase.ItemValueBindingProperty) is ResolvedPropertySetter itemValueBinding)
+            if (!(control.GetValue(SelectedValueProperty) is ResolvedPropertySetter selectedValueBinding)) yield break;
+            if (control.GetValue(ItemValueBindingProperty) is ResolvedPropertySetter itemValueBinding)
             {
                 var to = selectedValueBinding.GetResultType();
+                var nonNullableTo = to?.UnwrapNullableType();
                 var from = itemValueBinding.GetResultType();
-                if (to != null && from != null && !to.IsAssignableFrom(from))
+
+                if (to != null && from != null
+                    && !to.IsAssignableFrom(from) && !nonNullableTo.IsAssignableFrom(from))
                 {
                     yield return new ControlUsageError($"Type '{from.FullName}' is not assignable to '{to.FullName}'.", selectedValueBinding.DothtmlNode);
                 }
             }
-            else
+            else if (control.GetValue(DataSourceProperty) is ResolvedPropertySetter dataSourceBinding)
             {
-                if (control.GetValue(ItemsControl.DataSourceProperty) is ResolvedPropertySetter dataSourceBinding)
+                var to = selectedValueBinding.GetResultType();
+                var nonNullableTo = to?.UnwrapNullableType();
+                var from = dataSourceBinding.GetResultType()?.UnwrapNullableType()?.GetEnumerableType();
+
+                if (to != null && from != null
+                    && !to.IsAssignableFrom(from) && !nonNullableTo.IsAssignableFrom(from)
+                    && !(to.IsEnum && from == typeof(string)) && !(to.UnwrapNullableType().IsEnum && from == typeof(string)))
                 {
-                    var to = selectedValueBinding.GetResultType().UnwrapNullableType();
-                    var from = ReflectionUtils.GetEnumerableType(dataSourceBinding.GetResultType()?.UnwrapNullableType());
-                    if (to != null && from != null && !to.IsAssignableFrom(from) && !(to.IsEnum && from == typeof(string)))
-                    {
-                        yield return new ControlUsageError($"Type '{from.FullName}' is not assignable to '{to.FullName}'.", selectedValueBinding.DothtmlNode);
-                    }
+                    yield return new ControlUsageError($"Type '{from.FullName}' is not assignable to '{to.FullName}'.", selectedValueBinding.DothtmlNode);
                 }
             }
         }
