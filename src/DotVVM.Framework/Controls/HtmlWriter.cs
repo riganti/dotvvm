@@ -204,7 +204,7 @@ namespace DotVVM.Framework.Controls
             writer.Write("/>");
 
             if (this.enableWarnings && !IsSelfClosing(name))
-                Warn($"Element {name} is not self closing but is rendered as so. It may interpreted as a start tag without the end tag by the browsers.");
+                Warn($"Element {name} is not self-closing but is rendered as so. It may be interpreted as a start tag without an end tag by the browsers.");
         }
 
         private Dictionary<string, string> attributeMergeTable = new Dictionary<string, string>(23);
@@ -368,7 +368,7 @@ namespace DotVVM.Framework.Controls
                 writer.Write(">");
 
                 if (this.enableWarnings && IsSelfClosing(tag))
-                    Warn($"Element {tag} is self closing but contains content. The browser may interpret the start tag as self-closing and put the 'content' into it's parent.");
+                    Warn($"Element {tag} is self-closing but contains content. The browser may interpret the start tag as self-closing and put the 'content' into its parent.");
             }
             else
             {
