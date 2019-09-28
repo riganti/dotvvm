@@ -31,6 +31,13 @@ interface IDotvvmViewModelInfo {
 interface IDotvvmViewModels {
     [name: string]: IDotvvmViewModelInfo
 }
+type DotvvmStaticCommandResponse = {
+    result: any;
+} | {
+    action: "redirect";
+    url: string;
+};
+
 
 interface IDotvvmPostbackHandlerCollection {
     [name: string]: ((options: any) => DotvvmPostbackHandler);
@@ -391,7 +398,18 @@ class DotVVM {
             this.postJSON(<string>this.viewModels[viewModelName].url, "POST", ko.toJSON(data), response => {
                 try {
                     this.isViewModelUpdating = true;
-                    const result = JSON.parse(response.responseText);
+                    const responseObj = <DotvvmStaticCommandResponse>JSON.parse(response.responseText);
+                    if ("action" in responseObj) {
+                        if (responseObj.action == "redirect") {
+                            // redirect
+                            this.handleRedirect(responseObj, viewModelName);
+                            errorCallback({ xhr: response, error: "redirect" });
+                            return;
+                        } else {
+                            throw new Error(`Invalid action ${responseObj.action}`);
+                        }
+                    }
+                    const result = responseObj.result;
                     dotvvm.events.staticCommandMethodInvoked.trigger({ ...data, result, xhr: response });
                     callback(result);
                 } catch (error) {

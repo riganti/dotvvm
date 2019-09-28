@@ -1,0 +1,21 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Redirect.RedirectStaticCommandViewModel , DotVVM.Samples.Common
+@service redirectService = DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Redirect.RedirectService
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Redirect test</h1>
+        <p><dot:Button Text="Test redirect" Click="{staticCommand:redirectService.  RedirectTest()}" /></p>
+        <p>
+            <dot:Button Text="Test RedirectToRoute object queryString" Click="{staticCommand: redirectService.RedirectObjectQueryString()}"
+                        data-ui="object-redirect-button" />
+        </p>
+        <p>
+            <dot:Button Text="Test RedirectToRoute dictionary queryString" Click="{staticCommand: redirectService.RedirectDictionaryQueryString()}"
+                        data-ui="dictionary-redirect-button" />
+        </p>
+    </div>
+</body>
+</html>
