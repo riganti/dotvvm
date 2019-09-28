@@ -227,7 +227,7 @@ namespace DotVVM.Samples.Tests.Control
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ItemBinding_ItemValueBinding_SelectedValue_ComplexToInt_Error);
 
                 browser.WaitFor(() => {
-                    AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("DotVVM.Samples.Common.ViewModels.ControlSamples.ComboBox.ComplexType") && s.Contains("not assignable") && s.Contains("System.Int32"));
+                    AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("DotVVM.Samples.Common.ViewModels.ControlSamples.ComboBox.ComboxItemBindingViewModel+ComplexType") && s.Contains("not assignable") && s.Contains("System.Int32"));
                     AssertUI.InnerText(browser.First("p.summary"), s => s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException"));
                     AssertUI.InnerText(browser.First(".errorUnderline"), s => s.Contains("{value: SelectedInt}"));
                 }, 1000);
