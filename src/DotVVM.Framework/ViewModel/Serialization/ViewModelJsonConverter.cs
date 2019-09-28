@@ -55,7 +55,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// </summary>
         public override bool CanConvert(Type objectType)
         {
-            return !ReflectionUtils.IsEnumerable(objectType) && ReflectionUtils.IsComplexType(objectType) && !ReflectionUtils.IsTuple(objectType);
+            return !ReflectionUtils.IsEnumerable(objectType) && ReflectionUtils.IsComplexType(objectType) && !ReflectionUtils.IsTuple(objectType) && !ReflectionUtils.IsObject(objectType);
         }
 
         /// <summary>
