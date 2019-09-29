@@ -20,12 +20,12 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
         {
             var comboBox = new ComboBox()
             {
-                DisplayMember = GetDisplayMember(property, context),
-                ValueMember = GetValueMember(property, context),
                 EmptyItemText = GetEmptyItemText(property, context)
             };
             container.Children.Add(comboBox);
 
+            comboBox.SetBinding(SelectorBase.ItemTextBindingProperty, context.CreateValueBinding(GetDisplayMember(property, context)));
+            comboBox.SetBinding(SelectorBase.ItemValueBindingProperty, context.CreateValueBinding(GetValueMember(property, context)));
             comboBox.SetBinding(Selector.SelectedValueProperty, context.CreateValueBinding(property.PropertyInfo.Name));
             comboBox.SetBinding(ItemsControl.DataSourceProperty, GetDataSourceBinding(property, context, comboBox));
 
