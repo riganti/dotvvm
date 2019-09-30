@@ -207,6 +207,9 @@ namespace DotVVM.Framework.Routing
             Freeze2();
         }
 
+        // Freeze must not be virtual since it would allow someone to suppress the freezing (probably accidentally).
+
+        /// <summary> This method should freeze the contents of a derived class from <see cref="RouteBase" />. Make sure that the implementation is sealed, so that the derived class can not suppress the freezing process. If you want to allow inheritance from you class, create an abstract Freeze3 method for that. </summary>
         protected abstract void Freeze2();
     }
 }
