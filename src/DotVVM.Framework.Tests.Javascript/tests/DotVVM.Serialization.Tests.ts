@@ -3,9 +3,18 @@
 /// <reference path="../../DotVVM.Framework/Resources/Scripts/DotVVM.d.ts" />
 
 var dotvvm = new DotVVM();
+var assertObservable = (object: any): any => {
+    expect(ko.isObservable(object)).toBe(true);
+    return object();
+}
+
+var asserObservableString = (object: any, expected: string) => {
+    assertObservable(object);
+    expect(object()).toBe(expected);
+}
 
 describe("DotVVM.Serialization - deserialize", () => {
-    
+
     it("Deserialize scalar number value", () => {
         expect(dotvvm.serialization.deserialize(10)).toBe(10);
     });
@@ -86,8 +95,140 @@ describe("DotVVM.Serialization - deserialize", () => {
         expect(obj.a()[2]()).toBe("ccc");
     });
 
+    it("Deserialize array to target array", () => {
+        var arrayObservable = dotvvm.serialization.deserialize(["aaa", "bbb", "ccc"], ["aa", "bb"]);
+        expect(ko.isObservable(arrayObservable)).toBeTruthy();
+
+        var array = arrayObservable();
+
+        expect(array instanceof Array).toBeTruthy();
+        expect(array.length).toBe(3);
+
+        expect(ko.isObservable(array[0])).toBeTruthy();
+        expect(array[0]()).toBe("aaa");
+
+        expect(ko.isObservable(array[1])).toBeTruthy();
+        expect(array[1]()).toBe("bbb");
+
+        expect(ko.isObservable(array[2])).toBeTruthy();
+        expect(array[2]()).toBe("ccc");
+    });
+
+    it("Deserialize observable element array to target observable element array", () => {
+        var viewmodel = [
+            ko.observable("aaa"),
+            ko.observable("bbb"),
+            ko.observable("ccc")];
+
+        var target = [
+            ko.observable("aa"),
+            ko.observable("bb")];
+
+        var arrayObservable = dotvvm.serialization.deserialize(viewmodel, target);
+        expect(ko.isObservable(arrayObservable)).toBeTruthy();
+
+        var array = arrayObservable();
+
+        expect(array instanceof Array).toBeTruthy();
+        expect(array.length).toBe(3);
+
+        expect(ko.isObservable(array[0])).toBeTruthy();
+        expect(array[0]()).toBe("aaa");
+
+        expect(ko.isObservable(array[1]));
+        expect(array[1]()).toBe("bbb");
+
+        expect(ko.isObservable(array[2])).toBeTruthy();
+        expect(array[2]()).toBe("ccc");
+    });
+
+    it("Deserialize observable array to target observable array", () => {
+        var viewmodel = ko.observableArray([
+            ko.observable("aaa"),
+            ko.observable("bbb"),
+            ko.observable("ccc")]);
+
+        var target = ko.observableArray([
+            ko.observable("aa"),
+            ko.observable("bb")]);
+
+        var arrayObservable = dotvvm.serialization.deserialize(viewmodel, target);
+        expect(ko.isObservable(arrayObservable)).toBeTruthy();
+
+        var array = arrayObservable();
+
+        expect(array instanceof Array).toBeTruthy();
+        expect(array.length).toBe(2);
+
+        expect(ko.isObservable(array[0])).toBeTruthy();
+        expect(array[0]()).toBe("aaa");
+
+        expect(ko.isObservable(array[1]));
+        expect(array[1]()).toBe("bbb");
+    });
+
+    it("Deserialize observable complex object to target observable complex object", () => {
+        var target = createComplexObservableTarget();
+        var viewmodel = createComplexObservableViewmodel();
+
+        var resultObservable = dotvvm.serialization.deserialize(viewmodel, target);
+
+        var result = assertObservable(resultObservable);
+        assertHierarchy(result);
+
+        var targetObject = assertObservable(target);
+        expect(targetObject instanceof Object).toBeTruthy();
+        assertHierarchy(targetObject);
+    });
+
+    it("Deserialize observable complex object to target observable property", () => {
+        var target = createComplexObservableTarget();
+        var viewmodel = createComplexObservableSubViewmodel();
+
+        var resultObservable = dotvvm.serialization.deserialize(viewmodel, target().Prop2);
+        var result = assertObservable(resultObservable);
+        assertSubHierarchy(result);
+
+        var targetObject = assertObservable(target)
+        asserObservableString(targetObject.Prop1, "a");
+        let targetProp2Object = assertObservable(targetObject.Prop2);
+        assertSubHierarchy(targetProp2Object);
+    });
+
+    it("Deserialize observable complex object to target observable property - target and model not linked", () => {
+        var target = createComplexObservableTarget();
+        var viewmodel = createComplexObservableSubViewmodel();
+
+        dotvvm.serialization.deserialize(viewmodel, target().Prop2);
+
+        assertSubHierarchiesNotLinked(viewmodel, target().Prop2());
+    });
+
+    it("Deserialize observable complex object property to target observable property", () => {
+        var target = createComplexObservableTarget();
+        var viewmodel = createComplexObservableViewmodel();
+
+        dotvvm.serialization.deserialize(viewmodel.Prop2(), target().Prop2);
+
+        let targetObject = assertObservable(target) as ObservableHierarchy;
+
+        assertHierarchy(viewmodel);
+        expect(targetObject.Prop1()).toBe("a");
+        assertSubHierarchy(targetObject.Prop2())
+    });
+
+    it("Deserialize observable complex object property to target observable property - target and model not linked", () => {
+        var target = createComplexObservableTarget();
+        var viewmodel = createComplexObservableViewmodel();
+
+        dotvvm.serialization.deserialize(viewmodel.Prop2(), target().Prop2);
+
+        assertSubHierarchiesNotLinked(viewmodel.Prop2(), target().Prop2());
+    });
+
+
     it("Deserialize object with arrays and subobjects", () => {
-        var obj = dotvvm.serialization.deserialize({ a: [ { b: 1, c: [ 0, 1] } ] });
+        var obj = dotvvm.serialization.deserialize({ a: [{ b: 1, c: [0, 1] }] });
         expect(ko.isObservable(obj)).toBeFalsy();
         expect(ko.isObservable(obj.a)).toBeTruthy();
         expect(obj.a() instanceof Array).toBeTruthy();
@@ -145,11 +286,11 @@ describe("DotVVM.Serialization - deserialize", () => {
         expect(numberOfInnerUpdates).toBe(1);
         expect(existing.a().b()).toBe("bbb");
     });
-    
+
     it("Deserialize into an existing instance - updating the observable array", () => {
-        var obj = { a: [ "bbb", "ccc" ] };
+        var obj = { a: ["bbb", "ccc"] };
         var existing = {
-            a: ko.observableArray([ ko.observable("aaa") ])
+            a: ko.observableArray([ko.observable("aaa")])
         };
 
         var numberOfUpdates = 0;
@@ -189,7 +330,7 @@ describe("DotVVM.Serialization - deserialize", () => {
     });
 
     it("Deserialize into an existing instance - updating the observable array of objects - one element is the same as before", () => {
-        var obj = { a: [ { b: 1 }, { b: 2 } ] };
+        var obj = { a: [{ b: 1 }, { b: 2 }] };
         var existing = {
             a: ko.observableArray([
                 ko.observable({ b: ko.observable(2) }),
@@ -231,7 +372,7 @@ describe("DotVVM.Serialization - deserialize", () => {
         var existing = {
             a: ko.observable("aaa")
         };
-        
+
         dotvvm.serialization.deserialize(obj, existing, true);
         expect(existing.a()).toBe("bbb");
     });
@@ -274,7 +415,7 @@ describe("Dotvvm.Deserialization - value type validation", () => {
         () => {
             for (var type in supportedTypes) {
                 expect(dotvvm.serialization.validateType(undefined, supportedTypes[type] + "?")).toBe(true);
-            } 
+            }
         });
 
     it("string is invalid",
@@ -302,7 +443,7 @@ describe("DotVVM.Serialization - serialize", () => {
         var obj = ko.observable(true);
         expect(dotvvm.serialization.serialize(obj)).toBe(true);
     });
-    
+
     it("Deserialize null value", () => {
         var obj = ko.observable(null);
         expect(dotvvm.serialization.serialize(obj)).toBe(null);
@@ -380,7 +521,7 @@ describe("DotVVM.Serialization - serialize", () => {
         expect(obj.a[0].c[0]).toBe(0);
         expect(obj.a[0].c[1]).toBe(1);
     });
-    
+
     it("Serialize - doNotPost is ignored in the serializeAll mode", () => {
         var obj = dotvvm.serialization.serialize({
             a: ko.observable("bbb"),
@@ -393,7 +534,7 @@ describe("DotVVM.Serialization - serialize", () => {
     it("Serialize - ko.observable with undefined should be converted to null", () => {
         var obj = dotvvm.serialization.serialize({
             a: ko.observable(undefined)
-          }, { serializeAll: true });
+        }, { serializeAll: true });
 
         expect(obj.a).toBe(null);
     });
@@ -445,3 +586,84 @@ describe("DotVVM.Serialization - serialize", () => {
             expect(viewModel.items()[1]().id()).toBe(2);
         });
 });
+
+function assertSubHierarchiesNotLinked(viewmodel: ObservableSubHierarchy, target: ObservableSubHierarchy) {
+
+    viewmodel.Prop21("xx");
+    expect(target.Prop21()).toBe("bb");
+    //array not linked
+    viewmodel.Prop23.push(ko.observable({
+        Prop231: ko.observable("ff")
+    }));
+    expect(target.Prop23().length).toBe(2);
+    //array objects not linked
+    viewmodel.Prop23()[0]().Prop231("yy");
+    expect(target.Prop23()[0]().Prop231()).toBe("dd");
+}
+
+function assertHierarchy(result: ObservableHierarchy) {
+    asserObservableString(result.Prop1, "aa");
+    let prop2Object = assertObservable(result.Prop2);
+    assertSubHierarchy(prop2Object);
+}
+
+function assertSubHierarchy(prop2Object: ObservableSubHierarchy) {
+    asserObservableString(prop2Object.Prop21, "bb");
+    asserObservableString(prop2Object.Prop22, "cc");
+    let prop23Array = assertObservable(prop2Object.Prop23);
+    let prop23ArrayFirst = assertObservable(prop23Array[0]);
+    let prop23ArraySecond = assertObservable(prop23Array[1]);
+    asserObservableString(prop23ArrayFirst.Prop231, "dd");
+    asserObservableString(prop23ArraySecond.Prop231, "ee");
+}
+
+function createComplexObservableTarget(): KnockoutObservable<ObservableHierarchy> {
+    return ko.observable({
+        Prop1: ko.observable("a"),
+        Prop2: ko.observable({
+            Prop21: ko.observable("b"),
+            Prop22: ko.observable("c"),
+            Prop23: ko.observableArray([
+                ko.observable({
+                    Prop231: ko.observable("d")
+                }),
+                ko.observable({
+                    Prop231: ko.observable("e")
+                })
+            ])
+        })
+    });
+}
+
+function createComplexObservableViewmodel(): ObservableHierarchy {
+    return {
+        Prop1: ko.observable("aa"),
+        Prop2: ko.observable(createComplexObservableSubViewmodel())
+    };
+}
+
+function createComplexObservableSubViewmodel(): ObservableSubHierarchy {
+    return {
+        Prop21: ko.observable("bb"),
+        Prop22: ko.observable("cc"),
+        Prop23: ko.observableArray([
+            ko.observable({
+                Prop231: ko.observable("dd")
+            }),
+            ko.observable({
+                Prop231: ko.observable("ee")
+            })
+        ])
+    };
+}
+
+interface ObservableHierarchy {
+    Prop1: KnockoutObservable<string>;
+    Prop2: KnockoutObservable<ObservableSubHierarchy>;
+}
+
+interface ObservableSubHierarchy {
+    Prop21: KnockoutObservable<string>;
+    Prop22: KnockoutObservable<string>;
+    Prop23: KnockoutObservableArray<KnockoutObservable<{ Prop231: KnockoutObservable<string>; }>>;
+} 
