@@ -278,20 +278,10 @@ namespace DotVVM.Framework.Binding
         public static void SetDataContextTypeFromDataSource(this DotvvmBindableObject obj, IBinding dataSourceBinding) =>
             obj.SetDataContextType(dataSourceBinding.GetProperty<CollectionElementDataContextBindingProperty>().DataContext);
 
+
+        /// <summary> Return the expected data context type for this property. </summary>
         public static DataContextStack GetDataContextType(this DotvvmProperty property, DotvvmBindableObject obj)
         {
-            var propertyBinding = obj.GetBinding(property);
-
-            if (propertyBinding != null)
-            {
-                var propertyValue = propertyBinding.GetProperty(typeof(DataContextStack), ErrorHandlingMode.ReturnException);
-
-                if(propertyValue == null || propertyValue is DataContextStack)
-                {
-                    return (DataContextStack)propertyValue;
-                }
-            }
-
             var dataContextType = obj.GetDataContextType();
 
             if (dataContextType == null)
