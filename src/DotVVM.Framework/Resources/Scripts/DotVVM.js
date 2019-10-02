@@ -10,10 +10,11 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
@@ -510,77 +511,84 @@ var SuppressPostBackHandler = /** @class */ (function () {
 var DotvvmSerialization = /** @class */ (function () {
     function DotvvmSerialization() {
     }
-    DotvvmSerialization.prototype.deserialize = function (viewModel, target, deserializeAll) {
-        if (deserializeAll === void 0) { deserializeAll = false; }
-        if (typeof (viewModel) == "undefined" || viewModel == null) {
-            if (ko.isObservable(target)) {
-                target(viewModel);
-                return target;
-            }
-            return viewModel;
-        }
-        if (typeof (viewModel) == "string" || typeof (viewModel) == "number" || typeof (viewModel) == "boolean") {
-            if (ko.isObservable(target)) {
-                target(viewModel);
-                return target;
-            }
-            return viewModel;
-        }
-        if (viewModel instanceof Date) {
-            viewModel = dotvvm.serialization.serializeDate(viewModel);
-            if (ko.isObservable(target)) {
-                target(viewModel);
-                return target;
-            }
-            return viewModel;
-        }
-        // handle arrays
-        if (viewModel instanceof Array) {
-            if (ko.isObservable(target) && "removeAll" in target && target() != null && target().length === viewModel.length) {
-                // the array has the same number of items, update it
-                var targetArray = target();
-                for (var i = 0; i < viewModel.length; i++) {
-                    var targetItem = targetArray[i]();
-                    var deserialized = this.deserialize(viewModel[i], targetItem, deserializeAll);
-                    if (targetItem !== deserialized) {
-                        // update the observable only if the item has changed
-                        targetArray[i](deserialized);
-                    }
-                }
-            }
-            else {
-                // rebuild the array because it is different
-                var array = [];
-                for (var i = 0; i < viewModel.length; i++) {
-                    array.push(this.wrapObservable(this.deserialize(viewModel[i], {}, deserializeAll)));
-                }
-                if (ko.isObservable(target)) {
-                    if (!("removeAll" in target)) {
-                        // if the previous value was null, the property is not an observable array - make it
-                        ko.utils.extend(target, ko.observableArray['fn']);
-                        target = target.extend({ 'trackArrayChanges': true });
-                    }
-                    target(array);
-                }
-                else {
-                    target = ko.observableArray(array);
-                }
-            }
+    DotvvmSerialization.prototype.deserializeNullOrUndefined = function (viewModel, target) {
+        if (ko.isObservable(target)) {
+            target(viewModel);
             return target;
         }
-        // handle objects
+        return viewModel;
+    };
+    DotvvmSerialization.prototype.deserializePrimitive = function (viewModel, target) {
+        if (ko.isObservable(target)) {
+            target(viewModel);
+            return target;
+        }
+        return viewModel;
+    };
+    DotvvmSerialization.prototype.deserializeDate = function (viewModel, target) {
+        viewModel = dotvvm.serialization.serializeDate(viewModel);
+        if (ko.isObservable(target)) {
+            target(viewModel);
+            return target;
+        }
+        return viewModel;
+    };
+    DotvvmSerialization.prototype.deserializeArray = function (viewModel, target, deserializeAll) {
+        if (deserializeAll === void 0) { deserializeAll = false; }
+        if (ko.isObservable(target) && "removeAll" in target && target() != null && target().length === viewModel.length) {
+            this.updateArrayItems(target, viewModel, deserializeAll);
+        }
+        else {
+            target = this.rebuildArrayFromScratch(viewModel, deserializeAll, target);
+        }
+        return target;
+    };
+    DotvvmSerialization.prototype.rebuildArrayFromScratch = function (viewModel, deserializeAll, target) {
+        var array = [];
+        for (var i = 0; i < viewModel.length; i++) {
+            array.push(this.wrapObservable(this.deserialize(ko.unwrap(viewModel[i]), {}, deserializeAll)));
+        }
+        if (ko.isObservable(target)) {
+            if (!("removeAll" in target)) {
+                // if the previous value was null, the property is not an observable array - make it
+                ko.utils.extend(target, ko.observableArray['fn']);
+                target = target.extend({ 'trackArrayChanges': true });
+            }
+            target(array);
+        }
+        else {
+            target = ko.observableArray(array);
+        }
+        return target;
+    };
+    DotvvmSerialization.prototype.updateArrayItems = function (target, viewModel, deserializeAll) {
+        var targetArray = target();
+        for (var i = 0; i < viewModel.length; i++) {
+            var targetItem = targetArray[i]();
+            var deserialized = this.deserialize(ko.unwrap(viewModel[i]), targetItem, deserializeAll);
+            //It should be fine that we do not unwrap deserialized because target is unwrapped and viewmodel is unwrapped so the result should be unwrapped
+            if (targetItem !== deserialized) {
+                // update the observable only if the item has changed
+                targetArray[i](deserialized);
+            }
+        }
+    };
+    DotvvmSerialization.prototype.deserializeObject = function (viewModel, target, deserializeAll) {
+        //If we stepped into target and called deserialize on target.A and A did not exists but A existed in viewmodel,
+        //we simply create the object and rely on caller to set the property
         if (typeof (target) === "undefined") {
             target = {};
         }
-        var result = ko.unwrap(target);
+        //Ok this is probably so that we can construct a copy of viewmodel and set it to initialy empty observable later
+        var unwrappedTarget = ko.unwrap(target);
         var updateTarget = false;
-        if (result == null) {
-            result = {};
+        if (unwrappedTarget == null) {
+            unwrappedTarget = {};
             if (ko.isObservable(target)) {
                 updateTarget = true;
             }
             else {
-                target = result;
+                target = unwrappedTarget;
             }
         }
         for (var prop in viewModel) {
@@ -597,39 +605,38 @@ var DotvvmSerialization = /** @class */ (function () {
                     continue;
                 }
                 // deserialize value
-                var deserialized = ko.isObservable(value) ? value : this.deserialize(value, result[prop], deserializeAll);
+                var deserialized = this.deserialize(ko.unwrap(value), unwrappedTarget[prop], deserializeAll);
                 if (value instanceof Date) {
                     // if we get Date value from API, it was converted to string, but we should note that it was date to convert it back
-                    result[prop + "$options"] = result[prop + "$options"] || {};
-                    result[prop + "$options"].isDate = true;
+                    unwrappedTarget[prop + "$options"] = __assign(__assign({}, unwrappedTarget[prop + "$options"]), { isDate: true });
                 }
                 // update the property
                 if (ko.isObservable(deserialized)) {
-                    if (ko.isObservable(result[prop])) {
-                        if (deserialized() !== result[prop]()) {
-                            result[prop](deserialized());
+                    if (ko.isObservable(unwrappedTarget[prop])) {
+                        if (deserialized() !== unwrappedTarget[prop]()) {
+                            unwrappedTarget[prop](deserialized());
                         }
                     }
                     else {
                         var unwrapped = ko.unwrap(deserialized);
-                        result[prop] = Array.isArray(unwrapped) ? ko.observableArray(unwrapped) : ko.observable(unwrapped); // don't reuse the same observable from the source
+                        unwrappedTarget[prop] = Array.isArray(unwrapped) ? ko.observableArray(unwrapped) : ko.observable(unwrapped); // don't reuse the same observable from the source
                     }
                 }
                 else {
-                    if (ko.isObservable(result[prop])) {
-                        if (deserialized !== result[prop]())
-                            result[prop](deserialized);
+                    if (ko.isObservable(unwrappedTarget[prop])) {
+                        if (deserialized !== unwrappedTarget[prop]())
+                            unwrappedTarget[prop](deserialized);
                     }
                     else {
-                        result[prop] = ko.observable(deserialized);
+                        unwrappedTarget[prop] = ko.observable(deserialized);
                     }
                 }
-                if (options && options.clientExtenders && ko.isObservable(result[prop])) {
+                if (options && options.clientExtenders && ko.isObservable(unwrappedTarget[prop])) {
                     for (var j = 0; j < options.clientExtenders.length; j++) {
                         var extenderOptions = {};
                         var extenderInfo = options.clientExtenders[j];
                         extenderOptions[extenderInfo.name] = extenderInfo.parameter;
-                        result[prop].extend(extenderOptions);
+                        unwrappedTarget[prop].extend(extenderOptions);
                     }
                 }
             }
@@ -637,22 +644,39 @@ var DotvvmSerialization = /** @class */ (function () {
         // copy the property options metadata
         for (var prop in viewModel) {
             if (viewModel.hasOwnProperty(prop) && /\$options$/.test(prop)) {
-                result[prop] = result[prop] || {};
+                unwrappedTarget[prop] = unwrappedTarget[prop] || {};
                 for (var optProp in viewModel[prop]) {
                     if (viewModel[prop].hasOwnProperty(optProp)) {
-                        result[prop][optProp] = viewModel[prop][optProp];
+                        unwrappedTarget[prop][optProp] = viewModel[prop][optProp];
                     }
                 }
                 var originalName = prop.substring(0, prop.length - "$options".length);
-                if (typeof result[originalName] === "undefined") {
-                    result[originalName] = ko.observable();
+                if (typeof unwrappedTarget[originalName] === "undefined") {
+                    unwrappedTarget[originalName] = ko.observable();
                 }
             }
         }
+        //CHECK: and if target wasnt null but still is observable no need to update it?
         if (updateTarget) {
-            target(result);
+            target(unwrappedTarget);
         }
         return target;
+    };
+    DotvvmSerialization.prototype.deserialize = function (viewModel, target, deserializeAll) {
+        if (deserializeAll === void 0) { deserializeAll = false; }
+        if (typeof (viewModel) == "undefined" || viewModel == null) {
+            return this.deserializeNullOrUndefined(viewModel, target);
+        }
+        if (typeof (viewModel) == "string" || typeof (viewModel) == "number" || typeof (viewModel) == "boolean") {
+            return this.deserializePrimitive(viewModel, target);
+        }
+        if (viewModel instanceof Date) {
+            return this.deserializeDate(viewModel, target);
+        }
+        if (viewModel instanceof Array) {
+            return this.deserializeArray(viewModel, target, deserializeAll);
+        }
+        return this.deserializeObject(viewModel, target, deserializeAll);
     };
     DotvvmSerialization.prototype.wrapObservable = function (obj) {
         if (!ko.isObservable(obj))
@@ -1203,11 +1227,11 @@ var DotVVM = /** @class */ (function () {
                             try {
                                 _this.isViewModelUpdating = true;
                                 var result = JSON.parse(response.responseText);
-                                dotvvm.events.staticCommandMethodInvoked.trigger(__assign({}, data, { result: result, xhr: response }));
+                                dotvvm.events.staticCommandMethodInvoked.trigger(__assign(__assign({}, data), { result: result, xhr: response }));
                                 callback(result);
                             }
                             catch (error) {
-                                dotvvm.events.staticCommandMethodFailed.trigger(__assign({}, data, { xhr: response, error: error }));
+                                dotvvm.events.staticCommandMethodFailed.trigger(__assign(__assign({}, data), { xhr: response, error: error }));
                                 errorCallback({ xhr: response, error: error });
                             }
                             finally {
@@ -1227,7 +1251,7 @@ var DotVVM = /** @class */ (function () {
                             _this.events.error.trigger(new DotvvmErrorEventArgs(sender, _this.viewModels[viewModelName].viewModel, viewModelName, xhr, null));
                             console.warn("StaticCommand postback failed: " + xhr.status + " - " + xhr.statusText, xhr);
                             errorCallback({ xhr: xhr });
-                            dotvvm.events.staticCommandMethodFailed.trigger(__assign({}, data, { xhr: xhr }));
+                            dotvvm.events.staticCommandMethodFailed.trigger(__assign(__assign({}, data), { xhr: xhr }));
                         }, function (xhr) {
                             xhr.setRequestHeader("X-PostbackType", "StaticCommand");
                         });

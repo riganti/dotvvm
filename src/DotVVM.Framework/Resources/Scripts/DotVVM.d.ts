@@ -157,12 +157,12 @@ declare class DotvvmFileSize {
 declare class DotvvmGlobalize {
     private getGlobalize;
     format(format: string, ...values: any[]): string;
-    formatString(format: string, value: any): any;
+    formatString(format: string, value: any): string;
     parseDotvvmDate(value: string): Date | null;
     parseNumber(value: string): number;
-    parseDate(value: string, format: string, previousValue?: Date): any;
-    bindingDateToString(value: KnockoutObservable<string | Date> | string | Date, format?: string): "" | KnockoutComputed<any>;
-    bindingNumberToString(value: KnockoutObservable<string | number> | string | number, format?: string): "" | KnockoutComputed<any>;
+    parseDate(value: string, format: string, previousValue?: Date): Date | null;
+    bindingDateToString(value: KnockoutObservable<string | Date> | string | Date, format?: string): "" | KnockoutComputed<string>;
+    bindingNumberToString(value: KnockoutObservable<string | number> | string | number, format?: string): "" | KnockoutComputed<string>;
 }
 declare type DotvvmPostbackHandler = {
     execute(callback: () => Promise<PostbackCommitFunction>, options: PostbackOptions): Promise<PostbackCommitFunction>;
@@ -224,6 +224,13 @@ interface ISerializationOptions {
     restApiTarget?: boolean;
 }
 declare class DotvvmSerialization {
+    deserializeNullOrUndefined(viewModel: any, target?: any): any;
+    deserializePrimitive(viewModel: any, target?: any): any;
+    deserializeDate(viewModel: any, target?: any): any;
+    deserializeArray(viewModel: any, target?: any, deserializeAll?: boolean): any;
+    private rebuildArrayFromScratch;
+    private updateArrayItems;
+    deserializeObject(viewModel: any, target: any, deserializeAll: boolean): any;
     deserialize(viewModel: any, target?: any, deserializeAll?: boolean): any;
     wrapObservable<T>(obj: T): KnockoutObservable<T>;
     serialize(viewModel: any, opt?: ISerializationOptions): any;
