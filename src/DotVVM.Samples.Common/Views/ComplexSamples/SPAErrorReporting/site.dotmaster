@@ -1,0 +1,34 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.SPA.SiteViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h1>SPA Test</h1>
+
+    <dot:RouteLink RouteName="ComplexSamples_SPAErrorReporting_default" Text="Default Page" />
+    <dot:RouteLink RouteName="ComplexSamples_SPAErrorReporting_test" Text="Test Page" />
+
+    <dot:SpaContentPlaceHolder ID="Container" />
+
+    <div>Number of logged errors: <span ID="numberOfErrors">0</span></div>
+
+    <dot:InlineScript Dependencies="dotvvm">
+        var numberOfErrors = 0;
+        dotvvm.events.error.subscribe(
+            function (error) {
+                var element = document.getElementById('numberOfErrors');
+                element.innerText = ++numberOfErrors;
+            }
+        );
+    </dot:InlineScript>
+
+</body>
+</html>
+
+
