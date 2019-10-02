@@ -279,7 +279,7 @@ namespace DotVVM.Framework.Binding
             obj.SetDataContextType(dataSourceBinding.GetProperty<CollectionElementDataContextBindingProperty>().DataContext);
 
 
-        /// <summary> Return the expected data context type for this property. </summary>
+        /// <summary> Return the expected data context type for this property. Returns null if the type is unknown. </summary>
         public static DataContextStack GetDataContextType(this DotvvmProperty property, DotvvmBindableObject obj)
         {
             var dataContextType = obj.GetDataContextType();
@@ -301,7 +301,7 @@ namespace DotVVM.Framework.Binding
 
             var (childType, extensionParameters) = ApplyDataContextChange(dataContextType, property.DataContextChangeAttributes, obj, property);
 
-            if (childType == null) return dataContextType;
+            if (childType is null) return null; // childType is null in case there is some error in processing (e.g. enumerable was expected).
             else return DataContextStack.Create(childType, dataContextType, extensionParameters: extensionParameters.ToArray());
         }
 
