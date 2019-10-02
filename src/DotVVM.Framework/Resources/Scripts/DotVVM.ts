@@ -1009,7 +1009,7 @@ class DotVVM {
         preprocessRequest(xhr);
         xhr.onreadystatechange = () => {
             if (xhr.readyState !== XMLHttpRequest.DONE) return;
-            if (xhr.status < 400) {
+            if (xhr.status && xhr.status < 400) {
                 success(xhr);
             } else {
                 error(xhr);
@@ -1025,7 +1025,7 @@ class DotVVM {
         xhr.setRequestHeader("X-DotVVM-SpaContentPlaceHolder", spaPlaceHolderUniqueId);
         xhr.onreadystatechange = () => {
             if (xhr.readyState !== XMLHttpRequest.DONE) return;
-            if (xhr.status < 400) {
+            if (xhr.status && xhr.status < 400) {
                 success(xhr);
             } else {
                 error(xhr);
