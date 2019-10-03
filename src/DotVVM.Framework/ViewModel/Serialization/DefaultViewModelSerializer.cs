@@ -122,6 +122,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             };
             serializer.Converters.Add(viewModelConverter);
             var writer = new JTokenWriter();
+            var response = new JObject();
             try
             {
                 serializer.Serialize(writer, result);
@@ -130,7 +131,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 throw new Exception($"Could not serialize viewModel of type { context.ViewModel.GetType().Name }. Serialization failed at property { writer.Path }. {GeneralViewModelRecommendations}", ex);
             }
-            return writer.Token.ToString(JsonFormatting);
+            response["result"] = writer.Token;
+            return response.ToString(JsonFormatting);
         }
 
         public static JsonSerializerSettings CreateDefaultSettings()

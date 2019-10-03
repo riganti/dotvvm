@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel.Serialization;
 
 namespace DotVVM.Framework.ViewModel.Validation
@@ -39,14 +40,14 @@ namespace DotVVM.Framework.ViewModel.Validation
             }
             if (alreadyValidated.Contains(viewModel)) yield break;
             var viewModelType = viewModel.GetType();
-            if (ViewModelJsonConverter.IsPrimitiveType(viewModelType) || ViewModelJsonConverter.IsNullableType(viewModelType))
+            if (ReflectionUtils.IsPrimitiveType(viewModelType) || ReflectionUtils.IsNullableType(viewModelType))
             {
                 yield break;
             }
 
             alreadyValidated.Add(viewModel);
 
-            if (ViewModelJsonConverter.IsEnumerable(viewModelType))
+            if (ReflectionUtils.IsEnumerable(viewModelType))
             {
                 if (pathPrefix.Length == 0) pathPrefix = "$data";
                 else pathPrefix += "()";
@@ -92,7 +93,7 @@ namespace DotVVM.Framework.ViewModel.Validation
                 // inspect objects
                 if (value != null)
                 {
-                    if (ViewModelJsonConverter.IsComplexType(property.Type))
+                    if (ReflectionUtils.IsComplexType(property.Type))
                     {
                         // complex objects
                         foreach (var error in ValidateViewModel(value, path, alreadyValidated))
