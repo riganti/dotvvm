@@ -556,7 +556,6 @@ class DotVVM {
             const viewModelName = options.viewModelName!;
             const viewModel = this.viewModels[viewModelName].viewModel;
             
-            var csrfToken;
             try {
                 await this.fetchCsrfToken(viewModelName);
             }
