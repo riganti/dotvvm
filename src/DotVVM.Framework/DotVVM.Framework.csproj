@@ -148,7 +148,7 @@
     <DefineConstants>$(DefineConstants);DotNetCore</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net461' or '$(TargetFramework)' == 'netstandard2.0' ">
-    <DefineConstants>$(DefineConstants);CSharp8Polyfill</DefineConstants>
+    <DefineConstants>$(DefineConstants);CSharp8Polyfill;INTERNAL_NULLABLE_ATTRIBUTES</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>
