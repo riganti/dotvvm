@@ -1183,21 +1183,28 @@ var DotVVM = /** @class */ (function () {
         if (callback === void 0) { callback = function (_) { }; }
         if (errorCallback === void 0) { errorCallback = function (errorInfo) { }; }
         (function () { return __awaiter(_this, void 0, void 0, function () {
-            var data, _a, _b, _c, _d;
+            var csrfToken, err_1, data;
             var _this = this;
-            return __generator(this, function (_e) {
-                switch (_e.label) {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
-                        _b = (_a = this.serialization).serialize;
-                        _c = {
-                            args: args,
-                            command: command
-                        };
-                        _d = "$csrfToken";
+                        _a.trys.push([0, 2, , 3]);
                         return [4 /*yield*/, this.fetchCsrfToken(viewModelName)];
                     case 1:
-                        data = _b.apply(_a, [(_c[_d] = _e.sent(),
-                                _c)]);
+                        csrfToken = _a.sent();
+                        return [3 /*break*/, 3];
+                    case 2:
+                        err_1 = _a.sent();
+                        this.events.error.trigger(new DotvvmErrorEventArgs(sender, this.viewModels[viewModelName].viewModel, viewModelName, null, null));
+                        console.warn("CSRF token fetch failed.");
+                        errorCallback({ error: err_1 });
+                        return [2 /*return*/];
+                    case 3:
+                        data = this.serialization.serialize({
+                            args: args,
+                            command: command,
+                            "$csrfToken": csrfToken
+                        });
                         dotvvm.events.staticCommandMethodInvoking.trigger(data);
                         this.postJSON(this.viewModels[viewModelName].url, "POST", ko.toJSON(data), function (response) {
                             try {
@@ -1356,16 +1363,25 @@ var DotVVM = /** @class */ (function () {
     DotVVM.prototype.postbackCore = function (options, path, command, controlUniqueId, context, commandArgs) {
         var _this = this;
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var viewModelName, viewModel, data;
+            var viewModelName, viewModel, csrfToken, err_2, data;
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         viewModelName = options.viewModelName;
-                        return [4 /*yield*/, this.fetchCsrfToken(viewModelName)];
-                    case 1:
-                        _a.sent();
                         viewModel = this.viewModels[viewModelName].viewModel;
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, this.fetchCsrfToken(viewModelName)];
+                    case 2:
+                        _a.sent();
+                        return [3 /*break*/, 4];
+                    case 3:
+                        err_2 = _a.sent();
+                        reject({ type: 'network', options: options, args: new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, null, options.postbackId) });
+                        return [2 /*return*/];
+                    case 4:
                         this.lastStartedPostack = options.postbackId;
                         // perform the postback
                         this.updateDynamicPathFragments(context, path);

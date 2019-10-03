@@ -1,5 +1,5 @@
 {
-  "activeProfile": "Default",
+  "activeProfile": "LazyCsrfToken",
   "profiles": [
     {
       "name": "Default",
