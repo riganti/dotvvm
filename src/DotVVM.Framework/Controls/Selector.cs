@@ -1,3 +1,4 @@
+#nullable enable
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Validation;
@@ -23,12 +24,12 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the value of the selected item.
         /// </summary>
         [MarkupOptions(AllowHardCodedValue = false, Required = true)]
-        public object SelectedValue
+        public object? SelectedValue
         {
             get { return GetValue(SelectedValueProperty); }
             set { SetValue(SelectedValueProperty, value); }
         }
         public static readonly DotvvmProperty SelectedValueProperty =
-            DotvvmProperty.Register<object, Selector>(t => t.SelectedValue);
+            DotvvmProperty.Register<object?, Selector>(t => t.SelectedValue);
     }
 }

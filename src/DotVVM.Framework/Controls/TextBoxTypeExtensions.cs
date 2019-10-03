@@ -55,7 +55,7 @@ namespace DotVVM.Framework.Controls
         public static bool TryGetFormatString(this TextBoxType textBoxType, out string? formatString)
             => implicitFormatStrings.TryGetValue(textBoxType, out formatString);
 
-        public static bool TryGetInputType(this TextBoxType textBoxType, [MaybeNullWhen(false)] out string inputType)
+        public static bool TryGetInputType(this TextBoxType textBoxType, [MaybeNullWhen(false)] out string? inputType)
             => inputTypes.TryGetValue(textBoxType, out inputType);
     }
 }

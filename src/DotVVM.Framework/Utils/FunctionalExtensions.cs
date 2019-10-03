@@ -78,8 +78,8 @@ namespace DotVVM.Framework.Utils
         public static IEnumerable<(int, T)> Indexed<T>(this IEnumerable<T> enumerable) =>
             enumerable.Select((a, b) => (b, a));
 
-        public static T NotNull<T>(this T? target)
+        public static T NotNull<T>(this T? target, string message = "Unexpected null value.")
             where T : class =>
-            target ?? throw new Exception("Unexpected null value.");
+            target ?? throw new Exception(message);
     }
 }

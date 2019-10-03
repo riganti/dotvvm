@@ -348,7 +348,8 @@ namespace DotVVM.Framework.Controls
                 || r.RenderOnServer(this))
             {
                 Children.Clear();
-                Children.Add(new Literal(value));
+                if (value is object)
+                    Children.Add(new Literal(value));
             }
         }
 

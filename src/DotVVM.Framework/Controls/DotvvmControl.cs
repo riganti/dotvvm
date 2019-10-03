@@ -117,7 +117,7 @@ namespace DotVVM.Framework.Controls
 
         ClientIDMode IDotvvmControl.ClientIDMode { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         string IDotvvmControl.ID { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        DotvvmBindableObject IDotvvmControl.Parent { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        DotvvmBindableObject? IDotvvmControl.Parent { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public static readonly DotvvmProperty IncludeInPageProperty =
             DotvvmProperty.Register<bool, DotvvmControl>(t => t.IncludeInPage, true);

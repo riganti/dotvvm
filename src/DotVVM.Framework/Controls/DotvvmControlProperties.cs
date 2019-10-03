@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Controls
         private object? keys;
 
         [FieldOffset(0)]
-        private DotvvmProperty[] keysAsArray;
+        private DotvvmProperty?[] keysAsArray;
 
         [FieldOffset(8)]
         private object? values;
@@ -34,7 +34,7 @@ namespace DotVVM.Framework.Controls
         [FieldOffset(16)]
         private int hashSeed;
 
-        public void AssignBulk(DotvvmProperty[] keys, object?[] values, int hashSeed)
+        public void AssignBulk(DotvvmProperty?[] keys, object?[] values, int hashSeed)
         {
             // The explicit layout is quite likely to mess with array covariance, just make sure we don't encounter that
             Debug.Assert(values.GetType() == typeof(object[]));
@@ -72,7 +72,7 @@ namespace DotVVM.Framework.Controls
                 for (int i = 0; i < keys.Length; i++)
                 {
                     if (keys[i] != null)
-                        this.Set(keys[i], values[i]);
+                        this.Set(keys[i]!, values[i]);
                 }
             }
         }
@@ -153,7 +153,7 @@ namespace DotVVM.Framework.Controls
                     for (int i = 0; i < keys.Length; i++)
                     {
                         if (keys[i] != null)
-                            d[keys[i]] = values[i];
+                            d[keys[i]!] = values[i];
                     }
                     d[p] = value;
                     this.valuesAsDictionary = d;
@@ -193,7 +193,7 @@ namespace DotVVM.Framework.Controls
                 for (int i = 0; i < keysTmp.Length; i++)
                 {
                     if (keysTmp[i] != null && keysTmp[i] != key)
-                        d[keysTmp[i]] = valuesTmp[i];
+                        d[keysTmp[i]!] = valuesTmp[i];
                 }
                 this.valuesAsDictionary = d;
                 this.keys = null;
@@ -204,12 +204,12 @@ namespace DotVVM.Framework.Controls
 
     public struct DotvvmControlPropertiesEnumerator : IEnumerator<KeyValuePair<DotvvmProperty, object?>>
     {
-        private DotvvmProperty[]? keys;
+        private DotvvmProperty?[]? keys;
         private object?[]? values;
         private int index;
         private Dictionary<DotvvmProperty, object?>.Enumerator dictEnumerator;
 
-        internal DotvvmControlPropertiesEnumerator(DotvvmProperty[] keys, object?[] values)
+        internal DotvvmControlPropertiesEnumerator(DotvvmProperty?[] keys, object?[] values)
         {
             this.keys = keys;
             this.values = values;
@@ -225,7 +225,7 @@ namespace DotVVM.Framework.Controls
             this.dictEnumerator = e;
         }
 
-        public KeyValuePair<DotvvmProperty, object?> Current => keys == null ? dictEnumerator.Current : new KeyValuePair<DotvvmProperty, object?>(keys[index], values![index]);
+        public KeyValuePair<DotvvmProperty, object?> Current => keys == null ? dictEnumerator.Current : new KeyValuePair<DotvvmProperty, object?>(keys[index]!, values![index]);
 
         object IEnumerator.Current => this.Current;
 

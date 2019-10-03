@@ -130,7 +130,7 @@ namespace DotVVM.Framework.Runtime
 
                 // replace the contents
                 var contentPlaceHolder = new PlaceHolder();
-                contentPlaceHolder.SetDataContextType(content.Parent.GetDataContextType());
+                contentPlaceHolder.SetDataContextType(content.Parent!.GetDataContextType());
                 (content.Parent as DotvvmControl)?.Children.Remove(content);
 
                 placeHolder.Children.Clear();

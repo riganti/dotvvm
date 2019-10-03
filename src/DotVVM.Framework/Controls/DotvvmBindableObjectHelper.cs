@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -15,10 +16,10 @@ namespace DotVVM.Framework.Controls
         {
             var property = (prop.Body as MemberExpression)?.Member as PropertyInfo;
             if (property == null) throw new Exception($"Expression '{prop}' should be property access on the specified control.");
-            return DotvvmProperty.ResolveProperty(property.DeclaringType, property.Name) ?? throw new Exception($"Property '{property.DeclaringType.Name}.{property.Name}' is not a registered DotvvmProperty.");
+            return DotvvmProperty.ResolveProperty(property.DeclaringType!, property.Name) ?? throw new Exception($"Property '{property.DeclaringType!.Name}.{property.Name}' is not a registered DotvvmProperty.");
         }
 
-        public static TControl SetBinding<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop, IBinding binding)
+        public static TControl SetBinding<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop, IBinding? binding)
             where TControl : DotvvmBindableObject
         {
             control.SetBinding(control.GetDotvvmProperty(prop), binding);
@@ -32,13 +33,13 @@ namespace DotVVM.Framework.Controls
             return control;
         }
 
-        public static IValueBinding<TProperty> GetValueBinding<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop)
+        public static IValueBinding<TProperty>? GetValueBinding<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop)
             where TControl : DotvvmBindableObject
-            => (IValueBinding<TProperty>)control.GetValueBinding(control.GetDotvvmProperty(prop));
+            => (IValueBinding<TProperty>?)control.GetValueBinding(control.GetDotvvmProperty(prop));
 
-        public static ICommandBinding<TProperty> GetCommandBinding<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop)
+        public static ICommandBinding<TProperty>? GetCommandBinding<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop)
             where TControl : DotvvmBindableObject
-            => (ICommandBinding<TProperty>)control.GetCommandBinding(control.GetDotvvmProperty(prop));
+            => (ICommandBinding<TProperty>?)control.GetCommandBinding(control.GetDotvvmProperty(prop));
 
         public static TProperty GetValue<TControl, TProperty>(this TControl control, Expression<Func<TControl, TProperty>> prop)
             where TControl : DotvvmBindableObject
