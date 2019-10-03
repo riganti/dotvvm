@@ -386,12 +386,23 @@ class DotVVM {
         return vm.$csrfToken
     }
 
-    public staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback = _ => { }, errorCallback = (errorInfo: {xhr: XMLHttpRequest, error?: any}) => { }) {
+    public staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback = _ => { }, errorCallback = (errorInfo: {xhr?: XMLHttpRequest, error?: any}) => { }) {
         (async () => {
+            var csrfToken;
+            try {
+                csrfToken = await this.fetchCsrfToken(viewModelName);
+            }
+            catch (err) {
+                this.events.error.trigger(new DotvvmErrorEventArgs(sender, this.viewModels[viewModelName].viewModel, viewModelName, null, null));
+                console.warn(`CSRF token fetch failed.`);
+                errorCallback({ error: err });
+                return;
+            }
+            
             var data = this.serialization.serialize({
                 args,
                 command,
-                "$csrfToken": await this.fetchCsrfToken(viewModelName)
+                "$csrfToken": csrfToken
             });
             dotvvm.events.staticCommandMethodInvoking.trigger(data);
 
@@ -543,8 +554,15 @@ class DotVVM {
     public postbackCore(options: PostbackOptions, path: string[], command: string, controlUniqueId: string, context: any, commandArgs?: any[]) {
         return new Promise<() => Promise<DotvvmAfterPostBackEventArgs>>(async (resolve, reject) => {
             const viewModelName = options.viewModelName!;
-            await this.fetchCsrfToken(viewModelName)
             const viewModel = this.viewModels[viewModelName].viewModel;
+            
+            try {
+                await this.fetchCsrfToken(viewModelName);
+            }
+            catch (err) {
+                reject({ type: 'network', options: options, args: new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, null, options.postbackId) });
+                return;
+            }
 
             this.lastStartedPostack = options.postbackId
             // perform the postback

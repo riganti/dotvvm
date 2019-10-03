@@ -13,6 +13,9 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.SPA
         {
             SampleText = "Sample Text";
         }
+
+        [AllowStaticCommand]
+        public static string GetSampleText() => "Sample Static Text";
     }
 }
 
