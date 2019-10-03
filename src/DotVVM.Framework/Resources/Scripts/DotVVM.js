@@ -1793,7 +1793,7 @@ var DotVVM = /** @class */ (function () {
         xhr.onreadystatechange = function () {
             if (xhr.readyState !== XMLHttpRequest.DONE)
                 return;
-            if (xhr.status < 400) {
+            if (xhr.status && xhr.status < 400) {
                 success(xhr);
             }
             else {
@@ -1810,7 +1810,7 @@ var DotVVM = /** @class */ (function () {
         xhr.onreadystatechange = function () {
             if (xhr.readyState !== XMLHttpRequest.DONE)
                 return;
-            if (xhr.status < 400) {
+            if (xhr.status && xhr.status < 400) {
                 success(xhr);
             }
             else {

@@ -162,7 +162,7 @@ namespace DotVVM.Samples.Tests.Control
         public void Control_ComboBox_ItemBinding_ItemValueBinding_Complex_Error()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ItemBinding_ItemValueBinding_Error);
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ItemBinding_ItemValueBinding_Complex_Error);
 
                 browser.WaitFor(()=> {
                     AssertUI.InnerText(browser.First(".exceptionMessage"), s => s.Contains("Return type") && s.Contains("ItemValueBinding") && s.Contains("primitive type"));
