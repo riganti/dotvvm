@@ -11,9 +11,15 @@
 
     <h1>SPA Test</h1>
 
+    <div>
+        This test is used to check whether the network errors are reported correctly to dotvvm.events.error.
+        To perform this test switch your browser to offline mode and try to navigate to different page.
+        You should see that the counter of errors below is increasing.
+    </div>
+
     <dot:RouteLink RouteName="ComplexSamples_SPAErrorReporting_default" Text="Default Page" />
     <dot:RouteLink RouteName="ComplexSamples_SPAErrorReporting_test" Text="Test Page" />
-
+    
     <dot:SpaContentPlaceHolder ID="Container" />
 
     <div>Number of logged errors: <span ID="numberOfErrors">0</span></div>
