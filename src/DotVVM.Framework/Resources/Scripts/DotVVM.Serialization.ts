@@ -171,6 +171,10 @@ class DotvvmSerialization {
 
     public deserialize(viewModel: any, target?: any, deserializeAll: boolean = false): any {
 
+        if (viewModel && ko.isObservable(viewModel)) {
+            throw new Error("Parameter viewModel should not be an observable. Maybe you forget to invoke the observable you are passing as a viewModel parameter.");
+        }
+
         if (typeof (viewModel) == "undefined" || viewModel == null) {
             return this.deserializeNullOrUndefined(viewModel, target);
         }

@@ -152,19 +152,8 @@ describe("DotVVM.Serialization - deserialize", () => {
             ko.observable("aa"),
             ko.observable("bb")]);
 
-        var arrayObservable = dotvvm.serialization.deserialize(viewmodel, target);
-        expect(ko.isObservable(arrayObservable)).toBeTruthy();
-
-        var array = arrayObservable();
-
-        expect(array instanceof Array).toBeTruthy();
-        expect(array.length).toBe(2);
-
-        expect(ko.isObservable(array[0])).toBeTruthy();
-        expect(array[0]()).toBe("aaa");
-
-        expect(ko.isObservable(array[1]));
-        expect(array[1]()).toBe("bbb");
+        expect(() => dotvvm.serialization.deserialize(viewmodel, target))
+            .toThrowError("Parameter viewModel should not be an observable. Maybe you forget to invoke the observable you are passing as a viewModel parameter.");
     });
 
     it("Deserialize observable complex object to target observable complex object", () => {

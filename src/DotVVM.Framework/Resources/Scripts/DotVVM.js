@@ -664,6 +664,9 @@ var DotvvmSerialization = /** @class */ (function () {
     };
     DotvvmSerialization.prototype.deserialize = function (viewModel, target, deserializeAll) {
         if (deserializeAll === void 0) { deserializeAll = false; }
+        if (viewModel && ko.isObservable(viewModel)) {
+            throw new Error("Parameter viewModel should not be an observable. Maybe you forget to invoke the observable you are passing as a viewModel parameter.");
+        }
         if (typeof (viewModel) == "undefined" || viewModel == null) {
             return this.deserializeNullOrUndefined(viewModel, target);
         }
