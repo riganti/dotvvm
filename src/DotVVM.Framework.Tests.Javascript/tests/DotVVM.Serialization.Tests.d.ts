@@ -8,6 +8,13 @@ declare function assertSubHierarchiesNotLinked(viewmodel: ObservableSubHierarchy
 declare function assertHierarchy(result: ObservableHierarchy): void;
 declare function assertSubHierarchy(prop2Object: ObservableSubHierarchy): void;
 declare function createComplexObservableTarget(): KnockoutObservable<ObservableHierarchy>;
+declare function createComplexObservableTargetWithNullArrayElement(): KnockoutObservable<ObservableHierarchy>;
+declare function createComplexObservableTargetWithArrayElementPropertyMissing(): KnockoutObservable<any>;
+declare function createComplexObservableTargetWithArrayElementPropertyNull(): KnockoutObservable<ObservableHierarchy>;
+declare function createComplexObservableTargetWithArrayElementPropertyObservableNull(): KnockoutObservable<ObservableHierarchy>;
+declare function createComplexObservableTargetWithMissingArrayElement(): KnockoutObservable<ObservableHierarchy>;
+declare function createComplexObservableTargetWithNullSubHierarchy(): KnockoutObservable<ObservableHierarchy>;
+declare function createComplexObservableTargetWithMissingSubHierarchy(): KnockoutObservable<any>;
 declare function createComplexObservableViewmodel(): ObservableHierarchy;
 declare function createComplexObservableSubViewmodel(): ObservableSubHierarchy;
 interface ObservableHierarchy {

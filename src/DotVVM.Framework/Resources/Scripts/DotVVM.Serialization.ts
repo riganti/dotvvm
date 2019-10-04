@@ -10,6 +10,34 @@
 
 class DotvvmSerialization {
 
+    public wrapObservable<T>(obj: T): KnockoutObservable<T> {
+        if (!ko.isObservable(obj)) return ko.observable(obj);
+        return <KnockoutObservable<T>><any>obj;
+    }
+
+    public deserialize(viewModel: any, target?: any, deserializeAll: boolean = false): any {
+
+        if (ko.isObservable(viewModel)) {
+            throw new Error("Parameter viewModel should not be an observable. Maybe you forget to invoke the observable you are passing as a viewModel parameter.");
+        }
+
+        if (typeof (viewModel) == "undefined" || viewModel == null) {
+            return this.deserializeNullOrUndefined(viewModel, target);
+        }
+        if (typeof (viewModel) == "string" || typeof (viewModel) == "number" || typeof (viewModel) == "boolean") {
+            return this.deserializePrimitive(viewModel, target);
+        }
+        if (viewModel instanceof Date) {
+            return this.deserializeDate(viewModel, target);
+        }
+
+        if (viewModel instanceof Array) {
+            return this.deserializeArray(viewModel, target, deserializeAll)
+        }
+
+        return this.deserializeObject(viewModel, target, deserializeAll)
+    }
+
     public deserializeNullOrUndefined(viewModel: any, target?: any): any {
         if (ko.isObservable(target)) {
             target(viewModel);
@@ -46,8 +74,7 @@ class DotvvmSerialization {
 
     private rebuildArrayFromScratch(viewModel: any, deserializeAll: boolean, target: any) {
         var array: KnockoutObservable<any>[] = [];
-        for (var i = 0; i < viewModel.length; i++)
-        {
+        for (var i = 0; i < viewModel.length; i++) {
             array.push(this.wrapObservable(this.deserialize(ko.unwrap(viewModel[i]), {}, deserializeAll)));
         }
         if (ko.isObservable(target)) {
@@ -67,7 +94,7 @@ class DotvvmSerialization {
     private updateArrayItems(target: KnockoutObservable<any>, viewModel: any, deserializeAll: boolean) {
         var targetArray = target();
         for (var i = 0; i < viewModel.length; i++) {
-            var targetItem = targetArray[i]();
+            var targetItem = ko.unwrap(targetArray[i]);
             var deserialized = this.deserialize(ko.unwrap(viewModel[i]), targetItem, deserializeAll);
             //It should be fine that we do not unwrap deserialized because target is unwrapped and viewmodel is unwrapped so the result should be unwrapped
             if (targetItem !== deserialized) {
@@ -83,7 +110,7 @@ class DotvvmSerialization {
         if (typeof (target) === "undefined") {
             target = {};
         }
-        //Ok this is probably so that we can construct a copy of viewmodel and set it to initialy empty observable later
+        //This is so that we can construct a copy of viewmodel and set it to initialy empty observable later
         var unwrappedTarget = ko.unwrap(target);
         var updateTarget = false;
         if (unwrappedTarget == null) {
@@ -94,72 +121,35 @@ class DotvvmSerialization {
                 target = unwrappedTarget;
             }
         }
+
         for (var prop in viewModel) {
-            if (viewModel.hasOwnProperty(prop) && !/\$options$/.test(prop)) {
-                var value = viewModel[prop];
-                if (typeof (value) === "undefined") {
-                    continue;
-                }
-                if (!ko.isObservable(value) && typeof (value) === "function") {
-                    continue;
-                }
-                var options = viewModel[prop + "$options"];
-                if (!deserializeAll && options && options.doNotUpdate) {
-                    continue;
-                }
-
-                // deserialize value
-                var deserialized = this.deserialize(ko.unwrap(value), unwrappedTarget[prop], deserializeAll);
-                if (value instanceof Date) {
-                    // if we get Date value from API, it was converted to string, but we should note that it was date to convert it back
-                    unwrappedTarget[prop + "$options"] = { ...unwrappedTarget[prop + "$options"], isDate: true };
-                }
-
-                // update the property
-                if (ko.isObservable(deserialized)) {
-                    if (ko.isObservable(unwrappedTarget[prop])) {
-                        if (deserialized() !== unwrappedTarget[prop]()) {
-                            unwrappedTarget[prop](deserialized());
-                        }
-                    } else {
-                        const unwrapped = ko.unwrap(deserialized);
-                        unwrappedTarget[prop] = Array.isArray(unwrapped) ? ko.observableArray(unwrapped) : ko.observable(unwrapped);      // don't reuse the same observable from the source
-                    }
-                } else {
-                    if (ko.isObservable(unwrappedTarget[prop])) {
-                        if (deserialized !== unwrappedTarget[prop]()) unwrappedTarget[prop](deserialized);
-                    } else {
-                        unwrappedTarget[prop] = ko.observable(deserialized);
-                    }
-                }
-
-                if (options && options.clientExtenders && ko.isObservable(unwrappedTarget[prop])) {
-                    for (var j = 0; j < options.clientExtenders.length; j++) {
-                        var extenderOptions = {};
-                        var extenderInfo = options.clientExtenders[j];
-                        extenderOptions[extenderInfo.name] = extenderInfo.parameter;
-                        unwrappedTarget[prop].extend(extenderOptions);
-                    }
-                }
+            if (!viewModel.hasOwnProperty(prop) || this.isOptionsProperty(prop)) {
+                continue;
             }
+
+            var value = viewModel[prop];
+            if (typeof (value) === "undefined") {
+                continue;
+            }
+            if (!ko.isObservable(value) && typeof (value) === "function") {
+                continue;
+            }
+            var options = viewModel[prop + "$options"];
+            if (!deserializeAll && options && options.doNotUpdate) {
+                continue;
+            }
+
+            // deserialize value
+            this.copyProperty(value, unwrappedTarget, prop, deserializeAll, options);
         }
 
         // copy the property options metadata
         for (var prop in viewModel) {
-            if (viewModel.hasOwnProperty(prop) && /\$options$/.test(prop)) {
-
-                unwrappedTarget[prop] = unwrappedTarget[prop] || {};
-                for (var optProp in viewModel[prop]) {
-                    if (viewModel[prop].hasOwnProperty(optProp)) {
-                        unwrappedTarget[prop][optProp] = viewModel[prop][optProp];
-                    }
-                }
-
-                var originalName = prop.substring(0, prop.length - "$options".length);
-                if (typeof unwrappedTarget[originalName] === "undefined") {
-                    unwrappedTarget[originalName] = ko.observable();
-                }
+            if (!viewModel.hasOwnProperty(prop) || !this.isOptionsProperty(prop)) {
+                continue;
             }
+
+            this.copyPropertyMetadata(unwrappedTarget, prop, viewModel);
         }
 
         //CHECK: and if target wasnt null but still is observable no need to update it?
@@ -169,32 +159,58 @@ class DotvvmSerialization {
         return target;
     }
 
-    public deserialize(viewModel: any, target?: any, deserializeAll: boolean = false): any {
-
-        if (viewModel && ko.isObservable(viewModel)) {
-            throw new Error("Parameter viewModel should not be an observable. Maybe you forget to invoke the observable you are passing as a viewModel parameter.");
+    private copyProperty(value: any, unwrappedTarget: any, prop: string, deserializeAll: boolean, options: any) {
+        var deserialized = this.deserialize(ko.unwrap(value), unwrappedTarget[prop], deserializeAll);
+        if (value instanceof Date) {
+            // if we get Date value from API, it was converted to string, but we should note that it was date to convert it back
+            unwrappedTarget[prop + "$options"] = { ...unwrappedTarget[prop + "$options"], isDate: true };
         }
-
-        if (typeof (viewModel) == "undefined" || viewModel == null) {
-            return this.deserializeNullOrUndefined(viewModel, target);
+        // update the property
+        if (ko.isObservable(deserialized)) {
+            if (ko.isObservable(unwrappedTarget[prop])) {
+                if (deserialized() !== unwrappedTarget[prop]()) {
+                    unwrappedTarget[prop](deserialized());
+                }
+            }
+            else {
+                const unwrapped = ko.unwrap(deserialized);
+                unwrappedTarget[prop] = Array.isArray(unwrapped) ? ko.observableArray(unwrapped) : ko.observable(unwrapped); // don't reuse the same observable from the source
+            }
         }
-        if (typeof (viewModel) == "string" || typeof (viewModel) == "number" || typeof (viewModel) == "boolean") {
-            return this.deserializePrimitive(viewModel, target);
+        else {
+            if (ko.isObservable(unwrappedTarget[prop])) {
+                if (deserialized !== unwrappedTarget[prop]())
+                    unwrappedTarget[prop](deserialized);
+            }
+            else {
+                unwrappedTarget[prop] = ko.observable(deserialized);
+            }
         }
-        if (viewModel instanceof Date) {
-            return this.deserializeDate(viewModel, target);
+        if (options && options.clientExtenders && ko.isObservable(unwrappedTarget[prop])) {
+            for (var j = 0; j < options.clientExtenders.length; j++) {
+                var extenderOptions = {};
+                var extenderInfo = options.clientExtenders[j];
+                extenderOptions[extenderInfo.name] = extenderInfo.parameter;
+                unwrappedTarget[prop].extend(extenderOptions);
+            }
         }
-
-        if (viewModel instanceof Array) {
-            return this.deserializeArray(viewModel, target, deserializeAll)
-        }
-
-        return this.deserializeObject(viewModel, target, deserializeAll)
     }
 
-    public wrapObservable<T>(obj: T): KnockoutObservable<T> {
-        if (!ko.isObservable(obj)) return ko.observable(obj);
-        return <KnockoutObservable<T>><any>obj;
+    private copyPropertyMetadata(unwrappedTarget: any, prop: string, viewModel: any) {
+        unwrappedTarget[prop] = unwrappedTarget[prop] || {};
+        for (var optProp in viewModel[prop]) {
+            if (viewModel[prop].hasOwnProperty(optProp)) {
+                unwrappedTarget[prop][optProp] = viewModel[prop][optProp];
+            }
+        }
+        var originalName = prop.substring(0, prop.length - "$options".length);
+        if (typeof unwrappedTarget[originalName] === "undefined") {
+            unwrappedTarget[originalName] = ko.observable();
+        }
+    }
+
+    private isOptionsProperty(prop: string) {
+        return /\$options$/.test(prop);
     }
 
     public serialize(viewModel: any, opt: ISerializationOptions = {}): any {

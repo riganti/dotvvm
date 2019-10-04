@@ -206,6 +206,90 @@ describe("DotVVM.Serialization - deserialize", () => {
         assertSubHierarchy(targetObject.Prop2())
     });
 
+    it("Deserialize observable complex object to target with null property", () => {
+        var target = createComplexObservableTargetWithNullSubHierarchy();
+        var viewmodel = createComplexObservableViewmodel();
+
+        dotvvm.serialization.deserialize(viewmodel, target);
+
+        let targetObject = assertObservable(target) as ObservableHierarchy;
+
+        assertHierarchy(viewmodel);
+        assertHierarchy(targetObject);
+    });
+
+    it("Deserialize observable complex object to target with null array element", () => {
+        var target = createComplexObservableTargetWithNullArrayElement();
+        var viewmodel = createComplexObservableViewmodel();
+
+        dotvvm.serialization.deserialize(viewmodel, target);
+
+        let targetObject = assertObservable(target) as ObservableHierarchy;
+
+        assertHierarchy(viewmodel);
+        assertHierarchy(targetObject);
+    });
+
+    it("Deserialize observable complex object to target with array element property containing null in observable", () => {
+        var target = createComplexObservableTargetWithArrayElementPropertyObservableNull();
+        var viewmodel = createComplexObservableViewmodel();
+
+        dotvvm.serialization.deserialize(viewmodel, target);
+
+        let targetObject = assertObservable(target) as ObservableHierarchy;
+
+        assertHierarchy(viewmodel);
+        assertHierarchy(targetObject);
+    });
+
+    it("Deserialize observable complex object to target with array element property containing null", () => {
+        var target = createComplexObservableTargetWithArrayElementPropertyNull();
+        var viewmodel = createComplexObservableViewmodel();
+
+        dotvvm.serialization.deserialize(viewmodel, target);
+
+        let targetObject = assertObservable(target) as ObservableHierarchy;
+
+        assertHierarchy(viewmodel);
+        assertHierarchy(targetObject);
+    });
+
+    it("Deserialize observable complex object to target with array element with property missing", () => {
+        var target = createComplexObservableTargetWithArrayElementPropertyMissing();
+        var viewmodel = createComplexObservableViewmodel();
+
+        dotvvm.serialization.deserialize(viewmodel, target);
+
+        let targetObject = assertObservable(target) as ObservableHierarchy;
+
+        assertHierarchy(viewmodel);
+        assertHierarchy(targetObject);
+    });
+
+    it("Deserialize observable complex object to target with missing array element", () => {
+        var target = createComplexObservableTargetWithMissingArrayElement();
+        var viewmodel = createComplexObservableViewmodel();
+
+        dotvvm.serialization.deserialize(viewmodel, target);
+
+        let targetObject = assertObservable(target) as ObservableHierarchy;
+
+        assertHierarchy(viewmodel);
+        assertHierarchy(targetObject);
+    });
+
+    it("Deserialize observable complex object to target with missing property for sub-hierarchy", () => {
+        var target = createComplexObservableTargetWithMissingSubHierarchy();
+        var viewmodel = createComplexObservableViewmodel();
+
+        dotvvm.serialization.deserialize(viewmodel, target);
+
+        let targetObject = assertObservable(target) as ObservableHierarchy;
+
+        assertHierarchy(viewmodel);
+        assertHierarchy(targetObject);
+    });
+
     it("Deserialize observable complex object property to target observable property - target and model not linked", () => {
         var target = createComplexObservableTarget();
         var viewmodel = createComplexObservableViewmodel();
@@ -621,6 +705,103 @@ function createComplexObservableTarget(): KnockoutObservable<ObservableHierarchy
                 })
             ])
         })
+    });
+}
+
+function createComplexObservableTargetWithNullArrayElement(): KnockoutObservable<ObservableHierarchy> {
+    return ko.observable({
+        Prop1: ko.observable("a"),
+        Prop2: ko.observable({
+            Prop21: ko.observable("b"),
+            Prop22: ko.observable("c"),
+            Prop23: ko.observableArray([
+                null,
+                ko.observable({
+                    Prop231: ko.observable("e")
+                })
+            ])
+        })
+    });
+}
+
+function createComplexObservableTargetWithArrayElementPropertyMissing(): KnockoutObservable<any> {
+    return ko.observable({
+        Prop1: ko.observable("a"),
+        Prop2: ko.observable({
+            Prop21: ko.observable("b"),
+            Prop22: ko.observable("c"),
+            Prop23: ko.observableArray([
+                ko.observable({
+                }),
+                ko.observable({
+                    Prop231: ko.observable("e")
+                })
+            ])
+        })
+    });
+}
+
+function createComplexObservableTargetWithArrayElementPropertyNull(): KnockoutObservable<ObservableHierarchy> {
+    return ko.observable({
+        Prop1: ko.observable("a"),
+        Prop2: ko.observable({
+            Prop21: ko.observable("b"),
+            Prop22: ko.observable("c"),
+            Prop23: ko.observableArray([
+                ko.observable({
+                    Prop231: null
+                }),
+                ko.observable({
+                    Prop231: ko.observable("e")
+                })
+            ])
+        })
+    });
+}
+
+function createComplexObservableTargetWithArrayElementPropertyObservableNull(): KnockoutObservable<ObservableHierarchy> {
+    return ko.observable({
+        Prop1: ko.observable("a"),
+        Prop2: ko.observable({
+            Prop21: ko.observable("b"),
+            Prop22: ko.observable("c"),
+            Prop23: ko.observableArray([
+                ko.observable({
+                    Prop231: ko.observable(null)
+                }),
+                ko.observable({
+                    Prop231: ko.observable("e")
+                })
+            ])
+        })
+    });
+}
+
+function createComplexObservableTargetWithMissingArrayElement(): KnockoutObservable<ObservableHierarchy> {
+    return ko.observable({
+        Prop1: ko.observable("a"),
+        Prop2: ko.observable({
+            Prop21: ko.observable("b"),
+            Prop22: ko.observable("c"),
+            Prop23: ko.observableArray([
+                ko.observable({
+                    Prop231: ko.observable("e")
+                })
+            ])
+        })
+    });
+}
+
+function createComplexObservableTargetWithNullSubHierarchy(): KnockoutObservable<ObservableHierarchy> {
+    return ko.observable({
+        Prop1: ko.observable("a"),
+        Prop2: null
+    });
+}
+
+function createComplexObservableTargetWithMissingSubHierarchy(): KnockoutObservable<any> {
+    return ko.observable({
+        Prop1: ko.observable("a")
     });
 }
 
