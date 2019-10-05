@@ -38,6 +38,7 @@
     <None Remove="Views\FeatureSamples\PostBack\UniqueIdGenerationOnPostbackUpdate.dothtml" />
     <None Remove="Views\FeatureSamples\Resources\LocationFallback.dothtml" />
     <None Remove="Views\FeatureSamples\Resources\RequiredOnPostback.dothtml" />
+    <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_ArrayAssigment.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_NullAssignment.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_TaskSequence.dothtml" />
     <None Remove="Views\FeatureSamples\Validation\EnforceClientSideValidationDisabled.dothtml" />

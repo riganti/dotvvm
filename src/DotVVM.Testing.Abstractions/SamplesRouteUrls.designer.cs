@@ -214,6 +214,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_PostbackConcurrency_PostbackConcurrencyMode = "FeatureSamples/PostbackConcurrency/PostbackConcurrencyMode";
         public const string FeatureSamples_Redirect_Redirect = "FeatureSamples/Redirect/Redirect";
         public const string FeatureSamples_RenderSettingsModeServer_RenderSettingModeServerProperty = "FeatureSamples/RenderSettingsModeServer/RenderSettingModeServerProperty";
+        public const string FeatureSamples_RenderSettingsModeServer_RepeaterCollectionExchange = "FeatureSamples/RenderSettingsModeServer/RepeaterCollectionExchange";
         public const string FeatureSamples_Resources_CdnScriptPriority = "FeatureSamples/Resources/CdnScriptPriority";
         public const string FeatureSamples_Resources_CdnUnavailableResourceLoad = "FeatureSamples/Resources/CdnUnavailableResourceLoad";
         public const string FeatureSamples_Resources_OnlineNonameResourceLoad = "FeatureSamples/Resources/OnlineNonameResourceLoad";
@@ -230,6 +231,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_ServerSideStyles_DirectoryStyle_ServerSideStyles = "FeatureSamples/ServerSideStyles/DirectoryStyle/ServerSideStyles";
         public const string FeatureSamples_ServerSideStyles_NoDirectoryStyle_ServerSideStyles = "FeatureSamples/ServerSideStyles/NoDirectoryStyle/ServerSideStyles";
         public const string FeatureSamples_StaticCommand_StaticCommand = "FeatureSamples/StaticCommand/StaticCommand";
+        public const string FeatureSamples_StaticCommand_StaticCommand_ArrayAssigment = "FeatureSamples/StaticCommand/StaticCommand_ArrayAssigment";
         public const string FeatureSamples_StaticCommand_StaticCommand_ComboBoxSelectionChanged = "FeatureSamples/StaticCommand/StaticCommand_ComboBoxSelectionChanged";
         public const string FeatureSamples_StaticCommand_StaticCommand_ComboBoxSelectionChanged_Objects = "FeatureSamples/StaticCommand/StaticCommand_ComboBoxSelectionChanged_Objects";
         public const string FeatureSamples_StaticCommand_StaticCommand_NullAssignment = "FeatureSamples/StaticCommand/StaticCommand_NullAssignment";
