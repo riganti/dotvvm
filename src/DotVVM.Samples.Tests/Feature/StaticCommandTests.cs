@@ -244,5 +244,27 @@ namespace DotVVM.Samples.Tests.Feature
                 AssertUI.InnerTextEquals(browser.ElementAt(".item", 2), "Pablo");
             });
         }
+
+        [Fact]
+        public void Feature_StaticCommand_StaticCommand_LoadComplexDataFromService()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_StaticCommand_StaticCommand_LoadComplexDataFromService);
+
+                var textBox = browser.Single("input[type=text]");
+                textBox.SendKeys("Vindaloo");
+
+                var button = browser.Single("input[type=button]");
+                button.Click().Wait();
+
+                AssertUI.InnerTextEquals(browser.ElementAt(".name", 0), "Martin");
+                AssertUI.InnerTextEquals(browser.ElementAt(".name", 1), "Roman");
+                AssertUI.InnerTextEquals(browser.ElementAt(".name", 2), "Igor");
+
+                AssertUI.InnerTextEquals(browser.ElementAt(".food", 0), "Burger");
+                AssertUI.InnerTextEquals(browser.ElementAt(".food", 1), "Pizza");
+                AssertUI.InnerTextEquals(browser.ElementAt(".food", 2), "Vindaloo");
+            });
+        }
     }
 }

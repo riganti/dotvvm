@@ -7,6 +7,7 @@ using DotVVM.Samples.BasicSamples.Controls;
 using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand;
 using DotVVM.Samples.Common.Utilities;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
+using DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Samples.Common
@@ -34,6 +35,7 @@ namespace DotVVM.Samples.Common
             dotvvmServices.AddDefaultTempStorages("Temp");
             services.AddScoped<ViewModelScopedDependency>();
             services.AddSingleton<IGreetingComputationService, HelloGreetingComputationService>();
+            services.AddSingleton<FoodSevice>();
         }
 
         private static void RegisterResources(DotvvmResourceRepository resources)
