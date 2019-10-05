@@ -96,10 +96,23 @@ class DotvvmSerialization {
         for (var i = 0; i < viewModel.length; i++) {
             var targetItem = ko.unwrap(targetArray[i]);
             var deserialized = this.deserialize(ko.unwrap(viewModel[i]), targetItem, deserializeAll);
+
             //It should be fine that we do not unwrap deserialized because target is unwrapped and viewmodel is unwrapped so the result should be unwrapped
             if (targetItem !== deserialized) {
                 // update the observable only if the item has changed
-                targetArray[i](deserialized);
+                if (ko.isObservable(viewModel[i]) && !ko.isObservable(targetArray[i])) {
+                    //wrap into observable if for some reason original viewmodel item is observable but target item is not
+                    //without this null or empty objects in place of items would prevent us from copying the item
+                    targetArray[i] = ko.observable(deserialized);
+                }
+                else {
+                    if (ko.isObservable(targetArray[i])) {
+                        targetArray[i](deserialized);
+                    }
+                    else {
+                        targetArray[i] = deserialized;
+                    }
+                }
             }
         }
     }

@@ -11,6 +11,7 @@ declare function createComplexObservableTarget(): KnockoutObservable<ObservableH
 declare function createComplexObservableTargetWithNullArrayElement(): KnockoutObservable<ObservableHierarchy>;
 declare function createComplexObservableTargetWithArrayElementPropertyMissing(): KnockoutObservable<any>;
 declare function createComplexObservableTargetWithArrayElementPropertyNull(): KnockoutObservable<ObservableHierarchy>;
+declare function createComplexObservableTargetWithArrayElementMissingAndNull(): KnockoutObservable<ObservableHierarchy>;
 declare function createComplexObservableTargetWithArrayElementPropertyObservableNull(): KnockoutObservable<ObservableHierarchy>;
 declare function createComplexObservableTargetWithMissingArrayElement(): KnockoutObservable<ObservableHierarchy>;
 declare function createComplexObservableTargetWithNullSubHierarchy(): KnockoutObservable<ObservableHierarchy>;

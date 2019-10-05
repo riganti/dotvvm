@@ -278,6 +278,18 @@ describe("DotVVM.Serialization - deserialize", () => {
         assertHierarchy(targetObject);
     });
 
+    it("Deserialize observable complex object to target with missing and null array elements", () => {
+        var target = createComplexObservableTargetWithArrayElementMissingAndNull();
+        var viewmodel = createComplexObservableViewmodel();
+
+        dotvvm.serialization.deserialize(viewmodel, target);
+
+        let targetObject = assertObservable(target) as ObservableHierarchy;
+
+        assertHierarchy(viewmodel);
+        assertHierarchy(targetObject);
+    });
+
     it("Deserialize observable complex object to target with missing property for sub-hierarchy", () => {
         var target = createComplexObservableTargetWithMissingSubHierarchy();
         var viewmodel = createComplexObservableViewmodel();
@@ -754,6 +766,19 @@ function createComplexObservableTargetWithArrayElementPropertyNull(): KnockoutOb
                 ko.observable({
                     Prop231: ko.observable("e")
                 })
+            ])
+        })
+    });
+}
+
+function createComplexObservableTargetWithArrayElementMissingAndNull(): KnockoutObservable<ObservableHierarchy> {
+    return ko.observable({
+        Prop1: ko.observable("a"),
+        Prop2: ko.observable({
+            Prop21: ko.observable("b"),
+            Prop22: ko.observable("c"),
+            Prop23: ko.observableArray([
+                null
             ])
         })
     });
