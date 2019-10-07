@@ -521,10 +521,7 @@ var DotvvmSerialization = /** @class */ (function () {
         if (ko.isObservable(viewModel)) {
             throw new Error("Parameter viewModel should not be an observable. Maybe you forget to invoke the observable you are passing as a viewModel parameter.");
         }
-        if (typeof (viewModel) == "undefined" || viewModel == null) {
-            return this.deserializeNullOrUndefined(viewModel, target);
-        }
-        if (typeof (viewModel) == "string" || typeof (viewModel) == "number" || typeof (viewModel) == "boolean") {
+        if (this.isPrimitive(viewModel)) {
             return this.deserializePrimitive(viewModel, target);
         }
         if (viewModel instanceof Date) {
@@ -534,13 +531,6 @@ var DotvvmSerialization = /** @class */ (function () {
             return this.deserializeArray(viewModel, target, deserializeAll);
         }
         return this.deserializeObject(viewModel, target, deserializeAll);
-    };
-    DotvvmSerialization.prototype.deserializeNullOrUndefined = function (viewModel, target) {
-        if (ko.isObservable(target)) {
-            target(viewModel);
-            return target;
-        }
-        return viewModel;
     };
     DotvvmSerialization.prototype.deserializePrimitive = function (viewModel, target) {
         if (ko.isObservable(target)) {
@@ -657,6 +647,13 @@ var DotvvmSerialization = /** @class */ (function () {
             target(unwrappedTarget);
         }
         return target;
+    };
+    DotvvmSerialization.prototype.isPrimitive = function (viewModel) {
+        return typeof (viewModel) == "undefined"
+            || viewModel == null
+            || typeof (viewModel) == "string"
+            || typeof (viewModel) == "number"
+            || typeof (viewModel) == "boolean";
     };
     DotvvmSerialization.prototype.copyProperty = function (value, unwrappedTarget, prop, deserializeAll, options) {
         var deserialized = this.deserialize(ko.unwrap(value), unwrappedTarget[prop], deserializeAll);

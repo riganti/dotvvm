@@ -21,12 +21,10 @@ class DotvvmSerialization {
             throw new Error("Parameter viewModel should not be an observable. Maybe you forget to invoke the observable you are passing as a viewModel parameter.");
         }
 
-        if (typeof (viewModel) == "undefined" || viewModel == null) {
-            return this.deserializeNullOrUndefined(viewModel, target);
-        }
-        if (typeof (viewModel) == "string" || typeof (viewModel) == "number" || typeof (viewModel) == "boolean") {
+        if (this.isPrimitive(viewModel)) {
             return this.deserializePrimitive(viewModel, target);
         }
+
         if (viewModel instanceof Date) {
             return this.deserializeDate(viewModel, target);
         }
@@ -36,14 +34,6 @@ class DotvvmSerialization {
         }
 
         return this.deserializeObject(viewModel, target, deserializeAll)
-    }
-
-    public deserializeNullOrUndefined(viewModel: any, target?: any): any {
-        if (ko.isObservable(target)) {
-            target(viewModel);
-            return target;
-        }
-        return viewModel;
     }
 
     public deserializePrimitive(viewModel: any, target?: any): any {
@@ -170,6 +160,14 @@ class DotvvmSerialization {
             target(unwrappedTarget);
         }
         return target;
+    }
+
+    private isPrimitive(viewModel: any) {
+        return typeof (viewModel) == "undefined"
+            || viewModel == null
+            || typeof (viewModel) == "string"
+            || typeof (viewModel) == "number"
+            || typeof (viewModel) == "boolean";
     }
 
     private copyProperty(value: any, unwrappedTarget: any, prop: string, deserializeAll: boolean, options: any) {

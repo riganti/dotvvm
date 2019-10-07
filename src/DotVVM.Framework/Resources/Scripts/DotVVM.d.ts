@@ -226,13 +226,13 @@ interface ISerializationOptions {
 declare class DotvvmSerialization {
     wrapObservable<T>(obj: T): KnockoutObservable<T>;
     deserialize(viewModel: any, target?: any, deserializeAll?: boolean): any;
-    deserializeNullOrUndefined(viewModel: any, target?: any): any;
     deserializePrimitive(viewModel: any, target?: any): any;
     deserializeDate(viewModel: any, target?: any): any;
     deserializeArray(viewModel: any, target?: any, deserializeAll?: boolean): any;
     private rebuildArrayFromScratch;
     private updateArrayItems;
     deserializeObject(viewModel: any, target: any, deserializeAll: boolean): any;
+    private isPrimitive;
     private copyProperty;
     private copyPropertyMetadata;
     private isOptionsProperty;
