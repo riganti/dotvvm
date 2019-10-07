@@ -648,13 +648,6 @@ var DotvvmSerialization = /** @class */ (function () {
         }
         return target;
     };
-    DotvvmSerialization.prototype.isPrimitive = function (viewModel) {
-        return typeof (viewModel) == "undefined"
-            || viewModel == null
-            || typeof (viewModel) == "string"
-            || typeof (viewModel) == "number"
-            || typeof (viewModel) == "boolean";
-    };
     DotvvmSerialization.prototype.copyProperty = function (value, unwrappedTarget, prop, deserializeAll, options) {
         var deserialized = this.deserialize(ko.unwrap(value), unwrappedTarget[prop], deserializeAll);
         if (value instanceof Date) {
@@ -692,16 +685,18 @@ var DotvvmSerialization = /** @class */ (function () {
         }
     };
     DotvvmSerialization.prototype.copyPropertyMetadata = function (unwrappedTarget, prop, viewModel) {
-        unwrappedTarget[prop] = unwrappedTarget[prop] || {};
-        for (var optProp in viewModel[prop]) {
-            if (viewModel[prop].hasOwnProperty(optProp)) {
-                unwrappedTarget[prop][optProp] = viewModel[prop][optProp];
-            }
-        }
+        unwrappedTarget[prop] = __assign(__assign({}, unwrappedTarget[prop]), viewModel[prop]);
         var originalName = prop.substring(0, prop.length - "$options".length);
         if (typeof unwrappedTarget[originalName] === "undefined") {
             unwrappedTarget[originalName] = ko.observable();
         }
+    };
+    DotvvmSerialization.prototype.isPrimitive = function (viewModel) {
+        return typeof (viewModel) == "undefined"
+            || viewModel == null
+            || typeof (viewModel) == "string"
+            || typeof (viewModel) == "number"
+            || typeof (viewModel) == "boolean";
     };
     DotvvmSerialization.prototype.isOptionsProperty = function (prop) {
         return /\$options$/.test(prop);

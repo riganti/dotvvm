@@ -232,9 +232,9 @@ declare class DotvvmSerialization {
     private rebuildArrayFromScratch;
     private updateArrayItems;
     deserializeObject(viewModel: any, target: any, deserializeAll: boolean): any;
-    private isPrimitive;
     private copyProperty;
     private copyPropertyMetadata;
+    private isPrimitive;
     private isOptionsProperty;
     serialize(viewModel: any, opt?: ISerializationOptions): any;
     validateType(value: any, type: string): boolean;
