@@ -550,14 +550,14 @@ var DotvvmSerialization = /** @class */ (function () {
     DotvvmSerialization.prototype.deserializeArray = function (viewModel, target, deserializeAll) {
         if (deserializeAll === void 0) { deserializeAll = false; }
         if (ko.isObservable(target) && "removeAll" in target && target() != null && target().length === viewModel.length) {
-            this.updateArrayItems(target, viewModel, deserializeAll);
+            this.updateArrayItems(viewModel, target, deserializeAll);
         }
         else {
-            target = this.rebuildArrayFromScratch(viewModel, deserializeAll, target);
+            target = this.rebuildArrayFromScratch(viewModel, target, deserializeAll);
         }
         return target;
     };
-    DotvvmSerialization.prototype.rebuildArrayFromScratch = function (viewModel, deserializeAll, target) {
+    DotvvmSerialization.prototype.rebuildArrayFromScratch = function (viewModel, target, deserializeAll) {
         var array = [];
         for (var i = 0; i < viewModel.length; i++) {
             array.push(this.wrapObservable(this.deserialize(ko.unwrap(viewModel[i]), {}, deserializeAll)));
@@ -575,7 +575,7 @@ var DotvvmSerialization = /** @class */ (function () {
         }
         return target;
     };
-    DotvvmSerialization.prototype.updateArrayItems = function (target, viewModel, deserializeAll) {
+    DotvvmSerialization.prototype.updateArrayItems = function (viewModel, target, deserializeAll) {
         var targetArray = target();
         for (var i = 0; i < viewModel.length; i++) {
             var targetItem = ko.unwrap(targetArray[i]);

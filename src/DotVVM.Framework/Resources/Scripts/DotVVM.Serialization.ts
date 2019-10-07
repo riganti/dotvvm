@@ -55,14 +55,14 @@ class DotvvmSerialization {
 
     public deserializeArray(viewModel: any, target?: any, deserializeAll: boolean = false): any {
         if (ko.isObservable(target) && "removeAll" in target && target() != null && target().length === viewModel.length) {
-            this.updateArrayItems(target, viewModel, deserializeAll);
+            this.updateArrayItems(viewModel, target, deserializeAll);
         } else {
-            target = this.rebuildArrayFromScratch(viewModel, deserializeAll, target);
+            target = this.rebuildArrayFromScratch(viewModel, target, deserializeAll);
         }
         return target;
     }
 
-    private rebuildArrayFromScratch(viewModel: any, deserializeAll: boolean, target: any) {
+    private rebuildArrayFromScratch(viewModel: any, target: any, deserializeAll: boolean) {
         var array: KnockoutObservable<any>[] = [];
         for (var i = 0; i < viewModel.length; i++) {
             array.push(this.wrapObservable(this.deserialize(ko.unwrap(viewModel[i]), {}, deserializeAll)));
@@ -81,7 +81,7 @@ class DotvvmSerialization {
         return target;
     }
 
-    private updateArrayItems(target: KnockoutObservable<any>, viewModel: any, deserializeAll: boolean) {
+    private updateArrayItems(viewModel: any, target: KnockoutObservable<any>, deserializeAll: boolean) {
         var targetArray = target();
         for (var i = 0; i < viewModel.length; i++) {
             var targetItem = ko.unwrap(targetArray[i]);
