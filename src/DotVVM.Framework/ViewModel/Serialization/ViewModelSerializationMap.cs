@@ -358,8 +358,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     if (property.ViewModelProtection == ProtectMode.None ||
                         property.ViewModelProtection == ProtectMode.SignData)
                     {
-                        var checkEV = property.ViewModelProtection == ProtectMode.None &&
-                                           CanContainEncryptedValues(property.Type);
+                        var checkEV = CanContainEncryptedValues(property.Type);
                         if (checkEV)
                         {
                             // encryptedValuesWriter.Nest({propertyIndex});
@@ -428,7 +427,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
             // compile the expression
             var ex = Expression.Lambda<WriterDelegate>(
-                Expression.Block(new[] { value }, block).OptimizeConstants(), writer, valueParam, serializer, encryptedValuesWriter, isPostback);
+                Expression.Block(new[] { value, isBlockedByMe }, block).OptimizeConstants(), writer, valueParam, serializer, encryptedValuesWriter, isPostback);
             return ex.Compile();
         }
 
