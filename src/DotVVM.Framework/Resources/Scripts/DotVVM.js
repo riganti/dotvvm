@@ -571,7 +571,7 @@ var DotvvmSerialization = /** @class */ (function () {
             target(array);
         }
         else {
-            target = ko.observableArray(array);
+            target = array;
         }
         return target;
     };
@@ -583,46 +583,29 @@ var DotvvmSerialization = /** @class */ (function () {
             //It should be fine that we do not unwrap deserialized because target is unwrapped and viewmodel is unwrapped so the result should be unwrapped
             if (targetItem !== deserialized) {
                 // update the observable only if the item has changed
-                if (ko.isObservable(viewModel[i]) && !ko.isObservable(targetArray[i])) {
-                    //wrap into observable if for some reason original viewmodel item is observable but target item is not
-                    //without this null or empty objects in place of items would prevent us from copying the item
-                    targetArray[i] = ko.observable(deserialized);
-                }
-                else {
-                    if (ko.isObservable(targetArray[i])) {
+                if (ko.isObservable(targetArray[i])) {
+                    if (targetArray[i]() != deserialized) {
                         targetArray[i](deserialized);
                     }
-                    else {
-                        targetArray[i] = deserialized;
-                    }
+                }
+                else {
+                    targetArray[i] = this.wrapObservable(deserialized);
                 }
             }
         }
     };
     DotvvmSerialization.prototype.deserializeObject = function (viewModel, target, deserializeAll) {
-        //If we stepped into target and called deserialize on target.A and A did not exists but A existed in viewmodel,
-        //we simply create the object and rely on caller to set the property
-        if (typeof (target) === "undefined") {
-            target = {};
-        }
-        //This is so that we can construct a copy of viewmodel and set it to initialy empty observable later
         var unwrappedTarget = ko.unwrap(target);
-        var updateTarget = false;
-        if (unwrappedTarget == null) {
+        if (this.isPrimitive(unwrappedTarget)) {
             unwrappedTarget = {};
-            if (ko.isObservable(target)) {
-                updateTarget = true;
-            }
-            else {
-                target = unwrappedTarget;
-            }
         }
-        for (var prop in viewModel) {
-            if (!viewModel.hasOwnProperty(prop) || this.isOptionsProperty(prop)) {
+        for (var _i = 0, _a = Object.getOwnPropertyNames(viewModel); _i < _a.length; _i++) {
+            var prop = _a[_i];
+            if (this.isOptionsProperty(prop)) {
                 continue;
             }
             var value = viewModel[prop];
-            if (typeof (value) === "undefined") {
+            if (typeof (value) == "undefined") {
                 continue;
             }
             if (!ko.isObservable(value) && typeof (value) === "function") {
@@ -636,15 +619,22 @@ var DotvvmSerialization = /** @class */ (function () {
             this.copyProperty(value, unwrappedTarget, prop, deserializeAll, options);
         }
         // copy the property options metadata
-        for (var prop in viewModel) {
-            if (!viewModel.hasOwnProperty(prop) || !this.isOptionsProperty(prop)) {
+        for (var _b = 0, _c = Object.getOwnPropertyNames(viewModel); _b < _c.length; _b++) {
+            var prop = _c[_b];
+            if (!this.isOptionsProperty(prop)) {
                 continue;
             }
             this.copyPropertyMetadata(unwrappedTarget, prop, viewModel);
         }
-        //CHECK: and if target wasnt null but still is observable no need to update it?
-        if (updateTarget) {
-            target(unwrappedTarget);
+        if (ko.isObservable(target)) {
+            //This is so that if we have already updated the instance inside target observable
+            //there's no need to force update 
+            if (unwrappedTarget !== target()) {
+                target(unwrappedTarget);
+            }
+        }
+        else {
+            target = unwrappedTarget;
         }
         return target;
     };
@@ -692,8 +682,7 @@ var DotvvmSerialization = /** @class */ (function () {
         }
     };
     DotvvmSerialization.prototype.isPrimitive = function (viewModel) {
-        return typeof (viewModel) == "undefined"
-            || viewModel == null
+        return viewModel == null
             || typeof (viewModel) == "string"
             || typeof (viewModel) == "number"
             || typeof (viewModel) == "boolean";
