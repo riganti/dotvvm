@@ -16,7 +16,18 @@
     <None Remove="sampleConfig.json" />
     <None Remove="Views\ComplexSamples\NestedComboBox\InnerWrapper.dotcontrol" />
     <None Remove="Views\ComplexSamples\NestedComboBox\OuterWrapper.dotcontrol" />
+    <None Remove="Views\ComplexSamples\SPAErrorReporting\default.dothtml" />
+    <None Remove="Views\ComplexSamples\SPAErrorReporting\site.dotmaster" />
+    <None Remove="Views\ComplexSamples\SPAErrorReporting\test.dothtml" />
+    <None Remove="Views\ControlSamples\ComboBox\BindingCTValidation_StringToEnum.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\HeavilyNested.dothtml" />
+    <None Remove="Views\ControlSamples\ComboBox\ItemBinding_ItemValueBinding_Complex_Error.dothtml" />
+    <None Remove="Views\ControlSamples\ComboBox\ItemBinding_ItemValueBinding_Enum.dothtml" />
+    <None Remove="Views\ControlSamples\ComboBox\ItemBinding_ItemValueBinding_Number.dothtml" />
+    <None Remove="Views\ControlSamples\ComboBox\ItemBinding_ItemValueBinding_SelectedValue_ComplexToInt_Error.dothtml" />
+    <None Remove="Views\ControlSamples\ComboBox\ItemBinding_ItemValueBinding_SelectedValue_StringToInt_Error.dothtml" />
+    <None Remove="Views\ControlSamples\ComboBox\ItemBinding_ItemValueBinding_String.dothtml" />
+    <None Remove="Views\ControlSamples\ComboBox\ItemBinding_ItemValueBinding_StringToObject.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\Nullable.dothtml" />
     <None Remove="Views\ControlSamples\GridView\RenamedPrimaryKey.dothtml" />
     <None Remove="Views\ControlSamples\Literal\Literal_NumberBinding.dothtml" />
@@ -36,10 +47,12 @@
     <None Remove="Views\FeatureSamples\PostBack\RecursiveTextRepeater.dotcontrol" />
     <None Remove="Views\FeatureSamples\PostBack\RecursiveTextRepeater2.dotcontrol" />
     <None Remove="Views\FeatureSamples\PostBack\UniqueIdGenerationOnPostbackUpdate.dothtml" />
+    <None Remove="Views\FeatureSamples\Redirect\Redirect_StaticCommand.dothtml" />
     <None Remove="Views\FeatureSamples\Resources\LocationFallback.dothtml" />
     <None Remove="Views\FeatureSamples\Resources\RequiredOnPostback.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_NullAssignment.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_TaskSequence.dothtml" />
+    <None Remove="Views\FeatureSamples\UsageValidation\OverrideValidation.dothtml" />
     <None Remove="Views\FeatureSamples\Validation\EnforceClientSideValidationDisabled.dothtml" />
     <None Remove="Views\FeatureSamples\Validation\InvalidCssClassNotDuplicated.dothtml" />
   </ItemGroup>

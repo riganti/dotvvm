@@ -39,7 +39,7 @@ namespace DotVVM.Framework.Configuration
 
                 if (obj.GetTypeInfo().Assembly != typeof(string).GetTypeInfo().Assembly &&
                     !obj.IsGenericParameter &&
-                    !ViewModelJsonConverter.IsEnumerable(obj) && ViewModelJsonConverter.IsComplexType(obj) && !ViewModelJsonConverter.IsTuple(obj))
+                    !ReflectionUtils.IsEnumerable(obj) && ReflectionUtils.IsComplexType(obj) && !ReflectionUtils.IsTuple(obj))
                 {
 
                     config.GetSerializationMapper().Map(obj, m => {
@@ -64,7 +64,7 @@ namespace DotVVM.Framework.Configuration
         {
             return expr.Select(p =>
                 p.Annotation<ViewModelInfoAnnotation>() is ViewModelInfoAnnotation vmInfo ? (
-                    ViewModelJsonConverter.IsComplexType(vmInfo.Type) ? Serialize(p) :
+                    ReflectionUtils.IsComplexType(vmInfo.Type) ? Serialize(p) :
                     vmInfo.Type == typeof(DateTime) || vmInfo.Type == typeof(DateTime?) ? SerializeDate(p) :
                     p) :
                 p

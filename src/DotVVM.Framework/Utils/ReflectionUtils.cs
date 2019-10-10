@@ -263,19 +263,19 @@ namespace DotVVM.Framework.Utils
             return assemblies.Select(a => a.GetType(name, false, ignoreCase)).FirstOrDefault(t => t != null);
         }
 
-        public static Type GetEnumerableType(Type collectionType)
+        public static Type GetEnumerableType(this Type collectionType)
         {
             var result = TypeDescriptorUtils.GetCollectionItemType(new ResolvedTypeDescriptor(collectionType));
             if (result == null) return null;
             return ResolvedTypeDescriptor.ToSystemType(result);
         }
-        public static readonly HashSet<Type> DateTimeTypes = new HashSet<Type>()
-            {
-                typeof(DateTime),
-                typeof(DateTimeOffset),
-                typeof(TimeSpan)
-            };
 
+        public static readonly HashSet<Type> DateTimeTypes = new HashSet<Type>()
+        {
+            typeof(DateTime),
+            typeof(DateTimeOffset),
+            typeof(TimeSpan)
+        };
 
         public static readonly HashSet<Type> NumericTypes = new HashSet<Type>()
         {
@@ -293,6 +293,15 @@ namespace DotVVM.Framework.Utils
             typeof (decimal)
         };
 
+        public static readonly HashSet<Type> PrimitiveTypes = new HashSet<Type>() { 
+            typeof(string),
+            typeof(bool),
+            typeof(DateTime), typeof(DateTimeOffset), typeof(TimeSpan),
+            typeof(Guid),
+            typeof(byte), typeof(sbyte), typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong),
+            typeof(float), typeof(double), typeof(decimal)
+        };
+
         public static bool IsNumericType(this Type type)
         {
             return NumericTypes.Contains(type);
@@ -302,6 +311,48 @@ namespace DotVVM.Framework.Utils
         {
             return DateTimeTypes.Contains(type);
         }
+
+        public static bool IsTuple(Type type) =>
+            type.FullName.StartsWith(typeof(Tuple).FullName + "`");
+
+        public static bool IsEnumerable(Type type)
+        {
+            return typeof(IEnumerable).IsAssignableFrom(type);
+        }
+
+        public static bool IsDictionary(Type type)
+        {
+            return type.GetInterfaces().Any(x => x.IsGenericType
+                    && x.GetGenericTypeDefinition() == typeof(IDictionary<,>));
+        }
+
+        public static bool IsCollection(Type type)
+        {
+            return type != typeof(string) && IsEnumerable(type) && !IsDictionary(type);
+        }
+
+        public static bool IsPrimitiveType(Type type)
+        {
+            return PrimitiveTypes.Contains(type)
+                || (IsNullableType(type) && IsPrimitiveType(type.UnwrapNullableType()))
+                || type.IsEnum;
+        }
+
+        public static bool IsNullableType(Type type)
+        {
+            return type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+        }
+
+        public static bool IsEnum(Type type)
+        {
+            return type.GetTypeInfo().IsEnum;
+        }
+
+        public static bool IsComplexType(Type type)
+        {
+            return !IsPrimitiveType(type);
+        }
+
         public static bool IsDynamicOrObject(this Type type)
         {
             return type.GetInterfaces().Contains(typeof(IDynamicMetaObjectProvider)) ||
