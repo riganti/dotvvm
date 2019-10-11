@@ -116,6 +116,9 @@
     <Compile Include="ViewModels\ControlSamples\RoleView\RoleViewTestViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Scripts\testResource.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Web.config" />
     <Content Include="test.zip" />
     <Content Include="packages.config" />
@@ -149,9 +152,6 @@
       <Project>{d14467c8-9337-4fdf-b13e-d948b851f026}</Project>
       <Name>EmbeddedResourceControls</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Scripts\" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />

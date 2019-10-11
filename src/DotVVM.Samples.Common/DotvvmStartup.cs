@@ -19,6 +19,7 @@ using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Linq;
+using DotVVM.Samples.Common.Controls;
 
 namespace DotVVM.Samples.BasicSamples
 {
@@ -139,6 +140,7 @@ namespace DotVVM.Samples.BasicSamples
         {
             config.Markup.AddCodeControls("cc", typeof(Controls.ServerSideStylesControl));
             config.Markup.AddCodeControls("cc", typeof(Controls.TextRepeater));
+            config.Markup.AddCodeControls("cc", typeof(DerivedControlUsageValidationTestControl));
             config.Markup.AddCodeControls("PropertyUpdate", typeof(Controls.ServerRenderedLabel));
             config.Markup.AddMarkupControl("IdGeneration", "Control", "Views/FeatureSamples/IdGeneration/IdGeneration_control.dotcontrol");
             config.Markup.AddMarkupControl("FileUploadInRepeater", "FileUploadWrapper", "Views/ComplexSamples/FileUploadInRepeater/FileUploadWrapper.dotcontrol");

@@ -22,7 +22,7 @@ namespace DotVVM.Samples.Common
                 config.ImportedNamespaces.Add(new Framework.Compilation.NamespaceImport("DotVVM.Samples.BasicSamples.TestNamespace1", "TestNamespaceAlias"));
                 config.ImportedNamespaces.Add(new Framework.Compilation.NamespaceImport("DotVVM.Samples.BasicSamples.TestNamespace2"));
             });
-
+            services.AddScoped<DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Redirect.RedirectService>();
             services.Configure<DotvvmResourceRepository>(RegisterResources);
 
             services.Configure<JavascriptTranslatorConfiguration>(c => {
