@@ -549,7 +549,7 @@ var DotvvmSerialization = /** @class */ (function () {
     };
     DotvvmSerialization.prototype.deserializeArray = function (viewModel, target, deserializeAll) {
         if (deserializeAll === void 0) { deserializeAll = false; }
-        if (ko.isObservable(target) && "removeAll" in target && target() != null && target().length === viewModel.length) {
+        if (this.isObservableArray(target) && target() != null && target().length === viewModel.length) {
             this.updateArrayItems(viewModel, target, deserializeAll);
         }
         else {
@@ -560,14 +560,10 @@ var DotvvmSerialization = /** @class */ (function () {
     DotvvmSerialization.prototype.rebuildArrayFromScratch = function (viewModel, target, deserializeAll) {
         var array = [];
         for (var i = 0; i < viewModel.length; i++) {
-            array.push(this.wrapObservable(this.deserialize(ko.unwrap(viewModel[i]), {}, deserializeAll)));
+            array.push(this.wrapObservableObjectOrArray(this.deserialize(ko.unwrap(viewModel[i]), {}, deserializeAll)));
         }
         if (ko.isObservable(target)) {
-            if (!("removeAll" in target)) {
-                // if the previous value was null, the property is not an observable array - make it
-                ko.utils.extend(target, ko.observableArray['fn']);
-                target = target.extend({ 'trackArrayChanges': true });
-            }
+            target = this.extendToObservableArrayIfRequired(target);
             target(array);
         }
         else {
@@ -580,16 +576,16 @@ var DotvvmSerialization = /** @class */ (function () {
         for (var i = 0; i < viewModel.length; i++) {
             var targetItem = ko.unwrap(targetArray[i]);
             var deserialized = this.deserialize(ko.unwrap(viewModel[i]), targetItem, deserializeAll);
-            //It should be fine that we do not unwrap deserialized because target is unwrapped and viewmodel is unwrapped so the result should be unwrapped
             if (targetItem !== deserialized) {
-                // update the observable only if the item has changed
+                //update the item
                 if (ko.isObservable(targetArray[i])) {
-                    if (targetArray[i]() != deserialized) {
+                    if (targetArray[i]() !== deserialized) {
+                        targetArray[i] = this.extendToObservableArrayIfRequired(targetArray[i]);
                         targetArray[i](deserialized);
                     }
                 }
                 else {
-                    targetArray[i] = this.wrapObservable(deserialized);
+                    targetArray[i] = this.wrapObservableObjectOrArray(deserialized);
                 }
             }
         }
@@ -615,7 +611,6 @@ var DotvvmSerialization = /** @class */ (function () {
             if (!deserializeAll && options && options.doNotUpdate) {
                 continue;
             }
-            // deserialize value
             this.copyProperty(value, unwrappedTarget, prop, deserializeAll, options);
         }
         // copy the property options metadata
@@ -645,25 +640,14 @@ var DotvvmSerialization = /** @class */ (function () {
             unwrappedTarget[prop + "$options"] = __assign(__assign({}, unwrappedTarget[prop + "$options"]), { isDate: true });
         }
         // update the property
-        if (ko.isObservable(deserialized)) {
-            if (ko.isObservable(unwrappedTarget[prop])) {
-                if (deserialized() !== unwrappedTarget[prop]()) {
-                    unwrappedTarget[prop](deserialized());
-                }
-            }
-            else {
-                var unwrapped = ko.unwrap(deserialized);
-                unwrappedTarget[prop] = Array.isArray(unwrapped) ? ko.observableArray(unwrapped) : ko.observable(unwrapped); // don't reuse the same observable from the source
+        if (ko.isObservable(deserialized)) { //deserialized is observable <=> its input target is observable
+            if (deserialized() !== unwrappedTarget[prop]()) {
+                unwrappedTarget[prop] = this.extendToObservableArrayIfRequired(unwrappedTarget[prop]);
+                unwrappedTarget[prop](deserialized());
             }
         }
         else {
-            if (ko.isObservable(unwrappedTarget[prop])) {
-                if (deserialized !== unwrappedTarget[prop]())
-                    unwrappedTarget[prop](deserialized);
-            }
-            else {
-                unwrappedTarget[prop] = ko.observable(deserialized);
-            }
+            unwrappedTarget[prop] = this.wrapObservableObjectOrArray(deserialized);
         }
         if (options && options.clientExtenders && ko.isObservable(unwrappedTarget[prop])) {
             for (var j = 0; j < options.clientExtenders.length; j++) {
@@ -681,6 +665,21 @@ var DotvvmSerialization = /** @class */ (function () {
             unwrappedTarget[originalName] = ko.observable();
         }
     };
+    DotvvmSerialization.prototype.extendToObservableArrayIfRequired = function (observable) {
+        if (!ko.isObservable(observable)) {
+            throw new Error("Trying to extend a non-observable to an observable array.");
+        }
+        if (!this.isObservableArray(observable)) {
+            ko.utils.extend(observable, ko.observableArray['fn']);
+            observable = observable.extend({ 'trackArrayChanges': true });
+        }
+        return observable;
+    };
+    DotvvmSerialization.prototype.wrapObservableObjectOrArray = function (obj) {
+        return Array.isArray(obj)
+            ? ko.observableArray(obj)
+            : ko.observable(obj);
+    };
     DotvvmSerialization.prototype.isPrimitive = function (viewModel) {
         return viewModel == null
             || typeof (viewModel) == "string"
@@ -689,6 +688,9 @@ var DotvvmSerialization = /** @class */ (function () {
     };
     DotvvmSerialization.prototype.isOptionsProperty = function (prop) {
         return /\$options$/.test(prop);
+    };
+    DotvvmSerialization.prototype.isObservableArray = function (target) {
+        return ko.isObservable(target) && "removeAll" in target;
     };
     DotvvmSerialization.prototype.serialize = function (viewModel, opt) {
         if (opt === void 0) { opt = {}; }

@@ -4,13 +4,18 @@
 
 var dotvvm = new DotVVM();
 var assertObservable = (object: any): any => {
-    expect(ko.isObservable(object)).toBeTruthy();
+    expect(ko.isObservable(object)).toBeTruthy("Object was expected to be an observable.");
     return object();
 }
 
 var assertNotObservable = (object: any): any => {
-    expect(ko.isObservable(object)).toBeFalsy();
+    expect(ko.isObservable(object)).toBeFalsy("Object was an observable, where simple object was expected.");
     return object;
+}
+
+var assertObservableArray = (object: any) => {
+    expect(ko.isObservable(object) && "removeAll" in object).toBeTruthy("Object was expected to be an observable array.");
+    return object()
 }
 
 var asserObservableString = (object: any, expected: string) => {
@@ -155,6 +160,93 @@ describe("DotVVM.Serialization - deserialize", () => {
 
         expect(() => dotvvm.serialization.deserialize(viewmodel, target))
             .toThrowError("Parameter viewModel should not be an observable. Maybe you forget to invoke the observable you are passing as a viewModel parameter.");
+    });
+
+    it("Deserialize observable array inside array to target array of observable string", function () {
+        var target = [
+            ko.observable("a")
+        ];
+        var viewmodel = [
+            ko.observableArray([ko.observable("bb")])
+        ];
+
+        var result = assertNotObservable(dotvvm.serialization.deserialize(viewmodel, target));
+
+        var subArray = assertObservableArray(result[0]);
+        var element = assertObservable(subArray[0]);
+        expect(element).toBe("bb");
+    });
+
+    it("Deserialize array inside object to target object with observable string property", function () {
+        var target = {
+            Prop: ko.observable("a")
+        };
+        var viewmodel = {
+            Prop: [ko.observable("bb")]
+        };
+
+        var result = assertNotObservable(dotvvm.serialization.deserialize(viewmodel, target));
+
+        assertObservableArray(target.Prop);
+
+        var subArray = assertObservableArray(result.Prop);
+        var element = assertObservable(subArray[0]);
+        expect(element).toBe("bb");
+    });
+
+    it("Deserialize observable array inside array to target observable array of observable string", function () {
+        var target = ko.observableArray([
+            ko.observable("a")
+        ]);
+        var viewmodel = [
+            ko.observableArray([ko.observable("bb")])
+        ];
+
+        var result = assertObservable(dotvvm.serialization.deserialize(viewmodel, target));
+
+        var subArray = assertObservableArray(result[0]);
+        var element = assertObservable(subArray[0]);
+        expect(element).toBe("bb");
+    });
+
+    it("Deserialize observable array inside array to target array of non-observable string", function () {
+        var target = [
+            "a"
+        ];
+        var viewmodel = [
+            ko.observableArray([ko.observable("bb")])
+        ];
+
+        var result = assertNotObservable(dotvvm.serialization.deserialize(viewmodel, target));
+
+        var subArray = assertObservableArray(result[0]);
+        var element = assertObservable(subArray[0]);
+        expect(element).toBe("bb");
+    });
+
+    it("Deserialize observable array inside array to target array of observable strings (2)", function () {
+        var target = [
+            ko.observable("a"),
+            ko.observable("b")
+        ];
+        var viewmodel = [
+            ko.observableArray([ko.observable("bb")])
+        ];
+
+        var result = assertNotObservable(dotvvm.serialization.deserialize(viewmodel, target));
+
+        var subArray = assertObservableArray(result[0]);
+        var element = assertObservable(subArray[0]);
+        expect(element).toBe("bb");
+    });
+
+    it("Deserialize non-observable complex object no target", () => {
+        var viewmodel = createComplexNonObservableViewmodel();
+
+        var resultObservable = dotvvm.serialization.deserialize(viewmodel);
+
+        var result = assertNotObservable(resultObservable);
+        assertHierarchy(result);
     });
 
     it("Deserialize observable complex object to target observable complex object", () => {
@@ -674,173 +766,252 @@ describe("DotVVM.Serialization - serialize", () => {
 
     it("Deserialize - check that observable is returned if and only if target is observable - numeric to numeric", () => {
         const testData = new TestData();
+        let observableTg = ko.observable(testData.getNumericTg());
+        let tg = testData.getNumericTg();
 
-        const numeralResult = assertNotObservable(dotvvm.serialization.deserialize(testData.numericVm, testData.numericTg));
-        const numeralUnwrapedResult = assertObservable(dotvvm.serialization.deserialize(testData.numericVm, ko.observable(testData.numericTg)));
+        const numeralResult = assertNotObservable(dotvvm.serialization.deserialize(testData.numericVm, tg));
+        const numeralUnwrapedResult = assertObservable(dotvvm.serialization.deserialize(testData.numericVm, observableTg));
         expect(numeralResult).toBe(testData.numericVm);
         expect(numeralUnwrapedResult).toBe(testData.numericVm);
+
+        expect(observableTg()).toBe(testData.numericVm);
     });
 
     it("Deserialize - check that observable is returned if and only if target is observable - boolean to boolean", () => {
         const testData = new TestData();
+        let observableTg = ko.observable(testData.getBoolTg());
+        let tg = testData.getBoolTg();
 
-        const boolResult = assertNotObservable(dotvvm.serialization.deserialize(testData.boolVm, testData.boolTg));
-        const boolUnwrapedResult = assertObservable(dotvvm.serialization.deserialize(testData.boolVm, ko.observable(testData.boolTg)));
+        const boolResult = assertNotObservable(dotvvm.serialization.deserialize(testData.boolVm, tg));
+        const boolUnwrapedResult = assertObservable(dotvvm.serialization.deserialize(testData.boolVm, observableTg));
         expect(boolResult).toBe(testData.boolVm);
         expect(boolUnwrapedResult).toBe(testData.boolVm);
+
+        expect(observableTg()).toBe(testData.boolVm);
     });
 
     it("Deserialize - check that observable is returned if and only if target is observable - date to date", () => {
         const testData = new TestData();
+        let observableTg = ko.observable(testData.getDateTg());
+        let tg = testData.getDateTg();
 
-        const dateResult = assertNotObservable(dotvvm.serialization.deserialize(testData.dateVm, testData.dateTg));
-        const dateUnwrapedResult = assertObservable(dotvvm.serialization.deserialize(testData.dateVm, ko.observable(testData.dateTg)));
+        const dateResult = assertNotObservable(dotvvm.serialization.deserialize(testData.dateVm, tg));
+        const dateUnwrapedResult = assertObservable(dotvvm.serialization.deserialize(testData.dateVm, observableTg));
         expect(dateResult).toBe(testData.dateVmString);
         expect(dateUnwrapedResult).toBe(testData.dateVmString);
+
+        expect(observableTg()).toBe(testData.dateVmString);
     });
 
     it("Deserialize - check that observable is returned if and only if target is observable - string to string", () => {
         const testData = new TestData();
+        let observableTg = ko.observable(testData.getStringTg());
+        let tg = testData.getStringTg();
 
-        const stringResult = assertNotObservable(dotvvm.serialization.deserialize(testData.stringVm, testData.stringTg));
-        const stringUnwrapedResult = assertObservable(dotvvm.serialization.deserialize(testData.stringVm, ko.observable(testData.stringTg)));
+        const stringResult = assertNotObservable(dotvvm.serialization.deserialize(testData.stringVm, tg));
+        const stringUnwrapedResult = assertObservable(dotvvm.serialization.deserialize(testData.stringVm, observableTg));
         expect(stringResult).toBe(testData.stringVm);
         expect(stringUnwrapedResult).toBe(testData.stringVm);
+
+        expect(observableTg()).toBe(testData.stringVm);
     });
 
     it("Deserialize - check that observable is returned if and only if target is observable - array[2] to array[2]", () => {
         const testData = new TestData();
+        let observableTg: any = ko.observable(testData.getArray2Tg());
+        let tg: any = testData.getArray2Tg();
 
-        const array2Result = assertNotObservable(dotvvm.serialization.deserialize(testData.array2Vm, testData.array2Tg));
-        const array2UnwrapedResult = assertObservable(dotvvm.serialization.deserialize(testData.array2Vm, ko.observableArray(testData.array2Tg)));
+        const array2Result = assertNotObservable(dotvvm.serialization.deserialize(testData.array2Vm, tg));
+        const array2UnwrapedResult = assertObservableArray(dotvvm.serialization.deserialize(testData.array2Vm, observableTg));
         testData.assertArray2Result(array2Result);
         testData.assertArray2Result(array2UnwrapedResult);
+
+        testData.assertArray2Result(observableTg());
     });
 
     it("Deserialize - check that observable is returned if and only if target is observable - array[3] to array[2]", () => {
         const testData = new TestData();
+        let observableTg: any = ko.observable(testData.getArray2Tg());
+        let tg: any = testData.getArray2Tg();
 
-        const array3Result = assertNotObservable(dotvvm.serialization.deserialize(testData.array3Vm, testData.array2Tg));
-        const array3UnwrapedResult = assertObservable(dotvvm.serialization.deserialize(testData.array3Vm, ko.observableArray(testData.array2Tg)));
+        const array3Result = assertNotObservable(dotvvm.serialization.deserialize(testData.array3Vm, tg));
+        const array3UnwrapedResult = assertObservableArray(dotvvm.serialization.deserialize(testData.array3Vm, observableTg));
         testData.assertArray3Result(array3Result);
         testData.assertArray3Result(array3UnwrapedResult);
+
+        testData.assertArray3Result(observableTg());
     });
 
     it("Deserialize - check that observable is returned if and only if target is observable - object to object", () => {
         const testData = new TestData();
+        let observableTg = ko.observable(testData.getObjectTg());
+        let tg = testData.getObjectTg();
 
-        const objectResult = assertNotObservable(dotvvm.serialization.deserialize(testData.objectVm, testData.objectTg));
-        const objectUnwrapedResult = assertObservable(dotvvm.serialization.deserialize(testData.objectVm, ko.observable(testData.objectTg)));
+        const objectResult = assertNotObservable(dotvvm.serialization.deserialize(testData.objectVm, tg));
+        const objectUnwrapedResult = assertObservable(dotvvm.serialization.deserialize(testData.objectVm, observableTg));
         testData.assertObjectResult(objectResult);
         testData.assertObjectResult(objectUnwrapedResult);
+
+        testData.assertObjectResult(tg);
+        testData.assertObjectResult(observableTg());
     });
 
     it("Deserialize - check that observable is returned if and only if target is observable - numeric to object", () => {
         const testData = new TestData();
+        let observableTg = ko.observable(testData.getObjectTg());
+        let tg = testData.getObjectTg();
 
-        const numeralResult = assertNotObservable(dotvvm.serialization.deserialize(testData.numericVm, testData.objectTg));
-        const numeralUnwrapedResult = assertObservable(dotvvm.serialization.deserialize(testData.numericVm, ko.observable(testData.objectTg)));
+        const numeralResult = assertNotObservable(dotvvm.serialization.deserialize(testData.numericVm, tg));
+        const numeralUnwrapedResult = assertObservable(dotvvm.serialization.deserialize(testData.numericVm, observableTg));
         expect(numeralResult).toBe(testData.numericVm);
         expect(numeralUnwrapedResult).toBe(testData.numericVm);
+
+        expect(observableTg()).toBe(testData.numericVm);
     });
 
     it("Deserialize - check that observable is returned if and only if target is observable - null to object", () => {
         const testData = new TestData();
+        let observableTg = ko.observable(testData.getObjectTg());
+        let tg = testData.getObjectTg();
 
-        const nullResult = assertNotObservable(dotvvm.serialization.deserialize(null, testData.objectTg));
-        const nullUnwrapedResult = assertObservable(dotvvm.serialization.deserialize(null, ko.observable(testData.objectTg)));
+        const nullResult = assertNotObservable(dotvvm.serialization.deserialize(null, tg));
+        const nullUnwrapedResult = assertObservable(dotvvm.serialization.deserialize(null, observableTg));
         expect(nullResult).toBe(null);
         expect(nullUnwrapedResult).toBe(null);
+
+        expect(observableTg()).toBe(null);
     });
 
     it("Deserialize - check that observable is returned if and only if target is observable - boolean to object", () => {
         const testData = new TestData();
+        let observableTg = ko.observable(testData.getObjectTg());
+        let tg = testData.getObjectTg();
 
-        const boolResult = assertNotObservable(dotvvm.serialization.deserialize(testData.boolVm, testData.objectTg));
-        const boolUnwrapedResult = assertObservable(dotvvm.serialization.deserialize(testData.boolVm, ko.observable(testData.objectTg)));
+        const boolResult = assertNotObservable(dotvvm.serialization.deserialize(testData.boolVm, tg));
+        const boolUnwrapedResult = assertObservable(dotvvm.serialization.deserialize(testData.boolVm, observableTg));
         expect(boolResult).toBe(testData.boolVm);
         expect(boolUnwrapedResult).toBe(testData.boolVm);
+
+        expect(observableTg()).toBe(testData.boolVm);
     });
 
     it("Deserialize - check that observable is returned if and only if target is observable - string to object", () => {
         const testData = new TestData();
+        let observableTg = ko.observable(testData.getObjectTg());
+        let tg = testData.getObjectTg();
 
-        const stringResult = assertNotObservable(dotvvm.serialization.deserialize(testData.stringVm, testData.objectTg));
-        const stringUnwrapedResult = assertObservable(dotvvm.serialization.deserialize(testData.stringVm, ko.observable(testData.objectTg)));
+        const stringResult = assertNotObservable(dotvvm.serialization.deserialize(testData.stringVm, tg));
+        const stringUnwrapedResult = assertObservable(dotvvm.serialization.deserialize(testData.stringVm, observableTg));
         expect(stringResult).toBe(testData.stringVm);
         expect(stringUnwrapedResult).toBe(testData.stringVm);
+
+        expect(observableTg()).toBe(testData.stringVm);
     });
 
     it("Deserialize - check that observable is returned if and only if target is observable - date to object", () => {
         const testData = new TestData();
+        let observableTg = ko.observable(testData.getObjectTg());
+        let tg = testData.getObjectTg();
 
-        const dateResult = assertNotObservable(dotvvm.serialization.deserialize(testData.dateVm, testData.objectTg));
-        const dateUnwrapedResult = assertObservable(dotvvm.serialization.deserialize(testData.dateVm, ko.observable(testData.objectTg)));
+        const dateResult = assertNotObservable(dotvvm.serialization.deserialize(testData.dateVm, tg));
+        const dateUnwrapedResult = assertObservable(dotvvm.serialization.deserialize(testData.dateVm, observableTg));
         expect(dateResult).toBe(testData.dateVmString);
         expect(dateUnwrapedResult).toBe(testData.dateVmString);
+
+        expect(observableTg()).toBe(testData.dateVmString);
     });
 
     it("Deserialize - check that observable is returned if and only if target is observable - array[2] to object", () => {
         const testData = new TestData();
+        let observableTg = ko.observable(testData.getObjectTg());
+        let tg = testData.getObjectTg();
 
-        const dateResult = assertNotObservable(dotvvm.serialization.deserialize(testData.array2Vm, testData.objectTg));
-        const dateUnwrapedResult = assertObservable(dotvvm.serialization.deserialize(testData.array2Vm, ko.observable(testData.objectTg)));
+        const dateResult = assertNotObservable(dotvvm.serialization.deserialize(testData.array2Vm, tg));
+        const dateUnwrapedResult = assertObservableArray(dotvvm.serialization.deserialize(testData.array2Vm, observableTg));
         testData.assertArray2Result(dateResult);
         testData.assertArray2Result(dateUnwrapedResult);
+
+        testData.assertArray2Result(observableTg());
     });
 
     it("Deserialize - check that observable is returned if and only if target is observable - object to numeric", () => {
         const testData = new TestData();
+        let observableTg = ko.observable(testData.getNumericTg());
+        let tg = testData.getNumericTg();
 
-        const objectResult = assertNotObservable(dotvvm.serialization.deserialize(testData.objectVm, testData.numericTg));
-        const objectUnwrapedResult = assertObservable(dotvvm.serialization.deserialize(testData.objectVm, ko.observable(testData.numericTg)));
+        const objectResult = assertNotObservable(dotvvm.serialization.deserialize(testData.objectVm, tg));
+        const objectUnwrapedResult = assertObservable(dotvvm.serialization.deserialize(testData.objectVm, observableTg));
         testData.assertObjectResult(objectResult);
         testData.assertObjectResult(objectUnwrapedResult);
+
+        testData.assertObjectResult(observableTg());
     });
 
     it("Deserialize - check that observable is returned if and only if target is observable - object to null", () => {
         const testData = new TestData();
+        let observableTg = ko.observable(null);
+        let tg = null;
 
-        const objectResult = assertNotObservable(dotvvm.serialization.deserialize(testData.objectVm, null));
-        const objectUnwrapedResult = assertObservable(dotvvm.serialization.deserialize(testData.objectVm, ko.observable(null)));
+        const objectResult = assertNotObservable(dotvvm.serialization.deserialize(testData.objectVm, tg));
+        const objectUnwrapedResult = assertObservable(dotvvm.serialization.deserialize(testData.objectVm, observableTg));
         testData.assertObjectResult(objectResult);
         testData.assertObjectResult(objectUnwrapedResult);
+
+        testData.assertObjectResult(observableTg());
     });
 
     it("Deserialize - check that observable is returned if and only if target is observable - object to boolean", () => {
         const testData = new TestData();
+        let observableTg = ko.observable(testData.getBoolTg());
+        let tg = testData.getBoolTg();
 
-        const objectResult = assertNotObservable(dotvvm.serialization.deserialize(testData.objectVm, testData.boolTg));
-        const objectUnwrapedResult = assertObservable(dotvvm.serialization.deserialize(testData.objectVm, ko.observable(testData.boolTg)));
+        const objectResult = assertNotObservable(dotvvm.serialization.deserialize(testData.objectVm, tg));
+        const objectUnwrapedResult = assertObservable(dotvvm.serialization.deserialize(testData.objectVm, observableTg));
         testData.assertObjectResult(objectResult);
         testData.assertObjectResult(objectUnwrapedResult);
+
+        testData.assertObjectResult(observableTg());
     });
 
     it("Deserialize - check that observable is returned if and only if target is observable - object to string", () => {
         const testData = new TestData();
+        let observableTg = ko.observable(testData.getStringTg());
+        let tg = testData.getStringTg();
 
-        const objectResult = assertNotObservable(dotvvm.serialization.deserialize(testData.objectVm, testData.stringTg));
-        const objectUnwrapedResult = assertObservable(dotvvm.serialization.deserialize(testData.objectVm, ko.observable(testData.stringTg)));
+        const objectResult = assertNotObservable(dotvvm.serialization.deserialize(testData.objectVm, tg));
+        const objectUnwrapedResult = assertObservable(dotvvm.serialization.deserialize(testData.objectVm, observableTg));
         testData.assertObjectResult(objectResult);
         testData.assertObjectResult(objectUnwrapedResult);
+
+        testData.assertObjectResult(observableTg());
     });
 
     it("Deserialize - check that observable is returned if and only if target is observable - object to date", () => {
         const testData = new TestData();
+        let observableTg = ko.observable(testData.getDateTg());
+        let tg = testData.getDateTg();
 
-        const objectResult = assertNotObservable(dotvvm.serialization.deserialize(testData.objectVm, testData.dateTg));
-        const objectUnwrapedResult = assertObservable(dotvvm.serialization.deserialize(testData.objectVm, ko.observable(testData.dateTg)));
+        const objectResult = assertNotObservable(dotvvm.serialization.deserialize(testData.objectVm, tg));
+        const objectUnwrapedResult = assertObservable(dotvvm.serialization.deserialize(testData.objectVm, observableTg));
         testData.assertObjectResult(objectResult);
         testData.assertObjectResult(objectUnwrapedResult);
+
+        testData.assertObjectResult(tg);
+        testData.assertObjectResult(observableTg());
     });
 
     it("Deserialize - check that observable is returned if and only if target is observable - object to array[2]", () => {
         const testData = new TestData();
+        let tg = testData.getArray2Tg();
+        let observableTg = ko.observable(testData.getArray2Tg());
 
-        const objectResult = assertNotObservable(dotvvm.serialization.deserialize(testData.objectVm, testData.array2Tg));
-        const objectUnwrapedResult = assertObservable(dotvvm.serialization.deserialize(testData.objectVm, ko.observable(testData.array2Tg)));
+        const objectResult = assertNotObservable(dotvvm.serialization.deserialize(testData.objectVm, tg));
+        const objectUnwrapedResult = assertObservable(dotvvm.serialization.deserialize(testData.objectVm, observableTg));
         testData.assertObjectResult(objectResult);
         testData.assertObjectResult(objectUnwrapedResult);
+
+        testData.assertObjectResult(tg);
+        testData.assertObjectResult(observableTg());
     });
 });
 
@@ -867,7 +1038,7 @@ function assertHierarchy(result: ObservableHierarchy) {
 function assertSubHierarchy(prop2Object: ObservableSubHierarchy) {
     asserObservableString(prop2Object.Prop21, "bb");
     asserObservableString(prop2Object.Prop22, "cc");
-    let prop23Array = assertObservable(prop2Object.Prop23);
+    let prop23Array = assertObservableArray(prop2Object.Prop23);
     let prop23ArrayFirst = assertObservable(prop23Array[0]);
     let prop23ArraySecond = assertObservable(prop23Array[1]);
     asserObservableString(prop23ArrayFirst.Prop231, "dd");
@@ -1024,21 +1195,56 @@ function createComplexObservableSubViewmodel(): ObservableSubHierarchy {
     };
 }
 
+function createComplexNonObservableViewmodel() {
+    return {
+        Prop1: "aa",
+        Prop2: {
+            Prop21: "bb",
+            Prop22: "cc",
+            Prop23: [
+                {
+                    Prop231: "dd"
+                },
+                {
+                    Prop231: "ee"
+                }
+            ]
+        }
+    };
+}
+
+
 class TestData {
     numericVm: number = 5;
-    numericTg: number = 7;
     boolVm: boolean = true;
-    boolTg: boolean = false;
     stringVm: string = "viewmodel";
-    stringTg: string = "target";
     dateVm: Date = new Date(1995, 11, 17);
-    dateTg: Date = new Date(2019, 1, 1);
     dateVmString: string = "1995-12-16T23:00:00.0000000";
     array2Vm = ["aa", "bb"]
-    array2Tg = ["a", "b"];
     array3Vm = ["aa", "bb", "cc"];
     objectVm = { Prop1: "aa", Prop2: "bb" };
-    objectTg = { Prop1: "a", Prop2: "b" };
+
+    getNumericTg(): number {
+        return 7;
+    }
+    getBoolTg(): boolean {
+        return false;
+    }
+    getDateTg(): Date {
+        return new Date(2019, 1, 1);
+    }
+    getStringTg(): string {
+        return "target";
+    }
+    getArray2Tg(): string[] {
+        return ["a", "b"];
+    }
+    getObjectTg(): any {
+        return {
+            Prop1: "a",
+            Prop2: "b"
+        };
+    }
 
     assertArray2Result(array2: KnockoutObservable<string>[]): void {
         expect(array2 instanceof Array).toBeTruthy();

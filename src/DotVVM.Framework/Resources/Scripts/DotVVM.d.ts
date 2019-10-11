@@ -234,8 +234,11 @@ declare class DotvvmSerialization {
     deserializeObject(viewModel: any, target: any, deserializeAll: boolean): any;
     private copyProperty;
     private copyPropertyMetadata;
+    private extendToObservableArrayIfRequired;
+    private wrapObservableObjectOrArray;
     private isPrimitive;
     private isOptionsProperty;
+    private isObservableArray;
     serialize(viewModel: any, opt?: ISerializationOptions): any;
     validateType(value: any, type: string): boolean;
     private findObject;

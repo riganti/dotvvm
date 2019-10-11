@@ -62,6 +62,6 @@ module.exports = function(config) {
 
 
     // Continuous Integration mode
-    singleRun: false
+    singleRun: true
   });
 };
