@@ -11,15 +11,14 @@
         }
     </style>
 </head>
-<body>
+<body Validator.InvalidCssClass="invalid">
     <dot:GridView DataSource="{value: Samples}"
                   InlineEditing="true"
                   data-ui="gridview">
         <dot:GridViewTextColumn ValueBinding="{value: Name}"
                                 HeaderText="Name"
-                                Validator.InvalidCssClass="invalid"/>
-        <dot:GridViewTemplateColumn Validator.InvalidCssClass="invalid"
-                                    HeaderText="Value">
+                                IsControlValidated="true" />
+        <dot:GridViewTemplateColumn HeaderText="Value">
             <ContentTemplate>
                 <span>{{value: Value}}</span>
             </ContentTemplate>
