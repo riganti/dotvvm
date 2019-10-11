@@ -15,9 +15,21 @@
     <dot:GridView DataSource="{value: Samples}"
                   InlineEditing="true"
                   data-ui="gridview">
+        <RowDecorators>
+            <dot:Decorator Validator.ShowErrorMessageText="true" />
+        </RowDecorators>
+        <EditRowDecorators>
+            <dot:Decorator Validator.ShowErrorMessageText="true" />
+        </EditRowDecorators>
+        <dot:GridViewCheckBoxColumn ValueBinding="{value: Is}"
+                                    IsControlValidated="true"
+                                    IsValidatorStandalone="true"
+                                    HeaderText="Is"
+                                    CssClass="is-input"/>
         <dot:GridViewTextColumn ValueBinding="{value: Name}"
                                 HeaderText="Name"
-                                IsControlValidated="true" />
+                                IsControlValidated="true"
+                                CssClass="name-input" />
         <dot:GridViewTemplateColumn HeaderText="Value">
             <ContentTemplate>
                 <span>{{value: Value}}</span>
@@ -30,6 +42,9 @@
         </dot:GridViewTemplateColumn>
         <dot:GridViewTemplateColumn>
             <ContentTemplate>
+                <dot:Button Text="Make indeterminate"
+                            Click="{command: _root.MakeIndeterminate(_this)}"
+                            data-ui="indeterminate-button"/>
                 <dot:Button Text="Edit"
                             Validation.Enabled="false"
                             Click="{command: _root.Samples.RowEditOptions.EditRowId = Value}"

@@ -13,16 +13,24 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
         public GridViewDataSet<SampleDto> Samples { get; set; }
             = new GridViewDataSet<SampleDto> {
                 Items = {
-                    new SampleDto { Name = "one", Value = "1" },
-                    new SampleDto { Name = "two", Value = "2" },
+                    new SampleDto { Name = "one", Value = "1", Is = true },
+                    new SampleDto { Name = "two", Value = "2", Is = false },
                 },
                 RowEditOptions = {
                     PrimaryKeyPropertyName = nameof(SampleDto.Value)
                 }
             };
 
+        public void MakeIndeterminate(SampleDto dto)
+        {
+            dto.Is = null;
+        }
+
         public class SampleDto
         {
+            [Required]
+            public bool? Is { get; set; }
+
             [Required]
             public string Name { get; set; }
 

@@ -554,7 +554,7 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [Fact]
-        public void Control_GridView_InvalidCssClass()
+        public void Control_GridView_InvalidCssClass_TextBox()
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_InvalidCssClass);
@@ -563,13 +563,30 @@ namespace DotVVM.Samples.Tests.Control
                 var gridview = browser.Single("gridview", SelectByDataUi);
                 gridview.First("edit-button", SelectByDataUi).Click();
 
-                IElementWrapper input = null;
-                browser.WaitFor(() => input = browser.First("input"), 1000);
-                AssertUI.HasNotClass(input, "invalid");
-                input.Clear();
+                IElementWrapper textbox = null;
+                browser.WaitFor(() => textbox = browser.First(".name-input > input"), 1000);
+                AssertUI.HasNotClass(textbox, "invalid");
+                textbox.Clear();
 
                 gridview.First("save-button", SelectByDataUi).Click();
-                browser.WaitFor(() => AssertUI.HasClass(input, "invalid"), 1000);
+                browser.WaitFor(() => AssertUI.HasClass(textbox, "invalid"), 1000);
+            });
+        }
+
+        [Fact]
+        public void Control_GridView_InvalidCssClass_CheckBox()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_InvalidCssClass);
+                browser.WaitUntilDotvvmInited();
+
+                var gridview = browser.Single("gridview", SelectByDataUi);
+                AssertUI.HasNotClass(gridview.First(".is-input > span"), "invalid");
+
+                gridview.First("indeterminate-button", SelectByDataUi).Click();
+                gridview.First("edit-button", SelectByDataUi).Click();
+                gridview.First("save-button", SelectByDataUi).Click();
+                browser.WaitFor(() => AssertUI.HasClass(gridview.First(".is-input > span"), "invalid"), 1000);
             });
         }
     }
