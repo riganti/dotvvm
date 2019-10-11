@@ -61,6 +61,18 @@ namespace DotVVM.Framework.Controls
             DotvvmPropertyGroup.Register<object, HtmlGenericControl>("Style-", nameof(CssStyles));
 
         /// <summary>
+        /// Gets or sets the CSS class constant that can be used along with the Class property group.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
+        public string AdditionalCssClasses
+        {
+            get { return (string)GetValue(AdditionalCssClassesProperty); }
+            set { SetValue(AdditionalCssClassesProperty, value); }
+        }
+        public static readonly DotvvmProperty AdditionalCssClassesProperty
+            = DotvvmProperty.Register<string, HtmlGenericControl>(c => c.AdditionalCssClasses, null);
+
+        /// <summary>
         /// Gets or sets the inner text of the HTML element.
         /// </summary>
         public string InnerText
@@ -192,6 +204,7 @@ namespace DotVVM.Framework.Controls
                 AddVisibleAttributeOrBinding(in r, writer);
                 AddTextPropertyToRender(ref r, writer);
                 AddHtmlAttributesToRender(ref r, writer);
+                writer.AddAttribute("class", AdditionalCssClasses, append: true, appendSeparator: " ");
             }
         }
 
