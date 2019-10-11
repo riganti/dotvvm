@@ -2,6 +2,8 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
 using System;
@@ -112,6 +114,22 @@ namespace DotVVM.Framework.Controls
                 if (_renderOnServer == 0)
                     _renderOnServer = @this.RenderOnServer ? (byte)1 : (byte)2;
                 return _renderOnServer == 1;
+            }
+        }
+
+        [ControlUsageValidator]
+        public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
+        {
+            var classAttributeProperty = control.Properties.Keys.OfType<GroupedDotvvmProperty>()
+                .SingleOrDefault(g => g.DeclaringType == typeof(HtmlGenericControl)
+                    && g.PropertyGroup.Name == nameof(Attributes)
+                    && g.GroupMemberName == "class");
+            var classProperties = control.Properties.Keys.OfType<GroupedDotvvmProperty>()
+                .Where(g => g.PropertyGroup == CssClassesGroupDescriptor);
+            if (classAttributeProperty != null && classProperties.Any())
+            {
+                var classAttributeNode = control.Properties.GetValue(classAttributeProperty).DothtmlNode;
+                yield return new ControlUsageError("The 'class' attribute cannot be set when the Class property group is in use.");
             }
         }
 
