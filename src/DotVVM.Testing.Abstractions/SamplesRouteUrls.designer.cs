@@ -241,8 +241,10 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_ServerSideStyles_DirectoryStyle_ServerSideStyles = "FeatureSamples/ServerSideStyles/DirectoryStyle/ServerSideStyles";
         public const string FeatureSamples_ServerSideStyles_NoDirectoryStyle_ServerSideStyles = "FeatureSamples/ServerSideStyles/NoDirectoryStyle/ServerSideStyles";
         public const string FeatureSamples_StaticCommand_StaticCommand = "FeatureSamples/StaticCommand/StaticCommand";
+        public const string FeatureSamples_StaticCommand_StaticCommand_ArrayAssigment = "FeatureSamples/StaticCommand/StaticCommand_ArrayAssigment";
         public const string FeatureSamples_StaticCommand_StaticCommand_ComboBoxSelectionChanged = "FeatureSamples/StaticCommand/StaticCommand_ComboBoxSelectionChanged";
         public const string FeatureSamples_StaticCommand_StaticCommand_ComboBoxSelectionChanged_Objects = "FeatureSamples/StaticCommand/StaticCommand_ComboBoxSelectionChanged_Objects";
+        public const string FeatureSamples_StaticCommand_StaticCommand_LoadComplexDataFromService = "FeatureSamples/StaticCommand/StaticCommand_LoadComplexDataFromService";
         public const string FeatureSamples_StaticCommand_StaticCommand_NullAssignment = "FeatureSamples/StaticCommand/StaticCommand_NullAssignment";
         public const string FeatureSamples_StaticCommand_StaticCommand_NullBinding = "FeatureSamples/StaticCommand/StaticCommand_NullBinding";
         public const string FeatureSamples_StaticCommand_StaticCommand_TaskSequence = "FeatureSamples/StaticCommand/StaticCommand_TaskSequence";
