@@ -49,7 +49,7 @@ namespace DotVVM.Framework.Hosting
         {
             void redirect(IDotvvmRequestContext context)
             {
-                var routeParameters = context.Parameters.ToDictionary(e => e.Key, e => (object)e.Value);
+                var routeParameters = context.Parameters.ToDictionary(e => e.Key, e => e.Value);
                 if (context.Configuration.DefaultCulture.Equals(routeParameters[name]))
                     throw new Exception($"The specified default culture is probably invalid");
                 routeParameters[name] = context.Configuration.DefaultCulture;
