@@ -49,7 +49,7 @@ namespace DotVVM.Framework.Hosting
         {
             void redirect(IDotvvmRequestContext context)
             {
-                var routeParameters = context.Parameters.ToDictionary(e => e.Key, e => e.Value);
+                var routeParameters = context.Parameters.ToDictionary(e => e.Key, e => (object)e.Value);
                 if (context.Configuration.DefaultCulture.Equals(routeParameters[name]))
                     throw new Exception($"The specified default culture is probably invalid");
                 routeParameters[name] = context.Configuration.DefaultCulture;
@@ -77,7 +77,7 @@ namespace DotVVM.Framework.Hosting
                 url.Query =
                     context.HttpContext.Request.Query
                     .Where(q => q.Key != name)
-                    .Concat(new [] { new KeyValuePair<string, string>(name, context.Configuration.DefaultCulture) })
+                    .Concat(new[] { new KeyValuePair<string, string>(name, context.Configuration.DefaultCulture) })
                     .Select(q => Uri.EscapeUriString(q.Key) + "=" + Uri.EscapeUriString(q.Value)).Apply(s => string.Join("&", s));
                 if (url.ToString() == context.HttpContext.Request.Url.ToString())
                     throw new Exception($"The specified default culture is probably invalid");
@@ -105,7 +105,7 @@ namespace DotVVM.Framework.Hosting
                         doRedirect(context); // it seems that when a culture does not exists, the constructor throws an exception on Mono, but returns an instance on .NET Core (with LCID = 4096)
                     return result;
                 }
-                catch(CultureNotFoundException)
+                catch (CultureNotFoundException)
                 {
                     doRedirect(context);
                     Debug.Assert(false);

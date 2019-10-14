@@ -73,14 +73,14 @@ namespace DotVVM.Framework.Tests
         public static TestDotvvmRequestContext CreateContext(DotvvmConfiguration configuration)
         {
             IServiceProvider services = configuration.ServiceProvider.CreateScope().ServiceProvider;
-            var context = new TestDotvvmRequestContext()
-            {
+            var context = new TestDotvvmRequestContext() {
                 Configuration = configuration,
                 Services = services,
                 CsrfToken = "Test CSRF Token",
                 ModelState = new ModelState(),
                 ResourceManager = services.GetService<ResourceManagement.ResourceManager>(),
-                HttpContext = new TestHttpContext()
+                HttpContext = new TestHttpContext(),
+                Parameters = new Dictionary<string, object>()
             };
             return context;
         }
