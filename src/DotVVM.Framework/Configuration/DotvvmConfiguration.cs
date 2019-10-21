@@ -31,17 +31,21 @@ using DotVVM.Framework.Compilation.Javascript;
 
 namespace DotVVM.Framework.Configuration
 {
-    public class DotvvmConfiguration
+    public sealed class DotvvmConfiguration
     {
         private bool isFrozen;
-        private bool debug;
         public const string DotvvmControlTagPrefix = "dot";
 
         /// <summary>
         /// Gets or sets the application physical path.
         /// </summary>
         [JsonIgnore]
-        public string ApplicationPhysicalPath { get; set; }
+        public string ApplicationPhysicalPath
+        {
+            get { return _applicationPhysicalPath; }
+            set { ThrowIfFrozen(); _applicationPhysicalPath = value; }
+        }
+        private string _applicationPhysicalPath;
 
         /// <summary>
         /// Gets the settings of the markup.
@@ -79,25 +83,45 @@ namespace DotVVM.Framework.Configuration
         /// Gets or sets the default culture.
         /// </summary>
         [JsonProperty("defaultCulture", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string DefaultCulture { get; set; }
+        public string DefaultCulture
+        {
+            get { return _defaultCulture; }
+            set { ThrowIfFrozen(); _defaultCulture = value; }
+        }
+        private string _defaultCulture;
 
         /// <summary>
         /// Gets or sets whether the client side validation rules should be enabled.
         /// </summary>
         [JsonProperty("clientSideValidation", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public bool ClientSideValidation { get; set; } = true;
+        public bool ClientSideValidation
+        {
+            get { return _clientSideValidation; }
+            set { ThrowIfFrozen(); _clientSideValidation = value; }
+        }
+        private bool _clientSideValidation = true;
 
         /// <summary>
         /// Gets or sets whether navigation in the SPA pages should use History API. Default value is <c>true</c>.
         /// </summary>
         [JsonProperty("useHistoryApiSpaNavigation", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public bool UseHistoryApiSpaNavigation { get; set; } = true;
+        public bool UseHistoryApiSpaNavigation
+        {
+            get { return _useHistoryApiSpaNavigation; }
+            set { ThrowIfFrozen(); _useHistoryApiSpaNavigation = value; }
+        }
+        private bool _useHistoryApiSpaNavigation = true;
 
         /// <summary>
         /// Gets or sets the configuration for experimental features.
         /// </summary>
         [JsonProperty("experimentalFeatures", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public DotvvmExperimentalFeaturesConfiguration ExperimentalFeatures { get; set; } = new DotvvmExperimentalFeaturesConfiguration();
+        public DotvvmExperimentalFeaturesConfiguration ExperimentalFeatures
+        {
+            get => _experimentalFeatures;
+            set { ThrowIfFrozen(); _experimentalFeatures = value; }
+        }
+        private DotvvmExperimentalFeaturesConfiguration _experimentalFeatures = new DotvvmExperimentalFeaturesConfiguration();
 
         /// <summary>
         /// Gets or sets whether the application should run in debug mode.
@@ -106,13 +130,10 @@ namespace DotVVM.Framework.Configuration
         [JsonProperty("debug", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public bool Debug
         {
-            get => debug;
-            set
-            {
-                ThrowIfFrozen();
-                debug = value;
-            }
+            get => _debug;
+            set { ThrowIfFrozen(); _debug = value; }
         }
+        private bool _debug;
 
         private void ThrowIfFrozen()
         {
@@ -126,15 +147,30 @@ namespace DotVVM.Framework.Configuration
         public void Freeze()
         {
             isFrozen = true;
+            Markup.Freeze();
+            RouteTable.Freeze();
+            Resources.Freeze();
+            Runtime.Freeze();
+            Security.Freeze();
+            ExperimentalFeatures.Freeze();
+            _routeConstraints.Freeze();
+            Styles.Freeze();
+            FreezableList.Freeze(ref _compiledViewsAssemblies);
         }
 
         [JsonIgnore]
-        public Dictionary<string, IRouteParameterConstraint> RouteConstraints { get; } = new Dictionary<string, IRouteParameterConstraint>();
+        public IDictionary<string, IRouteParameterConstraint> RouteConstraints => _routeConstraints;
+        private readonly FreezableDictionary<string, IRouteParameterConstraint> _routeConstraints = new FreezableDictionary<string, IRouteParameterConstraint>();
 
         /// <summary>
         /// Whether DotVVM compiler should generate runtime debug info for bindings. It can be useful, but may also cause unexpected problems.
         /// </summary>
-        public bool AllowBindingDebugging { get; set; }
+        public bool AllowBindingDebugging
+        {
+            get { return _allowBindingDebugging; }
+            set { ThrowIfFrozen(); _allowBindingDebugging = value; }
+        }
+        private bool _allowBindingDebugging;
 
         /// <summary>
         /// Gets an instance of the service locator component.
@@ -147,10 +183,20 @@ namespace DotVVM.Framework.Configuration
         public IServiceProvider ServiceProvider { get; private set; }
 
         [JsonIgnore]
-        public StyleRepository Styles { get; set; }
+        public StyleRepository Styles
+        {
+            get { return _styles; }
+            set { ThrowIfFrozen(); _styles = value; }
+        }
+        private StyleRepository _styles;
 
         [JsonProperty("compiledViewsAssemblies")]
-        public List<string> CompiledViewsAssemblies { get; set; } = new List<string>() { "CompiledViews.dll" };
+        public IList<string> CompiledViewsAssemblies
+        {
+            get { return _compiledViewsAssemblies; }
+            set { ThrowIfFrozen(); _compiledViewsAssemblies = value; }
+        }
+        private IList<string> _compiledViewsAssemblies = new FreezableList<string>() { "CompiledViews.dll" };
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmConfiguration"/> class.
@@ -195,10 +241,7 @@ namespace DotVVM.Framework.Configuration
 
             config.Runtime.GlobalFilters.Add(new ModelValidationFilterAttribute());
 
-            config.Markup.Controls.AddRange(new[]
-            {
-                new DotvvmControlConfiguration() { TagPrefix = "dot", Namespace = "DotVVM.Framework.Controls", Assembly = "DotVVM.Framework" }
-            });
+            config.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "dot", Namespace = "DotVVM.Framework.Controls", Assembly = "DotVVM.Framework" });
 
             RegisterConstraints(config);
             RegisterResources(config);

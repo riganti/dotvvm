@@ -29,11 +29,11 @@ namespace Owin
         /// </param>
         /// <param name="debug">A value indicating whether the application should run in debug mode.</param>
         /// <param name="serviceProviderFactoryMethod">Register factory method to create your own instance of IServiceProvider.</param>
-        public static DotvvmConfiguration UseDotVVM<TStartup, TServiceConfigurator>(this IAppBuilder app, string applicationRootPath, bool useErrorPages = true, bool debug = true, Func<IServiceCollection, IServiceProvider> serviceProviderFactoryMethod = null)
+        public static DotvvmConfiguration UseDotVVM<TStartup, TServiceConfigurator>(this IAppBuilder app, string applicationRootPath, bool useErrorPages = true, bool debug = true, Func<IServiceCollection, IServiceProvider> serviceProviderFactoryMethod = null, Action<DotvvmConfiguration> modifyConfiguration = null)
             where TStartup : IDotvvmStartup, new()
             where TServiceConfigurator : IDotvvmServiceConfigurator, new()
         {
-            return app.UseDotVVM(applicationRootPath, useErrorPages, debug, new TServiceConfigurator(), new TStartup(), serviceProviderFactoryMethod);
+            return app.UseDotVVM(applicationRootPath, useErrorPages, debug, new TServiceConfigurator(), new TStartup(), serviceProviderFactoryMethod, modifyConfiguration);
         }
 
         /// <summary>
@@ -47,14 +47,14 @@ namespace Owin
         /// </param>
         /// <param name="debug">A value indicating whether the application should run in debug mode.</param>
         /// <param name="serviceProviderFactoryMethod">Register factory method to create your own instance of IServiceProvider.</param>
-        public static DotvvmConfiguration UseDotVVM<TStartup>(this IAppBuilder app, string applicationRootPath, bool useErrorPages = true, bool debug = true, Func<IServiceCollection, IServiceProvider> serviceProviderFactoryMethod = null)
+        public static DotvvmConfiguration UseDotVVM<TStartup>(this IAppBuilder app, string applicationRootPath, bool useErrorPages = true, bool debug = true, Func<IServiceCollection, IServiceProvider> serviceProviderFactoryMethod = null, Action<DotvvmConfiguration> modifyConfiguration = null)
             where TStartup : IDotvvmStartup, new()
         {
             var startup = new TStartup();
-            return app.UseDotVVM(applicationRootPath, useErrorPages, debug, startup as IDotvvmServiceConfigurator, startup, serviceProviderFactoryMethod);
+            return app.UseDotVVM(applicationRootPath, useErrorPages, debug, startup as IDotvvmServiceConfigurator, startup, serviceProviderFactoryMethod, modifyConfiguration);
         }
 
-        private static DotvvmConfiguration UseDotVVM(this IAppBuilder app, string applicationRootPath, bool useErrorPages, bool debug, IDotvvmServiceConfigurator configurator, IDotvvmStartup startup, Func<IServiceCollection, IServiceProvider> serviceProviderFactoryMethod = null)
+        private static DotvvmConfiguration UseDotVVM(this IAppBuilder app, string applicationRootPath, bool useErrorPages, bool debug, IDotvvmServiceConfigurator configurator, IDotvvmStartup startup, Func<IServiceCollection, IServiceProvider> serviceProviderFactoryMethod = null, Action<DotvvmConfiguration> modifyConfiguration = null)
         {
             var config = DotvvmConfiguration.CreateDefault(s => {
                 s.TryAddSingleton<IDataProtectionProvider>(p => new DefaultDataProtectionProvider(app));
@@ -77,6 +77,9 @@ namespace Owin
                 app.Use<DotvvmErrorPageMiddleware>();
             }
 
+            modifyConfiguration?.Invoke(config);
+            config.Freeze();
+
             app.Use<DotvvmMiddleware>(config, new List<IMiddleware> {
                 ActivatorUtilities.CreateInstance<DotvvmCsrfTokenMiddleware>(config.ServiceProvider),
                 ActivatorUtilities.CreateInstance<DotvvmLocalResourceMiddleware>(config.ServiceProvider),
@@ -84,7 +87,6 @@ namespace Owin
                 new DotvvmReturnedFileMiddleware(),
                 new DotvvmRoutingMiddleware()
             }.Where(t => t != null).ToArray());
-            config.Freeze();
             return config;
         }
     }

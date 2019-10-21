@@ -8,16 +8,26 @@ using System.Reflection;
 
 namespace DotVVM.Framework.Configuration
 {
-    public class HtmlAttributeTransformConfiguration
+    public sealed class HtmlAttributeTransformConfiguration
     {
         private Lazy<IHtmlAttributeTransformer> instance;
 
 
         [JsonProperty("type")]
-        public Type Type { get; set; }
+        public Type Type
+        {
+            get => _type;
+            set { ThrowIfFrozen(); _type = value; }
+        }
+        private Type _type;
 
         [JsonExtensionData]
-        public Dictionary<string, JToken> ExtensionData { get; set; }
+        public IDictionary<string, JToken> ExtensionData
+        {
+            get => _extensionData;
+            set { ThrowIfFrozen(); _extensionData = value; }
+        }
+        private IDictionary<string, JToken> _extensionData;
 
 
         public HtmlAttributeTransformConfiguration()
@@ -27,7 +37,10 @@ namespace DotVVM.Framework.Configuration
 
         public IHtmlAttributeTransformer GetInstance()
         {
-            return instance.Value;
+            if (isFrozen)
+                return instance.Value;
+            else
+                throw new NotSupportedException("This HtmlAttributeTransformConfiguration must be frozen before the IHtmlAttributeTransformer instance can be returned.");
         }
 
 
@@ -47,6 +60,21 @@ namespace DotVVM.Framework.Configuration
             }
 
             return transformer;
+        }
+
+        private bool isFrozen = false;
+
+        private void ThrowIfFrozen()
+        {
+            if (isFrozen)
+                throw FreezableUtils.Error(nameof(HtmlAttributeTransformConfiguration));
+        }
+        public void Freeze()
+        {
+            this.isFrozen = true;
+            FreezableDictionary.Freeze(ref this._extensionData);
+            // unfortunately, the stored JTokens are still mutable :(
+            // it may get solved at some point, https://github.com/JamesNK/Newtonsoft.Json/issues/468
         }
     }
 }
