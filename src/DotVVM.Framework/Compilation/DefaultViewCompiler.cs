@@ -85,13 +85,8 @@ namespace DotVVM.Framework.Compilation
                     visitor().ApplyAction(resolvedView.Accept).ApplyAction(v => (v as IDisposable)?.Dispose());
 
 
-                var validationVisitor = this.controlValidatorFactory.Invoke()
-                    .ApplyAction(resolvedView.Accept);
-                if (validationVisitor.Errors.Any())
-                {
-                    var controlUsageError = validationVisitor.Errors.First();
-                    throw new DotvvmCompilationException(controlUsageError.ErrorMessage, controlUsageError.Nodes.SelectMany(n => n.Tokens));
-                }
+                var validationVisitor = this.controlValidatorFactory.Invoke();
+                validationVisitor.VisitAndAssert(resolvedView);
 
                 var emitter = new DefaultViewCompilerCodeEmitter();
                 var compilingVisitor = new ViewCompilingVisitor(emitter, bindingCompiler, className);

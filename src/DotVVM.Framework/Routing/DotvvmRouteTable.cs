@@ -14,7 +14,6 @@ namespace DotVVM.Framework.Routing
     public sealed class DotvvmRouteTable : IEnumerable<RouteBase>
     {
         private readonly DotvvmConfiguration configuration;
-
         private readonly List<KeyValuePair<string, RouteBase>> list = new List<KeyValuePair<string, RouteBase>>();
 
         /// <summary>

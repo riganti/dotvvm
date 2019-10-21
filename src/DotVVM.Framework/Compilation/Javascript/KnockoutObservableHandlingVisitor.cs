@@ -74,7 +74,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 assignee.RemoveAnnotations<ResultIsObservableAnnotation>();
                 var resultType = value.GetResultType() ?? assignee.GetResultType();
                 if (value.IsComplexType() || assignee.IsComplexType())
-                    resultExpression = assignmentExpression.ReplaceWith(_ => new JsIdentifierExpression("dotvvm").Member("serialization").Member("deserialize").Invoke(value, assignee)
+                    resultExpression = assignmentExpression.ReplaceWith(_ => new JsIdentifierExpression("dotvvm").Member("serialization").Member("deserialize").Invoke(value, assignee, new JsLiteral(true))
                                                                              .WithAnnotation(ResultIsObservableAnnotation.Instance));
                 else
                 {

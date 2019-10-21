@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using DotVVM.Framework.Compilation.ControlTree;
@@ -59,12 +60,20 @@ namespace DotVVM.Framework.Compilation.Validation
 
         protected virtual MethodInfo[] FindMethods(Type type)
         {
+            if (type == typeof(object)) return new MethodInfo[0];
             var methods = type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
                 .Where(m => m.IsDefined(typeof(ControlUsageValidatorAttribute)))
                 .ToArray();
-            if (methods.Length > 0) return methods;
-            else if (type == typeof(object)) return new MethodInfo[0];
-            else return FindMethods(type.GetTypeInfo().BaseType);
+
+            var attributes = methods.Select(s => s.GetCustomAttribute(typeof(ControlUsageValidatorAttribute))).ToList();
+            var overrideValidation = attributes.OfType<ControlUsageValidatorAttribute>().Select(s => s.Override).Distinct().ToList();
+
+            if (overrideValidation.Count > 1)
+                throw new Exception($"ControlUsageValidator attributes on '{type.FullName}' are in an inconsistent state. Make sure all attributes have an Override property set to the same value.");
+
+            if (overrideValidation.Any() && overrideValidation[0]) return methods;
+            var ancestorMethods = FindMethods(type.GetTypeInfo().BaseType);
+            return ancestorMethods.Concat(methods).ToArray();
         }
 
         protected virtual Type GetControlType(IControlResolverMetadata metadata)
