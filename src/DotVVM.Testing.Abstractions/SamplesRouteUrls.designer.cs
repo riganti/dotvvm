@@ -110,6 +110,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_RoleView_RoleViewTest = "ControlSamples/RoleView/RoleViewTest";
         public const string ControlSamples_RouteLink_RouteLinkEnabled = "ControlSamples/RouteLink/RouteLinkEnabled";
         public const string ControlSamples_RouteLink_RouteLinkEnabledFalse = "ControlSamples/RouteLink/RouteLinkEnabledFalse";
+        public const string ControlSamples_RouteLink_RouteLinkQueryParameters = "ControlSamples/RouteLink/RouteLinkQueryParameters";
         public const string ControlSamples_RouteLink_RouteLinkSpaUrlGen = "ControlSamples/RouteLink/RouteLinkSpaUrlGen";
         public const string ControlSamples_RouteLink_RouteLinkUrlGen = "ControlSamples/RouteLink/RouteLinkUrlGen";
         public const string ControlSamples_RouteLink_TestRoute = "ControlSamples/RouteLink/TestRoute";
