@@ -159,9 +159,16 @@ namespace DotVVM.Framework.Routing
         /// </summary>
         public static void AddOrUpdateParameterCollection(IDictionary<string, object> targetCollection, object anonymousObject)
         {
-            if (anonymousObject is IEnumerable<KeyValuePair<string, string>>)
+            if (anonymousObject is IEnumerable<KeyValuePair<string, string>> stringPairs)
             {
-                foreach (KeyValuePair<string, string> item in (IEnumerable<KeyValuePair<string, string>>)anonymousObject)
+                foreach (var item in stringPairs)
+                {
+                    targetCollection[item.Key] = item.Value;
+                }
+            }
+            else if (anonymousObject is IEnumerable<KeyValuePair<string, object>> pairs)
+            {
+                foreach (var item in pairs)
                 {
                     targetCollection[item.Key] = item.Value;
                 }
