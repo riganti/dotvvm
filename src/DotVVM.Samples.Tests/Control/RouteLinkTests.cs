@@ -130,7 +130,7 @@ namespace DotVVM.Samples.Tests.Control
                 browser.First(".static-command").Click();
 
                 browser.First(".link").Click();
-                AssertUI.Url(browser, "/ControlSamples/RouteLink/RouteLinkQueryParameters?int=7&string=change_static", UrlKind.Relative, UriComponents.PathAndQuery);
+                AssertUI.Url(browser, "/ControlSamples/RouteLink/RouteLinkQueryParameters?int=6&string=change_static", UrlKind.Relative, UriComponents.PathAndQuery);
             });
         }
 
