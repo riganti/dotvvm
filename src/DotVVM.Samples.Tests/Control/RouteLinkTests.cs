@@ -94,6 +94,46 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_RouteLink_RouteLinkQueryParameters))]
+        public void Control_RouteLink_QueryParameters_DefaultValue()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_RouteLink_RouteLinkQueryParameters);
+
+                browser.First(".link").Click();
+                AssertUI.Url(browser, "/ControlSamples/RouteLink/RouteLinkQueryParameters?int=5&string=default", UrlKind.Relative, UriComponents.PathAndQuery);
+            });
+        }
+
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_RouteLink_RouteLinkQueryParameters))]
+        public void Control_RouteLink_QueryParameters_CommandChangedValue()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_RouteLink_RouteLinkQueryParameters);
+
+                browser.First(".command").Click();
+
+                browser.First(".link").Click();
+                AssertUI.Url(browser, "/ControlSamples/RouteLink/RouteLinkQueryParameters?int=7&string=change", UrlKind.Relative, UriComponents.PathAndQuery);
+            });
+        }
+
+        [Fact]
+        [SampleReference(nameof(SamplesRouteUrls.ControlSamples_RouteLink_RouteLinkQueryParameters))]
+        public void Control_RouteLink_QueryParameters_StaticCommandChangedValue()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_RouteLink_RouteLinkQueryParameters);
+
+                browser.First(".static-command").Click();
+
+                browser.First(".link").Click();
+                AssertUI.Url(browser, "/ControlSamples/RouteLink/RouteLinkQueryParameters?int=6&string=change_static", UrlKind.Relative, UriComponents.PathAndQuery);
+            });
+        }
+
         public RouteLinkTests(ITestOutputHelper output) : base(output)
         {
         }
