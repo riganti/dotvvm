@@ -13,14 +13,28 @@ namespace DotVVM.Framework.Configuration
         /// Gets filters that are applied for all requests.
         /// </summary>
         [JsonIgnore()]
-        public List<IActionFilter> GlobalFilters { get; private set; }
+        public IList<IActionFilter> GlobalFilters => _globalFilters;
+        private IList<IActionFilter> _globalFilters;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmRuntimeConfiguration"/> class.
         /// </summary>
         public DotvvmRuntimeConfiguration()
         {
-            GlobalFilters = new List<IActionFilter>();
+            _globalFilters = new FreezableList<IActionFilter>();
+        }
+
+        private bool isFrozen = false;
+
+        private void ThrowIfFrozen()
+        {
+            if (isFrozen)
+                throw FreezableUtils.Error(nameof(DotvvmRuntimeConfiguration));
+        }
+        public void Freeze()
+        {
+            this.isFrozen = true;
+            FreezableList.Freeze(ref _globalFilters);
         }
     }
 }

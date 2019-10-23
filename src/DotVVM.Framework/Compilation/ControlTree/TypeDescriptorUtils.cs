@@ -1,11 +1,21 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
     public static class TypeDescriptorUtils
     {
+
+        public static bool IsPrimitiveTypeDescriptor(this ITypeDescriptor type)
+        {
+            return type is ResolvedTypeDescriptor resolvedType
+                && ReflectionUtils.IsPrimitiveType(resolvedType.Type);
+        }
+
         public static ITypeDescriptor GetCollectionItemType(ITypeDescriptor type)
         {
             // handle IEnumerables
@@ -14,7 +24,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             {
                 return iEnumerableType;
             }
-            
+
             // handle GridViewDataSet
             if (type.IsAssignableTo(new ResolvedTypeDescriptor(typeof(IBaseGridViewDataSet))))
             {

@@ -77,7 +77,7 @@ namespace DotVVM.Framework.Hosting
                 url.Query =
                     context.HttpContext.Request.Query
                     .Where(q => q.Key != name)
-                    .Concat(new [] { new KeyValuePair<string, string>(name, context.Configuration.DefaultCulture) })
+                    .Concat(new[]{ new KeyValuePair<string, string>(name, context.Configuration.DefaultCulture) })
                     .Select(q => Uri.EscapeUriString(q.Key) + "=" + Uri.EscapeUriString(q.Value)).Apply(s => string.Join("&", s));
                 if (url.ToString() == context.HttpContext.Request.Url.ToString())
                     throw new Exception($"The specified default culture is probably invalid");
@@ -102,7 +102,7 @@ namespace DotVVM.Framework.Hosting
                 {
                     var result = cultureGetter(context);
                     if (result?.LCID == 4096)
-                        doRedirect(context); // it seems that when a culture does not exists, the constucotr throws an exception on Mono, but returns an instance on .NET Core (with LCID = 4096)
+                        doRedirect(context); // it seems that when a culture does not exists, the constructor throws an exception on Mono, but returns an instance on .NET Core (with LCID = 4096)
                     return result;
                 }
                 catch(CultureNotFoundException)

@@ -11,6 +11,8 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Utils;
+using Microsoft.Extensions.DependencyInjection;
+using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Framework.Controls
 {
@@ -142,13 +144,13 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty InlineEditingProperty =
             DotvvmProperty.Register<bool, GridView>(t => t.InlineEditing, false);
 
-        protected internal override void OnLoad(Hosting.IDotvvmRequestContext context)
+        protected internal override void OnLoad(IDotvvmRequestContext context)
         {
             DataBind(context);
             base.OnLoad(context);
         }
 
-        protected internal override void OnPreRender(Hosting.IDotvvmRequestContext context)
+        protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
             DataBind(context);     // TODO: support for observable collection
             base.OnPreRender(context);
@@ -290,7 +292,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void CreateRowWithCells(Hosting.IDotvvmRequestContext context, DataItemContainer placeholder)
+        private void CreateRowWithCells(IDotvvmRequestContext context, DataItemContainer placeholder)
         {
             var isInEditMode = false;
             if (InlineEditing)
@@ -345,21 +347,35 @@ namespace DotVVM.Framework.Controls
             return row;
         }
 
-        private bool IsEditedRow(DataItemContainer placeholder)
+        private PropertyInfo ResolvePrimaryKeyProperty()
         {
-            var primaryKeyPropertyName = ((IGridViewDataSet)DataSource).RowEditOptions.PrimaryKeyPropertyName;
+            var dataSet = (IGridViewDataSet)DataSource;
+            var primaryKeyPropertyName = dataSet.RowEditOptions.PrimaryKeyPropertyName;
             if (string.IsNullOrEmpty(primaryKeyPropertyName))
             {
-                throw new DotvvmControlException(this, $"The {nameof(IGridViewDataSet)} must specify the {nameof(IRowEditOptions.PrimaryKeyPropertyName)} property when inline editing is enabled on the {nameof(GridView)} control!");
+                throw new DotvvmControlException(this, $"The {nameof(IGridViewDataSet)} must " +
+                    $"specify the {nameof(IRowEditOptions.PrimaryKeyPropertyName)} property " +
+                    $"when inline editing is enabled on the {nameof(GridView)} control!");
             }
 
-            PropertyInfo prop;
-            var value = ReflectionUtils.GetObjectPropertyValue(placeholder.DataContext, primaryKeyPropertyName, out prop);
+            var enumerableType = ReflectionUtils.GetEnumerableType(dataSet.Items.GetType());
+            var property = enumerableType.GetProperty(primaryKeyPropertyName);
+            if (property == null)
+            {
+                throw new InvalidOperationException($"Type '{enumerableType}' does not contain a " +
+                    $"'{primaryKeyPropertyName}' property.");
+            }
+            return property;
+        }
 
+        private bool IsEditedRow(DataItemContainer placeholder)
+        {
+            var property = ResolvePrimaryKeyProperty();
+            var value = property.GetValue(placeholder.DataContext);
             if (value != null)
             {
                 var editRowId = ((IGridViewDataSet)DataSource).RowEditOptions.EditRowId;
-                if (editRowId != null && value.Equals(ReflectionUtils.ConvertValue(editRowId, prop.PropertyType)))
+                if (editRowId != null && value.Equals(ReflectionUtils.ConvertValue(editRowId, property.PropertyType)))
                 {
                     return true;
                 }
@@ -368,7 +384,7 @@ namespace DotVVM.Framework.Controls
             return false;
         }
 
-        private void CreateTemplates(Hosting.IDotvvmRequestContext context, DataItemContainer placeholder, bool isInEditMode = false)
+        private void CreateTemplates(IDotvvmRequestContext context, DataItemContainer placeholder, bool isInEditMode = false)
         {
             var row = CreateRow(placeholder, isInEditMode);
 
@@ -418,11 +434,17 @@ namespace DotVVM.Framework.Controls
                 // render on client
                 if (InlineEditing)
                 {
+                    var propertySerialization = context.Services
+                        .GetRequiredService<IPropertySerialization>();
+                    var primaryKeyProperty = ResolvePrimaryKeyProperty();
+                    var primaryKeyPropertyName = propertySerialization.ResolveName(primaryKeyProperty);
+
                     var placeholder = new DataItemContainer { DataContext = null };
                     placeholder.SetDataContextTypeFromDataSource(GetBinding(DataSourceProperty));
                     placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
                     placeholder.SetValue(Internal.ClientIDFragmentProperty, GetValueRaw(Internal.CurrentIndexBindingProperty));
-                    writer.WriteKnockoutDataBindComment("if", "ko.unwrap(ko.unwrap($gridViewDataSet).RowEditOptions().EditRowId) !== ko.unwrap($data[ko.unwrap(ko.unwrap($gridViewDataSet).RowEditOptions().PrimaryKeyPropertyName)])");
+                    writer.WriteKnockoutDataBindComment("if", "ko.unwrap(ko.unwrap($gridViewDataSet).RowEditOptions().EditRowId) " +
+                        $"!== ko.unwrap($data['{primaryKeyPropertyName}'])");
                     CreateTemplates(context, placeholder);
                     Children.Add(placeholder);
                     placeholder.Render(writer, context);
@@ -432,7 +454,8 @@ namespace DotVVM.Framework.Controls
                     placeholderEdit.SetDataContextTypeFromDataSource(GetBinding(DataSourceProperty));
                     placeholderEdit.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
                     placeholderEdit.SetValue(Internal.ClientIDFragmentProperty, GetValueRaw(Internal.CurrentIndexBindingProperty));
-                    writer.WriteKnockoutDataBindComment("if", "ko.unwrap(ko.unwrap($gridViewDataSet).RowEditOptions().EditRowId) === ko.unwrap($data[ko.unwrap(ko.unwrap($gridViewDataSet).RowEditOptions().PrimaryKeyPropertyName)])");
+                    writer.WriteKnockoutDataBindComment("if", "ko.unwrap(ko.unwrap($gridViewDataSet).RowEditOptions().EditRowId) " +
+                        $"=== ko.unwrap($data['{primaryKeyPropertyName}'])");
                     CreateTemplates(context, placeholderEdit, true);
                     Children.Add(placeholderEdit);
                     placeholderEdit.Render(writer, context);

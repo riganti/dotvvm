@@ -138,7 +138,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
 
         /// <summary>
-        /// Writes this code incusing parameters to the ParametrizedCode.Builder
+        /// Writes this code including parameters to the ParametrizedCode.Builder
         /// </summary>
         public void CopyTo(Builder builder)
         {
@@ -240,11 +240,11 @@ namespace DotVVM.Framework.Compilation.Javascript
         /// Optional default value
         public readonly CodeParameterAssignment DefaultAssignment;
         /// <summary>
-        /// Operator precedence of the top expression to make sure that the parameter is correctly parenthised.
+        /// Operator precedence of the top expression to make sure that the parameter is correctly parenthesized.
         /// </summary>
         public readonly byte OperatorPrecedence;
         /// <summary>
-        /// If the parameter would be available as global, can it be ommited?
+        /// If the parameter would be available as global, can it be omitted?
         /// </summary>
         public readonly bool IsSafeMemberAccess;
 

@@ -11,7 +11,7 @@ namespace DotVVM.Framework.Configuration
         /// Configures all services related with DotVVM to ServiceCollection.
         /// Warning: Configure only DotVVM services. This method is used by DotVVM.Compiler which runs this method during compilation time.
         /// </summary>
-        /// <remarks>The name "opations" was chosen because of easier migration.</remarks>
+        /// <remarks>The name "options" was chosen because of easier migration.</remarks>
         void ConfigureServices(IDotvvmServiceCollection options);
     }
 }

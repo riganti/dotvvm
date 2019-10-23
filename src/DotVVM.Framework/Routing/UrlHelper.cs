@@ -110,7 +110,7 @@ namespace DotVVM.Framework.Routing
             {
                 if ((url[i] < 'A' || url[i] > 'Z') && (url[i] < 'a' || url[i] > 'z') && (url[i] < '0' || url[i] > '9')
                     && url[i] != '-' && url[i] != '.' && url[i] != '_' && url[i] != '~' && url[i] != '%'
-                    && url[i] != '!' && url[i] != '$' && url[i] != '$' && url[i] != '\'' && url[i] != '(' && url[i] != ')' && url[i] != '*' && url[i] != '+' && url[i] != ',' && url[i] != ';' && url[i] != '='
+                    && url[i] != '!' && url[i] != '$' && url[i] != '&' && url[i] != '\'' && url[i] != '(' && url[i] != ')' && url[i] != '*' && url[i] != '+' && url[i] != ',' && url[i] != ';' && url[i] != '='
                     && url[i] != ':' && url[i] != '@' && url[i] != '/' && url[i] != '?')
                 {
                     return false;

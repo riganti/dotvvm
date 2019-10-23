@@ -9,6 +9,42 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
@@ -475,154 +511,186 @@ var SuppressPostBackHandler = /** @class */ (function () {
 var DotvvmSerialization = /** @class */ (function () {
     function DotvvmSerialization() {
     }
-    DotvvmSerialization.prototype.deserialize = function (viewModel, target, deserializeAll) {
-        if (deserializeAll === void 0) { deserializeAll = false; }
-        if (typeof (viewModel) == "undefined" || viewModel == null) {
-            if (ko.isObservable(target)) {
-                target(viewModel);
-                return target;
-            }
-            return viewModel;
-        }
-        if (typeof (viewModel) == "string" || typeof (viewModel) == "number" || typeof (viewModel) == "boolean") {
-            if (ko.isObservable(target)) {
-                target(viewModel);
-                return target;
-            }
-            return viewModel;
-        }
-        if (viewModel instanceof Date) {
-            viewModel = dotvvm.serialization.serializeDate(viewModel);
-            if (ko.isObservable(target)) {
-                target(viewModel);
-                return target;
-            }
-            return viewModel;
-        }
-        // handle arrays
-        if (viewModel instanceof Array) {
-            if (ko.isObservable(target) && "removeAll" in target && target() != null && target().length === viewModel.length) {
-                // the array has the same number of items, update it
-                var targetArray = target();
-                for (var i = 0; i < viewModel.length; i++) {
-                    var targetItem = targetArray[i]();
-                    var deserialized = this.deserialize(viewModel[i], targetItem, deserializeAll);
-                    if (targetItem !== deserialized) {
-                        // update the observable only if the item has changed
-                        targetArray[i](deserialized);
-                    }
-                }
-            }
-            else {
-                // rebuild the array because it is different
-                var array = [];
-                for (var i = 0; i < viewModel.length; i++) {
-                    array.push(this.wrapObservable(this.deserialize(viewModel[i], {}, deserializeAll)));
-                }
-                if (ko.isObservable(target)) {
-                    if (!("removeAll" in target)) {
-                        // if the previous value was null, the property is not an observable array - make it
-                        ko.utils.extend(target, ko.observableArray['fn']);
-                        target = target.extend({ 'trackArrayChanges': true });
-                    }
-                    target(array);
-                }
-                else {
-                    target = ko.observableArray(array);
-                }
-            }
-            return target;
-        }
-        // handle objects
-        if (typeof (target) === "undefined") {
-            target = {};
-        }
-        var result = ko.unwrap(target);
-        var updateTarget = false;
-        if (result == null) {
-            result = {};
-            if (ko.isObservable(target)) {
-                updateTarget = true;
-            }
-            else {
-                target = result;
-            }
-        }
-        for (var prop in viewModel) {
-            if (viewModel.hasOwnProperty(prop) && !/\$options$/.test(prop)) {
-                var value = viewModel[prop];
-                if (typeof (value) === "undefined") {
-                    continue;
-                }
-                if (!ko.isObservable(value) && typeof (value) === "function") {
-                    continue;
-                }
-                var options = viewModel[prop + "$options"];
-                if (!deserializeAll && options && options.doNotUpdate) {
-                    continue;
-                }
-                // deserialize value
-                var deserialized = ko.isObservable(value) ? value : this.deserialize(value, result[prop], deserializeAll);
-                if (value instanceof Date) {
-                    // if we get Date value from API, it was converted to string, but we should note that it was date to convert it back
-                    result[prop + "$options"] = result[prop + "$options"] || {};
-                    result[prop + "$options"].isDate = true;
-                }
-                // update the property
-                if (ko.isObservable(deserialized)) {
-                    if (ko.isObservable(result[prop])) {
-                        if (deserialized() !== result[prop]()) {
-                            result[prop](deserialized());
-                        }
-                    }
-                    else {
-                        var unwrapped = ko.unwrap(deserialized);
-                        result[prop] = Array.isArray(unwrapped) ? ko.observableArray(unwrapped) : ko.observable(unwrapped); // don't reuse the same observable from the source
-                    }
-                }
-                else {
-                    if (ko.isObservable(result[prop])) {
-                        if (deserialized !== result[prop]())
-                            result[prop](deserialized);
-                    }
-                    else {
-                        result[prop] = ko.observable(deserialized);
-                    }
-                }
-                if (options && options.clientExtenders && ko.isObservable(result[prop])) {
-                    for (var j = 0; j < options.clientExtenders.length; j++) {
-                        var extenderOptions = {};
-                        var extenderInfo = options.clientExtenders[j];
-                        extenderOptions[extenderInfo.name] = extenderInfo.parameter;
-                        result[prop].extend(extenderOptions);
-                    }
-                }
-            }
-        }
-        // copy the property options metadata
-        for (var prop in viewModel) {
-            if (viewModel.hasOwnProperty(prop) && /\$options$/.test(prop)) {
-                result[prop] = result[prop] || {};
-                for (var optProp in viewModel[prop]) {
-                    if (viewModel[prop].hasOwnProperty(optProp)) {
-                        result[prop][optProp] = viewModel[prop][optProp];
-                    }
-                }
-                var originalName = prop.substring(0, prop.length - "$options".length);
-                if (typeof result[originalName] === "undefined") {
-                    result[originalName] = ko.observable();
-                }
-            }
-        }
-        if (updateTarget) {
-            target(result);
-        }
-        return target;
-    };
     DotvvmSerialization.prototype.wrapObservable = function (obj) {
         if (!ko.isObservable(obj))
             return ko.observable(obj);
         return obj;
+    };
+    DotvvmSerialization.prototype.deserialize = function (viewModel, target, deserializeAll) {
+        if (deserializeAll === void 0) { deserializeAll = false; }
+        if (ko.isObservable(viewModel)) {
+            throw new Error("Parameter viewModel should not be an observable. Maybe you forget to invoke the observable you are passing as a viewModel parameter.");
+        }
+        if (this.isPrimitive(viewModel)) {
+            return this.deserializePrimitive(viewModel, target);
+        }
+        if (viewModel instanceof Date) {
+            return this.deserializeDate(viewModel, target);
+        }
+        if (viewModel instanceof Array) {
+            return this.deserializeArray(viewModel, target, deserializeAll);
+        }
+        return this.deserializeObject(viewModel, target, deserializeAll);
+    };
+    DotvvmSerialization.prototype.deserializePrimitive = function (viewModel, target) {
+        if (ko.isObservable(target)) {
+            target(viewModel);
+            return target;
+        }
+        return viewModel;
+    };
+    DotvvmSerialization.prototype.deserializeDate = function (viewModel, target) {
+        viewModel = dotvvm.serialization.serializeDate(viewModel);
+        if (ko.isObservable(target)) {
+            target(viewModel);
+            return target;
+        }
+        return viewModel;
+    };
+    DotvvmSerialization.prototype.deserializeArray = function (viewModel, target, deserializeAll) {
+        if (deserializeAll === void 0) { deserializeAll = false; }
+        if (this.isObservableArray(target) && target() != null && target().length === viewModel.length) {
+            this.updateArrayItems(viewModel, target, deserializeAll);
+        }
+        else {
+            target = this.rebuildArrayFromScratch(viewModel, target, deserializeAll);
+        }
+        return target;
+    };
+    DotvvmSerialization.prototype.rebuildArrayFromScratch = function (viewModel, target, deserializeAll) {
+        var array = [];
+        for (var i = 0; i < viewModel.length; i++) {
+            array.push(this.wrapObservableObjectOrArray(this.deserialize(ko.unwrap(viewModel[i]), {}, deserializeAll)));
+        }
+        if (ko.isObservable(target)) {
+            target = this.extendToObservableArrayIfRequired(target);
+            target(array);
+        }
+        else {
+            target = array;
+        }
+        return target;
+    };
+    DotvvmSerialization.prototype.updateArrayItems = function (viewModel, target, deserializeAll) {
+        var targetArray = target();
+        for (var i = 0; i < viewModel.length; i++) {
+            var targetItem = ko.unwrap(targetArray[i]);
+            var deserialized = this.deserialize(ko.unwrap(viewModel[i]), targetItem, deserializeAll);
+            if (targetItem !== deserialized) {
+                //update the item
+                if (ko.isObservable(targetArray[i])) {
+                    if (targetArray[i]() !== deserialized) {
+                        targetArray[i] = this.extendToObservableArrayIfRequired(targetArray[i]);
+                        targetArray[i](deserialized);
+                    }
+                }
+                else {
+                    targetArray[i] = this.wrapObservableObjectOrArray(deserialized);
+                }
+            }
+        }
+    };
+    DotvvmSerialization.prototype.deserializeObject = function (viewModel, target, deserializeAll) {
+        var unwrappedTarget = ko.unwrap(target);
+        if (this.isPrimitive(unwrappedTarget)) {
+            unwrappedTarget = {};
+        }
+        for (var _i = 0, _a = Object.getOwnPropertyNames(viewModel); _i < _a.length; _i++) {
+            var prop = _a[_i];
+            if (this.isOptionsProperty(prop)) {
+                continue;
+            }
+            var value = viewModel[prop];
+            if (typeof (value) == "undefined") {
+                continue;
+            }
+            if (!ko.isObservable(value) && typeof (value) === "function") {
+                continue;
+            }
+            var options = viewModel[prop + "$options"];
+            if (!deserializeAll && options && options.doNotUpdate) {
+                continue;
+            }
+            this.copyProperty(value, unwrappedTarget, prop, deserializeAll, options);
+        }
+        // copy the property options metadata
+        for (var _b = 0, _c = Object.getOwnPropertyNames(viewModel); _b < _c.length; _b++) {
+            var prop = _c[_b];
+            if (!this.isOptionsProperty(prop)) {
+                continue;
+            }
+            this.copyPropertyMetadata(unwrappedTarget, prop, viewModel);
+        }
+        if (ko.isObservable(target)) {
+            //This is so that if we have already updated the instance inside target observable
+            //there's no need to force update 
+            if (unwrappedTarget !== target()) {
+                target(unwrappedTarget);
+            }
+        }
+        else {
+            target = unwrappedTarget;
+        }
+        return target;
+    };
+    DotvvmSerialization.prototype.copyProperty = function (value, unwrappedTarget, prop, deserializeAll, options) {
+        var deserialized = this.deserialize(ko.unwrap(value), unwrappedTarget[prop], deserializeAll);
+        if (value instanceof Date) {
+            // if we get Date value from API, it was converted to string, but we should note that it was date to convert it back
+            unwrappedTarget[prop + "$options"] = __assign(__assign({}, unwrappedTarget[prop + "$options"]), { isDate: true });
+        }
+        // update the property
+        if (ko.isObservable(deserialized)) { //deserialized is observable <=> its input target is observable
+            if (deserialized() !== unwrappedTarget[prop]()) {
+                unwrappedTarget[prop] = this.extendToObservableArrayIfRequired(unwrappedTarget[prop]);
+                unwrappedTarget[prop](deserialized());
+            }
+        }
+        else {
+            unwrappedTarget[prop] = this.wrapObservableObjectOrArray(deserialized);
+        }
+        if (options && options.clientExtenders && ko.isObservable(unwrappedTarget[prop])) {
+            for (var j = 0; j < options.clientExtenders.length; j++) {
+                var extenderOptions = {};
+                var extenderInfo = options.clientExtenders[j];
+                extenderOptions[extenderInfo.name] = extenderInfo.parameter;
+                unwrappedTarget[prop].extend(extenderOptions);
+            }
+        }
+    };
+    DotvvmSerialization.prototype.copyPropertyMetadata = function (unwrappedTarget, prop, viewModel) {
+        unwrappedTarget[prop] = __assign(__assign({}, unwrappedTarget[prop]), viewModel[prop]);
+        var originalName = prop.substring(0, prop.length - "$options".length);
+        if (typeof unwrappedTarget[originalName] === "undefined") {
+            unwrappedTarget[originalName] = ko.observable();
+        }
+    };
+    DotvvmSerialization.prototype.extendToObservableArrayIfRequired = function (observable) {
+        if (!ko.isObservable(observable)) {
+            throw new Error("Trying to extend a non-observable to an observable array.");
+        }
+        if (!this.isObservableArray(observable)) {
+            ko.utils.extend(observable, ko.observableArray['fn']);
+            observable = observable.extend({ 'trackArrayChanges': true });
+        }
+        return observable;
+    };
+    DotvvmSerialization.prototype.wrapObservableObjectOrArray = function (obj) {
+        return Array.isArray(obj)
+            ? ko.observableArray(obj)
+            : ko.observable(obj);
+    };
+    DotvvmSerialization.prototype.isPrimitive = function (viewModel) {
+        return viewModel == null
+            || typeof (viewModel) == "string"
+            || typeof (viewModel) == "number"
+            || typeof (viewModel) == "boolean";
+    };
+    DotvvmSerialization.prototype.isOptionsProperty = function (prop) {
+        return /\$options$/.test(prop);
+    };
+    DotvvmSerialization.prototype.isObservableArray = function (target) {
+        return ko.isObservable(target) && "removeAll" in target;
     };
     DotvvmSerialization.prototype.serialize = function (viewModel, opt) {
         if (opt === void 0) { opt = {}; }
@@ -888,7 +956,7 @@ var DotVVM = /** @class */ (function () {
             before: ["setIsPostbackRunning", "concurrency-default", "concurrency-queue", "concurrency-deny"],
             execute: function (callback, options) {
                 if (options.sender && dotvvm.isPostBackProhibited(options.sender)) {
-                    return Promise.reject({ type: "handler", handler: _this, message: "PostBack is prohitibited on disabled element" });
+                    return Promise.reject({ type: "handler", handler: _this, message: "PostBack is prohibited on disabled element" });
                 }
                 else
                     return callback();
@@ -923,8 +991,10 @@ var DotVVM = /** @class */ (function () {
         this.commonConcurrencyHandler = function (promise, options, queueName) {
             var queue = _this.getPostbackQueue(queueName);
             queue.noRunning++;
+            dotvvm.updateProgressChangeCounter(dotvvm.updateProgressChangeCounter() + 1);
             var dispatchNext = function () {
                 queue.noRunning--;
+                dotvvm.updateProgressChangeCounter(dotvvm.updateProgressChangeCounter() - 1);
                 if (queue.queue.length > 0) {
                     var callback = queue.queue.shift();
                     window.setTimeout(callback, 0);
@@ -970,6 +1040,7 @@ var DotVVM = /** @class */ (function () {
         this.fileUpload = new DotvvmFileUpload();
         this.extensions = {};
         this.isPostbackRunning = ko.observable(false);
+        this.updateProgressChangeCounter = ko.observable(0);
     }
     DotVVM.prototype.createWindowSetTimeoutHandler = function (time) {
         return {
@@ -1117,38 +1188,105 @@ var DotVVM = /** @class */ (function () {
     DotVVM.prototype.isPostBackStillActive = function (currentPostBackCounter) {
         return this.postBackCounter === currentPostBackCounter;
     };
+    DotVVM.prototype.fetchCsrfToken = function (viewModelName) {
+        return __awaiter(this, void 0, void 0, function () {
+            var vm, response, _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        vm = this.viewModels[viewModelName].viewModel;
+                        if (!(vm.$csrfToken == null)) return [3 /*break*/, 3];
+                        return [4 /*yield*/, fetch((this.viewModels[viewModelName].virtualDirectory || "") + "/___dotvvm-create-csrf-token___")];
+                    case 1:
+                        response = _b.sent();
+                        if (response.status != 200)
+                            throw new Error("Can't fetch CSRF token: " + response.statusText);
+                        _a = vm;
+                        return [4 /*yield*/, response.text()];
+                    case 2:
+                        _a.$csrfToken = _b.sent();
+                        _b.label = 3;
+                    case 3: return [2 /*return*/, vm.$csrfToken];
+                }
+            });
+        });
+    };
     DotVVM.prototype.staticCommandPostback = function (viewModelName, sender, command, args, callback, errorCallback) {
         var _this = this;
         if (callback === void 0) { callback = function (_) { }; }
-        if (errorCallback === void 0) { errorCallback = function (xhr, error) { }; }
-        var data = this.serialization.serialize({
-            "args": args,
-            "command": command,
-            "$csrfToken": this.viewModels[viewModelName].viewModel.$csrfToken
-        });
-        dotvvm.events.staticCommandMethodInvoking.trigger(data);
-        this.postJSON(this.viewModels[viewModelName].url, "POST", ko.toJSON(data), function (response) {
-            try {
-                _this.isViewModelUpdating = true;
-                var result = JSON.parse(response.responseText);
-                dotvvm.events.staticCommandMethodInvoked.trigger(__assign({}, data, { result: result, xhr: response }));
-                callback(result);
-            }
-            catch (error) {
-                dotvvm.events.staticCommandMethodFailed.trigger(__assign({}, data, { xhr: response, error: error }));
-                errorCallback(response, error);
-            }
-            finally {
-                _this.isViewModelUpdating = false;
-            }
-        }, function (xhr) {
-            _this.events.error.trigger(new DotvvmErrorEventArgs(sender, _this.viewModels[viewModelName].viewModel, viewModelName, xhr, null));
-            console.warn("StaticCommand postback failed: " + xhr.status + " - " + xhr.statusText, xhr);
-            errorCallback(xhr);
-            dotvvm.events.staticCommandMethodFailed.trigger(__assign({}, data, { xhr: xhr }));
-        }, function (xhr) {
-            xhr.setRequestHeader("X-PostbackType", "StaticCommand");
-        });
+        if (errorCallback === void 0) { errorCallback = function (errorInfo) { }; }
+        (function () { return __awaiter(_this, void 0, void 0, function () {
+            var csrfToken, err_1, data;
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, this.fetchCsrfToken(viewModelName)];
+                    case 1:
+                        csrfToken = _a.sent();
+                        return [3 /*break*/, 3];
+                    case 2:
+                        err_1 = _a.sent();
+                        this.events.error.trigger(new DotvvmErrorEventArgs(sender, this.viewModels[viewModelName].viewModel, viewModelName, null, null));
+                        console.warn("CSRF token fetch failed.");
+                        errorCallback({ error: err_1 });
+                        return [2 /*return*/];
+                    case 3:
+                        data = this.serialization.serialize({
+                            args: args,
+                            command: command,
+                            "$csrfToken": csrfToken
+                        });
+                        dotvvm.events.staticCommandMethodInvoking.trigger(data);
+                        this.postJSON(this.viewModels[viewModelName].url, "POST", ko.toJSON(data), function (response) {
+                            try {
+                                _this.isViewModelUpdating = true;
+                                var responseObj = JSON.parse(response.responseText);
+                                if ("action" in responseObj) {
+                                    if (responseObj.action == "redirect") {
+                                        // redirect
+                                        _this.handleRedirect(responseObj, viewModelName);
+                                        errorCallback({ xhr: response, error: "redirect" });
+                                        return;
+                                    }
+                                    else {
+                                        throw new Error("Invalid action " + responseObj.action);
+                                    }
+                                }
+                                var result = responseObj.result;
+                                dotvvm.events.staticCommandMethodInvoked.trigger(__assign(__assign({}, data), { result: result, xhr: response }));
+                                callback(result);
+                            }
+                            catch (error) {
+                                dotvvm.events.staticCommandMethodFailed.trigger(__assign(__assign({}, data), { xhr: response, error: error }));
+                                errorCallback({ xhr: response, error: error });
+                            }
+                            finally {
+                                _this.isViewModelUpdating = false;
+                            }
+                        }, function (xhr) {
+                            if (/^application\/json(;|$)/.test(xhr.getResponseHeader("Content-Type"))) {
+                                var errObject = JSON.parse(xhr.responseText);
+                                if (errObject.action === "invalidCsrfToken") {
+                                    // ok, renew the token and try again. Do that before any event is triggered
+                                    _this.viewModels[viewModelName].viewModel.$csrfToken = null;
+                                    console.log("Resending postback due to invalid CSRF token."); // this may loop indefinitely (in some extreme case), we don't currently have any loop detection mechanism, so at least we can log it.
+                                    _this.staticCommandPostback(viewModelName, sender, command, args, callback, errorCallback);
+                                    return;
+                                }
+                            }
+                            _this.events.error.trigger(new DotvvmErrorEventArgs(sender, _this.viewModels[viewModelName].viewModel, viewModelName, xhr, null));
+                            console.warn("StaticCommand postback failed: " + xhr.status + " - " + xhr.statusText, xhr);
+                            errorCallback({ xhr: xhr });
+                            dotvvm.events.staticCommandMethodFailed.trigger(__assign(__assign({}, data), { xhr: xhr }));
+                        }, function (xhr) {
+                            xhr.setRequestHeader("X-PostbackType", "StaticCommand");
+                        });
+                        return [2 /*return*/];
+                }
+            });
+        }); })();
     };
     DotVVM.prototype.processPassedId = function (id, context) {
         if (typeof id == "string" || id == null)
@@ -1257,86 +1395,116 @@ var DotVVM = /** @class */ (function () {
     };
     DotVVM.prototype.postbackCore = function (options, path, command, controlUniqueId, context, commandArgs) {
         var _this = this;
-        return new Promise(function (resolve, reject) {
-            var viewModelName = options.viewModelName;
-            var viewModel = _this.viewModels[viewModelName].viewModel;
-            _this.lastStartedPostack = options.postbackId;
-            // perform the postback
-            _this.updateDynamicPathFragments(context, path);
-            var data = {
-                viewModel: _this.serialization.serialize(viewModel, { pathMatcher: function (val) { return context && val == context.$data; } }),
-                currentPath: path,
-                command: command,
-                controlUniqueId: _this.processPassedId(controlUniqueId, context),
-                additionalData: options.additionalPostbackData,
-                renderedResources: _this.viewModels[viewModelName].renderedResources,
-                commandArgs: commandArgs
-            };
-            _this.postJSON(_this.viewModels[viewModelName].url, "POST", ko.toJSON(data), function (result) {
-                dotvvm.events.postbackResponseReceived.trigger({});
-                resolve(function () { return new Promise(function (resolve, reject) {
-                    dotvvm.events.postbackCommitInvoked.trigger({});
-                    var locationHeader = result.getResponseHeader("Location");
-                    var resultObject = locationHeader != null && locationHeader.length > 0 ?
-                        { action: "redirect", url: locationHeader } :
-                        JSON.parse(result.responseText);
-                    if (!resultObject.viewModel && resultObject.viewModelDiff) {
-                        // TODO: patch (~deserialize) it to ko.observable viewModel
-                        resultObject.viewModel = _this.patch(data.viewModel, resultObject.viewModelDiff);
-                    }
-                    _this.loadResourceList(resultObject.resources, function () {
-                        var isSuccess = false;
-                        if (resultObject.action === "successfulCommand") {
-                            try {
-                                _this.isViewModelUpdating = true;
-                                // remove updated controls
-                                var updatedControls = _this.cleanUpdatedControls(resultObject);
-                                // update the viewmodel
-                                if (resultObject.viewModel) {
-                                    ko.delaySync.pause();
-                                    _this.serialization.deserialize(resultObject.viewModel, _this.viewModels[viewModelName].viewModel);
-                                    ko.delaySync.resume();
+        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+            var viewModelName, viewModel, err_2, data;
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        viewModelName = options.viewModelName;
+                        viewModel = this.viewModels[viewModelName].viewModel;
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, this.fetchCsrfToken(viewModelName)];
+                    case 2:
+                        _a.sent();
+                        return [3 /*break*/, 4];
+                    case 3:
+                        err_2 = _a.sent();
+                        reject({ type: 'network', options: options, args: new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, null, options.postbackId) });
+                        return [2 /*return*/];
+                    case 4:
+                        this.lastStartedPostack = options.postbackId;
+                        // perform the postback
+                        this.updateDynamicPathFragments(context, path);
+                        data = {
+                            viewModel: this.serialization.serialize(viewModel, { pathMatcher: function (val) { return context && val == context.$data; } }),
+                            currentPath: path,
+                            command: command,
+                            controlUniqueId: this.processPassedId(controlUniqueId, context),
+                            additionalData: options.additionalPostbackData,
+                            renderedResources: this.viewModels[viewModelName].renderedResources,
+                            commandArgs: commandArgs
+                        };
+                        this.postJSON(this.viewModels[viewModelName].url, "POST", ko.toJSON(data), function (result) {
+                            dotvvm.events.postbackResponseReceived.trigger({});
+                            resolve(function () { return new Promise(function (resolve, reject) {
+                                dotvvm.events.postbackCommitInvoked.trigger({});
+                                var locationHeader = result.getResponseHeader("Location");
+                                var resultObject = locationHeader != null && locationHeader.length > 0 ?
+                                    { action: "redirect", url: locationHeader } :
+                                    JSON.parse(result.responseText);
+                                if (!resultObject.viewModel && resultObject.viewModelDiff) {
+                                    // TODO: patch (~deserialize) it to ko.observable viewModel
+                                    resultObject.viewModel = _this.patch(data.viewModel, resultObject.viewModelDiff);
                                 }
-                                isSuccess = true;
-                                // remove updated controls which were previously hidden
-                                _this.cleanUpdatedControls(resultObject, updatedControls);
-                                // add updated controls
-                                _this.restoreUpdatedControls(resultObject, updatedControls, true);
+                                _this.loadResourceList(resultObject.resources, function () {
+                                    var isSuccess = false;
+                                    if (resultObject.action === "successfulCommand") {
+                                        try {
+                                            _this.isViewModelUpdating = true;
+                                            // remove updated controls
+                                            var updatedControls = _this.cleanUpdatedControls(resultObject);
+                                            // update the viewmodel
+                                            if (resultObject.viewModel) {
+                                                ko.delaySync.pause();
+                                                _this.serialization.deserialize(resultObject.viewModel, _this.viewModels[viewModelName].viewModel);
+                                                ko.delaySync.resume();
+                                            }
+                                            isSuccess = true;
+                                            // remove updated controls which were previously hidden
+                                            _this.cleanUpdatedControls(resultObject, updatedControls);
+                                            // add updated controls
+                                            _this.restoreUpdatedControls(resultObject, updatedControls, true);
+                                        }
+                                        finally {
+                                            _this.isViewModelUpdating = false;
+                                        }
+                                        dotvvm.events.postbackViewModelUpdated.trigger({});
+                                    }
+                                    else if (resultObject.action === "redirect") {
+                                        // redirect
+                                        _this.handleRedirect(resultObject, viewModelName);
+                                        return resolve();
+                                    }
+                                    var idFragment = resultObject.resultIdFragment;
+                                    if (idFragment) {
+                                        if (_this.getSpaPlaceHolder() || location.hash == "#" + idFragment) {
+                                            var element = document.getElementById(idFragment);
+                                            if (element && "function" == typeof element.scrollIntoView)
+                                                element.scrollIntoView(true);
+                                        }
+                                        else
+                                            location.hash = idFragment;
+                                    }
+                                    // trigger afterPostback event
+                                    if (!isSuccess) {
+                                        reject(new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, result, options.postbackId, resultObject));
+                                    }
+                                    else {
+                                        var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(options, resultObject, resultObject.commandResult, result);
+                                        resolve(afterPostBackArgs);
+                                    }
+                                });
+                            }); });
+                        }, function (xhr) {
+                            if (/^application\/json(;|$)/.test(xhr.getResponseHeader("Content-Type"))) {
+                                var errObject = JSON.parse(xhr.responseText);
+                                if (errObject.action === "invalidCsrfToken") {
+                                    // ok, renew the token and try again. Do that before any event is triggered
+                                    _this.viewModels[viewModelName].viewModel.$csrfToken = null;
+                                    console.log("Resending postback due to invalid CSRF token."); // this may loop indefinitely (in some extreme case), we don't currently have any loop detection mechanism, so at least we can log it.
+                                    _this.postbackCore(options, path, command, controlUniqueId, context, commandArgs).then(resolve, reject);
+                                    return;
+                                }
                             }
-                            finally {
-                                _this.isViewModelUpdating = false;
-                            }
-                            dotvvm.events.postbackViewModelUpdated.trigger({});
-                        }
-                        else if (resultObject.action === "redirect") {
-                            // redirect
-                            _this.handleRedirect(resultObject, viewModelName);
-                            return resolve();
-                        }
-                        var idFragment = resultObject.resultIdFragment;
-                        if (idFragment) {
-                            if (_this.getSpaPlaceHolder() || location.hash == "#" + idFragment) {
-                                var element = document.getElementById(idFragment);
-                                if (element && "function" == typeof element.scrollIntoView)
-                                    element.scrollIntoView(true);
-                            }
-                            else
-                                location.hash = idFragment;
-                        }
-                        // trigger afterPostback event
-                        if (!isSuccess) {
-                            reject(new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, result, options.postbackId, resultObject));
-                        }
-                        else {
-                            var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(options, resultObject, resultObject.commandResult, result);
-                            resolve(afterPostBackArgs);
-                        }
-                    });
-                }); });
-            }, function (xhr) {
-                reject({ type: 'network', options: options, args: new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, xhr, options.postbackId) });
+                            reject({ type: 'network', options: options, args: new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, xhr, options.postbackId) });
+                        });
+                        return [2 /*return*/];
+                }
             });
-        });
+        }); });
     };
     DotVVM.prototype.handleSpaNavigation = function (element) {
         var target = element.getAttribute('target');
@@ -1416,45 +1584,47 @@ var DotVVM = /** @class */ (function () {
             callback();
             return;
         }
-        var el = elements[offset];
+        var element = elements[offset];
         var waitForScriptLoaded = false;
-        if (el.tagName.toLowerCase() == "script") {
-            // create the script element
+        if (element.tagName.toLowerCase() == "script") {
+            var originalScript = element;
             var script = document.createElement("script");
-            if (el.src) {
-                script.src = el.src;
+            if (originalScript.src) {
+                script.src = originalScript.src;
                 waitForScriptLoaded = true;
             }
-            if (el.type) {
-                script.type = el.type;
+            if (originalScript.type) {
+                script.type = originalScript.type;
             }
-            if (el.text) {
-                script.text = el.text;
+            if (originalScript.text) {
+                script.text = originalScript.text;
             }
-            if (el.id) {
-                script.id = el.id;
+            if (element.id) {
+                script.id = element.id;
             }
-            el = script;
+            element = script;
         }
-        else if (el.tagName.toLowerCase() == "link") {
+        else if (element.tagName.toLowerCase() == "link") {
             // create link
+            var originalLink = element;
             var link = document.createElement("link");
-            if (el.href) {
-                link.href = el.href;
+            if (originalLink.href) {
+                link.href = originalLink.href;
             }
-            if (el.rel) {
-                link.rel = el.rel;
+            if (originalLink.rel) {
+                link.rel = originalLink.rel;
             }
-            if (el.type) {
-                link.type = el.type;
+            if (originalLink.type) {
+                link.type = originalLink.type;
             }
-            el = link;
+            element = link;
         }
         // load next script when this is finished
         if (waitForScriptLoaded) {
-            el.onload = function () { return _this.loadResourceElements(elements, offset + 1, callback); };
+            element.addEventListener("load", function () { return _this.loadResourceElements(elements, offset + 1, callback); });
+            element.addEventListener("error", function () { return _this.loadResourceElements(elements, offset + 1, callback); });
         }
-        document.head.appendChild(el);
+        document.head.appendChild(element);
         if (!waitForScriptLoaded) {
             this.loadResourceElements(elements, offset + 1, callback);
         }
@@ -1672,7 +1842,7 @@ var DotVVM = /** @class */ (function () {
         xhr.onreadystatechange = function () {
             if (xhr.readyState !== XMLHttpRequest.DONE)
                 return;
-            if (xhr.status < 400) {
+            if (xhr.status && xhr.status < 400) {
                 success(xhr);
             }
             else {
@@ -1689,7 +1859,7 @@ var DotVVM = /** @class */ (function () {
         xhr.onreadystatechange = function () {
             if (xhr.readyState !== XMLHttpRequest.DONE)
                 return;
-            if (xhr.status < 400) {
+            if (xhr.status && xhr.status < 400) {
                 success(xhr);
             }
             else {
@@ -1869,47 +2039,61 @@ var DotVVM = /** @class */ (function () {
                 return { controlsDescendantBindings: true }; // do not apply binding again
             }
         };
+        var makeUpdatableChildrenContextHandler = function (makeContextCallback, shouldDisplay) { return function (element, valueAccessor, _allBindings, _viewModel, bindingContext) {
+            if (!bindingContext)
+                throw new Error();
+            var savedNodes;
+            ko.computed(function () {
+                var rawValue = valueAccessor();
+                // Save a copy of the inner nodes on the initial update, but only if we have dependencies.
+                if (!savedNodes && ko.computedContext.getDependenciesCount()) {
+                    savedNodes = ko.utils.cloneNodes(ko.virtualElements.childNodes(element), true /* shouldCleanNodes */);
+                }
+                if (shouldDisplay(rawValue)) {
+                    if (savedNodes) {
+                        ko.virtualElements.setDomNodeChildren(element, ko.utils.cloneNodes(savedNodes));
+                    }
+                    ko.applyBindingsToDescendants(makeContextCallback(bindingContext, rawValue), element);
+                }
+                else {
+                    ko.virtualElements.emptyNode(element);
+                }
+            }, null, { disposeWhenNodeIsRemoved: element });
+            return { controlsDescendantBindings: true }; // do not apply binding again
+        }; };
         var foreachCollectionSymbol = "$foreachCollectionSymbol";
         ko.virtualElements.allowedBindings["dotvvm-SSR-foreach"] = true;
         ko.bindingHandlers["dotvvm-SSR-foreach"] = {
-            init: function (element, valueAccessor, _allBindings, _viewModel, bindingContext) {
+            init: makeUpdatableChildrenContextHandler(function (bindingContext, rawValue) {
                 var _a;
-                if (!bindingContext)
-                    throw new Error();
-                var value = valueAccessor();
-                var innerBindingContext = bindingContext.extend((_a = {}, _a[foreachCollectionSymbol] = value.data, _a));
-                element.innerBindingContext = innerBindingContext;
-                ko.applyBindingsToDescendants(innerBindingContext, element);
-                return { controlsDescendantBindings: true }; // do not apply binding again
-            }
+                return bindingContext.extend((_a = {}, _a[foreachCollectionSymbol] = rawValue.data, _a));
+            }, function (v) { return v.data != null; })
         };
         ko.virtualElements.allowedBindings["dotvvm-SSR-item"] = true;
         ko.bindingHandlers["dotvvm-SSR-item"] = {
             init: function (element, valueAccessor, _allBindings, _viewModel, bindingContext) {
                 if (!bindingContext)
                     throw new Error();
-                var index = valueAccessor();
                 var collection = bindingContext[foreachCollectionSymbol];
-                var innerBindingContext = bindingContext.createChildContext(function () { return ko.unwrap((ko.unwrap(collection) || [])[index]); }).extend({ $index: ko.pureComputed(function () { return index; }) });
-                element.innerBindingContext = innerBindingContext;
-                ko.applyBindingsToDescendants(innerBindingContext, element);
-                return { controlsDescendantBindings: true }; // do not apply binding again
-            }
-        };
-        ko.virtualElements.allowedBindings["withGridViewDataSet"] = true;
-        ko.bindingHandlers["withGridViewDataSet"] = {
-            init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
-                var _a;
-                if (!bindingContext)
-                    throw new Error();
-                var value = valueAccessor();
-                var innerBindingContext = bindingContext.extend((_a = { $gridViewDataSet: value }, _a[foreachCollectionSymbol] = dotvvm.evaluator.getDataSourceItems(value), _a));
+                var innerBindingContext = bindingContext.createChildContext(function () {
+                    return ko.unwrap((ko.unwrap(collection) || [])[valueAccessor()]);
+                }).extend({ $index: ko.pureComputed(valueAccessor) });
                 element.innerBindingContext = innerBindingContext;
                 ko.applyBindingsToDescendants(innerBindingContext, element);
                 return { controlsDescendantBindings: true }; // do not apply binding again
             },
-            update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+            update: function (element) {
+                if (element.seenUpdate)
+                    console.error("dotvvm-SSR-item binding did not expect to see a update");
+                element.seenUpdate = 1;
             }
+        };
+        ko.virtualElements.allowedBindings["withGridViewDataSet"] = true;
+        ko.bindingHandlers["withGridViewDataSet"] = {
+            init: makeUpdatableChildrenContextHandler(function (bindingContext, value) {
+                var _a;
+                return bindingContext.extend((_a = { $gridViewDataSet: value }, _a[foreachCollectionSymbol] = dotvvm.evaluator.getDataSourceItems(value), _a));
+            }, function (_) { return true; })
         };
         ko.bindingHandlers['dotvvmEnable'] = {
             'update': function (element, valueAccessor) {
@@ -1950,6 +2134,8 @@ var DotVVM = /** @class */ (function () {
             init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
                 element.style.display = "none";
                 var delay = element.getAttribute("data-delay");
+                var includedQueues = (element.getAttribute("data-included-queues") || "").split(",").filter(function (i) { return i.length > 0; });
+                var excludedQueues = (element.getAttribute("data-excluded-queues") || "").split(",").filter(function (i) { return i.length > 0; });
                 var timeout;
                 var running = false;
                 var show = function () {
@@ -1968,8 +2154,20 @@ var DotVVM = /** @class */ (function () {
                     clearTimeout(timeout);
                     element.style.display = "none";
                 };
-                dotvvm.isPostbackRunning.subscribe(function (e) {
-                    if (e) {
+                dotvvm.updateProgressChangeCounter.subscribe(function (e) {
+                    var shouldRun = false;
+                    if (includedQueues.length === 0) {
+                        for (var queue in dotvvm.postbackQueues) {
+                            if (excludedQueues.indexOf(queue) < 0 && dotvvm.postbackQueues[queue].noRunning > 0) {
+                                shouldRun = true;
+                                break;
+                            }
+                        }
+                    }
+                    else {
+                        shouldRun = includedQueues.some(function (q) { return dotvvm.postbackQueues[q] && dotvvm.postbackQueues[q].noRunning > 0; });
+                    }
+                    if (shouldRun) {
                         if (!running) {
                             show();
                         }

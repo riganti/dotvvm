@@ -79,7 +79,7 @@ namespace DotVVM.Framework.Binding.Expressions
 
         private static Exception noResolversException = new Exception("There are no additional resolvers for this binding.");
         /// <summary>
-        /// For performance reasons, derived bindings can set BindingResolverCollection to null to prevent runtime computation of the property which is somewhat costy
+        /// For performance reasons, derived bindings can set BindingResolverCollection to null to prevent runtime computation of the property which is somewhat costly
         /// </summary>
         protected void AddNullResolvers()
         {

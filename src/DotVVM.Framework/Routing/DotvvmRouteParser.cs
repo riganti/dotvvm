@@ -8,9 +8,9 @@ namespace DotVVM.Framework.Routing
 {
     public class DotvvmRouteParser
     {
-        private readonly Dictionary<string, IRouteParameterConstraint> routeConstraints;
+        private readonly IDictionary<string, IRouteParameterConstraint> routeConstraints;
 
-        public DotvvmRouteParser(Dictionary<string, IRouteParameterConstraint> routeConstrains)
+        public DotvvmRouteParser(IDictionary<string, IRouteParameterConstraint> routeConstrains)
         {
             this.routeConstraints = routeConstrains;
         }
@@ -34,7 +34,7 @@ namespace DotVVM.Framework.Routing
                 urlBuilders.Add(result.UrlBuilder);
             }
 
-            // We are alwais prepending '/' character to handle optional parameter at the start correctly
+            // We are always prepending '/' character to handle optional parameter at the start correctly
             url = '/' + url;
 
             // go through the route components and parse it

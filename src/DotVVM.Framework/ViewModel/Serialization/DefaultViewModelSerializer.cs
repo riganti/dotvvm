@@ -76,7 +76,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
 
             // persist CSRF token
-            writer.Token["$csrfToken"] = context.CsrfToken;
+            if (context.CsrfToken is object)
+                writer.Token["$csrfToken"] = context.CsrfToken;
 
             // persist encrypted values
             if (viewModelConverter.EncryptedValues.Count > 0)
@@ -121,6 +122,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             };
             serializer.Converters.Add(viewModelConverter);
             var writer = new JTokenWriter();
+            var response = new JObject();
             try
             {
                 serializer.Serialize(writer, result);
@@ -129,7 +131,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 throw new Exception($"Could not serialize viewModel of type { context.ViewModel.GetType().Name }. Serialization failed at property { writer.Path }. {GeneralViewModelRecommendations}", ex);
             }
-            return writer.Token.ToString(JsonFormatting);
+            response["result"] = writer.Token;
+            return response.ToString(JsonFormatting);
         }
 
         public static JsonSerializerSettings CreateDefaultSettings()
@@ -220,7 +223,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var viewModelToken = (JObject)data["viewModel"];
 
             // load CSRF token
-            context.CsrfToken = viewModelToken["$csrfToken"].Value<string>();
+            context.CsrfToken = viewModelToken["$csrfToken"]?.Value<string>();
 
             ViewModelJsonConverter viewModelConverter;
             if (viewModelToken["$encryptedValues"] != null)

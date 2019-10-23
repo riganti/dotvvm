@@ -25,19 +25,19 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddDefaultMethodTranslators();
         }
 
-        public void AddMethodTranslator(Type declaringType, string methodName, IJavascriptMethodTranslator translator, Type[] parameters = null, bool allowGeneric = true)
+        public void AddMethodTranslator(Type declaringType, string methodName, IJavascriptMethodTranslator translator, Type[] parameters = null, bool allowGeneric = true, bool allowMultipleMethods = false)
         {
             var methods = declaringType.GetMethods()
                 .Where(m => m.Name == methodName && (allowGeneric || !m.IsGenericMethod));
             if (parameters != null)
             {
-                methods = methods.Where(m =>
-                {
+                methods = methods.Where(m => {
                     var mp = m.GetParameters();
                     return mp.Length == parameters.Length && parameters.Zip(mp, (specified, method) => method.ParameterType.IsAssignableFrom(specified)).All(t => t);
                 });
             }
-            AddMethodTranslator(methods.Single(), translator);
+
+            AddMethodsCore(methods.ToArray(), translator, allowMultipleMethods);
         }
 
         public void AddMethodTranslator(Type declaringType, string methodName, IJavascriptMethodTranslator translator, int parameterCount, bool allowMultipleMethods = false)
@@ -46,8 +46,15 @@ namespace DotVVM.Framework.Compilation.Javascript
                 .Where(m => m.Name == methodName)
                 .Where(m => m.GetParameters().Length == parameterCount)
                 .ToArray();
-            if (methods.Length > 1 && !allowMultipleMethods) throw new Exception("more then one methods");
-            foreach (var method in methods)
+
+            AddMethodsCore(methods, translator, allowMultipleMethods);
+        }
+
+        private void AddMethodsCore(MethodInfo[] methodsList, IJavascriptMethodTranslator translator, bool allowMultipleMethods)
+        {
+            if (methodsList.Length > 1 && !allowMultipleMethods) throw new Exception("More then one method was found.");
+            if (methodsList.Length == 0) throw new Exception("No methods found.");
+            foreach (var method in methodsList)
             {
                 AddMethodTranslator(method, translator);
             }

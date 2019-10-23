@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using DotVVM.Framework.Configuration;
 using System.Reflection;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -15,11 +16,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
     /// </summary>
     public class ViewModelJsonConverter : JsonConverter
     {
-        private static readonly Type[] primitiveTypes = {
-            typeof(string), typeof(bool), typeof(DateTime), typeof(DateTimeOffset), typeof(TimeSpan), typeof(Guid),
-            typeof(byte), typeof(sbyte), typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong),
-            typeof(float), typeof(double), typeof(decimal)
-        };
+
 
         private readonly IViewModelSerializationMapper viewModelSerializationMapper;
 
@@ -58,7 +55,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// </summary>
         public override bool CanConvert(Type objectType)
         {
-            return !IsEnumerable(objectType) && IsComplexType(objectType) && !IsTuple(objectType);
+            return !ReflectionUtils.IsEnumerable(objectType) && ReflectionUtils.IsComplexType(objectType) && !ReflectionUtils.IsTuple(objectType) && !ReflectionUtils.IsObject(objectType);
         }
 
         /// <summary>
@@ -70,7 +67,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             if (reader.TokenType == JsonToken.Null)
             {
                 if (objectType.GetTypeInfo().IsValueType)
-                    throw new InvalidOperationException(string.Format("Recieved NULL for value type. Path: " + reader.Path));
+                    throw new InvalidOperationException(string.Format("Received NULL for value type. Path: " + reader.Path));
 
                 return null;
             }
@@ -102,43 +99,5 @@ namespace DotVVM.Framework.ViewModel.Serialization
             serializationMap.ReaderFactory(reader, serializer, value, evReader.Value);
         }
 
-        public static bool IsTuple(Type type) =>
-            type.FullName.StartsWith(typeof(Tuple).FullName + "`");
-
-        public static bool IsEnumerable(Type type)
-        {
-            return typeof(IEnumerable).IsAssignableFrom(type);
-        }
-
-        public static bool IsDictionary(Type type)
-        {
-            return type.GetInterfaces().Any(x => x.IsGenericType
-                    && x.GetGenericTypeDefinition() == typeof(IDictionary<,>));
-        }
-
-        public static bool IsCollection(Type type)
-        {
-            return !IsPrimitiveType(type) && IsEnumerable(type) && !IsDictionary(type);
-        }
-
-        public static bool IsPrimitiveType(Type type)
-        {
-            return primitiveTypes.Contains(type);
-        }
-
-        public static bool IsNullableType(Type type)
-        {
-            return type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
-        }
-
-        public static bool IsEnum(Type type)
-        {
-            return type.GetTypeInfo().IsEnum;
-        }
-
-        public static bool IsComplexType(Type type)
-        {
-            return !IsPrimitiveType(type) && !IsEnum(type) && !IsNullableType(type) && type != typeof(object);
-        }
     }
 }
