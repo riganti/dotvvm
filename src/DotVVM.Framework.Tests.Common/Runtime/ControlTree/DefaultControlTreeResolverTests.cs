@@ -20,6 +20,7 @@ using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Compilation;
 using Microsoft.Extensions.DependencyInjection;
+using DotVVM.Framework.Configuration;
 
 namespace DotVVM.Framework.Tests.Runtime.ControlTree
 {

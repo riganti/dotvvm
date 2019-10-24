@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Styles;
+using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -12,8 +13,9 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
     [TestClass]
     public class ServerSideStyleTests
     {
-        TestControlResolver resolver = new TestControlResolver(config => {
-
+        DotvvmConfiguration config = DotvvmTestHelper.CreateConfiguration();
+        public ServerSideStyleTests()
+        {
             config.Styles
                 .Register<Button>(m => m.HasHtmlAttribute("data-dangerous"))
                 .SetControlProperty<ConfirmPostBackHandler>(PostBack.HandlersProperty, s => s.SetProperty(c => c.Message, "Are you sure?"), StyleOverrideOptions.Append);
@@ -32,14 +34,19 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             config.Styles
                 .Register<Repeater>()
                 .SetHtmlControlProperty(Repeater.SeparatorTemplateProperty, "hr", options: StyleOverrideOptions.Ignore);
-        });
+        }
+
+        ResolvedTreeRoot Parse(string markup, string fileName = "default.dothtml") =>
+            DotvvmTestHelper.ParseResolvedTree(
+                "@viewModel System.Collections.Generic.List<System.String>\n" + markup, fileName, config);
+
 
         [TestMethod]
         public void SetControlProperty_AddPostbackHandler()
         {
-            var button = resolver.ParseSource(@"<dot:Button data-dangerous />")
-                                 .Content.SelectRecursively(c => c.Content)
-                                 .Single(c => c.Metadata.Type == typeof(Button));
+            var button = Parse(@"<dot:Button data-dangerous />")
+                         .Content.SelectRecursively(c => c.Content)
+                         .Single(c => c.Metadata.Type == typeof(Button));
             var handler = button.Properties[PostBack.HandlersProperty].CastTo<ResolvedPropertyControlCollection>().Controls.Single();
             Assert.AreEqual(typeof(ConfirmPostBackHandler), handler.Metadata.Type);
             var message = handler.Properties[ConfirmPostBackHandler.MessageProperty].CastTo<ResolvedPropertyValue>().Value.CastTo<string>();
@@ -49,7 +56,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         [TestMethod]
         public void SetControlProperty_AppendPostbackHandler()
         {
-            var button = resolver.ParseSource(
+            var button = Parse(
 @"<dot:Button data-dangerous>
     <PostBack.Handlers>
         <dot:ConfirmPostBackHandler Message='This is dangerous!' />
@@ -71,9 +78,8 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         [TestMethod]
         public void SetControlProperty_RepeaterTemplate()
         {
-            var repeater = resolver.ParseSource(
-@"@viewModel System.List<System.String>
-<dot:Repeater DataSource='{value: _this}'>
+            var repeater = Parse(
+@"<dot:Repeater DataSource='{value: _this}'>
     {{value: _this}}
 </dot:Repeater>")
                 .Content.SelectRecursively(c => c.Content)
@@ -86,9 +92,8 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         [TestMethod]
         public void SetControlProperty_IgnoredTemplate()
         {
-            var repeater = resolver.ParseSource(
-@"@viewModel System.List<System.String>
-<dot:Repeater DataSource='{value: _this}'>
+            var repeater = Parse(
+@"<dot:Repeater DataSource='{value: _this}'>
     <SeparatorTemplate><div class='sep'/></SeparatorTemplate>
     {{value: _this}}
 </dot:Repeater>")
@@ -102,7 +107,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         [TestMethod]
         public void SetControlProperty_TwoAppendedStyles()
         {
-                        var button = resolver.ParseSource(
+                        var button = Parse(
 @"<dot:Button data-dangerous data-very-dangerous>
     <PostBack.Handlers>
         <dot:ConfirmPostBackHandler Message='This is dangerous!' />
@@ -121,7 +126,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         [TestMethod]
         public void SetControlProperty_MoreAppendedStyles()
         {
-            var button = resolver.ParseSource(
+            var button = Parse(
 @"<dot:LinkButton data-manyhandlers />")
                 .Content.SelectRecursively(c => c.Content)
                 .Single(c => c.Metadata.Type == typeof(LinkButton));
