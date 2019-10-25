@@ -2,13 +2,10 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.ControlTree;
-using DotVVM.Framework.Compilation.ControlTree.Resolved;
-using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace DotVVM.Framework.Controls
@@ -59,18 +56,6 @@ namespace DotVVM.Framework.Controls
 
         public static DotvvmPropertyGroup CssStylesGroupDescriptor =
             DotvvmPropertyGroup.Register<object, HtmlGenericControl>("Style-", nameof(CssStyles));
-
-        /// <summary>
-        /// Gets or sets the CSS class constant that can be used along with the Class property group.
-        /// </summary>
-        [MarkupOptions(AllowBinding = false)]
-        public string AdditionalCssClasses
-        {
-            get { return (string)GetValue(AdditionalCssClassesProperty); }
-            set { SetValue(AdditionalCssClassesProperty, value); }
-        }
-        public static readonly DotvvmProperty AdditionalCssClassesProperty
-            = DotvvmProperty.Register<string, HtmlGenericControl>(c => c.AdditionalCssClasses, null);
 
         /// <summary>
         /// Gets or sets the inner text of the HTML element.
@@ -126,22 +111,6 @@ namespace DotVVM.Framework.Controls
                 if (_renderOnServer == 0)
                     _renderOnServer = @this.RenderOnServer ? (byte)1 : (byte)2;
                 return _renderOnServer == 1;
-            }
-        }
-
-        [ControlUsageValidator]
-        public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
-        {
-            var classAttributeProperty = control.Properties.Keys.OfType<GroupedDotvvmProperty>()
-                .SingleOrDefault(g => g.DeclaringType == typeof(HtmlGenericControl)
-                    && g.PropertyGroup.Name == nameof(Attributes)
-                    && g.GroupMemberName == "class");
-            var classProperties = control.Properties.Keys.OfType<GroupedDotvvmProperty>()
-                .Where(g => g.PropertyGroup == CssClassesGroupDescriptor);
-            if (classAttributeProperty != null && classProperties.Any())
-            {
-                var classAttributeNode = control.Properties.GetValue(classAttributeProperty).DothtmlNode;
-                yield return new ControlUsageError("The 'class' attribute cannot be set when the Class property group is in use.");
             }
         }
 
@@ -204,7 +173,6 @@ namespace DotVVM.Framework.Controls
                 AddVisibleAttributeOrBinding(in r, writer);
                 AddTextPropertyToRender(ref r, writer);
                 AddHtmlAttributesToRender(ref r, writer);
-                writer.AddAttribute("class", AdditionalCssClasses, append: true, appendSeparator: " ");
             }
         }
 
