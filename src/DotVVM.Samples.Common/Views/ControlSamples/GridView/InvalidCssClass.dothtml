@@ -23,12 +23,16 @@
         </EditRowDecorators>
         <dot:GridViewCheckBoxColumn ValueBinding="{value: Is}"
                                     ValidatorPlacement="Standalone"
-                                    HeaderText="Is"
-                                    CssClass="is-input"/>
+                                    HeaderText="Is (Standalone)"
+                                    CssClass="is-standalone" />
         <dot:GridViewTextColumn ValueBinding="{value: Name}"
-                                HeaderText="Name"
+                                HeaderText="Name (Attached)"
                                 ValidatorPlacement="Attached"
-                                CssClass="name-input" />
+                                CssClass="name-attached" />
+        <dot:GridViewTextColumn ValueBinding="{value: Name}"
+                                HeaderText="Name (Attached | Standalone)"
+                                ValidatorPlacement="Attached | Standalone"
+                                CssClass="name-attached-standalone" />
         <dot:GridViewTemplateColumn HeaderText="Value">
             <ContentTemplate>
                 <span>{{value: Value}}</span>
@@ -36,23 +40,20 @@
             <EditTemplate>
                 <dot:TextBox Text="{value: Value}"
                              Validator.Value="{value: Value}"
-                             Validator.InvalidCssClass="invalid"/>
+                             Validator.InvalidCssClass="invalid" />
             </EditTemplate>
         </dot:GridViewTemplateColumn>
         <dot:GridViewTemplateColumn>
             <ContentTemplate>
-                <dot:Button Text="Make indeterminate"
-                            Click="{command: _root.MakeIndeterminate(_this)}"
-                            data-ui="indeterminate-button"/>
                 <dot:Button Text="Edit"
                             Validation.Enabled="false"
                             Click="{command: _root.Samples.RowEditOptions.EditRowId = Value}"
-                            data-ui="edit-button"/>
+                            data-ui="edit-button" />
             </ContentTemplate>
             <EditTemplate>
                 <dot:Button Text="Save"
                             Click="{command: _root.Samples.RowEditOptions.EditRowId = null}"
-                            data-ui="save-button"/>
+                            data-ui="save-button" />
             </EditTemplate>
         </dot:GridViewTemplateColumn>
     </dot:GridView>

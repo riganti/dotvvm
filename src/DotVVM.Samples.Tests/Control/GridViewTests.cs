@@ -554,7 +554,7 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [Fact]
-        public void Control_GridView_InvalidCssClass_TextBox()
+        public void Control_GridView_InvalidCssClass_TextBox_Attached()
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_InvalidCssClass);
@@ -564,12 +564,36 @@ namespace DotVVM.Samples.Tests.Control
                 gridview.First("edit-button", SelectByDataUi).Click();
 
                 IElementWrapper textbox = null;
-                browser.WaitFor(() => textbox = browser.First(".name-input > input"), 1000);
+                browser.WaitFor(() => textbox = browser.First(".name-attached > input"), 1000);
                 AssertUI.HasNotClass(textbox, "invalid");
                 textbox.Clear();
 
                 gridview.First("save-button", SelectByDataUi).Click();
                 browser.WaitFor(() => AssertUI.HasClass(textbox, "invalid"), 1000);
+            });
+        }
+
+        [Fact]
+        public void Control_GridView_InvalidCssClass_TextBox_Both()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_InvalidCssClass);
+                browser.WaitUntilDotvvmInited();
+
+                var gridview = browser.Single("gridview", SelectByDataUi);
+                gridview.First("edit-button", SelectByDataUi).Click();
+
+                IElementWrapper textbox = null;
+                IElementWrapper validator = null;
+                browser.WaitFor(() => textbox = browser.First(".name-attached-standalone > input"), 1000);
+                browser.WaitFor(() => validator = browser.First(".name-attached-standalone > span"), 1000);
+                AssertUI.HasNotClass(textbox, "invalid");
+                AssertUI.HasNotClass(validator, "invalid");
+                textbox.Clear();
+
+                gridview.First("save-button", SelectByDataUi).Click();
+                browser.WaitFor(() => AssertUI.HasClass(textbox, "invalid"), 1000);
+                browser.WaitFor(() => AssertUI.HasClass(validator, "invalid"), 1000);
             });
         }
 
@@ -581,12 +605,13 @@ namespace DotVVM.Samples.Tests.Control
                 browser.WaitUntilDotvvmInited();
 
                 var gridview = browser.Single("gridview", SelectByDataUi);
-                AssertUI.HasNotClass(gridview.First(".is-input > span"), "invalid");
+                AssertUI.HasNotClass(gridview.First(".is-standalone > span"), "invalid");
 
-                gridview.First("indeterminate-button", SelectByDataUi).Click();
                 gridview.First("edit-button", SelectByDataUi).Click();
+                var checkBox = browser.First(".is-standalone > input");
+                checkBox.Click();
                 gridview.First("save-button", SelectByDataUi).Click();
-                browser.WaitFor(() => AssertUI.HasClass(gridview.First(".is-input > span"), "invalid"), 1000);
+                browser.WaitFor(() => AssertUI.HasClass(gridview.First(".is-standalone > span"), "invalid"), 1000);
             });
         }
     }

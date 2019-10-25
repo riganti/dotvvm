@@ -14,28 +14,30 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
             = new GridViewDataSet<SampleDto> {
                 Items = {
                     new SampleDto { Name = "one", Value = "1", Is = true },
-                    new SampleDto { Name = "two", Value = "2", Is = false },
+                    new SampleDto { Name = "two", Value = "2", Is = true },
                 },
                 RowEditOptions = {
                     PrimaryKeyPropertyName = nameof(SampleDto.Value)
                 }
             };
 
-        public void MakeIndeterminate(SampleDto dto)
+        public class SampleDto : IValidatableObject
         {
-            dto.Is = null;
-        }
-
-        public class SampleDto
-        {
-            [Required]
-            public bool? Is { get; set; }
+            public bool Is { get; set; }
 
             [Required]
             public string Name { get; set; }
 
             [Required]
             public string Value { get; set; }
+
+            public IEnumerable<ValidationResult> Validate(ValidationContext _)
+            {
+                if (!Is)
+                {
+                    yield return new ValidationResult("The sample must Be.", new[] { nameof(Is) });
+                }
+            }
         }
     }
 }
