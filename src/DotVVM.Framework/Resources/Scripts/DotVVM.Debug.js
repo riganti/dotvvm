@@ -66,10 +66,10 @@
         console.log("XmlHttpRequest: ", e.xhr);
         console.log("ViewModel: ", e.viewModel);
         if (e.handled) return;
-        debugWindow.querySelector("h1").textContent = "DotVVM Debugger: Error " + (e.xhr.status ? e.xhr.status + ": " + e.xhr.statusText + "" : "XmlHttpRequest failed, maybe internet connection is lost or url is malformed");
+        debugWindow.querySelector("h1").textContent = "DotVVM Debugger: Error " + (e.xhr && e.xhr.status ? e.xhr.status + ": " + e.xhr.statusText + "" : "XmlHttpRequest failed, maybe internet connection is lost or url is malformed");
         var iframe = debugWindow.querySelector("iframe");
         var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-        iframeDocument.querySelector('html').innerHTML = e.xhr.responseText;
+        iframeDocument.querySelector('html').innerHTML = e.xhr ? e.xhr.responseText : "";
         // debugWindow.height = window.innerHeight;
         debugWindow.style.display = "flex";
         e.handled = true;

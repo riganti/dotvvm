@@ -69,5 +69,10 @@ namespace DotVVM.Framework.Controls
         /// This method is typically used from <see cref="IHtmlAttributeTransformer"/> implementations.
         /// </summary>
         void WriteHtmlAttribute(string attributeName, string attributeValue);
+
+        /// <summary>
+        /// Passes information about the currently rendered control to the HtmlWriter. Used only to provide more accurate error/warning/debug information, does not alter the main behavior.
+        /// </summary>
+        void SetErrorContext(DotvvmBindableObject obj);
     }
 }

@@ -101,8 +101,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
             if (context.IsPostBack || context.IsSpaRequest)
             {
                 result["action"] = "successfulCommand";
-                var renderedResources = new HashSet<string>(context.ReceivedViewModelJson?["renderedResources"]?.Values<string>() ?? new string[] { });
-                result["resources"] = BuildResourcesJson(context, rn => !renderedResources.Contains(rn));
             }
             else
             {
@@ -114,6 +112,12 @@ namespace DotVVM.Framework.ViewModel.Serialization
             context.ViewModelJson = result;
         }
 
+        public void AddNewResources(IDotvvmRequestContext context)
+        {
+            var renderedResources = new HashSet<string>(context.ReceivedViewModelJson?["renderedResources"]?.Values<string>() ?? new string[] { });
+            context.ViewModelJson["resources"] = BuildResourcesJson(context, rn => !renderedResources.Contains(rn));
+        }
+
         public string BuildStaticCommandResponse(IDotvvmRequestContext context, object result)
         {
             var serializer = CreateJsonSerializer();
@@ -122,6 +126,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             };
             serializer.Converters.Add(viewModelConverter);
             var writer = new JTokenWriter();
+            var response = new JObject();
             try
             {
                 serializer.Serialize(writer, result);
@@ -130,7 +135,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 throw new Exception($"Could not serialize viewModel of type { context.ViewModel.GetType().Name }. Serialization failed at property { writer.Path }. {GeneralViewModelRecommendations}", ex);
             }
-            return writer.Token.ToString(JsonFormatting);
+            response["result"] = writer.Token;
+            return response.ToString(JsonFormatting);
         }
 
         public static JsonSerializerSettings CreateDefaultSettings()
@@ -153,12 +159,20 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 if (predicate(resource.Name))
                 {
-                    using (var str = new StringWriter())
-                    {
-                        resourceObj[resource.Name] = JValue.CreateString(resource.GetRenderedTextCached(context));
-                    }
+                    resourceObj[resource.Name] = JValue.CreateString(resource.GetRenderedTextCached(context));
                 }
             }
+
+            // propagate warnings to JS Console
+            var warningScript = BodyResourceLinks.RenderWarnings(context);
+            if (warningScript != "")
+            {
+                var name = "warnings" + Guid.NewGuid();
+                var resource = new NamedResource(name, new InlineScriptResource(warningScript));
+
+                resourceObj[resource.Name] = JValue.CreateString(resource.GetRenderedTextCached(context));
+            }
+
             return resourceObj;
         }
 

@@ -25,6 +25,11 @@ namespace DotVVM.Samples.BasicSamples
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddLogging(b => {
+                b.AddConsole();
+                b.SetMinimumLevel(LogLevel.Information);
+            });
+
             services.AddAuthentication("Scheme1")
                 .AddCookie("Scheme1", o => {
                     o.LoginPath = new PathString("/ComplexSamples/Auth/Login");
@@ -67,8 +72,9 @@ namespace DotVVM.Samples.BasicSamples
         {
             app.UseAuthentication();
 
-            var config = app.UseDotVVM<DotvvmStartup>(GetApplicationPath(env));
-            config.RouteTable.Add("AuthorizedPresenter", "ComplexSamples/Auth/AuthorizedPresenter", provider => new AuthorizedPresenter());
+            var config = app.UseDotVVM<DotvvmStartup>(GetApplicationPath(env), modifyConfiguration: c => {
+                c.RouteTable.Add("AuthorizedPresenter", "ComplexSamples/Auth/AuthorizedPresenter", provider => new AuthorizedPresenter());
+            });
 
 
 #if AssertConfiguration

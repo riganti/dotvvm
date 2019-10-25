@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.Tests.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -167,6 +168,20 @@ namespace DotVVM.Framework.Tests.Common.Routing
             table.AddGroup("Group", null, null, opt => {
                 opt.Add("Article", "", provider => provider.GetRequiredService<TestPresenter>(), null);
             });
+            Assert.IsInstanceOfType(table.First().GetPresenter(configuration.ServiceProvider), typeof(TestPresenter));
+        }
+
+        [TestMethod]
+        public void RouteTableGroup_DefaultPresenterFactory()
+        {
+            var configuration = DotvvmConfiguration.CreateDefault(services => {
+                services.TryAddScoped<TestPresenter>();
+            });
+
+            var table = new DotvvmRouteTable(configuration);
+            table.AddGroup("Group", null, null, opt => {
+                opt.Add("Article", "");
+            }, p => p.GetRequiredService<TestPresenter>());
             Assert.IsInstanceOfType(table.First().GetPresenter(configuration.ServiceProvider), typeof(TestPresenter));
         }
     }
