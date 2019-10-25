@@ -317,7 +317,10 @@ namespace DotVVM.Framework.Controls
             {
                 return;
             }
-            writer.AddKnockoutDataBind("class", classValue as IValueBinding, this);
+            if (classValue is IValueBinding classBinding)
+            {
+                writer.AddKnockoutDataBind("class", classBinding, this);
+            }
             AddHtmlAttribute(writer, "class", classValue);
         }
 
