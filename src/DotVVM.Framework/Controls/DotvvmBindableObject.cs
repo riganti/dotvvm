@@ -154,7 +154,7 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
-        /// Gets the binding set to a specified property. Returns null if the property is not set or if the value is not binding.
+        /// Gets the binding set to a specified property. Returns null if the property is not set or if the value is not a binding.
         /// </summary>
         public IBinding? GetBinding(DotvvmProperty property, bool inherit = true)
             => GetValueRaw(property, inherit) as IBinding;

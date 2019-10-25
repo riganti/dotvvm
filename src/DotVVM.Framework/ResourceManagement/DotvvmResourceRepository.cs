@@ -32,7 +32,7 @@ namespace DotVVM.Framework.ResourceManagement
         public IList<IResourceProcessor> DefaultResourceProcessors { get; } = new List<IResourceProcessor>();
 
         /// <summary>
-        /// Finds the resource with the specified name. Returns null when it's not found.
+        /// Finds the resource with the specified name. Returns null if it's not found.
         /// </summary>
         public IResource? FindResource(string name)
         {
@@ -129,7 +129,7 @@ namespace DotVVM.Framework.ResourceManagement
             this.Parents.TryAdd("", parent);
         }
 
-        /// <summary> Finds the resource with the specified name. Throws an exception when the resource is not found. </summary>
+        /// <summary> Finds the resource with the specified name. Throws an exception if the resource is not found. </summary>
         public NamedResource FindNamedResource(string name)
         {
             var r = FindResource(name);

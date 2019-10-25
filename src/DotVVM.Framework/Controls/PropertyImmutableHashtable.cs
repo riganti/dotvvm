@@ -122,7 +122,7 @@ namespace DotVVM.Framework.Controls
             return keys.All(k => FindSlot(table, hashSeed, k) >= 0);
         }
 
-        /// <summary> Builds the core of the property hash-table. Returns null if the table can not be built due to collisions. </summary>
+        /// <summary> Builds the core of the property hash table. Returns null if the table cannot be built due to collisions. </summary>
         static DotvvmProperty?[]? TryBuildTable(DotvvmProperty[] a, int size, int hashSeed)
         {
             var t = new DotvvmProperty?[size];

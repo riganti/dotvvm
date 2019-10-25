@@ -72,7 +72,7 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<string?, DotvvmControl>(c => c.ID, isValueInherited: false);
 
         /// <summary>
-        /// Gets id of the control that will be written in 'id' attribute. Gets null if the IDProperty is not set.
+        /// Gets id of the control that will be written in 'id' attribute. Returns null if the IDProperty is not set.
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.Exclude)]
         public string? ClientID => (string?)GetValue(ClientIDProperty) ?? CreateAndSaveClientId();
@@ -368,7 +368,7 @@ namespace DotVVM.Framework.Controls
         public T FindControl<T>(string id, bool throwIfNotFound = false) where T : DotvvmControl => FindControlInContainer<T>(id, throwIfNotFound);
 
         /// <summary>
-        /// Finds the control by its ID coded in markup. Does not recurse into naming containers. Returns null the <paramref name="throwIfNotFound" /> is false and the control is not found.
+        /// Finds a control by its ID coded in markup. Does not recurse into naming containers. Returns null if the <paramref name="throwIfNotFound" /> is false and the control is not found.
         /// </summary>
         public DotvvmControl? FindControlInContainer(string id, bool throwIfNotFound = false)
         {
@@ -383,7 +383,7 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
-        /// Finds the control by its ID coded in markup. Does not recurse into naming containers.
+        /// Finds a control by its ID coded in markup. Does not recurse into naming containers.
         /// </summary>
         public T FindControlInContainer<T>(string id, bool throwIfNotFound = false) where T : DotvvmControl
         {
@@ -396,7 +396,7 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
-        /// Finds the control by its ClientId - the id rendered to output html.
+        /// Finds a control by its ClientId - the id rendered to output html.
         /// </summary>
         public DotvvmControl? FindControlByClientId(string id, bool throwIfNotFound = false)
         {
@@ -411,7 +411,7 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
-        /// Finds the control by its ClientId - the id rendered to output html.
+        /// Finds a control by its ClientId - the id rendered to output html.
         /// </summary>
         public T FindControlByClientId<T>(string id, bool throwIfNotFound = false) where T : DotvvmControl
         {
@@ -424,7 +424,7 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
-        /// Finds the control by its unique ID. Returns null the control is not found.
+        /// Finds a control by its unique ID. Returns null if the control is not found.
         /// </summary>
         public DotvvmControl? FindControlByUniqueId(string controlUniqueId)
         {
