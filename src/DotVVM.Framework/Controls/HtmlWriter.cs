@@ -10,6 +10,7 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Resources;
 using DotVVM.Framework.Runtime;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Controls
 {
@@ -19,13 +20,16 @@ namespace DotVVM.Framework.Controls
     public class HtmlWriter : IHtmlWriter
     {
         private readonly TextWriter writer;
-        private readonly bool debug;
         private readonly IDotvvmRequestContext requestContext;
+        private readonly bool debug;
+        private readonly bool enableWarnings;
 
+        private DotvvmBindableObject errorContext;
         private List<(string name, string val, string separator, bool allowAppending)> attributes = new List<(string, string, string separator, bool allowAppending)>();
         private OrderedDictionary dataBindAttributes = new OrderedDictionary();
         private Stack<string> openTags = new Stack<string>();
         private bool tagFullyOpen = true;
+        private RuntimeWarningCollector WarningCollector => requestContext.Services.GetRequiredService<RuntimeWarningCollector>();
 
         public static bool IsSelfClosing(string s)
         {
@@ -60,6 +64,13 @@ namespace DotVVM.Framework.Controls
             this.writer = writer;
             this.requestContext = requestContext;
             this.debug = requestContext.Configuration.Debug;
+            this.enableWarnings = this.WarningCollector.Enabled;
+        }
+
+        internal void Warn(string message, Exception ex = null)
+        {
+            Debug.Assert(this.enableWarnings);
+            this.WarningCollector.Warn(new DotvvmRuntimeWarning(message, ex, this.errorContext));
         }
 
         public static string GetSeparatorForAttribute(string attributeName)
@@ -191,6 +202,9 @@ namespace DotVVM.Framework.Controls
         {
             RenderBeginTagCore(name);
             writer.Write("/>");
+
+            if (this.enableWarnings && !IsSelfClosing(name))
+                Warn($"Element {name} is not self-closing but is rendered as so. It may be interpreted as a start tag without an end tag by the browsers.");
         }
 
         private Dictionary<string, string> attributeMergeTable = new Dictionary<string, string>(23);
@@ -352,6 +366,9 @@ namespace DotVVM.Framework.Controls
                 writer.Write("</");
                 writer.Write(tag);
                 writer.Write(">");
+
+                if (this.enableWarnings && IsSelfClosing(tag))
+                    Warn($"Element {tag} is self-closing but contains content. The browser may interpret the start tag as self-closing and put the 'content' into its parent.");
             }
             else
             {
@@ -379,6 +396,7 @@ namespace DotVVM.Framework.Controls
             writer.Write(text ?? "");
         }
 
+        public void SetErrorContext(DotvvmBindableObject obj) => this.errorContext = obj;
     }
     public class HtmlElementInfo
     {
