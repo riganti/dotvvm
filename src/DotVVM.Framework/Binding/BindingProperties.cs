@@ -37,6 +37,20 @@ namespace DotVVM.Framework.Binding.Properties
         }
     }
 
+    /// <summary> Describes the expected shape of the data context hierarchy the binding delegate should receive - which contexts must be present. </summary>
+    public sealed class BindingDataContextExpectation
+    {
+        /// <summary> Lists indices of data contexts which the binding depends on. </summary>
+        public readonly ImmutableArray<int> DependsOn;
+
+        public BindingDataContextExpectation(ImmutableArray<int> dependsOn)
+        {
+            if (!dependsOn.SequenceEqual(dependsOn.Sort()))
+                throw new ArgumentException("The dependent context indices must be sorted (ascending)", nameof(dependsOn));
+            DependsOn = dependsOn;
+        }
+    }
+
     /// <summary>
     /// Contains string that identifies the translated binding.
     /// </summary>

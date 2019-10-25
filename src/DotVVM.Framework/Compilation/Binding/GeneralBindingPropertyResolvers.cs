@@ -55,6 +55,21 @@ namespace DotVVM.Framework.Compilation.Binding
             return Expression.Lambda<BindingDelegate>(expr, BindingCompiler.ViewModelsParameter, BindingCompiler.CurrentControlParameter);
         }
 
+        public BindingDataContextExpectation GetContextExpectation(
+            CastedExpressionBindingProperty expression, DataContextStack dataContext)
+        {
+            var dcStack = dataContext.EnumerableItems().ToArray();
+            var contextReferences =
+                expression.Expression.AllDescendants<Expression>()
+                .Select(n => n.GetParameterAnnotation() as BindingParameterAnnotation)
+                .Where(a => a != null && a.DataContext != null)
+                .Select(a => Array.IndexOf(dcStack, a.DataContext))
+                .Distinct()
+                .ToImmutableArray().Sort();
+
+            return new BindingDataContextExpectation(contextReferences);
+        }
+
         public CastedExpressionBindingProperty ConvertExpressionToType(ParsedExpressionBindingProperty expr, ExpectedTypeBindingProperty expectedType = null)
         {
             var destType = expectedType?.Type ?? typeof(object);

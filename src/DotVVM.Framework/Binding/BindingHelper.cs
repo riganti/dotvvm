@@ -79,9 +79,9 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Prepares DataContext hierarchy argument and executes update delegate.
         /// </summary>
-        public static void ExecUpdateDelegate(this BindingUpdateDelegate func, DotvvmBindableObject contextControl, object value)
+        public static void ExecUpdateDelegate(this BindingUpdateDelegate func, DotvvmBindableObject contextControl, object value, BindingDataContextExpectation contextExpectation = null)
         {
-            var dataContexts = GetDataContexts(contextControl);
+            var dataContexts = GetDataContexts(contextControl, contextExpectation);
             //var control = contextControl.GetClosestControlBindingTarget();
             func(dataContexts.ToArray(), contextControl, value);
         }
@@ -89,9 +89,9 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Prepares DataContext hierarchy argument and executes update delegate.
         /// </summary>
-        public static void ExecUpdateDelegate<T>(this BindingUpdateDelegate<T> func, DotvvmBindableObject contextControl, T value)
+        public static void ExecUpdateDelegate<T>(this BindingUpdateDelegate<T> func, DotvvmBindableObject contextControl, T value, BindingDataContextExpectation contextExpectation = null)
         {
-            var dataContexts = GetDataContexts(contextControl);
+            var dataContexts = GetDataContexts(contextControl, contextExpectation);
             //var control = contextControl.GetClosestControlBindingTarget();
             func(dataContexts.ToArray(), contextControl, value);
         }
@@ -99,40 +99,81 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Prepares DataContext hierarchy argument and executes update delegate.
         /// </summary>
-        public static object ExecDelegate(this BindingDelegate func, DotvvmBindableObject contextControl)
+        public static object ExecDelegate(this BindingDelegate func, DotvvmBindableObject contextControl, BindingDataContextExpectation contextExpectation = null)
         {
-            var dataContexts = GetDataContexts(contextControl);
+            var dataContexts = GetDataContexts(contextControl, contextExpectation);
             return func(dataContexts.ToArray(), contextControl);
         }
 
         /// <summary>
         /// Prepares DataContext hierarchy argument and executes update delegate.
         /// </summary>
-        public static T ExecDelegate<T>(this BindingDelegate<T> func, DotvvmBindableObject contextControl)
+        public static T ExecDelegate<T>(this BindingDelegate<T> func, DotvvmBindableObject contextControl, BindingDataContextExpectation contextExpectation = null)
         {
-            var dataContexts = GetDataContexts(contextControl);
+            var dataContexts = GetDataContexts(contextControl, contextExpectation);
             return func(dataContexts.ToArray(), contextControl);
         }
 
         /// <summary>
         /// Gets all data context on the path to root. Maximum count can be specified by `count`
         /// </summary>
-        public static IEnumerable<object> GetDataContexts(this DotvvmBindableObject contextControl, int count = -1)
+        public static IEnumerable<object> GetDataContexts(this DotvvmBindableObject contextControl, BindingDataContextExpectation contextExpectation = null)
         {
+            if (contextControl is null) throw new ArgumentNullException(nameof(contextControl));
+
+            int index = 0;
+            int expectedArrIndex = 0;
             var c = contextControl;
             while (c != null)
             {
-                // PERF: O(h^2) because GetValue calls another GetDataContexts
+                if (contextExpectation is object && contextExpectation.DependsOn.Length <= expectedArrIndex)
+                    yield break;
+
                 if (c.IsPropertySet(DotvvmBindableObject.DataContextProperty, inherit: false))
                 {
-                    yield return c.GetValue(DotvvmBindableObject.DataContextProperty);
-                    count--;
+                    if (contextExpectation is null ||
+                        contextExpectation.DependsOn[expectedArrIndex] == index)
+                    {
+                        expectedArrIndex++;
+                        yield return c.GetValue(DotvvmBindableObject.DataContextProperty);
+                    }
+                    else
+                    {
+                        yield return null; // this DataContext will get unused anyway
+                    }
+                    index++;
                 }
-
-                if (count == 0) yield break;
 
                 c = c.Parent;
             }
+        }
+
+        static bool IsDataContextPresent(this DotvvmBindableObject contextControl, BindingDataContextExpectation contextExpectation)
+        {
+            if (contextControl is null) throw new ArgumentNullException(nameof(contextControl));
+
+            int index = 0;
+            int expectedArrIndex = 0;
+            var c = contextControl;
+            while (c is object && contextExpectation.DependsOn.Length <= expectedArrIndex)
+            {
+                if (c.properties.TryGet(DotvvmBindableObject.DataContextProperty, out var dc))
+                {
+                    if (contextExpectation.DependsOn[expectedArrIndex] == index)
+                    {
+                        expectedArrIndex++;
+
+                        if (dc is null)
+                            return false;
+                        if (dc is IStaticValueBinding binding &&
+                            !IsDataContextPresent(c.Parent, binding.GetProperty<BindingDataContextExpectation>()))
+                            return false;
+                    }
+                    index++;
+                }
+                c = c.Parent;
+            }
+            return true;
         }
 
         /// <summary>
