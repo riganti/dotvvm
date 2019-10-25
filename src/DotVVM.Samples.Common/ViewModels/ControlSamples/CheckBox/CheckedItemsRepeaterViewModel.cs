@@ -8,11 +8,11 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.CheckBox
 {
     public class CheckedItemsRepeaterViewModel
     {
-        public Outer Data { get; set; } = new Outer();
+        public Outer Data { get; set; }
 
         public class Outer
         {
-            public IList<Inner> AllData { get; set; } = new List<Inner>();
+            public IList<Inner> AllData { get; set; }
 
             public IList<int> SelectedDataTestsIds { get; set; } = new List<int>();
         }
