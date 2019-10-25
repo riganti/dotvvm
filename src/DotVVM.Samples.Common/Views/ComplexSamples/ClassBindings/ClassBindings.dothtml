@@ -1,0 +1,43 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ComplexSamples.ClassBindings.ClassBindingsViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Additional CSS Classes</title>
+    <style>
+        .border {
+            border: 5px solid black;
+        }
+
+        .inverted {
+            background-color: black;
+            color: white;
+            border-color: white;
+        }
+
+        .orange {
+            background-color: orange !important;
+            color: orangered !important;
+            border-color: darkorange !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="{value: Classes}"
+         Class-border="{value: IsBorderEnabled}"
+         Class-inverted="{value: IsInvertedEnabled}">
+        Sample Text
+    </div>
+    <div>
+        Classes:
+        <dot:TextBox Text="{value: Classes}"/>
+    </div>
+    <div>
+        <dot:CheckBox Checked="{value: IsInvertedEnabled}">Inverted</dot:CheckBox>
+        <dot:CheckBox Checked="{value: IsBorderEnabled}">Border</dot:CheckBox>
+    </div>
+
+</body>
+</html>
