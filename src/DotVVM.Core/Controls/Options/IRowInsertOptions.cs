@@ -8,7 +8,7 @@
         where T : class, new()
     {
         /// <summary>
-        /// Gets or sets the row to be inserted to data source. Null means the row insertion is not activated.
+        /// Gets or sets the row to be inserted to data source. Null means that row insertion is not activated.
         /// </summary>
         new T? InsertedRow { get; set; }
     }
@@ -19,7 +19,7 @@
     public interface IRowInsertOptions
     {
         /// <summary>
-        /// Gets or sets the row to be inserted into data source. Null means the row insertion is not activated.
+        /// Gets or sets the row to be inserted into data source. Null means that row insertion is not activated.
         /// </summary>
         object? InsertedRow { get; }
     }

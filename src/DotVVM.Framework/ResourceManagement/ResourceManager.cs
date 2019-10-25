@@ -189,7 +189,7 @@ namespace DotVVM.Framework.ResourceManagement
         }
 
         /// <summary>
-        /// Finds the resource in required resources or in the resources registered in the configuration file. Throws an exception when resource is not found.
+        /// Finds a resource in required resources or in the resources registered in the configuration file. Throws an exception if the resource is not found.
         /// </summary>
         public IResource FindResource(string name)
         {
