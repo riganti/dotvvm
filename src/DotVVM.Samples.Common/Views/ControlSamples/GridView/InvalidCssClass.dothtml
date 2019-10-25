@@ -22,13 +22,12 @@
             <dot:Decorator Validator.ShowErrorMessageText="true" />
         </EditRowDecorators>
         <dot:GridViewCheckBoxColumn ValueBinding="{value: Is}"
-                                    IsControlValidated="true"
-                                    IsValidatorStandalone="true"
+                                    ValidatorPlacement="Standalone"
                                     HeaderText="Is"
                                     CssClass="is-input"/>
         <dot:GridViewTextColumn ValueBinding="{value: Name}"
                                 HeaderText="Name"
-                                IsControlValidated="true"
+                                ValidatorPlacement="Attached"
                                 CssClass="name-input" />
         <dot:GridViewTemplateColumn HeaderText="Value">
             <ContentTemplate>

@@ -65,6 +65,14 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty ValueBindingProperty =
             DotvvmProperty.Register<IValueBinding, GridViewTextColumn>(c => c.ValueBinding);
 
+        [MarkupOptions(AllowBinding = false)]
+        public ValidatorPlacement ValidatorPlacement
+        {
+            get { return (ValidatorPlacement)GetValue(ValidatorPlacementProperty); }
+            set { SetValue(ValidatorPlacementProperty, value); }
+        }
+        public static readonly DotvvmProperty ValidatorPlacementProperty
+            = DotvvmProperty.Register<ValidatorPlacement, GridViewTextColumn>(c => c.ValidatorPlacement, default);
 
         protected override string GetSortExpression()
         {
@@ -87,7 +95,7 @@ namespace DotVVM.Framework.Controls
             literal.ValueType = ValueType;
             #pragma warning restore
             literal.SetBinding(Literal.TextProperty, ValueBinding);
-
+            Validator.Place(literal, container.Children, ValueBinding, ValidatorPlacement);
             container.Children.Add(literal);
         }
 
@@ -101,9 +109,7 @@ namespace DotVVM.Framework.Controls
 
             textBox.SetBinding(TextBox.TextProperty, ValueBinding);
             textBox.SetBinding(TextBox.ChangedProperty, ChangedBinding);
-            textBox.SetBinding(Validator.ValueProperty, ValueBinding);
-            textBox.SetValueRaw(Validator.InvalidCssClassProperty, GetValueRaw(Validator.InvalidCssClassProperty));
-
+            Validator.Place(textBox, container.Children, ValueBinding, ValidatorPlacement);
             container.Children.Add(textBox);
         }
     }
