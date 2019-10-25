@@ -14,7 +14,7 @@ namespace DotVVM.Framework.Controls
     /// A GridView column which renders a text value (with formatting support) and can edit it in the TextBox control.
     /// </summary>
     [ControlMarkupOptions(AllowContent = false)]
-    public class GridViewTextColumn : GridViewValueColumn
+    public class GridViewTextColumn : GridViewColumn
     {
         /// <summary>
         /// Gets or sets the format string that will be applied to numeric or date-time values.
@@ -53,6 +53,19 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty ValueTypeProperty =
             DotvvmProperty.Register<FormatValueType, GridViewTextColumn>(t => t.ValueType);
 
+        /// <summary>
+        /// Gets or sets a binding which retrieves the value to display from the current data item.
+        /// </summary>
+        [MarkupOptions(Required = true)]
+        public IValueBinding ValueBinding
+        {
+            get { return GetValueBinding(ValueBindingProperty); }
+            set { SetValue(ValueBindingProperty, value); }
+        }
+        public static readonly DotvvmProperty ValueBindingProperty =
+            DotvvmProperty.Register<IValueBinding, GridViewTextColumn>(c => c.ValueBinding);
+
+
         protected override string GetSortExpression()
         {
             if (string.IsNullOrEmpty(SortExpression))
@@ -66,27 +79,32 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        protected override DotvvmControl CreateControl(IDotvvmRequestContext context)
+        public override void CreateControls(IDotvvmRequestContext context, DotvvmControl container)
         {
             var literal = new Literal();
             literal.FormatString = FormatString;
-#pragma warning disable
+            #pragma warning disable
             literal.ValueType = ValueType;
-#pragma warning restore
+            #pragma warning restore
             literal.SetBinding(Literal.TextProperty, ValueBinding);
-            return literal;
+
+            container.Children.Add(literal);
         }
 
-        protected override DotvvmControl CreateEditControl(IDotvvmRequestContext context)
+        public override void CreateEditControls(IDotvvmRequestContext context, DotvvmControl container)
         {
             var textBox = new TextBox();
             textBox.FormatString = FormatString;
-#pragma warning disable
+            #pragma warning disable
             textBox.ValueType = ValueType;
-#pragma warning restore
+            #pragma warning restore
+
             textBox.SetBinding(TextBox.TextProperty, ValueBinding);
             textBox.SetBinding(TextBox.ChangedProperty, ChangedBinding);
-            return textBox;
+            textBox.SetBinding(Validator.ValueProperty, ValueBinding);
+            textBox.SetValueRaw(Validator.InvalidCssClassProperty, GetValueRaw(Validator.InvalidCssClassProperty));
+
+            container.Children.Add(textBox);
         }
     }
 }
