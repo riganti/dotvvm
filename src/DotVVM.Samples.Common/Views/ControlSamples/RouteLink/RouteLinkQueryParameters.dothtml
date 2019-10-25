@@ -1,0 +1,25 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.RouteLink.RouteLinkQueryParametersViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <ul>
+        <li>
+            <dot:RouteLink class="link" Text="Test link" RouteName="ControlSamples_RouteLink_RouteLinkQueryParameters" Query-string="{value: TestString}" Query-int="{value: TestInteger}" />
+        </li>
+        <li>
+            <dot:LinkButton class="static-command" Click="{staticCommand: TestString = "change_static"; TestInteger = 6}" Text="Change static command" />
+        </li>
+        <li>
+            <dot:LinkButton class="command" Click="{command: TestString = "change"; TestInteger = 7}" Text="Change command" />
+        </li>
+    </ul>
+</body>
+</html>
+
+

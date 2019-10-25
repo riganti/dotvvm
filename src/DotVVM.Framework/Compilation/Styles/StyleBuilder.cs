@@ -7,6 +7,9 @@ using DotVVM.Framework.Utils;
 using System.Reflection;
 using DotVVM.Framework.Compilation.ControlTree;
 using System.Linq;
+using DotVVM.Framework.Controls;
+using DotVVM.Framework.Controls.Infrastructure;
+using System.Net;
 
 namespace DotVVM.Framework.Compilation.Styles
 {
@@ -25,10 +28,10 @@ namespace DotVVM.Framework.Compilation.Styles
             return field.GetValue(null) as DotvvmProperty;
         }
 
-        public StyleBuilder<T> SetProperty<TProperty>(Expression<Func<T, TProperty>> property, TProperty value)
+        public StyleBuilder<T> SetProperty<TProperty>(Expression<Func<T, TProperty>> property, TProperty value, StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
         {
             var propertyName = ReflectionUtils.GetMemberFromExpression(property.Body).Name;
-            return SetDotvvmProperty(GetProperty(propertyName), value);
+            return SetDotvvmProperty(GetProperty(propertyName), value, options);
         }
 
         public StyleBuilder<T> SetControlProperty<TControlType>(DotvvmProperty property, Action<StyleBuilder<TControlType>> styleBuilder = null,
@@ -37,15 +40,49 @@ namespace DotVVM.Framework.Compilation.Styles
             var innerControlStyleBuilder = new StyleBuilder<TControlType>(null, false);
             styleBuilder?.Invoke(innerControlStyleBuilder);
 
-            style.SetProperties[property] = new CompileTimeStyleBase.PropertyControlCollectionInsertionInfo(property, options,
-                new ControlResolverMetadata(typeof(TControlType)), innerControlStyleBuilder.GetStyle());
+            var value = new CompileTimeStyleBase.PropertyControlCollectionInsertionInfo(property, options,
+                new ControlResolverMetadata(typeof(TControlType)), innerControlStyleBuilder.GetStyle(), ctorParameters: null);
+            style.SetProperties.Add((property, value));
+
+            return this;
+        }
+
+        public StyleBuilder<T> SetHtmlControlProperty(DotvvmProperty property, string tag, Action<StyleBuilder<HtmlGenericControl>> styleBuilder = null, StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
+        {
+            if (tag == null)
+                throw new ArgumentNullException(nameof(tag));
+
+            var innerControlStyleBuilder = new StyleBuilder<HtmlGenericControl>(null, false);
+            styleBuilder?.Invoke(innerControlStyleBuilder);
+
+            var value = new CompileTimeStyleBase.PropertyControlCollectionInsertionInfo(property, options,
+                new ControlResolverMetadata(typeof(HtmlGenericControl)), innerControlStyleBuilder.GetStyle(), ctorParameters: new object[] { tag });
+
+            style.SetProperties.Add((property, value));
+
+            return this;
+        }
+
+        public StyleBuilder<T> SetLiteralControlProperty(DotvvmProperty property, string text, StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
+        {
+            var innerControlStyleBuilder = new StyleBuilder<RawLiteral>(null, false);
+
+            var ctorParameters = new object[] {
+                WebUtility.HtmlEncode(text),
+                text,
+                String.IsNullOrWhiteSpace(text)
+            };
+
+            var value = new CompileTimeStyleBase.PropertyControlCollectionInsertionInfo(property, options,
+                new ControlResolverMetadata(typeof(RawLiteral)), innerControlStyleBuilder.GetStyle(), ctorParameters);
+            style.SetProperties.Add((property, value));;
 
             return this;
         }
 
         public StyleBuilder<T> SetDotvvmProperty(ResolvedPropertySetter setter, StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
         {
-            style.SetProperties[setter.Property] = new CompileTimeStyleBase.PropertyInsertionInfo(setter, options);
+            style.SetProperties.Add((setter.Property, new CompileTimeStyleBase.PropertyInsertionInfo(setter, options)));
             return this;
         }
 

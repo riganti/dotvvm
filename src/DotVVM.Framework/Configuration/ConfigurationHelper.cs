@@ -15,7 +15,8 @@ namespace DotVVM.Framework.Configuration
         /// <param name="configuration">The DotVVM Framework configuration to use.</param>
         public static void AutoDiscoverControls(this DotvvmMarkupConfiguration configuration, IControlRegistrationStrategy strategy)
 		{
-			configuration.Controls.AddRange(strategy.GetControls());
+            foreach (var c in strategy.GetControls())
+                configuration.Controls.Add(c);
 		}
 	}
 }
