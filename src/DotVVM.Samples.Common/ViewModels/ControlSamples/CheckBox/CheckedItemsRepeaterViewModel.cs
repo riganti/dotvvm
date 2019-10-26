@@ -8,7 +8,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.CheckBox
 {
     public class CheckedItemsRepeaterViewModel
     {
-        public Outer Data { get; set; }
+        public Outer Data { get; set; } = new Outer();
 
         public class Outer
         {
