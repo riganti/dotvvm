@@ -6,11 +6,11 @@
 </head>
 <body>
     <p>
-        This sample tests the behaviour of a control command - a command invoking a method on a markup control.
-        (`CheckedItemsRepeaterWrapper.Update()` in this case.) The command sets a big a chunk of the viewmodel (the `Data` property).
+        This sample tests the behaviour of a control command - a command invoking a method from a markup control
+        (`CheckedItemsRepeaterWrapper.Update()` in this case). The command sets a big a chunk of the viewmodel (the `Data` property).
     </p>
     <p>
-        This command functions correctly as long as the `SelectedDataTestsIds` property is initialized to an empty array. If it is not initialized,
+        This command works correctly as long as the `SelectedDataTestsIds` property is initialized. If it is not initialized,
         a null value is send on the first postback, which the `checked` ko binding interprets as false and assigns `true` to the field when it's later clicked on.
         Naturally, an exception is thrown during deserialization since `bool` is not assignable to a list.
     </p>

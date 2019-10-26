@@ -14,7 +14,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.CheckBox
         {
             public IList<Inner> AllData { get; set; }
 
-            public IList<int> SelectedDataTestsIds { get; set; } = new List<int>();
+            public IList<int> SelectedDataTestsIds { get; set; }
         }
 
         public class Inner
