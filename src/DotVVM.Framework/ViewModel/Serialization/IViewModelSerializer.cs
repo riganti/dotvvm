@@ -20,5 +20,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
         ActionInfo ResolveCommand(IDotvvmRequestContext context, DotvvmView view);
 
         void AddPostBackUpdatedControls(IDotvvmRequestContext context, IEnumerable<(string name, string html)> postbackUpdatedControls);
+        void AddNewResources(IDotvvmRequestContext context);
     }
 }

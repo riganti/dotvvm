@@ -25,6 +25,11 @@ namespace DotVVM.Samples.BasicSamples
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddLogging(b => {
+                b.AddConsole();
+                b.SetMinimumLevel(LogLevel.Information);
+            });
+
             services.AddAuthentication("Scheme1")
                 .AddCookie("Scheme1", o => {
                     o.LoginPath = new PathString("/ComplexSamples/Auth/Login");

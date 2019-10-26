@@ -38,6 +38,11 @@ namespace DotVVM.Framework.Compilation
                 return new ResolvedPropertyControlCollection(property, Enumerable.Concat(firstCollection.Controls, secondCollection.Controls).ToList());
             }
 
+            if (a is ResolvedPropertyTemplate firstTemplate && b is ResolvedPropertyTemplate secondTemplate)
+            {
+                return new ResolvedPropertyTemplate(property, Enumerable.Concat(firstTemplate.Content, secondTemplate.Content).ToList());
+            }
+
             ResolvedBinding bindingA;
             Expression valA = GetExpression(a, out bindingA);
             ResolvedBinding bindingB;
