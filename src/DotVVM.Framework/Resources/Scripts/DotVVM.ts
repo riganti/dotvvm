@@ -398,7 +398,7 @@ class DotVVM {
                 errorCallback({ error: err });
                 return;
             }
-            
+
             var data = this.serialization.serialize({
                 args,
                 command,
@@ -555,7 +555,7 @@ class DotVVM {
         return new Promise<() => Promise<DotvvmAfterPostBackEventArgs>>(async (resolve, reject) => {
             const viewModelName = options.viewModelName!;
             const viewModel = this.viewModels[viewModelName].viewModel;
-            
+
             try {
                 await this.fetchCsrfToken(viewModelName);
             }
@@ -1321,6 +1321,14 @@ class DotVVM {
             }
         };
 
+        ko.bindingHandlers["dotvvm-checkedItems"] = {
+            after: ko.bindingHandlers.checked.after,
+            init: ko.bindingHandlers.checked.init,
+            options: ko.bindingHandlers.checked.options,
+            update: ko.bindingHandlers.checked.update,
+            preprocess: (value) => `(${value})()||[]`
+        }
+
         ko.bindingHandlers["dotvvm-UpdateProgress-Visible"] = {
             init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
                 element.style.display = "none";
@@ -1374,6 +1382,7 @@ class DotVVM {
 
             }
         };
+
         ko.bindingHandlers['dotvvm-table-columnvisible'] = {
             init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
                 let lastDisplay = "";
