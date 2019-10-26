@@ -7,6 +7,7 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
 using Newtonsoft.Json;
 using DotVVM.Framework.ViewModel.Serialization;
+using DotVVM.Framework.Runtime;
 
 namespace DotVVM.Framework.Controls
 {
@@ -21,11 +22,7 @@ namespace DotVVM.Framework.Controls
             var resourceManager = context.ResourceManager;
             if (resourceManager.BodyRendered) return;
             resourceManager.BodyRendered = true;  // set the flag before the resources are rendered, so they can't add more resources to the list during the render
-            foreach (var resource in resourceManager.GetNamedResourcesInOrder())
-            {
-                if (resource.Resource.RenderPosition == ResourceRenderPosition.Body)
-                    resource.RenderResourceCached(writer, context);
-            }
+            ResourcesRenderer.RenderResources(resourceManager, writer, context, ResourceRenderPosition.Body);
 
             // render the serialized viewmodel
             var serializedViewModel = ((DotvvmRequestContext) context).GetSerializedViewModel();
@@ -40,7 +37,23 @@ namespace DotVVM.Framework.Controls
 window.dotvvm.domUtils.onDocumentReady(function () {{
     window.dotvvm.init('root', {JsonConvert.ToString(CultureInfo.CurrentCulture.Name, '"', StringEscapeHandling.EscapeHtml)});
 }});");
+            writer.WriteUnencodedText(RenderWarnings(context));
             writer.RenderEndTag();
+        }
+
+        internal static string RenderWarnings(IDotvvmRequestContext context)
+        {
+            var result = "";
+            // propagate warnings to JS console
+            var collector = context.Services.GetService<RuntimeWarningCollector>();
+            if (!collector.Enabled) return result;
+
+            foreach (var w in collector.GetWarnings())
+            {
+                var msg = JsonConvert.ToString(w.ToString(), '"', StringEscapeHandling.EscapeHtml);
+                result += $"console.warn({msg});\n";
+            }
+            return result;
         }
     }
 }

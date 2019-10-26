@@ -62,7 +62,19 @@ namespace DotVVM.Framework.ResourceManagement
                     {
                         writer.AddAttribute("type", "text/javascript");
                         writer.RenderBeginTag("script");
-                        writer.WriteUnencodedText($"{LocationFallback.JavascriptCondition} || document.write({JsonConvert.ToString(link, '\'').Replace("<", "\\u003c")})");
+                        var script = JsonConvert.ToString(link, '\'').Replace("<", "\\u003c");
+                        writer.WriteUnencodedText(
+$@"if (!({LocationFallback.JavascriptCondition})) {{
+    var wrapper = document.createElement('div');
+    wrapper.innerHTML = {script};
+    var originalScript = wrapper.children[0];
+    var script = document.createElement('script');
+    script.src = originalScript.src;
+    script.type = originalScript.type;
+    script.text = originalScript.text;
+    script.id = originalScript.id;
+    document.head.appendChild(script);
+}}");
                         writer.RenderEndTag();
                     }
                 }

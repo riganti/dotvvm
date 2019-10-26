@@ -295,7 +295,6 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual("42", vm.TestViewModel2.SomeString);
         }
 
-
         [TestMethod]
         public void BindingCompiler_Valid_NamespaceAlias()
         {
@@ -409,6 +408,34 @@ namespace DotVVM.Framework.Tests.Binding
             var result = ExecuteBinding("SetStringProp2(StringProp + 'kk'); StringProp = StringProp2 + 'll'", new [] { new TestViewModel { StringProp = "a" } });
             Assert.AreEqual("akkll", result);
         }
+
+        [TestMethod]
+        public void BindingCompiler_SimpleBlockExpression_TaskSequence_TaskNonTask()
+        {
+            var vm = new TestViewModel4();
+            var resultTask = (Task)ExecuteBinding("Increment(); Number = Number * 5", new[] { vm });
+            resultTask.Wait();
+            Assert.AreEqual(5, vm.Number);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_SimpleBlockExpression_TaskSequence_NonTaskTask()
+        {
+            var vm = new TestViewModel4();
+            var resultTask = (Task)ExecuteBinding("Number = 10; Increment();", new[] { vm });
+            resultTask.Wait();
+            Assert.AreEqual(11, vm.Number);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_SimpleBlockExpression_TaskSequence_VoidTaskJoining()
+        {
+            var vm = new TestViewModel4();
+            var resultTask = (Task)ExecuteBinding("Increment(); Multiply()", new[] { vm });
+            resultTask.Wait();
+            Assert.AreEqual(10, vm.Number);
+        }
+
 
         [TestMethod]
         public void BindingCompiler_MultiBlockExpression()
@@ -604,20 +631,44 @@ namespace DotVVM.Framework.Tests.Binding
     {
         public int MyProperty { get; set; }
         public string SomeString { get; set; }
-
+        public DateTime NonNullableDate { get; set; }
+        public DateTime? NullableDate { get; set; }
+        public TestEnum Enum { get; set; }
+        public TestEnum? NullableEnum { get; set; }
         public IList<Something> Collection { get; set; }
-
+        public TestViewModel3 ChildObject { get; set; }
+        public TestStruct Struct { get; set; }
         public override string ToString()
         {
             return SomeString + ": " + MyProperty;
         }
     }
-
     class TestViewModel3 : DotvvmViewModelBase
     {
         public string SomeString { get; set; }
     }
 
+    class TestViewModel4
+    {
+        public int Number { get; set; }
+
+        public async Task Increment()
+        {
+            await Task.Delay(100);
+            Number += 1;
+        }
+
+        public Task Multiply()
+        {
+            Number *= 10;
+            return Task.Delay(100);
+        }
+    }
+
+    struct TestStruct
+    {
+        public int Int { get; set; }
+    }
     class Something
     {
         public bool Value { get; set; }

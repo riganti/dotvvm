@@ -5,10 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
-using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
-using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -22,6 +20,7 @@ using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Compilation;
 using Microsoft.Extensions.DependencyInjection;
+using DotVVM.Framework.Configuration;
 
 namespace DotVVM.Framework.Tests.Runtime.ControlTree
 {
@@ -29,14 +28,12 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
     public class DefaultControlTreeResolverTests
     {
         private DotvvmConfiguration configuration;
-        private IControlTreeResolver controlTreeResolver;
 
         [TestInitialize()]
         public void TestInit()
         {
             configuration = DotvvmTestHelper.CreateConfiguration();
             configuration.Markup.AddCodeControls("cc", typeof(ClassWithInnerElementProperty));
-            controlTreeResolver = configuration.ServiceProvider.GetRequiredService<IControlTreeResolver>();
         }
 
         [TestMethod]
@@ -410,6 +407,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         {
             var root = ParseSource(@"
 @baseType someBullshitttt
+@viewModel object
 <span />
 ");
             Assert.IsTrue(((DothtmlRootNode)root.DothtmlNode).Directives.First().HasNodeErrors);
@@ -435,6 +433,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         public void ResolvedTree_UnescapedAttributeValue()
         {
             var root = ParseSource(@"
+@viewModel object
 <div onclick='ahoj &gt; lao' />
  ");
             var column = root.Content.First(t => t.Metadata.Name == nameof(HtmlGenericControl));
@@ -518,6 +517,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         public void ResolvedTree_HtmlPrefixedAttributes()
         {
             var root = ParseSource(@"
+@viewModel object
 <div html:id='val' />");
             var attr = root.Content.First(n => n.Metadata.Type == typeof(HtmlGenericControl)).GetHtmlAttribute("id");
             Assert.AreEqual("val", attr.CastTo<ResolvedPropertyValue>().Value);
@@ -527,6 +527,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         public void ResolvedTree_RoleView_MultipleRoles()
         {
             var root = ParseSource(@"
+@viewModel object
 <dot:RoleView Roles='a, b, c, d, e, f'");
             var roles = root.Content.First(n => n.Metadata.Type == typeof(RoleView)).Properties[RoleView.RolesProperty].CastTo<ResolvedPropertyValue>().Value;
             Assert.IsInstanceOfType(roles, typeof(string[]));
@@ -538,6 +539,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         public void ResolvedTree_InnerElementProperty_String()
         {
             var root = ParseSource(@"
+@viewModel object
 <dot:Button>
     <PostBack.Handlers>
         <cc:ClassWithInnerElementProperty> AHOJ </cc:ClassWithInnerElementProperty>
@@ -554,6 +556,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         public void ResolvedTree_InnerElementProperty_WhitespaceString()
         {
             var root = ParseSource(@"
+@viewModel object
 <dot:Button>
     <PostBack.Handlers>
         <cc:ClassWithInnerElementProperty><Property>   </Property></cc:ClassWithInnerElementProperty>
@@ -570,6 +573,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         public void ResolvedTree_Invalid_Content()
         {
             var root = ParseSource(@"
+@viewModel object
 <dot:Button>
     <PostBack.Handlers>
         <cc:ClassWithoutInnerElementProperty> AHOJ </cc:ClassWithoutInnerElementProperty>
@@ -586,6 +590,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         public void ResolvedTree_InnerElementProperty_Controls()
         {
             var root = ParseSource(@"
+@viewModel object
 <cc:ClassWithDefaultDotvvmControlContent>some text</cc:ClassWithDefaultDotvvmControlContent>");
             var control = root.Content.First(n => n.Metadata.Type == typeof(ClassWithDefaultDotvvmControlContent));
             Assert.AreEqual(0, control.Content.Count);
@@ -596,6 +601,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         public void ResolvedTree_InnerElementProperty_WhitespaceControls()
         {
             var root = ParseSource(@"
+@viewModel object
 <cc:ClassWithDefaultDotvvmControlContent>
 
 
@@ -609,6 +615,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         public void ResolvedTree_InnerElementVirtualProperty_Controls()
         {
             var root = ParseSource(@"
+@viewModel object
 <cc:ClassWithDefaultDotvvmControlContent_NoDotvvmProperty>some text</cc:ClassWithDefaultDotvvmControlContent_NoDotvvmProperty>");
             var control = root.Content.First(n => n.Metadata.Type == typeof(ClassWithDefaultDotvvmControlContent_NoDotvvmProperty));
             Assert.AreEqual(0, control.Content.Count);
@@ -728,20 +735,8 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.IsFalse(control3[2].DothtmlNode.HasNodeErrors);
         }
 
-        private ResolvedTreeRoot ParseSource(string markup, string fileName = "default.dothtml")
-        {
-            var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(markup);
-
-            var parser = new DothtmlParser();
-            var tree = parser.Parse(tokenizer.Tokens);
-
-            return controlTreeResolver.ResolveTree(tree, fileName)
-                .CastTo<ResolvedTreeRoot>()
-                .ApplyAction(new DataContextPropertyAssigningVisitor().VisitView)
-                .ApplyAction(new StylingVisitor(configuration).VisitView)
-                .ApplyAction(ActivatorUtilities.CreateInstance<ControlUsageValidationVisitor>(configuration.ServiceProvider).VisitView);
-        }
+        private ResolvedTreeRoot ParseSource(string markup, string fileName = "default.dothtml", bool checkErrors = false) =>
+            DotvvmTestHelper.ParseResolvedTree(markup, fileName, this.configuration, checkErrors);
 
     }
 
@@ -879,7 +874,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
     public class ControlWithOverridenRules : ControlWithValidationRules
     {
-        [ControlUsageValidator]
+        [ControlUsageValidator(Override = true)]
         public static IEnumerable<ControlUsageError> Validate(ResolvedControl control)
         {
             yield break;

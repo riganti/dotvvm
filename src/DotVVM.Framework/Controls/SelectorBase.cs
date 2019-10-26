@@ -1,7 +1,12 @@
 using System;
+using System.Collections.Generic;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
+using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Compilation.Validation;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls
 {
@@ -29,26 +34,26 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the name of property in the DataSource collection that will be displayed in the control.
         /// </summary>
-        [Obsolete("Use ItemTextBinding property instead")]
+        [Obsolete("Use ItemTextBinding property instead", true)]
         public string DisplayMember
         {
             get { return (string)GetValue(DisplayMemberProperty); }
             set { SetValue(DisplayMemberProperty, value); }
         }
-        [Obsolete("Use ItemTextBinding property instead")]
+        [Obsolete("Use ItemTextBinding property instead", true)]
         public static readonly DotvvmProperty DisplayMemberProperty =
             DotvvmProperty.Register<string, SelectorBase>(t => t.DisplayMember, "");
 
         /// <summary>
         /// Gets or sets the name of property in the DataSource collection that will be passed to the SelectedValue property when the item is selected.
         /// </summary>
-        [Obsolete("Use ItemValueBinding property instead")]
+        [Obsolete("Use ItemValueBinding property instead", true)]
         public string ValueMember
         {
             get { return (string)GetValue(ValueMemberProperty); }
             set { SetValue(ValueMemberProperty, value); }
         }
-        [Obsolete("Use ItemValueBinding property instead")]
+        [Obsolete("Use ItemValueBinding property instead", true)]
         public static readonly DotvvmProperty ValueMemberProperty =
             DotvvmProperty.Register<string, SelectorBase>(t => t.ValueMember, "");
 
@@ -104,5 +109,34 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty ItemTitleBindingProperty =
             DotvvmProperty.Register<IValueBinding, SelectorBase>(nameof(ItemTitleBinding));
+
+        [ControlUsageValidator]
+        public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
+        {
+            if (control.Properties.ContainsKey(SelectorBase.ItemValueBindingProperty) &&
+                control.Properties.GetValue(SelectorBase.ItemValueBindingProperty) is ResolvedPropertyBinding valueBinding)
+            {
+                var t = valueBinding.Binding.ResultType;
+                if (!t.IsPrimitiveTypeDescriptor())
+                {
+                    yield return new ControlUsageError("Return type of ItemValueBinding has to be a primitive type!", valueBinding.DothtmlNode);
+                }
+            }
+        }
+
+        [ControlUsageValidator]
+        [Obsolete("This must be obsolete to compile...")]
+        public static IEnumerable<ControlUsageError> ValidateObsoleteProperties(ResolvedControl control)
+        {
+            // validate usage of obsolete properties
+            if (control.Properties.GetValueOrDefault(DisplayMemberProperty) is ResolvedPropertySetter displayMember)
+            {
+                yield return new ControlUsageError("Property DisplayMemberProperty is obsolete. Please use ItemTextBinding instead.", displayMember.DothtmlNode);
+            }
+            if (control.Properties.GetValueOrDefault(ValueMemberProperty) is ResolvedPropertySetter valueMember)
+            {
+                yield return new ControlUsageError("Property DisplayMemberProperty is obsolete. Please use ItemValueBinding instead.", valueMember.DothtmlNode);
+            }
+        }
     }
 }

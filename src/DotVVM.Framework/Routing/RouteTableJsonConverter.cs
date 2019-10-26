@@ -50,7 +50,7 @@ namespace DotVVM.Framework.Routing
             writer.WriteEndObject();
         }
 
-        class ErrorRoute : RouteBase
+        sealed class ErrorRoute : RouteBase
         {
             private readonly Exception error;
 
@@ -66,6 +66,10 @@ namespace DotVVM.Framework.Routing
             public override bool IsMatch(string url, out IDictionary<string, object> values) => throw new InvalidOperationException($"Could not create route {RouteName}", error);
 
             protected override string BuildUrlCore(Dictionary<string, object> values) => throw new InvalidOperationException($"Could not create route {RouteName}", error);
+            protected override void Freeze2()
+            {
+                // no mutable properties in this class
+            }
         }
     }
 }
