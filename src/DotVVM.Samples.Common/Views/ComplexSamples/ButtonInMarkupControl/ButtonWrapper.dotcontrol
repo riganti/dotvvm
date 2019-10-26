@@ -3,11 +3,13 @@
 
 <div>
     <dot:Button ButtonTagName="button"
+                data-ui="btn-on"
                 Text="On"
                 Enabled="{value:  _control.Enabled}"
                 Click="{command: _control.OnCommand}">
     </dot:Button>
     <dot:Button ButtonTagName="button"
+                data-ui="btn-off"
                 Text="Off"
                 Enabled="{value: !_control.Enabled}"
                 Click="{command:  _control.OffCommand}">

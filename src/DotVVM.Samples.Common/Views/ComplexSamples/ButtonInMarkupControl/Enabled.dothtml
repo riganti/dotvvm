@@ -3,9 +3,12 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <title></title>
+    <title>Button In a Markup Control</title>
 </head>
 <body>
+    <p>
+        Sample for a markup control with two command-bound buttons that has server rendering and `PostBack.Update` enabled.
+    </p>
     <div DataContext="{value: Dto}"
          RenderSettings.Mode="Server">
         <sample:ButtonWrapper Enabled="{value: _root.Enabled}"
@@ -16,7 +19,7 @@
     </div>
     <div>
         <label>Enabled</label>
-        <span>{{value: Enabled}}</span>
+        <span data-ui="enabled">{{value: Enabled}}</span>
     </div>
 </body>
 </html>
