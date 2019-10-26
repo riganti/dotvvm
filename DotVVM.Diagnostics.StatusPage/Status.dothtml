@@ -228,7 +228,6 @@
 
     <script>
         function changeTab(item) {
-
             document.getElementsByClassName("tab-pane active")[0].classList.remove("active");
             document.getElementById(item.getAttribute("data-toggle")).classList.add("active");
             document.getElementsByClassName("nav-link active")[0].classList.remove("active");

@@ -31,7 +31,7 @@
     <EmbeddedResource Include="Status.dothtml" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="DotVVM" Version="2.3.0" />
+    <PackageReference Include="DotVVM" Version="2.4.0-preview04-58821" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>

@@ -25,12 +25,13 @@
         <None Remove="dotvvm_serialized_config.json.tmp" />
         <None Remove="Views\BindingsTest.dothtml" />
         <None Remove="Views\BindingsTestError.dothtml" />
+        <None Remove="Views\ControlTestError.dothtml" />
         <None Remove="Views\NestedControlTest.dothtml" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.3" />
-        <PackageReference Include="DotVVM.AspNetCore" Version="2.3.0" />
+        <PackageReference Include="DotVVM.AspNetCore" Version="2.4.0-preview04-58821" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\DotVVM.Diagnostics.StatusPage\DotVVM.Diagnostics.StatusPage.csproj" />
