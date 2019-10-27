@@ -2,12 +2,25 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch SeleniumGenerator at Samples.Compiler.Net461.Owin",
+      "name": "Launch SeleniumGenerator (OWIN)",
+      "type": "clr",
+      "request": "launch",
+      "preLaunchTask": "build-command-line-net472",
+      "program": "${workspaceFolder}/DotVVM.CommandLine/bin/Debug/net472/dotnet-dotvvm.exe",
+      "cwd": "${workspaceFolder}/DotVVM.Samples.SeleniumGenerator.Owin",
+      "args": [
+        "gut"
+      ],
+      "stopAtEntry": false,
+      "console": "internalConsole"
+    },
+    {
+      "name": "Launch SeleniumGenerator (ANC)",
       "type": "coreclr",
       "request": "launch",
-      "preLaunchTask": "build-command-line",
+      "preLaunchTask": "build-command-line-netcoreapp2.1",
       "program": "${workspaceFolder}/DotVVM.CommandLine/bin/Debug/netcoreapp2.1/dotnet-dotvvm.dll",
-      "cwd": "${workspaceFolder}/DotVVM.Samples.Compiler.Net461.Owin",
+      "cwd": "${workspaceFolder}/DotVVM.Samples.SeleniumGenerator.ANC",
       "args": [
         "gut"
       ],

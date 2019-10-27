@@ -14,7 +14,7 @@
       "problemMatcher": "$msCompile"
     },
     {
-      "label": "build-command-line",
+      "label": "build-command-line-netcoreapp2.1",
       "command": "dotnet",
       "type": "shell",
       "dependsOn": [
@@ -22,6 +22,25 @@
       ],
       "args": [
         "build",
+        "--framework",
+        "netcoreapp2.1",
+        "${workspaceFolder}/DotVVM.CommandLine/DotVVM.CommandLine.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-command-line-net472",
+      "command": "dotnet",
+      "type": "shell",
+      "dependsOn": [
+        "build-selenium-generator"
+      ],
+      "args": [
+        "build",
+        "--framework",
+        "net472",
         "${workspaceFolder}/DotVVM.CommandLine/DotVVM.CommandLine.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"

@@ -132,10 +132,7 @@ namespace DotVVM.CommandLine.Commands.Logic.BindingRedirects
         public static string Locate(string csprojPath)
         {
             var csproj = new FileInfo(csprojPath);
-            var webConfig = csproj.Directory.GetFiles("Web.Config", new EnumerationOptions {
-                MatchCasing = MatchCasing.CaseInsensitive,
-                RecurseSubdirectories = false
-            }).SingleOrDefault();
+            var webConfig = csproj.Directory.GetFiles("Web.Config").SingleOrDefault();
             return webConfig?.FullName;
         }
 
