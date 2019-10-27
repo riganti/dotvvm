@@ -6,6 +6,7 @@ using DotVVM.CommandLine.Commands.Handlers;
 using DotVVM.CommandLine.Core;
 using DotVVM.CommandLine.Core.Arguments;
 using DotVVM.CommandLine.Core.Metadata;
+using Microsoft.Build.Locator;
 
 namespace DotVVM.CommandLine
 {
@@ -13,6 +14,13 @@ namespace DotVVM.CommandLine
     {
         public static void Main(string[] args)
         {
+            //================================
+            // The following call ensures that correct Microsoft.Build.* dlls get loaded when
+            // they're needed by e.g. ProjectUtils.
+            // TL;DR Leave it here and don't worry about it.
+            MSBuildLocator.RegisterDefaults();
+            //================================
+
             var currentDirectory = Directory.GetCurrentDirectory();
             Console.WriteLine(" > " + currentDirectory);
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using DotVVM.CommandLine.Commands.Logic.BindingRedirects;
 using DotVVM.Utils.ProjectService;
 using DotVVM.Utils.ProjectService.Lookup;
 using DotVVM.Utils.ProjectService.Operations.Providers;
@@ -83,7 +84,11 @@ namespace DotVVM.CommandLine.Commands.Logic.Compiler
 
         protected virtual void CreateWebConfigFile(DotvvmToolMetadata result, IResolvedProjectMetadata loadedAssembly)
         {
-            //    throw new NotImplementedException();
+            var path = WebConfig.Locate(result.MainModulePath);
+            var webConfig = WebConfig.Load(path);
+            WebConfig.UpdateRedirects(webConfig, loadedAssembly);
+            // TODO: Save, but where?
+            // WebConfig.Save(webConfig, ???);
         }
 
         protected virtual void CreateDepsFile(DotvvmToolMetadata toolMetadata, IResolvedProjectMetadata loadedAssembly)

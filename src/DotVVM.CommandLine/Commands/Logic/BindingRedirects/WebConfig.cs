@@ -129,9 +129,9 @@ namespace DotVVM.CommandLine.Commands.Logic.BindingRedirects
             public AssemblyBinding AssemblyBinding { get; set; }
         }
 
-        public static string Locate(string csprojPath)
+        public static string Locate(string filePath)
         {
-            var csproj = new FileInfo(csprojPath);
+            var csproj = new FileInfo(filePath);
             var webConfig = csproj.Directory.GetFiles("Web.Config").SingleOrDefault();
             return webConfig?.FullName;
         }

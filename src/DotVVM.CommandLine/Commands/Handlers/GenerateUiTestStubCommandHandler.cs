@@ -5,6 +5,7 @@ using DotVVM.CommandLine.Commands.Core;
 using DotVVM.CommandLine.Commands.Logic.SeleniumGenerator;
 using DotVVM.CommandLine.Core.Arguments;
 using DotVVM.CommandLine.Core.Metadata;
+using DotVVM.CommandLine.ProjectSystem;
 using DotVVM.Utils.ProjectService.Lookup;
 
 namespace DotVVM.CommandLine.Commands.Handlers
@@ -36,11 +37,10 @@ namespace DotVVM.CommandLine.Commands.Handlers
         public override void Handle(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
         {
             var appFullPath = Path.GetFullPath(dotvvmProjectMetadata.ProjectDirectory);
-            var searcher = new ProjectSystemProvider();
-            var metadata = searcher.GetProjectMetadata(appFullPath).FirstOrDefault();
+            var metadata = ProjectUtils.ResolveMetadata(appFullPath);
             dotvvmProjectMetadata.WebAssemblyPath = metadata?.AssemblyPath;
 
-            SeleniumGeneratorLauncher.Start(args, dotvvmProjectMetadata,metadata);
+            SeleniumGeneratorLauncher.Start(args, dotvvmProjectMetadata, metadata);
         }
     }
 }

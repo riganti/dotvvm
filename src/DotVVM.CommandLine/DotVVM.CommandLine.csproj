@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyTitle>DotVVM.CommandLine</AssemblyTitle>
@@ -52,6 +52,9 @@
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Build" Version="16.3.0" ExcludeAssets="runtime"/>
+    <PackageReference Include="Microsoft.Build.Framework" Version="16.3.0" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.Build.Locator" Version="1.2.6"/>
     <PackageReference Include="NSwag.CodeGeneration" Version="11.14.1" />
     <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="11.14.1" />
     <PackageReference Include="NSwag.CodeGeneration.Typescript" Version="11.14.1" />
