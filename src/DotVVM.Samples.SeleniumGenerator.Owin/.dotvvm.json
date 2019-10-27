@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "projectName": "DotVVM.Samples.SeleniumGenerator.Owin",
+  "rootNamespace": "DotVVM.Samples.SeleniumGenerator.Owin",
+  "uiTestProjectPath": null,
+  "uiTestProjectRootNamespace": null,
+  "metadataFilePath": "C:\\dev\\dotvvm\\src\\DotVVM.Samples.SeleniumGenerator.Owin\\.dotvvm.json",
+  "projectDirectory": "C:\\dev\\dotvvm\\src\\DotVVM.Samples.SeleniumGenerator.Owin",
+  "webAssemblyPath": null,
+  "apiClients": []
+}
