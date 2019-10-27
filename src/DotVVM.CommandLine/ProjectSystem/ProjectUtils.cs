@@ -13,22 +13,37 @@ namespace DotVVM.CommandLine.ProjectSystem
     public static class ProjectUtils
     {
         public const string AssemblyNameProperty = "AssemblyName";
-        public const string ResolveReferencesTarget = "ResolveReferences";
-        public const string ResolveProjectReferencesTarget = "ResolveProjectReferences";
+        public const string CollectPackageReferencesTarget = "CollectPackageReferences";
         public const string ProjectReferenceItemType = "ProjectReference";
+        public const string ReferenceItemType = "Reference";
 
         public static IResolvedProjectMetadata ResolveMetadata(string projectDirectory)
         {
             var csproj = new DirectoryInfo(projectDirectory).GetFiles("*.csproj").Single();
             var project = new Project(csproj.FullName);
             var projectInstance = BuildManager.DefaultBuildManager.GetProjectInstanceForBuild(project);
+
+            var dependencies = new List<ProjectDependency>();
+            dependencies.AddRange(projectInstance.GetItems(ProjectReferenceItemType)
+                .Select(r => new ProjectDependency {
+                    IsProjectReference = true,
+                    ProjectPath = r.EvaluatedInclude,
+                    Version = r.GetMetadata("Version")?.EvaluatedValue
+                }));
+            dependencies.AddRange(projectInstance.GetItems(ReferenceItemType)
+                .Select(r => new ProjectDependency {
+                    Name = r.EvaluatedInclude,
+                    Version = r.GetMetadata("Version")?.EvaluatedValue
+                }));
+            var packagesRequest = new BuildRequestData(projectInstance, new[] { CollectPackageReferencesTarget });
+            var packagesResult = BuildManager.DefaultBuildManager.Build(null, packagesRequest);
+            if (packagesResult.OverallResult == BuildResultCode.Success)
             {
-                var request = new BuildRequestData(projectInstance, new[] { ResolveProjectReferencesTarget });
-                var result = BuildManager.DefaultBuildManager.Build(null, request);
-            }
-            {
-                var request = new BuildRequestData(projectInstance, new[] { ResolveReferencesTarget });
-                var result = BuildManager.DefaultBuildManager.Build(null, request);
+                dependencies.AddRange(packagesResult.ResultsByTarget[CollectPackageReferencesTarget].Items
+                    .Select(i => new ProjectDependency {
+                        Name = i.ItemSpec,
+                        Version = i.GetMetadata("Version")
+                    }));
             }
             var assemblyName = projectInstance.GetProperty(AssemblyNameProperty)?.EvaluatedValue;
             return new ResolvedProjectMetadata {
@@ -37,7 +52,7 @@ namespace DotVVM.CommandLine.ProjectSystem
                 CsprojFullName = csproj.FullName,
                 CsprojVersion = default, // TODO: Maybe use UsingMicrosoftNETSdk or NETCoreSdkVersion
                 DotvvmPackageNugetFolders = null, // TODO
-                DotvvmProjectDependencies = null,
+                DotvvmProjectDependencies = dependencies,
                 PackageNugetFolders = null, // TODO
                 ProjectRootDirectory = projectDirectory, // TODO
                 RunDotvvmCompiler = false, // TODO
