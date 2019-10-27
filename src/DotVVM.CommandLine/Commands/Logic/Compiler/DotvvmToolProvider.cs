@@ -88,7 +88,7 @@ namespace DotVVM.CommandLine.Commands.Logic.Compiler
 
         protected virtual void CreateDepsFile(DotvvmToolMetadata toolMetadata, IResolvedProjectMetadata loadedAssembly)
         {
-            //TODO: this part is not needed right now. When the loading graph is not working this part is the first one to finish. 
+            //TODO: this part is not needed right now. When the loading graph is not working this part is the first one to finish.
             //var depsProjectFile = Path.Combine(Path.GetDirectoryName(loadedAssembly.AssemblyPath), Path.GetFileNameWithoutExtension(loadedAssembly.AssemblyPath) + ".deps.json");
             //var depsToolFile = Path.Combine(Path.GetDirectoryName(toolMetadata.MainModulePath), Path.GetFileNameWithoutExtension(toolMetadata.MainModulePath) + ".deps.json");
             //var projsDeps = JObject.Load(new JsonTextReader(new StreamReader(depsProjectFile)));
