@@ -1,33 +1,44 @@
 {
-    // See https://go.microsoft.com/fwlink/?LinkId=733558
-    // for the documentation about the tasks.json format
-    "version": "0.1.0",
-    "command": "dotnet",
-    "isShellCommand": true,
-    "args": [ ],
-    "tasks": [
-        {
-            "taskName": "build",
-            "args": [ "DotVVM.Samples.BasicSamples.AspNetCore/", "/p:GenerateFullPaths=true" ],
-            "isBuildCommand": true,
-            "showOutput": "silent",
-            "problemMatcher": "$msCompile"
-        },
-        {
-            "taskName": "build-cli",
-            "command": "build",
-            "args": [ "DotVVM.CommandLine" ],
-            "isBuildCommand": true,
-            "showOutput": "always",
-            "problemMatcher": "$msCompile"
-        },
-        {
-            "taskName": "build-tests",
-            "command": "build",
-            "args": [ "DotVVM.Framework.Tests.Common" ],
-            "isBuildCommand": true,
-            "showOutput": "always",
-            "problemMatcher": "$msCompile"
-        }
-    ]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build-samples",
+      "command": "dotnet",
+      "type": "shell",
+      "args": [
+        "build",
+        "${workspaceFolder}/DotVVM.Samples.BasicSamples.AspNetCoreLatest/DotVVM.Samples.BasicSamples.AspNetCoreLatest.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-command-line",
+      "command": "dotnet",
+      "type": "shell",
+      "dependsOn": [
+        "build-selenium-generator"
+      ],
+      "args": [
+        "build",
+        "${workspaceFolder}/DotVVM.CommandLine/DotVVM.CommandLine.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-selenium-generator",
+      "command": "dotnet",
+      "type": "shell",
+      "args": [
+        "build",
+        "${workspaceFolder}/DotVVM.Framework.Tools.SeleniumGenerator/DotVVM.Framework.Tools.SeleniumGenerator.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    }
+  ]
 }
