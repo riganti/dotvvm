@@ -1014,9 +1014,7 @@ var DotVVM = /** @class */ (function () {
             queue.noRunning++;
             dotvvm.updateProgressChangeCounter(dotvvm.updateProgressChangeCounter() + 1);
             var dispatchNext = function (args) {
-                var drop = function (a) {
-                    console.log("Update progress drop! " + Date.now().toLocaleString());
-                    console.log(a);
+                var drop = function () {
                     queue.noRunning--;
                     dotvvm.updateProgressChangeCounter(dotvvm.updateProgressChangeCounter() - 1);
                     if (queue.queue.length > 0) {
@@ -1028,7 +1026,7 @@ var DotVVM = /** @class */ (function () {
                     args.redirectPromise.then(drop, drop);
                 }
                 else {
-                    drop("No promise");
+                    drop();
                 }
             };
             return promise.then(function (result) {

@@ -165,9 +165,7 @@ class DotVVM {
         dotvvm.updateProgressChangeCounter(dotvvm.updateProgressChangeCounter() + 1);
 
         const dispatchNext = (args) => {
-            const drop = (a) => {
-                console.log("Update progress drop! " + Date.now().toLocaleString());
-                console.log(a);
+            const drop = () => {
                 queue.noRunning--;
                 dotvvm.updateProgressChangeCounter(dotvvm.updateProgressChangeCounter() - 1);
                 if (queue.queue.length > 0) {
@@ -178,7 +176,7 @@ class DotVVM {
             if (args instanceof DotvvmAfterPostBackWithRedirectEventArgs && args.redirectPromise) {
                 args.redirectPromise.then(drop, drop);
             } else {
-                drop("No promise");
+                drop();
             }
 
 
