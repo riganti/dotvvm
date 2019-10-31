@@ -2,13 +2,8 @@
 /// <reference path="typings/knockout/knockout.dotvvm.d.ts" />
 /// <reference path="typings/globalize/globalize.d.ts" />
 
-interface Document {
-    getElementByDotvvmId(id: string): HTMLElement;
-}
-
-document.getElementByDotvvmId = function (id) {
-    return <HTMLElement>document.querySelector(`[data-dotvvm-id='${id}']`);
-}
+import { getElementByDotvvmId } from './utils/dom'
+import { DotvvmValidation } from './DotVVM.Validation'
 
 interface IRenderedResourceList {
     [name: string]: string;
@@ -45,7 +40,7 @@ interface IDotvvmPostbackHandlerCollection {
     suppress: (options: { suppress?: boolean }) => SuppressPostBackHandler;
 }
 
-class DotVVM {
+export class DotVVM {
     private postBackCounter = 0;
     private lastStartedPostack = 0;
     private fakeRedirectAnchor: HTMLAnchorElement;
@@ -1059,7 +1054,7 @@ class DotVVM {
     private cleanUpdatedControls(resultObject: any, updatedControls: any = {}) {
         for (var id in resultObject.updatedControls) {
             if (resultObject.updatedControls.hasOwnProperty(id)) {
-                var control = document.getElementByDotvvmId(id);
+                var control = getElementByDotvvmId(id);
                 if (control) {
                     var dataContext = ko.contextFor(control);
                     var nextSibling = control.nextSibling;
@@ -1098,7 +1093,7 @@ class DotVVM {
                 try {
                     this.isViewModelUpdating = true;
                     for (var id in resultObject.updatedControls) {
-                        var updatedControl = document.getElementByDotvvmId(id);
+                        var updatedControl = getElementByDotvvmId(id);
                         if (updatedControl) {
                             ko.applyBindings(updatedControls[id].dataContext, updatedControl);
                         }

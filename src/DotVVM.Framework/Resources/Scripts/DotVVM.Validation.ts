@@ -1,6 +1,8 @@
 /// <reference path="typings/knockout/knockout.d.ts" />
 /// <reference path="DotVVM.ts" />
 
+import * as evaluator from './DotVVM.Evaluator'
+
 class DotvvmValidationContext {
     constructor(public valueToValidate: any, public parentViewModel: any, public parameters: any[]) {
     }
@@ -174,7 +176,7 @@ type ValidationSummaryBinding = {
     includeErrorsFromTarget: boolean
 }
 
-class DotvvmValidation {
+export class DotvvmValidation {
     public rules: DotvvmValidationRules = {
         "required": new DotvvmRequiredValidator(),
         "regularExpression": new DotvvmRegularExpressionValidator(),
@@ -237,7 +239,7 @@ class DotvvmValidation {
                     options.additionalPostbackData.validationTargetPath = path;
                     // resolve target
                     var context = ko.contextFor(options.sender);
-                    var validationTarget = dotvvm.evaluator.evaluateOnViewModel(context, path);
+                    var validationTarget = evaluator.evaluateOnViewModel(context, path);
 
                     this.detachAllErrors();
                     this.validateViewModel(validationTarget);
@@ -505,7 +507,7 @@ class DotvvmValidation {
     public showValidationErrorsFromServer(args: DotvvmAfterPostBackEventArgs) {
         // resolve validation target
         var context = ko.contextFor(args.sender);
-        var validationTarget = <KnockoutObservable<any>>dotvvm.evaluator.evaluateOnViewModel(
+        var validationTarget = <KnockoutObservable<any>>evaluator.evaluateOnViewModel(
             context,
             args.postbackOptions.additionalPostbackData.validationTargetPath);
         if (!validationTarget) {
@@ -522,7 +524,7 @@ class DotvvmValidation {
                 if (ko.isObservable(validationTarget)) {
                     validationTarget = ko.unwrap(validationTarget);
                 }
-                property = dotvvm.evaluator.evaluateOnViewModel(validationTarget, propertyPath);
+                property = evaluator.evaluateOnViewModel(validationTarget, propertyPath);
             }
             else {
                 property = validationTarget
@@ -555,7 +557,7 @@ class DotvvmValidation {
         let errorMessages = errors.map(v => v.errorMessage);
         for (const option in validatorOptions) {
             if (validatorOptions.hasOwnProperty(option)) {
-                dotvvm.validation.elementUpdateFunctions[option](
+                this.elementUpdateFunctions[option](
                     validator,
                     errorMessages,
                     validatorOptions[option]);
