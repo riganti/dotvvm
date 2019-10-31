@@ -148,7 +148,9 @@ namespace DotVVM.Framework.Binding
 
         public bool Contains(KeyValuePair<string, TValue> item)
         {
+#pragma warning disable CS8717
             return TryGetValue(item.Key, out var realValue) && object.Equals(realValue, item.Value);
+#pragma warning restore CS8717
         }
 
         public void CopyTo(KeyValuePair<string, TValue>[] array, int arrayIndex)

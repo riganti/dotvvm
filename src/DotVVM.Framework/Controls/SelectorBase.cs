@@ -130,11 +130,11 @@ namespace DotVVM.Framework.Controls
         public static IEnumerable<ControlUsageError> ValidateObsoleteProperties(ResolvedControl control)
         {
             // validate usage of obsolete properties
-            if (FunctionalExtensions.GetValueOrDefault(control.Properties, DisplayMemberProperty) is ResolvedPropertySetter displayMember)
+            if (control.Properties.GetValueOrDefault(DisplayMemberProperty) is ResolvedPropertySetter displayMember)
             {
                 yield return new ControlUsageError("Property DisplayMemberProperty is obsolete. Please use ItemTextBinding instead.", displayMember.DothtmlNode);
             }
-            if (FunctionalExtensions.GetValueOrDefault(control.Properties, ValueMemberProperty) is ResolvedPropertySetter valueMember)
+            if (control.Properties.GetValueOrDefault(ValueMemberProperty) is ResolvedPropertySetter valueMember)
             {
                 yield return new ControlUsageError("Property DisplayMemberProperty is obsolete. Please use ItemValueBinding instead.", valueMember.DothtmlNode);
             }

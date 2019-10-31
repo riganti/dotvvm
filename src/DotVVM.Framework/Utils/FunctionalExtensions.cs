@@ -15,17 +15,15 @@ namespace DotVVM.Framework.Utils
             where TKey: notnull
             => dictionary[key];
 
+#if !DotNetCore // this method is actually present in .NET Standard
         [return: MaybeNull]
         public static TValue GetValueOrDefault<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, TKey key)
             where TKey: notnull
         {
-            TValue value;
-            if (!dictionary.TryGetValue(key, out value))
-            {
-                return default!;
-            }
+            dictionary.TryGetValue(key, out var value);
             return value;
         }
+#endif
 
         public static TTarget ApplyAction<TTarget>(this TTarget target, Action<TTarget> outerAction)
         {

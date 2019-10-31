@@ -27,7 +27,7 @@ namespace DotVVM.Framework.Controls
         private readonly bool enableWarnings;
 
         private List<(string name, string? val, string? separator, bool allowAppending)> attributes = new List<(string, string?, string? separator, bool allowAppending)>();
-        private DotvvmBindableObject errorContext;
+        private DotvvmBindableObject? errorContext;
         private OrderedDictionary dataBindAttributes = new OrderedDictionary();
         private Stack<string> openTags = new Stack<string>();
         private bool tagFullyOpen = true;
@@ -69,7 +69,7 @@ namespace DotVVM.Framework.Controls
             this.enableWarnings = this.WarningCollector.Enabled;
         }
 
-        internal void Warn(string message, Exception ex = null)
+        internal void Warn(string message, Exception? ex = null)
         {
             Debug.Assert(this.enableWarnings);
             this.WarningCollector.Warn(new DotvvmRuntimeWarning(message, ex, this.errorContext));

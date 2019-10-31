@@ -10,6 +10,8 @@ namespace DotVVM.Framework.Routing
 {
     public interface IRouteParameterConstraint
     {
+        /// <summary> Gets a regular expression that matches the route parameter value. </summary>
+        /// <param name="parameter">Argument passed to the constraint (like for example `min(1)`). Null, if there is no parameter specified.</param>
         string GetPartRegex(string? parameter);
         ParameterParseResult ParseString(string value, string? parameter);
     }

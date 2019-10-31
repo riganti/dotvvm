@@ -65,7 +65,7 @@ namespace DotVVM.Framework.Routing
                 throw new ArgumentNullException(nameof(url));
 
             Url = url;
-            VirtualPath = virtualPath;
+            _virtualPath = virtualPath;
 
             if (defaultValues != null)
             {

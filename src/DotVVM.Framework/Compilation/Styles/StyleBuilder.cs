@@ -48,7 +48,7 @@ namespace DotVVM.Framework.Compilation.Styles
             return this;
         }
 
-        public StyleBuilder<T> SetHtmlControlProperty(DotvvmProperty property, string tag, Action<StyleBuilder<HtmlGenericControl>> styleBuilder = null, StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
+        public StyleBuilder<T> SetHtmlControlProperty(DotvvmProperty property, string tag, Action<StyleBuilder<HtmlGenericControl>>? styleBuilder = null, StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
         {
             if (tag == null)
                 throw new ArgumentNullException(nameof(tag));

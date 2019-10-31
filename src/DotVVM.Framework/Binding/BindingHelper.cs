@@ -23,7 +23,7 @@ namespace DotVVM.Framework.Binding
     {
         [return: MaybeNull]
         public static T GetProperty<T>(this IBinding binding, ErrorHandlingMode errorMode = ErrorHandlingMode.ThrowException) => (T)binding.GetProperty(typeof(T), errorMode)!;
-        public static T GetProperty<T>(this IBinding binding) => GetProperty<T>(binding, ErrorHandlingMode.ThrowException);
+        public static T GetProperty<T>(this IBinding binding) => GetProperty<T>(binding, ErrorHandlingMode.ThrowException)!;
 
         [Obsolete]
         public static string GetKnockoutBindingExpression(this IValueBinding binding) =>

@@ -24,7 +24,9 @@ namespace DotVVM.Framework.Routing
         {
             return new GenericRouteParameterType(s => partRegex, (s, p) =>
             {
+#pragma warning disable CS8717
                 if (parser(s, out var r)) return ParameterParseResult.Create((object)r!);
+#pragma warning restore CS8717
                 else return ParameterParseResult.Failed;
             });
         }
