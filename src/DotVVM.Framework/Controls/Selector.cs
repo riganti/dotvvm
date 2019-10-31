@@ -1,4 +1,5 @@
 #nullable enable
+using DotVVM.Framework.Utils;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Validation;

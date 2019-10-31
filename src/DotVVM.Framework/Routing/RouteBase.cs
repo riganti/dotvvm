@@ -5,6 +5,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
 using System.Reflection;
+using System.Collections.ObjectModel;
+using DotVVM.Framework.Configuration;
 
 namespace DotVVM.Framework.Routing
 {
@@ -23,17 +25,21 @@ namespace DotVVM.Framework.Routing
         public string RouteName { get; internal set; }
 
 
-
-
         /// <summary>
         /// Gets the default values of the optional parameters.
         /// </summary>
-        public IDictionary<string, object?> DefaultValues { get; private set; }
+        public IDictionary<string, object?> DefaultValues => _defaultValues;
+        private IDictionary<string, object?> _defaultValues;
 
         /// <summary>
         /// Gets or sets the virtual path to the view.
         /// </summary>
-        public string VirtualPath { get; set; }
+        public string VirtualPath
+        {
+            get => _virtualPath;
+            set { ThrowIfFrozen(); _virtualPath = value; }
+        }
+        private string _virtualPath;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RouteBase"/> class.
@@ -63,11 +69,11 @@ namespace DotVVM.Framework.Routing
 
             if (defaultValues != null)
             {
-                DefaultValues = new Dictionary<string, object?>(defaultValues, StringComparer.OrdinalIgnoreCase);
+                _defaultValues = new FreezableDictionary<string, object?>(defaultValues, StringComparer.OrdinalIgnoreCase);
             }
             else
             {
-                DefaultValues = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
+                _defaultValues = new FreezableDictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
             }
 
             this.RouteName = null!; // practically, RouteName should not be null. unfortunately, this overload is used heavily and the RouteName is assigned by the Table.Add method :/
@@ -156,9 +162,16 @@ namespace DotVVM.Framework.Routing
         /// </summary>
         public static void AddOrUpdateParameterCollection(IDictionary<string, object?> targetCollection, object? anonymousObject)
         {
-            if (anonymousObject is IEnumerable<KeyValuePair<string, string?>>)
+            if (anonymousObject is IEnumerable<KeyValuePair<string, string?>> stringPairs)
             {
-                foreach (var item in (IEnumerable<KeyValuePair<string, string?>>)anonymousObject)
+                foreach (var item in stringPairs)
+                {
+                    targetCollection[item.Key] = item.Value;
+                }
+            }
+            else if (anonymousObject is IEnumerable<KeyValuePair<string, object?>> pairs)
+            {
+                foreach (var item in pairs)
                 {
                     targetCollection[item.Key] = item.Value;
                 }
@@ -189,5 +202,24 @@ namespace DotVVM.Framework.Routing
         /// </summary>
         public abstract IDotvvmPresenter GetPresenter(IServiceProvider provider);
 
+        private bool isFrozen = false;
+
+        private void ThrowIfFrozen()
+        {
+            if (isFrozen)
+                throw FreezableUtils.Error(this.GetType().Name);
+        }
+        public void Freeze()
+        {
+            this.isFrozen = true;
+            FreezableDictionary.Freeze(ref this._defaultValues);
+
+            Freeze2();
+        }
+
+        // Freeze must not be virtual since it would allow someone to suppress the freezing (probably accidentally).
+
+        /// <summary> This method should freeze the contents of a derived class from <see cref="RouteBase" />. Make sure that the implementation is sealed, so that the derived class can not suppress the freezing process. If you want to allow inheritance from you class, create an abstract Freeze3 method for that. </summary>
+        protected abstract void Freeze2();
     }
 }

@@ -11,7 +11,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace DotVVM.Framework.Routing
 {
-    public class DotvvmRoute : RouteBase
+    public sealed class DotvvmRoute : RouteBase
     {
         private Func<IServiceProvider,IDotvvmPresenter> presenterFactory;
 
@@ -134,5 +134,9 @@ namespace DotVVM.Framework.Routing
         /// Processes the request.
         /// </summary>
         public override IDotvvmPresenter GetPresenter(IServiceProvider provider) => presenterFactory(provider);
+        protected override void Freeze2()
+        {
+            // there is no property that would have to be frozen
+        }
     }
 }

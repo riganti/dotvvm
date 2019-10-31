@@ -19,8 +19,10 @@ namespace DotVVM.Framework.Controls
         public static void WriteRouteLinkHrefAttribute(RouteLink control, IHtmlWriter writer, IDotvvmRequestContext context)
         {
             // Render client-side knockout expression only if there exists a parameter with value binding
-            var containsBinding = control.Params.RawValues.Any(p => p.Value is IValueBinding)
-                || control.GetValueRaw(RouteLink.UrlSuffixProperty) is IValueBinding;
+            var containsBinding =
+                control.QueryParameters.RawValues.Any(p => p.Value is IValueBinding) ||
+                control.Params.RawValues.Any(p => p.Value is IValueBinding) ||
+                control.GetValueRaw(RouteLink.UrlSuffixProperty) is IValueBinding;
 
             if (containsBinding)
             {

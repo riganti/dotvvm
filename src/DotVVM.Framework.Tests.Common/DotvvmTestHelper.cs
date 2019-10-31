@@ -61,7 +61,11 @@ namespace DotVVM.Framework.Tests
             services.TryAddSingleton<IDotvvmCacheAdapter, SimpleDictionaryCacheAdapter>();
         }
 
-        private static Lazy<DotvvmConfiguration> _defaultConfig = new Lazy<DotvvmConfiguration>(() => CreateConfiguration());
+        private static Lazy<DotvvmConfiguration> _defaultConfig = new Lazy<DotvvmConfiguration>(() => {
+            var config = CreateConfiguration();
+            config.Freeze();
+            return config;
+        });
         public static DotvvmConfiguration DefaultConfig => _defaultConfig.Value;
 
         public static DotvvmConfiguration CreateConfiguration(Action<IServiceCollection> customServices = null) =>
@@ -74,14 +78,14 @@ namespace DotVVM.Framework.Tests
         {
             configuration = configuration ?? DefaultConfig;
             IServiceProvider services = configuration.ServiceProvider.CreateScope().ServiceProvider;
-            var context = new TestDotvvmRequestContext()
-            {
+            var context = new TestDotvvmRequestContext() {
                 Configuration = configuration,
                 Services = services,
                 CsrfToken = "Test CSRF Token",
                 ModelState = new ModelState(),
                 ResourceManager = services.GetService<ResourceManagement.ResourceManager>(),
-                HttpContext = new TestHttpContext()
+                HttpContext = new TestHttpContext(),
+                Parameters = new Dictionary<string, object>()
             };
             return context;
         }

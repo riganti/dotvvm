@@ -281,6 +281,9 @@ namespace DotVVM.Framework.Hosting
                     var postBackUpdates = OutputRenderer.RenderPostbackUpdatedControls(context, page);
                     ViewModelSerializer.AddPostBackUpdatedControls(context, postBackUpdates);
 
+                    // resources must be added after the HTML is rendered - some controls may request resources in the render phase
+                    ViewModelSerializer.AddNewResources(context);
+
                     await OutputRenderer.WriteViewModelResponse(context, page);
                 }
                 await requestTracer.TraceEvent(RequestTracingConstants.OutputRendered, context);

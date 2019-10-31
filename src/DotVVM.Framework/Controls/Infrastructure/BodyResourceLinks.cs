@@ -8,6 +8,7 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
 using Newtonsoft.Json;
 using DotVVM.Framework.ViewModel.Serialization;
+using DotVVM.Framework.Runtime;
 
 namespace DotVVM.Framework.Controls
 {
@@ -37,7 +38,23 @@ namespace DotVVM.Framework.Controls
 window.dotvvm.domUtils.onDocumentReady(function () {{
     window.dotvvm.init('root', {JsonConvert.ToString(CultureInfo.CurrentCulture.Name, '"', StringEscapeHandling.EscapeHtml)});
 }});");
+            writer.WriteUnencodedText(RenderWarnings(context));
             writer.RenderEndTag();
+        }
+
+        internal static string RenderWarnings(IDotvvmRequestContext context)
+        {
+            var result = "";
+            // propagate warnings to JS console
+            var collector = context.Services.GetService<RuntimeWarningCollector>();
+            if (!collector.Enabled) return result;
+
+            foreach (var w in collector.GetWarnings())
+            {
+                var msg = JsonConvert.ToString(w.ToString(), '"', StringEscapeHandling.EscapeHtml);
+                result += $"console.warn({msg});\n";
+            }
+            return result;
         }
     }
 }

@@ -9,9 +9,9 @@ namespace DotVVM.Framework.Routing
 {
     public class DotvvmRouteParser
     {
-        private readonly Dictionary<string, IRouteParameterConstraint> routeConstraints;
+        private readonly IDictionary<string, IRouteParameterConstraint> routeConstraints;
 
-        public DotvvmRouteParser(Dictionary<string, IRouteParameterConstraint> routeConstrains)
+        public DotvvmRouteParser(IDictionary<string, IRouteParameterConstraint> routeConstrains)
         {
             this.routeConstraints = routeConstrains;
         }

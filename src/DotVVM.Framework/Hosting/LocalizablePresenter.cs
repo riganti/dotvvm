@@ -78,7 +78,7 @@ namespace DotVVM.Framework.Hosting
                 url.Query =
                     context.HttpContext.Request.Query
                     .Where(q => q.Key != name)
-                    .Concat(new [] { new KeyValuePair<string, string>(name, context.Configuration.DefaultCulture) })
+                    .Concat(new[]{ new KeyValuePair<string, string>(name, context.Configuration.DefaultCulture) })
                     .Select(q => Uri.EscapeUriString(q.Key) + "=" + Uri.EscapeUriString(q.Value)).Apply(s => string.Join("&", s));
                 if (url.ToString() == context.HttpContext.Request.Url.ToString())
                     throw new Exception($"The specified default culture is probably invalid");
