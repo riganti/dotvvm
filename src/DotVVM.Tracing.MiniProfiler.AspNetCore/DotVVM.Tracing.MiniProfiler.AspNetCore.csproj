@@ -21,7 +21,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotVVM.AspNetCore" Version="2.3.0" />
-    <PackageReference Include="MiniProfiler.AspNetCore" Version="4.0.138" />
+    <PackageReference Include="DotVVM.AspNetCore" Version="2.4.0-preview04-59400-premerge" />
+    <PackageReference Include="MiniProfiler.AspNetCore" Version="4.0.180" />
   </ItemGroup>
 </Project>
