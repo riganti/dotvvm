@@ -11,6 +11,9 @@ type PostbackRejectionReason =
     | { type: "handler", handler: DotvvmPostbackHandler, message?: string }
     | { type: 'network', args: DotvvmErrorEventArgs }
     | { type: 'commit', args: DotvvmErrorEventArgs }
+    | { type: 'csrfToken' }
+    | { type: 'json' }
+    | { type: 'serverError', status: number, responseObject: any }
     | { type: 'event' }
     & { options?: PostbackOptions }
 

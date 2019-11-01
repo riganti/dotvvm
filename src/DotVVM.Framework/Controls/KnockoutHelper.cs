@@ -317,7 +317,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public static void AddCommentAliasBinding(IHtmlWriter writer, IDictionary<string, string> properties)
         {
-            writer.WriteKnockoutDataBindComment("dotvvm_introduceAlias", "{" + string.Join(", ", properties.Select(p => JsonConvert.ToString(p.Key, '"', StringEscapeHandling.EscapeHtml) + ":" + properties.Values)) + "}");
+            writer.WriteKnockoutDataBindComment("dotvvm-introduceAlias", "{" + string.Join(", ", properties.Select(p => JsonConvert.ToString(p.Key, '"', StringEscapeHandling.EscapeHtml) + ":" + properties.Values)) + "}");
         }
 
         /// <summary>

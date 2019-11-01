@@ -283,7 +283,7 @@ namespace DotVVM.Framework.Controls
         {
             if (HasValueBinding(EnabledProperty))
             {
-                writer.WriteKnockoutDataBindComment("dotvvm_introduceAlias",
+                writer.WriteKnockoutDataBindComment("dotvvm-introduceAlias",
                     $"{{ '$pagerEnabled': { GetValueBinding(EnabledProperty).GetKnockoutBindingExpression(this) }}}");
             }
 

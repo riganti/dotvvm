@@ -324,9 +324,7 @@ declare class DotVVM {
     globalize: DotvvmGlobalize;
     evaluator: DotvvmEvaluator;
     domUtils: DotvvmDomUtils;
-    fileUpload: DotvvmFileUpload;
     validation: DotvvmValidation;
-    extensions: IDotvvmExtensions;
     useHistoryApiSpaNavigation: boolean;
     isPostbackRunning: KnockoutObservable<boolean>;
     updateProgressChangeCounter: KnockoutObservable<number>;

@@ -1,29 +1,4 @@
-﻿class DotvvmEvents {
-    public init = new DotvvmEvent<DotvvmEventArgs>("dotvvm.events.init", true);
-    public beforePostback = new DotvvmEvent<DotvvmBeforePostBackEventArgs>("dotvvm.events.beforePostback");
-    public afterPostback = new DotvvmEvent<DotvvmAfterPostBackEventArgs>("dotvvm.events.afterPostback");
-    public error = new DotvvmEvent<DotvvmErrorEventArgs>("dotvvm.events.error");
-    public spaNavigating = new DotvvmEvent<DotvvmSpaNavigatingEventArgs>("dotvvm.events.spaNavigating");
-    public spaNavigated = new DotvvmEvent<DotvvmSpaNavigatedEventArgs>("dotvvm.events.spaNavigated");
-    public redirect = new DotvvmEvent<DotvvmRedirectEventArgs>("dotvvm.events.redirect");
-
-    public postbackHandlersStarted = new DotvvmEvent<{}>("dotvvm.events.postbackHandlersStarted")
-    public postbackHandlersCompleted = new DotvvmEvent<{}>("dotvvm.events.postbackHandlersCompleted")
-    public postbackResponseReceived = new DotvvmEvent<{}>("dotvvm.events.postbackResponseReceived")
-    public postbackCommitInvoked = new DotvvmEvent<{}>("dotvvm.events.postbackCommitInvoked")
-    public postbackViewModelUpdated = new DotvvmEvent<{}>("dotvvm.events.postbackViewModelUpdated")
-    public postbackRejected = new DotvvmEvent<{}>("dotvvm.events.postbackRejected")
-
-    public staticCommandMethodInvoking = new DotvvmEvent<{ args: any[], command: string }>("dotvvm.events.staticCommandMethodInvoking")
-    public staticCommandMethodInvoked = new DotvvmEvent<{ args: any[], command: string, result: any, xhr: XMLHttpRequest }>("dotvvm.events.staticCommandMethodInvoked")
-    public staticCommandMethodFailed = new DotvvmEvent<{ args: any[], command: string, xhr: XMLHttpRequest, error?: any }>("dotvvm.events.staticCommandMethodInvoked")
-}
-
-class DotvvmEventHandler<T> {
-    constructor(public handler: (f: T) => void, public isOneTime: boolean) {
-    }
-}
-
+﻿
 // DotvvmEvent is used because CustomEvent is not browser compatible and does not support
 // calling missed events for handler that subscribed too late.
 class DotvvmEvent<T> {
@@ -37,8 +12,8 @@ class DotvvmEvent<T> {
         this.handlers.push(new DotvvmEventHandler<T>(handler, false));
 
         if (this.triggerMissedEventsOnSubscribe) {
-            for (var i = 0; i < this.history.length; i++) {
-                handler(history[i]);
+            for (const h of this.history) {
+                handler(h);
             }
         }
     }
@@ -71,9 +46,35 @@ class DotvvmEvent<T> {
     }
 }
 
+export const events = {
+    init: new DotvvmEvent<DotvvmEventArgs>("dotvvm.events.init", true),
+    beforePostback: new DotvvmEvent<DotvvmBeforePostBackEventArgs>("dotvvm.events.beforePostback"),
+    afterPostback: new DotvvmEvent<DotvvmAfterPostBackEventArgs>("dotvvm.events.afterPostback"),
+    error: new DotvvmEvent<DotvvmErrorEventArgs>("dotvvm.events.error"),
+    spaNavigating: new DotvvmEvent<DotvvmSpaNavigatingEventArgs>("dotvvm.events.spaNavigating"),
+    spaNavigated: new DotvvmEvent<DotvvmSpaNavigatedEventArgs>("dotvvm.events.spaNavigated"),
+    redirect: new DotvvmEvent<DotvvmRedirectEventArgs>("dotvvm.events.redirect"),
+
+    postbackHandlersStarted: new DotvvmEvent<{}>("dotvvm.events.postbackHandlersStarted"),
+    postbackHandlersCompleted: new DotvvmEvent<{}>("dotvvm.events.postbackHandlersCompleted"),
+    postbackResponseReceived: new DotvvmEvent<{}>("dotvvm.events.postbackResponseReceived"),
+    postbackCommitInvoked: new DotvvmEvent<{}>("dotvvm.events.postbackCommitInvoked"),
+    postbackViewModelUpdated: new DotvvmEvent<{}>("dotvvm.events.postbackViewModelUpdated"),
+    postbackRejected: new DotvvmEvent<{}>("dotvvm.events.postbackRejected"),
+
+    staticCommandMethodInvoking: new DotvvmEvent<{ args: any[], command: string }>("dotvvm.events.staticCommandMethodInvoking"),
+    staticCommandMethodInvoked: new DotvvmEvent<{ args: any[], command: string, result: any, xhr: XMLHttpRequest }>("dotvvm.events.staticCommandMethodInvoked"),
+    staticCommandMethodFailed: new DotvvmEvent<{ args: any[], command: string, xhr: XMLHttpRequest, error?: any }>("dotvvm.events.staticCommandMethodInvoked"),
+}
+
+class DotvvmEventHandler<T> {
+    constructor(public handler: (f: T) => void, public isOneTime: boolean) {
+    }
+}
+
 interface PostbackEventArgs extends DotvvmEventArgs {
     postbackClientId: number
-    viewModelName: string
+    viewModelName?: string
     sender?: Element
     xhr?: XMLHttpRequest | null
     serverResponseObject?: any
@@ -84,7 +85,7 @@ interface DotvvmEventArgs {
 }
 class DotvvmErrorEventArgs implements PostbackEventArgs {
     public handled = false;
-    constructor(public sender: Element | undefined, public viewModel: any, public viewModelName: any, public xhr: XMLHttpRequest | null, public postbackClientId, public serverResponseObject: any = undefined, public isSpaNavigationError: boolean = false) {
+    constructor(public sender: Element | undefined, public viewModel: any, public postbackClientId: number, public serverResponseObject: any = undefined, public isSpaNavigationError: boolean = false) {
     }
 }
 class DotvvmBeforePostBackEventArgs implements PostbackEventArgs {

@@ -1,11 +1,12 @@
-﻿
-export function evaluateOnViewModel(context, expression) {
+﻿import { isObservableArray } from './utils/knockout'
+
+export function evaluateOnViewModel(context: any, expression: string) {
     var result;
     if (context && context.$data) {
-        result = eval("(function ($context) { with($context) { with ($data) { return " + expression + "; } } })")(context);
+        result = new Function("$context", "with($context) { with ($data) { return " + expression + "; } }")(context);
     }
     else {
-        result = eval("(function ($context) { var $data=$context; with($context) { return " + expression + "; } })")(context);
+        result = new Function("$context", "var $data=$context; with($context) { return " + expression + "; }")(context);
     }
     if (result && result.$data) {
         result = result.$data;
@@ -13,71 +14,30 @@ export function evaluateOnViewModel(context, expression) {
     return result;
 }
 
-export function evaluateOnContext(context, expression: string) {
-    var startsWithProperty = false;
-    for (var prop in context) {
-        if (expression.indexOf(prop) === 0) {
-            startsWithProperty = true;
-            break;
-        }
-    }
-    if (!startsWithProperty) expression = "$data." + expression;
-    return this.evaluateOnViewModel(context, expression);
-}
-
 export function getDataSourceItems(viewModel: any) {
     var value = ko.unwrap(viewModel);
-    if (typeof value === "undefined" || value == null) return [];
+    if (value == null) return [];
     return ko.unwrap(value.Items || value);
-}
-
-export function tryEval(func: () => any): any {
-    try {
-        return func();
-    }
-    catch (error) {
-        return null;
-    }
-}
-
-export function isObservableArray(instance: any): instance is KnockoutObservableArray<any> {
-    if (ko.isComputed(instance)) {
-        return Array.isArray(instance.peek());
-    }
-    else if (ko.isObservable(instance)) {
-        return "push" in instance;
-    }
-
-    return false;
 }
 
 export function wrapObservable(func: () => any, isArray?: boolean): KnockoutComputed<any> {
     let wrapper = ko.pureComputed({
-        read: () => ko.unwrap(this.getExpressionResult(func)),
-        write: value => this.updateObservable(func, value)
+        read: () => ko.unwrap(getExpressionResult(func)),
+        write: value => updateObservable(func, value)
     });
 
     if (isArray) {
-        wrapper.push = (...args) => this.updateObservableArray(func, "push", args);
-        wrapper.pop = (...args) => this.updateObservableArray(func, "pop", args);
-        wrapper.unshift = (...args) => this.updateObservableArray(func, "unshift", args);
-        wrapper.shift = (...args) => this.updateObservableArray(func, "shift", args);
-        wrapper.reverse = (...args) => this.updateObservableArray(func, "reverse", args);
-        wrapper.sort = (...args) => this.updateObservableArray(func, "sort", args);
-        wrapper.splice = (...args) => this.updateObservableArray(func, "splice", args);
-        wrapper.slice = (...args) => this.updateObservableArray(func, "slice", args);
-        wrapper.replace = (...args) => this.updateObservableArray(func, "replace", args);
-        wrapper.indexOf = (...args) => this.updateObservableArray(func, "indexOf", args);
-        wrapper.remove = (...args) => this.updateObservableArray(func, "remove", args);
-        wrapper.removeAll = (...args) => this.updateObservableArray(func, "removeAll", args);
+        for (const i of ["push", "pop", "unshift", "shift", "reverse", "sort", "splice", "slice", "replace", "indexOf", "remove", "removeAll"]) {
+            wrapper[i] = (...args: any) => updateObservableArray(func, i, args);
+        }
         wrapper = wrapper.extend({ trackArrayChanges: true });
     }
 
     return wrapper.extend({ notify: "always" });
 }
 
-export function updateObservable(getObservable: () => KnockoutObservable<any>, value) {
-    const result = this.getExpressionResult(getObservable);
+function updateObservable(getObservable: () => KnockoutObservable<any>, value: any) {
+    const result = getExpressionResult(getObservable);
 
     if (!ko.isWriteableObservable(result)) {
         console.error(`Cannot write a value to ko.computed because the expression '${getObservable}' does not return a writable observable.`);
@@ -87,10 +47,10 @@ export function updateObservable(getObservable: () => KnockoutObservable<any>, v
     }
 }
 
-export function updateObservableArray(getObservableArray: () => KnockoutObservableArray<any>, fnName: string, args: any[]) {
-    const result = this.getExpressionResult(getObservableArray);
+function updateObservableArray(getObservableArray: () => KnockoutObservableArray<any>, fnName: string, args: any[]) {
+    const result = getExpressionResult(getObservableArray);
 
-    if (!this.isObservableArray(result)) {
+    if (!isObservableArray(result)) {
         console.error(`Cannot execute '${fnName}' function on ko.computed because the expression '${getObservableArray}' does not return an observable array.`);
     }
     else {
@@ -98,7 +58,7 @@ export function updateObservableArray(getObservableArray: () => KnockoutObservab
     }
 }
 
-export function getExpressionResult(func: () => any) {
+function getExpressionResult(func: () => any) {
     let result = func();
 
     if (ko.isComputed(result) && "wrappedProperty" in result) {

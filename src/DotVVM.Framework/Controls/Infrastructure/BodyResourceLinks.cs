@@ -33,10 +33,10 @@ namespace DotVVM.Framework.Controls
 
             // init on load
             writer.RenderBeginTag("script");
+            writer.AddAttribute("defer", null);
             writer.WriteUnencodedText($@"
-window.dotvvm.domUtils.onDocumentReady(function () {{
-    window.dotvvm.init('root', {JsonConvert.ToString(CultureInfo.CurrentCulture.Name, '"', StringEscapeHandling.EscapeHtml)});
-}});");
+window.dotvvm.init('root', {JsonConvert.ToString(CultureInfo.CurrentCulture.Name, '"', StringEscapeHandling.EscapeHtml)});
+");
             writer.WriteUnencodedText(RenderWarnings(context));
             writer.RenderEndTag();
         }

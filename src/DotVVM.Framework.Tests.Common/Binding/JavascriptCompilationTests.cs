@@ -213,25 +213,25 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_Api_GetFunction()
         {
             var result = CompileBinding("_testApi.GetString()");
-            Assert.AreEqual("dotvvm.invokeApiFn(function(){return dotvvm.api._testApi.getString();},[dotvvm.eventHub.get(\"dotvvm.api._testApi\")],[])", result);
+            Assert.AreEqual("dotvvm.api.invoke(function(){return dotvvm.api._testApi.getString();},[dotvvm.eventHub.get(\"dotvvm.api._testApi\")],[])", result);
             var assignment = CompileBinding("StringProp = _testApi.GetString()", typeof(TestViewModel));
-            Assert.AreEqual("StringProp(dotvvm.invokeApiFn(function(){return dotvvm.api._testApi.getString();},[dotvvm.eventHub.get(\"dotvvm.api._testApi\")],[])()).StringProp", assignment);
+            Assert.AreEqual("StringProp(dotvvm.api.invoke(function(){return dotvvm.api._testApi.getString();},[dotvvm.eventHub.get(\"dotvvm.api._testApi\")],[])()).StringProp", assignment);
         }
 
         [TestMethod]
         public void JavascriptCompilation_Api_GetDate()
         {
             var result = CompileBinding("_testApi.GetCurrentTime('test')");
-            Assert.AreEqual("dotvvm.invokeApiFn(function(){return dotvvm.api._testApi.getCurrentTime(\"test\");},[dotvvm.eventHub.get(\"dotvvm.api._testApi\")],[])", result);
+            Assert.AreEqual("dotvvm.api.invoke(function(){return dotvvm.api._testApi.getCurrentTime(\"test\");},[dotvvm.eventHub.get(\"dotvvm.api._testApi\")],[])", result);
             var assignment = CompileBinding("DateFrom = _testApi.GetCurrentTime('test')", typeof(TestViewModel));
-            Assert.AreEqual("DateFrom(dotvvm.serialization.serializeDate(dotvvm.invokeApiFn(function(){return dotvvm.api._testApi.getCurrentTime(\"test\");},[dotvvm.eventHub.get(\"dotvvm.api._testApi\")],[])(),false)).DateFrom", assignment);
+            Assert.AreEqual("DateFrom(dotvvm.serialization.serializeDate(dotvvm.api.invoke(function(){return dotvvm.api._testApi.getCurrentTime(\"test\");},[dotvvm.eventHub.get(\"dotvvm.api._testApi\")],[])(),false)).DateFrom", assignment);
         }
 
         [TestMethod]
         public void JavascriptCompilation_Api_DateParameter()
         {
             var result = CompileBinding("_testApi.PostDateToString(DateFrom.Value)", typeof(TestViewModel));
-            Assert.AreEqual("dotvvm.invokeApiFn(function(){return dotvvm.api._testApi.postDateToString(dotvvm.globalize.parseDotvvmDate(DateFrom()));},[],[\"dotvvm.api._testApi\"])", result);
+            Assert.AreEqual("dotvvm.api.invoke(function(){return dotvvm.api._testApi.postDateToString(dotvvm.globalize.parseDotvvmDate(DateFrom()));},[],[\"dotvvm.api._testApi\"])", result);
         }
 
         [TestMethod]
@@ -419,14 +419,14 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_AssignmentExpectsObservable()
         {
             var result = CompileBinding("_api.RefreshOnChange(StringProp = StringProp2, StringProp + StringProp2)", typeof(TestViewModel));
-            Assert.AreEqual("dotvvm.apiRefreshOn(StringProp(StringProp2()).StringProp,ko.pureComputed(function(){return StringProp()+StringProp2();}))", result);
+            Assert.AreEqual("dotvvm.api.refreshOn(StringProp(StringProp2()).StringProp,ko.pureComputed(function(){return StringProp()+StringProp2();}))", result);
         }
 
         [TestMethod]
         public void JavascriptCompilation_ApiRefreshOn()
         {
             var result = CompileBinding("_api.RefreshOnChange('here would be the API invocation', StringProp + StringProp2)", typeof(TestViewModel));
-            Assert.AreEqual("dotvvm.apiRefreshOn(\"here would be the API invocation\",ko.pureComputed(function(){return StringProp()+StringProp2();}))", result);
+            Assert.AreEqual("dotvvm.api.refreshOn(\"here would be the API invocation\",ko.pureComputed(function(){return StringProp()+StringProp2();}))", result);
         }
     }
 

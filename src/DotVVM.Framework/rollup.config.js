@@ -13,9 +13,9 @@ const config = ({minify, input, output}) => ({
   input,
 
   output: [
-    { format: 'esm',
-      dir: `./Resources/Scripts/out/${output}`,
-      sourcemap: !production },
+    // { format: 'esm',
+    //   dir: `./Resources/Scripts/out/${output}`,
+    //   sourcemap: !production },
     { format: 'system',
       dir: `./Resources/Scripts/out/${output}-system`,
       sourcemap: !production },
@@ -26,18 +26,22 @@ const config = ({minify, input, output}) => ({
     typescript({ target: "es2018" }),
     resolve({ browser: true }),
     commonjs(),
+    replace({
+      "compileConstants.isSpa": true,
+      "compileConstants.nomodules": false,
+    }),
 
-    // useTerser && terser({
-    //   ecma: 6,
-    //   compress: false,
-    //   mangle: {
-    //     properties: {
-    //       debug: true,
-    //       builtins: true,
-    //       regex: "index|position|state"
-    //     }
-    //   }
-    // }),
+    useTerser && terser({
+      ecma: 6,
+      compress: false,
+      mangle: {
+        properties: {
+          debug: true,
+          builtins: true,
+          regex: "triggerMissedEventsOnSubscribe"
+        }
+      }
+    }),
 
     minify && terser({
       ecma: 6,
@@ -72,6 +76,6 @@ const config = ({minify, input, output}) => ({
 })
 
 export default [
-  config({ minify: production, input: ['./Resources/Scripts/dotvvm-root.ts', './Resources/Scripts/dotvvm-light.ts'], output: "default" }),
+  // config({ minify: production, input: ['./Resources/Scripts/dotvvm-root.ts', './Resources/Scripts/dotvvm-light.ts'], output: "default" }),
   config({ minify: production, input: ['./Resources/Scripts/dotvvm-root.ts'], output: "root-only" }),
 ]

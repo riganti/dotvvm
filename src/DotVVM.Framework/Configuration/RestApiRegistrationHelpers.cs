@@ -105,7 +105,7 @@ namespace DotVVM.Framework.Configuration
                         var isRead = IsHttpReadMethod(method);
 
                         config.Markup.JavascriptTranslator.MethodCollection.AddMethodTranslator(method, new GenericMethodCompiler(
-                            a => new JsIdentifierExpression("dotvvm").Member("invokeApiFn").Invoke(
+                            a => new JsIdentifierExpression("dotvvm").Member("api").Member("invoke").Invoke(
                                 new JsFunctionExpression(new JsIdentifier[0], new JsBlockStatement(
                                     new JsReturnStatement(identifier.Clone().Member(KnockoutHelper.ConvertToCamelCase(method.Name)).Invoke(ReplaceDefaultWithUndefined(a.Skip(1), method.GetParameters()).Apply(SerializeComplexParameters)))
                                 )),

@@ -8,17 +8,6 @@ class DotvvmValidationContext {
     }
 }
 
-class DotvvmValidationObservableMetadata {
-    public elementsMetadata: DotvvmValidationElementMetadata[];
-}
-class DotvvmValidationElementMetadata {
-    public element: HTMLElement;
-    public dataType: string;
-    public format: string;
-    public domNodeDisposal: boolean;
-    public elementValidationState: boolean = true;
-
-}
 class DotvvmValidatorBase {
     public isValid(context: DotvvmValidationContext, property: KnockoutObservable<any>): boolean {
         return false;
@@ -328,17 +317,17 @@ export class DotvvmValidation {
         let rules = rootRules![type] || {};
 
         // validate all properties
-        for (let propertyName in viewModel) {
-            if (!viewModel.hasOwnProperty(propertyName) || propertyName.indexOf("$") === 0) {
+        for (const propertyName of Object.keys(viewModel)) {
+            if (propertyName.indexOf("$") === 0) {
                 continue;
             }
 
-            let observable = viewModel[propertyName];
-            if (!observable || !ko.isObservable(observable)) {
+            const observable = viewModel[propertyName];
+            if (!ko.isObservable(observable)) {
                 continue;
             }
 
-            let propertyValue = observable();
+            const propertyValue = observable();
 
             // run validators
             if (rules.hasOwnProperty(propertyName)) {
@@ -365,7 +354,7 @@ export class DotvvmValidation {
                     this.validateViewModel(item);
                 }
             }
-            else if (propertyValue && propertyValue instanceof Object) {
+            else if (propertyValue instanceof Object) {
                 // handle nested objects
                 this.validateViewModel(propertyValue);
             }
@@ -387,15 +376,15 @@ export class DotvvmValidation {
 
     // merge validation rules
     public mergeValidationRules(args: DotvvmAfterPostBackEventArgs) {
-        if (args.serverResponseObject.validationRules) {
+        const response = args.serverResponseObject;
+        if (response.validationRules) {
             var existingRules = dotvvm.viewModels[args.viewModelName].validationRules;
             if (typeof existingRules === "undefined") {
                 dotvvm.viewModels[args.viewModelName].validationRules = {};
                 existingRules = dotvvm.viewModels[args.viewModelName].validationRules;
             }
-            for (var type in args.serverResponseObject.validationRules) {
-                if (!args.serverResponseObject.validationRules.hasOwnProperty(type)) continue;
-                existingRules![type] = args.serverResponseObject.validationRules[type];
+            for (const type of Object.keys(response.validationRules)) {
+                existingRules![type] = response.validationRules[type];
             }
         }
     }
@@ -509,28 +498,24 @@ export class DotvvmValidation {
         var context = ko.contextFor(args.sender);
         var validationTarget = <KnockoutObservable<any>>evaluator.evaluateOnViewModel(
             context,
-            args.postbackOptions.additionalPostbackData.validationTargetPath);
+            args.postbackOptions.additionalPostbackData.validationTargetPath!);
         if (!validationTarget) {
             return;
         }
 
         // add validation errors
-        var modelState = args.serverResponseObject.modelState;
-        for (var i = 0; i < modelState.length; i++) {
+        for (const prop of args.serverResponseObject.modelState) {
             // find the property
-            var propertyPath = modelState[i].propertyPath;
+            var propertyPath = prop.propertyPath;
             var property;
             if (propertyPath) {
-                if (ko.isObservable(validationTarget)) {
-                    validationTarget = ko.unwrap(validationTarget);
-                }
-                property = evaluator.evaluateOnViewModel(validationTarget, propertyPath);
+                property = evaluator.evaluateOnViewModel(ko.unwrap(validationTarget), propertyPath);
             }
             else {
                 property = validationTarget
             }
 
-            ValidationError.attach(modelState[i].errorMessage, property);
+            ValidationError.attach(prop.errorMessage, property);
         }
     }
 
@@ -538,7 +523,7 @@ export class DotvvmValidation {
         if ("wrappedProperty" in observable) {
             observable = observable["wrappedProperty"]();
         }
-        return observable.hasOwnProperty(ErrorsPropertyName)
+        return ErrorsPropertyName in observable
             && observable[ErrorsPropertyName].length > 0;
     }
 
@@ -555,13 +540,11 @@ export class DotvvmValidation {
 
         let errors = <ValidationError[]>observable[ErrorsPropertyName] || [];
         let errorMessages = errors.map(v => v.errorMessage);
-        for (const option in validatorOptions) {
-            if (validatorOptions.hasOwnProperty(option)) {
-                this.elementUpdateFunctions[option](
-                    validator,
-                    errorMessages,
-                    validatorOptions[option]);
-            }
+        for (const option of Object.keys(validatorOptions)) {
+            this.elementUpdateFunctions[option](
+                validator,
+                errorMessages,
+                validatorOptions[option]);
         }
     }
 };

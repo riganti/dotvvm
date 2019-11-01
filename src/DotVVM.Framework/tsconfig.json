@@ -1,6 +1,9 @@
 {
   "compilerOptions": {
-    "noImplicitAny": false,
+    "noImplicitAny": true,
+    "strictFunctionTypes": true,
+    "strict": true,
+    "noImplicitThis": true,
     "noEmitOnError": false,
     "removeComments": false,
     "sourceMap": true,
