@@ -86,6 +86,10 @@ function GitCheckout() {
 }
 
 function GitPush() {
+
+    invoke-git config --global user.email "rigantiteamcity"
+    invoke-git config --global user.name "Riganti Team City"
+    
 	if ($pushTag) {
 			invoke-git tag "v$($version)" HEAD
 	}
