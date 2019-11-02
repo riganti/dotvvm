@@ -1,5 +1,4 @@
-import { dotvvm } from '../dotvvm-root';
-import eventHub from './eventHub';
+import * as eventHub from './eventHub';
 import { deserialize } from '../serialization/deserialize';
 
 type ApiComputed<T> = 
@@ -81,5 +80,3 @@ export function refreshOn<T>(
     });
     return value;
 }
-
-dotvvm.api = export;

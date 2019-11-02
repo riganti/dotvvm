@@ -1,5 +1,6 @@
 import { getElementByDotvvmId } from '../utils/dom'
-import { viewModel } from '../dotvvm-root'
+import { getViewModel, replaceViewModel } from '../dotvvm-base'
+import { deserialize } from '../serialization/deserialize'
 
 var isViewModelUpdating: boolean = false;
 
@@ -52,11 +53,31 @@ export function restoreUpdatedControls(resultObject: any, updatedControls: any, 
     }
 }
 
-export function updateViewModel(updateFunction: (viewModel: any) => void) {
+export function updateViewModelAndControls(resultObject: any, replaceViewModel: boolean) {
     try 
     {
         isViewModelUpdating = true;
-        updateFunction(viewModel);
+        
+        // remove updated controls
+        var updatedControls = cleanUpdatedControls(resultObject);
+
+        // update viewmodel
+        if (replaceViewModel) {
+            const vm = {};
+            deserialize(resultObject.viewModel, vm);
+            replaceViewModel(vm);
+        }
+        else {
+            ko.delaySync.pause();
+            deserialize(resultObject.viewModel, getViewModel());
+            ko.delaySync.resume();
+        }
+
+        // remove updated controls which were previously removed from DOM
+        cleanUpdatedControls(resultObject, updatedControls);
+
+        // add new updated controls
+        restoreUpdatedControls(resultObject, updatedControls, true);
     }
     finally {
         isViewModelUpdating = false;

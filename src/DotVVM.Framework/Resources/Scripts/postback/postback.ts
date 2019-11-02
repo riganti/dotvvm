@@ -1,159 +1,93 @@
-import { serialize } from '../serialization/serialize';
-import { deserialize } from '../serialization/deserialize';
-import { viewModel, currentUrl, renderedResources } from '../dotvvm-root';
-import { loadResourceList } from './resourceLoader';
-import { events } from '../DotVVM.Events'; 
-import * as updater from './updater';
-import * as http from './http';
+import * as counter from './counter'
+import { postbackCore } from './postbackCore'
 
-var lastStartedPostback: number;
+const globalPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[] = [this.suppressOnDisabledElementHandler, this.isPostBackRunningHandler, this.postbackHandlersStartedEventHandler]
+const globalLaterPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[] = [this.postbackHandlersCompletedEventHandler, this.beforePostbackEventPostbackHandler]
 
-async function postbackCore(
-        options: PostbackOptions, 
-        path: string[], 
-        command: string, 
-        controlUniqueId: string, 
-        context: any, 
-        commandArgs?: any[]
-    ): Promise<PostbackCommitFunction> {
+export async function postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, context?: any, handlers?: ClientFriendlyPostbackHandlerConfiguration[], commandArgs?: any[]): Promise<DotvvmAfterPostBackEventArgs> {
+    context = context || ko.contextFor(sender);
 
-    await http.fetchCsrfToken();
-
-    lastStartedPostback = options.postbackId;
-
-    // perform the postback
-    updateDynamicPathFragments(context, path);
-    const data = {
-        viewModel: serialize(viewModel, { 
-            pathMatcher: val => context && val == context.$data 
-        }),
-        currentPath: path,
-        command: command,
-        controlUniqueId: processPassedId(controlUniqueId, context),
-        additionalData: options.additionalPostbackData,
-        renderedResources: renderedResources,
-        commandArgs: commandArgs
-    };
-
-    try {
-        var result = await http.postJSON(
-            currentUrl,
-            ko.toJSON(data)
-        );
-
-        // TODO
-        // dotvvm.events.postbackResponseReceived.trigger({});
-
-        return () => processPostbackResponse(options, result);
+    const preparedHandlers = findPostbackHandlers(context, globalPostbackHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers));
+    if (preparedHandlers.filter(h => h.name && h.name.indexOf("concurrency-") == 0).length == 0) {
+        // add a default concurrency handler if none is specified
+        preparedHandlers.push(this.defaultConcurrencyPostbackHandler);
     }
-    catch (err) {
+    const options = new PostbackOptions(counter.backUpPostBackConter(), sender, commandArgs, context.$data, viewModelName)
+    const promise = this.applyPostbackHandlersCore(options => {
+        return postbackCore(options, path, command, controlUniqueId, context, commandArgs)
+    }, options, preparedHandlers);
 
-        // if the CSRF token is invalid, retry the postback
-        if (err.type === "serverError") {
-            if (err.resultObject.action === "invalidCsrfToken") {
-                console.log("Resending postback due to invalid CSRF token.") // this may loop indefinitely (in some extreme case), we don't currently have any loop detection mechanism, so at least we can log it.
-                
-                viewModel.$csrfToken = null;
-                return await postbackCore(options, path, command, controlUniqueId, context, commandArgs);
+    const result = promise.then(
+        r => r().then(r => r, error => Promise.reject({ type: "commit", args: error })),
+        r => Promise.reject(r)
+    );
+    result.then(
+        r => r && this.events.afterPostback.trigger(r),
+        (error: PostbackRejectionReason) => {
+            const wasInterrupted = error.type == "handler" || error.type == "event"
+            const afterPostBackArgsCanceled: DotvvmAfterPostBackEventArgs = {
+                serverResponseObject: error.type == "commit" && error.args ? error.args.serverResponseObject : null,
+                wasInterrupted
             }
-        }
-
-        throw { 
-            ...err, 
-            options: options, 
-            args: new DotvvmErrorEventArgs(options.sender, viewModel, options.postbackId)
-        };
-    }
-}
-
-async function processPostbackResponse(options: PostbackOptions, result: any): Promise<DotvvmAfterPostBackEventArgs> {
-    events.postbackCommitInvoked.trigger({});
-
-    const resultObject = parseResultObject(result);
-
-    await loadResourceList(resultObject.resources);
-    
-    var isSuccess = false;
-    if (resultObject.action === "successfulCommand") {
-        updater.updateViewModel(() => {
-
-            // remove updated controls
-            var updatedControls = updater.cleanUpdatedControls(resultObject);
-
-            // update the viewmodel
-            if (resultObject.viewModel) {
-                ko.delaySync.pause();
-                deserialize(resultObject.viewModel, viewModel);
-                ko.delaySync.resume();
+            if (wasInterrupted) {
+                // trigger afterPostback event
+                events.postbackRejected.trigger({})
+            } else if (error.type == "network") {
+                events.error.trigger(error.args)
             }
-            isSuccess = true;
-
-            // remove updated controls which were previously hidden
-            updater.cleanUpdatedControls(resultObject, updatedControls);
-
-            // add updated controls
-            updater.restoreUpdatedControls(resultObject, updatedControls, true);
-
+            events.afterPostback.trigger(afterPostBackArgsCanceled)
         });
-        events.postbackViewModelUpdated.trigger({});
+    return result;
+}
 
-    } else if (resultObject.action === "redirect") {
-        // redirect
-        var promise = this.handleRedirect(resultObject);
+function findPostbackHandlers(knockoutContext, config: ClientFriendlyPostbackHandlerConfiguration[]) {
+    const createHandler = (name, options) => options.enabled === false ? null : this.getPostbackHandler(name)(options);
+    return <DotvvmPostbackHandler[]>config.map(h =>
+        typeof h == 'string' ? createHandler(h, {}) :
+            this.isPostbackHandler(h) ? h :
+                h instanceof Array ? (() => {
+                    const [name, opt] = h;
+                    return createHandler(name, typeof opt == "function" ? opt(knockoutContext, knockoutContext.$data) : opt);
+                })() :
+                    createHandler(h.name, h.options && h.options(knockoutContext)))
+        .filter(h => h != null)
+}
 
-        return new DotvvmAfterPostBackWithRedirectEventArgs(options, resultObject, resultObject.commandResult, result, promise);
-    }
+function applyPostbackHandlers(next: (options: PostbackOptions) => Promise<PostbackCommitFunction | undefined>, sender: HTMLElement, handlers?: ClientFriendlyPostbackHandlerConfiguration[], args: any[] = [], context = ko.contextFor(sender), viewModel = context.$root, viewModelName?: string): Promise<DotvvmAfterPostBackEventArgs> {
+    const options = new PostbackOptions(this.backUpPostBackConter(), sender, args, viewModel, viewModelName);
 
-    var idFragment = resultObject.resultIdFragment;
-    if (idFragment) {
-        if (location.hash == "#" + idFragment) {
-            var element = document.getElementById(idFragment);
-            if (element && "function" == typeof element.scrollIntoView) element.scrollIntoView(true);
+    var postbackCommit = next;
+    
+
+    const handlers = this.findPostbackHandlers(context, this.globalPostbackHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers));
+    const sortedHandlers = this.sortHandlers(handlers);
+    for (let handler of sortedHandlers) {
+        if (typeof postbackCommit !== "function") {
+            return Promise.resolve(new DotvvmAfterPostBackEventArgs(options, null, postbackCommit));
         }
-        else location.hash = idFragment;
+        postbackCommit;
     }
 
-    // trigger afterPostback event
-    if (!isSuccess) {
-        throw new DotvvmErrorEventArgs(options.sender, viewModel, options.postbackId, resultObject);
+    const promise = this.applyPostbackHandlersCore(callback, options, )
+        .then(r => r(), r => Promise.reject(r))
+
+    promise.catch(reason => { if (reason) console.log("Rejected: " + reason) });
+
+    return promise;
+}
+
+async function applyPostbackHandlersCore(next: (options: PostbackOptions) => Promise<PostbackCommitFunction | undefined>, options: PostbackOptions, handlers?: DotvvmPostbackHandler[]): Promise<PostbackCommitFunction> {
+    const processResult = t => typeof t == "function" ? t : (() => )
+    if (handlers == null || handlers.length === 0) {
+        
     } else {
-        return new DotvvmAfterPostBackEventArgs(options, resultObject, resultObject.commandResult, result);
-    }
-} 
-
-function parseResultObject(result: any) {
-    // convert classic redirect to DotVVM redirect response
-    const locationHeader = result.getResponseHeader("Location");
-    if (locationHeader) {
-        return { action: "redirect", url: locationHeader };
-    }
-
-    const resultObject = JSON.parse(result.responseText);
-
-    // apply viewmodel diff
-    if (!resultObject.viewModel && resultObject.viewModelDiff) {
-        resultObject.viewModel = updater.patchViewModel(viewModel, resultObject.viewModelDiff);
-    }
-
-    return resultObject;
-}
-
-function updateDynamicPathFragments(context: any, path: string[]): void {
-    for (var i = path.length - 1; i >= 0; i--) {
-        if (path[i].indexOf("[$index]") >= 0) {
-            path[i] = path[i].replace("[$index]", `[${context.$index()}]`);
-        }
-
-        if (path[i].indexOf("[$indexPath]") >= 0) {
-            path[i] = path[i].replace("[$indexPath]", `[${context.$indexPath.map(i => i()).join("]/[")}]`);
-        }
-
-        context = context.$parentContext;
+        
+        return sortedHandlers
+            .reduceRight(
+                (prev, val, index) => () =>
+                    val.execute(prev, options),
+                () => callback(options).then(processResult, r => Promise.reject(r))
+            )();
     }
 }
 
-function processPassedId(id: any, context: any): string {
-    if (typeof id == "string" || id == null) return id;
-    if (typeof id == "object" && id.expr) return this.evaluator.evaluateOnViewModel(context, id.expr);
-    throw new Error("invalid argument");
-}

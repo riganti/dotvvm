@@ -1,6 +1,6 @@
 import { serialize } from '../serialization/serialize';
 import { deserialize } from '../serialization/deserialize';
-import { viewModel, currentUrl } from '../dotvvm-root';
+import { getViewModel, getCurrentUrl } from '../dotvvm-base';
 import { events } from '../DotVVM.Events'; 
 import * as updater from './updater';
 import * as http from './http'
@@ -11,18 +11,24 @@ export function staticCommandPostback(viewModelName: string, sender: HTMLElement
         errorCallback
     );
 
-    events.error.trigger(new DotvvmErrorEventArgs(sender, viewModel, null));
+    // TODO
+    // events.error.trigger(new DotvvmErrorEventArgs(sender, viewModel, null));
+    // events.staticCommandMethodFailed.trigger({ ...data, xhr: response, error: err })
+    // events.error.trigger(new DotvvmErrorEventArgs(sender, viewModel, null));
+    // events.staticCommandMethodFailed.trigger({ data })
 }
 
 async function staticCommandPostbackCore(sender: HTMLElement, command: string, args: any[]) : Promise<any> {
-    var csrfToken = await http.fetchCsrfToken();
     
-    var data = serialize({ args, command, "$csrfToken": csrfToken });
+    return await http.retryOnInvalidCsrfToken(async () => {
+        var csrfToken = await http.fetchCsrfToken();
+        
+        var data = serialize({ args, command, "$csrfToken": csrfToken });
 
-    events.staticCommandMethodInvoking.trigger(data);
-    try {
+        events.staticCommandMethodInvoking.trigger(data);
+
         var response = await http.postJSON(
-            currentUrl, 
+            getCurrentUrl(), 
             ko.toJSON(data),
             { "X-PostbackType": "StaticCommand" }
         );
@@ -42,23 +48,5 @@ async function staticCommandPostbackCore(sender: HTMLElement, command: string, a
         });
 
         return result;
-    }
-    catch (err) {
-        events.staticCommandMethodFailed.trigger({ ...data, xhr: response, error: err })
-
-        // if the CSRF token is invalid, retry the postback
-        if (err.type === "serverError") {
-            if (err.resultObject.action === "invalidCsrfToken") {
-                console.log("Resending postback due to invalid CSRF token.") // this may loop indefinitely (in some extreme case), we don't currently have any loop detection mechanism, so at least we can log it.
-                
-                viewModel.$csrfToken = null;
-                return await staticCommandPostbackCore(sender, command, args);
-            }
-        }
-
-        events.error.trigger(new DotvvmErrorEventArgs(sender, viewModel, null));
-        events.staticCommandMethodFailed.trigger({ data })
-
-        throw err;
-    }
+    });
 }

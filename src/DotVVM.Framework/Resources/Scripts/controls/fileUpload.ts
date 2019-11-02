@@ -54,13 +54,13 @@ function openUploadDialog(iframe: HTMLIFrameElement): void {
     }
 }
 
-type DotvvmFileUploadCollection {
+type DotvvmFileUploadCollection = {
     Files: KnockoutObservableArray<KnockoutObservable<DotvvmFileUploadData>>;
     Progress: KnockoutObservable<number>;
     Error: KnockoutObservable<string>;
     IsBusy: KnockoutObservable<boolean>;
 }
-type DotvvmFileUploadData {
+type DotvvmFileUploadData = {
     FileId: KnockoutObservable<string>;
     FileName: KnockoutObservable<string>;
     FileSize: KnockoutObservable<DotvvmFileSize>;
@@ -68,7 +68,7 @@ type DotvvmFileUploadData {
     IsMaxSizeExceeded: KnockoutObservable<boolean>;
     IsAllowed: KnockoutObservable<boolean>;
 }
-type DotvvmFileSize {
+type DotvvmFileSize = {
     Bytes : KnockoutObservable<number>;
     FormattedText : KnockoutObservable<string>;
 }

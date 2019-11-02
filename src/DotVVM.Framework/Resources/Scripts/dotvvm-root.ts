@@ -1,5 +1,6 @@
-import { DotVVM } from "./DotVVM"
+import { DotVVM } from "./dotvvm-base"
 import addPolyfills from './DotVVM.Polyfills'
+import { events } from './DotVVM.Events'
 
 if (compileConstants.nomodules) {
     addPolyfills()
@@ -8,9 +9,9 @@ if (compileConstants.nomodules) {
 if (window["dotvvm"]) {
     throw 'DotVVM is already loaded!';
 }
-window["dotvvm"] = new DotVVM();
+var dotvvm: any = new DotVVM();
+window["dotvvm"] = dotvvm;
 
-export var virtualDirectory = window["dotvvm"].viewModels["root"].virtualDirectory || "";
-export var viewModel = window["dotvvm"].viewModels["root"].viewModel;
-export var currentUrl = <string>window["dotvvm"].viewModels[viewModelName].url;
-export var renderedResources = window["dotvvm"].viewModels["root"].renderedResources;
+export { events }
+
+

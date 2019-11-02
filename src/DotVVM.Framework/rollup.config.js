@@ -13,12 +13,12 @@ const config = ({minify, input, output}) => ({
   input,
 
   output: [
-    // { format: 'esm',
-    //   dir: `./Resources/Scripts/out/${output}`,
-    //   sourcemap: !production },
-    { format: 'system',
-      dir: `./Resources/Scripts/out/${output}-system`,
+    { format: 'esm',
+      dir: `./obj/javascript/${output}`,
       sourcemap: !production },
+    // { format: 'system',
+    //   dir: `./Resources/Scripts/out/${output}-system`,
+    //   sourcemap: !production },
   ],
 
 //   treeshake: false,
@@ -28,44 +28,49 @@ const config = ({minify, input, output}) => ({
     commonjs(),
     replace({
       "compileConstants.isSpa": true,
-      "compileConstants.nomodules": false,
+      "compileConstants.nomodules": "false",
     }),
 
-    useTerser && terser({
+    terser({
       ecma: 6,
-      compress: false,
+      compress: true,
+      output: {
+        beautify: !minify
+      },
       mangle: {
+        keep_fnames: true,
+        keep_classnames: true,
+        reserved: [".*"],
         properties: {
-          debug: true,
-          builtins: true,
-          regex: "triggerMissedEventsOnSubscribe"
+          debug: false,
+          regex: "triggerMissedEventsOnSubscribe|_.*"
         }
       }
     }),
 
     minify && terser({
       ecma: 6,
-      compress: false,
-    //   compress: production && {
-    //     pure_getters: true,
-    //     unsafe_proto: true,
-    //     unsafe_methods: true,
-    //     unsafe_undefined: true,
-    //     unsafe: true,
-    //     unsafe_arrows: true,
-    //     unsafe_comps: true,
-    //     unsafe_math: true,
-    //     hoist_funs: false,
-    //     hoist_vars: false,
-    //     passes: 1
-    //   },
-      mangle: false,
-    //   mangle: {
-    //     keep_classnames: !production,
-    //     keep_fnames: !production
-    //   },
+      // compress: false,
+      compress: {
+        pure_getters: true,
+        unsafe_proto: true,
+        unsafe_methods: true,
+        unsafe_undefined: true,
+        unsafe: true,
+        unsafe_arrows: true,
+        unsafe_comps: true,
+        unsafe_math: true,
+        hoist_funs: true,
+        hoist_vars: true,
+        passes: 2,
+        pure_funcs: [ 'Math.floor', "ko.unwrap", "ko.isObservable", "ko.observable", "ko.observableArray", "ko.pureComputed", "Math.floor", "Math.pow", "createArray", "Array.isArray", "Object.keys" ]
+      },
+      mangle: {
+        keep_classnames: !production,
+        keep_fnames: !production
+      },
       output: {
-        ecma: 6,
+        ecma: 8,
         indent_level: 4,
         beautify: !production,
         ascii_only: true
@@ -77,5 +82,5 @@ const config = ({minify, input, output}) => ({
 
 export default [
   // config({ minify: production, input: ['./Resources/Scripts/dotvvm-root.ts', './Resources/Scripts/dotvvm-light.ts'], output: "default" }),
-  config({ minify: production, input: ['./Resources/Scripts/dotvvm-root.ts'], output: "root-only" }),
+  config({ minify: true, input: ['./Resources/Scripts/dotvvm-root.ts'], output: "root-only" }),
 ]

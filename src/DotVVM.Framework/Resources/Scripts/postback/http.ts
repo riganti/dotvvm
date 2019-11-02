@@ -1,4 +1,5 @@
-import { virtualDirectory, viewModel } from '../dotvvm-root';
+import { getVirtualDirectory, getViewModel } from '../dotvvm-base';
+import { DotvvmPostbackError } from '../shared-classes';
 
 export async function getJSON(url: string, spaPlaceHolderUniqueId?: string, additionalHeaders?: { [key: string]: string }): Promise<any> {
     const headers = new Headers();
@@ -26,7 +27,7 @@ export async function fetchJson(url: string, init: RequestInit): Promise<any> {
         response = await fetch(url, init);
     }
     catch (err) {
-        throw { type: "network" };
+        throw new DotvvmPostbackError({ type: "network" });
     }
 
     var resultObject;
@@ -34,30 +35,59 @@ export async function fetchJson(url: string, init: RequestInit): Promise<any> {
         resultObject = await response.json();
     }
     catch (err) {
-        throw { type: "json" };
+        throw new DotvvmPostbackError({ type: "invalidJson", responseText: await response.text() });
     }
     
     if (response.status >= 400) {
-        throw { type: "serverError", status: response.status, resultObject: resultObject };
+        throw new DotvvmPostbackError({ type: "serverError", status: response.status, responseObject: resultObject });
     }
 
     return resultObject;
 }
 
 export async function fetchCsrfToken(): Promise<string> {
+    let viewModel = getViewModel();
     if (viewModel.$csrfToken == null) {
         try {
-            const response = await fetch(virtualDirectory + "/___dotvvm-create-csrf-token___")
-            if (response.status != 200)
-                throw new Error(`Can't fetch CSRF token: HTTP Status ${response.statusText}`);
-            viewModel.$csrfToken = await response.text();
+            var response = await fetch(getVirtualDirectory() + "/___dotvvm-create-csrf-token___")
         }
         catch (err) {
             console.warn(`CSRF token fetch failed.`);
-            throw { type: 'csrfToken' };
+            throw new DotvvmPostbackError({ type: "network" });
         }
+
+        if (response.status != 200) {
+            console.warn(`CSRF token fetch failed. HTTP status: ${response.statusText}`);
+            throw new DotvvmPostbackError({ type: "csrfToken" });
+        }
+
+        viewModel.$csrfToken = await response.text();
     }
     return viewModel.$csrfToken;
+}
+
+export async function retryOnInvalidCsrfToken<TResult>(postbackFunction: () => Promise<TResult>, iteration: number = 0): Promise<TResult>
+{
+    try {
+        var result = await postbackFunction();
+        return result;
+    }
+    catch (err) {
+        // if the CSRF token is invalid, retry the postback
+        if (err instanceof DotvvmPostbackError) {
+            if (err.reason.type === "serverError") {
+                if (err.reason.responseObject.action === "invalidCsrfToken") {
+                    console.log("Resending postback due to invalid CSRF token.");
+                    viewModel.$csrfToken = null;
+
+                    if (iteration < 3) {
+                        return await retryOnInvalidCsrfToken(postbackFunction, iteration + 1);
+                    }
+                }
+            }
+        }
+        throw err;
+    }
 }
 
 function appendAdditionalHeaders(headers: Headers, additionalHeaders?: { [key: string]: string }) {

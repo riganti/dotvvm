@@ -8,6 +8,12 @@ const resourceSigns: {
     [name: string]: boolean 
 } = {};
 
+export function registerResources(rs: string[] | null | undefined) {
+    if (rs)
+        for (const r of rs)
+            resourceSigns[r] = true;
+}
+
 export async function loadResourceList(resources: RenderedResourceList) {
     var html = "";
     for (const name of Object.keys(resources)) {
@@ -67,9 +73,9 @@ async function loadResourceElements(elements: HTMLElement[]) {
         }
 
         // load next script when this is finished
-        const promise = waitForElementLoaded(element);
+        const loadPromise = waitForElementLoaded(element);
         if (waitForScriptLoaded) {
-            await promise;
+            await loadPromise;
         }
     }
 }
@@ -79,7 +85,7 @@ function waitForElementLoaded(element: HTMLElement) {
     return new Promise(resolve => {
         element.addEventListener("load", resolve);
         element.addEventListener("error", () => {
-            console.warn(`Error loading resource ${element.innerHTML}`);
+            console.warn(`Error loading resource`, element);
             resolve();
         });
     });
