@@ -12,7 +12,7 @@ var lastStartedPostback: number;
 
 
 
-async function postbackCore(
+export async function postbackCore(
         options: PostbackOptions, 
         path: string[], 
         command: string, 

@@ -1,5 +1,6 @@
 import * as counter from './counter'
 import { postbackCore } from './postbackCore'
+import { getViewModel } from '../dotvvm-base'
 
 const globalPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[] = [this.suppressOnDisabledElementHandler, this.isPostBackRunningHandler, this.postbackHandlersStartedEventHandler]
 const globalLaterPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[] = [this.postbackHandlersCompletedEventHandler, this.beforePostbackEventPostbackHandler]
@@ -12,10 +13,17 @@ export async function postBack(viewModelName: string, sender: HTMLElement, path:
         // add a default concurrency handler if none is specified
         preparedHandlers.push(this.defaultConcurrencyPostbackHandler);
     }
-    const options = new PostbackOptions(counter.backUpPostBackConter(), sender, commandArgs, context.$data, viewModelName)
-    const promise = this.applyPostbackHandlersCore(options => {
-        return postbackCore(options, path, command, controlUniqueId, context, commandArgs)
-    }, options, preparedHandlers);
+    const options: PostbackOptions = { 
+        postbackId: counter.backUpPostBackCounter(), 
+        sender: sender, 
+        args: commandArgs!, 
+        viewModel: context.$data,
+        additionalPostbackData: {}
+    };
+
+    const postbackCommit = () => postbackCore(options, path, command, controlUniqueId, context, commandArgs);
+
+    await applyPostbackHandlersCore(postbackCommit, options, preparedHandlers);
 
     const result = promise.then(
         r => r().then(r => r, error => Promise.reject({ type: "commit", args: error })),
@@ -53,19 +61,20 @@ function findPostbackHandlers(knockoutContext, config: ClientFriendlyPostbackHan
         .filter(h => h != null)
 }
 
-function applyPostbackHandlers(next: (options: PostbackOptions) => Promise<PostbackCommitFunction | undefined>, sender: HTMLElement, handlers?: ClientFriendlyPostbackHandlerConfiguration[], args: any[] = [], context = ko.contextFor(sender), viewModel = context.$root, viewModelName?: string): Promise<DotvvmAfterPostBackEventArgs> {
-    const options = new PostbackOptions(this.backUpPostBackConter(), sender, args, viewModel, viewModelName);
+function applyPostbackHandlers(
+    next: () => Promise<PostbackCommitFunction>, 
+    options: PostbackOptions,
+    sender: HTMLElement, 
+    handlers?: DotvvmPostbackHandler[], 
+    args: any[] = [], 
+    context = ko.contextFor(sender), 
+    viewModel = context.$root, 
+    viewModelName?: string
+    ): Promise<DotvvmAfterPostBackEventArgs> {
 
-    var postbackCommit = next;
-    
-
-    const handlers = this.findPostbackHandlers(context, this.globalPostbackHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers));
-    const sortedHandlers = this.sortHandlers(handlers);
+    const sortedHandlers: DotvvmPostbackHandler[] = this.sortHandlers(handlers);
     for (let handler of sortedHandlers) {
-        if (typeof postbackCommit !== "function") {
-            return Promise.resolve(new DotvvmAfterPostBackEventArgs(options, null, postbackCommit));
-        }
-        postbackCommit;
+        next = handler.execute(next, options);
     }
 
     const promise = this.applyPostbackHandlersCore(callback, options, )
@@ -76,18 +85,48 @@ function applyPostbackHandlers(next: (options: PostbackOptions) => Promise<Postb
     return promise;
 }
 
-async function applyPostbackHandlersCore(next: (options: PostbackOptions) => Promise<PostbackCommitFunction | undefined>, options: PostbackOptions, handlers?: DotvvmPostbackHandler[]): Promise<PostbackCommitFunction> {
+function applyPostbackHandlersForStaticCommand(
+    next: () => Promise<PostbackCommitFunction>, 
+    sender: HTMLElement, 
+    handlerConfigurations: ClientFriendlyPostbackHandlerConfiguration[]
+    ): Promise<DotvvmAfterPostBackEventArgs> {
+
+    const options: PostbackOptions = {
+        postbackId: counter.backUpPostBackCounter(), 
+        sender: sender, 
+        args: [], 
+        viewModel: getViewModel(),
+        additionalPostbackData: {}
+    };
+    const context = ko.contextFor(sender);
+
+    const handlers = findPostbackHandlers(context, globalPostbackHandlers.concat(handlerConfigurations || []).concat(globalLaterPostbackHandlers));
+
+    return applyPostbackHandlersCore(next, options, handlers);
+}
+
+async function applyPostbackHandlersCore(next: () => Promise<PostbackCommitFunction>, options: PostbackOptions, handlers?: DotvvmPostbackHandler[]): Promise<PostbackCommitFunction> {
     const processResult = t => typeof t == "function" ? t : (() => )
     if (handlers == null || handlers.length === 0) {
-        
+        var result = await next;
+        return await processResult(result);
     } else {
-        
+        const sortedHandlers = this.sortHandlers(handlers);
         return sortedHandlers
             .reduceRight(
-                (prev, val, index) => () =>
-                    val.execute(prev, options),
-                () => callback(options).then(processResult, r => Promise.reject(r))
+            (prev, val, index) => () =>
+                val.execute(prev, options),
+            () => callback(options).then(processResult, r => Promise.reject(r))
             )();
+    }
+}
+
+function wrapAsPromise(value: any, options: PostbackOptions): Promise<DotvvmAfterPostBackEventArgs> {
+    if (typeof value === "function") {
+        return <Promise<DotvvmAfterPostBackEventArgs>>value;
+    }
+    else {
+        return Promise.resolve<DotvvmAfterPostBackEventArgs>({ postbackOptions: options, serverResponseObject: value, sender: null });
     }
 }
 
