@@ -4,6 +4,10 @@ import { deserialize } from '../serialization/deserialize'
 
 var isViewModelUpdating: boolean = false;
 
+export function getIsViewModelUpdating() {
+    return isViewModelUpdating;
+}
+
 export function cleanUpdatedControls(resultObject: any, updatedControls: any = {}) {
     for (const id of Object.keys(resultObject.updatedControls)) {
         var control = getElementByDotvvmId(id);
@@ -53,7 +57,7 @@ export function restoreUpdatedControls(resultObject: any, updatedControls: any, 
     }
 }
 
-export function updateViewModelAndControls(resultObject: any, replaceViewModel: boolean) {
+export function updateViewModelAndControls(resultObject: any, clearViewModel: boolean) {
     try 
     {
         isViewModelUpdating = true;
@@ -62,7 +66,7 @@ export function updateViewModelAndControls(resultObject: any, replaceViewModel: 
         var updatedControls = cleanUpdatedControls(resultObject);
 
         // update viewmodel
-        if (replaceViewModel) {
+        if (clearViewModel) {
             const vm = {};
             deserialize(resultObject.viewModel, vm);
             replaceViewModel(vm);

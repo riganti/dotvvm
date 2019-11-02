@@ -1,6 +1,6 @@
 import { serialize } from '../serialization/serialize';
 import { deserialize } from '../serialization/deserialize';
-import { getViewModel, getCurrentUrl, getRenderedResources } from '../dotvvm-base';
+import { getViewModel, getInitialUrl, getRenderedResources } from '../dotvvm-base';
 import { loadResourceList } from './resourceLoader';
 import { events, createPostbackArgs } from '../DotVVM.Events'; 
 import * as updater from './updater';
@@ -8,9 +8,11 @@ import * as http from './http';
 import { DotvvmPostbackError } from '../shared-classes';
 import { setIdFragment } from '../utils/dom';
 
-var lastStartedPostback: number;
+var lastStartedPostbackId: number;
 
-
+export function getLastStartedPostbackId() {
+    return lastStartedPostbackId;
+}
 
 export async function postbackCore(
         options: PostbackOptions, 
@@ -25,7 +27,7 @@ export async function postbackCore(
     {
         await http.fetchCsrfToken();
 
-        lastStartedPostback = options.postbackId;
+        lastStartedPostbackId = options.postbackId;
 
         updateDynamicPathFragments(context, path);
         const data = {
@@ -36,12 +38,12 @@ export async function postbackCore(
             command: command,
             controlUniqueId: processPassedId(controlUniqueId, context),
             additionalData: options.additionalPostbackData,
-            renderedResources: renderedResources,
+            renderedResources: getRenderedResources(),
             commandArgs: commandArgs
         };
 
         var result = await http.postJSON(
-            getCurrentUrl(),
+            getInitialUrl(),
             ko.toJSON(data)
         );
 
