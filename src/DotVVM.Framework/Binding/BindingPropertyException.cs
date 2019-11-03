@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Binding.Expressions;
+using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Binding
 {
     public class BindingPropertyException: Exception
     {
+        [JsonIgnore]
         public IBinding Binding { get; }
         public Type Property { get; }
         public string CoreMessage { get; }
