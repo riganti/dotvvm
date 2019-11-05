@@ -199,11 +199,9 @@ namespace DotVVM.Framework.Configuration
         }
         private IList<string> _compiledViewsAssemblies = new FreezableList<string>() { "CompiledViews.dll" };
 
-
         /// <summary> must be there for serialization </summary>
         internal DotvvmConfiguration(): this(new ServiceLocator(CreateDefaultServiceCollection().BuildServiceProvider()).GetServiceProvider())
         { }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmConfiguration"/> class.
         /// </summary>

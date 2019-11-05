@@ -637,7 +637,11 @@ var DotvvmSerialization = /** @class */ (function () {
         var deserialized = this.deserialize(ko.unwrap(value), unwrappedTarget[prop], deserializeAll);
         if (value instanceof Date) {
             // if we get Date value from API, it was converted to string, but we should note that it was date to convert it back
+<<<<<<< HEAD
             unwrappedTarget[prop + "$options"] = __assign(__assign({}, unwrappedTarget[prop + "$options"]), { isDate: true });
+=======
+            unwrappedTarget[prop + "$options"] = __assign({}, unwrappedTarget[prop + "$options"], { isDate: true });
+>>>>>>> non-nullable
         }
         // update the property
         if (ko.isObservable(deserialized)) { //deserialized is observable <=> its input target is observable
@@ -659,7 +663,11 @@ var DotvvmSerialization = /** @class */ (function () {
         }
     };
     DotvvmSerialization.prototype.copyPropertyMetadata = function (unwrappedTarget, prop, viewModel) {
+<<<<<<< HEAD
         unwrappedTarget[prop] = __assign(__assign({}, unwrappedTarget[prop]), viewModel[prop]);
+=======
+        unwrappedTarget[prop] = __assign({}, unwrappedTarget[prop], viewModel[prop]);
+>>>>>>> non-nullable
         var originalName = prop.substring(0, prop.length - "$options".length);
         if (typeof unwrappedTarget[originalName] === "undefined") {
             unwrappedTarget[originalName] = ko.observable();
@@ -1255,7 +1263,11 @@ var DotVVM = /** @class */ (function () {
                                     }
                                 }
                                 var result = responseObj.result;
+<<<<<<< HEAD
                                 dotvvm.events.staticCommandMethodInvoked.trigger(__assign(__assign({}, data), { result: result, xhr: response }));
+=======
+                                dotvvm.events.staticCommandMethodInvoked.trigger(__assign({}, data, { result: result, xhr: response }));
+>>>>>>> non-nullable
                                 callback(result);
                             }
                             catch (error) {

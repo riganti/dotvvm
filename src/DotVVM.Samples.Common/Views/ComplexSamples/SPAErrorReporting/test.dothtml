@@ -11,4 +11,3 @@
     <dot:Literal data-ui="sample-text" RenderSpanElement="true" Text="{value: SampleText}" />
 
 </dot:Content>
-
