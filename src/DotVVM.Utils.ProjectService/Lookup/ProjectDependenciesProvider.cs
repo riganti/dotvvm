@@ -87,18 +87,18 @@ namespace DotVVM.Utils.ProjectService.Lookup
                 .ToList();
 
             var dependencies = packages.Select(s => {
-                                                var parts = s.Name.Split('/');
-                                                var isProjectReference =
-                                                    (s.Value.Children<JProperty>().FirstOrDefault(b => b.Name == "type")?.Value as JValue)?.Value
-                                                    ?.ToString() == "project";
+                var parts = s.Name.Split('/');
+                var isProjectReference =
+                    (s.Value.Children<JProperty>().FirstOrDefault(b => b.Name == "type")?.Value as JValue)?.Value
+                    ?.ToString() == "project";
 
-                                                return new ProjectDependency() {
-                                                    Name = parts[0],
-                                                    Version = parts[1],
-                                                    IsProjectReference = isProjectReference,
-                                                    ProjectPath = (s.Value.Children<JProperty>().FirstOrDefault(b => b.Name == "path")?.Value as JValue)
-                                                        ?.Value?.ToString(),
-                                                };
+                return new ProjectDependency() {
+                    Name = parts[0],
+                    Version = parts[1],
+                    IsProjectReference = isProjectReference,
+                    ProjectPath = (s.Value.Children<JProperty>().FirstOrDefault(b => b.Name == "path")?.Value as JValue)
+                        ?.Value?.ToString(),
+                };
             });
 
             foreach (var dependency in dependencies)
@@ -135,7 +135,9 @@ namespace DotVVM.Utils.ProjectService.Lookup
             var objs = project.GetDirectories("obj", SearchOption.TopDirectoryOnly);
             if (objs.Length != 1) return null;
             var assetsFile = objs.FirstOrDefault()?.GetFiles("project.assets.json", SearchOption.TopDirectoryOnly).FirstOrDefault();
-            return JObject.Load(new JsonTextReader(new StreamReader(assetsFile.FullName)));
+            return assetsFile == null
+                ? null
+                : JObject.Load(new JsonTextReader(new StreamReader(assetsFile.FullName)));
         }
     }
 
