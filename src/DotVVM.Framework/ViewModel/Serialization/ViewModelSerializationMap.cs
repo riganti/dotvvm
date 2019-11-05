@@ -427,7 +427,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
             // compile the expression
             var ex = Expression.Lambda<WriterDelegate>(
-                Expression.Block(new[] { value, isBlockedByMe }, block).OptimizeConstants(), writer, valueParam, serializer, encryptedValuesWriter, isPostback);
+                Expression.Block(new[] { value }, block).OptimizeConstants(), writer, valueParam, serializer, encryptedValuesWriter, isPostback);
             return ex.Compile();
         }
 
