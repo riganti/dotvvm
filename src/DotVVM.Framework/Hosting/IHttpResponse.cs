@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿#nullable enable
+using System.Collections;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,7 +11,7 @@ namespace DotVVM.Framework.Hosting
         IHeaderCollection Headers { get; }
         IHttpContext Context { get; }
         int StatusCode { get; set; }
-        string ContentType { get; set; }
+        string? ContentType { get; set; }
         Stream Body { get; set; }
         void Write(string text);
         void Write(byte[] data);

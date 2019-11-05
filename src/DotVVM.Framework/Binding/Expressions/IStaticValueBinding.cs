@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Binding.Expressions

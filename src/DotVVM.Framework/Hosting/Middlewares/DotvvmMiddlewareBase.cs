@@ -1,4 +1,5 @@
-﻿namespace DotVVM.Framework.Hosting.Middlewares
+﻿#nullable enable
+namespace DotVVM.Framework.Hosting.Middlewares
 {
     public abstract class DotvvmMiddlewareBase
     {
@@ -7,7 +8,7 @@
         /// </summary>
         public static string GetVirtualDirectory(IHttpContext context)
         {
-            return context.Request.PathBase.Value.Trim('/');
+            return context.Request.PathBase.Value?.Trim('/') ?? "";
         }
 
         /// <summary>
@@ -17,7 +18,7 @@
         /// <returns></returns>
         public static string GetCleanRequestUrl(IHttpContext context)
         {
-            return context.Request.Path.Value.TrimStart('/').TrimEnd('/');
+            return context.Request.Path.Value?.TrimStart('/').TrimEnd('/') ?? "";
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Security.Cryptography;
 
 namespace DotVVM.Framework.Utils
