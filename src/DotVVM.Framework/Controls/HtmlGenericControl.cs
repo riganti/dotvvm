@@ -172,7 +172,6 @@ namespace DotVVM.Framework.Controls
                     AddCssStylesToRender(writer);
                 AddVisibleAttributeOrBinding(in r, writer);
                 AddTextPropertyToRender(ref r, writer);
-                AddClassAttributeToRender(writer);
                 AddHtmlAttributesToRender(ref r, writer);
             }
         }
@@ -311,12 +310,8 @@ namespace DotVVM.Framework.Controls
             else throw new NotSupportedException($"Attribute value of type '{value.GetType().FullName}' is not supported.");
         }
 
-        private void AddClassAttributeToRender(IHtmlWriter writer)
+        private void AddClassAttributeToRender(object classValue, IHtmlWriter writer)
         {
-            if (!Attributes.TryGetValue("class", out var classValue))
-            {
-                return;
-            }
             if (classValue is IValueBinding classBinding)
             {
                 writer.AddKnockoutDataBind("class", classBinding, this);
@@ -333,7 +328,7 @@ namespace DotVVM.Framework.Controls
                 {
                     if (attribute.Key == "class")
                     {
-                        // handled by AddClassAttributeToRender
+                        AddClassAttributeToRender(attribute.Value, writer);
                         continue;
                     }
                     var binding = attribute.Value as IValueBinding;
