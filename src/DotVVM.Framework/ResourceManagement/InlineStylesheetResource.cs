@@ -38,7 +38,7 @@ namespace DotVVM.Framework.ResourceManagement
             // <style> and <script> tags have "raw text" content - https://html.spec.whatwg.org/multipage/syntax.html#raw-text-elements
             // and those element must not contain "</name-of-the-element" substring - https://html.spec.whatwg.org/multipage/syntax.html#cdata-rcdata-restrictions
             if (code?.IndexOf("</style", StringComparison.OrdinalIgnoreCase) >= 0)
-                throw new Exception($"Inline style can't contain `</style>`.");
+                throw new Exception($"Inline style can't contain `</style`.");
         }
 
         /// <inheritdoc/>
