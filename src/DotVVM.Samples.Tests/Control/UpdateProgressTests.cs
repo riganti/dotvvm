@@ -211,8 +211,17 @@ namespace DotVVM.Samples.Tests.Control
                 sw.Start();
                 while (sw.ElapsedMilliseconds < 2100) // action should take only 2000ms
                 {
-                    spaTextElement = browser.Single("SPA-text", SelectByDataUi);
-                    var spaText = spaTextElement.GetInnerText();
+                    string spaText;
+                    try
+                    {
+                        spaText = browser.Single("SPA-text", SelectByDataUi).GetInnerText();
+                    }
+                    //element changed during retrieval of text.
+                    catch (StaleElementReferenceException)
+                    {
+                        continue;
+                    }
+
                     if (spaText != "SPA2")
                     {
                         AssertUI.IsDisplayed(progress);
