@@ -1,4 +1,5 @@
-﻿using DotVVM.Framework.Controls;
+﻿#nullable enable
+using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using System;
 using System.Collections.Generic;
@@ -30,7 +31,7 @@ namespace DotVVM.Framework.ResourceManagement
 
         public static void AssertAcyclicDependencies(IResource resource,
             string name,
-            Func<string, IResource> findResource)
+            Func<string, IResource?> findResource)
         {
             var queue = new Queue<string>();
             foreach (var dependency in resource.Dependencies)

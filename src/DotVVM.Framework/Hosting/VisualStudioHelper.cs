@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿#nullable enable
+using System.Diagnostics;
 using System.IO;
 using DotVVM.Framework.Configuration;
 using Newtonsoft.Json;

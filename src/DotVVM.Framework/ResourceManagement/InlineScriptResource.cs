@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,7 +35,7 @@ namespace DotVVM.Framework.ResourceManagement
         /// <summary>
         /// Gets or sets the javascript code that will be embedded in the page.
         /// </summary>
-        public string Code
+        public string? Code
         {
             get => code?.Value ?? throw new Exception("`ILocalResourceLocation` can not be read using property `Code`.");
             set
@@ -45,7 +46,7 @@ namespace DotVVM.Framework.ResourceManagement
             }
         }
 
-        internal static void InlineScriptContentGuard(string code)
+        internal static void InlineScriptContentGuard(string? code)
         {
             // We have to make sure, that the element is not ended in the middle.
             // <style> and <script> tags have "raw text" content - https://html.spec.whatwg.org/multipage/syntax.html#raw-text-elements

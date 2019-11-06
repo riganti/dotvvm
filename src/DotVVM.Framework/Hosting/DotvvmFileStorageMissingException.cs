@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -12,7 +13,7 @@ namespace DotVVM.Framework.Hosting
         {
         }
 
-        public DotvvmFileStorageMissingException(string message, Exception innerException) : base(message, innerException)
+        public DotvvmFileStorageMissingException(string message, Exception? innerException) : base(message, innerException)
         {
         }
     }

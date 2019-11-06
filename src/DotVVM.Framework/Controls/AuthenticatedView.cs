@@ -1,4 +1,5 @@
-﻿using DotVVM.Framework.Binding;
+﻿#nullable enable
+using DotVVM.Framework.Binding;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -17,33 +18,32 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the content displayed to the authenticated users.
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.InnerElement)]
-        public ITemplate AuthenticatedTemplate
+        public ITemplate? AuthenticatedTemplate
         {
-            get { return (ITemplate)GetValue(AuthenticatedTemplateProperty); }
+            get { return (ITemplate?)GetValue(AuthenticatedTemplateProperty); }
             set { SetValue(AuthenticatedTemplateProperty, value); }
         }
         public static readonly DotvvmProperty AuthenticatedTemplateProperty
-            = DotvvmProperty.Register<ITemplate, AuthenticatedView>(c => c.AuthenticatedTemplate, null);
+            = DotvvmProperty.Register<ITemplate?, AuthenticatedView>(c => c.AuthenticatedTemplate, null);
 
 
         /// <summary>
         /// Gets or sets the content displayed to the users that are not authenticated.
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.InnerElement)]
-        public ITemplate NotAuthenticatedTemplate
+        public ITemplate? NotAuthenticatedTemplate
         {
-            get { return (ITemplate)GetValue(NotAuthenticatedTemplateProperty); }
+            get { return (ITemplate?)GetValue(NotAuthenticatedTemplateProperty); }
             set { SetValue(NotAuthenticatedTemplateProperty, value); }
         }
         public static readonly DotvvmProperty NotAuthenticatedTemplateProperty
-            = DotvvmProperty.Register<ITemplate, AuthenticatedView>(c => c.NotAuthenticatedTemplate, null);
+            = DotvvmProperty.Register<ITemplate?, AuthenticatedView>(c => c.NotAuthenticatedTemplate, null);
 
 
         public AuthenticatedView() : base("div")
         {
             RenderWrapperTag = false;
         }
-        
 
         protected internal override void OnInit(IDotvvmRequestContext context)
         {
