@@ -2,6 +2,6 @@
 @masterPage Views/ControlSamples/UpdateProgress/UpdateProgressSPA.dotmaster
 
 <dot:Content ContentPlaceHolderID="MainContent">
-    SPA2
+    <span data-ui="SPA-text">SPA2</span>
 </dot:Content>
 

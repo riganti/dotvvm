@@ -14,8 +14,8 @@
     <span>{{resource: DateTime.Now}}</span>
 
     <p>
-        <dot:Button Text="Redirect 1" Click="{command: Redirect1()}"></dot:Button>
-        <dot:Button Text="Redirect 2" Click="{command: Redirect2()}"></dot:Button>
+        <dot:Button data-ui="btn-SPA1" Text="Redirect 1" Click="{command: Redirect1()}"></dot:Button>
+        <dot:Button data-ui="btn-SPA2" Text="Redirect 2" Click="{command: Redirect2()}"></dot:Button>
     </p>
     <div>
         SPA Content:
