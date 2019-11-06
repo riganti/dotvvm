@@ -1,8 +1,0 @@
-﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.UpdateProgress.UpdateProgressSPA1ViewModel, DotVVM.Samples.Common
-@masterPage Views/ControlSamples/UpdateProgress/UpdateProgressSPA.dotmaster
-
-<dot:Content ContentPlaceHolderID="MainContent">
-    <span data-ui="SPA-text">SPA1</span>
-    <dot:Button data-ui="long" Text="LongTest" Click="{command: LongTest()}"></dot:Button>
-</dot:Content>
-

@@ -1,7 +1,0 @@
-﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.UpdateProgress.UpdateProgressSPA1ViewModel, DotVVM.Samples.Common
-@masterPage Views/ControlSamples/UpdateProgress/UpdateProgressSPA.dotmaster
-
-<dot:Content ContentPlaceHolderID="MainContent">
-    <span data-ui="SPA-text">SPA2</span>
-</dot:Content>
-

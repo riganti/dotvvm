@@ -1,0 +1,39 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.UpdateProgress.UpdateProgressRedirectSPAMasterPageViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <h1>
+        SPA UpdateProgress redirect test
+    </h1>
+    <span>{{resource: DateTime.Now}}</span>
+
+    <p>
+        <dot:Button data-ui="btn-1" Text="Redirect 1" Click="{command: Redirect1()}"></dot:Button>
+        <dot:Button data-ui="btn-2" Text="Redirect 2" Click="{command: Redirect2()}"></dot:Button>
+    </p>
+    <div>
+        SPA Content:
+        <p style="padding-left:30px;">
+            <dot:SpaContentPlaceHolder ID="MainContent" />
+        </p>
+        END SPA Content:
+    </div>
+
+    <h2>Update Progress Container</h2>
+    <p>
+        <dot:UpdateProgress>
+            <div ID="progress">
+                Update Progress
+            </div>
+        </dot:UpdateProgress>
+    </p>
+</body>
+</html>
+
+

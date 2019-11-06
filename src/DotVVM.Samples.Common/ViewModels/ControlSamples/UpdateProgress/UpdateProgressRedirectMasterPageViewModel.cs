@@ -8,21 +8,21 @@ using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Samples.Common.ViewModels.ControlSamples.UpdateProgress
 {
-    public class UpdateProgressSPAViewModel : DotvvmViewModelBase
+    public class UpdateProgressRedirectMasterPageViewModel : DotvvmViewModelBase
     {
 
         public async Task Redirect2()
         {
             await Task.Delay(2000);
 
-            Context.RedirectToRoute("ControlSamples_UpdateProgress_UpdateProgressSPA2");
+            Context.RedirectToRoute("ControlSamples_UpdateProgress_UpdateProgressRedirect2");
         }
 
         public async Task Redirect1()
         {
             await Task.Delay(2000);
 
-            Context.RedirectToRoute("ControlSamples_UpdateProgress_UpdateProgressSPA1");
+            Context.RedirectToRoute("ControlSamples_UpdateProgress_UpdateProgressRedirect1");
         }
 
     }

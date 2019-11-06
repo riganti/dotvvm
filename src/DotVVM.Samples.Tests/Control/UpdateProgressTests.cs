@@ -191,18 +191,20 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
-        [Fact]
-        public void Control_UpdateProgress_SPA_Redirect()
+        [Theory]
+        [InlineData(SamplesRouteUrls.ControlSamples_UpdateProgress_UpdateProgressRedirectSPA1)]
+        [InlineData(SamplesRouteUrls.ControlSamples_UpdateProgress_UpdateProgressRedirect1)]
+        public void Control_UpdateProgress_SPA_Redirect(string route)
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_UpdateProgress_UpdateProgressSPA1);
+                browser.NavigateToUrl(route);
                 browser.Wait();
 
-                var spaTextElement = browser.Single("SPA-text", SelectByDataUi);
-                var goToSpa2Btn = browser.Single("btn-SPA2", SelectByDataUi);
+                var spaTextElement = browser.Single("text", SelectByDataUi);
+                var goToSpa2Btn = browser.Single("btn-2", SelectByDataUi);
                 var progress = browser.Single("progress", By.Id);
 
-                AssertUI.InnerTextEquals(spaTextElement, "SPA1");
+                AssertUI.InnerTextEquals(spaTextElement, "PAGE 1");
                 AssertUI.IsNotDisplayed(progress);
 
                 goToSpa2Btn.Click();
@@ -214,7 +216,7 @@ namespace DotVVM.Samples.Tests.Control
                     string spaText;
                     try
                     {
-                        spaText = browser.Single("SPA-text", SelectByDataUi).GetInnerText();
+                        spaText = browser.Single("text", SelectByDataUi).GetInnerText();
                     }
                     //element changed during retrieval of text.
                     catch (StaleElementReferenceException)
@@ -222,7 +224,7 @@ namespace DotVVM.Samples.Tests.Control
                         continue;
                     }
 
-                    if (spaText != "SPA2")
+                    if (spaText != "PAGE 1")
                     {
                         AssertUI.IsDisplayed(progress);
                     }
@@ -241,7 +243,7 @@ namespace DotVVM.Samples.Tests.Control
         public void Control_UpdateProgress_SPA_LongAction()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_UpdateProgress_UpdateProgressSPA1);
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_UpdateProgress_UpdateProgressRedirectSPA1);
                 browser.Wait();
                 var progress = browser.Single("progress", By.Id);
 
