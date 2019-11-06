@@ -78,6 +78,13 @@ namespace DotVVM.Framework.Hosting
             {
                 context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
             }
+            catch (CorruptedCsrfTokenException ex)
+            {
+                // TODO this should be done by IOutputRender or something like that. IOutputRenderer does not support that, so should we make another IJsonErrorOutputWriter?
+                context.HttpContext.Response.StatusCode = 400;
+                context.HttpContext.Response.ContentType = "application/json; charset=utf-8";
+                await context.HttpContext.Response.WriteAsync(JsonConvert.SerializeObject(new { action = "invalidCsrfToken", message = ex.Message }));
+            }
             catch (DotvvmControlException ex)
             {
                 if (ex.FileName != null)
@@ -239,7 +246,7 @@ namespace DotVVM.Framework.Hosting
                 await requestTracer.TraceEvent(RequestTracingConstants.PreRenderCompleted, context);
 
                 // generate CSRF token if required
-                if (string.IsNullOrEmpty(context.CsrfToken))
+                if (string.IsNullOrEmpty(context.CsrfToken) && !context.Configuration.ExperimentalFeatures.LazyCsrfToken.IsEnabledForRoute(context.Route.RouteName))
                 {
                     context.CsrfToken = CsrfProtector.GenerateToken(context);
                 }
@@ -265,12 +272,16 @@ namespace DotVVM.Framework.Hosting
                     var postBackUpdates = OutputRenderer.RenderPostbackUpdatedControls(context, page);
                     ViewModelSerializer.AddPostBackUpdatedControls(context, postBackUpdates);
 
+                    // resources must be added after the HTML is rendered - some controls may request resources in the render phase
+                    ViewModelSerializer.AddNewResources(context);
+
                     await OutputRenderer.WriteViewModelResponse(context, page);
                 }
                 await requestTracer.TraceEvent(RequestTracingConstants.OutputRendered, context);
 
                 foreach (var f in requestFilters) await f.OnPageRenderedAsync(context);
             }
+            catch (CorruptedCsrfTokenException e) { throw; }
             catch (DotvvmInterruptRequestExecutionException) { throw; }
             catch (DotvvmHttpException) { throw; }
             catch (Exception ex)

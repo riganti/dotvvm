@@ -31,6 +31,13 @@ interface IDotvvmViewModelInfo {
 interface IDotvvmViewModels {
     [name: string]: IDotvvmViewModelInfo
 }
+type DotvvmStaticCommandResponse = {
+    result: any;
+} | {
+    action: "redirect";
+    url: string;
+};
+
 
 interface IDotvvmPostbackHandlerCollection {
     [name: string]: ((options: any) => DotvvmPostbackHandler);
@@ -368,35 +375,81 @@ class DotVVM {
         return this.postBackCounter === currentPostBackCounter;
     }
 
-    public staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback = _ => { }, errorCallback = (errorInfo: {xhr: XMLHttpRequest, error?: any}) => { }) {
-        var data = this.serialization.serialize({
-            "args": args,
-            "command": command,
-            "$csrfToken": this.viewModels[viewModelName].viewModel.$csrfToken
-        });
-        dotvvm.events.staticCommandMethodInvoking.trigger(data);
+    private async fetchCsrfToken(viewModelName: string): Promise<string> {
+        const vm = this.viewModels[viewModelName].viewModel
+        if (vm.$csrfToken == null) {
+            const response = await fetch((this.viewModels[viewModelName].virtualDirectory || "") + "/___dotvvm-create-csrf-token___")
+            if (response.status != 200)
+                throw new Error(`Can't fetch CSRF token: ${response.statusText}`)
+            vm.$csrfToken = await response.text()
+        }
+        return vm.$csrfToken
+    }
 
-        this.postJSON(<string>this.viewModels[viewModelName].url, "POST", ko.toJSON(data), response => {
+    public staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback = _ => { }, errorCallback = (errorInfo: {xhr?: XMLHttpRequest, error?: any}) => { }) {
+        (async () => {
+            var csrfToken;
             try {
-                this.isViewModelUpdating = true;
-                const result = JSON.parse(response.responseText);
-                dotvvm.events.staticCommandMethodInvoked.trigger({ ...data, result, xhr: response });
-                callback(result);
-            } catch (error) {
-                dotvvm.events.staticCommandMethodFailed.trigger({ ...data, xhr: response, error: error })
-                errorCallback({ xhr: response, error });
-            } finally {
-                this.isViewModelUpdating = false;
+                csrfToken = await this.fetchCsrfToken(viewModelName);
             }
-        }, (xhr) => {
-            this.events.error.trigger(new DotvvmErrorEventArgs(sender, this.viewModels[viewModelName].viewModel, viewModelName, xhr, null));
-            console.warn(`StaticCommand postback failed: ${xhr.status} - ${xhr.statusText}`, xhr);
-            errorCallback({ xhr });
-            dotvvm.events.staticCommandMethodFailed.trigger({ ...data, xhr })
-        },
+            catch (err) {
+                this.events.error.trigger(new DotvvmErrorEventArgs(sender, this.viewModels[viewModelName].viewModel, viewModelName, null, null));
+                console.warn(`CSRF token fetch failed.`);
+                errorCallback({ error: err });
+                return;
+            }
+            
+            var data = this.serialization.serialize({
+                args,
+                command,
+                "$csrfToken": csrfToken
+            });
+            dotvvm.events.staticCommandMethodInvoking.trigger(data);
+
+            this.postJSON(<string>this.viewModels[viewModelName].url, "POST", ko.toJSON(data), response => {
+                try {
+                    this.isViewModelUpdating = true;
+                    const responseObj = <DotvvmStaticCommandResponse>JSON.parse(response.responseText);
+                    if ("action" in responseObj) {
+                        if (responseObj.action == "redirect") {
+                            // redirect
+                            this.handleRedirect(responseObj, viewModelName);
+                            errorCallback({ xhr: response, error: "redirect" });
+                            return;
+                        } else {
+                            throw new Error(`Invalid action ${responseObj.action}`);
+                        }
+                    }
+                    const result = responseObj.result;
+                    dotvvm.events.staticCommandMethodInvoked.trigger({ ...data, result, xhr: response });
+                    callback(result);
+                } catch (error) {
+                    dotvvm.events.staticCommandMethodFailed.trigger({ ...data, xhr: response, error: error })
+                    errorCallback({ xhr: response, error });
+                } finally {
+                    this.isViewModelUpdating = false;
+                }
+            }, (xhr) => {
+                if (/^application\/json(;|$)/.test(xhr.getResponseHeader("Content-Type")!)) {
+                    const errObject = JSON.parse(xhr.responseText)
+
+                    if (errObject.action === "invalidCsrfToken") {
+                        // ok, renew the token and try again. Do that before any event is triggered
+                        this.viewModels[viewModelName].viewModel.$csrfToken = null
+                        console.log("Resending postback due to invalid CSRF token.") // this may loop indefinitely (in some extreme case), we don't currently have any loop detection mechanism, so at least we can log it.
+                        this.staticCommandPostback(viewModelName, sender, command, args, callback, errorCallback)
+                        return;
+                    }
+                }
+                this.events.error.trigger(new DotvvmErrorEventArgs(sender, this.viewModels[viewModelName].viewModel, viewModelName, xhr, null));
+                console.warn(`StaticCommand postback failed: ${xhr.status} - ${xhr.statusText}`, xhr);
+                errorCallback({ xhr });
+                dotvvm.events.staticCommandMethodFailed.trigger({ ...data, xhr })
+            },
             xhr => {
                 xhr.setRequestHeader("X-PostbackType", "StaticCommand");
             });
+        })()
     }
 
     private processPassedId(id: any, context: any): string {
@@ -499,9 +552,17 @@ class DotVVM {
     }
 
     public postbackCore(options: PostbackOptions, path: string[], command: string, controlUniqueId: string, context: any, commandArgs?: any[]) {
-        return new Promise<() => Promise<DotvvmAfterPostBackEventArgs>>((resolve, reject) => {
+        return new Promise<() => Promise<DotvvmAfterPostBackEventArgs>>(async (resolve, reject) => {
             const viewModelName = options.viewModelName!;
             const viewModel = this.viewModels[viewModelName].viewModel;
+            
+            try {
+                await this.fetchCsrfToken(viewModelName);
+            }
+            catch (err) {
+                reject({ type: 'network', options: options, args: new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, null, options.postbackId) });
+                return;
+            }
 
             this.lastStartedPostack = options.postbackId
             // perform the postback
@@ -582,6 +643,17 @@ class DotVVM {
                     });
                 }));
             }, xhr => {
+                if (/^application\/json(;|$)/.test(xhr.getResponseHeader("Content-Type")!)) {
+                    const errObject = JSON.parse(xhr.responseText)
+
+                    if (errObject.action === "invalidCsrfToken") {
+                        // ok, renew the token and try again. Do that before any event is triggered
+                        this.viewModels[viewModelName].viewModel.$csrfToken = null
+                        console.log("Resending postback due to invalid CSRF token.") // this may loop indefinitely (in some extreme case), we don't currently have any loop detection mechanism, so at least we can log it.
+                        this.postbackCore(options, path, command, controlUniqueId, context, commandArgs).then(resolve, reject)
+                        return;
+                    }
+                }
                 reject({ type: 'network', options: options, args: new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, xhr, options.postbackId) });
             });
         });
@@ -676,46 +748,48 @@ class DotVVM {
             callback();
             return;
         }
-        var el = <any>elements[offset];
+        var element = elements[offset];
         var waitForScriptLoaded = false;
-        if (el.tagName.toLowerCase() == "script") {
-            // create the script element
+        if (element.tagName.toLowerCase() == "script") {
+            var originalScript = <HTMLScriptElement>element;
             var script = <HTMLScriptElement>document.createElement("script");
-            if (el.src) {
-                script.src = el.src;
+            if (originalScript.src) {
+                script.src = originalScript.src;
                 waitForScriptLoaded = true;
             }
-            if (el.type) {
-                script.type = el.type;
+            if (originalScript.type) {
+                script.type = originalScript.type;
             }
-            if (el.text) {
-                script.text = el.text;
+            if (originalScript.text) {
+                script.text = originalScript.text;
             }
-            if (el.id) {
-                script.id = el.id;
+            if (element.id) {
+                script.id = element.id;
             }
-            el = script;
+            element = script;
         }
-        else if (el.tagName.toLowerCase() == "link") {
+        else if (element.tagName.toLowerCase() == "link") {
             // create link
+            var originalLink = <HTMLLinkElement>element;
             var link = <HTMLLinkElement>document.createElement("link");
-            if (el.href) {
-                link.href = el.href;
+            if (originalLink.href) {
+                link.href = originalLink.href;
             }
-            if (el.rel) {
-                link.rel = el.rel;
+            if (originalLink.rel) {
+                link.rel = originalLink.rel;
             }
-            if (el.type) {
-                link.type = el.type;
+            if (originalLink.type) {
+                link.type = originalLink.type;
             }
-            el = link;
+            element = link;
         }
 
         // load next script when this is finished
         if (waitForScriptLoaded) {
-            el.onload = () => this.loadResourceElements(elements, offset + 1, callback);
+            element.addEventListener("load", () => this.loadResourceElements(elements, offset + 1, callback));
+            element.addEventListener("error", () => this.loadResourceElements(elements, offset + 1, callback));
         }
-        document.head.appendChild(el);
+        document.head.appendChild(element);
         if (!waitForScriptLoaded) {
             this.loadResourceElements(elements, offset + 1, callback);
         }
@@ -953,7 +1027,7 @@ class DotVVM {
         preprocessRequest(xhr);
         xhr.onreadystatechange = () => {
             if (xhr.readyState !== XMLHttpRequest.DONE) return;
-            if (xhr.status < 400) {
+            if (xhr.status && xhr.status < 400) {
                 success(xhr);
             } else {
                 error(xhr);
@@ -969,7 +1043,7 @@ class DotVVM {
         xhr.setRequestHeader("X-DotVVM-SpaContentPlaceHolder", spaPlaceHolderUniqueId);
         xhr.onreadystatechange = () => {
             if (xhr.readyState !== XMLHttpRequest.DONE) return;
-            if (xhr.status < 400) {
+            if (xhr.status && xhr.status < 400) {
                 success(xhr);
             } else {
                 error(xhr);

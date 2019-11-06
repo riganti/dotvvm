@@ -75,7 +75,7 @@ interface PostbackEventArgs extends DotvvmEventArgs {
     postbackClientId: number
     viewModelName: string
     sender?: Element
-    xhr?: XMLHttpRequest
+    xhr?: XMLHttpRequest | null
     serverResponseObject?: any
 }
 
@@ -84,7 +84,7 @@ interface DotvvmEventArgs {
 }
 class DotvvmErrorEventArgs implements PostbackEventArgs {
     public handled = false;
-    constructor(public sender: Element | undefined, public viewModel: any, public viewModelName: any, public xhr: XMLHttpRequest, public postbackClientId, public serverResponseObject: any = undefined, public isSpaNavigationError: boolean = false) {
+    constructor(public sender: Element | undefined, public viewModel: any, public viewModelName: any, public xhr: XMLHttpRequest | null, public postbackClientId, public serverResponseObject: any = undefined, public isSpaNavigationError: boolean = false) {
     }
 }
 class DotvvmBeforePostBackEventArgs implements PostbackEventArgs {

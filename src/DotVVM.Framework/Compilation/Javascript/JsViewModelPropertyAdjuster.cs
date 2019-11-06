@@ -53,7 +53,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 {
                     node.AddAnnotation(ResultIsObservableAnnotation.Instance);
 
-                    if (ViewModelJsonConverter.IsCollection(propertyType))
+                    if (ReflectionUtils.IsCollection(propertyType))
                     {
                         node.AddAnnotation(ResultIsObservableArrayAnnotation.Instance);
                     }

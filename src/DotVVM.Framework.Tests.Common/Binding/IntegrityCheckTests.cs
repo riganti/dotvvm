@@ -16,6 +16,7 @@ namespace DotVVM.Framework.Tests.Binding
 
         private string RenderResource(DotvvmConfiguration configuration, ScriptResource jquery)
         {
+            configuration.Freeze();
             var context = new TestDotvvmRequestContext()
             {
                 Configuration = configuration,

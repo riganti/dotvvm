@@ -631,15 +631,18 @@ namespace DotVVM.Framework.Tests.Binding
     {
         public int MyProperty { get; set; }
         public string SomeString { get; set; }
-
+        public DateTime NonNullableDate { get; set; }
+        public DateTime? NullableDate { get; set; }
+        public TestEnum Enum { get; set; }
+        public TestEnum? NullableEnum { get; set; }
         public IList<Something> Collection { get; set; }
-
+        public TestViewModel3 ChildObject { get; set; }
+        public TestStruct Struct { get; set; }
         public override string ToString()
         {
             return SomeString + ": " + MyProperty;
         }
     }
-
     class TestViewModel3 : DotvvmViewModelBase
     {
         public string SomeString { get; set; }
@@ -662,6 +665,10 @@ namespace DotVVM.Framework.Tests.Binding
         }
     }
 
+    struct TestStruct
+    {
+        public int Int { get; set; }
+    }
     class Something
     {
         public bool Value { get; set; }

@@ -405,7 +405,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_AssignAndUseObject()
         {
             var result = CompileBinding("StringProp2 = (_this.TestViewModel2B = _this.TestViewModel2 = _this.VmArray[3]).SomeString", typeof(TestViewModel));
-            Assert.AreEqual("StringProp2(dotvvm.serialization.deserialize(dotvvm.serialization.deserialize(VmArray()[3](),TestViewModel2)(),TestViewModel2B)().SomeString()).StringProp2", result);
+            Assert.AreEqual("StringProp2(dotvvm.serialization.deserialize(dotvvm.serialization.deserialize(VmArray()[3](),TestViewModel2,true)(),TestViewModel2B,true)().SomeString()).StringProp2", result);
         }
 
         [TestMethod, Ignore] // ignored because https://github.com/dotnet/corefx/issues/33074
