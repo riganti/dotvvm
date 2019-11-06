@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -147,12 +148,12 @@ namespace DotVVM.Framework.Compilation
             {
                 LoadCompiledViewsAssembly(assembly);
 
-                var bindings = Path.Combine(Path.GetDirectoryName(assembly.GetCodeBasePath()), "CompiledViewsBindings.dll");
+                var bindings = Path.Combine(Path.GetDirectoryName(assembly.GetCodeBasePath())!, "CompiledViewsBindings.dll");
                 if (File.Exists(bindings)) AssemblyLoader.LoadFile(bindings);
             }
         }
 
-        public Assembly TryFindAssembly(string fileName)
+        public Assembly? TryFindAssembly(string fileName)
         {
             if (File.Exists(fileName)) return AssemblyLoader.LoadFile(fileName);
             if (Path.IsPathRooted(fileName)) return null;
@@ -164,7 +165,7 @@ namespace DotVVM.Framework.Compilation
                 if (assembly.GetName().Name == cleanName)
                 {
                     var codeBase = assembly.GetCodeBasePath();
-                    if (codeBase.EndsWith(fileName, StringComparison.OrdinalIgnoreCase)) return assembly;
+                    if (codeBase!.EndsWith(fileName, StringComparison.OrdinalIgnoreCase)) return assembly;
                 }
             }
             foreach (var assemblyDirectory in new[] { Path.GetDirectoryName(typeof(DefaultControlBuilderFactory).GetTypeInfo().Assembly.GetCodeBasePath()), configuration.ApplicationPhysicalPath })
@@ -181,7 +182,7 @@ namespace DotVVM.Framework.Compilation
                 if (assembly.GetName().Name == cleanName)
                 {
                     var codeBase = assembly.GetCodeBasePath();
-                    if (codeBase.EndsWith(fileName, StringComparison.OrdinalIgnoreCase)) return assembly;
+                    if (codeBase!.EndsWith(fileName, StringComparison.OrdinalIgnoreCase)) return assembly;
                 }
             }
             return null;
@@ -205,13 +206,15 @@ namespace DotVVM.Framework.Compilation
             }).Where(t => t.attribute != null);
             foreach (var builder in builders)
             {
-                RegisterControlBuilder(builder.attribute.FilePath, (IControlBuilder)Activator.CreateInstance(builder.type));
+                RegisterControlBuilder(builder.attribute.FilePath, (IControlBuilder)Activator.CreateInstance(builder.type).NotNull());
             }
         }
 
         public void RegisterControlBuilder(string file, IControlBuilder builder)
         {
-            controlBuilders.TryAdd(markupFileLoader.GetMarkup(configuration, file), (new ControlBuilderDescriptor(builder.DataContextType, builder.ControlType), new Lazy<IControlBuilder>(() => builder)));
+            var markup = markupFileLoader.GetMarkup(configuration, file) ??
+                         throw new Exception($"Could not load markup file {file}.");
+            controlBuilders.TryAdd(markup, (new ControlBuilderDescriptor(builder.DataContextType, builder.ControlType), new Lazy<IControlBuilder>(() => builder)));
         }
 
         private static readonly HashSet<string> csharpKeywords = new HashSet<string>(new[]

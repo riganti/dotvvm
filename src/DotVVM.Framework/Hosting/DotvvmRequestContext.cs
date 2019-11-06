@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,20 +9,21 @@ using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.Extensions.DependencyInjection;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Hosting
 {
     public class DotvvmRequestContext : IDotvvmRequestContext
     {
-        public string CsrfToken { get; set; }
-        public JObject ReceivedViewModelJson { get; set; }
+        public string? CsrfToken { get; set; }
+        public JObject? ReceivedViewModelJson { get; set; }
 
-        public JObject ViewModelJson { get; set; }
+        public JObject? ViewModelJson { get; set; }
 
         /// <summary>
         /// Gets the route that was used for this request.
         /// </summary>
-        public RouteBase Route { get; set; }
+        public RouteBase? Route { get; set; }
 
         /// <summary>
         /// Determines whether this HTTP request is a postback or a classic GET request.
@@ -31,22 +33,22 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets the view model object for the current HTTP request.
         /// </summary>
-        public object ViewModel { get; set; }
+        public object? ViewModel { get; set; }
 
         /// <summary>
         /// Gets the top-level control representing the whole view for the current request.
         /// </summary>
-        public DotvvmView View { get; set; }
+        public DotvvmView? View { get; set; }
 
         /// <summary>
         /// Gets the values of parameters specified in the <see cref="P:Route" /> property.
         /// </summary>
-        public IDictionary<string, object> Parameters { get; set; }
+        public IDictionary<string, object?>? Parameters { get; set; }
 
         /// <summary>
         /// Gets the <see cref="IDotvvmPresenter"/> that is responsible for handling this HTTP request.
         /// </summary>
-        public IDotvvmPresenter Presenter { get; set; }
+        public IDotvvmPresenter? Presenter { get; set; }
 
         /// <summary>
         /// Gets the global configuration of DotVVM.
@@ -56,7 +58,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets the resource manager that is responsible for rendering script and stylesheet resources.
         /// </summary>
-        private ResourceManager _resourceManager;
+        private ResourceManager? _resourceManager;
         public ResourceManager ResourceManager => _resourceManager ?? (_resourceManager = Services.GetRequiredService<ResourceManager>());
 
         /// <summary>
@@ -86,12 +88,12 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets or sets the exception that occurred when the command was executed.
         /// </summary>
-        public Exception CommandException { get; set; }
+        public Exception? CommandException { get; set; }
 
         /// <summary>
         /// Gets or sets new url fragment (the part after #) to be set on client
         /// </summary>
-        public string ResultIdFragment { get; set; }
+        public string? ResultIdFragment { get; set; }
 
 
         /// <summary>
@@ -107,7 +109,7 @@ namespace DotVVM.Framework.Hosting
         [Obsolete("Get the IViewModelSerializer from IServiceProvider")]
         public IViewModelSerializer ViewModelSerializer => Services.GetRequiredService<IViewModelSerializer>();
 
-        private IServiceProvider _services;
+        private IServiceProvider? _services;
         public IServiceProvider Services
         {
             get => _services ?? (_services = Configuration.ServiceProvider ?? throw new NotSupportedException());
@@ -116,12 +118,23 @@ namespace DotVVM.Framework.Hosting
 
         public IHttpContext HttpContext { get; set; }
 
+        public DotvvmRequestContext(
+            IHttpContext httpContext,
+            DotvvmConfiguration configuration,
+            IServiceProvider? services)
+        {
+            HttpContext = httpContext;
+            Configuration = configuration;
+            _services = services;
+        }
+
         /// <summary>
         /// Gets the current DotVVM context.
         /// </summary>
         public static DotvvmRequestContext GetCurrent(IHttpContext httpContext)
         {
-            return httpContext.GetItem<DotvvmRequestContext>(HostingConstants.DotvvmRequestContextOwinKey);
+            return httpContext.GetItem<DotvvmRequestContext>(HostingConstants.DotvvmRequestContextOwinKey)
+                   .NotNull();
         }
     }
 }

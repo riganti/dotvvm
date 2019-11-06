@@ -1,4 +1,5 @@
-﻿namespace DotVVM.Framework.Utils
+﻿#nullable enable
+namespace DotVVM.Framework.Utils
 {
     public static class StringUtils
     {

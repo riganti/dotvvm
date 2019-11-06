@@ -22,7 +22,7 @@ namespace DotVVM.Framework.Tests.Runtime
     [TestClass]
     public class DefaultViewCompilerTests
     {
-        private DotvvmRequestContext context;
+        private IDotvvmRequestContext context;
 
 
         [TestMethod]
@@ -488,15 +488,14 @@ test <dot:Literal><a /></dot:Literal>";
             }
             markupFiles[fileName + ".dothtml"] = markup;
 
-            context = new DotvvmRequestContext();
-            context.Configuration = DotvvmTestHelper.CreateConfiguration(services =>
+            var config = DotvvmTestHelper.CreateConfiguration(services =>
             {
                 services.AddSingleton<IMarkupFileLoader>(new FakeMarkupFileLoader(markupFiles));
                 services.AddSingleton<CustomControlFactory>((s, t) =>
                     t == typeof(TestCustomDependencyInjectionControl) ? new TestCustomDependencyInjectionControl("") { IsCorrectlyCreated = true } :
                     throw new Exception());
             });
-            context.Services = context.Services.GetRequiredService<IServiceScopeFactory>().CreateScope().ServiceProvider;
+            context = DotvvmTestHelper.CreateContext(config);
             context.Configuration.ApplicationPhysicalPath = Path.GetTempPath();
 
             context.Configuration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test1", Src = "test1.dothtml" });
