@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -81,11 +82,11 @@ namespace DotVVM.Framework.Configuration
                     if (control.Reason == DotvvmConfigurationAssertReason.MissingFile)
                     {
                         sb.Append("Control '");
-                        sb.Append(control.Value.TagPrefix);
+                        sb.Append(control.Value.TagPrefix ?? "<null>");
                         sb.Append(":");
-                        sb.Append(control.Value.TagName);
+                        sb.Append(control.Value.TagName ?? "<null>");
                         sb.Append("' has missing file '");
-                        sb.Append(control.Value.Src);
+                        sb.Append(control.Value.Src ?? "<null>");
                         sb.Append("'.");
                     }
                     sb.AppendLine();

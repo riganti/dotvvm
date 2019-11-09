@@ -224,8 +224,21 @@ interface ISerializationOptions {
     restApiTarget?: boolean;
 }
 declare class DotvvmSerialization {
-    deserialize(viewModel: any, target?: any, deserializeAll?: boolean): any;
     wrapObservable<T>(obj: T): KnockoutObservable<T>;
+    deserialize(viewModel: any, target?: any, deserializeAll?: boolean): any;
+    deserializePrimitive(viewModel: any, target?: any): any;
+    deserializeDate(viewModel: any, target?: any): any;
+    deserializeArray(viewModel: any, target?: any, deserializeAll?: boolean): any;
+    private rebuildArrayFromScratch;
+    private updateArrayItems;
+    deserializeObject(viewModel: any, target: any, deserializeAll: boolean): any;
+    private copyProperty;
+    private copyPropertyMetadata;
+    private extendToObservableArrayIfRequired;
+    private wrapObservableObjectOrArray;
+    private isPrimitive;
+    private isOptionsProperty;
+    private isObservableArray;
     serialize(viewModel: any, opt?: ISerializationOptions): any;
     validateType(value: any, type: string): boolean;
     private findObject;

@@ -1,14 +1,14 @@
 ## DotVVM Roadmap
 
-Current stable version: **2.2**
+Current stable version: **2.3**
 
-Next planned version:   **2.3**
+Next planned version:   **2.4**
 
 <br />
 
 ### DotVVM 2.3
 
-DotVVM 2.1 and 2.2 brought many bug fixes and smaller improvements (mostly performance optimizations). **DotVVM 2.3** will continue in this fashion.
+DotVVM 2.1, 2.2 and 2.3 brought many bug fixes and smaller improvements (mostly performance optimizations). **DotVVM 2.4** will continue in this fashion and will also add some experimental features that are planned to be stabilized and finished by DotVVM 3.0.
 
 ### DotVVM 3.0
 
@@ -23,6 +23,12 @@ We have some larger features in progress and planning to release them later this
 * **Electron integration**: Electron can be one of the ways for delivery of multi-platform desktop applications. 
 
 * **WebAssembly integration**: WebAssembly may become the next era of web development, and DotVVM cannot miss the opportunity to benefit from it. We have been thinking about various ways of integrating with WebAssembly. It may be nice to run wasm workloads using a static command binding, for example run a machine learning on an image the user has uploaded.
+
+* **Modularization and refactoring of the JavaScript layer**: We have started refactoring and redesigning the JavaScript part of DotVVM. The new implementation will use ES6 modules and should also streamline and clean up the public JavaScript API. The main benefit is better maintainability and hopefully better performance thanks to splitting the Dotvvm.js file intosmaller pieces and including only these that are really necessary in the page.
+
+* **Better support for PWAs**: DotVVM 2.4 ships with a new feature called "lazy CSRF tokens" which allows to cache generated DotVVM pages or embed them in a mobile app package. The CSRF token is not included in the page and is obtained on the first postback. Also, we plan to implement auto-generation of service worker files that could handle caching for DotVVM routes.
+
+* **Improvements for public web apps**: This includes the improvements in the server rendering mode and other small enhancements. We have also been thinking about automatic generation of AMP versions of particular pages (if the pages don't contain anything that is not supported in AMP).
 
 ### Side Projects
 
