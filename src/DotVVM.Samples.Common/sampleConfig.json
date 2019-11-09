@@ -4,6 +4,7 @@
     {
       "name": "Default",
       "config": {
+
       }
     },
     {
@@ -16,5 +17,8 @@
         }
       }
     }
-  ]
+  ],
+  "appSettings": {
+    "githubApiToken": ""
+  }
 }

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
 using Moq;
 using System.Threading;
+using DotVVM.Framework.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.Configuration;
 
