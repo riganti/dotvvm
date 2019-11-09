@@ -252,7 +252,6 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_StaticCommand_StaticCommand_ValueAssignmentInControl = "FeatureSamples/StaticCommand/StaticCommand_ValueAssignmentInControl";
         public const string FeatureSamples_UsageValidation_OverrideValidation = "FeatureSamples/UsageValidation/OverrideValidation";
         public const string FeatureSamples_Validation_ClientSideObservableUpdate = "FeatureSamples/Validation/ClientSideObservableUpdate";
-        public const string FeatureSamples_Validation_ClientSideValidationDisabling = "FeatureSamples/Validation/ClientSideValidationDisabling";
         public const string FeatureSamples_Validation_CustomValidation = "FeatureSamples/Validation/CustomValidation";
         public const string FeatureSamples_Validation_DateTimeValidation = "FeatureSamples/Validation/DateTimeValidation";
         public const string FeatureSamples_Validation_DateTimeValidation_NullableDateTime = "FeatureSamples/Validation/DateTimeValidation_NullableDateTime";
@@ -270,11 +269,13 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Validation_ValidationRulesLoadOnPostback = "FeatureSamples/Validation/ValidationRulesLoadOnPostback";
         public const string FeatureSamples_Validation_ValidationScopes = "FeatureSamples/Validation/ValidationScopes";
         public const string FeatureSamples_Validation_ValidationScopes2 = "FeatureSamples/Validation/ValidationScopes2";
+        public const string FeatureSamples_ViewModelCache_ViewModelCacheMiss = "FeatureSamples/ViewModelCache/ViewModelCacheMiss";
         public const string FeatureSamples_ViewModelDeserialization_DoesNotDropObject = "FeatureSamples/ViewModelDeserialization/DoesNotDropObject";
         public const string FeatureSamples_ViewModelDeserialization_NegativeLongNumber = "FeatureSamples/ViewModelDeserialization/NegativeLongNumber";
         public const string FeatureSamples_ViewModelNesting_NestedViewModel = "FeatureSamples/ViewModelNesting/NestedViewModel";
         public const string FeatureSamples_ViewModelProtection_ComplexViewModelProtection = "FeatureSamples/ViewModelProtection/ComplexViewModelProtection";
         public const string FeatureSamples_ViewModelProtection_SignedNestedInServerToClient = "FeatureSamples/ViewModelProtection/SignedNestedInServerToClient";
         public const string FeatureSamples_ViewModelProtection_ViewModelProtection = "FeatureSamples/ViewModelProtection/ViewModelProtection";
+        public const string FeatureSamples_Warnings_SelfClosingTags = "FeatureSamples/Warnings/SelfClosingTags";
         }
 }

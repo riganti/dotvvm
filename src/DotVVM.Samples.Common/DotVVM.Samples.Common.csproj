@@ -58,6 +58,7 @@
     <None Remove="Views\FeatureSamples\UsageValidation\OverrideValidation.dothtml" />
     <None Remove="Views\FeatureSamples\Validation\EnforceClientSideValidationDisabled.dothtml" />
     <None Remove="Views\FeatureSamples\Validation\InvalidCssClassNotDuplicated.dothtml" />
+    <None Remove="Views\FeatureSamples\ViewModelCache\ViewModelCache_Miss.dothtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="sampleConfig.json">

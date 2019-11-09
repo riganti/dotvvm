@@ -616,11 +616,7 @@ class DotVVM {
                     dotvvm.events.postbackResponseReceived.trigger({})
                     resolve(() => new Promise((resolve, reject) => {
                         dotvvm.events.postbackCommitInvoked.trigger({})
-                        const locationHeader = result.getResponseHeader("Location");
-
-                        resultObject = locationHeader != null && locationHeader.length > 0 ?
-                            { action: "redirect", url: locationHeader } :
-                            JSON.parse(result.responseText);
+                        
                         if (!resultObject.viewModel && resultObject.viewModelDiff) {
                             // TODO: patch (~deserialize) it to ko.observable viewModel
                             resultObject.viewModel = this.patch(completeViewModel, resultObject.viewModelDiff);
@@ -704,7 +700,7 @@ class DotVVM {
                     delete data.viewModelCacheId;
                     data.viewModel = completeViewModel;
 
-                    this.postJSON(<string>this.viewModels[viewModelName].url, "POST", ko.toJSON(data), result2 => {
+                    return this.postJSON(<string>this.viewModels[viewModelName].url, "POST", ko.toJSON(data), result2 => {
                         parseResultObject(result2);
                         successAction(result2);
                     }, errorAction);
