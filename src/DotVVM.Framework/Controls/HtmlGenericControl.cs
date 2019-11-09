@@ -34,7 +34,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Initializes a new instance of the <see cref="HtmlGenericControl"/> class.
         /// </summary>
-        public HtmlGenericControl(string tagName, bool allowImplicitLifecycleRequirements = true) : this(allowImplicitLifecycleRequirements)
+        public HtmlGenericControl(string? tagName, bool allowImplicitLifecycleRequirements = true) : this(allowImplicitLifecycleRequirements)
         {
             TagName = tagName;
 
@@ -77,7 +77,7 @@ namespace DotVVM.Framework.Controls
         /// Gets the tag name.
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.Exclude)]
-        public string TagName { get; protected set; }
+        public string? TagName { get; protected set; }
 
         /// <summary>
         /// Gets or sets whether the control is visible.
@@ -95,7 +95,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets a value whether this control renders a HTML tag.
         /// </summary>
-        protected virtual bool RendersHtmlTag => true;
+        protected virtual bool RendersHtmlTag => !string.IsNullOrEmpty(TagName);
 
         protected new struct RenderState
         {
@@ -213,7 +213,7 @@ namespace DotVVM.Framework.Controls
         {
             if (RendersHtmlTag)
             {
-                writer.RenderBeginTag(TagName);
+                writer.RenderBeginTag(TagName!);
             }
         }
 
