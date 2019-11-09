@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Controls;
@@ -16,10 +17,10 @@ namespace DotVVM.Framework.ResourceManagement
     {
         /// <summary>Location property is required!</summary>
         public IResourceLocation Location { get; set; }
-        public ResourceLocationFallback LocationFallback { get; set; }
+        public ResourceLocationFallback? LocationFallback { get; set; }
         public string MimeType { get; private set; }
         public bool VerifyResourceIntegrity { get; set; }
-        public string IntegrityHash { get; set; }
+        public string? IntegrityHash { get; set; }
 
         public LinkResourceBase(ResourceRenderPosition renderPosition, string mimeType, IResourceLocation location) : base(renderPosition)
         {
@@ -29,6 +30,7 @@ namespace DotVVM.Framework.ResourceManagement
         public LinkResourceBase(ResourceRenderPosition renderPosition, string mimeType) : base(renderPosition)
         {
             this.MimeType = mimeType;
+            this.Location = null!; // TODO: deprecate this overload
         }
 
         public IEnumerable<IResourceLocation> GetLocations()
@@ -62,7 +64,19 @@ namespace DotVVM.Framework.ResourceManagement
                     {
                         writer.AddAttribute("type", "text/javascript");
                         writer.RenderBeginTag("script");
-                        writer.WriteUnencodedText($"{LocationFallback.JavascriptCondition} || document.write({JsonConvert.ToString(link, '\'').Replace("<", "\\u003c")})");
+                        var script = JsonConvert.ToString(link, '\'').Replace("<", "\\u003c");
+                        writer.WriteUnencodedText(
+$@"if (!({LocationFallback.JavascriptCondition})) {{
+    var wrapper = document.createElement('div');
+    wrapper.innerHTML = {script};
+    var originalScript = wrapper.children[0];
+    var script = document.createElement('script');
+    script.src = originalScript.src;
+    script.type = originalScript.type;
+    script.text = originalScript.text;
+    script.id = originalScript.id;
+    document.head.appendChild(script);
+}}");
                         writer.RenderEndTag();
                     }
                 }
@@ -79,7 +93,7 @@ namespace DotVVM.Framework.ResourceManagement
 
         public abstract void RenderLink(IResourceLocation location, IHtmlWriter writer, IDotvvmRequestContext context, string resourceName);
 
-        protected string ComputeIntegrityHash(IDotvvmRequestContext context)
+        protected string? ComputeIntegrityHash(IDotvvmRequestContext context)
         {
             var hasher = context.Services.GetRequiredService<IResourceHashService>();
             var localLocation = GetLocations().OfType<ILocalResourceLocation>().First();

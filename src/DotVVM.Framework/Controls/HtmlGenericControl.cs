@@ -1,3 +1,4 @@
+#nullable enable
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation;
@@ -19,9 +20,11 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Initializes a new instance of the <see cref="HtmlGenericControl"/> class.
         /// </summary>
+#pragma warning disable CS8618 // TagName should not be null, but unfortunately is not initialized
         public HtmlGenericControl(bool allowImplicitLifecycleRequirements = true)
+#pragma warning restore CS8618
         {
-            Attributes = new Dictionary<string, object>();
+            Attributes = new Dictionary<string, object?>();
             if (allowImplicitLifecycleRequirements && GetType() == typeof(HtmlGenericControl))
             {
                 LifecycleRequirements = ControlLifecycleRequirements.None;
@@ -31,7 +34,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Initializes a new instance of the <see cref="HtmlGenericControl"/> class.
         /// </summary>
-        public HtmlGenericControl(string tagName, bool allowImplicitLifecycleRequirements = true) : this(allowImplicitLifecycleRequirements)
+        public HtmlGenericControl(string? tagName, bool allowImplicitLifecycleRequirements = true) : this(allowImplicitLifecycleRequirements)
         {
             TagName = tagName;
 
@@ -46,7 +49,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.Attribute, AllowBinding = true, AllowHardCodedValue = true, AllowValueMerging = true, AttributeValueMerger = typeof(HtmlAttributeValueMerger), AllowAttributeWithoutValue = true)]
         [PropertyGroup(new[] { "", "html:" })]
-        public Dictionary<string, object> Attributes { get; private set; }
+        public Dictionary<string, object?> Attributes { get; private set; }
 
         public VirtualPropertyGroupDictionary<bool> CssClasses => new VirtualPropertyGroupDictionary<bool>(this, CssClassesGroupDescriptor);
 
@@ -61,20 +64,20 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the inner text of the HTML element.
         /// </summary>
-        public string InnerText
+        public string? InnerText
         {
-            get { return (string)GetValue(InnerTextProperty); }
+            get { return (string?)GetValue(InnerTextProperty); }
             set { SetValue(InnerTextProperty, value); }
         }
 
         public static readonly DotvvmProperty InnerTextProperty =
-            DotvvmProperty.Register<string, HtmlGenericControl>(t => t.InnerText, null);
+            DotvvmProperty.Register<string?, HtmlGenericControl>(t => t.InnerText, null);
 
         /// <summary>
         /// Gets the tag name.
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.Exclude)]
-        public string TagName { get; protected set; }
+        public string? TagName { get; protected set; }
 
         /// <summary>
         /// Gets or sets whether the control is visible.
@@ -82,7 +85,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowHardCodedValue = false)]
         public bool Visible
         {
-            get { return (bool)GetValue(VisibleProperty); }
+            get { return (bool)GetValue(VisibleProperty)!; }
             set { SetValue(VisibleProperty, value); }
         }
 
@@ -92,13 +95,13 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets a value whether this control renders a HTML tag.
         /// </summary>
-        protected virtual bool RendersHtmlTag => true;
+        protected virtual bool RendersHtmlTag => !string.IsNullOrEmpty(TagName);
 
         protected new struct RenderState
         {
-            public object Visible;
-            public object ClientId;
-            public object InnerText;
+            public object? Visible;
+            public object? ClientId;
+            public object? InnerText;
             public bool HasId;
             public bool HasClass;
             public bool HasStyle;
@@ -116,7 +119,7 @@ namespace DotVVM.Framework.Controls
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected bool TouchProperty(DotvvmProperty prop, object value, ref RenderState r)
+        protected bool TouchProperty(DotvvmProperty prop, object? value, ref RenderState r)
         {
             if (prop == VisibleProperty)
                 r.Visible = value;
@@ -127,7 +130,7 @@ namespace DotVVM.Framework.Controls
             else if (prop == InnerTextProperty)
                 r.InnerText = value;
             else if (prop == PostBack.UpdateProperty)
-                r.HasPostbackUpdate = (bool)this.EvalPropertyValue(prop, value);
+                r.HasPostbackUpdate = (bool)this.EvalPropertyValue(prop, value)!;
             else if (prop is GroupedDotvvmProperty gp)
             {
                 if (gp.PropertyGroup == CssClassesGroupDescriptor)
@@ -210,7 +213,7 @@ namespace DotVVM.Framework.Controls
         {
             if (RendersHtmlTag)
             {
-                writer.RenderBeginTag(TagName);
+                writer.RenderBeginTag(TagName!);
             }
         }
 
@@ -256,7 +259,7 @@ namespace DotVVM.Framework.Controls
                     if (true.Equals(this.GetValue(cssClass)))
                         writer.AddAttribute("class", cssClass.GroupMemberName, append: true, appendSeparator: " ");
                 }
-                catch { }
+                catch when (HasValueBinding(cssClass)) { }
             }
 
             if (!cssClassBindingGroup.IsEmpty) writer.AddKnockoutDataBind("css", cssClassBindingGroup);
@@ -264,7 +267,7 @@ namespace DotVVM.Framework.Controls
 
         private void AddCssStylesToRender(IHtmlWriter writer)
         {
-            KnockoutBindingGroup cssStylesBindingGroup = null;
+            KnockoutBindingGroup? cssStylesBindingGroup = null;
             foreach (var styleProperty in CssStyles.Properties)
             {
                 if (HasValueBinding(styleProperty))
@@ -278,10 +281,11 @@ namespace DotVVM.Framework.Controls
                     var value = GetValue(styleProperty)?.ToString();
                     if (!string.IsNullOrEmpty(value))
                     {
-                        writer.AddStyleAttribute(styleProperty.GroupMemberName, value);
+                        writer.AddStyleAttribute(styleProperty.GroupMemberName, value!);
                     }
                 }
-                catch { }
+                // suppress all errors when we have rendered the value binding anyway
+                catch when (HasValueBinding(styleProperty)) { }
             }
 
             if (cssStylesBindingGroup != null)
@@ -290,11 +294,11 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void AddHtmlAttribute(IHtmlWriter writer, string name, object value)
+        private void AddHtmlAttribute(IHtmlWriter writer, string name, object? value)
         {
             if (value is string || value == null)
             {
-                writer.AddAttribute(name, (string)value, true);
+                writer.AddAttribute(name, (string?)value, true);
             }
             else if (value is IEnumerable<string>)
             {
@@ -312,12 +316,11 @@ namespace DotVVM.Framework.Controls
 
         private void AddHtmlAttributesToRender(ref RenderState r, IHtmlWriter writer)
         {
-            KnockoutBindingGroup attributeBindingGroup = null;
+            KnockoutBindingGroup? attributeBindingGroup = null;
             foreach (var attribute in Attributes)
             {
-                if (attribute.Value is IValueBinding)
+                if (attribute.Value is IValueBinding binding)
                 {
-                    var binding = attribute.Value as IValueBinding;
                     if (attributeBindingGroup == null) attributeBindingGroup = new KnockoutBindingGroup();
                     attributeBindingGroup.Add(attribute.Key, binding.GetKnockoutBindingExpression(this));
                     if (!r.RenderOnServer(this))
@@ -340,12 +343,13 @@ namespace DotVVM.Framework.Controls
                 writer.AddKnockoutDataBind("text", expression.GetKnockoutBindingExpression(this));
             }
 
-            var value = (string)this.EvalPropertyValue(InnerTextProperty, r.InnerText);
+            var value = (string?)this.EvalPropertyValue(InnerTextProperty, r.InnerText);
             if ((expression == null && !string.IsNullOrWhiteSpace(value))
                 || r.RenderOnServer(this))
             {
                 Children.Clear();
-                Children.Add(new Literal(value));
+                if (value is object)
+                    Children.Add(new Literal(value));
             }
         }
 

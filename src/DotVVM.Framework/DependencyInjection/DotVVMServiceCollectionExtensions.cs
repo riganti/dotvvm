@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -39,7 +40,9 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IViewModelLoader, DefaultViewModelLoader>();
             services.TryAddSingleton<IViewModelServerCache, DefaultViewModelServerCache>();
             services.TryAddSingleton<IViewModelServerStore, InMemoryViewModelServerStore>();
+#pragma warning disable CS0618
             services.TryAddSingleton<IStaticCommandServiceLoader, DefaultStaticCommandServiceLoader>();
+#pragma warning restore CS0618
             services.TryAddSingleton<IViewModelValidationMetadataProvider, AttributeViewModelValidationMetadataProvider>();
             services.TryAddSingleton<IValidationRuleTranslator, ViewModelValidationRuleTranslator>();
             services.TryAddSingleton<IPropertySerialization, DefaultPropertySerialization>();
@@ -67,7 +70,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IHttpRedirectService, DefaultHttpRedirectService>();
             services.TryAddSingleton<IExpressionToDelegateCompiler, DefaultExpressionToDelegateCompiler>();
 
-
+            services.TryAddScoped<RuntimeWarningCollector>();
             services.TryAddScoped<AggregateRequestTracer, AggregateRequestTracer>();
             services.TryAddScoped<ResourceManager, ResourceManager>();
             services.TryAddSingleton(s => DotvvmConfiguration.CreateDefault(s));

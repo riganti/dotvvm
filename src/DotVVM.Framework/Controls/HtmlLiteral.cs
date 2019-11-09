@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,33 +22,31 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public string Html
         {
-            get { return (string)GetValue(HtmlProperty); }
-            set { SetValue(HtmlProperty, value); }
+            get { return (string)GetValue(HtmlProperty)!; }
+            set { SetValue(HtmlProperty, value ?? throw new ArgumentNullException(nameof(value))); }
         }
         public static readonly DotvvmProperty HtmlProperty =
             DotvvmProperty.Register<string, HtmlLiteral>(t => t.Html, "");
-
-
-        /// <summary>
-        /// Gets or sets whether the control should render a wrapper element.
-        /// </summary>
-        [MarkupOptions(AllowBinding = false)]
-        public string WrapperTagName
-        {
-            get { return (string)GetValue(WrapperTagNameProperty); }
-            set { SetValue(WrapperTagNameProperty, value); }
-        }
-        public static readonly DotvvmProperty WrapperTagNameProperty
-            = DotvvmProperty.Register<string, HtmlLiteral>(c => c.WrapperTagName, "div");
-
 
         /// <summary>
         /// Gets or sets the name of the tag that wraps the HtmlLiteral.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
+        public string WrapperTagName
+        {
+            get { return (string)GetValue(WrapperTagNameProperty)!; }
+            set { SetValue(WrapperTagNameProperty, value ?? throw new ArgumentNullException(nameof(value))); }
+        }
+        public static readonly DotvvmProperty WrapperTagNameProperty
+            = DotvvmProperty.Register<string, HtmlLiteral>(c => c.WrapperTagName, "div");
+
+        /// <summary>
+        /// Gets or sets whether the control should render a wrapper element.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
         public bool RenderWrapperTag
         {
-            get { return (bool)GetValue(RenderWrapperTagProperty); }
+            get { return (bool)GetValue(RenderWrapperTagProperty)!; }
             set { SetValue(RenderWrapperTagProperty, value); }
         }
         public static readonly DotvvmProperty RenderWrapperTagProperty

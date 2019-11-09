@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,6 +7,7 @@ using DotVVM.Framework.ViewModel.Validation;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -55,7 +57,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     TransferFirstRequest = property.GetMethod != null && property.GetMethod.IsPublic,
                     TransferToServer = property.SetMethod != null && property.SetMethod.IsPublic,
                     JsonConverter = GetJsonConverter(property),
-                    Populate = ViewModelJsonConverter.IsComplexType(property.PropertyType) && !ViewModelJsonConverter.IsEnumerable(property.PropertyType) && property.GetMethod != null
+                    Populate = ReflectionUtils.IsComplexType(property.PropertyType) && !ReflectionUtils.IsEnumerable(property.PropertyType) && !ReflectionUtils.IsObject(property.PropertyType) && property.GetMethod != null
                 };
 
                 foreach (ISerializationInfoAttribute attr in property.GetCustomAttributes().OfType<ISerializationInfoAttribute>())
@@ -90,7 +92,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
         }
 
-        protected virtual JsonConverter GetJsonConverter(PropertyInfo property)
+        protected virtual JsonConverter? GetJsonConverter(PropertyInfo property)
         {
             var converterType = property.GetCustomAttribute<JsonConverterAttribute>()?.ConverterType;
             if (converterType == null)
@@ -99,7 +101,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             try
             {
-                return (JsonConverter)Activator.CreateInstance(converterType);
+                return (JsonConverter?)Activator.CreateInstance(converterType);
             }
             catch (Exception ex)
             {

@@ -1,4 +1,7 @@
-﻿using System.Reflection;
+﻿#nullable enable
+using System;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Utils
@@ -8,7 +11,7 @@ namespace DotVVM.Framework.Utils
         public static Task GetCompletedTask()
         {
 #if !DotNetCore
-            return _completedTask ?? (_completedTask);
+            return _completedTask;
 #else
             return Task.CompletedTask;
 #endif
@@ -18,7 +21,7 @@ namespace DotVVM.Framework.Utils
         private static Task _completedTask = Task.WhenAll();
 #endif
 
-        public static object GetResult(Task task)
+        public static object? GetResult(Task task)
             => IsVoidTask(task) ? null : ((dynamic)task).Result;
 
         private static bool IsVoidTask(Task task)
@@ -27,10 +30,13 @@ namespace DotVVM.Framework.Utils
 
             if (type != typeof(Task))
             {
-                return type.GetProperty("Result").PropertyType.Name == "VoidTaskResult";
+                var taskResultPropertyName = type.GetProperty("Result")!.PropertyType.Name;
+                return taskResultPropertyName == "VoidTaskResult" || taskResultPropertyName == "VoidResult";
             }
 
             return true;
         }
+
+
     }
 }

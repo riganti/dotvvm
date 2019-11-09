@@ -7,6 +7,7 @@ using DotVVM.Samples.BasicSamples.Controls;
 using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand;
 using DotVVM.Samples.Common.Utilities;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
+using DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Samples.Common
@@ -22,7 +23,7 @@ namespace DotVVM.Samples.Common
                 config.ImportedNamespaces.Add(new Framework.Compilation.NamespaceImport("DotVVM.Samples.BasicSamples.TestNamespace1", "TestNamespaceAlias"));
                 config.ImportedNamespaces.Add(new Framework.Compilation.NamespaceImport("DotVVM.Samples.BasicSamples.TestNamespace2"));
             });
-
+            services.AddScoped<DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Redirect.RedirectService>();
             services.Configure<DotvvmResourceRepository>(RegisterResources);
 
             services.Configure<JavascriptTranslatorConfiguration>(c => {
@@ -34,6 +35,7 @@ namespace DotVVM.Samples.Common
             dotvvmServices.AddDefaultTempStorages("Temp");
             services.AddScoped<ViewModelScopedDependency>();
             services.AddSingleton<IGreetingComputationService, HelloGreetingComputationService>();
+            services.AddSingleton<FoodSevice>();
         }
 
         private static void RegisterResources(DotvvmResourceRepository resources)
@@ -43,13 +45,18 @@ namespace DotVVM.Samples.Common
             resources.Register("ControlSamples_SpaContentPlaceHolder_MasterPageResource", new ScriptResource(new FileResourceLocation("Scripts/testResource2.js")));
 
             resources.Register("FeatureSamples_Resources_CdnUnavailableResourceLoad", new ScriptResource() {
-                Location = new UrlResourceLocation("http://unavailable.local/testResource.js"),
+                Location = new UrlResourceLocation("~/nonexistentResource.js"),
                 LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new FileResourceLocation("~/Scripts/testResource.js"))
             });
 
             resources.Register("FeatureSamples_Resources_CdnScriptPriority", new ScriptResource {
                 Location = new UrlResourceLocation("/Scripts/testResource.js"),
                 LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new FileResourceLocation("~/Scripts/testResource2.js"))
+            });
+
+            resources.Register("FeatureSamples_Resources_RequiredOnPostback", new ScriptResource() {
+                Location = new UrlResourceLocation("~/nonexistentResource.js"),
+                LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new FileResourceLocation("~/Scripts/testResource.js"))
             });
 
             resources.Register("Errors_InvalidLocationFallback", new ScriptResource {
@@ -82,7 +89,7 @@ namespace DotVVM.Samples.Common
             });
 
             // dev files
-            resources.SetEmbeddedResourceDebugFile("knockout", "C:/Users/adamj/source/repos/knockout/build/output/knockout-latest.debug.js");
+            resources.SetEmbeddedResourceDebugFile("knockout", "../DotVVM.Framework/Resources/Scripts/knockout-latest.debug.js");
             resources.SetEmbeddedResourceDebugFile("dotvvm.internal", "../DotVVM.Framework/Resources/Scripts/DotVVM.js");
             resources.SetEmbeddedResourceDebugFile("dotvvm.debug", "../DotVVM.Framework/Resources/Scripts/DotVVM.Debug.js");
             resources.SetEmbeddedResourceDebugFile("dotvvm.fileupload-css", "../DotVVM.Framework/Resources/Scripts/DotVVM.FileUploads.css");

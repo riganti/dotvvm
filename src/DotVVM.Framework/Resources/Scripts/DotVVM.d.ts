@@ -67,7 +67,7 @@ interface PostbackEventArgs extends DotvvmEventArgs {
     postbackClientId: number;
     viewModelName: string;
     sender?: Element;
-    xhr?: XMLHttpRequest;
+    xhr?: XMLHttpRequest | null;
     serverResponseObject?: any;
 }
 interface DotvvmEventArgs {
@@ -77,12 +77,12 @@ declare class DotvvmErrorEventArgs implements PostbackEventArgs {
     sender: Element | undefined;
     viewModel: any;
     viewModelName: any;
-    xhr: XMLHttpRequest;
+    xhr: XMLHttpRequest | null;
     postbackClientId: any;
     serverResponseObject: any;
     isSpaNavigationError: boolean;
     handled: boolean;
-    constructor(sender: Element | undefined, viewModel: any, viewModelName: any, xhr: XMLHttpRequest, postbackClientId: any, serverResponseObject?: any, isSpaNavigationError?: boolean);
+    constructor(sender: Element | undefined, viewModel: any, viewModelName: any, xhr: XMLHttpRequest | null, postbackClientId: any, serverResponseObject?: any, isSpaNavigationError?: boolean);
 }
 declare class DotvvmBeforePostBackEventArgs implements PostbackEventArgs {
     sender: HTMLElement;
@@ -224,8 +224,21 @@ interface ISerializationOptions {
     restApiTarget?: boolean;
 }
 declare class DotvvmSerialization {
-    deserialize(viewModel: any, target?: any, deserializeAll?: boolean): any;
     wrapObservable<T>(obj: T): KnockoutObservable<T>;
+    deserialize(viewModel: any, target?: any, deserializeAll?: boolean): any;
+    deserializePrimitive(viewModel: any, target?: any): any;
+    deserializeDate(viewModel: any, target?: any): any;
+    deserializeArray(viewModel: any, target?: any, deserializeAll?: boolean): any;
+    private rebuildArrayFromScratch;
+    private updateArrayItems;
+    deserializeObject(viewModel: any, target: any, deserializeAll: boolean): any;
+    private copyProperty;
+    private copyPropertyMetadata;
+    private extendToObservableArrayIfRequired;
+    private wrapObservableObjectOrArray;
+    private isPrimitive;
+    private isOptionsProperty;
+    private isObservableArray;
     serialize(viewModel: any, opt?: ISerializationOptions): any;
     validateType(value: any, type: string): boolean;
     private findObject;
@@ -256,6 +269,12 @@ interface IDotvvmViewModelInfo {
 interface IDotvvmViewModels {
     [name: string]: IDotvvmViewModelInfo;
 }
+declare type DotvvmStaticCommandResponse = {
+    result: any;
+} | {
+    action: "redirect";
+    url: string;
+};
 interface IDotvvmPostbackHandlerCollection {
     [name: string]: ((options: any) => DotvvmPostbackHandler);
     confirm: (options: {
@@ -305,6 +324,7 @@ declare class DotVVM {
     extensions: IDotvvmExtensions;
     useHistoryApiSpaNavigation: boolean;
     isPostbackRunning: KnockoutObservable<boolean>;
+    updateProgressChangeCounter: KnockoutObservable<number>;
     init(viewModelName: string, culture: string): void;
     private handlePopState;
     private handleHashChangeWithHistory;
@@ -312,7 +332,11 @@ declare class DotVVM {
     private persistViewModel;
     private backUpPostBackConter;
     private isPostBackStillActive;
-    staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback?: (_: any) => void, errorCallback?: (xhr: XMLHttpRequest, error?: any) => void): void;
+    private fetchCsrfToken;
+    staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback?: (_: any) => void, errorCallback?: (errorInfo: {
+        xhr?: XMLHttpRequest | undefined;
+        error?: any;
+    }) => void): void;
     private processPassedId;
     protected getPostbackHandler(name: string): (options: any) => DotvvmPostbackHandler;
     private isPostbackHandler;

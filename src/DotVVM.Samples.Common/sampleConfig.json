@@ -4,6 +4,7 @@
     {
       "name": "Default",
       "config": {
+
       }
     },
     {
@@ -11,10 +12,7 @@
       "config": {
         "experimentalFeatures": {
           "lazyCsrfToken": {
-            "enabled": true,
-            "excludedRoutes": [
-              "Default"
-            ]
+            "enabled": true
           }
         }
       }
@@ -29,5 +27,8 @@
         }
       }
     }
-  ]
+  ],
+  "appSettings": {
+    "githubApiToken": ""
+  }
 }
