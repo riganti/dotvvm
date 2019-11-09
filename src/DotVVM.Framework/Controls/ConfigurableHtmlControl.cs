@@ -19,10 +19,10 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the name of the tag that wraps the Repeater.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
-        public string WrapperTagName
+        public string? WrapperTagName
         {
-            get { return (string)GetValue(WrapperTagNameProperty)!; }
-            set { SetValue(WrapperTagNameProperty, value ?? throw new ArgumentNullException(nameof(value))); }
+            get { return (string?)GetValue(WrapperTagNameProperty); }
+            set { SetValue(WrapperTagNameProperty, value); }
         }
         public static readonly DotvvmProperty WrapperTagNameProperty
             = DotvvmProperty.Register<string, ConfigurableHtmlControl>(c => c.WrapperTagName, "div");
@@ -42,10 +42,10 @@ namespace DotVVM.Framework.Controls
         protected override bool RendersHtmlTag => RenderWrapperTag;
 
         public ConfigurableHtmlControl(string? tagName)
-            : base(tagName ?? "div")
+            : base(tagName)
         {
-            WrapperTagName = tagName ?? "div";
-            RenderWrapperTag = !string.IsNullOrEmpty(WrapperTagName);
+            WrapperTagName = tagName;
+            RenderWrapperTag = !string.IsNullOrEmpty(tagName);
         }
 
         protected internal override void OnPreRender(IDotvvmRequestContext context)

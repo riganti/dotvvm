@@ -178,10 +178,10 @@ namespace DotVVM.Framework.Controls
                 Enabled);
 
             
-            GoToFirstPageButton = CreateNavigationButton("««", FirstPageTemplate.NotNull(),enabledValue, bindings.GoToFirstPageCommand,context);
+            GoToFirstPageButton = CreateNavigationButton("««", FirstPageTemplate,enabledValue, bindings.GoToFirstPageCommand,context);
             ContentWrapper.Children.Add(GoToFirstPageButton);
 
-            GoToPreviousPageButton = CreateNavigationButton("«", PreviousPageTemplate.NotNull(),enabledValue, bindings.GoToPrevPageCommand,context);
+            GoToPreviousPageButton = CreateNavigationButton("«", PreviousPageTemplate,enabledValue, bindings.GoToPrevPageCommand,context);
             ContentWrapper.Children.Add(GoToPreviousPageButton);
 
             // number fields
@@ -210,10 +210,10 @@ namespace DotVVM.Framework.Controls
                 }
             }
 
-            GoToNextPageButton = CreateNavigationButton("»", NextPageTemplate.NotNull(), enabledValue, bindings.GoToNextPageCommand, context);
+            GoToNextPageButton = CreateNavigationButton("»", NextPageTemplate, enabledValue, bindings.GoToNextPageCommand, context);
             ContentWrapper.Children.Add(GoToNextPageButton);
 
-            GoToLastPageButton = CreateNavigationButton("»»", LastPageTemplate.NotNull(), enabledValue, bindings.GoToLastPageCommand, context);
+            GoToLastPageButton = CreateNavigationButton("»»", LastPageTemplate, enabledValue, bindings.GoToLastPageCommand, context);
             ContentWrapper.Children.Add(GoToLastPageButton);
         }
 
@@ -225,7 +225,7 @@ namespace DotVVM.Framework.Controls
             return list;
         }
 
-        protected virtual HtmlGenericControl CreateNavigationButton(string defaultText, ITemplate userDefinedContentTemplate, object enabledValue, ICommandBinding clickCommandBindingExpression,IDotvvmRequestContext context)
+        protected virtual HtmlGenericControl CreateNavigationButton(string defaultText, ITemplate? userDefinedContentTemplate, object enabledValue, ICommandBinding clickCommandBindingExpression,IDotvvmRequestContext context)
         {
             var li = new HtmlGenericControl("li");
             var link = new LinkButton();
@@ -237,7 +237,7 @@ namespace DotVVM.Framework.Controls
             return li;
         }
 
-        protected virtual void SetButtonContent(Hosting.IDotvvmRequestContext context, LinkButton button, string text, ITemplate contentTemplate)
+        protected virtual void SetButtonContent(Hosting.IDotvvmRequestContext context, LinkButton button, string text, ITemplate? contentTemplate)
         {
             if (contentTemplate != null)
             {
