@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,7 +14,7 @@ namespace DotVVM.Framework.Hosting
     {
         public InterruptReason InterruptReason { get; set; }
 
-        public string CustomData { get; set; }
+        public string? CustomData { get; set; }
 
         [DebuggerHidden]
         public DotvvmInterruptRequestExecutionException()
@@ -21,7 +22,7 @@ namespace DotVVM.Framework.Hosting
         }
 
         [DebuggerHidden]
-        public DotvvmInterruptRequestExecutionException(InterruptReason interruptReason, string customData = null)
+        public DotvvmInterruptRequestExecutionException(InterruptReason interruptReason, string? customData = null)
             : base($"Request interrupted: {interruptReason} ({customData})")
         {
             InterruptReason = interruptReason;

@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -91,7 +92,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
         }
 
-        protected virtual JsonConverter GetJsonConverter(PropertyInfo property)
+        protected virtual JsonConverter? GetJsonConverter(PropertyInfo property)
         {
             var converterType = property.GetCustomAttribute<JsonConverterAttribute>()?.ConverterType;
             if (converterType == null)
@@ -100,7 +101,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             try
             {
-                return (JsonConverter)Activator.CreateInstance(converterType);
+                return (JsonConverter?)Activator.CreateInstance(converterType);
             }
             catch (Exception ex)
             {

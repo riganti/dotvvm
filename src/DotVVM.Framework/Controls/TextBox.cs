@@ -1,3 +1,4 @@
+#nullable enable
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Hosting;
@@ -15,14 +16,14 @@ namespace DotVVM.Framework.Controls
     public class TextBox : HtmlGenericControl
     {
         private bool isFormattingRequired;
-        private string implicitFormatString;
+        private string? implicitFormatString;
 
         /// <summary>
         /// Gets or sets a value indicating whether the control is enabled and can be modified.
         /// </summary>
         public bool Enabled
         {
-            get { return (bool)GetValue(EnabledProperty); }
+            get { return (bool)GetValue(EnabledProperty)!; }
             set { SetValue(EnabledProperty, value); }
         }
 
@@ -34,46 +35,46 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets a format of presentation of value to client.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
-        public string FormatString
+        public string? FormatString
         {
-            get { return (string)GetValue(FormatStringProperty); }
+            get { return (string?)GetValue(FormatStringProperty); }
             set { SetValue(FormatStringProperty, value); }
         }
 
         public static readonly DotvvmProperty FormatStringProperty =
-            DotvvmProperty.Register<string, TextBox>(t => t.FormatString);
+            DotvvmProperty.Register<string?, TextBox>(t => t.FormatString);
 
         /// <summary>
         /// Gets or sets the command that will be triggered when the onchange event is fired.
         /// </summary>
-        public Command Changed
+        public Command? Changed
         {
-            get { return (Command)GetValue(ChangedProperty); }
+            get { return (Command?)GetValue(ChangedProperty); }
             set { SetValue(ChangedProperty, value); }
         }
 
         public static readonly DotvvmProperty ChangedProperty =
-            DotvvmProperty.Register<Command, TextBox>(t => t.Changed, null);
+            DotvvmProperty.Register<Command?, TextBox>(t => t.Changed, null);
 
         /// <summary>
         /// Gets or sets the command that will be triggered when the user is typing in the field.
         /// Be careful when using this event - triggering frequent postbacks can make bad user experience. Consider using static commands or a throttling postback handler.
         /// </summary>
-        public Command TextInput
+        public Command? TextInput
         {
-            get { return (Command)GetValue(TextInputProperty); }
+            get { return (Command?)GetValue(TextInputProperty); }
             set { SetValue(TextInputProperty, value); }
         }
 
         public static readonly DotvvmProperty TextInputProperty =
-            DotvvmProperty.Register<Command, TextBox>(t => t.TextInput, null);
+            DotvvmProperty.Register<Command?, TextBox>(t => t.TextInput, null);
 
         /// <summary>
         /// Gets or sets whether all text inside the TextBox becomes selected when the element gets focused.
         /// </summary>
         public bool SelectAllOnFocus
         {
-            get { return (bool)GetValue(SelectAllOnFocusProperty); }
+            get { return (bool)GetValue(SelectAllOnFocusProperty)!; }
             set { SetValue(SelectAllOnFocusProperty, value); }
         }
 
@@ -86,7 +87,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(Required = true)]
         public string Text
         {
-            get { return Convert.ToString(GetValue(TextProperty)); }
+            get { return Convert.ToString(GetValue(TextProperty)).NotNull(); }
             set { SetValue(TextProperty, value); }
         }
 
@@ -99,7 +100,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false)]
         public TextBoxType Type
         {
-            get { return (TextBoxType)GetValue(TypeProperty); }
+            get { return (TextBoxType)GetValue(TypeProperty)!; }
             set { SetValue(TypeProperty, value); }
         }
 
@@ -122,11 +123,16 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false)]
         public bool UpdateTextOnInput
         {
-            get { return (bool)GetValue(UpdateTextOnInputProperty); }
+            get { return (bool)GetValue(UpdateTextOnInputProperty)!; }
             set { SetValue(UpdateTextOnInputProperty, value); }
         }
         public static readonly DotvvmProperty UpdateTextOnInputProperty =
-            DotvvmPropertyWithFallback.Register<bool, TextBox>(nameof(UpdateTextOnInput), UpdateTextAfterKeydownProperty, isValueInherited: true);
+            DotvvmPropertyWithFallback.Register<bool, TextBox>(
+                nameof(UpdateTextOnInput),
+#pragma warning disable CS0618
+                UpdateTextAfterKeydownProperty,
+#pragma warning restore CS0618
+                isValueInherited: true);
 
         /// <summary>
         /// Gets or sets the type of value being formatted - Number or DateTime.
@@ -135,7 +141,7 @@ namespace DotVVM.Framework.Controls
         [Obsolete("ValueType property is no longer required, it is automatically inferred from compile-time type of Text binding")]
         public FormatValueType ValueType
         {
-            get { return (FormatValueType)GetValue(ValueTypeProperty); }
+            get { return (FormatValueType)GetValue(ValueTypeProperty)!; }
             set { SetValue(ValueTypeProperty, value); }
         }
 
@@ -143,8 +149,8 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty ValueTypeProperty =
             DotvvmProperty.Register<FormatValueType, TextBox>(t => t.ValueType);
 
-        public static bool NeedsFormatting(IValueBinding binding) => binding != null && (binding.ResultType == typeof(DateTime) || binding.ResultType == typeof(DateTime?)
-            || binding.ResultType.IsNumericType() || Nullable.GetUnderlyingType(binding.ResultType).IsNumericType());
+        public static bool NeedsFormatting(IValueBinding? binding) => binding != null && (binding.ResultType == typeof(DateTime) || binding.ResultType == typeof(DateTime?)
+            || binding.ResultType.IsNumericType() || Nullable.GetUnderlyingType(binding.ResultType)?.IsNumericType() == true);
 
         protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
@@ -249,7 +255,7 @@ namespace DotVVM.Framework.Controls
             {
                 writer.AddAttribute("data-dotvvm-value-type", "datetime");
             }
-            else if (resultType.IsNumericType())
+            else if (resultType != null && resultType.IsNumericType())
             {
                 writer.AddAttribute("data-dotvvm-value-type", "number");
             }
@@ -294,10 +300,8 @@ namespace DotVVM.Framework.Controls
         private void AddTypeAttributeToRender(IHtmlWriter writer)
         {
             var type = this.Type;
-            var isTagName = type.TryGetTagName(out string tagName);
-            var isInputType = type.TryGetInputType(out string inputType);
 
-            if (isTagName)
+            if (type.TryGetTagName(out var tagName))
             {
                 TagName = tagName;
                 // do not overwrite type attribute
@@ -308,7 +312,7 @@ namespace DotVVM.Framework.Controls
                 return;
             }
 
-            if (isInputType)
+            if (type.TryGetInputType(out var inputType))
             {
                 writer.AddAttribute("type", inputType);
                 TagName = "input";

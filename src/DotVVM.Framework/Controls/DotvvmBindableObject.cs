@@ -1,6 +1,8 @@
+#nullable enable
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
@@ -30,14 +32,14 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public virtual bool RenderOnServer
         {
-            get { return (RenderMode)GetValue(RenderSettings.ModeProperty) == RenderMode.Server; }
+            get { return (RenderMode)GetValue(RenderSettings.ModeProperty)! == RenderMode.Server; }
         }
 
         /// <summary>
         /// Gets the parent control.
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.Exclude)]
-        public DotvvmBindableObject Parent { get; set; }
+        public DotvvmBindableObject? Parent { get; set; }
 
         // WORKAROUND: Roslyn is unable to cache the delegate itself
         private static Func<Type, DotvvmProperty[]> _dotvvmProperty_ResolveProperties = DotvvmProperty.ResolveProperties;
@@ -61,31 +63,34 @@ namespace DotVVM.Framework.Controls
 
         /// <summary>
         /// Gets or sets a data context for the control and its children. All value and command bindings are evaluated in context of this value.
+        /// The DataContext is null in client-side templates.
         /// </summary>
         [BindingCompilationRequirements(
                 optional: new[] { typeof(Binding.Properties.SimplePathExpressionBindingProperty) })]
         [MarkupOptions(AllowHardCodedValue = false)]
-        public object DataContext
+        public object? DataContext
         {
-            get { return (object)GetValue(DataContextProperty); }
+            get { return GetValue(DataContextProperty); }
             set { SetValue(DataContextProperty, value); }
         }
         public static readonly DotvvmProperty DataContextProperty =
             DotvvmProperty.Register<object, DotvvmBindableObject>(c => c.DataContext, isValueInherited: true);
 
+        [return: MaybeNull]
         public T GetValue<T>(DotvvmProperty property, bool inherit = true)
         {
-            return (T)GetValue(property, inherit);
+            return (T)GetValue(property, inherit)!;
         }
 
-        internal object EvalPropertyValue(DotvvmProperty property, object value)
+        internal object? EvalPropertyValue(DotvvmProperty property, object? value)
         {
             if (property.IsBindingProperty) return value;
             if (value is IBinding)
             {
                 DotvvmBindableObject control = this;
                 // DataContext is always bound to it's parent, setting it right here is a bit faster
-                if (property == DataContextProperty) control = control.Parent;
+                if (property == DataContextProperty)
+                    control = control.Parent ?? throw new DotvvmControlException(this, "Can not set DataContext binding on the root control");
                 // handle binding
                 if (value is IStaticValueBinding binding)
                 {
@@ -106,13 +111,13 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets the value of a specified property.
         /// </summary>
-        public virtual object GetValue(DotvvmProperty property, bool inherit = true) =>
+        public virtual object? GetValue(DotvvmProperty property, bool inherit = true) =>
             EvalPropertyValue(property, GetValueRaw(property, inherit));
 
         /// <summary>
         /// Gets the value or a binding object for a specified property.
         /// </summary>
-        public virtual object GetValueRaw(DotvvmProperty property, bool inherit = true)
+        public virtual object? GetValueRaw(DotvvmProperty property, bool inherit = true)
         {
             return property.GetValue(this, inherit);
         }
@@ -125,7 +130,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Sets the value of a specified property.
         /// </summary>
-        public virtual void SetValue(DotvvmProperty property, object value)
+        public virtual void SetValue(DotvvmProperty property, object? value)
         {
             var originalValue = GetValueRaw(property, false);
             // TODO: really do we want to update the value binding only if it's not a binding
@@ -143,21 +148,21 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Sets the value or a binding to the specified property.
         /// </summary>
-        public void SetValueRaw(DotvvmProperty property, object value)
+        public void SetValueRaw(DotvvmProperty property, object? value)
         {
             property.SetValue(this, value);
         }
 
         /// <summary>
-        /// Gets the binding set to a specified property.
+        /// Gets the binding set to a specified property. Returns null if the property is not set or if the value is not a binding.
         /// </summary>
-        public IBinding GetBinding(DotvvmProperty property, bool inherit = true)
+        public IBinding? GetBinding(DotvvmProperty property, bool inherit = true)
             => GetValueRaw(property, inherit) as IBinding;
 
         /// <summary>
-        /// Gets the value binding set to a specified property.
+        /// Gets the value binding set to a specified property. Returns null if the property is not a binding.
         /// </summary>
-        public IValueBinding GetValueBinding(DotvvmProperty property, bool inherit = true)
+        public IValueBinding? GetValueBinding(DotvvmProperty property, bool inherit = true)
         {
             var binding = GetBinding(property, inherit);
             if (binding != null && !(binding is IStaticValueBinding)) // throw exception on incompatible binding types
@@ -172,9 +177,9 @@ namespace DotVVM.Framework.Controls
             new ParametrizedCode(JavascriptCompilationHelper.CompileConstant(GetValue(property)), OperatorPrecedence.Max);
 
         /// <summary>
-        /// Gets the command binding set to a specified property.
+        /// Gets the command binding set to a specified property. Returns null if the property is not a binding.
         /// </summary>
-        public ICommandBinding GetCommandBinding(DotvvmProperty property, bool inherit = true)
+        public ICommandBinding? GetCommandBinding(DotvvmProperty property, bool inherit = true)
         {
             var binding = GetBinding(property, inherit);
             if (binding != null && !(binding is ICommandBinding))
@@ -187,7 +192,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Sets the binding to a specified property.
         /// </summary>
-        public void SetBinding(DotvvmProperty property, IBinding binding)
+        public void SetBinding(DotvvmProperty property, IBinding? binding)
         {
             SetValueRaw(property, binding);
         }
@@ -200,8 +205,8 @@ namespace DotVVM.Framework.Controls
         internal IEnumerable<IValueBinding> GetDataContextHierarchy()
         {
             var bindings = new List<IValueBinding>();
-            DotvvmBindableObject current = this;
-            do
+            DotvvmBindableObject? current = this;
+            while (current != null)
             {
                 var binding = current.GetValueBinding(DataContextProperty, false);
                 if (binding != null)
@@ -210,37 +215,36 @@ namespace DotVVM.Framework.Controls
                 }
                 current = current.Parent;
             }
-            while (current != null);
 
             bindings.Reverse();
             return bindings;
         }
 
         /// <summary>
-        /// Gets the closest control binding target.
+        /// Gets the closest control binding target. Returns null if the control is not found.
         /// </summary>
-        public DotvvmBindableObject GetClosestControlBindingTarget() =>
+        public DotvvmBindableObject? GetClosestControlBindingTarget() =>
             GetClosestControlBindingTarget(out int numberOfDataContextChanges);
 
         /// <summary>
-        /// Gets the closest control binding target and returns number of DataContext changes since the target.
+        /// Gets the closest control binding target and returns number of DataContext changes since the target. Returns null if the control is not found.
         /// </summary>
-        public DotvvmBindableObject GetClosestControlBindingTarget(out int numberOfDataContextChanges) =>
-            (Parent ?? this).GetClosestWithPropertyValue(out numberOfDataContextChanges, (control, _) => (bool)control.GetValue(Internal.IsControlBindingTargetProperty));
+        public DotvvmBindableObject? GetClosestControlBindingTarget(out int numberOfDataContextChanges) =>
+            (Parent ?? this).GetClosestWithPropertyValue(out numberOfDataContextChanges, (control, _) => (bool)control.GetValue(Internal.IsControlBindingTargetProperty)!);
 
         /// <summary>
-        /// Gets the closest control binding target and returns number of DataContext changes since the target.
+        /// Gets the closest control binding target and returns number of DataContext changes since the target. Returns null if the control is not found.
         /// </summary>
-        public DotvvmBindableObject GetClosestControlValidationTarget(out int numberOfDataContextChanges) =>
+        public DotvvmBindableObject? GetClosestControlValidationTarget(out int numberOfDataContextChanges) =>
             GetClosestWithPropertyValue(out numberOfDataContextChanges, (c, _) => c.IsPropertySet(Validation.TargetProperty, false), includeDataContextChangeOnMatchedControl: false);
 
 
         /// <summary>
-        /// Gets the closest control with specified property value and returns number of DataContext changes since the target.
+        /// Gets the closest control with specified property value and returns number of DataContext changes since the target. Returns null if the control is not found.
         /// </summary>
-        public DotvvmBindableObject GetClosestWithPropertyValue(out int numberOfDataContextChanges, Func<DotvvmBindableObject, DotvvmProperty, bool> filterFunction, bool includeDataContextChangeOnMatchedControl = true, DotvvmProperty delegateValue = null)
+        public DotvvmBindableObject? GetClosestWithPropertyValue(out int numberOfDataContextChanges, Func<DotvvmBindableObject, DotvvmProperty?, bool> filterFunction, bool includeDataContextChangeOnMatchedControl = true, DotvvmProperty? delegateValue = null)
         {
-            var current = this;
+            DotvvmBindableObject? current = this;
             numberOfDataContextChanges = 0;
             while (current != null)
             {
@@ -270,17 +274,17 @@ namespace DotVVM.Framework.Controls
 
         public bool HasBinding(DotvvmProperty property)
         {
-            return properties.TryGet(property, out object value) && value is IBinding;
+            return properties.TryGet(property, out var value) && value is IBinding;
         }
         public bool HasValueBinding(DotvvmProperty property)
         {
-            return properties.TryGet(property, out object value) && value is IValueBinding;
+            return properties.TryGet(property, out var value) && value is IValueBinding;
         }
 
         public bool HasBinding<TBinding>(DotvvmProperty property)
             where TBinding : IBinding
         {
-            return properties.TryGet(property, out object value) && value is TBinding;
+            return properties.TryGet(property, out var value) && value is TBinding;
         }
 
         /// <summary>
@@ -288,8 +292,8 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public IEnumerable<KeyValuePair<DotvvmProperty, IBinding>> GetAllBindings()
         {
-            return Properties.Where(p => p.Value is IBinding) // && !p.Key.IsBindingProperty)
-                .Select(p => new KeyValuePair<DotvvmProperty, IBinding>(p.Key, (IBinding)p.Value));
+            return Properties.Where(p => p.Value is IBinding)
+                .Select(p => new KeyValuePair<DotvvmProperty, IBinding>(p.Key, (IBinding)p.Value!));
         }
 
         /// <summary>

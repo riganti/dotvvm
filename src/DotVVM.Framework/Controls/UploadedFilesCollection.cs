@@ -1,3 +1,4 @@
+#nullable enable
 using System.Collections.Generic;
 using DotVVM.Framework.Storage;
 
@@ -16,7 +17,7 @@ namespace DotVVM.Framework.Controls
 
         public List<UploadedFile> Files { get; set; }
 
-        public string Error { get; set; }
+        public string? Error { get; set; }
 
         public void Clear()
         {

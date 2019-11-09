@@ -1,3 +1,4 @@
+#nullable enable
 using Newtonsoft.Json.Linq;
 using System.Linq;
 using System;
@@ -25,7 +26,7 @@ namespace DotVVM.Framework.Utils
                 }
                 else if (sourceItem.Type == JTokenType.Date)
                 {
-                    if (item.Value.Type != JTokenType.String && item.Value.Type != JTokenType.Date)
+                    if (item.Value!.Type != JTokenType.String && item.Value.Type != JTokenType.Date)
                         diff[item.Key] = item.Value;
                     else
                     {
@@ -54,7 +55,7 @@ namespace DotVVM.Framework.Utils
                         }
                     }
                 }
-                else if (sourceItem.Type != item.Value.Type)
+                else if (sourceItem.Type != item.Value!.Type)
                 {
                     if (sourceItem.Type == JTokenType.Object || sourceItem.Type == JTokenType.Array
                         || item.Value.Type == JTokenType.Object || item.Value.Type == JTokenType.Array

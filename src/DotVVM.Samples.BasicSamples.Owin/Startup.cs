@@ -58,15 +58,18 @@ namespace DotVVM.Samples.BasicSamples
                     )
                 }
             );
-            var config = app.UseDotVVM<DotvvmStartup>(GetApplicationPath());
-            config.RouteTable.Add("AuthorizedPresenter", "ComplexSamples/Auth/AuthorizedPresenter", provider => new AuthorizedPresenter());
+
+            var config = app.UseDotVVM<DotvvmStartup>(GetApplicationPath(), modifyConfiguration: c  => {
+                c.RouteTable.Add("AuthorizedPresenter", "ComplexSamples/Auth/AuthorizedPresenter", provider => new AuthorizedPresenter());
+            });
+
 #if AssertConfiguration
             // this compilation symbol is set by CI server
             config.AssertConfigurationIsValid();
 #endif
             app.UseStaticFiles();
         }
-        
+
         private string GetApplicationPath()
             => Path.Combine(Path.GetDirectoryName(HostingEnvironment.ApplicationPhysicalPath.TrimEnd('\\', '/')), "DotVVM.Samples.Common");
     }
