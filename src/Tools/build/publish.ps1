@@ -1,4 +1,4 @@
-param([String]$version, [String]$apiKey, [String]$server, [String]$branchName, [String]$repoUrl, [String]$nugetRestoreAltSource = "", [bool]$pushTag, [String]$configuration, [String]$apiKeyInternal, [String]$internalServer)
+param([String]$version, [String]$apiKey, [String]$server, [String]$branchName, [String]$repoUrl, [String]$nugetRestoreAltSource = "", [bool]$pushTag, [String]$configuration, [String]$apiKeyInternal, [String]$internalServer, [String]$signUser = "", [String]$signSecret = "", $signConfigPath = "")
 
 
 ### Helper Functions
@@ -39,6 +39,10 @@ function CleanOldGeneratedPackages() {
 	}
 }
 
+function RestoreSignClient() {
+    & dotnet tool restore | Out-Host
+}
+
 function SetVersion() {
   	foreach ($package in $packages) {
 		$filePath = ".\$($package.Directory)\$($package.Directory).csproj"
@@ -73,12 +77,44 @@ function BuildPackages() {
 	}
 }
 
+function SignPackages() {
+    if ($signUser -ne "") {        
+        foreach ($package in $packages) {
+            & dotnet signclient sign --baseDirectory .\$($package.Directory)\bin\$configuration\ --input *.nupkg --config $signConfigPath --user $signUser --secret $signSecret --name $($package.Package) --description $($package.Package + " " + $version) --descriptionUrl https://gihbut.com/riganti/dotvvm | Out-Host
+        }
+    }
+}
+
 function PushPackages() {
 	foreach ($package in $packages) {
 		& .\Tools\nuget.exe push .\$($package.Directory)\bin\$configuration\$($package.Package).$version.symbols.nupkg -source $server -apiKey $apiKey | Out-Host
 		#& .\Tools\nuget.exe push .\$($package.Directory)\bin\$configuration\$($package.Package).$version.symbols.nupkg -source $internalServer -apiKey $apiKeyInternal | Out-Host
 	}
 }
+
+function BuildTemplates() {
+	del .\Templates\*.nupkg  -ErrorAction SilentlyContinue
+	
+	$filePath = ".\Templates\DotVVM.Templates.nuspec"
+	$file = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::UTF8)
+	$file = [System.Text.RegularExpressions.Regex]::Replace($file, "\<version\>([^<]+)\</version\>", "<version>" + $version + "</version>")
+	[System.IO.File]::WriteAllText($filePath, $file, [System.Text.Encoding]::UTF8)
+	
+	& .\Tools\nuget.exe pack .\Templates\DotVVM.Templates.nuspec -outputdirectory .\Templates | Out-Host
+}
+
+function SignTemplates() {
+    if ($signUser -ne "") {        
+        foreach ($package in $packages) {
+            & dotnet signclient sign --baseDirectory .\Templates\ --input *.nupkg --config $signConfigPath --user $signUser --secret $signSecret --name "DotVVM Project Template" --description "DotVVM Project Template $version" --descriptionUrl https://gihbut.com/riganti/dotvvm | Out-Host
+        }
+    }
+}
+
+function PushTemplates() {
+	& .\Tools\nuget.exe push .\Templates\DotVVM.Templates.$version.nupkg -source $server -apiKey $apiKey | Out-Host 
+}
+
 
 function GitCheckout() {
 	invoke-git checkout $branchName
@@ -109,18 +145,6 @@ $packages = @(
 	[pscustomobject]@{ Package = "DotVVM.Api.Swashbuckle.Owin"; Directory = "DotVVM.Framework.Api.Swashbuckle.Owin" }
 )
 
-function PublishTemplates() {
-	del .\Templates\*.nupkg  -ErrorAction SilentlyContinue
-	
-	$filePath = ".\Templates\DotVVM.Templates.nuspec"
-	$file = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::UTF8)
-	$file = [System.Text.RegularExpressions.Regex]::Replace($file, "\<version\>([^<]+)\</version\>", "<version>" + $version + "</version>")
-	[System.IO.File]::WriteAllText($filePath, $file, [System.Text.Encoding]::UTF8)
-	
-	& .\Tools\nuget.exe pack .\Templates\DotVVM.Templates.nuspec -outputdirectory .\Templates | Out-Host 
-	& .\Tools\nuget.exe push .\Templates\DotVVM.Templates.$version.nupkg -source $server -apiKey $apiKey | Out-Host 
-}
-
 
 ### Publish Workflow
 
@@ -130,9 +154,16 @@ if ($versionWithoutPre.Contains("-")) {
 }
 
 CleanOldGeneratedPackages;
+RestoreSignClient;
 GitCheckout;
 SetVersion;
+
 BuildPackages;
+SignPackages;
 PushPackages;
+
+BuildTemplates;
+SignTemplates;
 PublishTemplates;
+
 GitPush;
