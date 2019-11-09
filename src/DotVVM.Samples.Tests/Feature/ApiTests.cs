@@ -31,11 +31,13 @@ namespace DotVVM.Samples.Tests.Feature
                 Assert.True(dotvvmIssues.Count > 10);
 
                 // get text of the first issue
-                dotvvmIssues.ElementAt(0).First("a").Click().Wait();
+                dotvvmIssues.ElementAt(0).First("a").Click();
+                browser.Wait(2000);
                 var firstIssueText = browser.First(".id-current-issue-text").GetInnerText();
 
                 // make sure it changes when I click another issue
-                dotvvmIssues.ElementAt(dotvvmIssues.Count - 1).First("a").Click().Wait();
+                dotvvmIssues.ElementAt(dotvvmIssues.Count - 1).First("a").Click();
+                browser.Wait(2000);
                 var lastIssueText = browser.First(".id-current-issue-text").GetInnerText();
 
                 Assert.NotEqual(firstIssueText, lastIssueText);
@@ -49,7 +51,8 @@ namespace DotVVM.Samples.Tests.Feature
                 var docsIssues = browser.First("table").FindElements("tr").Skip(1).ToList();
                 Assert.True(docsIssues.Count > 1);
 
-                docsIssues.ElementAt(0).First("a").Click().Wait();
+                docsIssues.ElementAt(0).First("a").Click();
+                browser.Wait(2000);
                 var firstIssueText2 = browser.First(".id-current-issue-text").GetInnerText();
                 Assert.NotEqual(firstIssueText, firstIssueText2);
             });
