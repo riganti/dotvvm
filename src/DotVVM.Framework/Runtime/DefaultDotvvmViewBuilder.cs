@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -36,7 +37,7 @@ namespace DotVVM.Framework.Runtime
 
             // build the page
             var (_, pageBuilder) = controlBuilderFactory.GetControlBuilder(markup);
-            var contentPage = pageBuilder.Value.BuildControl(controlBuilderFactory, context.Services) as DotvvmView;
+            var contentPage = (DotvvmView)pageBuilder.Value.BuildControl(controlBuilderFactory, context.Services);
 
             FillsDefaultDirectives(contentPage);
 
@@ -44,7 +45,7 @@ namespace DotVVM.Framework.Runtime
             while (IsNestedInMasterPage(contentPage))
             {
                 // load master page
-                var masterPageFile = contentPage.Directives[ParserConstants.MasterPageDirective];
+                var masterPageFile = contentPage.Directives![ParserConstants.MasterPageDirective];
                 var masterPage = (DotvvmView)controlBuilderFactory.GetControlBuilder(masterPageFile).builder.Value.BuildControl(controlBuilderFactory, context.Services);
 
                 FillsDefaultDirectives(masterPage);
@@ -86,7 +87,7 @@ namespace DotVVM.Framework.Runtime
         /// </summary>
         private bool IsNestedInMasterPage(DotvvmView page)
         {
-            return page.Directives.ContainsKey(ParserConstants.MasterPageDirective);
+            return page.Directives!.ContainsKey(ParserConstants.MasterPageDirective);
         }
 
         /// <summary>
@@ -96,7 +97,7 @@ namespace DotVVM.Framework.Runtime
         {
             foreach (var key in markupConfiguration.DefaultDirectives.Keys)
             {
-                if (!page.Directives.Keys.Contains(key))
+                if (!page.Directives!.Keys.Contains(key))
                 {
                     page.Directives[key] = markupConfiguration.DefaultDirectives[key];
                 }
@@ -129,7 +130,7 @@ namespace DotVVM.Framework.Runtime
 
                 // replace the contents
                 var contentPlaceHolder = new PlaceHolder();
-                contentPlaceHolder.SetDataContextType(content.Parent.GetDataContextType());
+                contentPlaceHolder.SetDataContextType(content.Parent!.GetDataContextType());
                 (content.Parent as DotvvmControl)?.Children.Remove(content);
 
                 placeHolder.Children.Clear();
@@ -185,7 +186,7 @@ namespace DotVVM.Framework.Runtime
 
             // make sure that the Content controls are not nested in other elements
             var contents = childPage.GetAllDescendants().OfType<Content>()
-                .Where(c => !(bool)c.GetValue(Internal.IsMasterPageCompositionFinishedProperty))
+                .Where(c => !(bool)c.GetValue(Internal.IsMasterPageCompositionFinishedProperty)!)
                 .ToList();
             if (contents.Any(c => c.Parent != childPage))
             {

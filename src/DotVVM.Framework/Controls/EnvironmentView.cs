@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Linq;
 using DotVVM.Framework.Binding;
@@ -22,40 +23,40 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets a comma-separated list of hosting environments (e.g. Development, Production).
         /// </summary>
         [MarkupOptions(AllowBinding = false, Required = true)]
-        public string[] Environments
+        public string[]? Environments
         {
-            get { return (string[])GetValue(EnvironmentsProperty); }
+            get { return (string[]?)GetValue(EnvironmentsProperty); }
             set { SetValue(EnvironmentsProperty, value); }
         }
 
         public static readonly DotvvmProperty EnvironmentsProperty
-            = DotvvmProperty.Register<string[], EnvironmentView>(c => c.Environments);
+            = DotvvmProperty.Register<string[]?, EnvironmentView>(c => c.Environments);
 
         /// <summary>
         /// Gets or sets the content rendered when the application is running in one of the specified environments.
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.InnerElement, AllowBinding = false)]
-        public ITemplate IsEnvironmentTemplate
+        public ITemplate? IsEnvironmentTemplate
         {
-            get { return (ITemplate)GetValue(IsEnvironmentTemplateProperty); }
+            get { return (ITemplate?)GetValue(IsEnvironmentTemplateProperty); }
             set { SetValue(IsEnvironmentTemplateProperty, value); }
         }
 
         public static readonly DotvvmProperty IsEnvironmentTemplateProperty
-            = DotvvmProperty.Register<ITemplate, EnvironmentView>(c => c.IsEnvironmentTemplate);
+            = DotvvmProperty.Register<ITemplate?, EnvironmentView>(c => c.IsEnvironmentTemplate);
 
         /// <summary>
         /// Gets or sets the content rendered when the application is not running in any of the specified environments.
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.InnerElement, AllowBinding = false)]
-        public ITemplate IsNotEnvironmentTemplate
+        public ITemplate? IsNotEnvironmentTemplate
         {
-            get { return (ITemplate)GetValue(IsNotEnvironmentTemplateProperty); }
+            get { return (ITemplate?)GetValue(IsNotEnvironmentTemplateProperty); }
             set { SetValue(IsNotEnvironmentTemplateProperty, value); }
         }
 
         public static readonly DotvvmProperty IsNotEnvironmentTemplateProperty
-            = DotvvmProperty.Register<ITemplate, EnvironmentView>(c => c.IsNotEnvironmentTemplate);
+            = DotvvmProperty.Register<ITemplate?, EnvironmentView>(c => c.IsNotEnvironmentTemplate);
 
         protected internal override void OnInit(IDotvvmRequestContext context)
         {

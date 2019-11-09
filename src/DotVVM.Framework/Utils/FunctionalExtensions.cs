@@ -1,5 +1,7 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -10,17 +12,18 @@ namespace DotVVM.Framework.Utils
     public static class FunctionalExtensions
     {
         public static TValue GetValue<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, TKey key)
+            where TKey: notnull
             => dictionary[key];
 
-        public static TValue GetValueOrDefault<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, TKey key)
+#if CSharp8Polyfill // this method is actually present in .NET Standard
+        [return: MaybeNull]
+        public static TValue GetValueOrDefault<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, TKey key, bool justAddAParameterSoCsharpDoesNotPreferThisMethodOverStandard = false)
+            where TKey: notnull
         {
-            TValue value;
-            if (!dictionary.TryGetValue(key, out value))
-            {
-                return default(TValue);
-            }
+            dictionary.TryGetValue(key, out var value);
             return value;
         }
+#endif
 
         public static TTarget ApplyAction<TTarget>(this TTarget target, Action<TTarget> outerAction)
         {
@@ -32,20 +35,23 @@ namespace DotVVM.Framework.Utils
             => outerFunction(target);
 
         public static T Assert<T>(this T target, Func<T, bool> predicate, string message = "A check has failed")
-            => predicate(target) ? target : throw new Exception($"{message} | '{target.ToString()}' checked by {GetDebugFunctionInfo(predicate)}]");
+            => predicate(target) ? target : throw new Exception($"{message} | '{target?.ToString() ?? "null"}' checked by {GetDebugFunctionInfo(predicate)}]");
 
         private static string GetDebugFunctionInfo(Delegate func)
         {
+            var funcName = $"{func.Method.DeclaringType!.FullName}.{func.Method.Name}";
+            if (func.Target is null)
+                return $"'{funcName}' without closure";
             var fields = func.Target.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             var fieldsFormatted = string.Join("; ", fields.Select(f => f.Name + ": " + f.GetValue(func.Target)?.ToString() ?? "null"));
-            return $"'{func.Method.DeclaringType.FullName}.{func.Method.Name}' with closure [{fieldsFormatted}]";
+            return $"'{funcName}' with closure [{fieldsFormatted}]";
         }
 
         public static TOut CastTo<TOut>(this object original)
             where TOut : class
             => (TOut)original;
 
-        public static TOut As<TOut>(this object original)
+        public static TOut? As<TOut>(this object? original)
             where TOut : class
             => original as TOut;
 
@@ -69,5 +75,9 @@ namespace DotVVM.Framework.Utils
         }
         public static IEnumerable<(int, T)> Indexed<T>(this IEnumerable<T> enumerable) =>
             enumerable.Select((a, b) => (b, a));
+
+        public static T NotNull<T>(this T? target, string message = "Unexpected null value.")
+            where T : class =>
+            target ?? throw new Exception(message);
     }
 }

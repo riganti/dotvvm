@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -12,7 +13,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets the markup file for the specified virtual path.
         /// </summary>
-        public MarkupFile GetMarkup(DotvvmConfiguration configuration, string virtualPath)
+        public MarkupFile? GetMarkup(DotvvmConfiguration configuration, string virtualPath)
         {
             if (!virtualPath.StartsWith("embedded://", StringComparison.Ordinal))
             {
@@ -28,7 +29,7 @@ namespace DotVVM.Framework.Hosting
 
             string assemblyName = resourceName.Substring(0, resourceName.IndexOf('/'));
 
-            Assembly assembly = null;
+            Assembly? assembly = null;
             try
             {
                 assembly = Assembly.Load(new AssemblyName(assemblyName));
@@ -48,7 +49,7 @@ namespace DotVVM.Framework.Hosting
             }
 
             //load the file
-            using (Stream stream = assembly.GetManifestResourceStream(resourceName))
+            using (Stream stream = assembly.GetManifestResourceStream(resourceName)!)
             using (StreamReader sr = new StreamReader(stream))
                 return new MarkupFile(resourceName, resourceName, sr.ReadToEnd());
         }
@@ -58,7 +59,7 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public string GetMarkupFileVirtualPath(IDotvvmRequestContext context)
         {
-            return context.Route.VirtualPath;
+            return context.Route!.VirtualPath;
         }
     }
 }

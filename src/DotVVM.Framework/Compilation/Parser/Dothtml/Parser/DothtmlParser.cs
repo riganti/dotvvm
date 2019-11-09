@@ -385,7 +385,14 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
                 }
                 else
                 {
-                    attribute.ValueNode = ReadTextValue(false, false, DothtmlTokenType.Text);
+                    if (Peek().Type == DothtmlTokenType.OpenBinding)
+                    {
+                        attribute.ValueNode = ReadBindingValue(false, true);
+                    }
+                    else
+                    {
+                        attribute.ValueNode = ReadTextValue(false, false, DothtmlTokenType.Text);
+                    }
                     //these are not part of any attribute or value
                     SkipWhiteSpace();
                 }

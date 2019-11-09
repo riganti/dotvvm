@@ -1,3 +1,4 @@
+#nullable enable
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
@@ -37,7 +38,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public int Size
         {
-            get { return (int)GetValue(SizeProperty); }
+            get { return (int)GetValue(SizeProperty)!; }
             set { SetValue(SizeProperty, value); }
         }
 

@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace DotVVM.Framework.Hosting
         {
         }
 
-        public DotvvmHttpException(string message, Exception innerException)
+        public DotvvmHttpException(string message, Exception? innerException)
             : base(message, innerException)
         {
         }

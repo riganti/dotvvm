@@ -54,10 +54,8 @@ namespace DotVVM.Framework.Tests.Runtime
 
 
 			serializer = configuration.ServiceLocator.GetService<IViewModelSerializer>() as DefaultViewModelSerializer;
-            context = new DotvvmRequestContext()
+            context = new DotvvmRequestContext(contextMock.Object, configuration, configuration.ServiceProvider)
             {
-                Configuration = configuration,
-                HttpContext = contextMock.Object,
                 Presenter = configuration.RouteTable.GetDefaultPresenter(configuration.ServiceProvider),
             };
         }
