@@ -329,9 +329,9 @@ namespace DotVVM.Framework.Controls
             {
                 if (attribute.Value is IValueBinding binding)
                 {
-                    if (binding.Key == "class")
+                    if (attribute.Key == "class")
                     {
-                        AddClassAttributeToRender(binding.Value, writer);
+                        AddClassAttributeToRender(binding, writer);
                         continue;
                     }
                     if (attributeBindingGroup == null) attributeBindingGroup = new KnockoutBindingGroup();
