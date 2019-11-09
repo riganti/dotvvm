@@ -1,7 +1,9 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
+using Riganti.Selenium.Core.Abstractions;
 using Riganti.Selenium.Core.Api;
 using Xunit;
 using Xunit.Abstractions;
@@ -16,10 +18,13 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Api_GithubRepoApi);
-                browser.Wait(2000);
 
-                var options = browser.First("select").FindElements("option");
-                Assert.Contains(options, o => o.GetInnerText() == "dotvvm");
+                IEnumerable<IElementWrapper> options = null;
+                browser.WaitFor(() =>
+                {
+                    options = browser.First("select").FindElements("option");
+                    return options.Any(o => o.GetInnerText() == "dotvvm");
+                }, 10000);
 
                 // check dotvvm repo issues
                 var dotvvmIssues = browser.First("table").FindElements("tr").Skip(1).ToList();
