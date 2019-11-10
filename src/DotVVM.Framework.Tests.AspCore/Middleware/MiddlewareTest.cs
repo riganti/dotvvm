@@ -8,6 +8,7 @@ using Moq;
 using System.Threading;
 using DotVVM.Framework.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using DotVVM.Framework.Configuration;
 
 namespace DotVVM.Framework.Tests.AspCore.Middleware
 {
