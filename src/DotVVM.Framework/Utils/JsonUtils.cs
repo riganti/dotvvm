@@ -181,7 +181,6 @@ namespace DotVVM.Framework.Utils
                 {
                     yield return combine(ae.Current, be.Current);
                 }
-                while (am) { yield return ae.Current; am = ae.MoveNext(); }
                 while (bm) { yield return be.Current; bm = be.MoveNext(); }
             }
         }

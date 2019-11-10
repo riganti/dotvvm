@@ -1874,7 +1874,14 @@ var DotVVM = /** @class */ (function () {
     DotVVM.prototype.diff = function (source, modified) {
         var _this = this;
         if (source instanceof Array && modified instanceof Array) {
-            return modified.map(function (val, i) { return _this.diff(source[i], val); });
+            var diffArray = modified.map(function (el, index) { return _this.diff(source[index], el); });
+            if (source.length === modified.length
+                && diffArray.every(function (el, index) { return el === _this.diffEqual || source[index] === modified[index]; })) {
+                return this.diffEqual;
+            }
+            else {
+                return diffArray;
+            }
         }
         else if (source instanceof Array || modified instanceof Array) {
             return modified;
@@ -1883,8 +1890,8 @@ var DotVVM = /** @class */ (function () {
             var result = this.diffEqual;
             for (var p in modified) {
                 var propertyDiff = this.diff(source[p], modified[p]);
-                if (propertyDiff !== this.diffEqual) {
-                    if (result == this.diffEqual) {
+                if (propertyDiff !== this.diffEqual && source[p] !== modified[p]) {
+                    if (result === this.diffEqual) {
                         result = {};
                     }
                     result[p] = propertyDiff;
@@ -1899,7 +1906,12 @@ var DotVVM = /** @class */ (function () {
             return result;
         }
         else if (source === modified) {
-            return this.diffEqual;
+            if (typeof source == "object") {
+                return this.diffEqual;
+            }
+            else {
+                return source;
+            }
         }
         else {
             return modified;

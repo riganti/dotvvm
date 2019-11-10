@@ -1067,7 +1067,13 @@ class DotVVM {
 
     public diff(source: any, modified: any): any {
         if (source instanceof Array && modified instanceof Array) {
-            return modified.map((val, i) => this.diff(source[i], val));
+            var diffArray = modified.map((el, index) => this.diff(source[index], el));
+            if (source.length === modified.length 
+                && diffArray.every((el, index) => el === this.diffEqual || source[index] === modified[index])) {
+                return this.diffEqual;
+            } else {
+                return diffArray;
+            }
         }
         else if (source instanceof Array || modified instanceof Array) {
             return modified;
@@ -1076,8 +1082,8 @@ class DotVVM {
             var result = this.diffEqual;
             for (var p in modified) {
                 var propertyDiff = this.diff(source[p], modified[p]);
-                if (propertyDiff !== this.diffEqual) {
-                    if (result == this.diffEqual) {
+                if (propertyDiff !== this.diffEqual && source[p] !== modified[p]) {
+                    if (result === this.diffEqual) {
                         result = {};
                     }
                     result[p] = propertyDiff;
@@ -1091,7 +1097,11 @@ class DotVVM {
             return result;
         }
         else if (source === modified) {
-            return this.diffEqual;
+            if (typeof source == "object") {
+                return this.diffEqual;
+            } else {
+                return source; 
+            }
         } else {
             return modified;
         }

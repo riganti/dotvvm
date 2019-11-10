@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using Newtonsoft.Json;
 
 namespace DotVVM.Framework.ViewModel.Serialization
@@ -15,7 +16,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 var date = (DateTime) value;
                 var dateWithoutTimezone = new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second);
-                writer.WriteValue(dateWithoutTimezone.ToString("O"));
+                writer.WriteValue(dateWithoutTimezone.ToString("O", CultureInfo.InvariantCulture));
             }
         }
 
@@ -36,10 +37,13 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 return (DateTime) reader.Value;
             }
-            else
-            {
-                throw new JsonSerializationException("The value specified in the JSON could not be converted to DateTime!");
+            else if (reader.TokenType == JsonToken.String
+                     && DateTime.TryParseExact((string)reader.Value, "O", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
+            { 
+                return date;
             }
+
+            throw new JsonSerializationException("The value specified in the JSON could not be converted to DateTime!");
         }
 
         public override bool CanConvert(Type objectType)
