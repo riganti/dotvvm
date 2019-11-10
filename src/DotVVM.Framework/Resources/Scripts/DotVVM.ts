@@ -446,9 +446,9 @@ class DotVVM {
                 errorCallback({ xhr });
                 dotvvm.events.staticCommandMethodFailed.trigger({ ...data, xhr })
             },
-            xhr => {
-                xhr.setRequestHeader("X-PostbackType", "StaticCommand");
-            });
+                xhr => {
+                    xhr.setRequestHeader("X-PostbackType", "StaticCommand");
+                });
         })()
     }
 
@@ -534,9 +534,9 @@ class DotVVM {
             const sortedHandlers = this.sortHandlers(handlers);
             return sortedHandlers
                 .reduceRight(
-                (prev, val, index) => () =>
-                    val.execute(prev, options),
-                () => callback(options).then(processResult, r => Promise.reject(r))
+                    (prev, val, index) => () =>
+                        val.execute(prev, options),
+                    () => callback(options).then(processResult, r => Promise.reject(r))
                 )();
         }
     }
@@ -670,7 +670,7 @@ class DotVVM {
     }
 
     public handleSpaNavigationCore(url: string | null): boolean {
-       if (url && url.indexOf("/") === 0) {
+        if (url && url.indexOf("/") === 0) {
             var viewModelName = "root"
 
             url = this.removeVirtualDirectoryFromUrl(url, viewModelName);
@@ -1229,7 +1229,7 @@ class DotVVM {
         const makeUpdatableChildrenContextHandler = (
             makeContextCallback: (bindingContext: KnockoutBindingContext, value: any) => any,
             shouldDisplay: (value: any) => boolean
-            ) => (element: Node, valueAccessor, _allBindings, _viewModel, bindingContext: KnockoutBindingContext) => {
+        ) => (element: Node, valueAccessor, _allBindings, _viewModel, bindingContext: KnockoutBindingContext) => {
             if (!bindingContext) throw new Error()
 
             var savedNodes : Node[] | undefined;
@@ -1325,8 +1325,16 @@ class DotVVM {
             after: ko.bindingHandlers.checked.after,
             init: ko.bindingHandlers.checked.init,
             options: ko.bindingHandlers.checked.options,
-            update: ko.bindingHandlers.checked.update,
-            preprocess: (value) => `(${value})()||[]`
+            update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+                var value = valueAccessor();
+                if (!Array.isArray(valueAccessor()) && (!ko.isObservable(value) || !Array.isArray(value()))) {
+                    throw Error("The value of a `checkedItems` binding must be an array (i.e. not null nor undefined).");
+                }
+                if (ko.bindingHandlers.checked.update) {
+                    // although `checked` doesn't have an update, call it conditionally in case we ever add one
+                    return ko.bindingHandlers.checked.update(element, valueAccessor, allBindings, viewModel, bindingContext);
+                }
+            }
         }
 
         ko.bindingHandlers["dotvvm-UpdateProgress-Visible"] = {

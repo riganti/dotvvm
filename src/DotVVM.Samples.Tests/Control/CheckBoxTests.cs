@@ -134,7 +134,7 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [Fact]
-        public void Control_CheckBox_CheckedNullCollection()
+        public void Control_CheckBox_CheckedItemsEmpty()
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_CheckBox_CheckedItemsRepeater);
