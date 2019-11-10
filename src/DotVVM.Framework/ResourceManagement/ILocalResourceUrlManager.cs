@@ -1,4 +1,5 @@
-﻿using DotVVM.Framework.Hosting;
+﻿#nullable enable
+using DotVVM.Framework.Hosting;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,6 +14,6 @@ namespace DotVVM.Framework.ResourceManagement
     public interface ILocalResourceUrlManager
     {
         string GetResourceUrl(ILocalResourceLocation resource, IDotvvmRequestContext context, string name);
-        ILocalResourceLocation FindResource(string url, IDotvvmRequestContext context, out string mimeType);
+        ILocalResourceLocation? FindResource(string url, IDotvvmRequestContext context, out string? mimeType);
     }
 }

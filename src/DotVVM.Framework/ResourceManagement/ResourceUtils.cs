@@ -1,4 +1,5 @@
-﻿using DotVVM.Framework.Controls;
+﻿#nullable enable
+using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using System;
 using System.Collections.Generic;
@@ -17,9 +18,20 @@ namespace DotVVM.Framework.ResourceManagement
             }
         }
 
+        public static string ReadToString(this ILocalResourceLocation location, IDotvvmRequestContext context)
+        {
+            using (var resourceStream = location.LoadResource(context))
+            {
+                using (var resourceStreamReader = new StreamReader(resourceStream))
+                {
+                    return resourceStreamReader.ReadToEnd();
+		}
+            }
+	}
+
         public static void AssertAcyclicDependencies(IResource resource,
             string name,
-            Func<string, IResource> findResource)
+            Func<string, IResource?> findResource)
         {
             var queue = new Queue<string>();
             foreach (var dependency in resource.Dependencies)

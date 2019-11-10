@@ -1,9 +1,10 @@
 {
-  "activeProfile": "LazyCsrfToken",
+  "activeProfile": "Default",
   "profiles": [
     {
       "name": "Default",
       "config": {
+
       }
     },
     {
@@ -16,5 +17,8 @@
         }
       }
     }
-  ]
+  ],
+  "appSettings": {
+    "githubApiToken": ""
+  }
 }

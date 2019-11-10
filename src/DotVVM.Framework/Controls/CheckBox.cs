@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -33,13 +34,13 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets a collection of values of all checked checkboxes. Use this property in combination with the CheckedValue property.
         /// </summary>
-        public IEnumerable CheckedItems
+        public IEnumerable? CheckedItems
         {
-            get { return (IEnumerable)GetValue(CheckedItemsProperty); }
+            get { return (IEnumerable?)GetValue(CheckedItemsProperty); }
             set { SetValue(CheckedItemsProperty, value); }
         }
         public static readonly DotvvmProperty CheckedItemsProperty =
-            DotvvmProperty.Register<IEnumerable, CheckBox>(t => t.CheckedItems, null);
+            DotvvmProperty.Register<IEnumerable?, CheckBox>(t => t.CheckedItems, null);
 
         /// <summary>
         /// Renders the input tag.
@@ -103,13 +104,13 @@ namespace DotVVM.Framework.Controls
         protected virtual void RenderCheckedItemsBinding(IHtmlWriter writer)
         {
             var checkedItemsBinding = GetValueBinding(CheckedItemsProperty);
-            writer.AddKnockoutDataBind("dotvvm-checkedItems", checkedItemsBinding.GetKnockoutBindingExpression(this));
+            writer.AddKnockoutDataBind("dotvvm-checkedItems", checkedItemsBinding!.GetKnockoutBindingExpression(this));
         }
 
         protected virtual void RenderCheckedProperty(IHtmlWriter writer)
         {
             var checkedBinding = GetValueBinding(CheckedProperty);
-            writer.AddKnockoutDataBind("dotvvm-CheckState", checkedBinding, this);
+            writer.AddKnockoutDataBind("dotvvm-CheckState", checkedBinding!, this);
             writer.AddKnockoutDataBind("checkedValue", "true");
 
             // Boolean mode can have prerendered `checked` attribute
@@ -126,7 +127,7 @@ namespace DotVVM.Framework.Controls
             var from = control.GetValue(CheckedValueProperty)?.GetResultType();
 
             if (to != null && from != null
-                && !to.IsAssignableFrom(from) && !nonNullableTo.IsAssignableFrom(from))
+                && !to.IsAssignableFrom(from) && !nonNullableTo!.IsAssignableFrom(from))
             {
                 yield return new ControlUsageError(
                     $"Type of items in CheckedItems \'{to}\' must be same as CheckedValue type \'{from}\'.",
