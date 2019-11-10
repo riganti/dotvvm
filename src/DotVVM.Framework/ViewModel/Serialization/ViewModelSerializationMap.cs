@@ -399,6 +399,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     {
                         options["pathOnly"] = true;
                     }
+                    if (!property.TransferAfterPostback)
+                    {
+                        options["firstRequest"] = true;
+                    }
                 }
                 else if (property.TransferToServer)
                 {

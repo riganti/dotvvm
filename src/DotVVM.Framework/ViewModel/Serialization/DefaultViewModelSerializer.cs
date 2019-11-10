@@ -50,7 +50,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         {
             if (SendDiff && context.ReceivedViewModelJson != null && context.ViewModelJson["viewModel"] != null)
             {
-                context.ViewModelJson["viewModelDiff"] = JsonUtils.Diff((JObject)context.ReceivedViewModelJson["viewModel"], (JObject)context.ViewModelJson["viewModel"], true);
+                context.ViewModelJson["viewModelDiff"] = JsonUtils.Diff((JObject)context.ReceivedViewModelJson["viewModel"], (JObject)context.ViewModelJson["viewModel"], false);
                 context.ViewModelJson.Remove("viewModel");
             }
             return context.ViewModelJson.ToString(JsonFormatting);
