@@ -606,7 +606,7 @@ var DotvvmSerialization = /** @class */ (function () {
             if (!ko.isObservable(value) && typeof (value) === "function") {
                 continue;
             }
-            var options = viewModel[prop + "$options"];
+            var options = viewModel[prop + "$options"] || target[prop + "$options"];
             if (!deserializeAll && options && options.doNotUpdate) {
                 continue;
             }
