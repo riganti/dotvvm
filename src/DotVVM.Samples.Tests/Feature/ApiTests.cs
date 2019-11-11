@@ -27,6 +27,7 @@ namespace DotVVM.Samples.Tests.Feature
                 }, 10000);
 
                 // check dotvvm repo issues
+                browser.Wait(2000);
                 var dotvvmIssues = browser.First("table").FindElements("tr").Skip(1).ToList();
                 Assert.True(dotvvmIssues.Count > 10);
 
