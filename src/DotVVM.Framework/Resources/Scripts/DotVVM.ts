@@ -446,9 +446,9 @@ class DotVVM {
                 errorCallback({ xhr });
                 dotvvm.events.staticCommandMethodFailed.trigger({ ...data, xhr })
             },
-                xhr => {
-                    xhr.setRequestHeader("X-PostbackType", "StaticCommand");
-                });
+            xhr => {
+                xhr.setRequestHeader("X-PostbackType", "StaticCommand");
+            });
         })()
     }
 
@@ -534,9 +534,9 @@ class DotVVM {
             const sortedHandlers = this.sortHandlers(handlers);
             return sortedHandlers
                 .reduceRight(
-                    (prev, val, index) => () =>
-                        val.execute(prev, options),
-                    () => callback(options).then(processResult, r => Promise.reject(r))
+                (prev, val, index) => () =>
+                    val.execute(prev, options),
+                () => callback(options).then(processResult, r => Promise.reject(r))
                 )();
         }
     }
@@ -670,7 +670,7 @@ class DotVVM {
     }
 
     public handleSpaNavigationCore(url: string | null): boolean {
-        if (url && url.indexOf("/") === 0) {
+       if (url && url.indexOf("/") === 0) {
             var viewModelName = "root"
 
             url = this.removeVirtualDirectoryFromUrl(url, viewModelName);
@@ -1229,7 +1229,7 @@ class DotVVM {
         const makeUpdatableChildrenContextHandler = (
             makeContextCallback: (bindingContext: KnockoutBindingContext, value: any) => any,
             shouldDisplay: (value: any) => boolean
-        ) => (element: Node, valueAccessor, _allBindings, _viewModel, bindingContext: KnockoutBindingContext) => {
+            ) => (element: Node, valueAccessor, _allBindings, _viewModel, bindingContext: KnockoutBindingContext) => {
             if (!bindingContext) throw new Error()
 
             var savedNodes : Node[] | undefined;
@@ -1390,7 +1390,6 @@ class DotVVM {
 
             }
         };
-
         ko.bindingHandlers['dotvvm-table-columnvisible'] = {
             init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
                 let lastDisplay = "";
