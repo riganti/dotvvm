@@ -100,7 +100,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets a value whether this control renders a HTML tag.
         /// </summary>
-        protected virtual bool RendersHtmlTag => TagName != null;
+        protected virtual bool RendersHtmlTag => TagName is object;
 
         protected new struct RenderState
         {

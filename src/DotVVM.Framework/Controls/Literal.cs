@@ -174,7 +174,7 @@ namespace DotVVM.Framework.Controls
             // render start tag
             if (r.RenderSpanElement)
             {
-                writer.RenderBeginTag(TagName);
+                writer.RenderBeginTag(TagName!);
             }
             else if (expression != null)
             {

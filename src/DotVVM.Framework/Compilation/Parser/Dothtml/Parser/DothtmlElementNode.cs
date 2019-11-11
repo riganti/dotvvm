@@ -1,3 +1,4 @@
+#nullable enable
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -20,7 +21,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
         #endregion
 
         public string TagName => TagNameNode.Text;
-        public string TagPrefix => TagPrefixNode?.Text;
+        public string? TagPrefix => TagPrefixNode?.Text;
         public string FullTagName
         {
             get { return string.IsNullOrEmpty(TagPrefix) ? TagName : (TagPrefix + ":" + TagName); }
@@ -30,14 +31,14 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 
         public bool IsSelfClosingTag { get; set; }
 
-        public DothtmlNameNode TagPrefixNode { get; set; }
-        public DothtmlNameNode TagNameNode { get; set; }
+        public DothtmlNameNode? TagPrefixNode { get; set; }
+        public DothtmlNameNode TagNameNode { get; set; } = null!;
         public List<DothtmlAttributeNode> Attributes { get; set; } = new List<DothtmlAttributeNode>();
-        public List<DotHtmlCommentNode> InnerComments { get; set; }
+        public List<DotHtmlCommentNode>? InnerComments { get; set; }
 
-        public DothtmlToken PrefixSeparator { get; set; }
-        public List<DothtmlToken> AttributeSeparators { get; set; }
-        public DothtmlElementNode CorrespondingEndTag { get; internal set; }
+        public DothtmlToken? PrefixSeparator { get; set; }
+        public List<DothtmlToken>? AttributeSeparators { get; set; }
+        public DothtmlElementNode? CorrespondingEndTag { get; internal set; }
 
         public override IEnumerable<DothtmlNode> EnumerateChildNodes()
         {
