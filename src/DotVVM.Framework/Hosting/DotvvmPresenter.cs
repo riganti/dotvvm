@@ -294,7 +294,7 @@ namespace DotVVM.Framework.Hosting
             catch (DotvvmInterruptRequestExecutionException ex) when (ex.InterruptReason == InterruptReason.CachedViewModelMissing)
             {
                 // the client needs to repeat the postback and send the full viewmodel
-                context.SetCachedViewModelMissingResponse();
+                await context.SetCachedViewModelMissingResponse();
                 throw;
             }
             catch (DotvvmInterruptRequestExecutionException) { throw; }
