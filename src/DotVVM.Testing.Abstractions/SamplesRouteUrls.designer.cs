@@ -10,6 +10,7 @@ namespace DotVVM.Testing.Abstractions
         public const string Default = "Default";
         public const string ComplexSamples_Auth_Login = "ComplexSamples/Auth/Login";
         public const string ComplexSamples_Auth_SecuredPage = "ComplexSamples/Auth/SecuredPage";
+        public const string ComplexSamples_ButtonInMarkupControl_Enabled = "ComplexSamples/ButtonInMarkupControl/Enabled";
         public const string ComplexSamples_CascadeSelectors_CascadeSelectors = "ComplexSamples/CascadeSelectors/CascadeSelectors";
         public const string ComplexSamples_CascadeSelectors_CascadeSelectorsServerRender = "ComplexSamples/CascadeSelectors/CascadeSelectorsServerRender";
         public const string ComplexSamples_CascadeSelectors_TripleComboBoxes = "ComplexSamples/CascadeSelectors/TripleComboBoxes";
@@ -141,6 +142,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_ValidationSummary_RecursiveValidationSummary = "ControlSamples/ValidationSummary/RecursiveValidationSummary";
         public const string Errors_BindingInvalidCommand = "Errors/BindingInvalidCommand";
         public const string Errors_BindingInvalidProperty = "Errors/BindingInvalidProperty";
+        public const string Errors_ConfigurableHtmlControlValidation = "Errors/ConfigurableHtmlControlValidation";
         public const string Errors_ControlUsageValidation = "Errors/ControlUsageValidation";
         public const string Errors_CorruptedContentBetweenContentControls = "Errors/CorruptedContentBetweenContentControls";
         public const string Errors_EmptyBinding = "Errors/EmptyBinding";
