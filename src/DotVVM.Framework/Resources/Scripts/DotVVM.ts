@@ -1323,7 +1323,7 @@ class DotVVM {
 
         ko.bindingHandlers["dotvvm-checkedItems"] = {
             after: ko.bindingHandlers.checked.after,
-            init: ko.bindingHandlers.checked.init!.bind(this),
+            init: ko.bindingHandlers.checked.init,
             options: ko.bindingHandlers.checked.options,
             update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
                 var value = valueAccessor();
@@ -1331,8 +1331,8 @@ class DotVVM {
                     throw Error("The value of a `checkedItems` binding must be an array (i.e. not null nor undefined).");
                 }
                 if (ko.bindingHandlers.checked.update) {
-                    // although `checked` doesn't have an update, call it conditionally in case we ever add one
-                    return ko.bindingHandlers.checked.update.bind(this)(element, valueAccessor, allBindings, viewModel, bindingContext);
+                    // although `checked` doesn't have an update, try to invoke it in case we ever add one
+                    return ko.bindingHandlers.checked.update(element, valueAccessor, allBindings, viewModel, bindingContext);
                 }
             }
         }
