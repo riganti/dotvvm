@@ -4,6 +4,7 @@ import { getViewModel } from '../dotvvm-base';
 import { events } from '../DotVVM.Events';
 import { navigateCore } from './navigation';
 import { DotvvmPostbackError } from '../shared-classes';
+import { performRedirect } from '../postback/redirect';
 
 export const isSpaReady = ko.observable(false);
 
@@ -13,11 +14,11 @@ export function init(viewModelName: string): void {
     if (spaPlaceHolder == null) {
         throw "The SpaContentPlaceHolder control was not found!";
     }
-    
+
     window.addEventListener("hashchange", event => handleHashChangeWithHistory(viewModelName, spaPlaceHolder, false));
     handleHashChangeWithHistory(viewModelName, spaPlaceHolder, true);
 
-    window.addEventListener('popstate', event => handlePopState(viewModelName, event, spaPlaceHolder != null));
+    window.addEventListener('popstate', event => handlePopState(event, spaPlaceHolder != null));
 }
 
 function getSpaPlaceHolder(): HTMLElement | null {
@@ -29,25 +30,25 @@ function getSpaPlaceHolder(): HTMLElement | null {
 }
 
 export function getSpaPlaceHolderUniqueId(): string {
-    return getSpaPlaceHolder()!.attributes["data-dotvvm-spacontentplaceholder"].value;
+    return getSpaPlaceHolder()!.getAttribute("data-dotvvm-spacontentplaceholder")!;
 }
 
-function handlePopState(viewModelName: string, event: PopStateEvent, inSpaPage: boolean) {
+function handlePopState(event: PopStateEvent, inSpaPage: boolean) {
     if (isSpaPage(event.state)) {
         var historyRecord = <HistoryRecord>(event.state);
         if (inSpaPage)
-            navigateCore(viewModelName, historyRecord.url);
+            navigateCore(historyRecord.url);
         else
-            dotvvm.performRedirect(historyRecord.url, true);
+            performRedirect(historyRecord.url, true, false);
 
         event.preventDefault();
     }
 }
-    
+
 function handleHashChangeWithHistory(viewModelName: string, spaPlaceHolder: HTMLElement, isInitialPageLoad: boolean) {
     if (document.location.hash.indexOf("#!/") === 0) {
         // the user requested navigation to another SPA page
-        navigateCore(viewModelName, 
+        navigateCore(
             document.location.hash.substring(2),
             (url) => { replacePage(url); }
         );
@@ -56,7 +57,7 @@ function handleHashChangeWithHistory(viewModelName: string, spaPlaceHolder: HTML
         var containsContent = spaPlaceHolder.hasAttribute("data-dotvvm-spacontentplaceholder-content");
 
         if (!containsContent && defaultUrl) {
-            navigateCore(viewModelName, "/" + defaultUrl, (url) => replacePage(url));
+            navigateCore("/" + defaultUrl, (url) => replacePage(url));
         } else {
             isSpaReady(true);
             spaPlaceHolder.style.display = "";
@@ -67,10 +68,10 @@ function handleHashChangeWithHistory(viewModelName: string, spaPlaceHolder: HTML
     }
 }
 
-export function handleSpaNavigation(element: HTMLElement) {
+export function handleSpaNavigation(element: HTMLElement): Promise<DotvvmNavigationEventArgs> {
     var target = element.getAttribute('target');
     if (target == "_blank") {
-        return true;
+        return true; // TODO: https://github.com/riganti/dotvvm/pull/787/files#diff-edefee5e25549b2a6ed0136e520e009fL662
     }
 
     return handleSpaNavigationCore(element.getAttribute('href'));

@@ -10,7 +10,7 @@ type DotvvmPostbackHandler = {
 }
 type PostbackRejectionReason =
     | { type: "handler", handler: DotvvmPostbackHandler, message?: string }
-    | { type: 'network' }
+    | { type: 'network', err?: any }
     | { type: 'commit', args: DotvvmErrorEventArgs }
     | { type: 'csrfToken' }
     | { type: 'invalidJson', responseText: string }

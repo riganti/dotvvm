@@ -1,43 +1,43 @@
 import { getVirtualDirectory, getViewModel } from '../dotvvm-base';
 import { DotvvmPostbackError } from '../shared-classes';
 
-export async function getJSON(url: string, spaPlaceHolderUniqueId?: string, additionalHeaders?: { [key: string]: string }): Promise<any> {
+export async function getJSON<T>(url: string, spaPlaceHolderUniqueId?: string, additionalHeaders?: { [key: string]: string }): Promise<T> {
     const headers = new Headers();
     headers.append('Accept', 'application/json');
     if (compileConstants.isSpa && spaPlaceHolderUniqueId) {
         headers.append('X-DotVVM-SpaContentPlaceHolder', spaPlaceHolderUniqueId);
     }
     appendAdditionalHeaders(headers, additionalHeaders);
-    
-    return await fetchJson(url, { headers: headers });
+
+    return await fetchJson<T>(url, { headers: headers });
 }
 
-export async function postJSON(url: string, postData: any, additionalHeaders?: { [key: string]: string }): Promise<any> {
+export async function postJSON<T>(url: string, postData: any, additionalHeaders?: { [key: string]: string }): Promise<T> {
     const headers = new Headers();
     headers.append('Content-Type', 'application/json');
     headers.append('X-DotVVM-PostBack', 'true');
     appendAdditionalHeaders(headers, additionalHeaders);
 
-    return await fetchJson(url, { body: postData, headers: headers })
+    return await fetchJson<T>(url, { body: postData, headers: headers })
 }
 
-export async function fetchJson(url: string, init: RequestInit): Promise<any> {
+export async function fetchJson<T>(url: string, init: RequestInit): Promise<T> {
     var response;
     try {
         response = await fetch(url, init);
     }
     catch (err) {
-        throw new DotvvmPostbackError({ type: "network" });
+        throw new DotvvmPostbackError({ type: "network", err });
     }
 
-    var resultObject;
+    var resultObject: T;
     try {
         resultObject = await response.json();
     }
     catch (err) {
         throw new DotvvmPostbackError({ type: "invalidJson", responseText: await response.text() });
     }
-    
+
     if (response.status >= 400) {
         throw new DotvvmPostbackError({ type: "serverError", status: response.status, responseObject: resultObject });
     }
@@ -46,14 +46,14 @@ export async function fetchJson(url: string, init: RequestInit): Promise<any> {
 }
 
 export async function fetchCsrfToken(): Promise<string> {
-    let viewModel = getViewModel();
+    const viewModel = getViewModel();
     if (viewModel.$csrfToken == null) {
         try {
             var response = await fetch(getVirtualDirectory() + "/___dotvvm-create-csrf-token___")
         }
         catch (err) {
             console.warn(`CSRF token fetch failed.`);
-            throw new DotvvmPostbackError({ type: "network" });
+            throw new DotvvmPostbackError({ type: "network", err });
         }
 
         if (response.status != 200) {
@@ -63,11 +63,10 @@ export async function fetchCsrfToken(): Promise<string> {
 
         viewModel.$csrfToken = await response.text();
     }
-    return viewModel.$csrfToken;
+    return ko.unwrap(viewModel.$csrfToken);
 }
 
-export async function retryOnInvalidCsrfToken<TResult>(postbackFunction: () => Promise<TResult>, iteration: number = 0): Promise<TResult>
-{
+export async function retryOnInvalidCsrfToken<TResult>(postbackFunction: () => Promise<TResult>, iteration: number = 0): Promise<TResult> {
     try {
         var result = await postbackFunction();
         return result;
@@ -78,7 +77,7 @@ export async function retryOnInvalidCsrfToken<TResult>(postbackFunction: () => P
             if (err.reason.type === "serverError") {
                 if (err.reason.responseObject.action === "invalidCsrfToken") {
                     console.log("Resending postback due to invalid CSRF token.");
-                    viewModel.$csrfToken = null;
+                    getViewModel().$csrfToken = undefined;
 
                     if (iteration < 3) {
                         return await retryOnInvalidCsrfToken(postbackFunction, iteration + 1);

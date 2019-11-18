@@ -2,20 +2,20 @@ import { events } from "../DotVVM.Events";
 import * as magicNavigator from '../utils/magic-navigator'
 import { handleSpaNavigationCore } from "../spa/spa";
 
-async function performRedirect(url: string, replace: boolean, allowSpa: boolean): Promise<DotvvmNavigationEventArgs | void> {
+export function performRedirect(url: string, replace: boolean, allowSpa: boolean): Promise<DotvvmNavigationEventArgs> | undefined {
     if (replace) {
         location.replace(url);
     }
 
     else if (compileConstants.isSpa && allowSpa) {
-        await handleSpaNavigationCore(url)
+        return handleSpaNavigationCore(url)
     }
     else {
         magicNavigator.navigate(url);
     }
 }
 
-export function handleRedirect(resultObject: any, replace: boolean = false): Promise<DotvvmNavigationEventArgs | void> {
+export function handleRedirect(resultObject: any, replace: boolean = false): Promise<DotvvmNavigationEventArgs> | undefined {
     if (resultObject.replace != null) replace = resultObject.replace;
     const url = resultObject.url;
 

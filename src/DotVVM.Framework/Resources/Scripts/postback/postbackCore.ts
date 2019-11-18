@@ -1,12 +1,14 @@
 import { serialize } from '../serialization/serialize';
 import { deserialize } from '../serialization/deserialize';
 import { getViewModel, getInitialUrl, getRenderedResources } from '../dotvvm-base';
-import { loadResourceList } from './resourceLoader';
+import { loadResourceList, RenderedResourceList } from './resourceLoader';
 import { events, createPostbackArgs } from '../DotVVM.Events'; 
 import * as updater from './updater';
 import * as http from './http';
 import { DotvvmPostbackError } from '../shared-classes';
 import { setIdFragment } from '../utils/dom';
+import { handleRedirect } from './redirect';
+import * as evaluator from '../DotVVM.Evaluator'
 
 var lastStartedPostbackId: number;
 
@@ -42,7 +44,7 @@ export async function postbackCore(
             commandArgs: commandArgs
         };
 
-        var result = await http.postJSON(
+        const result = await http.postJSON<PostbackResponse>(
             getInitialUrl(),
             ko.toJSON(data)
         );
@@ -53,25 +55,25 @@ export async function postbackCore(
     });
 }
 
-async function processPostbackResponse(options: PostbackOptions, result: any): Promise<DotvvmAfterPostBackEventArgs> {
+async function processPostbackResponse(options: PostbackOptions, result: PostbackResponse): Promise<DotvvmAfterPostBackEventArgs> {
     events.postbackCommitInvoked.trigger({});
 
-    const resultObject = parseResultObject(result);
+    processViewModelDiff(result);
 
-    await loadResourceList(resultObject.resources);
+    await loadResourceList(result.resources);
     
-    if (resultObject.action === "successfulCommand") {
-        updater.updateViewModelAndControls(resultObject, false);
+    if (result.action == "successfulCommand") {
+        updater.updateViewModelAndControls(result, false);
         events.postbackViewModelUpdated.trigger({});
 
-    } else if (resultObject.action === "redirect") {
+    } else if (result.action == "redirect") {
         // redirect
-        var redirectPromise = this.handleRedirect(resultObject);
+        var redirectPromise = handleRedirect(result);
 
         return {
             ...createPostbackArgs(options),
-            serverResponseObject: resultObject,
-            commandResult: resultObject.commandResult,
+            serverResponseObject: result,
+            commandResult: result.commandResult,
             xhr: result,
             redirectPromise,
             isHandled: false,
@@ -79,14 +81,14 @@ async function processPostbackResponse(options: PostbackOptions, result: any): P
         };
     }
 
-    setIdFragment(resultObject.resultIdFragment)
+    setIdFragment(result.resultIdFragment)
 
     // trigger afterPostback event
     if (!isSuccess) {
         const error: DotvvmErrorEventArgs = {
             ...createPostbackArgs(options),
             viewModel,
-            serverResponseObject: resultObject,
+            serverResponseObject: result,
             handled: false
         }
         // TODO: error handling
@@ -94,31 +96,20 @@ async function processPostbackResponse(options: PostbackOptions, result: any): P
     } else {
         return {
             ...createPostbackArgs(options),
-            serverResponseObject: resultObject,
-            commandResult: resultObject.commandResult,
+            serverResponseObject: result,
+            commandResult: result.commandResult,
             xhr: result,
-            redirectPromise,
             isHandled: false,
             wasInterrupted: false
         }
     }
 }
 
-function parseResultObject(result: any) {
-    // convert classic redirect to DotVVM redirect response
-    const locationHeader = result.getResponseHeader("Location");
-    if (locationHeader) {
-        return { action: "redirect", url: locationHeader };
-    }
-
-    const resultObject = JSON.parse(result.responseText);
-
+function processViewModelDiff(result: PostbackResponse) {
     // apply viewmodel diff
-    if (!resultObject.viewModel && resultObject.viewModelDiff) {
-        resultObject.viewModel = updater.patchViewModel(viewModel, resultObject.viewModelDiff);
+    if (!result.viewModel && result.viewModelDiff) {
+        result.viewModel = updater.patchViewModel(getViewModel(), result.viewModelDiff);
     }
-
-    return resultObject;
 }
 
 function updateDynamicPathFragments(context: any, path: string[]): void {
@@ -128,7 +119,7 @@ function updateDynamicPathFragments(context: any, path: string[]): void {
         }
 
         if (path[i].indexOf("[$indexPath]") >= 0) {
-            path[i] = path[i].replace("[$indexPath]", `[${context.$indexPath.map(i => i()).join("]/[")}]`);
+            path[i] = path[i].replace("[$indexPath]", `[${context.$indexPath.map((i: any) => i()).join("]/[")}]`);
         }
 
         context = context.$parentContext;
@@ -137,6 +128,16 @@ function updateDynamicPathFragments(context: any, path: string[]): void {
 
 function processPassedId(id: any, context: any): string {
     if (typeof id == "string" || id == null) return id;
-    if (typeof id == "object" && id.expr) return this.evaluator.evaluateOnViewModel(context, id.expr);
+    if (typeof id == "object" && id.expr) return evaluator.evaluateOnViewModel(context, id.expr);
     throw new Error("invalid argument");
 }
+
+type PostbackResponse =
+   (  { viewModel: RootViewModel, viewModelDiff: undefined }
+    | { viewModelDiff: object, viewModel: object | undefined })
+    & {
+        resources: RenderedResourceList
+        commandResult: any
+        action: string
+        resultIdFragment?: string
+    }

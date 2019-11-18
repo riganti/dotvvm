@@ -1,6 +1,6 @@
 import { createArray } from "../utils/objects";
 
-type RenderedResourceList = {
+export type RenderedResourceList = {
     [name: string]: string;
 }
 

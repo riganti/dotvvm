@@ -38,7 +38,7 @@ export async function navigateCore(url: string, handlePageNavigating?: (url: str
         }
 
         // send the request
-        var resultObject = await http.getJSON(spaFullUrl, getSpaPlaceHolderUniqueId());
+        var resultObject = await http.getJSON<any>(spaFullUrl, getSpaPlaceHolderUniqueId());
 
         // if another postback has already been passed, don't do anything
         if (!counter.isPostBackStillActive(currentPostBackCounter)) {
