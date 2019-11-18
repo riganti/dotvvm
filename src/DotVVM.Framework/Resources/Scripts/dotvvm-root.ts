@@ -1,6 +1,7 @@
-import { DotVVM } from "./dotvvm-base"
+import { initCore, getViewModel, getViewModelObservable } from "./dotvvm-base"
 import addPolyfills from './DotVVM.Polyfills'
-import { events } from './DotVVM.Events'
+import * as events from './DotVVM.Events'
+import * as spa from "./spa/spa"
 
 if (compileConstants.nomodules) {
     addPolyfills()
@@ -9,9 +10,33 @@ if (compileConstants.nomodules) {
 if (window["dotvvm"]) {
     throw 'DotVVM is already loaded!';
 }
-var dotvvm: any = new DotVVM();
-window["dotvvm"] = dotvvm;
+function init(culture: string) {
 
-export { events }
+    initCore(culture)
 
+    if (compileConstants.isSpa) {
+        spa.init("root")
+    }
+}
 
+const dotvvm = {
+    // evaluator,
+    // fileUpload,
+    // getXHR,
+    // globalize,
+    // postBackHandlers,
+    // handleSpaNavigation,
+    // buildUrlSuffix,
+    // isSpaReady,
+    // buildRouteUrl,
+    init,
+    events,
+    viewModels: {
+        get root() { return getViewModel(); }
+    },
+    viewModelObservables: {
+        get root() { return getViewModelObservable(); }
+    }
+}
+
+window.dotvvm = dotvvm;

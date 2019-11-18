@@ -131,3 +131,7 @@ type ClientFriendlyPostbackHandlerConfiguration =
 type RootViewModel = {
     $csrfToken?: string | KnockoutObservable<string>
 }
+
+interface Window {
+    dotvvm: any
+}

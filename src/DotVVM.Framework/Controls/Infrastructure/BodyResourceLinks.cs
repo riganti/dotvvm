@@ -35,7 +35,7 @@ namespace DotVVM.Framework.Controls
             writer.RenderBeginTag("script");
             writer.AddAttribute("defer", null);
             writer.WriteUnencodedText($@"
-window.dotvvm.init('root', {JsonConvert.ToString(CultureInfo.CurrentCulture.Name, '"', StringEscapeHandling.EscapeHtml)});
+window.dotvvm.init({JsonConvert.ToString(CultureInfo.CurrentCulture.Name, '"', StringEscapeHandling.EscapeHtml)});
 ");
             writer.WriteUnencodedText(RenderWarnings(context));
             writer.RenderEndTag();

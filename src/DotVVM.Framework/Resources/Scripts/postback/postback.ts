@@ -3,7 +3,7 @@ import { postbackCore } from './postbackCore'
 import { getViewModel } from '../dotvvm-base'
 import * as internalHandlers from './internal-handlers';
 import { DotvvmPostbackError } from '../shared-classes';
-import { events } from '../DotVVM.Events';
+import * as events from '../DotVVM.Events';
 
 const globalPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[] = [
     internalHandlers.suppressOnDisabledElementHandler,

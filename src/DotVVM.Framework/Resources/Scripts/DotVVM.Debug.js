@@ -52,15 +52,6 @@
     iframe.style.flex = "1 100 auto";
     iframe.style.width = "100%";
 
-    dotvvm.evaluator.tryEval = function(func) {
-        try {
-            return func();
-        } catch (error) {
-            console.warn("Error '" + error + "' occurred while evaluating " + func + ".");
-            return null;
-        }
-    }
-
     dotvvm.events.error.subscribe(function (e) {
         console.error("DotVVM: An " + (e.handled ? "" : "un") + "handled exception returned from the server command.");
         console.log("XmlHttpRequest: ", e.xhr);

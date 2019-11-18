@@ -1,8 +1,9 @@
 import { serialize } from '../serialization/serialize';
 import { deserialize } from '../serialization/deserialize';
-import { getViewModel, getInitialUrl, getRenderedResources } from '../dotvvm-base';
-import { loadResourceList, RenderedResourceList } from './resourceLoader';
-import { events, createPostbackArgs } from '../DotVVM.Events'; 
+import { getViewModel, getInitialUrl } from '../dotvvm-base';
+import { loadResourceList, RenderedResourceList, getRenderedResources } from './resourceLoader';
+import * as events from '../DotVVM.Events';
+import { createPostbackArgs } from "../createPostbackArgs";
 import * as updater from './updater';
 import * as http from './http';
 import { DotvvmPostbackError } from '../shared-classes';

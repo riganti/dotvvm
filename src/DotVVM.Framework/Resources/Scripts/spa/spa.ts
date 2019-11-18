@@ -1,10 +1,10 @@
 import * as uri from '../utils/uri';
 import * as http from '../postback/http';
 import { getViewModel } from '../dotvvm-base';
-import { events } from '../DotVVM.Events';
+import * as events from '../DotVVM.Events';
 import { navigateCore } from './navigation';
 import { DotvvmPostbackError } from '../shared-classes';
-import { performRedirect } from '../postback/redirect';
+
 
 export const isSpaReady = ko.observable(false);
 
@@ -39,7 +39,7 @@ function handlePopState(event: PopStateEvent, inSpaPage: boolean) {
         if (inSpaPage)
             navigateCore(historyRecord.url);
         else
-            performRedirect(historyRecord.url, true, false);
+            location.replace(historyRecord.url);
 
         event.preventDefault();
     }

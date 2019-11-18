@@ -7,7 +7,6 @@ import replace from '@rollup/plugin-replace';
 
 const build = process.env.BUILD || "debug";
 const production = build == "production";
-const useTerser = production;
 
 const config = ({minify, input, output}) => ({
   input,
@@ -21,17 +20,17 @@ const config = ({minify, input, output}) => ({
     //   sourcemap: !production },
   ],
 
-//   treeshake: false,
+  // treeshake: false,
   plugins: [
     typescript({ target: "es2018" }),
     resolve({ browser: true }),
     commonjs(),
     replace({
-      "compileConstants.isSpa": true,
+      "compileConstants.isSpa": false,
       "compileConstants.nomodules": "false",
     }),
 
-    terser({
+    minify && terser({
       ecma: 6,
       compress: true,
       output: {
@@ -82,5 +81,5 @@ const config = ({minify, input, output}) => ({
 
 export default [
   // config({ minify: production, input: ['./Resources/Scripts/dotvvm-root.ts', './Resources/Scripts/dotvvm-light.ts'], output: "default" }),
-  config({ minify: true, input: ['./Resources/Scripts/dotvvm-root.ts'], output: "root-only" }),
+  config({ minify: production, input: ['./Resources/Scripts/dotvvm-root.ts'], output: "root-only" }),
 ]

@@ -1,4 +1,5 @@
-import { events, createPostbackArgs } from "../DotVVM.Events";
+import * as events from '../DotVVM.Events';
+import { createPostbackArgs } from "../createPostbackArgs";
 import { DotvvmPostbackError } from "../shared-classes";
 import { isElementDisabled } from "../utils/dom";
 import { getPostbackQueue, enterActivePostback, leaveActivePostback, runNextInQueue } from "./queue";

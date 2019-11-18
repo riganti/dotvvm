@@ -1,4 +1,4 @@
-import { events } from "../DotVVM.Events";
+import * as events from '../DotVVM.Events';
 import * as magicNavigator from '../utils/magic-navigator'
 import { handleSpaNavigationCore } from "../spa/spa";
 

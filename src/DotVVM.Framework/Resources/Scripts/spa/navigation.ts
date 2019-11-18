@@ -6,12 +6,12 @@ import { DotvvmPostbackError } from '../shared-classes';
 import { loadResourceList } from '../postback/resourceLoader';
 import * as updater from '../postback/updater';
 import * as counter from '../postback/counter';
-import { events } from '../DotVVM.Events';
+import * as events from '../DotVVM.Events';
 import { getSpaPlaceHolderUniqueId, isSpaReady } from './spa';
 import { handleRedirect } from '../postback/redirect';
 
 export async function navigateCore(url: string, handlePageNavigating?: (url: string) => void): Promise<DotvvmNavigationEventArgs> {
-    
+
     return await http.retryOnInvalidCsrfToken<DotvvmNavigationEventArgs>(async () => {
 
         // prevent double postbacks
@@ -65,7 +65,7 @@ export async function navigateCore(url: string, handlePageNavigating?: (url: str
         events.spaNavigated.trigger(spaNavigatedArgs);
         return spaNavigatedArgs
     });
-    
+
     // // if another postback has already been passed, don't do anything
     // if (!this.isPostBackStillActive(currentPostBackCounter)) return;
 

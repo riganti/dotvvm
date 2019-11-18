@@ -90,7 +90,7 @@ namespace DotVVM.Samples.Common
 
             // dev files
             resources.SetEmbeddedResourceDebugFile("knockout", "../DotVVM.Framework/Resources/Scripts/knockout-latest.debug.js");
-            resources.SetEmbeddedResourceDebugFile("dotvvm.internal", "../DotVVM.Framework/Resources/Scripts/DotVVM.js");
+            resources.SetEmbeddedResourceDebugFile("dotvvm.internal", "../DotVVM.Framework/obj/javascript/root-only/dotvvm-root.js");
             resources.SetEmbeddedResourceDebugFile("dotvvm.debug", "../DotVVM.Framework/Resources/Scripts/DotVVM.Debug.js");
             resources.SetEmbeddedResourceDebugFile("dotvvm.fileupload-css", "../DotVVM.Framework/Resources/Scripts/DotVVM.FileUploads.css");
 

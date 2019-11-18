@@ -317,7 +317,7 @@ namespace DotVVM.Framework.Configuration
             configuration.Resources.Register(ResourceConstants.DotvvmResourceName + ".internal",
                 new ScriptResource(new EmbeddedResourceLocation(
                     typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
-                    "DotVVM.Framework.Resources.Scripts.DotVVM.min.js")) {
+                    "DotVVM.Framework.obj.javascript.root_only.dotvvm-root.js")) {
                     Dependencies = new[] { ResourceConstants.KnockoutJSResourceName, ResourceConstants.PolyfillResourceName }
                 });
             configuration.Resources.Register(ResourceConstants.DotvvmResourceName,

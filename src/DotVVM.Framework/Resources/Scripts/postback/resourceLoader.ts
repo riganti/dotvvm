@@ -14,6 +14,8 @@ export function registerResources(rs: string[] | null | undefined) {
             resourceSigns[r] = true;
 }
 
+export const getRenderedResources = () => Object.keys(resourceSigns)
+
 export async function loadResourceList(resources: RenderedResourceList) {
     var html = "";
     for (const name of Object.keys(resources)) {
