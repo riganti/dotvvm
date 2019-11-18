@@ -8,17 +8,18 @@ import * as updater from '../postback/updater';
 import * as counter from '../postback/counter';
 import { events } from '../DotVVM.Events';
 import { getSpaPlaceHolderUniqueId, isSpaReady } from './spa';
+import { handleRedirect } from '../postback/redirect';
 
-export async function navigateCore(url: string, handlePageNavigating?: (url: string) => void): Promise<void> {
+export async function navigateCore(url: string, handlePageNavigating?: (url: string) => void): Promise<DotvvmNavigationEventArgs> {
     
-    await http.retryOnInvalidCsrfToken(async () => {
+    return await http.retryOnInvalidCsrfToken<DotvvmNavigationEventArgs>(async () => {
 
         // prevent double postbacks
         var currentPostBackCounter = counter.backUpPostBackCounter();
 
         // trigger spaNavigating event
         var spaNavigatingArgs : DotvvmSpaNavigatingEventArgs = {
-            getViewModel(),
+            viewModel: getViewModel(),
             newUrl: url,
             cancel: false
         };
@@ -41,7 +42,7 @@ export async function navigateCore(url: string, handlePageNavigating?: (url: str
 
         // if another postback has already been passed, don't do anything
         if (!counter.isPostBackStillActive(currentPostBackCounter)) {
-            return;
+            return <DotvvmNavigationEventArgs>null // TODO: what here https://github.com/riganti/dotvvm/pull/787/files#diff-edefee5e25549b2a6ed0136e520e009fR852
         }
 
         await loadResourceList(resultObject.resources);
@@ -50,7 +51,8 @@ export async function navigateCore(url: string, handlePageNavigating?: (url: str
             updater.updateViewModelAndControls(resultObject, true);
             isSpaReady(true);
         } else if (resultObject.action === "redirect") {
-            return await handleRedirect(resultObject, true);
+            const x = await handleRedirect(resultObject, true) as DotvvmNavigationEventArgs
+            return x
         }
 
         // trigger spaNavigated event
@@ -61,6 +63,7 @@ export async function navigateCore(url: string, handlePageNavigating?: (url: str
             isHandled: true
         };
         events.spaNavigated.trigger(spaNavigatedArgs);
+        return spaNavigatedArgs
     });
     
     // // if another postback has already been passed, don't do anything

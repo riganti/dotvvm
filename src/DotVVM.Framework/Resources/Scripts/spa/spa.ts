@@ -3,6 +3,7 @@ import * as http from '../postback/http';
 import { getViewModel } from '../dotvvm-base';
 import { events } from '../DotVVM.Events';
 import { navigateCore } from './navigation';
+import { DotvvmPostbackError } from '../shared-classes';
 
 export const isSpaReady = ko.observable(false);
 
@@ -71,20 +72,20 @@ export function handleSpaNavigation(element: HTMLElement) {
     if (target == "_blank") {
         return true;
     }
-    
+
     return handleSpaNavigationCore(element.getAttribute('href'));
 }
 
 export async function handleSpaNavigationCore(url: string | null): Promise<DotvvmNavigationEventArgs> {
     if (url && url.indexOf("/") === 0) {
         url = uri.removeVirtualDirectoryFromUrl(url);
-        await navigateCore(url, (navigatedUrl) => {
+        return await navigateCore(url, (navigatedUrl) => {
             if (!history.state || history.state.url != navigatedUrl) {
                 pushPage(navigatedUrl);
             }
         });
     } else {
-        reject();
+        throw new Error("invalid url");
     }
 }
 

@@ -9,7 +9,6 @@ import * as deserialization from './serialization/deserialize'
 import * as serialization from './serialization/serialize'
 import * as uri from './utils/uri'
 import * as http from './postback/http'
-import * as magicNavigator from './utils/magic-navigator'
 import * as resourceLoader from './postback/resourceLoader'
 
 import bindingHandlers from './binding-handlers/all-handlers'
@@ -98,38 +97,6 @@ function persistViewModel(viewModelName: string) {
 
 export class DotVVM {
     private lastStartedPostack = 0; // TODO: increment the last postback
-
-    
-
-    private handleRedirect(resultObject: any, viewModelName: string, replace: boolean = false): Promise<DotvvmNavigationEventArgs | void> {
-        if (resultObject.replace != null) replace = resultObject.replace;
-        var url = resultObject.url;
-
-        // trigger redirect event
-        var redirectArgs : DotvvmRedirectEventArgs = {
-            viewModel: dotvvm.viewModels[viewModelName],
-            viewModelName,
-            url,
-            replace,
-        }
-        this.events.redirect.trigger(redirectArgs);
-
-        return this.performRedirect(url, replace, resultObject.allowSpa);
-    }
-
-    private async performRedirect(url: string, replace: boolean, allowSpa: boolean): Promise<DotvvmNavigationEventArgs | void> {
-        if (replace) {
-            location.replace(url);
-        }
-
-        else if (compileConstants.isSpa && allowSpa) {
-            await this.handleSpaNavigationCore(url)
-        }
-        else {
-            magicNavigator.navigate(url);
-        }
-    }
-
 
     public buildRouteUrl(routePath: string, params: any): string {
         // prepend url with backslash to correctly handle optional parameters at start
