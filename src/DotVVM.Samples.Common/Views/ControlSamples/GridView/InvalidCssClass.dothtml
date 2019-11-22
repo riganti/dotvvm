@@ -26,12 +26,12 @@
                                     HeaderText="Is (Standalone)"
                                     CssClass="is-standalone" />
         <dot:GridViewTextColumn ValueBinding="{value: Name}"
-                                HeaderText="Name (Attached)"
-                                ValidatorPlacement="Attached"
+                                HeaderText="Name (AttachToControl)"
+                                ValidatorPlacement="AttachToControl"
                                 CssClass="name-attached" />
         <dot:GridViewTextColumn ValueBinding="{value: Name}"
-                                HeaderText="Name (Attached | Standalone)"
-                                ValidatorPlacement="Attached | Standalone"
+                                HeaderText="Name (AttachToControl | Standalone)"
+                                ValidatorPlacement="AttachToControl | Standalone"
                                 CssClass="name-attached-standalone" />
         <dot:GridViewTemplateColumn HeaderText="Value">
             <ContentTemplate>
