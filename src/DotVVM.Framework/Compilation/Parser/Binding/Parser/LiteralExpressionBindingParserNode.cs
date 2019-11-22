@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8,9 +9,9 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class LiteralExpressionBindingParserNode : BindingParserNode
     {
-        public object Value { get; set; }
+        public object? Value { get; set; }
 
-        public LiteralExpressionBindingParserNode(object value)
+        public LiteralExpressionBindingParserNode(object? value)
         {
             Value = value;
         }
@@ -19,6 +20,6 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             => Enumerable.Empty<BindingParserNode>();
 
         public override string ToDisplayString()
-            => Value.ToString();
+            => Value is null ? "<null>" : Value.ToString();
     }
 }

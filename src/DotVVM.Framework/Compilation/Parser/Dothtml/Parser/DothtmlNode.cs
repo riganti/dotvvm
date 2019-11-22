@@ -1,3 +1,4 @@
+#nullable enable
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
@@ -13,10 +14,10 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 
         public AggregateList<DothtmlToken> Tokens { get; private set; } = new AggregateList<DothtmlToken>();
 
-        public DothtmlNode ParentNode { get; set; }
+        public DothtmlNode? ParentNode { get; set; }
 
-        private List<string> nodeWarnings;
-        private List<string> nodeErrors;
+        private List<string>? nodeWarnings;
+        private List<string>? nodeErrors;
 
         public IEnumerable<string> NodeWarnings => nodeWarnings ?? Enumerable.Empty<string>();
         public IEnumerable<string> NodeErrors => nodeErrors ?? Enumerable.Empty<string>();

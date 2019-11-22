@@ -358,8 +358,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     if (property.ViewModelProtection == ProtectMode.None ||
                         property.ViewModelProtection == ProtectMode.SignData)
                     {
-                        var checkEV = property.ViewModelProtection == ProtectMode.None &&
-                                           CanContainEncryptedValues(property.Type);
+                        var checkEV = CanContainEncryptedValues(property.Type);
                         if (checkEV)
                         {
                             // encryptedValuesWriter.Nest({propertyIndex});

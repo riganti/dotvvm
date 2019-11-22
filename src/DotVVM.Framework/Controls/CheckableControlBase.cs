@@ -96,6 +96,7 @@ namespace DotVVM.Framework.Controls
 
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
+            if (TagName is null) throw new DotvvmControlException(this, "CheckableControlBase must have a tag name");
             AddAttributesToInput(writer);
             RenderInputTag(writer);
 
