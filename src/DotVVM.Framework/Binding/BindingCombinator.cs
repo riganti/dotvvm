@@ -1,3 +1,4 @@
+#nullable enable
 using System.Runtime.CompilerServices;
 using System;
 using System.Linq;

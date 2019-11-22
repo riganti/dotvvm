@@ -1,7 +1,9 @@
+#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace DotVVM.Framework.Configuration
@@ -9,7 +11,8 @@ namespace DotVVM.Framework.Configuration
 
     static class FreezableDictionary
     {
-        public static void Freeze<K, V>(ref IDictionary<K, V> dict)
+        public static void Freeze<K, V>([AllowNull] ref IDictionary<K, V> dict)
+            where K : notnull
         {
             if (dict is FreezableDictionary<K, V> freezable)
                 freezable.Freeze();
@@ -22,6 +25,7 @@ namespace DotVVM.Framework.Configuration
         }
     }
     sealed class FreezableDictionary<K, V> : IDictionary<K, V>
+        where K : notnull
     {
         private readonly Dictionary<K, V> dict;
         private bool isFrozen;
@@ -35,13 +39,13 @@ namespace DotVVM.Framework.Configuration
             this.isFrozen = true;
         }
 
-        public FreezableDictionary(IEqualityComparer<K> comparer = null, bool frozen = false)
+        public FreezableDictionary(IEqualityComparer<K>? comparer = null, bool frozen = false)
         {
             dict = new Dictionary<K, V>(comparer);
             isFrozen = frozen;
         }
 
-        public FreezableDictionary(IEnumerable<KeyValuePair<K, V>> items, IEqualityComparer<K> comparer = null, bool frozen = false)
+        public FreezableDictionary(IEnumerable<KeyValuePair<K, V>> items, IEqualityComparer<K>? comparer = null, bool frozen = false)
         {
             dict = items.ToDictionary(a => a.Key, a => a.Value, comparer);
             isFrozen = frozen;
@@ -60,7 +64,9 @@ namespace DotVVM.Framework.Configuration
             return dict.Remove(key);
         }
 
-        public bool TryGetValue(K key, out V value) => dict.TryGetValue(key, out value);
+#pragma warning disable CS8717
+        public bool TryGetValue(K key, [MaybeNullWhen(false)] out V value) => dict.TryGetValue(key, out value);
+#pragma warning restore CS8717
         public void Add(KeyValuePair<K, V> item)
         {
             ThrowIfFrozen();

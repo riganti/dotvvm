@@ -1,9 +1,12 @@
+#nullable enable
+using System.Collections.Generic;
+
 namespace DotVVM.Framework.Compilation.Parser
 {
     /// <summary>
     /// Represents a range defined by the last token and type of the token where the error starts.
     /// </summary>
-    public class BeginWithLastTokenOfTypeTokenError<TToken, TTokenType> : TokenError<TToken, TTokenType> where TToken : TokenBase<TTokenType>, new()
+    public class BeginWithLastTokenOfTypeTokenError<TToken, TTokenType> : TokenError<TToken, TTokenType> where TToken : TokenBase<TTokenType>
     {
         public TToken LastToken { get; private set; }
 
@@ -21,7 +24,7 @@ namespace DotVVM.Framework.Compilation.Parser
             do
             {
                 tokenIndex--;
-            } while (tokenIndex >= 0 && Tokenizer.Tokens[tokenIndex].Type.Equals(FirstTokenType));
+            } while (tokenIndex >= 0 && EqualityComparer<TTokenType>.Default.Equals(Tokenizer.Tokens[tokenIndex].Type, FirstTokenType));
 
             var begin = tokenIndex >= 0 ? Tokenizer.Tokens[tokenIndex].StartPosition : 0;
             var end = LastToken.EndPosition;

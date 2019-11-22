@@ -1,3 +1,4 @@
+#nullable enable
 using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
@@ -16,7 +17,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowHardCodedValue = false, Required = true)]
         public bool ValueBinding
         {
-            get { return (bool)GetValue(ValueBindingProperty); }
+            get { return (bool)GetValue(ValueBindingProperty)!; }
             set { SetValue(ValueBindingProperty, value); }
         }
         public static readonly DotvvmProperty ValueBindingProperty =

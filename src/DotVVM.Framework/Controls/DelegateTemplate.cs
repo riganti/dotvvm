@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,7 @@ namespace DotVVM.Framework.Controls
         public DelegateTemplate()
         {
             // this constructor must be here otherwise the user controls won't compile
+            BuildContentBody = (_, __, ___) => throw new Exception("BuildContentBody must be assigned.");
         }
 
         public DelegateTemplate(Action<IServiceProvider, DotvvmControl> buildContentBody)

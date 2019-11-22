@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,7 +46,7 @@ namespace DotVVM.Framework.Configuration
             get { return _applicationPhysicalPath; }
             set { ThrowIfFrozen(); _applicationPhysicalPath = value; }
         }
-        private string _applicationPhysicalPath;
+        private string _applicationPhysicalPath = "."; // defaults to current working directory. In practice this gets overridden by app initializer
 
         /// <summary>
         /// Gets the settings of the markup.
@@ -65,19 +66,19 @@ namespace DotVVM.Framework.Configuration
         /// </summary>
         [JsonProperty("resources", DefaultValueHandling = DefaultValueHandling.Ignore)]
         [JsonConverter(typeof(ResourceRepositoryJsonConverter))]
-        public DotvvmResourceRepository Resources { get; private set; }
+        public DotvvmResourceRepository Resources { get; private set; } = new DotvvmResourceRepository();
 
         /// <summary>
         /// Gets the security configuration.
         /// </summary>
         [JsonProperty("security")]
-        public DotvvmSecurityConfiguration Security { get; private set; }
+        public DotvvmSecurityConfiguration Security { get; private set; } = new DotvvmSecurityConfiguration();
 
         /// <summary>
         /// Gets the runtime configuration.
         /// </summary>
         [JsonProperty("runtime", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public DotvvmRuntimeConfiguration Runtime { get; private set; }
+        public DotvvmRuntimeConfiguration Runtime { get; private set; } = new DotvvmRuntimeConfiguration();
 
         /// <summary>
         /// Gets or sets the default culture.
@@ -198,18 +199,31 @@ namespace DotVVM.Framework.Configuration
         }
         private IList<string> _compiledViewsAssemblies = new FreezableList<string>() { "CompiledViews.dll" };
 
+        /// <summary> must be there for serialization </summary>
+        internal DotvvmConfiguration(): this(new ServiceLocator(CreateDefaultServiceCollection().BuildServiceProvider()).GetServiceProvider())
+        { }
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmConfiguration"/> class.
         /// </summary>
-        internal DotvvmConfiguration()
+        internal DotvvmConfiguration(IServiceProvider services)
         {
-            DefaultCulture = CultureInfo.CurrentCulture.Name;
+            ServiceProvider = services;
+#pragma warning disable
+            ServiceLocator = new ServiceLocator(services);
+#pragma warning restore
+
+            _defaultCulture = CultureInfo.CurrentCulture.Name;
             Markup = new DotvvmMarkupConfiguration(new Lazy<JavascriptTranslatorConfiguration>(() => ServiceProvider.GetRequiredService<IOptions<JavascriptTranslatorConfiguration>>().Value));
             RouteTable = new DotvvmRouteTable(this);
-            Resources = new DotvvmResourceRepository();
-            Security = new DotvvmSecurityConfiguration();
-            Runtime = new DotvvmRuntimeConfiguration();
-            Styles = new StyleRepository(this);
+            _styles = new StyleRepository(this);
+
+        }
+
+        private static ServiceCollection CreateDefaultServiceCollection()
+        {
+            var services = new ServiceCollection();
+            DotvvmServiceCollectionExtensions.RegisterDotVVMServices(services);
+            return services;
         }
 
         /// <summary>
@@ -217,12 +231,10 @@ namespace DotVVM.Framework.Configuration
         /// </summary>
         /// <param name="registerServices">An action to register additional services.</param>
         /// <param name="serviceProviderFactoryMethod">Register factory method to create your own instance of IServiceProvider.</param>
-        public static DotvvmConfiguration CreateDefault(Action<IServiceCollection> registerServices = null, Func<IServiceCollection, IServiceProvider> serviceProviderFactoryMethod = null)
+        public static DotvvmConfiguration CreateDefault(Action<IServiceCollection>? registerServices = null, Func<IServiceCollection, IServiceProvider>? serviceProviderFactoryMethod = null)
         {
-            var services = new ServiceCollection();
-            DotvvmServiceCollectionExtensions.RegisterDotVVMServices(services);
+            var services = CreateDefaultServiceCollection();
             registerServices?.Invoke(services);
-
             return new ServiceLocator(services, serviceProviderFactoryMethod).GetService<DotvvmConfiguration>();
         }
 
@@ -232,12 +244,7 @@ namespace DotVVM.Framework.Configuration
         /// <param name="serviceProvider">The service provider to resolve services from.</param>
         public static DotvvmConfiguration CreateDefault(IServiceProvider serviceProvider)
         {
-            var config = new DotvvmConfiguration {
-#pragma warning disable
-                ServiceLocator = new ServiceLocator(serviceProvider),
-#pragma warning restore
-                ServiceProvider = serviceProvider
-            };
+            var config = new DotvvmConfiguration(serviceProvider);
 
             config.Runtime.GlobalFilters.Add(new ModelValidationFilterAttribute());
 
@@ -280,18 +287,21 @@ namespace DotVVM.Framework.Configuration
             configuration.RouteConstraints.Add("length", new GenericRouteParameterType(p => "[^/]{" + p + "}"));
             configuration.RouteConstraints.Add("long", GenericRouteParameterType.Create<long>("-?[0-9]*?", Invariant.TryParse));
             configuration.RouteConstraints.Add("max", new GenericRouteParameterType(p => "-?[0-9.e]*?", (valueString, parameter) => {
+                if (parameter is null) throw new Exception("The `max` route constraint must have a numeric parameter.");
                 double value;
                 if (!Invariant.TryParse(valueString, out value)) return ParameterParseResult.Failed;
                 if (double.Parse(parameter, CultureInfo.InvariantCulture) < value) return ParameterParseResult.Failed;
                 return ParameterParseResult.Create(value);
             }));
             configuration.RouteConstraints.Add("min", new GenericRouteParameterType(p => "-?[0-9.e]*?", (valueString, parameter) => {
+                if (parameter is null) throw new Exception("The `min` route constraint must have a numeric parameter.");
                 double value;
                 if (!Invariant.TryParse(valueString, out value)) return ParameterParseResult.Failed;
                 if (double.Parse(parameter, CultureInfo.InvariantCulture) > value) return ParameterParseResult.Failed;
                 return ParameterParseResult.Create(value);
             }));
             configuration.RouteConstraints.Add("range", new GenericRouteParameterType(p => "-?[0-9.e]*?", (valueString, parameter) => {
+                if (parameter is null) throw new Exception("The `range` route constraint must have two numeric parameters.");
                 double value;
                 if (!Invariant.TryParse(valueString, out value)) return ParameterParseResult.Failed;
                 var split = parameter.Split(',');
@@ -301,6 +311,7 @@ namespace DotVVM.Framework.Configuration
             configuration.RouteConstraints.Add("maxLength", new GenericRouteParameterType(p => "[^/]{0," + p + "}"));
             configuration.RouteConstraints.Add("minLength", new GenericRouteParameterType(p => "[^/]{" + p + ",}"));
             configuration.RouteConstraints.Add("regex", new GenericRouteParameterType(p => {
+                if (p is null) throw new Exception("The `regex` route constraint must have a parameter.");
                 if (p.StartsWith("^")) throw new ArgumentException("Regex in route constraint should not start with `^`, it's always looking for full-match.");
                 if (p.EndsWith("$")) throw new ArgumentException("Regex in route constraint should not end with `$`, it's always looking for full-match.");
                 return p;

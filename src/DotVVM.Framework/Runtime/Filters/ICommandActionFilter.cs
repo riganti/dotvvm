@@ -1,4 +1,5 @@
-﻿using DotVVM.Framework.Hosting;
+﻿#nullable enable
+using DotVVM.Framework.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,6 @@ namespace DotVVM.Framework.Runtime.Filters
         /// <summary>
         /// Called after the command is executed.
         /// </summary>
-        Task OnCommandExecutedAsync(IDotvvmRequestContext context, ActionInfo actionInfo, Exception exception);
+        Task OnCommandExecutedAsync(IDotvvmRequestContext context, ActionInfo actionInfo, Exception? exception);
     }
 }

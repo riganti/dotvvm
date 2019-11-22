@@ -289,11 +289,12 @@ namespace DotVVM.Framework.Compilation.Binding
             }
             else return Expression.Block(left, right);
         }
-               
+
+        protected override Expression VisitVoid(VoidBindingParserNode node) => Expression.Default(typeof(void));
 
         private Expression GetMemberOrTypeExpression(IdentifierNameBindingParserNode node, Type[] typeParameters)
         {
-            if (node.NameToken == null) return null;
+            if (string.IsNullOrWhiteSpace(node.Name)) return null;
 
             var expr = 
                 Scope == null 

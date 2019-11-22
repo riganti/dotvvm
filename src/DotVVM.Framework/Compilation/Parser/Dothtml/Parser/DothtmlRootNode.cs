@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,12 +7,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 {
     public class DothtmlRootNode : DothtmlNodeWithContent
     {
-        public List<DothtmlDirectiveNode> Directives { get; private set; }
-
-        public DothtmlRootNode()
-        {
-            Directives = new List<DothtmlDirectiveNode>();
-        }
+        public List<DothtmlDirectiveNode> Directives { get; } = new List<DothtmlDirectiveNode>();
 
         public override IEnumerable<DothtmlNode> EnumerateChildNodes()
         {

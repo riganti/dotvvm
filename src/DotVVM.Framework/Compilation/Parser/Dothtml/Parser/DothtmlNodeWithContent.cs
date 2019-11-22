@@ -1,3 +1,4 @@
+#nullable enable
 using System.Collections.Generic;
 
 namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
