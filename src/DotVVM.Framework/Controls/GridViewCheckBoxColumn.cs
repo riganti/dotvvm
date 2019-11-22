@@ -24,7 +24,7 @@ namespace DotVVM.Framework.Controls
 
         public ValidatorPlacement ValidatorPlacement
         {
-            get { return (ValidatorPlacement)GetValue(ValidatorPlacementProperty); }
+            get { return (ValidatorPlacement)GetValue(ValidatorPlacementProperty)!; }
             set { SetValue(ValidatorPlacementProperty, value); }
         }
         public static readonly DotvvmProperty ValidatorPlacementProperty
@@ -32,15 +32,15 @@ namespace DotVVM.Framework.Controls
 
         public override void CreateControls(IDotvvmRequestContext context, DotvvmControl container)
         {
-            CreateEither(container, enabled: false);
+            CreateControlsCore(container, enabled: false);
         }
 
         public override void CreateEditControls(IDotvvmRequestContext context, DotvvmControl container)
         {
-            CreateEither(container, enabled: true);
+            CreateControlsCore(container, enabled: true);
         }
 
-        private void CreateEither(DotvvmControl container, bool enabled)
+        private void CreateControlsCore(DotvvmControl container, bool enabled)
         {
             var checkBox = new CheckBox { Enabled = enabled };
             var valueBinding = GetValueBinding(ValueBindingProperty);

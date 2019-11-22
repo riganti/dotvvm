@@ -6,7 +6,7 @@ namespace DotVVM.Framework.Controls
     public enum ValidatorPlacement
     {
         None = 0,
-        Attached = 1,
+        AttachToControl = 1,
         Standalone = 2
     }
 }

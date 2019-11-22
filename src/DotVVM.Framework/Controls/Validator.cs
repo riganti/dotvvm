@@ -67,11 +67,11 @@ namespace DotVVM.Framework.Controls
         public static void Place(
             IDotvvmControl control,
             DotvvmControlCollection container,
-            IValueBinding value,
+            IValueBinding? value,
             ValidatorPlacement placement)
         {
-            if (placement.HasFlag(ValidatorPlacement.Attached)) {
-                control.SetValue(ValueProperty, value);
+            if (placement.HasFlag(ValidatorPlacement.AttachToControl)) {
+                control.SetValue(ValueProperty, value!);
             }
             if (placement.HasFlag(ValidatorPlacement.Standalone)) {
                 var validator = new Validator();
