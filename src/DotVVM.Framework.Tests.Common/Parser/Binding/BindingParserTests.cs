@@ -324,14 +324,14 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             var node = parser.ReadExpression();
 
             Assert.IsTrue(parser.OnEnd());
-            Assert.IsTrue(node is BinaryOperatorBindingParserNode);
+            Assert.IsInstanceOfType(node, typeof(BinaryOperatorBindingParserNode));
 
             var binOpNode = node as BinaryOperatorBindingParserNode;
 
-            Assert.IsTrue(binOpNode.FirstExpression is MemberAccessBindingParserNode);
-            Assert.IsTrue(binOpNode.SecondExpression is LiteralExpressionBindingParserNode);
-            Assert.IsTrue(binOpNode.Operator == BindingTokenType.UnsupportedOperator);
-            Assert.IsTrue(binOpNode.NodeErrors[0] == "Unsupported operator: +=");
+            Assert.IsInstanceOfType(binOpNode.FirstExpression, typeof(MemberAccessBindingParserNode));
+            Assert.IsInstanceOfType(binOpNode.SecondExpression, typeof(LiteralExpressionBindingParserNode));
+            Assert.AreEqual(BindingTokenType.UnsupportedOperator, binOpNode.Operator);
+            Assert.AreEqual("Unsupported operator: +=", binOpNode.NodeErrors[0]);
         }
 
         [TestMethod]
@@ -754,10 +754,9 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             var node = parser.ReadExpression();
 
             var lastId = node.As<BlockBindingParserNode>()?.SecondExpression
-                ?.As<IdentifierNameBindingParserNode>();
+                             .As<VoidBindingParserNode>();
 
             Assert.IsNotNull(lastId, "Expected path was not found in the expression tree.");
-            Assert.AreEqual(null, lastId.NameToken);
 
             //display string does not really deal with whitespace tokens, we dont care about those.
             //Just making sure the expression syntax itself remains the same
@@ -774,17 +773,17 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         private static void CheckUnaryOperatorNodeType<TInnerExpression>(UnaryOperatorBindingParserNode node, BindingTokenType operatorType)
            where TInnerExpression : BindingParserNode
         {
-            Assert.IsTrue(node.Operator == operatorType);
-            Assert.IsTrue(node.InnerExpression is TInnerExpression);
+            Assert.AreEqual(operatorType, node.Operator);
+            Assert.IsInstanceOfType(node.InnerExpression, typeof(TInnerExpression));
         }
 
         private static void CheckBinaryOperatorNodeType<TLeft, TRight>(BinaryOperatorBindingParserNode node, BindingTokenType operatorType)
             where TLeft : BindingParserNode
             where TRight : BindingParserNode
         {
-            Assert.IsTrue(node.Operator == operatorType);
-            Assert.IsTrue(node.FirstExpression is TLeft);
-            Assert.IsTrue(node.SecondExpression is TRight);
+            Assert.AreEqual(operatorType, node.Operator);
+            Assert.IsInstanceOfType(node.FirstExpression, typeof(TLeft));
+            Assert.IsInstanceOfType(node.SecondExpression, typeof(TRight));
         }
     }
 }

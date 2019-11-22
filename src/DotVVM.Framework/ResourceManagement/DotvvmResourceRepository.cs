@@ -1,4 +1,5 @@
 
+#nullable enable
 using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
@@ -10,37 +11,47 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.Utils;
+using DotVVM.Framework.Configuration;
+using System.Collections;
 
 namespace DotVVM.Framework.ResourceManagement
 {
     /// <summary>
     /// Repository of named resources
     /// </summary>
-    public class DotvvmResourceRepository : IDotvvmResourceRepository
+    public sealed class DotvvmResourceRepository : IDotvvmResourceRepository
     {
+
         /// <summary>
         /// Dictionary of resources
         /// </summary>
         [JsonIgnore]
-        public ConcurrentDictionary<string, IResource> Resources { get; } = new ConcurrentDictionary<string, IResource>();
+        public IReadOnlyDictionary<string, IResource> Resources => ReadOnlyDictionaryWrapper<string, IResource>.WrapIfNeeded(_resources);
+
+        // Resources and parent repositories can be added safely even when the page is already running
+        // This is an exception from the rule that configuration is frozen after startup
+        private readonly ConcurrentDictionary<string, IResource> _resources = new ConcurrentDictionary<string, IResource>();
 
         [JsonIgnore]
-        public ConcurrentDictionary<string, IDotvvmResourceRepository> Parents { get; } = new ConcurrentDictionary<string, IDotvvmResourceRepository>();
+        public IReadOnlyDictionary<string, IDotvvmResourceRepository> Parents => ReadOnlyDictionaryWrapper<string, IDotvvmResourceRepository>.WrapIfNeeded(_parents);
+        private readonly ConcurrentDictionary<string, IDotvvmResourceRepository> _parents = new ConcurrentDictionary<string, IDotvvmResourceRepository>();
 
         [JsonIgnore]
-        public IList<IResourceProcessor> DefaultResourceProcessors { get; } = new List<IResourceProcessor>();
+        public IList<IResourceProcessor> DefaultResourceProcessors => _defaultResourceProcessors;
+        // The resource processors can not be changed after init
+        private readonly FreezableList<IResourceProcessor> _defaultResourceProcessors = new FreezableList<IResourceProcessor>();
 
         /// <summary>
-        /// Finds the resource with the specified name.
+        /// Finds the resource with the specified name. Returns null if it's not found.
         /// </summary>
-        public IResource FindResource(string name)
+        public IResource? FindResource(string name)
         {
             if (Resources.ContainsKey(name))
             {
                 return Resources[name];
             }
 
-            IDotvvmResourceRepository parent;
+            IDotvvmResourceRepository? parent;
             if (name.Contains(':'))
             {
                 var split = name.Split(new[] { ':' }, 2);
@@ -73,9 +84,9 @@ namespace DotVVM.Framework.ResourceManagement
             ResourceUtils.AssertAcyclicDependencies(resource, name, FindResource);
             if (replaceIfExists)
             {
-                Resources.AddOrUpdate(name, resource, (key, res) => resource);
+                _resources.AddOrUpdate(name, resource, (key, res) => { ThrowIfFrozen(); return resource; });
             }
-            else if (!Resources.TryAdd(name, resource))
+            else if (!_resources.TryAdd(name, resource))
             {
                 throw new InvalidOperationException($"A resource with the name '{name}' is already registered!");
             }
@@ -99,10 +110,18 @@ namespace DotVVM.Framework.ResourceManagement
         public void RegisterNamedParent(string name, IDotvvmResourceRepository parent)
         {
             ValidateResourceName(name);
-            Parents[name] = parent;
+            // rewrite is allowed only if it's not frozen
+            if (this.isFrozen)
+                _parents[name] = parent;
+            else
+            {
+                // when frozen, append is still allowed
+                if (!_parents.TryAdd(name, parent))
+                    ThrowIfFrozen();
+            }
         }
 
-        protected virtual void ValidateResourceName(string name)
+        private void ValidateResourceName(string name)
         {
             if (!NamingUtils.IsValidResourceName(name))
             {
@@ -121,17 +140,33 @@ namespace DotVVM.Framework.ResourceManagement
 
         public DotvvmResourceRepository()
         {
-            
         }
 
         public DotvvmResourceRepository(DotvvmResourceRepository parent)
         {
-            this.Parents.TryAdd("", parent);
+            this._parents.TryAdd("", parent);
         }
 
+        /// <summary> Finds the resource with the specified name. Throws an exception if the resource is not found. </summary>
         public NamedResource FindNamedResource(string name)
         {
-            return new NamedResource(name, FindResource(name));
+            var r = FindResource(name);
+            if (r is null)
+                throw new Exception($"Could not find resource {name}");
+            return new NamedResource(name, r);
+        }
+
+        private bool isFrozen = false;
+
+        private void ThrowIfFrozen()
+        {
+            if (isFrozen)
+                throw FreezableUtils.Error(nameof(DotvvmResourceRepository));
+        }
+        public void Freeze()
+        {
+            this.isFrozen = true;
+            this._defaultResourceProcessors.Freeze();
         }
     }
 }

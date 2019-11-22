@@ -10,6 +10,7 @@ namespace DotVVM.Testing.Abstractions
         public const string Default = "Default";
         public const string ComplexSamples_Auth_Login = "ComplexSamples/Auth/Login";
         public const string ComplexSamples_Auth_SecuredPage = "ComplexSamples/Auth/SecuredPage";
+        public const string ComplexSamples_ButtonInMarkupControl_Enabled = "ComplexSamples/ButtonInMarkupControl/Enabled";
         public const string ComplexSamples_CascadeSelectors_CascadeSelectors = "ComplexSamples/CascadeSelectors/CascadeSelectors";
         public const string ComplexSamples_CascadeSelectors_CascadeSelectorsServerRender = "ComplexSamples/CascadeSelectors/CascadeSelectorsServerRender";
         public const string ComplexSamples_CascadeSelectors_TripleComboBoxes = "ComplexSamples/CascadeSelectors/TripleComboBoxes";
@@ -111,6 +112,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_RoleView_RoleViewTest = "ControlSamples/RoleView/RoleViewTest";
         public const string ControlSamples_RouteLink_RouteLinkEnabled = "ControlSamples/RouteLink/RouteLinkEnabled";
         public const string ControlSamples_RouteLink_RouteLinkEnabledFalse = "ControlSamples/RouteLink/RouteLinkEnabledFalse";
+        public const string ControlSamples_RouteLink_RouteLinkQueryParameters = "ControlSamples/RouteLink/RouteLinkQueryParameters";
         public const string ControlSamples_RouteLink_RouteLinkSpaUrlGen = "ControlSamples/RouteLink/RouteLinkSpaUrlGen";
         public const string ControlSamples_RouteLink_RouteLinkUrlGen = "ControlSamples/RouteLink/RouteLinkUrlGen";
         public const string ControlSamples_RouteLink_TestRoute = "ControlSamples/RouteLink/TestRoute";
@@ -141,6 +143,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_ValidationSummary_RecursiveValidationSummary = "ControlSamples/ValidationSummary/RecursiveValidationSummary";
         public const string Errors_BindingInvalidCommand = "Errors/BindingInvalidCommand";
         public const string Errors_BindingInvalidProperty = "Errors/BindingInvalidProperty";
+        public const string Errors_ConfigurableHtmlControlValidation = "Errors/ConfigurableHtmlControlValidation";
         public const string Errors_ControlUsageValidation = "Errors/ControlUsageValidation";
         public const string Errors_CorruptedContentBetweenContentControls = "Errors/CorruptedContentBetweenContentControls";
         public const string Errors_EmptyBinding = "Errors/EmptyBinding";
@@ -242,15 +245,16 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_ServerSideStyles_DirectoryStyle_ServerSideStyles = "FeatureSamples/ServerSideStyles/DirectoryStyle/ServerSideStyles";
         public const string FeatureSamples_ServerSideStyles_NoDirectoryStyle_ServerSideStyles = "FeatureSamples/ServerSideStyles/NoDirectoryStyle/ServerSideStyles";
         public const string FeatureSamples_StaticCommand_StaticCommand = "FeatureSamples/StaticCommand/StaticCommand";
+        public const string FeatureSamples_StaticCommand_StaticCommand_ArrayAssigment = "FeatureSamples/StaticCommand/StaticCommand_ArrayAssigment";
         public const string FeatureSamples_StaticCommand_StaticCommand_ComboBoxSelectionChanged = "FeatureSamples/StaticCommand/StaticCommand_ComboBoxSelectionChanged";
         public const string FeatureSamples_StaticCommand_StaticCommand_ComboBoxSelectionChanged_Objects = "FeatureSamples/StaticCommand/StaticCommand_ComboBoxSelectionChanged_Objects";
+        public const string FeatureSamples_StaticCommand_StaticCommand_LoadComplexDataFromService = "FeatureSamples/StaticCommand/StaticCommand_LoadComplexDataFromService";
         public const string FeatureSamples_StaticCommand_StaticCommand_NullAssignment = "FeatureSamples/StaticCommand/StaticCommand_NullAssignment";
         public const string FeatureSamples_StaticCommand_StaticCommand_NullBinding = "FeatureSamples/StaticCommand/StaticCommand_NullBinding";
         public const string FeatureSamples_StaticCommand_StaticCommand_TaskSequence = "FeatureSamples/StaticCommand/StaticCommand_TaskSequence";
         public const string FeatureSamples_StaticCommand_StaticCommand_ValueAssignmentInControl = "FeatureSamples/StaticCommand/StaticCommand_ValueAssignmentInControl";
         public const string FeatureSamples_UsageValidation_OverrideValidation = "FeatureSamples/UsageValidation/OverrideValidation";
         public const string FeatureSamples_Validation_ClientSideObservableUpdate = "FeatureSamples/Validation/ClientSideObservableUpdate";
-        public const string FeatureSamples_Validation_ClientSideValidationDisabling = "FeatureSamples/Validation/ClientSideValidationDisabling";
         public const string FeatureSamples_Validation_CustomValidation = "FeatureSamples/Validation/CustomValidation";
         public const string FeatureSamples_Validation_DateTimeValidation = "FeatureSamples/Validation/DateTimeValidation";
         public const string FeatureSamples_Validation_DateTimeValidation_NullableDateTime = "FeatureSamples/Validation/DateTimeValidation_NullableDateTime";
@@ -272,7 +276,9 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_ViewModelDeserialization_NegativeLongNumber = "FeatureSamples/ViewModelDeserialization/NegativeLongNumber";
         public const string FeatureSamples_ViewModelNesting_NestedViewModel = "FeatureSamples/ViewModelNesting/NestedViewModel";
         public const string FeatureSamples_ViewModelProtection_ComplexViewModelProtection = "FeatureSamples/ViewModelProtection/ComplexViewModelProtection";
+        public const string FeatureSamples_ViewModelProtection_NestedSignatures = "FeatureSamples/ViewModelProtection/NestedSignatures";
         public const string FeatureSamples_ViewModelProtection_SignedNestedInServerToClient = "FeatureSamples/ViewModelProtection/SignedNestedInServerToClient";
         public const string FeatureSamples_ViewModelProtection_ViewModelProtection = "FeatureSamples/ViewModelProtection/ViewModelProtection";
+        public const string FeatureSamples_Warnings_SelfClosingTags = "FeatureSamples/Warnings/SelfClosingTags";
         }
 }

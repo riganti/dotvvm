@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -208,9 +209,8 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                     case '\'':
                     case '"':
                         FinishIncompleteIdentifier();
-                        string errorMessage;
-                        ReadStringLiteral(out errorMessage);
-                        CreateToken(BindingTokenType.StringLiteralToken, errorProvider: t => CreateTokenError(t, errorMessage));
+                        ReadStringLiteral(out var errorMessage);
+                        CreateToken(BindingTokenType.StringLiteralToken, errorProvider: t => CreateTokenError(t, errorMessage ?? "unknown error"));
                         break;
 
                     case '?':
@@ -252,9 +252,9 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
             FinishIncompleteIdentifier();
         }
 
-        protected override BindingToken NewToken()
+        protected override BindingToken NewToken(string text, BindingTokenType type, int lineNumber, int columnNumber, int length, int startPosition)
         {
-            return new BindingToken();
+            return new BindingToken(text, type, lineNumber, columnNumber, length, startPosition);
         }
 
         private void FinishIncompleteIdentifier()
@@ -281,7 +281,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
             }
         }
 
-        internal void ReadStringLiteral(out string errorMessage)
+        internal void ReadStringLiteral(out string? errorMessage)
         {
             ReadStringLiteral(Peek, Read, out errorMessage);
         }
@@ -289,7 +289,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
         /// <summary>
         /// Reads the string literal.
         /// </summary>
-        internal static void ReadStringLiteral(Func<char> peekFunction, Func<char> readFunction, out string errorMessage)
+        internal static void ReadStringLiteral(Func<char> peekFunction, Func<char> readFunction, out string? errorMessage)
         {
             var quoteChar = peekFunction();
             readFunction();

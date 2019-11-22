@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#nullable enable
+using System.Collections.Generic;
 using System.Linq;
 
 namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
@@ -7,17 +8,15 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
     {
         public int CursorPosition { get; set; }
 
-        public DothtmlNode LastFoundNode { get; set; }
+        public DothtmlNode? LastFoundNode { get; set; }
 
 
         public bool Condition(DothtmlNode node)
         {
             int tagEnd = node.EndPosition;
 
-            if(node is DothtmlElementNode)
+            if(node is DothtmlElementNode element)
             {
-                var element = node as DothtmlElementNode;
-
                 tagEnd = element.GetContentEndPosition() + (element.CorrespondingEndTag?.Length ?? 0);
             }
 
@@ -82,7 +81,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 
         private IEnumerable<DothtmlNode> GetHierarchyPrivate()
         {
-            DothtmlNode currentNode = LastFoundNode;
+            var currentNode = LastFoundNode;
             while (currentNode != null)
             {
                 yield return currentNode;

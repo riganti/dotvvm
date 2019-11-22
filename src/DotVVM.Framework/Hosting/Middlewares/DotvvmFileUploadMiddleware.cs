@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -28,7 +29,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
             this.fileStorage = fileStorage;
         }
 
-        public static DotvvmFileUploadMiddleware TryCreate(IServiceProvider provider)
+        public static DotvvmFileUploadMiddleware? TryCreate(IServiceProvider provider)
         {
             var renderer = provider.GetRequiredService<IOutputRenderer>();
             var fileStorage = provider.GetService<IUploadedFileStorage>();
@@ -57,7 +58,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
         {
             // verify the request
             var isPost = context.Request.Method == "POST";
-            if (isPost && !context.Request.ContentType.StartsWith("multipart/form-data", StringComparison.Ordinal))
+            if (isPost && !context.Request.ContentType!.StartsWith("multipart/form-data", StringComparison.Ordinal))
             {
                 context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 return;

@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,7 +12,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets the markup file for the specified virtual path.
         /// </summary>
-        public MarkupFile GetMarkup(DotvvmConfiguration configuration, string virtualPath)
+        public MarkupFile? GetMarkup(DotvvmConfiguration configuration, string virtualPath)
         {
             // check that we are not outside application directory
             var fullPath = Path.Combine(configuration.ApplicationPhysicalPath, virtualPath);
@@ -43,7 +44,7 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public string GetMarkupFileVirtualPath(IDotvvmRequestContext context)
         {
-            return context.Route.VirtualPath;
+            return context.Route!.VirtualPath;
         }
     }
 }

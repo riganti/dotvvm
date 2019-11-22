@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+#nullable enable
+using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Configuration
@@ -7,17 +9,44 @@ namespace DotVVM.Framework.Configuration
     {
 
         [JsonProperty("enabled", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public bool Enabled { get; set; } = false;
+        public bool Enabled
+        {
+            get => _enabled;
+            set
+            {
+                ThrowIfFrozen();
+                _enabled = value;
+            }
+        }
+        private bool _enabled = false;
 
         [JsonProperty("includedRoutes", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public HashSet<string> IncludedRoutes { get; private set; } = new HashSet<string>();
+        public ISet<string> IncludedRoutes
+        {
+            get => _includedRoutes;
+            set
+            {
+                ThrowIfFrozen();
+                _includedRoutes = value;
+            }
+        }
+        private ISet<string> _includedRoutes = new FreezableSet<string>();
 
         [JsonProperty("excludedRoutes", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public HashSet<string> ExcludedRoutes { get; private set; } = new HashSet<string>();
-
+        public ISet<string> ExcludedRoutes
+        {
+            get => _excludedRoutes;
+            set
+            {
+                ThrowIfFrozen();
+                _excludedRoutes = value;
+            }
+        }
+        private ISet<string> _excludedRoutes = new FreezableSet<string>();
 
         public void EnableForAllRoutes()
         {
+            ThrowIfFrozen();
             IncludedRoutes.Clear();
             ExcludedRoutes.Clear();
             Enabled = true;
@@ -25,6 +54,7 @@ namespace DotVVM.Framework.Configuration
 
         public void EnableForRoutes(params string[] routes)
         {
+            ThrowIfFrozen();
             Enabled = false;
             ExcludedRoutes.Clear();
 
@@ -37,6 +67,7 @@ namespace DotVVM.Framework.Configuration
 
         public void EnableForAllRoutesExcept(params string[] routes)
         {
+            ThrowIfFrozen();
             Enabled = true;
             IncludedRoutes.Clear();
 
@@ -57,6 +88,18 @@ namespace DotVVM.Framework.Configuration
             return (Enabled && !ExcludedRoutes.Contains(routeName)) || (!Enabled && IncludedRoutes.Contains(routeName));
         }
 
+        private bool isFrozen = false;
+        private void ThrowIfFrozen()
+        {
+            if (isFrozen)
+                FreezableUtils.Error(nameof(DotvvmExperimentalFeatureFlag));
+        }
+        public void Freeze()
+        {
+            this.isFrozen = true;
+            FreezableSet.Freeze(ref this._excludedRoutes);
+            FreezableSet.Freeze(ref this._includedRoutes);
+        }
     }
 
 }

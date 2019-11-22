@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,6 @@ namespace DotVVM.Framework.ResourceManagement
 {
     public interface IDotvvmResourceRepository
     {
-        IResource FindResource(string name);
+        IResource? FindResource(string name);
     }
 }

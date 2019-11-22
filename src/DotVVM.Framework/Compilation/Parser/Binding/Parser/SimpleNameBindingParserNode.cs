@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,6 +14,10 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         public SimpleNameBindingParserNode(BindingToken nameToken) : base(nameToken)
         {
         }
+
+        public SimpleNameBindingParserNode(string name)
+            : this(new BindingToken(name, BindingTokenType.Identifier, 0, 0, 0, 0))
+        { }
 
         public override IEnumerable<BindingParserNode> EnumerateChildNodes()
             => Enumerable.Empty<BindingParserNode>();
