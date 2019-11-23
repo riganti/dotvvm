@@ -104,17 +104,27 @@ namespace DotVVM.Framework.Configuration
                     {
                         var isRead = IsHttpReadMethod(method);
 
+                        // build unique method identifier for sharing purposes
+                        var sharingKey = GetApiMethodUrl(identifier.FormatScript(), method);
+                        var sharingKeyExpression = BuildMethodSharingKeyExpression(sharingKey, method);
+
                         config.Markup.JavascriptTranslator.MethodCollection.AddMethodTranslator(method, new GenericMethodCompiler(
                             a => new JsIdentifierExpression("dotvvm").Member("invokeApiFn").Invoke(
-                                new JsFunctionExpression(new JsIdentifier[0], new JsBlockStatement(
-                                    new JsReturnStatement(identifier.Clone().Member(KnockoutHelper.ConvertToCamelCase(method.Name)).Invoke(ReplaceDefaultWithUndefined(a.Skip(1), method.GetParameters()).Apply(SerializeComplexParameters)))
-                                )),
-                                new JsArrayExpression(isRead ?
-                                    new JsIdentifierExpression("dotvvm").Member("eventHub").Member("get").Invoke(new JsLiteral(identifier.FormatScript())) :
-                                    null),
-                                new JsArrayExpression(!isRead ?
-                                    new JsLiteral(identifier.FormatScript()) :
-                                    null)
+                                identifier.Clone(),
+                                new JsLiteral(KnockoutHelper.ConvertToCamelCase(method.Name)),
+                                new JsFunctionExpression(new JsIdentifier[0], new JsBlockStatement(new JsReturnStatement(
+                                        new JsArrayExpression(ReplaceDefaultWithUndefined(a.Skip(1), method.GetParameters()).Apply(SerializeComplexParameters))
+                                ))),
+                                new JsFunctionExpression(new[] { new JsIdentifier("args") }, new JsBlockStatement(new JsReturnStatement(
+                                    new JsArrayExpression(isRead ? new JsIdentifierExpression("dotvvm").Member("eventHub").Member("get").Invoke(sharingKeyExpression.Clone()) : null)
+                                ))),
+                                new JsFunctionExpression(new[] { new JsIdentifier("args") }, new JsBlockStatement(new JsReturnStatement(
+                                    new JsArrayExpression(!isRead ? sharingKeyExpression.Clone() : null)
+                                ))),
+                                isRead ? (JsExpression)new JsLiteral(null) : new JsIdentifierExpression("$element"),
+                                new JsFunctionExpression(new[] { new JsIdentifier("args") }, new JsBlockStatement(new JsReturnStatement(
+                                    isRead ? sharingKeyExpression.Clone() : new JsArrayExpression(new JsLiteral(Guid.NewGuid().ToString()))
+                                )))
                             ).WithAnnotation(ResultIsObservableAnnotation.Instance)
                              .WithAnnotation(MayBeNullAnnotation.Instance)
                              .WithAnnotation(new ViewModelInfoAnnotation(method.ReturnType))
@@ -126,6 +136,25 @@ namespace DotVVM.Framework.Configuration
                     }
                 }
             }
+        }
+
+        private static JsExpression BuildMethodSharingKeyExpression(string sharingKey, MethodInfo method)
+        {
+            // takes an URL pattern (e.g. /api/customer/{id}) and generates an JS expression that substitutes the parameters with actual values from the args[] array
+            JsExpression sharingKeyExpression = new JsLiteral(sharingKey);
+            var parameters = method.GetParameters();
+            for (var i = 0; i < parameters.Length; i++)
+            {
+                if (sharingKey.Contains("{" + parameters[i].Name + "}"))
+                {
+                    sharingKeyExpression = sharingKeyExpression.Member("replace").Invoke(
+                        new JsLiteral("{" + parameters[i].Name + "}"),
+                        new JsIdentifierExpression("args").Indexer(new JsLiteral(i))
+                    );
+                }
+            }
+
+            return sharingKeyExpression;
         }
 
         public static void RegisterApiClient(this DotvvmConfiguration configuration, Type clientType, string apiServerUrl, string jsApiClientFile, string identifier, string customFetchFunction = null)
@@ -213,6 +242,11 @@ namespace DotVVM.Framework.Configuration
                 || method.Name.StartsWith(HttpHeadVerb, StringComparison.OrdinalIgnoreCase);
         }
 
+        private static string GetApiMethodUrl(string identifier, MethodInfo method)
+        {
+            return method.GetCustomAttribute<MethodUrlAttribute>()?.Url ?? "";
+        }
+
         public class ApiGroupDescriptor
         {
             public object Instance { get; }
@@ -254,6 +288,17 @@ namespace DotVVM.Framework.Configuration
             }
 
             public string Method { get; }
+        }
+
+        [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+        public sealed class MethodUrlAttribute : Attribute
+        {
+            public MethodUrlAttribute(string url)
+            {
+                Url = url;
+            }
+
+            public string Url { get; }
         }
 
         public class ApiExtensionParameter : BindingExtensionParameter

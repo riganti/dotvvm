@@ -3137,21 +3137,24 @@ function basicAuthenticatedFetch(input, init) {
 }
 (function () {
     var cachedValues = {};
-    DotVVM.prototype.invokeApiFn = function (callback, refreshTriggers, notifyTriggers, commandId) {
-        if (refreshTriggers === void 0) { refreshTriggers = []; }
-        if (notifyTriggers === void 0) { notifyTriggers = []; }
-        if (commandId === void 0) { commandId = callback.toString(); }
-        var cachedValue = cachedValues[commandId] || (cachedValues[commandId] = ko.observable(null));
+    DotVVM.prototype.invokeApiFn = function (target, methodName, argsProvider, refreshTriggers, notifyTriggers, element, sharingKeyProvider) {
+        var args = ko.ignoreDependencies(argsProvider);
+        var callback = function () { return target[methodName].apply(target, args); };
+        // the function gets re-evaluated when the observable changes - thus we need to cache the values
+        // GET requests can be cached globally, POST and other request must be cached on per-element scope
+        var sharingKeyValue = methodName + ":" + sharingKeyProvider(args);
+        var cache = element ? (element["apiCachedValues"] || (element["apiCachedValues"] = {})) : cachedValues;
+        var cachedValue = cache[sharingKeyValue] || (cache[sharingKeyValue] = ko.observable(null));
         var load = function () {
             try {
                 var result = window["Promise"].resolve(ko.ignoreDependencies(callback));
                 return { type: 'result', result: result.then(function (val) {
                         if (val) {
-                            cachedValue(ko.unwrap(dotvvm.serialization.deserialize(val, cachedValue)));
+                            cachedValue(ko.unwrap(dotvvm.serialization.deserialize(val)));
                             cachedValue.notifySubscribers();
                         }
-                        for (var _i = 0, notifyTriggers_1 = notifyTriggers; _i < notifyTriggers_1.length; _i++) {
-                            var t = notifyTriggers_1[_i];
+                        for (var _i = 0, _a = notifyTriggers(args); _i < _a.length; _i++) {
+                            var t = _a[_i];
                             dotvvm.eventHub.notify(t);
                         }
                         return val;
@@ -3184,7 +3187,7 @@ function basicAuthenticatedFetch(input, init) {
         };
         if (!cachedValue.peek())
             cmp.refreshValue();
-        ko.computed(function () { return refreshTriggers.map(function (f) { return typeof f == "string" ? dotvvm.eventHub.get(f)() : f(); }); }).subscribe(function (p) { return cmp.refreshValue(); });
+        ko.computed(function () { return refreshTriggers(args).map(function (f) { return typeof f == "string" ? dotvvm.eventHub.get(f)() : f(); }); }).subscribe(function (p) { return cmp.refreshValue(); });
         return cmp;
     };
     DotVVM.prototype.apiRefreshOn = function (value, refreshOn) {

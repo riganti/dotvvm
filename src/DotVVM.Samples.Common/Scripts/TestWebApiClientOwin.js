@@ -1,7 +1,10 @@
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -490,7 +493,7 @@ var DotVVM;
                         /**
                          * @return No Content
                          */
-                        OrdersClient.prototype.delete = function (orderId) {
+                        OrdersClient.prototype["delete"] = function (orderId) {
                             var _this = this;
                             var url_ = this.baseUrl + "/api/orders/delete/{orderId}";
                             if (orderId === undefined || orderId === null)
@@ -500,7 +503,7 @@ var DotVVM;
                             var options_ = {
                                 method: "DELETE",
                                 headers: new Headers({
-                                    "Content-Type": "application/json",
+                                    "Content-Type": "application/json"
                                 })
                             };
                             return this.transformOptions(options_).then(function (transformedOptions_) {
@@ -1028,4 +1031,3 @@ var DotVVM;
         })(Common = Samples.Common || (Samples.Common = {}));
     })(Samples = DotVVM.Samples || (DotVVM.Samples = {}));
 })(DotVVM || (DotVVM = {}));
-//# sourceMappingURL=TestWebApiClientOwin.js.map

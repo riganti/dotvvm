@@ -38,6 +38,7 @@ namespace DotVVM.Samples.Common.Api.Owin
         /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/companies")]
         public System.Collections.ObjectModel.ObservableCollection<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>> Get()
         {
             return System.Threading.Tasks.Task.Run(async () => await GetAsync(System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
@@ -47,6 +48,7 @@ namespace DotVVM.Samples.Common.Api.Owin
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/companies")]
         public async System.Threading.Tasks.Task<System.Collections.ObjectModel.ObservableCollection<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>>> GetAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             var urlBuilder_ = new System.Text.StringBuilder();
@@ -115,6 +117,7 @@ namespace DotVVM.Samples.Common.Api.Owin
         /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/companies/sorted/{sortingOptions}/{sortingOptions_SortDescending}/{sortingOptions_SortExpression}")]
         public DotVVM.Framework.Controls.GridViewDataSet<CompanyOfBoolean> GetWithSorting(DotVVM.Framework.Controls.ISortingOptions sortingOptions = null)
         {
             return System.Threading.Tasks.Task.Run(async () => await GetWithSortingAsync(sortingOptions, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
@@ -124,6 +127,7 @@ namespace DotVVM.Samples.Common.Api.Owin
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/companies/sorted/{sortingOptions}/{sortingOptions_SortDescending}/{sortingOptions_SortExpression}")]
         public async System.Threading.Tasks.Task<DotVVM.Framework.Controls.GridViewDataSet<CompanyOfBoolean>> GetWithSortingAsync(DotVVM.Framework.Controls.ISortingOptions sortingOptions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             var sortingOptions_SortDescending = sortingOptions != null ? sortingOptions.SortDescending : default(bool?);
@@ -197,6 +201,7 @@ namespace DotVVM.Samples.Common.Api.Owin
         /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/companies/paged/{pagingOptions}/{pagingOptions_PageIndex}/{pagingOptions_PageSize}/{pagingOptions_TotalItemsCount}")]
         public DotVVM.Framework.Controls.GridViewDataSet<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>> GetWithPaging(DotVVM.Framework.Controls.IPagingOptions pagingOptions = null)
         {
             return System.Threading.Tasks.Task.Run(async () => await GetWithPagingAsync(pagingOptions, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
@@ -206,6 +211,7 @@ namespace DotVVM.Samples.Common.Api.Owin
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/companies/paged/{pagingOptions}/{pagingOptions_PageIndex}/{pagingOptions_PageSize}/{pagingOptions_TotalItemsCount}")]
         public async System.Threading.Tasks.Task<DotVVM.Framework.Controls.GridViewDataSet<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>>> GetWithPagingAsync(DotVVM.Framework.Controls.IPagingOptions pagingOptions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             var pagingOptions_PageIndex = pagingOptions != null ? pagingOptions.PageIndex : default(int?);
@@ -281,6 +287,7 @@ namespace DotVVM.Samples.Common.Api.Owin
         /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/companies/sortedandpaged/{sortingOptions}/{sortingOptions_SortDescending}/{sortingOptions_SortExpression}/{pagingOptions}/{pagingOptions_PageIndex}/{pagingOptions_PageSize}/{pagingOptions_TotalItemsCount}")]
         public DotVVM.Framework.Controls.GridViewDataSet<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>> GetWithSortingAndPaging(DotVVM.Framework.Controls.ISortingOptions sortingOptions = null, DotVVM.Framework.Controls.IPagingOptions pagingOptions = null)
         {
             return System.Threading.Tasks.Task.Run(async () => await GetWithSortingAndPagingAsync(sortingOptions, pagingOptions, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
@@ -290,6 +297,7 @@ namespace DotVVM.Samples.Common.Api.Owin
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/companies/sortedandpaged/{sortingOptions}/{sortingOptions_SortDescending}/{sortingOptions_SortExpression}/{pagingOptions}/{pagingOptions_PageIndex}/{pagingOptions_PageSize}/{pagingOptions_TotalItemsCount}")]
         public async System.Threading.Tasks.Task<DotVVM.Framework.Controls.GridViewDataSet<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>>> GetWithSortingAndPagingAsync(DotVVM.Framework.Controls.ISortingOptions sortingOptions = null, DotVVM.Framework.Controls.IPagingOptions pagingOptions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             var sortingOptions_SortDescending = sortingOptions != null ? sortingOptions.SortDescending : default(bool?);
@@ -398,6 +406,7 @@ namespace DotVVM.Samples.Common.Api.Owin
         /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/orders/{companyId}/{pageIndex}/{pageSize}")]
         public System.Collections.ObjectModel.ObservableCollection<Order> Get(int companyId, int? pageIndex = null, int? pageSize = null)
         {
             return System.Threading.Tasks.Task.Run(async () => await GetAsync(companyId, pageIndex, pageSize, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
@@ -407,6 +416,7 @@ namespace DotVVM.Samples.Common.Api.Owin
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/orders/{companyId}/{pageIndex}/{pageSize}")]
         public async System.Threading.Tasks.Task<System.Collections.ObjectModel.ObservableCollection<Order>> GetAsync(int companyId, int? pageIndex = null, int? pageSize = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (companyId == null)
@@ -482,6 +492,7 @@ namespace DotVVM.Samples.Common.Api.Owin
         /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Post")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/orders")]
         public object Post(Order order)
         {
             return System.Threading.Tasks.Task.Run(async () => await PostAsync(order, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
@@ -491,6 +502,7 @@ namespace DotVVM.Samples.Common.Api.Owin
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Post")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/orders")]
         public async System.Threading.Tasks.Task<object> PostAsync(Order order, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             var urlBuilder_ = new System.Text.StringBuilder();
@@ -562,6 +574,7 @@ namespace DotVVM.Samples.Common.Api.Owin
         /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/orders/{orderId}")]
         public Order GetItem(int orderId)
         {
             return System.Threading.Tasks.Task.Run(async () => await GetItemAsync(orderId, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
@@ -571,6 +584,7 @@ namespace DotVVM.Samples.Common.Api.Owin
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/orders/{orderId}")]
         public async System.Threading.Tasks.Task<Order> GetItemAsync(int orderId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (orderId == null)
@@ -643,6 +657,7 @@ namespace DotVVM.Samples.Common.Api.Owin
         /// <returns>OK</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Put")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/orders/{orderId}")]
         public object Put(int orderId, Order order)
         {
             return System.Threading.Tasks.Task.Run(async () => await PutAsync(orderId, order, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
@@ -652,6 +667,7 @@ namespace DotVVM.Samples.Common.Api.Owin
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Put")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/orders/{orderId}")]
         public async System.Threading.Tasks.Task<object> PutAsync(int orderId, Order order, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (orderId == null)
@@ -727,6 +743,7 @@ namespace DotVVM.Samples.Common.Api.Owin
         /// <returns>No Content</returns>
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Delete")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/orders/delete/{orderId}")]
         public void Delete(int orderId)
         {
             System.Threading.Tasks.Task.Run(async () => await DeleteAsync(orderId, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
@@ -736,6 +753,7 @@ namespace DotVVM.Samples.Common.Api.Owin
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Delete")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/orders/delete/{orderId}")]
         public async System.Threading.Tasks.Task DeleteAsync(int orderId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (orderId == null)

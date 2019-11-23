@@ -1,0 +1,40 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Api.BindingSharingViewModel
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <h1>HTTP GET with Query param</h1>
+    <dot:Repeater DataSource="{value: Categories1}">
+        <p>
+            Category {{value: Category}}: 
+            <dot:ComboBox DataSource="{value: _apiCore.GetItems(Category)}" 
+                          ItemTextBinding="{value: Name}" ItemValueBinding="{value: Id}" SelectedValue="{value: SelectedValue}" />
+        </p>
+    </dot:Repeater>
+
+    <h1>HTTP GET with Route param</h1>
+    <dot:Repeater DataSource="{value: Categories2}">
+        <p>
+            Category {{value: Category}}: 
+            <dot:ComboBox DataSource="{value: _apiCore.GetItemsWithRouteParam(Category)}" 
+                          ItemTextBinding="{value: Name}" ItemValueBinding="{value: Id}" SelectedValue="{value: SelectedValue}" />
+        </p>
+    </dot:Repeater>
+    
+    <h1>HTTP POST</h1>
+    <dot:Repeater DataSource="{value: Categories3}">
+        <p>
+            Category {{value: Category}}: 
+            <dot:ComboBox DataSource="{value: _apiCore.GetItemsWithHttpPost(Category)}" 
+                          ItemTextBinding="{value: Name}" ItemValueBinding="{value: Id}" SelectedValue="{value: SelectedValue}" />
+        </p>
+    </dot:Repeater>
+</body>
+</html>
+
+

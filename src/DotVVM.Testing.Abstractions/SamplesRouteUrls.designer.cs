@@ -134,6 +134,8 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_UpdateProgress_UpdateProgress = "ControlSamples/UpdateProgress/UpdateProgress";
         public const string ControlSamples_UpdateProgress_UpdateProgressDelay = "ControlSamples/UpdateProgress/UpdateProgressDelay";
         public const string ControlSamples_UpdateProgress_UpdateProgressQueues = "ControlSamples/UpdateProgress/UpdateProgressQueues";
+        public const string ControlSamples_UpdateProgress_UpdateProgressSPA1 = "ControlSamples/UpdateProgress/UpdateProgressSPA1";
+        public const string ControlSamples_UpdateProgress_UpdateProgressSPA2 = "ControlSamples/UpdateProgress/UpdateProgressSPA2";
         public const string ControlSamples_ValidationSummary_IncludeErrorsFromTarget_PropertyPathNotNull = "ControlSamples/ValidationSummary/IncludeErrorsFromTarget_PropertyPathNotNull";
         public const string ControlSamples_ValidationSummary_IncludeErrorsFromTarget_PropertyPathNull = "ControlSamples/ValidationSummary/IncludeErrorsFromTarget_PropertyPathNull";
         public const string ControlSamples_ValidationSummary_MessagesRendering = "ControlSamples/ValidationSummary/MessagesRendering";
@@ -166,6 +168,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_ActionFilterErrorHandling_ActionFilterRedirect = "FeatureSamples/ActionFilterErrorHandling/ActionFilterRedirect";
         public const string FeatureSamples_Api_AzureFunctionsApi = "FeatureSamples/Api/AzureFunctionsApi";
         public const string FeatureSamples_Api_AzureFunctionsApiTable = "FeatureSamples/Api/AzureFunctionsApiTable";
+        public const string FeatureSamples_Api_BindingSharing = "FeatureSamples/Api/BindingSharing";
         public const string FeatureSamples_Api_GetCollection = "FeatureSamples/Api/GetCollection";
         public const string FeatureSamples_Api_GithubRepoApi = "FeatureSamples/Api/GithubRepoApi";
         public const string FeatureSamples_Api_GridViewDataSetAspNetCore = "FeatureSamples/Api/GridViewDataSetAspNetCore";
@@ -252,7 +255,6 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_StaticCommand_StaticCommand_ValueAssignmentInControl = "FeatureSamples/StaticCommand/StaticCommand_ValueAssignmentInControl";
         public const string FeatureSamples_UsageValidation_OverrideValidation = "FeatureSamples/UsageValidation/OverrideValidation";
         public const string FeatureSamples_Validation_ClientSideObservableUpdate = "FeatureSamples/Validation/ClientSideObservableUpdate";
-        public const string FeatureSamples_Validation_ClientSideValidationDisabling = "FeatureSamples/Validation/ClientSideValidationDisabling";
         public const string FeatureSamples_Validation_CustomValidation = "FeatureSamples/Validation/CustomValidation";
         public const string FeatureSamples_Validation_DateTimeValidation = "FeatureSamples/Validation/DateTimeValidation";
         public const string FeatureSamples_Validation_DateTimeValidation_NullableDateTime = "FeatureSamples/Validation/DateTimeValidation_NullableDateTime";
@@ -276,5 +278,6 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_ViewModelProtection_ComplexViewModelProtection = "FeatureSamples/ViewModelProtection/ComplexViewModelProtection";
         public const string FeatureSamples_ViewModelProtection_SignedNestedInServerToClient = "FeatureSamples/ViewModelProtection/SignedNestedInServerToClient";
         public const string FeatureSamples_ViewModelProtection_ViewModelProtection = "FeatureSamples/ViewModelProtection/ViewModelProtection";
+        public const string FeatureSamples_Warnings_SelfClosingTags = "FeatureSamples/Warnings/SelfClosingTags";
         }
 }

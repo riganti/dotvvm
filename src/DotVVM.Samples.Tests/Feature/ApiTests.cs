@@ -183,6 +183,56 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
+        [Fact]
+        public void Feature_Api_BindingSharing()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Api_BindingSharing);
+
+                // wait for the page is loaded
+                browser.WaitFor(() => {
+                    for (int i = 0; i < 9; i++)
+                    {
+                        browser.ElementAt("select", 0).FindElements("option").ThrowIfSequenceEmpty();
+                    }
+                }, 30000, "The ComboBoxes didn't load.");
+
+                // check combobox contents
+                var combos = browser.FindElements("select");
+                combos.ThrowIfDifferentCountThan(9);
+
+                AssertUI.TextEquals(combos[0].ElementAt("option", 0), "Category 1 / Item 1");
+                AssertUI.TextEquals(combos[0].ElementAt("option", 1), "Category 1 / Item 2");
+                AssertUI.TextEquals(combos[0].ElementAt("option", 2), "Category 1 / Item 3");
+                AssertUI.TextEquals(combos[1].ElementAt("option", 0), "Category 2 / Item 1");
+                AssertUI.TextEquals(combos[1].ElementAt("option", 1), "Category 2 / Item 2");
+                AssertUI.TextEquals(combos[1].ElementAt("option", 2), "Category 2 / Item 3");
+                AssertUI.TextEquals(combos[1].ElementAt("option", 3), "Category 2 / Item 4");
+                AssertUI.TextEquals(combos[1].ElementAt("option", 4), "Category 2 / Item 5");
+                AssertUI.TextEquals(combos[2].ElementAt("option", 0), "Category 3 / Item 1");
+
+                AssertUI.TextEquals(combos[3].ElementAt("option", 0), "Category 1 / Item 1");
+                AssertUI.TextEquals(combos[3].ElementAt("option", 1), "Category 1 / Item 2");
+                AssertUI.TextEquals(combos[3].ElementAt("option", 2), "Category 1 / Item 3");
+                AssertUI.TextEquals(combos[4].ElementAt("option", 0), "Category 2 / Item 1");
+                AssertUI.TextEquals(combos[4].ElementAt("option", 1), "Category 2 / Item 2");
+                AssertUI.TextEquals(combos[4].ElementAt("option", 2), "Category 2 / Item 3");
+                AssertUI.TextEquals(combos[4].ElementAt("option", 3), "Category 2 / Item 4");
+                AssertUI.TextEquals(combos[4].ElementAt("option", 4), "Category 2 / Item 5");
+                AssertUI.TextEquals(combos[5].ElementAt("option", 0), "Category 3 / Item 1");
+
+                AssertUI.TextEquals(combos[6].ElementAt("option", 0), "Category 1 / Item 1");
+                AssertUI.TextEquals(combos[6].ElementAt("option", 1), "Category 1 / Item 2");
+                AssertUI.TextEquals(combos[6].ElementAt("option", 2), "Category 1 / Item 3");
+                AssertUI.TextEquals(combos[7].ElementAt("option", 0), "Category 2 / Item 1");
+                AssertUI.TextEquals(combos[7].ElementAt("option", 1), "Category 2 / Item 2");
+                AssertUI.TextEquals(combos[7].ElementAt("option", 2), "Category 2 / Item 3");
+                AssertUI.TextEquals(combos[7].ElementAt("option", 3), "Category 2 / Item 4");
+                AssertUI.TextEquals(combos[7].ElementAt("option", 4), "Category 2 / Item 5");
+                AssertUI.TextEquals(combos[8].ElementAt("option", 0), "Category 3 / Item 1");
+            });
+        }
+
         public ApiTests(ITestOutputHelper output) : base(output)
         {
         }
