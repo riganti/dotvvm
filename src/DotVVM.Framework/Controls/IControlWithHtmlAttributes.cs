@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace DotVVM.Framework.Controls
     public interface IControlWithHtmlAttributes
     {
 
-        Dictionary<string, object> Attributes { get; } 
+        Dictionary<string, object?> Attributes { get; } 
 
     }
 }

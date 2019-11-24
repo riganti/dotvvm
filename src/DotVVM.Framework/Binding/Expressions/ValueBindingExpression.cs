@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -28,7 +29,7 @@ namespace DotVVM.Framework.Binding.Expressions
     [Options]
     public class ValueBindingExpression : BindingExpression, IUpdatableValueBinding, IValueBinding
     {
-        public ValueBindingExpression(BindingCompilationService service, IEnumerable<object> properties) 
+        public ValueBindingExpression(BindingCompilationService service, IEnumerable<object?> properties) 
             : base(service, properties)
         {
             AddNullResolvers();
@@ -61,7 +62,7 @@ namespace DotVVM.Framework.Binding.Expressions
                         ? RequiredRuntimeResourcesBindingProperty.Empty
                         : new RequiredRuntimeResourcesBindingProperty(resources);
                 }),
-                new Func<KnockoutJsExpressionBindingProperty, GlobalizeResourceBindingProperty>(js =>
+                new Func<KnockoutJsExpressionBindingProperty, GlobalizeResourceBindingProperty?>(js =>
                 {
                     var isGlobalizeRequired = js.Expression.DescendantNodesAndSelf()
                         .Any(n => n.Annotation<GlobalizeResourceBindingProperty>() != null);
@@ -78,11 +79,11 @@ namespace DotVVM.Framework.Binding.Expressions
 
         /// Creates binding {value: _this} for a specific data context. Note that the result is cached (non-deterministically, using the <see cref="DotVVM.Framework.Runtime.Caching.IDotvvmCacheAdapter" />)
         public static ValueBindingExpression<T> CreateThisBinding<T>(BindingCompilationService service, DataContextStack dataContext) =>
-            service.Cache.CreateCachedBinding("ValueBindingExpression.ThisBinding", new [] { dataContext }, () => CreateBinding<T>(service, o => (T)o[0], dataContext));
+            service.Cache.CreateCachedBinding("ValueBindingExpression.ThisBinding", new [] { dataContext }, () => CreateBinding<T>(service, o => (T)o[0]!, dataContext));
 
         /// Crates a new value binding expression from the specified .NET delegate and Javascript expression. Note that this operation is not very cheap and the result is not cached.
-        public static ValueBindingExpression<T> CreateBinding<T>(BindingCompilationService service, Func<object[], T> func, JsExpression expression, DataContextStack dataContext = null) =>
-            new ValueBindingExpression<T>(service, new object[] {
+        public static ValueBindingExpression<T> CreateBinding<T>(BindingCompilationService service, Func<object?[], T> func, JsExpression expression, DataContextStack? dataContext = null) =>
+            new ValueBindingExpression<T>(service, new object?[] {
                 new BindingDelegate((o, c) => func(o)),
                 new ResultTypeBindingProperty(typeof(T)),
                 new KnockoutJsExpressionBindingProperty(expression),
@@ -90,8 +91,8 @@ namespace DotVVM.Framework.Binding.Expressions
             });
 
         /// Crates a new value binding expression from the specified .NET delegate and Javascript expression. Note that this operation is not very cheap and the result is not cached.
-        public static ValueBindingExpression<T> CreateBinding<T>(BindingCompilationService service, Func<object[], T> func, ParametrizedCode expression, DataContextStack dataContext = null) =>
-            new ValueBindingExpression<T>(service, new object[] {
+        public static ValueBindingExpression<T> CreateBinding<T>(BindingCompilationService service, Func<object?[], T> func, ParametrizedCode expression, DataContextStack? dataContext = null) =>
+            new ValueBindingExpression<T>(service, new object?[] {
                 new BindingDelegate((o, c) => func(o)),
                 new ResultTypeBindingProperty(typeof(T)),
                 new KnockoutExpressionBindingProperty(expression, expression, expression),
@@ -99,13 +100,13 @@ namespace DotVVM.Framework.Binding.Expressions
             });
 
         /// Crates a new value binding expression from the specified Linq.Expression. Note that this operation is quite expansive and the result is not cached (you are supposed to do it and NOT invoke this function for every request).
-        public static ValueBindingExpression<T> CreateBinding<T>(BindingCompilationService service, Expression<Func<object[], T>> expr, DataContextStack dataContext)
+        public static ValueBindingExpression<T> CreateBinding<T>(BindingCompilationService service, Expression<Func<object?[], T>> expr, DataContextStack? dataContext)
         {
             var visitor = new ViewModelAccessReplacer(expr.Parameters.Single());
             var expression = visitor.Visit(expr.Body);
             dataContext = dataContext ?? visitor.GetDataContext();
             visitor.ValidateDataContext(dataContext);
-            return new ValueBindingExpression<T>(service, new object[] {
+            return new ValueBindingExpression<T>(service, new object?[] {
                 new ParsedExpressionBindingProperty(BindingHelper.AnnotateStandardContextParams(expression, dataContext).OptimizeConstants()),
                 new ResultTypeBindingProperty(typeof(T)),
                 dataContext
@@ -120,25 +121,26 @@ namespace DotVVM.Framework.Binding.Expressions
             {
                 this.vmParameter = vmParameter;
             }
-            private List<Type> VmTypes { get; set; } = new List<Type>();
+            private List<Type?> VmTypes { get; set; } = new List<Type?>();
 
             public DataContextStack GetDataContext()
             {
-                DataContextStack c = null;
+                DataContextStack? c = null;
                 foreach (var vm in VmTypes)
                 {
                     c = DataContextStack.Create(vm ?? typeof(object), c);
                 }
-                return c;
+                return c.NotNull();
             }
 
             public void ValidateDataContext(DataContextStack dataContext)
             {
                 for (int i = 0; i < VmTypes.Count; i++, dataContext = dataContext.Parent)
                 {
+                    var t = VmTypes[i];
                     if (dataContext == null) throw new Exception($"Can not access _parent{i}, it does not exist in the data context.");
-                    if (VmTypes[i] != null && !VmTypes[i].IsAssignableFrom(dataContext.DataContextType))
-                        throw new Exception($"_parent{i} does not have type '{this.VmTypes[i]}' but '{dataContext.DataContextType}'.");
+                    if (t != null && !t.IsAssignableFrom(dataContext.DataContextType))
+                        throw new Exception($"_parent{i} does not have type '{t}' but '{dataContext.DataContextType}'.");
                 }
             }
 
@@ -178,6 +180,6 @@ namespace DotVVM.Framework.Binding.Expressions
 
         public new BindingUpdateDelegate<T> UpdateDelegate => base.UpdateDelegate.ToGeneric<T>();
 
-        public ValueBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties) { }
+        public ValueBindingExpression(BindingCompilationService service, IEnumerable<object?> properties) : base(service, properties) { }
     }
 }

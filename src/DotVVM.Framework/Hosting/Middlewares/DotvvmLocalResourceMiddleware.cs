@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -23,7 +24,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
 
         public async Task<bool> Handle(IDotvvmRequestContext request)
         {
-            var resource = urlManager.FindResource(request.HttpContext.Request.Url.ToString(), request, out string mimeType);
+            var resource = urlManager.FindResource(request.HttpContext.Request.Url.ToString(), request, out var mimeType);
             if (resource != null)
             {
                 request.HttpContext.Response.ContentType = mimeType;

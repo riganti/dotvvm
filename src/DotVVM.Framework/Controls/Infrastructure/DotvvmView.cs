@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,13 +18,13 @@ namespace DotVVM.Framework.Controls.Infrastructure
         /// <summary>
         /// Gets or sets the collection of directives.
         /// </summary>
-        public Dictionary<string, string> Directives
+        public Dictionary<string, string>? Directives
         {
-            get { return (Dictionary<string, string>)GetValue(DirectivesProperty); }
+            get { return (Dictionary<string, string>?)GetValue(DirectivesProperty); }
             set { SetValue(DirectivesProperty, value); }
         }
         public static readonly DotvvmProperty DirectivesProperty
-            = DotvvmProperty.Register<Dictionary<string, string>, DotvvmView>(c => c.Directives, null, isValueInherited: true);
+            = DotvvmProperty.Register<Dictionary<string, string>?, DotvvmView>(c => c.Directives, null, isValueInherited: true);
 
 
 
@@ -35,6 +36,7 @@ namespace DotVVM.Framework.Controls.Infrastructure
         public DotvvmView()
         {
             Directives = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            this.ViewModelType = null!; // practically, ViewModelType should not be null. unfortunately, it is assigned late by the dotvvm compiler
         }
 
         protected internal override void OnPreRender(IDotvvmRequestContext context)

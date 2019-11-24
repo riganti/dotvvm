@@ -1,7 +1,9 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
+using Riganti.Selenium.Core.Abstractions;
 using Riganti.Selenium.Core.Api;
 using Xunit;
 using Xunit.Abstractions;
@@ -16,21 +18,26 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Api_GithubRepoApi);
-                browser.Wait(2000);
 
-                var options = browser.First("select").FindElements("option");
-                Assert.Contains(options, o => o.GetInnerText() == "dotvvm");
+                IEnumerable<IElementWrapper> options = null;
+                browser.WaitFor(() =>
+                {
+                    options = browser.First("select").FindElements("option");
+                    return options.Any(o => o.GetInnerText() == "dotvvm");
+                }, 10000);
 
                 // check dotvvm repo issues
                 var dotvvmIssues = browser.First("table").FindElements("tr").Skip(1).ToList();
                 Assert.True(dotvvmIssues.Count > 10);
 
                 // get text of the first issue
-                dotvvmIssues.ElementAt(0).First("a").Click().Wait();
+                dotvvmIssues.ElementAt(0).First("a").Click();
+                browser.Wait(2000);
                 var firstIssueText = browser.First(".id-current-issue-text").GetInnerText();
 
                 // make sure it changes when I click another issue
-                dotvvmIssues.ElementAt(dotvvmIssues.Count - 1).First("a").Click().Wait();
+                dotvvmIssues.ElementAt(dotvvmIssues.Count - 1).First("a").Click();
+                browser.Wait(2000);
                 var lastIssueText = browser.First(".id-current-issue-text").GetInnerText();
 
                 Assert.NotEqual(firstIssueText, lastIssueText);
@@ -44,7 +51,8 @@ namespace DotVVM.Samples.Tests.Feature
                 var docsIssues = browser.First("table").FindElements("tr").Skip(1).ToList();
                 Assert.True(docsIssues.Count > 1);
 
-                docsIssues.ElementAt(0).First("a").Click().Wait();
+                docsIssues.ElementAt(0).First("a").Click();
+                browser.Wait(2000);
                 var firstIssueText2 = browser.First(".id-current-issue-text").GetInnerText();
                 Assert.NotEqual(firstIssueText, firstIssueText2);
             });
