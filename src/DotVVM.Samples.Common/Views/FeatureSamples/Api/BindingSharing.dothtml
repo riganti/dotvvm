@@ -34,6 +34,22 @@
                           ItemTextBinding="{value: Name}" ItemValueBinding="{value: Id}" SelectedValue="{value: SelectedValue}" />
         </p>
     </dot:Repeater>
+    
+    <dot:Button Text="Load by POST" Click="{command: LoadCategories3()}" />
+    
+    
+    <h1>Request Log</h1>
+    <pre data-bind="text: RequestLog"></pre>
+    
+    <dot:InlineScript Dependencies="dotvvm">
+        var RequestLog = ko.observable("");
+        
+        var origFetch = window.fetch;
+        window.fetch = function(url, req) {            
+            RequestLog(RequestLog() + ((req && req.method) || "GET") + " " + url + "\r\n");
+            return origFetch.apply(this, arguments);
+        };
+    </dot:InlineScript>
 </body>
 </html>
 

@@ -5,6 +5,8 @@ using DotVVM.Framework.ResourceManagement;
 using DotVVM.Samples.BasicSamples;
 using DotVVM.Samples.BasicSamples.Controls;
 using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand;
+using DotVVM.Samples.Common.Api.AspNetCore;
+using DotVVM.Samples.Common.Api.Owin;
 using DotVVM.Samples.Common.Utilities;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand;
@@ -36,6 +38,12 @@ namespace DotVVM.Samples.Common
             services.AddScoped<ViewModelScopedDependency>();
             services.AddSingleton<IGreetingComputationService, HelloGreetingComputationService>();
             services.AddSingleton<FoodSevice>();
+
+            services.AddSingleton<ResetClient>();
+            services.AddSingleton<OrdersClient>();
+            services.AddSingleton<CompaniesClient>();
+            services.AddSingleton<TestWebApiClientOwin>();
+            services.AddSingleton<TestWebApiClientAspNetCore>();
         }
 
         private static void RegisterResources(DotvvmResourceRepository resources)

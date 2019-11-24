@@ -19,6 +19,8 @@ using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Linq;
+using DotVVM.Samples.Common.Api.AspNetCore;
+using DotVVM.Samples.Common.Api.Owin;
 using DotVVM.Samples.Common.Controls;
 
 namespace DotVVM.Samples.BasicSamples

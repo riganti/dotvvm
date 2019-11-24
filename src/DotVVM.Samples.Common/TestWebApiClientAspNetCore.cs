@@ -39,6 +39,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/BindingSharing/get/{category}")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("BindingSharing")]
         public System.Collections.ObjectModel.ObservableCollection<BindingSharingItemDTO> GetItems(int? category = null)
         {
             return System.Threading.Tasks.Task.Run(async () => await GetItemsAsync(category, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
@@ -49,6 +50,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/BindingSharing/get/{category}")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("BindingSharing")]
         public async System.Threading.Tasks.Task<System.Collections.ObjectModel.ObservableCollection<BindingSharingItemDTO>> GetItemsAsync(int? category = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             var urlBuilder_ = new System.Text.StringBuilder();
@@ -120,6 +122,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/BindingSharing/getWithRouteParam/{category}")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("BindingSharing")]
         public System.Collections.ObjectModel.ObservableCollection<BindingSharingItemDTO> GetItemsWithRouteParam(int category)
         {
             return System.Threading.Tasks.Task.Run(async () => await GetItemsWithRouteParamAsync(category, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
@@ -130,6 +133,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/BindingSharing/getWithRouteParam/{category}")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("BindingSharing")]
         public async System.Threading.Tasks.Task<System.Collections.ObjectModel.ObservableCollection<BindingSharingItemDTO>> GetItemsWithRouteParamAsync(int category, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (category == null)
@@ -203,6 +207,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Post")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/BindingSharing/post/{category}")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("BindingSharing")]
         public System.Collections.ObjectModel.ObservableCollection<BindingSharingItemDTO> GetItemsWithHttpPost(int? category = null)
         {
             return System.Threading.Tasks.Task.Run(async () => await GetItemsWithHttpPostAsync(category, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
@@ -213,6 +218,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Post")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/BindingSharing/post/{category}")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("BindingSharing")]
         public async System.Threading.Tasks.Task<System.Collections.ObjectModel.ObservableCollection<BindingSharingItemDTO>> GetItemsWithHttpPostAsync(int? category = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             var urlBuilder_ = new System.Text.StringBuilder();
@@ -285,6 +291,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Companies")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Companies")]
         public System.Collections.ObjectModel.ObservableCollection<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>> GetAll()
         {
             return System.Threading.Tasks.Task.Run(async () => await GetAllAsync(System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
@@ -295,6 +302,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Companies")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Companies")]
         public async System.Threading.Tasks.Task<System.Collections.ObjectModel.ObservableCollection<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>>> GetAllAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             var urlBuilder_ = new System.Text.StringBuilder();
@@ -364,6 +372,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Companies/sorted/{sortingOptions}/{sortingOptions_SortDescending}/{sortingOptions_SortExpression}")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Companies")]
         public DotVVM.Framework.Controls.GridViewDataSet<CompanyOfBoolean> GetWithSorting(DotVVM.Framework.Controls.ISortingOptions sortingOptions = null)
         {
             return System.Threading.Tasks.Task.Run(async () => await GetWithSortingAsync(sortingOptions, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
@@ -374,6 +383,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Companies/sorted/{sortingOptions}/{sortingOptions_SortDescending}/{sortingOptions_SortExpression}")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Companies")]
         public async System.Threading.Tasks.Task<DotVVM.Framework.Controls.GridViewDataSet<CompanyOfBoolean>> GetWithSortingAsync(DotVVM.Framework.Controls.ISortingOptions sortingOptions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             var sortingOptions_SortDescending = sortingOptions != null ? sortingOptions.SortDescending : default(bool?);
@@ -448,6 +458,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Companies/paged/{pagingOptions}/{pagingOptions_PageIndex}/{pagingOptions_PageSize}/{pagingOptions_TotalItemsCount}")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Companies")]
         public DotVVM.Framework.Controls.GridViewDataSet<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>> GetWithPaging(DotVVM.Framework.Controls.IPagingOptions pagingOptions = null)
         {
             return System.Threading.Tasks.Task.Run(async () => await GetWithPagingAsync(pagingOptions, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
@@ -458,6 +469,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Companies/paged/{pagingOptions}/{pagingOptions_PageIndex}/{pagingOptions_PageSize}/{pagingOptions_TotalItemsCount}")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Companies")]
         public async System.Threading.Tasks.Task<DotVVM.Framework.Controls.GridViewDataSet<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>>> GetWithPagingAsync(DotVVM.Framework.Controls.IPagingOptions pagingOptions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             var pagingOptions_PageIndex = pagingOptions != null ? pagingOptions.PageIndex : default(int?);
@@ -534,6 +546,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Companies/sortedandpaged/{sortingOptions}/{sortingOptions_SortDescending}/{sortingOptions_SortExpression}/{pagingOptions}/{pagingOptions_PageIndex}/{pagingOptions_PageSize}/{pagingOptions_TotalItemsCount}")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Companies")]
         public DotVVM.Framework.Controls.GridViewDataSet<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>> GetWithSortingAndPaging(DotVVM.Framework.Controls.ISortingOptions sortingOptions = null, DotVVM.Framework.Controls.IPagingOptions pagingOptions = null)
         {
             return System.Threading.Tasks.Task.Run(async () => await GetWithSortingAndPagingAsync(sortingOptions, pagingOptions, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
@@ -544,6 +557,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Companies/sortedandpaged/{sortingOptions}/{sortingOptions_SortDescending}/{sortingOptions_SortExpression}/{pagingOptions}/{pagingOptions_PageIndex}/{pagingOptions_PageSize}/{pagingOptions_TotalItemsCount}")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Companies")]
         public async System.Threading.Tasks.Task<DotVVM.Framework.Controls.GridViewDataSet<DotVVM.Samples.BasicSamples.Api.Common.Model.Company<System.String>>> GetWithSortingAndPagingAsync(DotVVM.Framework.Controls.ISortingOptions sortingOptions = null, DotVVM.Framework.Controls.IPagingOptions pagingOptions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             var sortingOptions_SortDescending = sortingOptions != null ? sortingOptions.SortDescending : default(bool?);
@@ -624,6 +638,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Orders/{companyId}/{pageIndex}/{pageSize}")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Orders")]
         public System.Collections.ObjectModel.ObservableCollection<Order> GetAll2(int? companyId = null, int? pageIndex = null, int? pageSize = null)
         {
             return System.Threading.Tasks.Task.Run(async () => await GetAll2Async(companyId, pageIndex, pageSize, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
@@ -634,6 +649,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Orders/{companyId}/{pageIndex}/{pageSize}")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Orders")]
         public async System.Threading.Tasks.Task<System.Collections.ObjectModel.ObservableCollection<Order>> GetAll2Async(int? companyId = null, int? pageIndex = null, int? pageSize = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             var urlBuilder_ = new System.Text.StringBuilder();
@@ -707,6 +723,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Post")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Orders")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Orders")]
         public void Post(Order order = null)
         {
             System.Threading.Tasks.Task.Run(async () => await PostAsync(order, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
@@ -717,6 +734,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Post")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Orders")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Orders")]
         public async System.Threading.Tasks.Task PostAsync(Order order = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             var urlBuilder_ = new System.Text.StringBuilder();
@@ -776,6 +794,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Orders/{orderId}")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Orders")]
         public Order GetItem(int orderId)
         {
             return System.Threading.Tasks.Task.Run(async () => await GetItemAsync(orderId, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
@@ -786,6 +805,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Get")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Orders/{orderId}")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Orders")]
         public async System.Threading.Tasks.Task<Order> GetItemAsync(int orderId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (orderId == null)
@@ -859,6 +879,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Put")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Orders/{orderId}")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Orders")]
         public void Put(int orderId, Order order = null)
         {
             System.Threading.Tasks.Task.Run(async () => await PutAsync(orderId, order, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
@@ -869,6 +890,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Put")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Orders/{orderId}")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Orders")]
         public async System.Threading.Tasks.Task PutAsync(int orderId, Order order = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (orderId == null)
@@ -932,6 +954,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         /// <exception cref="SwaggerException">A server side error occurred.</exception>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Delete")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Orders/delete/{orderId}")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Orders")]
         public void Delete(int orderId)
         {
             System.Threading.Tasks.Task.Run(async () => await DeleteAsync(orderId, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
@@ -942,6 +965,7 @@ namespace DotVVM.Samples.Common.Api.AspNetCore
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.HttpMethod("Delete")]
         [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.MethodUrl("api/Orders/delete/{orderId}")]
+        [DotVVM.Framework.Configuration.RestApiRegistrationHelpers.AutoRefreshKey("Orders")]
         public async System.Threading.Tasks.Task DeleteAsync(int orderId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (orderId == null)

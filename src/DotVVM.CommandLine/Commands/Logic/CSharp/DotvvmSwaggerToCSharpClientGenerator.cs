@@ -12,12 +12,14 @@ namespace DotVVM.CommandLine.Commands.Logic
 {
     public class DotvvmSwaggerToCSharpClientGenerator : SwaggerToCSharpClientGenerator
     {
+        private readonly SwaggerDocument document;
         private readonly SwaggerToCSharpTypeResolver resolver;
 
         public DotvvmSwaggerToCSharpClientGenerator(SwaggerDocument document, SwaggerToCSharpClientGeneratorSettings settings,
             SwaggerToCSharpTypeResolver resolver)
             : base(document, settings, resolver)
         {
+            this.document = document;
             this.resolver = resolver;
         }
 
@@ -25,6 +27,9 @@ namespace DotVVM.CommandLine.Commands.Logic
         {
             var model = new DotvvmCSharpOperationModel(operation, Settings, this, resolver);
             HandleAsObjectParameters(operation, model, settings);
+
+            model.AutoRefreshKey = string.Join("/", document.Operations.Single(o => o.Operation.OperationId == operation.OperationId).Operation.Tags);
+            
             return model;
         }
 
@@ -62,5 +67,7 @@ namespace DotVVM.CommandLine.Commands.Logic
                 model.Parameters.Insert(targetIndex, newParameter);
             }
         }
+
+        
     }
 }

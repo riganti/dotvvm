@@ -21,12 +21,17 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.Api
             new BindingSharingCategoryDTO() { Category = 3 }
         };
 
-        public BindingSharingCategoryDTO[] Categories3 { get; set; } = new[]
+        public BindingSharingCategoryDTO[] Categories3 { get; set; }
+
+        public void LoadCategories3()
         {
-            new BindingSharingCategoryDTO() { Category = 1 },
-            new BindingSharingCategoryDTO() { Category = 2 },
-            new BindingSharingCategoryDTO() { Category = 3 }
-        };
+            Categories3 = new[]
+            {
+                new BindingSharingCategoryDTO() { Category = 1 },
+                new BindingSharingCategoryDTO() { Category = 2 },
+                new BindingSharingCategoryDTO() { Category = 3 }
+            };
+        }
 
     }
 

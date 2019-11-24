@@ -55,6 +55,7 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore.Tests
             var serviceCollection = new ServiceCollection()
                 .AddSingleton<ObjectPoolProvider, DefaultObjectPoolProvider>()
                 .AddSingleton<IHostingEnvironment, HostingEnvironment>()
+                .AddSingleton<DiagnosticSource>(p => new DiagnosticListener("test"))
                 .AddLogging();
 
             serviceCollection.AddMvc(setup => setup.Conventions.Add(new ApiExplorerVisibilityEnabledConvention()))
