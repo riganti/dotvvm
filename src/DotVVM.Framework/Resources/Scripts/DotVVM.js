@@ -1540,7 +1540,7 @@ var DotVVM = /** @class */ (function () {
     DotVVM.prototype.handleSpaNavigation = function (element) {
         var target = element.getAttribute('target');
         if (target == "_blank") {
-            return true;
+            return Promise.resolve(new DotvvmNavigationEventArgs(this.viewModels.root.viewModel, "root", null));
         }
         return this.handleSpaNavigationCore(element.getAttribute('href'));
     };

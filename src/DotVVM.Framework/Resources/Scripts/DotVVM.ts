@@ -670,12 +670,11 @@ class DotVVM {
         });
     }
 
-    public handleSpaNavigation(element: HTMLElement) {
+    public handleSpaNavigation(element: HTMLElement): Promise<DotvvmNavigationEventArgs> {
         var target = element.getAttribute('target');
         if (target == "_blank") {
-            return true;
+            return Promise.resolve(new DotvvmNavigationEventArgs(this.viewModels.root.viewModel, "root", null));
         }
-        
         return this.handleSpaNavigationCore(element.getAttribute('href'));
     }
 
