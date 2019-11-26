@@ -1,0 +1,61 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView.InvalidCssClassViewModel
+
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        .invalid {
+            border: 3px solid darkred;
+        }
+    </style>
+</head>
+<body Validator.InvalidCssClass="invalid">
+    <dot:GridView DataSource="{value: Samples}"
+                  InlineEditing="true"
+                  data-ui="gridview">
+        <RowDecorators>
+            <dot:Decorator Validator.ShowErrorMessageText="true" />
+        </RowDecorators>
+        <EditRowDecorators>
+            <dot:Decorator Validator.ShowErrorMessageText="true" />
+        </EditRowDecorators>
+        <dot:GridViewCheckBoxColumn ValueBinding="{value: Is}"
+                                    ValidatorPlacement="Standalone"
+                                    HeaderText="Is (Standalone)"
+                                    CssClass="is-standalone" />
+        <dot:GridViewTextColumn ValueBinding="{value: Name}"
+                                HeaderText="Name (AttachToControl)"
+                                ValidatorPlacement="AttachToControl"
+                                CssClass="name-attached" />
+        <dot:GridViewTextColumn ValueBinding="{value: Name}"
+                                HeaderText="Name (AttachToControl | Standalone)"
+                                ValidatorPlacement="AttachToControl | Standalone"
+                                CssClass="name-attached-standalone" />
+        <dot:GridViewTemplateColumn HeaderText="Value">
+            <ContentTemplate>
+                <span>{{value: Value}}</span>
+            </ContentTemplate>
+            <EditTemplate>
+                <dot:TextBox Text="{value: Value}"
+                             Validator.Value="{value: Value}"
+                             Validator.InvalidCssClass="invalid" />
+            </EditTemplate>
+        </dot:GridViewTemplateColumn>
+        <dot:GridViewTemplateColumn>
+            <ContentTemplate>
+                <dot:Button Text="Edit"
+                            Validation.Enabled="false"
+                            Click="{command: _root.Samples.RowEditOptions.EditRowId = Value}"
+                            data-ui="edit-button" />
+            </ContentTemplate>
+            <EditTemplate>
+                <dot:Button Text="Save"
+                            Click="{command: _root.Samples.RowEditOptions.EditRowId = null}"
+                            data-ui="save-button" />
+            </EditTemplate>
+        </dot:GridViewTemplateColumn>
+    </dot:GridView>
+</body>
+</html>

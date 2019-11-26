@@ -1,5 +1,9 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 {
@@ -15,7 +19,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 
         protected abstract bool IsWhiteSpace(TToken token);
 
-        public List<TToken> Tokens { get; set; }
+        public List<TToken> Tokens { get; set; } = new List<TToken>();
         protected int CurrentIndex { get; set; }
 
         
@@ -35,16 +39,39 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
         /// <summary>
         /// Peeks the current token.
         /// </summary>
+        [return: MaybeNull]
         public TToken Peek()
         {
             if (CurrentIndex < Tokens.Count)
             {
-                return Tokens[CurrentIndex];
+                return Tokens[CurrentIndex].NotNull();
             }
-            return null;
+            return null!;
         }
 
-        private Stack<int> _restorePoints = new Stack<int>(); 
+        /// <summary>
+        /// Peeks the current token, and throws an exception when token is not present.
+        /// </summary>
+        public TToken PeekOrFail() =>
+            Peek() ?? throw new DotvvmCompilationException("Unexpected end of token stream", new [] { Tokens.Last() });
+
+
+        /// <summary>
+        /// Asserts that the current token is of a specified type.
+        /// </summary>
+        protected TToken Assert(TTokenType desiredType)
+        {
+            var token = Peek();
+            if (token is null || !EqualityComparer<TTokenType>.Default.Equals(token.Type, desiredType))
+            {
+                throw new DotvvmCompilationException(
+                    $"The token {desiredType} was expected! Instead found {(token == null ? "end of stream" : "" + token.Type)}",
+                    new [] { token ?? Tokens.Last() });
+            }
+            return token;
+        }
+
+        private Stack<int> _restorePoints = new Stack<int>();
         protected void SetRestorePoint()
         {
             _restorePoints.Push(CurrentIndex);
@@ -74,13 +101,14 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
         /// <summary>
         /// Reads the current token and advances to the next one.
         /// </summary>
+        [return: MaybeNull]
         public TToken Read()
         {
             if (CurrentIndex < Tokens.Count)
             {
-                return Tokens[CurrentIndex++];
+                return Tokens[CurrentIndex++].NotNull();
             }
-            return null;
+            return null!;
         }
 
         /// <summary>

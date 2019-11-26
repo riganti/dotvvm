@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.IO;
 using System.Threading;
@@ -12,8 +13,8 @@ namespace DotVVM.Framework.ResourceManagement
     /// </summary>
     public class InlineStylesheetResource : ResourceBase
     {
-        private readonly ILocalResourceLocation resourceLocation;
-        private volatile Lazy<string> code;
+        private readonly ILocalResourceLocation? resourceLocation;
+        private volatile Lazy<string>? code;
 
         /// <summary>
         /// Gets the CSS code that will be embedded in the page.
@@ -47,7 +48,7 @@ namespace DotVVM.Framework.ResourceManagement
             if (this.code == null)
             {
                 var newCode = new Lazy<string>(() => {
-                    var c = resourceLocation.ReadToString(context);
+                    var c = resourceLocation!.ReadToString(context);
                     InlineStyleContentGuard(c);
                     return c;
                 });
