@@ -386,7 +386,7 @@ class DotVVM {
         return vm.$csrfToken
     }
 
-    public staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback = _ => { }, errorCallback = (errorInfo: { xhr?: XMLHttpRequest, error?: any }) => { }) {
+    public staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback = _ => { }, errorCallback = (errorInfo: {xhr?: XMLHttpRequest, error?: any}) => { }) {
         (async () => {
             var csrfToken;
             try {
@@ -398,7 +398,7 @@ class DotVVM {
                 errorCallback({ error: err });
                 return;
             }
-
+            
             var data = this.serialization.serialize({
                 args,
                 command,
@@ -446,9 +446,9 @@ class DotVVM {
                 errorCallback({ xhr });
                 dotvvm.events.staticCommandMethodFailed.trigger({ ...data, xhr })
             },
-                xhr => {
-                    xhr.setRequestHeader("X-PostbackType", "StaticCommand");
-                });
+            xhr => {
+                xhr.setRequestHeader("X-PostbackType", "StaticCommand");
+            });
         })()
     }
 
@@ -534,9 +534,9 @@ class DotVVM {
             const sortedHandlers = this.sortHandlers(handlers);
             return sortedHandlers
                 .reduceRight(
-                    (prev, val, index) => () =>
-                        val.execute(prev, options),
-                    () => callback(options).then(processResult, r => Promise.reject(r))
+                (prev, val, index) => () =>
+                    val.execute(prev, options),
+                () => callback(options).then(processResult, r => Promise.reject(r))
                 )();
         }
     }
@@ -555,7 +555,7 @@ class DotVVM {
         return new Promise<() => Promise<DotvvmAfterPostBackEventArgs>>(async (resolve, reject) => {
             const viewModelName = options.viewModelName!;
             const viewModel = this.viewModels[viewModelName].viewModel;
-
+            
             try {
                 await this.fetchCsrfToken(viewModelName);
             }
@@ -670,7 +670,7 @@ class DotVVM {
     }
 
     public handleSpaNavigationCore(url: string | null): boolean {
-        if (url && url.indexOf("/") === 0) {
+       if (url && url.indexOf("/") === 0) {
             var viewModelName = "root"
 
             url = this.removeVirtualDirectoryFromUrl(url, viewModelName);
@@ -1229,11 +1229,11 @@ class DotVVM {
         const makeUpdatableChildrenContextHandler = (
             makeContextCallback: (bindingContext: KnockoutBindingContext, value: any) => any,
             shouldDisplay: (value: any) => boolean
-        ) => (element: Node, valueAccessor, _allBindings, _viewModel, bindingContext: KnockoutBindingContext) => {
+            ) => (element: Node, valueAccessor, _allBindings, _viewModel, bindingContext: KnockoutBindingContext) => {
             if (!bindingContext) throw new Error()
 
-            var savedNodes: Node[] | undefined;
-            ko.computed(function () {
+            var savedNodes : Node[] | undefined;
+            ko.computed(function() {
                 var rawValue = valueAccessor();
 
                 // Save a copy of the inner nodes on the initial update, but only if we have dependencies.
@@ -1268,7 +1268,7 @@ class DotVVM {
                 var collection = bindingContext[foreachCollectionSymbol]
                 var innerBindingContext = bindingContext.createChildContext(() => {
                     return ko.unwrap((ko.unwrap(collection) || [])[valueAccessor()]);
-                }).extend({ $index: ko.pureComputed(valueAccessor) });
+                }).extend({$index: ko.pureComputed(valueAccessor)});
                 element.innerBindingContext = innerBindingContext
                 ko.applyBindingsToDescendants(innerBindingContext, element)
                 return { controlsDescendantBindings: true } // do not apply binding again
@@ -1320,19 +1320,6 @@ class DotVVM {
             init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
             }
         };
-
-        ko.bindingHandlers["dotvvm-checkedItems"] = {
-            after: ko.bindingHandlers.checked.after,
-            init: ko.bindingHandlers.checked.init,
-            options: ko.bindingHandlers.checked.options,
-            update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
-                var value = valueAccessor();
-                if (!Array.isArray(ko.unwrap(value))) {
-                    throw Error("The value of a `checkedItems` binding must be an array (i.e. not null nor undefined).");
-                }
-                // Note: As of now, the `checked` binding doesn't have an `update`. If that changes, invoke it here.
-            }
-        }
 
         ko.bindingHandlers["dotvvm-UpdateProgress-Visible"] = {
             init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
