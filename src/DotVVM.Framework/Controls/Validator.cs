@@ -7,6 +7,7 @@ using DotVVM.Framework.Runtime;
 using Newtonsoft.Json;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ViewModel.Serialization;
+using DotVVM.Framework.Binding.Expressions;
 
 namespace DotVVM.Framework.Controls
 {
@@ -62,6 +63,22 @@ namespace DotVVM.Framework.Controls
             SetToolTipTextProperty,
             ShowErrorMessageTextProperty
         };
+
+        public static void Place(
+            IDotvvmControl control,
+            DotvvmControlCollection container,
+            IValueBinding? value,
+            ValidatorPlacement placement)
+        {
+            if (placement.HasFlag(ValidatorPlacement.AttachToControl)) {
+                control.SetValue(ValueProperty, value!);
+            }
+            if (placement.HasFlag(ValidatorPlacement.Standalone)) {
+                var validator = new Validator();
+                validator.SetValue(ValueProperty, value);
+                container.Add(validator);
+            }
+        }
 
         private static void AddValidatedValue(IHtmlWriter writer, IDotvvmRequestContext context, DotvvmProperty prop, DotvvmControl control)
         {
