@@ -606,7 +606,7 @@ var DotvvmSerialization = /** @class */ (function () {
             if (!ko.isObservable(value) && typeof (value) === "function") {
                 continue;
             }
-            var options = viewModel[prop + "$options"];
+            var options = viewModel[prop + "$options"] || (unwrappedTarget && unwrappedTarget[prop + "$options"]);
             if (!deserializeAll && options && options.doNotUpdate) {
                 continue;
             }
@@ -1040,6 +1040,7 @@ var DotVVM = /** @class */ (function () {
         this.extensions = {};
         this.isPostbackRunning = ko.observable(false);
         this.updateProgressChangeCounter = ko.observable(0);
+        this.diffEqual = {};
     }
     DotVVM.prototype.createWindowSetTimeoutHandler = function (time) {
         return {
@@ -1071,6 +1072,10 @@ var DotVVM = /** @class */ (function () {
             thisViewModel.renderedResources.forEach(function (r) { return _this.resourceSigns[r] = true; });
         }
         var idFragment = thisViewModel.resultIdFragment;
+        // store server-side cached viewmodel
+        if (thisViewModel.viewModelCacheId) {
+            thisViewModel.viewModelCache = this.viewModels[viewModelName].viewModel;
+        }
         var viewModel = thisViewModel.viewModel = this.serialization.deserialize(this.viewModels[viewModelName].viewModel, {}, true);
         // initialize services
         this.culture = culture;
@@ -1395,7 +1400,7 @@ var DotVVM = /** @class */ (function () {
     DotVVM.prototype.postbackCore = function (options, path, command, controlUniqueId, context, commandArgs) {
         var _this = this;
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var viewModelName, viewModel, err_2, data;
+            var viewModelName, viewModel, err_2, data, completeViewModel, errorAction;
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
@@ -1418,7 +1423,6 @@ var DotVVM = /** @class */ (function () {
                         // perform the postback
                         this.updateDynamicPathFragments(context, path);
                         data = {
-                            viewModel: this.serialization.serialize(viewModel, { pathMatcher: function (val) { return context && val == context.$data; } }),
                             currentPath: path,
                             command: command,
                             controlUniqueId: this.processPassedId(controlUniqueId, context),
@@ -1426,68 +1430,16 @@ var DotVVM = /** @class */ (function () {
                             renderedResources: this.viewModels[viewModelName].renderedResources,
                             commandArgs: commandArgs
                         };
-                        this.postJSON(this.viewModels[viewModelName].url, "POST", ko.toJSON(data), function (result) {
-                            dotvvm.events.postbackResponseReceived.trigger({});
-                            resolve(function () { return new Promise(function (resolve, reject) {
-                                dotvvm.events.postbackCommitInvoked.trigger({});
-                                var locationHeader = result.getResponseHeader("Location");
-                                var resultObject = locationHeader != null && locationHeader.length > 0 ?
-                                    { action: "redirect", url: locationHeader } :
-                                    JSON.parse(result.responseText);
-                                if (!resultObject.viewModel && resultObject.viewModelDiff) {
-                                    // TODO: patch (~deserialize) it to ko.observable viewModel
-                                    resultObject.viewModel = _this.patch(data.viewModel, resultObject.viewModelDiff);
-                                }
-                                _this.loadResourceList(resultObject.resources, function () {
-                                    var isSuccess = false;
-                                    if (resultObject.action === "successfulCommand") {
-                                        try {
-                                            _this.isViewModelUpdating = true;
-                                            // remove updated controls
-                                            var updatedControls = _this.cleanUpdatedControls(resultObject);
-                                            // update the viewmodel
-                                            if (resultObject.viewModel) {
-                                                ko.delaySync.pause();
-                                                _this.serialization.deserialize(resultObject.viewModel, _this.viewModels[viewModelName].viewModel);
-                                                ko.delaySync.resume();
-                                            }
-                                            isSuccess = true;
-                                            // remove updated controls which were previously hidden
-                                            _this.cleanUpdatedControls(resultObject, updatedControls);
-                                            // add updated controls
-                                            _this.restoreUpdatedControls(resultObject, updatedControls, true);
-                                        }
-                                        finally {
-                                            _this.isViewModelUpdating = false;
-                                        }
-                                        dotvvm.events.postbackViewModelUpdated.trigger({});
-                                    }
-                                    else if (resultObject.action === "redirect") {
-                                        // redirect
-                                        _this.handleRedirect(resultObject, viewModelName);
-                                        return resolve();
-                                    }
-                                    var idFragment = resultObject.resultIdFragment;
-                                    if (idFragment) {
-                                        if (_this.getSpaPlaceHolder() || location.hash == "#" + idFragment) {
-                                            var element = document.getElementById(idFragment);
-                                            if (element && "function" == typeof element.scrollIntoView)
-                                                element.scrollIntoView(true);
-                                        }
-                                        else
-                                            location.hash = idFragment;
-                                    }
-                                    // trigger afterPostback event
-                                    if (!isSuccess) {
-                                        reject(new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, result, options.postbackId, resultObject));
-                                    }
-                                    else {
-                                        var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(options, resultObject, resultObject.commandResult, result);
-                                        resolve(afterPostBackArgs);
-                                    }
-                                });
-                            }); });
-                        }, function (xhr) {
+                        completeViewModel = this.serialization.serialize(viewModel, { pathMatcher: function (val) { return context && val == context.$data; } });
+                        // if the viewmodel is cached on the server, send only the diff
+                        if (this.viewModels[viewModelName].viewModelCache) {
+                            data.viewModelDiff = this.diff(this.viewModels[viewModelName].viewModelCache, completeViewModel);
+                            data.viewModelCacheId = this.viewModels[viewModelName].viewModelCacheId;
+                        }
+                        else {
+                            data.viewModel = completeViewModel;
+                        }
+                        errorAction = function (xhr) {
                             if (/^application\/json(;|$)/.test(xhr.getResponseHeader("Content-Type"))) {
                                 var errObject = JSON.parse(xhr.responseText);
                                 if (errObject.action === "invalidCsrfToken") {
@@ -1499,7 +1451,100 @@ var DotVVM = /** @class */ (function () {
                                 }
                             }
                             reject({ type: 'network', options: options, args: new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, xhr, options.postbackId) });
-                        });
+                        };
+                        this.postJSON(this.viewModels[viewModelName].url, "POST", ko.toJSON(data), function (result) {
+                            var resultObject = {};
+                            var successAction = function (actualResult) {
+                                dotvvm.events.postbackResponseReceived.trigger({});
+                                resolve(function () { return new Promise(function (resolve, reject) {
+                                    dotvvm.events.postbackCommitInvoked.trigger({});
+                                    if (!resultObject.viewModel && resultObject.viewModelDiff) {
+                                        // TODO: patch (~deserialize) it to ko.observable viewModel
+                                        resultObject.viewModel = _this.patch(completeViewModel, resultObject.viewModelDiff);
+                                    }
+                                    _this.loadResourceList(resultObject.resources, function () {
+                                        var isSuccess = false;
+                                        if (resultObject.action === "successfulCommand") {
+                                            try {
+                                                _this.isViewModelUpdating = true;
+                                                // store server-side cached viewmodel
+                                                if (resultObject.viewModelCacheId) {
+                                                    _this.viewModels[viewModelName].viewModelCacheId = resultObject.viewModelCacheId;
+                                                    _this.viewModels[viewModelName].viewModelCache = resultObject.viewModel;
+                                                }
+                                                else {
+                                                    delete _this.viewModels[viewModelName].viewModelCacheId;
+                                                    delete _this.viewModels[viewModelName].viewModelCache;
+                                                }
+                                                // remove updated controls
+                                                var updatedControls = _this.cleanUpdatedControls(resultObject);
+                                                // update the viewmodel
+                                                if (resultObject.viewModel) {
+                                                    ko.delaySync.pause();
+                                                    _this.serialization.deserialize(resultObject.viewModel, _this.viewModels[viewModelName].viewModel);
+                                                    ko.delaySync.resume();
+                                                }
+                                                isSuccess = true;
+                                                // remove updated controls which were previously hidden
+                                                _this.cleanUpdatedControls(resultObject, updatedControls);
+                                                // add updated controls
+                                                _this.restoreUpdatedControls(resultObject, updatedControls, true);
+                                            }
+                                            finally {
+                                                _this.isViewModelUpdating = false;
+                                            }
+                                            dotvvm.events.postbackViewModelUpdated.trigger({});
+                                        }
+                                        else if (resultObject.action === "redirect") {
+                                            // redirect
+                                            _this.handleRedirect(resultObject, viewModelName);
+                                            return resolve();
+                                        }
+                                        var idFragment = resultObject.resultIdFragment;
+                                        if (idFragment) {
+                                            if (_this.getSpaPlaceHolder() || location.hash == "#" + idFragment) {
+                                                var element = document.getElementById(idFragment);
+                                                if (element && "function" == typeof element.scrollIntoView)
+                                                    element.scrollIntoView(true);
+                                            }
+                                            else
+                                                location.hash = idFragment;
+                                        }
+                                        // trigger afterPostback event
+                                        if (!isSuccess) {
+                                            reject(new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, actualResult, options.postbackId, resultObject));
+                                        }
+                                        else {
+                                            var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(options, resultObject, resultObject.commandResult, result);
+                                            resolve(afterPostBackArgs);
+                                        }
+                                    });
+                                }); });
+                            };
+                            var parseResultObject = function (actualResult) {
+                                var locationHeader = actualResult.getResponseHeader("Location");
+                                resultObject = locationHeader != null && locationHeader.length > 0 ?
+                                    { action: "redirect", url: locationHeader } :
+                                    JSON.parse(actualResult.responseText);
+                            };
+                            parseResultObject(result);
+                            if (resultObject.action === "viewModelNotCached") {
+                                // repeat request with full viewModel
+                                delete _this.viewModels[viewModelName].viewModelCache;
+                                delete _this.viewModels[viewModelName].viewModelCacheId;
+                                delete data.viewModelDiff;
+                                delete data.viewModelCacheId;
+                                data.viewModel = completeViewModel;
+                                return _this.postJSON(_this.viewModels[viewModelName].url, "POST", ko.toJSON(data), function (result2) {
+                                    parseResultObject(result2);
+                                    successAction(result2);
+                                }, errorAction);
+                            }
+                            else {
+                                // process the response
+                                successAction(result);
+                            }
+                        }, errorAction);
                         return [2 /*return*/];
                 }
             });
@@ -1680,6 +1725,13 @@ var DotVVM = /** @class */ (function () {
                                 _this.viewModels[viewModelName][p] = resultObject[p];
                             }
                         }
+                        // store server-side cached viewmodel
+                        if (resultObject.viewModelCacheId) {
+                            _this.viewModels[viewModelName].viewModelCache = resultObject.viewModel;
+                        }
+                        else {
+                            delete _this.viewModels[viewModelName].viewModelCache;
+                        }
                         ko.delaySync.pause();
                         _this.serialization.deserialize(resultObject.viewModel, _this.viewModels[viewModelName].viewModel);
                         ko.delaySync.resume();
@@ -1818,6 +1870,52 @@ var DotVVM = /** @class */ (function () {
         else
             return patch;
         return source;
+    };
+    DotVVM.prototype.diff = function (source, modified) {
+        var _this = this;
+        if (source instanceof Array && modified instanceof Array) {
+            var diffArray = modified.map(function (el, index) { return _this.diff(source[index], el); });
+            if (source.length === modified.length
+                && diffArray.every(function (el, index) { return el === _this.diffEqual || source[index] === modified[index]; })) {
+                return this.diffEqual;
+            }
+            else {
+                return diffArray;
+            }
+        }
+        else if (source instanceof Array || modified instanceof Array) {
+            return modified;
+        }
+        else if (typeof source == "object" && typeof modified == "object" && source && modified) {
+            var result = this.diffEqual;
+            for (var p in modified) {
+                var propertyDiff = this.diff(source[p], modified[p]);
+                if (propertyDiff !== this.diffEqual && source[p] !== modified[p]) {
+                    if (result === this.diffEqual) {
+                        result = {};
+                    }
+                    result[p] = propertyDiff;
+                }
+                else if (p[0] === "$") {
+                    if (result == this.diffEqual) {
+                        result = {};
+                    }
+                    result[p] = modified[p];
+                }
+            }
+            return result;
+        }
+        else if (source === modified) {
+            if (typeof source == "object") {
+                return this.diffEqual;
+            }
+            else {
+                return source;
+            }
+        }
+        else {
+            return modified;
+        }
     };
     DotVVM.prototype.updateDynamicPathFragments = function (context, path) {
         for (var i = path.length - 1; i >= 0; i--) {

@@ -19,13 +19,15 @@ namespace DotVVM.Framework.ViewModel.Serialization
         private readonly IValidationRuleTranslator validationRuleTranslator;
         private readonly IViewModelValidationMetadataProvider validationMetadataProvider;
         private readonly IPropertySerialization propertySerialization;
+        private readonly DotvvmConfiguration configuration;
 
         public ViewModelSerializationMapper(IValidationRuleTranslator validationRuleTranslator, IViewModelValidationMetadataProvider validationMetadataProvider,
-            IPropertySerialization propertySerialization)
+            IPropertySerialization propertySerialization, DotvvmConfiguration configuration)
         {
             this.validationRuleTranslator = validationRuleTranslator;
             this.validationMetadataProvider = validationMetadataProvider;
             this.propertySerialization = propertySerialization;
+            this.configuration = configuration;
         }
 
         private readonly ConcurrentDictionary<Type, ViewModelSerializationMap> serializationMapCache = new ConcurrentDictionary<Type, ViewModelSerializationMap>();
@@ -36,7 +38,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// </summary>
         protected virtual ViewModelSerializationMap CreateMap(Type type)
         {
-            return new ViewModelSerializationMap(type, GetProperties(type));
+            return new ViewModelSerializationMap(type, GetProperties(type), configuration);
         }
 
         /// <summary>
