@@ -37,6 +37,12 @@
     <None Remove="Views\ControlSamples\Repeater\NamedTemplate.dothtml" />
     <None Remove="Views\ControlSamples\RouteLink\RouteLinkQueryParameters.dothtml" />
     <None Remove="Views\ControlSamples\UpdateProgress\UpdateProgressQueues.dothtml" />
+    <None Remove="Views\ControlSamples\UpdateProgress\UpdateProgressRedirect.dotmaster" />
+    <None Remove="Views\ControlSamples\UpdateProgress\UpdateProgressRedirect1.dothtml" />
+    <None Remove="Views\ControlSamples\UpdateProgress\UpdateProgressRedirect2.dothtml" />
+    <None Remove="Views\ControlSamples\UpdateProgress\UpdateProgressRedirectSPA.dotmaster" />
+    <None Remove="Views\ControlSamples\UpdateProgress\UpdateProgressRedirectSPA1.dothtml" />
+    <None Remove="Views\ControlSamples\UpdateProgress\UpdateProgressRedirectSPA2.dothtml" />
     <None Remove="Views\ControlSamples\ValidationSummary\MessagesRendering.dothtml" />
     <None Remove="Views\ControlSamples\ValidationSummary\Performance.dothtml" />
     <None Remove="Views\Errors\CorruptedContentBetweenContentControls.dothtml" />
