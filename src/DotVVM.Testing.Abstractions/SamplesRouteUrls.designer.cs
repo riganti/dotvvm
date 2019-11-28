@@ -15,6 +15,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ComplexSamples_CascadeSelectors_CascadeSelectorsServerRender = "ComplexSamples/CascadeSelectors/CascadeSelectorsServerRender";
         public const string ComplexSamples_CascadeSelectors_TripleComboBoxes = "ComplexSamples/CascadeSelectors/TripleComboBoxes";
         public const string ComplexSamples_ChangedEvent_ChangedEvent = "ComplexSamples/ChangedEvent/ChangedEvent";
+        public const string ComplexSamples_ClassBindings_ClassBindings = "ComplexSamples/ClassBindings/ClassBindings";
         public const string ComplexSamples_EmptyDataTemplate_RepeaterGridView = "ComplexSamples/EmptyDataTemplate/RepeaterGridView";
         public const string ComplexSamples_FileUploadInRepeater_FileUploadInRepeater = "ComplexSamples/FileUploadInRepeater/FileUploadInRepeater";
         public const string ComplexSamples_GridViewDataSet_GridViewDataSet = "ComplexSamples/GridViewDataSet/GridViewDataSet";
