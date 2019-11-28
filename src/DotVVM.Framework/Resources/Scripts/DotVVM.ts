@@ -23,6 +23,8 @@ interface IDotvvmExtensions {
 
 interface IDotvvmViewModelInfo {
     viewModel?;
+    viewModelCacheId?: string;
+    viewModelCache?;
     renderedResources?: string[];
     url?: string;
     virtualDirectory?: string;
@@ -251,6 +253,12 @@ class DotVVM {
             thisViewModel.renderedResources.forEach(r => this.resourceSigns[r] = true);
         }
         var idFragment = thisViewModel.resultIdFragment;
+
+        // store server-side cached viewmodel
+        if (thisViewModel.viewModelCacheId) {
+            thisViewModel.viewModelCache = this.viewModels[viewModelName].viewModel;
+        }
+
         var viewModel = thisViewModel.viewModel = this.serialization.deserialize(this.viewModels[viewModelName].viewModel, {}, true);
 
         // initialize services
@@ -576,8 +584,7 @@ class DotVVM {
             this.lastStartedPostack = options.postbackId
             // perform the postback
             this.updateDynamicPathFragments(context, path);
-            const data = {
-                viewModel: this.serialization.serialize(viewModel, { pathMatcher(val) { return context && val == context.$data } }),
+            const data: any = {
                 currentPath: path,
                 command: command,
                 controlUniqueId: this.processPassedId(controlUniqueId, context),
@@ -585,75 +592,18 @@ class DotVVM {
                 renderedResources: this.viewModels[viewModelName].renderedResources,
                 commandArgs: commandArgs
             };
-            this.postJSON(<string>this.viewModels[viewModelName].url, "POST", ko.toJSON(data), result => {
-                dotvvm.events.postbackResponseReceived.trigger({})
-                resolve(() => new Promise((resolve, reject) => {
-                    dotvvm.events.postbackCommitInvoked.trigger({})
-                    const locationHeader = result.getResponseHeader("Location");
 
-                    const resultObject = locationHeader != null && locationHeader.length > 0 ?
-                        { action: "redirect", url: locationHeader } :
-                        JSON.parse(result.responseText);
+            const completeViewModel = this.serialization.serialize(viewModel, { pathMatcher(val) { return context && val == context.$data } });
 
-                    if (!resultObject.viewModel && resultObject.viewModelDiff) {
-                        // TODO: patch (~deserialize) it to ko.observable viewModel
-                        resultObject.viewModel = this.patch(data.viewModel, resultObject.viewModelDiff);
-                    }
+            // if the viewmodel is cached on the server, send only the diff
+            if (this.viewModels[viewModelName].viewModelCache) {
+                data.viewModelDiff = this.diff(this.viewModels[viewModelName].viewModelCache, completeViewModel);
+                data.viewModelCacheId = this.viewModels[viewModelName].viewModelCacheId;
+            } else {
+                data.viewModel = completeViewModel;    
+            }
 
-                    this.loadResourceList(resultObject.resources, () => {
-                        var isSuccess = false;
-                        if (resultObject.action === "successfulCommand") {
-                            try {
-                                this.isViewModelUpdating = true;
-
-                                // remove updated controls
-                                var updatedControls = this.cleanUpdatedControls(resultObject);
-
-                                // update the viewmodel
-                                if (resultObject.viewModel) {
-                                    ko.delaySync.pause();
-                                    this.serialization.deserialize(resultObject.viewModel, this.viewModels[viewModelName].viewModel);
-                                    ko.delaySync.resume();
-                                }
-                                isSuccess = true;
-
-                                // remove updated controls which were previously hidden
-                                this.cleanUpdatedControls(resultObject, updatedControls);
-
-                                // add updated controls
-                                this.restoreUpdatedControls(resultObject, updatedControls, true);
-                            }
-                            finally {
-                                this.isViewModelUpdating = false;
-                            }
-                            dotvvm.events.postbackViewModelUpdated.trigger({})
-                        } else if (resultObject.action === "redirect") {
-                            // redirect
-                            var promise = this.handleRedirect(resultObject, viewModelName)
-                            var redirectAfterPostBackArgs = new DotvvmAfterPostBackWithRedirectEventArgs(options, resultObject, resultObject.commandResult, result, promise);
-                            resolve(redirectAfterPostBackArgs);
-                            return;
-                        }
-
-                        var idFragment = resultObject.resultIdFragment;
-                        if (idFragment) {
-                            if (this.getSpaPlaceHolder() || location.hash == "#" + idFragment) {
-                                var element = document.getElementById(idFragment);
-                                if (element && "function" == typeof element.scrollIntoView) element.scrollIntoView(true);
-                            }
-                            else location.hash = idFragment;
-                        }
-
-                        // trigger afterPostback event
-                        if (!isSuccess) {
-                            reject(new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, result, options.postbackId, resultObject));
-                        } else {
-                            var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(options, resultObject, resultObject.commandResult, result);
-                            resolve(afterPostBackArgs);
-                        }
-                    });
-                }));
-            }, xhr => {
+            const errorAction = xhr => {
                 if (/^application\/json(;|$)/.test(xhr.getResponseHeader("Content-Type")!)) {
                     const errObject = JSON.parse(xhr.responseText)
 
@@ -666,7 +616,111 @@ class DotVVM {
                     }
                 }
                 reject({ type: 'network', options: options, args: new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, xhr, options.postbackId) });
-            });
+            };
+
+            this.postJSON(<string>this.viewModels[viewModelName].url, "POST", ko.toJSON(data), result => {
+                var resultObject: any = {};
+
+                const successAction = actualResult => {
+                    dotvvm.events.postbackResponseReceived.trigger({})
+                    resolve(() => new Promise((resolve, reject) => {
+                        dotvvm.events.postbackCommitInvoked.trigger({})
+                        
+                        if (!resultObject.viewModel && resultObject.viewModelDiff) {
+                            // TODO: patch (~deserialize) it to ko.observable viewModel
+                            resultObject.viewModel = this.patch(completeViewModel, resultObject.viewModelDiff);
+                        }
+
+                        this.loadResourceList(resultObject.resources, () => {
+                            var isSuccess = false;
+                            if (resultObject.action === "successfulCommand") {
+                                try {
+                                    this.isViewModelUpdating = true;
+
+                                    // store server-side cached viewmodel
+                                    if (resultObject.viewModelCacheId) {
+                                        this.viewModels[viewModelName].viewModelCacheId = resultObject.viewModelCacheId;
+                                        this.viewModels[viewModelName].viewModelCache = resultObject.viewModel;
+                                    } else {
+                                        delete this.viewModels[viewModelName].viewModelCacheId;
+                                        delete this.viewModels[viewModelName].viewModelCache;
+                                    }
+
+                                    // remove updated controls
+                                    var updatedControls = this.cleanUpdatedControls(resultObject);
+
+                                    // update the viewmodel
+                                    if (resultObject.viewModel) {
+                                        ko.delaySync.pause();
+                                        this.serialization.deserialize(resultObject.viewModel, this.viewModels[viewModelName].viewModel);
+                                        ko.delaySync.resume();
+                                    }
+                                    isSuccess = true;
+
+                                    // remove updated controls which were previously hidden
+                                    this.cleanUpdatedControls(resultObject, updatedControls);
+
+                                    // add updated controls
+                                    this.restoreUpdatedControls(resultObject, updatedControls, true);
+                                }
+                                finally {
+                                    this.isViewModelUpdating = false;
+                                }
+                                dotvvm.events.postbackViewModelUpdated.trigger({})
+                            } else if (resultObject.action === "redirect") {
+                                // redirect
+                                var promise = this.handleRedirect(resultObject, viewModelName)
+                                var redirectAfterPostBackArgs = new DotvvmAfterPostBackWithRedirectEventArgs(options, resultObject, resultObject.commandResult, result, promise);
+                                resolve(redirectAfterPostBackArgs);
+                                return;
+                            }
+
+                            var idFragment = resultObject.resultIdFragment;
+                            if (idFragment) {
+                                if (this.getSpaPlaceHolder() || location.hash == "#" + idFragment) {
+                                    var element = document.getElementById(idFragment);
+                                    if (element && "function" == typeof element.scrollIntoView) element.scrollIntoView(true);
+                                }
+                                else location.hash = idFragment;
+                            }
+
+                            // trigger afterPostback event
+                            if (!isSuccess) {
+                                reject(new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, actualResult, options.postbackId, resultObject))
+                            } else {
+                                var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(options, resultObject, resultObject.commandResult, result)
+                                resolve(afterPostBackArgs)
+                            }
+                        });
+                    }));
+                }
+
+                const parseResultObject = actualResult => {
+                    const locationHeader = actualResult.getResponseHeader("Location");
+                    resultObject = locationHeader != null && locationHeader.length > 0 ?
+                        { action: "redirect", url: locationHeader } :
+                        JSON.parse(actualResult.responseText);
+                }
+                parseResultObject(result);
+
+                if (resultObject.action === "viewModelNotCached") {
+                    // repeat request with full viewModel
+                    delete this.viewModels[viewModelName].viewModelCache;
+                    delete this.viewModels[viewModelName].viewModelCacheId;
+                    delete data.viewModelDiff;
+                    delete data.viewModelCacheId;
+                    data.viewModel = completeViewModel;
+
+                    return this.postJSON(<string>this.viewModels[viewModelName].url, "POST", ko.toJSON(data), result2 => {
+                        parseResultObject(result2);
+                        successAction(result2);
+                    }, errorAction);
+                }
+                else {
+                    // process the response
+                    successAction(result);
+                }                
+            }, errorAction);
         });
     }
 
@@ -869,6 +923,13 @@ class DotVVM {
                                 }
                             }
 
+                            // store server-side cached viewmodel
+                            if (resultObject.viewModelCacheId) {
+                                this.viewModels[viewModelName].viewModelCache = resultObject.viewModel;
+                            } else {
+                                delete this.viewModels[viewModelName].viewModelCache;
+                            }
+
                             ko.delaySync.pause();
                             this.serialization.deserialize(resultObject.viewModel, this.viewModels[viewModelName].viewModel);
                             ko.delaySync.resume();
@@ -1022,6 +1083,49 @@ class DotVVM {
 
         return source;
     }
+
+    public diff(source: any, modified: any): any {
+        if (source instanceof Array && modified instanceof Array) {
+            var diffArray = modified.map((el, index) => this.diff(source[index], el));
+            if (source.length === modified.length 
+                && diffArray.every((el, index) => el === this.diffEqual || source[index] === modified[index])) {
+                return this.diffEqual;
+            } else {
+                return diffArray;
+            }
+        }
+        else if (source instanceof Array || modified instanceof Array) {
+            return modified;
+        }
+        else if (typeof source == "object" && typeof modified == "object" && source && modified) {
+            var result = this.diffEqual;
+            for (var p in modified) {
+                var propertyDiff = this.diff(source[p], modified[p]);
+                if (propertyDiff !== this.diffEqual && source[p] !== modified[p]) {
+                    if (result === this.diffEqual) {
+                        result = {};
+                    }
+                    result[p] = propertyDiff;
+                } else if (p[0] === "$") {
+                    if (result == this.diffEqual) {
+                        result = {};
+                    }
+                    result[p] = modified[p];
+                }
+            }
+            return result;
+        }
+        else if (source === modified) {
+            if (typeof source == "object") {
+                return this.diffEqual;
+            } else {
+                return source; 
+            }
+        } else {
+            return modified;
+        }
+    }
+    public readonly diffEqual = {};
 
     private updateDynamicPathFragments(context: any, path: string[]): void {
         for (var i = path.length - 1; i >= 0; i--) {

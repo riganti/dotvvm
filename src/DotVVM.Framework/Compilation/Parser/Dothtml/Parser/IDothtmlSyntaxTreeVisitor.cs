@@ -1,4 +1,5 @@
-﻿namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
+﻿#nullable enable
+namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 {
     public interface IDothtmlSyntaxTreeVisitor
     {

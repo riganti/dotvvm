@@ -29,13 +29,13 @@ namespace DotVVM.Framework.ResourceManagement
             this.resourceLocation = resourceLocation;
         }
 
-        private ILocalResourceLocation resourceLocation;
-        private volatile Lazy<string> code;
+        private ILocalResourceLocation? resourceLocation;
+        private volatile Lazy<string>? code;
 
         /// <summary>
         /// Gets or sets the javascript code that will be embedded in the page.
         /// </summary>
-        public string? Code
+        public string Code
         {
             get => code?.Value ?? throw new Exception("`ILocalResourceLocation` can not be read using property `Code`.");
             set
@@ -63,7 +63,7 @@ namespace DotVVM.Framework.ResourceManagement
             if (this.code == null)
             {
                 var newCode = new Lazy<string>(() => {
-                    var c = resourceLocation.ReadToString(context);
+                    var c = resourceLocation!.ReadToString(context);
                     InlineScriptContentGuard(c);
                     return c;
                 });

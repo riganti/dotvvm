@@ -2,6 +2,7 @@ using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.ResourceManagement;
+using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Samples.BasicSamples;
 using DotVVM.Samples.BasicSamples.Controls;
 using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand;
@@ -38,6 +39,8 @@ namespace DotVVM.Samples.Common
             services.AddScoped<ViewModelScopedDependency>();
             services.AddSingleton<IGreetingComputationService, HelloGreetingComputationService>();
             services.AddSingleton<FoodSevice>();
+
+            services.AddSingleton<IViewModelServerStore, TestingInMemoryViewModelServerStore>();
 
             services.AddSingleton<ResetClient>();
             services.AddSingleton<OrdersClient>();
