@@ -20,6 +20,9 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModelCache_ViewModelCacheMiss);
+                browser.Wait();
+
+                var cacheEnabled = browser.Single(".cacheEnabled").GetText() == "True";
 
                 var result = browser.Single(".result");
                 var requestCount = browser.Single(".requestCount");
@@ -35,12 +38,12 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.ElementAt("input[type=button]", 1).Click().Wait(1000);
                 browser.ElementAt("input[type=button]", 0).Click().Wait(1000);
                 AssertUI.TextEquals(result, "2");
-                AssertUI.TextEquals(requestCount, "3");
+                AssertUI.TextEquals(requestCount, cacheEnabled ? "3" : "2");
 
                 // normal postback
                 browser.ElementAt("input[type=button]", 0).Click().Wait(1000);
                 AssertUI.TextEquals(result, "3");
-                AssertUI.TextEquals(requestCount, "4");
+                AssertUI.TextEquals(requestCount, cacheEnabled ? "4" : "3");
             });
         }
     }

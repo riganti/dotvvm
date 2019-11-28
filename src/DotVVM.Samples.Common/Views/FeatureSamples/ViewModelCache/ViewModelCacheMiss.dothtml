@@ -11,6 +11,8 @@
 
     <h1>ViewModel - Server-Side cache - simulate missing entry</h1>
     
+    <p>Server-side cache enabled: <span class="cacheEnabled">{{resource: Context.Configuration.ExperimentalFeatures.ServerSideViewModelCache.IsEnabledForRoute(Context.Route.RouteName)}}</span></p>
+    
     <p>Value: <span class="result">{{value: Value}}</span></p>
     <p>Requests: <span class="requestCount" data-bind="text: RequestCount"></span></p>
     
