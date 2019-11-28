@@ -15,6 +15,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ComplexSamples_CascadeSelectors_CascadeSelectorsServerRender = "ComplexSamples/CascadeSelectors/CascadeSelectorsServerRender";
         public const string ComplexSamples_CascadeSelectors_TripleComboBoxes = "ComplexSamples/CascadeSelectors/TripleComboBoxes";
         public const string ComplexSamples_ChangedEvent_ChangedEvent = "ComplexSamples/ChangedEvent/ChangedEvent";
+        public const string ComplexSamples_ClassBindings_ClassBindings = "ComplexSamples/ClassBindings/ClassBindings";
         public const string ComplexSamples_EmptyDataTemplate_RepeaterGridView = "ComplexSamples/EmptyDataTemplate/RepeaterGridView";
         public const string ComplexSamples_FileUploadInRepeater_FileUploadInRepeater = "ComplexSamples/FileUploadInRepeater/FileUploadInRepeater";
         public const string ComplexSamples_GridViewDataSet_GridViewDataSet = "ComplexSamples/GridViewDataSet/GridViewDataSet";
@@ -45,6 +46,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_Button_InputTypeButton_TextContentInside = "ControlSamples/Button/InputTypeButton_TextContentInside";
         public const string ControlSamples_CheckBox_CheckBox = "ControlSamples/CheckBox/CheckBox";
         public const string ControlSamples_CheckBox_CheckedItemsNull = "ControlSamples/CheckBox/CheckedItemsNull";
+        public const string ControlSamples_CheckBox_CheckedItemsRepeater = "ControlSamples/CheckBox/CheckedItemsRepeater";
         public const string ControlSamples_CheckBox_Indeterminate = "ControlSamples/CheckBox/Indeterminate";
         public const string ControlSamples_CheckBox_InRepeater = "ControlSamples/CheckBox/InRepeater";
         public const string ControlSamples_ClaimView_ClaimViewTest = "ControlSamples/ClaimView/ClaimViewTest";
@@ -136,8 +138,10 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_UpdateProgress_UpdateProgress = "ControlSamples/UpdateProgress/UpdateProgress";
         public const string ControlSamples_UpdateProgress_UpdateProgressDelay = "ControlSamples/UpdateProgress/UpdateProgressDelay";
         public const string ControlSamples_UpdateProgress_UpdateProgressQueues = "ControlSamples/UpdateProgress/UpdateProgressQueues";
-        public const string ControlSamples_UpdateProgress_UpdateProgressSPA1 = "ControlSamples/UpdateProgress/UpdateProgressSPA1";
-        public const string ControlSamples_UpdateProgress_UpdateProgressSPA2 = "ControlSamples/UpdateProgress/UpdateProgressSPA2";
+        public const string ControlSamples_UpdateProgress_UpdateProgressRedirect1 = "ControlSamples/UpdateProgress/UpdateProgressRedirect1";
+        public const string ControlSamples_UpdateProgress_UpdateProgressRedirect2 = "ControlSamples/UpdateProgress/UpdateProgressRedirect2";
+        public const string ControlSamples_UpdateProgress_UpdateProgressRedirectSPA1 = "ControlSamples/UpdateProgress/UpdateProgressRedirectSPA1";
+        public const string ControlSamples_UpdateProgress_UpdateProgressRedirectSPA2 = "ControlSamples/UpdateProgress/UpdateProgressRedirectSPA2";
         public const string ControlSamples_ValidationSummary_IncludeErrorsFromTarget_PropertyPathNotNull = "ControlSamples/ValidationSummary/IncludeErrorsFromTarget_PropertyPathNotNull";
         public const string ControlSamples_ValidationSummary_IncludeErrorsFromTarget_PropertyPathNull = "ControlSamples/ValidationSummary/IncludeErrorsFromTarget_PropertyPathNull";
         public const string ControlSamples_ValidationSummary_MessagesRendering = "ControlSamples/ValidationSummary/MessagesRendering";

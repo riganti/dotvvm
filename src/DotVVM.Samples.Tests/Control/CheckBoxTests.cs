@@ -1,6 +1,7 @@
 ﻿using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
+using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -129,6 +130,30 @@ namespace DotVVM.Samples.Tests.Control
                 AssertUI.InnerTextEquals(value, "Other");
                 reset.Click();
                 AssertUI.InnerTextEquals(value, "Indeterminate");
+            });
+        }
+
+        [Fact]
+        public void Control_CheckBox_CheckedItemsEmpty()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_CheckBox_CheckedItemsRepeater);
+                browser.WaitUntilDotvvmInited();
+
+                var checkBoxes = browser.FindElements("checkbox", SelectByDataUi);
+                Assert.Equal(0, checkBoxes.Count);
+                void UpdateData() => browser.WaitFor(() => {
+                    var button = browser.First("btn-update", SelectByDataUi).Click();
+                    var repeater = browser.Single("repeater", SelectByDataUi);
+                    checkBoxes = repeater.FindElements("input", SelectBy.TagName);
+                    Assert.Equal(2, checkBoxes.Count);
+                    AssertUI.IsChecked(checkBoxes[0]);
+                    AssertUI.IsNotChecked(checkBoxes[1]);
+                }, 1000);
+                UpdateData();
+                checkBoxes[0].Click();
+                checkBoxes[1].Click();
+                UpdateData();
             });
         }
 
