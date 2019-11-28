@@ -1443,6 +1443,19 @@ class DotVVM {
             }
         };
 
+        ko.bindingHandlers["dotvvm-checkedItems"] = {
+            after: ko.bindingHandlers.checked.after,
+            init: ko.bindingHandlers.checked.init,
+            options: ko.bindingHandlers.checked.options,
+            update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+                var value = valueAccessor();
+                if (!Array.isArray(ko.unwrap(value))) {
+                    throw Error("The value of a `checkedItems` binding must be an array (i.e. not null nor undefined).");
+                }
+                // Note: As of now, the `checked` binding doesn't have an `update`. If that changes, invoke it here.
+            }
+        }
+
         ko.bindingHandlers["dotvvm-UpdateProgress-Visible"] = {
             init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
                 element.style.display = "none";

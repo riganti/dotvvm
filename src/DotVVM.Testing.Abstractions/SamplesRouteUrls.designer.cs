@@ -6,7 +6,7 @@ namespace DotVVM.Testing.Abstractions
 {
     public partial class SamplesRouteUrls
     {
-    
+
         public const string Default = "Default";
         public const string ComplexSamples_Auth_Login = "ComplexSamples/Auth/Login";
         public const string ComplexSamples_Auth_SecuredPage = "ComplexSamples/Auth/SecuredPage";
@@ -45,6 +45,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_Button_InputTypeButton_TextContentInside = "ControlSamples/Button/InputTypeButton_TextContentInside";
         public const string ControlSamples_CheckBox_CheckBox = "ControlSamples/CheckBox/CheckBox";
         public const string ControlSamples_CheckBox_CheckedItemsNull = "ControlSamples/CheckBox/CheckedItemsNull";
+        public const string ControlSamples_CheckBox_CheckedItemsRepeater = "ControlSamples/CheckBox/CheckedItemsRepeater";
         public const string ControlSamples_CheckBox_Indeterminate = "ControlSamples/CheckBox/Indeterminate";
         public const string ControlSamples_CheckBox_InRepeater = "ControlSamples/CheckBox/InRepeater";
         public const string ControlSamples_ClaimView_ClaimViewTest = "ControlSamples/ClaimView/ClaimViewTest";
