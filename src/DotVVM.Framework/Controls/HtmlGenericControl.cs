@@ -36,6 +36,11 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public HtmlGenericControl(string? tagName, bool allowImplicitLifecycleRequirements = true) : this(allowImplicitLifecycleRequirements)
         {
+            if (tagName?.Trim() == "")
+            {
+                throw new DotvvmControlException("The tagName must not be empty!");
+            }
+
             TagName = tagName;
 
             if (tagName == "head")
@@ -95,7 +100,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets a value whether this control renders a HTML tag.
         /// </summary>
-        protected virtual bool RendersHtmlTag => !string.IsNullOrEmpty(TagName);
+        protected virtual bool RendersHtmlTag => TagName is object;
 
         protected new struct RenderState
         {

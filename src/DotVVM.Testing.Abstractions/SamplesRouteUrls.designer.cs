@@ -10,6 +10,7 @@ namespace DotVVM.Testing.Abstractions
         public const string Default = "Default";
         public const string ComplexSamples_Auth_Login = "ComplexSamples/Auth/Login";
         public const string ComplexSamples_Auth_SecuredPage = "ComplexSamples/Auth/SecuredPage";
+        public const string ComplexSamples_ButtonInMarkupControl_Enabled = "ComplexSamples/ButtonInMarkupControl/Enabled";
         public const string ComplexSamples_CascadeSelectors_CascadeSelectors = "ComplexSamples/CascadeSelectors/CascadeSelectors";
         public const string ComplexSamples_CascadeSelectors_CascadeSelectorsServerRender = "ComplexSamples/CascadeSelectors/CascadeSelectorsServerRender";
         public const string ComplexSamples_CascadeSelectors_TripleComboBoxes = "ComplexSamples/CascadeSelectors/TripleComboBoxes";
@@ -78,6 +79,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_GridView_GridViewRowDecorators = "ControlSamples/GridView/GridViewRowDecorators";
         public const string ControlSamples_GridView_GridViewServerRender = "ControlSamples/GridView/GridViewServerRender";
         public const string ControlSamples_GridView_GridViewStaticCommand = "ControlSamples/GridView/GridViewStaticCommand";
+        public const string ControlSamples_GridView_InvalidCssClass = "ControlSamples/GridView/InvalidCssClass";
         public const string ControlSamples_GridView_LargeGrid = "ControlSamples/GridView/LargeGrid";
         public const string ControlSamples_GridView_RenamedPrimaryKey = "ControlSamples/GridView/RenamedPrimaryKey";
         public const string ControlSamples_HtmlLiteral_HtmlLiteral = "ControlSamples/HtmlLiteral/HtmlLiteral";
@@ -145,6 +147,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_ValidationSummary_RecursiveValidationSummary = "ControlSamples/ValidationSummary/RecursiveValidationSummary";
         public const string Errors_BindingInvalidCommand = "Errors/BindingInvalidCommand";
         public const string Errors_BindingInvalidProperty = "Errors/BindingInvalidProperty";
+        public const string Errors_ConfigurableHtmlControlValidation = "Errors/ConfigurableHtmlControlValidation";
         public const string Errors_ControlUsageValidation = "Errors/ControlUsageValidation";
         public const string Errors_CorruptedContentBetweenContentControls = "Errors/CorruptedContentBetweenContentControls";
         public const string Errors_EmptyBinding = "Errors/EmptyBinding";
@@ -273,10 +276,12 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_Validation_ValidationRulesLoadOnPostback = "FeatureSamples/Validation/ValidationRulesLoadOnPostback";
         public const string FeatureSamples_Validation_ValidationScopes = "FeatureSamples/Validation/ValidationScopes";
         public const string FeatureSamples_Validation_ValidationScopes2 = "FeatureSamples/Validation/ValidationScopes2";
+        public const string FeatureSamples_ViewModelCache_ViewModelCacheMiss = "FeatureSamples/ViewModelCache/ViewModelCacheMiss";
         public const string FeatureSamples_ViewModelDeserialization_DoesNotDropObject = "FeatureSamples/ViewModelDeserialization/DoesNotDropObject";
         public const string FeatureSamples_ViewModelDeserialization_NegativeLongNumber = "FeatureSamples/ViewModelDeserialization/NegativeLongNumber";
         public const string FeatureSamples_ViewModelNesting_NestedViewModel = "FeatureSamples/ViewModelNesting/NestedViewModel";
         public const string FeatureSamples_ViewModelProtection_ComplexViewModelProtection = "FeatureSamples/ViewModelProtection/ComplexViewModelProtection";
+        public const string FeatureSamples_ViewModelProtection_NestedSignatures = "FeatureSamples/ViewModelProtection/NestedSignatures";
         public const string FeatureSamples_ViewModelProtection_SignedNestedInServerToClient = "FeatureSamples/ViewModelProtection/SignedNestedInServerToClient";
         public const string FeatureSamples_ViewModelProtection_ViewModelProtection = "FeatureSamples/ViewModelProtection/ViewModelProtection";
         public const string FeatureSamples_Warnings_SelfClosingTags = "FeatureSamples/Warnings/SelfClosingTags";

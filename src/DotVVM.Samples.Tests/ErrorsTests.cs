@@ -2,6 +2,7 @@
 
 using System;
 using System.Linq;
+using System.Net;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
@@ -14,6 +15,7 @@ namespace DotVVM.Samples.Tests
 {
     public class ErrorsTests : AppSeleniumTest
     {
+        
         [Fact]
         public void Error_MissingViewModel()
         {
@@ -302,7 +304,7 @@ namespace DotVVM.Samples.Tests
                 var startQuery = link.IndexOf("q=");
                 var query = link.Substring(startQuery + 2);
                 //Log("query: " + query);
-                var specificLink = "http://referencesource.microsoft.com/api/symbols/?symbol=" + query;
+                var specificLink = "https://referencesource.microsoft.com/api/symbols/?symbol=" + query;
                 using (var wc = new System.Net.WebClient())
                 {
                     var downloadedString = wc.DownloadString(specificLink);
@@ -403,6 +405,20 @@ namespace DotVVM.Samples.Tests
                     "Resource \"Errors_ResourceCircularDependency\" has a cyclic dependency.");
             });
 
+        }
+
+        [Fact]
+        public void Error_ConfigurableHtmlControlValidation()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_ConfigurableHtmlControlValidation);
+                AssertUI.InnerText(browser.First("p.summary")
+                    ,
+                    s =>
+                        s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException", StringComparison.OrdinalIgnoreCase) &&
+                        s.Contains("The WrapperTagName property cannot be set when RenderWrapperTag is false!", StringComparison.OrdinalIgnoreCase)
+                );
+            });
         }
 
         public ErrorsTests(ITestOutputHelper output) : base(output)

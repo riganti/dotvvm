@@ -16,6 +16,16 @@ namespace DotVVM.Framework.Utils
             var diff = new JObject();
             foreach (var item in target)
             {
+                if (target[item.Key + "$options"] is JObject options)
+                {
+                    if (options["pathOnly"]?.Value<bool?>() == true || options["doNotPost"]?.Value<bool?>() == true)
+                    {
+                        // IfInPostbackPath and ServerToClient items should be sent every time because we might not have received them from the client and we still remember their value so they look unchanged
+                        diff[item.Key] = item.Value;
+                        continue;
+                    }
+                }
+
                 var sourceItem = source[item.Key];
                 if (sourceItem == null)
                 {
@@ -97,14 +107,24 @@ namespace DotVVM.Framework.Utils
                 }
             }
 
-            // remove abandoned $options
             foreach (var item in Enumerable.ToArray<KeyValuePair<string, JToken>>(diff))
             {
                 if (item.Key.EndsWith("$options", StringComparison.Ordinal))
                 {
-                    if (diff[item.Key.Remove(item.Key.Length - "$options".Length)] == null)
+                    var propertyName = item.Key.Remove(item.Key.Length - "$options".Length);
+
+                    // remove abandoned $options
+                    if (diff[propertyName] == null)
                     {
                         diff.Remove(item.Key);
+                        continue;
+                    }
+
+                    // remove firstRequest data
+                    var options = (JObject)item.Value;
+                    if (options["firstRequest"]?.Value<bool?>() == true)
+                    {
+                        diff.Remove(propertyName);
                     }
                 }
             }
@@ -181,7 +201,6 @@ namespace DotVVM.Framework.Utils
                 {
                     yield return combine(ae.Current, be.Current);
                 }
-                while (am) { yield return ae.Current; am = ae.MoveNext(); }
                 while (bm) { yield return be.Current; bm = be.MoveNext(); }
             }
         }

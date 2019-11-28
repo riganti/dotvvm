@@ -38,6 +38,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IDotvvmViewBuilder, DefaultDotvvmViewBuilder>();
             services.TryAddSingleton<IViewModelSerializer, DefaultViewModelSerializer>();
             services.TryAddSingleton<IViewModelLoader, DefaultViewModelLoader>();
+            services.TryAddSingleton<IViewModelServerCache, DefaultViewModelServerCache>();
+            services.TryAddSingleton<IViewModelServerStore, InMemoryViewModelServerStore>();
 #pragma warning disable CS0618
             services.TryAddSingleton<IStaticCommandServiceLoader, DefaultStaticCommandServiceLoader>();
 #pragma warning restore CS0618

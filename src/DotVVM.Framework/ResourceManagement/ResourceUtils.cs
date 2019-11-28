@@ -18,6 +18,17 @@ namespace DotVVM.Framework.ResourceManagement
             }
         }
 
+        public static string ReadToString(this ILocalResourceLocation location, IDotvvmRequestContext context)
+        {
+            using (var resourceStream = location.LoadResource(context))
+            {
+                using (var resourceStreamReader = new StreamReader(resourceStream))
+                {
+                    return resourceStreamReader.ReadToEnd();
+		}
+            }
+	}
+
         public static void AssertAcyclicDependencies(IResource resource,
             string name,
             Func<string, IResource?> findResource)
