@@ -106,10 +106,8 @@ function BuildTemplates() {
 
 function SignTemplates() {
     $baseDir = pwd
-    if ($signUser -ne "") {        
-        foreach ($package in $packages) {
-            & dotnet signclient sign --baseDirectory "$($baseDir.Path)\Templates\" --input *.nupkg --config "$signConfigPath" --user "$signUser" --secret "$signSecret" --name "DotVVM.Templates" --description "DotVVM.Templates $version" --descriptionUrl "https://github.com/riganti/dotvvm" | Out-Host
-        }
+    if ($signUser -ne "") {
+        & dotnet signclient sign --baseDirectory "$($baseDir.Path)\Templates\" --input *.nupkg --config "$signConfigPath" --user "$signUser" --secret "$signSecret" --name "DotVVM.Templates" --description "DotVVM.Templates $version" --descriptionUrl "https://github.com/riganti/dotvvm" | Out-Host
     }
 }
 
