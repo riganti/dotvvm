@@ -192,6 +192,86 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
+        [Fact]
+        public void Feature_Api_BindingSharing()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Api_BindingSharing);
+
+                // wait for the page is loaded
+                browser.WaitFor(() => {
+                    for (int i = 0; i < 6; i++)
+                    {
+                        browser.ElementAt("select", 0).FindElements("option").ThrowIfSequenceEmpty();
+                    }
+                }, 10000, "The ComboBoxes didn't load.");
+
+                // check combobox contents
+                var combos = browser.FindElements("select");
+                combos.ThrowIfDifferentCountThan(6);
+
+                AssertUI.TextEquals(combos[0].ElementAt("option", 0), "Category 1 / Item 1");
+                AssertUI.TextEquals(combos[0].ElementAt("option", 1), "Category 1 / Item 2");
+                AssertUI.TextEquals(combos[0].ElementAt("option", 2), "Category 1 / Item 3");
+                AssertUI.TextEquals(combos[1].ElementAt("option", 0), "Category 2 / Item 1");
+                AssertUI.TextEquals(combos[1].ElementAt("option", 1), "Category 2 / Item 2");
+                AssertUI.TextEquals(combos[1].ElementAt("option", 2), "Category 2 / Item 3");
+                AssertUI.TextEquals(combos[1].ElementAt("option", 3), "Category 2 / Item 4");
+                AssertUI.TextEquals(combos[1].ElementAt("option", 4), "Category 2 / Item 5");
+                AssertUI.TextEquals(combos[2].ElementAt("option", 0), "Category 3 / Item 1");
+
+                AssertUI.TextEquals(combos[3].ElementAt("option", 0), "Category 1 / Item 1");
+                AssertUI.TextEquals(combos[3].ElementAt("option", 1), "Category 1 / Item 2");
+                AssertUI.TextEquals(combos[3].ElementAt("option", 2), "Category 1 / Item 3");
+                AssertUI.TextEquals(combos[4].ElementAt("option", 0), "Category 2 / Item 1");
+                AssertUI.TextEquals(combos[4].ElementAt("option", 1), "Category 2 / Item 2");
+                AssertUI.TextEquals(combos[4].ElementAt("option", 2), "Category 2 / Item 3");
+                AssertUI.TextEquals(combos[4].ElementAt("option", 3), "Category 2 / Item 4");
+                AssertUI.TextEquals(combos[4].ElementAt("option", 4), "Category 2 / Item 5");
+                AssertUI.TextEquals(combos[5].ElementAt("option", 0), "Category 3 / Item 1");
+
+                browser.Wait(1000);
+                
+                // check requests
+                var requests = browser.Single("pre").GetInnerText().Split('\r', '\n').Where(l => l.Trim().Length > 0).ToList();
+                Assert.Single(requests, r => r.EndsWith("BindingSharing/get?category=1"));
+                Assert.Single(requests, r => r.EndsWith("BindingSharing/get?category=2"));
+                Assert.Single(requests, r => r.EndsWith("BindingSharing/get?category=3"));
+                Assert.Single(requests, r => r.EndsWith("BindingSharing/getWithRouteParam/1"));
+                Assert.Single(requests, r => r.EndsWith("BindingSharing/getWithRouteParam/2"));
+                Assert.Single(requests, r => r.EndsWith("BindingSharing/getWithRouteParam/3"));
+
+                // click on the button
+                browser.Single("input[type=button]").Click();
+                browser.Wait(2000);
+
+                combos = browser.FindElements("select");
+                combos.ThrowIfDifferentCountThan(9);
+
+                AssertUI.TextEquals(combos[6].ElementAt("option", 0), "Category 1 / Item 1");
+                AssertUI.TextEquals(combos[6].ElementAt("option", 1), "Category 1 / Item 2");
+                AssertUI.TextEquals(combos[6].ElementAt("option", 2), "Category 1 / Item 3");
+                AssertUI.TextEquals(combos[7].ElementAt("option", 0), "Category 2 / Item 1");
+                AssertUI.TextEquals(combos[7].ElementAt("option", 1), "Category 2 / Item 2");
+                AssertUI.TextEquals(combos[7].ElementAt("option", 2), "Category 2 / Item 3");
+                AssertUI.TextEquals(combos[7].ElementAt("option", 3), "Category 2 / Item 4");
+                AssertUI.TextEquals(combos[7].ElementAt("option", 4), "Category 2 / Item 5");
+                AssertUI.TextEquals(combos[8].ElementAt("option", 0), "Category 3 / Item 1");
+
+                // check requests
+                requests = browser.Single("pre").GetInnerText().Split('\r', '\n').Where(l => l.Trim().Length > 0).ToList();
+                Assert.Equal(2, requests.Count(r => r.EndsWith("BindingSharing/get?category=1")));
+                Assert.Equal(2, requests.Count(r => r.EndsWith("BindingSharing/get?category=2")));
+                Assert.Equal(2, requests.Count(r => r.EndsWith("BindingSharing/get?category=3")));
+                Assert.Equal(2, requests.Count(r => r.EndsWith("BindingSharing/getWithRouteParam/1")));
+                Assert.Equal(2, requests.Count(r => r.EndsWith("BindingSharing/getWithRouteParam/2")));
+                Assert.Equal(2, requests.Count(r => r.EndsWith("BindingSharing/getWithRouteParam/3")));
+                Assert.Single(requests, r => r.EndsWith("BindingSharing/post?category=1"));
+                Assert.Single(requests, r => r.EndsWith("BindingSharing/post?category=2"));
+                Assert.Single(requests, r => r.EndsWith("BindingSharing/post?category=3"));
+            });
+        }
+
         public ApiTests(ITestOutputHelper output) : base(output)
         {
         }

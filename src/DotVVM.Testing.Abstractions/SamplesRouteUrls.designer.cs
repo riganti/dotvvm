@@ -6,7 +6,7 @@ namespace DotVVM.Testing.Abstractions
 {
     public partial class SamplesRouteUrls
     {
-
+    
         public const string Default = "Default";
         public const string ComplexSamples_Auth_Login = "ComplexSamples/Auth/Login";
         public const string ComplexSamples_Auth_SecuredPage = "ComplexSamples/Auth/SecuredPage";
@@ -175,6 +175,7 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_ActionFilterErrorHandling_ActionFilterRedirect = "FeatureSamples/ActionFilterErrorHandling/ActionFilterRedirect";
         public const string FeatureSamples_Api_AzureFunctionsApi = "FeatureSamples/Api/AzureFunctionsApi";
         public const string FeatureSamples_Api_AzureFunctionsApiTable = "FeatureSamples/Api/AzureFunctionsApiTable";
+        public const string FeatureSamples_Api_BindingSharing = "FeatureSamples/Api/BindingSharing";
         public const string FeatureSamples_Api_GetCollection = "FeatureSamples/Api/GetCollection";
         public const string FeatureSamples_Api_GithubRepoApi = "FeatureSamples/Api/GithubRepoApi";
         public const string FeatureSamples_Api_GridViewDataSetAspNetCore = "FeatureSamples/Api/GridViewDataSetAspNetCore";

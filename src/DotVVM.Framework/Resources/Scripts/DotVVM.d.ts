@@ -510,7 +510,7 @@ declare type Result<T> = {
     result: T;
 };
 interface DotVVM {
-    invokeApiFn<T>(callback: () => PromiseLike<T>): ApiComputed<T>;
+    invokeApiFn<T>(target: any, methodName: string, argsProvider: () => any[], refreshTriggers: (args: any[]) => (KnockoutObservable<any> | string)[], notifyTriggers: (args: any[]) => string[], element: HTMLElement, sharingKeyProvider: (args: any[]) => string[]): ApiComputed<T>;
     apiRefreshOn<T>(value: KnockoutObservable<T>, refreshOn: KnockoutObservable<any>): KnockoutObservable<T>;
     apiStore<T>(value: KnockoutObservable<T>, targetProperty: KnockoutObservable<any>): KnockoutObservable<T>;
     api: {
