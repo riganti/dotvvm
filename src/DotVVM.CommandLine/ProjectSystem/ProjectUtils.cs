@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
+using System.Text.RegularExpressions;
 using DotVVM.Utils.ProjectService;
 using DotVVM.Utils.ProjectService.Lookup;
 using Microsoft.Build.Evaluation;
@@ -25,8 +27,7 @@ namespace DotVVM.CommandLine.ProjectSystem
 
             var assemblyName = projectInstance.GetPropertyValue("AssemblyName");
             bool shouldRunDotvvmCompiler = ShouldRunDotvvmCompiler(projectInstance, csprojVersion);
-            var assemblyPath = ProjectOutputAssemblyProvider
-                .GetAssemblyPath(csproj, assemblyName, targetFramework);
+            var assemblyPath = GetAssemblyPath(projectDirectory, assemblyName, targetFramework, csprojVersion);
             var dotvvmDependencies = GetDotvvmDependencies(projectInstance);
             var packageDirectory = GetNuGetPackageDirectory(projectInstance, csprojVersion);
             var dotvvmPackage = dotvvmDependencies.SingleOrDefault(d =>
@@ -62,10 +63,22 @@ namespace DotVVM.CommandLine.ProjectSystem
             var targetFrameworks = BuildManager.DefaultBuildManager.Build(null,
                 new BuildRequestData(project, new[] { targetName }))[targetName].Items.Single()
                 .GetMetadata("TargetFrameworks");
-            if (string.IsNullOrEmpty(targetFrameworks))
-                return csprojVersion == CsprojVersion.DotNetSdk
-                    ? TargetFramework.NetStandard
-                    : TargetFramework.NetFramework;
+            if (string.IsNullOrEmpty(targetFrameworks)) {
+                if (csprojVersion == CsprojVersion.DotNetSdk)
+                    return TargetFramework.NetStandard;
+
+                string frameworkVersion = project.GetPropertyValue("TargetFrameworkVersion");
+                var match = Regex.Match(frameworkVersion, @"^v(\d).(\d).(\d)$");
+                if (!match.Success)
+                    return TargetFramework.NetFramework;
+
+                StringBuilder sb = new StringBuilder("net");
+                sb.Append(match.Groups[1].Value);
+                sb.Append(match.Groups[2].Value);
+                if (match.Groups[3].Value != "0")
+                    sb.Append(match.Groups[3].Value);
+                targetFrameworks = sb.ToString();
+            }
             var names = Enum.GetNames(typeof(TargetFramework));
             return targetFrameworks.Split(';')
                 .Select(s => s.Replace(".", "").Trim())
@@ -153,6 +166,23 @@ namespace DotVVM.CommandLine.ProjectSystem
                 default:
                     return string.Empty;
             }
+        }
+
+        private static string GetAssemblyPath(string directory,
+            string assemblyName,
+            TargetFramework target,
+            CsprojVersion csprojVersion)
+        {
+            var bin = Path.Combine(directory, "bin");
+            var dlls = Directory.GetFiles(bin, assemblyName + ".dll", SearchOption.AllDirectories);
+            if (dlls.Length != 0)
+                return dlls[0];
+
+            var exes = Directory.GetFiles(bin, assemblyName + ".dll", SearchOption.AllDirectories);
+            if (exes.Length != 0)
+                return exes[0];
+
+            return null;
         }
     }
 }

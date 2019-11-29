@@ -11,45 +11,22 @@ namespace DotVVM.CommandLine.Commands.Logic.Compiler
         protected override DotvvmToolMetadata GetToolMetadata(IResolvedProjectMetadata metadata)
         {
             var dotvvm = metadata.DotvvmProjectDependencies.First(s => s.Name.Equals("DotVVM", StringComparison.OrdinalIgnoreCase));
+
+            // since the tool itself cannot be compiled for .net framework 4.6.1,
+            // use the .net core version
             if (dotvvm.IsProjectReference)
             {
-                if ((metadata.TargetFramework & TargetFramework.NetFramework) > 0)
-                {
-                    return CreateMetadataOrDefault(
-                        mainModule:
-                        CombineDotvvmRepositoryRoot(
-                            metadata,
-                            dotvvm,
-                            @"..\..\src\DotVVM.Framework.Tools.SeleniumGenerator\bin\Debug\net461\DotVVM.Framework.Tools.SeleniumGenerator.exe") ??
-                        CombineDotvvmRepositoryRoot(
-                            metadata,
-                            dotvvm,
-                            @"DotVVM.Framework.Tools.SeleniumGenerator\bin\Debug\net461\DotVVM.Framework.Tools.SeleniumGenerator.exe"),
-                        version: DotvvmToolExecutableVersion.FullFramework
-                    );
-                }
-
                 return CreateMetadataOrDefault(
                     mainModule:
-                    CombineDotvvmRepositoryRoot(metadata,
+                    CombineDotvvmRepositoryRoot(
+                        metadata,
                         dotvvm,
                         @"..\..\src\DotVVM.Framework.Tools.SeleniumGenerator\bin\Debug\netcoreapp2.0\DotVVM.Framework.Tools.SeleniumGenerator.dll") ??
                     CombineDotvvmRepositoryRoot(
                         metadata,
                         dotvvm,
                         @"DotVVM.Framework.Tools.SeleniumGenerator\bin\Debug\netcoreapp2.0\DotVVM.Framework.Tools.SeleniumGenerator.dll"),
-                    version: DotvvmToolExecutableVersion.DotNetCore
-                );
-            }
-
-
-            if ((metadata.TargetFramework & TargetFramework.NetFramework) > 0)
-            {
-                return CreateMetadataOrDefault(
-                    mainModule: CombineNugetPath(metadata,
-                        "tools\\selenium\\net46\\DotVVM.Framework.Tools.SeleniumGenerator.exe"),
-                    version: DotvvmToolExecutableVersion.FullFramework
-                );
+                    version: DotvvmToolExecutableVersion.DotNetCore);
             }
 
             return CreateMetadataOrDefault(
@@ -58,10 +35,5 @@ namespace DotVVM.CommandLine.Commands.Logic.Compiler
                 version: DotvvmToolExecutableVersion.DotNetCore
             );
         }
-
-     
-
-
     }
-
 }

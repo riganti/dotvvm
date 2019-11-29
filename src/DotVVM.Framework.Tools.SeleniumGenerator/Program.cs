@@ -56,9 +56,9 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
                 if (string.Equals(arguments[0], "--json", StringComparison.CurrentCultureIgnoreCase))
                 {
                     dotvvmProjectMetadata = JsonConvert.DeserializeObject<DotvvmProjectMetadata>(arguments[1]);
-                    dotvvmProjectMetadata.WebAssemblyPath = dotvvmProjectMetadata.WebAssemblyPath.Replace(@"\\", @"\");
-                    dotvvmProjectMetadata.ProjectDirectory = dotvvmProjectMetadata.ProjectDirectory.Replace(@"\\", @"\");
-                    dotvvmProjectMetadata.MetadataFilePath = dotvvmProjectMetadata.MetadataFilePath.Replace(@"\\", @"\");
+                    dotvvmProjectMetadata.WebAssemblyPath = dotvvmProjectMetadata.WebAssemblyPath?.Replace(@"\\", @"\");
+                    dotvvmProjectMetadata.ProjectDirectory = dotvvmProjectMetadata.ProjectDirectory?.Replace(@"\\", @"\");
+                    dotvvmProjectMetadata.MetadataFilePath = dotvvmProjectMetadata.MetadataFilePath?.Replace(@"\\", @"\");
                     dotvvmProjectMetadata.UITestProjectPath = dotvvmProjectMetadata.UITestProjectPath?.Replace(@"\\", @"\");
                     arguments.Consume(2);
                 }

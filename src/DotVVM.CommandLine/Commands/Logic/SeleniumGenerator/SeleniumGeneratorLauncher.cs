@@ -52,7 +52,8 @@ namespace DotVVM.CommandLine.Commands.Logic.SeleniumGenerator
                 RedirectStandardInput = false,
                 RedirectStandardOutput = true,
                 CreateNoWindow = false,
-                Arguments = processArgs
+                Arguments = processArgs,
+                UseShellExecute = false
             };
 
             using (var process = new Process { StartInfo = processInfo })

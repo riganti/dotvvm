@@ -34,6 +34,7 @@ namespace DotVVM.Samples.SeleniumGenerator.Owin
 		public void ConfigureServices(IDotvvmServiceCollection options)
         {
             options.AddDefaultTempStorages("temp");
-		}
+            options.AddSeleniumGenerator(generatorOptions => { });
+        }
     }
 }
