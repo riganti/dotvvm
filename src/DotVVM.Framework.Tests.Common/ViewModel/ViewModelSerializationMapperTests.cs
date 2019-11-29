@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using DotVVM.Framework.Configuration;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.ViewModel.Validation;
@@ -18,7 +19,8 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
         {
             var mapper = new ViewModelSerializationMapper(new ViewModelValidationRuleTranslator(),
                 new AttributeViewModelValidationMetadataProvider(),
-                new DefaultPropertySerialization());
+                new DefaultPropertySerialization(),
+                DotvvmConfiguration.CreateDefault());
             var map = mapper.GetMap(typeof(JsonPropertyVsBindAttribute));
 
             Assert.AreEqual("NoAttribute", map.Property("NoAttribute").Name);

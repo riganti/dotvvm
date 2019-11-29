@@ -29,7 +29,6 @@
     <None Remove="Views\ControlSamples\ComboBox\ItemBinding_ItemValueBinding_String.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\ItemBinding_ItemValueBinding_StringToObject.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\Nullable.dothtml" />
-    <None Remove="Views\ControlSamples\GridView\RenamedPrimaryKey.dothtml" />
     <None Remove="Views\ControlSamples\Literal\Literal_NumberBinding.dothtml" />
     <None Remove="Views\ControlSamples\MultiSelect\binded.dothtml" />
     <None Remove="Views\ControlSamples\MultiSelect\hardcoded.dothtml" />
@@ -37,6 +36,12 @@
     <None Remove="Views\ControlSamples\Repeater\NamedTemplate.dothtml" />
     <None Remove="Views\ControlSamples\RouteLink\RouteLinkQueryParameters.dothtml" />
     <None Remove="Views\ControlSamples\UpdateProgress\UpdateProgressQueues.dothtml" />
+    <None Remove="Views\ControlSamples\UpdateProgress\UpdateProgressRedirect.dotmaster" />
+    <None Remove="Views\ControlSamples\UpdateProgress\UpdateProgressRedirect1.dothtml" />
+    <None Remove="Views\ControlSamples\UpdateProgress\UpdateProgressRedirect2.dothtml" />
+    <None Remove="Views\ControlSamples\UpdateProgress\UpdateProgressRedirectSPA.dotmaster" />
+    <None Remove="Views\ControlSamples\UpdateProgress\UpdateProgressRedirectSPA1.dothtml" />
+    <None Remove="Views\ControlSamples\UpdateProgress\UpdateProgressRedirectSPA2.dothtml" />
     <None Remove="Views\ControlSamples\ValidationSummary\MessagesRendering.dothtml" />
     <None Remove="Views\ControlSamples\ValidationSummary\Performance.dothtml" />
     <None Remove="Views\Errors\CorruptedContentBetweenContentControls.dothtml" />
@@ -58,6 +63,7 @@
     <None Remove="Views\FeatureSamples\UsageValidation\OverrideValidation.dothtml" />
     <None Remove="Views\FeatureSamples\Validation\EnforceClientSideValidationDisabled.dothtml" />
     <None Remove="Views\FeatureSamples\Validation\InvalidCssClassNotDuplicated.dothtml" />
+    <None Remove="Views\FeatureSamples\ViewModelCache\ViewModelCache_Miss.dothtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="sampleConfig.json">

@@ -5,6 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
+using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Controls
@@ -19,10 +23,10 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the name of the tag that wraps the Repeater.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
-        public string WrapperTagName
+        public string? WrapperTagName
         {
-            get { return (string)GetValue(WrapperTagNameProperty)!; }
-            set { SetValue(WrapperTagNameProperty, value ?? throw new ArgumentNullException(nameof(value))); }
+            get { return (string?)GetValue(WrapperTagNameProperty); }
+            set { SetValue(WrapperTagNameProperty, value); }
         }
         public static readonly DotvvmProperty WrapperTagNameProperty
             = DotvvmProperty.Register<string, ConfigurableHtmlControl>(c => c.WrapperTagName, "div");
@@ -42,15 +46,35 @@ namespace DotVVM.Framework.Controls
         protected override bool RendersHtmlTag => RenderWrapperTag;
 
         public ConfigurableHtmlControl(string? tagName)
-            : base(tagName ?? "div")
+            : base(tagName)
         {
-            WrapperTagName = tagName ?? "div";
-            RenderWrapperTag = !string.IsNullOrEmpty(WrapperTagName);
+            WrapperTagName = tagName;
+            RenderWrapperTag = !string.IsNullOrEmpty(tagName);
         }
 
         protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
             TagName = WrapperTagName;
+        }
+
+        [ControlUsageValidator]
+        public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
+        {
+            var renderWrapperTag = (control.GetValue(RenderWrapperTagProperty) as ResolvedPropertyValue)?.Value as bool? ?? false;
+            var wrapperTagName = (control.GetValue(WrapperTagNameProperty) as ResolvedPropertyValue)?.Value as string;
+
+            if (wrapperTagName?.Trim() == "")
+            {
+                yield return new ControlUsageError("The WrapperTagName must not be an empty string!");
+            }
+            else if (renderWrapperTag && (wrapperTagName == null))
+            {
+                yield return new ControlUsageError("The WrapperTagName property must be set when RenderWrapperTag is true!");
+            }
+            else if (!renderWrapperTag && (wrapperTagName != null))
+            {
+                yield return new ControlUsageError("The WrapperTagName property cannot be set when RenderWrapperTag is false!");
+            }
         }
     }
 }

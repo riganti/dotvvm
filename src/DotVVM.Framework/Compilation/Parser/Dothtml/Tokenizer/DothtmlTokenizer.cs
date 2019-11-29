@@ -660,9 +660,9 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
             CreateToken(DothtmlTokenType.CloseBinding);
         }
 
-        protected override DothtmlToken NewToken()
+        protected override DothtmlToken NewToken(string text, DothtmlTokenType type, int lineNumber, int columnNumber, int length, int startPosition)
         {
-            return new DothtmlToken();
+            return new DothtmlToken(text, type, lineNumber, columnNumber, length, startPosition);
         }
     }
 }

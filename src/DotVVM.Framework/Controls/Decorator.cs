@@ -18,7 +18,9 @@ namespace DotVVM.Framework.Controls
     public class Decorator : HtmlGenericControl 
     {
 
-        public Decorator() : base("")
+        protected override bool RendersHtmlTag => true;
+
+        public Decorator() : base(null)
         {
         }
 

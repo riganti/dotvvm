@@ -18,8 +18,6 @@ namespace DotVVM.Framework.Controls
     {
         public Dictionary<string, string> Directives { get; } = new Dictionary<string, string>();
 
-        private bool rendersWrapperTag;
-        protected override bool RendersHtmlTag => rendersWrapperTag;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmMarkupControl"/> class.
@@ -32,11 +30,10 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmMarkupControl"/> class.
         /// </summary>
-        public DotvvmMarkupControl(string wrapperTagName) : base(wrapperTagName ?? "JUST NOTHING")
+        public DotvvmMarkupControl(string? wrapperTagName) : base(wrapperTagName)
         {
             SetValue(Internal.IsNamingContainerProperty, true);
             SetValue(Internal.IsControlBindingTargetProperty, true);
-            rendersWrapperTag = wrapperTagName != null;
         }
 
         internal override void OnPreInit(IDotvvmRequestContext context)
@@ -51,13 +48,13 @@ namespace DotVVM.Framework.Controls
 
             if (Directives.TryGetValue(ParserConstants.WrapperTagNameDirective, out wrapperTagName))
             {
-                rendersWrapperTag = true;
                 TagName = wrapperTagName;
             }
-            if (Directives.ContainsKey(ParserConstants.NoWrapperTagNameDirective))
+            else if (Directives.ContainsKey(ParserConstants.NoWrapperTagNameDirective))
             {
-                rendersWrapperTag = false;
+                TagName = null;
             }
+
             base.OnPreInit(context);
         }
 

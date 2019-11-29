@@ -7,7 +7,6 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace DotVVM.Framework.Controls
@@ -34,8 +33,13 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Initializes a new instance of the <see cref="HtmlGenericControl"/> class.
         /// </summary>
-        public HtmlGenericControl(string tagName, bool allowImplicitLifecycleRequirements = true) : this(allowImplicitLifecycleRequirements)
+        public HtmlGenericControl(string? tagName, bool allowImplicitLifecycleRequirements = true) : this(allowImplicitLifecycleRequirements)
         {
+            if (tagName?.Trim() == "")
+            {
+                throw new DotvvmControlException("The tagName must not be empty!");
+            }
+
             TagName = tagName;
 
             if (tagName == "head")
@@ -77,7 +81,7 @@ namespace DotVVM.Framework.Controls
         /// Gets the tag name.
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.Exclude)]
-        public string TagName { get; protected set; }
+        public string? TagName { get; protected set; }
 
         /// <summary>
         /// Gets or sets whether the control is visible.
@@ -95,7 +99,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets a value whether this control renders a HTML tag.
         /// </summary>
-        protected virtual bool RendersHtmlTag => true;
+        protected virtual bool RendersHtmlTag => TagName is object;
 
         protected new struct RenderState
         {
@@ -213,7 +217,7 @@ namespace DotVVM.Framework.Controls
         {
             if (RendersHtmlTag)
             {
-                writer.RenderBeginTag(TagName);
+                writer.RenderBeginTag(TagName!);
             }
         }
 
@@ -321,8 +325,15 @@ namespace DotVVM.Framework.Controls
             {
                 if (attribute.Value is IValueBinding binding)
                 {
-                    if (attributeBindingGroup == null) attributeBindingGroup = new KnockoutBindingGroup();
-                    attributeBindingGroup.Add(attribute.Key, binding.GetKnockoutBindingExpression(this));
+                    if (attribute.Key == "class")
+                    {
+                        writer.AddKnockoutDataBind("class", binding, this);
+                    }
+                    else
+                    {
+                        if (attributeBindingGroup == null) attributeBindingGroup = new KnockoutBindingGroup();
+                        attributeBindingGroup.Add(attribute.Key, binding.GetKnockoutBindingExpression(this));
+                    }
                     if (!r.RenderOnServer(this))
                         continue;
                 }
