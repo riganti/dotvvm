@@ -78,9 +78,10 @@ function BuildPackages() {
 }
 
 function SignPackages() {
+    $baseDir = pwd
     if ($signUser -ne "") {        
         foreach ($package in $packages) {
-            & dotnet signclient sign --baseDirectory .\$($package.Directory)\bin\$configuration\ --input *.nupkg --config $signConfigPath --user $signUser --secret $signSecret --name $($package.Package) --description $($package.Package + " " + $version) --descriptionUrl https://gihbut.com/riganti/dotvvm | Out-Host
+            & dotnet signclient sign --baseDirectory $($baseDir.Path)\$($package.Directory)\bin\$configuration\ --input *.nupkg --config $signConfigPath --user $signUser --secret $signSecret --name $($package.Package) --description $($package.Package + " " + $version) --descriptionUrl https://gihbut.com/riganti/dotvvm | Out-Host
         }
     }
 }
