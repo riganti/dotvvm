@@ -132,7 +132,7 @@ namespace DotVVM.Framework.Controls
             var onclickAttribute = "event.stopPropagation();";
             if ((bool)GetValue(Internal.IsSpaPageProperty)! && (bool)GetValue(Internal.UseHistoryApiSpaNavigationProperty)!)
             {
-                onclickAttribute += "return !this.hasAttribute('disabled') && dotvvm.handleSpaNavigation(this);";
+                onclickAttribute += "!this.hasAttribute('disabled') && dotvvm.handleSpaNavigation(this); return false;";
             }
             else
             {

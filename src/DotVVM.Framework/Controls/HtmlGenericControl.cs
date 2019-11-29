@@ -7,7 +7,6 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace DotVVM.Framework.Controls
@@ -326,8 +325,15 @@ namespace DotVVM.Framework.Controls
             {
                 if (attribute.Value is IValueBinding binding)
                 {
-                    if (attributeBindingGroup == null) attributeBindingGroup = new KnockoutBindingGroup();
-                    attributeBindingGroup.Add(attribute.Key, binding.GetKnockoutBindingExpression(this));
+                    if (attribute.Key == "class")
+                    {
+                        writer.AddKnockoutDataBind("class", binding, this);
+                    }
+                    else
+                    {
+                        if (attributeBindingGroup == null) attributeBindingGroup = new KnockoutBindingGroup();
+                        attributeBindingGroup.Add(attribute.Key, binding.GetKnockoutBindingExpression(this));
+                    }
                     if (!r.RenderOnServer(this))
                         continue;
                 }

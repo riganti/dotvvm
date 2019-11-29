@@ -23,10 +23,27 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty ValueBindingProperty =
             DotvvmProperty.Register<bool, GridViewCheckBoxColumn>(c => c.ValueBinding);
 
+        public ValidatorPlacement ValidatorPlacement
+        {
+            get { return (ValidatorPlacement)GetValue(ValidatorPlacementProperty)!; }
+            set { SetValue(ValidatorPlacementProperty, value); }
+        }
+        public static readonly DotvvmProperty ValidatorPlacementProperty
+            = DotvvmProperty.Register<ValidatorPlacement, GridViewCheckBoxColumn>(c => c.ValidatorPlacement, default);
 
         public override void CreateControls(IDotvvmRequestContext context, DotvvmControl container)
         {
-            var checkBox = new CheckBox { Enabled = false };
+            CreateControlsCore(container, enabled: false);
+        }
+
+        public override void CreateEditControls(IDotvvmRequestContext context, DotvvmControl container)
+        {
+            CreateControlsCore(container, enabled: true);
+        }
+
+        private void CreateControlsCore(DotvvmControl container, bool enabled)
+        {
+            var checkBox = new CheckBox { Enabled = enabled };
 
             // TODO: rewrite this
             if (Properties.TryGetValue(Properties.First(p => p.Key.ToString() == "UITests.Name").Key, out var property))
@@ -34,14 +51,9 @@ namespace DotVVM.Framework.Controls
                 checkBox.Properties.Add(Properties.First(p => p.Key.ToString() == "UITests.Name").Key, property);
             }
 
-            checkBox.SetBinding(CheckBox.CheckedProperty, GetValueBinding(ValueBindingProperty));
-            container.Children.Add(checkBox);
-        }
-
-        public override void CreateEditControls(IDotvvmRequestContext context, DotvvmControl container)
-        {
-            var checkBox = new CheckBox { Enabled = true };
-            checkBox.SetBinding(CheckBox.CheckedProperty, GetValueBinding(ValueBindingProperty));
+            var valueBinding = GetValueBinding(ValueBindingProperty);
+            checkBox.SetBinding(CheckBox.CheckedProperty, valueBinding);
+            Validator.Place(checkBox, container.Children, valueBinding, ValidatorPlacement);
             container.Children.Add(checkBox);
         }
     }

@@ -106,6 +106,11 @@ declare class DotvvmAfterPostBackEventArgs implements PostbackEventArgs {
     readonly sender: HTMLElement | undefined;
     constructor(postbackOptions: PostbackOptions, serverResponseObject: any, commandResult?: any, xhr?: XMLHttpRequest | undefined);
 }
+declare class DotvvmAfterPostBackWithRedirectEventArgs extends DotvvmAfterPostBackEventArgs {
+    private _redirectPromise?;
+    readonly redirectPromise: Promise<DotvvmNavigationEventArgs> | undefined;
+    constructor(postbackOptions: PostbackOptions, serverResponseObject: any, commandResult?: any, xhr?: XMLHttpRequest, _redirectPromise?: Promise<DotvvmNavigationEventArgs> | undefined);
+}
 declare class DotvvmSpaNavigatingEventArgs implements DotvvmEventArgs {
     viewModel: any;
     viewModelName: string;
@@ -113,13 +118,15 @@ declare class DotvvmSpaNavigatingEventArgs implements DotvvmEventArgs {
     cancel: boolean;
     constructor(viewModel: any, viewModelName: string, newUrl: string);
 }
-declare class DotvvmSpaNavigatedEventArgs implements DotvvmEventArgs {
+declare class DotvvmNavigationEventArgs implements DotvvmEventArgs {
     viewModel: any;
     viewModelName: string;
     serverResponseObject: any;
     xhr?: XMLHttpRequest | undefined;
     isHandled: boolean;
     constructor(viewModel: any, viewModelName: string, serverResponseObject: any, xhr?: XMLHttpRequest | undefined);
+}
+declare class DotvvmSpaNavigatedEventArgs extends DotvvmNavigationEventArgs {
 }
 declare class DotvvmRedirectEventArgs implements DotvvmEventArgs {
     viewModel: any;
@@ -260,6 +267,8 @@ interface IDotvvmExtensions {
 }
 interface IDotvvmViewModelInfo {
     viewModel?: any;
+    viewModelCacheId?: string;
+    viewModelCache?: any;
     renderedResources?: string[];
     url?: string;
     virtualDirectory?: string;
@@ -343,8 +352,8 @@ declare class DotVVM {
     private applyPostbackHandlersCore;
     applyPostbackHandlers(callback: (options: PostbackOptions) => Promise<PostbackCommitFunction | undefined>, sender: HTMLElement, handlers?: ClientFriendlyPostbackHandlerConfiguration[], args?: any[], context?: any, viewModel?: any, viewModelName?: string): Promise<DotvvmAfterPostBackEventArgs>;
     postbackCore(options: PostbackOptions, path: string[], command: string, controlUniqueId: string, context: any, commandArgs?: any[]): Promise<() => Promise<DotvvmAfterPostBackEventArgs>>;
-    handleSpaNavigation(element: HTMLElement): boolean;
-    handleSpaNavigationCore(url: string | null): boolean;
+    handleSpaNavigation(element: HTMLElement): Promise<DotvvmNavigationEventArgs>;
+    handleSpaNavigationCore(url: string | null): Promise<DotvvmNavigationEventArgs>;
     postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, context?: any, handlers?: ClientFriendlyPostbackHandlerConfiguration[], commandArgs?: any[]): Promise<DotvvmAfterPostBackEventArgs>;
     private loadResourceList;
     private loadResourceElements;
@@ -357,6 +366,8 @@ declare class DotVVM {
     private addLeadingSlash;
     private concatUrl;
     patch(source: any, patch: any): any;
+    diff(source: any, modified: any): any;
+    readonly diffEqual: {};
     private updateDynamicPathFragments;
     private postJSON;
     private getJSON;
@@ -499,7 +510,7 @@ declare type Result<T> = {
     result: T;
 };
 interface DotVVM {
-    invokeApiFn<T>(callback: () => PromiseLike<T>): ApiComputed<T>;
+    invokeApiFn<T>(target: any, methodName: string, argsProvider: () => any[], refreshTriggers: (args: any[]) => (KnockoutObservable<any> | string)[], notifyTriggers: (args: any[]) => string[], element: HTMLElement, sharingKeyProvider: (args: any[]) => string[]): ApiComputed<T>;
     apiRefreshOn<T>(value: KnockoutObservable<T>, refreshOn: KnockoutObservable<any>): KnockoutObservable<T>;
     apiStore<T>(value: KnockoutObservable<T>, targetProperty: KnockoutObservable<any>): KnockoutObservable<T>;
     api: {

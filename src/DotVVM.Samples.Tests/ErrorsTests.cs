@@ -2,6 +2,7 @@
 
 using System;
 using System.Linq;
+using System.Net;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
@@ -14,6 +15,7 @@ namespace DotVVM.Samples.Tests
 {
     public class ErrorsTests : AppSeleniumTest
     {
+        
         [Fact]
         public void Error_MissingViewModel()
         {
@@ -302,7 +304,7 @@ namespace DotVVM.Samples.Tests
                 var startQuery = link.IndexOf("q=");
                 var query = link.Substring(startQuery + 2);
                 //Log("query: " + query);
-                var specificLink = "http://referencesource.microsoft.com/api/symbols/?symbol=" + query;
+                var specificLink = "https://referencesource.microsoft.com/api/symbols/?symbol=" + query;
                 using (var wc = new System.Net.WebClient())
                 {
                     var downloadedString = wc.DownloadString(specificLink);

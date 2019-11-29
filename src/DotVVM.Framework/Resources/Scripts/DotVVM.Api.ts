@@ -4,7 +4,7 @@
 type ApiComputed<T> = KnockoutObservable<T | null> & { refreshValue: (throwOnError?: boolean) => PromiseLike<any> | undefined }
 type Result<T> = { type: 'error', error: any } | { type: 'result', result: T }
 interface DotVVM {
-    invokeApiFn<T>(callback: () => PromiseLike<T>): ApiComputed<T>;
+    invokeApiFn<T>(target: any, methodName: string, argsProvider: () => any[], refreshTriggers: (args: any[]) => (KnockoutObservable<any> | string)[], notifyTriggers: (args: any[]) => string[], element: HTMLElement, sharingKeyProvider: (args: any[]) => string[]): ApiComputed<T>;
     apiRefreshOn<T>(value: KnockoutObservable<T>, refreshOn: KnockoutObservable<any>) : KnockoutObservable<T>;
     apiStore<T>(value: KnockoutObservable<T>, targetProperty: KnockoutObservable<any>) : KnockoutObservable<T>;
     api: { [name: string]: any };
@@ -51,18 +51,25 @@ function basicAuthenticatedFetch(input: RequestInfo, init: RequestInit) {
 (function () {
 
     let cachedValues: { [key: string]: KnockoutObservable<any> } = {};
-    DotVVM.prototype.invokeApiFn = function <T>(callback: () => PromiseLike<T>, refreshTriggers: (KnockoutObservable<any> | string)[] = [], notifyTriggers: string[] = [], commandId = callback.toString()) {
-        let cachedValue = cachedValues[commandId] || (cachedValues[commandId] = ko.observable<any>(null));
+    DotVVM.prototype.invokeApiFn = function <T>(target: any, methodName: string, argsProvider: () => any[], refreshTriggers: (args: any[]) => (KnockoutObservable<any> | string)[], notifyTriggers: (args: any[]) => string[], element: HTMLElement, sharingKeyProvider: (args: any[]) => string[]) {
+        let args = ko.ignoreDependencies(argsProvider);
+        let callback = () => target[methodName].apply(target, args);
+
+        // the function gets re-evaluated when the observable changes - thus we need to cache the values
+        // GET requests can be cached globally, POST and other request must be cached on per-element scope
+        let sharingKeyValue = methodName + ":" + sharingKeyProvider(args);
+        let cache = element ? (element["apiCachedValues"] || (element["apiCachedValues"] = {})) : cachedValues;
+        let cachedValue = cache[sharingKeyValue] || (cache[sharingKeyValue] = ko.observable<any>(null));
 
         const load : () => Result<PromiseLike<any>> = () => {
             try {
                 var result : PromiseLike<any> = window["Promise"].resolve(ko.ignoreDependencies(callback));
                 return { type: 'result', result: result.then((val) => {
                     if (val) {
-                        cachedValue(ko.unwrap(dotvvm.serialization.deserialize(val, cachedValue)));
+                        cachedValue(ko.unwrap(dotvvm.serialization.deserialize(val)));
                         cachedValue.notifySubscribers();
                     }
-                    for (var t of notifyTriggers)
+                    for (var t of notifyTriggers(args))
                         dotvvm.eventHub.notify(t);
                     return val;
                 }, console.warn) };
@@ -96,7 +103,7 @@ function basicAuthenticatedFetch(input: RequestInfo, init: RequestInit) {
             }
         };
         if (!cachedValue.peek()) cmp.refreshValue();
-        ko.computed(() => refreshTriggers.map(f => typeof f == "string" ? dotvvm.eventHub.get(f)() : f())).subscribe(p => cmp.refreshValue());
+        ko.computed(() => refreshTriggers(args).map(f => typeof f == "string" ? dotvvm.eventHub.get(f)() : f())).subscribe(p => cmp.refreshValue());
         return cmp;
     }
     DotVVM.prototype.apiRefreshOn = function <T>(value: KnockoutObservable<T> & { refreshValue? : () => void }, refreshOn: KnockoutObservable<any>) {
