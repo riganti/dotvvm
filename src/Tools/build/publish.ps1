@@ -81,7 +81,7 @@ function SignPackages() {
     $baseDir = pwd
     if ($signUser -ne "") {        
         foreach ($package in $packages) {
-            & dotnet signclient sign --baseDirectory $($baseDir.Path)\$($package.Directory)\bin\$configuration\ --input *.nupkg --config $signConfigPath --user $signUser --secret $signSecret --name $($package.Package) --description $($package.Package + " " + $version) --descriptionUrl https://gihbut.com/riganti/dotvvm | Out-Host
+            & dotnet signclient sign --baseDirectory "$($baseDir.Path)\$($package.Directory)\bin\$configuration\" --input *.nupkg --config "$signConfigPath" --user "$signUser" --secret "$signSecret" --name "$($package.Package)" --description "$($package.Package + " " + $version)" --descriptionUrl "https://github.com/riganti/dotvvm" | Out-Host
         }
     }
 }
@@ -105,14 +105,15 @@ function BuildTemplates() {
 }
 
 function SignTemplates() {
+    $baseDir = pwd
     if ($signUser -ne "") {        
         foreach ($package in $packages) {
-            & dotnet signclient sign --baseDirectory .\Templates\ --input *.nupkg --config $signConfigPath --user $signUser --secret $signSecret --name "DotVVM Project Template" --description "DotVVM Project Template $version" --descriptionUrl https://gihbut.com/riganti/dotvvm | Out-Host
+            & dotnet signclient sign --baseDirectory "$($baseDir.Path)\Templates\" --input *.nupkg --config "$signConfigPath" --user "$signUser" --secret "$signSecret" --name "DotVVM Project Template" --description "DotVVM Project Template $version" --descriptionUrl "https://github.com/riganti/dotvvm" | Out-Host
         }
     }
 }
 
-function PushTemplates() {
+function PublishTemplates() {
 	& .\Tools\nuget.exe push .\Templates\DotVVM.Templates.$version.nupkg -source $server -apiKey $apiKey | Out-Host 
 }
 
