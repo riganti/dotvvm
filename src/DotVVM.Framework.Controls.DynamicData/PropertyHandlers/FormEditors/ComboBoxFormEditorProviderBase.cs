@@ -26,6 +26,9 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
 
             comboBox.SetBinding(SelectorBase.ItemTextBindingProperty, context.CreateValueBinding(GetDisplayMember(property, context)));
             comboBox.SetBinding(SelectorBase.ItemValueBindingProperty, context.CreateValueBinding(GetValueMember(property, context)));
+
+            comboBox.SetBinding(SelectorBase.ItemTextBindingProperty, context.CreateValueBinding(GetDisplayMember(property, context)));
+            comboBox.SetBinding(SelectorBase.ItemValueBindingProperty, context.CreateValueBinding(GetValueMember(property, context)));
             comboBox.SetBinding(Selector.SelectedValueProperty, context.CreateValueBinding(property.PropertyInfo.Name));
             comboBox.SetBinding(ItemsControl.DataSourceProperty, GetDataSourceBinding(property, context, comboBox));
 
