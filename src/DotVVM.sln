@@ -1,4 +1,4 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29102.190
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -109,6 +109,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotVVM.Samples.SeleniumGenerator.ANC.Tests", "DotVVM.Samples.SeleniumGenerator.ANC.Tests\DotVVM.Samples.SeleniumGenerator.ANC.Tests.csproj", "{1999ECDA-CD9D-4B42-B0EB-00251CEEF140}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.SeleniumGenerator.Owin", "DotVVM.Samples.SeleniumGenerator.Owin\DotVVM.Samples.SeleniumGenerator.Owin.csproj", "{3F43D8A1-EA3C-4518-85DA-5225700CA772}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Cli", "DotVVM.Cli\DotVVM.Cli.csproj", "{46154719-A7DB-4D5D-AD86-E0CB0E5205E7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -572,6 +574,18 @@ Global
 		{3F43D8A1-EA3C-4518-85DA-5225700CA772}.Release|x64.Build.0 = Release|Any CPU
 		{3F43D8A1-EA3C-4518-85DA-5225700CA772}.Release|x86.ActiveCfg = Release|Any CPU
 		{3F43D8A1-EA3C-4518-85DA-5225700CA772}.Release|x86.Build.0 = Release|Any CPU
+		{46154719-A7DB-4D5D-AD86-E0CB0E5205E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46154719-A7DB-4D5D-AD86-E0CB0E5205E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46154719-A7DB-4D5D-AD86-E0CB0E5205E7}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{46154719-A7DB-4D5D-AD86-E0CB0E5205E7}.Debug|x64.Build.0 = Debug|Any CPU
+		{46154719-A7DB-4D5D-AD86-E0CB0E5205E7}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{46154719-A7DB-4D5D-AD86-E0CB0E5205E7}.Debug|x86.Build.0 = Debug|Any CPU
+		{46154719-A7DB-4D5D-AD86-E0CB0E5205E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46154719-A7DB-4D5D-AD86-E0CB0E5205E7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46154719-A7DB-4D5D-AD86-E0CB0E5205E7}.Release|x64.ActiveCfg = Release|Any CPU
+		{46154719-A7DB-4D5D-AD86-E0CB0E5205E7}.Release|x64.Build.0 = Release|Any CPU
+		{46154719-A7DB-4D5D-AD86-E0CB0E5205E7}.Release|x86.ActiveCfg = Release|Any CPU
+		{46154719-A7DB-4D5D-AD86-E0CB0E5205E7}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
