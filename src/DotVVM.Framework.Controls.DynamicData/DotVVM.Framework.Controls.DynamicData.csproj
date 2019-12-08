@@ -32,7 +32,7 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="DotVVM" Version="2.4.0-preview04-58821" />
+    <PackageReference Include="DotVVM" Version="2.4.0-preview06-final" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DotVVM.Framework.Controls.DynamicData.Annotations\DotVVM.Framework.Controls.DynamicData.Annotations.csproj" />
