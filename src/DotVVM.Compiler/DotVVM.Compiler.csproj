@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net47;net461;netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks>net451;netcoreapp2.0</TargetFrameworks>
     <FileAlgnment>512</FileAlgnment>
     <OutputType>Exe</OutputType>
     <Authors>RIGANTI</Authors>
@@ -24,7 +24,7 @@
     <StartupObject>DotVVM.Compiler.Programs.Program</StartupObject>
     <Version>2.2.0</Version>
   </PropertyGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net451' ">
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="1.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="1.1.1" />
     <PackageReference Include="ilmerge" Version="2.14.1208" />
@@ -45,14 +45,5 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="dotvvmwizard.snk" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Microsoft.CodeAnalysis">
-      <HintPath>..\..\..\..\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.codeanalysis.common\2.3.1\lib\netstandard1.3\Microsoft.CodeAnalysis.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
   </ItemGroup>
 </Project>
