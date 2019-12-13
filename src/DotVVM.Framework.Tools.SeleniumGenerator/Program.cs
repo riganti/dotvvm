@@ -224,7 +224,10 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
             Console.WriteLine($"# Directory '{testProjectDirectory}' already exists. Skipping test project scaffolding.");
             if (!Directory.Exists(testProjectDirectory))
             {
-                var relativeWebDirectory = Path.GetRelativePath(dotvvmProjectMetadata.GetUITestProjectFullPath(), dotvvmProjectMetadata.ProjectDirectory);
+                var relativeWebDirectory = new Uri(testProjectDirectory)
+                    .MakeRelativeUri(new Uri(dotvvmProjectMetadata.ProjectDirectory))
+                    .ToString();
+                relativeWebDirectory = Uri.UnescapeDataString(relativeWebDirectory);
                 GenerateTestProject(testProjectDirectory, relativeWebDirectory);
             }
 
