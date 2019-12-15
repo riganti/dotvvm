@@ -85,7 +85,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
 
         [Obsolete("ParametrizedCode.ToString use is discouraged, this overload does not return the code, please use the ToString(Func<...> parameterAssigner) overload or ToDefaultString method. Note that these methods may throw an exception.", true)]
-        public override string ToString()
+        public new string ToString()
         {
             // leave for debug purposes.
             return base.ToString();

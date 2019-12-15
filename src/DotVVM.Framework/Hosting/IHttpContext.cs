@@ -1,12 +1,14 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 
 namespace DotVVM.Framework.Hosting
 {
     public interface IHttpContext
     {
-        ClaimsPrincipal User { get; }
+        ClaimsPrincipal? User { get; }
         IHttpRequest Request { get; }
         IHttpResponse Response { get; }
         T GetItem<T>(string key);

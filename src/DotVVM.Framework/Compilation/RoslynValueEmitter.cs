@@ -136,7 +136,7 @@ namespace DotVVM.Framework.Compilation
         static ConcurrentDictionary<object, (int, string)> bucketIndexCache = new ConcurrentDictionary<object, (int, string)>(new EqCmp());
         class EqCmp : IEqualityComparer<object>, IEqualityComparer
         {
-            public bool Equals(object x, object y)
+            public new bool Equals(object x, object y)
             {
                 if (x is IStructuralEquatable se)
                     return se.Equals(y, this);

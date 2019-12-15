@@ -1,3 +1,4 @@
+#nullable enable
 using DotVVM.Framework.Controls;
 using System;
 using System.Collections.Generic;
@@ -13,12 +14,16 @@ using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using System.Diagnostics.CodeAnalysis;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Binding
 {
     public static partial class BindingHelper
     {
-        public static T GetProperty<T>(this IBinding binding, ErrorHandlingMode errorMode = ErrorHandlingMode.ThrowException) => (T)binding.GetProperty(typeof(T), errorMode);
+        [return: MaybeNull]
+        public static T GetProperty<T>(this IBinding binding, ErrorHandlingMode errorMode = ErrorHandlingMode.ThrowException) => (T)binding.GetProperty(typeof(T), errorMode)!;
+        public static T GetProperty<T>(this IBinding binding) => GetProperty<T>(binding, ErrorHandlingMode.ThrowException)!;
 
         [Obsolete]
         public static string GetKnockoutBindingExpression(this IValueBinding binding) =>
@@ -43,12 +48,12 @@ namespace DotVVM.Framework.Binding
             JavascriptTranslator.FormatKnockoutScript(code, dataContextLevel: FindDataContextTarget(currentBinding, currentControl).stepsUp);
 
         /// <summary>
-        /// Gets Internal.PathFragmentProperty or DataContext.KnockoutExpression
+        /// Gets Internal.PathFragmentProperty or DataContext.KnockoutExpression. Returns null if none of these is set.
         /// </summary>
-        public static string GetDataContextPathFragment(this DotvvmBindableObject currentControl) =>
-            (string)currentControl.GetValue(Internal.PathFragmentProperty, inherit: false) ??
+        public static string? GetDataContextPathFragment(this DotvvmBindableObject currentControl) =>
+            (string?)currentControl.GetValue(Internal.PathFragmentProperty, inherit: false) ??
             (currentControl.GetBinding(DotvvmBindableObject.DataContextProperty, inherit: false) is IValueBinding binding ?
-                binding.GetProperty<SimplePathExpressionBindingProperty>(ErrorHandlingMode.ThrowException)
+                binding.GetProperty<SimplePathExpressionBindingProperty>()
                 .Code.FormatKnockoutScript(currentControl, binding) :
             null);
 
@@ -60,7 +65,7 @@ namespace DotVVM.Framework.Binding
         public static (int stepsUp, DotvvmBindableObject target) FindDataContextTarget(this IBinding binding, DotvvmBindableObject control)
         {
             if (control == null) throw new InvalidOperationException($"Can not evaluate binding without any dataContext.");
-            var controlContext = (DataContextStack)control.GetValue(Internal.DataContextTypeProperty);
+            var controlContext = (DataContextStack?)control.GetValue(Internal.DataContextTypeProperty);
             var bindingContext = binding.GetProperty<DataContextStack>(ErrorHandlingMode.ReturnNull);
             if (bindingContext == null || controlContext == null || controlContext.Equals(bindingContext)) return (0, control);
 
@@ -79,7 +84,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Prepares DataContext hierarchy argument and executes update delegate.
         /// </summary>
-        public static void ExecUpdateDelegate(this BindingUpdateDelegate func, DotvvmBindableObject contextControl, object value)
+        public static void ExecUpdateDelegate(this BindingUpdateDelegate func, DotvvmBindableObject contextControl, object? value)
         {
             var dataContexts = GetDataContexts(contextControl);
             //var control = contextControl.GetClosestControlBindingTarget();
@@ -99,7 +104,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Prepares DataContext hierarchy argument and executes update delegate.
         /// </summary>
-        public static object ExecDelegate(this BindingDelegate func, DotvvmBindableObject contextControl)
+        public static object? ExecDelegate(this BindingDelegate func, DotvvmBindableObject contextControl)
         {
             var dataContexts = GetDataContexts(contextControl);
             return func(dataContexts.ToArray(), contextControl);
@@ -117,9 +122,9 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Gets all data context on the path to root. Maximum count can be specified by `count`
         /// </summary>
-        public static IEnumerable<object> GetDataContexts(this DotvvmBindableObject contextControl, int count = -1)
+        public static IEnumerable<object?> GetDataContexts(this DotvvmBindableObject contextControl, int count = -1)
         {
-            var c = contextControl;
+            DotvvmBindableObject? c = contextControl;
             while (c != null)
             {
                 // PERF: O(h^2) because GetValue calls another GetDataContexts
@@ -138,7 +143,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Finds expected DataContext target in control.Ancestors() and evaluates the `binding.BindingDelegate`.
         /// </summary>
-        public static object Evaluate(this IStaticValueBinding binding, DotvvmBindableObject control)
+        public static object? Evaluate(this IStaticValueBinding binding, DotvvmBindableObject control)
         {
             return ExecDelegate(
                 binding.BindingDelegate,
@@ -158,7 +163,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Writes the value to binding - binded viewModel property is updated. May throw an exception when binding does not support assignment.
         /// </summary>
-        public static void UpdateSource(this IUpdatableValueBinding binding, object value, DotvvmBindableObject control)
+        public static void UpdateSource(this IUpdatableValueBinding binding, object? value, DotvvmBindableObject control)
         {
             ExecUpdateDelegate(
                 binding.UpdateDelegate,
@@ -184,7 +189,7 @@ namespace DotVVM.Framework.Binding
         {
             return (Delegate)ExecDelegate(
                 binding.BindingDelegate,
-                FindDataContextTarget(binding, control).target);
+                FindDataContextTarget(binding, control).target).NotNull();
         }
 
         /// <summary>
@@ -200,11 +205,11 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Finds expected DataContext, gets the delegate from command binding and evaluates it with `args`
         /// </summary>
-        public static object Evaluate(this ICommandBinding binding, DotvvmBindableObject control, params object[] args)
+        public static object? Evaluate(this ICommandBinding binding, DotvvmBindableObject control, params object[] args)
         {
             var action = binding.GetCommandDelegate(control);
-            if (action is Command) return (action as Command)();
-            if (action is Action) { (action as Action)(); return null; }
+            if (action is Command command) return command();
+            if (action is Action actionDelegate) { actionDelegate(); return null; }
             return action.DynamicInvoke(args);
         }
 
@@ -232,11 +237,11 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Creates new `TBinding` with the original DataContextStack, LocationInfo, AdditionalResolvers and BindingCompilationService. 
         /// </summary>
-        public static TBinding DeriveBinding<TBinding>(this TBinding binding, params object[] properties)
+        public static TBinding DeriveBinding<TBinding>(this TBinding binding, params object?[] properties)
             where TBinding : IBinding
         {
-            object[] getContextProperties(IBinding b) =>
-                new object[] {
+            object?[] getContextProperties(IBinding b) =>
+                new object?[] {
                     b.GetProperty<DataContextStack>(ErrorHandlingMode.ReturnNull),
                     b.GetProperty<BindingResolverCollection>(ErrorHandlingMode.ReturnNull),
                     b.GetProperty<BindingCompilationRequirementsAttribute>(ErrorHandlingMode.ReturnNull)?.ClearRequirements(),
@@ -252,6 +257,7 @@ namespace DotVVM.Framework.Binding
         /// It thread-safe.
         /// </summary>
         public static Func<TParam, TResult> Cache<TParam, TResult>(this Func<TParam, TResult> func)
+            where TParam: notnull
         {
             var cache = new ConcurrentDictionary<TParam, TResult>();
             return f => cache.GetOrAdd(f, func);
@@ -260,7 +266,7 @@ namespace DotVVM.Framework.Binding
         public static IValueBinding GetThisBinding(this DotvvmBindableObject obj)
         {
             var dataContext = obj.GetValueBinding(DotvvmBindableObject.DataContextProperty);
-            return (IValueBinding)dataContext.GetProperty<ThisBindingProperty>().binding;
+            return (IValueBinding)dataContext!.GetProperty<ThisBindingProperty>().binding;
         }
 
         private static readonly ConditionalWeakTable<Expression, BindingParameterAnnotation> _expressionAnnotations =
@@ -272,26 +278,16 @@ namespace DotVVM.Framework.Binding
             return expr;
         }
 
-        public static BindingParameterAnnotation GetParameterAnnotation(this Expression expr) =>
+        public static BindingParameterAnnotation? GetParameterAnnotation(this Expression expr) =>
             _expressionAnnotations.TryGetValue(expr, out var annotation) ? annotation : null;
 
         public static void SetDataContextTypeFromDataSource(this DotvvmBindableObject obj, IBinding dataSourceBinding) =>
             obj.SetDataContextType(dataSourceBinding.GetProperty<CollectionElementDataContextBindingProperty>().DataContext);
 
-        public static DataContextStack GetDataContextType(this DotvvmProperty property, DotvvmBindableObject obj)
+
+        /// <summary> Return the expected data context type for this property. Returns null if the type is unknown. </summary>
+        public static DataContextStack? GetDataContextType(this DotvvmProperty property, DotvvmBindableObject obj)
         {
-            var propertyBinding = obj.GetBinding(property);
-
-            if (propertyBinding != null)
-            {
-                var propertyValue = propertyBinding.GetProperty(typeof(DataContextStack), ErrorHandlingMode.ReturnException);
-
-                if(propertyValue == null || propertyValue is DataContextStack)
-                {
-                    return (DataContextStack)propertyValue;
-                }
-            }
-
             var dataContextType = obj.GetDataContextType();
 
             if (dataContextType == null)
@@ -311,13 +307,13 @@ namespace DotVVM.Framework.Binding
 
             var (childType, extensionParameters) = ApplyDataContextChange(dataContextType, property.DataContextChangeAttributes, obj, property);
 
-            if (childType == null) return dataContextType;
+            if (childType is null) return null; // childType is null in case there is some error in processing (e.g. enumerable was expected).
             else return DataContextStack.Create(childType, dataContextType, extensionParameters: extensionParameters.ToArray());
         }
 
-        private static (Type childType, List<BindingExtensionParameter> extensionParameters) ApplyDataContextChange(DataContextStack dataContextType, DataContextChangeAttribute[] attributes, DotvvmBindableObject obj, DotvvmProperty property)
+        private static (Type? childType, List<BindingExtensionParameter> extensionParameters) ApplyDataContextChange(DataContextStack dataContextType, DataContextChangeAttribute[] attributes, DotvvmBindableObject obj, DotvvmProperty property)
         {
-            var type = dataContextType.DataContextType;
+            Type? type = dataContextType.DataContextType;
             var extensionParameters = new List<BindingExtensionParameter>();
 
             foreach (var attribute in attributes.OrderBy(a => a.Order))
@@ -356,17 +352,17 @@ namespace DotVVM.Framework.Binding
             }
         }
 
-        public static BindingDelegate<T> ToGeneric<T>(this BindingDelegate d) => (a, b) => (T)d(a, b);
+        public static BindingDelegate<T> ToGeneric<T>(this BindingDelegate d) => (a, b) => (T)d(a, b)!;
         public static BindingUpdateDelegate<T> ToGeneric<T>(this BindingUpdateDelegate d) => (a, b, c) => d(a, b, c);
     }
 
 
     public class BindingParameterAnnotation
     {
-        public readonly DataContextStack DataContext;
-        public readonly BindingExtensionParameter ExtensionParameter;
+        public readonly DataContextStack? DataContext;
+        public readonly BindingExtensionParameter? ExtensionParameter;
 
-        public BindingParameterAnnotation(DataContextStack context = null, BindingExtensionParameter extensionParameter = null)
+        public BindingParameterAnnotation(DataContextStack? context = null, BindingExtensionParameter? extensionParameter = null)
         {
             this.DataContext = context;
             this.ExtensionParameter = extensionParameter;

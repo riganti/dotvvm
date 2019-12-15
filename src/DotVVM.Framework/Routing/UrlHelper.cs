@@ -1,7 +1,9 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Routing
 {
@@ -10,7 +12,7 @@ namespace DotVVM.Framework.Routing
         /// <summary>
         /// Returns url suffix from a string value and query string parameters
         /// </summary>
-        public static string BuildUrlSuffix(string urlSuffix, object query)
+        public static string BuildUrlSuffix(string? urlSuffix, object? query)
         {
             urlSuffix = urlSuffix ?? "";
 
@@ -31,13 +33,13 @@ namespace DotVVM.Framework.Routing
                 case IEnumerable<KeyValuePair<string, object>> keyValueCollection:
                     foreach (var item in keyValueCollection)
                     {
-                        AppendQueryParam(ref resultSuffix, item.Key, item.Value.ToString());
+                        AppendQueryParam(ref resultSuffix, item.Key, item.Value.ToString().NotNull());
                     }
                     break;
                 default:
                     foreach (var prop in query.GetType().GetProperties())
                     {
-                        AppendQueryParam(ref resultSuffix, prop.Name, prop.GetValue(query).ToString());
+                        AppendQueryParam(ref resultSuffix, prop.Name, prop.GetValue(query)!.ToString().NotNull());
                     }
                     break;
             }
@@ -54,7 +56,7 @@ namespace DotVVM.Framework.Routing
         /// <remarks>The implementation is copied from https://github.com/aspnet/AspNetCore/blob/release/2.2/src/Mvc/Mvc.Core/src/Routing/UrlHelperBase.cs#L45 in order to provide the same behavior for local redirects.</remarks>
         public static bool IsLocalUrl(string url)
         {
-            if (string.IsNullOrEmpty(url))
+            if (url.Length == 0)
             {
                 return false;
             }

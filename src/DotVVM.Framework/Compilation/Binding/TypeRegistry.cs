@@ -20,7 +20,11 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public Expression Resolve(string name, bool throwOnNotFound = true)
         {
-            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException($"The identifier name was empty.", nameof(name));
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                if (throwOnNotFound) throw new ArgumentException($"The identifier name was empty.", nameof(name));
+                else return null;
+            }
 
             Expression expr;
             if (registry.TryGetValue(name, out expr))

@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using DotVVM.Framework.Binding;
@@ -17,24 +18,24 @@ namespace DotVVM.Framework.Compilation.Styles
     {
         private Style style;
 
-        public StyleBuilder(Func<StyleMatchContext, bool> matcher, bool allowDerived)
+        public StyleBuilder(Func<StyleMatchContext, bool>? matcher, bool allowDerived)
         {
             style = new Style(!allowDerived, matcher);
         }
 
-        private static DotvvmProperty GetProperty(string name)
+        private static DotvvmProperty? GetProperty(string name)
         {
             var field = typeof(T).GetField(name + "Property", BindingFlags.Static | BindingFlags.Public | BindingFlags.FlattenHierarchy);
-            return field.GetValue(null) as DotvvmProperty;
+            return field?.GetValue(null) as DotvvmProperty;
         }
 
         public StyleBuilder<T> SetProperty<TProperty>(Expression<Func<T, TProperty>> property, TProperty value, StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
         {
             var propertyName = ReflectionUtils.GetMemberFromExpression(property.Body).Name;
-            return SetDotvvmProperty(GetProperty(propertyName), value, options);
+            return SetDotvvmProperty(GetProperty(propertyName)!, value, options);
         }
 
-        public StyleBuilder<T> SetControlProperty<TControlType>(DotvvmProperty property, Action<StyleBuilder<TControlType>> styleBuilder = null,
+        public StyleBuilder<T> SetControlProperty<TControlType>(DotvvmProperty property, Action<StyleBuilder<TControlType>>? styleBuilder = null,
             StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
         {
             var innerControlStyleBuilder = new StyleBuilder<TControlType>(null, false);
@@ -47,7 +48,7 @@ namespace DotVVM.Framework.Compilation.Styles
             return this;
         }
 
-        public StyleBuilder<T> SetHtmlControlProperty(DotvvmProperty property, string tag, Action<StyleBuilder<HtmlGenericControl>> styleBuilder = null, StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
+        public StyleBuilder<T> SetHtmlControlProperty(DotvvmProperty property, string tag, Action<StyleBuilder<HtmlGenericControl>>? styleBuilder = null, StyleOverrideOptions options = StyleOverrideOptions.Overwrite)
         {
             if (tag == null)
                 throw new ArgumentNullException(nameof(tag));
@@ -86,7 +87,7 @@ namespace DotVVM.Framework.Compilation.Styles
             return this;
         }
 
-        public StyleBuilder<T> SetDotvvmProperty(DotvvmProperty property, object value, StyleOverrideOptions options = StyleOverrideOptions.Overwrite) =>
+        public StyleBuilder<T> SetDotvvmProperty(DotvvmProperty property, object? value, StyleOverrideOptions options = StyleOverrideOptions.Overwrite) =>
             SetDotvvmProperty(new ResolvedPropertyValue(property, value), options);
 
         public StyleBuilder<T> SetAttribute(string attribute, object value, StyleOverrideOptions options = StyleOverrideOptions.Ignore) =>
@@ -101,7 +102,7 @@ namespace DotVVM.Framework.Compilation.Styles
         public StyleBuilder<T> WithCondition(Func<StyleMatchContext, bool> condition)
         {
             var oldMatcher = style.Matcher;
-            if (style.Matcher == null)
+            if (oldMatcher is null)
                 style.Matcher = condition;
             else
                 style.Matcher = m => oldMatcher(m) && condition(m);
@@ -121,7 +122,7 @@ namespace DotVVM.Framework.Compilation.Styles
 
         public class Style : CompileTimeStyleBase
         {
-            public Style(bool exactTypeMatch = false, Func<StyleMatchContext, bool> matcher = null)
+            public Style(bool exactTypeMatch = false, Func<StyleMatchContext, bool>? matcher = null)
             {
                 Matcher = matcher;
                 ExactTypeMatch = exactTypeMatch;
@@ -129,7 +130,7 @@ namespace DotVVM.Framework.Compilation.Styles
 
             public override Type ControlType => typeof(T);
 
-            public Func<StyleMatchContext, bool> Matcher { get; set; }
+            public Func<StyleMatchContext, bool>? Matcher { get; set; }
 
             public override bool Matches(StyleMatchContext context)
             {

@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -37,7 +38,11 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IDotvvmViewBuilder, DefaultDotvvmViewBuilder>();
             services.TryAddSingleton<IViewModelSerializer, DefaultViewModelSerializer>();
             services.TryAddSingleton<IViewModelLoader, DefaultViewModelLoader>();
+            services.TryAddSingleton<IViewModelServerCache, DefaultViewModelServerCache>();
+            services.TryAddSingleton<IViewModelServerStore, InMemoryViewModelServerStore>();
+#pragma warning disable CS0618
             services.TryAddSingleton<IStaticCommandServiceLoader, DefaultStaticCommandServiceLoader>();
+#pragma warning restore CS0618
             services.TryAddSingleton<IViewModelValidationMetadataProvider, AttributeViewModelValidationMetadataProvider>();
             services.TryAddSingleton<IValidationRuleTranslator, ViewModelValidationRuleTranslator>();
             services.TryAddSingleton<IPropertySerialization, DefaultPropertySerialization>();

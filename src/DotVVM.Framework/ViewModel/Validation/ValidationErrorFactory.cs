@@ -44,7 +44,7 @@ namespace DotVVM.Framework.ViewModel.Validation
 
         private static JavascriptTranslator defaultJavaScriptTranslator = new JavascriptTranslator(
             Options.Create(new JavascriptTranslatorConfiguration()),
-            new ViewModelSerializationMapper(new ViewModelValidationRuleTranslator(), new AttributeViewModelValidationMetadataProvider(), new DefaultPropertySerialization()));
+            new ViewModelSerializationMapper(new ViewModelValidationRuleTranslator(), new AttributeViewModelValidationMetadataProvider(), new DefaultPropertySerialization(), DotvvmConfiguration.CreateDefault()));
 
         public static ValidationResult CreateValidationResult<T>(ValidationContext validationContext, string error, params Expression<Func<T, object>>[] expressions)
         {

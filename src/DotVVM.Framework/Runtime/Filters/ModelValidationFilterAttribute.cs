@@ -1,5 +1,7 @@
+#nullable enable
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel.Validation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -20,7 +22,7 @@ namespace DotVVM.Framework.Runtime.Filters
                 context.FailOnInvalidModelState();
             }
 
-            return Task.FromResult(0);
+            return TaskUtils.GetCompletedTask();
         }
     }
 }

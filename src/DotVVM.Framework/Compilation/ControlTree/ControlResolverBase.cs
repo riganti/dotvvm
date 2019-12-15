@@ -9,6 +9,7 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime;
 using System.Collections.Immutable;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
@@ -118,7 +119,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 				rule.Validate();
 				if (!string.IsNullOrEmpty(rule.TagName))
 				{
-					return FindMarkupControl(rule.Src);
+					return FindMarkupControl(rule.Src.NotNull());
 				}
 			}
 			// then code only control
@@ -126,7 +127,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 			{
 				if (string.IsNullOrEmpty(rule.TagName))
 				{
-					var compiledControl = FindCompiledControl(tagName, rule.Namespace, rule.Assembly);
+					var compiledControl = FindCompiledControl(tagName, rule.Namespace.NotNull(), rule.Assembly.NotNull());
 					if (compiledControl != null)
 					{
 						return compiledControl;

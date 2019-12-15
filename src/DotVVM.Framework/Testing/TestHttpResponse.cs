@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -23,7 +24,7 @@ namespace DotVVM.Framework.Testing
         public IHttpContext Context { get; }
 
         public int StatusCode { get; set; }
-        public string ContentType { get; set; }
+        public string? ContentType { get; set; }
         public Stream Body { get; set; } = new MemoryStream();
 
         public TimeSpan AsyncWriteDelay { get; set; } = TimeSpan.FromMilliseconds(1);

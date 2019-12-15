@@ -1,3 +1,4 @@
+#nullable enable
 using DotVVM.Framework.Binding;
 
 namespace DotVVM.Framework.Controls
@@ -11,6 +12,6 @@ namespace DotVVM.Framework.Controls
 
         [AttachedProperty(typeof(object))]
         [MarkupOptions(AllowHardCodedValue = false)]
-        public static DotvvmProperty TargetProperty = DotvvmProperty.Register<object, Validation>(() => TargetProperty, null, true);
+        public static DotvvmProperty TargetProperty = DotvvmProperty.Register<object?, Validation>(() => TargetProperty, null, true);
     }
 }

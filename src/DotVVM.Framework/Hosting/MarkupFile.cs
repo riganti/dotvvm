@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,9 +9,9 @@ namespace DotVVM.Framework.Hosting
 {
     public class MarkupFile
     {
-        protected bool Equals(MarkupFile other)
+        protected bool Equals(MarkupFile? other)
         {
-            return string.Equals(FullPath, other.FullPath, StringComparison.CurrentCultureIgnoreCase) && LastWriteDateTimeUtc.Equals(other.LastWriteDateTimeUtc);
+            return other != null && string.Equals(FullPath, other.FullPath, StringComparison.CurrentCultureIgnoreCase) && LastWriteDateTimeUtc.Equals(other.LastWriteDateTimeUtc);
         }
 
         public override int GetHashCode()
@@ -49,7 +50,7 @@ namespace DotVVM.Framework.Hosting
             ContentsReaderFactory = () => contents;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj))
             {

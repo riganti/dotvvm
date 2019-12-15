@@ -94,11 +94,11 @@ namespace DotVVM.Framework.Hosting
 
         protected DotvvmRequestContext CreateDotvvmContext(IOwinContext context, IServiceScope scope)
         {
-            return new DotvvmRequestContext {
-                Services = scope.ServiceProvider,
-                HttpContext = ConvertHttpContext(context),
-                Configuration = Configuration,
-            };
+            return new DotvvmRequestContext(
+                ConvertHttpContext(context),
+                Configuration,
+                scope.ServiceProvider
+            );
         }
 
         public static bool IsInCurrentVirtualDirectory(IHttpContext context, ref string url)

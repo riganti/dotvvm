@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,7 +21,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets the object that was validated.
         /// </summary>
-        public object ValidationTarget { get; set; }
+        public object? ValidationTarget { get; set; }
 
 
         /// <summary>

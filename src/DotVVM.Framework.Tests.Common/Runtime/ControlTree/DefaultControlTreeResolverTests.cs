@@ -655,7 +655,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         private ResolvedBinding[] GetLiteralBindings(ResolvedContentNode node) =>
             (from c in node.Content.SelectRecursively(c => c.Content)
             where c.Metadata.Type == typeof(Literal)
-            let text = FunctionalExtensions.GetValueOrDefault(c.Properties, Literal.TextProperty)
+            let text = c.Properties.GetValueOrDefault(Literal.TextProperty)
             where text is ResolvedPropertyBinding
             select ((ResolvedPropertyBinding)text).Binding).ToArray();
 
