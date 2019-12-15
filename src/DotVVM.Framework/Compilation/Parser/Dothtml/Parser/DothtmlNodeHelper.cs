@@ -1,4 +1,3 @@
-#nullable enable
 using System.Linq;
 
 namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
@@ -8,7 +7,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
         public static bool IsNotEmpty(this DothtmlNode node)
         {
             return !(node is DotHtmlCommentNode) &&
-                   !(node is DothtmlLiteralNode literalNode && string.IsNullOrWhiteSpace(literalNode.Value));
+                   !((node is DothtmlLiteralNode) && string.IsNullOrWhiteSpace((node as DothtmlLiteralNode).Value));
         }
 
         public static int GetContentStartPosition(this DothtmlElementNode node)
@@ -25,8 +24,10 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
                 return node.EndPosition;
             }
 
-            if (lastNode is DothtmlElementNode lastElement)
+            if (lastNode is DothtmlElementNode)
             {
+                var lastElement = lastNode as DothtmlElementNode;
+
                 if (lastElement.IsSelfClosingTag)
                 {
                     return lastElement.EndPosition;

@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +10,7 @@ namespace DotVVM.Framework.Binding.HelperNamespace
 {
     public class BindingApi
     {
-        public T RefreshOnChange<T>(T obj, object? refreshOn) => obj;
+        public T RefreshOnChange<T>(T obj, object refreshOn) => obj;
 
         public T RefreshOnEvent<T>(T obj, string eventName) => obj;
 

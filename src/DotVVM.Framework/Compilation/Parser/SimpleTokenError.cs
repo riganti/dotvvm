@@ -1,6 +1,6 @@
 namespace DotVVM.Framework.Compilation.Parser
 {
-    public class SimpleTokenError<TToken, TTokenType> : TokenError<TToken, TTokenType> where TToken : TokenBase<TTokenType>
+    public class SimpleTokenError<TToken, TTokenType> : TokenError<TToken, TTokenType> where TToken : TokenBase<TTokenType>, new()
     {
         public TToken Token { get; private set; }
 

@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,8 +19,8 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public string Text
         {
-            get { return (string)GetValue(TextProperty)!; }
-            set { SetValue(TextProperty, value ?? throw new ArgumentNullException(nameof(value))); }
+            get { return (string)GetValue(TextProperty); }
+            set { SetValue(TextProperty, value); }
         }
         public static readonly DotvvmProperty TextProperty =
             DotvvmProperty.Register<string, ButtonBase>(t => t.Text, "");
@@ -30,13 +29,13 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the command that will be triggered when the button is clicked.
         /// </summary>
-        public Command? Click
+        public Command Click
         {
-            get { return (Command?)GetValue(ClickProperty); }
+            get { return (Command)GetValue(ClickProperty); }
             set { SetValue(ClickProperty, value); }
         }
         public static readonly DotvvmProperty ClickProperty =
-            DotvvmProperty.Register<Command?, ButtonBase>(t => t.Click, null);
+            DotvvmProperty.Register<Command, ButtonBase>(t => t.Click, null);
 
 
         /// <summary>
@@ -44,7 +43,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public bool Enabled
         {
-            get { return (bool)GetValue(EnabledProperty)!; }
+            get { return (bool)GetValue(EnabledProperty); }
             set {  SetValue(EnabledProperty, value); }
         }
         public static readonly DotvvmProperty EnabledProperty =

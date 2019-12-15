@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
@@ -21,7 +20,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowHardCodedValue = false)]
         public bool Checked
         {
-            get { return (bool)GetValue(CheckedProperty)!; }
+            get { return (bool)GetValue(CheckedProperty); }
             set { SetValue(CheckedProperty, value); }
         }
 
@@ -32,13 +31,13 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the <see cref="CheckableControlBase.CheckedValue"/> of the first <see cref="RadioButton" /> that is checked and bound to this collection.
         /// </summary>
         [MarkupOptions(AllowHardCodedValue = false)]
-        public object? CheckedItem
+        public object CheckedItem
         {
             get { return GetValue(CheckedItemProperty); }
             set { SetValue(CheckedItemProperty, value); }
         }
         public static readonly DotvvmProperty CheckedItemProperty =
-            DotvvmProperty.Register<object?, RadioButton>(t => t.CheckedItem, null);
+            DotvvmProperty.Register<object, RadioButton>(t => t.CheckedItem, null);
 
         /// <summary>
         /// Gets or sets an unique name of the radio button group.
@@ -46,8 +45,8 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false)]
         public string GroupName
         {
-            get { return (string)GetValue(GroupNameProperty)!; }
-            set { SetValue(GroupNameProperty, value ?? throw new ArgumentNullException(nameof(value))); }
+            get { return (string)GetValue(GroupNameProperty); }
+            set { SetValue(GroupNameProperty, value); }
         }
         public static readonly DotvvmProperty GroupNameProperty =
             DotvvmProperty.Register<string, RadioButton>(t => t.GroupName, "");
@@ -114,7 +113,7 @@ namespace DotVVM.Framework.Controls
             var from = control.GetValue(CheckedValueProperty)?.GetResultType();
 
             if (to != null && from != null
-                && !to.IsAssignableFrom(from) && !nonNullableTo!.IsAssignableFrom(from))
+                && !to.IsAssignableFrom(from) && !nonNullableTo.IsAssignableFrom(from))
             {
                 yield return new ControlUsageError(
                     $"CheckedItem type \'{to}\' must be the same as or a nullable " +

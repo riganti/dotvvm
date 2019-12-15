@@ -1,6 +1,4 @@
-﻿#nullable enable
-using DotVVM.Framework.Binding;
-using System;
+﻿using DotVVM.Framework.Binding;
 namespace DotVVM.Framework.Controls
 {
     public class ConcurrencyQueueSetting : DotvvmBindableObject
@@ -9,13 +7,13 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the name of the event which the rule applies to. 
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
-        public string? EventName
+        public string EventName
         {
-            get { return (string?)GetValue(EventNameProperty); }
+            get { return (string)GetValue(EventNameProperty); }
             set { SetValue(EventNameProperty, value); }
         }
         public static readonly DotvvmProperty EventNameProperty
-            = DotvvmProperty.Register<string?, ConcurrencyQueueSetting>(c => c.EventName, null);
+            = DotvvmProperty.Register<string, ConcurrencyQueueSetting>(c => c.EventName, null);
 
 
         /// <summary>
@@ -24,8 +22,8 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false)]
         public string ConcurrencyQueue
         {
-            get { return (string)GetValue(ConcurrencyQueueProperty)!; }
-            set { SetValue(ConcurrencyQueueProperty, value ?? throw new ArgumentNullException(nameof(value))); }
+            get { return (string)GetValue(ConcurrencyQueueProperty); }
+            set { SetValue(ConcurrencyQueueProperty, value); }
         }
         public static readonly DotvvmProperty ConcurrencyQueueProperty
             = DotvvmProperty.Register<string, ConcurrencyQueueSetting>(c => c.ConcurrencyQueue, "default");

@@ -116,7 +116,7 @@ class DotvvmSerialization {
             if (!ko.isObservable(value) && typeof (value) === "function") {
                 continue;
             }
-            const options = viewModel[prop + "$options"] || (unwrappedTarget && unwrappedTarget[prop + "$options"]);
+            const options = viewModel[prop + "$options"];
             if (!deserializeAll && options && options.doNotUpdate) {
                 continue;
             }

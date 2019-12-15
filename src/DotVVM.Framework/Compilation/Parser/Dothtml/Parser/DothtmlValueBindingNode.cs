@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 
@@ -7,12 +6,6 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 {
     public class DothtmlValueBindingNode : DothtmlValueNode
     {
-        public DothtmlValueBindingNode(DothtmlBindingNode bindingNode, IReadOnlyList<DothtmlToken> valueTokens)
-        {
-            BindingNode = bindingNode;
-            ValueTokens = valueTokens;
-        }
-
         public DothtmlBindingNode BindingNode { get; set; }
 
         public IReadOnlyList<DothtmlToken> ValueTokens { get; set; }

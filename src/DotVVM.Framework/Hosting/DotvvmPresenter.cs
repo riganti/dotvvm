@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -36,11 +35,7 @@ namespace DotVVM.Framework.Hosting
         /// Initializes a new instance of the <see cref="DotvvmPresenter" /> class.
         /// </summary>
         public DotvvmPresenter(DotvvmConfiguration configuration, IDotvvmViewBuilder viewBuilder, IViewModelLoader viewModelLoader, IViewModelSerializer viewModelSerializer,
-            IOutputRenderer outputRender, ICsrfProtector csrfProtector, IViewModelParameterBinder viewModelParameterBinder,
-#pragma warning disable CS0618
-            IStaticCommandServiceLoader staticCommandServiceLoader
-#pragma warning restore CS0618
-        )
+            IOutputRenderer outputRender, ICsrfProtector csrfProtector, IViewModelParameterBinder viewModelParameterBinder, IStaticCommandServiceLoader staticCommandServiceLoader)
         {
             DotvvmViewBuilder = viewBuilder;
             ViewModelLoader = viewModelLoader;
@@ -48,9 +43,7 @@ namespace DotVVM.Framework.Hosting
             OutputRenderer = outputRender;
             CsrfProtector = csrfProtector;
             ViewModelParameterBinder = viewModelParameterBinder;
-#pragma warning disable CS0618
             StaticCommandServiceLoader = staticCommandServiceLoader;
-#pragma warning restore CS0618
             ApplicationPath = configuration.ApplicationPhysicalPath;
         }
 
@@ -66,11 +59,9 @@ namespace DotVVM.Framework.Hosting
 
         public IViewModelParameterBinder ViewModelParameterBinder { get; }
 
-#pragma warning disable CS0618
         [Obsolete(DefaultStaticCommandServiceLoader.DeprecationNotice)]
 
         public IStaticCommandServiceLoader StaticCommandServiceLoader { get; }
-#pragma warning restore CS0618
 
         public string ApplicationPath { get; }
 
@@ -179,7 +170,7 @@ namespace DotVVM.Framework.Hosting
                 // run the init phase in the page
                 DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Init);
                 await requestTracer.TraceEvent(RequestTracingConstants.InitCompleted, context);
-                object? commandResult = null;
+                object commandResult = null;
 
                 if (!isPostBack)
                 {
@@ -213,7 +204,7 @@ namespace DotVVM.Framework.Hosting
                     // validate CSRF token
                     try
                     {
-                        CsrfProtector.VerifyToken(context, context.CsrfToken.NotNull());
+                        CsrfProtector.VerifyToken(context, context.CsrfToken);
                     }
                     catch (SecurityException exc)
                     {
@@ -255,7 +246,7 @@ namespace DotVVM.Framework.Hosting
                 await requestTracer.TraceEvent(RequestTracingConstants.PreRenderCompleted, context);
 
                 // generate CSRF token if required
-                if (string.IsNullOrEmpty(context.CsrfToken) && !context.Configuration.ExperimentalFeatures.LazyCsrfToken.IsEnabledForRoute(context.Route!.RouteName))
+                if (string.IsNullOrEmpty(context.CsrfToken) && !context.Configuration.ExperimentalFeatures.LazyCsrfToken.IsEnabledForRoute(context.Route.RouteName))
                 {
                     context.CsrfToken = CsrfProtector.GenerateToken(context);
                 }
@@ -268,7 +259,7 @@ namespace DotVVM.Framework.Hosting
                 await requestTracer.TraceEvent(RequestTracingConstants.ViewModelSerialized, context);
 
                 ViewModelSerializer.BuildViewModel(context);
-                if (commandResult != null) context.ViewModelJson!["commandResult"] = JToken.FromObject(commandResult);
+                if (commandResult != null) context.ViewModelJson["commandResult"] = JToken.FromObject(commandResult);
 
                 if (!context.IsInPartialRenderingMode)
                 {
@@ -290,13 +281,7 @@ namespace DotVVM.Framework.Hosting
 
                 foreach (var f in requestFilters) await f.OnPageRenderedAsync(context);
             }
-            catch (CorruptedCsrfTokenException) { throw; }
-            catch (DotvvmInterruptRequestExecutionException ex) when (ex.InterruptReason == InterruptReason.CachedViewModelMissing)
-            {
-                // the client needs to repeat the postback and send the full viewmodel
-                await context.SetCachedViewModelMissingResponse();
-                throw;
-            }
+            catch (CorruptedCsrfTokenException e) { throw; }
             catch (DotvvmInterruptRequestExecutionException) { throw; }
             catch (DotvvmHttpException) { throw; }
             catch (Exception ex)
@@ -320,22 +305,16 @@ namespace DotVVM.Framework.Hosting
                 {
                     ViewModelLoader.DisposeViewModel(context.ViewModel);
                 }
-#pragma warning disable CS0618
                 StaticCommandServiceLoader.DisposeStaticCommandServices(context);
-#pragma warning restore CS0618
             }
         }
 
-        private object? ExecuteStaticCommandPlan(StaticCommandInvocationPlan plan, Queue<JToken> arguments, IDotvvmRequestContext context)
+        private object ExecuteStaticCommandPlan(StaticCommandInvocationPlan plan, Queue<JToken> arguments, IDotvvmRequestContext context)
         {
             var methodArgs = plan.Arguments.Select((a, index) =>
                 a.Type == StaticCommandParameterType.Argument ? arguments.Dequeue().ToObject((Type)a.Arg) :
                 a.Type == StaticCommandParameterType.Constant || a.Type == StaticCommandParameterType.DefaultValue ? a.Arg :
-                a.Type == StaticCommandParameterType.Inject ?
-#pragma warning disable CS0618
-
-                                                              StaticCommandServiceLoader.GetStaticCommandService((Type)a.Arg, context) :
-#pragma warning restore CS0618
+                a.Type == StaticCommandParameterType.Inject ? StaticCommandServiceLoader.GetStaticCommandService((Type)a.Arg, context) :
                 a.Type == StaticCommandParameterType.Invocation ? ExecuteStaticCommandPlan((StaticCommandInvocationPlan)a.Arg, arguments, context) :
                 throw new NotSupportedException("" + a.Type)
             ).ToArray();
@@ -364,7 +343,7 @@ namespace DotVVM.Framework.Hosting
 
                 var actionInfo = new ActionInfo {
                     IsControlCommand = false,
-                    Action = () => { return ExecuteStaticCommandPlan(executionPlan, new Queue<JToken>(arguments.NotNull()), context); }
+                    Action = () => { return ExecuteStaticCommandPlan(executionPlan, new Queue<JToken>(arguments), context); }
                 };
                 var filters = context.Configuration.Runtime.GlobalFilters.OfType<ICommandActionFilter>()
                     .Concat(executionPlan.GetAllMethods().SelectMany(m => ActionFilterHelper.GetActionFilters<ICommandActionFilter>(m)))
@@ -377,13 +356,11 @@ namespace DotVVM.Framework.Hosting
             }
             finally
             {
-#pragma warning disable CS0618
                 StaticCommandServiceLoader.DisposeStaticCommandServices(context);
-#pragma warning restore CS0618
             }
         }
 
-        protected async Task<object?> ExecuteCommand(ActionInfo action, IDotvvmRequestContext context, IEnumerable<ICommandActionFilter> methodFilters)
+        protected async Task<object> ExecuteCommand(ActionInfo action, IDotvvmRequestContext context, IEnumerable<ICommandActionFilter> methodFilters)
         {
             // run OnCommandExecuting on action filters
             foreach (var filter in methodFilters)
@@ -391,8 +368,8 @@ namespace DotVVM.Framework.Hosting
                 await filter.OnCommandExecutingAsync(context, action);
             }
 
-            object? result = null;
-            Task? resultTask = null;
+            object result = null;
+            Task resultTask = null;
 
             try
             {
@@ -406,7 +383,7 @@ namespace DotVVM.Framework.Hosting
             }
             catch (Exception ex)
             {
-                if (ex is TargetInvocationException && ex.InnerException is object)
+                if (ex is TargetInvocationException)
                 {
                     ex = ex.InnerException;
                 }

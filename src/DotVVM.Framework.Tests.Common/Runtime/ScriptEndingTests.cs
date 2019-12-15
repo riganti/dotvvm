@@ -30,16 +30,6 @@ namespace DotVVM.Framework.Tests.Common.Runtime
         }
 
         [DataTestMethod]
-        [DataRow("</style>")]
-        [DataRow("djsfkjdsfksdhfk</style  ")]
-        [DataRow("fjhdsfkjdskjfh</styl</STylE  ")]
-        [DataRow("</st</style>yle>")]
-        public void TestStyleResources(string forbiddenString)
-        {
-            Assert.ThrowsException<Exception>(() => new InlineStylesheetResource(forbiddenString));
-        }
-
-        [DataTestMethod]
         [DataRow("<div")]
         [DataRow("div>")]
         [DataRow("&#x200B;")]

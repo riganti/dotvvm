@@ -1,4 +1,3 @@
-#nullable enable
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
@@ -16,7 +15,7 @@ namespace DotVVM.Framework.Runtime.Commands
         /// <summary>
         /// Resolves the command called on the DotvvmControl.
         /// </summary>
-        public ActionInfo GetFunction(DotvvmControl? targetControl, DotvvmControl viewRootControl, IDotvvmRequestContext context, string[] path, string commandId, object[] args)
+        public ActionInfo GetFunction(DotvvmControl targetControl, DotvvmControl viewRootControl, IDotvvmRequestContext context, string[] path, string commandId, object[] args)
         {
             // event validation
             var validationTargetPath = context.ModelState.ValidationTargetPath;

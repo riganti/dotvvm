@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,8 +12,8 @@ namespace DotVVM.Framework.ResourceManagement
         public ResourceRenderPosition RenderPosition => ResourceRenderPosition.Body;
         public string[] Dependencies { get; } = new string[0];
 
-        private string? _template;
-        public string? Template
+        private string _template;
+        public string Template
         {
             get => _template;
             set
@@ -31,7 +30,6 @@ namespace DotVVM.Framework.ResourceManagement
 
         public void Render(IHtmlWriter writer, IDotvvmRequestContext context, string resourceName)
         {
-            if (string.IsNullOrWhiteSpace(Template)) return;
             writer.AddAttribute("type", "text/html");
             writer.AddAttribute("id", resourceName);
             writer.RenderBeginTag("script");

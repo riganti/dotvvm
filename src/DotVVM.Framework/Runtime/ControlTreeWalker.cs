@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,9 +11,9 @@ namespace DotVVM.Framework.Runtime
 
         private DotvvmBindableObject root;
 
-        public Stack<string> CurrentPath { get; private set; } = null!;
+        public Stack<string> CurrentPath { get; private set; }
 
-        public string[]? CurrentPathArray { get; private set; }
+        public string[] CurrentPathArray { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ControlTreeWalker"/> class.
@@ -51,7 +50,7 @@ namespace DotVVM.Framework.Runtime
         {
             // if there is a DataContext binding, locate the correct token
             var hasDataContext = false;
-            string? pathValue = null;
+            string pathValue;
             try
             {
                 // may throw exception if the control tree is not path-addressable

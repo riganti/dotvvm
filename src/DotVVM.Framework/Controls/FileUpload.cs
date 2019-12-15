@@ -1,5 +1,3 @@
-#nullable enable
-using System;
 using System.Net;
 using System.Text;
 using DotVVM.Framework.Binding;
@@ -25,14 +23,14 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets a collection of uploaded files.
         /// </summary>
         [MarkupOptions(AllowHardCodedValue = false, Required = true)]
-        public UploadedFilesCollection? UploadedFiles
+        public UploadedFilesCollection UploadedFiles
         {
-            get { return (UploadedFilesCollection?)GetValue(UploadedFilesProperty); }
+            get { return (UploadedFilesCollection)GetValue(UploadedFilesProperty); }
             set { SetValue(UploadedFilesProperty, value); }
         }
 
         public static readonly DotvvmProperty UploadedFilesProperty
-            = DotvvmProperty.Register<UploadedFilesCollection?, FileUpload>(p => p.UploadedFiles);
+            = DotvvmProperty.Register<UploadedFilesCollection, FileUpload>(p => p.UploadedFiles);
 
         /// <summary>
         /// Gets or sets whether the user can select multiple files at once. It is enabled by default.
@@ -40,7 +38,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false)]
         public bool AllowMultipleFiles
         {
-            get { return (bool)GetValue(AllowMultipleFilesProperty)!; }
+            get { return (bool)GetValue(AllowMultipleFilesProperty); }
             set { SetValue(AllowMultipleFilesProperty, value); }
         }
 
@@ -52,14 +50,14 @@ namespace DotVVM.Framework.Controls
         /// specifiers (e.g. ".jpg,image/png,audio/*"). All file types are allowed by default.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
-        public string? AllowedFileTypes
+        public string AllowedFileTypes
         {
             get { return GetValue(AllowedFileTypesProperty) as string; }
             set { SetValue(AllowedFileTypesProperty, value); }
         }
 
         public static readonly DotvvmProperty AllowedFileTypesProperty
-            = DotvvmProperty.Register<string?, FileUpload>(p => p.AllowedFileTypes);
+            = DotvvmProperty.Register<string, FileUpload>(p => p.AllowedFileTypes);
 
         /// <summary>
         /// Gets or sets the maximum size of files in megabytes (MB). The size is not limited by default.
@@ -79,8 +77,8 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public string UploadButtonText
         {
-            get { return (string)GetValue(UploadButtonTextProperty)!; }
-            set { SetValue(UploadButtonTextProperty, value ?? throw new ArgumentNullException(nameof(value))); }
+            get { return (string)GetValue(UploadButtonTextProperty); }
+            set { SetValue(UploadButtonTextProperty, value); }
         }
 
         public static readonly DotvvmProperty UploadButtonTextProperty
@@ -90,51 +88,51 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the text on the indicator showing number of files. The default value is "{0} files". The number of files
         /// will be substituted for the "{0}" placeholder.
         /// </summary>
-        public string? NumberOfFilesIndicatorText
+        public string NumberOfFilesIndicatorText
         {
-            get { return (string?)GetValue(NumberOfFilesIndicatorTextProperty); }
+            get { return (string)GetValue(NumberOfFilesIndicatorTextProperty); }
             set { SetValue(NumberOfFilesIndicatorTextProperty, value); }
         }
 
         public static readonly DotvvmProperty NumberOfFilesIndicatorTextProperty
-            = DotvvmProperty.Register<string?, FileUpload>(c => c.NumberOfFilesIndicatorText, Resources.Controls.FileUpload_NumberOfFilesText, true);
+            = DotvvmProperty.Register<string, FileUpload>(c => c.NumberOfFilesIndicatorText, Resources.Controls.FileUpload_NumberOfFilesText, true);
 
         /// <summary>
         /// Gets or sets the text that appears when there is an error during the upload.
         /// </summary>
-        public string? UploadErrorMessageText
+        public string UploadErrorMessageText
         {
-            get { return (string?)GetValue(UploadErrorMessageTextProperty); }
+            get { return (string)GetValue(UploadErrorMessageTextProperty); }
             set { SetValue(UploadErrorMessageTextProperty, value); }
         }
 
         public static readonly DotvvmProperty UploadErrorMessageTextProperty
-            = DotvvmProperty.Register<string?, FileUpload>(c => c.UploadErrorMessageText, Resources.Controls.FileUpload_UploadErrorMessageText, true);
+            = DotvvmProperty.Register<string, FileUpload>(c => c.UploadErrorMessageText, Resources.Controls.FileUpload_UploadErrorMessageText, true);
 
         /// <summary>
         /// Gets or sets the text that appears when all files are uploaded successfully.
         /// </summary>
-        public string? SuccessMessageText
+        public string SuccessMessageText
         {
-            get { return (string?)GetValue(SuccessMessageTextProperty); }
+            get { return (string)GetValue(SuccessMessageTextProperty); }
             set { SetValue(SuccessMessageTextProperty, value); }
         }
 
         public static readonly DotvvmProperty SuccessMessageTextProperty
-            = DotvvmProperty.Register<string?, FileUpload>(c => c.SuccessMessageText, Resources.Controls.FileUpload_SuccessMessageText, true);
+            = DotvvmProperty.Register<string, FileUpload>(c => c.SuccessMessageText, Resources.Controls.FileUpload_SuccessMessageText, true);
 
         /// <summary>
         /// Gets or sets a command that is triggered when the upload is complete.
         /// </summary>
         [MarkupOptions(AllowHardCodedValue = false)]
-        public Command? UploadCompleted
+        public Command UploadCompleted
         {
-            get { return (Command?)GetValue(UploadCompletedProperty); }
+            get { return (Command)GetValue(UploadCompletedProperty); }
             set { SetValue(UploadCompletedProperty, value); }
         }
 
         public static readonly DotvvmProperty UploadCompletedProperty
-            = DotvvmProperty.Register<Command?, FileUpload>(p => p.UploadCompleted);
+            = DotvvmProperty.Register<Command, FileUpload>(p => p.UploadCompleted);
 
         protected internal override void OnPreRender(IDotvvmRequestContext context)
         {

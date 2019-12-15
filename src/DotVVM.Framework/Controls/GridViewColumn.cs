@@ -1,4 +1,3 @@
-#nullable enable
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
 using System;
@@ -12,116 +11,116 @@ namespace DotVVM.Framework.Controls
     public abstract class GridViewColumn : DotvvmBindableObject
     {
         [PopDataContextManipulation]
-        public string? HeaderText
+        public string HeaderText
         {
-            get { return (string?)GetValue(HeaderTextProperty); }
+            get { return (string)GetValue(HeaderTextProperty); }
             set { SetValue(HeaderTextProperty, value); }
         }
         public static readonly DotvvmProperty HeaderTextProperty
-            = DotvvmProperty.Register<string?, GridViewColumn>(c => c.HeaderText, null);
+            = DotvvmProperty.Register<string, GridViewColumn>(c => c.HeaderText, null);
 
         [PopDataContextManipulation]
         [MarkupOptions(MappingMode = MappingMode.InnerElement)]
-        public ITemplate? HeaderTemplate
+        public ITemplate HeaderTemplate
         {
-            get { return (ITemplate?)GetValue(HeaderTemplateProperty); }
+            get { return (ITemplate)GetValue(HeaderTemplateProperty); }
             set { SetValue(HeaderTemplateProperty, value); }
         }
         public static readonly DotvvmProperty HeaderTemplateProperty
-            = DotvvmProperty.Register<ITemplate?, GridViewColumn>(c => c.HeaderTemplate, null);
+            = DotvvmProperty.Register<ITemplate, GridViewColumn>(c => c.HeaderTemplate, null);
 
         [PopDataContextManipulation]
         [MarkupOptions(MappingMode = MappingMode.InnerElement)]
-        public ITemplate? FilterTemplate
+        public ITemplate FilterTemplate
         {
-            get { return (ITemplate?)GetValue(FilterTemplateProperty); }
+            get { return (ITemplate)GetValue(FilterTemplateProperty); }
             set { SetValue(FilterTemplateProperty, value); }
         }
         public static readonly DotvvmProperty FilterTemplateProperty
-            = DotvvmProperty.Register<ITemplate?, GridViewColumn>(c => c.FilterTemplate, null);
+            = DotvvmProperty.Register<ITemplate, GridViewColumn>(c => c.FilterTemplate, null);
 
         [PopDataContextManipulation]
         [MarkupOptions(AllowBinding = false)]
-        public string? SortExpression
+        public string SortExpression
         {
-            get { return (string?)GetValue(SortExpressionProperty); }
+            get { return (string)GetValue(SortExpressionProperty); }
             set { SetValue(SortExpressionProperty, value); }
         }
         public static readonly DotvvmProperty SortExpressionProperty =
-            DotvvmProperty.Register<string?, GridViewColumn>(c => c.SortExpression);
+            DotvvmProperty.Register<string, GridViewColumn>(c => c.SortExpression);
 
         [PopDataContextManipulation]
         [MarkupOptions(AllowBinding = false)]
-        public string? SortAscendingHeaderCssClass
+        public string SortAscendingHeaderCssClass
         {
-            get { return (string?)GetValue(SortAscendingHeaderCssClassProperty); }
+            get { return (string)GetValue(SortAscendingHeaderCssClassProperty); }
             set { SetValue(SortAscendingHeaderCssClassProperty, value); }
         }
         public static readonly DotvvmProperty SortAscendingHeaderCssClassProperty =
-            DotvvmProperty.Register<string?, GridViewColumn>(c => c.SortAscendingHeaderCssClass, "sort-asc");
+            DotvvmProperty.Register<string, GridViewColumn>(c => c.SortAscendingHeaderCssClass, "sort-asc");
 
         [PopDataContextManipulation]
         [MarkupOptions(AllowBinding = false)]
-        public string? SortDescendingHeaderCssClass
+        public string SortDescendingHeaderCssClass
         {
-            get { return (string?)GetValue(SortDescendingHeaderCssClassProperty); }
+            get { return (string)GetValue(SortDescendingHeaderCssClassProperty); }
             set { SetValue(SortDescendingHeaderCssClassProperty, value); }
         }
         public static readonly DotvvmProperty SortDescendingHeaderCssClassProperty =
-            DotvvmProperty.Register<string?, GridViewColumn>(c => c.SortDescendingHeaderCssClass, "sort-desc");
+            DotvvmProperty.Register<string, GridViewColumn>(c => c.SortDescendingHeaderCssClass, "sort-desc");
 
         [PopDataContextManipulation]
         [MarkupOptions(AllowBinding = false)]
         public bool AllowSorting
         {
-            get { return (bool)GetValue(AllowSortingProperty)!; }
+            get { return (bool)GetValue(AllowSortingProperty); }
             set { SetValue(AllowSortingProperty, value); }
         }
         public static readonly DotvvmProperty AllowSortingProperty
             = DotvvmProperty.Register<bool, GridViewColumn>(c => c.AllowSorting, false);
 
-        public string? CssClass
+        public string CssClass
         {
-            get { return (string?)GetValue(CssClassProperty); }
+            get { return (string)GetValue(CssClassProperty); }
             set { SetValue(CssClassProperty, value); }
         }
         public static readonly DotvvmProperty CssClassProperty =
-            DotvvmProperty.Register<string?, GridViewColumn>(c => c.CssClass);
+            DotvvmProperty.Register<string, GridViewColumn>(c => c.CssClass);
 
         [PopDataContextManipulation]
         [MarkupOptions(AllowBinding = false)]
         public bool IsEditable
         {
-            get { return (bool)GetValue(IsEditableProperty)!; }
+            get { return (bool)GetValue(IsEditableProperty); }
             set { SetValue(IsEditableProperty, value); }
         }
         public static readonly DotvvmProperty IsEditableProperty =
             DotvvmProperty.Register<bool, GridViewColumn>(t => t.IsEditable, true);
 
         [PopDataContextManipulation]
-        public string? HeaderCssClass
+        public string HeaderCssClass
         {
-            get { return (string?)GetValue(HeaderCssClassProperty); }
+            get { return (string)GetValue(HeaderCssClassProperty); }
             set { SetValue(HeaderCssClassProperty, value); }
         }
         public static readonly DotvvmProperty HeaderCssClassProperty =
-            DotvvmProperty.Register<string?, GridViewColumn>(c => c.HeaderCssClass);
+            DotvvmProperty.Register<string, GridViewColumn>(c => c.HeaderCssClass);
 
         [PopDataContextManipulation]
         [MarkupOptions(AllowBinding = false)]
-        public string? Width
+        public string Width
         {
-            get { return (string?)GetValue(WidthProperty); }
+            get { return (string)GetValue(WidthProperty); }
             set { SetValue(WidthProperty, value); }
         }
         public static readonly DotvvmProperty WidthProperty
-            = DotvvmProperty.Register<string?, GridViewColumn>(c => c.Width, null);
+            = DotvvmProperty.Register<string, GridViewColumn>(c => c.Width, null);
 
         [PopDataContextManipulation]
         [MarkupOptions(AllowHardCodedValue = false)]
         public bool Visible
         {
-            get { return (bool)GetValue(VisibleProperty)!; }
+            get { return (bool)GetValue(VisibleProperty); }
             set { SetValue(VisibleProperty, value); }
         }
         public static readonly DotvvmProperty VisibleProperty
@@ -132,7 +131,7 @@ namespace DotVVM.Framework.Controls
 
         public abstract void CreateEditControls(IDotvvmRequestContext context, DotvvmControl container);
 
-        public virtual void CreateHeaderControls(IDotvvmRequestContext context, GridView gridView, Action<string?>? sortCommand, HtmlGenericControl cell, IGridViewDataSet? gridViewDataSet)
+        public virtual void CreateHeaderControls(IDotvvmRequestContext context, GridView gridView, Action<string> sortCommand, HtmlGenericControl cell, IGridViewDataSet gridViewDataSet)
         {
             if (HeaderTemplate != null)
             {
@@ -167,7 +166,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        public virtual void CreateFilterControls(IDotvvmRequestContext context, GridView gridView, HtmlGenericControl cell, ISortableGridViewDataSet? sortableGridViewDataSet)
+        public virtual void CreateFilterControls(IDotvvmRequestContext context, GridView gridView, HtmlGenericControl cell, ISortableGridViewDataSet sortableGridViewDataSet)
         {
             if (FilterTemplate != null)
             {
@@ -177,7 +176,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void SetSortedCssClass(HtmlGenericControl cell, ISortableGridViewDataSet? sortableGridViewDataSet)
+        private void SetSortedCssClass(HtmlGenericControl cell, ISortableGridViewDataSet sortableGridViewDataSet)
         {
             if (sortableGridViewDataSet != null)
             {
@@ -199,7 +198,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        protected virtual string? GetSortExpression()
+        protected virtual string GetSortExpression()
         {
             // TODO: verify that sortExpression is a single property name
             return SortExpression;

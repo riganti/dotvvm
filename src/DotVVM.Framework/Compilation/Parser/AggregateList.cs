@@ -1,8 +1,6 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace DotVVM.Framework.Compilation.Parser
@@ -10,7 +8,7 @@ namespace DotVVM.Framework.Compilation.Parser
     public class AggregateList<T> : IReadOnlyList<T>
     {
         Part firstPart;
-        List<Part>? parts;
+        List<Part> parts;
 
         public void Add(IReadOnlyList<T> list, int len = -1, int from = 0) => Add(new Part(list, from, len < 0 ? list.Count : len));
 
@@ -107,12 +105,10 @@ namespace DotVVM.Framework.Compilation.Parser
             return GetEnumerator();
         }
 
-        [return: MaybeNull]
-        public T FirstOrDefault() => firstPart.len > 0 ? firstPart.list[firstPart.from] : default(T)!;
+        public T FirstOrDefault() => firstPart.len > 0 ? firstPart.list[firstPart.from] : default(T);
         public T First() => firstPart.len > 0 ? firstPart.list[firstPart.from] : throw new InvalidOperationException("AggregateList does not contain any element");
-        public T Last() => parts != null ? parts[parts.Count - 1].Last() : firstPart.Last();
-        [return: MaybeNull]
-        public T LastOrDefault() => parts != null ? parts[parts.Count - 1].Last() : firstPart.LastOrDefault()!;
+        public T Last() => parts != null ? parts[parts.Count].Last() : firstPart.Last();
+        public T LastOrDefault() => parts != null ? parts[parts.Count].Last() : firstPart.LastOrDefault();
 
         public bool TryGetSinglePart(out Part part)
         {
@@ -124,11 +120,11 @@ namespace DotVVM.Framework.Compilation.Parser
         public struct Enumerator : IEnumerator<T>
         {
             private Part firstPart;
-            private List<Part>? parts;
+            private List<Part> parts;
             private int index;
             private int pindex;
 
-            public Enumerator(Part firstPart, List<Part>? parts)
+            public Enumerator(Part firstPart, List<Part> parts)
             {
                 this.firstPart = firstPart;
                 this.parts = parts;
@@ -136,11 +132,11 @@ namespace DotVVM.Framework.Compilation.Parser
                 pindex = -1;
             }
 
-            private Part CurrentPart => pindex < 0 ? firstPart : parts![pindex];
+            private Part CurrentPart => pindex < 0 ? firstPart : parts[pindex];
 
             public T Current => CurrentPart.list[index];
 
-            object? IEnumerator.Current => Current;
+            object IEnumerator.Current => Current;
 
             public void Dispose() { parts = null; }
 
@@ -185,8 +181,7 @@ namespace DotVVM.Framework.Compilation.Parser
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
             public T Last() => len > 0 ? list[from + len - 1] : throw new InvalidOperationException("AggregateList does not contain any element.");
-            [return: MaybeNull]
-            public T LastOrDefault() => len > 0 ? list[from + len - 1] : default(T)!;
+            public T LastOrDefault() => len > 0 ? list[from + len - 1] : default(T);
         }
     }
 }

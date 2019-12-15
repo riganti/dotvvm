@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
@@ -187,13 +186,13 @@ namespace DotVVM.Framework.Binding.Properties
     /// </summary>
     public sealed class LocationInfoBindingProperty
     {
-        public readonly string? FileName;
-        public readonly (int, int)[]? Ranges;
+        public readonly string FileName;
+        public readonly (int, int)[] Ranges;
         public readonly int LineNumber;
-        public readonly Type? ControlType;
-        public readonly DotvvmProperty? RelatedProperty;
+        public readonly Type ControlType;
+        public readonly DotvvmProperty RelatedProperty;
 
-        public LocationInfoBindingProperty(string fileName, (int, int)[] ranges, int lineNumber, Type controlType, DotvvmProperty? relatedProperty = null)
+        public LocationInfoBindingProperty(string fileName, (int, int)[] ranges, int lineNumber, Type controlType, DotvvmProperty relatedProperty = null)
         {
             this.FileName = fileName;
             this.Ranges = ranges;

@@ -1,4 +1,3 @@
-#nullable enable
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Runtime;
 using System;
@@ -24,7 +23,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false)]
         public bool IsSubmitButton
         {
-            get { return (bool)GetValue(IsSubmitButtonProperty)!; }
+            get { return (bool)GetValue(IsSubmitButtonProperty); }
             set { SetValue(IsSubmitButtonProperty, value); }
         }
 
@@ -37,7 +36,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false)]
         public ButtonTagName ButtonTagName
         {
-            get { return (ButtonTagName)GetValue(ButtonTagNameProperty)!; }
+            get { return (ButtonTagName)GetValue(ButtonTagNameProperty); }
             set { SetValue(ButtonTagNameProperty, value); }
         }
 

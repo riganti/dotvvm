@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +7,6 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Runtime;
-using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls
 {
@@ -18,15 +16,13 @@ namespace DotVVM.Framework.Controls
     public class Decorator : HtmlGenericControl 
     {
 
-        protected override bool RendersHtmlTag => true;
-
-        public Decorator() : base(null)
+        public Decorator() : base("")
         {
         }
 
         public virtual Decorator Clone()
         {
-            var decorator = (Decorator)Activator.CreateInstance(GetType()).NotNull();
+            var decorator = (Decorator)Activator.CreateInstance(GetType());
 
             foreach (var prop in properties)
             {

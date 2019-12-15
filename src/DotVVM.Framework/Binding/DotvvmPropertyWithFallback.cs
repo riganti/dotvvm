@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using DotVVM.Framework.Controls;
@@ -17,13 +16,8 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public DotvvmProperty FallbackProperty { get; protected set; }
 
-        public DotvvmPropertyWithFallback(DotvvmProperty fallbackProperty)
-        {
-            this.FallbackProperty = fallbackProperty;
-        }
-
         /// <inheritdoc />
-        public override object? GetValue(DotvvmBindableObject control, bool inherit = true)
+        public override object GetValue(DotvvmBindableObject control, bool inherit = true)
         {
             if (!TryGetValue(control, out var value, inherit))
             {
@@ -62,11 +56,11 @@ namespace DotVVM.Framework.Binding
         /// <param name="isValueInherited">Indicates whether the value can be inherited from the parent controls.</param>
         public static DotvvmPropertyWithFallback Register<TPropertyType, TDeclaringType>(string propertyName, DotvvmProperty fallbackProperty, bool isValueInherited = false)
         {
-            var property = new DotvvmPropertyWithFallback(fallbackProperty);
-            return (DotvvmPropertyWithFallback)Register<TPropertyType, TDeclaringType>(propertyName, isValueInherited: isValueInherited, property: property);
+            var property = new DotvvmPropertyWithFallback { FallbackProperty = fallbackProperty };
+            return Register<TPropertyType, TDeclaringType>(propertyName, isValueInherited: isValueInherited, property: property) as DotvvmPropertyWithFallback;
         }
 
-        private bool TryGetValue(DotvvmBindableObject control, out object? value, bool inherit = true)
+        private bool TryGetValue(DotvvmBindableObject control, out object value, bool inherit = true)
         {
             if (control.properties.TryGet(this, out value))
             {

@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 
 namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 {
@@ -60,13 +59,9 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 return VisitBlock(blockNode);
             }
-            else if (node is VoidBindingParserNode voidNode)
-            {
-                return VisitVoid(voidNode);
-            }
             else if (node is null)
             {
-                return default(T)!;
+                return default(T);
             }
             else
             {
@@ -135,11 +130,6 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         }
 
         protected virtual T VisitBlock(BlockBindingParserNode node)
-        {
-            return DefaultVisit(node);
-        }
-
-        protected virtual T VisitVoid(VoidBindingParserNode node)
         {
             return DefaultVisit(node);
         }

@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 
 namespace DotVVM.Framework.Routing
@@ -12,7 +11,7 @@ namespace DotVVM.Framework.Routing
 
         }
 
-        public DotvvmRouteStrategyException(string message, Exception? innerException)
+        public DotvvmRouteStrategyException(string message, Exception innerException)
             : base(message, innerException)
         {
 

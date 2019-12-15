@@ -1,4 +1,3 @@
-#nullable enable
 using DotVVM.Framework.Binding;
 using System;
 using System.Collections.Generic;
@@ -23,9 +22,9 @@ namespace DotVVM.Framework.Controls
     [ControlMarkupOptions(AllowContent = false, DefaultContentProperty = nameof(Columns))]
     public class GridView : ItemsControl
     {
-        private EmptyData? emptyDataContainer;
+        private EmptyData emptyDataContainer;
         private int numberOfRows;
-        private HtmlGenericControl? head;
+        private HtmlGenericControl head;
 
         public GridView() : base("table")
         {
@@ -44,7 +43,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public GridViewFilterPlacement FilterPlacement
         {
-            get { return (GridViewFilterPlacement)GetValue(FilterPlacementProperty)!; }
+            get { return (GridViewFilterPlacement)GetValue(FilterPlacementProperty); }
             set { SetValue(FilterPlacementProperty, value); }
         }
         public static readonly DotvvmProperty FilterPlacementProperty
@@ -55,13 +54,13 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the template which will be displayed when the DataSource is empty.
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.InnerElement)]
-        public ITemplate? EmptyDataTemplate
+        public ITemplate EmptyDataTemplate
         {
-            get { return (ITemplate?)GetValue(EmptyDataTemplateProperty); }
+            get { return (ITemplate)GetValue(EmptyDataTemplateProperty); }
             set { SetValue(EmptyDataTemplateProperty, value); }
         }
         public static readonly DotvvmProperty EmptyDataTemplateProperty =
-            DotvvmProperty.Register<ITemplate?, GridView>(t => t.EmptyDataTemplate, null);
+            DotvvmProperty.Register<ITemplate, GridView>(t => t.EmptyDataTemplate, null);
 
 
         /// <summary>
@@ -70,9 +69,9 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         [ControlPropertyBindingDataContextChange("DataSource")]
         [CollectionElementDataContextChange(1)]
-        public List<GridViewColumn>? Columns
+        public List<GridViewColumn> Columns
         {
-            get { return (List<GridViewColumn>?)GetValue(ColumnsProperty); }
+            get { return (List<GridViewColumn>)GetValue(ColumnsProperty); }
             set { SetValue(ColumnsProperty, value); }
         }
         public static readonly DotvvmProperty ColumnsProperty =
@@ -84,14 +83,14 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         [ControlPropertyBindingDataContextChange("DataSource")]
         [CollectionElementDataContextChange(1)]
-        public List<Decorator>? RowDecorators
+        public List<Decorator> RowDecorators
         {
-            get { return (List<Decorator>?)GetValue(RowDecoratorsProperty); }
+            get { return (List<Decorator>)GetValue(RowDecoratorsProperty); }
             set { SetValue(RowDecoratorsProperty, value); }
         }
 
         public static readonly DotvvmProperty RowDecoratorsProperty =
-            DotvvmProperty.Register<List<Decorator>?, GridView>(c => c.RowDecorators);
+            DotvvmProperty.Register<List<Decorator>, GridView>(c => c.RowDecorators);
 
         /// <summary>
         /// Gets or sets a list of decorators that will be applied on each row in edit mode.
@@ -99,26 +98,26 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         [ControlPropertyBindingDataContextChange("DataSource")]
         [CollectionElementDataContextChange(1)]
-        public List<Decorator>? EditRowDecorators
+        public List<Decorator> EditRowDecorators
         {
-            get { return (List<Decorator>?)GetValue(EditRowDecoratorsProperty); }
+            get { return (List<Decorator>)GetValue(EditRowDecoratorsProperty); }
             set { SetValue(EditRowDecoratorsProperty, value); }
         }
         public static readonly DotvvmProperty EditRowDecoratorsProperty =
-            DotvvmProperty.Register<List<Decorator>?, GridView>(c => c.EditRowDecorators);
+            DotvvmProperty.Register<List<Decorator>, GridView>(c => c.EditRowDecorators);
 
 
         /// <summary>
         /// Gets or sets the command that will be triggered when the user changed the sort order.
         /// </summary>
         [MarkupOptions(AllowHardCodedValue = false)]
-        public Action<string?>? SortChanged
+        public Action<string> SortChanged
         {
-            get { return (Action<string?>?)GetValue(SortChangedProperty); }
+            get { return (Action<string>)GetValue(SortChangedProperty); }
             set { SetValue(SortChangedProperty, value); }
         }
         public static readonly DotvvmProperty SortChangedProperty =
-            DotvvmProperty.Register<Action<string>?, GridView>(c => c.SortChanged, null);
+            DotvvmProperty.Register<Action<string>, GridView>(c => c.SortChanged, null);
 
         /// <summary>
         /// Gets or sets whether the header row should be displayed when the grid is empty.
@@ -126,7 +125,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false)]
         public bool ShowHeaderWhenNoData
         {
-            get { return (bool)GetValue(ShowHeaderWhenNoDataProperty)!; }
+            get { return (bool)GetValue(ShowHeaderWhenNoDataProperty); }
             set { SetValue(ShowHeaderWhenNoDataProperty, value); }
         }
         public static readonly DotvvmProperty ShowHeaderWhenNoDataProperty =
@@ -138,7 +137,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false)]
         public bool InlineEditing
         {
-            get { return (bool)GetValue(InlineEditingProperty)!; }
+            get { return (bool)GetValue(InlineEditingProperty); }
             set { SetValue(InlineEditingProperty, value); }
         }
 
@@ -197,7 +196,7 @@ namespace DotVVM.Framework.Controls
             if (dataSource != null)
             {
                 var itemBinding = GetItemBinding();
-                foreach (var item in GetIEnumerableFromDataSource()!)
+                foreach (var item in GetIEnumerableFromDataSource())
                 {
                     // create row
                     var placeholder = new DataItemContainer { DataItemIndex = index };
@@ -228,7 +227,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        protected virtual void CreateHeaderRow(IDotvvmRequestContext context, Action<string?>? sortCommand)
+        protected virtual void CreateHeaderRow(IDotvvmRequestContext context, Action<string> sortCommand)
         {
             head = new HtmlGenericControl("thead");
             Children.Add(head);
@@ -237,7 +236,7 @@ namespace DotVVM.Framework.Controls
 
             var headerRow = new HtmlGenericControl("tr");
             head.Children.Add(headerRow);
-            foreach (var column in Columns.NotNull("GridView.Columns must be set"))
+            foreach (var column in Columns)
             {
                 var cell = new HtmlGenericControl("th");
                 SetCellAttributes(column, cell, true);
@@ -254,7 +253,7 @@ namespace DotVVM.Framework.Controls
             {
                 headerRow = new HtmlGenericControl("tr");
                 head.Children.Add(headerRow);
-                foreach (var column in Columns.NotNull("GridView.Columns must be set"))
+                foreach (var column in Columns)
                 {
                     var cell = new HtmlGenericControl("th");
                     SetCellAttributes(column, cell, true);
@@ -311,7 +310,7 @@ namespace DotVVM.Framework.Controls
             var row = CreateRow(placeholder, isInEditMode);
 
             // create cells
-            foreach (var column in Columns.NotNull("GridView.Columns must be set"))
+            foreach (var column in Columns)
             {
                 var cell = new HtmlGenericControl("td");
                 cell.SetValue(Internal.DataContextTypeProperty, column.GetValueRaw(Internal.DataContextTypeProperty));
@@ -350,7 +349,7 @@ namespace DotVVM.Framework.Controls
 
         private PropertyInfo ResolvePrimaryKeyProperty()
         {
-            var dataSet = (IGridViewDataSet)DataSource.NotNull();
+            var dataSet = (IGridViewDataSet)DataSource;
             var primaryKeyPropertyName = dataSet.RowEditOptions.PrimaryKeyPropertyName;
             if (string.IsNullOrEmpty(primaryKeyPropertyName))
             {
@@ -359,7 +358,7 @@ namespace DotVVM.Framework.Controls
                     $"when inline editing is enabled on the {nameof(GridView)} control!");
             }
 
-            var enumerableType = ReflectionUtils.GetEnumerableType(dataSet.Items.GetType())!;
+            var enumerableType = ReflectionUtils.GetEnumerableType(dataSet.Items.GetType());
             var property = enumerableType.GetProperty(primaryKeyPropertyName);
             if (property == null)
             {
@@ -375,7 +374,7 @@ namespace DotVVM.Framework.Controls
             var value = property.GetValue(placeholder.DataContext);
             if (value != null)
             {
-                var editRowId = ((IGridViewDataSet)DataSource!).RowEditOptions.EditRowId;
+                var editRowId = ((IGridViewDataSet)DataSource).RowEditOptions.EditRowId;
                 if (editRowId != null && value.Equals(ReflectionUtils.ConvertValue(editRowId, property.PropertyType)))
                 {
                     return true;
@@ -390,7 +389,7 @@ namespace DotVVM.Framework.Controls
             var row = CreateRow(placeholder, isInEditMode);
 
             // create cells
-            foreach (var column in Columns.NotNull("GridView.Columns must be set"))
+            foreach (var column in Columns)
             {
                 var cell = new HtmlGenericControl("td");
                 cell.SetValue(Internal.DataContextTypeProperty, column.GetValueRaw(Internal.DataContextTypeProperty));
@@ -424,7 +423,7 @@ namespace DotVVM.Framework.Controls
             {
                 // render on server
                 var index = 0;
-                foreach (var child in Children.Except(new[] { head!, emptyDataContainer! }))
+                foreach (var child in Children.Except(new[] { head, emptyDataContainer }))
                 {
                     child.Render(writer, context);
                     index++;
@@ -441,7 +440,7 @@ namespace DotVVM.Framework.Controls
                     var primaryKeyPropertyName = propertySerialization.ResolveName(primaryKeyProperty);
 
                     var placeholder = new DataItemContainer { DataContext = null };
-                    placeholder.SetDataContextTypeFromDataSource(GetBinding(DataSourceProperty).NotNull());
+                    placeholder.SetDataContextTypeFromDataSource(GetBinding(DataSourceProperty));
                     placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
                     placeholder.SetValue(Internal.ClientIDFragmentProperty, GetValueRaw(Internal.CurrentIndexBindingProperty));
                     writer.WriteKnockoutDataBindComment("if", "ko.unwrap(ko.unwrap($gridViewDataSet).RowEditOptions().EditRowId) " +
@@ -452,7 +451,7 @@ namespace DotVVM.Framework.Controls
                     writer.WriteKnockoutDataBindEndComment();
 
                     var placeholderEdit = new DataItemContainer { DataContext = null };
-                    placeholderEdit.SetDataContextTypeFromDataSource(GetBinding(DataSourceProperty).NotNull());
+                    placeholderEdit.SetDataContextTypeFromDataSource(GetBinding(DataSourceProperty));
                     placeholderEdit.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
                     placeholderEdit.SetValue(Internal.ClientIDFragmentProperty, GetValueRaw(Internal.CurrentIndexBindingProperty));
                     writer.WriteKnockoutDataBindComment("if", "ko.unwrap(ko.unwrap($gridViewDataSet).RowEditOptions().EditRowId) " +
@@ -465,7 +464,7 @@ namespace DotVVM.Framework.Controls
                 else
                 {
                     var placeholder = new DataItemContainer { DataContext = null };
-                    placeholder.SetDataContextTypeFromDataSource(GetBinding(DataSourceProperty).NotNull());
+                    placeholder.SetDataContextTypeFromDataSource(GetBinding(DataSourceProperty));
                     placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
                     placeholder.SetValue(Internal.ClientIDFragmentProperty, GetValueRaw(Internal.CurrentIndexBindingProperty));
                     Children.Add(placeholder);

@@ -1,4 +1,3 @@
-#nullable enable
 using DotVVM.Framework.Compilation;
 using System;
 using System.Collections.Generic;
@@ -24,9 +23,9 @@ namespace DotVVM.Framework.Controls
         public bool AllowHardCodedValue { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets the name in markup. Null means that the name of the property should be used.
+        /// Gets or sets the name in markup.
         /// </summary>
-        public string? Name { get; set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// Determines if multiple property assignments can be merged into one value

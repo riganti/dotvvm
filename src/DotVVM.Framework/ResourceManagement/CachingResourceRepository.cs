@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,10 +11,10 @@ namespace DotVVM.Framework.ResourceManagement
     /// </summary>
     public abstract class CachingResourceRepository: IDotvvmResourceRepository
     {
-        protected abstract IResource? FindResource(string name);
+        protected abstract IResource FindResource(string name);
 
-        private ConcurrentDictionary<string, IResource?> resourceCache = new ConcurrentDictionary<string, IResource?>();
-        IResource? IDotvvmResourceRepository.FindResource(string name) =>
+        private ConcurrentDictionary<string, IResource> resourceCache = new ConcurrentDictionary<string, IResource>();
+        IResource IDotvvmResourceRepository.FindResource(string name) =>
             resourceCache.GetOrAdd(name, FindResource);
     }
 }

@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Linq;
 using DotVVM.Framework.Binding;
@@ -15,7 +14,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         [AttachedProperty(typeof(PostBackHandlerCollection))]
         public static readonly DotvvmProperty HandlersProperty =
-            DotvvmProperty.Register<PostBackHandlerCollection?, PostBack>(() => HandlersProperty, null);
+            DotvvmProperty.Register<PostBackHandlerCollection, PostBack>(() => HandlersProperty, null);
 
         [MarkupOptions(AllowBinding = false)]
         [AttachedProperty(typeof(PostbackConcurrencyMode))]
@@ -30,7 +29,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         [AttachedProperty(typeof(ConcurrencyQueueSettingsCollection))]
         public static readonly DotvvmProperty ConcurrencyQueueSettingsProperty =
-            DotvvmProperty.Register<ConcurrencyQueueSettingsCollection?, PostBack>(() => ConcurrencyQueueSettingsProperty, null);
+            DotvvmProperty.Register<ConcurrencyQueueSettingsCollection, PostBack>(() => ConcurrencyQueueSettingsProperty, null);
 
     }
 

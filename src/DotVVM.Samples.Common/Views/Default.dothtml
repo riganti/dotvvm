@@ -15,8 +15,8 @@
     </style>
 </head>
 <body>
-    <dot:Repeater WrapperTagName="ul" DataSource={value: Routes }>
-        <li><a href={value: Url}>{{value: RouteName}}</a></li>
+    <dot:Repeater WrapperTagName="ul" DataSource="{value: Routes }">
+        <li><a href="{value: Url}">{{value: RouteName}}</a></li>
     </dot:Repeater>
     <div>Number of Tests: {{value: Routes.Count}}</div>
 

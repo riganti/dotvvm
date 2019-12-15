@@ -1,4 +1,3 @@
-#nullable enable
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
 using System;
@@ -21,24 +20,24 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the format string that will be applied to numeric or date-time values.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
-        public string? FormatString
+        public string FormatString
         {
-            get { return (string?)GetValue(FormatStringProperty); }
+            get { return (string)GetValue(FormatStringProperty); }
             set { SetValue(FormatStringProperty, value); }
         }
         public static readonly DotvvmProperty FormatStringProperty
-            = DotvvmProperty.Register<string?, GridViewTextColumn>(c => c.FormatString, null);
+            = DotvvmProperty.Register<string, GridViewTextColumn>(c => c.FormatString, null);
 
         /// <summary>
         /// Gets or sets the command that will be triggered when the control text is changed.
         /// </summary>
-        public ICommandBinding? ChangedBinding
+        public ICommandBinding ChangedBinding
         {
-            get { return (ICommandBinding?)GetValue(ChangedBindingProperty); }
+            get { return (ICommandBinding)GetValue(ChangedBindingProperty); }
             set { SetValue(ChangedBindingProperty, value); }
         }
         public static readonly DotvvmProperty ChangedBindingProperty =
-            DotvvmProperty.Register<ICommandBinding?, GridViewTextColumn>(t => t.ChangedBinding, null);
+            DotvvmProperty.Register<ICommandBinding, GridViewTextColumn>(t => t.ChangedBinding, null);
 
         /// <summary>
         /// Gets or sets the type of value being formatted - Number or DateTime.
@@ -47,7 +46,7 @@ namespace DotVVM.Framework.Controls
         [Obsolete("ValueType property is no longer required, it is automatically inferred from compile-time type of ValueBinding")]
         public FormatValueType ValueType
         {
-            get { return (FormatValueType)GetValue(ValueTypeProperty)!; }
+            get { return (FormatValueType)GetValue(ValueTypeProperty); }
             set { SetValue(ValueTypeProperty, value); }
         }
         [Obsolete("ValueType property is no longer required, it is automatically inferred from compile-time type of ValueBinding")]
@@ -58,24 +57,16 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets a binding which retrieves the value to display from the current data item.
         /// </summary>
         [MarkupOptions(Required = true)]
-        public IValueBinding? ValueBinding
+        public IValueBinding ValueBinding
         {
             get { return GetValueBinding(ValueBindingProperty); }
             set { SetValue(ValueBindingProperty, value); }
         }
         public static readonly DotvvmProperty ValueBindingProperty =
-            DotvvmProperty.Register<IValueBinding?, GridViewTextColumn>(c => c.ValueBinding);
+            DotvvmProperty.Register<IValueBinding, GridViewTextColumn>(c => c.ValueBinding);
 
-        [MarkupOptions(AllowBinding = false)]
-        public ValidatorPlacement ValidatorPlacement
-        {
-            get { return (ValidatorPlacement)GetValue(ValidatorPlacementProperty); }
-            set { SetValue(ValidatorPlacementProperty, value); }
-        }
-        public static readonly DotvvmProperty ValidatorPlacementProperty
-            = DotvvmProperty.Register<ValidatorPlacement, GridViewTextColumn>(c => c.ValidatorPlacement, default);
 
-        protected override string? GetSortExpression()
+        protected override string GetSortExpression()
         {
             if (string.IsNullOrEmpty(SortExpression))
             {
@@ -96,7 +87,7 @@ namespace DotVVM.Framework.Controls
             literal.ValueType = ValueType;
             #pragma warning restore
             literal.SetBinding(Literal.TextProperty, ValueBinding);
-            Validator.Place(literal, container.Children, ValueBinding, ValidatorPlacement);
+
             container.Children.Add(literal);
         }
 
@@ -110,7 +101,7 @@ namespace DotVVM.Framework.Controls
 
             textBox.SetBinding(TextBox.TextProperty, ValueBinding);
             textBox.SetBinding(TextBox.ChangedProperty, ChangedBinding);
-            Validator.Place(textBox, container.Children, ValueBinding, ValidatorPlacement);
+
             container.Children.Add(textBox);
         }
     }

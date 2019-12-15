@@ -1,5 +1,4 @@
-﻿#nullable enable
-using DotVVM.Framework.Compilation.ControlTree;
+﻿using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Controls;
 using System;
 using System.Collections.Generic;
@@ -9,7 +8,6 @@ using System.Threading.Tasks;
 using System.Collections;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Utils;
-using System.Diagnostics.CodeAnalysis;
 
 namespace DotVVM.Framework.Binding
 {
@@ -48,7 +46,7 @@ namespace DotVVM.Framework.Binding
                     var pg = p as GroupedDotvvmProperty;
                     if (pg != null && pg.PropertyGroup == group)
                     {
-                        yield return (TValue)control.GetValue(p)!;
+                        yield return (TValue)control.GetValue(p);
                     }
                 }
             }
@@ -81,7 +79,7 @@ namespace DotVVM.Framework.Binding
         {
             get
             {
-                return (TValue)control.GetValue(group.GetDotvvmProperty(key))!;
+                return (TValue)control.GetValue(group.GetDotvvmProperty(key));
             }
             set
             {
@@ -89,9 +87,9 @@ namespace DotVVM.Framework.Binding
             }
         }
 
-        public IValueBinding? GetValueBinding(string key) => control.GetValueBinding(group.GetDotvvmProperty(key));
-        public IBinding? GetBinding(string key) => control.GetBinding(group.GetDotvvmProperty(key));
-        public object? GetValueRaw(string key) => control.GetValueRaw(group.GetDotvvmProperty(key));
+        public IValueBinding GetValueBinding(string key) => control.GetValueBinding(group.GetDotvvmProperty(key));
+        public IBinding GetBinding(string key) => control.GetBinding(group.GetDotvvmProperty(key));
+        public object GetValueRaw(string key) => control.GetValueRaw(group.GetDotvvmProperty(key));
 
 
         public bool ContainsKey(string key)
@@ -114,17 +112,17 @@ namespace DotVVM.Framework.Binding
             return control.Properties.Remove(group.GetDotvvmProperty(key));
         }
 
-        public bool TryGetValue(string key, [MaybeNullWhen(false)] out TValue value)
+        public bool TryGetValue(string key, out TValue value)
         {
             var prop = group.GetDotvvmProperty(key);
             if (control.IsPropertySet(prop))
             {
-                value = (TValue)control.GetValue(prop)!;
+                value = (TValue)control.GetValue(prop);
                 return true;
             }
             else
             {
-                value = default(TValue)!;
+                value = default(TValue);
                 return false;
             }
         }
@@ -148,9 +146,8 @@ namespace DotVVM.Framework.Binding
 
         public bool Contains(KeyValuePair<string, TValue> item)
         {
-#pragma warning disable CS8717
-            return TryGetValue(item.Key, out var realValue) && object.Equals(realValue, item.Value);
-#pragma warning restore CS8717
+            TValue realValue;
+            return TryGetValue(item.Key, out realValue) && realValue.Equals(item);
         }
 
         public void CopyTo(KeyValuePair<string, TValue>[] array, int arrayIndex)
@@ -182,7 +179,7 @@ namespace DotVVM.Framework.Binding
                 var pg = p as GroupedDotvvmProperty;
                 if (pg != null && pg.PropertyGroup == group)
                 {
-                    yield return new KeyValuePair<string, TValue>(pg.GroupMemberName, (TValue)control.EvalPropertyValue(p, value)!);
+                    yield return new KeyValuePair<string, TValue>(pg.GroupMemberName, (TValue)control.EvalPropertyValue(p, value));
                 }
             }
         }
@@ -197,7 +194,7 @@ namespace DotVVM.Framework.Binding
                     var pg = p as GroupedDotvvmProperty;
                     if (pg != null && pg.PropertyGroup == group)
                     {
-                        yield return new KeyValuePair<string, object>(pg.GroupMemberName, value!);
+                        yield return new KeyValuePair<string, object>(pg.GroupMemberName, value);
                     }
                 }
             }

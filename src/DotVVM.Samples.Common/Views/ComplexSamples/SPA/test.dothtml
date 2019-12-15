@@ -6,7 +6,8 @@
     <h2>Test</h2>
 
     <dot:TextBox Text="{value: Name}" />
-    <dot:Button Click="{command: AddSampleText()}" Text="Validated command" />
-    <dot:Literal data-ui="sample-text" RenderSpanElement="true" Text="{value: SampleText}" />
+    <dot:Button Click="{command: AddSampleText()}" Text="Validated command"/>
+    <dot:Literal data-ui="sample-text" RenderSpanElement="true" Text="{value: SampleText}"/>
 
 </dot:Content>
+

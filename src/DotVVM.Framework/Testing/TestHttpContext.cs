@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +13,7 @@ namespace DotVVM.Framework.Testing
             this.Request = new TestHttpRequest(this);
             this.Response = new TestHttpResponse(this);
         }
-        public ClaimsPrincipal? User { get; set; }
+        public ClaimsPrincipal User { get; set; }
 
         public TestHttpRequest Request { get; set; }
         IHttpRequest IHttpContext.Request => Request;
@@ -27,11 +26,11 @@ namespace DotVVM.Framework.Testing
         public List<Tuple<string, IEnumerable<KeyValuePair<string, object>>>> EnvironmentTabs { get; set; } = new List<Tuple<string, IEnumerable<KeyValuePair<string, object>>>>();
 
 
-        private Dictionary<string, object?> items = new Dictionary<string, object?>();
+        private Dictionary<string, object> items = new Dictionary<string, object>();
 
         public T GetItem<T>(string key)
         {
-            return (T)items[key]!;
+            return (T)items[key];
         }
 
         public void SetItem<T>(string key, T value)

@@ -1,6 +1,4 @@
-﻿#nullable enable
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Generic;
 
 namespace DotVVM.Framework.Controls
 {
@@ -23,8 +21,8 @@ namespace DotVVM.Framework.Controls
 
         // Contains implicit format string for given TextBoxType.
         // Null format string means value must not be formatted.
-        private static Dictionary<TextBoxType, string?> implicitFormatStrings
-            = new Dictionary<TextBoxType, string?> {
+        private static Dictionary<TextBoxType, string> implicitFormatStrings
+            = new Dictionary<TextBoxType, string> {
                 { TextBoxType.Date, "yyyy-MM-dd" },
                 { TextBoxType.Time, "HH:mm" },
                 { TextBoxType.Month, "yyyy-MM" },
@@ -34,7 +32,7 @@ namespace DotVVM.Framework.Controls
                 { TextBoxType.Number, null }
             };
 
-        public static bool TryGetTagName(this TextBoxType textBoxType, [MaybeNullWhen(false)] out string tagName)
+        public static bool TryGetTagName(this TextBoxType textBoxType, out string tagName)
         {
             switch (textBoxType)
             {
@@ -47,15 +45,15 @@ namespace DotVVM.Framework.Controls
                     return true;
 
                 default:
-                    tagName = null!;
+                    tagName = null;
                     return false;
             }
         }
 
-        public static bool TryGetFormatString(this TextBoxType textBoxType, out string? formatString)
+        public static bool TryGetFormatString(this TextBoxType textBoxType, out string formatString)
             => implicitFormatStrings.TryGetValue(textBoxType, out formatString);
 
-        public static bool TryGetInputType(this TextBoxType textBoxType, [MaybeNullWhen(false)] out string? inputType)
+        public static bool TryGetInputType(this TextBoxType textBoxType, out string inputType)
             => inputTypes.TryGetValue(textBoxType, out inputType);
     }
 }

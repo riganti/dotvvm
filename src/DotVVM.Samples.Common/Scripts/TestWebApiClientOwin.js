@@ -1,10 +1,7 @@
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -493,7 +490,7 @@ var DotVVM;
                         /**
                          * @return No Content
                          */
-                        OrdersClient.prototype["delete"] = function (orderId) {
+                        OrdersClient.prototype.delete = function (orderId) {
                             var _this = this;
                             var url_ = this.baseUrl + "/api/orders/delete/{orderId}";
                             if (orderId === undefined || orderId === null)
@@ -503,7 +500,7 @@ var DotVVM;
                             var options_ = {
                                 method: "DELETE",
                                 headers: new Headers({
-                                    "Content-Type": "application/json"
+                                    "Content-Type": "application/json",
                                 })
                             };
                             return this.transformOptions(options_).then(function (transformedOptions_) {
@@ -534,56 +531,6 @@ var DotVVM;
                         return OrdersClient;
                     }(ClientBase));
                     Owin.OrdersClient = OrdersClient;
-                    var ResetClient = /** @class */ (function (_super) {
-                        __extends(ResetClient, _super);
-                        function ResetClient(baseUrl, http) {
-                            var _this = _super.call(this) || this;
-                            _this.jsonParseReviver = undefined;
-                            _this.http = http ? http : window;
-                            _this.baseUrl = baseUrl ? baseUrl : "http://localhost:61453";
-                            return _this;
-                        }
-                        /**
-                         * @return No Content
-                         */
-                        ResetClient.prototype.resetData = function () {
-                            var _this = this;
-                            var url_ = this.baseUrl + "/api/reset/reset";
-                            url_ = url_.replace(/[?&]$/, "");
-                            var options_ = {
-                                method: "POST",
-                                headers: new Headers({
-                                    "Content-Type": "application/json"
-                                })
-                            };
-                            return this.transformOptions(options_).then(function (transformedOptions_) {
-                                return _this.http.fetch(url_, transformedOptions_);
-                            }).then(function (_response) {
-                                return _this.processResetData(_response);
-                            });
-                        };
-                        ResetClient.prototype.processResetData = function (response) {
-                            var status = response.status;
-                            var _headers = {};
-                            if (response.headers && response.headers.forEach) {
-                                response.headers.forEach(function (v, k) { return _headers[k] = v; });
-                            }
-                            ;
-                            if (status === 204) {
-                                return response.text().then(function (_responseText) {
-                                    return;
-                                });
-                            }
-                            else if (status !== 200 && status !== 204) {
-                                return response.text().then(function (_responseText) {
-                                    return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-                                });
-                            }
-                            return Promise.resolve(null);
-                        };
-                        return ResetClient;
-                    }(ClientBase));
-                    Owin.ResetClient = ResetClient;
                     var CompanyOfString = /** @class */ (function () {
                         function CompanyOfString(data) {
                             if (data) {
@@ -1081,3 +1028,4 @@ var DotVVM;
         })(Common = Samples.Common || (Samples.Common = {}));
     })(Samples = DotVVM.Samples || (DotVVM.Samples = {}));
 })(DotVVM || (DotVVM = {}));
+//# sourceMappingURL=TestWebApiClientOwin.js.map

@@ -1,10 +1,6 @@
 ﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-<<<<<<< HEAD
-    <VersionPrefix>2.4.0-preview07-final</VersionPrefix>
-=======
-    <VersionPrefix>2.4.0-preview07-final</VersionPrefix>
->>>>>>> 76abeb8520ef79f07ea4f0fdfc9368695fd2efdf
+    <VersionPrefix>2.3.3</VersionPrefix>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -21,11 +17,7 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <PackageId>DotVVM.AspNetCore</PackageId>
-<<<<<<< HEAD
-    <PackageVersion>2.4.0-preview07-final</PackageVersion>
-=======
-    <PackageVersion>2.4.0-preview07-final</PackageVersion>
->>>>>>> 76abeb8520ef79f07ea4f0fdfc9368695fd2efdf
+    <PackageVersion>2.3.3</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>
       This package contains ASP.NET Core middleware and hosting infrastructure for DotVVM apps. It supports both .NET Framework and .NET Core.

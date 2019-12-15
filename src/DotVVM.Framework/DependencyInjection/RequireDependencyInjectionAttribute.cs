@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Linq; 
 using System.Collections.Generic;
@@ -12,7 +11,7 @@ namespace DotVVM.Framework.DependencyInjection
     public class RequireDependencyInjectionAttribute: Attribute
     {
         public readonly Type FactoryType;
-        public RequireDependencyInjectionAttribute(Type? factoryType = null)
+        public RequireDependencyInjectionAttribute(Type factoryType = null)
         {
             if (factoryType != null)
             {

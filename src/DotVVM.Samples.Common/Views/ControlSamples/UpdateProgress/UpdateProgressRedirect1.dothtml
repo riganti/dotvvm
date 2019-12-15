@@ -1,8 +1,0 @@
-﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.UpdateProgress.UpdateProgressRedirectViewModel, DotVVM.Samples.Common
-@masterPage Views/ControlSamples/UpdateProgress/UpdateProgressRedirect.dotmaster
-
-<dot:Content ContentPlaceHolderID="MainContent">
-    <span data-ui="text">PAGE 1</span>
-    <dot:Button data-ui="long" Text="LongTest" Click="{command: LongTest()}"></dot:Button>
-</dot:Content>
-

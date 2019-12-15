@@ -102,9 +102,7 @@ namespace DotVVM.Samples.Tests.Control
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_RouteLink_RouteLinkQueryParameters);
 
                 browser.First(".link").Click();
-                AssertUI.Url(browser,
-                    u => u.EndsWith("/ControlSamples/RouteLink/RouteLinkQueryParameters?int=5&string=default")
-                        || u.EndsWith("/ControlSamples/RouteLink/RouteLinkQueryParameters?string=default&int=5"));
+                AssertUI.Url(browser, "/ControlSamples/RouteLink/RouteLinkQueryParameters?int=5&string=default", UrlKind.Relative, UriComponents.PathAndQuery);
             });
         }
 
@@ -118,9 +116,7 @@ namespace DotVVM.Samples.Tests.Control
                 browser.First(".command").Click();
 
                 browser.First(".link").Click();
-                AssertUI.Url(browser,
-                    u => u.EndsWith("/ControlSamples/RouteLink/RouteLinkQueryParameters?int=7&string=change")
-                         || u.EndsWith("/ControlSamples/RouteLink/RouteLinkQueryParameters?string=change&int=7"));
+                AssertUI.Url(browser, "/ControlSamples/RouteLink/RouteLinkQueryParameters?int=7&string=change", UrlKind.Relative, UriComponents.PathAndQuery);
             });
         }
 
@@ -134,8 +130,7 @@ namespace DotVVM.Samples.Tests.Control
                 browser.First(".static-command").Click();
 
                 browser.First(".link").Click();
-                AssertUI.Url(browser, u => u.EndsWith("/ControlSamples/RouteLink/RouteLinkQueryParameters?int=6&string=change_static")
-                                           || u.EndsWith("/ControlSamples/RouteLink/RouteLinkQueryParameters?string=change_static&int=6"));
+                AssertUI.Url(browser, "/ControlSamples/RouteLink/RouteLinkQueryParameters?int=6&string=change_static", UrlKind.Relative, UriComponents.PathAndQuery);
             });
         }
 

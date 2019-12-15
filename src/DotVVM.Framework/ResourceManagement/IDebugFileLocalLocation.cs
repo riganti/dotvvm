@@ -1,5 +1,4 @@
-﻿#nullable enable
-using DotVVM.Framework.Hosting;
+﻿using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -9,6 +8,6 @@ namespace DotVVM.Framework.ResourceManagement
     /// </summary>
     public interface IDebugFileLocalLocation: ILocalResourceLocation
     {
-        string? GetFilePath(IDotvvmRequestContext context);
+        string GetFilePath(IDotvvmRequestContext context);
     }
 }

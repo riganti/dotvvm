@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Linq;
 using System.Security.Claims;
@@ -23,54 +22,54 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the type of claim the user must have.
         /// </summary>
         [MarkupOptions(Required = true)]
-        public string? Claim
+        public string Claim
         {
-            get { return (string?)GetValue(ClaimProperty); }
+            get { return (string)GetValue(ClaimProperty); }
             set { SetValue(ClaimProperty, value); }
         }
 
         public static readonly DotvvmProperty ClaimProperty
-            = DotvvmProperty.Register<string?, ClaimView>(c => c.Claim);
+            = DotvvmProperty.Register<string, ClaimView>(c => c.Claim);
 
         /// <summary>
         /// Gets or sets a comma-separated list of accepted values. If specified; the user must have the <see cref="Claim" />
         /// with one or more of the values. Otherwise; all values are accepted.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
-        public string[]? Values
+        public string[] Values
         {
-            get { return (string[]?)GetValue(ValuesProperty); }
+            get { return (string[])GetValue(ValuesProperty); }
             set { SetValue(ValuesProperty, value); }
         }
 
         public static readonly DotvvmProperty ValuesProperty
-            = DotvvmProperty.Register<string[]?, ClaimView>(c => c.Values);
+            = DotvvmProperty.Register<string[], ClaimView>(c => c.Values);
 
         /// <summary>
         /// Gets or sets the content displayed to the users who have the <see cref="Claim" /> with one or more of accepted values.
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.InnerElement, AllowBinding = false)]
-        public ITemplate? HasClaimTemplate
+        public ITemplate HasClaimTemplate
         {
-            get { return (ITemplate?)GetValue(HasClaimTemplateProperty); }
+            get { return (ITemplate)GetValue(HasClaimTemplateProperty); }
             set { SetValue(HasClaimTemplateProperty, value); }
         }
 
         public static readonly DotvvmProperty HasClaimTemplateProperty
-            = DotvvmProperty.Register<ITemplate?, ClaimView>(c => c.HasClaimTemplate);
+            = DotvvmProperty.Register<ITemplate, ClaimView>(c => c.HasClaimTemplate);
 
         /// <summary>
         /// Gets or sets the content displayed to the users who don't have the <see cref="Claim" /> with any of accepted values.
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.InnerElement, AllowBinding = false)]
-        public ITemplate? HasNotClaimTemplate
+        public ITemplate HasNotClaimTemplate
         {
-            get { return (ITemplate?)GetValue(HasNotClaimTemplateProperty); }
+            get { return (ITemplate)GetValue(HasNotClaimTemplateProperty); }
             set { SetValue(HasNotClaimTemplateProperty, value); }
         }
 
         public static readonly DotvvmProperty HasNotClaimTemplateProperty
-            = DotvvmProperty.Register<ITemplate?, ClaimView>(c => c.HasNotClaimTemplate);
+            = DotvvmProperty.Register<ITemplate, ClaimView>(c => c.HasNotClaimTemplate);
 
         /// <summary>
         /// Gets or sets whether the control will be hidden completely to anonymous users. If set to <c>false</c>,
@@ -79,7 +78,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false)]
         public bool HideForAnonymousUsers
         {
-            get { return (bool)GetValue(HideForAnonymousUsersProperty)!; }
+            get { return (bool)GetValue(HideForAnonymousUsersProperty); }
             set { SetValue(HideForAnonymousUsersProperty, value); }
         }
 
@@ -104,7 +103,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private bool HasClaim(ClaimsPrincipal? user)
+        private bool HasClaim(ClaimsPrincipal user)
         {
             if (user != null)
             {

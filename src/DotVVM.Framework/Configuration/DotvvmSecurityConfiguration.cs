@@ -1,4 +1,3 @@
-#nullable enable
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -17,14 +16,14 @@ namespace DotVVM.Framework.Configuration
         /// </summary>
         [JsonProperty("signingKey")]
         [Obsolete("This property is not used at all. DotVVM derives the keys from ASP.NET Core.")]
-        public byte[]? SigningKey { get; set; }
+        public byte[] SigningKey { get; set; }
 
         /// <summary>
         /// Gets or sets base-64 encoded key for encryption (128, 192 or 256 key - used for AES).
         /// </summary>
         [JsonProperty("encryptionKey")]
         [Obsolete("This property is not used at all. DotVVM derives the keys from ASP.NET Core.")]
-        public byte[]? EncryptionKey { get; set; }
+        public byte[] EncryptionKey { get; set; }
 
         /// <summary>
         /// Gets or sets name of HTTP cookie used for Session ID

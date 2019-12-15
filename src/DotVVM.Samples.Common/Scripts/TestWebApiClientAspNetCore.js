@@ -1,10 +1,7 @@
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -47,14 +44,11 @@ var DotVVM;
                             return _this;
                         }
                         /**
-                         * @category (optional)
                          * @return Success
                          */
-                        TestWebApiClientAspNetCore.prototype.getItems = function (category) {
+                        TestWebApiClientAspNetCore.prototype.apiCompaniesGet = function () {
                             var _this = this;
-                            var url_ = this.baseUrl + "/api/BindingSharing/get?";
-                            if (category !== undefined)
-                                url_ += "category=" + encodeURIComponent("" + category) + "&";
+                            var url_ = this.baseUrl + "/api/Companies";
                             url_ = url_.replace(/[?&]$/, "");
                             var options_ = {
                                 method: "GET",
@@ -66,10 +60,10 @@ var DotVVM;
                             return this.transformOptions(options_).then(function (transformedOptions_) {
                                 return _this.http.fetch(url_, transformedOptions_);
                             }).then(function (_response) {
-                                return _this.processGetItems(_response);
+                                return _this.processApiCompaniesGet(_response);
                             });
                         };
-                        TestWebApiClientAspNetCore.prototype.processGetItems = function (response) {
+                        TestWebApiClientAspNetCore.prototype.processApiCompaniesGet = function (response) {
                             var _this = this;
                             var status = response.status;
                             var _headers = {};
@@ -85,159 +79,6 @@ var DotVVM;
                                         result200 = [];
                                         for (var _i = 0, resultData200_1 = resultData200; _i < resultData200_1.length; _i++) {
                                             var item = resultData200_1[_i];
-                                            result200.push(BindingSharingItemDTO.fromJS(item));
-                                        }
-                                    }
-                                    return result200;
-                                });
-                            }
-                            else if (status !== 200 && status !== 204) {
-                                return response.text().then(function (_responseText) {
-                                    return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-                                });
-                            }
-                            return Promise.resolve(null);
-                        };
-                        /**
-                         * @return Success
-                         */
-                        TestWebApiClientAspNetCore.prototype.getItemsWithRouteParam = function (category) {
-                            var _this = this;
-                            var url_ = this.baseUrl + "/api/BindingSharing/getWithRouteParam/{category}";
-                            if (category === undefined || category === null)
-                                throw new Error("The parameter 'category' must be defined.");
-                            url_ = url_.replace("{category}", encodeURIComponent("" + category));
-                            url_ = url_.replace(/[?&]$/, "");
-                            var options_ = {
-                                method: "GET",
-                                headers: new Headers({
-                                    "Content-Type": "application/json",
-                                    "Accept": "application/json"
-                                })
-                            };
-                            return this.transformOptions(options_).then(function (transformedOptions_) {
-                                return _this.http.fetch(url_, transformedOptions_);
-                            }).then(function (_response) {
-                                return _this.processGetItemsWithRouteParam(_response);
-                            });
-                        };
-                        TestWebApiClientAspNetCore.prototype.processGetItemsWithRouteParam = function (response) {
-                            var _this = this;
-                            var status = response.status;
-                            var _headers = {};
-                            if (response.headers && response.headers.forEach) {
-                                response.headers.forEach(function (v, k) { return _headers[k] = v; });
-                            }
-                            ;
-                            if (status === 200) {
-                                return response.text().then(function (_responseText) {
-                                    var result200 = null;
-                                    var resultData200 = _responseText === "" ? null : JSON.parse(_responseText, _this.jsonParseReviver);
-                                    if (resultData200 && resultData200.constructor === Array) {
-                                        result200 = [];
-                                        for (var _i = 0, resultData200_2 = resultData200; _i < resultData200_2.length; _i++) {
-                                            var item = resultData200_2[_i];
-                                            result200.push(BindingSharingItemDTO.fromJS(item));
-                                        }
-                                    }
-                                    return result200;
-                                });
-                            }
-                            else if (status !== 200 && status !== 204) {
-                                return response.text().then(function (_responseText) {
-                                    return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-                                });
-                            }
-                            return Promise.resolve(null);
-                        };
-                        /**
-                         * @category (optional)
-                         * @return Success
-                         */
-                        TestWebApiClientAspNetCore.prototype.getItemsWithHttpPost = function (category) {
-                            var _this = this;
-                            var url_ = this.baseUrl + "/api/BindingSharing/post?";
-                            if (category !== undefined)
-                                url_ += "category=" + encodeURIComponent("" + category) + "&";
-                            url_ = url_.replace(/[?&]$/, "");
-                            var options_ = {
-                                method: "POST",
-                                headers: new Headers({
-                                    "Content-Type": "application/json",
-                                    "Accept": "application/json"
-                                })
-                            };
-                            return this.transformOptions(options_).then(function (transformedOptions_) {
-                                return _this.http.fetch(url_, transformedOptions_);
-                            }).then(function (_response) {
-                                return _this.processGetItemsWithHttpPost(_response);
-                            });
-                        };
-                        TestWebApiClientAspNetCore.prototype.processGetItemsWithHttpPost = function (response) {
-                            var _this = this;
-                            var status = response.status;
-                            var _headers = {};
-                            if (response.headers && response.headers.forEach) {
-                                response.headers.forEach(function (v, k) { return _headers[k] = v; });
-                            }
-                            ;
-                            if (status === 200) {
-                                return response.text().then(function (_responseText) {
-                                    var result200 = null;
-                                    var resultData200 = _responseText === "" ? null : JSON.parse(_responseText, _this.jsonParseReviver);
-                                    if (resultData200 && resultData200.constructor === Array) {
-                                        result200 = [];
-                                        for (var _i = 0, resultData200_3 = resultData200; _i < resultData200_3.length; _i++) {
-                                            var item = resultData200_3[_i];
-                                            result200.push(BindingSharingItemDTO.fromJS(item));
-                                        }
-                                    }
-                                    return result200;
-                                });
-                            }
-                            else if (status !== 200 && status !== 204) {
-                                return response.text().then(function (_responseText) {
-                                    return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-                                });
-                            }
-                            return Promise.resolve(null);
-                        };
-                        /**
-                         * @return Success
-                         */
-                        TestWebApiClientAspNetCore.prototype.getAll = function () {
-                            var _this = this;
-                            var url_ = this.baseUrl + "/api/Companies";
-                            url_ = url_.replace(/[?&]$/, "");
-                            var options_ = {
-                                method: "GET",
-                                headers: new Headers({
-                                    "Content-Type": "application/json",
-                                    "Accept": "application/json"
-                                })
-                            };
-                            return this.transformOptions(options_).then(function (transformedOptions_) {
-                                return _this.http.fetch(url_, transformedOptions_);
-                            }).then(function (_response) {
-                                return _this.processGetAll(_response);
-                            });
-                        };
-                        TestWebApiClientAspNetCore.prototype.processGetAll = function (response) {
-                            var _this = this;
-                            var status = response.status;
-                            var _headers = {};
-                            if (response.headers && response.headers.forEach) {
-                                response.headers.forEach(function (v, k) { return _headers[k] = v; });
-                            }
-                            ;
-                            if (status === 200) {
-                                return response.text().then(function (_responseText) {
-                                    var result200 = null;
-                                    var resultData200 = _responseText === "" ? null : JSON.parse(_responseText, _this.jsonParseReviver);
-                                    if (resultData200 && resultData200.constructor === Array) {
-                                        result200 = [];
-                                        for (var _i = 0, resultData200_4 = resultData200; _i < resultData200_4.length; _i++) {
-                                            var item = resultData200_4[_i];
                                             result200.push(CompanyOfString.fromJS(item));
                                         }
                                     }
@@ -253,16 +94,17 @@ var DotVVM;
                         };
                         /**
                          * @sortingOptions (optional)
-                         * @sortingOptions_SortDescending (optional)
                          * @sortingOptions_SortExpression (optional)
                          * @return Success
                          */
-                        TestWebApiClientAspNetCore.prototype.getWithSorting = function (sortingOptions) {
+                        TestWebApiClientAspNetCore.prototype.apiCompaniesSortedGet = function (sortingOptions) {
                             var _this = this;
                             var sortingOptions_SortDescending = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortDescending : null;
                             var sortingOptions_SortExpression = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortExpression : null;
                             var url_ = this.baseUrl + "/api/Companies/sorted?";
-                            if (sortingOptions_SortDescending !== undefined)
+                            if (sortingOptions_SortDescending === undefined || sortingOptions_SortDescending === null)
+                                throw new Error("The parameter 'sortingOptions_SortDescending' must be defined and cannot be null.");
+                            else
                                 url_ += "sortingOptions.SortDescending=" + encodeURIComponent("" + sortingOptions_SortDescending) + "&";
                             if (sortingOptions_SortExpression !== undefined)
                                 url_ += "sortingOptions.SortExpression=" + encodeURIComponent("" + sortingOptions_SortExpression) + "&";
@@ -277,10 +119,10 @@ var DotVVM;
                             return this.transformOptions(options_).then(function (transformedOptions_) {
                                 return _this.http.fetch(url_, transformedOptions_);
                             }).then(function (_response) {
-                                return _this.processGetWithSorting(_response);
+                                return _this.processApiCompaniesSortedGet(_response);
                             });
                         };
-                        TestWebApiClientAspNetCore.prototype.processGetWithSorting = function (response) {
+                        TestWebApiClientAspNetCore.prototype.processApiCompaniesSortedGet = function (response) {
                             var _this = this;
                             var status = response.status;
                             var _headers = {};
@@ -305,22 +147,25 @@ var DotVVM;
                         };
                         /**
                          * @pagingOptions (optional)
-                         * @pagingOptions_PageIndex (optional)
-                         * @pagingOptions_PageSize (optional)
-                         * @pagingOptions_TotalItemsCount (optional)
                          * @return Success
                          */
-                        TestWebApiClientAspNetCore.prototype.getWithPaging = function (pagingOptions) {
+                        TestWebApiClientAspNetCore.prototype.apiCompaniesPagedGet = function (pagingOptions) {
                             var _this = this;
                             var pagingOptions_PageIndex = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageIndex : null;
                             var pagingOptions_PageSize = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageSize : null;
                             var pagingOptions_TotalItemsCount = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.TotalItemsCount : null;
                             var url_ = this.baseUrl + "/api/Companies/paged?";
-                            if (pagingOptions_PageIndex !== undefined)
+                            if (pagingOptions_PageIndex === undefined || pagingOptions_PageIndex === null)
+                                throw new Error("The parameter 'pagingOptions_PageIndex' must be defined and cannot be null.");
+                            else
                                 url_ += "pagingOptions.PageIndex=" + encodeURIComponent("" + pagingOptions_PageIndex) + "&";
-                            if (pagingOptions_PageSize !== undefined)
+                            if (pagingOptions_PageSize === undefined || pagingOptions_PageSize === null)
+                                throw new Error("The parameter 'pagingOptions_PageSize' must be defined and cannot be null.");
+                            else
                                 url_ += "pagingOptions.PageSize=" + encodeURIComponent("" + pagingOptions_PageSize) + "&";
-                            if (pagingOptions_TotalItemsCount !== undefined)
+                            if (pagingOptions_TotalItemsCount === undefined || pagingOptions_TotalItemsCount === null)
+                                throw new Error("The parameter 'pagingOptions_TotalItemsCount' must be defined and cannot be null.");
+                            else
                                 url_ += "pagingOptions.TotalItemsCount=" + encodeURIComponent("" + pagingOptions_TotalItemsCount) + "&";
                             url_ = url_.replace(/[?&]$/, "");
                             var options_ = {
@@ -333,10 +178,10 @@ var DotVVM;
                             return this.transformOptions(options_).then(function (transformedOptions_) {
                                 return _this.http.fetch(url_, transformedOptions_);
                             }).then(function (_response) {
-                                return _this.processGetWithPaging(_response);
+                                return _this.processApiCompaniesPagedGet(_response);
                             });
                         };
-                        TestWebApiClientAspNetCore.prototype.processGetWithPaging = function (response) {
+                        TestWebApiClientAspNetCore.prototype.processApiCompaniesPagedGet = function (response) {
                             var _this = this;
                             var status = response.status;
                             var _headers = {};
@@ -361,32 +206,36 @@ var DotVVM;
                         };
                         /**
                          * @sortingOptions (optional)
-                         * @sortingOptions_SortDescending (optional)
-                         * @sortingOptions_SortExpression (optional)
                          * @pagingOptions (optional)
-                         * @pagingOptions_PageIndex (optional)
-                         * @pagingOptions_PageSize (optional)
-                         * @pagingOptions_TotalItemsCount (optional)
+                         * @sortingOptions_SortExpression (optional)
                          * @return Success
                          */
-                        TestWebApiClientAspNetCore.prototype.getWithSortingAndPaging = function (sortingOptions, pagingOptions) {
+                        TestWebApiClientAspNetCore.prototype.apiCompaniesSortedandpagedGet = function (sortingOptions, pagingOptions) {
                             var _this = this;
                             var sortingOptions_SortDescending = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortDescending : null;
-                            var sortingOptions_SortExpression = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortExpression : null;
                             var pagingOptions_PageIndex = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageIndex : null;
                             var pagingOptions_PageSize = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageSize : null;
                             var pagingOptions_TotalItemsCount = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.TotalItemsCount : null;
+                            var sortingOptions_SortExpression = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortExpression : null;
                             var url_ = this.baseUrl + "/api/Companies/sortedandpaged?";
-                            if (sortingOptions_SortDescending !== undefined)
+                            if (sortingOptions_SortDescending === undefined || sortingOptions_SortDescending === null)
+                                throw new Error("The parameter 'sortingOptions_SortDescending' must be defined and cannot be null.");
+                            else
                                 url_ += "sortingOptions.SortDescending=" + encodeURIComponent("" + sortingOptions_SortDescending) + "&";
+                            if (pagingOptions_PageIndex === undefined || pagingOptions_PageIndex === null)
+                                throw new Error("The parameter 'pagingOptions_PageIndex' must be defined and cannot be null.");
+                            else
+                                url_ += "pagingOptions.PageIndex=" + encodeURIComponent("" + pagingOptions_PageIndex) + "&";
+                            if (pagingOptions_PageSize === undefined || pagingOptions_PageSize === null)
+                                throw new Error("The parameter 'pagingOptions_PageSize' must be defined and cannot be null.");
+                            else
+                                url_ += "pagingOptions.PageSize=" + encodeURIComponent("" + pagingOptions_PageSize) + "&";
+                            if (pagingOptions_TotalItemsCount === undefined || pagingOptions_TotalItemsCount === null)
+                                throw new Error("The parameter 'pagingOptions_TotalItemsCount' must be defined and cannot be null.");
+                            else
+                                url_ += "pagingOptions.TotalItemsCount=" + encodeURIComponent("" + pagingOptions_TotalItemsCount) + "&";
                             if (sortingOptions_SortExpression !== undefined)
                                 url_ += "sortingOptions.SortExpression=" + encodeURIComponent("" + sortingOptions_SortExpression) + "&";
-                            if (pagingOptions_PageIndex !== undefined)
-                                url_ += "pagingOptions.PageIndex=" + encodeURIComponent("" + pagingOptions_PageIndex) + "&";
-                            if (pagingOptions_PageSize !== undefined)
-                                url_ += "pagingOptions.PageSize=" + encodeURIComponent("" + pagingOptions_PageSize) + "&";
-                            if (pagingOptions_TotalItemsCount !== undefined)
-                                url_ += "pagingOptions.TotalItemsCount=" + encodeURIComponent("" + pagingOptions_TotalItemsCount) + "&";
                             url_ = url_.replace(/[?&]$/, "");
                             var options_ = {
                                 method: "GET",
@@ -398,10 +247,10 @@ var DotVVM;
                             return this.transformOptions(options_).then(function (transformedOptions_) {
                                 return _this.http.fetch(url_, transformedOptions_);
                             }).then(function (_response) {
-                                return _this.processGetWithSortingAndPaging(_response);
+                                return _this.processApiCompaniesSortedandpagedGet(_response);
                             });
                         };
-                        TestWebApiClientAspNetCore.prototype.processGetWithSortingAndPaging = function (response) {
+                        TestWebApiClientAspNetCore.prototype.processApiCompaniesSortedandpagedGet = function (response) {
                             var _this = this;
                             var status = response.status;
                             var _headers = {};
@@ -425,19 +274,22 @@ var DotVVM;
                             return Promise.resolve(null);
                         };
                         /**
-                         * @companyId (optional)
-                         * @pageIndex (optional)
-                         * @pageSize (optional)
                          * @return Success
                          */
-                        TestWebApiClientAspNetCore.prototype.getAll2 = function (companyId, pageIndex, pageSize) {
+                        TestWebApiClientAspNetCore.prototype.apiOrdersGet = function (companyId, pageIndex, pageSize) {
                             var _this = this;
                             var url_ = this.baseUrl + "/api/Orders?";
-                            if (companyId !== undefined)
+                            if (companyId === undefined || companyId === null)
+                                throw new Error("The parameter 'companyId' must be defined and cannot be null.");
+                            else
                                 url_ += "companyId=" + encodeURIComponent("" + companyId) + "&";
-                            if (pageIndex !== undefined)
+                            if (pageIndex === undefined || pageIndex === null)
+                                throw new Error("The parameter 'pageIndex' must be defined and cannot be null.");
+                            else
                                 url_ += "pageIndex=" + encodeURIComponent("" + pageIndex) + "&";
-                            if (pageSize !== undefined)
+                            if (pageSize === undefined || pageSize === null)
+                                throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+                            else
                                 url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
                             url_ = url_.replace(/[?&]$/, "");
                             var options_ = {
@@ -450,10 +302,10 @@ var DotVVM;
                             return this.transformOptions(options_).then(function (transformedOptions_) {
                                 return _this.http.fetch(url_, transformedOptions_);
                             }).then(function (_response) {
-                                return _this.processGetAll2(_response);
+                                return _this.processApiOrdersGet(_response);
                             });
                         };
-                        TestWebApiClientAspNetCore.prototype.processGetAll2 = function (response) {
+                        TestWebApiClientAspNetCore.prototype.processApiOrdersGet = function (response) {
                             var _this = this;
                             var status = response.status;
                             var _headers = {};
@@ -467,8 +319,8 @@ var DotVVM;
                                     var resultData200 = _responseText === "" ? null : JSON.parse(_responseText, _this.jsonParseReviver);
                                     if (resultData200 && resultData200.constructor === Array) {
                                         result200 = [];
-                                        for (var _i = 0, resultData200_5 = resultData200; _i < resultData200_5.length; _i++) {
-                                            var item = resultData200_5[_i];
+                                        for (var _i = 0, resultData200_2 = resultData200; _i < resultData200_2.length; _i++) {
+                                            var item = resultData200_2[_i];
                                             result200.push(Order.fromJS(item));
                                         }
                                     }
@@ -486,7 +338,7 @@ var DotVVM;
                          * @order (optional)
                          * @return Success
                          */
-                        TestWebApiClientAspNetCore.prototype.post = function (order) {
+                        TestWebApiClientAspNetCore.prototype.apiOrdersPost = function (order) {
                             var _this = this;
                             var url_ = this.baseUrl + "/api/Orders";
                             url_ = url_.replace(/[?&]$/, "");
@@ -495,16 +347,16 @@ var DotVVM;
                                 body: content_,
                                 method: "POST",
                                 headers: new Headers({
-                                    "Content-Type": "application/json"
+                                    "Content-Type": "application/json",
                                 })
                             };
                             return this.transformOptions(options_).then(function (transformedOptions_) {
                                 return _this.http.fetch(url_, transformedOptions_);
                             }).then(function (_response) {
-                                return _this.processPost(_response);
+                                return _this.processApiOrdersPost(_response);
                             });
                         };
-                        TestWebApiClientAspNetCore.prototype.processPost = function (response) {
+                        TestWebApiClientAspNetCore.prototype.processApiOrdersPost = function (response) {
                             var status = response.status;
                             var _headers = {};
                             if (response.headers && response.headers.forEach) {
@@ -526,7 +378,7 @@ var DotVVM;
                         /**
                          * @return Success
                          */
-                        TestWebApiClientAspNetCore.prototype.getItem = function (orderId) {
+                        TestWebApiClientAspNetCore.prototype.apiOrdersByOrderIdGet = function (orderId) {
                             var _this = this;
                             var url_ = this.baseUrl + "/api/Orders/{orderId}";
                             if (orderId === undefined || orderId === null)
@@ -543,10 +395,10 @@ var DotVVM;
                             return this.transformOptions(options_).then(function (transformedOptions_) {
                                 return _this.http.fetch(url_, transformedOptions_);
                             }).then(function (_response) {
-                                return _this.processGetItem(_response);
+                                return _this.processApiOrdersByOrderIdGet(_response);
                             });
                         };
-                        TestWebApiClientAspNetCore.prototype.processGetItem = function (response) {
+                        TestWebApiClientAspNetCore.prototype.processApiOrdersByOrderIdGet = function (response) {
                             var _this = this;
                             var status = response.status;
                             var _headers = {};
@@ -573,7 +425,7 @@ var DotVVM;
                          * @order (optional)
                          * @return Success
                          */
-                        TestWebApiClientAspNetCore.prototype.put = function (orderId, order) {
+                        TestWebApiClientAspNetCore.prototype.apiOrdersByOrderIdPut = function (orderId, order) {
                             var _this = this;
                             var url_ = this.baseUrl + "/api/Orders/{orderId}";
                             if (orderId === undefined || orderId === null)
@@ -585,16 +437,16 @@ var DotVVM;
                                 body: content_,
                                 method: "PUT",
                                 headers: new Headers({
-                                    "Content-Type": "application/json"
+                                    "Content-Type": "application/json",
                                 })
                             };
                             return this.transformOptions(options_).then(function (transformedOptions_) {
                                 return _this.http.fetch(url_, transformedOptions_);
                             }).then(function (_response) {
-                                return _this.processPut(_response);
+                                return _this.processApiOrdersByOrderIdPut(_response);
                             });
                         };
-                        TestWebApiClientAspNetCore.prototype.processPut = function (response) {
+                        TestWebApiClientAspNetCore.prototype.processApiOrdersByOrderIdPut = function (response) {
                             var status = response.status;
                             var _headers = {};
                             if (response.headers && response.headers.forEach) {
@@ -616,7 +468,7 @@ var DotVVM;
                         /**
                          * @return Success
                          */
-                        TestWebApiClientAspNetCore.prototype["delete"] = function (orderId) {
+                        TestWebApiClientAspNetCore.prototype.apiOrdersDeleteByOrderIdDelete = function (orderId) {
                             var _this = this;
                             var url_ = this.baseUrl + "/api/Orders/delete/{orderId}";
                             if (orderId === undefined || orderId === null)
@@ -626,16 +478,16 @@ var DotVVM;
                             var options_ = {
                                 method: "DELETE",
                                 headers: new Headers({
-                                    "Content-Type": "application/json"
+                                    "Content-Type": "application/json",
                                 })
                             };
                             return this.transformOptions(options_).then(function (transformedOptions_) {
                                 return _this.http.fetch(url_, transformedOptions_);
                             }).then(function (_response) {
-                                return _this.processDelete(_response);
+                                return _this.processApiOrdersDeleteByOrderIdDelete(_response);
                             });
                         };
-                        TestWebApiClientAspNetCore.prototype.processDelete = function (response) {
+                        TestWebApiClientAspNetCore.prototype.processApiOrdersDeleteByOrderIdDelete = function (response) {
                             var status = response.status;
                             var _headers = {};
                             if (response.headers && response.headers.forEach) {
@@ -657,36 +509,6 @@ var DotVVM;
                         return TestWebApiClientAspNetCore;
                     }(ClientBase));
                     AspNetCore.TestWebApiClientAspNetCore = TestWebApiClientAspNetCore;
-                    var BindingSharingItemDTO = /** @class */ (function () {
-                        function BindingSharingItemDTO(data) {
-                            if (data) {
-                                for (var property in data) {
-                                    if (data.hasOwnProperty(property))
-                                        this[property] = data[property];
-                                }
-                            }
-                        }
-                        BindingSharingItemDTO.prototype.init = function (data) {
-                            if (data) {
-                                this.id = data["id"] !== undefined ? data["id"] : null;
-                                this.name = data["name"] !== undefined ? data["name"] : null;
-                            }
-                        };
-                        BindingSharingItemDTO.fromJS = function (data) {
-                            data = typeof data === 'object' ? data : {};
-                            var result = new BindingSharingItemDTO();
-                            result.init(data);
-                            return result;
-                        };
-                        BindingSharingItemDTO.prototype.toJSON = function (data) {
-                            data = typeof data === 'object' ? data : {};
-                            data["id"] = this.id !== undefined ? this.id : null;
-                            data["name"] = this.name !== undefined ? this.name : null;
-                            return data;
-                        };
-                        return BindingSharingItemDTO;
-                    }());
-                    AspNetCore.BindingSharingItemDTO = BindingSharingItemDTO;
                     var CompanyOfString = /** @class */ (function () {
                         function CompanyOfString(data) {
                             if (data) {
@@ -1088,3 +910,4 @@ var DotVVM;
         })(Common = Samples.Common || (Samples.Common = {}));
     })(Samples = DotVVM.Samples || (DotVVM.Samples = {}));
 })(DotVVM || (DotVVM = {}));
+//# sourceMappingURL=TestWebApiClientAspNetCore.js.map

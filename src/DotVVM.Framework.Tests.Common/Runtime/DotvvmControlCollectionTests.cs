@@ -33,7 +33,6 @@ namespace DotVVM.Framework.Tests.Runtime
                     });
                 }
             };
-            root.SetValue(Internal.RequestContextProperty, DotvvmTestHelper.CreateContext());
 
             DotvvmControlCollection.InvokePageLifeCycleEventRecursive(root, LifeCycleEventType.Init);
 
@@ -66,7 +65,6 @@ namespace DotVVM.Framework.Tests.Runtime
                     });
                 }
             };
-            root.SetValue(Internal.RequestContextProperty, DotvvmTestHelper.CreateContext());
 
             DotvvmControlCollection.InvokePageLifeCycleEventRecursive(root, LifeCycleEventType.Init);
             DotvvmControlCollection.InvokePageLifeCycleEventRecursive(root, LifeCycleEventType.Load);
@@ -104,7 +102,6 @@ namespace DotVVM.Framework.Tests.Runtime
                     });
                 }
             };
-            root.SetValue(Internal.RequestContextProperty, DotvvmTestHelper.CreateContext());
 
             DotvvmControlCollection.InvokePageLifeCycleEventRecursive(root, LifeCycleEventType.Init);
 
@@ -141,7 +138,6 @@ namespace DotVVM.Framework.Tests.Runtime
                     });
                 }
             };
-            root.SetValue(Internal.RequestContextProperty, DotvvmTestHelper.CreateContext());
 
             DotvvmControlCollection.InvokePageLifeCycleEventRecursive(root, LifeCycleEventType.PreRender);
 
@@ -210,7 +206,6 @@ namespace DotVVM.Framework.Tests.Runtime
                     });
                 },
             };
-            root.SetValue(Internal.RequestContextProperty, DotvvmTestHelper.CreateContext());
 
             DotvvmControlCollection.InvokePageLifeCycleEventRecursive(root, LifeCycleEventType.PreRender);
 
@@ -262,7 +257,6 @@ namespace DotVVM.Framework.Tests.Runtime
                 innerRoot.Children.Add(td2);
                 td2.Children.Add(secondChild);
             };
-            root.SetValue(Internal.RequestContextProperty, DotvvmTestHelper.CreateContext());
 
             DotvvmControlCollection.InvokePageLifeCycleEventRecursive(root, LifeCycleEventType.PreRenderComplete);
             root.Render(null, null);

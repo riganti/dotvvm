@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Controls;
@@ -17,10 +16,10 @@ namespace DotVVM.Framework.ResourceManagement
     {
         /// <summary>Location property is required!</summary>
         public IResourceLocation Location { get; set; }
-        public ResourceLocationFallback? LocationFallback { get; set; }
+        public ResourceLocationFallback LocationFallback { get; set; }
         public string MimeType { get; private set; }
         public bool VerifyResourceIntegrity { get; set; }
-        public string? IntegrityHash { get; set; }
+        public string IntegrityHash { get; set; }
 
         public LinkResourceBase(ResourceRenderPosition renderPosition, string mimeType, IResourceLocation location) : base(renderPosition)
         {
@@ -30,7 +29,6 @@ namespace DotVVM.Framework.ResourceManagement
         public LinkResourceBase(ResourceRenderPosition renderPosition, string mimeType) : base(renderPosition)
         {
             this.MimeType = mimeType;
-            this.Location = null!; // TODO: deprecate this overload
         }
 
         public IEnumerable<IResourceLocation> GetLocations()
@@ -93,7 +91,7 @@ $@"if (!({LocationFallback.JavascriptCondition})) {{
 
         public abstract void RenderLink(IResourceLocation location, IHtmlWriter writer, IDotvvmRequestContext context, string resourceName);
 
-        protected string? ComputeIntegrityHash(IDotvvmRequestContext context)
+        protected string ComputeIntegrityHash(IDotvvmRequestContext context)
         {
             var hasher = context.Services.GetRequiredService<IResourceHashService>();
             var localLocation = GetLocations().OfType<ILocalResourceLocation>().First();

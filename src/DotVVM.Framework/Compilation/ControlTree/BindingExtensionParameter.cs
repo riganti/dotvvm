@@ -150,9 +150,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         private object ResolveStaticCommandService(DotvvmBindableObject c, Type type)
         {
             var context = (IDotvvmRequestContext)c.GetValue(Internal.RequestContextProperty, true);
-#pragma warning disable CS0618
             return context.Services.GetRequiredService<IStaticCommandServiceLoader>().GetStaticCommandService(type, context);
-#pragma warning restore CS0618
         }
 
         public override JsExpression GetJsTranslation(JsExpression dataContext)

@@ -1,4 +1,3 @@
-#nullable enable
 using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Configuration;
@@ -19,26 +18,26 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the default name of the route that should be loaded when there is no hash part in the URL.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
-        public string? DefaultRouteName
+        public string DefaultRouteName
         {
-            get { return (string?)GetValue(DefaultRouteNameProperty); }
+            get { return (string)GetValue(DefaultRouteNameProperty); }
             set { SetValue(DefaultRouteNameProperty, value); }
         }
         public static readonly DotvvmProperty DefaultRouteNameProperty
-            = DotvvmProperty.Register<string?, SpaContentPlaceHolder>(p => p.DefaultRouteName);
+            = DotvvmProperty.Register<string, SpaContentPlaceHolder>(p => p.DefaultRouteName);
 
         /// <summary>
         /// Gets or sets the name of the route defining the base URL of the SPA (the part of the URL before the hash).
         /// If this property is not set, the URL of the first page using the SpaContentPlaceHolder will stay before the hash mark.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
-        public string? PrefixRouteName
+        public string PrefixRouteName
         {
-            get { return (string?)GetValue(PrefixRouteNameProperty); }
+            get { return (string)GetValue(PrefixRouteNameProperty); }
             set { SetValue(PrefixRouteNameProperty, value); }
         }
         public static readonly DotvvmProperty PrefixRouteNameProperty
-            = DotvvmProperty.Register<string?, SpaContentPlaceHolder>(c => c.PrefixRouteName, null);
+            = DotvvmProperty.Register<string, SpaContentPlaceHolder>(c => c.PrefixRouteName, null);
 
         /// <summary>
         /// Gets or sets whether navigation in the SPA pages should use History API.
@@ -62,7 +61,7 @@ namespace DotVVM.Framework.Controls
         public string GetSpaContentPlaceHolderUniqueId()
         {
             var dotvvmViewId = GetAllAncestors().FirstOrDefault(a => a is DotvvmView).GetType().ToString();
-            var markupRelativeFilePath = (string?)GetValue(Internal.MarkupFileNameProperty);
+            var markupRelativeFilePath = (string)GetValue(Internal.MarkupFileNameProperty);
 
             return HashUtils.HashAndBase64Encode(
                 (dotvvmViewId, markupRelativeFilePath, GetDotvvmUniqueId()).ToString());
@@ -91,7 +90,7 @@ namespace DotVVM.Framework.Controls
             base.OnInit(context);
         }
 
-        private string? GetCorrectSpaUrlPrefix(IDotvvmRequestContext context)
+        private string GetCorrectSpaUrlPrefix(IDotvvmRequestContext context)
         {
             var routePath = "";
             if (!string.IsNullOrEmpty(PrefixRouteName))

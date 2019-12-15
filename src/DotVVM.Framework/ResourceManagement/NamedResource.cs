@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,15 +20,15 @@ namespace DotVVM.Framework.ResourceManagement
             Resource = resource;
         }
 
-        public override bool Equals(object? obj)
+        public override bool Equals(object obj)
         {
             return ReferenceEquals(obj, this)
-                || (Equals(obj as NamedResource));
+                || (obj is NamedResource && Equals((NamedResource)obj));
         }
 
-        public bool Equals(NamedResource? other)
+        public bool Equals(NamedResource other)
         {
-            return other != null && Name.Equals(other.Name);
+            return Name.Equals(other.Name);
         }
 
         public override int GetHashCode()

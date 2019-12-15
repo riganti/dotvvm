@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -13,7 +12,7 @@ namespace DotVVM.Framework.ResourceManagement
         {
         }
 
-        public DotvvmResourceException(string message, Exception? innerException) : base(message, innerException)
+        public DotvvmResourceException(string message, Exception innerException) : base(message, innerException)
         {
         }
     }

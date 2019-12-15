@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Linq;
 using System.Net;
@@ -24,8 +23,8 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public string Text
         {
-            get { return (string)GetValue(TextProperty)!; }
-            set { SetValue(TextProperty, value ?? throw new ArgumentNullException(nameof(value))); }
+            get { return (string)GetValue(TextProperty); }
+            set { SetValue(TextProperty, value); }
         }
 
         public static readonly DotvvmProperty TextProperty =
@@ -35,9 +34,9 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the format string that will be applied to numeric or date-time values.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
-        public string? FormatString
+        public string FormatString
         {
-            get { return (string?)GetValue(FormatStringProperty); }
+            get { return (string)GetValue(FormatStringProperty); }
             set { SetValue(FormatStringProperty, value); }
         }
 
@@ -51,7 +50,7 @@ namespace DotVVM.Framework.Controls
         [Obsolete("ValueType property is no longer required, it is automatically inferred from compile-time type of Text binding")]
         public FormatValueType ValueType
         {
-            get { return (FormatValueType)GetValue(ValueTypeProperty)!; }
+            get { return (FormatValueType)GetValue(ValueTypeProperty); }
             set { SetValue(ValueTypeProperty, value); }
         }
 
@@ -65,7 +64,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false)]
         public bool RenderSpanElement
         {
-            get { return (bool)GetValue(RenderSpanElementProperty)!; }
+            get { return (bool)GetValue(RenderSpanElementProperty); }
             set { SetValue(RenderSpanElementProperty, value); }
         }
 
@@ -90,12 +89,12 @@ namespace DotVVM.Framework.Controls
             if (allowImplicitLifecycleRequirements) LifecycleRequirements = ControlLifecycleRequirements.None;
         }
 
-        public static bool NeedsFormatting(IValueBinding? binding)
+        public static bool NeedsFormatting(IValueBinding binding)
         {
-            bool isFormattedType(Type? type) =>
+            bool isFormattedType(Type type) =>
                 type != null && (type == typeof(float) || type == typeof(double) || type == typeof(decimal) || type == typeof(DateTime) || isFormattedType(Nullable.GetUnderlyingType(type)));
 
-            bool isFormattedTypeOrObj(Type? type) => type == typeof(object) || isFormattedType(type);
+            bool isFormattedTypeOrObj(Type type) => type == typeof(object) || isFormattedType(type);
 
             return isFormattedType(binding?.ResultType) && isFormattedTypeOrObj(binding?.GetProperty<ExpectedTypeBindingProperty>(ErrorHandlingMode.ReturnNull)?.Type);
         }
@@ -109,9 +108,9 @@ namespace DotVVM.Framework.Controls
 #pragma warning restore
             NeedsFormatting(GetValueBinding(TextProperty));
 
-        private new struct RenderState
+        protected struct RenderState
         {
-            public object? Text;
+            public object Text;
             public bool RenderSpanElement;
             public bool HasFormattingStuff;
             public DotvvmControl.RenderState BaseState;
@@ -119,15 +118,13 @@ namespace DotVVM.Framework.Controls
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool TouchProperty(DotvvmProperty prop, object? value, ref RenderState r)
+        protected bool TouchProperty(DotvvmProperty prop, object value, ref RenderState r)
         {
             if (prop == TextProperty)
                 r.Text = value;
             else if (prop == RenderSpanElementProperty)
-                r.RenderSpanElement = (bool)EvalPropertyValue(RenderSpanElementProperty, value)!;
-#pragma warning disable CS0618
+                r.RenderSpanElement = (bool)EvalPropertyValue(RenderSpanElementProperty, value);
             else if (prop == FormatStringProperty || prop == ValueTypeProperty)
-#pragma warning restore CS0618
                 r.HasFormattingStuff = true;
             else if (base.TouchProperty(prop, value, ref r.HtmlState)) { }
             else if (DotvvmControl.TouchProperty(prop, value, ref r.BaseState)) { }
@@ -153,7 +150,7 @@ namespace DotVVM.Framework.Controls
             var isFormattingRequired = (r.HasFormattingStuff || textBinding != null) && this.IsFormattingRequired;
 
             // render Knockout data-bind
-            string? expression = null;
+            string expression = null;
             if (textBinding != null && !r.HtmlState.RenderOnServer(this))
             {
                 expression = textBinding.GetKnockoutBindingExpression(this);
@@ -174,7 +171,7 @@ namespace DotVVM.Framework.Controls
             // render start tag
             if (r.RenderSpanElement)
             {
-                writer.RenderBeginTag(TagName!);
+                writer.RenderBeginTag(TagName);
             }
             else if (expression != null)
             {

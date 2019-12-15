@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -16,7 +15,7 @@ namespace DotVVM.Framework.Controls
         
         public bool IsEmpty => entries.Count == 0;
 
-        public virtual void Add(string name, DotvvmControl control, DotvvmProperty property, Action? nullBindingAction = null)
+        public virtual void Add(string name, DotvvmControl control, DotvvmProperty property, Action nullBindingAction = null)
         {
             var binding = control.GetValueBinding(property);
             if (binding == null)
@@ -26,7 +25,7 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                entries.Add(new KnockoutBindingInfo(name, GetKnockoutBindingExpression(control, binding)));
+                entries.Add(new KnockoutBindingInfo() { Name = name, Expression = GetKnockoutBindingExpression(control, control.GetValueBinding(property)) });
             }
         }
 
@@ -37,7 +36,7 @@ namespace DotVVM.Framework.Controls
                 expression = JsonConvert.SerializeObject(expression);
             }
 
-            entries.Add(new KnockoutBindingInfo(name, expression));
+            entries.Add(new KnockoutBindingInfo() { Name = name, Expression = expression });
         }
 
         public virtual void AddFrom(KnockoutBindingGroup other)
@@ -64,14 +63,8 @@ namespace DotVVM.Framework.Controls
 
         public class KnockoutBindingInfo
         {
-            public KnockoutBindingInfo(string name, string expression)
-            {
-                Name = name;
-                Expression = expression;
-            }
-
-            public string Name { get; }
-            public string Expression { get; }
+            public string Name { get; set; }
+            public string Expression { get; set; }
 
             public override string ToString()
             {

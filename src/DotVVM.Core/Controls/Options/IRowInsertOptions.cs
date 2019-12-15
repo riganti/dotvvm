@@ -5,12 +5,12 @@
     /// </summary>
     /// <typeparam name="T">The type of inserted row.</typeparam>
     public interface IRowInsertOptions<T> : IRowInsertOptions
-        where T : class, new()
+        where T : new()
     {
         /// <summary>
-        /// Gets or sets the row to be inserted to data source. Null means that row insertion is not activated.
+        /// Gets or sets the row to be inserted to data source.
         /// </summary>
-        new T? InsertedRow { get; set; }
+        new T InsertedRow { get; set; }
     }
 
     /// <summary>
@@ -19,8 +19,8 @@
     public interface IRowInsertOptions
     {
         /// <summary>
-        /// Gets or sets the row to be inserted into data source. Null means that row insertion is not activated.
+        /// Gets or sets the row to be inserted into data source.
         /// </summary>
-        object? InsertedRow { get; }
+        object InsertedRow { get; }
     }
 }

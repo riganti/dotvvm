@@ -1,4 +1,4 @@
-@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.SPA.TestViewModel, DotVVM.Samples.Common
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.SPA.TestViewModel, DotVVM.Samples.Common
 @masterPage Views/ComplexSamples/SPAErrorReporting/site.dotmaster
 
 <dot:Content ContentPlaceHolderID="Container">
@@ -11,3 +11,4 @@
     <dot:Literal data-ui="sample-text" RenderSpanElement="true" Text="{value: SampleText}" />
 
 </dot:Content>
+

@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -22,21 +21,21 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Csrf protection token.
         /// </summary>
-        string? CsrfToken { get; set; }
+        string CsrfToken { get; set; }
 
-        JObject? ReceivedViewModelJson { get; set; }
+        JObject ReceivedViewModelJson { get; set; }
 
         /// <summary>
         /// Gets the view model for the current request.
         /// </summary>
-        object? ViewModel { get; set; }
+        object ViewModel { get; set; }
 
-        JObject? ViewModelJson { get; set; }
+        JObject ViewModelJson { get; set; }
 
         /// <summary>
         /// Gets the top-level control representing the whole view for the current request.
         /// </summary>
-        DotvvmView? View { get; set; }
+        DotvvmView View { get; set; }
 
         /// <summary>
         /// Gets the global configuration of DotVVM.
@@ -46,12 +45,12 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets the <see cref="IDotvvmPresenter"/> that is responsible for handling this HTTP request.
         /// </summary>
-        IDotvvmPresenter? Presenter { get; set; }
+        IDotvvmPresenter Presenter { get; set; }
 
         /// <summary>
         /// Gets the route that was used for this request.
         /// </summary>
-        RouteBase? Route { get; set; }
+        RouteBase Route { get; set; }
 
         /// <summary>
         /// Determines whether this HTTP request is a postback or a classic GET request.
@@ -61,7 +60,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets the values of parameters specified in the <see cref="P:Route" /> property.
         /// </summary>
-        IDictionary<string, object?>? Parameters { get; set; }
+        IDictionary<string, object> Parameters { get; set; }
 
         /// <summary>
         /// Gets the resource manager that is responsible for rendering script and stylesheet resources.
@@ -93,7 +92,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets or sets the exception that occurred when the command was executed.
         /// </summary>
-        Exception? CommandException { get; set; }
+        Exception CommandException { get; set; }
 
         /// <summary>
         /// Gets a value indicating whether the HTTP request wants to render only content of a specific SpaContentPlaceHolder.
@@ -108,7 +107,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets or sets new url fragment (the part after #) to be set on client. Use this to refer to element Ids on the page
         /// </summary>
-        string? ResultIdFragment { get; set; }
+        string ResultIdFragment { get; set; }
 
         IServiceProvider Services { get; }
     }

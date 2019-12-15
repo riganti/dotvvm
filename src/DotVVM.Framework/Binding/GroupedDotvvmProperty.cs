@@ -1,5 +1,4 @@
-﻿#nullable enable
-using DotVVM.Framework.Compilation.ControlTree;
+﻿using DotVVM.Framework.Compilation.ControlTree;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,21 +10,16 @@ namespace DotVVM.Framework.Binding
 {
     public class GroupedDotvvmProperty : DotvvmProperty
     {
-        public DotvvmPropertyGroup PropertyGroup { get; }
+        public DotvvmPropertyGroup  PropertyGroup { get; private set; }
+        public string GroupMemberName { get; private set; }
 
-        public string GroupMemberName { get; }
-
-        public GroupedDotvvmProperty(string groupMemberName, DotvvmPropertyGroup propertyGroup)
-        {
-            this.GroupMemberName = groupMemberName;
-            this.PropertyGroup = propertyGroup;
-        }
-
-
-        public static GroupedDotvvmProperty Create(DotvvmPropertyGroup group, string name)
+        public static GroupedDotvvmProperty Create(DotvvmPropertyGroup  group, string name)
         {
             var propname = group.Name + ":" + name;
-            var prop = new GroupedDotvvmProperty(name, group) {
+            var prop = new GroupedDotvvmProperty
+            {
+                PropertyGroup = group,
+                GroupMemberName = name,
                 PropertyType = group.PropertyType,
                 DeclaringType = group.DeclaringType,
                 DefaultValue = group.DefaultValue,

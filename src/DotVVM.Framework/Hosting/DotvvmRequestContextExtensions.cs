@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -14,7 +13,6 @@ using DotVVM.Framework.Hosting.Middlewares;
 using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading;
-using System.Threading.Tasks;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.Hosting;
 
@@ -103,10 +101,10 @@ public static class DotvvmRequestContextExtensions
     /// <summary>
     /// Returns the redirect response and interrupts the execution of current request.
     /// </summary>
-    public static void RedirectToRoute(this IDotvvmRequestContext context, string routeName, object? newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true, string? urlSuffix = null, object? query = null)
+    public static void RedirectToRoute(this IDotvvmRequestContext context, string routeName, object newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true, string urlSuffix = null, object query = null)
     {
         var route = context.Configuration.RouteTable[routeName];
-        var url = route.BuildUrl(context.Parameters!, newRouteValues) + UrlHelper.BuildUrlSuffix(urlSuffix, query);
+        var url = route.BuildUrl(context.Parameters, newRouteValues) + UrlHelper.BuildUrlSuffix(urlSuffix, query);
 
         context.RedirectToUrl(url, replaceInHistory, allowSpaRedirect);
     }
@@ -123,22 +121,16 @@ public static class DotvvmRequestContextExtensions
     /// <summary>
     /// Returns the permanent redirect response and interrupts the execution of current request.
     /// </summary>
-    public static void RedirectToRoutePermanent(this IDotvvmRequestContext context, string routeName, object? newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true)
+    public static void RedirectToRoutePermanent(this IDotvvmRequestContext context, string routeName, object newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true)
     {
         var route = context.Configuration.RouteTable[routeName];
-        var url = route.BuildUrl(context.Parameters!, newRouteValues);
+        var url = route.BuildUrl(context.Parameters, newRouteValues);
         context.RedirectToUrlPermanent(url, replaceInHistory, allowSpaRedirect);
     }
 
     public static void SetRedirectResponse(this IDotvvmRequestContext context, string url, int statusCode = (int)HttpStatusCode.Redirect, bool replaceInHistory = false, bool allowSpaRedirect = false) =>
         context.Configuration.ServiceProvider.GetRequiredService<IHttpRedirectService>().WriteRedirectResponse(context.HttpContext, url, statusCode, replaceInHistory, allowSpaRedirect);
 
-    internal static Task SetCachedViewModelMissingResponse(this IDotvvmRequestContext context)
-    {
-        context.HttpContext.Response.StatusCode = 200;
-        context.HttpContext.Response.ContentType = "application/json";
-        return context.HttpContext.Response.WriteAsync(DefaultViewModelSerializer.GenerateMissingCachedViewModelResponse());
-    }
 
     /// <summary>
     /// Ends the request execution when the <see cref="ModelState"/> is not valid and displays the validation errors in <see cref="ValidationSummary"/> control.
@@ -153,7 +145,7 @@ public static class DotvvmRequestContextExtensions
                 .WriteAsync(context.Services.GetRequiredService<IViewModelSerializer>().SerializeModelState(context))
                 .GetAwaiter().GetResult();
             //   ^ we just wait for this Task. This API never was async and the response size is small enough that we can't quite safely wait for the result
-            //     .GetAwaiter().GetResult() preserves stack traces across async calls, thus I like it more than .Wait()
+            //     .GetAwaiter().GetResult() preserves stack traces across async calls, thus I like it more that .Wait()
             throw new DotvvmInterruptRequestExecutionException(InterruptReason.ModelValidationFailed, "The ViewModel contains validation errors!");
         }
     }
@@ -199,13 +191,13 @@ public static class DotvvmRequestContextExtensions
     /// <summary>
     /// Redirects the client to the specified file.
     /// </summary>
-    public static void ReturnFile(this IDotvvmRequestContext context, byte[] bytes, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>>? additionalHeaders = null, string? attachmentDispositionType = null) =>
+    public static void ReturnFile(this IDotvvmRequestContext context, byte[] bytes, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>> additionalHeaders = null, string attachmentDispositionType = null) =>
         context.ReturnFile(new MemoryStream(bytes), fileName, mimeType, additionalHeaders, attachmentDispositionType);
 
     /// <summary>
     /// Redirects the client to the specified file.
     /// </summary>
-    public static void ReturnFile(this IDotvvmRequestContext context, Stream stream, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>>? additionalHeaders = null, string? attachmentDispositionType = null)
+    public static void ReturnFile(this IDotvvmRequestContext context, Stream stream, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>> additionalHeaders = null, string attachmentDispositionType = null)
     {
         var returnedFileStorage = context.Services.GetService<IReturnedFileStorage>();
 

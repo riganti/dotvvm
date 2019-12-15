@@ -1,7 +1,0 @@
-﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.UpdateProgress.UpdateProgressRedirectViewModel, DotVVM.Samples.Common
-@masterPage Views/ControlSamples/UpdateProgress/UpdateProgressRedirect.dotmaster
-
-<dot:Content ContentPlaceHolderID="MainContent">
-    <span data-ui="text">PAGE 2</span>
-</dot:Content>
-

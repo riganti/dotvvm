@@ -1,9 +1,0 @@
-﻿@viewModel object
-@baseType DotVVM.Samples.BasicSamples.Views.ControlSamples.CheckBox.CheckedItemsRepeaterWrapper
-
-<dot:Button Text="Click" Click="{command: _control.Update()}" data-ui="btn-update"/>
-<dot:Repeater DataSource="{value: _control.Data.AllData}" data-ui="repeater">
-    <dot:CheckBox CheckedItems="{value: _control.Data.SelectedDataTestsIds}"
-                  Text="{value: Name}"
-                  CheckedValue="{value: Id}"/>
-</dot:Repeater>

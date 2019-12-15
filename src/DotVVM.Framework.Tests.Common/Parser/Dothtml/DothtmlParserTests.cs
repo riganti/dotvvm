@@ -117,18 +117,6 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
             Assert.AreEqual("test", (innerElement.Attributes[0].ValueNode as DothtmlValueTextNode).Text);
         }
 
-        [TestMethod]
-        public void DothtmlParser_Valid_UnquotedAttributeWithWhitespace()
-        {
-            var markup = @"this <b>is<a href   =  test>test</a></b> a test";
-            var nodes = ParseMarkup(markup).Content;
-
-            var innerElement = (DothtmlElementNode)((DothtmlElementNode)nodes[1]).Content[1];
-            Assert.AreEqual(1, innerElement.Attributes.Count);
-            Assert.AreEqual("href", innerElement.Attributes[0].AttributeName);
-            Assert.IsNull(innerElement.Attributes[0].AttributePrefix);
-            Assert.AreEqual("test", (innerElement.Attributes[0].ValueNode as DothtmlValueTextNode).Text);
-        }
 
 
         [TestMethod]
@@ -193,26 +181,6 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
             Assert.AreEqual("href", ((DothtmlElementNode)nodes[1]).Attributes[0].AttributeName);
             Assert.AreEqual("value", (((DothtmlElementNode)nodes[1]).Attributes[0].ValueNode as DothtmlValueBindingNode).BindingNode.Name);
             Assert.AreEqual("test", (((DothtmlElementNode)nodes[1]).Attributes[0].ValueNode as DothtmlValueBindingNode).BindingNode.Value);
-        }
-
-        [TestMethod]
-        public void DothtmlParser_Valid_BindingInUnquotedAttributeValue()
-        {
-            var markup = @"this <a href={value: test}/>";
-            var nodes = ParseMarkup(markup).Content;
-
-            Assert.AreEqual(2, nodes.Count);
-
-            Assert.IsInstanceOfType(nodes[0], typeof(DothtmlLiteralNode));
-            Assert.AreEqual("this ", ((DothtmlLiteralNode)nodes[0]).Value);
-
-            Assert.IsInstanceOfType(nodes[1], typeof(DothtmlElementNode));
-            Assert.AreEqual("a", ((DothtmlElementNode)nodes[1]).FullTagName);
-            Assert.AreEqual(0, ((DothtmlElementNode)nodes[1]).Content.Count);
-
-            Assert.AreEqual("href", (nodes[1] as DothtmlElementNode).Attributes[0].AttributeName);
-            Assert.AreEqual("value", ((nodes[1] as DothtmlElementNode).Attributes[0].ValueNode as DothtmlValueBindingNode).BindingNode.Name);
-            Assert.AreEqual("test", ((nodes[1] as DothtmlElementNode).Attributes[0].ValueNode as DothtmlValueBindingNode).BindingNode.Value);
         }
 
         [TestMethod]
@@ -293,20 +261,6 @@ test";
         [TestMethod]
         public void DothtmlParser_SlashAttributeValue()
         {
-            var markup = "<a href='/'>Test</a>";
-            var nodes = ParseMarkup(markup).Content;
-
-            Assert.AreEqual(1, nodes.Count);
-            var ael = (DothtmlElementNode)nodes[0];
-            Assert.AreEqual("a", ael.FullTagName);
-            Assert.AreEqual(1, ael.Attributes.Count);
-            Assert.AreEqual("href", ael.Attributes[0].AttributeName);
-            Assert.AreEqual("/", (ael.Attributes[0].ValueNode as DothtmlValueTextNode).Text);
-        }
-
-        [TestMethod]
-        public void DothtmlParser_UnquotedSlashAttributeValue()
-        {
             var markup = "<a href=/>Test</a>";
             var nodes = ParseMarkup(markup).Content;
 
@@ -315,8 +269,7 @@ test";
             Assert.AreEqual("a", ael.FullTagName);
             Assert.AreEqual(1, ael.Attributes.Count);
             Assert.AreEqual("href", ael.Attributes[0].AttributeName);
-            Assert.AreEqual("", (ael.Attributes[0].ValueNode as DothtmlValueTextNode).Text);
-            Assert.IsTrue(ael.Tokens.Any(n => n.Error is object));
+            Assert.AreEqual("/", (ael.Attributes[0].ValueNode as DothtmlValueTextNode).Text);
         }
 
         [TestMethod]

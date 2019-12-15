@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.IO;
 
 namespace DotVVM.Framework.Hosting
@@ -10,14 +9,14 @@ namespace DotVVM.Framework.Hosting
         string Method { get; }
         [Obsolete("Use the Url.Scheme property instead")]
         string Scheme { get; }
-        string? ContentType { get; }
+        string ContentType { get; }
         bool IsHttps { get; }
         IPathString Path { get; }
         IPathString PathBase { get; }
         Stream Body { get; }
         IQueryCollection Query { get; }
         [Obsolete("Use the Url.Query property instead")]
-        string? QueryString { get; }
+        string QueryString { get; }
         ICookieCollection Cookies { get; }
         IHeaderCollection Headers { get; }
 		Uri Url { get; }

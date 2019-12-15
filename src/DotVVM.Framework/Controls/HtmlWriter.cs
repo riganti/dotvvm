@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,7 +10,6 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Resources;
 using DotVVM.Framework.Runtime;
-using DotVVM.Framework.Utils;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Controls
@@ -26,8 +24,8 @@ namespace DotVVM.Framework.Controls
         private readonly bool debug;
         private readonly bool enableWarnings;
 
-        private List<(string name, string? val, string? separator, bool allowAppending)> attributes = new List<(string, string?, string? separator, bool allowAppending)>();
-        private DotvvmBindableObject? errorContext;
+        private DotvvmBindableObject errorContext;
+        private List<(string name, string val, string separator, bool allowAppending)> attributes = new List<(string, string, string separator, bool allowAppending)>();
         private OrderedDictionary dataBindAttributes = new OrderedDictionary();
         private Stack<string> openTags = new Stack<string>();
         private bool tagFullyOpen = true;
@@ -69,7 +67,7 @@ namespace DotVVM.Framework.Controls
             this.enableWarnings = this.WarningCollector.Enabled;
         }
 
-        internal void Warn(string message, Exception? ex = null)
+        internal void Warn(string message, Exception ex = null)
         {
             Debug.Assert(this.enableWarnings);
             this.WarningCollector.Warn(new DotvvmRuntimeWarning(message, ex, this.errorContext));
@@ -84,7 +82,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        public static string? JoinAttributeValues(string attributeName, string? valueA, string? valueB, string? separator = null)
+        public static string JoinAttributeValues(string attributeName, string valueA, string valueB, string separator = null)
         {
             if (string.IsNullOrWhiteSpace(valueA))
                 return valueB;
@@ -107,7 +105,7 @@ namespace DotVVM.Framework.Controls
         ///     If set to true, the value will be appended to the current attribute value and the <paramref name="appendSeparator"/> will be added when needed.
         /// </param>
         /// <param name="appendSeparator">The separator that will be used when <paramref name="append"/> is true and when the attribute already has a value.</param>
-        public void AddAttribute(string name, string? value, bool append = false, string? appendSeparator = null)
+        public void AddAttribute(string name, string value, bool append = false, string appendSeparator = null)
         {
             // if (append)
             // {
@@ -209,7 +207,7 @@ namespace DotVVM.Framework.Controls
                 Warn($"Element {name} is not self-closing but is rendered as so. It may be interpreted as a start tag without an end tag by the browsers.");
         }
 
-        private Dictionary<string, string?> attributeMergeTable = new Dictionary<string, string?>(23);
+        private Dictionary<string, string> attributeMergeTable = new Dictionary<string, string>(23);
 
         /// <summary>
         /// Renders the begin tag without end char.
@@ -220,11 +218,9 @@ namespace DotVVM.Framework.Controls
             AssertIsValidHtmlName(name);
             writer.Write(name);
 
-#pragma warning disable CS8605
             foreach (DictionaryEntry attr in dataBindAttributes)
-#pragma warning restore CS8605
             {
-                AddAttribute("data-bind", attr.Key + ": " + ConvertHtmlAttributeValue(attr.Value.NotNull()), true, ", ");
+                AddAttribute("data-bind", attr.Key + ": " + ConvertHtmlAttributeValue(attr.Value), true, ", ");
             }
             dataBindAttributes.Clear();
 
@@ -285,11 +281,12 @@ namespace DotVVM.Framework.Controls
             attributes.Clear();
         }
 
-        private void WriteAttrWithTransformers(string name, string attributeName, string? attributeValue)
+        private void WriteAttrWithTransformers(string name, string attributeName, string attributeValue)
         {
             // allow to use the attribute transformer
             var pair = new HtmlTagAttributePair() { TagName = name, AttributeName = attributeName };
-            if (requestContext.Configuration.Markup.HtmlAttributeTransforms.TryGetValue(pair, out var transformConfiguration))
+            HtmlAttributeTransformConfiguration transformConfiguration;
+            if (requestContext.Configuration.Markup.HtmlAttributeTransforms.TryGetValue(pair, out transformConfiguration))
             {
                 // use the transformer
                 var transformer = transformConfiguration.GetInstance();
@@ -303,9 +300,9 @@ namespace DotVVM.Framework.Controls
 
         private string ConvertHtmlAttributeValue(object value)
         {
-            if (value is KnockoutBindingGroup koGroup)
+            if (value is KnockoutBindingGroup)
             {
-                return koGroup.ToString();
+                return value.ToString();
             }
 
             return (string) value;
@@ -326,7 +323,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        public void WriteHtmlAttribute(string attributeName, string? attributeValue)
+        public void WriteHtmlAttribute(string attributeName, string attributeValue)
         {
             writer.Write(" ");
             writer.Write(attributeName);
@@ -383,9 +380,9 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Writes the text.
         /// </summary>
-        public void WriteText(string? text)
+        public void WriteText(string text)
         {
-            if (text == null || text.Length == 0) return;
+            if (text == null && text.Length == 0) return;
             EnsureTagFullyOpen();
             WebUtility.HtmlEncode(text, this.writer);
         }
@@ -393,12 +390,30 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Writes the unencoded text.
         /// </summary>
-        public void WriteUnencodedText(string? text)
+        public void WriteUnencodedText(string text)
         {
             EnsureTagFullyOpen();
             writer.Write(text ?? "");
         }
 
         public void SetErrorContext(DotvvmBindableObject obj) => this.errorContext = obj;
+    }
+    public class HtmlElementInfo
+    {
+        public string Name { get; internal set; }
+        private Dictionary<string, object> properties;
+
+        public void SetProperty(string name, object value)
+        {
+            if (properties == null) properties = new Dictionary<string, object>();
+            properties[name] = value;
+        }
+        public object GetProperty(string name)
+        {
+            if (properties == null) return null;
+            object result = null;
+            properties.TryGetValue(name, out result);
+            return result;
+        }
     }
 }

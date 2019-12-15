@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,7 +29,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false)]
         public bool IncludeErrorsFromChildren
         {
-            get { return (bool) GetValue(IncludeErrorsFromChildrenProperty)!; }
+            get { return (bool) GetValue(IncludeErrorsFromChildrenProperty); }
             set { SetValue(IncludeErrorsFromChildrenProperty, value); }
         }
         public static readonly DotvvmProperty IncludeErrorsFromChildrenProperty
@@ -43,7 +42,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false)]
         public bool IncludeErrorsFromTarget
         {
-            get { return (bool) GetValue(IncludeErrorsFromTargetProperty)!; }
+            get { return (bool) GetValue(IncludeErrorsFromTargetProperty); }
             set { SetValue(IncludeErrorsFromTargetProperty, value); }
         }
         public static readonly DotvvmProperty IncludeErrorsFromTargetProperty

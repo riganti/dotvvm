@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -20,13 +19,13 @@ namespace DotVVM.Framework.Testing
 
         public string Scheme { get; set; } = "http";
 
-        public string? ContentType { get; set; }
+        public string ContentType { get; set; }
 
         public bool IsHttps { get; set; }
 
-        public string? Path { get; set; }
+        public string Path { get; set; }
 
-        public string? PathBase { get; set; }
+        public string PathBase { get; set; }
         IPathString IHttpRequest.Path => new TestPathString(this.Path);
 
         IPathString IHttpRequest.PathBase => new TestPathString(this.PathBase);
@@ -36,7 +35,7 @@ namespace DotVVM.Framework.Testing
         public TestQueryCollection Query { get; set; } = new TestQueryCollection();
         IQueryCollection IHttpRequest.Query => this.Query;
 
-        public string? QueryString { get; set; }
+        public string QueryString { get; set; }
 
         public TestCookieCollection Cookies { get; } = new TestCookieCollection();
 

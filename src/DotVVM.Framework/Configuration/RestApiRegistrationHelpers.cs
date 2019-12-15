@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
-using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.ResourceManagement;
@@ -105,31 +104,17 @@ namespace DotVVM.Framework.Configuration
                     {
                         var isRead = IsHttpReadMethod(method);
 
-                        // build unique method identifier for GET request sharing purposes
-                        var sharingKey = GetApiMethodUrl(identifier.FormatScript(), method);
-                        var sharingKeyExpression = BuildMethodSharingKeyExpression(sharingKey, method);
-
-                        // get auto-refresh identifier
-                        var autoRefreshKey = GetAutoRefreshKey(apiClient, method);
-                        var autoRefreshKeyExpression = new JsLiteral(autoRefreshKey);
-
                         config.Markup.JavascriptTranslator.MethodCollection.AddMethodTranslator(method, new GenericMethodCompiler(
                             a => new JsIdentifierExpression("dotvvm").Member("invokeApiFn").Invoke(
-                                identifier.Clone(),
-                                new JsLiteral(KnockoutHelper.ConvertToCamelCase(method.Name)),
-                                new JsFunctionExpression(new JsIdentifier[0], new JsBlockStatement(new JsReturnStatement(
-                                        new JsArrayExpression(ReplaceDefaultWithUndefined(a.Skip(1), method.GetParameters()).Apply(SerializeComplexParameters))
-                                ))),
-                                new JsFunctionExpression(new[] { new JsIdentifier("args") }, new JsBlockStatement(new JsReturnStatement(
-                                    new JsArrayExpression(isRead ? new JsIdentifierExpression("dotvvm").Member("eventHub").Member("get").Invoke(autoRefreshKeyExpression.Clone()) : null)
-                                ))),
-                                new JsFunctionExpression(new[] { new JsIdentifier("args") }, new JsBlockStatement(new JsReturnStatement(
-                                    new JsArrayExpression(!isRead ? autoRefreshKeyExpression.Clone() : null)
-                                ))),
-                                isRead ? (JsExpression)new JsLiteral(null) : new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter, new CodeParameterAssignment("$element", OperatorPrecedence.Max)),
-                                new JsFunctionExpression(new[] { new JsIdentifier("args") }, new JsBlockStatement(new JsReturnStatement(
-                                    isRead ? sharingKeyExpression.Clone() : new JsLiteral(Guid.NewGuid().ToString())
-                                )))
+                                new JsFunctionExpression(new JsIdentifier[0], new JsBlockStatement(
+                                    new JsReturnStatement(identifier.Clone().Member(KnockoutHelper.ConvertToCamelCase(method.Name)).Invoke(ReplaceDefaultWithUndefined(a.Skip(1), method.GetParameters()).Apply(SerializeComplexParameters)))
+                                )),
+                                new JsArrayExpression(isRead ?
+                                    new JsIdentifierExpression("dotvvm").Member("eventHub").Member("get").Invoke(new JsLiteral(identifier.FormatScript())) :
+                                    null),
+                                new JsArrayExpression(!isRead ?
+                                    new JsLiteral(identifier.FormatScript()) :
+                                    null)
                             ).WithAnnotation(ResultIsObservableAnnotation.Instance)
                              .WithAnnotation(MayBeNullAnnotation.Instance)
                              .WithAnnotation(new ViewModelInfoAnnotation(method.ReturnType))
@@ -141,30 +126,6 @@ namespace DotVVM.Framework.Configuration
                     }
                 }
             }
-        }
-
-        private static string GetAutoRefreshKey(Type apiClient, MethodInfo method)
-        {
-            return apiClient.FullName + "/" + method.GetCustomAttribute<AutoRefreshKeyAttribute>()?.Key ?? "";
-        }
-
-        private static JsExpression BuildMethodSharingKeyExpression(string sharingKey, MethodInfo method)
-        {
-            // takes an URL pattern (e.g. /api/customer/{id}) and generates an JS expression that substitutes the parameters with actual values from the args[] array
-            JsExpression sharingKeyExpression = new JsLiteral(sharingKey);
-            var parameters = method.GetParameters();
-            for (var i = 0; i < parameters.Length; i++)
-            {
-                if (sharingKey.Contains("{" + parameters[i].Name + "}"))
-                {
-                    sharingKeyExpression = sharingKeyExpression.Member("replace").Invoke(
-                        new JsLiteral("{" + parameters[i].Name + "}"),
-                        new JsIdentifierExpression("args").Indexer(new JsLiteral(i))
-                    );
-                }
-            }
-
-            return sharingKeyExpression;
         }
 
         public static void RegisterApiClient(this DotvvmConfiguration configuration, Type clientType, string apiServerUrl, string jsApiClientFile, string identifier, string customFetchFunction = null)
@@ -252,11 +213,6 @@ namespace DotVVM.Framework.Configuration
                 || method.Name.StartsWith(HttpHeadVerb, StringComparison.OrdinalIgnoreCase);
         }
 
-        private static string GetApiMethodUrl(string identifier, MethodInfo method)
-        {
-            return method.GetCustomAttribute<MethodUrlAttribute>()?.Url ?? "";
-        }
-
         public class ApiGroupDescriptor
         {
             public object Instance { get; }
@@ -298,28 +254,6 @@ namespace DotVVM.Framework.Configuration
             }
 
             public string Method { get; }
-        }
-
-        [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-        public sealed class MethodUrlAttribute : Attribute
-        {
-            public MethodUrlAttribute(string url)
-            {
-                Url = url;
-            }
-
-            public string Url { get; }
-        }
-
-        [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-        public sealed class AutoRefreshKeyAttribute : Attribute
-        {
-            public AutoRefreshKeyAttribute(string key)
-            {
-                Key = key;
-            }
-
-            public string Key { get; }
         }
 
         public class ApiExtensionParameter : BindingExtensionParameter

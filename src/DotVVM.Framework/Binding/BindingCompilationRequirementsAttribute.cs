@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Immutable;
 using System.Linq;
 
@@ -26,7 +25,7 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public readonly ImmutableArray<Type> Excluded;
 
-        public BindingCompilationRequirementsAttribute(Type[]? required = null, Type[]? optional = null, Type[]? excluded = null)
+        public BindingCompilationRequirementsAttribute(Type[] required = null, Type[] optional = null, Type[] excluded = null)
         {
             this.Required = required?.ToImmutableArray() ?? ImmutableArray<Type>.Empty;
             this.Optional = optional?.ToImmutableArray() ?? ImmutableArray<Type>.Empty;

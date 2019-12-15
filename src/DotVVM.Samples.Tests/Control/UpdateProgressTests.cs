@@ -1,14 +1,11 @@
 ﻿using Riganti.Selenium.Core;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
-using OpenQA.Selenium;
 using Riganti.Selenium.Core.Abstractions.Exceptions;
 using Xunit;
 using Xunit.Abstractions;
@@ -21,7 +18,8 @@ namespace DotVVM.Samples.Tests.Control
         [Fact]
         public void Control_UpdateProgress_UpdateProgress()
         {
-            RunInAllBrowsers(browser => {
+            RunInAllBrowsers(browser =>
+            {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_UpdateProgress_UpdateProgress);
                 browser.Wait();
 
@@ -44,7 +42,8 @@ namespace DotVVM.Samples.Tests.Control
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_UpdateProgress_UpdateProgressDelay))]
         public void Control_UpdateProgress_UpdateProgressDelayLongTest()
         {
-            RunInAllBrowsers(browser => {
+            RunInAllBrowsers(browser =>
+            {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_UpdateProgress_UpdateProgressDelay);
                 browser.Wait();
 
@@ -53,12 +52,14 @@ namespace DotVVM.Samples.Tests.Control
                 browser.First(".long-test").Click();
 
                 //wait for the progress to be shown
-                browser.WaitFor(() => {
+                browser.WaitFor(() =>
+                {
                     AssertUI.IsDisplayed(browser.First(".update-progress"));
                 }, 3000);
 
                 //verify that the progress disappears 
-                browser.WaitFor(() => {
+                browser.WaitFor(() =>
+                {
                     AssertUI.IsNotDisplayed(browser.First(".update-progress"));
                 }, 2000);
             });
@@ -68,7 +69,8 @@ namespace DotVVM.Samples.Tests.Control
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_UpdateProgress_UpdateProgressDelay))]
         public void Control_UpdateProgress_UpdateProgressDelayShortTest()
         {
-            RunInAllBrowsers(browser => {
+            RunInAllBrowsers(browser =>
+            {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_UpdateProgress_UpdateProgressDelay);
                 browser.Wait();
 
@@ -85,7 +87,8 @@ namespace DotVVM.Samples.Tests.Control
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_UpdateProgress_UpdateProgressDelay))]
         public void Control_UpdateProgress_UpdateProgressDelayInterruptTest()
         {
-            RunInAllBrowsers(browser => {
+            RunInAllBrowsers(browser =>
+            {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_UpdateProgress_UpdateProgressDelay);
                 browser.Wait();
                 var updateProgressControl = browser.First(".update-progress");
@@ -188,72 +191,6 @@ namespace DotVVM.Samples.Tests.Control
                 AssertUI.IsNotDisplayed(progress2);
                 AssertUI.IsNotDisplayed(progress3);
                 AssertUI.IsNotDisplayed(progress4);
-            });
-        }
-
-        [Theory]
-        [InlineData(SamplesRouteUrls.ControlSamples_UpdateProgress_UpdateProgressRedirectSPA1)]
-        [InlineData(SamplesRouteUrls.ControlSamples_UpdateProgress_UpdateProgressRedirect1)]
-        public void Control_UpdateProgress_SPA_Redirect(string route)
-        {
-            RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(route);
-                browser.Wait();
-
-                var spaTextElement = browser.Single("text", SelectByDataUi);
-                var goToSpa2Btn = browser.Single("btn-2", SelectByDataUi);
-                var progress = browser.Single("progress", By.Id);
-
-                AssertUI.InnerTextEquals(spaTextElement, "PAGE 1");
-                AssertUI.IsNotDisplayed(progress);
-
-                goToSpa2Btn.Click();
-
-                var sw = new Stopwatch();
-                sw.Start();
-                while (sw.ElapsedMilliseconds < 2100) // action should take only 2000ms
-                {
-                    string spaText;
-                    try
-                    {
-                        spaText = browser.Single("text", SelectByDataUi).GetInnerText();
-                    }
-                    //element changed during retrieval of text.
-                    catch (StaleElementReferenceException)
-                    {
-                        continue;
-                    }
-
-                    if (spaText != "PAGE 1")
-                    {
-                        AssertUI.IsDisplayed(progress);
-                    }
-                    else
-                    {
-                        return;
-                    }
-
-                    Thread.Sleep(50);
-                }
-
-                Assert.True(false, "SPA 2 page did not load in time");
-            });
-        }
-        [Fact]
-        public void Control_UpdateProgress_SPA_LongAction()
-        {
-            RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_UpdateProgress_UpdateProgressRedirectSPA1);
-                browser.Wait();
-                var progress = browser.Single("progress", By.Id);
-
-                AssertUI.IsNotDisplayed(progress);
-
-                browser.Single("long", SelectByDataUi).Click();
-                AssertUI.IsDisplayed(progress);
-                Thread.Sleep(1000);
-                progress.WaitFor(AssertUI.IsNotDisplayed, 500,
-                    "Update progress did not hide after action finished");
             });
         }
 

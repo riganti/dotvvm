@@ -2,7 +2,7 @@
     public init = new DotvvmEvent<DotvvmEventArgs>("dotvvm.events.init", true);
     public beforePostback = new DotvvmEvent<DotvvmBeforePostBackEventArgs>("dotvvm.events.beforePostback");
     public afterPostback = new DotvvmEvent<DotvvmAfterPostBackEventArgs>("dotvvm.events.afterPostback");
-    public error = new DotvvmEvent<DotvvmErrorEventArgs>("dotvvm.events.error");
+    public error =  new DotvvmEvent<DotvvmErrorEventArgs>("dotvvm.events.error");
     public spaNavigating = new DotvvmEvent<DotvvmSpaNavigatingEventArgs>("dotvvm.events.spaNavigating");
     public spaNavigated = new DotvvmEvent<DotvvmSpaNavigatedEventArgs>("dotvvm.events.spaNavigated");
     public redirect = new DotvvmEvent<DotvvmRedirectEventArgs>("dotvvm.events.redirect");
@@ -14,9 +14,9 @@
     public postbackViewModelUpdated = new DotvvmEvent<{}>("dotvvm.events.postbackViewModelUpdated")
     public postbackRejected = new DotvvmEvent<{}>("dotvvm.events.postbackRejected")
 
-    public staticCommandMethodInvoking = new DotvvmEvent<{ args: any[], command: string }>("dotvvm.events.staticCommandMethodInvoking")
-    public staticCommandMethodInvoked = new DotvvmEvent<{ args: any[], command: string, result: any, xhr: XMLHttpRequest }>("dotvvm.events.staticCommandMethodInvoked")
-    public staticCommandMethodFailed = new DotvvmEvent<{ args: any[], command: string, xhr: XMLHttpRequest, error?: any }>("dotvvm.events.staticCommandMethodInvoked")
+    public staticCommandMethodInvoking = new DotvvmEvent<{args: any[], command: string}>("dotvvm.events.staticCommandMethodInvoking")
+    public staticCommandMethodInvoked = new DotvvmEvent<{args: any[], command: string, result: any, xhr: XMLHttpRequest}>("dotvvm.events.staticCommandMethodInvoked")
+    public staticCommandMethodFailed = new DotvvmEvent<{args: any[], command: string, xhr: XMLHttpRequest, error?: any}>("dotvvm.events.staticCommandMethodInvoked")
 }
 
 class DotvvmEventHandler<T> {
@@ -28,7 +28,7 @@ class DotvvmEventHandler<T> {
 // calling missed events for handler that subscribed too late.
 class DotvvmEvent<T> {
     private handlers: DotvvmEventHandler<T>[] = [];
-    private history: T[] = [];
+    private history : T[] = [];
 
     constructor(public readonly name: string, private readonly triggerMissedEventsOnSubscribe: boolean = false) {
     }
@@ -103,23 +103,15 @@ class DotvvmAfterPostBackEventArgs implements PostbackEventArgs {
     constructor(public postbackOptions: PostbackOptions, public serverResponseObject: any, public commandResult: any = null, public xhr?: XMLHttpRequest) {
     }
 }
-class DotvvmAfterPostBackWithRedirectEventArgs extends DotvvmAfterPostBackEventArgs {
-    public get redirectPromise(): Promise<DotvvmNavigationEventArgs> | undefined { return this._redirectPromise; }
-    constructor(postbackOptions: PostbackOptions, serverResponseObject: any, commandResult: any = null, xhr?: XMLHttpRequest, private _redirectPromise?: Promise<DotvvmNavigationEventArgs>) {
-        super(postbackOptions, serverResponseObject, commandResult, xhr);
-    }
-}
 class DotvvmSpaNavigatingEventArgs implements DotvvmEventArgs {
     public cancel: boolean = false;
     constructor(public viewModel: any, public viewModelName: string, public newUrl: string) {
     }
 }
-class DotvvmNavigationEventArgs implements DotvvmEventArgs {
+class DotvvmSpaNavigatedEventArgs implements DotvvmEventArgs {
     public isHandled: boolean = false;
     constructor(public viewModel: any, public viewModelName: string, public serverResponseObject: any, public xhr?: XMLHttpRequest) {
     }
-}
-class DotvvmSpaNavigatedEventArgs extends DotvvmNavigationEventArgs {
 }
 class DotvvmRedirectEventArgs implements DotvvmEventArgs {
     public isHandled: boolean = false;

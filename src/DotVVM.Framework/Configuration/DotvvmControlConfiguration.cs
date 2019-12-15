@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,44 +10,44 @@ namespace DotVVM.Framework.Configuration
     {
 
         [JsonProperty("tagPrefix", Required = Required.Always)]
-        public string? TagPrefix
+        public string TagPrefix
         {
             get => _tagPrefix;
             set { ThrowIfFrozen(); _tagPrefix = value; }
         }
-        private string? _tagPrefix;
+        private string _tagPrefix;
 
         [JsonProperty("tagName", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string? TagName
+        public string TagName
         {
             get => _tagName;
             set { ThrowIfFrozen(); _tagName = value; }
         }
-        private string? _tagName;
+        private string _tagName;
 
         [JsonProperty("namespace", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string? Namespace
+        public string Namespace
         {
             get => _namespace;
             set { ThrowIfFrozen(); _namespace = value; }
         }
-        private string? _namespace;
+        private string _namespace;
 
         [JsonProperty("assembly", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string? Assembly
+        public string Assembly
         {
             get => _assembly;
             set { ThrowIfFrozen(); _assembly = value; }
         }
-        private string? _assembly;
+        private string _assembly;
 
         [JsonProperty("src", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string? Src
+        public string Src
         {
             get => _src;
             set { ThrowIfFrozen(); _src = value; }
         }
-        private string? _src;
+        private string _src;
 
 
         /// <summary>

@@ -1,10 +1,8 @@
-﻿#nullable enable
-using System.IO;
+﻿using System.IO;
 using DotVVM.Framework.Hosting;
 using System.Reflection;
 using Newtonsoft.Json;
 using System;
-using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -19,8 +17,8 @@ namespace DotVVM.Framework.ResourceManagement
         /// <summary>
         /// File where the resource is located for debug purposes
         /// </summary>
-        public string? DebugFilePath { get; set; }
-        public EmbeddedResourceLocation(Assembly assembly, string name, string? debugFileName = null)
+        public string DebugFilePath { get; set; }
+        public EmbeddedResourceLocation(Assembly assembly, string name, string debugFileName = null)
         {
             if (assembly.GetManifestResourceInfo(name) == null) throw new ArgumentException($"Could not find resource '{name}' in assembly {assembly.GetName().Name}", nameof(name));
 
@@ -34,9 +32,9 @@ namespace DotVVM.Framework.ResourceManagement
             var debugPath = DebugFilePath == null ? null : Path.Combine(context.Configuration.ApplicationPhysicalPath, DebugFilePath);
             return context.Configuration.Debug && debugPath != null && File.Exists(debugPath) ?
                 File.OpenRead(debugPath) :
-                Assembly.GetManifestResourceStream(Name).NotNull();
+                Assembly.GetManifestResourceStream(Name);
         }
 
-        public string? GetFilePath(IDotvvmRequestContext context) => DebugFilePath;
+        public string GetFilePath(IDotvvmRequestContext context) => DebugFilePath;
     }
 }

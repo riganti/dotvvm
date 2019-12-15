@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,15 +18,13 @@ namespace DotVVM.Framework.ViewModel.Serialization
         private readonly IValidationRuleTranslator validationRuleTranslator;
         private readonly IViewModelValidationMetadataProvider validationMetadataProvider;
         private readonly IPropertySerialization propertySerialization;
-        private readonly DotvvmConfiguration configuration;
 
         public ViewModelSerializationMapper(IValidationRuleTranslator validationRuleTranslator, IViewModelValidationMetadataProvider validationMetadataProvider,
-            IPropertySerialization propertySerialization, DotvvmConfiguration configuration)
+            IPropertySerialization propertySerialization)
         {
             this.validationRuleTranslator = validationRuleTranslator;
             this.validationMetadataProvider = validationMetadataProvider;
             this.propertySerialization = propertySerialization;
-            this.configuration = configuration;
         }
 
         private readonly ConcurrentDictionary<Type, ViewModelSerializationMap> serializationMapCache = new ConcurrentDictionary<Type, ViewModelSerializationMap>();
@@ -38,7 +35,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// </summary>
         protected virtual ViewModelSerializationMap CreateMap(Type type)
         {
-            return new ViewModelSerializationMap(type, GetProperties(type), configuration);
+            return new ViewModelSerializationMap(type, GetProperties(type));
         }
 
         /// <summary>
@@ -94,7 +91,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
         }
 
-        protected virtual JsonConverter? GetJsonConverter(PropertyInfo property)
+        protected virtual JsonConverter GetJsonConverter(PropertyInfo property)
         {
             var converterType = property.GetCustomAttribute<JsonConverterAttribute>()?.ConverterType;
             if (converterType == null)
@@ -103,7 +100,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             try
             {
-                return (JsonConverter?)Activator.CreateInstance(converterType);
+                return (JsonConverter)Activator.CreateInstance(converterType);
             }
             catch (Exception ex)
             {

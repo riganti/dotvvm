@@ -1,4 +1,3 @@
-#nullable enable
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using System;
@@ -94,7 +93,7 @@ namespace DotVVM.Framework.Routing
             return pathWithoutExtension;
         }
 
-        protected virtual object? GetRouteDefaultParameters(RouteStrategyMarkupFileInfo file)
+        protected virtual object GetRouteDefaultParameters(RouteStrategyMarkupFileInfo file)
         {
             return null;
         }
@@ -108,7 +107,7 @@ namespace DotVVM.Framework.Routing
     public class CustomListRoutingStrategy: DefaultRouteStrategy
     {
         private readonly Func<string, IEnumerable<string>> getRouteList;
-        public CustomListRoutingStrategy(DotvvmConfiguration configuration, Func<string, IEnumerable<string>>? getRouteList = null, string viewsFolder = "Views", string pattern = "*.dothtml") : base(configuration, viewsFolder, pattern)
+        public CustomListRoutingStrategy(DotvvmConfiguration configuration, Func<string, IEnumerable<string>> getRouteList = null, string viewsFolder = "Views", string pattern = "*.dothtml") : base(configuration, viewsFolder, pattern)
         {
             this.getRouteList = getRouteList ?? GetRoutesForFile;
         }

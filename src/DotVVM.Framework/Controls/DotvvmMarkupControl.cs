@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +17,8 @@ namespace DotVVM.Framework.Controls
     {
         public Dictionary<string, string> Directives { get; } = new Dictionary<string, string>();
 
+        private bool rendersWrapperTag;
+        protected override bool RendersHtmlTag => rendersWrapperTag;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmMarkupControl"/> class.
@@ -30,15 +31,16 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmMarkupControl"/> class.
         /// </summary>
-        public DotvvmMarkupControl(string? wrapperTagName) : base(wrapperTagName)
+        public DotvvmMarkupControl(string wrapperTagName) : base(wrapperTagName ?? "JUST NOTHING")
         {
             SetValue(Internal.IsNamingContainerProperty, true);
             SetValue(Internal.IsControlBindingTargetProperty, true);
+            rendersWrapperTag = wrapperTagName != null;
         }
 
         internal override void OnPreInit(IDotvvmRequestContext context)
         {
-            string? wrapperTagName;
+            string wrapperTagName;
 
             if (Directives.ContainsKey(ParserConstants.WrapperTagNameDirective) &&
                 Directives.ContainsKey(ParserConstants.NoWrapperTagNameDirective))
@@ -48,13 +50,13 @@ namespace DotVVM.Framework.Controls
 
             if (Directives.TryGetValue(ParserConstants.WrapperTagNameDirective, out wrapperTagName))
             {
+                rendersWrapperTag = true;
                 TagName = wrapperTagName;
             }
-            else if (Directives.ContainsKey(ParserConstants.NoWrapperTagNameDirective))
+            if (Directives.ContainsKey(ParserConstants.NoWrapperTagNameDirective))
             {
-                TagName = null;
+                rendersWrapperTag = false;
             }
-
             base.OnPreInit(context);
         }
 
@@ -69,7 +71,7 @@ namespace DotVVM.Framework.Controls
                 GetDeclaredProperties()
                 .Where(p => !p.DeclaringType.IsAssignableFrom(typeof(DotvvmMarkupControl)))
                 .Select(GetPropertySerializationInfo)
-                .Where(p => p.Js is object)
+                .Where(p => p.IsSerializable)
                 .Select(p => JsonConvert.ToString(p.Property.Name, '"', StringEscapeHandling.EscapeHtml) + ": " + p.Js);
 
             writer.WriteKnockoutDataBindComment("dotvvm_withControlProperties", "{ " + string.Join(", ", properties) + " }");
@@ -84,21 +86,23 @@ namespace DotVVM.Framework.Controls
                 JsonSerializerSettings settings = DefaultViewModelSerializer.CreateDefaultSettings();
                 settings.StringEscapeHandling = StringEscapeHandling.EscapeHtml;
 
-                return new PropertySerializeInfo(
-                    property,
-                    JsonConvert.SerializeObject(GetValue(property), Formatting.None, settings)
-                );
+                return new PropertySerializeInfo {
+                    Property = property,
+                    Js = JsonConvert.SerializeObject(GetValue(property), Formatting.None, settings),
+                    IsSerializable = true
+                };
             }
             else if (GetBinding(property) is IValueBinding valueBinding)
             {
-                return new PropertySerializeInfo(
-                    property,
-                    valueBinding.GetKnockoutBindingExpression(this)
-                );
+                return new PropertySerializeInfo {
+                    Property = property,
+                    Js = valueBinding.GetKnockoutBindingExpression(this),
+                    IsSerializable = true
+                };
             }
             else
             {
-                return new PropertySerializeInfo(property, null);
+                return new PropertySerializeInfo { Property = property };
             }
         }
 
@@ -113,13 +117,9 @@ namespace DotVVM.Framework.Controls
 
         private class PropertySerializeInfo
         {
-            public PropertySerializeInfo(DotvvmProperty property, string? js)
-            {
-                this.Js = js;
-                this.Property = property;
-            }
-            public string? Js { get; set; }
+            public string Js { get; set; }
             public DotvvmProperty Property { get; set; }
+            public bool IsSerializable { get; set; }
         }
     }
 }

@@ -1,4 +1,3 @@
-#nullable enable
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -17,9 +16,9 @@ namespace DotVVM.Framework.ResourceManagement
 {
     public class ResourceRepositoryJsonConverter : JsonConverter
     {
-        public static Type? UnknownResourceType = null;
+        public static Type UnknownResourceType = null;
         private static readonly object _resourceTypeNamesLock = new object();
-        static ConcurrentDictionary<string, Type>? _resourceTypeNames;
+        static ConcurrentDictionary<string, Type> _resourceTypeNames;
 
         /// <summary>
         /// Finds all types derived from IResource and creates a dictionary of their names, full names and names in <see cref="ResourceConfigurationCollectionNameAttribute"/>
@@ -35,7 +34,7 @@ namespace DotVVM.Framework.ResourceManagement
 
                         _resourceTypeNames = new ConcurrentDictionary<string, Type>();
                         var dict = _resourceTypeNames;
-                        var dotvvmAssembly = typeof(DotvvmConfiguration).GetTypeInfo().Assembly.FullName.NotNull();
+                        var dotvvmAssembly = typeof(DotvvmConfiguration).GetTypeInfo().Assembly.FullName;
                         var resourceBaseType = typeof(IResource);
 
                         var types = ResolveAllTypesDerivedFromIResource(dotvvmAssembly, resourceBaseType);
@@ -45,7 +44,7 @@ namespace DotVVM.Framework.ResourceManagement
                             // name from attribute
                             if (attr != null) dict.TryAdd(attr.Name, type);
                             // full name of type
-                            dict.TryAdd(type.FullName.NotNull(), type);
+                            dict.TryAdd(type.FullName, type);
                             // simple name of type if not already occupied
                             if (!dict.ContainsKey(type.Name)) dict.TryAdd(type.Name, type);
                         }
@@ -77,7 +76,7 @@ namespace DotVVM.Framework.ResourceManagement
             return objectType == typeof(DotvvmResourceRepository);
         }
 
-        public IResource? TryParseOldResourceFormat(JObject jobj, Type resourceType)
+        public IResource TryParseOldResourceFormat(JObject jobj, Type resourceType)
         {
             return null;
         }
@@ -108,7 +107,7 @@ namespace DotVVM.Framework.ResourceManagement
             {
                 try
                 {
-                    var resource = (IResource)serializer.Deserialize(resObj.Value.CreateReader(), resourceType);
+                    var resource = serializer.Deserialize(resObj.Value.CreateReader(), resourceType) as IResource;
                     if (resource is LinkResourceBase linkResource)
                     {
                         if (linkResource.Location == null)

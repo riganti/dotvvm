@@ -1,5 +1,4 @@
-﻿#nullable enable
-using DotVVM.Framework.Routing;
+﻿using DotVVM.Framework.Routing;
 using DotVVM.Framework.Runtime.Filters;
 using System;
 using System.Collections.Generic;
@@ -27,7 +26,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
         /// <code>true</code>, if the URL contains valid Googlebot hashbang escaped fragment; otherwise <code>false</code>.
         /// </returns>
         /// <see href="https://developers.google.com/webmasters/ajax-crawling/docs/getting-started"/>
-        private static bool TryParseGooglebotHashbangEscapedFragment(string queryString, [System.Diagnostics.CodeAnalysis.MaybeNullWhen(false)] out string url)
+        private static bool TryParseGooglebotHashbangEscapedFragment(string queryString, out string url)
         {
             if (queryString?.StartsWith(GooglebotHashbangEscapedFragment, StringComparison.Ordinal) == true)
             {
@@ -35,18 +34,18 @@ namespace DotVVM.Framework.Hosting.Middlewares
                 return true;
             }
 
-            url = null!;
+            url = null;
             return false;
         }
 
-        public static RouteBase? FindMatchingRoute(IEnumerable<RouteBase> routes, IDotvvmRequestContext context, out IDictionary<string, object?>? parameters)
+        public static RouteBase FindMatchingRoute(IEnumerable<RouteBase> routes, IDotvvmRequestContext context, out IDictionary<string, object> parameters)
         {
-            string? url;
+            string url;
             if (!TryParseGooglebotHashbangEscapedFragment(context.HttpContext.Request.Url.Query, out url))
             {
                 url = context.HttpContext.Request.Path.Value;
             }
-            url = url?.Trim('/') ?? "";
+            url = url.Trim('/');
 
             // remove SPA identifier from the URL
             if (url.StartsWith(HostingConstants.SpaUrlIdentifier, StringComparison.Ordinal))
@@ -71,7 +70,8 @@ namespace DotVVM.Framework.Hosting.Middlewares
 
             await requestTracer.TraceEvent(RequestTracingConstants.BeginRequest, context);
 
-            var route = FindMatchingRoute(context.Configuration.RouteTable, context, out var parameters);
+            IDictionary<string, object> parameters;
+            var route = FindMatchingRoute(context.Configuration.RouteTable, context, out parameters);
 
             //check if route exists
             if (route == null) return false;

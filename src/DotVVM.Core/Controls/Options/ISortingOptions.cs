@@ -11,8 +11,8 @@ namespace DotVVM.Framework.Controls
         bool SortDescending { get; set; }
 
         /// <summary>
-        /// Gets or sets the name of the property that is used for sorting. Null means the grid should not be sorted.
+        /// Gets or sets the name of the property that is used for sorting.
         /// </summary>
-        string? SortExpression { get; set; }
+        string SortExpression { get; set; }
     }
 }

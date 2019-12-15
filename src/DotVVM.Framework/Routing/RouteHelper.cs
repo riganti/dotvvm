@@ -1,5 +1,4 @@
-﻿#nullable enable
-using DotVVM.Framework.Configuration;
+﻿using DotVVM.Framework.Configuration;
 using DotVVM.Framework.ViewModel;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
@@ -23,7 +22,7 @@ namespace DotVVM.Framework.Routing
 
         public static void AutoRegisterRoutes(this DotvvmConfiguration config, Func<string, IEnumerable<string>> getRouteList, string path = "/", string pattern = "*.dothtml") =>
             config.RouteTable.AutoRegisterRoutes(config, getRouteList, path, pattern);
-        public static void AutoRegisterRoutes(this DotvvmRouteTable routeTable, DotvvmConfiguration config, Func<string, IEnumerable<string>>? getRouteList, string path = "/", string pattern = "*.dothtml") =>
+        public static void AutoRegisterRoutes(this DotvvmRouteTable routeTable, DotvvmConfiguration config, Func<string, IEnumerable<string>> getRouteList, string path = "/", string pattern = "*.dothtml") =>
             routeTable.AutoDiscoverRoutes(new CustomListRoutingStrategy(config, getRouteList, path, pattern));
 
         /// <summary>

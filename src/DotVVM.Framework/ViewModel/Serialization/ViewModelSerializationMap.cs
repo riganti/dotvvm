@@ -5,7 +5,6 @@ using System.Linq.Expressions;
 using DotVVM.Framework.Utils;
 using Newtonsoft.Json;
 using System.Reflection;
-using DotVVM.Framework.Configuration;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -14,8 +13,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
     /// </summary>
     public class ViewModelSerializationMap
     {
-        private readonly DotvvmConfiguration configuration;
-
         public delegate void ReaderDelegate(JsonReader reader, JsonSerializer serializer, object value, EncryptedValuesReader encryptedValuesReader);
         public delegate void WriterDelegate(JsonWriter writer, object obj, JsonSerializer serializer, EncryptedValuesWriter evWriter, bool isPostback);
 
@@ -32,9 +29,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Initializes a new instance of the <see cref="ViewModelSerializationMap"/> class.
         /// </summary>
-        public ViewModelSerializationMap(Type type, IEnumerable<ViewModelPropertyMap> properties, DotvvmConfiguration configuration)
+        public ViewModelSerializationMap(Type type, IEnumerable<ViewModelPropertyMap> properties)
         {
-            this.configuration = configuration;
             Type = type;
             Properties = properties.ToList();
         }
@@ -362,7 +358,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     if (property.ViewModelProtection == ProtectMode.None ||
                         property.ViewModelProtection == ProtectMode.SignData)
                     {
-                        var checkEV = CanContainEncryptedValues(property.Type);
+                        var checkEV = property.ViewModelProtection == ProtectMode.None &&
+                                           CanContainEncryptedValues(property.Type);
                         if (checkEV)
                         {
                             // encryptedValuesWriter.Nest({propertyIndex});
@@ -401,10 +398,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     else if (property.TransferToServerOnlyInPath)
                     {
                         options["pathOnly"] = true;
-                    }
-                    if (configuration.ExperimentalFeatures.ServerSideViewModelCache.IsEnabledForAnyRoute() && !property.TransferAfterPostback)
-                    {
-                        options["firstRequest"] = true;
                     }
                 }
                 else if (property.TransferToServer)

@@ -4,13 +4,13 @@
     /// Represents settings for row (item) insert feature.
     /// </summary>
     /// <typeparam name="T">The type of inserted row.</typeparam>
-    public class RowInsertOptions<T> : IRowInsertOptions<T> where T : class, new()
+    public class RowInsertOptions<T> : IRowInsertOptions<T> where T : new()
     {
         /// <summary>
         /// Gets or sets the row to be inserted to data source.
         /// </summary>
-        public T? InsertedRow { get; set; }
+        public T InsertedRow { get; set; }
         
-        object? IRowInsertOptions.InsertedRow => InsertedRow;
+        object IRowInsertOptions.InsertedRow => InsertedRow;
     }
 }

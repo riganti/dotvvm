@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,9 +14,9 @@ namespace DotVVM.Framework.Hosting
         string GetMarkupFileVirtualPath(IDotvvmRequestContext context);
 
         /// <summary>
-        /// Gets the markup file for the specified virtual path. Returns null when the file can not be loaded
+        /// Gets the markup file for the specified virtual path.
         /// </summary>
-        MarkupFile? GetMarkup(DotvvmConfiguration configuration, string virtualPath);
+        MarkupFile GetMarkup(DotvvmConfiguration configuration, string virtualPath);
 
     }
 }

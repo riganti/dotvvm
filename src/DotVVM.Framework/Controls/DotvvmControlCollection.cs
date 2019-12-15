@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -210,7 +209,7 @@ namespace DotVVM.Framework.Controls
             // Iterates through all parents and ORs the LifecycleRequirements
             var updatedLastEvent = lastLifeCycleEvent;
             {
-                DotvvmControl? currentParent = parent;
+                var currentParent = parent;
                 bool lifecycleEventUpdatingDisabled = false;
                 while (currentParent != null && (item.LifecycleRequirements & ~currentParent.LifecycleRequirements) != ControlLifecycleRequirements.None)
                 {
@@ -229,8 +228,8 @@ namespace DotVVM.Framework.Controls
             // update ancestor's last event
             if (updatedLastEvent > lastLifeCycleEvent)
             {
-                DotvvmControl? currentParent = parent;
-                while (currentParent != null &&!currentParent.Children.isInvokingEvent && currentParent.Children.lastLifeCycleEvent < updatedLastEvent)
+                var currentParent = parent;
+                while (!currentParent.Children.isInvokingEvent && currentParent.Children.lastLifeCycleEvent < updatedLastEvent && currentParent.Parent != null)
                 {
                     currentParent.Children.lastLifeCycleEvent = updatedLastEvent;
                     currentParent = GetClosestDotvvmControlAncestor(currentParent);
@@ -279,10 +278,7 @@ namespace DotVVM.Framework.Controls
             // just a quick check to save GetValue call
             if (lastLifeCycleEvent >= targetEventType || parent.LifecycleRequirements == ControlLifecycleRequirements.None) return;
 
-            var context = (IDotvvmRequestContext?)parent.GetValue(Internal.RequestContextProperty);
-            if (context == null)
-                throw new DotvvmControlException(parent, "InvokeMissedPageLifeCycleEvents must be called on a control rooted in a view.");
-
+            var context = (IDotvvmRequestContext)parent.GetValue(Internal.RequestContextProperty);
             DotvvmControl lastProcessedControl = parent;
             try
             {
@@ -354,7 +350,7 @@ namespace DotVVM.Framework.Controls
             rootControl.Children.InvokeMissedPageLifeCycleEvents(eventType, isMissingInvoke: false);
         }
 
-        private static DotvvmControl? GetClosestDotvvmControlAncestor(DotvvmControl control)
+        private static DotvvmControl GetClosestDotvvmControlAncestor(DotvvmControl control)
         {
             var currentParent = control.Parent;
             while (currentParent != null && !(currentParent is DotvvmControl))
@@ -362,7 +358,7 @@ namespace DotVVM.Framework.Controls
                 currentParent = currentParent.Parent;
             }
 
-            return (DotvvmControl?)currentParent;
+            return (DotvvmControl)currentParent;
         }
 
         private static bool IsInParentsChildren(DotvvmControl item)

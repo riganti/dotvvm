@@ -74,9 +74,8 @@ namespace DotVVM.Framework.Tests
                 RegisterMoqServices(s);
             });
 
-        public static TestDotvvmRequestContext CreateContext(DotvvmConfiguration configuration = null)
+        public static TestDotvvmRequestContext CreateContext(DotvvmConfiguration configuration)
         {
-            configuration = configuration ?? DefaultConfig;
             IServiceProvider services = configuration.ServiceProvider.CreateScope().ServiceProvider;
             var context = new TestDotvvmRequestContext() {
                 Configuration = configuration,

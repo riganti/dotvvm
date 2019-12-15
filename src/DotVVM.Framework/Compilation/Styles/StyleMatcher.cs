@@ -73,9 +73,7 @@ namespace DotVVM.Framework.Compilation.Styles
                     where parameters[0].ParameterType == typeof(ResolvedControl)
                     let invocationExpression = Expression.Call(m, new Expression[] { controlParameter }.Concat(
                         from p in parameters.Skip(1)
-#pragma warning disable CS0618
                         let services = Expression.Property(configurationParameter, nameof(DotvvmConfiguration.ServiceLocator))
-#pragma warning restore CS0618
                         select Expression.Call(services, nameof(ServiceLocator.GetService), new[] { p.ParameterType })))
                     let expression = Expression.Lambda<Action<ResolvedControl, DotvvmConfiguration>>(invocationExpression, controlParameter, configurationParameter)
                     select (IStyle)new GenericStyle(controlType, expression.Compile())

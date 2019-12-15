@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using DotVVM.Framework.Binding;
 
 namespace DotVVM.Framework.Controls
@@ -11,9 +10,9 @@ namespace DotVVM.Framework.Controls
     {
         protected internal override string ClientHandlerName => "suppress";
 
-        protected internal override Dictionary<string, object?> GetHandlerOptions()
+        protected internal override Dictionary<string, object> GetHandlerOptions()
         {
-            return new Dictionary<string, object?>() {
+            return new Dictionary<string, object>() {
                 ["suppress"] = this.GetValueRaw(SuppressProperty)
             };
         }
@@ -23,7 +22,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public bool Suppress
         {
-            get { return (bool)GetValue(SuppressProperty)!; }
+            get { return (bool)GetValue(SuppressProperty); }
             set { SetValue(SuppressProperty, value); }
         }
         public static readonly DotvvmProperty SuppressProperty

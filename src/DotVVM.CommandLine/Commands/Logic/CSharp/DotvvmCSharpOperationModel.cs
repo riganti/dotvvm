@@ -15,8 +15,6 @@ namespace DotVVM.CommandLine.Commands.Logic
 
         public IEnumerable<DotvvmCSharpParameterModel> ActualQueryParameters => this.QueryParameters.OfType<DotvvmCSharpParameterModel>().Where(p => !p.ExcludeFromQuery);
 
-        public string AutoRefreshKey { get; set; }
-
         public DotvvmCSharpOperationModel(SwaggerOperation operation, SwaggerToCSharpGeneratorSettings settings, SwaggerToCSharpGeneratorBase generator, SwaggerToCSharpTypeResolver resolver) : base(operation, settings, generator, resolver)
         {
             RewriteParameters(operation, settings, generator);

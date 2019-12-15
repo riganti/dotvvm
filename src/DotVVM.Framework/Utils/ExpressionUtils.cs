@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -111,7 +110,7 @@ namespace DotVVM.Framework.Utils
         }
 
         [Conditional("DEBUG")]
-        public static void AddDebug(this IList<Expression> block, [CallerFilePath] string? fileName = null, [CallerLineNumber] int lineNumber = -1)
+        public static void AddDebug(this IList<Expression> block, [CallerFilePath] string fileName = null, [CallerLineNumber] int lineNumber = -1)
         {
             if (fileName == null || lineNumber < 0) throw new ArgumentException();
             block.Add(Expression.DebugInfo(Expression.SymbolDocument(fileName), lineNumber, 0, lineNumber + 1, 0));
@@ -209,9 +208,9 @@ namespace DotVVM.Framework.Utils
 
         private class MemberInfoWalkingVisitor: ExpressionVisitor
         {
-            public Action<MemberInfo>? MemberInfoAction { get; set; }
-            public Action<PropertyInfo>? PropertyInfoAction { get; set; }
-            public Action<MethodInfo>? MethodInfoAction { get; set; }
+            public Action<MemberInfo> MemberInfoAction { get; set; }
+            public Action<PropertyInfo> PropertyInfoAction { get; set; }
+            public Action<MethodInfo> MethodInfoAction { get; set; }
 
             private void Invoke(MethodInfo method)
             {
@@ -223,15 +222,15 @@ namespace DotVVM.Framework.Utils
             private void Invoke(PropertyInfo property)
             {
                 if (property == null) return;
-                if (PropertyInfoAction != null) PropertyInfoAction(property);
+                if (MethodInfoAction != null) PropertyInfoAction(property);
                 if (MemberInfoAction != null) MemberInfoAction(property);
             }
 
             private void Invoke(MemberInfo memberInfo)
             {
                 if (memberInfo == null) return;
-                if (memberInfo is PropertyInfo propInfo) Invoke(propInfo);
-                else if (memberInfo is MethodInfo methodInfo) Invoke(methodInfo);
+                if (memberInfo is PropertyInfo) Invoke(memberInfo as PropertyInfo);
+                else if (memberInfo is MethodInfo) Invoke(memberInfo as MethodInfo);
                 else if (MemberInfoAction != null) MemberInfoAction(memberInfo);
             }
 
@@ -292,7 +291,7 @@ namespace DotVVM.Framework.Utils
                     if (i.NodeType == ExpressionType.Constant)
                     {
                         var ce = (ConstantExpression)i;
-                        var prop = ce.Type.GetProperty(node.Member.Name)!;
+                        var prop = ce.Type.GetProperty(node.Member.Name);
                         var val = prop.GetValue(ce.Value);
                         return Expression.Constant(val, prop.PropertyType);
                     }
@@ -304,7 +303,7 @@ namespace DotVVM.Framework.Utils
                     if (i.NodeType == ExpressionType.Constant)
                     {
                         var ce = (ConstantExpression)i;
-                        var f = (FieldInfo)node.Member;
+                        var f = node.Member as FieldInfo;
                         var val = f.GetValue(ce.Value);
                         return Expression.Constant(val, f.FieldType);
                     }
@@ -330,36 +329,31 @@ namespace DotVVM.Framework.Utils
             protected override Expression VisitUnary(UnaryExpression node)
             {
                 var op = Visit(node.Operand);
-                if (op is ConstantExpression constantExpression)
+                if (op is ConstantExpression)
                 {
                     return Expression.Constant(
-                        node.Method.Invoke(null, new object[] { constantExpression.Value }), node.Type);
+                        node.Method.Invoke(null, new object[] { (op as ConstantExpression).Value }), node.Type);
                 }
                 else return base.VisitUnary(node);
             }
         }
 
-        public static List<T> AllDescendants<T>(this Expression expression, Func<T, bool>? predicate = null)
+        public static List<T> AllDescendants<T>(this Expression expression, Func<T, bool> predicate = null)
             where T: Expression
         {
             var result = new List<T>();
-            new AnonymousActionVisitor(a => { if (a is T t && predicate?.Invoke(t) != false) result.Add(t); return a; }).Visit(expression);
+            new AnonymousActionVisitor { Replacer = a => { if (a is T t && predicate?.Invoke(t) != false) result.Add(t); return a; } }.Visit(expression);
             return result;
         }
 
         public static Expression ReplaceAll(this Expression expr, Func<Expression, Expression> replacer)
         {
-            return new AnonymousActionVisitor(replacer).Visit(expr);
+            return new AnonymousActionVisitor { Replacer = replacer }.Visit(expr);
         }
         
         class AnonymousActionVisitor: ExpressionVisitor
         {
-            public AnonymousActionVisitor(Func<Expression, Expression> replacer)
-            {
-                Replacer = replacer;
-            }
-
-            public Func<Expression, Expression> Replacer { get; }
+            public Func<Expression, Expression> Replacer { get; set; }
             public override Expression Visit(Expression expr)
             {
                 return Replacer(base.Visit(expr));

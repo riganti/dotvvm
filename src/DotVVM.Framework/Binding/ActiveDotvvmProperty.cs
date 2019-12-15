@@ -1,5 +1,4 @@
-﻿#nullable enable
-using DotVVM.Framework.Controls;
+﻿using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime;
 using System;
 using System.Collections.Generic;
@@ -20,7 +19,7 @@ namespace DotVVM.Framework.Binding
         {
             return DelegateActionProperty<ICommandBinding>.Register<TDeclaringType>(name, (writer, context, property, control) =>
             {
-                var binding = control.GetCommandBinding(property) ?? throw new Exception($"Command binding expression was expected in {property}.");
+                var binding = control.GetCommandBinding(property);
                 var script = KnockoutHelper.GenerateClientPostBackScript(name, binding, control);
                 writer.AddAttribute(attributeName, script);
             });

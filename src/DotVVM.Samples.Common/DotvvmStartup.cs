@@ -19,15 +19,12 @@ using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Linq;
-using DotVVM.Samples.Common.Api.AspNetCore;
-using DotVVM.Samples.Common.Api.Owin;
 using DotVVM.Samples.Common.Controls;
 
 namespace DotVVM.Samples.BasicSamples
 {
     public class DotvvmStartup : IDotvvmStartup, IDotvvmServiceConfigurator
     {
-        
         public void Configure(DotvvmConfiguration config, string applicationPath)
         {
             config.DefaultCulture = "en-US";
@@ -50,7 +47,7 @@ namespace DotVVM.Samples.BasicSamples
             config.RegisterApiGroup(typeof(Common.Api.Owin.TestWebApiClientOwin), "http://localhost:61453/", "Scripts/TestWebApiClientOwin.js", "_apiOwin");
             config.RegisterApiClient(typeof(Common.Api.AspNetCore.TestWebApiClientAspNetCore), "http://localhost:5001/", "Scripts/TestWebApiClientAspNetCore.js", "_apiCore");
 
-            config.RegisterApiGroup(typeof(GithubApiClient.GithubApiClient), "https://api.github.com/", "Scripts/GithubApiClient.js", "_github", customFetchFunction: "githubAuthenticatedFetch");
+            config.RegisterApiGroup(typeof(GithubApiClient.GithubApiClient), "https://api.github.com/", "Scripts/GithubApiClient.js", "_github", customFetchFunction: "basicAuthenticatedFetch");
             config.RegisterApiClient(typeof(AzureFunctionsApi.Client), "https://dotvvmazurefunctionstest.azurewebsites.net/", "Scripts/AzureFunctionsApiClient.js", "_azureFuncApi");
 
             LoadSampleConfiguration(config, applicationPath);
@@ -68,10 +65,6 @@ namespace DotVVM.Samples.BasicSamples
             var profile = profiles.Single(p => p.Value<string>("name") == activeProfile);
             
             JsonConvert.PopulateObject(profile.Value<JObject>("config").ToString(), config);
-
-            SampleConfiguration.Initialize(
-                json.Value<JObject>("appSettings").Properties().ToDictionary(p => p.Name, p => p.Value.Value<string>())
-            );
         }
 
         public static void AddStyles(DotvvmConfiguration config)

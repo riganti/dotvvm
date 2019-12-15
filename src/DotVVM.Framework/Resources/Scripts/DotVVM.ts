@@ -23,8 +23,6 @@ interface IDotvvmExtensions {
 
 interface IDotvvmViewModelInfo {
     viewModel?;
-    viewModelCacheId?: string;
-    viewModelCache?;
     renderedResources?: string[];
     url?: string;
     virtualDirectory?: string;
@@ -166,22 +164,13 @@ class DotVVM {
         queue.noRunning++
         dotvvm.updateProgressChangeCounter(dotvvm.updateProgressChangeCounter() + 1);
 
-        const dispatchNext = (args) => {
-            const drop = () => {
-                queue.noRunning--;
-                dotvvm.updateProgressChangeCounter(dotvvm.updateProgressChangeCounter() - 1);
-                if (queue.queue.length > 0) {
-                    const callback = queue.queue.shift()!
-                    window.setTimeout(callback, 0)
-                }
+        const dispatchNext = () => {
+            queue.noRunning--;
+            dotvvm.updateProgressChangeCounter(dotvvm.updateProgressChangeCounter() - 1);
+            if (queue.queue.length > 0) {
+                const callback = queue.queue.shift()!
+                window.setTimeout(callback, 0)
             }
-            if (args instanceof DotvvmAfterPostBackWithRedirectEventArgs && args.redirectPromise) {
-                args.redirectPromise.then(drop, drop);
-            } else {
-                drop();
-            }
-
-
         }
 
         return promise.then(result => {
@@ -194,7 +183,7 @@ class DotVVM {
                 return pr
             };
         }, error => {
-            dispatchNext(error)
+            dispatchNext()
             return Promise.reject(error)
         });
     }
@@ -253,12 +242,6 @@ class DotVVM {
             thisViewModel.renderedResources.forEach(r => this.resourceSigns[r] = true);
         }
         var idFragment = thisViewModel.resultIdFragment;
-
-        // store server-side cached viewmodel
-        if (thisViewModel.viewModelCacheId) {
-            thisViewModel.viewModelCache = this.viewModels[viewModelName].viewModel;
-        }
-
         var viewModel = thisViewModel.viewModel = this.serialization.deserialize(this.viewModels[viewModelName].viewModel, {}, true);
 
         // initialize services
@@ -403,7 +386,7 @@ class DotVVM {
         return vm.$csrfToken
     }
 
-    public staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback = _ => { }, errorCallback = (errorInfo: { xhr?: XMLHttpRequest, error?: any }) => { }) {
+    public staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback = _ => { }, errorCallback = (errorInfo: {xhr?: XMLHttpRequest, error?: any}) => { }) {
         (async () => {
             var csrfToken;
             try {
@@ -415,7 +398,7 @@ class DotVVM {
                 errorCallback({ error: err });
                 return;
             }
-
+            
             var data = this.serialization.serialize({
                 args,
                 command,
@@ -463,9 +446,9 @@ class DotVVM {
                 errorCallback({ xhr });
                 dotvvm.events.staticCommandMethodFailed.trigger({ ...data, xhr })
             },
-                xhr => {
-                    xhr.setRequestHeader("X-PostbackType", "StaticCommand");
-                });
+            xhr => {
+                xhr.setRequestHeader("X-PostbackType", "StaticCommand");
+            });
         })()
     }
 
@@ -551,9 +534,9 @@ class DotVVM {
             const sortedHandlers = this.sortHandlers(handlers);
             return sortedHandlers
                 .reduceRight(
-                    (prev, val, index) => () =>
-                        val.execute(prev, options),
-                    () => callback(options).then(processResult, r => Promise.reject(r))
+                (prev, val, index) => () =>
+                    val.execute(prev, options),
+                () => callback(options).then(processResult, r => Promise.reject(r))
                 )();
         }
     }
@@ -572,7 +555,7 @@ class DotVVM {
         return new Promise<() => Promise<DotvvmAfterPostBackEventArgs>>(async (resolve, reject) => {
             const viewModelName = options.viewModelName!;
             const viewModel = this.viewModels[viewModelName].viewModel;
-
+            
             try {
                 await this.fetchCsrfToken(viewModelName);
             }
@@ -584,7 +567,8 @@ class DotVVM {
             this.lastStartedPostack = options.postbackId
             // perform the postback
             this.updateDynamicPathFragments(context, path);
-            const data: any = {
+            const data = {
+                viewModel: this.serialization.serialize(viewModel, { pathMatcher(val) { return context && val == context.$data } }),
                 currentPath: path,
                 command: command,
                 controlUniqueId: this.processPassedId(controlUniqueId, context),
@@ -592,18 +576,73 @@ class DotVVM {
                 renderedResources: this.viewModels[viewModelName].renderedResources,
                 commandArgs: commandArgs
             };
+            this.postJSON(<string>this.viewModels[viewModelName].url, "POST", ko.toJSON(data), result => {
+                dotvvm.events.postbackResponseReceived.trigger({})
+                resolve(() => new Promise((resolve, reject) => {
+                    dotvvm.events.postbackCommitInvoked.trigger({})
+                    const locationHeader = result.getResponseHeader("Location");
 
-            const completeViewModel = this.serialization.serialize(viewModel, { pathMatcher(val) { return context && val == context.$data } });
+                    const resultObject = locationHeader != null && locationHeader.length > 0 ?
+                        { action: "redirect", url: locationHeader } :
+                        JSON.parse(result.responseText);
 
-            // if the viewmodel is cached on the server, send only the diff
-            if (this.viewModels[viewModelName].viewModelCache) {
-                data.viewModelDiff = this.diff(this.viewModels[viewModelName].viewModelCache, completeViewModel);
-                data.viewModelCacheId = this.viewModels[viewModelName].viewModelCacheId;
-            } else {
-                data.viewModel = completeViewModel;    
-            }
+                    if (!resultObject.viewModel && resultObject.viewModelDiff) {
+                        // TODO: patch (~deserialize) it to ko.observable viewModel
+                        resultObject.viewModel = this.patch(data.viewModel, resultObject.viewModelDiff);
+                    }
 
-            const errorAction = xhr => {
+                    this.loadResourceList(resultObject.resources, () => {
+                        var isSuccess = false;
+                        if (resultObject.action === "successfulCommand") {
+                            try {
+                                this.isViewModelUpdating = true;
+
+                                // remove updated controls
+                                var updatedControls = this.cleanUpdatedControls(resultObject);
+
+                                // update the viewmodel
+                                if (resultObject.viewModel) {
+                                    ko.delaySync.pause();
+                                    this.serialization.deserialize(resultObject.viewModel, this.viewModels[viewModelName].viewModel);
+                                    ko.delaySync.resume();
+                                }
+                                isSuccess = true;
+
+                                // remove updated controls which were previously hidden
+                                this.cleanUpdatedControls(resultObject, updatedControls);
+
+                                // add updated controls
+                                this.restoreUpdatedControls(resultObject, updatedControls, true);
+                            }
+                            finally {
+                                this.isViewModelUpdating = false;
+                            }
+                            dotvvm.events.postbackViewModelUpdated.trigger({})
+                        } else if (resultObject.action === "redirect") {
+                            // redirect
+                            this.handleRedirect(resultObject, viewModelName)
+                            return resolve()
+                        }
+
+                        var idFragment = resultObject.resultIdFragment;
+                        if (idFragment) {
+                            if (this.getSpaPlaceHolder() || location.hash == "#" + idFragment) {
+                                var element = document.getElementById(idFragment);
+                                if (element && "function" == typeof element.scrollIntoView) element.scrollIntoView(true);
+                            }
+                            else location.hash = idFragment;
+                        }
+
+                        // trigger afterPostback event
+                        if (!isSuccess) {
+                            reject(new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, result, options.postbackId, resultObject))
+                        } else {
+                            var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(options, resultObject, resultObject.commandResult, result)
+                            resolve(afterPostBackArgs)
+                        }
+                    });
+                }));
+            }, xhr => {
                 if (/^application\/json(;|$)/.test(xhr.getResponseHeader("Content-Type")!)) {
                     const errObject = JSON.parse(xhr.responseText)
 
@@ -616,136 +655,35 @@ class DotVVM {
                     }
                 }
                 reject({ type: 'network', options: options, args: new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, xhr, options.postbackId) });
-            };
-
-            this.postJSON(<string>this.viewModels[viewModelName].url, "POST", ko.toJSON(data), result => {
-                var resultObject: any = {};
-
-                const successAction = actualResult => {
-                    dotvvm.events.postbackResponseReceived.trigger({})
-                    resolve(() => new Promise((resolve, reject) => {
-                        dotvvm.events.postbackCommitInvoked.trigger({})
-                        
-                        if (!resultObject.viewModel && resultObject.viewModelDiff) {
-                            // TODO: patch (~deserialize) it to ko.observable viewModel
-                            resultObject.viewModel = this.patch(completeViewModel, resultObject.viewModelDiff);
-                        }
-
-                        this.loadResourceList(resultObject.resources, () => {
-                            var isSuccess = false;
-                            if (resultObject.action === "successfulCommand") {
-                                try {
-                                    this.isViewModelUpdating = true;
-
-                                    // store server-side cached viewmodel
-                                    if (resultObject.viewModelCacheId) {
-                                        this.viewModels[viewModelName].viewModelCacheId = resultObject.viewModelCacheId;
-                                        this.viewModels[viewModelName].viewModelCache = resultObject.viewModel;
-                                    } else {
-                                        delete this.viewModels[viewModelName].viewModelCacheId;
-                                        delete this.viewModels[viewModelName].viewModelCache;
-                                    }
-
-                                    // remove updated controls
-                                    var updatedControls = this.cleanUpdatedControls(resultObject);
-
-                                    // update the viewmodel
-                                    if (resultObject.viewModel) {
-                                        ko.delaySync.pause();
-                                        this.serialization.deserialize(resultObject.viewModel, this.viewModels[viewModelName].viewModel);
-                                        ko.delaySync.resume();
-                                    }
-                                    isSuccess = true;
-
-                                    // remove updated controls which were previously hidden
-                                    this.cleanUpdatedControls(resultObject, updatedControls);
-
-                                    // add updated controls
-                                    this.restoreUpdatedControls(resultObject, updatedControls, true);
-                                }
-                                finally {
-                                    this.isViewModelUpdating = false;
-                                }
-                                dotvvm.events.postbackViewModelUpdated.trigger({})
-                            } else if (resultObject.action === "redirect") {
-                                // redirect
-                                var promise = this.handleRedirect(resultObject, viewModelName)
-                                var redirectAfterPostBackArgs = new DotvvmAfterPostBackWithRedirectEventArgs(options, resultObject, resultObject.commandResult, result, promise);
-                                resolve(redirectAfterPostBackArgs);
-                                return;
-                            }
-
-                            var idFragment = resultObject.resultIdFragment;
-                            if (idFragment) {
-                                if (this.getSpaPlaceHolder() || location.hash == "#" + idFragment) {
-                                    var element = document.getElementById(idFragment);
-                                    if (element && "function" == typeof element.scrollIntoView) element.scrollIntoView(true);
-                                }
-                                else location.hash = idFragment;
-                            }
-
-                            // trigger afterPostback event
-                            if (!isSuccess) {
-                                reject(new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, actualResult, options.postbackId, resultObject))
-                            } else {
-                                var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(options, resultObject, resultObject.commandResult, result)
-                                resolve(afterPostBackArgs)
-                            }
-                        });
-                    }));
-                }
-
-                const parseResultObject = actualResult => {
-                    const locationHeader = actualResult.getResponseHeader("Location");
-                    resultObject = locationHeader != null && locationHeader.length > 0 ?
-                        { action: "redirect", url: locationHeader } :
-                        JSON.parse(actualResult.responseText);
-                }
-                parseResultObject(result);
-
-                if (resultObject.action === "viewModelNotCached") {
-                    // repeat request with full viewModel
-                    delete this.viewModels[viewModelName].viewModelCache;
-                    delete this.viewModels[viewModelName].viewModelCacheId;
-                    delete data.viewModelDiff;
-                    delete data.viewModelCacheId;
-                    data.viewModel = completeViewModel;
-
-                    return this.postJSON(<string>this.viewModels[viewModelName].url, "POST", ko.toJSON(data), result2 => {
-                        parseResultObject(result2);
-                        successAction(result2);
-                    }, errorAction);
-                }
-                else {
-                    // process the response
-                    successAction(result);
-                }                
-            }, errorAction);
+            });
         });
     }
 
-    public handleSpaNavigation(element: HTMLElement): Promise<DotvvmNavigationEventArgs> {
+    public handleSpaNavigation(element: HTMLElement): boolean {
         var target = element.getAttribute('target');
+
         if (target == "_blank") {
-            return Promise.resolve(new DotvvmNavigationEventArgs(this.viewModels.root.viewModel, "root", null));
+            return true;
         }
+
         return this.handleSpaNavigationCore(element.getAttribute('href'));
     }
 
-    public handleSpaNavigationCore(url: string | null): Promise<DotvvmNavigationEventArgs> {
-        return new Promise<DotvvmNavigationEventArgs>((resolve, reject) => {
-            if (url && url.indexOf("/") === 0) {
-                var viewModelName = "root"
-                url = this.removeVirtualDirectoryFromUrl(url, viewModelName);
-                this.navigateCore(viewModelName, url, (navigatedUrl) => {
-                    if (!history.state || history.state.url != navigatedUrl) {
-                        this.spaHistory.pushPage(navigatedUrl);
-                    }
-                }).then(resolve, reject);
-            } else {
-                reject();
-            }
-        });
+    public handleSpaNavigationCore(url: string | null): boolean {
+       if (url && url.indexOf("/") === 0) {
+            var viewModelName = "root"
+
+            url = this.removeVirtualDirectoryFromUrl(url, viewModelName);
+            this.navigateCore(viewModelName, url, (navigatedUrl) => {
+                if (!history.state || history.state.url != navigatedUrl) {
+                    this.spaHistory.pushPage(navigatedUrl);
+                }
+            });
+
+            return false;
+        }
+
+        return true;
     }
 
     public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, context?: any, handlers?: ClientFriendlyPostbackHandlerConfiguration[], commandArgs?: any[]): Promise<DotvvmAfterPostBackEventArgs> {
@@ -753,7 +691,7 @@ class DotVVM {
 
         const preparedHandlers = this.findPostbackHandlers(context, this.globalPostbackHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers));
         if (preparedHandlers.filter(h => h.name && h.name.indexOf("concurrency-") == 0).length == 0) {
-            // add a default concurrency handler if none is specified
+            // add a default concurrency handler if none is specthis.globalPostbackHandlers.concat(handlers || []).concat(this.globalLaterPostbackHandlers)ified
             preparedHandlers.push(this.defaultConcurrencyPostbackHandler);
         }
         const options = new PostbackOptions(this.backUpPostBackConter(), sender, commandArgs, context.$data, viewModelName)
@@ -764,7 +702,7 @@ class DotVVM {
         const result = promise.then(
             r => r().then(r => r, error => Promise.reject({ type: "commit", args: error })),
             r => Promise.reject(r)
-        );
+        )
         result.then(
             r => r && this.events.afterPostback.trigger(r),
             (error: PostbackRejectionReason) => {
@@ -865,115 +803,102 @@ class DotVVM {
         return null;
     }
 
-    private navigateCore(viewModelName: string, url: string, handlePageNavigating?: (url: string) => void): Promise<DotvvmNavigationEventArgs> {
-        return new Promise((resolve, reject: (reason?: DotvvmErrorEventArgs) => void) => {
+    private navigateCore(viewModelName: string, url: string, handlePageNavigating?: (url: string) => void) {
+        var viewModel = this.viewModels[viewModelName].viewModel;
 
-            var viewModel = this.viewModels[viewModelName].viewModel;
+        // prevent double postbacks
+        var currentPostBackCounter = this.backUpPostBackConter();
 
-            // prevent double postbacks
-            var currentPostBackCounter = this.backUpPostBackConter();
+        // trigger spaNavigating event
+        var spaNavigatingArgs = new DotvvmSpaNavigatingEventArgs(viewModel, viewModelName, url);
+        this.events.spaNavigating.trigger(spaNavigatingArgs);
+        if (spaNavigatingArgs.cancel) {
+            return;
+        }
 
-            // trigger spaNavigating event
-            var spaNavigatingArgs = new DotvvmSpaNavigatingEventArgs(viewModel, viewModelName, url);
-            this.events.spaNavigating.trigger(spaNavigatingArgs);
-            if (spaNavigatingArgs.cancel) {
-                return;
-            }
+        var virtualDirectory = this.viewModels[viewModelName].virtualDirectory || "";
 
-            var virtualDirectory = this.viewModels[viewModelName].virtualDirectory || "";
+        // add virtual directory prefix
+        var spaUrl = "/___dotvvm-spa___" + this.addLeadingSlash(url);
+        var fullUrl = this.addLeadingSlash(this.concatUrl(virtualDirectory, spaUrl));
 
-            // add virtual directory prefix
-            var spaUrl = "/___dotvvm-spa___" + this.addLeadingSlash(url);
-            var fullUrl = this.addLeadingSlash(this.concatUrl(virtualDirectory, spaUrl));
+        // find SPA placeholder
+        var spaPlaceHolder = this.getSpaPlaceHolder();
+        if (!spaPlaceHolder) {
+            document.location.href = fullUrl;
+            return;
+        }
 
-            // find SPA placeholder
-            var spaPlaceHolder = this.getSpaPlaceHolder();
-            if (!spaPlaceHolder) {
-                document.location.href = fullUrl;
-                return;
-            }
+        if (handlePageNavigating) {
+            handlePageNavigating(
+                this.addLeadingSlash(this.concatUrl(virtualDirectory, this.addLeadingSlash(url))));
+        }
 
-            if (handlePageNavigating) {
-                handlePageNavigating(
-                    this.addLeadingSlash(this.concatUrl(virtualDirectory, this.addLeadingSlash(url))));
-            }
+        // send the request
+        var spaPlaceHolderUniqueId = spaPlaceHolder.attributes["data-dotvvm-spacontentplaceholder"].value;
+        this.getJSON(fullUrl, "GET", spaPlaceHolderUniqueId, result => {
+            // if another postback has already been passed, don't do anything
+            if (!this.isPostBackStillActive(currentPostBackCounter)) return;
 
-            // send the request
-            var spaPlaceHolderUniqueId = spaPlaceHolder.attributes["data-dotvvm-spacontentplaceholder"].value;
-            this.getJSON(fullUrl, "GET", spaPlaceHolderUniqueId, result => {
-                // if another postback has already been passed, don't do anything
-                if (!this.isPostBackStillActive(currentPostBackCounter)) return;
+            var resultObject = JSON.parse(result.responseText);
+            this.loadResourceList(resultObject.resources, () => {
+                var isSuccess = false;
+                if (resultObject.action === "successfulCommand" || !resultObject.action) {
+                    try {
+                        this.isViewModelUpdating = true;
 
-                var resultObject = JSON.parse(result.responseText);
-                this.loadResourceList(resultObject.resources, () => {
-                    var isSuccess = false;
-                    if (resultObject.action === "successfulCommand" || !resultObject.action) {
-                        try {
-                            this.isViewModelUpdating = true;
+                        // remove updated controls
+                        var updatedControls = this.cleanUpdatedControls(resultObject);
 
-                            // remove updated controls
-                            var updatedControls = this.cleanUpdatedControls(resultObject);
-
-                            // update the viewmodel
-                            this.viewModels[viewModelName] = {};
-                            for (var p in resultObject) {
-                                if (resultObject.hasOwnProperty(p)) {
-                                    this.viewModels[viewModelName][p] = resultObject[p];
-                                }
+                        // update the viewmodel
+                        this.viewModels[viewModelName] = {};
+                        for (var p in resultObject) {
+                            if (resultObject.hasOwnProperty(p)) {
+                                this.viewModels[viewModelName][p] = resultObject[p];
                             }
-
-                            // store server-side cached viewmodel
-                            if (resultObject.viewModelCacheId) {
-                                this.viewModels[viewModelName].viewModelCache = resultObject.viewModel;
-                            } else {
-                                delete this.viewModels[viewModelName].viewModelCache;
-                            }
-
-                            ko.delaySync.pause();
-                            this.serialization.deserialize(resultObject.viewModel, this.viewModels[viewModelName].viewModel);
-                            ko.delaySync.resume();
-                            isSuccess = true;
-
-                            // add updated controls
-                            this.viewModelObservables[viewModelName](this.viewModels[viewModelName].viewModel);
-                            this.restoreUpdatedControls(resultObject, updatedControls, true);
-
-                            this.isSpaReady(true);
                         }
-                        finally {
-                            this.isViewModelUpdating = false;
-                        }
-                    } else if (resultObject.action === "redirect") {
-                        this.handleRedirect(resultObject, viewModelName, true).then(resolve, reject);
-                        return;
+
+                        ko.delaySync.pause();
+                        this.serialization.deserialize(resultObject.viewModel, this.viewModels[viewModelName].viewModel);
+                        ko.delaySync.resume();
+                        isSuccess = true;
+
+                        // add updated controls
+                        this.viewModelObservables[viewModelName](this.viewModels[viewModelName].viewModel);
+                        this.restoreUpdatedControls(resultObject, updatedControls, true);
+
+                        this.isSpaReady(true);
                     }
-
-                    // trigger spaNavigated event
-                    var spaNavigatedArgs = new DotvvmSpaNavigatedEventArgs(this.viewModels[viewModelName].viewModel, viewModelName, resultObject, result);
-                    this.events.spaNavigated.trigger(spaNavigatedArgs);
-                    resolve(spaNavigatedArgs);
-
-                    if (!isSuccess && !spaNavigatedArgs.isHandled) {
-                        reject();
-                        throw "Invalid response from server!";
+                    finally {
+                        this.isViewModelUpdating = false;
                     }
-                });
-            }, xhr => {
-                // if another postback has already been passed, don't do anything
-                if (!this.isPostBackStillActive(currentPostBackCounter)) return;
-
-                // execute error handlers
-                var errArgs = new DotvvmErrorEventArgs(undefined, viewModel, viewModelName, xhr, -1, undefined, true);
-                this.events.error.trigger(errArgs);
-                if (!errArgs.handled) {
-                    alert(xhr.responseText);
+                } else if (resultObject.action === "redirect") {
+                    this.handleRedirect(resultObject, viewModelName, true);
+                    return;
                 }
-                reject(errArgs);
+
+                // trigger spaNavigated event
+                var spaNavigatedArgs = new DotvvmSpaNavigatedEventArgs(this.viewModels[viewModelName].viewModel, viewModelName, resultObject, result);
+                this.events.spaNavigated.trigger(spaNavigatedArgs);
+
+                if (!isSuccess && !spaNavigatedArgs.isHandled) {
+                    throw "Invalid response from server!";
+                }
             });
+        }, xhr => {
+            // if another postback has already been passed, don't do anything
+            if (!this.isPostBackStillActive(currentPostBackCounter)) return;
+
+            // execute error handlers
+            var errArgs = new DotvvmErrorEventArgs(undefined, viewModel, viewModelName, xhr, -1, undefined, true);
+            this.events.error.trigger(errArgs);
+            if (!errArgs.handled) {
+                alert(xhr.responseText);
+            }
         });
     }
 
-    private handleRedirect(resultObject: any, viewModelName: string, replace: boolean = false): Promise<DotvvmNavigationEventArgs> {
+    private handleRedirect(resultObject: any, viewModelName: string, replace: boolean = false) {
         if (resultObject.replace != null) replace = resultObject.replace;
         var url;
         // redirect
@@ -996,32 +921,28 @@ class DotVVM {
         var redirectArgs = new DotvvmRedirectEventArgs(dotvvm.viewModels[viewModelName], viewModelName, url, replace);
         this.events.redirect.trigger(redirectArgs);
 
-        return this.performRedirect(url, replace, resultObject.allowSpa && this.useHistoryApiSpaNavigation);
+        this.performRedirect(url, replace, resultObject.allowSpa && this.useHistoryApiSpaNavigation);
     }
 
-    private performRedirect(url: string, replace: boolean, useHistoryApiSpaRedirect?: boolean): Promise<DotvvmNavigationEventArgs> {
-        return new Promise((resolve, reject) => {
-            if (replace) {
-                location.replace(url);
-                resolve();
+    private performRedirect(url: string, replace: boolean, useHistoryApiSpaRedirect?: boolean) {
+        if (replace) {
+            location.replace(url);
+        }
+        else if (useHistoryApiSpaRedirect) {
+            this.handleSpaNavigationCore(url);
+        }
+        else {
+            var fakeAnchor = this.fakeRedirectAnchor;
+            if (!fakeAnchor) {
+                fakeAnchor = <HTMLAnchorElement>document.createElement("a");
+                fakeAnchor.style.display = "none";
+                fakeAnchor.setAttribute("data-dotvvm-fake-id", "dotvvm_fake_redirect_anchor_87D7145D_8EA8_47BA_9941_82B75EE88CDB");
+                document.body.appendChild(fakeAnchor);
+                this.fakeRedirectAnchor = fakeAnchor;
             }
-            else if (useHistoryApiSpaRedirect) {
-                this.handleSpaNavigationCore(url).then(resolve, reject);
-            }
-            else {
-                var fakeAnchor = this.fakeRedirectAnchor;
-                if (!fakeAnchor) {
-                    fakeAnchor = <HTMLAnchorElement>document.createElement("a");
-                    fakeAnchor.style.display = "none";
-                    fakeAnchor.setAttribute("data-dotvvm-fake-id", "dotvvm_fake_redirect_anchor_87D7145D_8EA8_47BA_9941_82B75EE88CDB");
-                    document.body.appendChild(fakeAnchor);
-                    this.fakeRedirectAnchor = fakeAnchor;
-                }
-                fakeAnchor.href = url;
-                fakeAnchor.click();
-                resolve();
-            }
-        });
+            fakeAnchor.href = url;
+            fakeAnchor.click();
+        }
     }
 
     private fixSpaUrlPrefix(url: string): string {
@@ -1082,49 +1003,6 @@ class DotVVM {
 
         return source;
     }
-
-    public diff(source: any, modified: any): any {
-        if (source instanceof Array && modified instanceof Array) {
-            var diffArray = modified.map((el, index) => this.diff(source[index], el));
-            if (source.length === modified.length 
-                && diffArray.every((el, index) => el === this.diffEqual || source[index] === modified[index])) {
-                return this.diffEqual;
-            } else {
-                return diffArray;
-            }
-        }
-        else if (source instanceof Array || modified instanceof Array) {
-            return modified;
-        }
-        else if (typeof source == "object" && typeof modified == "object" && source && modified) {
-            var result = this.diffEqual;
-            for (var p in modified) {
-                var propertyDiff = this.diff(source[p], modified[p]);
-                if (propertyDiff !== this.diffEqual && source[p] !== modified[p]) {
-                    if (result === this.diffEqual) {
-                        result = {};
-                    }
-                    result[p] = propertyDiff;
-                } else if (p[0] === "$") {
-                    if (result == this.diffEqual) {
-                        result = {};
-                    }
-                    result[p] = modified[p];
-                }
-            }
-            return result;
-        }
-        else if (source === modified) {
-            if (typeof source == "object") {
-                return this.diffEqual;
-            } else {
-                return source; 
-            }
-        } else {
-            return modified;
-        }
-    }
-    public readonly diffEqual = {};
 
     private updateDynamicPathFragments(context: any, path: string[]): void {
         for (var i = path.length - 1; i >= 0; i--) {
@@ -1351,11 +1229,11 @@ class DotVVM {
         const makeUpdatableChildrenContextHandler = (
             makeContextCallback: (bindingContext: KnockoutBindingContext, value: any) => any,
             shouldDisplay: (value: any) => boolean
-        ) => (element: Node, valueAccessor, _allBindings, _viewModel, bindingContext: KnockoutBindingContext) => {
+            ) => (element: Node, valueAccessor, _allBindings, _viewModel, bindingContext: KnockoutBindingContext) => {
             if (!bindingContext) throw new Error()
 
-            var savedNodes: Node[] | undefined;
-            ko.computed(function () {
+            var savedNodes : Node[] | undefined;
+            ko.computed(function() {
                 var rawValue = valueAccessor();
 
                 // Save a copy of the inner nodes on the initial update, but only if we have dependencies.
@@ -1390,7 +1268,7 @@ class DotVVM {
                 var collection = bindingContext[foreachCollectionSymbol]
                 var innerBindingContext = bindingContext.createChildContext(() => {
                     return ko.unwrap((ko.unwrap(collection) || [])[valueAccessor()]);
-                }).extend({ $index: ko.pureComputed(valueAccessor) });
+                }).extend({$index: ko.pureComputed(valueAccessor)});
                 element.innerBindingContext = innerBindingContext
                 ko.applyBindingsToDescendants(innerBindingContext, element)
                 return { controlsDescendantBindings: true } // do not apply binding again
@@ -1442,19 +1320,6 @@ class DotVVM {
             init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
             }
         };
-
-        ko.bindingHandlers["dotvvm-checkedItems"] = {
-            after: ko.bindingHandlers.checked.after,
-            init: ko.bindingHandlers.checked.init,
-            options: ko.bindingHandlers.checked.options,
-            update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
-                var value = valueAccessor();
-                if (!Array.isArray(ko.unwrap(value))) {
-                    throw Error("The value of a `checkedItems` binding must be an array (i.e. not null nor undefined).");
-                }
-                // Note: As of now, the `checked` binding doesn't have an `update`. If that changes, invoke it here.
-            }
-        }
 
         ko.bindingHandlers["dotvvm-UpdateProgress-Visible"] = {
             init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {

@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -16,16 +15,16 @@ namespace DotVVM.Framework.Binding.Expressions
     {
         struct PropValue
         {
-            public readonly object? Value;
-            public readonly Exception? Error;
+            public readonly object Value;
+            public readonly Exception Error;
 
-            public object? GetValue(ErrorHandlingMode errorMode, Func<Exception, Exception> exceptionFactory) =>
+            public object GetValue(ErrorHandlingMode errorMode, Func<Exception, Exception> exceptionFactory) =>
                 Error == null ? Value :
                 errorMode == ErrorHandlingMode.ReturnNull ? null :
                 errorMode == ErrorHandlingMode.ReturnException ? Error :
                 throw exceptionFactory(Error);
 
-            public PropValue(object? value, Exception? error = null)
+            public PropValue(object value, Exception error = null)
             {
                 if (value == null && error == null) throw new ArgumentNullException();
                 this.Value = value;
@@ -37,7 +36,7 @@ namespace DotVVM.Framework.Binding.Expressions
         protected readonly BindingCompilationService bindingService;
 
 
-        public BindingExpression(BindingCompilationService service, IEnumerable<object?> properties)
+        public BindingExpression(BindingCompilationService service, IEnumerable<object> properties)
         {
             this.toStringValue = new Lazy<string>(() => {
                 // using Lazy improves performance a bit and most importantly handles StackOverflowException that could occur when OriginalStringBindingProperty getter fails
@@ -93,7 +92,7 @@ namespace DotVVM.Framework.Binding.Expressions
             new BindingPropertyException(bpe.Binding, bpe.Property, bpe.CoreMessage, bpe.InnerException) :
             new BindingPropertyException(contextBinding, propType, innerException);
 
-        public object? GetProperty(Type type, ErrorHandlingMode errorMode = ErrorHandlingMode.ThrowException)
+        public object GetProperty(Type type, ErrorHandlingMode errorMode = ErrorHandlingMode.ThrowException)
         {
             if (!properties.TryGetValue(type, out var result))
             {
@@ -121,7 +120,7 @@ namespace DotVVM.Framework.Binding.Expressions
         {
             return properties.Values
                 .Where(p => p.Error == null)
-                .Select(p => p.Value ?? throw null!);
+                .Select(p => p.Value);
         }
     }
 }

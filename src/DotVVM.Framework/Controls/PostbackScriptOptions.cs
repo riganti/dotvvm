@@ -1,4 +1,3 @@
-#nullable enable
 using DotVVM.Framework.Compilation.Javascript;
 
 namespace DotVVM.Framework.Controls

@@ -1,5 +1,4 @@
-﻿#nullable enable
-namespace DotVVM.Framework.Utils
+﻿namespace DotVVM.Framework.Utils
 {
     public static class TextUtils
     {

@@ -23,9 +23,12 @@
     <Folder Include="wwwroot\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
-    <PackageReference Include="DotVVM.AspNetCore" Version="2.4.0" />
+    <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0.1" />
+    <PackageReference Include="DotVVM.AspNetCore" Version="2.2.0.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <DotNetCliToolReference Include="DotVVM.CommandLine" Version="2.2.0.1" />
   </ItemGroup>
   <Target Name="CreateWWWRoot" AfterTargets="AfterPublish">
     <MakeDir Directories="$(PublishDir)wwwroot" Condition="!Exists('$(PublishDir)wwwroot')" />

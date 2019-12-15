@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using DotVVM.Framework.Binding;
@@ -26,7 +25,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public bool Enabled
         {
-            get { return (bool)GetValue(EnabledProperty)!; }
+            get { return (bool)GetValue(EnabledProperty); }
             set { SetValue(EnabledProperty, value); }
         }
         public static readonly DotvvmProperty EnabledProperty =
@@ -36,27 +35,27 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the name of property in the DataSource collection that will be displayed in the control.
         /// </summary>
         [Obsolete("Use ItemTextBinding property instead", true)]
-        public string? DisplayMember
+        public string DisplayMember
         {
-            get { return (string?)GetValue(DisplayMemberProperty); }
+            get { return (string)GetValue(DisplayMemberProperty); }
             set { SetValue(DisplayMemberProperty, value); }
         }
         [Obsolete("Use ItemTextBinding property instead", true)]
         public static readonly DotvvmProperty DisplayMemberProperty =
-            DotvvmProperty.Register<string?, SelectorBase>(t => t.DisplayMember, "");
+            DotvvmProperty.Register<string, SelectorBase>(t => t.DisplayMember, "");
 
         /// <summary>
         /// Gets or sets the name of property in the DataSource collection that will be passed to the SelectedValue property when the item is selected.
         /// </summary>
         [Obsolete("Use ItemValueBinding property instead", true)]
-        public string? ValueMember
+        public string ValueMember
         {
-            get { return (string?)GetValue(ValueMemberProperty); }
+            get { return (string)GetValue(ValueMemberProperty); }
             set { SetValue(ValueMemberProperty, value); }
         }
         [Obsolete("Use ItemValueBinding property instead", true)]
         public static readonly DotvvmProperty ValueMemberProperty =
-            DotvvmProperty.Register<string?, SelectorBase>(t => t.ValueMember, "");
+            DotvvmProperty.Register<string, SelectorBase>(t => t.ValueMember, "");
 
         /// <summary>
         /// The expression of DataSource item that will be displayed in the control.
@@ -64,13 +63,13 @@ namespace DotVVM.Framework.Controls
         [ControlPropertyBindingDataContextChange(nameof(DataSource))]
         [CollectionElementDataContextChange(1)]
         [BindingCompilationRequirements(required: new[]{ typeof(SelectorItemBindingProperty) })]
-        public IValueBinding? ItemTextBinding
+        public IValueBinding ItemTextBinding
         {
-            get { return (IValueBinding?)GetValue(ItemTextBindingProperty); }
+            get { return (IValueBinding)GetValue(ItemTextBindingProperty); }
             set { SetValue(ItemTextBindingProperty, value); }
         }
         public static readonly DotvvmProperty ItemTextBindingProperty =
-            DotvvmProperty.Register<IValueBinding?, SelectorBase>(nameof(ItemTextBinding));
+            DotvvmProperty.Register<IValueBinding, SelectorBase>(nameof(ItemTextBinding));
 
         /// <summary>
         /// The expression of DataSource item that will be passed to the SelectedValue property when the item is selected.
@@ -78,24 +77,24 @@ namespace DotVVM.Framework.Controls
         [ControlPropertyBindingDataContextChange(nameof(DataSource))]
         [CollectionElementDataContextChange(1)]
         [BindingCompilationRequirements(required: new[]{ typeof(SelectorItemBindingProperty) })]
-        public IValueBinding? ItemValueBinding
+        public IValueBinding ItemValueBinding
         {
-            get { return (IValueBinding?)GetValue(ItemValueBindingProperty); }
+            get { return (IValueBinding)GetValue(ItemValueBindingProperty); }
             set { SetValue(ItemValueBindingProperty, value); }
         }
         public static readonly DotvvmProperty ItemValueBindingProperty =
-            DotvvmProperty.Register<IValueBinding?, SelectorBase>(nameof(ItemValueBinding));
+            DotvvmProperty.Register<IValueBinding, SelectorBase>(nameof(ItemValueBinding));
 
         /// <summary>
         /// Gets or sets the command that will be triggered when the selection is changed.
         /// </summary>
-        public Command? SelectionChanged
+        public Command SelectionChanged
         {
-            get { return (Command?)GetValue(SelectionChangedProperty); }
+            get { return (Command)GetValue(SelectionChangedProperty); }
             set { SetValue(SelectionChangedProperty, value); }
         }
         public static readonly DotvvmProperty SelectionChangedProperty =
-            DotvvmProperty.Register<Command?, SelectorBase>(t => t.SelectionChanged, null);
+            DotvvmProperty.Register<Command, SelectorBase>(t => t.SelectionChanged, null);
 
         /// <summary>
         /// The expression of DataSource item that will be placed into html title attribute.
@@ -103,13 +102,13 @@ namespace DotVVM.Framework.Controls
         [ControlPropertyBindingDataContextChange(nameof(DataSource))]
         [CollectionElementDataContextChange(1)]
         [BindingCompilationRequirements(required: new[] { typeof(SelectorItemBindingProperty) })]
-        public IValueBinding? ItemTitleBinding
+        public IValueBinding ItemTitleBinding
         {
-            get { return (IValueBinding?)GetValue(ItemTitleBindingProperty); }
+            get { return (IValueBinding)GetValue(ItemTitleBindingProperty); }
             set { SetValue(ItemTitleBindingProperty, value); }
         }
         public static readonly DotvvmProperty ItemTitleBindingProperty =
-            DotvvmProperty.Register<IValueBinding?, SelectorBase>(nameof(ItemTitleBinding));
+            DotvvmProperty.Register<IValueBinding, SelectorBase>(nameof(ItemTitleBinding));
 
         [ControlUsageValidator]
         public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)

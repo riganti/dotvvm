@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -30,7 +29,7 @@ namespace DotVVM.Framework.Configuration
                 return ((TagName != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(TagName) : 0) * 397) ^ (AttributeName != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(AttributeName) : 0);
             }
         }
-        public override bool Equals(object? obj)
+        public override bool Equals(object obj)
         {
             if (obj is HtmlTagAttributePair o)
             {

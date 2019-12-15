@@ -1,16 +1,14 @@
-#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Diagnostics.CodeAnalysis;
 
 namespace DotVVM.Framework.Configuration
 {
 
     static class FreezableList
     {
-        public static void Freeze<T>([AllowNull] ref IList<T> list)
+        public static void Freeze<T>(ref IList<T> list)
         {
             if (list is FreezableList<T> freezable)
                 freezable.Freeze();

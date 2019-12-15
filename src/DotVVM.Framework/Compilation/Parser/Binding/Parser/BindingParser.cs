@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -22,7 +21,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 
             if (Peek() != null)
             {
-                var @operator = PeekOrFail().Type;
+                var @operator = Peek().Type;
                 if (@operator == BindingTokenType.AssignOperator)
                 {
                     Read();
@@ -56,9 +55,9 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 if (!(assemblyName is SimpleNameBindingParserNode)) typeName.NodeErrors.Add($"Generic identifier name is not allowed in assembly name.");
                 return new AssemblyQualifiedNameBindingParserNode(typeName, assemblyName);
             }
-            else if (Peek() is BindingToken token)
+            else if (Peek() != null)
             {
-                typeName.NodeErrors.Add($"Unexpected operator: {token.Type}, expecting `,` or end.");
+                typeName.NodeErrors.Add($"Unexpected operator: {Peek().Type}, expecting `,` or end.");
             }
             return typeName;
         }
@@ -80,7 +79,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 if (lastIndex == CurrentIndex)
                 {
-                    var extraToken = Read()!;
+                    var extraToken = Read();
                     expressions.Add(CreateNode(new LiteralExpressionBindingParserNode(extraToken.Text), lastIndex, "Unexpected token"));
                 }
 
@@ -90,7 +89,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 expressions.Add(extraNode);
             }
 
-            return CreateNode(new MultiExpressionBindingParserNode(expressions), startIndex, Peek() is BindingToken token ? $"Unexpected token: {token.Text}" : null);
+            return CreateNode(new MultiExpressionBindingParserNode(expressions), startIndex, OnEnd() ? null : $"Unexpected token: {Peek().Text}");
         }
 
         public BindingParserNode ReadExpression()
@@ -109,16 +108,13 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             var startIndex = CurrentIndex;
             var first = ReadUnsupportedOperatorExpression();
-            if (Peek() is BindingToken operatorToken && operatorToken.Type == BindingTokenType.Semicolon)
+            if (Peek() != null && Peek().Type == BindingTokenType.Semicolon)
             {
-                Read();
+                var operatorToken = Read();
 
                 var second = Peek() == null
-                    ? new VoidBindingParserNode()
+                    ? CreateIdentifierExpected(startIndex)
                     : ReadSemicolonSeparatedExpression();
-
-                if (second is IdentifierNameBindingParserNode identifier && identifier.Name.Length == 0)
-                    second = new VoidBindingParserNode();
 
                 first = CreateNode(new BlockBindingParserNode(first, second), startIndex);
             }
@@ -129,9 +125,9 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             var startIndex = CurrentIndex;
             var first = ReadAssignmentExpression();
-            if (Peek() is BindingToken operatorToken && operatorToken.Type == BindingTokenType.UnsupportedOperator)
+            if (Peek() != null && Peek().Type == BindingTokenType.UnsupportedOperator)
             {
-                Read();
+                var operatorToken = Read();
                 var second = ReadUnsupportedOperatorExpression();
                 first = CreateNode(new BinaryOperatorBindingParserNode(first, second, BindingTokenType.UnsupportedOperator), startIndex, $"Unsupported operator: {operatorToken.Text}");
             }
@@ -142,7 +138,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             var startIndex = CurrentIndex;
             var first = ReadConditionalExpression();
-            if (Peek() is BindingToken operatorToken && operatorToken.Type == BindingTokenType.AssignOperator)
+            if (Peek() != null && Peek().Type == BindingTokenType.AssignOperator)
             {
                 Read();
                 var second = ReadAssignmentExpression();
@@ -155,7 +151,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             var startIndex = CurrentIndex;
             var first = ReadNullCoalescingExpression();
-            if (Peek() is BindingToken operatorToken && operatorToken.Type == BindingTokenType.QuestionMarkOperator)
+            if (Peek() != null && Peek().Type == BindingTokenType.QuestionMarkOperator)
             {
                 Read();
                 var second = ReadConditionalExpression();
@@ -175,7 +171,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             var startIndex = CurrentIndex;
             var first = ReadOrElseExpression();
-            while (Peek() is BindingToken operatorToken && operatorToken.Type == BindingTokenType.NullCoalescingOperator)
+            while (Peek() != null && Peek().Type == BindingTokenType.NullCoalescingOperator)
             {
                 Read();
                 var second = ReadOrElseExpression();
@@ -188,7 +184,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             var startIndex = CurrentIndex;
             var first = ReadAndAlsoExpression();
-            while (Peek() is BindingToken operatorToken && operatorToken.Type == BindingTokenType.OrElseOperator)
+            while (Peek() != null && Peek().Type == BindingTokenType.OrElseOperator)
             {
                 Read();
                 var second = ReadAndAlsoExpression();
@@ -201,7 +197,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             var startIndex = CurrentIndex;
             var first = ReadOrExpression();
-            while (Peek() is BindingToken operatorToken && operatorToken.Type == BindingTokenType.AndAlsoOperator)
+            while (Peek() != null && Peek().Type == BindingTokenType.AndAlsoOperator)
             {
                 Read();
                 var second = ReadOrElseExpression();
@@ -214,7 +210,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             var startIndex = CurrentIndex;
             var first = ReadAndExpression();
-            while (Peek() is BindingToken operatorToken && operatorToken.Type == BindingTokenType.OrOperator)
+            while (Peek() != null && Peek().Type == BindingTokenType.OrOperator)
             {
                 Read();
                 var second = ReadAndExpression();
@@ -227,7 +223,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             var startIndex = CurrentIndex;
             var first = ReadEqualityExpression();
-            while (Peek() is BindingToken operatorToken && operatorToken.Type == BindingTokenType.AndOperator)
+            while (Peek() != null && Peek().Type == BindingTokenType.AndOperator)
             {
                 Read();
                 var second = ReadEqualityExpression();
@@ -240,9 +236,9 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             var startIndex = CurrentIndex;
             var first = ReadComparisonExpression();
-            while (Peek() is BindingToken operatorToken)
+            while (Peek() != null)
             {
-                var @operator = operatorToken.Type;
+                var @operator = Peek().Type;
                 if (@operator == BindingTokenType.EqualsEqualsOperator || @operator == BindingTokenType.NotEqualsOperator)
                 {
                     Read();
@@ -258,9 +254,9 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             var startIndex = CurrentIndex;
             var first = ReadAdditiveExpression();
-            while (Peek() is BindingToken operatorToken)
+            while (Peek() != null)
             {
-                var @operator = operatorToken.Type;
+                var @operator = Peek().Type;
                 if (@operator == BindingTokenType.LessThanEqualsOperator || @operator == BindingTokenType.LessThanOperator
                     || @operator == BindingTokenType.GreaterThanEqualsOperator || @operator == BindingTokenType.GreaterThanOperator)
                 {
@@ -277,9 +273,9 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             var startIndex = CurrentIndex;
             var first = ReadMultiplicativeExpression();
-            while (Peek() is BindingToken operatorToken)
+            while (Peek() != null)
             {
-                var @operator = operatorToken.Type;
+                var @operator = Peek().Type;
                 if (@operator == BindingTokenType.AddOperator || @operator == BindingTokenType.SubtractOperator)
                 {
 
@@ -296,9 +292,9 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             var startIndex = CurrentIndex;
             var first = ReadUnaryExpression();
-            while (Peek() is BindingToken operatorToken)
+            while (Peek() != null)
             {
-                var @operator = operatorToken.Type;
+                var @operator = Peek().Type;
                 if (@operator == BindingTokenType.MultiplyOperator || @operator == BindingTokenType.DivideOperator || @operator == BindingTokenType.ModulusOperator)
                 {
                     Read();
@@ -315,14 +311,14 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             var startIndex = CurrentIndex;
             SkipWhiteSpace();
 
-            if (Peek() is BindingToken operatorToken)
+            if (Peek() != null)
             {
-                var @operator = operatorToken.Type;
+                var @operator = Peek().Type;
                 var isOperatorUnsupported = @operator == BindingTokenType.UnsupportedOperator;
 
                 if (@operator == BindingTokenType.NotOperator || @operator == BindingTokenType.SubtractOperator || isOperatorUnsupported)
                 {
-                    Read();
+                    var operatorToken = Read();
                     var target = ReadUnaryExpression();
                     return CreateNode(new UnaryOperatorBindingParserNode(target, @operator), startIndex, isOperatorUnsupported ? $"Unsupported operator {operatorToken.Text}" : null);
                 }
@@ -383,7 +379,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             Read();
             var arguments = new List<BindingParserNode>();
             int previousInnerIndex = -1;
-            while (Peek() is BindingToken operatorToken && operatorToken.Type != BindingTokenType.CloseParenthesis && previousInnerIndex != CurrentIndex)
+            while (Peek() != null && Peek().Type != BindingTokenType.CloseParenthesis && previousInnerIndex != CurrentIndex)
             {
                 previousInnerIndex = CurrentIndex;
                 if (arguments.Count > 0)
@@ -421,10 +417,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             else if (token != null && token.Type == BindingTokenType.StringLiteralToken)
             {
                 // string literal
-                Read();
+                var literal = Read();
                 SkipWhiteSpace();
 
-                var node = CreateNode(new LiteralExpressionBindingParserNode(ParseStringLiteral(token.Text, out var error)), startIndex);
+                string error;
+                var node = CreateNode(new LiteralExpressionBindingParserNode(ParseStringLiteral(literal.Text, out error)), startIndex);
                 if (error != null)
                 {
                     node.NodeErrors.Add(error);
@@ -443,8 +440,9 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             var startIndex = CurrentIndex;
             SkipWhiteSpace();
 
-            if (Peek() is BindingToken identifier && identifier.Type == BindingTokenType.Identifier)
+            if (Peek() != null && Peek().Type == BindingTokenType.Identifier)
             {
+                var identifier = Peek();
                 if (identifier.Text == "true" || identifier.Text == "false")
                 {
                     Read();
@@ -460,13 +458,14 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 else if (Char.IsDigit(identifier.Text[0]))
                 {
                     // number value
-                    var number = ParseNumberLiteral(identifier.Text, out var error);
+                    string error;
+                    var number = ParseNumberLiteral(identifier.Text, out error);
 
                     Read();
                     SkipWhiteSpace();
 
                     var node = CreateNode(new LiteralExpressionBindingParserNode(number), startIndex);
-                    if (error is object)
+                    if (error != null)
                     {
                         node.NodeErrors.Add(error);
                     }
@@ -482,12 +481,12 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             var startIndex = CurrentIndex;
             SkipWhiteSpace();
 
-            if (Peek() is BindingToken identifier && identifier.Type == BindingTokenType.Identifier)
+            if (Peek() != null && Peek().Type == BindingTokenType.Identifier)
             {
-                Read();
+                var identifier = Read();
                 SkipWhiteSpace();
 
-                if (Peek() is BindingToken operatorToken && operatorToken.Type == BindingTokenType.LessThanOperator)
+                if (Peek() != null && Peek().Type == BindingTokenType.LessThanOperator)
                 {
                     return ReadGenericArguments(startIndex, identifier);
                 }
@@ -502,7 +501,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         private SimpleNameBindingParserNode CreateIdentifierExpected(int startIndex)
         {
             return CreateNode(
-                new SimpleNameBindingParserNode("") {
+                new SimpleNameBindingParserNode(null) {
                     NodeErrors = { "Identifier name was expected!" }
                 },
                 startIndex);
@@ -510,7 +509,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 
         private IdentifierNameBindingParserNode ReadGenericArguments(int startIndex, BindingToken identifier)
         {
-            Assert(BindingTokenType.LessThanOperator);
+            Debug.Assert(Peek() != null && Peek().Type == BindingTokenType.LessThanOperator);
             SetRestorePoint();
 
             var next = Read();
@@ -548,7 +547,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             return CreateNode(new SimpleNameBindingParserNode(identifier), startIndex);
         }
 
-        private static object? ParseNumberLiteral(string text, out string? error)
+        private static object ParseNumberLiteral(string text, out string error)
         {
             text = text.ToLower();
             error = null;
@@ -557,11 +556,12 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 
             if (ParseNumberLiteralSuffix(ref text, ref error, lastDigit, ref type)) return null;
 
-            if (ParseNumberLiteralDoubleFloat(text, ref error, type, out var numberLiteral)) return numberLiteral;
+            object numberLiteral;
+            if (ParseNumberLiteralDoubleFloat(text, ref error, type, out numberLiteral)) return numberLiteral;
 
             const NumberStyles integerStyle = NumberStyles.AllowLeadingSign;
             // try parse integral constant
-            object? result = null;
+            object result = null;
             if (type == NumberLiteralSuffix.None)
             {
                 result = TryParse<int>(int.TryParse, text, integerStyle) ??
@@ -594,8 +594,8 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             return null;
         }
 
-        private static bool ParseNumberLiteralDoubleFloat(string text, ref string? error, NumberLiteralSuffix type,
-            out object? numberLiteral)
+        private static bool ParseNumberLiteralDoubleFloat(string text, ref string error, NumberLiteralSuffix type,
+            out object numberLiteral)
         {
             numberLiteral = null;
             if (text.Contains(".") || text.Contains("e") || type == NumberLiteralSuffix.Float ||
@@ -634,7 +634,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             return false;
         }
 
-        private static bool ParseNumberLiteralSuffix(ref string text, ref string? error, char lastDigit, ref NumberLiteralSuffix type)
+        private static bool ParseNumberLiteralSuffix(ref string text, ref string error, char lastDigit, ref NumberLiteralSuffix type)
         {
             if (char.IsLetter(lastDigit))
             {
@@ -660,21 +660,23 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 
         private delegate bool TryParseDelegate<T>(string text, NumberStyles styles, IFormatProvider format, out T result);
 
-        private static object? TryParse<T>(TryParseDelegate<T> method, string text, out string? error, NumberStyles styles)
+        private static object TryParse<T>(TryParseDelegate<T> method, string text, out string error, NumberStyles styles)
         {
             error = null;
-            if (method(text, styles, CultureInfo.InvariantCulture, out var result)) return result;
+            T result;
+            if (method(text, styles, CultureInfo.InvariantCulture, out result)) return result;
             error = $"could not parse { text } using { method.GetMethodInfo().DeclaringType.FullName + "." + method.GetMethodInfo().Name }";
             return null;
         }
 
-        private static object? TryParse<T>(TryParseDelegate<T> method, string text, NumberStyles styles)
+        private static object TryParse<T>(TryParseDelegate<T> method, string text, NumberStyles styles)
         {
-            if (method(text, styles, CultureInfo.InvariantCulture, out var result)) return result;
+            T result;
+            if (method(text, styles, CultureInfo.InvariantCulture, out result)) return result;
             return null;
         }
 
-        private static string ParseStringLiteral(string text, out string? error)
+        private static string ParseStringLiteral(string text, out string error)
         {
             error = null;
             var sb = new StringBuilder();
@@ -717,7 +719,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             return sb.ToString();
         }
 
-        private T CreateNode<T>(T node, int startIndex, string? error = null) where T : BindingParserNode
+        private T CreateNode<T>(T node, int startIndex, string error = null) where T : BindingParserNode
         {
             node.Tokens.Clear();
             node.Tokens.AddRange(GetTokensFrom(startIndex));
@@ -745,8 +747,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         /// </summary>
         protected bool IsCurrentTokenIncorrect(BindingTokenType desiredType)
         {
-            var token = Peek();
-            if (token == null || token.Type != desiredType)
+            if (Peek() == null || !Peek().Type.Equals(desiredType))
             {
                 return true;
             }

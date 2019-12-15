@@ -1,5 +1,3 @@
-#nullable enable
-using System;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
@@ -19,7 +17,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false, Required = true)]
         public string RouteName
         {
-            get { return (string)GetValue(RouteNameProperty)!; }
+            get { return (string)GetValue(RouteNameProperty); }
             set { SetValue(RouteNameProperty, value); }
         }
         public static readonly DotvvmProperty RouteNameProperty =
@@ -27,7 +25,7 @@ namespace DotVVM.Framework.Controls
 
         public bool Enabled
         {
-            get { return (bool)GetValue(EnabledProperty)!; }
+            get { return (bool)GetValue(EnabledProperty); }
             set { SetValue(EnabledProperty, value); }
         }
         public static readonly DotvvmProperty EnabledProperty =
@@ -36,13 +34,13 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the suffix that will be appended to the generated URL (e.g. query string or URL fragment).
         /// </summary>
-        public string? UrlSuffix
+        public string UrlSuffix
         {
-            get { return (string?)GetValue(UrlSuffixProperty); }
+            get { return (string)GetValue(UrlSuffixProperty); }
             set { SetValue(UrlSuffixProperty, value); }
         }
         public static readonly DotvvmProperty UrlSuffixProperty
-            = DotvvmProperty.Register<string?, RouteLink>(c => c.UrlSuffix, null);
+            = DotvvmProperty.Register<string, RouteLink>(c => c.UrlSuffix, null);
 
 
         /// <summary>
@@ -50,8 +48,8 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public string Text
         {
-            get { return (string)GetValue(TextProperty)!; }
-            set { SetValue(TextProperty, value ?? throw new ArgumentNullException(nameof(value))); }
+            get { return (string)GetValue(TextProperty); }
+            set { SetValue(TextProperty, value); }
         }
         public static readonly DotvvmProperty TextProperty =
             DotvvmProperty.Register<string, RouteLink>(c => c.Text, "");
@@ -130,9 +128,9 @@ namespace DotVVM.Framework.Controls
         {
             // a hack that makes the RouteLink work even in container with Events.Click. This does not solve the problem in general, but better than nothing.
             var onclickAttribute = "event.stopPropagation();";
-            if ((bool)GetValue(Internal.IsSpaPageProperty)! && (bool)GetValue(Internal.UseHistoryApiSpaNavigationProperty)!)
+            if ((bool)GetValue(Internal.IsSpaPageProperty) && (bool)GetValue(Internal.UseHistoryApiSpaNavigationProperty))
             {
-                onclickAttribute += "!this.hasAttribute('disabled') && dotvvm.handleSpaNavigation(this); return false;";
+                onclickAttribute += "return !this.hasAttribute('disabled') && dotvvm.handleSpaNavigation(this);";
             }
             else
             {

@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using DotVVM.Framework.Binding.Expressions;
@@ -20,7 +19,7 @@ namespace DotVVM.Framework.Binding
 
         public static CommandBindingExpression RegisterExtensionCommand(this DotvvmControl control, Delegate action, string methodUsageId)
         {
-            var bindingService = control.GetValue(Internal.RequestContextProperty).NotNull().CastTo<IDotvvmRequestContext>()
+            var bindingService = control.GetValue(Internal.RequestContextProperty).CastTo<IDotvvmRequestContext>()
                 .Configuration.ServiceProvider.GetRequiredService<BindingCompilationService>();
             var id = control.GetDotvvmUniqueId() + methodUsageId;
             var propertyName = control.GetType().FullName + "/" + methodUsageId;
@@ -30,11 +29,10 @@ namespace DotVVM.Framework.Binding
             return binding;
         }
 
-        public static CommandBindingExpression? GetExtensionCommand(this DotvvmControl control, string methodUsageId)
+        public static CommandBindingExpression GetExtensionCommand(this DotvvmControl control, string methodUsageId)
         {
             var propertyName = control.GetType().FullName + "/" + methodUsageId;
             var property = DotvvmProperty.ResolveProperty(typeof(PropertyBox), propertyName);
-            if (property is null) throw new Exception($"Extension command {propertyName} has not been registered.");
             return control.GetCommandBinding(property) as CommandBindingExpression;
         }
 

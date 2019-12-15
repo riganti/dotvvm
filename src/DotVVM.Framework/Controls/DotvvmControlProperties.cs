@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,31 +9,31 @@ using DotVVM.Framework.Binding;
 namespace DotVVM.Framework.Controls
 {
     [StructLayout(LayoutKind.Explicit)]
-    internal struct DotvvmControlProperties : IEnumerable<KeyValuePair<DotvvmProperty, object?>>
+    internal struct DotvvmControlProperties : IEnumerable<KeyValuePair<DotvvmProperty, object>>
     {
         // There are 3 possible states of this structure:
         // 1. keys == values == null --> it is empty
         // 2. keys == null & values is Dictionary<DotvvmProperty, object> --> it falls back to traditional mutable property dictionary
         // 3. keys is DotvvmProperty[] & values is object[] --> read-only perfect 2-slot hashing
         [FieldOffset(0)]
-        private object? keys;
+        private object keys;
 
         [FieldOffset(0)]
-        private DotvvmProperty?[] keysAsArray;
+        private DotvvmProperty[] keysAsArray;
 
         [FieldOffset(8)]
-        private object? values;
+        private object values;
 
         [FieldOffset(8)]
-        private object?[] valuesAsArray;
+        private object[] valuesAsArray;
 
         [FieldOffset(8)]
-        private Dictionary<DotvvmProperty, object?> valuesAsDictionary;
+        private Dictionary<DotvvmProperty, object> valuesAsDictionary;
 
         [FieldOffset(16)]
         private int hashSeed;
 
-        public void AssignBulk(DotvvmProperty?[] keys, object?[] values, int hashSeed)
+        public void AssignBulk(DotvvmProperty[] keys, object[] values, int hashSeed)
         {
             // The explicit layout is quite likely to mess with array covariance, just make sure we don't encounter that
             Debug.Assert(values.GetType() == typeof(object[]));
@@ -72,7 +71,7 @@ namespace DotVVM.Framework.Controls
                 for (int i = 0; i < keys.Length; i++)
                 {
                     if (keys[i] != null)
-                        this.Set(keys[i]!, values[i]);
+                        this.Set(keys[i], values[i]);
                 }
             }
         }
@@ -98,7 +97,7 @@ namespace DotVVM.Framework.Controls
             return PropertyImmutableHashtable.ContainsKey(this.keysAsArray, this.hashSeed, p);
         }
 
-        public bool TryGet(DotvvmProperty p, out object? value)
+        public bool TryGet(DotvvmProperty p, out object value)
         {
             value = null;
             if (values == null) { return false; }
@@ -117,23 +116,23 @@ namespace DotVVM.Framework.Controls
             return index != -1;
         }
 
-        public object? GetOrThrow(DotvvmProperty p)
+        public object GetOrThrow(DotvvmProperty p)
         {
             if (this.TryGet(p, out var x)) return x;
             throw new KeyNotFoundException();
         }
 
-        public void Set(DotvvmProperty p, object? value)
+        public void Set(DotvvmProperty p, object value)
         {
             if (values == null)
             {
-                var d = new Dictionary<DotvvmProperty, object?>();
+                var d = new Dictionary<DotvvmProperty, object>();
                 d[p] = value;
                 this.values = d;
             }
             else if (keys == null)
             {
-                Debug.Assert(values is Dictionary<DotvvmProperty, object?>);
+                Debug.Assert(values is Dictionary<DotvvmProperty, object>);
                 valuesAsDictionary[p] = value;
             }
             else
@@ -149,11 +148,11 @@ namespace DotVVM.Framework.Controls
                 }
                 else
                 {
-                    var d = new Dictionary<DotvvmProperty, object?>();
+                    var d = new Dictionary<DotvvmProperty, object>();
                     for (int i = 0; i < keys.Length; i++)
                     {
                         if (keys[i] != null)
-                            d[keys[i]!] = values[i];
+                            d[keys[i]] = values[i];
                     }
                     d[p] = value;
                     this.valuesAsDictionary = d;
@@ -169,7 +168,7 @@ namespace DotVVM.Framework.Controls
             return new DotvvmControlPropertiesEnumerator(this.keysAsArray, this.valuesAsArray);
         }
 
-        IEnumerator<KeyValuePair<DotvvmProperty, object?>> IEnumerable<KeyValuePair<DotvvmProperty, object?>>.GetEnumerator() =>
+        IEnumerator<KeyValuePair<DotvvmProperty, object>> IEnumerable<KeyValuePair<DotvvmProperty, object>>.GetEnumerator() =>
             GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -188,12 +187,12 @@ namespace DotVVM.Framework.Controls
             {
                 var keysTmp = this.keysAsArray;
                 var valuesTmp = this.valuesAsArray;
-                var d = new Dictionary<DotvvmProperty, object?>();
+                var d = new Dictionary<DotvvmProperty, object>();
 
                 for (int i = 0; i < keysTmp.Length; i++)
                 {
                     if (keysTmp[i] != null && keysTmp[i] != key)
-                        d[keysTmp[i]!] = valuesTmp[i];
+                        d[keysTmp[i]] = valuesTmp[i];
                 }
                 this.valuesAsDictionary = d;
                 this.keys = null;
@@ -202,14 +201,14 @@ namespace DotVVM.Framework.Controls
         }
     }
 
-    public struct DotvvmControlPropertiesEnumerator : IEnumerator<KeyValuePair<DotvvmProperty, object?>>
+    public struct DotvvmControlPropertiesEnumerator : IEnumerator<KeyValuePair<DotvvmProperty, object>>
     {
-        private DotvvmProperty?[]? keys;
-        private object?[]? values;
+        private DotvvmProperty[] keys;
+        private object[] values;
         private int index;
-        private Dictionary<DotvvmProperty, object?>.Enumerator dictEnumerator;
+        private Dictionary<DotvvmProperty, object>.Enumerator dictEnumerator;
 
-        internal DotvvmControlPropertiesEnumerator(DotvvmProperty?[] keys, object?[] values)
+        internal DotvvmControlPropertiesEnumerator(DotvvmProperty[] keys, object[] values)
         {
             this.keys = keys;
             this.values = values;
@@ -217,7 +216,7 @@ namespace DotVVM.Framework.Controls
             dictEnumerator = default;
         }
 
-        internal DotvvmControlPropertiesEnumerator(in Dictionary<DotvvmProperty, object?>.Enumerator e)
+        internal DotvvmControlPropertiesEnumerator(in Dictionary<DotvvmProperty, object>.Enumerator e)
         {
             this.keys = null;
             this.values = null;
@@ -225,7 +224,7 @@ namespace DotVVM.Framework.Controls
             this.dictEnumerator = e;
         }
 
-        public KeyValuePair<DotvvmProperty, object?> Current => keys == null ? dictEnumerator.Current : new KeyValuePair<DotvvmProperty, object?>(keys[index]!, values![index]);
+        public KeyValuePair<DotvvmProperty, object> Current => keys == null ? dictEnumerator.Current : new KeyValuePair<DotvvmProperty, object>(keys[index], values[index]);
 
         object IEnumerator.Current => this.Current;
 
@@ -249,7 +248,7 @@ namespace DotVVM.Framework.Controls
         }
     }
 
-    public readonly struct DotvvmPropertyDictionary : IDictionary<DotvvmProperty, object?>
+    public readonly struct DotvvmPropertyDictionary : IDictionary<DotvvmProperty, object>
     {
         private readonly DotvvmBindableObject control;
 
@@ -258,36 +257,36 @@ namespace DotVVM.Framework.Controls
             this.control = control;
         }
 
-        public object? this[DotvvmProperty key] { get => control.properties.GetOrThrow(key); set => control.properties.Set(key, value); }
+        public object this[DotvvmProperty key] { get => control.properties.GetOrThrow(key); set => control.properties.Set(key, value); }
 
         public ICollection<DotvvmProperty> Keys => throw new NotImplementedException();
 
-        public ICollection<object?> Values => throw new NotImplementedException();
+        public ICollection<object> Values => throw new NotImplementedException();
 
         public int Count => throw new NotImplementedException("Count cannot be implemented effectively, please use Enumerable.Count method to explicitly express willingness to use O(n) time to get a count.");
-        int ICollection<KeyValuePair<DotvvmProperty, object?>>.Count => this.Count();
+        int ICollection<KeyValuePair<DotvvmProperty, object>>.Count => this.Count();
 
         public bool IsReadOnly => false;
 
-        public void Add(DotvvmProperty key, object? value)
+        public void Add(DotvvmProperty key, object value)
         {
             if (control.properties.TryGet(key, out _))
                 throw new System.ArgumentException("An item with the same key has already been added.");
             control.properties.Set(key, value);
         }
 
-        public void Add(KeyValuePair<DotvvmProperty, object?> item) => Add(item.Key, item.Value);
+        public void Add(KeyValuePair<DotvvmProperty, object> item) => Add(item.Key, item.Value);
 
         public void Clear()
         {
             control.properties.ClearEverything();
         }
 
-        public bool Contains(KeyValuePair<DotvvmProperty, object?> item) => control.properties.TryGet(item.Key, out var x) && Object.Equals(x, item.Value);
+        public bool Contains(KeyValuePair<DotvvmProperty, object> item) => control.properties.TryGet(item.Key, out var x) && Object.Equals(x, item.Value);
 
         public bool ContainsKey(DotvvmProperty key) => control.properties.Contains(key);
 
-        public void CopyTo(KeyValuePair<DotvvmProperty, object?>[] array, int arrayIndex)
+        public void CopyTo(KeyValuePair<DotvvmProperty, object>[] array, int arrayIndex)
         {
             foreach (var x in control.properties)
             {
@@ -302,16 +301,16 @@ namespace DotVVM.Framework.Controls
             return control.properties.Remove(key);
         }
 
-        public bool Remove(KeyValuePair<DotvvmProperty, object?> item)
+        public bool Remove(KeyValuePair<DotvvmProperty, object> item)
         {
             throw new NotImplementedException();
         }
 
-        public bool TryGetValue(DotvvmProperty key, out object? value) =>
+        public bool TryGetValue(DotvvmProperty key, out object value) =>
             control.properties.TryGet(key, out value);
 
         IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
-        IEnumerator<KeyValuePair<DotvvmProperty, object?>> IEnumerable<KeyValuePair<DotvvmProperty, object?>>.GetEnumerator() => this.GetEnumerator();
+        IEnumerator<KeyValuePair<DotvvmProperty, object>> IEnumerable<KeyValuePair<DotvvmProperty, object>>.GetEnumerator() => this.GetEnumerator();
     }
 }

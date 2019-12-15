@@ -488,39 +488,26 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
                 else
                 {
                     // unquoted value
-                    if (!ReadUnquotedAttributeValue())
+                    if (Peek() == '>' || Peek() == '<')
+                    {
+                        CreateToken(DothtmlTokenType.Text, errorProvider: t => CreateTokenError(t, DothtmlTokenType.Text, DothtmlTokenizerErrors.MissingAttributeValue));
                         return false;
+                    }
+                    do
+                    {
+                        if (Read() == NullChar || Peek() == '<') { CreateToken(DothtmlTokenType.Text, errorProvider: t => CreateTokenError()); return false; }
+                    } while (!char.IsWhiteSpace(Peek()) && Peek() != '/' && Peek() != '>');
+                    CreateToken(DothtmlTokenType.Text);
                     SkipWhitespace();
                 }
             }
+            //else
+            //{
+            //    CreateToken(DothtmlTokenType.Equals, errorProvider: t => CreateTokenError());
+            //    CreateToken(DothtmlTokenType.Text, errorProvider: t => CreateTokenError(t, DothtmlTokenType.Text, DothtmlTokenizerErrors.MissingAttributeValue));
+            //    return false;
+            //}
 
-            return true;
-        }
-
-        public bool ReadUnquotedAttributeValue()
-        {
-            if (Peek() == '{')
-            {
-                ReadBinding(false);
-            }
-            else
-            {
-                while (!char.IsWhiteSpace(Peek()) && Peek() != '/' && Peek() != '>')
-                {
-                    if (Peek() == NullChar || Peek() == '<')
-                    {
-                        CreateToken(DothtmlTokenType.Text, errorProvider: t => CreateTokenError());
-                        return false;
-                    }
-                    Read();
-                }
-                if (DistanceSinceLastToken == 0)
-                {
-                    CreateToken(DothtmlTokenType.Text, errorProvider: t => CreateTokenError(t, DothtmlTokenType.Text, DothtmlTokenizerErrors.MissingAttributeValue));
-                    return false;
-                }
-                CreateToken(DothtmlTokenType.Text);
-            }
             return true;
         }
 
@@ -660,9 +647,9 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
             CreateToken(DothtmlTokenType.CloseBinding);
         }
 
-        protected override DothtmlToken NewToken(string text, DothtmlTokenType type, int lineNumber, int columnNumber, int length, int startPosition)
+        protected override DothtmlToken NewToken()
         {
-            return new DothtmlToken(text, type, lineNumber, columnNumber, length, startPosition);
+            return new DothtmlToken();
         }
     }
 }

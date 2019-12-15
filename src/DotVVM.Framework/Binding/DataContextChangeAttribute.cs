@@ -1,4 +1,3 @@
-#nullable enable
 using DotVVM.Framework.Controls;
 using System;
 using System.Collections.Generic;
@@ -21,11 +20,11 @@ namespace DotVVM.Framework.Binding
 
         /// Returns a the data context type that should be inside of the annotated control/property.
         /// Returning null means that the data context should not be changed. This overload is used by the view compiler.
-        public abstract ITypeDescriptor? GetChildDataContextType(ITypeDescriptor dataContext, IDataContextStack controlContextStack, IAbstractControl control, IPropertyDescriptor? property = null);
+        public abstract ITypeDescriptor GetChildDataContextType(ITypeDescriptor dataContext, IDataContextStack controlContextStack, IAbstractControl control, IPropertyDescriptor property = null);
 
         /// Returns a the data context type that should be inside of the annotated control/property.
         /// Returning null means that the data context should not be changed. This overload is used at runtime, by `DotvvmProperty.GetDataContextType(DotvvmBindableObject)` helper method.
-        public abstract Type? GetChildDataContextType(Type dataContext, DataContextStack controlContextStack, DotvvmBindableObject control, DotvvmProperty? property = null);
+        public abstract Type GetChildDataContextType(Type dataContext, DataContextStack controlContextStack, DotvvmBindableObject control, DotvvmProperty property = null);
 
         /// Gets the extension parameters that should be made available to the bindings inside.
         public virtual IEnumerable<BindingExtensionParameter> GetExtensionParameters(ITypeDescriptor dataContext) => Enumerable.Empty<BindingExtensionParameter>();

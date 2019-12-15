@@ -1,4 +1,3 @@
-#nullable enable
 using System.Collections;
 using DotVVM.Framework.Binding;
 
@@ -19,13 +18,13 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the values of selected items.
         /// </summary>
         [MarkupOptions(AllowHardCodedValue = false, Required = true)]
-        public IEnumerable? SelectedValues
+        public IEnumerable SelectedValues
         {
-            get { return (IEnumerable?)GetValue(SelectedValuesProperty); }
+            get { return (IEnumerable)GetValue(SelectedValuesProperty); }
             set { SetValue(SelectedValuesProperty, value); }
         }
         public static readonly DotvvmProperty SelectedValuesProperty =
-            DotvvmProperty.Register<object?, MultiSelector>(t => t.SelectedValues);
+            DotvvmProperty.Register<object, MultiSelector>(t => t.SelectedValues);
 
     }
 }

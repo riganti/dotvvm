@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,8 +19,8 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public string EmptyItemText
         {
-            get { return (string)GetValue(EmptyItemTextProperty)!; }
-            set { SetValue(EmptyItemTextProperty, value ?? throw new ArgumentNullException(nameof(value))); }
+            get { return (string)GetValue(EmptyItemTextProperty); }
+            set { SetValue(EmptyItemTextProperty, value); }
         }
         public static readonly DotvvmProperty EmptyItemTextProperty
             = DotvvmProperty.Register<string, ComboBox>(c => c.EmptyItemText, string.Empty);

@@ -1,9 +1,7 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Controls;
 
@@ -23,7 +21,7 @@ namespace DotVVM.Framework.Binding
             Order = order;
         }
 
-        public override ITypeDescriptor? GetChildDataContextType(ITypeDescriptor dataContext, IDataContextStack controlContextStack, IAbstractControl control, IPropertyDescriptor? property = null)
+        public override ITypeDescriptor GetChildDataContextType(ITypeDescriptor dataContext, IDataContextStack controlContextStack, IAbstractControl control, IPropertyDescriptor property = null)
         {
             if (!control.Metadata.TryGetProperty(PropertyName, out var controlProperty))
             {
@@ -45,11 +43,11 @@ namespace DotVVM.Framework.Binding
             throw new Exception($"Property '{PropertyName}' is required on '{control.Metadata.Type.Name}'.");
         }
 
-        public override Type? GetChildDataContextType(Type dataContext, DataContextStack controlContextStack, DotvvmBindableObject control, DotvvmProperty? property = null)
+        public override Type GetChildDataContextType(Type dataContext, DataContextStack controlContextStack, DotvvmBindableObject control, DotvvmProperty property = null)
         {
             var controlType = control.GetType();
             var controlPropertyField = controlType.GetField($"{PropertyName}Property", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);
-            var controlProperty = (DotvvmProperty?)controlPropertyField?.GetValue(null);
+            var controlProperty = (DotvvmProperty)controlPropertyField?.GetValue(null);
 
             if (controlProperty == null)
             {
@@ -58,8 +56,8 @@ namespace DotVVM.Framework.Binding
 
             if (control.properties.Contains(controlProperty))
             {
-                return control.GetValueBinding(controlProperty) is IValueBinding valueBinding
-                    ? valueBinding.ResultType
+                return control.HasValueBinding(controlProperty)
+                    ? control.GetValueBinding(controlProperty).ResultType
                     : dataContext;
             }
 

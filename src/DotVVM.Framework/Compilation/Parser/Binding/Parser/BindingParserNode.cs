@@ -1,4 +1,3 @@
-#nullable enable
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -24,6 +23,9 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             get { return NodeErrors.Any(); }
         }
+
+        public IBindingParserNodeContext Context { get; set; }
+
 
         public BindingParserNode()
         {

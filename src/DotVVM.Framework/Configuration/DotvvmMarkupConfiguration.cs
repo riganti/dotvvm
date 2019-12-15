@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -77,7 +76,7 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmMarkupConfiguration"/> class.
         /// </summary>
-        public DotvvmMarkupConfiguration(Lazy<JavascriptTranslatorConfiguration>? javascriptConfig = null)
+        public DotvvmMarkupConfiguration(Lazy<JavascriptTranslatorConfiguration> javascriptConfig = null)
         {
             this._javascriptTranslator = javascriptConfig ?? new Lazy<JavascriptTranslatorConfiguration>(() => new JavascriptTranslatorConfiguration());
             this._controls = new FreezableList<DotvvmControlConfiguration>();
@@ -117,7 +116,6 @@ namespace DotVVM.Framework.Configuration
         /// </summary>
         public void AddAssembly(string assemblyName)
         {
-            if (assemblyName is null) throw new ArgumentNullException(nameof(assemblyName));
             ThrowIfFrozen();
             if (!Assemblies.Contains(assemblyName))
             {
@@ -150,8 +148,8 @@ namespace DotVVM.Framework.Configuration
         public void AddCodeControls(string tagPrefix, Type exampleControl)
         {
             ThrowIfFrozen();
-            AddAssembly(exampleControl.GetTypeInfo().Assembly.FullName!);
             Controls.Add(new DotvvmControlConfiguration { TagPrefix = tagPrefix, Namespace = exampleControl.Namespace, Assembly = exampleControl.GetTypeInfo().Assembly.FullName });
+            AddAssembly(exampleControl.GetTypeInfo().Assembly.FullName);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]

@@ -1,10 +1,9 @@
 {
-  "activeProfile": "ServerSideViewModelCache",
+  "activeProfile": "LazyCsrfToken",
   "profiles": [
     {
       "name": "Default",
       "config": {
-
       }
     },
     {
@@ -16,19 +15,6 @@
           }
         }
       }
-    },
-    {
-      "name": "ServerSideViewModelCache",
-      "config": {
-        "experimentalFeatures": {
-          "serverSideViewModelCache": {
-            "enabled": true
-          }
-        }
-      }
     }
-  ],
-  "appSettings": {
-    "githubApiToken": ""
-  }
+  ]
 }

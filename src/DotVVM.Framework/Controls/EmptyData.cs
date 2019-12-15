@@ -1,5 +1,4 @@
-﻿#nullable enable
-using DotVVM.Framework.Binding;
+﻿using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Hosting;
@@ -22,8 +21,8 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false)]
         public string WrapperTagName
         {
-            get { return (string)GetValue(WrapperTagNameProperty)!; }
-            set { SetValue(WrapperTagNameProperty, value ?? throw new ArgumentNullException(nameof(value))); }
+            get { return (string)GetValue(WrapperTagNameProperty); }
+            set { SetValue(WrapperTagNameProperty, value); }
         }
 
         public static readonly DotvvmProperty WrapperTagNameProperty =
@@ -35,7 +34,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false)]
         public bool RenderWrapperTag
         {
-            get { return (bool)GetValue(RenderWrapperTagProperty)!; }
+            get { return (bool)GetValue(RenderWrapperTagProperty); }
             set { SetValue(RenderWrapperTagProperty, value); }
         }
 
@@ -57,7 +56,6 @@ namespace DotVVM.Framework.Controls
                 if (!RenderOnServer)
                 {
                     var visibleBinding = GetBinding(DataSourceProperty)
-                        .NotNull("DataSource property must contain a binding")
                         .GetProperty<DataSourceLengthBinding>().Binding
                         .GetProperty<IsMoreThanZeroBindingProperty>().Binding
                         .GetProperty<NegatedBindingExpression>().Binding

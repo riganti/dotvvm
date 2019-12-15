@@ -1,4 +1,3 @@
-#nullable enable
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -22,15 +21,6 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
         #endregion
 
 
-        public DothtmlBindingNode(DothtmlToken startToken, DothtmlToken endToken, DothtmlToken separatorToken, DothtmlNameNode nameNode, DothtmlValueTextNode valueNode)
-        {
-            this.StartToken = startToken;
-            this.EndToken = endToken;
-            this.SeparatorToken = separatorToken;
-            this.NameNode = nameNode;
-            this.ValueNode = valueNode;
-
-        }
         public DothtmlToken StartToken { get; set; }
         public DothtmlToken EndToken { get; set; }
         public DothtmlToken SeparatorToken { get; set; }

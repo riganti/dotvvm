@@ -1,16 +1,14 @@
-#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Diagnostics.CodeAnalysis;
 
 namespace DotVVM.Framework.Configuration
 {
 
     static class FreezableSet
     {
-        public static void Freeze<T>([AllowNull] ref ISet<T> set)
+        public static void Freeze<T>(ref ISet<T> set)
         {
             if (set is FreezableSet<T> freezable)
                 freezable.Freeze();
@@ -37,13 +35,13 @@ namespace DotVVM.Framework.Configuration
             this.isFrozen = true;
         }
 
-        public FreezableSet(bool frozen = false, IEqualityComparer<T>? comparer = null)
+        public FreezableSet(bool frozen = false, IEqualityComparer<T> comparer = null)
         {
             set = new HashSet<T>(comparer);
             isFrozen = frozen;
         }
 
-        public FreezableSet(IEnumerable<T> items, IEqualityComparer<T>? comparer = null, bool frozen = false)
+        public FreezableSet(IEnumerable<T> items, IEqualityComparer<T> comparer = null, bool frozen = false)
         {
             set = new HashSet<T>(items, comparer);
             isFrozen = frozen;

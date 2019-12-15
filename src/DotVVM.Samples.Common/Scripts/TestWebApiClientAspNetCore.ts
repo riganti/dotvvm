@@ -25,150 +25,9 @@
         }
     
         /**
-         * @category (optional) 
          * @return Success
          */
-        getItems(category?: number): Promise<BindingSharingItemDTO[]> {
-            let url_ = this.baseUrl + "/api/BindingSharing/get?";
-            if (category !== undefined)
-                url_ += "category=" + encodeURIComponent("" + category) + "&"; 
-            url_ = url_.replace(/[?&]$/, "");
-    
-            let options_ = <RequestInit>{
-                method: "GET",
-                headers: new Headers({
-                    "Content-Type": "application/json", 
-                    "Accept": "application/json"
-                })
-            };
-    
-            return this.transformOptions(options_).then(transformedOptions_ => {
-                return this.http.fetch(url_, transformedOptions_);
-            }).then((_response: Response) => {
-                return this.processGetItems(_response);
-            });
-        }
-    
-        protected processGetItems(response: Response): Promise<BindingSharingItemDTO[]> {
-            const status = response.status;
-            let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
-            if (status === 200) {
-                return response.text().then((_responseText) => {
-                let result200: any = null;
-                let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                if (resultData200 && resultData200.constructor === Array) {
-                    result200 = [];
-                    for (let item of resultData200)
-                        result200.push(BindingSharingItemDTO.fromJS(item));
-                }
-                return result200;
-                });
-            } else if (status !== 200 && status !== 204) {
-                return response.text().then((_responseText) => {
-                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-                });
-            }
-            return Promise.resolve<BindingSharingItemDTO[]>(<any>null);
-        }
-    
-        /**
-         * @return Success
-         */
-        getItemsWithRouteParam(category: number): Promise<BindingSharingItemDTO[]> {
-            let url_ = this.baseUrl + "/api/BindingSharing/getWithRouteParam/{category}";
-            if (category === undefined || category === null)
-                throw new Error("The parameter 'category' must be defined.");
-            url_ = url_.replace("{category}", encodeURIComponent("" + category)); 
-            url_ = url_.replace(/[?&]$/, "");
-    
-            let options_ = <RequestInit>{
-                method: "GET",
-                headers: new Headers({
-                    "Content-Type": "application/json", 
-                    "Accept": "application/json"
-                })
-            };
-    
-            return this.transformOptions(options_).then(transformedOptions_ => {
-                return this.http.fetch(url_, transformedOptions_);
-            }).then((_response: Response) => {
-                return this.processGetItemsWithRouteParam(_response);
-            });
-        }
-    
-        protected processGetItemsWithRouteParam(response: Response): Promise<BindingSharingItemDTO[]> {
-            const status = response.status;
-            let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
-            if (status === 200) {
-                return response.text().then((_responseText) => {
-                let result200: any = null;
-                let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                if (resultData200 && resultData200.constructor === Array) {
-                    result200 = [];
-                    for (let item of resultData200)
-                        result200.push(BindingSharingItemDTO.fromJS(item));
-                }
-                return result200;
-                });
-            } else if (status !== 200 && status !== 204) {
-                return response.text().then((_responseText) => {
-                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-                });
-            }
-            return Promise.resolve<BindingSharingItemDTO[]>(<any>null);
-        }
-    
-        /**
-         * @category (optional) 
-         * @return Success
-         */
-        getItemsWithHttpPost(category?: number): Promise<BindingSharingItemDTO[]> {
-            let url_ = this.baseUrl + "/api/BindingSharing/post?";
-            if (category !== undefined)
-                url_ += "category=" + encodeURIComponent("" + category) + "&"; 
-            url_ = url_.replace(/[?&]$/, "");
-    
-            let options_ = <RequestInit>{
-                method: "POST",
-                headers: new Headers({
-                    "Content-Type": "application/json", 
-                    "Accept": "application/json"
-                })
-            };
-    
-            return this.transformOptions(options_).then(transformedOptions_ => {
-                return this.http.fetch(url_, transformedOptions_);
-            }).then((_response: Response) => {
-                return this.processGetItemsWithHttpPost(_response);
-            });
-        }
-    
-        protected processGetItemsWithHttpPost(response: Response): Promise<BindingSharingItemDTO[]> {
-            const status = response.status;
-            let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
-            if (status === 200) {
-                return response.text().then((_responseText) => {
-                let result200: any = null;
-                let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                if (resultData200 && resultData200.constructor === Array) {
-                    result200 = [];
-                    for (let item of resultData200)
-                        result200.push(BindingSharingItemDTO.fromJS(item));
-                }
-                return result200;
-                });
-            } else if (status !== 200 && status !== 204) {
-                return response.text().then((_responseText) => {
-                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-                });
-            }
-            return Promise.resolve<BindingSharingItemDTO[]>(<any>null);
-        }
-    
-        /**
-         * @return Success
-         */
-        getAll(): Promise<CompanyOfString[]> {
+        apiCompaniesGet(): Promise<CompanyOfString[]> {
             let url_ = this.baseUrl + "/api/Companies";
             url_ = url_.replace(/[?&]$/, "");
     
@@ -183,11 +42,11 @@
             return this.transformOptions(options_).then(transformedOptions_ => {
                 return this.http.fetch(url_, transformedOptions_);
             }).then((_response: Response) => {
-                return this.processGetAll(_response);
+                return this.processApiCompaniesGet(_response);
             });
         }
     
-        protected processGetAll(response: Response): Promise<CompanyOfString[]> {
+        protected processApiCompaniesGet(response: Response): Promise<CompanyOfString[]> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
@@ -211,15 +70,16 @@
     
         /**
          * @sortingOptions (optional) 
-         * @sortingOptions_SortDescending (optional) 
          * @sortingOptions_SortExpression (optional) 
          * @return Success
          */
-        getWithSorting(sortingOptions?: any): Promise<GridViewDataSetOfCompanyOfBoolean> {
+        apiCompaniesSortedGet(sortingOptions?: any): Promise<GridViewDataSetOfCompanyOfBoolean> {
             let sortingOptions_SortDescending = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortDescending : null;
             let sortingOptions_SortExpression = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortExpression : null;
             let url_ = this.baseUrl + "/api/Companies/sorted?";
-            if (sortingOptions_SortDescending !== undefined)
+            if (sortingOptions_SortDescending === undefined || sortingOptions_SortDescending === null)
+                throw new Error("The parameter 'sortingOptions_SortDescending' must be defined and cannot be null.");
+            else
                 url_ += "sortingOptions.SortDescending=" + encodeURIComponent("" + sortingOptions_SortDescending) + "&"; 
             if (sortingOptions_SortExpression !== undefined)
                 url_ += "sortingOptions.SortExpression=" + encodeURIComponent("" + sortingOptions_SortExpression) + "&"; 
@@ -236,11 +96,11 @@
             return this.transformOptions(options_).then(transformedOptions_ => {
                 return this.http.fetch(url_, transformedOptions_);
             }).then((_response: Response) => {
-                return this.processGetWithSorting(_response);
+                return this.processApiCompaniesSortedGet(_response);
             });
         }
     
-        protected processGetWithSorting(response: Response): Promise<GridViewDataSetOfCompanyOfBoolean> {
+        protected processApiCompaniesSortedGet(response: Response): Promise<GridViewDataSetOfCompanyOfBoolean> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
@@ -260,21 +120,24 @@
     
         /**
          * @pagingOptions (optional) 
-         * @pagingOptions_PageIndex (optional) 
-         * @pagingOptions_PageSize (optional) 
-         * @pagingOptions_TotalItemsCount (optional) 
          * @return Success
          */
-        getWithPaging(pagingOptions?: any): Promise<GridViewDataSetOfCompanyOfString> {
+        apiCompaniesPagedGet(pagingOptions?: any): Promise<GridViewDataSetOfCompanyOfString> {
             let pagingOptions_PageIndex = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageIndex : null;
             let pagingOptions_PageSize = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageSize : null;
             let pagingOptions_TotalItemsCount = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.TotalItemsCount : null;
             let url_ = this.baseUrl + "/api/Companies/paged?";
-            if (pagingOptions_PageIndex !== undefined)
+            if (pagingOptions_PageIndex === undefined || pagingOptions_PageIndex === null)
+                throw new Error("The parameter 'pagingOptions_PageIndex' must be defined and cannot be null.");
+            else
                 url_ += "pagingOptions.PageIndex=" + encodeURIComponent("" + pagingOptions_PageIndex) + "&"; 
-            if (pagingOptions_PageSize !== undefined)
+            if (pagingOptions_PageSize === undefined || pagingOptions_PageSize === null)
+                throw new Error("The parameter 'pagingOptions_PageSize' must be defined and cannot be null.");
+            else
                 url_ += "pagingOptions.PageSize=" + encodeURIComponent("" + pagingOptions_PageSize) + "&"; 
-            if (pagingOptions_TotalItemsCount !== undefined)
+            if (pagingOptions_TotalItemsCount === undefined || pagingOptions_TotalItemsCount === null)
+                throw new Error("The parameter 'pagingOptions_TotalItemsCount' must be defined and cannot be null.");
+            else
                 url_ += "pagingOptions.TotalItemsCount=" + encodeURIComponent("" + pagingOptions_TotalItemsCount) + "&"; 
             url_ = url_.replace(/[?&]$/, "");
     
@@ -289,11 +152,11 @@
             return this.transformOptions(options_).then(transformedOptions_ => {
                 return this.http.fetch(url_, transformedOptions_);
             }).then((_response: Response) => {
-                return this.processGetWithPaging(_response);
+                return this.processApiCompaniesPagedGet(_response);
             });
         }
     
-        protected processGetWithPaging(response: Response): Promise<GridViewDataSetOfCompanyOfString> {
+        protected processApiCompaniesPagedGet(response: Response): Promise<GridViewDataSetOfCompanyOfString> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
@@ -313,31 +176,35 @@
     
         /**
          * @sortingOptions (optional) 
-         * @sortingOptions_SortDescending (optional) 
-         * @sortingOptions_SortExpression (optional) 
          * @pagingOptions (optional) 
-         * @pagingOptions_PageIndex (optional) 
-         * @pagingOptions_PageSize (optional) 
-         * @pagingOptions_TotalItemsCount (optional) 
+         * @sortingOptions_SortExpression (optional) 
          * @return Success
          */
-        getWithSortingAndPaging(sortingOptions?: any, pagingOptions?: any): Promise<GridViewDataSetOfCompanyOfString> {
+        apiCompaniesSortedandpagedGet(sortingOptions?: any, pagingOptions?: any): Promise<GridViewDataSetOfCompanyOfString> {
             let sortingOptions_SortDescending = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortDescending : null;
-            let sortingOptions_SortExpression = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortExpression : null;
             let pagingOptions_PageIndex = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageIndex : null;
             let pagingOptions_PageSize = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.PageSize : null;
             let pagingOptions_TotalItemsCount = (pagingOptions !== null && typeof pagingOptions === 'object') ? pagingOptions.TotalItemsCount : null;
+            let sortingOptions_SortExpression = (sortingOptions !== null && typeof sortingOptions === 'object') ? sortingOptions.SortExpression : null;
             let url_ = this.baseUrl + "/api/Companies/sortedandpaged?";
-            if (sortingOptions_SortDescending !== undefined)
+            if (sortingOptions_SortDescending === undefined || sortingOptions_SortDescending === null)
+                throw new Error("The parameter 'sortingOptions_SortDescending' must be defined and cannot be null.");
+            else
                 url_ += "sortingOptions.SortDescending=" + encodeURIComponent("" + sortingOptions_SortDescending) + "&"; 
+            if (pagingOptions_PageIndex === undefined || pagingOptions_PageIndex === null)
+                throw new Error("The parameter 'pagingOptions_PageIndex' must be defined and cannot be null.");
+            else
+                url_ += "pagingOptions.PageIndex=" + encodeURIComponent("" + pagingOptions_PageIndex) + "&"; 
+            if (pagingOptions_PageSize === undefined || pagingOptions_PageSize === null)
+                throw new Error("The parameter 'pagingOptions_PageSize' must be defined and cannot be null.");
+            else
+                url_ += "pagingOptions.PageSize=" + encodeURIComponent("" + pagingOptions_PageSize) + "&"; 
+            if (pagingOptions_TotalItemsCount === undefined || pagingOptions_TotalItemsCount === null)
+                throw new Error("The parameter 'pagingOptions_TotalItemsCount' must be defined and cannot be null.");
+            else
+                url_ += "pagingOptions.TotalItemsCount=" + encodeURIComponent("" + pagingOptions_TotalItemsCount) + "&"; 
             if (sortingOptions_SortExpression !== undefined)
                 url_ += "sortingOptions.SortExpression=" + encodeURIComponent("" + sortingOptions_SortExpression) + "&"; 
-            if (pagingOptions_PageIndex !== undefined)
-                url_ += "pagingOptions.PageIndex=" + encodeURIComponent("" + pagingOptions_PageIndex) + "&"; 
-            if (pagingOptions_PageSize !== undefined)
-                url_ += "pagingOptions.PageSize=" + encodeURIComponent("" + pagingOptions_PageSize) + "&"; 
-            if (pagingOptions_TotalItemsCount !== undefined)
-                url_ += "pagingOptions.TotalItemsCount=" + encodeURIComponent("" + pagingOptions_TotalItemsCount) + "&"; 
             url_ = url_.replace(/[?&]$/, "");
     
             let options_ = <RequestInit>{
@@ -351,11 +218,11 @@
             return this.transformOptions(options_).then(transformedOptions_ => {
                 return this.http.fetch(url_, transformedOptions_);
             }).then((_response: Response) => {
-                return this.processGetWithSortingAndPaging(_response);
+                return this.processApiCompaniesSortedandpagedGet(_response);
             });
         }
     
-        protected processGetWithSortingAndPaging(response: Response): Promise<GridViewDataSetOfCompanyOfString> {
+        protected processApiCompaniesSortedandpagedGet(response: Response): Promise<GridViewDataSetOfCompanyOfString> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
@@ -374,18 +241,21 @@
         }
     
         /**
-         * @companyId (optional) 
-         * @pageIndex (optional) 
-         * @pageSize (optional) 
          * @return Success
          */
-        getAll2(companyId?: number, pageIndex?: number, pageSize?: number): Promise<Order[]> {
+        apiOrdersGet(companyId: number, pageIndex: number, pageSize: number): Promise<Order[]> {
             let url_ = this.baseUrl + "/api/Orders?";
-            if (companyId !== undefined)
+            if (companyId === undefined || companyId === null)
+                throw new Error("The parameter 'companyId' must be defined and cannot be null.");
+            else
                 url_ += "companyId=" + encodeURIComponent("" + companyId) + "&"; 
-            if (pageIndex !== undefined)
+            if (pageIndex === undefined || pageIndex === null)
+                throw new Error("The parameter 'pageIndex' must be defined and cannot be null.");
+            else
                 url_ += "pageIndex=" + encodeURIComponent("" + pageIndex) + "&"; 
-            if (pageSize !== undefined)
+            if (pageSize === undefined || pageSize === null)
+                throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+            else
                 url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&"; 
             url_ = url_.replace(/[?&]$/, "");
     
@@ -400,11 +270,11 @@
             return this.transformOptions(options_).then(transformedOptions_ => {
                 return this.http.fetch(url_, transformedOptions_);
             }).then((_response: Response) => {
-                return this.processGetAll2(_response);
+                return this.processApiOrdersGet(_response);
             });
         }
     
-        protected processGetAll2(response: Response): Promise<Order[]> {
+        protected processApiOrdersGet(response: Response): Promise<Order[]> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
@@ -430,7 +300,7 @@
          * @order (optional) 
          * @return Success
          */
-        post(order?: Order): Promise<void> {
+        apiOrdersPost(order?: Order): Promise<void> {
             let url_ = this.baseUrl + "/api/Orders";
             url_ = url_.replace(/[?&]$/, "");
     
@@ -447,11 +317,11 @@
             return this.transformOptions(options_).then(transformedOptions_ => {
                 return this.http.fetch(url_, transformedOptions_);
             }).then((_response: Response) => {
-                return this.processPost(_response);
+                return this.processApiOrdersPost(_response);
             });
         }
     
-        protected processPost(response: Response): Promise<void> {
+        protected processApiOrdersPost(response: Response): Promise<void> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
@@ -469,7 +339,7 @@
         /**
          * @return Success
          */
-        getItem(orderId: number): Promise<Order> {
+        apiOrdersByOrderIdGet(orderId: number): Promise<Order> {
             let url_ = this.baseUrl + "/api/Orders/{orderId}";
             if (orderId === undefined || orderId === null)
                 throw new Error("The parameter 'orderId' must be defined.");
@@ -487,11 +357,11 @@
             return this.transformOptions(options_).then(transformedOptions_ => {
                 return this.http.fetch(url_, transformedOptions_);
             }).then((_response: Response) => {
-                return this.processGetItem(_response);
+                return this.processApiOrdersByOrderIdGet(_response);
             });
         }
     
-        protected processGetItem(response: Response): Promise<Order> {
+        protected processApiOrdersByOrderIdGet(response: Response): Promise<Order> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
@@ -513,7 +383,7 @@
          * @order (optional) 
          * @return Success
          */
-        put(orderId: number, order?: Order): Promise<void> {
+        apiOrdersByOrderIdPut(orderId: number, order?: Order): Promise<void> {
             let url_ = this.baseUrl + "/api/Orders/{orderId}";
             if (orderId === undefined || orderId === null)
                 throw new Error("The parameter 'orderId' must be defined.");
@@ -533,11 +403,11 @@
             return this.transformOptions(options_).then(transformedOptions_ => {
                 return this.http.fetch(url_, transformedOptions_);
             }).then((_response: Response) => {
-                return this.processPut(_response);
+                return this.processApiOrdersByOrderIdPut(_response);
             });
         }
     
-        protected processPut(response: Response): Promise<void> {
+        protected processApiOrdersByOrderIdPut(response: Response): Promise<void> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
@@ -555,7 +425,7 @@
         /**
          * @return Success
          */
-        delete(orderId: number): Promise<void> {
+        apiOrdersDeleteByOrderIdDelete(orderId: number): Promise<void> {
             let url_ = this.baseUrl + "/api/Orders/delete/{orderId}";
             if (orderId === undefined || orderId === null)
                 throw new Error("The parameter 'orderId' must be defined.");
@@ -572,11 +442,11 @@
             return this.transformOptions(options_).then(transformedOptions_ => {
                 return this.http.fetch(url_, transformedOptions_);
             }).then((_response: Response) => {
-                return this.processDelete(_response);
+                return this.processApiOrdersDeleteByOrderIdDelete(_response);
             });
         }
     
-        protected processDelete(response: Response): Promise<void> {
+        protected processApiOrdersDeleteByOrderIdDelete(response: Response): Promise<void> {
             const status = response.status;
             let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
             if (status === 200) {
@@ -590,46 +460,6 @@
             }
             return Promise.resolve<void>(<any>null);
         }
-    }
-    
-    export class BindingSharingItemDTO implements IBindingSharingItemDTO {
-        id: number;
-        name?: string;
-    
-        constructor(data?: IBindingSharingItemDTO) {
-            if (data) {
-                for (var property in data) {
-                    if (data.hasOwnProperty(property))
-                        (<any>this)[property] = (<any>data)[property];
-                }
-            }
-        }
-    
-        init(data?: any) {
-            if (data) {
-                this.id = data["id"] !== undefined ? data["id"] : <any>null;
-                this.name = data["name"] !== undefined ? data["name"] : <any>null;
-            }
-        }
-    
-        static fromJS(data: any): BindingSharingItemDTO {
-            data = typeof data === 'object' ? data : {};
-            let result = new BindingSharingItemDTO();
-            result.init(data);
-            return result;
-        }
-    
-        toJSON(data?: any) {
-            data = typeof data === 'object' ? data : {};
-            data["id"] = this.id !== undefined ? this.id : <any>null;
-            data["name"] = this.name !== undefined ? this.name : <any>null;
-            return data; 
-        }
-    }
-    
-    export interface IBindingSharingItemDTO {
-        id: number;
-        name?: string;
     }
     
     export class CompanyOfString implements ICompanyOfString {

@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -7,10 +6,10 @@ using System.Text;
 
 namespace DotVVM.Framework.Compilation.Parser
 {
-	public abstract class TokenizerBase<TToken, TTokenType> where TToken : TokenBase<TTokenType>
+	public abstract class TokenizerBase<TToken, TTokenType> where TToken : TokenBase<TTokenType>, new()
 	{
 		public const char NullChar = '\0';
-		private string sourceText = "";
+		private string sourceText;
 		private int sourcePosition;
 
 		/// <summary>
@@ -41,7 +40,7 @@ namespace DotVVM.Framework.Compilation.Parser
 		/// <summary>
 		/// Gets the last token.
 		/// </summary>
-		protected TToken? LastToken { get; private set; }
+		protected TToken LastToken { get; private set; }
 
 		private int position;
 
@@ -62,7 +61,7 @@ namespace DotVVM.Framework.Compilation.Parser
 		/// <summary>
 		/// Occurs when a token is found.
 		/// </summary>
-		public event Action<TToken>? TokenFound;
+		public event Action<TToken> TokenFound;
 
 		/// <summary>
 		/// Gets the list of tokens.
@@ -164,7 +163,7 @@ namespace DotVVM.Framework.Compilation.Parser
 			}
 		}
 
-		protected bool ReadTextUntil(TTokenType tokenType, string stopString, bool stopOnNewLine, string? nestString = null)
+		protected bool ReadTextUntil(TTokenType tokenType, string stopString, bool stopOnNewLine, string nestString = null)
 		{
 			int nestLevel = 0;
 			while (Peek() != NullChar)
@@ -182,9 +181,9 @@ namespace DotVVM.Framework.Compilation.Parser
 			return false;
 		}
 
-		protected bool PeekIsString(string? str)
+		protected bool PeekIsString(string str)
 		{
-			if (str is null) return false;
+			if (str == null) return false;
 			for (int i = 0; i < str.Length; i++)
 			{
 				if (Peek(i) != str[i]) return false;
@@ -192,7 +191,7 @@ namespace DotVVM.Framework.Compilation.Parser
 			return true;
 		}
 
-		protected string? ReadOneOf(params string[] strings)
+		protected string ReadOneOf(params string[] strings)
 		{
 			int index = 0;
 			while (strings.Length > 0 && !strings.Any(s => s.Length <= index))
@@ -206,21 +205,20 @@ namespace DotVVM.Framework.Compilation.Parser
 			return strings.FirstOrDefault(s => s.Length == index);
 		}
 
-		protected abstract TToken NewToken(string text, TTokenType type, int lineNumber, int columnNumber, int length, int startPosition);
+		protected abstract TToken NewToken();
 
 		/// <summary>
 		/// Creates the token.
 		/// </summary>
-		protected TToken CreateToken(TTokenType type, int charsFromEndToSkip = 0, Func<TToken, TokenError>? errorProvider = null)
+		protected TToken CreateToken(TTokenType type, int charsFromEndToSkip = 0, Func<TToken, TokenError> errorProvider = null)
 		{
-			var text = CurrentTokenChars.ToString().Substring(0, DistanceSinceLastToken - charsFromEndToSkip);
-			var t = NewToken(text,
-							 type,
-							 lineNumber: CurrentLine,
-							 columnNumber: Math.Max(0, PositionOnLine - DistanceSinceLastToken - 1),
-							 length: DistanceSinceLastToken - charsFromEndToSkip,
-							 startPosition: LastTokenPosition
-					);
+			var t = NewToken();
+			t.LineNumber = CurrentLine;
+			t.ColumnNumber = Math.Max(0, PositionOnLine - DistanceSinceLastToken - 1);
+			t.StartPosition = LastTokenPosition;
+			t.Length = DistanceSinceLastToken - charsFromEndToSkip;
+			t.Type = type;
+			t.Text = CurrentTokenChars.ToString().Substring(0, DistanceSinceLastToken - charsFromEndToSkip);
 			Tokens.Add(t);
 			if (errorProvider != null)
 			{
@@ -256,7 +254,11 @@ namespace DotVVM.Framework.Compilation.Parser
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		protected virtual void OnTokenFound(TToken token)
 		{
-			TokenFound?.Invoke(token);
+			var handler = TokenFound;
+			if (handler != null)
+			{
+				handler(token);
+			}
 		}
 
 		/// <summary>
