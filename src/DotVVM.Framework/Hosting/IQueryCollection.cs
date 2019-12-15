@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#nullable enable
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -6,7 +8,7 @@ namespace DotVVM.Framework.Hosting
     {
         string this[string key] { get; }
 
-        bool TryGetValue(string key, out string value);
+        bool TryGetValue(string key, [MaybeNullWhen(false)] out string value);
 
         bool ContainsKey(string key);
     }

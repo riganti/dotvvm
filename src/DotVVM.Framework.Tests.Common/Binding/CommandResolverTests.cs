@@ -13,6 +13,7 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Binding.Properties;
 using Microsoft.Extensions.DependencyInjection;
+using DotVVM.Framework.Testing;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -57,7 +58,7 @@ namespace DotVVM.Framework.Tests.Binding
             placeholder.Children.Add(button);
 
             var resolver = new CommandResolver();
-            var context = new DotvvmRequestContext() { ViewModel = testObject };
+            var context = new TestDotvvmRequestContext() { ViewModel = testObject, ModelState = new ModelState() };
             context.ModelState.ValidationTargetPath = KnockoutHelper.GetValidationTargetExpression(button);
 
             resolver.GetFunction(viewRoot, context, path.Select(v => v.GetProperty<SimplePathExpressionBindingProperty>().Code.FormatKnockoutScript(button, v)).ToArray(), commandId, new object[0]).Action();

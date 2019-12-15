@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -18,14 +19,14 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
             "html", "head", "body", "p", "dt", "dd", "li", "option", "thead", "th", "tbody", "tr", "td", "tfoot", "colgroup"
         };
 
-        private Stack<DothtmlNodeWithContent> ElementHierarchy { get; set; }
+        private Stack<DothtmlNodeWithContent> ElementHierarchy { get; } = new Stack<DothtmlNodeWithContent>();
 
         private List<DothtmlNode> CurrentElementContent
         {
             get { return ElementHierarchy.Peek().Content; }
         }
 
-        public DothtmlRootNode Root { get; private set; }
+        public DothtmlRootNode? Root { get; private set; }
 
 
         /// <summary>
@@ -36,7 +37,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
             Root = null;
             Tokens = tokens;
             CurrentIndex = 0;
-            ElementHierarchy = new Stack<DothtmlNodeWithContent>();
+            ElementHierarchy.Clear();
 
             // read file
             var root = new DothtmlRootNode();
@@ -45,15 +46,15 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 
             // read content
             var doNotAppend = false;
-            while (Peek() != null)
+            while (Peek() is DothtmlToken token)
             {
-                if (Peek().Type == DothtmlTokenType.DirectiveStart)
+                if (token.Type == DothtmlTokenType.DirectiveStart)
                 {
                     // directive
                     root.Directives.Add(ReadDirective());
                     doNotAppend = true;
                 }
-                else if (Peek().Type == DothtmlTokenType.OpenTag)
+                else if (token.Type == DothtmlTokenType.OpenTag)
                 {
                     // element - check element hierarchy
                     var element = ReadElement();
@@ -86,11 +87,10 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
                                 {
                                     element.AddWarning($"The closing tag '</{element.FullTagName}>' doesn't have a matching opening tag!");
                                     ResolveWrongClosingTag(element);
-                                    beginTag = ElementHierarchy.Peek() as DothtmlElementNode;
 
-                                    if (beginTag != null && beginTagName != beginTag.FullTagName)
+                                    if (ElementHierarchy.Peek() is DothtmlElementNode newBeginTag && beginTagName != newBeginTag.FullTagName)
                                     {
-                                        beginTag.CorrespondingEndTag = element;
+                                        newBeginTag.CorrespondingEndTag = element;
                                         ElementHierarchy.Pop();
                                     }
                                     else
@@ -112,20 +112,20 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
                         CurrentElementContent.Add(element);
                     }
                 }
-                else if (Peek().Type == DothtmlTokenType.OpenBinding)
+                else if (token.Type == DothtmlTokenType.OpenBinding)
                 {
                     // binding
                     CurrentElementContent.Add(ReadBinding());
                 }
-                else if (Peek().Type == DothtmlTokenType.OpenCData)
+                else if (token.Type == DothtmlTokenType.OpenCData)
                 {
                     CurrentElementContent.Add(ReadCData());
                 }
-                else if (Peek().Type == DothtmlTokenType.OpenComment)
+                else if (token.Type == DothtmlTokenType.OpenComment)
                 {
                     CurrentElementContent.Add(ReadComment());
                 }
-                else if (Peek().Type == DothtmlTokenType.OpenServerComment)
+                else if (token.Type == DothtmlTokenType.OpenServerComment)
                 {
                     // skip server-side comment
                     CurrentElementContent.Add(ReadServerComment());
@@ -179,8 +179,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
         {
             Debug.Assert(element.IsClosingTag);
             var startElement = ElementHierarchy.Peek() as DothtmlElementNode;
-            Debug.Assert(startElement != null);
-            Debug.Assert(startElement.FullTagName != element.FullTagName);
+            Debug.Assert(startElement!.FullTagName != element.FullTagName);
 
             while (startElement != null && !startElement.FullTagName.Equals(element.FullTagName, StringComparison.OrdinalIgnoreCase))
             {
@@ -241,30 +240,31 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
         private DotHtmlCommentNode ReadComment()
         {
             var startIndex = CurrentIndex;
-            var node = new DotHtmlCommentNode();
 
-            node.StartToken = Read();
-            node.ValueNode = ReadTextValue(false, false, DothtmlTokenType.CommentBody);
-            Assert(DothtmlTokenType.CloseComment);
-            node.EndToken = Read();
+            var startToken = Assert(DothtmlTokenType.OpenComment);
+            Read();
+            var valueNode = ReadTextValue(false, false, DothtmlTokenType.CommentBody);
+            var endToken = Assert(DothtmlTokenType.CloseComment);
+            Read();
 
-            node.Tokens.Add(GetTokensFrom(startIndex));
-            return node;
+            return new DotHtmlCommentNode(isServerSide: false, startToken, endToken, valueNode) {
+                Tokens = { GetTokensFrom(startIndex) }
+            };
         }
 
         private DotHtmlCommentNode ReadServerComment()
         {
             var startIndex = CurrentIndex;
-            var node = new DotHtmlCommentNode() { IsServerSide = true };
 
-            Assert(DothtmlTokenType.OpenServerComment);
-            node.StartToken = Read();
-            node.ValueNode = ReadTextValue(false, false, DothtmlTokenType.CommentBody);
-            Assert(DothtmlTokenType.CloseComment);
-            node.EndToken = Read();
+            var startToken = Assert(DothtmlTokenType.OpenServerComment);
+            Read();
+            var valueNode = ReadTextValue(false, false, DothtmlTokenType.CommentBody);
+            var endToken = Assert(DothtmlTokenType.CloseComment);
+            Read();
 
-            node.Tokens.Add(GetTokensFrom(startIndex));
-            return node;
+            return new DotHtmlCommentNode(isServerSide: true, startToken, endToken, valueNode) {
+                Tokens = { GetTokensFrom(startIndex) }
+            };
         }
 
         /// <summary>
@@ -278,7 +278,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
             Assert(DothtmlTokenType.OpenTag);
             Read();
 
-            if (Peek().Type == DothtmlTokenType.Slash)
+            if (PeekOrFail().Type == DothtmlTokenType.Slash)
             {
                 Read();
                 node.IsClosingTag = true;
@@ -286,7 +286,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 
             // element name
             var nameOrPrefix = ReadName(true, false, DothtmlTokenType.Text);
-            if (Peek().Type == DothtmlTokenType.Colon)
+            if (PeekOrFail().Type == DothtmlTokenType.Colon)
             {
                 node.TagPrefixNode = nameOrPrefix;
                 node.PrefixSeparator = Read();
@@ -303,7 +303,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
             if (!node.IsClosingTag)
             {
                 ReadWhiteSpaceOrComment(node);
-                while (Peek().Type == DothtmlTokenType.Text)
+                while (PeekOrFail().Type == DothtmlTokenType.Text)
                 {
                     var attribute = ReadAttribute();
                     node.Attributes.Add(attribute);
@@ -311,7 +311,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
                     ReadWhiteSpaceOrComment(node);
                 }
 
-                if (Peek().Type == DothtmlTokenType.Slash)
+                if (PeekOrFail().Type == DothtmlTokenType.Slash)
                 {
                     Read();
                     SkipWhiteSpace();
@@ -332,43 +332,52 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
         private DothtmlAttributeNode ReadAttribute()
         {
             var startIndex = CurrentIndex;
-            var attribute = new DothtmlAttributeNode();
 
             // attribute name
             DothtmlNameNode nameOrPrefix = ReadName(false, false, DothtmlTokenType.Text);
+            DothtmlNameNode nameNode;
+            DothtmlToken? prefixToken = null;
+            DothtmlNameNode? prefixNode = null;
 
-            if (Peek().Type == DothtmlTokenType.Colon)
+            if (Peek()?.Type == DothtmlTokenType.Colon)
             {
-                attribute.PrefixSeparatorToken = Read();
+                prefixToken = Read();
 
-                attribute.AttributePrefixNode = nameOrPrefix;
+                prefixNode = nameOrPrefix;
 
-                attribute.AttributeNameNode = ReadName(false, false, DothtmlTokenType.Text);
+                nameNode = ReadName(false, false, DothtmlTokenType.Text);
             }
             else
             {
-                attribute.AttributeNameNode = nameOrPrefix;
+                nameNode = nameOrPrefix;
             }
-            //spaces before separator belong to name
-            attribute.AttributeNameNode.WhitespacesAfter = SkipWhiteSpace();
+
+            // spaces before separator belong to name
+            nameNode.WhitespacesAfter = SkipWhiteSpace();
+
+            var attribute = new DothtmlAttributeNode(nameNode) {
+                PrefixSeparatorToken = prefixToken,
+                AttributePrefixNode = prefixNode
+            };
 
 
-            if (Peek().Type == DothtmlTokenType.Equals)
+            if (Peek()?.Type == DothtmlTokenType.Equals)
             {
                 attribute.ValueSeparatorToken = Read();
 
                 var valueStartTokens = SkipWhiteSpace();
                 var valueEndTokens = new AggregateList<DothtmlToken>();
                 // attribute value
-                if (Peek().Type == DothtmlTokenType.SingleQuote || Peek().Type == DothtmlTokenType.DoubleQuote)
+                var quoteToken = Peek() ?? throw new DotvvmCompilationException("Unexpected end of stream, expected attribute value", new [] { Tokens.Last() });
+                if ((quoteToken.Type == DothtmlTokenType.SingleQuote || quoteToken.Type == DothtmlTokenType.DoubleQuote))
                 {
-                    var quote = Peek().Type;
+                    var quote = quoteToken.Type;
                     Read();
                     valueStartTokens = valueStartTokens.AddLen(1);
 
                     var startingWhitespaces = SkipWhiteSpace();
 
-                    if (Peek().Type == DothtmlTokenType.OpenBinding)
+                    if (Peek()?.Type == DothtmlTokenType.OpenBinding)
                     {
                         attribute.ValueNode = ReadBindingValue(false, true);
                     }
@@ -376,7 +385,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
                     {
                         attribute.ValueNode = ReadTextValue(false, true, DothtmlTokenType.Text);
                     }
-                    //we had to jump forward to decide 
+                    //we had to jump forward to decide
                     attribute.ValueNode.WhitespacesBefore = startingWhitespaces;
 
                     Assert(quote);
@@ -385,7 +394,14 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
                 }
                 else
                 {
-                    attribute.ValueNode = ReadTextValue(false, false, DothtmlTokenType.Text);
+                    if (quoteToken.Type == DothtmlTokenType.OpenBinding)
+                    {
+                        attribute.ValueNode = ReadBindingValue(false, true);
+                    }
+                    else
+                    {
+                        attribute.ValueNode = ReadTextValue(false, false, DothtmlTokenType.Text);
+                    }
                     //these are not part of any attribute or value
                     SkipWhiteSpace();
                 }
@@ -404,23 +420,23 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
         private DothtmlBindingNode ReadBinding()
         {
             var startIndex = CurrentIndex;
-            var binding = new DothtmlBindingNode();
 
-            Assert(DothtmlTokenType.OpenBinding);
-            binding.StartToken = Read();
+            var startToken = Assert(DothtmlTokenType.OpenBinding);
+            Read();
 
-            binding.NameNode = ReadName(true, true, DothtmlTokenType.Text);
+            var nameNode = ReadName(true, true, DothtmlTokenType.Text);
 
-            Assert(DothtmlTokenType.Colon);
-            binding.SeparatorToken = Read();
+            var separatorToken = Assert(DothtmlTokenType.Colon);
+            Read();
 
-            binding.ValueNode = ReadTextValue(true, true, DothtmlTokenType.Text);
+            var valueNode = ReadTextValue(true, true, DothtmlTokenType.Text);
 
-            Assert(DothtmlTokenType.CloseBinding);
-            binding.EndToken = Read();
+            var endToken = Assert(DothtmlTokenType.CloseBinding);
+            Read();
 
-            binding.Tokens.Add(GetTokensFrom(startIndex));
-            return binding;
+            return new DothtmlBindingNode(startToken, endToken, separatorToken, nameNode, valueNode) {
+                Tokens = { GetTokensFrom(startIndex) }
+            };
         }
 
 
@@ -430,100 +446,100 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
         private DothtmlDirectiveNode ReadDirective()
         {
             var startIndex = CurrentIndex;
-            var node = new DothtmlDirectiveNode();
 
-            Assert(DothtmlTokenType.DirectiveStart);
-            node.DirectiveStartToken = Read();
+            var directiveStartToken = Assert(DothtmlTokenType.DirectiveStart);
+            Read();
 
             //consume only whitespaces before and after
-            node.NameNode = ReadName(true, true, DothtmlTokenType.DirectiveName);
+            var nameNode = ReadName(true, true, DothtmlTokenType.DirectiveName);
 
             //consume only whitespaces after
-            node.ValueNode = ReadTextValue(false, true, DothtmlTokenType.DirectiveValue);
+            var valueNode = ReadTextValue(false, true, DothtmlTokenType.DirectiveValue);
 
-            node.Tokens.Add(GetTokensFrom(startIndex));
-            return node;
+            return new DothtmlDirectiveNode(directiveStartToken, nameNode, valueNode) {
+                Tokens = { GetTokensFrom(startIndex) }
+            };
         }
 
         private DothtmlNameNode ReadName(bool whitespacesBefore, bool whiteSpacesAfter, DothtmlTokenType nameTokenType)
         {
             var startIndex = CurrentIndex;
 
-            var node = new DothtmlNameNode();
 
-            if (whitespacesBefore)
-            {
-                node.WhitespacesBefore = SkipWhiteSpace();
-            }
+            var wBefore = whitespacesBefore ?
+                          SkipWhiteSpace() :
+                          default;
 
-            Assert(nameTokenType);
-            node.NameToken = Read();
+            var nameToken = Assert(nameTokenType);
+            Read();
 
-            if (whiteSpacesAfter)
-            {
-                node.WhitespacesAfter = SkipWhiteSpace();
-            }
+            var wAfter = whiteSpacesAfter ?
+                         SkipWhiteSpace() :
+                         default;
 
-            node.Tokens.Add(GetTokensFrom(startIndex));
-            return node;
+            return new DothtmlNameNode(nameToken) {
+                Tokens = { GetTokensFrom(startIndex) },
+                WhitespacesBefore = wBefore,
+                WhitespacesAfter = wAfter
+            };
         }
 
         private DothtmlValueTextNode ReadTextValue(bool whitespacesBefore, bool whiteSpacesAfter, DothtmlTokenType valueTokenType)
         {
             var startIndex = CurrentIndex;
 
-            var node = new DothtmlValueTextNode();
+            var wBefore = whitespacesBefore ?
+                          SkipWhiteSpace() :
+                          default;
 
-            if (whitespacesBefore)
-            {
-                node.WhitespacesBefore = SkipWhiteSpace();
-            }
+            var valueToken = Assert(valueTokenType);
+            Read();
 
-            Assert(valueTokenType);
-            node.ValueToken = Read();
+            var wAfter = whiteSpacesAfter ?
+                         SkipWhiteSpace() :
+                         default;
 
-            if (whiteSpacesAfter)
-            {
-                node.WhitespacesAfter = SkipWhiteSpace();
-            }
-
-            node.Tokens.Add(GetTokensFrom(startIndex));
-            return node;
+            return new DothtmlValueTextNode(valueToken) {
+                Tokens = { GetTokensFrom(startIndex) },
+                WhitespacesBefore = wBefore,
+                WhitespacesAfter = wAfter
+            };
         }
 
         private DothtmlValueBindingNode ReadBindingValue(bool whitespacesBefore, bool whiteSpacesAfter)
         {
             var startIndex = CurrentIndex;
 
-            var node = new DothtmlValueBindingNode();
-
-            if (whitespacesBefore)
-            {
-                node.WhitespacesBefore = SkipWhiteSpace();
-            }
+            var wBefore = whitespacesBefore ?
+                          SkipWhiteSpace() :
+                          default;
 
             Assert(DothtmlTokenType.OpenBinding);
-            node.BindingNode = ReadBinding();
-            node.ValueTokens = node.BindingNode.Tokens;
+            var bindingNode = ReadBinding();
+            var valueTokens = bindingNode.Tokens;
 
-            if (whiteSpacesAfter)
-            {
-                node.WhitespacesAfter = SkipWhiteSpace();
-            }
+            var wAfter = whiteSpacesAfter ?
+                         SkipWhiteSpace() :
+                         default;
 
-            node.Tokens.Add(GetTokensFrom(startIndex));
-            return node;
+            return new DothtmlValueBindingNode(bindingNode, valueTokens) {
+                Tokens = { GetTokensFrom(startIndex) },
+                WhitespacesBefore = wBefore,
+                WhitespacesAfter = wAfter
+            };
         }
 
         private void ReadWhiteSpaceOrComment(DothtmlElementNode node)
         {
             while (true)
             {
-                switch (Peek().Type)
+                var token = Peek();
+                switch (token?.Type)
                 {
                     case DothtmlTokenType.WhiteSpace:
                         if (node.AttributeSeparators == null) node.AttributeSeparators = new List<DothtmlToken>();
-                        node.AttributeSeparators.Add(Read());
+                        node.AttributeSeparators.Add(token);
+                        Read();
                         break;
                     case DothtmlTokenType.OpenComment:
                         if (node.InnerComments == null) node.InnerComments = new List<DotHtmlCommentNode>();
@@ -540,17 +556,5 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
         }
 
         protected override bool IsWhiteSpace(DothtmlToken token) => token.Type == DothtmlTokenType.WhiteSpace;
-
-        /// <summary>
-        /// Asserts that the current token is of a specified type.
-        /// </summary>
-        protected bool Assert(DothtmlTokenType desiredType)
-        {
-            if (Peek() == null || Peek().Type != desiredType)
-            {
-                throw new Exception($"DotVVM parser internal error! The token {desiredType} was expected!");
-            }
-            return true;
-        }
     }
 }

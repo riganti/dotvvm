@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -22,7 +23,7 @@ namespace DotVVM.Framework.Utils
             if (a == b) return true;
             if (a == null || b == null) return false;
             if (a.MetadataToken != b.MetadataToken) return false;
-            if (a.DeclaringType.GetTypeInfo().Assembly == b.DeclaringType.GetTypeInfo().Assembly) return true;
+            if (a.DeclaringType!.Assembly == b.DeclaringType!.Assembly) return true;
             throw new NotImplementedException();
         }
 
@@ -179,7 +180,7 @@ namespace DotVVM.Framework.Utils
             }
         }
 
-        System.Runtime.CompilerServices.ConditionalWeakTable<Expression, Tuple<int>> HashCache { get; set; }
+        System.Runtime.CompilerServices.ConditionalWeakTable<Expression, Tuple<int>>? HashCache { get; set; }
 
         public void CacheHashValues()
         {
@@ -204,8 +205,7 @@ namespace DotVVM.Framework.Utils
                 if (obj == null) return 0x77777777;
                 if (HashCache != null)
                 {
-                    Tuple<int> chash;
-                    if (HashCache.TryGetValue(obj, out chash)) return chash.Item1;
+                    if (HashCache.TryGetValue(obj, out var chash)) return chash.Item1;
                 }
                 var type = obj.NodeType;
                 var hash = 0x555555555;

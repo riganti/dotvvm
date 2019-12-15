@@ -1,4 +1,5 @@
-﻿using DotVVM.Framework.Binding;
+﻿#nullable enable
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 using System;
@@ -11,10 +12,10 @@ namespace DotVVM.Framework.Controls
         DotvvmControlCollection Children { get; }
         ClientIDMode ClientIDMode { get; set; }
         string ID { get; set; }
-        DotvvmBindableObject Parent { get; set; }
+        DotvvmBindableObject? Parent { get; set; }
         IEnumerable<DotvvmBindableObject> GetAllAncestors(bool incudingThis = false);
 
-        IEnumerable<DotvvmControl> GetAllDescendants(Func<DotvvmControl, bool> enumerateChildrenCondition = null);
+        IEnumerable<DotvvmControl> GetAllDescendants(Func<DotvvmControl, bool>? enumerateChildrenCondition = null);
 
         IEnumerable<DotvvmBindableObject> GetLogicalChildren();
 
@@ -22,9 +23,9 @@ namespace DotVVM.Framework.Controls
 
         DotvvmBindableObject GetRoot();
 
-        IEnumerable<DotvvmControl> GetThisAndAllDescendants(Func<DotvvmControl, bool> enumerateChildrenCondition = null);
+        IEnumerable<DotvvmControl> GetThisAndAllDescendants(Func<DotvvmControl, bool>? enumerateChildrenCondition = null);
 
-        object GetValue(DotvvmProperty property, bool inherit = true);
+        object? GetValue(DotvvmProperty property, bool inherit = true);
 
         bool HasOnlyWhiteSpaceContent();
 

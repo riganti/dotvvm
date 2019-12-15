@@ -1,4 +1,5 @@
-﻿using DotVVM.Framework.Binding;
+﻿#nullable enable
+using DotVVM.Framework.Binding;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,23 +13,23 @@ namespace DotVVM.Framework.Controls
     [ControlMarkupOptions(AllowContent = false)]
     public class SelectorItem : HtmlGenericControl
     {
-        public string Text
+        public string? Text
         {
-            get { return (string)GetValue(TextProperty); }
+            get { return (string?)GetValue(TextProperty); }
             set { SetValue(TextProperty, value); }
         }
 
         public static readonly DotvvmProperty TextProperty =
-            DotvvmProperty.Register<string, SelectorItem>(t => t.Text, null);
+            DotvvmProperty.Register<string?, SelectorItem>(t => t.Text, null);
 
-        public object Value
+        public object? Value
         {
-            get { return (object)GetValue(ValueProperty); }
+            get { return (object?)GetValue(ValueProperty); }
             set { SetValue(ValueProperty, value); }
         }
 
         public static readonly DotvvmProperty ValueProperty =
-            DotvvmProperty.Register<object, SelectorItem>(t => t.Value, null);
+            DotvvmProperty.Register<object?, SelectorItem>(t => t.Value, null);
 
         public SelectorItem()
             : base("option")
@@ -44,13 +45,14 @@ namespace DotVVM.Framework.Controls
 
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            writer.AddAttribute("value", Value.ToString());
+            writer.AddAttribute("value", Value + "");
             base.AddAttributesToRender(writer, context);
         }
 
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            writer.WriteText(Text);
+            if (Text is string t)
+                writer.WriteText(t);
             base.RenderContents(writer, context);
         }
     }

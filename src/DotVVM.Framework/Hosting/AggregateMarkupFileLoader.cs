@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,13 +20,12 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets the markup file for the specified virtual path.
         /// </summary>
-        public MarkupFile GetMarkup(DotvvmConfiguration configuration, string virtualPath)
+        public MarkupFile? GetMarkup(DotvvmConfiguration configuration, string virtualPath)
         {
-            MarkupFile result;
-
             for (int i = 0; i < Loaders.Count; i++)
             {
-                if ((result = Loaders[i].GetMarkup(configuration, virtualPath)) != null)
+                var result = Loaders[i].GetMarkup(configuration, virtualPath);
+                if (result != null)
                 {
                     return result;
                 }
@@ -39,7 +39,7 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public string GetMarkupFileVirtualPath(IDotvvmRequestContext context)
         {
-            return context.Route.VirtualPath;
+            return context.Route!.VirtualPath;
         }
     }
 }

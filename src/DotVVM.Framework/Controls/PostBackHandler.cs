@@ -1,3 +1,4 @@
+#nullable enable
 using System.Collections.Generic;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.ViewModel.Serialization;
@@ -15,20 +16,20 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the name of the event which the handler applies to. If this property is not set, it applies to all events.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
-        public string EventName
+        public string? EventName
         {
-            get { return (string)GetValue(EventNameProperty); }
+            get { return (string?)GetValue(EventNameProperty); }
             set { SetValue(EventNameProperty, value); }
         }
         public static readonly DotvvmProperty EventNameProperty
-            = DotvvmProperty.Register<string, PostBackHandler>(c => c.EventName, null);
+            = DotvvmProperty.Register<string?, PostBackHandler>(c => c.EventName, null);
 
         /// <summary>
         /// Gets or sets a value indicating whether this <see cref="PostBackHandler"/> is enabled.
         /// </summary>
         public bool Enabled
         {
-            get { return (bool)GetValue(EnabledProperty); }
+            get { return (bool)GetValue(EnabledProperty)!; }
             set { SetValue(EnabledProperty, value); }
         }
         public static readonly DotvvmProperty EnabledProperty
@@ -42,6 +43,6 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets an array of objects or bindings that will be passed to the postback handler as parameters.
         /// </summary>
-        protected internal abstract Dictionary<string, object> GetHandlerOptions();
+        protected internal abstract Dictionary<string, object?> GetHandlerOptions();
     }
 }

@@ -1,0 +1,15 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.Errors.ConfigurableHtmlControlValidation, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+
+    <dot:AuthenticatedView RenderWrapperTag="false" WrapperTagName="div">
+        Hello
+    </dot:AuthenticatedView>    
+    
+</body>
+</html>

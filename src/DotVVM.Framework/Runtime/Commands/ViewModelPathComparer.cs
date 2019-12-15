@@ -1,3 +1,4 @@
+#nullable enable
 namespace DotVVM.Framework.Runtime.Commands
 {
     public class ViewModelPathComparer

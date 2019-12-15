@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,7 +16,7 @@ namespace DotVVM.Framework.Routing
             this.routeConstraints = routeConstrains;
         }
 
-        public UrlParserResult ParseRouteUrl(string url, IDictionary<string, object> defaultValues)
+        public UrlParserResult ParseRouteUrl(string url, IDictionary<string, object?> defaultValues)
         {
             if (url.StartsWith("/", StringComparison.Ordinal))
                 throw new ArgumentException("The route URL must not start with '/'!");
@@ -23,8 +24,8 @@ namespace DotVVM.Framework.Routing
                 throw new ArgumentException("The route URL must not end with '/'!");
 
             var regex = new StringBuilder("^");
-            var parameters = new List<KeyValuePair<string, Func<string, ParameterParseResult>>>();
-            var urlBuilders = new List<Func<Dictionary<string, object>, string>>();
+            var parameters = new List<KeyValuePair<string, Func<string, ParameterParseResult>?>>();
+            var urlBuilders = new List<Func<Dictionary<string, object?>, string>>();
             urlBuilders.Add(_ => "~");
 
             void AppendParameterParserResult(UrlParameterParserResult result)
@@ -77,7 +78,7 @@ namespace DotVVM.Framework.Routing
             };
         }
 
-        private UrlParameterParserResult ParseParameter(string url, string prefix, ref int index, IDictionary<string, object> defaultValues)
+        private UrlParameterParserResult ParseParameter(string url, string prefix, ref int index, IDictionary<string, object?> defaultValues)
         {
             // find the end of the route parameter name
             var startIndex = index;
@@ -100,8 +101,8 @@ namespace DotVVM.Framework.Routing
             }
 
             // determine route parameter constraint
-            IRouteParameterConstraint type = null;
-            string parameter = null;
+            IRouteParameterConstraint? type = null;
+            string? parameter = null;
             if (url[index] == ':')
             {
                 startIndex = index + 1;
@@ -137,7 +138,7 @@ namespace DotVVM.Framework.Routing
             }
             if (url[index] != '}') throw new AggregateException($"Route parameter { name } should be closed with curly bracket");
 
-            Func<Dictionary<string, object>, string> urlBuilder;
+            Func<Dictionary<string, object?>, string> urlBuilder;
             // generate the URL builder
             if (isOptional)
             {
@@ -159,8 +160,8 @@ namespace DotVVM.Framework.Routing
             }
 
             var parameterParser = type != null
-                ? new KeyValuePair<string, Func<string, ParameterParseResult>>(name, s => type.ParseString(s, parameter))
-                : new KeyValuePair<string, Func<string, ParameterParseResult>>(name, null);
+                ? new KeyValuePair<string, Func<string, ParameterParseResult>?>(name, s => type.ParseString(s, parameter))
+                : new KeyValuePair<string, Func<string, ParameterParseResult>?>(name, null);
 
             // generate the regex
             var pattern = type?.GetPartRegex(parameter) ?? "[^/]*?";     // parameters cannot contain /
@@ -181,15 +182,15 @@ namespace DotVVM.Framework.Routing
         private struct UrlParameterParserResult
         {
             public string ParameterRegexPart { get; set; }
-            public Func<Dictionary<string, object>, string> UrlBuilder { get; set; }
-            public KeyValuePair<string, Func<string, ParameterParseResult>> Parameter { get; set; }
+            public Func<Dictionary<string, object?>, string> UrlBuilder { get; set; }
+            public KeyValuePair<string, Func<string, ParameterParseResult>?> Parameter { get; set; }
         }
     }
 
     public struct UrlParserResult
     {
         public Regex RouteRegex { get; set; }
-        public List<Func<Dictionary<string, object>, string>> UrlBuilders { get; set; }
-        public List<KeyValuePair<string, Func<string, ParameterParseResult>>> Parameters { get; set; }
+        public List<Func<Dictionary<string, object?>, string>> UrlBuilders { get; set; }
+        public List<KeyValuePair<string, Func<string, ParameterParseResult>?>> Parameters { get; set; }
     }
 }

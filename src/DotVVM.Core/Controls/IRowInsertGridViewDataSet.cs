@@ -5,7 +5,7 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     /// <typeparam name="T">The type of the <see cref="IBaseGridViewDataSet{T}.Items" /> elements.</typeparam>
     public interface IRowInsertGridViewDataSet<T> : IRowInsertGridViewDataSet, IBaseGridViewDataSet<T>
-        where T : new()
+        where T : class, new()
     {
         /// <summary>
         /// Gets the settings for row (item) insert feature.

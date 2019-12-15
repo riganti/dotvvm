@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 
 namespace DotVVM.Framework.Binding.Expressions
@@ -11,7 +12,7 @@ namespace DotVVM.Framework.Binding.Expressions
     }
     public interface IBinding
     {
-        object GetProperty(Type type, ErrorHandlingMode errorMode = ErrorHandlingMode.ThrowException);
+        object? GetProperty(Type type, ErrorHandlingMode errorMode = ErrorHandlingMode.ThrowException);
         //IDictionary<Type, object> Properties { get; }
         //IList<Delegate> AdditionalServices { get; }
     }
