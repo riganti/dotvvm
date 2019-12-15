@@ -1,25 +1,15 @@
 ﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyTitle>DotVVM</AssemblyTitle>
-<<<<<<< HEAD
-    <VersionPrefix>2.4.0-preview07-final</VersionPrefix>
-    <TargetFrameworks>netstandard2.0;net451</TargetFrameworks>
-    <NoWarn>$(NoWarn);CS1591</NoWarn>
-=======
-    <VersionPrefix>2.4.0-preview07-final</VersionPrefix>
+    <VersionPrefix>2.4.0-preview06-final</VersionPrefix>
     <TargetFrameworks>net451;netstandard2.0;netstandard2.1</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591;CS1573</NoWarn>
->>>>>>> 76abeb8520ef79f07ea4f0fdfc9368695fd2efdf
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>DotVVM</PackageId>
-<<<<<<< HEAD
-    <PackageVersion>2.4.0-preview07-final</PackageVersion>
-=======
-    <PackageVersion>2.4.0-preview07-final</PackageVersion>
->>>>>>> 76abeb8520ef79f07ea4f0fdfc9368695fd2efdf
+    <PackageVersion>2.4.0-preview06-final</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>DotVVM is an open source ASP.NET-based framework which allows to build modern web apps without writing any JavaScript code.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
