@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.ButtonInMarkupControl
 {
@@ -15,7 +16,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.ButtonInMarkupCo
         public Task Flip()
         {
             Enabled = !Enabled;
-            return Task.CompletedTask;
+            return TaskUtils.GetCompletedTask();
         }
 
         public class TestDto
