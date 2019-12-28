@@ -1,3 +1,5 @@
+using System.Linq;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -14,6 +16,12 @@ namespace DotVVM.Framework.Tests.Common.Parser.Dothtml
 
             var tokenizer = new DothtmlTokenizer();
             tokenizer.Tokenize("some not very interesting text <!-- Comment -->");
+            var parser = new DothtmlParser();
+            var tree = parser.Parse(tokenizer.Tokens);
+
+            var textNode = tree.EnumerateNodes().OfType<DothtmlLiteralNode>().Single();
+            Assert.AreEqual("some not very interesting text ", textNode.Value);
+
             var text = tokenizer.Tokens[0];
             var comment = tokenizer.Tokens[2];
             Assert.AreEqual(text.Type, DothtmlTokenType.Text);
@@ -25,6 +33,8 @@ namespace DotVVM.Framework.Tests.Common.Parser.Dothtml
             text.Text = "some little bit more interesting text";
             text.Length = text.Text.Length;
             comment.StartPosition = "some little bit more interesting text".Length;
+
+            Assert.AreEqual("some little bit more interesting text", textNode.Value);
         }
     }
 }
