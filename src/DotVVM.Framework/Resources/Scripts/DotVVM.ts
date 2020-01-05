@@ -1358,7 +1358,7 @@ class DotVVM {
             var isInitial = true;
             ko.computed(function () {
                 var rawValue = valueAccessor();
-                ko.unwrap(rawValue);
+                ko.unwrap(rawValue); // we have to touch the observable in the binding so that the `getDependenciesCount` call knows about this dependency. If would be unwrapped only later (in the makeContextCallback) we would not have the savedNodes.
 
                 // Save a copy of the inner nodes on the initial update, but only if we have dependencies.
                 if (isInitial && ko.computedContext.getDependenciesCount()) {
