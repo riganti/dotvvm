@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyTitle>DotVVM.Diagnostics.StatusPage</AssemblyTitle>
-    <VersionPrefix>2.3.0</VersionPrefix>
+    <VersionPrefix>2.4.0</VersionPrefix>
     <TargetFrameworks>netstandard2.0;net451</TargetFrameworks>
     <PackageId>DotVVM.Diagnostics.StatusPage</PackageId>
-    <PackageVersion>2.3.0</PackageVersion>
+    <PackageVersion>2.4.0</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>Module for DotVVM with dothtml files Status Page.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
