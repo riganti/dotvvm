@@ -3,8 +3,8 @@
     <TargetFrameworks>netstandard2.0;net451;netcoreapp2.0</TargetFrameworks>
     <RuntimeIdentifiers>win7-x64;win7-x86</RuntimeIdentifiers>
     <PackageId>DotVVM.DynamicData.Annotations</PackageId>
-    <PackageVersion>2.3.1</PackageVersion>
-    <VersionPrefix>2.3.1</VersionPrefix>
+    <PackageVersion>2.4.0</PackageVersion>
+    <VersionPrefix>2.4.0</VersionPrefix>
     <Authors>RIGANTI</Authors>
     <Description>
       Annotation attributes for DotVVM Dynamic Data that provide additional features.
