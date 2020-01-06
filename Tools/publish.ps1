@@ -91,8 +91,8 @@ function BuildPackages() {
 function SignPackages() {
     if ($signUser -ne "") {        
         Write-Host "Signing packages ..."
-        $baseDir = Join-Path $currentDirectory ".\$($package.Directory)\bin\$configuration\" 
         foreach ($package in $packages) {
+            $baseDir = Join-Path $currentDirectory ".\$($package.Directory)\bin\$configuration\" 
             & dotnet signclient sign --baseDirectory "$baseDir" --input *.nupkg --config "$signConfigPath" --user "$signUser" --secret "$signSecret" --name "$($package.Package)" --description "$($package.Package + " " + $version)" --descriptionUrl "https://github.com/riganti/dotvvm" | Out-Host
         }
     }
