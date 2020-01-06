@@ -79,6 +79,36 @@ namespace DotVVM.Samples.Tests.Feature
             });
         }
 
+        [Fact]
+        public void Feature_Serialization_DeserializationVirtualElements()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Serialization_DeserializationVirtualElements);
+                browser.Wait();
+
+                // check that there are three rows
+                browser.FindElements("thead tr").ThrowIfDifferentCountThan(2);
+                browser.FindElements("tbody tr").ThrowIfDifferentCountThan(3);
+
+                // add item
+                browser.Single("input[type=text]").SendKeys("Four");
+                browser.First("input[type=button]").Click().Wait();
+
+                // check that there are four rows
+                browser.FindElements("tbody tr").ThrowIfDifferentCountThan(4);
+                AssertUI.InnerTextEquals(browser.ElementAt("tbody tr", 3).First("td"), "Four");
+
+                // delete second row
+                browser.ElementAt("tbody tr", 1).Single("input[type=button]").Click().Wait();
+
+                // check that there are three rows
+                browser.FindElements("tbody tr").ThrowIfDifferentCountThan(3);
+                AssertUI.InnerTextEquals(browser.ElementAt("tbody tr", 0).First("td"), "One");
+                AssertUI.InnerTextEquals(browser.ElementAt("tbody tr", 1).First("td"), "Three");
+                AssertUI.InnerTextEquals(browser.ElementAt("tbody tr", 2).First("td"), "Four");
+            });
+        }
+
         public SerializationTests(ITestOutputHelper output) : base(output)
         {
         }
