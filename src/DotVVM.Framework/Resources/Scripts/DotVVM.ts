@@ -1355,22 +1355,26 @@ class DotVVM {
             if (!bindingContext) throw new Error()
 
             var savedNodes: Node[] | undefined;
+            var isInitial = true;
             ko.computed(function () {
                 var rawValue = valueAccessor();
+                ko.unwrap(rawValue); // we have to touch the observable in the binding so that the `getDependenciesCount` call knows about this dependency. If would be unwrapped only later (in the makeContextCallback) we would not have the savedNodes.
 
                 // Save a copy of the inner nodes on the initial update, but only if we have dependencies.
-                if (!savedNodes && ko.computedContext.getDependenciesCount()) {
+                if (isInitial && ko.computedContext.getDependenciesCount()) {
                     savedNodes = ko.utils.cloneNodes(ko.virtualElements.childNodes(element), true /* shouldCleanNodes */);
                 }
 
                 if (shouldDisplay(rawValue)) {
-                    if (savedNodes) {
-                        ko.virtualElements.setDomNodeChildren(element, ko.utils.cloneNodes(savedNodes));
+                    if (!isInitial) {
+                        ko.virtualElements.setDomNodeChildren(element, ko.utils.cloneNodes(savedNodes!));
                     }
                     ko.applyBindingsToDescendants(makeContextCallback(bindingContext, rawValue), element);
                 } else {
                     ko.virtualElements.emptyNode(element);
                 }
+
+                isInitial = false;
 
             }, null, { disposeWhenNodeIsRemoved: element });
             return { controlsDescendantBindings: true } // do not apply binding again
