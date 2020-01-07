@@ -15,15 +15,24 @@ namespace DotVVM.Framework.Utils
             where TKey: notnull
             => dictionary[key];
 
-#if CSharp8Polyfill // this method is actually present in .NET Standard
         [return: MaybeNull]
-        public static TValue GetValueOrDefault<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, TKey key, bool justAddAParameterSoCsharpDoesNotPreferThisMethodOverStandard = false)
+        public static TValue GetValueOrDefault<TKey, TValue>(
+#if CSharp8Polyfill // this extension method was added to .NET Standard, and we want avoid the collision
+                    // we also have to maintain binary compatibility of DotVVM built for netstandard20 and nestardard21,
+                    // so the method can't be removed completely. Making method extension is just a change in attributes
+                    // and it does not lead to binary incompatibility
+            this
+#endif
+                 IReadOnlyDictionary<TKey, TValue> dictionary,
+            TKey key,
+            // even if we make this method an extension, this parameter will prevent the ambiguity with the standard GetValueOrDefault
+            // since C# compiler will prefer a variant without this optional parameter
+            bool justAddAParameterSoCsharpDoesNotPreferThisMethodOverStandard = false)
             where TKey: notnull
         {
             dictionary.TryGetValue(key, out var value);
             return value;
         }
-#endif
 
         public static TTarget ApplyAction<TTarget>(this TTarget target, Action<TTarget> outerAction)
         {
