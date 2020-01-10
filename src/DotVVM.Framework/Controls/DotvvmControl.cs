@@ -294,36 +294,6 @@ namespace DotVVM.Framework.Controls
             RenderAfterControl(in r, writer);
         }
 
-        private void RenderBeginWithDataBindAttribute(IHtmlWriter writer)
-        {
-            // if the DataContext is set, render the "with" binding
-            if (GetValueBinding(DataContextProperty) is IValueBinding dcBinding)
-            {
-                var parent = Parent ?? throw new DotvvmControlException(this, "Can not set DataContext binding on the root control");
-                writer.WriteKnockoutWithComment(dcBinding.GetKnockoutBindingExpression(parent));
-            }
-
-            // if the IncludeInPage has binding, render the "if" binding
-            if (HasValueBinding(IncludeInPageProperty))
-            {
-                writer.WriteKnockoutDataBindComment("if", this, IncludeInPageProperty);
-            }
-        }
-
-        private void RenderEndWithDataBindAttribute(IHtmlWriter writer)
-        {
-            if (HasValueBinding(IncludeInPageProperty))
-            {
-                writer.WriteKnockoutDataBindEndComment();
-            }
-
-            if (HasBinding(DataContextProperty))
-            {
-                writer.WriteKnockoutDataBindEndComment();
-            }
-        }
-
-
         /// <summary>
         /// Adds all attributes that should be added to the control begin tag.
         /// </summary>

@@ -257,9 +257,6 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public JsExpression TranslateMethodCall(MethodCallExpression expression)
         {
-            var thisExpression = expression.Object == null ? null : Translate(expression.Object);
-            var args = expression.Arguments.Select(Translate).ToArray();
-
             var result = TryTranslateMethodCall(expression.Method, expression.Object, expression.Arguments.ToArray());
             if (result == null)
                 throw new NotSupportedException($"Method { expression.Method.DeclaringType.Name }.{ expression.Method.Name } can not be translated to Javascript");

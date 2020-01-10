@@ -19,8 +19,6 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public static Expression GetMember(Expression target, string name, Type[] typeArguments = null, bool throwExceptions = true, bool onlyMemberTypes = false)
         {
-            Contract.Requires(target != null);
-
             if (target is MethodGroupExpression)
                 throw new Exception("Can not access member on method group.");
 
@@ -343,7 +341,7 @@ namespace DotVVM.Framework.Compilation.Binding
             {
                 // wrap the right expression into Task.FromResult
                 rightTask = Expression.Call(typeof(CommandTaskSequenceHelper), nameof(CommandTaskSequenceHelper.WrapAsTask),
-                    new[] { right.Type }, Expression.Lambda(right)); 
+                    new[] { right.Type }, Expression.Lambda(right));
             }
             else
             {
@@ -362,7 +360,7 @@ namespace DotVVM.Framework.Compilation.Binding
             }
         }
 
-        
+
         public static Expression UnwrapNullable(this Expression expression) =>
             expression.Type.IsNullable() ? Expression.Property(expression, "Value") : expression;
 
