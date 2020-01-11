@@ -11,6 +11,7 @@
     "typescript": "^3.7.1-rc"
   },
   "scripts": {
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "tsc-build": "tsc -p ."
   }
 }

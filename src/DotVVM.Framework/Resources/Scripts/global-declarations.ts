@@ -98,9 +98,6 @@ interface DotvvmViewModels {
     root: DotvvmViewModelInfo
 }
 
-interface DotVVM {
-}
-
 interface DotvvmPostbackHandlerCollection {
     [name: string]: ((options: any) => DotvvmPostbackHandler);
 }
@@ -138,8 +135,4 @@ type ValidationRuleTable = {
 
 type RootViewModel = {
     $csrfToken?: string | KnockoutObservable<string>,
-}
-
-interface Window {
-    dotvvm: any
 }

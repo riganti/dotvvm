@@ -25,7 +25,7 @@ function init(culture: string) {
     }
 }
 
-const dotvvm: DotVVM = {
+const dotvvm_g = {
     // evaluator,
     // fileUpload,
     // getXHR,
@@ -50,6 +50,14 @@ const dotvvm: DotVVM = {
     serialization: {
         serialize,
         deserialize
+    }
+}
+
+declare global {
+    const dotvvm: typeof dotvvm_g;
+
+    interface Window {
+        dotvvm: typeof dotvvm_g
     }
 }
 

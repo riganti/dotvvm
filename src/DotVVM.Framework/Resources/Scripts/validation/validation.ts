@@ -297,5 +297,3 @@ function applyValidatorActions(
             validatorOptions[option]);
     }
 }
-
-declare var dotvvm: DotVVM;
