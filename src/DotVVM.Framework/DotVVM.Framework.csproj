@@ -1,4 +1,4 @@
-﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
+<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyTitle>DotVVM</AssemblyTitle>
     <VersionPrefix>2.4.0-preview01-50213-unstable</VersionPrefix>
@@ -64,7 +64,6 @@
       <PackagePath>tools\dnc\DotVVM.Compiler.deps.json</PackagePath>
       <Visible>false</Visible>
     </Content>
-    
 
   </ItemGroup>
   <ItemGroup>
@@ -81,6 +80,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\Scripts\DotVVM.Debug.js" />
     <EmbeddedResource Include="obj/javascript/root-only/dotvvm-root.js" />
+    <EmbeddedResource Include="obj/javascript/root-spa/dotvvm-root.js" />
     <EmbeddedResource Include="Resources\Scripts\Globalize\globalize.min.js" />
     <EmbeddedResource Include="Resources\Scripts\knockout-latest.js" />
     <EmbeddedResource Include="Resources\Scripts\Polyfills\polyfill.bundle.js" />

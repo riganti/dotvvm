@@ -12,6 +12,7 @@
   },
   "scripts": {
     "build": "rollup -c",
+    "build-production": "rollup -c --environment BUILD:production",
     "tsc-build": "tsc -p ."
   }
 }

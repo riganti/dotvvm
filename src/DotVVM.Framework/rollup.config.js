@@ -8,7 +8,7 @@ import replace from '@rollup/plugin-replace';
 const build = process.env.BUILD || "debug";
 const production = build == "production";
 
-const config = ({minify, input, output}) => ({
+const config = ({minify, input, output, spa}) => ({
   input,
 
   output: [
@@ -26,7 +26,7 @@ const config = ({minify, input, output}) => ({
     resolve({ browser: true }),
     commonjs(),
     replace({
-      "compileConstants.isSpa": false,
+      "compileConstants.isSpa": spa,
       "compileConstants.nomodules": "false",
     }),
 
@@ -62,7 +62,7 @@ const config = ({minify, input, output}) => ({
         hoist_funs: true,
         hoist_vars: true,
         passes: 2,
-        pure_funcs: [ 'Math.floor', "ko.unwrap", "ko.isObservable", "ko.observable", "ko.observableArray", "ko.pureComputed", "Math.floor", "Math.pow", "createArray", "Array.isArray", "Object.keys" ]
+        pure_funcs: [ 'Math.floor', "ko.isObservable", "ko.observable", "ko.observableArray", "ko.pureComputed", "Math.floor", "Math.pow", "createArray", "Array.isArray", "Object.keys" ]
       },
       mangle: {
         keep_classnames: !production,
@@ -81,5 +81,22 @@ const config = ({minify, input, output}) => ({
 
 export default [
   // config({ minify: production, input: ['./Resources/Scripts/dotvvm-root.ts', './Resources/Scripts/dotvvm-light.ts'], output: "default" }),
-  config({ minify: production, input: ['./Resources/Scripts/dotvvm-root.ts'], output: "root-only" }),
+  config({
+    minify: production,
+    input: ['./Resources/Scripts/dotvvm-root.ts'],
+    output: "root-only",
+    spa: false
+  }),
+  config({
+    minify: production,
+    input: ['./Resources/Scripts/dotvvm-root.ts'],
+    output: "root-spa",
+    spa: true
+  }),
+  //config({
+  //  minify: production,
+  //  input: ['./Resources/Scripts/dotvvm-light.ts'],
+  //  output: "root-light",
+  //  spa: false
+  //}),
 ]

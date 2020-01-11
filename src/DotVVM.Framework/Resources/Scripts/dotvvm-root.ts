@@ -11,6 +11,7 @@ import * as evaluator from './utils/evaluator'
 import * as globalize from './DotVVM.Globalize'
 import { staticCommandPostback } from './postback/staticCommand'
 import { applyPostbackHandlers } from './postback/postback'
+import { isSpaReady } from "./spa/spa"
 
 if (compileConstants.nomodules) {
     addPolyfills()
@@ -65,6 +66,10 @@ const dotvvmExports = {
         serialize,
         deserialize
     }
+}
+
+if (compileConstants.isSpa) {
+    (dotvvmExports as any).isSpaReady = isSpaReady;
 }
 
 declare global {

@@ -320,6 +320,12 @@ namespace DotVVM.Framework.Configuration
                     "DotVVM.Framework.obj.javascript.root_only.dotvvm-root.js")) {
                     Dependencies = new[] { ResourceConstants.KnockoutJSResourceName, ResourceConstants.PolyfillResourceName }
                 });
+            configuration.Resources.Register(ResourceConstants.DotvvmResourceName + ".internal-spa",
+                new ScriptResource(new EmbeddedResourceLocation(
+                    typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
+                    "DotVVM.Framework.obj.javascript.root_spa.dotvvm-root.js")) {
+                    Dependencies = new[] { ResourceConstants.KnockoutJSResourceName, ResourceConstants.PolyfillResourceName }
+                });
             configuration.Resources.Register(ResourceConstants.DotvvmResourceName,
                 new InlineScriptResource(@"") {
                     Dependencies = new[] { ResourceConstants.DotvvmResourceName + ".internal" }

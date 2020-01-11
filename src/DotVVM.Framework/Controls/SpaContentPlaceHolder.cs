@@ -87,6 +87,8 @@ namespace DotVVM.Framework.Controls
 
             AddDotvvmUniqueIdAttribute();
 
+            context.ResourceManager.RegisterProcessor(new ResourceManagement.SpaModeResourceProcessor(context.Configuration));
+
             base.OnInit(context);
         }
 
