@@ -26,7 +26,8 @@ export const events = {
 
 export const globalValidationObject = {
     rules: validators,
-    errors: allErrors
+    errors: allErrors,
+    events
 }
 
 const createValidationHandler = (path: string) => ({
@@ -40,7 +41,7 @@ const createValidationHandler = (path: string) => ({
             detachAllErrors();
             validateViewModel(validationTarget);
 
-            events.validationErrorsChanged.trigger({ viewModel: options.viewModel });
+            validationErrorsChanged.trigger({ });
             if (allErrors.length > 0) {
                 console.log("Validation failed: postback aborted; errors: ", allErrors);
                 return Promise.reject(new DotvvmPostbackError({ type: "handler", handlerName: "validation", message: "Validation failed" }))

@@ -93,6 +93,7 @@ namespace DotVVM.Framework.Controls
         public static string GenerateClientPostBackScript(string propertyName, ICommandBinding expression, DotvvmBindableObject control, PostbackScriptOptions options)
         {
             var expr = GenerateClientPostBackExpression(propertyName, expression, control, options);
+            expr += ".catch(function(){})";
             if (options.ReturnValue == false)
                 return expr + ";event.stopPropagation();return false;";
             else

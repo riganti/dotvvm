@@ -1,4 +1,4 @@
-import { initCore, getViewModel, getViewModelObservable } from "./dotvvm-base"
+import { initCore, getViewModel, getViewModelObservable, initBindings } from "./dotvvm-base"
 import addPolyfills from './DotVVM.Polyfills'
 import * as events from './events'
 import * as spa from "./spa/spa"
@@ -6,6 +6,9 @@ import * as validation from './validation/validation'
 import { postBack } from './postback/postback'
 import { serialize } from './serialization/serialize'
 import { deserialize } from './serialization/deserialize'
+import registerBindingHandlers from './binding-handlers/register'
+import * as evaluator from './utils/evaluator'
+import * as globalize from './DotVVM.Globalize'
 
 if (compileConstants.nomodules) {
     addPolyfills()
@@ -17,19 +20,26 @@ if (window["dotvvm"]) {
 function init(culture: string) {
 
     initCore(culture)
-
-    validation.init();
+    registerBindingHandlers()
+    validation.init()
 
     if (compileConstants.isSpa) {
         spa.init()
     }
+
+    initBindings()
 }
 
-const dotvvm_g = {
-    // evaluator,
+const dotvvmExports = {
+    evaluator: {
+        getDataSourceItems: evaluator.getDataSourceItems,
+        wrapObservable: evaluator.wrapObservable
+    },
     // fileUpload,
     // getXHR,
-    // globalize,
+    globalize: {
+        formatString: globalize.formatString
+    },
     // postBackHandlers,
     // handleSpaNavigation,
     // buildUrlSuffix,
@@ -54,10 +64,10 @@ const dotvvm_g = {
 }
 
 declare global {
-    const dotvvm: typeof dotvvm_g;
+    const dotvvm: typeof dotvvmExports;
 
     interface Window {
-        dotvvm: typeof dotvvm_g
+        dotvvm: typeof dotvvmExports
     }
 }
 

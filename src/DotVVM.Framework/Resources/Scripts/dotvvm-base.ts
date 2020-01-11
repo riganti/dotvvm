@@ -43,8 +43,6 @@ export function initCore(culture: string): void {
         throw new Error("DotVVM is already loaded");
     }
 
-    addKnockoutBindingHandlers();
-
     // load the viewmodel
     const thisViewModel = initialViewModelWrapper = JSON.parse(getViewModelStorageElement().value);
 
@@ -63,9 +61,6 @@ export function initCore(culture: string): void {
         _rootViewModel: vmObservable,
         _validationRules: thisViewModel.validationRules || {}
     }
-    // TODO: get validationRules from thisViewModel
-
-    ko.applyBindings(vmObservable, document.documentElement);
 
     events.init.trigger({ viewModel });
 
@@ -75,10 +70,8 @@ export function initCore(culture: string): void {
     });
 }
 
-function addKnockoutBindingHandlers() {
-    for (const h of Object.keys(bindingHandlers)) {
-        ko.bindingHandlers[h] = bindingHandlers[h];
-    }
+export function initBindings() {
+    ko.applyBindings(getViewModelObservable(), document.documentElement);
 }
 
 const getViewModelStorageElement = () =>
