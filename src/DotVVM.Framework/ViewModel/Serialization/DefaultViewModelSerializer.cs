@@ -115,7 +115,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public void AddNewResources(IDotvvmRequestContext context)
         {
             var renderedResources = new HashSet<string>(context.ReceivedViewModelJson?["renderedResources"]?.Values<string>() ?? new string[] { });
-            context.ViewModelJson["resources"] = BuildResourcesJson(context, rn => !renderedResources.Contains(rn));
+            var resourcesObject = BuildResourcesJson(context, rn => !renderedResources.Contains(rn));
+            if (resourcesObject.Count > 0)
+                context.ViewModelJson["resources"] = resourcesObject;
         }
 
         public string BuildStaticCommandResponse(IDotvvmRequestContext context, object result)
