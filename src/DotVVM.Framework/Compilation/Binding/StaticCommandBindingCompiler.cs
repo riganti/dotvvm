@@ -188,7 +188,9 @@ namespace DotVVM.Framework.Compilation.Binding
             var encryptedPlan = EncryptJson(SerializePlan(plan), protector).Apply(Convert.ToBase64String);
 
             return new JsIdentifierExpression("dotvvm").Member("staticCommandPostback")
-                .Invoke(new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter), new JsLiteral(encryptedPlan), new JsArrayExpression(args), callbackFunction, errorCallback)
+                .Invoke(new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter), new JsLiteral(encryptedPlan), new JsArrayExpression(args))
+                .Member("then")
+                .Invoke(callbackFunction, errorCallback)
                 .WithAnnotation(new StaticCommandInvocationJsAnnotation(plan));
         }
 
