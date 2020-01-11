@@ -78,6 +78,7 @@ async function loadResourceElements(elements: HTMLElement[]) {
 
         // load next script when this is finished
         const loadPromise = waitForElementLoaded(element);
+        document.head.appendChild(element);
         if (waitForScriptLoaded) {
             await loadPromise;
         }
