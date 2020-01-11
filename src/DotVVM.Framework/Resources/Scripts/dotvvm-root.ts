@@ -9,6 +9,8 @@ import { deserialize } from './serialization/deserialize'
 import registerBindingHandlers from './binding-handlers/register'
 import * as evaluator from './utils/evaluator'
 import * as globalize from './DotVVM.Globalize'
+import { staticCommandPostback } from './postback/staticCommand'
+import { applyPostbackHandlers } from './postback/postback'
 
 if (compileConstants.nomodules) {
     addPolyfills()
@@ -45,6 +47,8 @@ const dotvvmExports = {
     // buildUrlSuffix,
     // isSpaReady,
     // buildRouteUrl,
+    staticCommandPostback,
+    applyPostbackHandlers,
     validation: validation.globalValidationObject,
     postBack,
     init,
@@ -71,4 +75,4 @@ declare global {
     }
 }
 
-window.dotvvm = dotvvm;
+window.dotvvm = dotvvmExports;

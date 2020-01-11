@@ -99,7 +99,14 @@ function findPostbackHandlers(knockoutContext: KnockoutBindingContext, config: C
 
 type MaybePromise<T> = Promise<T> | T
 
-async function applyPostbackHandlers(next: (options: PostbackOptions) => MaybePromise<PostbackCommitFunction | any>, sender: HTMLElement, handlerConfigurations?: ClientFriendlyPostbackHandlerConfiguration[], args: any[] = [], context = ko.contextFor(sender), viewModel = context.$root): Promise<DotvvmAfterPostBackEventArgs> {
+export async function applyPostbackHandlers(
+    next: (options: PostbackOptions) => MaybePromise<PostbackCommitFunction | any>,
+    sender: HTMLElement,
+    handlerConfigurations?: ClientFriendlyPostbackHandlerConfiguration[],
+    args: any[] = [],
+    context = ko.contextFor(sender),
+    viewModel = context.$root
+): Promise<DotvvmAfterPostBackEventArgs> {
     const saneNext = (o: PostbackOptions) => {
         return wrapCommitFunction(next(o), o)
     }
