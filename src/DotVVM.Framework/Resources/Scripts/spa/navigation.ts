@@ -6,7 +6,7 @@ import { DotvvmPostbackError } from '../shared-classes';
 import { loadResourceList } from '../postback/resourceLoader';
 import * as updater from '../postback/updater';
 import * as counter from '../postback/counter';
-import * as events from '../events';
+import * as events from './events';
 import { getSpaPlaceHolderUniqueId, isSpaReady } from './spa';
 import { handleRedirect } from '../postback/redirect';
 

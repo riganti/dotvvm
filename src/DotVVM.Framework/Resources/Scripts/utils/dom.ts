@@ -16,13 +16,8 @@ export const isElementDisabled = (element: HTMLElement | null | undefined) =>
 
 export function setIdFragment(idFragment: string | null | undefined) {
     if (idFragment != null) {
-        if (location.hash == "#" + idFragment) {
-            const element = document.getElementById(idFragment);
-            if (element && "function" == typeof element.scrollIntoView) {
-                element.scrollIntoView(true);
-            }
-        } else {
-            location.hash = idFragment;
-        }
+        // first clear the fragment to scroll onto the element even when the hash is equal to idFragment
+        location.hash = "";
+        location.hash = idFragment;
     }
 }

@@ -16,6 +16,7 @@ import { buildRouteUrl, buildUrlSuffix } from './controls/routeLink'
 import * as fileUpload from './controls/fileUpload'
 import { handleSpaNavigation } from './spa/spa'
 import { postbackHandlers } from './postback/handlers'
+import * as spaEvents from './spa/events'
 
 if (compileConstants.nomodules) {
     addPolyfills()
@@ -58,7 +59,9 @@ const dotvvmExports = {
     validation: validation.globalValidationObject,
     postBack,
     init,
-    events,
+    events: (compileConstants.isSpa ?
+             { ...events, ...spaEvents } :
+             events),
     viewModels: {
         root: {
             get viewModel() { return getViewModel() }

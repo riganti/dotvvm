@@ -4,6 +4,7 @@ import { validators } from './validators'
 import { allErrors, detachAllErrors, ValidationError, getErrors } from "./error"
 import { DotvvmEvent } from '../events'
 import * as dotvvmEvents from '../events'
+import * as spaEvents from '../spa/events'
 import { DotvvmPostbackError } from "../shared-classes"
 import { postbackHandlers } from "../postback/handlers"
 import { DotvvmValidationContext, ErrorsPropertyName } from "./common"
@@ -72,11 +73,12 @@ export function init() {
         }
 
     });
-
-    dotvvmEvents.spaNavigating.subscribe(_ => {
-        detachAllErrors();
-        validationErrorsChanged.trigger({ });
-    });
+    if (compileConstants.isSpa) {
+        spaEvents.spaNavigating.subscribe(_ => {
+            detachAllErrors();
+            validationErrorsChanged.trigger({ });
+        });
+    }
 
     // Validator
     ko.bindingHandlers["dotvvmValidation"] = { // TODO: naming conventions
