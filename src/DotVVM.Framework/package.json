@@ -9,5 +9,8 @@
     "rollup-plugin-typescript": "^1.0.1",
     "tslib": "^1.10.0",
     "typescript": "^3.7.1-rc"
+  },
+  "scripts": {
+    "build": "rollup -c"
   }
 }
