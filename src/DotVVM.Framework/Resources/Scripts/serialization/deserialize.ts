@@ -49,15 +49,14 @@ export function deserializeArray(viewModel: any, target?: any, deserializeAll: b
 }
 
 function rebuildArrayFromScratch(viewModel: any, target: any, deserializeAll: boolean) {
-    const array: KnockoutObservable<any>[] = [];
+    const array: Array<KnockoutObservable<any>> = [];
     for (let i = 0; i < viewModel.length; i++) {
         array.push(wrapObservableObjectOrArray(deserialize(ko.unwrap(viewModel[i]), {}, deserializeAll)));
     }
     if (ko.isObservable(target)) {
         target = extendToObservableArrayIfRequired(target);
         target(array);
-    }
-    else {
+    } else {
         target = array;
     }
     return target;
@@ -70,14 +69,13 @@ function updateArrayItems(viewModel: any, target: KnockoutObservable<any>, deser
         const deserialized = deserialize(ko.unwrap(viewModel[i]), targetItem, deserializeAll);
 
         if (targetItem !== deserialized) {
-            //update the item
+            // update the item
             if (ko.isObservable(targetArray[i])) {
                 if (targetArray[i]() !== deserialized) {
                     targetArray[i] = extendToObservableArrayIfRequired(targetArray[i]);
                     targetArray[i](deserialized);
                 }
-            }
-            else {
+            } else {
                 targetArray[i] = wrapObservableObjectOrArray(deserialized);
             }
         }
@@ -121,13 +119,12 @@ export function deserializeObject(viewModel: any, target: any, deserializeAll: b
     }
 
     if (ko.isObservable(target)) {
-        //This is so that if we have already updated the instance inside target observable
-        //there's no need to force update 
+        // this is so that if we have already updated the instance inside target observable
+        // there's no need to force update.
         if (unwrappedTarget !== target()) {
             target(unwrappedTarget);
         }
-    }
-    else {
+    } else {
         target = unwrappedTarget;
     }
     return target;
@@ -144,19 +141,18 @@ function copyProperty(value: any, unwrappedTarget: any, prop: string, deserializ
     }
 
     // update the property
-    if (ko.isObservable(deserialized)) { //deserialized is observable <=> its input target is observable
+    if (ko.isObservable(deserialized)) { // deserialized is observable <=> its input target is observable
         if (deserialized() !== unwrappedTarget[prop]()) {
             unwrappedTarget[prop] = extendToObservableArrayIfRequired(unwrappedTarget[prop]);
             unwrappedTarget[prop](deserialized());
         }
-    }
-    else {
+    } else {
         unwrappedTarget[prop] = wrapObservableObjectOrArray(deserialized);
     }
 
     if (options && options.clientExtenders && ko.isObservable(unwrappedTarget[prop])) {
         for (let j = 0; j < options.clientExtenders.length; j++) {
-            const extenderOptions : any = {};
+            const extenderOptions: any = {};
             const extenderInfo = options.clientExtenders[j];
             extenderOptions[extenderInfo.name] = extenderInfo.parameter;
             unwrappedTarget[prop].extend(extenderOptions);
@@ -182,7 +178,7 @@ function extendToObservableArrayIfRequired(observable: any) {
 
     if (!isObservableArray(observable)) {
         ko.utils.extend(observable, ko.observableArray['fn']);
-        observable = observable.extend({ 'trackArrayChanges': true });
+        observable = observable.extend({ trackArrayChanges: true });
     }
     return observable;
 }

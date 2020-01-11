@@ -1,21 +1,17 @@
-/// <reference path="typings/knockout/knockout.d.ts" />
-/// <reference path="typings/knockout/knockout.dotvvm.d.ts" />
-/// <reference path="typings/globalize/globalize.d.ts" />
-
 import { setIdFragment } from './utils/dom'
-import { DotvvmValidation } from './DotVVM.Validation'
 import * as deserialization from './serialization/deserialize'
 import * as serialization from './serialization/serialize'
 import * as resourceLoader from './postback/resourceLoader'
 
 import bindingHandlers from './binding-handlers/all-handlers'
-import * as events from './DotVVM.Events';
+import * as events from './events';
 
 type DotvvmCoreState = {
     _culture: string
     _rootViewModel: KnockoutObservable<RootViewModel>
     _virtualDirectory: string
-    _initialUrl: string
+    _initialUrl: string,
+    _validationRules: ValidationRuleTable
 }
 
 let currentState: DotvvmCoreState | null = null
@@ -35,11 +31,17 @@ export function getVirtualDirectory(): string {
 export function replaceViewModel(vm: RootViewModel): void {
     currentState!._rootViewModel(vm);
 }
+export function getValidationRules() {
+    return currentState!._validationRules
+}
+export function getCulture(): string { return currentState!._culture; }
 
 let initialViewModelWrapper: any;
 
 export function initCore(culture: string): void {
-    if (currentState) throw new Error("DotVVM is already loaded");
+    if (currentState) {
+        throw new Error("DotVVM is already loaded");
+    }
 
     addKnockoutBindingHandlers();
 
@@ -59,6 +61,7 @@ export function initCore(culture: string): void {
         _initialUrl: thisViewModel.url,
         _virtualDirectory: thisViewModel.virtualDirectory!,
         _rootViewModel: vmObservable,
+        _validationRules: thisViewModel.validationRules || {}
     }
     // TODO: get validationRules from thisViewModel
 
@@ -79,7 +82,7 @@ function addKnockoutBindingHandlers() {
 }
 
 const getViewModelStorageElement = () =>
-    <HTMLInputElement>document.getElementById("__dot_viewmodel_root")
+    <HTMLInputElement> document.getElementById("__dot_viewmodel_root")
 
 function persistViewModel() {
     const viewModel = serialization.serialize(getViewModel(), { serializeAll: true })

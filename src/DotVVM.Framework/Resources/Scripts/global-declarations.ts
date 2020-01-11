@@ -5,11 +5,11 @@ type PostbackCommitFunction = () => Promise<DotvvmAfterPostBackEventArgs>
 type DotvvmPostbackHandler = {
     execute(next: () => Promise<PostbackCommitFunction>, options: PostbackOptions): Promise<PostbackCommitFunction>
     name?: string
-    after?: (string | DotvvmPostbackHandler)[]
-    before?: (string | DotvvmPostbackHandler)[]
+    after?: Array<string | DotvvmPostbackHandler>
+    before?: Array<string | DotvvmPostbackHandler>
 }
 type PostbackRejectionReason =
-    | { type: "handler", handler: DotvvmPostbackHandler, message?: string }
+    | { type: "handler", handlerName: string, message?: string }
     | { type: 'network', err?: any }
     | { type: 'commit', args: DotvvmErrorEventArgs }
     | { type: 'csrfToken' }
@@ -29,12 +29,10 @@ type PostbackOptions = {
     readonly sender?: HTMLElement
     readonly args: any[]
     readonly viewModel?: any
-    readonly viewModelName?: string
 }
 
 type PostbackEventArgs = DotvvmEventArgs & {
     readonly postbackClientId: number
-    readonly viewModelName?: string
     readonly sender?: Element
     readonly xhr?: XMLHttpRequest
     readonly serverResponseObject?: any
@@ -43,22 +41,22 @@ type PostbackEventArgs = DotvvmEventArgs & {
 
 type DotvvmEventArgs = {
     /** The global view model */
-    readonly viewModel: any
-    readonly viewModelName?: string
+    readonly viewModel?: any
 }
 
-type DotvvmErrorEventArgs = PostbackEventArgs & {
-    handled: boolean
-    readonly sender: Element | undefined
-    readonly serverResponseObject: any
+type DotvvmErrorEventArgs = {
+    readonly sender?: Element
+    readonly serverResponseObject?: any
+    readonly viewModel?: any
     readonly isSpaNavigationError?: true
+    handled: boolean
 }
 
 type DotvvmBeforePostBackEventArgs = PostbackEventArgs & {
     cancel: boolean
 }
 type DotvvmAfterPostBackEventArgs = PostbackEventArgs & {
-    isHandled: boolean
+    handled: boolean
     /** Set to true in case the postback did not finish and it was cancelled by an event or a postback handler */
     readonly wasInterrupted: boolean;
     readonly serverResponseObject: any
@@ -82,7 +80,6 @@ type DotvvmSpaNavigatedEventArgs = DotvvmNavigationEventArgs & {
     isHandled: boolean
 }
 type DotvvmRedirectEventArgs = DotvvmEventArgs & {
-    readonly viewModelName: string
     /** The url of the page we are navigating to */
     readonly url: string
     /** Whether the new url should replace the current url in the browsing history */
@@ -102,7 +99,6 @@ interface DotvvmViewModels {
 }
 
 interface DotVVM {
-    
 }
 
 interface DotvvmPostbackHandlerCollection {
@@ -128,8 +124,20 @@ type ClientFriendlyPostbackHandlerConfiguration =
     | [string, object] // compressed configuration - [name, handler options]
     | [string, (context: KnockoutBindingContext, data: any) => any] // compressed configuration with binding support - [name, context => handler options]
 
+type PropertyValidationRuleInfo = {
+    ruleName: string;
+    errorMessage: string;
+    parameters: any[];
+}
+
+type ValidationRuleTable = {
+    [type: string]: {
+        [property: string]: [PropertyValidationRuleInfo]
+    }
+}
+
 type RootViewModel = {
-    $csrfToken?: string | KnockoutObservable<string>
+    $csrfToken?: string | KnockoutObservable<string>,
 }
 
 interface Window {

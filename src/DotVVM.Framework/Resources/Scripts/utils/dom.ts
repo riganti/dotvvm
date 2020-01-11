@@ -1,5 +1,5 @@
 export const getElementByDotvvmId = (id: string) => {
-    return <HTMLElement>document.querySelector(`[data-dotvvm-id='${id}']`);
+    return <HTMLElement> document.querySelector(`[data-dotvvm-id='${id}']`);
 }
 
 /**
@@ -18,9 +18,11 @@ export function setIdFragment(idFragment: string | null | undefined) {
     if (idFragment != null) {
         if (location.hash == "#" + idFragment) {
             const element = document.getElementById(idFragment);
-            if (element && "function" == typeof element.scrollIntoView)
+            if (element && "function" == typeof element.scrollIntoView) {
                 element.scrollIntoView(true);
+            }
+        } else {
+            location.hash = idFragment;
         }
-        else location.hash = idFragment;
     }
 }

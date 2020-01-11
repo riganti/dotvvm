@@ -1,6 +1,8 @@
 export function wrapObservable<T>(obj: T): KnockoutObservable<T> {
-    if (!ko.isObservable(obj)) return ko.observable(obj);
-    return <KnockoutObservable<T>><any>obj;
+    if (!ko.isObservable(obj)) {
+        return ko.observable(obj);
+    }
+    return <KnockoutObservable<T>> <any> obj;
 }
 
 export function wrapObservableObjectOrArray<T>(obj: T): KnockoutObservable<T> | KnockoutObservableArray<T> {

@@ -1,12 +1,12 @@
-import * as events from '../DotVVM.Events';
+import * as events from '../events';
 
 export default {
     'dotvvm-checkbox-updateAfterPostback': {
         init(element: HTMLElement, valueAccessor: () => any, allBindingsAccessor?: KnockoutAllBindingsAccessor) {
             events.afterPostback.subscribe((e) => {
-                var bindings = allBindingsAccessor!();
+                const bindings = allBindingsAccessor!();
                 if (bindings["dotvvm-checked-pointer"]) {
-                    var checked = bindings[bindings["dotvvm-checked-pointer"]];
+                    const checked = bindings[bindings["dotvvm-checked-pointer"]];
                     if (ko.isObservable(checked)) {
                         if (checked.valueHasMutated) {
                             checked.valueHasMutated();
@@ -19,7 +19,9 @@ export default {
         }
     },
     'dotvvm-checked-pointer': {
-        init() {}
+        init() {
+            // empty
+        }
     },
 
     "dotvvm-CheckState": {
@@ -27,7 +29,7 @@ export default {
             ko.getBindingHandler("checked").init!(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext);
         },
         update(element: any, valueAccessor: () => any) {
-            let value = ko.unwrap(valueAccessor());
+            const value = ko.unwrap(valueAccessor());
             element.indeterminate = value == null;
         }
     }

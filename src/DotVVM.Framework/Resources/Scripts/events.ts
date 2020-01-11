@@ -1,47 +1,47 @@
 ﻿
 // DotvvmEvent is used because CustomEvent is not browser compatible and does not support
 // calling missed events for handler that subscribed too late.
-class DotvvmEvent<T> {
-    private _handlers: DotvvmEventHandler<T>[] = [];
-    private _history: T[] = [];
+export class DotvvmEvent<T> {
+    private handlers: Array<DotvvmEventHandler<T>> = [];
+    private history: T[] = [];
 
     constructor(public readonly name: string, private readonly triggerMissedEventsOnSubscribe: boolean = false) {
     }
 
     public subscribe(handler: (data: T) => void) {
-        this._handlers.push(new DotvvmEventHandler<T>(handler, false));
+        this.handlers.push(new DotvvmEventHandler<T>(handler, false));
 
         if (this.triggerMissedEventsOnSubscribe) {
-            for (const h of this._history) {
+            for (const h of this.history) {
                 handler(h);
             }
         }
     }
 
     public subscribeOnce(handler: (data: T) => void) {
-        this._handlers.push(new DotvvmEventHandler<T>(handler, true));
+        this.handlers.push(new DotvvmEventHandler<T>(handler, true));
     }
 
     public unsubscribe(handler: (data: T) => void) {
-        for (var i = 0; i < this._handlers.length; i++) {
-            if (this._handlers[i].handler === handler) {
-                this._handlers.splice(i, 1);
+        for (let i = 0; i < this.handlers.length; i++) {
+            if (this.handlers[i].handler === handler) {
+                this.handlers.splice(i, 1);
                 return;
             }
         }
     }
 
     public trigger(data: T): void {
-        for (var i = 0; i < this._handlers.length; i++) {
-            this._handlers[i].handler(data);
-            if (this._handlers[i].isOneTime) {
-                this._handlers.splice(i, 1);
+        for (let i = 0; i < this.handlers.length; i++) {
+            this.handlers[i].handler(data);
+            if (this.handlers[i].isOneTime) {
+                this.handlers.splice(i, 1);
                 i--;
             }
         }
 
         if (this.triggerMissedEventsOnSubscribe) {
-            this._history.push(data);
+            this.history.push(data);
         }
     }
 }

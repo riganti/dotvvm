@@ -1,44 +1,46 @@
+import { postbackQueues, updateProgressChangeCounter } from "../postback/queue"
+
 export default {
     "dotvvm-UpdateProgress-Visible": {
         init(element: HTMLElement, valueAccessor: () => any, allBindingsAccessor?: KnockoutAllBindingsAccessor, viewModel?: any, bindingContext?: KnockoutBindingContext) {
             element.style.display = "none";
-            var delay = element.getAttribute("data-delay");
+            const delay = element.getAttribute("data-delay");
 
-            let includedQueues = (element.getAttribute("data-included-queues") || "").split(",").filter(i => i.length > 0);
-            let excludedQueues = (element.getAttribute("data-excluded-queues") || "").split(",").filter(i => i.length > 0);
+            const includedQueues = (element.getAttribute("data-included-queues") || "").split(",").filter(i => i.length > 0);
+            const excludedQueues = (element.getAttribute("data-excluded-queues") || "").split(",").filter(i => i.length > 0);
 
-            var timeout: any;
-            var running = false;
+            let timeout: any;
+            let running = false;
 
-            var show = () => {
+            const show = () => {
                 running = true;
                 if (delay == null) {
                     element.style.display = "";
                 } else {
-                    timeout = setTimeout(e => {
+                    timeout = setTimeout(() => {
                         element.style.display = "";
                     }, +delay);
                 }
             }
 
-            var hide = () => {
+            const hide = () => {
                 running = false;
                 clearTimeout(timeout);
                 element.style.display = "none";
             }
 
-            dotvvm.updateProgressChangeCounter.subscribe(e => {
+            updateProgressChangeCounter.subscribe(() => {
                 let shouldRun = false;
 
                 if (includedQueues.length === 0) {
-                    for (const queue of Object.keys(dotvvm.postbackQueues)) {
-                        if (excludedQueues.indexOf(queue) < 0 && dotvvm.postbackQueues[queue].noRunning > 0) {
+                    for (const queue of Object.keys(postbackQueues)) {
+                        if (excludedQueues.indexOf(queue) < 0 && postbackQueues[queue].runningPostbacksCount > 0) {
                             shouldRun = true;
                             break;
                         }
                     }
                 } else {
-                    shouldRun = includedQueues.some(q => dotvvm.postbackQueues[q] && dotvvm.postbackQueues[q].noRunning > 0);
+                    shouldRun = includedQueues.some(q => postbackQueues[q] && postbackQueues[q].runningPostbacksCount > 0);
                 }
 
                 if (shouldRun) {

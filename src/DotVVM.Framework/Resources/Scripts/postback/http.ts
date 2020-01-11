@@ -18,11 +18,11 @@ export async function postJSON<T>(url: string, postData: any, additionalHeaders?
     headers.append('X-DotVVM-PostBack', 'true');
     appendAdditionalHeaders(headers, additionalHeaders);
 
-    return await fetchJson<T>(url, { body: postData, headers: headers })
+    return await fetchJson<T>(url, { body: postData, headers: headers, method: "POST" });
 }
 
 export async function fetchJson<T>(url: string, init: RequestInit): Promise<T> {
-    var response;
+    let response;
     try {
         response = await fetch(url, init);
     }
@@ -30,7 +30,7 @@ export async function fetchJson<T>(url: string, init: RequestInit): Promise<T> {
         throw new DotvvmPostbackError({ type: "network", err });
     }
 
-    var resultObject: T;
+    let resultObject: T;
     try {
         resultObject = await response.json();
     }
@@ -48,8 +48,9 @@ export async function fetchJson<T>(url: string, init: RequestInit): Promise<T> {
 export async function fetchCsrfToken(): Promise<string> {
     const viewModel = getViewModel();
     if (viewModel.$csrfToken == null) {
+        let response;
         try {
-            var response = await fetch(getVirtualDirectory() + "/___dotvvm-create-csrf-token___")
+            response = await fetch(getVirtualDirectory() + "/___dotvvm-create-csrf-token___")
         }
         catch (err) {
             console.warn(`CSRF token fetch failed.`);
@@ -68,7 +69,7 @@ export async function fetchCsrfToken(): Promise<string> {
 
 export async function retryOnInvalidCsrfToken<TResult>(postbackFunction: () => Promise<TResult>, iteration: number = 0): Promise<TResult> {
     try {
-        var result = await postbackFunction();
+        const result = await postbackFunction();
         return result;
     }
     catch (err) {
@@ -91,7 +92,7 @@ export async function retryOnInvalidCsrfToken<TResult>(postbackFunction: () => P
 
 function appendAdditionalHeaders(headers: Headers, additionalHeaders?: { [key: string]: string }) {
     if (additionalHeaders) {
-        for (let key of Object.keys(additionalHeaders)) {
+        for (const key of Object.keys(additionalHeaders)) {
             headers.append(key, additionalHeaders[key]);
         }
     }

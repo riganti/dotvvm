@@ -1,11 +1,11 @@
-﻿import { isObservableArray } from './utils/knockout'
+import { isObservableArray } from "./knockout";
 
-export function evaluateOnViewModel(context: any, expression: string) {
-    var result;
+export function evaluateOnViewModel(context: any, expression: string): any {
+    // todo: reimplement
+    let result;
     if (context && context.$data) {
         result = new Function("$context", "with($context) { with ($data) { return " + expression + "; } }")(context);
-    }
-    else {
+    } else {
         result = new Function("$context", "var $data=$context; with($context) { return " + expression + "; }")(context);
     }
     if (result && result.$data) {
@@ -14,9 +14,11 @@ export function evaluateOnViewModel(context: any, expression: string) {
     return result;
 }
 
-export function getDataSourceItems(viewModel: any) {
-    var value = ko.unwrap(viewModel);
-    if (value == null) return [];
+export function getDataSourceItems(viewModel: any): Array<KnockoutObservable<any>> {
+    const value = ko.unwrap(viewModel);
+    if (value == null) {
+        return [];
+    }
     return ko.unwrap(value.Items || value);
 }
 
@@ -41,8 +43,7 @@ function updateObservable(getObservable: () => KnockoutObservable<any>, value: a
 
     if (!ko.isWriteableObservable(result)) {
         console.error(`Cannot write a value to ko.computed because the expression '${getObservable}' does not return a writable observable.`);
-    }
-    else {
+    } else {
         result(value);
     }
 }
@@ -52,8 +53,7 @@ function updateObservableArray(getObservableArray: () => KnockoutObservableArray
 
     if (!isObservableArray(result)) {
         console.error(`Cannot execute '${fnName}' function on ko.computed because the expression '${getObservableArray}' does not return an observable array.`);
-    }
-    else {
+    } else {
         result[fnName].apply(result, args);
     }
 }

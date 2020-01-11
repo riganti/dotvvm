@@ -149,7 +149,6 @@ namespace DotVVM.Framework.Controls
                 default);
 
             var call = adjustedExpression.ToString(p =>
-                p == CommandBindingExpression.ViewModelNameParameter ? new CodeParameterAssignment("\"root\"", OperatorPrecedence.Max) :
                 p == CommandBindingExpression.SenderElementParameter ? options.ElementAccessor :
                 p == CommandBindingExpression.CurrentPathParameter ? new CodeParameterAssignment(
                     getContextPath(control),

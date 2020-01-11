@@ -1,8 +1,8 @@
 export function parseDate(value: string): Date | null {
-    var match = value.match("^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(\\.[0-9]{3,7})$");
+    const match = value.match("^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(\\.[0-9]{3,7})$");
     if (match) {
-        return new Date(parseInt(match[1]), parseInt(match[2]) - 1, parseInt(match[3]),
-            parseInt(match[4]), parseInt(match[5]), parseInt(match[6]), match.length > 7 ? parseInt(match[7].substring(1, 4)) : 0);
+        return new Date(parseInt(match[1], 10), parseInt(match[2], 10) - 1, parseInt(match[3], 10),
+            parseInt(match[4], 10), parseInt(match[5], 10), parseInt(match[6], 10), match.length > 7 ? parseInt(match[7].substring(1, 4), 10) : 0);
     }
     return null;
 }
@@ -20,11 +20,12 @@ export function serializeDate(date: string | Date | null, convertToUtc: boolean 
         return null;
     } else if (typeof date == "string") {
         // just print in the console if it's invalid
-        if (parseDate(date) == null)
+        if (parseDate(date) == null) {
             console.error(new Error(`Date ${date} is invalid.`));
+        }
         return date;
     }
-    var date2 = new Date(date.getTime());
+    let date2 = new Date(date.getTime());
     if (convertToUtc) {
         date2.setMinutes(date.getMinutes() + date.getTimezoneOffset());
     } else {

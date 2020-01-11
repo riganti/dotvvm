@@ -1,7 +1,7 @@
-var updateProgressChangeCounter = ko.observable(0);
-var postbackQueues: { 
-    [name: string]: { 
-        queue: (() => void)[], 
+export const updateProgressChangeCounter = ko.observable(0);
+export const postbackQueues: {
+    [name: string]: {
+        queue: Array<(() => void)>,
         runningPostbacksCount: number
     }
 } = {};
@@ -11,7 +11,7 @@ export function getPostbackQueue(name = "default") {
         postbackQueues[name] = { queue: [], runningPostbacksCount: 0 };
     }
 
-    let entry = postbackQueues[name];
+    const entry = postbackQueues[name];
     return {
         queue: entry.queue,
         noRunning: entry.runningPostbacksCount
@@ -19,19 +19,19 @@ export function getPostbackQueue(name = "default") {
 }
 
 export function enterActivePostback(queueName: string) {
-    let queue = getPostbackQueue(queueName);
+    const queue = getPostbackQueue(queueName);
     queue.noRunning++;
     updateProgressChangeCounter(updateProgressChangeCounter() + 1);
 }
 
 export function leaveActivePostback(queueName: string) {
-    let queue = getPostbackQueue(queueName);
+    const queue = getPostbackQueue(queueName);
     queue.noRunning--;
     updateProgressChangeCounter(updateProgressChangeCounter() - 1);
 }
 
 export function runNextInQueue(queueName: string) {
-    let queue = getPostbackQueue(queueName);
+    const queue = getPostbackQueue(queueName);
     if (queue.queue.length > 0) {
         const callback = queue.queue.shift()!;
         window.setTimeout(callback, 0);

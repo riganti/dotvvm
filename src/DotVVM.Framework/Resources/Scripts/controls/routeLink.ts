@@ -4,7 +4,9 @@ export function buildRouteUrl(routePath: string, params: any): string {
     routePath = '/' + routePath;
 
     const url = routePath.replace(/(\/[^\/]*?)\{([^\}]+?)\??(:(.+?))?\}/g, (s, prefix, paramName, _, type) => {
-        if (!paramName) return "";
+        if (!paramName) {
+            return "";
+        }
         const x = ko.unwrap(params[paramName.toLowerCase()])
         return x == null ? "" : prefix + x;
     });
@@ -16,19 +18,20 @@ export function buildRouteUrl(routePath: string, params: any): string {
 }
 
 export function buildUrlSuffix(urlSuffix: string, query: any): string {
-    const hashIndex = urlSuffix.indexOf("#")
-    let [resultSuffix, hashSuffix] =
-        hashIndex != -1 ?
-            [ urlSuffix.substring(0, hashIndex), urlSuffix.substring(hashIndex) ] :
-            [ urlSuffix, "" ];
-    for (const property of Object.keys(query)) {
-        if (!property) continue;
-        var queryParamValue = ko.unwrap(query[property]);
-        if (queryParamValue == null) continue;
+    const hashIndex = urlSuffix.indexOf("#");
+    let resultSuffix = hashIndex != -1 ? urlSuffix.substring(0, hashIndex) : urlSuffix;
+    const hashSuffix = hashIndex != -1 ? urlSuffix.substring(hashIndex) : "";
 
-        resultSuffix +=
-            (resultSuffix.indexOf("?") != -1 ? "&" : "?")
-            + `${property}=${queryParamValue}`
+    for (const property of Object.keys(query)) {
+        if (!property) {
+            continue;
+        }
+        const queryParamValue = ko.unwrap(query[property]);
+        if (queryParamValue == null) {
+            continue;
+        }
+
+        resultSuffix += (resultSuffix.indexOf("?") != -1 ? "&" : "?") + `${property}=${queryParamValue}`
     }
     return resultSuffix + hashSuffix;
 }

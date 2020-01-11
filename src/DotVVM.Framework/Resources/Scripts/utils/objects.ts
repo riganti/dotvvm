@@ -8,3 +8,5 @@ export const createArray =
             return ([] as T[]).slice.apply(a)
         } :
         Array.from;
+
+export const hasOwnProperty = (obj: any, prop: string) => Object.prototype.hasOwnProperty.call(obj, prop);

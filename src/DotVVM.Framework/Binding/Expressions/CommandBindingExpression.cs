@@ -65,7 +65,6 @@ namespace DotVVM.Framework.Binding.Expressions
             }
         }
 
-        public static CodeSymbolicParameter ViewModelNameParameter = new CodeSymbolicParameter("CommandBindingExpression.ViewModelNameParameter", CodeParameterAssignment.FromLiteral("root"));
         public static CodeSymbolicParameter SenderElementParameter = new CodeSymbolicParameter("CommandBindingExpression.SenderElementParameter");
         public static CodeSymbolicParameter CurrentPathParameter = new CodeSymbolicParameter("CommandBindingExpression.CurrentPathParameter");
         public static CodeSymbolicParameter CommandIdParameter = new CodeSymbolicParameter("CommandBindingExpression.CommandIdParameter");
@@ -75,7 +74,6 @@ namespace DotVVM.Framework.Binding.Expressions
 
         private static ParametrizedCode createJavascriptPostbackInvocation(JsExpression commandArgs) =>
             new JsIdentifierExpression("dotvvm").Member("postBack").Invoke(
-                new JsSymbolicParameter(ViewModelNameParameter),
                 new JsSymbolicParameter(SenderElementParameter),
                 new JsSymbolicParameter(CurrentPathParameter),
                 new JsSymbolicParameter(CommandIdParameter),

@@ -8,25 +8,11 @@
     "removeComments": false,
     "sourceMap": true,
     "target": "es2018",
-    // "outFile": "Resources/Scripts/DotVVM.js",
+    "outDir": "obj/typescript-raw-build",
     "declaration": true,
     "strictNullChecks": true,
-    "lib": ["dom", "es2015.promise", "es5"],
+    "lib": ["dom", "es2015.promise", "es5", "es6"],
     "module": "es6"
   },
-  // "files": [
-  //   "Resources/Scripts/DotVVM.Polyfills.ts",
-  //   "Resources/Scripts/DotVVM.DomUtils.ts",
-  //   "Resources/Scripts/DotVVM.SpaHistory.ts",
-  //   "Resources/Scripts/DotVVM.Events.ts",
-  //   "Resources/Scripts/DotVVM.FileUpload.ts",
-  //   "Resources/Scripts/DotVVM.Globalize.ts",
-  //   "Resources/Scripts/DotVVM.PostBackHandlers.ts",
-  //   "Resources/Scripts/DotVVM.Serialization.ts",
-  //   "Resources/Scripts/DotVVM.Validation.ts",
-  //   "Resources/Scripts/DotVVM.ts",
-  //   "Resources/Scripts/DotVVM.Evaluator.ts",
-  //   "Resources/Scripts/DotVVM.Api.ts"
-  // ],
   "compileOnSave": true
 }

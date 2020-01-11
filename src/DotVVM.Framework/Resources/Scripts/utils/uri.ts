@@ -1,7 +1,7 @@
 import { getVirtualDirectory } from '../dotvvm-base';
 
 export function removeVirtualDirectoryFromUrl(url: string): string {
-    var virtualDirectory = "/" + getVirtualDirectory();
+    const virtualDirectory = "/" + getVirtualDirectory();
     if (url.indexOf(virtualDirectory) == 0) {
         return addLeadingSlash(url.substring(virtualDirectory.length));
     } else {

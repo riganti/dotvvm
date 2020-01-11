@@ -1,17 +1,16 @@
-import { dotvvm } from '../dotvvm-root';
 import { wrapObservable } from '../utils/knockout';
 import { deserialize } from '../serialization/deserialize';
 
 export function showUploadDialog(sender: HTMLElement) {
     // trigger the file upload dialog
-    var iframe = getIframe(sender);
+    const iframe = getIframe(sender);
     createUploadId(sender, iframe);
     openUploadDialog(iframe);
 }
 
 export function createUploadId(sender: HTMLElement, iframe: HTMLElement): void {
     iframe = iframe || getIframe(sender);
-    var uploadId = "DotVVM_upl" + new Date().getTime().toString();
+    const uploadId = "DotVVM_upl" + new Date().getTime().toString();
     sender.parentElement!.parentElement!.setAttribute("data-dotvvm-upload-id", uploadId);
 
     iframe.setAttribute("data-dotvvm-upload-id", uploadId);
@@ -19,8 +18,8 @@ export function createUploadId(sender: HTMLElement, iframe: HTMLElement): void {
 
 export function reportProgress(targetControlId: any, isBusy: boolean, progress: number, result: DotvvmFileUploadData[] | string): void {
     // find target control viewmodel
-    var targetControl = <HTMLDivElement>document.querySelector("div[data-dotvvm-upload-id='" + targetControlId.value + "']");
-    var viewModel = <DotvvmFileUploadCollection>ko.dataFor(targetControl.firstChild);
+    const targetControl = <HTMLDivElement> document.querySelector("div[data-dotvvm-upload-id='" + targetControlId.value + "']");
+    const viewModel = <DotvvmFileUploadCollection> ko.dataFor(targetControl.firstChild);
 
     // determine the status
     if (typeof result === "string") {
@@ -29,13 +28,13 @@ export function reportProgress(targetControlId: any, isBusy: boolean, progress: 
     } else {
         // files were uploaded successfully
         viewModel.Error("");
-        for (var i = 0; i < result.length; i++) {
+        for (let i = 0; i < result.length; i++) {
             viewModel.Files.push(wrapObservable(deserialize(result[i])));
         }
 
         // call the handler
-        if ((targetControl.attributes["data-dotvvm-upload-completed"] || { value: null }).value) {
-            new Function(targetControl.attributes["data-dotvvm-upload-completed"].value).call(targetControl);
+        if (((<any> targetControl.attributes)["data-dotvvm-upload-completed"] || { value: null }).value) {
+            new Function((<any> targetControl.attributes)["data-dotvvm-upload-completed"].value).call(targetControl);
         }
     }
     viewModel.Progress(progress);
@@ -43,13 +42,13 @@ export function reportProgress(targetControlId: any, isBusy: boolean, progress: 
 }
 
 function getIframe(sender: HTMLElement): HTMLIFrameElement {
-    return <HTMLIFrameElement>sender.parentElement!.previousSibling;
+    return <HTMLIFrameElement> sender.parentElement!.previousSibling;
 }
 
 function openUploadDialog(iframe: HTMLIFrameElement): void {
-    var window = iframe.contentWindow;
+    const window = iframe.contentWindow;
     if (window) {
-        var fileUpload = <HTMLInputElement>window.document.getElementById('upload');
+        const fileUpload = <HTMLInputElement> window.document.getElementById('upload');
         fileUpload.click();
     }
 }
@@ -69,8 +68,6 @@ type DotvvmFileUploadData = {
     IsAllowed: KnockoutObservable<boolean>;
 }
 type DotvvmFileSize = {
-    Bytes : KnockoutObservable<number>;
-    FormattedText : KnockoutObservable<string>;
+    Bytes: KnockoutObservable<number>;
+    FormattedText: KnockoutObservable<string>;
 }
-
-dotvvm.fileUpload = export;

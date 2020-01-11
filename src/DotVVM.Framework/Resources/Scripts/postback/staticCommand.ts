@@ -1,13 +1,14 @@
 import { serialize } from '../serialization/serialize';
 import { deserialize } from '../serialization/deserialize';
 import { getViewModel, getInitialUrl } from '../dotvvm-base';
-import * as events from '../DotVVM.Events';
+import * as events from '../events';
 import * as updater from './updater';
 import * as http from './http'
 import { handleRedirect } from './redirect';
+import { DotvvmPostbackError } from '../shared-classes';
 
-export function staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback = _ => { }, errorCallback = (errorInfo: { xhr?: XMLHttpRequest, error?: any }) => { }) {
-    return staticCommandPostbackCore(sender, command, args).then(
+export function staticCommandPostback_old(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback = (a: any) => { }, errorCallback = (errorInfo: { xhr?: XMLHttpRequest, error?: any }) => { }) {
+    return staticCommandPostback(sender, command, args).then(
         callback,
         errorCallback
     );
@@ -19,16 +20,16 @@ export function staticCommandPostback(viewModelName: string, sender: HTMLElement
     // events.staticCommandMethodFailed.trigger({ data })
 }
 
-async function staticCommandPostbackCore(sender: HTMLElement, command: string, args: any[]) : Promise<any> {
+export function staticCommandPostback(sender: HTMLElement, command: string, args: any[]): Promise<any> {
 
-    return await http.retryOnInvalidCsrfToken(async () => {
-        var csrfToken = await http.fetchCsrfToken();
+    const promise = http.retryOnInvalidCsrfToken(async () => {
+        const csrfToken = await http.fetchCsrfToken();
 
-        var data = serialize({ args, command, "$csrfToken": csrfToken });
+        const data = serialize({ args, command, $csrfToken: csrfToken });
 
         events.staticCommandMethodInvoking.trigger(data);
 
-        var response = await http.postJSON<any>(
+        const response = await http.postJSON<any>(
             getInitialUrl(),
             ko.toJSON(data),
             { "X-PostbackType": "StaticCommand" }
@@ -48,4 +49,14 @@ async function staticCommandPostbackCore(sender: HTMLElement, command: string, a
 
         return result;
     });
+
+    promise.catch(err => {
+        if (err instanceof DotvvmPostbackError) {
+            const r = err.reason;
+            if (r.type == "network") {
+                events.error.trigger({ sender, handled: true, serverResponseObject: r.err });
+            }
+        }
+    });
+    return promise;
 }

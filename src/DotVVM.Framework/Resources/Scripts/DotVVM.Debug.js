@@ -100,9 +100,19 @@
                 displayPostbackAbortedWarning("Postback aborted because validation failed.");
             } else displayPostbackAbortedWarning("Postback interrupted");
         }
-        setDebugMapProperty(dotvvm.viewModels[e.viewModelName]);
+        setDebugMapProperty(dotvvm.viewModels.root);
     });
     dotvvm.events.init.subscribe(function() {
-        setDebugMapProperty(dotvvm.viewModels["root"])
+        setDebugMapProperty(dotvvm.viewModels.root)
     });
+
+    for (var event in dotvvm.events) {
+        if ("subscribe" in dotvvm.events[event]) {
+            (function (event) {
+                dotvvm.events[event].subscribe(e => {
+                    console.log("Event " + event, e);
+                });
+            })(event);
+        }
+    }
 })();

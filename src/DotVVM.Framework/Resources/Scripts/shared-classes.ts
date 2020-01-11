@@ -1,4 +1,4 @@
 export class DotvvmPostbackError {
-    constructor(public reason: PostbackRejectionReason) { 
-    } 
+    constructor(public reason: PostbackRejectionReason) {
+    }
 }

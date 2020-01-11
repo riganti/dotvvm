@@ -1,9 +1,10 @@
 import * as counter from './counter'
 import { postbackCore } from './postbackCore'
 import { getViewModel } from '../dotvvm-base'
+import { defaultConcurrencyPostbackHandler, postbackHandlers, getPostbackHandler } from './handlers';
 import * as internalHandlers from './internal-handlers';
 import { DotvvmPostbackError } from '../shared-classes';
-import * as events from '../DotVVM.Events';
+import * as events from '../events';
 
 const globalPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[] = [
     internalHandlers.suppressOnDisabledElementHandler,
@@ -16,7 +17,6 @@ const globalLaterPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[
 ];
 
 export async function postBack(
-        viewModelName: string,
         sender: HTMLElement,
         path: string[],
         command: string,
@@ -31,12 +31,12 @@ export async function postBack(
     const preparedHandlers = findPostbackHandlers(context, globalPostbackHandlers.concat(handlers || []).concat(globalLaterPostbackHandlers));
     if (preparedHandlers.filter(h => h.name && h.name.indexOf("concurrency-") == 0).length == 0) {
         // add a default concurrency handler if none is specified
-        preparedHandlers.push(internalHandlers.defaultConcurrencyPostbackHandler);
+        preparedHandlers.push(defaultConcurrencyPostbackHandler);
     }
 
     const options: PostbackOptions = {
         postbackId: counter.backUpPostBackCounter(),
-        sender: sender,
+        sender,
         args: commandArgs || [],
         viewModel: context.$data,
         additionalPostbackData: {}
@@ -45,17 +45,21 @@ export async function postBack(
     const postbackCommit = () => postbackCore(options, path, command, controlUniqueId, context, commandArgs);
 
     try {
-        let wrappedPostbackCommit = await applyPostbackHandlersCore(postbackCommit, options, preparedHandlers);
-        var result = await wrappedPostbackCommit();
+        const wrappedPostbackCommit = await applyPostbackHandlersCore(postbackCommit, options, preparedHandlers);
+        const result = await wrappedPostbackCommit();
         events.afterPostback.trigger(result);
-    }
-    catch (err) {
+        return result;
+    } catch (err) {
 
         if (err instanceof DotvvmPostbackError) {
             const wasInterrupted = err.reason.type == "handler" || err.reason.type == "event";
-            const afterPostBackArgsCanceled: DotvvmAfterPostBackEventArgs = {
-                serverResponseObject: err.reason.type == "commit" && err.reason.args ? err.reason.args.serverResponseObject : null,
-                isHandled: false,
+            const serverResponseObject =
+                err.reason.type == "commit" && err.reason.args ? err.reason.args :
+                err.reason.type == "network" ? err.reason.err :
+                null;
+            const eventArgs: DotvvmAfterPostBackEventArgs = {
+                serverResponseObject,
+                handled: false,
                 wasInterrupted,
                 commandResult: null,
                 viewModel: getViewModel(),
@@ -66,40 +70,43 @@ export async function postBack(
                 // trigger afterPostback event
                 events.postbackRejected.trigger({})
             } else if (err.reason.type == "network") {
-                events.error.trigger({ err:  err.reason.err });
+                events.error.trigger(eventArgs);
+                if (!eventArgs.handled) {
+                    console.error("Postback failed", eventArgs);
+                }
             }
-            events.afterPostback.trigger(afterPostBackArgsCanceled);
+            events.afterPostback.trigger(eventArgs);
         }
-
         throw err;
     }
-
-    return result;
 }
 
 function findPostbackHandlers(knockoutContext: KnockoutBindingContext, config: ClientFriendlyPostbackHandlerConfiguration[]) {
-    const createHandler = (name: string, options: any) => options.enabled === false ? null : internalHandlers.getPostbackHandler(name)(options);
-        return <DotvvmPostbackHandler[]>config.map(h =>
-            typeof h == 'string' ? createHandler(h, {}) :
-                isPostbackHandler(h) ? h :
-                    h instanceof Array ? (() => {
-                        const [name, opt] = h;
-                        return createHandler(name, typeof opt == "function" ? opt(knockoutContext, knockoutContext.$data) : opt);
-                    })() :
-                        createHandler(h.name, h.options && h.options(knockoutContext)))
-            .filter(h => h != null);
+    const createHandler = (name: string, options: any) => options.enabled === false ? null : getPostbackHandler(name)(options);
+    return config.map(h => {
+            if (typeof h == 'string') {
+                return createHandler(h, {});
+            } else if (isPostbackHandler(h)) {
+                return h;
+            } else if (h instanceof Array) {
+                const [name, opt] = h;
+                return createHandler(name, typeof opt == "function" ? opt(knockoutContext, knockoutContext.$data) : opt);
+            } else {
+                return createHandler(h.name, h.options && h.options(knockoutContext));
+            }
+        }).filter(h => h != null) as DotvvmPostbackHandler[];
 }
 
 type MaybePromise<T> = Promise<T> | T
 
-async function applyPostbackHandlers(next: (options: PostbackOptions) => MaybePromise<PostbackCommitFunction | any>, sender: HTMLElement, handlerConfigurations?: ClientFriendlyPostbackHandlerConfiguration[], args: any[] = [], context = ko.contextFor(sender), viewModel = context.$root, viewModelName?: string): Promise<DotvvmAfterPostBackEventArgs> {
-    const saneNext = (options: PostbackOptions) => {
-        return wrapCommitFunction(next(options), options)
+async function applyPostbackHandlers(next: (options: PostbackOptions) => MaybePromise<PostbackCommitFunction | any>, sender: HTMLElement, handlerConfigurations?: ClientFriendlyPostbackHandlerConfiguration[], args: any[] = [], context = ko.contextFor(sender), viewModel = context.$root): Promise<DotvvmAfterPostBackEventArgs> {
+    const saneNext = (o: PostbackOptions) => {
+        return wrapCommitFunction(next(o), o)
     }
 
     const options: PostbackOptions = {
         postbackId: counter.backUpPostBackCounter(),
-        sender: sender,
+        sender,
         args: [],
         viewModel: context.$data,
         additionalPostbackData: {}
@@ -111,8 +118,7 @@ async function applyPostbackHandlers(next: (options: PostbackOptions) => MaybePr
         const commit = await applyPostbackHandlersCore(saneNext, options, handlers);
         const result = await commit()
         return result;
-    }
-    catch (reason) {
+    } catch (reason) {
         if (reason) {
             console.log("Rejected: " + reason);
         }
@@ -121,43 +127,43 @@ async function applyPostbackHandlers(next: (options: PostbackOptions) => MaybePr
 }
 
 async function applyPostbackHandlersCore(next: (options: PostbackOptions) => Promise<PostbackCommitFunction>, options: PostbackOptions, handlers: DotvvmPostbackHandler[]) {
-
     let fired = false
-    next = (options: PostbackOptions) => {
-        if (fired) throw new Error("The same postback can't run twice.");
-        fired = true
-        return next(options)
+    const nextWithCheck = (o: PostbackOptions) => {
+        if (fired) {
+            throw new Error("The same postback can't run twice.");
+        }
+        fired = true;
+        return next(o);
     }
 
     const sortedHandlers = sortHandlers(handlers)
 
-    function recursiveCore(index:number): Promise<PostbackCommitFunction> {
-        if (index == sortedHandlers.length)
-            return next(options)
-        else
+    function recursiveCore(index: number): Promise<PostbackCommitFunction> {
+        if (index == sortedHandlers.length) {
+            return nextWithCheck(options);
+        } else {
             return sortedHandlers[index].execute(
                 () => recursiveCore(index + 1),
                 options
-            )
+            );
+        }
     }
-    return recursiveCore(0)
+    return recursiveCore(0);
 }
 
-function wrapCommitFunction(value: MaybePromise<PostbackCommitFunction | any>, options: PostbackOptions) : Promise<PostbackCommitFunction> {
+function wrapCommitFunction(value: MaybePromise<PostbackCommitFunction | any>, options: PostbackOptions): Promise<PostbackCommitFunction> {
 
-    return Promise.resolve(value)
-           .then(v => {
+    return Promise.resolve(value).then(v => {
         if (typeof v == "function") {
-            return <PostbackCommitFunction>value;
-        }
-        else {
+            return <PostbackCommitFunction> value;
+        }  else {
             return () => Promise.resolve<DotvvmAfterPostBackEventArgs>({
                 postbackOptions: options,
                 postbackClientId: options.postbackId,
                 serverResponseObject: null,
                 commandResult: value,
                 wasInterrupted: false,
-                isHandled: true,
+                handled: true,
                 viewModel: options.viewModel!
             });
         }
@@ -171,16 +177,22 @@ export function isPostbackHandler(obj: any): obj is DotvvmPostbackHandler {
 export function sortHandlers(handlers: DotvvmPostbackHandler[]): DotvvmPostbackHandler[] {
     const getHandler = (() => {
         const handlerMap: { [name: string]: DotvvmPostbackHandler } = {};
-        for (const h of handlers) if (h.name != null) {
-            handlerMap[h.name] = h;
+        for (const h of handlers) {
+            if (h.name != null) {
+                handlerMap[h.name] = h;
+            }
         }
         return (s: string | DotvvmPostbackHandler) => typeof s == "string" ? handlerMap[s] : s;
     })();
-    const dependencies = handlers.map((handler, i) => (handler["@sort_index"] = i, ({ handler, deps: (handler.after || []).map(getHandler) })));
+    const dependencies = handlers.map((handler, i) => ((<any> handler)["@sort_index"] = i, ({ handler, deps: (handler.after || []).map(getHandler) })));
     for (const h of handlers) {
-        if (h.before) for (const before of h.before.map(getHandler)) if (before) {
-            const index = before["@sort_index"] as number;
-            dependencies[index].deps.push(h);
+        if (h.before) {
+            for (const before of h.before.map(getHandler)) {
+                if (before) {
+                    const index = (<any> before)["@sort_index"] as number;
+                    dependencies[index].deps.push(h);
+                }
+            }
         }
     }
 
@@ -193,12 +205,14 @@ export function sortHandlers(handlers: DotvvmPostbackHandler[]): DotvvmPostbackH
             case 2: return; // it's already in the list
             default: throw new Error("");
         }
-        if (doneBitmap[index] == 1) return;
+        if (doneBitmap[index] == 1) {
+            return;
+        }
         doneBitmap[index] = 1;
 
         const { handler, deps } = dependencies[index];
         for (const d of deps) {
-            addToResult(d["@sort_index"]);
+            addToResult((<any> d)["@sort_index"]);
         }
 
         doneBitmap[index] = 2;
@@ -209,4 +223,3 @@ export function sortHandlers(handlers: DotvvmPostbackHandler[]): DotvvmPostbackH
     }
     return result;
 }
-

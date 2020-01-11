@@ -1,24 +1,16 @@
 import { parseDate as parseDotvvmDate, serializeDate } from '../serialization/date'
 import * as globalize from '../DotVVM.Globalize'
-
-export type DotvvmValidationObservableMetadata = DotvvmValidationElementMetadata[];
-export interface DotvvmValidationElementMetadata {
-    element: HTMLElement;
-    dataType: string;
-    format: string;
-    domNodeDisposal: boolean;
-    elementValidationState: boolean;
-}
+import { DotvvmValidationElementMetadata, DotvvmValidationObservableMetadata } from '../validation/common';
 
 // handler dotvvm-textbox-text
 export default {
     "dotvvm-textbox-text": {
         init(element: HTMLInputElement, valueAccessor: () => any, allBindingsAccessor?: KnockoutAllBindingsAccessor) {
-            var obs = valueAccessor(),
-                valueUpdate = allBindingsAccessor!.get("valueUpdate");
+            const obs = valueAccessor();
+            const valueUpdate = allBindingsAccessor!.get("valueUpdate");
 
-            //generate metadata func
-            var elmMetadata : DotvvmValidationElementMetadata = {
+            // generate metadata func
+            const elmMetadata: DotvvmValidationElementMetadata = {
                 element,
                 dataType: element.getAttribute("data-dotvvm-value-type") || "",
                 format: element.getAttribute("data-dotvvm-format") || "",
@@ -26,7 +18,7 @@ export default {
                 elementValidationState: true
             }
 
-            //add metadata for validation
+            // add metadata for validation
             let metadata = [] as DotvvmValidationObservableMetadata
             if (ko.isObservable(obs)) {
                 if (!obs.dotvvmMetadata) {
@@ -48,14 +40,18 @@ export default {
                 });
             }, 0);
 
-
             element.addEventListener("change", () => {
-                if (!ko.isObservable(obs)) return;
+                if (!ko.isObservable(obs)) {
+                    return;
+                }
+
                 // parse the value
-                var result, isEmpty, newValue;
+                let result;
+                let isEmpty;
+                let newValue;
                 if (elmMetadata.dataType === "datetime") {
                     // parse date
-                    var currentValue = obs();
+                    let currentValue = obs();
                     if (currentValue != null) {
                         currentValue = parseDotvvmDate(currentValue);
                     }
@@ -92,29 +88,28 @@ export default {
             });
         },
         update(element: HTMLInputElement, valueAccessor: () => any) {
-            var obs = valueAccessor(),
-                format = element.getAttribute("data-dotvvm-format"),
-                value = ko.unwrap(obs);
+            const obs = valueAccessor();
+            const format = element.getAttribute("data-dotvvm-format");
+            const value = ko.unwrap(obs);
 
             if (format) {
-                const formatted = globalize.formatString(format, value),
-                    invalidValue = element.getAttribute("data-invalid-value");
+                const formatted = globalize.formatString(format, value);
+                const invalidValue = element.getAttribute("data-invalid-value");
 
                 if (invalidValue == null) {
                     element.value = formatted || "";
 
                     if (obs.dotvvmMetadata) {
-                        var elemsMetadata: DotvvmValidationElementMetadata[] = obs.dotvvmMetadata;
+                        const elementMetadata: DotvvmValidationElementMetadata[] = obs.dotvvmMetadata;
 
-                        for (const elemMetadata of elemsMetadata) {
+                        for (const elemMetadata of elementMetadata) {
                             if (elemMetadata.element == element) {
                                 element.setAttribute("data-dotvvm-value-type-valid", "true");
                                 elemMetadata.elementValidationState = true;
                             }
                         }
                     }
-                }
-                else {
+                } else {
                     element.removeAttribute("data-invalid-value");
                     element.value = invalidValue;
                 }

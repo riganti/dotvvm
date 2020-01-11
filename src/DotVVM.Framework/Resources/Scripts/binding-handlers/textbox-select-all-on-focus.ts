@@ -10,8 +10,7 @@ export default {
 
             if (value === true) {
                 element.addEventListener("focus", element.$selectAllOnFocusHandler);
-            }
-            else {
+            } else {
                 element.removeEventListener("focus", element.$selectAllOnFocusHandler);
             }
         }

@@ -2,7 +2,7 @@ import { getElementByDotvvmId } from '../utils/dom'
 import { getViewModel, replaceViewModel } from '../dotvvm-base'
 import { deserialize } from '../serialization/deserialize'
 
-var isViewModelUpdating: boolean = false;
+let isViewModelUpdating: boolean = false;
 
 export function getIsViewModelUpdating() {
     return isViewModelUpdating;
@@ -10,11 +10,11 @@ export function getIsViewModelUpdating() {
 
 export function cleanUpdatedControls(resultObject: any, updatedControls: any = {}) {
     for (const id of Object.keys(resultObject.updatedControls)) {
-        var control = getElementByDotvvmId(id);
+        const control = getElementByDotvvmId(id);
         if (control) {
-            var dataContext = ko.contextFor(control);
-            var nextSibling = control.nextSibling;
-            var parent = control.parentNode;
+            const dataContext = ko.contextFor(control);
+            const nextSibling = control.nextSibling;
+            const parent = control.parentNode;
             ko.removeNode(control);
             updatedControls[id] = { control: control, nextSibling: nextSibling, parent: parent, dataContext: dataContext };
         }
@@ -24,14 +24,20 @@ export function cleanUpdatedControls(resultObject: any, updatedControls: any = {
 
 export function restoreUpdatedControls(resultObject: any, updatedControls: any, applyBindingsOnEachControl: boolean) {
     for (const id of Object.keys(resultObject.updatedControls)) {
-        var updatedControl = updatedControls[id];
+        const updatedControl = updatedControls[id];
         if (updatedControl) {
-            var wrapper = document.createElement(updatedControls[id].parent.tagName || "div");
+            const wrapper = document.createElement(updatedControls[id].parent.tagName || "div");
             wrapper.innerHTML = resultObject.updatedControls[id];
-            if (wrapper.childElementCount > 1) throw new Error("Postback.Update control can not render more than one element");
-            var element = wrapper.firstElementChild;
-            if (element.id == null) throw new Error("Postback.Update control always has to render id attribute.");
-            if (element.id !== updatedControls[id].control.id) console.log(`Postback.Update control changed id from '${updatedControls[id].control.id}' to '${element.id}'`);
+            if (wrapper.childElementCount > 1) {
+                throw new Error("Postback.Update control can not render more than one element");
+            }
+            const element = wrapper.firstElementChild;
+            if (element.id == null) {
+                throw new Error("Postback.Update control always has to render id attribute.");
+            }
+            if (element.id !== updatedControls[id].control.id) {
+                console.log(`Postback.Update control changed id from '${updatedControls[id].control.id}' to '${element.id}'`);
+            }
             wrapper.removeChild(element);
             if (updatedControl.nextSibling) {
                 updatedControl.parent.insertBefore(element, updatedControl.nextSibling);
@@ -42,28 +48,23 @@ export function restoreUpdatedControls(resultObject: any, updatedControls: any, 
     }
 
     if (applyBindingsOnEachControl) {
-        window.setTimeout(() => {
-            try {
-                for (const id of Object.keys(resultObject.updatedControls)) {
-                    var updatedControl = getElementByDotvvmId(id);
-                    if (updatedControl) {
-                        ko.applyBindings(updatedControls[id].dataContext, updatedControl);
-                    }
+        Promise.resolve(0).then(_ => {
+            for (const id of Object.keys(resultObject.updatedControls)) {
+                const updatedControl = getElementByDotvvmId(id);
+                if (updatedControl) {
+                    ko.applyBindings(updatedControls[id].dataContext, updatedControl);
                 }
             }
-            finally {
-            }
-        }, 0);
+        });
     }
 }
 
 export function updateViewModelAndControls(resultObject: any, clearViewModel: boolean) {
-    try 
-    {
+    try {
         isViewModelUpdating = true;
-        
+
         // remove updated controls
-        var updatedControls = cleanUpdatedControls(resultObject);
+        const updatedControls = cleanUpdatedControls(resultObject);
 
         // update viewmodel
         if (clearViewModel) {

@@ -10,7 +10,7 @@ import updateProgress from './update-progress'
 type KnockoutHandlerDictionary = {
     [name: string]: KnockoutBindingHandler
 }
-const allHandlers : KnockoutHandlerDictionary = {
+const allHandlers: KnockoutHandlerDictionary = {
     ...textbox,
     ...ssrForeach,
     ...aliases,
