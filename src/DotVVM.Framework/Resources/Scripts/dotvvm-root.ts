@@ -12,6 +12,10 @@ import * as globalize from './DotVVM.Globalize'
 import { staticCommandPostback } from './postback/staticCommand'
 import { applyPostbackHandlers } from './postback/postback'
 import { isSpaReady } from "./spa/spa"
+import { buildRouteUrl, buildUrlSuffix } from './controls/routeLink'
+import * as fileUpload from './controls/fileUpload'
+import { handleSpaNavigation } from './spa/spa'
+import { postbackHandlers } from './postback/handlers'
 
 if (compileConstants.nomodules) {
     addPolyfills()
@@ -38,16 +42,17 @@ const dotvvmExports = {
         getDataSourceItems: evaluator.getDataSourceItems,
         wrapObservable: evaluator.wrapObservable
     },
-    // fileUpload,
+    fileUpload: {
+        reportProgress: fileUpload.reportProgress,
+        showUploadDialog: fileUpload.showUploadDialog
+    },
     // getXHR,
     globalize: {
         formatString: globalize.formatString
     },
-    // postBackHandlers,
-    // handleSpaNavigation,
-    // buildUrlSuffix,
-    // isSpaReady,
-    // buildRouteUrl,
+    postBackHandlers: postbackHandlers,
+    buildUrlSuffix,
+    buildRouteUrl,
     staticCommandPostback,
     applyPostbackHandlers,
     validation: validation.globalValidationObject,
@@ -70,6 +75,7 @@ const dotvvmExports = {
 
 if (compileConstants.isSpa) {
     (dotvvmExports as any).isSpaReady = isSpaReady;
+    (dotvvmExports as any).handleSpaNavigation = handleSpaNavigation;
 }
 
 declare global {

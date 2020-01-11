@@ -142,7 +142,7 @@ type PostbackResponse =
    (  { viewModel: RootViewModel, viewModelDiff: undefined }
     | { viewModelDiff: object, viewModel: object | undefined })
     & {
-        resources: RenderedResourceList
+        resources?: RenderedResourceList
         commandResult: any
         action: string
         resultIdFragment?: string

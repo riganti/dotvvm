@@ -16,7 +16,9 @@ export function registerResources(rs: string[] | null | undefined) {
 
 export const getRenderedResources = () => Object.keys(resourceSigns)
 
-export async function loadResourceList(resources: RenderedResourceList) {
+export async function loadResourceList(resources: RenderedResourceList | undefined) {
+    if (!resources) return;
+
     var html = "";
     for (const name of Object.keys(resources)) {
         if (!/^__noname_\d+$/.test(name)) {

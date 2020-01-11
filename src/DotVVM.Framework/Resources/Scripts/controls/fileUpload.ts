@@ -8,7 +8,7 @@ export function showUploadDialog(sender: HTMLElement) {
     openUploadDialog(iframe);
 }
 
-export function createUploadId(sender: HTMLElement, iframe: HTMLElement): void {
+function createUploadId(sender: HTMLElement, iframe: HTMLElement): void {
     iframe = iframe || getIframe(sender);
     const uploadId = "DotVVM_upl" + new Date().getTime().toString();
     sender.parentElement!.parentElement!.setAttribute("data-dotvvm-upload-id", uploadId);
