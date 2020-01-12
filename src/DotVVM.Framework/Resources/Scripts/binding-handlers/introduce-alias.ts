@@ -1,7 +1,4 @@
 import { deserialize } from '../serialization/deserialize'
-import makeUpdatableChildrenContextHandler from './makeUpdatableChildrenContext'
-import foreachCollectionSymbol from './foreachCollectionSymbol'
-import { getDataSourceItems } from '../utils/evaluator'
 
 function createWrapperComputed<T>(accessor: () => KnockoutObservable<T> | T, propertyDebugInfo: string | null = null) {
     const computed = ko.pureComputed({
@@ -22,7 +19,6 @@ function createWrapperComputed<T>(accessor: () => KnockoutObservable<T> | T, pro
 }
 
 ko.virtualElements.allowedBindings["dotvvm_withControlProperties"] = true;
-ko.virtualElements.allowedBindings["withGridViewDataSet"] = true;
 export default {
     "dotvvm_withControlProperties": {
         init: (element: HTMLElement, valueAccessor: () => any, allBindings?: any, viewModel?: any, bindingContext?: KnockoutBindingContext) => {
@@ -44,11 +40,5 @@ export default {
             ko.applyBindingsToDescendants(innerBindingContext, element);
             return { controlsDescendantBindings: true }; // do not apply binding again
         }
-    },
-    "withGridViewDataSet": {
-        init: makeUpdatableChildrenContextHandler(
-            (bindingContext, value) => bindingContext.extend({ $gridViewDataSet: value, [foreachCollectionSymbol]: getDataSourceItems(value) }),
-            _ => true
-        )
     }
 };

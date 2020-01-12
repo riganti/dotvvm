@@ -8,7 +8,7 @@ type SeenUpdateElement = HTMLElement & { seenUpdate?: number };
 
 export default {
     "dotvvm-SSR-foreach": {
-        init: makeUpdatableChildrenContextHandler(
+        init: makeUpdatableChildrenContextHandler( // TODO: this is only usage - inline it here
             (bindingContext, rawValue) => bindingContext.extend({ [foreachCollectionSymbol]: rawValue.data }),
             v => v.data != null)
     },
