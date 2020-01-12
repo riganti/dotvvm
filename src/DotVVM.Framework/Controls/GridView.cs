@@ -447,13 +447,14 @@ namespace DotVVM.Framework.Controls
 
                     var placeholder = new DataItemContainer { DataContext = null };
                     placeholder.SetDataContextTypeFromDataSource(GetBinding(DataSourceProperty));
-                    var gridViewDataSetExpr = GetValueBinding(DataSourceProperty).GetKnockoutBindingExpression(placeholder, unwrapped: true);
                     placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
                     placeholder.SetValue(Internal.ClientIDFragmentProperty, GetValueRaw(Internal.CurrentIndexBindingProperty));
+                    Children.Add(placeholder);
+                    CreateTemplates(context, placeholder);
+
+                    var gridViewDataSetExpr = GetValueBinding(DataSourceProperty).GetKnockoutBindingExpression(placeholder, unwrapped: true);
                     writer.WriteKnockoutDataBindComment("if", $"({gridViewDataSetExpr}).RowEditOptions().EditRowId() " +
                         $"!== ko.unwrap($data['{primaryKeyPropertyName}'])");
-                    CreateTemplates(context, placeholder);
-                    Children.Add(placeholder);
                     placeholder.Render(writer, context);
                     writer.WriteKnockoutDataBindEndComment();
 
