@@ -313,14 +313,6 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
-        /// Add knockout data bind comment dotvvm_withControlProperties with the specified properties
-        /// </summary>
-        public static void AddCommentAliasBinding(IHtmlWriter writer, IDictionary<string, string> properties)
-        {
-            writer.WriteKnockoutDataBindComment("dotvvm-introduceAlias", "{" + string.Join(", ", properties.Select(p => JsonConvert.ToString(p.Key, '"', StringEscapeHandling.EscapeHtml) + ":" + properties.Values)) + "}");
-        }
-
-        /// <summary>
         /// Writes text iff the property contains hard-coded value OR
         /// writes knockout text binding iff the property contains binding
         /// </summary>

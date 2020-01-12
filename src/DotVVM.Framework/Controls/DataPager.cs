@@ -168,18 +168,12 @@ namespace DotVVM.Framework.Controls
 
             var bindings = context.Services.GetRequiredService<CommonBindings>();
 
-            object enabledValue = (HasValueBinding(EnabledProperty) ?
-                (object)ValueBindingExpression.CreateBinding<bool>(
-                    bindingService.WithoutInitialization(),
-                    h => (bool)GetValueBinding(EnabledProperty).Evaluate(this),
-                    new JsSymbolicParameter(JavascriptTranslator.KnockoutContextParameter).Member("$pagerEnabled")) :
-                Enabled);
+            object enabledValue = GetValueRaw(EnabledProperty);
 
-            
-            GoToFirstPageButton = CreateNavigationButton("««", FirstPageTemplate,enabledValue, bindings.GoToFirstPageCommand,context);
+            GoToFirstPageButton = CreateNavigationButton("««", FirstPageTemplate, enabledValue, bindings.GoToFirstPageCommand,context);
             ContentWrapper.Children.Add(GoToFirstPageButton);
 
-            GoToPreviousPageButton = CreateNavigationButton("«", PreviousPageTemplate,enabledValue, bindings.GoToPrevPageCommand,context);
+            GoToPreviousPageButton = CreateNavigationButton("«", PreviousPageTemplate, enabledValue, bindings.GoToPrevPageCommand,context);
             ContentWrapper.Children.Add(GoToPreviousPageButton);
 
             // number fields
@@ -275,25 +269,19 @@ namespace DotVVM.Framework.Controls
             {
                 if (IsPropertySet(VisibleProperty))
                     throw new Exception("Visible can't be set on a DataPager when HideWhenOnlyOnePage is true. You can wrap it in an element that hide that or set HideWhenOnlyOnePage to false");
-                writer.AddKnockoutDataBind("visible", $"ko.unwrap({GetDataSetBinding().GetKnockoutBindingExpression(this)}).PagingOptions().PagesCount() > 1");
+                writer.AddKnockoutDataBind("visible", $"({GetDataSetBinding().GetKnockoutBindingExpression(this, unwrapped: true)}).PagingOptions().PagesCount() > 1");
             }
         }
 
         protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            if (HasValueBinding(EnabledProperty))
+            if (GetValueBinding(EnabledProperty) is IValueBinding enabledBinding)
             {
-                writer.WriteKnockoutDataBindComment("dotvvm-introduceAlias",
-                    $"{{ '$pagerEnabled': { GetValueBinding(EnabledProperty).GetKnockoutBindingExpression(this) }}}");
+                AddKnockoutDisabledCssDataBind(writer, context, enabledBinding.GetKnockoutBindingExpression(this));
             }
-
-            if (HasBinding(EnabledProperty))
+            else if (!Enabled)
             {
-                AddKnockoutDisabledCssDataBind(writer, context, "$pagerEnabled()");
-            }
-            else
-            {
-                AddKnockoutDisabledCssDataBind(writer, context, (!Enabled).ToString().ToLower());
+                writer.AddAttribute("class", "disabled", true, " ");
             }
 
             writer.AddKnockoutDataBind("with", this, DataSetProperty, renderEvenInServerRenderingMode: true);
@@ -347,8 +335,9 @@ namespace DotVVM.Framework.Controls
 
         protected virtual HtmlGenericControl CreatePageNumberButton(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            HtmlGenericControl li;
+            HtmlGenericControl li = new HtmlGenericControl("li");
             var currentPageTextContext = DataContextStack.Create(typeof(int), NumberButtonsPlaceHolder.GetDataContextType());
+            li.SetDataContextType(currentPageTextContext);
             var currentPageTextBinding = ValueBindingExpression.CreateBinding(bindingService.WithoutInitialization(),
                 vm => ((int) vm[0] + 1).ToString(),
                 currentPageTextJs,
@@ -359,11 +348,8 @@ namespace DotVVM.Framework.Controls
                 writer.AddKnockoutDataBind("visible", "$data == $parent.PagingOptions().PageIndex()");
                 AddItemCssClass(writer, context);
                 AddKnockoutActiveCssDataBind(writer, context, "$data == $parent.PagingOptions().PageIndex()");
-                li = new HtmlGenericControl("li");
                 var literal = new Literal();
                 literal.DataContext = 0;
-                literal.SetDataContextType(currentPageTextContext);
-
                 literal.SetBinding(Literal.TextProperty, currentPageTextBinding);
                 li.Children.Add(literal);
                 NumberButtonsPlaceHolder.Children.Add(li);
@@ -372,20 +358,18 @@ namespace DotVVM.Framework.Controls
                 writer.AddKnockoutDataBind("visible", "$data != $parent.PagingOptions().PageIndex()");
             }
 
+            li = new HtmlGenericControl("li");
+            li.SetDataContextType(currentPageTextContext);
+
             AddItemCssClass(writer, context);
             AddKnockoutActiveCssDataBind(writer, context, "$data == $parent.PagingOptions().PageIndex()");
-            li = new HtmlGenericControl("li");
             li.SetValue(Internal.PathFragmentProperty, "PagingOptions.NearPageIndexes[$index]");
             var link = new LinkButton();
             li.Children.Add(link);
             link.SetDataContextType(currentPageTextContext);
             link.SetBinding(ButtonBase.TextProperty, currentPageTextBinding);
             link.SetBinding(ButtonBase.ClickProperty, commonBindings.GoToThisPageCommand);
-            object enabledValue = HasValueBinding(EnabledProperty)
-                ? (object) ValueBindingExpression.CreateBinding(bindingService.WithoutInitialization(),
-                    h => GetValueBinding(EnabledProperty).Evaluate(this),
-                    new JsSymbolicParameter(JavascriptTranslator.KnockoutContextParameter).Member("$pagerEnabled"))
-                : Enabled;
+            object enabledValue = GetValueRaw(EnabledProperty);
             if (!true.Equals(enabledValue)) link.SetValue(LinkButton.EnabledProperty, enabledValue);
             NumberButtonsPlaceHolder.Children.Add(li);
             return li;
@@ -394,7 +378,6 @@ namespace DotVVM.Framework.Controls
         protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             writer.RenderEndTag();
-            if (HasValueBinding(EnabledProperty)) writer.WriteKnockoutDataBindEndComment();
         }
 
         private IValueBinding GetDataSetBinding()

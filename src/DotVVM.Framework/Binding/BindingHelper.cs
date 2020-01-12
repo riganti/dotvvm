@@ -43,6 +43,12 @@ namespace DotVVM.Framework.Binding
             JavascriptTranslator.FormatKnockoutScript(code, dataContextLevel: FindDataContextTarget(currentBinding, currentControl).stepsUp);
 
         /// <summary>
+        /// Adjusts the knockout expression to `currentControl`s DataContext like it was translated in `currentBinding`s context
+        /// </summary>
+        public static string FormatKnockoutScript(this ParametrizedCode code, DotvvmBindableObject currentControl, IBinding currentBinding, int additionalDataContextSteps) =>
+            JavascriptTranslator.FormatKnockoutScript(code, dataContextLevel: FindDataContextTarget(currentBinding, currentControl).stepsUp + additionalDataContextSteps);
+
+        /// <summary>
         /// Gets Internal.PathFragmentProperty or DataContext.KnockoutExpression
         /// </summary>
         public static string GetDataContextPathFragment(this DotvvmBindableObject currentControl) =>
