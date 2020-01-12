@@ -131,12 +131,12 @@ export const suppressOnUpdating = (o: any) => ({
 function commonConcurrencyHandler<T>(promise: Promise<PostbackCommitFunction>, options: PostbackOptions, queueName: string): Promise<PostbackCommitFunction> {
     enterActivePostback(queueName);
 
-    const dispatchNext = (args: DotvvmAfterPostBackEventArgs) => {
+    const dispatchNext = (args: DotvvmAfterPostBackEventArgs | undefined) => {
         const drop = () => {
             leaveActivePostback(queueName);
             runNextInQueue(queueName);
         }
-        if (args.redirectPromise) {
+        if (args && args.redirectPromise) {
             args.redirectPromise.then(drop, drop);
         } else {
             drop();

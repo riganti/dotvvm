@@ -34,13 +34,13 @@ export default {
 
                 if (includedQueues.length === 0) {
                     for (const queue of Object.keys(postbackQueues)) {
-                        if (excludedQueues.indexOf(queue) < 0 && postbackQueues[queue].runningPostbacksCount > 0) {
+                        if (excludedQueues.indexOf(queue) < 0 && postbackQueues[queue].noRunning > 0) {
                             shouldRun = true;
                             break;
                         }
                     }
                 } else {
-                    shouldRun = includedQueues.some(q => postbackQueues[q] && postbackQueues[q].runningPostbacksCount > 0);
+                    shouldRun = includedQueues.some(q => postbackQueues[q] && postbackQueues[q].noRunning > 0);
                 }
 
                 if (shouldRun) {

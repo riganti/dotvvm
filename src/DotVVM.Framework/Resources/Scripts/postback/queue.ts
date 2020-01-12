@@ -2,20 +2,17 @@ export const updateProgressChangeCounter = ko.observable(0);
 export const postbackQueues: {
     [name: string]: {
         queue: Array<(() => void)>,
-        runningPostbacksCount: number
+        noRunning: number
     }
 } = {};
 
 export function getPostbackQueue(name = "default") {
     if (!postbackQueues[name]) {
-        postbackQueues[name] = { queue: [], runningPostbacksCount: 0 };
+        postbackQueues[name] = { queue: [], noRunning: 0 };
     }
 
     const entry = postbackQueues[name];
-    return {
-        queue: entry.queue,
-        noRunning: entry.runningPostbacksCount
-    }
+    return entry;
 }
 
 export function enterActivePostback(queueName: string) {
