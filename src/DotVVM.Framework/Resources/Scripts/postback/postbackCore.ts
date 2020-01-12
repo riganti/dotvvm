@@ -86,16 +86,11 @@ async function processPostbackResponse(options: PostbackOptions, postedViewModel
 
     setIdFragment(result.resultIdFragment)
 
-    // trigger afterPostback event
     if (!isSuccess) {
-        const error: DotvvmErrorEventArgs = {
-            ...createPostbackArgs(options),
-            viewModel: getViewModel(),
-            serverResponseObject: result,
-            handled: false
-        }
-        // TODO: error handling
-        throw error;
+        throw new DotvvmPostbackError({
+            type: "serverError",
+            responseObject: result
+        });
     } else {
         return {
             ...createPostbackArgs(options),

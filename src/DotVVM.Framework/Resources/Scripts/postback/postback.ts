@@ -5,6 +5,7 @@ import { defaultConcurrencyPostbackHandler, postbackHandlers, getPostbackHandler
 import * as internalHandlers from './internal-handlers';
 import { DotvvmPostbackError } from '../shared-classes';
 import * as events from '../events';
+import { createPostbackArgs } from '../createPostbackArgs';
 
 const globalPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[] = [
     internalHandlers.suppressOnDisabledElementHandler,
@@ -42,29 +43,29 @@ export async function postBack(
         additionalPostbackData: {}
     };
 
-    const postbackCommit = () => postbackCore(options, path, command, controlUniqueId, context, commandArgs);
+    const coreCallback = () => postbackCore(options, path, command, controlUniqueId, context, commandArgs);
 
     try {
-        const wrappedPostbackCommit = await applyPostbackHandlersCore(postbackCommit, options, preparedHandlers);
+        const wrappedPostbackCommit = await applyPostbackHandlersCore(coreCallback, options, preparedHandlers);
         const result = await wrappedPostbackCommit();
         events.afterPostback.trigger(result);
         return result;
     } catch (err) {
 
         if (err instanceof DotvvmPostbackError) {
-            const wasInterrupted = err.reason.type == "handler" || err.reason.type == "event";
+            const r = err.reason;
+            const wasInterrupted = r.type == "handler" || r.type == "event";
             const serverResponseObject =
-                err.reason.type == "commit" && err.reason.args ? err.reason.args :
-                err.reason.type == "network" ? err.reason.err :
+                r.type == "commit" && r.args ? r.args :
+                r.type == "network" ? r.err :
+                r.type == "serverError" ? r.responseObject :
                 null;
             const eventArgs: DotvvmAfterPostBackEventArgs = {
+                ...createPostbackArgs(options),
                 serverResponseObject,
                 handled: false,
                 wasInterrupted,
                 commandResult: null,
-                viewModel: getViewModel(),
-                postbackOptions: options,
-                postbackClientId: options.postbackId
             }
             if (wasInterrupted) {
                 // trigger afterPostback event
