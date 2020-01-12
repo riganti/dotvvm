@@ -48,9 +48,7 @@ const dotvvmExports = {
         showUploadDialog: fileUpload.showUploadDialog
     },
     // getXHR,
-    globalize: {
-        formatString: globalize.formatString
-    },
+    globalize,
     postBackHandlers: postbackHandlers,
     buildUrlSuffix,
     buildRouteUrl,
