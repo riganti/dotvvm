@@ -17,6 +17,7 @@ import * as fileUpload from './controls/fileUpload'
 import { handleSpaNavigation } from './spa/spa'
 import { postbackHandlers } from './postback/handlers'
 import * as spaEvents from './spa/events'
+import { isPostbackRunning } from "./postback/internal-handlers"
 
 if (compileConstants.nomodules) {
     addPolyfills()
@@ -57,6 +58,7 @@ const dotvvmExports = {
     validation: validation.globalValidationObject,
     postBack,
     init,
+    isPostbackRunning,
     events: (compileConstants.isSpa ?
              { ...events, ...spaEvents } :
              events),
