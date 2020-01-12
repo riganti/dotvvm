@@ -22,7 +22,7 @@ export async function postJSON<T>(url: string, postData: any, additionalHeaders?
 }
 
 export async function fetchJson<T>(url: string, init: RequestInit): Promise<T> {
-    let response;
+    let response: Response;
     try {
         response = await fetch(url, init);
     }
@@ -30,19 +30,15 @@ export async function fetchJson<T>(url: string, init: RequestInit): Promise<T> {
         throw new DotvvmPostbackError({ type: "network", err });
     }
 
-    let resultObject: T;
-    try {
-        resultObject = await response.json();
-    }
-    catch (err) {
-        throw new DotvvmPostbackError({ type: "invalidJson", responseText: await response.text() });
+    const errorResponse = response.status >= 400;
+    const isJson = ('content-type').includes('application/json');
+
+    if (errorResponse || !isJson) {
+        response.statusText
+        throw new DotvvmPostbackError({ type: "serverError", status: response.status, responseObject: (isJson ? await response.json() : null), response });
     }
 
-    if (response.status >= 400) {
-        throw new DotvvmPostbackError({ type: "serverError", status: response.status, responseObject: resultObject });
-    }
-
-    return resultObject;
+    return response.json();
 }
 
 export async function fetchCsrfToken(): Promise<string> {
@@ -76,7 +72,7 @@ export async function retryOnInvalidCsrfToken<TResult>(postbackFunction: () => P
         // if the CSRF token is invalid, retry the postback
         if (err instanceof DotvvmPostbackError) {
             if (err.reason.type === "serverError") {
-                if (err.reason.responseObject.action === "invalidCsrfToken") {
+                if (err.reason.responseObject?.action === "invalidCsrfToken") {
                     console.log("Resending postback due to invalid CSRF token.");
                     getViewModel().$csrfToken = undefined;
 

@@ -13,8 +13,7 @@ type PostbackRejectionReason =
     | { type: 'network', err?: any }
     | { type: 'commit', args: DotvvmErrorEventArgs }
     | { type: 'csrfToken' }
-    | { type: 'invalidJson', responseText: string }
-    | { type: 'serverError', status?: number, responseObject: any }
+    | { type: 'serverError', status?: number, responseObject: any, response?: Response }
     | { type: 'event' }
     & { options?: PostbackOptions }
 
@@ -61,6 +60,7 @@ type DotvvmAfterPostBackEventArgs = PostbackEventArgs & {
     readonly wasInterrupted: boolean;
     readonly serverResponseObject: any
     readonly commandResult: any
+    readonly response?: Response
     /** In SPA mode, this promise is set when the result of a postback is a redirection. */
     readonly redirectPromise?: Promise<DotvvmNavigationEventArgs>
 }

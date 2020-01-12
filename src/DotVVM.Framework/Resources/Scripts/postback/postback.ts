@@ -66,11 +66,12 @@ export async function postBack(
                 handled: false,
                 wasInterrupted,
                 commandResult: null,
+                response: (r as any).response
             }
             if (wasInterrupted) {
                 // trigger afterPostback event
                 events.postbackRejected.trigger(eventArgs)
-            } else if (err.reason.type == "network") {
+            } else if (r.type == "network" || r.type == "serverError") {
                 events.error.trigger(eventArgs);
                 if (!eventArgs.handled) {
                     console.error("Postback failed", eventArgs);
