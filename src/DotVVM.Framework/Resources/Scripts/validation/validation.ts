@@ -81,14 +81,14 @@ export function init() {
     }
 
     // Validator
-    ko.bindingHandlers["dotvvmValidation"] = { // TODO: naming conventions
+    ko.bindingHandlers["dotvvm-validation"] = { // TODO: naming conventions
         init: (element: HTMLElement, valueAccessor: () => any, allBindingsAccessor?: KnockoutAllBindingsAccessor) => {
             validationErrorsChanged.subscribe(_ => {
-                applyValidatorActions(element, valueAccessor(), allBindingsAccessor!.get("dotvvmValidationOptions"));
+                applyValidatorActions(element, valueAccessor(), allBindingsAccessor!.get("dotvvm-validationOptions"));
             });
         },
         update: (element: HTMLElement, valueAccessor: () => any, allBindingsAccessor?: KnockoutAllBindingsAccessor) => {
-            applyValidatorActions(element, valueAccessor(), allBindingsAccessor!.get("dotvvmValidationOptions"));
+            applyValidatorActions(element, valueAccessor(), allBindingsAccessor!.get("dotvvm-validationOptions"));
         }
     };
 
