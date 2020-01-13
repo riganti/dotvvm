@@ -64,7 +64,6 @@
       <PackagePath>tools\dnc\DotVVM.Compiler.deps.json</PackagePath>
       <Visible>false</Visible>
     </Content>
-
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="node_modules\**" />
@@ -85,15 +84,7 @@
     <EmbeddedResource Include="Resources\Scripts\knockout-latest.js" />
     <EmbeddedResource Include="Resources\Scripts\Polyfills\polyfill.bundle.js" />
     <EmbeddedResource Include="Resources\Scripts\Globalize\globalize.js" />
-    <None Include="Resources\Scripts\DotVVM.DomUtils.ts" />
-    <None Include="Resources\Scripts\DotVVM.Evaluator.ts" />
-    <None Include="Resources\Scripts\DotVVM.Events.ts" />
-    <None Include="Resources\Scripts\DotVVM.FileUpload.ts" />
     <None Include="Resources\Scripts\DotVVM.Globalize.ts" />
-    <None Include="Resources\Scripts\DotVVM.PostBackHandlers.ts" />
-    <None Include="Resources\Scripts\DotVVM.Serialization.ts" />
-    <None Include="Resources\Scripts\DotVVM.ts" />
-    <None Include="Resources\Scripts\DotVVM.Validation.ts" />
     <None Include="Resources\Scripts\typings\globalize\globalize.d.ts" />
     <None Include="Resources\Scripts\typings\knockout.mapper\knockout.mapper.d.ts" />
     <None Include="Resources\Scripts\typings\knockout\knockout.d.ts" />

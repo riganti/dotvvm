@@ -31,7 +31,7 @@ export async function fetchJson<T>(url: string, init: RequestInit): Promise<T> {
     }
 
     const errorResponse = response.status >= 400;
-    const isJson = ('content-type').includes('application/json');
+    const isJson = response.headers.get("content-type") && response.headers.get('content-type').includes('application/json');
 
     if (errorResponse || !isJson) {
         response.statusText
