@@ -1,5 +1,4 @@
 import * as events from "../events";
-import { createPostbackArgs } from "../createPostbackArgs";
 import { DotvvmPostbackError } from "../shared-classes";
 import { isElementDisabled } from "../utils/dom";
 import { getPostbackQueue, enterActivePostback, leaveActivePostback, runNextInQueue } from "./queue";
@@ -54,21 +53,6 @@ export const postbackHandlersCompletedEventHandler: DotvvmPostbackHandler = {
     execute: <T>(callback: () => Promise<T>, options: PostbackOptions) => {
         events.postbackHandlersCompleted.trigger(options);
         return callback()
-    }
-};
-
-export const beforePostbackEventPostbackHandler: DotvvmPostbackHandler = {
-    execute: (next: () => Promise<PostbackCommitFunction>, options: PostbackOptions) => {
-        // trigger beforePostback event
-        const beforePostbackArgs: DotvvmBeforePostBackEventArgs = {
-            ...createPostbackArgs(options),
-            cancel: false
-        };
-        events.beforePostback.trigger(beforePostbackArgs);
-        if (beforePostbackArgs.cancel) {
-            return Promise.reject(new DotvvmPostbackError({ type: "event", options }));
-        }
-        return next();
     }
 };
 

@@ -12,51 +12,51 @@ export function staticCommandPostback_old(viewModelName: string, sender: HTMLEle
         callback,
         errorCallback
     );
-
-    // TODO
-    // events.error.trigger(new DotvvmErrorEventArgs(sender, viewModel, null));
-    // events.staticCommandMethodFailed.trigger({ ...data, xhr: response, error: err })
-    // events.error.trigger(new DotvvmErrorEventArgs(sender, viewModel, null));
-    // events.staticCommandMethodFailed.trigger({ data })
 }
 
-export function staticCommandPostback(sender: HTMLElement, command: string, args: any[]): Promise<any> {
+export async function staticCommandPostback(sender: HTMLElement, command: string, args: any[]): Promise<any> {
 
-    const promise = http.retryOnInvalidCsrfToken(async () => {
-        const csrfToken = await http.fetchCsrfToken();
+    let data: any;
+    try {
+        return await http.retryOnInvalidCsrfToken(async () => {
+            const csrfToken = await http.fetchCsrfToken();
 
-        const data = serialize({ args, command, $csrfToken: csrfToken });
+            data = serialize({ args, command, $csrfToken: csrfToken });
 
-        events.staticCommandMethodInvoking.trigger(data);
+            events.staticCommandMethodInvoking.trigger(data);
 
-        const response = await http.postJSON<any>(
-            getInitialUrl(),
-            ko.toJSON(data),
-            { "X-PostbackType": "StaticCommand" }
-        );
+            const response = await http.postJSON<any>(
+                getInitialUrl(),
+                ko.toJSON(data),
+                { "X-PostbackType": "StaticCommand" }
+            );
 
-        const result = response.result;
-        if ("action" in response) {
-            if (response.action == "redirect") {
-                // redirect
-                handleRedirect(response);
-                throw { xhr: response, error: "redirect" };
-            } else {
-                throw new Error(`Invalid action ${response.action}`);
+            const result = response.result;
+            if ("action" in response) {
+                if (response.action == "redirect") {
+                    // redirect
+                    handleRedirect(response);
+                    return;
+                } else {
+                    throw new Error(`Invalid action ${response.action}`);
+                }
             }
-        }
-        events.staticCommandMethodInvoked.trigger({ ...data, result, xhr: response });
+            events.staticCommandMethodInvoked.trigger({ ...data, result });
 
-        return result;
-    });
-
-    promise.catch(err => {
+            return result;
+        });
+    } catch (err) {
+        events.staticCommandMethodFailed.trigger({ ...data, error: err })
+        
         if (err instanceof DotvvmPostbackError) {
             const r = err.reason;
             if (r.type == "network") {
-                events.error.trigger({ sender, handled: true, serverResponseObject: r.err });
+                events.error.trigger({ sender, handled: false, serverResponseObject: r.err });
+                return;
             }
         }
-    });
-    return promise;
+        events.error.trigger({ sender, handled: false, serverResponseObject: err });
+
+        throw err;
+    }
 }

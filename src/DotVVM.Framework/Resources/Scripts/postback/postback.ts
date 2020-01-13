@@ -14,7 +14,6 @@ const globalPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[] = [
 ];
 const globalLaterPostbackHandlers: (ClientFriendlyPostbackHandlerConfiguration)[] = [
     internalHandlers.postbackHandlersCompletedEventHandler,
-    internalHandlers.beforePostbackEventPostbackHandler
 ];
 
 export async function postBack(
@@ -47,9 +46,21 @@ export async function postBack(
 
     try {
         const wrappedPostbackCommit = await applyPostbackHandlersCore(coreCallback, options, preparedHandlers);
+        
+        const beforePostbackArgs: DotvvmBeforePostBackEventArgs = {
+            ...createPostbackArgs(options),
+            cancel: false
+        };
+        events.beforePostback.trigger(beforePostbackArgs);
+        if (beforePostbackArgs.cancel) {
+            throw new DotvvmPostbackError({ type: "event", options });
+        }
+
         const result = await wrappedPostbackCommit();
         events.afterPostback.trigger(result);
+
         return result;
+
     } catch (err) {
 
         if (err instanceof DotvvmPostbackError) {
