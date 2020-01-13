@@ -104,7 +104,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             else
             {
-                result["renderedResources"] = JArray.FromObject(context.ResourceManager.RequiredResources);
+                result["renderedResources"] = JArray.FromObject(context.ResourceManager.GetNamedResourcesInOrder().Select(r => r.Name));
             }
             // TODO: do not send on postbacks
             if (validationRules?.Count > 0) result["validationRules"] = validationRules;
