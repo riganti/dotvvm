@@ -34,8 +34,10 @@
         </table>
     </div>
 
-    <p><dot:Button Click="{command: RedirectInside()}" data-ui="redirect-inside-spa" Text="Redirect inside SPA test" /></p>
-    <p><dot:Button Click="{command: RedirectOutside()}" data-ui="redirect-outside-spa" Text="Redirect outside SPA test" /></p>
+    <div class="navigation">
+        <p><dot:Button Click="{command: RedirectInside()}" data-ui="redirect-inside-spa" Text="Redirect inside SPA test" /></p>
+        <p><dot:Button Click="{command: RedirectOutside()}" data-ui="redirect-outside-spa" Text="Redirect outside SPA test" /></p>
+    </div>
 
     <dot:RequiredResource Name="ControlSamples_SpaContentPlaceHolder_testCss" />
     <dot:RequiredResource Name="ControlSamples_SpaContentPlaceHolder_testJs" />

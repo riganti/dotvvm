@@ -32,17 +32,17 @@ export async function navigateCore(url: string, handlePageNavigating?: (url: str
         const spaFullUrl = uri.addVirtualDirectoryToUrl("/___dotvvm-spa___" + uri.addLeadingSlash(url));
         const displayUrl = uri.addVirtualDirectoryToUrl(url);
 
-        // use custom browser navigation function
-        if (handlePageNavigating) {
-            handlePageNavigating(displayUrl);
-        }
-
         // send the request
         const resultObject = await http.getJSON<any>(spaFullUrl, getSpaPlaceHolderUniqueId());
-
+       
         // if another postback has already been passed, don't do anything
         if (!counter.isPostBackStillActive(currentPostBackCounter)) {
             return <DotvvmNavigationEventArgs> { }; // TODO: what here https://github.com/riganti/dotvvm/pull/787/files#diff-edefee5e25549b2a6ed0136e520e009fR852
+        }
+
+        // use custom browser navigation function
+        if (handlePageNavigating) {
+            handlePageNavigating(displayUrl);
         }
 
         await loadResourceList(resultObject.resources);
@@ -65,15 +65,4 @@ export async function navigateCore(url: string, handlePageNavigating?: (url: str
         events.spaNavigated.trigger(spaNavigatedArgs);
         return spaNavigatedArgs
     });
-
-    // // if another postback has already been passed, don't do anything
-    // if (!this.isPostBackStillActive(currentPostBackCounter)) return;
-
-    // // execute error handlers
-    // var errArgs = new DotvvmErrorEventArgs(undefined, viewModel, viewModelName, xhr, -1, undefined, true);
-    // this.events.error.trigger(errArgs);
-    // if (!errArgs.handled) {
-    //     alert(xhr.responseText);
-    // }
-    // reject(errArgs);
 }

@@ -5,6 +5,7 @@ import * as resourceLoader from './postback/resourceLoader'
 
 import bindingHandlers from './binding-handlers/all-handlers'
 import * as events from './events';
+import * as spaEvents from './spa/events';
 
 type DotvvmCoreState = {
     _culture: string
@@ -68,6 +69,18 @@ export function initCore(culture: string): void {
     window.addEventListener("beforeunload", e => {
         persistViewModel();
     });
+
+    if (compileConstants.isSpa) {
+        spaEvents.spaNavigated.subscribe(a => {
+            currentState = {
+                _culture: a.serverResponseObject.culture,
+                _initialUrl: a.serverResponseObject.url,
+                _virtualDirectory: a.serverResponseObject.virtualDirectory!,
+                _rootViewModel: currentState!._rootViewModel,
+                _validationRules: a.serverResponseObject.validationRules || {}
+            }
+        });
+    }
 }
 
 export function initBindings() {

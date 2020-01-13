@@ -114,15 +114,9 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_RouteLink_RouteLinkSpaUrlGen = "ControlSamples/RouteLink/RouteLinkSpaUrlGen";
         public const string ControlSamples_RouteLink_RouteLinkUrlGen = "ControlSamples/RouteLink/RouteLinkUrlGen";
         public const string ControlSamples_RouteLink_TestRoute = "ControlSamples/RouteLink/TestRoute";
-        public const string ControlSamples_SpaContentPlaceHolder_Default = "ControlSamples/SpaContentPlaceHolder/Default";
-        public const string ControlSamples_SpaContentPlaceHolder_PageA = "ControlSamples/SpaContentPlaceHolder/PageA";
-        public const string ControlSamples_SpaContentPlaceHolder_PageB = "ControlSamples/SpaContentPlaceHolder/PageB";
         public const string ControlSamples_SpaContentPlaceHolder_HistoryApi_Default = "ControlSamples/SpaContentPlaceHolder_HistoryApi/Default";
         public const string ControlSamples_SpaContentPlaceHolder_HistoryApi_PageA = "ControlSamples/SpaContentPlaceHolder_HistoryApi/PageA";
         public const string ControlSamples_SpaContentPlaceHolder_HistoryApi_PageB = "ControlSamples/SpaContentPlaceHolder_HistoryApi/PageB";
-        public const string ControlSamples_SpaContentPlaceHolder_PrefixRouteName_Default = "ControlSamples/SpaContentPlaceHolder_PrefixRouteName/Default";
-        public const string ControlSamples_SpaContentPlaceHolder_PrefixRouteName_PageA = "ControlSamples/SpaContentPlaceHolder_PrefixRouteName/PageA";
-        public const string ControlSamples_SpaContentPlaceHolder_PrefixRouteName_PageB = "ControlSamples/SpaContentPlaceHolder_PrefixRouteName/PageB";
         public const string ControlSamples_TextBox_IntBoundTextBox = "ControlSamples/TextBox/IntBoundTextBox";
         public const string ControlSamples_TextBox_SelectAllOnFocus = "ControlSamples/TextBox/SelectAllOnFocus";
         public const string ControlSamples_TextBox_SimpleDateBox = "ControlSamples/TextBox/SimpleDateBox";
@@ -134,6 +128,8 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_UpdateProgress_UpdateProgress = "ControlSamples/UpdateProgress/UpdateProgress";
         public const string ControlSamples_UpdateProgress_UpdateProgressDelay = "ControlSamples/UpdateProgress/UpdateProgressDelay";
         public const string ControlSamples_UpdateProgress_UpdateProgressQueues = "ControlSamples/UpdateProgress/UpdateProgressQueues";
+        public const string ControlSamples_UpdateProgress_UpdateProgressSPA1 = "ControlSamples/UpdateProgress/UpdateProgressSPA1";
+        public const string ControlSamples_UpdateProgress_UpdateProgressSPA2 = "ControlSamples/UpdateProgress/UpdateProgressSPA2";
         public const string ControlSamples_ValidationSummary_IncludeErrorsFromTarget_PropertyPathNotNull = "ControlSamples/ValidationSummary/IncludeErrorsFromTarget_PropertyPathNotNull";
         public const string ControlSamples_ValidationSummary_IncludeErrorsFromTarget_PropertyPathNull = "ControlSamples/ValidationSummary/IncludeErrorsFromTarget_PropertyPathNull";
         public const string ControlSamples_ValidationSummary_MessagesRendering = "ControlSamples/ValidationSummary/MessagesRendering";
@@ -252,7 +248,6 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_StaticCommand_StaticCommand_ValueAssignmentInControl = "FeatureSamples/StaticCommand/StaticCommand_ValueAssignmentInControl";
         public const string FeatureSamples_UsageValidation_OverrideValidation = "FeatureSamples/UsageValidation/OverrideValidation";
         public const string FeatureSamples_Validation_ClientSideObservableUpdate = "FeatureSamples/Validation/ClientSideObservableUpdate";
-        public const string FeatureSamples_Validation_ClientSideValidationDisabling = "FeatureSamples/Validation/ClientSideValidationDisabling";
         public const string FeatureSamples_Validation_CustomValidation = "FeatureSamples/Validation/CustomValidation";
         public const string FeatureSamples_Validation_DateTimeValidation = "FeatureSamples/Validation/DateTimeValidation";
         public const string FeatureSamples_Validation_DateTimeValidation_NullableDateTime = "FeatureSamples/Validation/DateTimeValidation_NullableDateTime";
@@ -276,5 +271,6 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_ViewModelProtection_ComplexViewModelProtection = "FeatureSamples/ViewModelProtection/ComplexViewModelProtection";
         public const string FeatureSamples_ViewModelProtection_SignedNestedInServerToClient = "FeatureSamples/ViewModelProtection/SignedNestedInServerToClient";
         public const string FeatureSamples_ViewModelProtection_ViewModelProtection = "FeatureSamples/ViewModelProtection/ViewModelProtection";
+        public const string FeatureSamples_Warnings_SelfClosingTags = "FeatureSamples/Warnings/SelfClosingTags";
         }
 }

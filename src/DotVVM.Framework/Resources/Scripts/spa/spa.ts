@@ -52,28 +52,37 @@ function handleHashChangeWithHistory(spaPlaceHolder: HTMLElement, isInitialPageL
             (url) => { replacePage(url); }
         );
     } else {
-        const defaultUrl = spaPlaceHolder.getAttribute("data-dotvvm-spacontentplaceholder-defaultroute");
-        const containsContent = spaPlaceHolder.hasAttribute("data-dotvvm-spacontentplaceholder-content");
+        isSpaReady(true);
+        spaPlaceHolder.style.display = "";
 
-        if (!containsContent && defaultUrl) {
-            navigateCore("/" + defaultUrl, (url) => replacePage(url));
-        } else {
-            isSpaReady(true);
-            spaPlaceHolder.style.display = "";
-
-            const currentRelativeUrl = location.pathname + location.search + location.hash
-            replacePage(currentRelativeUrl);
-        }
+        const currentRelativeUrl = location.pathname + location.search + location.hash
+        replacePage(currentRelativeUrl);
     }
 }
 
-export function handleSpaNavigation(element: HTMLElement): Promise<DotvvmNavigationEventArgs> {
+export async function handleSpaNavigation(element: HTMLElement): Promise<DotvvmNavigationEventArgs> {
     const target = element.getAttribute('target');
     if (target == "_blank") {
-        return Promise.resolve({ viewModel: getViewModel(), sender: element, serverResponseObject: null });
+        return { viewModel: getViewModel(), serverResponseObject: null };
     }
 
-    return handleSpaNavigationCore(element.getAttribute('href'));
+    try {
+        return await handleSpaNavigationCore(element.getAttribute('href'));
+    } catch (err) {
+        // execute error handlers
+        var errArgs: DotvvmErrorEventArgs = {
+            sender: element, 
+            viewModel: getViewModel(),
+            handled: false,
+            isSpaNavigationError: true,
+            serverResponseObject: err
+        };
+        events.error.trigger(errArgs);
+        if (!errArgs.handled) {
+            alert("SPA Navigation Error");
+        }
+        throw err;
+    }
 }
 
 export async function handleSpaNavigationCore(url: string | null): Promise<DotvvmNavigationEventArgs> {

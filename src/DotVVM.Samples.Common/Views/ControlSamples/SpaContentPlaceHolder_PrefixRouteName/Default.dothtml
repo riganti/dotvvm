@@ -1,9 +1,0 @@
-﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.SpaContentPlaceHolder_PrefixRouteName.DefaultViewModel, DotVVM.Samples.Common
-@masterPage Views/ControlSamples/SpaContentPlaceHolder_PrefixRouteName/SpaMaster.dotmaster
-
-<dot:Content ContentPlaceHolderID="MainContent">
-
-
-
-</dot:Content>
-
