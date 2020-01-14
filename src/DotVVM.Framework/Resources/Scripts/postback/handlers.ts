@@ -3,7 +3,7 @@ import * as internalHandlers from "./internal-handlers";
 class ConfirmPostBackHandler implements DotvvmPostbackHandler {
     constructor(public message: string) { }
     public async execute<T>(next: () => Promise<T>, options: PostbackOptions): Promise<T> {
-        if (confirm(this.message)) {
+        if (window.confirm(this.message)) {
             return await next();
         } else {
             throw { type: "handler", handler: this, message: "The postback was not confirmed" };
