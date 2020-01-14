@@ -42,7 +42,7 @@ export async function postBack(
         additionalPostbackData: {}
     };
 
-    const coreCallback = () => postbackCore(options, path, command, controlUniqueId, context, commandArgs);
+    const coreCallback = (o: PostbackOptions) => postbackCore(o, path, command, controlUniqueId, context, commandArgs);
 
     try {
         const wrappedPostbackCommit = await applyPostbackHandlersCore(coreCallback, options, preparedHandlers);
@@ -136,7 +136,7 @@ export async function applyPostbackHandlers(
 
     try {
         const commit = await applyPostbackHandlersCore(saneNext, options, handlers);
-        const result = await commit()
+        const result = await commit();
         return result;
     } catch (reason) {
         if (reason) {
@@ -146,7 +146,7 @@ export async function applyPostbackHandlers(
     }
 }
 
-async function applyPostbackHandlersCore(next: (options: PostbackOptions) => Promise<PostbackCommitFunction>, options: PostbackOptions, handlers: DotvvmPostbackHandler[]) {
+function applyPostbackHandlersCore(next: (options: PostbackOptions) => Promise<PostbackCommitFunction>, options: PostbackOptions, handlers: DotvvmPostbackHandler[]): Promise<PostbackCommitFunction> {
     let fired = false
     const nextWithCheck = (o: PostbackOptions) => {
         if (fired) {

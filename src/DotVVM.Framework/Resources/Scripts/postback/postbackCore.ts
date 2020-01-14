@@ -26,10 +26,10 @@ export async function postbackCore(
         commandArgs?: any[]
     ): Promise<PostbackCommitFunction> {
 
-    return await http.retryOnInvalidCsrfToken(async () => {
-        await http.fetchCsrfToken();
+    lastStartedPostbackId = options.postbackId;
 
-        lastStartedPostbackId = options.postbackId;
+    return () => http.retryOnInvalidCsrfToken(async () => {
+        await http.fetchCsrfToken();
 
         updateDynamicPathFragments(context, path);
 
@@ -54,7 +54,7 @@ export async function postbackCore(
 
         events.postbackResponseReceived.trigger({});
 
-        return () => processPostbackResponse(options, postedViewModel, result);
+        return processPostbackResponse(options, postedViewModel, result);
     });
 }
 
