@@ -16,7 +16,7 @@ export const elementActions: DotvvmValidationActions = {
     // adds a CSS class when the element is not valid
     invalidCssClass(element: HTMLElement, errorMessages: string[], classAttribute: string) {
         const classes = classAttribute.split(/\s+/);
-        for (const className in classes) {
+        for (const className of classes) {
             if (errorMessages.length > 0) {
                 element.classList.add(className);
             } else {

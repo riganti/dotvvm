@@ -57,7 +57,7 @@ export async function postBack(
             const r = err.reason;
             const wasInterrupted = r.type == "handler" || r.type == "event";
             const serverResponseObject =
-                r.type == "commit" && r.args ? r.args :
+                r.type == "commit" && r.args ? r.args.serverResponseObject :
                 r.type == "network" ? r.err :
                 r.type == "serverError" ? r.responseObject :
                 null;
@@ -72,7 +72,7 @@ export async function postBack(
             if (wasInterrupted) {
                 // trigger afterPostback event
                 events.postbackRejected.trigger(eventArgs)
-            } else if (r.type == "network" || r.type == "serverError") {
+            } else if (r.type == "network") {
                 events.error.trigger(eventArgs);
                 if (!eventArgs.handled) {
                     console.error("Postback failed", eventArgs);

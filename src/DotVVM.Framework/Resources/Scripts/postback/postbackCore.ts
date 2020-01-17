@@ -63,7 +63,13 @@ export async function postbackCore(
 
         events.postbackResponseReceived.trigger({});
 
-        return () => processPostbackResponse(options, postedViewModel, result);
+        return async () => {
+            try {
+                return await processPostbackResponse(options, postedViewModel, result);
+            } catch (err) {
+                throw new DotvvmPostbackError({ type: "commit", args: { serverResponseObject: err.reason.responseObject, handled: false } });
+            }
+        };
     });
 }
 
