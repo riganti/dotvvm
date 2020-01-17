@@ -10,6 +10,7 @@
 namespace DotVVM.Framework.Hosting.ErrorPages
 {
     using DotVVM.Framework.Hosting.ErrorPages;
+    using DotVVM.Framework.ResourceManagement;
     using System;
     using System.IO;
     using System.Linq;
@@ -60,139 +61,139 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                     "ject-browser .propname { font-weight: bold; }\r\n.docLinks { float: right; }\r\n.sou" +
                     "rce.file{\r\n\tmargin: 11px 0 5px 0;\r\n    font-size: 12px;\r\n}   \r\n");
             
-            #line 69 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 70 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 foreach(var f in Formatters){
             
             #line default
             #line hidden
             this.Write("#menu_radio_");
             
-            #line 70 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 71 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(f.Id));
             
             #line default
             #line hidden
             this.Write(":checked ~ #container_");
             
-            #line 70 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 71 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(f.Id));
             
             #line default
             #line hidden
             this.Write(" { display: block; }\r\n#menu_radio_");
             
-            #line 71 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 72 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(f.Id));
             
             #line default
             #line hidden
             this.Write(":checked ~ label[for=\'menu_radio_");
             
-            #line 71 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 72 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(f.Id));
             
             #line default
             #line hidden
             this.Write("\'] { background-color: #2980b9; }\r\n");
             
-            #line 72 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 73 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 f.WriteHead(this);
             
             #line default
             #line hidden
             
-            #line 73 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 74 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 }
             
             #line default
             #line hidden
             this.Write("\t\t</style>\r\n\t</head>\r\n\t<body>\r\n\t\t<h1>Server Error, HTTP ");
             
-            #line 77 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 78 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(ErrorCode));
             
             #line default
             #line hidden
             this.Write(": ");
             
-            #line 77 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 78 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(WebUtility.HtmlEncode(ErrorDescription)));
             
             #line default
             #line hidden
             this.Write("</h1>\r\n\t\t<p class=\"summary\">");
             
-            #line 78 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 79 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(WebUtility.HtmlEncode(Summary)));
             
             #line default
             #line hidden
             this.Write("</p>\r\n\t\t<hr />\r\n\t\t<div>\r\n\t\t");
             
-            #line 81 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 82 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
  foreach(var f in Formatters) {
             
             #line default
             #line hidden
             this.Write("\t\t\t<input type=\"radio\" id=\"menu_radio_");
             
-            #line 82 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 83 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(f.Id));
             
             #line default
             #line hidden
             this.Write("\" class=\"collapse\" name=\"menu\" ");
             
-            #line 82 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 83 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(f == Formatters[0] ? "checked='checked'" : ""));
             
             #line default
             #line hidden
             this.Write(" />\r\n\t\t\t<label for=\"menu_radio_");
             
-            #line 83 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 84 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(f.Id));
             
             #line default
             #line hidden
             this.Write("\" class=\"nav\">\r\n\t\t\t\t");
             
-            #line 84 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 85 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(f.DisplayName));
             
             #line default
             #line hidden
             this.Write("\r\n\t\t\t</label>\r\n\t\t");
             
-            #line 86 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 87 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 }
             
             #line default
             #line hidden
             this.Write("\t\t<hr />\r\n\t\t");
             
-            #line 88 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 89 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 foreach(var formatter in Formatters){
             
             #line default
             #line hidden
             this.Write("\t\t<div class=\"container\" id=\"container_");
             
-            #line 89 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 90 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(formatter.Id));
             
             #line default
             #line hidden
             this.Write("\">\r\n\t\t\t");
             
-            #line 90 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 91 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 formatter.WriteBody(this);
             
             #line default
             #line hidden
             this.Write("\t\t</div>\r\n\t\t");
             
-            #line 92 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 93 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 }
             
             #line default
@@ -201,188 +202,226 @@ formatter.WriteBody(this);
             return this.GenerationEnvironment.ToString();
         }
         
-        #line 104 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 105 "D:\Work\Dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 
-	public int ErrorCode { get; set; }
+    public int ErrorCode { get; set; }
 
-	public string ErrorDescription { get; set; }
+    public string ErrorDescription { get; set; }
 
-	public string Summary { get; set; }
+    public string Summary { get; set; }
 
-	public IErrorSectionFormatter[] Formatters { get; set; }
+    public IErrorSectionFormatter[] Formatters { get; set; }
 
-	public void WriteText(string str) {
-		Write(WebUtility.HtmlEncode(str));
-	}
+    public void WriteText(string str)
+    {
+        Write(WebUtility.HtmlEncode(str));
+    }
 
-	public void WriteUnencoded(string str) {
-		Write(str);
-	}
+    public void WriteUnencoded(string str)
+    {
+        Write(str);
+    }
 
-	private void WriteException(Exception ex) 
-	{
-		using (var sr = new StringReader(ex.ToString()))
-		{
-			string line;
-			while ((line = sr.ReadLine()) != null)
-			{
-				this.Write(WebUtility.HtmlEncode(line));
-				this.Write("<br />");
-			}
-		}
-	}
+    private void WriteException(Exception ex)
+    {
+        using (var sr = new StringReader(ex.ToString()))
+        {
+            string line;
+            while ((line = sr.ReadLine()) != null)
+            {
+                this.WriteText(line);
+                this.Write("<br />");
+            }
+        }
+    }
 
-	public void ObjectBrowser(object obj)
-	{
-		var jobject = JObject.FromObject(obj);
-		ObjectBrowser(jobject);
-	}
+    public void ObjectBrowser(object obj)
+    {
+        var settings = new JsonSerializerSettings() {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            Converters = {
+                new ReflectionAssemblyJsonConverter()
+            },
+            // suppress any errors that occur during serialization (getters may throw exception, ...)
+            Error = (sender, args) => {
+                args.ErrorContext.Handled = true;
+            }
+        };
+        var jobject = JObject.FromObject(obj, JsonSerializer.Create(settings));
+        ObjectBrowser(jobject);
+    }
 
-	public void ObjectBrowser(JArray arr)
-	{
-		this.Write(@"
-		<div class='object-browser code'>
-			<label>
-			<input type='checkbox' class='collapse' />
-			<span class='collapse-off'>&gt; { ... } </span>
-			<span class='collapse-on'>[
-				<div class='object-arr'> ");
-					foreach(var p in arr) {
-						if(p is JObject) {
-							ObjectBrowser((JObject)p);
-						} else if (p is JArray) {
-							ObjectBrowser((JArray)p);
-						} else {
-							this.WriteText(p.ToString());
-						}
-					}
-			
-			this.Write(@"</div>]</span></div>");
-	}
+    public void ObjectBrowser(JArray arr)
+    {
+        if (arr.Count == 0)
+        {
+            this.WriteText(arr.ToString());
+        }
+        else
+        {
+            this.Write(@"
+    <div class='object-browser code'>
+        <label>
+        <input type='checkbox' class='collapse' />
+        <span class='collapse-off'>&gt; [ ... ] </span>
+        <span class='collapse-on'>[
+            <div class='object-arr'> ");
+            foreach (var p in arr)
+            {
+                if (p is JObject)
+                {
+                    ObjectBrowser((JObject)p);
+                }
+                else if (p is JArray)
+                {
+                    ObjectBrowser((JArray)p);
+                }
+                else
+                {
+                    this.WriteText(p.ToString());
+                }
+            }
+            this.Write(@"</div>]</span></div>");
+        }
+    }
 
-	public void ObjectBrowser(JObject obj)
-	{
-		this.Write(@"<div class='object-browser code'>
-			<label>
-			<input type='checkbox' class='collapse' />
-			<span class='collapse-off'>&gt; { ... } </span>
-			<span class='collapse-on'>{
-				<div class='object-obj'>");
-					foreach(var p in obj) {
-						Write("<div class='prop'><span class='propname'>");
-						this.WriteText(p.Key);
-						Write("</span>:");
-						if(p.Value is JObject) {
-							ObjectBrowser((JObject)p.Value);
-						} else if (p.Value is JArray) {
-							ObjectBrowser((JArray)p.Value);
-						} else {
-							this.WriteText(p.Value.ToString());
-						}
-						this.Write("</div>");
-					}
-		this.Write("</div>}</span></div>");
-	}
+    public void ObjectBrowser(JObject obj)
+    {
+        if (obj.Count == 0)
+        {
+            this.WriteText(obj.ToString());
+        }
+        else
+        {
+            this.Write(@"<div class='object-browser code'>
+        <label>
+        <input type='checkbox' class='collapse' />
+        <span class='collapse-off'>&gt; { ... } </span>
+        <span class='collapse-on'>{
+            <div class='object-obj'>");
+            foreach (var p in obj)
+            {
+                Write("<div class='prop'><span class='propname'>");
+                this.WriteText(p.Key);
+                Write("</span>:");
+                if (p.Value is JObject)
+                {
+                    ObjectBrowser((JObject)p.Value);
+                }
+                else if (p.Value is JArray)
+                {
+                    ObjectBrowser((JArray)p.Value);
+                }
+                else
+                {
+                    this.WriteText(p.Value.ToString(Formatting.None));
+                }
+                this.Write("</div>");
+            }
+            this.Write("</div>}</span></div>");
+        }
+    }
 
 
-	public void WriteSourceCode(SourceModel source, bool collapse = true)
-	{
-		this.Write(@"
-		<div class='source code'>
-			<label>");
-				if(collapse){ this.Write(@"<input type='checkbox' class='collapse' />"); }
-				Write(@"<div class='source-prelines collapse-on'>");
-				if(source.PreLines != null) WriteSourceLines(source.LineNumber - source.PreLines.Length, source.PreLines);
-				Write(@"</div><div class='source-errorLine'>");
-				if(source.CurrentLine != null) WriteErrorLine(source.LineNumber, source.CurrentLine, source.ErrorColumn, source.ErrorLength);
-				this.Write(@"</div><div class='source-postlines collapse-on'>");
-				if(source.PostLines != null) WriteSourceLines(source.LineNumber + 1, source.PostLines);
-	    Write(@"</div></label></div>");
-		if (!string.IsNullOrEmpty(source.FileName)) {
-			Write("<p class='source file'>Source File: <strong>");
-			WriteText(source.SystemFileName);
-			Write($"</strong> +{source.LineNumber}</p>");;
-		}
-	}
+    public void WriteSourceCode(SourceModel source, bool collapse = true)
+    {
+        this.Write(@"
+    <div class='source code'>
+        <label>");
+        if (collapse) { this.Write(@"<input type='checkbox' class='collapse' />"); }
+        Write(@"<div class='source-prelines collapse-on'>");
+        if (source.PreLines != null) WriteSourceLines(source.LineNumber - source.PreLines.Length, source.PreLines);
+        Write(@"</div><div class='source-errorLine'>");
+        if (source.CurrentLine != null) WriteErrorLine(source.LineNumber, source.CurrentLine, source.ErrorColumn, source.ErrorLength);
+        this.Write(@"</div><div class='source-postlines collapse-on'>");
+        if (source.PostLines != null) WriteSourceLines(source.LineNumber + 1, source.PostLines);
+        Write(@"</div></label></div>");
+        if (!string.IsNullOrEmpty(source.FileName))
+        {
+            Write("<p class='source file'>Source File: <strong>");
+            WriteText(source.SystemFileName);
+            Write($"</strong> +{source.LineNumber}</p>");
+        }
+    }
 
     private void WriteSourceLines(int startLine, params string[] lines)
-	{
-		Write("<pre>");
-		for(var i = 0; i < lines.Length; i++)
-		{
-			Write("<span class='lineNumber'>");
-			Write(startLine + i + ": ");
-			Write("</span><span class='codeLine'>");
-			Write(WebUtility.HtmlEncode(lines[i]));
-			WriteLine("</span>");
-		}
-		Write("</pre>");
-	}
+    {
+        Write("<pre>");
+        for (var i = 0; i < lines.Length; i++)
+        {
+            Write("<span class='lineNumber'>");
+            Write(startLine + i + ": ");
+            Write("</span><span class='codeLine'>");
+            WriteText(lines[i]);
+            WriteLine("</span>");
+        }
+        Write("</pre>");
+    }
 
-	private void WriteErrorLine(int lineNumber, string line, int errorColumn, int errorLength)
-	{
+    private void WriteErrorLine(int lineNumber, string line, int errorColumn, int errorLength)
+    {
 
-		if (errorColumn >= line.Length) 
-		{
-			errorColumn = line.Length - 1;
-			errorLength = 0;
-		    if (errorColumn < 0)
-		    {
-		        errorColumn = 0;
-		    }
-		}
-		Write("<pre>");
-		Write("<span class='lineNumber'>");
-		Write(lineNumber + ": ");
-		Write("</span><span class='codeLine'>");
-		Write(WebUtility.HtmlEncode(errorColumn == 0 ? "" : line.Remove(errorColumn)));
+        if (errorColumn >= line.Length)
+        {
+            errorColumn = line.Length - 1;
+            errorLength = 0;
+            if (errorColumn < 0)
+            {
+                errorColumn = 0;
+            }
+        }
+        Write("<pre>");
+        Write("<span class='lineNumber'>");
+        Write(lineNumber + ": ");
+        Write("</span><span class='codeLine'>");
+        Write(WebUtility.HtmlEncode(errorColumn == 0 ? "" : line.Remove(errorColumn)));
 
-	    var errorUnderline =WebUtility.HtmlEncode(line.Substring(errorColumn, Math.Min(line.Length - errorColumn, errorLength)));
-	    if (!string.IsNullOrWhiteSpace(errorUnderline))
-	    {
-	        Write("<span class='errorUnderline'>");
-			WriteText(errorUnderline );
-			Write("</span>");    
-	    }
-		
-		
-		Write(WebUtility.HtmlEncode(line.Substring(Math.Min(line.Length, errorColumn + errorLength))));
-		WriteLine("</span>");
-		Write("</pre>");
-	}
+        var errorUnderline = WebUtility.HtmlEncode(line.Substring(errorColumn, Math.Min(line.Length - errorColumn, errorLength)));
+        if (!string.IsNullOrWhiteSpace(errorUnderline))
+        {
+            Write("<span class='errorUnderline'>");
+            Write(errorUnderline);
+            Write("</span>");
+        }
 
-	public void WriteKVTable(IEnumerable keys, IEnumerable values)
-	{
-		var zip = keys.Cast<object>().Zip(values.Cast<object>(), (k, v) => new KeyValuePair<object, object>(k, v));
+        Write(WebUtility.HtmlEncode(line.Substring(Math.Min(line.Length, errorColumn + errorLength))));
+        WriteLine("</span>");
+        Write("</pre>");
+    }
 
-		Write(@"
-		<table class='kvtable'>
-			<tr>
-				<th> Variable </th>
-				<th> Value </th>
-			</tr>");
-		foreach(var kvp in zip) {
-			Write("<tr><td>");
-			WriteObject(kvp.Key);
-			Write("</td><td>");
-			WriteObject(kvp.Value);
-			Write("</td></tr>");
-		}
-		Write("</table>");
-	}
+    public void WriteKVTable(IEnumerable keys, IEnumerable values)
+    {
+        var zip = keys.Cast<object>().Zip(values.Cast<object>(), (k, v) => new KeyValuePair<object, object>(k, v));
 
-	public void WriteObject(object obj) 
-	{
-		if (obj is IEnumerable<string>) WriteText(string.Concat((IEnumerable<string>)obj));
-		else WriteText(Convert.ToString(obj)); 
-	}
+        Write(@"
+    <table class='kvtable'>
+        <tr>
+            <th> Variable </th>
+            <th> Value </th>
+        </tr>");
+        foreach (var kvp in zip)
+        {
+            Write("<tr><td>");
+            WriteObject(kvp.Key);
+            Write("</td><td>");
+            WriteObject(kvp.Value);
+            Write("</td></tr>");
+        }
+        Write("</table>");
+    }
+
+    public void WriteObject(object obj)
+    {
+        if (obj is IEnumerable<string>) WriteText(string.Concat((IEnumerable<string>)obj));
+        else WriteText(Convert.ToString(obj));
+    }
 
     class SourceLine
     {
         public int? LineNumber { get; set; }
 
         public string Text { get; set; }
-	}
+    }
 
         
         #line default
