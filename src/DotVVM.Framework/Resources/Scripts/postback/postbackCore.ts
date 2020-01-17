@@ -28,11 +28,20 @@ export async function postbackCore(
 
     lastStartedPostbackId = options.postbackId;
 
-    return () => http.retryOnInvalidCsrfToken(async () => {
+    const beforePostbackArgs: DotvvmBeforePostBackEventArgs = {
+        ...createPostbackArgs(options),
+        cancel: false
+    };
+    events.beforePostback.trigger(beforePostbackArgs);
+    if (beforePostbackArgs.cancel) {
+        throw new DotvvmPostbackError({ type: "event", options });
+    }
+
+    return await http.retryOnInvalidCsrfToken(async () => {
         await http.fetchCsrfToken();
 
         updateDynamicPathFragments(context, path);
-
+        
         const postedViewModel = serialize(getViewModel(), {
             pathMatcher: val => context && val == context.$data
         });
@@ -54,7 +63,7 @@ export async function postbackCore(
 
         events.postbackResponseReceived.trigger({});
 
-        return processPostbackResponse(options, postedViewModel, result);
+        return () => processPostbackResponse(options, postedViewModel, result);
     });
 }
 

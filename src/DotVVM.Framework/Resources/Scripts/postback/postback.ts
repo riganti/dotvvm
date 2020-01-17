@@ -46,16 +46,6 @@ export async function postBack(
 
     try {
         const wrappedPostbackCommit = await applyPostbackHandlersCore(coreCallback, options, preparedHandlers);
-        
-        const beforePostbackArgs: DotvvmBeforePostBackEventArgs = {
-            ...createPostbackArgs(options),
-            cancel: false
-        };
-        events.beforePostback.trigger(beforePostbackArgs);
-        if (beforePostbackArgs.cancel) {
-            throw new DotvvmPostbackError({ type: "event", options });
-        }
-
         const result = await wrappedPostbackCommit();
         events.afterPostback.trigger(result);
 
