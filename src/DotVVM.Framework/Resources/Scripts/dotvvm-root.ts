@@ -21,7 +21,6 @@ import * as spaEvents from './spa/events'
 import { isPostbackRunning } from "./postback/internal-handlers"
 import * as api from './api/api'
 import * as eventHub from './api/eventHub'
-import * as apiHelpers from './api/helpers'
 
 if (compileConstants.nomodules) {
     addPolyfills()
@@ -56,8 +55,7 @@ const dotvvmExports = {
     // getXHR,
     api: {
         invoke: api.invoke,
-        refreshOn: api.refreshOn,
-        helpers: apiHelpers
+        refreshOn: api.refreshOn
     },
     eventHub: {
         get: eventHub.get,
