@@ -72,7 +72,7 @@ export async function postBack(
             if (wasInterrupted) {
                 // trigger afterPostback event
                 events.postbackRejected.trigger(eventArgs)
-            } else if (r.type == "network") {
+            } else if (r.type == "network" || r.type == "serverError") {
                 events.error.trigger(eventArgs);
                 if (!eventArgs.handled) {
                     console.error("Postback failed", eventArgs);
