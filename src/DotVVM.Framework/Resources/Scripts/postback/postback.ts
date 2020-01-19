@@ -171,7 +171,7 @@ function wrapCommitFunction(value: MaybePromise<PostbackCommitFunction | any>, o
                 postbackOptions: options,
                 postbackClientId: options.postbackId,
                 serverResponseObject: null,
-                commandResult: value,
+                commandResult: v,
                 wasInterrupted: false,
                 handled: true,
                 viewModel: options.viewModel!
