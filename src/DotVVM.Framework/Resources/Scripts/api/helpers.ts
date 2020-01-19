@@ -1,4 +1,4 @@
-export function basicAuth(input: RequestInfo, init: RequestInit): Promise<any> {
+export function basicAuthenticatedFetch(input: RequestInfo, init: RequestInit): Promise<any> {
     function requestAuth() {
         const a = prompt("You credentials for " + ((<any> input)["url"] || input)) || "";
         sessionStorage.setItem("dotvvm-api-fetch-basic", a);
@@ -24,7 +24,7 @@ export function basicAuth(input: RequestInfo, init: RequestInit): Promise<any> {
             if (sessionStorage.getItem("dotvvm-api-fetch-basic") == null) {
                 requestAuth();
             }
-            return basicAuth(input, init);
+            return basicAuthenticatedFetch(input, init);
         } else {
             return response;
         }

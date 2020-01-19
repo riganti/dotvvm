@@ -18,6 +18,9 @@ import { handleSpaNavigation } from './spa/spa'
 import { postbackHandlers } from './postback/handlers'
 import * as spaEvents from './spa/events'
 import { isPostbackRunning } from "./postback/internal-handlers"
+import * as api from './api/api'
+import * as eventHub from './api/eventHub'
+import * as apiHelpers from './api/helpers'
 
 if (compileConstants.nomodules) {
     addPolyfills()
@@ -50,6 +53,15 @@ const dotvvmExports = {
         createUploadId: fileUpload.createUploadId
     },
     // getXHR,
+    api: {
+        invoke: api.invoke,
+        refreshOn: api.refreshOn,
+        helpers: apiHelpers
+    },
+    eventHub: {
+        get: eventHub.get,
+        notify: eventHub.notify
+    },
     globalize,
     postBackHandlers: postbackHandlers,
     buildUrlSuffix,
