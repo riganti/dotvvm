@@ -14,7 +14,7 @@ namespace DotVVM.Framework.ResourceManagement
     {
         public bool Defer { get; }
         public ScriptResource(IResourceLocation location, bool defer = false)
-            : base(defer ? ResourceRenderPosition.Head : ResourceRenderPosition.Body, "text/javascript", location)
+            : base(defer ? ResourceRenderPosition.Anywhere : ResourceRenderPosition.Body, "text/javascript", location)
         {
             this.Defer = defer;
         }
