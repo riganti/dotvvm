@@ -415,7 +415,7 @@ namespace DotVVM.Framework.Controls
             var foreachBinding = GetForeachDataBindExpression().GetKnockoutBindingExpression(this);
             if (RenderOnServer)
             {
-                writer.AddKnockoutDataBind("dotvvm-SSR-foreach", foreachBinding);
+                writer.AddKnockoutDataBind("dotvvm-SSR-foreach", "{data:" + foreachBinding + "}");
             }
             else
             {
