@@ -327,7 +327,7 @@ namespace DotVVM.Framework.Configuration
                     Dependencies = new[] { ResourceConstants.KnockoutJSResourceName, ResourceConstants.PolyfillResourceName }
                 });
             configuration.Resources.Register(ResourceConstants.DotvvmResourceName,
-                new InlineScriptResource(@"", ResourceRenderPosition.Anywhere) {
+                new InlineScriptResource(@"", ResourceRenderPosition.Anywhere, defer: true) {
                     Dependencies = new[] { ResourceConstants.DotvvmResourceName + ".internal" }
                 });
 

@@ -50,6 +50,9 @@ namespace DotVVM.Framework.ResourceManagement
                 Defer || // browsers don't support `defer` attribute on inline script. We can overcome this limitation by using base64 data URI
                 IsUnsafeInlineScript(code); // or, when the script is XSS-unsafe, we can do the same
 
+            if (Defer)
+                writer.AddAttribute("defer", null);
+
             if (needBase64Hack)
                 RenderDataUriString(writer, code);
             else

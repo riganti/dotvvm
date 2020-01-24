@@ -70,6 +70,9 @@ namespace DotVVM.Framework.ResourceManagement
                     preloadResource.RenderPreloadLink(writer, context, resource.Name);
                 }
             }
+
+            if (writeDebugInfo)
+                writer.WriteUnencodedText("\n");
         }
 
         public static string GetRenderedTextCached(this NamedResource resource, IDotvvmRequestContext context) =>
