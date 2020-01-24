@@ -319,8 +319,7 @@ namespace DotVVM.Framework.Controls
 
             // render page number
             NumberButtonsPlaceHolder.Children.Clear();
-            var li = CreatePageNumberButton(writer, context);
-            li.Render(writer, context);
+            RenderPageNumberButton(writer, context);
 
             writer.WriteKnockoutDataBindEndComment();
 
@@ -333,7 +332,7 @@ namespace DotVVM.Framework.Controls
             GoToLastPageButton.Render(writer, context);
         }
 
-        protected virtual HtmlGenericControl CreatePageNumberButton(IHtmlWriter writer, IDotvvmRequestContext context)
+        protected virtual void RenderPageNumberButton(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             HtmlGenericControl li = new HtmlGenericControl("li");
             var currentPageTextContext = DataContextStack.Create(typeof(int), NumberButtonsPlaceHolder.GetDataContextType());
@@ -346,17 +345,18 @@ namespace DotVVM.Framework.Controls
 
             if (!RenderLinkForCurrentPage)
             {
-                writer.AddKnockoutDataBind("visible", "$data == $parent.PagingOptions().PageIndex()");
+                writer.AddKnockoutDataBind("if", "$data == $parent.PagingOptions().PageIndex()");
                 AddItemCssClass(writer, context);
-                AddKnockoutActiveCssDataBind(writer, context, "$data == $parent.PagingOptions().PageIndex()");
+                writer.AddAttribute("class", "active");
                 var literal = new Literal();
                 literal.DataContext = 0;
                 literal.SetBinding(Literal.TextProperty, currentPageTextBinding);
                 li.Children.Add(literal);
                 NumberButtonsPlaceHolder.Children.Add(li);
+
                 li.Render(writer, context);
 
-                writer.AddKnockoutDataBind("visible", "$data != $parent.PagingOptions().PageIndex()");
+                writer.AddKnockoutDataBind("if", "$data != $parent.PagingOptions().PageIndex()");
             }
 
             li = new HtmlGenericControl("li");
@@ -365,7 +365,10 @@ namespace DotVVM.Framework.Controls
 
             NumberButtonsPlaceHolder.Children.Add(li);
             AddItemCssClass(writer, context);
-            AddKnockoutActiveCssDataBind(writer, context, "$data == $parent.PagingOptions().PageIndex()");
+
+            if (RenderLinkForCurrentPage)
+                AddKnockoutActiveCssDataBind(writer, context, "$data == $parent.PagingOptions().PageIndex()");
+
             li.SetValue(Internal.PathFragmentProperty, "PagingOptions.NearPageIndexes[$index]");
             var link = new LinkButton();
             li.Children.Add(link);
@@ -374,7 +377,8 @@ namespace DotVVM.Framework.Controls
             link.SetBinding(ButtonBase.ClickProperty, commonBindings.GoToThisPageCommand);
             object enabledValue = GetValueRaw(EnabledProperty);
             if (!true.Equals(enabledValue)) link.SetValue(LinkButton.EnabledProperty, enabledValue);
-            return li;
+
+            li.Render(writer, context);
         }
 
         protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
