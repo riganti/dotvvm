@@ -68,7 +68,7 @@ namespace DotVVM.Framework.Controls
 
             public override string ToString()
             {
-                return "'" + Name + "': " + Expression;
+                return "\"" + Name + "\": " + Expression;
             }
         }
     }
