@@ -1,5 +1,6 @@
 import { ErrorsPropertyName } from "./common";
 import { DotvvmEvent } from "../events";
+import { unwrapComputedProperty } from "../utils/evaluator";
 
 export const allErrors: ValidationError[] = []
 
@@ -9,16 +10,11 @@ export function detachAllErrors() {
     }
 }
 
-const unwrapComputedProperty =
-    <T>(o: KnockoutObservable<T>) =>
-        "wrappedProperty" in o ? o["wrappedProperty"] as KnockoutObservable<T> :
-        o;
-
 export function getErrors<T>(o: KnockoutObservable<T> | null): ValidationError[] {
+    o = unwrapComputedProperty(o);
     if (!ko.isObservable(o)) {
         return []
     }
-    o = unwrapComputedProperty(o);
     return o[ErrorsPropertyName] || [];
 }
 

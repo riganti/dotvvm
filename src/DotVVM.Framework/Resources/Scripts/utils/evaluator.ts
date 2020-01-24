@@ -58,12 +58,11 @@ function updateObservableArray(getObservableArray: () => KnockoutObservableArray
     }
 }
 
+export const unwrapComputedProperty = (obs: any) =>
+    ko.isComputed(obs) && "wrappedProperty" in obs ?
+    obs["wrappedProperty"]() : // workaround for dotvvm_withControlProperties handler
+    obs;
+
 function getExpressionResult(func: () => any) {
-    let result = func();
-
-    if (ko.isComputed(result) && "wrappedProperty" in result) {
-        result = result["wrappedProperty"](); // workaround for dotvvm_withControlProperties handler
-    }
-
-    return result;
+    return unwrapComputedProperty(func());
 }
