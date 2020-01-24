@@ -9,6 +9,8 @@ using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using DotVVM.Framework.Binding.Properties;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls
 {
@@ -277,7 +279,8 @@ namespace DotVVM.Framework.Controls
         {
             if (GetValueBinding(EnabledProperty) is IValueBinding enabledBinding)
             {
-                AddKnockoutDisabledCssDataBind(writer, context, enabledBinding.GetKnockoutBindingExpression(this));
+                var disabledBinding = enabledBinding.GetProperty<NegatedBindingExpression>().Binding.CastTo<IValueBinding>();
+                AddKnockoutDisabledCssDataBind(writer, context, disabledBinding.GetKnockoutBindingExpression(this));
             }
             else if (!Enabled)
             {
