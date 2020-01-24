@@ -348,7 +348,7 @@ namespace DotVVM.Framework.Controls
 
             if (!RenderLinkForCurrentPage)
             {
-                writer.AddKnockoutDataBind("if", "$data == $parent.PagingOptions().PageIndex()");
+                writer.AddKnockoutDataBind("visible", "$data == $parent.PagingOptions().PageIndex()");
                 AddItemCssClass(writer, context);
                 writer.AddAttribute("class", "active");
                 var literal = new Literal();
@@ -359,7 +359,7 @@ namespace DotVVM.Framework.Controls
 
                 li.Render(writer, context);
 
-                writer.AddKnockoutDataBind("if", "$data != $parent.PagingOptions().PageIndex()");
+                writer.AddKnockoutDataBind("visible", "$data != $parent.PagingOptions().PageIndex()");
             }
 
             li = new HtmlGenericControl("li");
