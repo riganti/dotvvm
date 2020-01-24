@@ -109,7 +109,8 @@ namespace DotVVM.Framework.ResourceManagement
         /// </summary>
         public void AddRequiredScriptFile(string name, string url, params string[] dependentResourceNames)
         {
-            AddRequiredResourceCore(name, new ScriptResource(CreateRelativeResourceLocation(url)) {
+            var defer = dependentResourceNames.Any(IsDeferred);
+            AddRequiredResourceCore(name, new ScriptResource(defer: defer, location: CreateRelativeResourceLocation(url)) {
                 Dependencies = dependentResourceNames,
             });
         }
@@ -131,12 +132,15 @@ namespace DotVVM.Framework.ResourceManagement
             });
         }
 
+        bool IsDeferred(string name) => this.FindResource(name) is IDeferableResource r && r.Defer;
+
         /// <summary>
         /// Adds the specified piece of javascript that will be executed when the page is loaded.
         /// </summary>
         public void AddStartupScript(string name, string javascriptCode, params string[] dependentResourceNames)
         {
-            AddRequiredResourceCore(name, new InlineScriptResource(javascriptCode) { Dependencies = dependentResourceNames });
+            var defer = dependentResourceNames.Any(IsDeferred);
+            AddRequiredResourceCore(name, new InlineScriptResource(javascriptCode, defer: defer) { Dependencies = dependentResourceNames });
         }
 
         /// <summary>
@@ -144,7 +148,8 @@ namespace DotVVM.Framework.ResourceManagement
         /// </summary>
         public void AddStartupScript(string javascriptCode, params string[] dependentResourceNames)
         {
-            AddRequiredResourceCore(new InlineScriptResource(javascriptCode) { Dependencies = dependentResourceNames });
+            var defer = dependentResourceNames.Any(IsDeferred);
+            AddRequiredResourceCore(new InlineScriptResource(javascriptCode, defer: defer) { Dependencies = dependentResourceNames });
         }
 
         /// <summary>

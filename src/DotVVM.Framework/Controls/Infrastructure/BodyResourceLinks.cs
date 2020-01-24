@@ -32,13 +32,20 @@ namespace DotVVM.Framework.Controls
             writer.RenderSelfClosingTag("input");
 
             // init on load
-            writer.RenderBeginTag("script");
             writer.AddAttribute("defer", null);
-            writer.WriteUnencodedText($@"
+            var initCode = $@"
 window.dotvvm.init({JsonConvert.ToString(CultureInfo.CurrentCulture.Name, '"', StringEscapeHandling.EscapeHtml)});
-");
-            writer.WriteUnencodedText(RenderWarnings(context));
-            writer.RenderEndTag();
+";
+            new InlineScriptResource(initCode, defer: true)
+                .Render(writer, context, "dotvvm-init-script");
+
+            var warnings = RenderWarnings(context);
+            if (warnings.Length > 0)
+            {
+                writer.RenderBeginTag("script");
+                writer.WriteUnencodedText(warnings);
+                writer.RenderEndTag();
+            }
         }
 
         internal static string RenderWarnings(IDotvvmRequestContext context)
