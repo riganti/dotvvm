@@ -96,6 +96,8 @@ There is also [dotnet new template](https://www.dotvvm.com/docs/tutorials/how-to
 
 You can find the plans for next releases in the [roadmap](roadmap.md).
 
+We have already started development of **DotVVM 3.0** - everything is happenning in the [v3-master](https://github.com/riganti/dotvvm/tree/v3-master) branch.
+
 ## Commercial components & tools
 
 **DotVVM** framework is open source and **will always be free to use**. It's developed under [Apache license]().
