@@ -1,5 +1,3 @@
-import makeUpdatableChildrenContextHandler from './makeUpdatableChildrenContext'
-
 const foreachCollectionSymbol = "$foreachCollectionSymbol"
 
 ko.virtualElements.allowedBindings["dotvvm-SSR-foreach"] = true;
