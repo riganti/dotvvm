@@ -12,12 +12,12 @@ namespace DotVVM.Framework.Api.Swashbuckle.AspNetCore
         /// </summary>
         public static void EnableDotvvmIntegration(this SwaggerGenOptions options)
         {
-            options.OperationFilterDescriptors.Add(new FilterDescriptor() { Type = typeof(RemoveReadOnlyFromUriParametersOperationFilter) });
-            options.OperationFilterDescriptors.Add(new FilterDescriptor() { Type = typeof(RemoveBindNoneFromUriParametersOperationFilter) });
-            options.OperationFilterDescriptors.Add(new FilterDescriptor() { Type = typeof(AddAsObjectOperationFilter) });
+            options.OperationFilterDescriptors.Add(new FilterDescriptor() { Type = typeof(RemoveReadOnlyFromUriParametersOperationFilter), Arguments = new object[] { } });
+            options.OperationFilterDescriptors.Add(new FilterDescriptor() { Type = typeof(RemoveBindNoneFromUriParametersOperationFilter), Arguments = new object[] { } });
+            options.OperationFilterDescriptors.Add(new FilterDescriptor() { Type = typeof(AddAsObjectOperationFilter), Arguments = new object[] { } });
 
-            options.SchemaFilterDescriptors.Add(new FilterDescriptor() { Type = typeof(AddTypeToModelSchemaFilter) });
-            options.DocumentFilterDescriptors.Add(new FilterDescriptor() { Type = typeof(HandleKnownTypesDocumentFilter) });
+            options.SchemaFilterDescriptors.Add(new FilterDescriptor() { Type = typeof(AddTypeToModelSchemaFilter), Arguments = new object[] { } });
+            options.DocumentFilterDescriptors.Add(new FilterDescriptor() { Type = typeof(HandleKnownTypesDocumentFilter), Arguments = new object[] { } });
         }
     }
 }

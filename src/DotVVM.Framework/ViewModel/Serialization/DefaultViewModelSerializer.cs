@@ -25,6 +25,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         private readonly IViewModelProtector viewModelProtector;
         private readonly IViewModelSerializationMapper viewModelMapper;
+        private readonly IViewModelServerCache viewModelServerCache;
 
         public bool SendDiff { get; set; } = true;
 
@@ -34,11 +35,12 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultViewModelSerializer"/> class.
         /// </summary>
-        public DefaultViewModelSerializer(DotvvmConfiguration configuration, IViewModelProtector protector, IViewModelSerializationMapper serializationMapper)
+        public DefaultViewModelSerializer(DotvvmConfiguration configuration, IViewModelProtector protector, IViewModelSerializationMapper serializationMapper, IViewModelServerCache viewModelServerCache)
         {
             this.viewModelProtector = protector;
             this.JsonFormatting = configuration.Debug ? Formatting.Indented : Formatting.None;
             this.viewModelMapper = serializationMapper;
+            this.viewModelServerCache = viewModelServerCache;
         }
 
         /// <summary>
@@ -48,7 +50,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         {
             if (SendDiff && context.ReceivedViewModelJson != null && context.ViewModelJson["viewModel"] != null)
             {
-                context.ViewModelJson["viewModelDiff"] = JsonUtils.Diff((JObject)context.ReceivedViewModelJson["viewModel"], (JObject)context.ViewModelJson["viewModel"], true);
+                context.ViewModelJson["viewModelDiff"] = JsonUtils.Diff((JObject)context.ReceivedViewModelJson["viewModel"], (JObject)context.ViewModelJson["viewModel"], false);
                 context.ViewModelJson.Remove("viewModel");
             }
             return context.ViewModelJson.ToString(JsonFormatting);
@@ -74,14 +76,21 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 throw new Exception($"Could not serialize viewModel of type { context.ViewModel.GetType().Name }. Serialization failed at property { writer.Path }. {GeneralViewModelRecommendations}", ex);
             }
+            var viewModelToken = writer.Token;
+
+            string viewModelCacheId = null;
+            if (context.Configuration.ExperimentalFeatures.ServerSideViewModelCache.IsEnabledForRoute(context.Route.RouteName))
+            {
+                viewModelCacheId = viewModelServerCache.StoreViewModel(context, (JObject)viewModelToken);
+            }
 
             // persist CSRF token
             if (context.CsrfToken is object)
-                writer.Token["$csrfToken"] = context.CsrfToken;
+                viewModelToken["$csrfToken"] = context.CsrfToken;
 
             // persist encrypted values
             if (viewModelConverter.EncryptedValues.Count > 0)
-                writer.Token["$encryptedValues"] = viewModelProtector.Protect(viewModelConverter.EncryptedValues.ToString(Formatting.None), context);
+                viewModelToken["$encryptedValues"] = viewModelProtector.Protect(viewModelConverter.EncryptedValues.ToString(Formatting.None), context);
 
             // serialize validation rules
             bool useClientSideValidation = context.Configuration.ClientSideValidation;
@@ -91,7 +100,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
             // create result object
             var result = new JObject();
-            result["viewModel"] = writer.Token;
+            result["viewModel"] = viewModelToken;
+            if (viewModelCacheId != null)
+            {
+                result["viewModelCacheId"] = viewModelCacheId;
+            }
             result["url"] = context.HttpContext?.Request?.Url?.PathAndQuery;
             result["virtualDirectory"] = context.HttpContext?.Request?.PathBase?.Value?.Trim('/') ?? "";
             if (context.ResultIdFragment != null)
@@ -213,6 +226,17 @@ namespace DotVVM.Framework.ViewModel.Serialization
         }
 
         /// <summary>
+        /// Serializes the missing cached viewmodel action.
+        /// </summary>
+        internal static string GenerateMissingCachedViewModelResponse()
+        {
+            // create result object
+            var result = new JObject();
+            result["action"] = "viewModelNotCached";
+            return result.ToString(Formatting.None);
+        }
+
+        /// <summary>
         /// Serializes the validation errors in case the viewmodel was not valid.
         /// </summary>
         public string SerializeModelState(IDotvvmRequestContext context)
@@ -231,10 +255,23 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <returns></returns>
         public void PopulateViewModel(IDotvvmRequestContext context, string serializedPostData)
         {
-
             // get properties
             var data = context.ReceivedViewModelJson = JObject.Parse(serializedPostData);
-            var viewModelToken = (JObject)data["viewModel"];
+            JObject viewModelToken;
+            if (data["viewModelCacheId"] != null)
+            {
+                if (!context.Configuration.ExperimentalFeatures.ServerSideViewModelCache.IsEnabledForRoute(context.Route.RouteName))
+                {
+                    throw new InvalidOperationException("The server-side viewmodel caching is not enabled for the current route!");
+                }
+
+                viewModelToken = viewModelServerCache.TryRestoreViewModel(context, (string)data["viewModelCacheId"], (JObject)data["viewModelDiff"]);
+                data["viewModel"] = viewModelToken;
+            }
+            else
+            {
+                viewModelToken = (JObject)data["viewModel"];
+            }
 
             // load CSRF token
             context.CsrfToken = viewModelToken["$csrfToken"]?.Value<string>();

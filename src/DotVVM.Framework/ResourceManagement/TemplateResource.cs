@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,7 @@ namespace DotVVM.Framework.ResourceManagement
         public ResourceRenderPosition RenderPosition => ResourceRenderPosition.Body;
         public string[] Dependencies { get; } = new string[0];
 
-        public string Template { get; set; }
+        public string? Template { get; set; }
 
         public TemplateResource(string template)
         {

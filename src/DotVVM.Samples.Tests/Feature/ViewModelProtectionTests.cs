@@ -45,6 +45,35 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [Fact]
+        public void Feature_ViewModelProtection_NestedSignatures()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModelProtection_NestedSignatures);
+
+                var pre = browser.Single("pre");
+
+                // check that encrypted values are not directly in the viewmodel
+                AssertUI.Text(pre, t => !t.Contains("encryptedThing", StringComparison.CurrentCultureIgnoreCase));
+
+                // check that postback works
+                browser.ElementAt("input[type=button]", 0).Click().Wait();
+                AssertUI.Text(pre, t => !t.Contains("encryptedThing", StringComparison.CurrentCultureIgnoreCase));
+
+                // change the viewmodel on client side and check that it works
+                browser.ElementAt("input[type=button]", 1).Click().Wait();
+                AssertUI.Text(pre, t => !t.Contains("\"Next\": {", StringComparison.CurrentCultureIgnoreCase));
+                browser.ElementAt("input[type=button]", 0).Click().Wait();
+                AssertUI.Text(pre, t => t.Contains("\"Next\": {", StringComparison.CurrentCultureIgnoreCase));
+                AssertUI.Text(pre, t => !t.Contains("encryptedThing", StringComparison.CurrentCultureIgnoreCase));
+
+                // tamper with encrypted values
+                browser.GetJavaScriptExecutor().ExecuteScript("dotvvm.viewModels.root.viewModel.$encryptedValues(dotvvm.viewModels.root.viewModel.$encryptedValues()[1] + dotvvm.viewModels.root.viewModel.$encryptedValues()[0] + dotvvm.viewModels.root.viewModel.$encryptedValues().substring(2));");
+                browser.ElementAt("input[type=button]", 0).Click().Wait();
+                AssertUI.IsDisplayed(browser.Single("#debugWindow"));
+            });
+        }
+
+        [Fact]
         public void Feature_ViewModelProtection_ViewModelProtection()
         {
             RunInAllBrowsers(browser => {

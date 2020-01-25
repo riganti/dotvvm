@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +11,11 @@ namespace DotVVM.Framework.Controls
 {
     public class TranslateVirtualPathHtmlAttributeTransformer : IHtmlAttributeTransformer
     {
-        public void RenderHtmlAttribute(IHtmlWriter writer, IDotvvmRequestContext requestContext, string attributeName, object attributeValue)
+        public void RenderHtmlAttribute(IHtmlWriter writer, IDotvvmRequestContext requestContext, string attributeName, object? attributeValue)
         {
             if (attributeValue != null)
                 attributeValue = requestContext.TranslateVirtualPath((string)attributeValue);
-            writer.WriteHtmlAttribute(attributeName, (string)attributeValue);
+            writer.WriteHtmlAttribute(attributeName, (string?)attributeValue);
         }
     }
 }

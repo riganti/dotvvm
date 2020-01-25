@@ -1,6 +1,8 @@
+#nullable enable
 using System;
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Runtime.Filters
 {
@@ -9,7 +11,7 @@ namespace DotVVM.Framework.Runtime.Filters
     /// </summary>
     public abstract class ExceptionFilterAttribute : ActionFilterAttribute
     {
-        protected internal override Task OnCommandExecutedAsync(IDotvvmRequestContext context, ActionInfo actionInfo, Exception exception)
+        protected internal override Task OnCommandExecutedAsync(IDotvvmRequestContext context, ActionInfo actionInfo, Exception? exception)
         {
             if (exception != null)
             {
@@ -17,7 +19,7 @@ namespace DotVVM.Framework.Runtime.Filters
             }
             else
             {
-                return Task.FromResult(0);
+                return TaskUtils.GetCompletedTask();
             }
         }
 
@@ -25,6 +27,6 @@ namespace DotVVM.Framework.Runtime.Filters
         /// Called when the exception occurs during the command invocation.
         /// </summary>
         protected virtual Task OnCommandExceptionAsync(IDotvvmRequestContext context, ActionInfo actionInfo, Exception ex)
-            => Task.FromResult(0);
+            => TaskUtils.GetCompletedTask();
     }
 }

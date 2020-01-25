@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
@@ -26,7 +27,7 @@ namespace DotVVM.Framework.Runtime.Filters
         /// <summary>
         /// Called after the command is executed.
         /// </summary>
-        protected internal virtual Task OnCommandExecutedAsync(IDotvvmRequestContext context, ActionInfo actionInfo, Exception exception)
+        protected internal virtual Task OnCommandExecutedAsync(IDotvvmRequestContext context, ActionInfo actionInfo, Exception? exception)
             => TaskUtils.GetCompletedTask();
 
         /// <summary>
@@ -73,7 +74,7 @@ namespace DotVVM.Framework.Runtime.Filters
 
         Task IPageActionFilter.OnPageExceptionAsync(IDotvvmRequestContext context, Exception exception) => OnPageExceptionAsync(context, exception);
         Task ICommandActionFilter.OnCommandExecutingAsync(IDotvvmRequestContext context, ActionInfo actionInfo) => OnCommandExecutingAsync(context, actionInfo);
-        Task ICommandActionFilter.OnCommandExecutedAsync(IDotvvmRequestContext context, ActionInfo actionInfo, Exception exception) => OnCommandExecutedAsync(context, actionInfo, exception);
+        Task ICommandActionFilter.OnCommandExecutedAsync(IDotvvmRequestContext context, ActionInfo actionInfo, Exception? exception) => OnCommandExecutedAsync(context, actionInfo, exception);
         Task IViewModelActionFilter.OnViewModelCreatedAsync(IDotvvmRequestContext context) => OnViewModelCreatedAsync(context);
         Task IViewModelActionFilter.OnViewModelDeserializedAsync(IDotvvmRequestContext context) => OnViewModelDeserializedAsync(context);
         Task IViewModelActionFilter.OnViewModelSerializingAsync(IDotvvmRequestContext context) => OnViewModelSerializingAsync(context);

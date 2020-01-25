@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace DotVVM.Framework.Controls
         ///     If set to true, the value will be appended to the current attribute value and the <paramref name="appendSeparator"/> will be added when needed.
         /// </param>
         /// <param name="appendSeparator">The separator that will be used when <paramref name="append"/> is true and when the attribute already has a value.</param>
-        void AddAttribute(string name, string value, bool append = false, string appendSeparator = null);
+        void AddAttribute(string name, string? value, bool append = false, string? appendSeparator = null);
 
         /// <summary>
         /// Adds the style attribute.
@@ -68,7 +69,7 @@ namespace DotVVM.Framework.Controls
         /// Writes the specified HTML attribute and value (e.g. href="myUrl"). 
         /// This method is typically used from <see cref="IHtmlAttributeTransformer"/> implementations.
         /// </summary>
-        void WriteHtmlAttribute(string attributeName, string attributeValue);
+        void WriteHtmlAttribute(string attributeName, string? attributeValue);
 
         /// <summary>
         /// Passes information about the currently rendered control to the HtmlWriter. Used only to provide more accurate error/warning/debug information, does not alter the main behavior.

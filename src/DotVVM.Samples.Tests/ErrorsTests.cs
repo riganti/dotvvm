@@ -407,6 +407,20 @@ namespace DotVVM.Samples.Tests
 
         }
 
+        [Fact]
+        public void Error_ConfigurableHtmlControlValidation()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_ConfigurableHtmlControlValidation);
+                AssertUI.InnerText(browser.First("p.summary")
+                    ,
+                    s =>
+                        s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException", StringComparison.OrdinalIgnoreCase) &&
+                        s.Contains("The WrapperTagName property cannot be set when RenderWrapperTag is false!", StringComparison.OrdinalIgnoreCase)
+                );
+            });
+        }
+
         public ErrorsTests(ITestOutputHelper output) : base(output)
         {
         }

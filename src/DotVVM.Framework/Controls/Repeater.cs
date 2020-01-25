@@ -1,3 +1,4 @@
+#nullable enable
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
@@ -18,9 +19,9 @@ namespace DotVVM.Framework.Controls
     [ControlMarkupOptions(AllowContent = false, DefaultContentProperty = nameof(ItemTemplate))]
     public class Repeater : ItemsControl
     {
-        private EmptyData emptyDataContainer;
-        private DotvvmControl clientSeparator;
-        private DotvvmControl clientSideTemplate;
+        private EmptyData? emptyDataContainer;
+        private DotvvmControl? clientSeparator;
+        private DotvvmControl? clientSideTemplate;
 
         public Repeater(bool allowImplicitLifecycleRequirements = true)
         {
@@ -42,14 +43,14 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the template which will be displayed when the DataSource is empty.
         /// </summary>
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
-        public ITemplate EmptyDataTemplate
+        public ITemplate? EmptyDataTemplate
         {
-            get { return (ITemplate)GetValue(EmptyDataTemplateProperty); }
+            get { return (ITemplate?)GetValue(EmptyDataTemplateProperty); }
             set { SetValue(EmptyDataTemplateProperty, value); }
         }
 
         public static readonly DotvvmProperty EmptyDataTemplateProperty =
-            DotvvmProperty.Register<ITemplate, Repeater>(t => t.EmptyDataTemplate, null);
+            DotvvmProperty.Register<ITemplate?, Repeater>(t => t.EmptyDataTemplate, null);
 
         /// <summary>
         /// Gets or sets the template for each Repeater item.
@@ -59,12 +60,12 @@ namespace DotVVM.Framework.Controls
         [CollectionElementDataContextChange(1)]
         public ITemplate ItemTemplate
         {
-            get { return (ITemplate)GetValue(ItemTemplateProperty); }
+            get { return (ITemplate)GetValue(ItemTemplateProperty)!; }
             set { SetValue(ItemTemplateProperty, value); }
         }
 
         public static readonly DotvvmProperty ItemTemplateProperty =
-            DotvvmProperty.Register<ITemplate, Repeater>(t => t.ItemTemplate, null);
+            DotvvmProperty.Register<ITemplate, Repeater>(t => t.ItemTemplate);
 
         /// <summary>
         /// Gets or sets whether the control should render a wrapper element.
@@ -72,7 +73,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false)]
         public bool RenderWrapperTag
         {
-            get { return (bool)GetValue(RenderWrapperTagProperty); }
+            get { return (bool)GetValue(RenderWrapperTagProperty)!; }
             set { SetValue(RenderWrapperTagProperty, value); }
         }
 
@@ -83,14 +84,14 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the template containing the elements that separate items.
         /// </summary>
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
-        public ITemplate SeparatorTemplate
+        public ITemplate? SeparatorTemplate
         {
-            get { return (ITemplate)GetValue(SeparatorTemplateProperty); }
+            get { return (ITemplate?)GetValue(SeparatorTemplateProperty); }
             set { SetValue(SeparatorTemplateProperty, value); }
         }
 
         public static readonly DotvvmProperty SeparatorTemplateProperty =
-            DotvvmProperty.Register<ITemplate, Repeater>(t => t.SeparatorTemplate, null);
+            DotvvmProperty.Register<ITemplate?, Repeater>(t => t.SeparatorTemplate, null);
 
         /// <summary>
         /// Gets or sets the name of the tag that wraps the Repeater.
@@ -98,7 +99,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false)]
         public string WrapperTagName
         {
-            get { return (string)GetValue(WrapperTagNameProperty); }
+            get { return (string)GetValue(WrapperTagNameProperty)!; }
             set { SetValue(WrapperTagNameProperty, value); }
         }
 
@@ -111,7 +112,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false)]
         public bool RenderAsNamedTemplate
         {
-            get { return (bool)GetValue(RenderAsNamedTemplateProperty); }
+            get { return (bool)GetValue(RenderAsNamedTemplateProperty)!; }
             set { SetValue(RenderAsNamedTemplateProperty, value); }
         }
         public static readonly DotvvmProperty RenderAsNamedTemplateProperty =
@@ -181,7 +182,7 @@ namespace DotVVM.Framework.Controls
 
             if (useTemplate)
             {
-                var itemTemplateId = context.ResourceManager.AddTemplateResource(context, clientSideTemplate);
+                var itemTemplateId = context.ResourceManager.AddTemplateResource(context, clientSideTemplate!);
 
                 value.Add("name", itemTemplateId, true);
             }
@@ -208,7 +209,7 @@ namespace DotVVM.Framework.Controls
             if (clientSideTemplate == null)
             {
                 Debug.Assert(clientSeparator == null);
-                foreach (var child in Children.Except(new[] { emptyDataContainer }))
+                foreach (var child in Children.Except(new[] { emptyDataContainer! }))
                 {
                     child.Render(writer, context);
                 }
@@ -241,30 +242,30 @@ namespace DotVVM.Framework.Controls
                 emptyDataContainer.SetValue(EmptyData.WrapperTagNameProperty, GetValueRaw(WrapperTagNameProperty));
                 emptyDataContainer.SetValue(EmptyData.VisibleProperty, GetValueRaw(VisibleProperty));
                 emptyDataContainer.SetBinding(DataSourceProperty, dataSourceBinding);
-                EmptyDataTemplate.BuildContent(context, emptyDataContainer);
+                EmptyDataTemplate!.BuildContent(context, emptyDataContainer);
             }
             return emptyDataContainer;
         }
 
         private ConditionalWeakTable<object, DataItemContainer> childrenCache = new ConditionalWeakTable<object, DataItemContainer>();
-        private DotvvmControl GetItem(IDotvvmRequestContext context, object item = null, int? index = null, bool allowMemoizationRetrive = false, bool allowMemoizationStore = false)
+        private DotvvmControl GetItem(IDotvvmRequestContext context, object? item = null, int? index = null, bool allowMemoizationRetrive = false, bool allowMemoizationStore = false)
         {
             if (allowMemoizationRetrive && item != null && childrenCache.TryGetValue(item, out var container2) && container2.Parent == null)
             {
                 Debug.Assert(item == container2.GetValueRaw(DataContextProperty));
-                SetUpServerItem(context, item, (int)index, container2);
+                SetUpServerItem(context, item, (int)index!, container2);
                 return container2;
             }
 
             var container = new DataItemContainer();
-            container.SetDataContextTypeFromDataSource(GetBinding(DataSourceProperty));
+            container.SetDataContextTypeFromDataSource(GetBinding(DataSourceProperty)!);
             if (item == null && index == null)
             {
                 SetUpClientItem(container);
             }
             else
             {
-                SetUpServerItem(context, item, (int)index, container);
+                SetUpServerItem(context, item!, (int)index!, container);
             }
 
             ItemTemplate.BuildContent(context, container);
@@ -283,7 +284,7 @@ namespace DotVVM.Framework.Controls
         {
             var placeholder = new PlaceHolder();
             placeholder.SetDataContextType(this.GetDataContextType());
-            SeparatorTemplate.BuildContent(context, placeholder);
+            SeparatorTemplate!.BuildContent(context, placeholder);
             return placeholder;
         }
 
@@ -299,9 +300,8 @@ namespace DotVVM.Framework.Controls
 
             if (DataSource != null)
             {
-                var itemBinding = GetItemBinding();
                 var index = 0;
-                foreach (var item in GetIEnumerableFromDataSource())
+                foreach (var item in GetIEnumerableFromDataSource()!)
                 {
                     if (SeparatorTemplate != null && index > 0)
                     {

@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,9 +22,9 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
         [Obsolete("The DefaultRouteName property is not supported - the classic SPA more (URLs with #/) was removed from DotVVM. See https://www.dotvvm.com/docs/tutorials/basics-single-page-applications-spa/latest for more details.")]
-        public string DefaultRouteName
+        public string? DefaultRouteName
         {
-            get { return (string)GetValue(DefaultRouteNameProperty); }
+            get { return (string?)GetValue(DefaultRouteNameProperty); }
             set { SetValue(DefaultRouteNameProperty, value); }
         }
 #pragma warning disable 618
@@ -37,9 +38,9 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
         [Obsolete("The PrefixRouteName property is not supported - the classic SPA more (URLs with #/) was removed from DotVVM. See https://www.dotvvm.com/docs/tutorials/basics-single-page-applications-spa/latest for more details.")]
-        public string PrefixRouteName
+        public string? PrefixRouteName
         {
-            get { return (string)GetValue(PrefixRouteNameProperty); }
+            get { return (string?)GetValue(PrefixRouteNameProperty); }
             set { SetValue(PrefixRouteNameProperty, value); }
         }
 #pragma warning disable 618
@@ -72,7 +73,7 @@ namespace DotVVM.Framework.Controls
         public string GetSpaContentPlaceHolderUniqueId()
         {
             var dotvvmViewId = GetAllAncestors().FirstOrDefault(a => a is DotvvmView).GetType().ToString();
-            var markupRelativeFilePath = (string)GetValue(Internal.MarkupFileNameProperty);
+            var markupRelativeFilePath = (string?)GetValue(Internal.MarkupFileNameProperty);
 
             return HashUtils.HashAndBase64Encode(
                 (dotvvmViewId, markupRelativeFilePath, GetDotvvmUniqueId()).ToString());

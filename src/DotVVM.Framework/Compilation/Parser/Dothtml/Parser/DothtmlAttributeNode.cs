@@ -1,3 +1,4 @@
+#nullable enable
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -19,20 +20,25 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
             }
         }
         #endregion
-        public string AttributePrefix => AttributePrefixNode?.Text;
+        public string? AttributePrefix => AttributePrefixNode?.Text;
 
         public string AttributeName => AttributeNameNode.Text;
 
-        public DothtmlValueNode ValueNode { get; set; }
+        public DothtmlValueNode? ValueNode { get; set; }
 
-        public DothtmlNameNode AttributePrefixNode { get; set; }
+        public DothtmlNameNode? AttributePrefixNode { get; set; }
 
         public DothtmlNameNode AttributeNameNode { get; set; }
 
-        public DothtmlToken PrefixSeparatorToken { get; set; }
-        public DothtmlToken ValueSeparatorToken { get; set; }
-        public IEnumerable<DothtmlToken> ValueStartTokens { get; set; }
-        public IEnumerable<DothtmlToken> ValueEndTokens { get; set; }
+        public DothtmlToken? PrefixSeparatorToken { get; set; }
+        public DothtmlToken? ValueSeparatorToken { get; set; }
+        public IEnumerable<DothtmlToken>? ValueStartTokens { get; set; }
+        public IEnumerable<DothtmlToken>? ValueEndTokens { get; set; }
+
+        public DothtmlAttributeNode(DothtmlNameNode attributeNameNode)
+        {
+            this.AttributeNameNode = attributeNameNode;
+        }
 
         public override IEnumerable<DothtmlNode> EnumerateChildNodes()
         {

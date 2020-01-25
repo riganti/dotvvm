@@ -17,15 +17,13 @@ namespace DotVVM.Framework.Compilation.ControlTree
     /// </summary>
     public class DefaultControlTreeResolver : ControlTreeResolverBase
     {
-        private readonly IBindingExpressionBuilder bindingExpressionBuilder;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultControlTreeResolver"/> class.
         /// </summary>
-        public DefaultControlTreeResolver(IControlResolver controlResolver, IAbstractTreeBuilder treeBuilder, IBindingExpressionBuilder expressionBuilder)
+        public DefaultControlTreeResolver(IControlResolver controlResolver, IAbstractTreeBuilder treeBuilder)
             : base(controlResolver, treeBuilder)
         {
-            this.bindingExpressionBuilder = expressionBuilder;
         }
 
         protected override void ResolveRootContent(DothtmlRootNode root, IAbstractContentNode view, IControlResolverMetadata viewMetadata)

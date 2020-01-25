@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ namespace DotVVM.Framework.Controls
     {
         static int HashCombine(int a, int b) => a + b;
 
-        public static bool ContainsKey(DotvvmProperty[] keys, int hashSeed, DotvvmProperty p)
+        public static bool ContainsKey(DotvvmProperty?[] keys, int hashSeed, DotvvmProperty p)
         {
             var l = keys.Length;
             if (l == 4)
@@ -28,7 +29,7 @@ namespace DotVVM.Framework.Controls
             return keys[i1] == p | keys[i2] == p;
         }
 
-        public static int FindSlot(DotvvmProperty[] keys, int hashSeed, DotvvmProperty p)
+        public static int FindSlot(DotvvmProperty?[] keys, int hashSeed, DotvvmProperty p)
         {
             var l = keys.Length;
             if (l == 4)
@@ -51,7 +52,7 @@ namespace DotVVM.Framework.Controls
             return -1;
         }
 
-        static ConcurrentDictionary<DotvvmProperty[], (int, DotvvmProperty[])> tableCache = new ConcurrentDictionary<DotvvmProperty[], (int, DotvvmProperty[])>(new EqCmp());
+        static ConcurrentDictionary<DotvvmProperty[], (int, DotvvmProperty?[])> tableCache = new ConcurrentDictionary<DotvvmProperty[], (int, DotvvmProperty?[])>(new EqCmp());
 
         class EqCmp : IEqualityComparer<DotvvmProperty[]>
         {
@@ -76,7 +77,7 @@ namespace DotVVM.Framework.Controls
         // Some primes. Numbers not divisible by 2 should help shuffle the table in a different way every time.
         public static int[] hashSeeds = new [] {0, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251, 257, 263, 269, 271, 277, 281, 283, 293, 307, 311, 313, 317, 331, 337, 347, 349, 353, 359, 367, 373, 379, 383, 389, 397, 401, 409, 419, 421, 431, 433, 439, 443, 449, 457, 461, 463, 467, 479, 487, 491, 499, 503, 509, 521, 523, 541};
 
-        public static (int hashSeed, DotvvmProperty[] keys) BuildTable(DotvvmProperty[] a)
+        public static (int hashSeed, DotvvmProperty?[] keys) BuildTable(DotvvmProperty[] a)
         {
             Debug.Assert(a.OrderBy(x => x.FullName).SequenceEqual(a));
 
@@ -116,14 +117,15 @@ namespace DotVVM.Framework.Controls
             });
         }
 
-        static bool TestTableCorrectness(DotvvmProperty[] keys, int hashSeed, DotvvmProperty[] table)
+        static bool TestTableCorrectness(DotvvmProperty[] keys, int hashSeed, DotvvmProperty?[] table)
         {
             return keys.All(k => FindSlot(table, hashSeed, k) >= 0);
         }
 
-        static DotvvmProperty[] TryBuildTable(DotvvmProperty[] a, int size, int hashSeed)
+        /// <summary> Builds the core of the property hash table. Returns null if the table cannot be built due to collisions. </summary>
+        static DotvvmProperty?[]? TryBuildTable(DotvvmProperty[] a, int size, int hashSeed)
         {
-            var t = new DotvvmProperty[size];
+            var t = new DotvvmProperty?[size];
             var lengthMap = (size) - 1; // trims the hash to be in bounds of the array
             foreach (var k in a)
             {
@@ -141,7 +143,7 @@ namespace DotVVM.Framework.Controls
             return t;
         }
 
-        public static (int hashSeed, DotvvmProperty[] keys, T[] valueTable) CreateTableWithValues<T>(DotvvmProperty[] properties, T[] values)
+        public static (int hashSeed, DotvvmProperty?[] keys, T[] valueTable) CreateTableWithValues<T>(DotvvmProperty[] properties, T[] values)
         {
             var (hashSeed, keys) = BuildTable(properties);
             var valueTable = new T[keys.Length];

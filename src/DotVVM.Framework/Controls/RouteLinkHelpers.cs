@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,7 +42,7 @@ namespace DotVVM.Framework.Controls
             var urlSuffix = GenerateUrlSuffixCore(control.GetValue(RouteLink.UrlSuffixProperty) as string, control);
             var coreUrl = GenerateRouteUrlCore(routeName, control, context) + urlSuffix;
 
-            if ((bool)control.GetValue(Internal.IsSpaPageProperty) && !(bool)control.GetValue(Internal.UseHistoryApiSpaNavigationProperty))
+            if ((bool)control.GetValue(Internal.IsSpaPageProperty)! && !(bool)control.GetValue(Internal.UseHistoryApiSpaNavigationProperty)!)
             {
                 return "#!/" + (coreUrl.StartsWith("~/", StringComparison.Ordinal) ? coreUrl.Substring(2) : coreUrl);
             }
@@ -59,7 +60,7 @@ namespace DotVVM.Framework.Controls
             // evaluate bindings on server
             foreach (var param in parameters.Where(p => p.Value is IStaticValueBinding).ToList())
             {
-                EnsureValidBindingType(param.Value as BindingExpression);
+                EnsureValidBindingType((IBinding)param.Value);
                 parameters[param.Key] = ((IValueBinding)param.Value).Evaluate(control);   // TODO: see below
             }
 
@@ -67,7 +68,7 @@ namespace DotVVM.Framework.Controls
             return route.BuildUrl(parameters);
         }
 
-        private static string GenerateUrlSuffixCore(string urlSuffix, RouteLink control)
+        private static string GenerateUrlSuffixCore(string? urlSuffix, RouteLink control)
         {
             // generate the URL suffix
             return UrlHelper.BuildUrlSuffix(urlSuffix, control.QueryParameters);
@@ -83,7 +84,7 @@ namespace DotVVM.Framework.Controls
             var link = GenerateRouteLinkCore(routeName, control, context);
 
             var urlSuffix = GetUrlSuffixExpression(control);
-            if ((bool)control.GetValue(Internal.IsSpaPageProperty) && !context.Configuration.UseHistoryApiSpaNavigation)
+            if ((bool)control.GetValue(Internal.IsSpaPageProperty)! && !context.Configuration.UseHistoryApiSpaNavigation)
             {
                 return $"'#!/' + {link}{(urlSuffix == null ? "" : " + " + urlSuffix)}";
             }
@@ -93,7 +94,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private static string GetUrlSuffixExpression(RouteLink control)
+        private static string? GetUrlSuffixExpression(RouteLink control)
         {
             var urlSuffixBase =
                 control.GetValueBinding(RouteLink.UrlSuffixProperty)
@@ -123,12 +124,12 @@ namespace DotVVM.Framework.Controls
                     : JsonConvert.ToString(route.Url);
         }
 
-        private static string TranslateRouteParameter(DotvvmBindableObject control, KeyValuePair<string, object> param, bool caseSensitive = false)
+        private static string TranslateRouteParameter<T>(DotvvmBindableObject control, KeyValuePair<string, T> param, bool caseSensitive = false)
         {
             string expression = "";
-            if (param.Value is IBinding)
+            if (param.Value is IBinding binding)
             {
-                EnsureValidBindingType(param.Value as IBinding);
+                EnsureValidBindingType(binding);
 
                 expression = (param.Value as IValueBinding)?.GetKnockoutBindingExpression(control)
                     ?? JsonConvert.SerializeObject((param.Value as IStaticValueBinding)?.Evaluate(control), DefaultViewModelSerializer.CreateDefaultSettings());
@@ -148,10 +149,10 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private static Dictionary<string, object> ComposeNewRouteParameters(RouteLink control, IDotvvmRequestContext context, RouteBase route)
+        private static Dictionary<string, object?> ComposeNewRouteParameters(RouteLink control, IDotvvmRequestContext context, RouteBase route)
         {
-            var parameters = new Dictionary<string, object>(route.DefaultValues, StringComparer.OrdinalIgnoreCase);
-            foreach (var param in context.Parameters)
+            var parameters = new Dictionary<string, object?>(route.DefaultValues, StringComparer.OrdinalIgnoreCase);
+            foreach (var param in context.Parameters!)
             {
                 parameters[param.Key] = param.Value;
             }

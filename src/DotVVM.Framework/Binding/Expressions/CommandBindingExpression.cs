@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -49,13 +50,13 @@ namespace DotVVM.Framework.Binding.Expressions
 
             public class Methods
             {
-                public CommandJavascriptBindingProperty CreateJs(IdBindingProperty id, ExpectedTypeBindingProperty expectedType = null) =>
+                public CommandJavascriptBindingProperty CreateJs(IdBindingProperty id, ExpectedTypeBindingProperty? expectedType = null) =>
                     new CommandJavascriptBindingProperty(CreateJsPostbackInvocation(
                         id.Id,
                         needsCommandArgs: expectedType?.Type?.GetDelegateArguments()?.Length.Apply(len => len != 0)
                     ));
 
-                public ExpectedTypeBindingProperty GetExpectedType(AssignedPropertyBindingProperty property = null)
+                public ExpectedTypeBindingProperty GetExpectedType(AssignedPropertyBindingProperty? property = null)
                 {
                     var prop = property?.DotvvmProperty;
                     if (prop == null) return new ExpectedTypeBindingProperty(typeof(Command));
@@ -72,7 +73,7 @@ namespace DotVVM.Framework.Binding.Expressions
         public static CodeSymbolicParameter PostbackHandlersParameter = new CodeSymbolicParameter("CommandBindingExpression.PostbackHandlersParameter");
         public static CodeSymbolicParameter CommandArgumentsParameter = new CodeSymbolicParameter("CommandBindingExpression.CommandArgumentsParameter");
 
-        private static ParametrizedCode createJavascriptPostbackInvocation(JsExpression commandArgs) =>
+        private static ParametrizedCode createJavascriptPostbackInvocation(JsExpression? commandArgs) =>
             new JsIdentifierExpression("dotvvm").Member("postBack").Invoke(
                 new JsSymbolicParameter(SenderElementParameter),
                 new JsSymbolicParameter(CurrentPathParameter),
@@ -100,11 +101,11 @@ namespace DotVVM.Framework.Binding.Expressions
                 default);
 
         public CommandBindingExpression(BindingCompilationService service, Action<object[]> command, string id)
-            : this(service, (h, o) => (Action)(() => command(h)), id)
+            : this(service, (h, o) => (Action)(() => command(h!)), id)
         { }
 
         public CommandBindingExpression(BindingCompilationService service, Func<object[], Task> command, string id)
-            : this(service, (h, o) => (Command)(() => command(h)), id)
+            : this(service, (h, o) => (Command)(() => command(h!)), id)
         { }
 
         public CommandBindingExpression(BindingCompilationService service, Delegate command, string id)

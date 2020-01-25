@@ -17,9 +17,9 @@ namespace DotVVM.Framework.ViewModel
         public Direction Direction { get; private set; }
 
         /// <summary>
-        /// Name of the property in JSON and JS viewModel
+        /// Name of the property in JSON and JS viewModel. Null leaves the name unmodified
         /// </summary>
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
 
         /// <summary>

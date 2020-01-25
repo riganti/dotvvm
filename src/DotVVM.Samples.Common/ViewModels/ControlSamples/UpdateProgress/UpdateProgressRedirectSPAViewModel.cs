@@ -7,16 +7,15 @@ using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Samples.Common.ViewModels.ControlSamples.UpdateProgress
 {
-    public class UpdateProgressSPA1ViewModel : UpdateProgressSPAViewModel
+    public class UpdateProgressRedirectSPAViewModel : UpdateProgressRedirectSPAMasterPageViewModel
     {
         public async override Task PreRender()
         {
-            await Task.Delay(2000);
             await base.PreRender();
         }
         public async Task LongTest()
         {
-            await Task.Delay(5000);
+            await Task.Delay(1000);
         }
     }
 }

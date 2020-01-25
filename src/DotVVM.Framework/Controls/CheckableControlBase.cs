@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
@@ -17,8 +18,8 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public string Text
         {
-            get { return (string)GetValue(TextProperty); }
-            set { SetValue(TextProperty, value); }
+            get { return (string)GetValue(TextProperty)!; }
+            set { SetValue(TextProperty, value ?? throw new ArgumentNullException(nameof(value))); }
         }
 
         public static readonly DotvvmProperty TextProperty =
@@ -28,33 +29,33 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the value that will be used as a result when the control is checked.
         /// Use this property in combination with the CheckedItem or CheckedItems property.
         /// </summary>
-        public object CheckedValue
+        public object? CheckedValue
         {
             get { return GetValue(CheckedValueProperty); }
             set { SetValue(CheckedValueProperty, value); }
         }
 
         public static readonly DotvvmProperty CheckedValueProperty =
-            DotvvmProperty.Register<object, CheckableControlBase>(t => t.CheckedValue, null);
+            DotvvmProperty.Register<object?, CheckableControlBase>(t => t.CheckedValue, null);
 
         /// <summary>
         /// Gets or sets the command that will be triggered when the control check state is changed.
         /// </summary>
-        public Command Changed
+        public Command? Changed
         {
-            get { return (Command)GetValue(ChangedProperty); }
+            get { return (Command?)GetValue(ChangedProperty); }
             set { SetValue(ChangedProperty, value); }
         }
 
         public static readonly DotvvmProperty ChangedProperty =
-            DotvvmProperty.Register<Command, CheckableControlBase>(t => t.Changed, null);
+            DotvvmProperty.Register<Command?, CheckableControlBase>(t => t.Changed, null);
 
         /// <summary>
         /// Gets or sets a value indicating whether the control is enabled and can be clicked on.
         /// </summary>
         public bool Enabled
         {
-            get { return (bool)GetValue(EnabledProperty); }
+            get { return (bool)GetValue(EnabledProperty)!; }
             set { SetValue(EnabledProperty, value); }
         }
 
@@ -95,14 +96,15 @@ namespace DotVVM.Framework.Controls
 
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
+            if (TagName is null) throw new DotvvmControlException(this, "CheckableControlBase must have a tag name");
             AddAttributesToInput(writer);
             RenderInputTag(writer);
 
             if (isLabelRequired)
             {
-                if (HasValueBinding(TextProperty))
+                if (GetValueBinding(TextProperty) is IValueBinding textBinding)
                 {
-                    writer.AddKnockoutDataBind("text", GetValueBinding(TextProperty).GetKnockoutBindingExpression(this));
+                    writer.AddKnockoutDataBind("text", textBinding.GetKnockoutBindingExpression(this));
                     writer.RenderBeginTag(TagName);
                     writer.RenderEndTag();
                 }

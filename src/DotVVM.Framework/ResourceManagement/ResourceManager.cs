@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,9 +16,9 @@ namespace DotVVM.Framework.ResourceManagement
     /// </summary>
     public class ResourceManager
     {
-        private List<string> requiredResourcesOrdered = new List<string>();
-        private Dictionary<string, IResource> requiredResources = new Dictionary<string, IResource>();
-        private List<IResourceProcessor> processors = new List<IResourceProcessor>();
+        private readonly List<string> requiredResourcesOrdered = new List<string>();
+        private readonly Dictionary<string, IResource> requiredResources = new Dictionary<string, IResource>();
+        private readonly List<IResourceProcessor> processors = new List<IResourceProcessor>();
         private int nonameCtr = 0;
         private readonly DotvvmResourceRepository repository;
 
@@ -69,7 +70,7 @@ namespace DotVVM.Framework.ResourceManagement
                 ThrowResourceNotFound(name);
             }
 
-            AddRequiredResourceCore(name, resource);
+            AddRequiredResourceCore(name, resource!);
         }
 
         /// <summary>
@@ -98,8 +99,7 @@ namespace DotVVM.Framework.ResourceManagement
         /// </summary>
         private void AddRequiredResourceCore(string name, IResource resource)
         {
-            IResource originalResource;
-            if (requiredResources.TryGetValue(name, out originalResource))
+            if (requiredResources.TryGetValue(name, out var originalResource))
             {
                 if (originalResource != resource)
                 {
@@ -215,11 +215,11 @@ namespace DotVVM.Framework.ResourceManagement
         }
 
         /// <summary>
-        /// Finds the resource in required resources or in the resources registered in the configuration file.
+        /// Finds a resource in required resources or in the resources registered in the configuration file. Throws an exception if the resource is not found.
         /// </summary>
         public IResource FindResource(string name)
         {
-            IResource resource;
+            IResource? resource;
             if (requiredResources.TryGetValue(name, out resource))
             {
                 return resource;
@@ -231,7 +231,7 @@ namespace DotVVM.Framework.ResourceManagement
                 ThrowResourceNotFound(name);
             }
 
-            return resource;
+            return resource!;
         }
 
         private static void ThrowNonUniqueName(string name)

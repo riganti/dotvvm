@@ -1,4 +1,4 @@
-﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.UpdateProgress.UpdateProgressSPAViewModel, DotVVM.Samples.Common
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.UpdateProgress.UpdateProgressRedirectMasterPageViewModel, DotVVM.Samples.Common
 
 <!DOCTYPE html>
 
@@ -9,20 +9,20 @@
 </head>
 <body>
     <h1>
-        SPA UpdateProgress test
+        UpdateProgress redirect test
     </h1>
     <span>{{resource: DateTime.Now}}</span>
 
     <p>
-        <dot:Button Text="Redirect 1" Click="{command: Redirect1()}"></dot:Button>
-        <dot:Button Text="Redirect 2" Click="{command: Redirect2()}"></dot:Button>
+        <dot:Button data-ui="btn-1" Text="Redirect 1" Click="{command: Redirect1()}"></dot:Button>
+        <dot:Button data-ui="btn-2" Text="Redirect 2" Click="{command: Redirect2()}"></dot:Button>
     </p>
     <div>
-        SPA Content:
+        Content:
         <p style="padding-left:30px;">
-            <dot:SpaContentPlaceHolder ID="MainContent" />
+            <dot:ContentPlaceHolder ID="MainContent" />
         </p>
-        END SPA Content:
+        END Content:
     </div>
 
     <h2>Update Progress Container</h2>

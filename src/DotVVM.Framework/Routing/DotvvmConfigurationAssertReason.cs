@@ -1,4 +1,5 @@
-﻿namespace DotVVM.Framework.Routing
+﻿#nullable enable
+namespace DotVVM.Framework.Routing
 {
     internal enum DotvvmConfigurationAssertReason
     {

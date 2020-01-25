@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
 using Moq;
 using System.Threading;
+using DotVVM.Framework.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using DotVVM.Framework.Configuration;
 
 namespace DotVVM.Framework.Tests.AspCore.Middleware
 {
@@ -38,7 +40,8 @@ namespace DotVVM.Framework.Tests.AspCore.Middleware
             var mockContext = new Mock<IHttpContext>();
             mockContext.Setup(m => m.Response).Returns(mockResponse.Object);
 
-            _requestContext = new DotvvmRequestContext() { HttpContext = mockContext.Object };
+            var configuration = DotvvmConfiguration.CreateDefault();
+            _requestContext = new DotvvmRequestContext(mockContext.Object, configuration, configuration.ServiceProvider);
         }
 
 

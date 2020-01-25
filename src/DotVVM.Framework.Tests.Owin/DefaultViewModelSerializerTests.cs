@@ -18,6 +18,9 @@ using Microsoft.Owin;
 using Microsoft.Owin.Security.DataProtection;
 using Newtonsoft.Json.Linq;
 using Microsoft.Owin.Infrastructure;
+using DotVVM.Framework.Runtime.Caching;
+using DotVVM.Framework.Hosting.Owin.Runtime.Caching;
+using DotVVM.Framework.Routing;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -37,6 +40,7 @@ namespace DotVVM.Framework.Tests.Runtime
                 services.AddTransient<IViewModelProtector, DefaultViewModelProtector>();
                 services.AddTransient<ICsrfProtector, DefaultCsrfProtector>();
                 services.AddSingleton<ICookieManager, ChunkingCookieManager>();
+                services.AddSingleton<IDotvvmCacheAdapter, OwinDotvvmCacheAdapter>();
             });
 			configuration.Security.SigningKey = Convert.FromBase64String("Uiq1FXs016lC6QaWIREB7H2P/sn4WrxkvFkqaIKpB27E7RPuMipsORgSgnT+zJmUu8zXNSJ4BdL73JEMRDiF6A1ScRNwGyDxDAVL3nkpNlGrSoLNM1xHnVzSbocLFDrdEiZD2e3uKujguycvWSNxYzjgMjXNsaqvCtMu/qRaEGc=");
 			configuration.Security.EncryptionKey = Convert.FromBase64String("jNS9I3ZcxzsUSPYJSwzCOm/DEyKFNlBmDGo9wQ6nxKg=");
@@ -54,11 +58,10 @@ namespace DotVVM.Framework.Tests.Runtime
 
 
 			serializer = configuration.ServiceLocator.GetService<IViewModelSerializer>() as DefaultViewModelSerializer;
-            context = new DotvvmRequestContext()
+            context = new DotvvmRequestContext(contextMock.Object, configuration, configuration.ServiceProvider)
             {
-                Configuration = configuration,
-                HttpContext = contextMock.Object,
                 Presenter = configuration.RouteTable.GetDefaultPresenter(configuration.ServiceProvider),
+                Route = new DotvvmRoute("TestRoute", "test.dothtml", new { }, p => p.GetService<DotvvmPresenter>(), configuration)
             };
         }
 

@@ -1,23 +1,25 @@
+#nullable enable
 using System;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using DotVVM.Framework.Utils;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Configuration
 {
     public class ServiceLocator
     {
-        private Func<IServiceCollection, IServiceProvider> serviceProviderFactoryMethod;
-        private IServiceCollection serviceCollection;
-        private IServiceProvider serviceProvider;
+        private Func<IServiceCollection, IServiceProvider>? serviceProviderFactoryMethod;
+        private IServiceCollection? serviceCollection;
+        private IServiceProvider? serviceProvider;
 
         public ServiceLocator(IServiceProvider serviceProvider)
         {
             this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }
 
-        public ServiceLocator(IServiceCollection serviceCollection, Func<IServiceCollection, IServiceProvider> serviceProviderFactoryMethod = null)
+        public ServiceLocator(IServiceCollection serviceCollection, Func<IServiceCollection, IServiceProvider>? serviceProviderFactoryMethod = null)
         {
             this.serviceProviderFactoryMethod = serviceProviderFactoryMethod;
             this.serviceCollection = serviceCollection ?? throw new ArgumentNullException(nameof(serviceCollection));
@@ -27,7 +29,7 @@ namespace DotVVM.Framework.Configuration
         {
             if (serviceProvider == null)
             {
-                serviceProvider = (serviceProviderFactoryMethod ?? BuildServiceProvider).Invoke(serviceCollection);
+                serviceProvider = (serviceProviderFactoryMethod ?? BuildServiceProvider).Invoke(serviceCollection.NotNull());
                 serviceCollection = null;
             }
             return serviceProvider;
@@ -35,7 +37,7 @@ namespace DotVVM.Framework.Configuration
 
         private IServiceProvider BuildServiceProvider()
         {
-            return BuildServiceProvider(serviceCollection);
+            return BuildServiceProvider(serviceCollection.NotNull());
         }
 
         public T GetService<T>()
@@ -55,7 +57,7 @@ namespace DotVVM.Framework.Configuration
             var BuildServiceProviderMethod = t.GetMethod(nameof(BuildServiceProvider), new Type[] { typeof(IServiceCollection) });
             Debug.Assert(BuildServiceProviderMethod != null);
 
-            return (IServiceProvider)BuildServiceProviderMethod.Invoke(null, new[] { services });
+            return (IServiceProvider)BuildServiceProviderMethod.Invoke(null, new[] { services }).NotNull();
         }
     }
 }

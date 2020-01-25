@@ -1,3 +1,4 @@
+#nullable enable
 using DotVVM.Framework.Binding;
 using System;
 using System.Collections;
@@ -27,14 +28,14 @@ namespace DotVVM.Framework.Controls
         [BindingCompilationRequirements(
             required: new[] { typeof(DataSourceAccessBinding) },
             optional: new[] { typeof(DataSourceLengthBinding), typeof(CollectionElementDataContextBindingProperty) })]
-        public object DataSource
+        public object? DataSource
         {
             get { return GetValue(DataSourceProperty); }
             set { SetValue(DataSourceProperty, value); }
         }
 
         public static readonly DotvvmProperty DataSourceProperty =
-            DotvvmProperty.Register<object, ItemsControl>(t => t.DataSource, null);
+            DotvvmProperty.Register<object?, ItemsControl>(t => t.DataSource, null);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ItemsControl"/> class.
@@ -68,8 +69,8 @@ namespace DotVVM.Framework.Controls
             return (IValueBinding)GetForeachDataBindExpression().GetProperty<DataSourceCurrentElementBinding>().Binding;
         }
 
-        public IEnumerable GetIEnumerableFromDataSource() =>
-            (IEnumerable)GetForeachDataBindExpression().Evaluate(this);
+        public IEnumerable? GetIEnumerableFromDataSource() =>
+            (IEnumerable?)GetForeachDataBindExpression().Evaluate(this);
 
         protected IValueBinding GetForeachDataBindExpression() =>
             (IValueBinding)GetDataSourceBinding().GetProperty<DataSourceAccessBinding>().Binding;

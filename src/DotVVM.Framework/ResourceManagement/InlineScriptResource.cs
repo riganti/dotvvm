@@ -1,7 +1,9 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using Newtonsoft.Json;
@@ -24,6 +26,13 @@ namespace DotVVM.Framework.ResourceManagement
             this.Code = code;
             this.Defer = defer;
         }
+        public InlineScriptResource(ILocalResourceLocation resourceLocation, ResourceRenderPosition renderPosition = ResourceRenderPosition.Body) : base(renderPosition)
+        {
+            this.resourceLocation = resourceLocation;
+        }
+
+        private ILocalResourceLocation? resourceLocation;
+        private volatile Lazy<string>? code;
 
         /// <summary>
         /// Gets or sets the javascript code that will be embedded in the page.
@@ -33,8 +42,11 @@ namespace DotVVM.Framework.ResourceManagement
         /// <summary> If the script should be executed after the page loads (using the `defer` attribute). </summary>
         public bool Defer { get; }
 
-        internal static bool IsUnsafeInlineScript(string code)
+        internal static bool IsUnsafeInlineScript(string? code)
         {
+            // We have to make sure, that the element is not ended in the middle.
+            // <style> and <script> tags have "raw text" content - https://html.spec.whatwg.org/multipage/syntax.html#raw-text-elements
+            // and those element must not contain "</name-of-the-element" substring - https://html.spec.whatwg.org/multipage/syntax.html#cdata-rcdata-restrictions
             return code?.IndexOf("</script", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 

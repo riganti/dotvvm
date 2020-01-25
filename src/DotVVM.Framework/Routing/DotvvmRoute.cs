@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,6 +7,7 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
 using System.Text.RegularExpressions;
 using DotVVM.Framework.Configuration;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DotVVM.Framework.Routing
 {
@@ -14,8 +16,8 @@ namespace DotVVM.Framework.Routing
         private Func<IServiceProvider,IDotvvmPresenter> presenterFactory;
 
         private Regex routeRegex;
-        private List<Func<Dictionary<string, object>, string>> urlBuilders;
-        private List<KeyValuePair<string, Func<string, ParameterParseResult>>> parameters;
+        private List<Func<Dictionary<string, object?>, string>> urlBuilders;
+        private List<KeyValuePair<string, Func<string, ParameterParseResult>?>> parameters;
 
         /// <summary>
         /// Gets the names of the route parameters in the order in which they appear in the URL.
@@ -26,7 +28,8 @@ namespace DotVVM.Framework.Routing
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmRoute"/> class.
         /// </summary>
-        public DotvvmRoute(string url, string virtualPath, object defaultValues, Func<IServiceProvider, IDotvvmPresenter> presenterFactory, DotvvmConfiguration configuration)
+#pragma warning disable CS8618
+        public DotvvmRoute(string url, string virtualPath, object? defaultValues, Func<IServiceProvider, IDotvvmPresenter> presenterFactory, DotvvmConfiguration configuration)
             : base(url, virtualPath, defaultValues)
         {
             this.presenterFactory = presenterFactory;
@@ -37,7 +40,7 @@ namespace DotVVM.Framework.Routing
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmRoute"/> class.
         /// </summary>
-        public DotvvmRoute(string url, string virtualPath, IDictionary<string, object> defaultValues, Func<IServiceProvider, IDotvvmPresenter> presenterFactory, DotvvmConfiguration configuration)
+        public DotvvmRoute(string url, string virtualPath, IDictionary<string, object?>? defaultValues, Func<IServiceProvider, IDotvvmPresenter> presenterFactory, DotvvmConfiguration configuration)
             : base(url, virtualPath, defaultValues)
         {
             this.presenterFactory = presenterFactory;
@@ -48,13 +51,14 @@ namespace DotVVM.Framework.Routing
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmRoute"/> class.
         /// </summary>
-        public DotvvmRoute(string url, string virtualPath, string name, IDictionary<string, object> defaultValues, Func<IServiceProvider, IDotvvmPresenter> presenterFactory, DotvvmConfiguration configuration)
+        public DotvvmRoute(string url, string virtualPath, string name, IDictionary<string, object?>? defaultValues, Func<IServiceProvider, IDotvvmPresenter> presenterFactory, DotvvmConfiguration configuration)
             : base(url, virtualPath, name, defaultValues)
         {
             this.presenterFactory = presenterFactory;
 
             ParseRouteUrl(configuration);
         }
+#pragma warning restore CS8618
 
 
         /// <summary>
@@ -74,7 +78,7 @@ namespace DotVVM.Framework.Routing
         /// <summary>
         /// Determines whether the route matches to the specified URL and extracts the parameter values.
         /// </summary>
-        public override bool IsMatch(string url, out IDictionary<string, object> values)
+        public override bool IsMatch(string url, [MaybeNullWhen(false)] out IDictionary<string, object?> values)
         {
             if (!url.StartsWith("/"))
                 url = '/' + url;
@@ -82,11 +86,11 @@ namespace DotVVM.Framework.Routing
             var match = routeRegex.Match(url);
             if (!match.Success)
             {
-                values = null;
+                values = null!;
                 return false;
             }
 
-            values = new Dictionary<string, object>(DefaultValues, StringComparer.OrdinalIgnoreCase);
+            values = new Dictionary<string, object?>(DefaultValues, StringComparer.OrdinalIgnoreCase);
 
             foreach (var parameter in parameters)
             {
@@ -109,7 +113,7 @@ namespace DotVVM.Framework.Routing
         /// <summary>
         /// Builds the URL core from the parameters.
         /// </summary>
-        protected override string BuildUrlCore(Dictionary<string, object> values)
+        protected override string BuildUrlCore(Dictionary<string, object?> values)
         {
             try
             {

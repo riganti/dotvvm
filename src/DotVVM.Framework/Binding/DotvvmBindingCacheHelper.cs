@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -57,7 +58,7 @@ namespace DotVVM.Framework.Binding
                 this.id = id ?? throw new ArgumentNullException("Cache identifier can't be null", nameof(id));
                 this.keys = keys ?? throw new ArgumentNullException(nameof(keys));
             }
-            public bool Equals(CacheKey other)
+            public bool Equals(CacheKey? other)
             {
                 if (other == null || other.keys.Length != keys.Length || other.type != type || id != other.id) return false;
                 for (int i = 0; i < keys.Length; i++)
@@ -67,7 +68,7 @@ namespace DotVVM.Framework.Binding
                 }
                 return true;
             }
-            public override bool Equals(object obj) => Equals(obj as CacheKey);
+            public override bool Equals(object? obj) => Equals(obj as CacheKey);
             public override int GetHashCode()
             {
                 var hash = 234567643 ^ keys.Length ^ id.GetHashCode() ^ type.GetHashCode();

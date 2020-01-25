@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +26,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false)]
         public int Delay
         {
-            get { return (int)GetValue(DelayProperty); }
+            get { return (int)GetValue(DelayProperty)!; }
             set { SetValue(DelayProperty, value); }
         }
         public static readonly DotvvmProperty DelayProperty =
@@ -36,26 +37,26 @@ namespace DotVVM.Framework.Controls
         /// If not set, all queues are included automatically.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
-        public string[] IncludedQueues
+        public string[]? IncludedQueues
         {
-            get { return (string[])GetValue(IncludedQueuesProperty); }
+            get { return (string[]?)GetValue(IncludedQueuesProperty); }
             set { SetValue(IncludedQueuesProperty, value); }
         }
         public static readonly DotvvmProperty IncludedQueuesProperty
-            = DotvvmProperty.Register<string[], UpdateProgress>(c => c.IncludedQueues, null);
+            = DotvvmProperty.Register<string[]?, UpdateProgress>(c => c.IncludedQueues, null);
 
         /// <summary>
         /// Gets or sets the comma-separated names of PostBack.ConcurrencyQueue names that should be ignored by this control.
         /// If you don't want to exclude any queue, use an empty string.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
-        public string[] ExcludedQueues
+        public string[]? ExcludedQueues
         {
-            get { return (string[])GetValue(ExcludedQueuesProperty); }
+            get { return (string[]?)GetValue(ExcludedQueuesProperty); }
             set { SetValue(ExcludedQueuesProperty, value); }
         }
         public static readonly DotvvmProperty ExcludedQueuesProperty
-            = DotvvmProperty.Register<string[], UpdateProgress>(c => c.ExcludedQueues, null);
+            = DotvvmProperty.Register<string[]?, UpdateProgress>(c => c.ExcludedQueues, null);
 
 
         public UpdateProgress() : base("div")

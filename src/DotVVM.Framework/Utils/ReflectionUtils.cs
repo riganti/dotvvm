@@ -1,3 +1,4 @@
+#nullable enable
 using DotVVM.Framework.Controls;
 using System;
 using System.Collections;
@@ -37,8 +38,8 @@ namespace DotVVM.Framework.Utils
         public static bool IsAssemblyNamespace(string fullName)
             => GetAllNamespaces().Contains(fullName, StringComparer.Ordinal);
 
-        public static ISet<string> GetAllNamespaces()
-            => new HashSet<string>(GetAllAssemblies()
+        public static ISet<string?> GetAllNamespaces()
+            => new HashSet<string?>(GetAllAssemblies()
                 .SelectMany(a => a.GetLoadableTypes()
                 .Select(t => t.Namespace))
                 .Distinct()
@@ -56,6 +57,8 @@ namespace DotVVM.Framework.Utils
                 var unaryExpressionBody = (UnaryExpression)expression;
                 body = unaryExpressionBody.Operand as MemberExpression;
             }
+            if (body == null)
+                throw new NotSupportedException($"Can not get member from {expression}");
 
             return body.Member;
         }
@@ -88,9 +91,10 @@ namespace DotVVM.Framework.Utils
         /// Gets filesystem path of assembly CodeBase
         /// http://stackoverflow.com/questions/52797/how-do-i-get-the-path-of-the-assembly-the-code-is-in
         /// </summary>
-        public static string GetCodeBasePath(this Assembly assembly)
+        public static string? GetCodeBasePath(this Assembly assembly)
         {
-            string codeBase = assembly.CodeBase;
+            var codeBase = assembly.CodeBase;
+            if (codeBase == null) return null;
             UriBuilder uri = new UriBuilder(codeBase);
             return Uri.UnescapeDataString(uri.Path);
         }
@@ -98,7 +102,7 @@ namespace DotVVM.Framework.Utils
         /// <summary>
         /// Gets the specified property of a given object.
         /// </summary>
-        public static object GetObjectPropertyValue(object item, string propertyName, out PropertyInfo prop)
+        public static object? GetObjectPropertyValue(object? item, string propertyName, out PropertyInfo? prop)
         {
             prop = null;
             if (item == null) return null;
@@ -116,31 +120,33 @@ namespace DotVVM.Framework.Utils
         /// Extracts the value of a specified property and converts it to string. If the property name is empty, returns a string representation of a given object.
         /// Null values are converted to empty string.
         /// </summary>
-        public static string ExtractMemberStringValue(object item, string propertyName)
+        public static string ExtractMemberStringValue(object? item, string propertyName)
         {
             if (!string.IsNullOrEmpty(propertyName))
             {
-                PropertyInfo prop;
-                item = GetObjectPropertyValue(item, propertyName, out prop);
+                item = GetObjectPropertyValue(item, propertyName, out var _);
             }
-            return item?.ToString() ?? "";
+            return item + "";
         }
 
         /// <summary>
         /// Converts a value to a specified type
         /// </summary>
-        public static object ConvertValue(object value, Type type)
+        public static object? ConvertValue(object? value, Type type)
         {
             var typeinfo = type.GetTypeInfo();
 
             // handle null values
-            if (value == null && typeinfo.IsValueType)
+            if (value == null)
             {
-                return Activator.CreateInstance(type);
+                if (typeinfo.IsValueType)
+                    return Activator.CreateInstance(type);
+                else
+                    return null;
             }
 
             // handle nullable types
-            if (typeinfo.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            if (typeinfo.IsGenericType && Nullable.GetUnderlyingType(type) is Type nullableElementType)
             {
                 if (value is string && (string)value == string.Empty)
                 {
@@ -149,7 +155,7 @@ namespace DotVVM.Framework.Utils
                 }
 
                 // value is not null
-                type = Nullable.GetUnderlyingType(type);
+                type = nullableElementType;
                 typeinfo = type.GetTypeInfo();
             }
 
@@ -170,7 +176,7 @@ namespace DotVVM.Framework.Utils
                 var isFlags = type.GetTypeInfo().IsDefined(typeof(FlagsAttribute));
                 if (!isFlags && split.Length > 1) throw new Exception($"Enum {type} does allow multiple values. Use [FlagsAttribute] to allow it.");
 
-                dynamic result = null;
+                dynamic? result = null;
                 foreach (var val in split)
                 {
                     try
@@ -196,13 +202,12 @@ namespace DotVVM.Framework.Utils
             }
 
             // comma-separated array values
-            if (value is string && type.IsArray)
+            if (value is string str && type.IsArray)
             {
-                var str = value as string;
                 var objectArray = str.Split(',')
-                    .Select(s => ConvertValue(s.Trim(), typeinfo.GetElementType()))
+                    .Select(s => ConvertValue(s.Trim(), typeinfo.GetElementType()!))
                     .ToArray();
-                var array = Array.CreateInstance(type.GetElementType(), objectArray.Length);
+                var array = Array.CreateInstance(type.GetElementType()!, objectArray.Length);
                 objectArray.CopyTo(array, 0);
                 return array;
             }
@@ -227,9 +232,9 @@ namespace DotVVM.Framework.Utils
             return Convert.ChangeType(value, type, CultureInfo.InvariantCulture);
         }
 
-        private static ConcurrentDictionary<string, Type> cache_FindTypeHash = new ConcurrentDictionary<string, Type>(StringComparer.Ordinal);
-        private static ConcurrentDictionary<string, Type> cache_FindTypeHashIgnoreCase = new ConcurrentDictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
-        public static Type FindType(string name, bool ignoreCase = false)
+        private static ConcurrentDictionary<string, Type?> cache_FindTypeHash = new ConcurrentDictionary<string, Type?>(StringComparer.Ordinal);
+        private static ConcurrentDictionary<string, Type?> cache_FindTypeHashIgnoreCase = new ConcurrentDictionary<string, Type?>(StringComparer.OrdinalIgnoreCase);
+        public static Type? FindType(string name, bool ignoreCase = false)
         {
             if (ignoreCase)
             {
@@ -238,7 +243,7 @@ namespace DotVVM.Framework.Utils
             return cache_FindTypeHash.GetOrAdd(name, a => FindTypeCore(a, false));
         }
 
-        private static Type FindTypeCore(string name, bool ignoreCase)
+        private static Type? FindTypeCore(string name, bool ignoreCase)
         {
             var stringComparison = ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
 
@@ -257,13 +262,13 @@ namespace DotVVM.Framework.Utils
                     .FirstOrDefault(t => t != null);
             }
 
-            type = assemblies.Where(a => name.StartsWith(a.GetName().Name, stringComparison))
+            type = assemblies.Where(a => a.GetName().Name is string assemblyName && name.StartsWith(assemblyName, stringComparison))
                 .Select(a => a.GetType(name, false, ignoreCase)).FirstOrDefault(t => t != null);
             if (type != null) return type;
             return assemblies.Select(a => a.GetType(name, false, ignoreCase)).FirstOrDefault(t => t != null);
         }
 
-        public static Type GetEnumerableType(this Type collectionType)
+        public static Type? GetEnumerableType(this Type collectionType)
         {
             var result = TypeDescriptorUtils.GetCollectionItemType(new ResolvedTypeDescriptor(collectionType));
             if (result == null) return null;
@@ -313,7 +318,7 @@ namespace DotVVM.Framework.Utils
         }
 
         public static bool IsTuple(Type type) =>
-            type.FullName.StartsWith(typeof(Tuple).FullName + "`");
+            type.FullName!.StartsWith(typeof(Tuple).FullName + "`");
 
         public static bool IsEnumerable(Type type)
         {
@@ -364,9 +369,9 @@ namespace DotVVM.Framework.Utils
             return typeof(Delegate).IsAssignableFrom(type);
         }
 
-        public static ParameterInfo[] GetDelegateArguments(this Type type) =>
+        public static ParameterInfo[]? GetDelegateArguments(this Type type) =>
             type.IsDelegate() ?
-            type.GetMethod("Invoke").GetParameters() :
+            type.GetMethod("Invoke")!.GetParameters() :
             null;
 
         public static bool IsReferenceType(this Type type)
@@ -429,20 +434,20 @@ namespace DotVVM.Framework.Utils
             return cache_GetTypeHash.GetOrAdd(type, t => {
                 using (var sha1 = SHA1.Create())
                 {
-                    var hashBytes = sha1.ComputeHash(Encoding.UTF8.GetBytes(t.AssemblyQualifiedName));
+                    var hashBytes = sha1.ComputeHash(Encoding.UTF8.GetBytes(t.AssemblyQualifiedName!));
 
                     return Convert.ToBase64String(hashBytes);
                 }
             });
         }
 
-        private static ConcurrentDictionary<Type, Func<Delegate, object[], object>> delegateInvokeCache = new ConcurrentDictionary<Type, Func<Delegate, object[], object>>();
+        private static ConcurrentDictionary<Type, Func<Delegate, object?[], object?>> delegateInvokeCache = new ConcurrentDictionary<Type, Func<Delegate, object?[], object?>>();
         private static ParameterExpression delegateParameter = Expression.Parameter(typeof(Delegate), "delegate");
         private static ParameterExpression argsParameter = Expression.Parameter(typeof(object[]), "args");
-        public static object ExceptionSafeDynamicInvoke(this Delegate d, object[] args) =>
+        public static object? ExceptionSafeDynamicInvoke(this Delegate d, object?[] args) =>
             delegateInvokeCache.GetOrAdd(d.GetType(), type =>
-                Expression.Lambda<Func<Delegate, object[], object>>(
-                    Expression.Invoke(Expression.Convert(delegateParameter, type), d.GetMethodInfo().GetParameters().Select((p, i) =>
+                Expression.Lambda<Func<Delegate, object?[], object?>>(
+                    Expression.Invoke(Expression.Convert(delegateParameter, type), d.Method.GetParameters().Select((p, i) =>
                         Expression.Convert(Expression.ArrayIndex(argsParameter, Expression.Constant(i)), p.ParameterType))).ConvertToObject(),
                 delegateParameter, argsParameter)
                 .Compile())
@@ -457,7 +462,7 @@ namespace DotVVM.Framework.Utils
 
         public static Type GetPublicBaseType(this Type type)
         {
-            while (!(type.GetTypeInfo().IsPublic || type.GetTypeInfo().IsNestedPublic)) type = type.GetTypeInfo().BaseType;
+            while (!(type.IsPublic || type.IsNestedPublic)) type = type.BaseType.NotNull();
             return type;
         }
     }
