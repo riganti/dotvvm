@@ -75,17 +75,20 @@ namespace DotVVM.Samples.Common
             circular.Dependencies = new[] { "Errors_ResourceCircularDependency" };
             
 
-            resources.Register("extenders", new ScriptResource {
-                Location = new FileResourceLocation("Scripts/ClientExtenders.js")
-            });
+            resources.Register("extenders", new ScriptResource(
+                defer: true,
+                location: new FileResourceLocation("Scripts/ClientExtenders.js")
+            ));
 
-            resources.Register(nameof(StopwatchPostbackHandler), new ScriptResource {
-                Location = new FileResourceLocation($"~/Scripts/{nameof(StopwatchPostbackHandler)}.js"),
-                Dependencies = new[] { "dotvvm.internal" }
+            resources.Register(nameof(StopwatchPostbackHandler), new ScriptResource(
+                defer: true,
+                location: new FileResourceLocation($"~/Scripts/{nameof(StopwatchPostbackHandler)}.js")) {
+                Dependencies = new[] { "dotvvm" }
             });
-            resources.Register(nameof(ErrorCountPostbackHandler), new ScriptResource {
-                Location = new FileResourceLocation($"~/Scripts/{nameof(ErrorCountPostbackHandler)}.js"),
-                Dependencies = new[] { "dotvvm.internal" }
+            resources.Register(nameof(ErrorCountPostbackHandler), new ScriptResource(
+                defer: true,
+                location: new FileResourceLocation($"~/Scripts/{nameof(ErrorCountPostbackHandler)}.js")) {
+                Dependencies = new[] { "dotvvm" }
             });
 
             // dev files
