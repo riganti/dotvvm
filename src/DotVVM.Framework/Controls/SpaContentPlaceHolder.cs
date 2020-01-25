@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Controls
         }
 #pragma warning disable 618
         public static readonly DotvvmProperty DefaultRouteNameProperty
-            = DotvvmProperty.Register<string, SpaContentPlaceHolder>(p => p.DefaultRouteName);
+            = DotvvmProperty.Register<string?, SpaContentPlaceHolder>(p => p.DefaultRouteName);
 #pragma warning restore 618
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace DotVVM.Framework.Controls
         }
 #pragma warning disable 618
         public static readonly DotvvmProperty PrefixRouteNameProperty
-            = DotvvmProperty.Register<string, SpaContentPlaceHolder>(c => c.PrefixRouteName, null);
+            = DotvvmProperty.Register<string?, SpaContentPlaceHolder>(c => c.PrefixRouteName, null);
 #pragma warning restore 618
 
         /// <summary>
