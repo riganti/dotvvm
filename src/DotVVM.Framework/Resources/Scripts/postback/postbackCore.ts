@@ -1,6 +1,6 @@
 import { serialize } from '../serialization/serialize';
 import { deserialize } from '../serialization/deserialize';
-import { getViewModel, getInitialUrl } from '../dotvvm-base';
+import { getViewModel, getInitialUrl, getViewModelCache, getViewModelCacheId, clearViewModelCache } from '../dotvvm-base';
 import { loadResourceList, RenderedResourceList, getRenderedResources } from './resourceLoader';
 import * as events from '../events';
 import { createPostbackArgs } from "../createPostbackArgs";
@@ -41,13 +41,12 @@ export async function postbackCore(
         await http.fetchCsrfToken();
 
         updateDynamicPathFragments(context, path);
-        
+
         const postedViewModel = serialize(getViewModel(), {
             pathMatcher: val => context && val == context.$data
         });
 
-        const data = {
-            viewModel: postedViewModel,
+        const data: any = {
             currentPath: path,
             command: command,
             controlUniqueId: processPassedId(controlUniqueId, context),
@@ -56,10 +55,27 @@ export async function postbackCore(
             commandArgs: commandArgs
         };
 
-        const result = await http.postJSON<PostbackResponse>(
-            getInitialUrl(),
-            ko.toJSON(data)
-        );
+        // if the viewmodel is cached on the server, send only the diff
+        if (getViewModelCache()) {
+            data.viewModelDiff = updater.diffViewModel(getViewModelCache(), postedViewModel);
+            data.viewModelCacheId = getViewModelCacheId();
+        } else {
+            data.viewModel = postedViewModel;
+        }
+
+        const initialUrl = getInitialUrl();
+        let result = await http.postJSON<PostbackResponse>(initialUrl, ko.toJSON(data));
+
+        if (result.action == "viewModelNotCached") {
+            // repeat the request with full viewmodel
+            clearViewModelCache();
+
+            delete data.viewModelCacheId;
+            delete data.viewModelCache;
+            data.viewModel = postedViewModel;
+
+            result = await http.postJSON<PostbackResponse>(initialUrl, ko.toJSON(data));
+        }
 
         events.postbackResponseReceived.trigger({});
 

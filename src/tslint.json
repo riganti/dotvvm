@@ -23,6 +23,7 @@
         "member-ordering": false,
         "interface-name": false,
         "one-line": false,
+        "forin": false,
         "no-string-throw": true
     },
     "rulesDirectory": []

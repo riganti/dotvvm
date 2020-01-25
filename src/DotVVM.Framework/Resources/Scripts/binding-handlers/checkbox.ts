@@ -32,5 +32,18 @@ export default {
             const value = ko.unwrap(valueAccessor());
             element.indeterminate = value == null;
         }
+    },
+
+    "dotvvm-checkedItems": {
+        after: ko.bindingHandlers.checked.after,
+        init: ko.bindingHandlers.checked.init,
+        options: ko.bindingHandlers.checked.options,
+        update(element: any, valueAccessor: () => any) {
+            const value = valueAccessor();
+            if (!Array.isArray(ko.unwrap(value))) {
+                throw Error("The value of a `checkedItems` binding must be an array (i.e. not null nor undefined).");
+            }
+            // Note: As of now, the `checked` binding doesn't have an `update`. If that changes, invoke it here.
+        }
     }
 }

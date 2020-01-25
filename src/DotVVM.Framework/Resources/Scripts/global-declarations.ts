@@ -88,6 +88,8 @@ type DotvvmRedirectEventArgs = DotvvmEventArgs & {
 
 interface DotvvmViewModelInfo {
     viewModel?: any
+    viewModelCacheId?: string
+    viewModelCache?: any
     renderedResources?: string[]
     url?: string
     virtualDirectory?: string

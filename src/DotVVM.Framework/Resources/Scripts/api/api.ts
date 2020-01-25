@@ -15,23 +15,33 @@ const cachedValues: {
 } = {};
 
 export function invoke<T>(
-    callback: () => PromiseLike<T>,
-    refreshTriggers: Array<KnockoutObservable<any> | string> = [],
-    notifyTriggers: string[] = [],
-    commandId = callback.toString()
+    target: any,
+    methodName: string,
+    argsProvider: () => any[],
+    refreshTriggers: (args: any[]) => Array<KnockoutObservable<any> | string>,
+    notifyTriggers: (args: any[]) => string[],
+    element: HTMLElement,
+    sharingKeyProvider: (args: any[]) => string[]
 ): ApiComputed<T> {
 
-    const cachedValue = cachedValues[commandId] || (cachedValues[commandId] = ko.observable<any>(null));
+    const args = ko.ignoreDependencies(argsProvider);
+    const callback = () => target[methodName].apply(target, args);
+
+    // the function gets re-evaluated when the observable changes - thus we need to cache the values
+    // GET requests can be cached globally, POST and other request must be cached on per-element scope
+    const sharingKeyValue = methodName + ":" + sharingKeyProvider(args);
+    const cache = element ? ((<any> element)["apiCachedValues"] || ((<any> element)["apiCachedValues"] = {})) : cachedValues;
+    const cachedValue = cache[sharingKeyValue] || (cache[sharingKeyValue] = ko.observable<any>(null));
 
     const load: () => Result<PromiseLike<any>> = () => {
         try {
             const result: PromiseLike<any> = Promise.resolve(ko.ignoreDependencies(callback));
             return { type: 'result', result: result.then((val) => {
                 if (val) {
-                    cachedValue(ko.unwrap(deserialize(val, cachedValue)));
+                    cachedValue(ko.unwrap(deserialize(val)));
                     cachedValue.notifySubscribers();
                 }
-                for (const t of notifyTriggers) {
+                for (const t of notifyTriggers(args)) {
                     eventHub.notify(t);
                 }
                 return val;
@@ -66,7 +76,7 @@ export function invoke<T>(
     if (!cachedValue.peek()) {
         cmp.refreshValue();
     }
-    ko.computed(() => refreshTriggers.map(f => typeof f == "string" ? eventHub.get(f)() : f())).subscribe(p => cmp.refreshValue());
+    ko.computed(() => refreshTriggers(args).map(f => typeof f == "string" ? eventHub.get(f)() : f())).subscribe(p => cmp.refreshValue());
     return cmp;
 }
 

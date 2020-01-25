@@ -1,7 +1,8 @@
 import { getElementByDotvvmId } from '../utils/dom'
-import { getViewModel, replaceViewModel } from '../dotvvm-base'
+import { getViewModel, replaceViewModel, updateViewModelCache, clearViewModelCache } from '../dotvvm-base'
 import { deserialize } from '../serialization/deserialize'
 
+const diffEqual = {};
 let isViewModelUpdating: boolean = false;
 
 export function getIsViewModelUpdating() {
@@ -63,6 +64,13 @@ export function updateViewModelAndControls(resultObject: any, clearViewModel: bo
     try {
         isViewModelUpdating = true;
 
+        // store server-side cached viewmodel
+        if (resultObject.viewModelCacheId) {
+            updateViewModelCache(resultObject.viewModelCacheId, resultObject.viewModel);
+        } else {
+            clearViewModelCache();
+        }
+
         // remove updated controls
         const updatedControls = cleanUpdatedControls(resultObject);
 
@@ -93,15 +101,64 @@ export function patchViewModel(source: any, patch: any): any {
     if (source instanceof Array && patch instanceof Array) {
         return patch.map((val, i) => patchViewModel(source[i], val));
     }
-    else if (source instanceof Array || patch instanceof Array)
+    else if (source instanceof Array || patch instanceof Array) {
         return patch;
+    }
     else if (typeof source == "object" && typeof patch == "object" && source && patch) {
         for (const p of Object.keys(patch)) {
-            if (patch[p] == null) source[p] = null;
-            else if (source[p] == null) source[p] = patch[p];
-            else source[p] = patchViewModel(source[p], patch[p]);
+            if (patch[p] == null) {
+                source[p] = null;
+            } else if (source[p] == null) {
+                source[p] = patch[p];
+            } else {
+                source[p] = patchViewModel(source[p], patch[p]);
+            }
         }
         return source;
     }
-    else return patch;
+    else {
+        return patch;
+    }
+}
+
+export function diffViewModel(source: any, modified: any): any {
+    if (source instanceof Array && modified instanceof Array) {
+        const diffArray = modified.map((el, index) => diffViewModel(source[index], el));
+        if (source.length === modified.length
+            && diffArray.every((el, index) => el === diffEqual || source[index] === modified[index])) {
+            return diffEqual;
+        } else {
+            return diffArray;
+        }
+    }
+    else if (source instanceof Array || modified instanceof Array) {
+        return modified;
+    }
+    else if (typeof source == "object" && typeof modified == "object" && source && modified) {
+        let result: any = diffEqual;
+        for (const p in modified) {
+            const propertyDiff = diffViewModel(source[p], modified[p]);
+            if (propertyDiff !== diffEqual && source[p] !== modified[p]) {
+                if (result === diffEqual) {
+                    result = {};
+                }
+                result[p] = propertyDiff;
+            } else if (p[0] === "$") {
+                if (result == diffEqual) {
+                    result = {};
+                }
+                result[p] = modified[p];
+            }
+        }
+        return result;
+    }
+    else if (source === modified) {
+        if (typeof source == "object") {
+            return diffEqual;
+        } else {
+            return source;
+        }
+    } else {
+        return modified;
+    }
 }

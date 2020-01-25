@@ -70,8 +70,8 @@ export async function handleSpaNavigation(element: HTMLElement): Promise<DotvvmN
         return await handleSpaNavigationCore(element.getAttribute('href'));
     } catch (err) {
         // execute error handlers
-        var errArgs: DotvvmErrorEventArgs = {
-            sender: element, 
+        const errArgs: DotvvmErrorEventArgs = {
+            sender: element,
             viewModel: getViewModel(),
             handled: false,
             isSpaNavigationError: true,

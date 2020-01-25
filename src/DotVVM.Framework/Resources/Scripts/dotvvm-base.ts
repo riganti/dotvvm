@@ -10,6 +10,8 @@ import * as spaEvents from './spa/events';
 type DotvvmCoreState = {
     _culture: string
     _rootViewModel: KnockoutObservable<RootViewModel>
+    _viewModelCache?: any
+    _viewModelCacheId?: string
     _virtualDirectory: string
     _initialUrl: string,
     _validationRules: ValidationRuleTable
@@ -19,6 +21,12 @@ let currentState: DotvvmCoreState | null = null
 
 export function getViewModel(): RootViewModel {
     return currentState!._rootViewModel()
+}
+export function getViewModelCacheId(): string | undefined {
+    return currentState!._viewModelCacheId;
+}
+export function getViewModelCache(): any {
+    return currentState!._viewModelCache;
 }
 export function getViewModelObservable(): KnockoutObservable<RootViewModel> {
     return currentState!._rootViewModel
@@ -31,6 +39,14 @@ export function getVirtualDirectory(): string {
 }
 export function replaceViewModel(vm: RootViewModel): void {
     currentState!._rootViewModel(vm);
+}
+export function updateViewModelCache(viewModelCacheId: string, viewModelCache: any) {
+    currentState!._viewModelCacheId = viewModelCacheId;
+    currentState!._viewModelCache = viewModelCache;
+}
+export function clearViewModelCache() {
+    delete currentState!._viewModelCacheId;
+    delete currentState!._viewModelCache;
 }
 export function getValidationRules() {
     return currentState!._validationRules
@@ -50,6 +66,7 @@ export function initCore(culture: string): void {
     resourceLoader.registerResources(thisViewModel.renderedResources)
 
     setIdFragment(thisViewModel.resultIdFragment);
+
     const viewModel: RootViewModel =
         deserialization.deserialize(thisViewModel.viewModel, {}, true)
 
@@ -61,6 +78,11 @@ export function initCore(culture: string): void {
         _virtualDirectory: thisViewModel.virtualDirectory!,
         _rootViewModel: vmObservable,
         _validationRules: thisViewModel.validationRules || {}
+    }
+
+    // store cached viewmodel
+    if (thisViewModel.viewModelCacheId) {
+        updateViewModelCache(thisViewModel.viewModelCacheId, thisViewModel.viewModel);
     }
 
     events.init.trigger({ viewModel });

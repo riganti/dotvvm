@@ -34,7 +34,7 @@ export async function navigateCore(url: string, handlePageNavigating?: (url: str
 
         // send the request
         const resultObject = await http.getJSON<any>(spaFullUrl, getSpaPlaceHolderUniqueId());
-       
+
         // if another postback has already been passed, don't do anything
         if (!counter.isPostBackStillActive(currentPostBackCounter)) {
             return <DotvvmNavigationEventArgs> { }; // TODO: what here https://github.com/riganti/dotvvm/pull/787/files#diff-edefee5e25549b2a6ed0136e520e009fR852
