@@ -81,7 +81,7 @@ export function init() {
     }
 
     // Validator
-    ko.bindingHandlers["dotvvm-validation"] = { // TODO: naming conventions
+    ko.bindingHandlers["dotvvm-validation"] = {
         init: (element: HTMLElement, valueAccessor: () => any, allBindingsAccessor?: KnockoutAllBindingsAccessor) => {
             validationErrorsChanged.subscribe(_ => {
                 applyValidatorActions(element, valueAccessor(), allBindingsAccessor!.get("dotvvm-validationOptions"));
