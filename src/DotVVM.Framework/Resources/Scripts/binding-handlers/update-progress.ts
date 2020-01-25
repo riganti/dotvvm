@@ -1,4 +1,5 @@
 import { postbackQueues, updateProgressChangeCounter } from "../postback/queue"
+import { keys } from "../utils/objects";
 
 export default {
     "dotvvm-UpdateProgress-Visible": {
@@ -33,7 +34,7 @@ export default {
                 let shouldRun = false;
 
                 if (includedQueues.length === 0) {
-                    for (const queue of Object.keys(postbackQueues)) {
+                    for (const queue of keys(postbackQueues)) {
                         if (excludedQueues.indexOf(queue) < 0 && postbackQueues[queue].noRunning > 0) {
                             shouldRun = true;
                             break;

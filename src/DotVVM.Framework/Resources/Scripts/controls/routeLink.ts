@@ -1,3 +1,4 @@
+import { keys } from "../utils/objects";
 
 export function buildRouteUrl(routePath: string, params: any): string {
     // prepend url with backslash to correctly handle optional parameters at start
@@ -22,7 +23,7 @@ export function buildUrlSuffix(urlSuffix: string, query: any): string {
     let resultSuffix = hashIndex != -1 ? urlSuffix.substring(0, hashIndex) : urlSuffix;
     const hashSuffix = hashIndex != -1 ? urlSuffix.substring(hashIndex) : "";
 
-    for (const property of Object.keys(query)) {
+    for (const property of keys(query)) {
         if (!property) {
             continue;
         }

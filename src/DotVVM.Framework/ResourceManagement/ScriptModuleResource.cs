@@ -18,7 +18,7 @@ namespace DotVVM.Framework.ResourceManagement
         public bool Defer { get; }
 
         public ScriptModuleResource(IResourceLocation location, IResourceLocation nomoduleLocation = null, bool defer = true)
-            : base(defer ? ResourceRenderPosition.Anywhere : ResourceRenderPosition.Body, "text/javascript", location)
+            : base(defer ? ResourceRenderPosition.Anywhere : ResourceRenderPosition.Body, "text/javascript", location ?? nomoduleLocation)
         {
             this.NomoduleLocation = nomoduleLocation;
             this.Defer = defer;
@@ -26,17 +26,20 @@ namespace DotVVM.Framework.ResourceManagement
 
         public override void RenderLink(IResourceLocation location, IHtmlWriter writer, IDotvvmRequestContext context, string resourceName)
         {
-            AddSrcAndIntegrity(writer, context, location.GetUrl(context, resourceName), "src");
-            writer.AddAttribute("type", "module");
-            if (Defer)
-                writer.AddAttribute("defer", null);
-            writer.RenderBeginTag("script");
-            writer.RenderEndTag();
+            if (Location != NomoduleLocation)
+            {
+                AddSrcAndIntegrity(writer, context, location.GetUrl(context, resourceName), "src");
+                writer.AddAttribute("type", "module");
+                if (Defer)
+                    writer.AddAttribute("defer", null);
+                writer.RenderBeginTag("script");
+                writer.RenderEndTag();
+            }
 
             if (NomoduleLocation is object)
             {
                 writer.AddAttribute("nomodule", null);
-                writer.AddAttribute("src", location.GetUrl(context, resourceName));
+                writer.AddAttribute("src", location.GetUrl(context, resourceName) + "?type=nomodule");
                 if (Defer)
                     writer.AddAttribute("defer", null);
                 writer.RenderBeginTag("script");
@@ -53,5 +56,12 @@ namespace DotVVM.Framework.ResourceManagement
             writer.RenderBeginTag("link");
             writer.RenderEndTag();
         }
+
+        public override IEnumerable<IResourceLocation> GetLocations(string type = null)
+        {
+            if (type == "nomodule") return new IResourceLocation[] { NomoduleLocation };
+            else return base.GetLocations(type);
+        }
+
     }
 }

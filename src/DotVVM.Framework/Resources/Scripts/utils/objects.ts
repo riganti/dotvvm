@@ -10,3 +10,8 @@ export const createArray =
         Array.from;
 
 export const hasOwnProperty = (obj: any, prop: string) => Object.prototype.hasOwnProperty.call(obj, prop);
+
+export const keys =
+    compileConstants.nomodules ?
+    ((o: any) => typeof o == "object" && o != null ? Object.keys(o) : []) :
+    Object.keys

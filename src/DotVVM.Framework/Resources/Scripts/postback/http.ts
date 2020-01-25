@@ -1,5 +1,6 @@
 import { getVirtualDirectory, getViewModel } from '../dotvvm-base';
 import { DotvvmPostbackError } from '../shared-classes';
+import { keys } from '../utils/objects';
 
 export async function getJSON<T>(url: string, spaPlaceHolderUniqueId?: string, additionalHeaders?: { [key: string]: string }): Promise<T> {
     const headers = new Headers();
@@ -31,10 +32,9 @@ export async function fetchJson<T>(url: string, init: RequestInit): Promise<T> {
     }
 
     const errorResponse = response.status >= 400;
-    const isJson = response.headers.get("content-type") && response.headers.get('content-type')!.includes('application/json');
+    const isJson = response.headers.get("content-type") && response.headers.get('content-type')!.match(/^application\/json/);
 
     if (errorResponse || !isJson) {
-        response.statusText
         throw new DotvvmPostbackError({ type: "serverError", status: response.status, responseObject: (isJson ? await response.json() : null), response });
     }
 
@@ -88,7 +88,7 @@ export async function retryOnInvalidCsrfToken<TResult>(postbackFunction: () => P
 
 function appendAdditionalHeaders(headers: Headers, additionalHeaders?: { [key: string]: string }) {
     if (additionalHeaders) {
-        for (const key of Object.keys(additionalHeaders)) {
+        for (const key of keys(additionalHeaders)) {
             headers.append(key, additionalHeaders[key]);
         }
     }

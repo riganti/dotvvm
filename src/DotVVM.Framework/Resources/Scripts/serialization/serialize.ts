@@ -1,6 +1,6 @@
 import { wrapObservable } from '../utils/knockout'
 import { serializeDate } from './date'
-import { isPrimitive } from '../utils/objects'
+import { isPrimitive, keys } from '../utils/objects'
 import { validateType } from './typeValidation'
 
 interface ISerializationOptions {
@@ -38,8 +38,8 @@ export function serialize(viewModel: any, opt: ISerializationOptions = {}): any 
             return array;
         } else {
             const array: any[] = [];
-            for (let i = 0; i < viewModel.length; i++) {
-                array.push(serialize(viewModel[i], opt));
+            for (const item of viewModel) {
+                array.push(serialize(item, opt));
             }
             return array;
         }
@@ -56,7 +56,7 @@ export function serialize(viewModel: any, opt: ISerializationOptions = {}): any 
     const pathProp = opt.path && opt.path.pop();
 
     const result: any = {};
-    for (const prop of Object.keys(viewModel)) {
+    for (const prop of keys(viewModel)) {
         if (opt.pathOnly && prop !== pathProp) {
             continue;
         }
@@ -118,7 +118,7 @@ function findObject(obj: any, matcher: (o: any) => boolean): string[] | null {
     if (typeof obj != "object") {
         return null;
     }
-    for (const p of Object.keys(obj)) {
+    for (const p of keys(obj)) {
         const match = findObject(obj[p], matcher);
         if (match) {
             match.push(p);

@@ -8,7 +8,7 @@ import * as spaEvents from '../spa/events'
 import { DotvvmPostbackError } from "../shared-classes"
 import { postbackHandlers } from "../postback/handlers"
 import { DotvvmValidationContext, ErrorsPropertyName } from "./common"
-import { hasOwnProperty, isPrimitive } from "../utils/objects"
+import { hasOwnProperty, isPrimitive, keys } from "../utils/objects"
 import { validateType } from "../serialization/typeValidation"
 import { elementActions } from "./actions"
 import { getValidationRules } from "../dotvvm-base"
@@ -127,7 +127,7 @@ function validateViewModel(viewModel: any): void {
     const rules = rootRules[type] || {};
 
     // validate all properties
-    for (const propertyName of Object.keys(viewModel)) {
+    for (const propertyName of keys(viewModel)) {
         if (propertyName[0] == '$') {
             continue;
         }
@@ -193,7 +193,7 @@ function mergeValidationRules(args: DotvvmAfterPostBackEventArgs) {
     const newRules = args.serverResponseObject.validationRules;
     if (newRules) {
         const existingRules = getValidationRules();
-        for (const type of Object.keys(newRules)) {
+        for (const type of keys(newRules)) {
             existingRules[type] = newRules[type];
         }
     }
@@ -240,7 +240,7 @@ function getValidationErrors<T>(
         }
         return errors;
     }
-    for (const propertyName of Object.keys(validationTarget)) {
+    for (const propertyName of keys(validationTarget)) {
         if (propertyName[0] == '$') {
             continue;
         }
@@ -293,7 +293,7 @@ function applyValidatorActions(
 
     const errors = getErrors(observable);
     const errorMessages = errors.map(v => v.errorMessage);
-    for (const option of Object.keys(validatorOptions)) {
+    for (const option of keys(validatorOptions)) {
         elementActions[option](
             validator,
             errorMessages,

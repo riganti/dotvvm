@@ -8,26 +8,23 @@ import replace from '@rollup/plugin-replace';
 const build = process.env.BUILD || "debug";
 const production = build == "production";
 
-const config = ({minify, input, output, spa}) => ({
+const config = ({minify, input, output, spa, legacy}) => ({
   input,
 
   output: [
-    { format: 'esm',
+    { format: legacy ? 'iife' : 'esm',
       dir: `./obj/javascript/${output}`,
       sourcemap: !production },
-    // { format: 'system',
-    //   dir: `./Resources/Scripts/out/${output}-system`,
-    //   sourcemap: !production },
   ],
 
   // treeshake: false,
   plugins: [
-    typescript({ target: "es2018" }),
+    typescript({ target: legacy ? "es5" : "es2018" }),
     resolve({ browser: true }),
     commonjs(),
     replace({
       "compileConstants.isSpa": spa,
-      "compileConstants.nomodules": "false",
+      "compileConstants.nomodules": legacy,
     }),
 
     minify && terser({
@@ -91,7 +88,21 @@ export default [
     minify: production,
     input: ['./Resources/Scripts/dotvvm-root.ts'],
     output: "root-spa",
-    spa: true
+    spa: true,
+  }),
+  config({
+    minify: production,
+    input: ['./Resources/Scripts/dotvvm-root.ts'],
+    output: "root-only-system",
+    spa: false,
+    legacy: true
+  }),
+  config({
+    minify: production,
+    input: ['./Resources/Scripts/dotvvm-root.ts'],
+    output: "root-spa-system",
+    spa: true,
+    legacy: true
   }),
   //config({
   //  minify: production,

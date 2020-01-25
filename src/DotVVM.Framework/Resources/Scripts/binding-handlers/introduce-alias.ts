@@ -1,4 +1,5 @@
 import { deserialize } from '../serialization/deserialize'
+import { keys } from '../utils/objects';
 
 function createWrapperComputed<T>(accessor: () => KnockoutObservable<T> | T, propertyDebugInfo: string | null = null) {
     const computed = ko.pureComputed({
@@ -27,7 +28,7 @@ export default {
             }
 
             const value = valueAccessor();
-            for (const prop of Object.keys(value)) {
+            for (const prop of keys(value)) {
 
                 value[prop] = createWrapperComputed(
                     () => {

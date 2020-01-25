@@ -1,6 +1,6 @@
 import { serializeDate } from './date'
 import { isObservableArray, wrapObservableObjectOrArray } from '../utils/knockout'
-import { isPrimitive } from '../utils/objects'
+import { isPrimitive, keys } from '../utils/objects'
 
 export function deserialize(viewModel: any, target?: any, deserializeAll: boolean = false): any {
     if (ko.isObservable(viewModel)) {
@@ -89,7 +89,7 @@ export function deserializeObject(viewModel: any, target: any, deserializeAll: b
         unwrappedTarget = {};
     }
 
-    for (const prop of Object.getOwnPropertyNames(viewModel)) {
+    for (const prop of keys(viewModel)) {
         if (isOptionsProperty(prop)) {
             continue;
         }

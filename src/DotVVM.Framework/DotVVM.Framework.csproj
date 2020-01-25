@@ -81,9 +81,11 @@
     <EmbeddedResource Include="Resources\Scripts\DotVVM.Debug.js" />
     <EmbeddedResource Include="obj/javascript/root-only/dotvvm-root.js" />
     <EmbeddedResource Include="obj/javascript/root-spa/dotvvm-root.js" />
+    <EmbeddedResource Include="obj/javascript/root-only-system/dotvvm-root.js" />
+    <EmbeddedResource Include="obj/javascript/root-spa-system/dotvvm-root.js" />
+    <EmbeddedResource Include="obj/javascript/polyfill.bundle.js" />
     <EmbeddedResource Include="Resources\Scripts\Globalize\globalize.min.js" />
     <EmbeddedResource Include="Resources\Scripts\knockout-latest.js" />
-    <EmbeddedResource Include="Resources\Scripts\Polyfills\polyfill.bundle.js" />
     <EmbeddedResource Include="Resources\Scripts\Globalize\globalize.js" />
     <None Include="Resources\Scripts\DotVVM.Globalize.ts" />
     <None Include="Resources\Scripts\typings\globalize\globalize.d.ts" />

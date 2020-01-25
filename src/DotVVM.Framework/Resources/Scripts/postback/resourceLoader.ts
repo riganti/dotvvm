@@ -1,4 +1,4 @@
-import { createArray } from "../utils/objects";
+import { createArray, keys } from "../utils/objects";
 
 export type RenderedResourceList = {
     [name: string]: string;
@@ -14,13 +14,13 @@ export function registerResources(rs: string[] | null | undefined) {
             resourceSigns[r] = true;
 }
 
-export const getRenderedResources = () => Object.keys(resourceSigns)
+export const getRenderedResources = () => keys(resourceSigns)
 
 export async function loadResourceList(resources: RenderedResourceList | undefined) {
     if (!resources) return;
 
     var html = "";
-    for (const name of Object.keys(resources)) {
+    for (const name of keys(resources)) {
         if (!/^__noname_\d+$/.test(name)) {
             if (resourceSigns[name]) continue;
             resourceSigns[name] = true;

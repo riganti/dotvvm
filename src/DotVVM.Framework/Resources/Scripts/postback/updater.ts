@@ -1,6 +1,7 @@
 import { getElementByDotvvmId } from '../utils/dom'
 import { getViewModel, replaceViewModel, updateViewModelCache, clearViewModelCache } from '../dotvvm-base'
 import { deserialize } from '../serialization/deserialize'
+import { keys } from '../utils/objects';
 
 const diffEqual = {};
 let isViewModelUpdating: boolean = false;
@@ -10,7 +11,7 @@ export function getIsViewModelUpdating() {
 }
 
 export function cleanUpdatedControls(resultObject: any, updatedControls: any = {}) {
-    for (const id of Object.keys(resultObject.updatedControls)) {
+    for (const id of keys(resultObject.updatedControls)) {
         const control = getElementByDotvvmId(id);
         if (control) {
             const dataContext = ko.contextFor(control);
@@ -24,7 +25,7 @@ export function cleanUpdatedControls(resultObject: any, updatedControls: any = {
 }
 
 export function restoreUpdatedControls(resultObject: any, updatedControls: any, applyBindingsOnEachControl: boolean) {
-    for (const id of Object.keys(resultObject.updatedControls)) {
+    for (const id of keys(resultObject.updatedControls)) {
         const updatedControl = updatedControls[id];
         if (updatedControl) {
             const wrapper = document.createElement(updatedControls[id].parent.tagName || "div");
@@ -50,7 +51,7 @@ export function restoreUpdatedControls(resultObject: any, updatedControls: any, 
 
     if (applyBindingsOnEachControl) {
         Promise.resolve(0).then(_ => {
-            for (const id of Object.keys(resultObject.updatedControls)) {
+            for (const id of keys(resultObject.updatedControls)) {
                 const updatedControl = getElementByDotvvmId(id);
                 if (updatedControl) {
                     ko.applyBindings(updatedControls[id].dataContext, updatedControl);
@@ -105,7 +106,7 @@ export function patchViewModel(source: any, patch: any): any {
         return patch;
     }
     else if (typeof source == "object" && typeof patch == "object" && source && patch) {
-        for (const p of Object.keys(patch)) {
+        for (const p of keys(patch)) {
             if (patch[p] == null) {
                 source[p] = null;
             } else if (source[p] == null) {

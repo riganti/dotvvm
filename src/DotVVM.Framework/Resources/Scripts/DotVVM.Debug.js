@@ -124,7 +124,7 @@
     for (var event in dotvvm.events) {
         if ("subscribe" in dotvvm.events[event]) {
             (function (event) {
-                dotvvm.events[event].subscribe(e => {
+                dotvvm.events[event].subscribe(function (e) {
                     console.log("Event " + event, e);
                 });
             })(event);
