@@ -69,7 +69,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false)]
         public ValidatorPlacement ValidatorPlacement
         {
-            get { return (ValidatorPlacement)GetValue(ValidatorPlacementProperty); }
+            get { return (ValidatorPlacement)GetValue(ValidatorPlacementProperty)!; }
             set { SetValue(ValidatorPlacementProperty, value); }
         }
         public static readonly DotvvmProperty ValidatorPlacementProperty
