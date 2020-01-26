@@ -111,7 +111,7 @@ namespace DotVVM.Framework.Routing
         /// <param name="virtualPath">The virtual path of the Dothtml file.</param>
         /// <param name="defaultValues">The default values.</param>
         /// <param name="presenterFactory">Delegate creating the presenter handling this route</param>
-        public void Add(string routeName, string url, string virtualPath, object? defaultValues = null, Func<IServiceProvider, IDotvvmPresenter>? presenterFactory = null)
+        public void Add(string routeName, string? url, string virtualPath, object? defaultValues = null, Func<IServiceProvider, IDotvvmPresenter>? presenterFactory = null)
         {
             ThrowIfFrozen();
             Add(group?.RouteNamePrefix + routeName, new DotvvmRoute(CombinePath(group?.UrlPrefix, url), CombinePath(group?.VirtualPathPrefix, virtualPath), defaultValues, presenterFactory ?? GetDefaultPresenter, configuration));
@@ -125,7 +125,7 @@ namespace DotVVM.Framework.Routing
         /// <param name="url">The URL.</param>
         /// <param name="defaultValues">The default values.</param>
         /// <param name="presenterFactory">The presenter factory.</param>
-        public void Add(string routeName, string url, Func<IServiceProvider, IDotvvmPresenter>? presenterFactory = null, object? defaultValues = null)
+        public void Add(string routeName, string? url, Func<IServiceProvider, IDotvvmPresenter>? presenterFactory = null, object? defaultValues = null)
         {
             ThrowIfFrozen();
             Add(group?.RouteNamePrefix + routeName, new DotvvmRoute(CombinePath(group?.UrlPrefix, url), group?.VirtualPathPrefix ?? "", defaultValues, presenterFactory ?? GetDefaultPresenter, configuration));
