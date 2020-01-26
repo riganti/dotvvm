@@ -19,9 +19,9 @@ function createWrapperComputed<T>(accessor: () => KnockoutObservable<T> | T, pro
     return computed;
 }
 
-ko.virtualElements.allowedBindings["dotvvm_withControlProperties"] = true;
+ko.virtualElements.allowedBindings["dotvvm-with-control-properties"] = true;
 export default {
-    "dotvvm_withControlProperties": {
+    'dotvvm-with-control-properties': {
         init: (element: HTMLElement, valueAccessor: () => any, allBindings?: any, viewModel?: any, bindingContext?: KnockoutBindingContext) => {
             if (!bindingContext) {
                 throw new Error();
