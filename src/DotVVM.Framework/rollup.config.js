@@ -45,7 +45,7 @@ const config = ({minify, input, output, spa, legacy}) => ({
     }),
 
     minify && terser({
-      ecma: 6,
+      ecma: legacy ? 5 : 6,
       // compress: false,
       compress: {
         pure_getters: true,
@@ -66,7 +66,7 @@ const config = ({minify, input, output, spa, legacy}) => ({
         keep_fnames: !production
       },
       output: {
-        ecma: 8,
+        ecma: legacy ? 5 : 8,
         indent_level: 4,
         beautify: !production,
         ascii_only: true
