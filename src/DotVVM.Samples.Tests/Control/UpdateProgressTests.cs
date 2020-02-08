@@ -13,6 +13,7 @@ using Riganti.Selenium.Core.Abstractions.Exceptions;
 using Xunit;
 using Xunit.Abstractions;
 using OpenQA.Selenium.Chrome;
+using Riganti.Selenium.Core.Abstractions.Attributes;
 
 namespace DotVVM.Samples.Tests.Control
 {
@@ -20,6 +21,7 @@ namespace DotVVM.Samples.Tests.Control
     {
 
         [Fact]
+        [SkipBrowser("ie:fast", reason: "Download popup window hangs IE.")]
         public void Control_UpdateProgress_UpdateProgress()
         {
             RunInAllBrowsers(browser => {
@@ -33,14 +35,11 @@ namespace DotVVM.Samples.Tests.Control
                 browser.Wait(3000);
                 AssertUI.IsNotDisplayed(browser.First(".update-progress"));
 
-                if (browser.Driver is ChromeDriver)
-                {
-                    // click the second button and verify that the progress appears and disappears again
-                    AssertUI.IsNotDisplayed(browser.First(".update-progress"));
-                    browser.ElementAt("input[type=button]", 1).Click();
-                    browser.Wait(1000);
-                    AssertUI.IsNotDisplayed(browser.First(".update-progress"));
-                }
+                // click the second button and verify that the progress appears and disappears again
+                AssertUI.IsNotDisplayed(browser.First(".update-progress"));
+                browser.ElementAt("input[type=button]", 1).Click();
+                browser.Wait(1000);
+                AssertUI.IsNotDisplayed(browser.First(".update-progress"));
             });
         }
 
