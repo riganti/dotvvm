@@ -13,7 +13,7 @@
                           ItemIdBinding="{value: Id}"
                           ItemTextBinding="{value: Text}"
                           SelectedItemId="{value: SelectedMenuId}"
-                          MenuClick="{command: HeaderMenuChanged()}">
+                          MenuClick="{command: _parent.HeaderMenuChanged()}">
     </cc:MasterHeaderMenu>
 
     <div>

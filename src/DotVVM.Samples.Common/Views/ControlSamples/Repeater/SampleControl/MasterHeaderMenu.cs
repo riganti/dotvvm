@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 
@@ -17,14 +18,14 @@ namespace DotVVM.Samples.Common.Views.ControlSamples.Repeater.SampleControl
         [MarkupOptions(AllowHardCodedValue = false)]
         [CollectionElementDataContextChange(1)]
         [ControlPropertyBindingDataContextChange(nameof(DataSource))]
-        public Command MenuClick
+        public ICommandBinding MenuClick
         {
-            get => (Command)GetValue(MenuClickProperty);
+            get => (ICommandBinding)GetValue(MenuClickProperty);
             set => SetValue(MenuClickProperty, value);
         }
 
         public static readonly DotvvmProperty MenuClickProperty =
-            DotvvmProperty.Register<Command, MasterHeaderMenu>(t => t.MenuClick);
+            DotvvmProperty.Register<ICommandBinding, MasterHeaderMenu>(t => t.MenuClick);
 
         [MarkupOptions(AllowHardCodedValue = false)]
         //[BindingCompilationRequirements(new[] { typeof(DataSourceAccessBinding) }, new[] { typeof(DataSourceLengthBinding) })]
@@ -93,7 +94,12 @@ namespace DotVVM.Samples.Common.Views.ControlSamples.Repeater.SampleControl
             rb.SetValue(RadioButton.CheckedItemProperty, GetValueBinding(SelectedItemIdProperty));
 
             //!!!!!!!!!!!!!!!!!!!!!
-            rb.SetBinding(c => c.Changed, GetCommandBinding(MenuClickProperty));
+            IBinding binding = GetCommandBinding(MenuClickProperty);
+            var dataContextStack = binding.GetProperty<DataContextStack>();
+            rb.SetBinding(b => b.Changed, binding);
+
+            IBinding binding2 = GetValueBinding(ItemTextBindingProperty);
+            var dataContextStack2 = binding2.GetProperty<DataContextStack>();
             //!!!!!!!!!!!!!!!!!!!!!
         }
     }
