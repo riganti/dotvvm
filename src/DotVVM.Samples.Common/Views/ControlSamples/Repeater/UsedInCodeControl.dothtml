@@ -1,0 +1,39 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.Repeater.UsedInCodeControlViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <cc:MasterHeaderMenu DataSource="{value: HeaderMenu}"
+                          ItemIdBinding="{value: Id}"
+                          ItemTextBinding="{value: Text}"
+                          SelectedItemId="{value: SelectedMenuId}"
+                          MenuClick="{command: HeaderMenuChanged()}">
+    </cc:MasterHeaderMenu>
+
+    <div>
+        <dot:Repeater DataSource="{value: HeaderMenu}"
+                      WrapperTagName="ul">
+            <ItemTemplate>
+                <li>
+                    <dot:RadioButton CheckedValue="{value: Id}"
+                                     Text="{value: Text}"
+                                     CheckedItem="{value: _parent.SelectedMenuId}"
+                                     Changed="{command: _parent.HeaderMenuChanged()}" />
+                </li>
+            </ItemTemplate>
+        </dot:Repeater>
+    </div>
+
+    <p>Result: {{value: Result}}</p>
+
+
+</body>
+</html>
+
+

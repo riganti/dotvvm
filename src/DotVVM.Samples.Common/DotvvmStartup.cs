@@ -157,7 +157,7 @@ namespace DotVVM.Samples.BasicSamples
             config.Markup.AddMarkupControl("sample", "EmbeddedResourceControls_Button", "embedded://EmbeddedResourceControls/Button.dotcontrol");
 
             config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/"));
-
+            config.Markup.AddCodeControls("cc", "DotVVM.Samples.Common.Views.ControlSamples.Repeater.SampleControl", "DotVVM.Samples.Common");
         }
 
         public void ConfigureServices(IDotvvmServiceCollection options)

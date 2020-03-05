@@ -34,6 +34,7 @@
     <None Remove="Views\ControlSamples\MultiSelect\hardcoded.dothtml" />
     <None Remove="Views\ControlSamples\RadioButton\Nullable.dothtml" />
     <None Remove="Views\ControlSamples\Repeater\NamedTemplate.dothtml" />
+    <None Remove="Views\ControlSamples\Repeater\UsedInCodeControl.dothtml" />
     <None Remove="Views\ControlSamples\RouteLink\RouteLinkQueryParameters.dothtml" />
     <None Remove="Views\ControlSamples\UpdateProgress\UpdateProgressQueues.dothtml" />
     <None Remove="Views\ControlSamples\UpdateProgress\UpdateProgressRedirect.dotmaster" />
