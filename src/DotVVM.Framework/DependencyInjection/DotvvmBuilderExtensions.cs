@@ -99,6 +99,10 @@ namespace Microsoft.Extensions.DependencyInjection
                 var config = s.GetRequiredService<DotvvmConfiguration>();
                 return (config.Debug ? (IRequestTracer)s.GetService<DiagnosticsRequestTracer>() : null) ?? new NullRequestTracer();
             });
+            services.Services.AddScoped<IStartupTracer>(s => {
+                var config = s.GetRequiredService<DotvvmConfiguration>();
+                return (config.Debug ? (IStartupTracer)s.GetService<DiagnosticsStartupTracer>() : null) ?? new NullStartupTracer();
+            });
 
             return services;
         }

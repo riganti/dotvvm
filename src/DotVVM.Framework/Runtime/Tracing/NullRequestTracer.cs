@@ -24,5 +24,4 @@ namespace DotVVM.Framework.Runtime.Tracing
             return TaskUtils.GetCompletedTask();
         }
     }
-
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Diagnostics;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Hosting.Middlewares;
 using DotVVM.Framework.Hosting.Owin.Runtime.Caching;
@@ -56,7 +57,11 @@ namespace Owin
 
         private static DotvvmConfiguration UseDotVVM(this IAppBuilder app, string applicationRootPath, bool useErrorPages, bool debug, IDotvvmServiceConfigurator configurator, IDotvvmStartup startup, Func<IServiceCollection, IServiceProvider> serviceProviderFactoryMethod = null, Action<DotvvmConfiguration> modifyConfiguration = null)
         {
-            var config = DotvvmConfiguration.CreateDefault(s => {
+            var startupTracer = new DiagnosticsStartupTracer();
+            startupTracer.TraceEvent(StartupTracingConstants.AddDotvvmStarted);
+
+            var config = DotvvmConfiguration.CreateDefault(s =>
+            {
                 s.TryAddSingleton<IDataProtectionProvider>(p => new DefaultDataProtectionProvider(app));
                 s.TryAddSingleton<IDotvvmCacheAdapter, OwinDotvvmCacheAdapter>();
                 s.TryAddSingleton<IViewModelProtector, DefaultViewModelProtector>();
@@ -65,12 +70,18 @@ namespace Owin
                 s.TryAddSingleton<ICookieManager, ChunkingCookieManager>();
                 s.TryAddScoped<DotvvmRequestContextStorage>(_ => new DotvvmRequestContextStorage());
                 s.TryAddScoped<IDotvvmRequestContext>(services => services.GetRequiredService<DotvvmRequestContextStorage>().Context);
+                s.TryAddSingleton<IStartupTracer>(startupTracer);
+
+                startupTracer.TraceEvent(StartupTracingConstants.DotvvmConfigurationUserServicesRegistrationStarted);
                 configurator?.ConfigureServices(new DotvvmServiceCollection(s));
+                startupTracer.TraceEvent(StartupTracingConstants.DotvvmConfigurationUserServicesRegistrationFinished);
             }, serviceProviderFactoryMethod);
             config.Debug = debug;
             config.ApplicationPhysicalPath = applicationRootPath;
 
+            startupTracer.TraceEvent(StartupTracingConstants.DotvvmConfigurationUserConfigureStarted);
             startup.Configure(config, applicationRootPath);
+            startupTracer.TraceEvent(StartupTracingConstants.DotvvmConfigurationUserConfigureFinished);
 
             if (useErrorPages)
             {
@@ -80,6 +91,8 @@ namespace Owin
             modifyConfiguration?.Invoke(config);
             config.Freeze();
 
+            startupTracer.TraceEvent(StartupTracingConstants.UseDotvvmStarted);
+
             app.Use<DotvvmMiddleware>(config, new List<IMiddleware> {
                 ActivatorUtilities.CreateInstance<DotvvmCsrfTokenMiddleware>(config.ServiceProvider),
                 ActivatorUtilities.CreateInstance<DotvvmLocalResourceMiddleware>(config.ServiceProvider),
@@ -87,6 +100,14 @@ namespace Owin
                 new DotvvmReturnedFileMiddleware(),
                 new DotvvmRoutingMiddleware()
             }.Where(t => t != null).ToArray());
+
+            startupTracer.TraceEvent(StartupTracingConstants.UseDotvvmFinished);
+
+            if (config.ServiceProvider.GetService<IDiagnosticsInformationSender>() is IDiagnosticsInformationSender sender)
+            {
+                startupTracer.NotifyStartupCompleted(sender);
+            }
+
             return config;
         }
     }

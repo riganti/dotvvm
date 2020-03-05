@@ -9,6 +9,7 @@ using DotVVM.Framework.Runtime.Tracing;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using DotVVM.Framework.Diagnostics;
 
 namespace Microsoft.AspNetCore.Builder
 {
@@ -51,12 +52,15 @@ namespace Microsoft.AspNetCore.Builder
 
         private static DotvvmConfiguration UseDotVVM(this IApplicationBuilder app, string applicationRootPath, bool? useErrorPages, IDotvvmStartup startup, Action<DotvvmConfiguration> modifyConfiguration)
         {
-
             var env = app.ApplicationServices.GetRequiredService<IHostingEnvironment>();
             var config = app.ApplicationServices.GetRequiredService<DotvvmConfiguration>();
             config.Debug = env.IsDevelopment();
             config.ApplicationPhysicalPath = applicationRootPath ?? env.ContentRootPath;
+
+            var startupTracer = app.ApplicationServices.GetRequiredService<IStartupTracer>();
+            startupTracer.TraceEvent(StartupTracingConstants.DotvvmConfigurationUserConfigureStarted);
             startup.Configure(config, applicationRootPath);
+            startupTracer.TraceEvent(StartupTracingConstants.DotvvmConfigurationUserConfigureFinished);
 
             if (useErrorPages ?? config.Debug)
             {
@@ -66,6 +70,7 @@ namespace Microsoft.AspNetCore.Builder
             modifyConfiguration?.Invoke(config);
             config.Freeze();
 
+            startupTracer.TraceEvent(StartupTracingConstants.UseDotvvmStarted);
             app.UseMiddleware<DotvvmMiddleware>(config, new List<IMiddleware> {
                 ActivatorUtilities.CreateInstance<DotvvmCsrfTokenMiddleware>(config.ServiceProvider),
                 ActivatorUtilities.CreateInstance<DotvvmLocalResourceMiddleware>(app.ApplicationServices),
@@ -73,6 +78,13 @@ namespace Microsoft.AspNetCore.Builder
                 new DotvvmReturnedFileMiddleware(),
                 new DotvvmRoutingMiddleware()
             }.Where(t => t != null).ToArray());
+            startupTracer.TraceEvent(StartupTracingConstants.UseDotvvmFinished);
+
+            if (config.ServiceProvider.GetService<IDiagnosticsInformationSender>() is IDiagnosticsInformationSender sender)
+            {
+                startupTracer.NotifyStartupCompleted(sender);
+            }
+
             return config;
         }
     }
