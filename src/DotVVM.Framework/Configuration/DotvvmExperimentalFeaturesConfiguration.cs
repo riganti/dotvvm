@@ -15,6 +15,9 @@ namespace DotVVM.Framework.Configuration
         [JsonProperty("serverSideViewModelCache", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public DotvvmExperimentalFeatureFlag ServerSideViewModelCache { get; private set; } = new DotvvmExperimentalFeatureFlag();
 
+        [JsonProperty("ControlRenderAdapters", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public DotvvmExperimentalFeatureFlag ControlRenderAdapters { get; private set; } = new DotvvmExperimentalFeatureFlag();
+
         public void Freeze()
         {
             LazyCsrfToken.Freeze();

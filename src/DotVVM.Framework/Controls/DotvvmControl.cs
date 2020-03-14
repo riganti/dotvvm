@@ -249,12 +249,12 @@ namespace DotVVM.Framework.Controls
             }
 
             if (r.HasActives) foreach (var item in properties)
-            {
-                if (item.Key is ActiveDotvvmProperty activeProp)
                 {
-                    activeProp.AddAttributesToRender(writer, context, this);
+                    if (item.Key is ActiveDotvvmProperty activeProp)
+                    {
+                        activeProp.AddAttributesToRender(writer, context, this);
+                    }
                 }
-            }
 
             return false;
         }
@@ -286,10 +286,32 @@ namespace DotVVM.Framework.Controls
             if (RenderBeforeControl(in r, writer, context))
                 return;
 
-            AddAttributesToRender(writer, context);
-            RenderBeginTag(writer, context);
-            RenderContents(writer, context);
-            RenderEndTag(writer, context);
+            var renderAdapter = GetRenderAdapter(context);
+
+            var addAttributesToRenderAdapter = renderAdapter?.AddAttributesToRender;
+            if (addAttributesToRenderAdapter != null)
+                addAttributesToRenderAdapter(this, writer, context);
+            else
+                AddAttributesToRender(writer, context);
+
+            var renderBeginTagAdapter = renderAdapter?.AddAttributesToRender;
+            if (renderBeginTagAdapter != null)
+                renderBeginTagAdapter(this, writer, context);
+            else
+                RenderBeginTag(writer, context);
+
+
+            var renderContentsAdapter = renderAdapter?.AddAttributesToRender;
+            if (renderContentsAdapter != null)
+                renderContentsAdapter(this, writer, context);
+            else
+                RenderContents(writer, context);
+
+            var renderEndTagAdapter = renderAdapter?.AddAttributesToRender;
+            if (renderEndTagAdapter != null)
+                renderEndTagAdapter(this, writer, context);
+            else
+                RenderEndTag(writer, context);
 
             RenderAfterControl(in r, writer);
         }
@@ -433,6 +455,19 @@ namespace DotVVM.Framework.Controls
         public static bool IsNamingContainer(DotvvmBindableObject control)
         {
             return (bool)control.GetValue(Internal.IsNamingContainerProperty)!;
+        }
+
+        /// <summary>
+        /// Determines whether the specified control is a naming container.
+        /// </summary>
+        protected IRenderAdapter? GetRenderAdapter(IDotvvmRequestContext context)
+        {
+            var routeRouteName = context.Route.RouteName;
+
+            if (!context.Configuration.ExperimentalFeatures.ControlRenderAdapters.IsEnabledForRoute(routeRouteName))
+                return null;
+
+            return (IRenderAdapter?)GetValue(Internal.RenderAdapterProperty);
         }
 
         /// <summary>

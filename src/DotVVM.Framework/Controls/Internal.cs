@@ -56,6 +56,9 @@ namespace DotVVM.Framework.Controls
 
         public static DotvvmProperty CurrentIndexBindingProperty =
             DotvvmProperty.Register<IValueBinding?, Internal>(() => CurrentIndexBindingProperty);
+
+        public static DotvvmProperty RenderAdapterProperty =
+            DotvvmProperty.Register<IRenderAdapter?, Internal>(() => RenderAdapterProperty);
     }
 
     public static class InternalPropertyExtensions
