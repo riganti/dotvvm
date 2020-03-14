@@ -1,5 +1,6 @@
 ﻿using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
+using OpenQA.Selenium;
 using Riganti.Selenium.Core;
 using Xunit;
 using Xunit.Abstractions;
@@ -18,14 +19,14 @@ namespace DotVVM.Samples.Tests.Feature
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_RenderAdapter_Basic);
 
-                var standard = browser.Single("standard");
+                var standard = browser.Single("standard", By.Id);
 
                 AssertUI.TagName(standard, "span");
                 AssertUI.HasNotAttribute(standard, "test");
                 AssertUI.InnerTextEquals(standard, "TEXT");
 
 
-                var replaced = browser.Single("replaced");
+                var replaced = browser.Single("replaced", By.Id);
                 AssertUI.TagName(replaced, "div");
                 AssertUI.HasAttribute(replaced, "test");
                 AssertUI.InnerTextEquals(replaced, "REPLACEMENT TEXT");
