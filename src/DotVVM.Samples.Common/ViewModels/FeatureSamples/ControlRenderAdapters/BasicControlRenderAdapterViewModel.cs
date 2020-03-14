@@ -11,15 +11,24 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.ControlRenderAdapters
     {
         public BasicControlRenderAdapterViewModel()
         {
-            Context.Configuration.ExperimentalFeatures.ControlRenderAdapters.Enabled = true;
         }
 
         public override Task Init()
         {
-            var literal = Context.View.FindControlByClientId<Literal>("replaced");
-            literal.SetValue(Internal.RenderAdapterProperty, new TestControlRenderAdapter());
+            Context.Configuration.ExperimentalFeatures.ControlRenderAdapters.Enabled = true;
+
             return base.Init();
         }
+
+        public override Task PreRender()
+        {
+
+            var literal = Context.View.FindControlByClientId<TextBox>("replaced");
+            literal.SetValueRaw(Internal.RenderAdapterProperty, new TestControlRenderAdapter());
+            return base.PreRender();
+        }
+
+
     }
 }
 

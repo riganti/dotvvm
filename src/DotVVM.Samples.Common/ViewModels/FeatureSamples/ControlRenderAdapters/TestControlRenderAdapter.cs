@@ -14,6 +14,7 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.ControlRenderAdapters
 
         private void AddAttributesToRenderImp(IDotvvmControl control, IHtmlWriter writer, IDotvvmRequestContext context)
         {
+            writer.AddAttribute("id", "replaced");
             writer.AddAttribute("test", "testValue");
         }
 

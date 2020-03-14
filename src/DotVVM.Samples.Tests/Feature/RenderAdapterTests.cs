@@ -17,11 +17,11 @@ namespace DotVVM.Samples.Tests.Feature
         public void Feature_RenderAdapter_Basic()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_RenderAdapter_Basic);
+                browser.NavigateToUrl("http://localhost:5407/" + SamplesRouteUrls.FeatureSamples_RenderAdapter_Basic);
 
                 var standard = browser.Single("standard", By.Id);
 
-                AssertUI.TagName(standard, "span");
+                AssertUI.TagName(standard, "input");
                 AssertUI.HasNotAttribute(standard, "test");
                 AssertUI.InnerTextEquals(standard, "TEXT");
 

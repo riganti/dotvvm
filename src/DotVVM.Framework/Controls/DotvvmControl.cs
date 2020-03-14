@@ -294,20 +294,20 @@ namespace DotVVM.Framework.Controls
             else
                 AddAttributesToRender(writer, context);
 
-            var renderBeginTagAdapter = renderAdapter?.AddAttributesToRender;
+            var renderBeginTagAdapter = renderAdapter?.RenderBeginTag;
             if (renderBeginTagAdapter != null)
                 renderBeginTagAdapter(this, writer, context);
             else
                 RenderBeginTag(writer, context);
 
 
-            var renderContentsAdapter = renderAdapter?.AddAttributesToRender;
+            var renderContentsAdapter = renderAdapter?.RenderContents;
             if (renderContentsAdapter != null)
                 renderContentsAdapter(this, writer, context);
             else
                 RenderContents(writer, context);
 
-            var renderEndTagAdapter = renderAdapter?.AddAttributesToRender;
+            var renderEndTagAdapter = renderAdapter?.RenderEndTag;
             if (renderEndTagAdapter != null)
                 renderEndTagAdapter(this, writer, context);
             else
@@ -467,7 +467,7 @@ namespace DotVVM.Framework.Controls
             if (!context.Configuration.ExperimentalFeatures.ControlRenderAdapters.IsEnabledForRoute(routeRouteName))
                 return null;
 
-            return (IRenderAdapter?)GetValue(Internal.RenderAdapterProperty);
+            return (IRenderAdapter?)GetValueRaw(Internal.RenderAdapterProperty);
         }
 
         /// <summary>

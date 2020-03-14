@@ -8,8 +8,8 @@
     <title></title>
 </head>
 <body>
-    <dot:Literal ID="standard" Text="TEXT" RenderSpanElement="true" />
-    <dot:Literal ID="replaced" Text="TEXT" RenderSpanElement="true" />
+    <dot:TextBox ID="standard" Text="TEXT" />
+    <dot:TextBox ID="replaced" Text="TEXT" />
 
 </body>
 </html>
