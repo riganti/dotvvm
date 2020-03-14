@@ -7,8 +7,11 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
+using DotVVM.Framework.Runtime.Tracing;
 using DotVVM.Framework.Utils;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
@@ -20,7 +23,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         private static bool isInitialized = false;
 
 
-        public DefaultControlResolver(DotvvmMarkupConfiguration configuration, IControlBuilderFactory controlBuilderFactory) : base(configuration)
+        public DefaultControlResolver(DotvvmConfiguration configuration, IControlBuilderFactory controlBuilderFactory) : base(configuration.Markup)
         {
             this.controlBuilderFactory = controlBuilderFactory;
 
@@ -30,7 +33,12 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 {
                     if (!isInitialized)
                     {
+                        var startupTracer = configuration.ServiceProvider.GetService<IStartupTracer>();
+
+                        startupTracer?.TraceEvent(StartupTracingConstants.InvokeAllStaticConstructorsStarted);
                         InvokeStaticConstructorsOnAllControls();
+                        startupTracer?.TraceEvent(StartupTracingConstants.InvokeAllStaticConstructorsFinished);
+
                         isInitialized = true;
                     }
                 }

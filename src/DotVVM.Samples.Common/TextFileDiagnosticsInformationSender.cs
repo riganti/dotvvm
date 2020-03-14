@@ -5,32 +5,52 @@ using DotVVM.Framework.Diagnostics.Models;
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Samples.Common
 {
     public class TextFileDiagnosticsInformationSender : IDiagnosticsInformationSender
     {
         private readonly DotvvmConfiguration config;
+        private readonly string logFilePath;
 
         public TextFileDiagnosticsInformationSender(DotvvmConfiguration config)
         {
             this.config = config;
+
+            logFilePath = GetFilePath();
         }
 
         public Task SendInformationAsync(DiagnosticsInformation information)
         {
-            var path = GetFilePath();
-            var message = FormatMessage(information);
+            var messages = FormatUnwrittenMessages(information);
 
-            File.WriteAllText(path, message);
-            return Task.CompletedTask;
+            if (!File.Exists(logFilePath))
+            {
+                messages = $@"{"Event Name",-70}{"Duration [ms]",15}{"Total [ms]",15}
+{new string('-', 70 + 15 + 15)}
+{messages}";
+            }
+            File.AppendAllText(logFilePath, messages);
+
+            return TaskUtils.GetCompletedTask();
         }
 
-        private string FormatMessage(DiagnosticsInformation information)
+        private string FormatUnwrittenMessages(DiagnosticsInformation information)
         {
-            return $@"Total duration: {information.TotalDuration}ms
-======
-{string.Join(Environment.NewLine, information.EventTimings.Select(t => $"{t.EventName.PadRight(50)}{t.Duration.ToString().PadLeft(10)}"))}";
+            var sb = new StringBuilder();
+            foreach (var timing in information.EventTimings)
+            {
+                sb.AppendLine(FormatMessage(timing));
+            }
+
+            return sb.ToString();
+        }
+
+        protected virtual string FormatMessage(EventTiming timing)
+        {
+            return $"{timing.EventName,-70}{timing.Duration + " ms",15}{timing.TotalDuration + " ms",15}";
         }
 
         private string GetFilePath()

@@ -41,6 +41,7 @@ namespace DotVVM.Framework.Diagnostics
             return new EventTiming
             {
                 Duration = stopwatch.ElapsedMilliseconds - ElapsedMillisSinceLastLog,
+                TotalDuration = stopwatch.ElapsedMilliseconds,
                 EventName = eventName
             };
         }
