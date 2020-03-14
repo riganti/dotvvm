@@ -6,6 +6,7 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Routing;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Testing;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,7 +33,8 @@ namespace DotVVM.Framework.Tests.Runtime
             return new TestDotvvmRequestContext() {
                 Configuration = configuration,
                 ResourceManager = new ResourceManagement.ResourceManager(configuration.Resources),
-                ViewModel = viewModel
+                ViewModel = viewModel,
+                Route = new DotvvmRoute(url: string.Empty, virtualPath: string.Empty, name: string.Empty, null, provider => provider.GetRequiredService<IDotvvmPresenter>(), configuration)
             };
         }
 
