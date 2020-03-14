@@ -17,7 +17,7 @@ namespace DotVVM.Samples.Tests.Feature
         public void Feature_RenderAdapter_Basic()
         {
             RunInAllBrowsers(browser => {
-                browser.NavigateToUrl("http://localhost:5407/" + SamplesRouteUrls.FeatureSamples_RenderAdapter_Basic);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_RenderAdapter_Basic);
 
                 var standard = browser.Single("standard", By.Id);
 
