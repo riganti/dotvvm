@@ -158,7 +158,7 @@ namespace DotVVM.Framework.Compilation
             if (File.Exists(fileName)) return AssemblyLoader.LoadFile(fileName);
             if (Path.IsPathRooted(fileName)) return null;
             var cleanName = Path.GetFileNameWithoutExtension(Path.GetFileName(fileName));
-            var assemblies = ReflectionUtils.GetAllAssemblies().ToList();
+            var assemblies = ReflectionUtils.GetAllAssemblies();
             foreach (var assembly in assemblies)
             {
                 // get already loaded assembly
@@ -174,15 +174,6 @@ namespace DotVVM.Framework.Compilation
                 {
                     var possibleFileName = Path.Combine(assemblyDirectory, fileName);
                     if (File.Exists(possibleFileName)) return AssemblyLoader.LoadFile(possibleFileName);
-                }
-            }
-            foreach (var assembly in assemblies)
-            {
-                // get already loaded assembly
-                if (assembly.GetName().Name == cleanName)
-                {
-                    var codeBase = assembly.GetCodeBasePath();
-                    if (codeBase!.EndsWith(fileName, StringComparison.OrdinalIgnoreCase)) return assembly;
                 }
             }
             return null;
