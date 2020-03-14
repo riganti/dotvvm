@@ -2,6 +2,8 @@
 {
     public partial class SamplesRouteUrls
     {
+        public static string FeatureSamples_RenderAdapter_Basic = "FeatureSamples/ControlRenderAdapters/BasicControlRenderAdapter";
+
         public const string FeatureSamples_PostbackConcurrency_DefaultMode =
             "FeatureSamples/PostbackConcurrency/PostbackConcurrencyMode?concurrency=Default";
 

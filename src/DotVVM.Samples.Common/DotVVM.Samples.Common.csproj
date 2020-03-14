@@ -49,6 +49,7 @@
     <None Remove="Views\Errors\InvalidLocationFallback.dothtml" />
     <None Remove="Views\Errors\ResourceCircularDependency.dothtml" />
     <None Remove="Views\FeatureSamples\Caching\CachedValues.dothtml" />
+    <None Remove="Views\FeatureSamples\ControlRenderAdapters\BasicControlRenderAdapter.dothtml" />
     <None Remove="Views\FeatureSamples\Localization\Globalize.dothtml" />
     <None Remove="Views\FeatureSamples\PostBack\RecursiveTextRepeater.dotcontrol" />
     <None Remove="Views\FeatureSamples\PostBack\RecursiveTextRepeater2.dotcontrol" />

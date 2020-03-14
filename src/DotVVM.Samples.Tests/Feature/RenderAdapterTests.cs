@@ -1,0 +1,35 @@
+﻿using DotVVM.Samples.Tests.Base;
+using DotVVM.Testing.Abstractions;
+using Riganti.Selenium.Core;
+using Xunit;
+using Xunit.Abstractions;
+
+namespace DotVVM.Samples.Tests.Feature
+{
+    public class RenderAdapterTests : AppSeleniumTest
+    {
+        public RenderAdapterTests(ITestOutputHelper output) : base(output)
+        {
+        }
+
+        [Fact]
+        public void Feature_RenderAdapter_Basic()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_RenderAdapter_Basic);
+
+                var standard = browser.Single("standard");
+
+                AssertUI.TagName(standard, "span");
+                AssertUI.HasNotAttribute(standard, "test");
+                AssertUI.InnerTextEquals(standard, "TEXT");
+
+
+                var replaced = browser.Single("replaced");
+                AssertUI.TagName(replaced, "div");
+                AssertUI.HasAttribute(replaced, "test");
+                AssertUI.InnerTextEquals(replaced, "REPLACEMENT TEXT");
+            });
+        }
+    }
+}
