@@ -101,5 +101,4 @@ namespace DotVVM.Framework.Configuration
             FreezableSet.Freeze(ref this._includedRoutes);
         }
     }
-
 }
