@@ -29,15 +29,13 @@ namespace DotVVM.Framework.Compilation
     }
     public class DefaultViewCompiler : IViewCompiler
     {
-        public DefaultViewCompiler(IOptions<ViewCompilerConfiguration> config, IControlTreeResolver controlTreeResolver, IBindingCompiler bindingCompiler, Func<Validation.ControlUsageValidationVisitor> controlValidatorFactory, DotvvmMarkupConfiguration markupConfiguration)
+        public DefaultViewCompiler(IOptions<ViewCompilerConfiguration> config, IControlTreeResolver controlTreeResolver, IBindingCompiler bindingCompiler, Func<Validation.ControlUsageValidationVisitor> controlValidatorFactory, CompiledAssemblyCache compiledAssemblyCache)
         {
-           this.config = config.Value;
-           this.controlTreeResolver = controlTreeResolver;
-           this.bindingCompiler = bindingCompiler;
-           this.assemblyCache = CompiledAssemblyCache.Instance;
-           this.controlValidatorFactory = controlValidatorFactory;
-           this.markupConfiguration = markupConfiguration;
-           this.referencedAssembliesCache = new Lazy<IEnumerable<Assembly>>(BuildReferencedAssembliesCache, true);
+            this.config = config.Value;
+            this.controlTreeResolver = controlTreeResolver;
+            this.bindingCompiler = bindingCompiler;
+            this.controlValidatorFactory = controlValidatorFactory;
+            this.assemblyCache = compiledAssemblyCache;
         }
 
         private readonly CompiledAssemblyCache assemblyCache;
@@ -45,8 +43,7 @@ namespace DotVVM.Framework.Compilation
         private readonly IBindingCompiler bindingCompiler;
         private readonly ViewCompilerConfiguration config;
         private readonly Func<Validation.ControlUsageValidationVisitor> controlValidatorFactory;
-        private readonly DotvvmMarkupConfiguration markupConfiguration;
-        private readonly Lazy<IEnumerable<Assembly>> referencedAssembliesCache;
+
         /// <summary>
         /// Compiles the view and returns a function that can be invoked repeatedly. The function builds full control tree and activates the page.
         /// </summary>
@@ -88,14 +85,13 @@ namespace DotVVM.Framework.Compilation
                 var validationVisitor = this.controlValidatorFactory.Invoke();
                 validationVisitor.VisitAndAssert(resolvedView);
 
-                var emitter = new DefaultViewCompilerCodeEmitter();
+                var emitter = new DefaultViewCompilerCodeEmitter(assemblyCache);
                 var compilingVisitor = new ViewCompilingVisitor(emitter, bindingCompiler, className);
 
                 resolvedView.Accept(compilingVisitor);
 
                 return AddToCompilation(compilation, emitter, fileName, namespaceName, className);
-            }
-            );
+            });
         }
 
         protected virtual CSharpCompilation AddToCompilation(CSharpCompilation compilation, DefaultViewCompilerCodeEmitter emitter, string fileName, string namespaceName, string className)
@@ -104,62 +100,13 @@ namespace DotVVM.Framework.Compilation
             return compilation
                 .AddSyntaxTrees(tree)
                 .AddReferences(emitter.UsedAssemblies
-                    .Select(a => GetAssemblyCache().GetAssemblyMetadata(a.Key).WithAliases(ImmutableArray.Create(a.Value, "global"))));
+                    .Select(a => assemblyCache.GetAssemblyMetadata(a.Key).WithAliases(ImmutableArray.Create(a.Value, "global"))));
         }
-
-        private CompiledAssemblyCache GetAssemblyCache()
-        {
-            return assemblyCache;
-        }
-
-        private IEnumerable<Assembly> BuildReferencedAssembliesCache()
-        {
-            var diAssembly = typeof(ServiceCollection).Assembly;
-
-            var references = diAssembly.GetReferencedAssemblies().Select(Assembly.Load)
-                .Concat(markupConfiguration.Assemblies.Select(e => Assembly.Load(new AssemblyName(e))))
-                .Concat(new[] {
-                    diAssembly,
-                    Assembly.Load(new AssemblyName("mscorlib")),
-                    Assembly.Load(new AssemblyName("System.ValueTuple")),
-                    typeof(IServiceProvider).Assembly,
-                    typeof(RuntimeBinderException).Assembly,
-                    typeof(DynamicAttribute).Assembly,
-                    typeof(DotvvmConfiguration).Assembly,
-#if DotNetCore
-                    Assembly.Load(new AssemblyName("System.Runtime")),
-                    Assembly.Load(new AssemblyName("System.Collections.Concurrent")),
-                    Assembly.Load(new AssemblyName("System.Collections")),
-#else
-                    typeof(List<>).Assembly
-#endif
-                });
-
-            var netstandardAssembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == "netstandard");
-            if (netstandardAssembly != null)
-            {
-                references = references.Concat(new[] { netstandardAssembly });
-            }
-            else
-            {
-                try
-                {
-                    // netstandard assembly is required for netstandard 2.0 and in some cases
-                    // for netframework461 and newer. netstandard is not included in netframework452
-                    // and will throw FileNotFoundException. Instead of detecting current netframework
-                    // version, the exception is swallowed.
-                    references = references.Concat(new[] { Assembly.Load(new AssemblyName("netstandard")) });
-                }
-                catch (FileNotFoundException) { }
-            }
-
-            return references.Distinct().ToList();
-        }
-
+        
         public virtual CSharpCompilation CreateCompilation(string assemblyName)
         {
             return CSharpCompilation.Create(assemblyName, options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
-                .AddReferences(referencedAssembliesCache.Value.Select(a => assemblyCache.GetAssemblyMetadata(a)));
+                .AddReferences(assemblyCache.GetAllAssemblies().Select(a => assemblyCache.GetAssemblyMetadata(a)));
         }
 
         protected virtual IControlBuilder GetControlBuilder(Assembly assembly, string namespaceName, string className)

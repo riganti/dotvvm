@@ -16,11 +16,12 @@ namespace DotVVM.Framework.Compilation.Binding
         public bool ResolveOnlyTypeName { get; set; }
 
         private List<Exception> currentErrors;
+        private readonly CompiledAssemblyCache compiledAssemblyCache;
 
-
-        public ExpressionBuildingVisitor(TypeRegistry registry)
+        public ExpressionBuildingVisitor(TypeRegistry registry, CompiledAssemblyCache compiledAssemblyCache)
         {
             Registry = registry;
+            this.compiledAssemblyCache = compiledAssemblyCache;
         }
 
         protected T HandleErrors<T, TNode>(TNode node, Func<TNode, T> action, string defaultErrorMessage = "Binding compilation failed", bool allowResultNull = true)
@@ -251,7 +252,7 @@ namespace DotVVM.Framework.Compilation.Binding
             {
                 var name = (target as UnknownStaticClassIdentifierExpression).Name + "." + identifierName;
 
-                var resolvedTypeExpression = Registry.Resolve(name, throwOnNotFound: false) ?? new UnknownStaticClassIdentifierExpression(name);
+                var resolvedTypeExpression = Registry.Resolve(name, compiledAssemblyCache, throwOnNotFound: false) ?? new UnknownStaticClassIdentifierExpression(name);
 
                 if (typeParameters != null)
                 {
@@ -298,9 +299,9 @@ namespace DotVVM.Framework.Compilation.Binding
 
             var expr = 
                 Scope == null 
-                ? Registry.Resolve(node.Name, throwOnNotFound: false)
+                ? Registry.Resolve(node.Name, compiledAssemblyCache, throwOnNotFound: false)
                 : (ExpressionHelper.GetMember(Scope, node.Name, typeParameters, throwExceptions: false, onlyMemberTypes: ResolveOnlyTypeName)
-                    ?? Registry.Resolve(node.Name, throwOnNotFound: false));
+                    ?? Registry.Resolve(node.Name, compiledAssemblyCache, throwOnNotFound: false));
 
             if (expr == null) return new UnknownStaticClassIdentifierExpression(node.Name);
             if (expr is ParameterExpression && expr.Type == typeof(ExpressionHelper.UnknownTypeSentinel)) throw new Exception($"Type of '{expr}' could not be resolved.");

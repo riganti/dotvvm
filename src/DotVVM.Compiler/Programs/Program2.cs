@@ -187,9 +187,7 @@ JSON structure:
                     WriteInfo("Starting export configuration only ...");
                     result = ExportConfiguration(options);
                 }
-
-                ConfigurationSerialization.PreInit();
-
+                
                 var serializedResult = JsonConvert.SerializeObject(result, Formatting.Indented,
                     new JsonSerializerSettings {
                         TypeNameHandling = TypeNameHandling.Auto,
@@ -230,6 +228,9 @@ JSON structure:
         {
             var assembly = Assembly.LoadFile(options.WebSiteAssembly);
             var config = ConfigurationInitializer.InitDotVVM(assembly, options.WebSitePath, null, collection => { });
+
+            ConfigurationSerialization.PreInit(config);
+
             return new CompilationResult() {
                 Configuration = config
             };

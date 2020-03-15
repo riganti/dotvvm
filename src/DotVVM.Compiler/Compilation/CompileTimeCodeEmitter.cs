@@ -9,7 +9,7 @@ namespace DotVVM.Compiler.Compilation
         private readonly RefObjectSerializer objSerializer;
         private readonly string serializerObjectName;
 
-        public CompileTimeCodeEmitter(RefObjectSerializer objSerializer, string serializerObjectName)
+        public CompileTimeCodeEmitter(CompiledAssemblyCache compiledAssemblyCache, RefObjectSerializer objSerializer, string serializerObjectName) : base(compiledAssemblyCache)
         {
             this.objSerializer = objSerializer;
             this.serializerObjectName = serializerObjectName;

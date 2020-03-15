@@ -16,6 +16,13 @@ namespace DotVVM.Framework.Compilation.Binding
 {
     public class BindingExpressionBuilder : IBindingExpressionBuilder
     {
+        private readonly CompiledAssemblyCache compiledAssemblyCache;
+
+        public BindingExpressionBuilder(CompiledAssemblyCache compiledAssemblyCache)
+        {
+            this.compiledAssemblyCache = compiledAssemblyCache;
+        }
+
         public Expression Parse(string expression, DataContextStack dataContexts, BindingParserOptions options, params KeyValuePair<string, Expression>[] additionalSymbols)
         {
             try
@@ -42,8 +49,8 @@ namespace DotVVM.Framework.Compilation.Binding
                 symbols = symbols.AddSymbols(options.ExtensionParameters.Select(p => CreateParameter(dataContexts, p.Identifier, p)));
                 symbols = symbols.AddSymbols(additionalSymbols);
 
-                var visitor = new ExpressionBuildingVisitor(symbols);
-                visitor.Scope = symbols.Resolve(options.ScopeParameter);
+                var visitor = new ExpressionBuildingVisitor(symbols, compiledAssemblyCache);
+                visitor.Scope = symbols.Resolve(options.ScopeParameter, compiledAssemblyCache);
                 return visitor.Visit(node);
             }
             catch (Exception ex)
@@ -74,7 +81,7 @@ namespace DotVVM.Framework.Compilation.Binding
             .AddSymbols(dataContext.Enumerable()
                 .Select((t, i) => new KeyValuePair<string, Expression>($"Parent{i}ViewModel", TypeRegistry.CreateStatic(t))))
             // import all viewModel namespaces
-            .AddSymbols(namespaces.Select(ns => (Func<string, Expression>)(typeName => TypeRegistry.CreateStatic(ReflectionUtils.FindType(ns + "." + typeName)))));
+            .AddSymbols(namespaces.Select(ns => (Func<string, CompiledAssemblyCache, Expression>)((typeName, compiledAssemblyCache) => TypeRegistry.CreateStatic(compiledAssemblyCache.FindType(ns + "." + typeName)))));
         }
 
         public static IEnumerable<ParameterExpression> GetParameters(DataContextStack dataContext)

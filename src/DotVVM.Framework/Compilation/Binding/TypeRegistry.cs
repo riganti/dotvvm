@@ -10,15 +10,15 @@ namespace DotVVM.Framework.Compilation.Binding
     public class TypeRegistry
     {
         ImmutableDictionary<string, Expression> registry;
-        ImmutableList<Func<string, Expression>> resolvers;
+        ImmutableList<Func<string, CompiledAssemblyCache, Expression>> resolvers;
 
-        public TypeRegistry(ImmutableDictionary<string, Expression> registry, ImmutableList<Func<string, Expression>> resolvers)
+        public TypeRegistry(ImmutableDictionary<string, Expression> registry, ImmutableList<Func<string, CompiledAssemblyCache, Expression>> resolvers)
         {
             this.registry = registry;
             this.resolvers = resolvers;
         }
 
-        public Expression Resolve(string name, bool throwOnNotFound = true)
+        public Expression Resolve(string name, CompiledAssemblyCache compiledAssemblyCache, bool throwOnNotFound = true)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Compilation.Binding
             {
                 return expr;
             }
-            expr = resolvers.Select(r => r(name)).FirstOrDefault(e => e != null);
+            expr = resolvers.Select(r => r(name, compiledAssemblyCache)).FirstOrDefault(e => e != null);
             if (expr != null) return expr;
             if (throwOnNotFound) throw new InvalidOperationException($"The identifier '{ name }' could not be resolved!");
             return null;
@@ -45,7 +45,7 @@ namespace DotVVM.Framework.Compilation.Binding
             return new TypeRegistry(registry.AddRange(symbols), resolvers);
         }
 
-        public TypeRegistry AddSymbols(IEnumerable<Func<string, Expression>> symbols)
+        public TypeRegistry AddSymbols(IEnumerable<Func<string, CompiledAssemblyCache, Expression>> symbols)
         {
             return new TypeRegistry(registry, resolvers.InsertRange(0, symbols));
         }
@@ -85,9 +85,9 @@ namespace DotVVM.Framework.Compilation.Binding
                 .Add("Double", CreateStatic(typeof(Double)))
                 .Add("Single", CreateStatic(typeof(Single)))
                 .Add("String", CreateStatic(typeof(String))),
-            ImmutableList<Func<string, Expression>>.Empty
-                .Add(type => CreateStatic(ReflectionUtils.FindType(type)))
-                .Add(type => CreateStatic(ReflectionUtils.FindType("System." + type)))
+            ImmutableList<Func<string, CompiledAssemblyCache, Expression>>.Empty
+                .Add((type, compiledAssemblyCache) => CreateStatic(compiledAssemblyCache.FindType(type)))
+                .Add((type, compiledAssemblyCache) => CreateStatic(compiledAssemblyCache.FindType("System." + type)))
             );
 
         public static TypeRegistry DirectivesDefault(string assemblyName = null) => new TypeRegistry(
@@ -120,8 +120,8 @@ namespace DotVVM.Framework.Compilation.Binding
                .Add("Double", CreateStatic(typeof(Double)))
                .Add("Single", CreateStatic(typeof(Single)))
                .Add("String", CreateStatic(typeof(String))),
-           ImmutableList<Func<string, Expression>>.Empty
-               .Add(type => CreateStatic(ReflectionUtils.FindType(type + (assemblyName != null ? $", {assemblyName}" : ""))))
+           ImmutableList<Func<string, CompiledAssemblyCache, Expression>>.Empty
+               .Add((type, compiledAssemblyCache) => CreateStatic(compiledAssemblyCache.FindType(type + (assemblyName != null ? $", {assemblyName}" : ""))))
            );
     }
 }

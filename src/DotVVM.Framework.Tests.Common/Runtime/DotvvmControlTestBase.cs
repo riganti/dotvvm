@@ -73,7 +73,7 @@ namespace DotVVM.Framework.Tests.Runtime
             var markupLoader = new StaticContentMarkupLoader(view);
 
             return new DefaultDotvvmViewBuilder(markupLoader,
-                new DefaultControlBuilderFactory(Configuration, markupLoader),
+                new DefaultControlBuilderFactory(Configuration, markupLoader, Configuration.ServiceProvider.GetRequiredService<CompiledAssemblyCache>()),
                 Configuration.Markup);
         }
 

@@ -12,6 +12,7 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Compilation;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -68,7 +69,7 @@ namespace DotVVM.Framework.ResourceManagement
 
         protected virtual IEnumerable<Assembly> GetAllAssembliesLoadedAssemblies()
         {
-            return ReflectionUtils.GetAllAssemblies();
+            return AppDomain.CurrentDomain.GetAssemblies();
         }
 
 

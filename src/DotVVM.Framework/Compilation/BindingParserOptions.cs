@@ -33,21 +33,21 @@ namespace DotVVM.Framework.Compilation
             else return reg;
         }
 
-        private static Func<string, Expression> CreateTypeLoader(NamespaceImport import)
+        private static Func<string, CompiledAssemblyCache, Expression> CreateTypeLoader(NamespaceImport import)
         {
             if (import.HasAlias)
-                return t => {
+                return (t, compiledAssemblyCache) => {
                     if (t.Length >= import.Alias.Length && t.StartsWith(import.Alias, StringComparison.Ordinal))
                     {
                         string name;
                         if (t == import.Alias) name = import.Namespace;
                         else if (t.Length > import.Alias.Length + 1 && t[import.Alias.Length] == '.') name = import.Namespace + "." + t.Substring(import.Alias.Length + 1);
                         else return null;
-                        return TypeRegistry.CreateStatic(ReflectionUtils.FindType(name));
+                        return TypeRegistry.CreateStatic(compiledAssemblyCache.FindType(name));
                     }
                     else return null;
                 };
-            else return t => TypeRegistry.CreateStatic(ReflectionUtils.FindType(import.Namespace + "." + t));
+            else return (t, compiledAssemblyCache) => TypeRegistry.CreateStatic(compiledAssemblyCache.FindType(import.Namespace + "." + t));
         }
 
         public BindingParserOptions(Type bindingType, string scopeParameter = "_this", ImmutableList<NamespaceImport> importNamespaces = null, ImmutableList<BindingExtensionParameter> extParameters = null)

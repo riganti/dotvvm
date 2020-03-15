@@ -25,9 +25,10 @@ namespace DotVVM.Framework.Compilation
     public class DefaultViewCompilerCodeEmitter
     {
 
-        public DefaultViewCompilerCodeEmitter()
+        public DefaultViewCompilerCodeEmitter(CompiledAssemblyCache compiledAssemblyCache)
         {
             this.valueEmitter = new RoslynValueEmitter(ParseTypeName);
+            this.compiledAssemblyCache = compiledAssemblyCache;
         }
 
         private int CurrentControlIndex;
@@ -41,6 +42,7 @@ namespace DotVVM.Framework.Compilation
         public const string ServiceProviderParameterName = "services";
         public const string BuildTemplateFunctionName = "BuildTemplate";
         protected readonly RoslynValueEmitter valueEmitter;
+        private readonly CompiledAssemblyCache compiledAssemblyCache;
         private Dictionary<GroupedDotvvmProperty, string> cachedGroupedDotvvmProperties = new Dictionary<GroupedDotvvmProperty, string>();
         private ConcurrentDictionary<(Type obj, string argTypes), string> injectionFactoryCache = new ConcurrentDictionary<(Type obj, string argTypes), string>();
         private Stack<EmitterMethodInfo> methods = new Stack<EmitterMethodInfo>();
@@ -167,7 +169,7 @@ namespace DotVVM.Framework.Compilation
             }
 
             var typeSyntax = ReflectionUtils.IsFullName(typeName)
-                ? ParseTypeName(ReflectionUtils.FindType(typeName))
+                ? ParseTypeName(compiledAssemblyCache.FindType(typeName))
                 : SyntaxFactory.ParseTypeName(typeName);
 
             return EmitCreateObject(typeSyntax, constructorArguments.Select(EmitValue));
@@ -769,7 +771,7 @@ namespace DotVVM.Framework.Compilation
             UseType(BuilderDataContextType);
 
             var controlType = ReflectionUtils.IsFullName(ResultControlType)
-                ? ParseTypeName(ReflectionUtils.FindType(ResultControlType))
+                ? ParseTypeName(compiledAssemblyCache.FindType(ResultControlType))
                 : SyntaxFactory.ParseTypeName(ResultControlType);
 
             var root = SyntaxFactory.CompilationUnit()
