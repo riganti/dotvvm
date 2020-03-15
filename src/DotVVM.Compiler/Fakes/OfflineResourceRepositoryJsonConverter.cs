@@ -8,7 +8,7 @@ namespace DotVVM.Compiler.Fakes
 {
     internal class OfflineResourceRepositoryJsonConverter : ResourceRepositoryJsonConverter
     {
-        public OfflineResourceRepositoryJsonConverter(CompiledAssemblyCache compiledAssemblyCache) : base(compiledAssemblyCache)
+        public OfflineResourceRepositoryJsonConverter()
         {
         }
 

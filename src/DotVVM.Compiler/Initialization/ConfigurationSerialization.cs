@@ -7,9 +7,9 @@ namespace DotVVM.Compiler.Initialization
 {
     internal class ConfigurationSerialization
     {
-        public static void PreInit(DotvvmConfiguration dotvvmConfiguration)
+        public static void PreInit()
         {
-            var converter = new OfflineResourceRepositoryJsonConverter(new CompiledAssemblyCache(dotvvmConfiguration));
+            var converter = new OfflineResourceRepositoryJsonConverter();
             converter.GetResourceTypeNames();
         }
     }
