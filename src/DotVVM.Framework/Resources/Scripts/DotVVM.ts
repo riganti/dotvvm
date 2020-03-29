@@ -51,7 +51,7 @@ class DotVVM {
     private postBackCounter = 0;
     private lastStartedPostack = 0;
     // when we perform redirect, we also disable all new postbacks to prevent strange behavior
-    private arePostbackDisabled = false;
+    private arePostbacksDisabled = false;
     private fakeRedirectAnchor: HTMLAnchorElement;
     private resourceSigns: { [name: string]: boolean } = {}
     private isViewModelUpdating: boolean = true;
@@ -586,7 +586,7 @@ class DotVVM {
                 return;
             }
 
-            if (this.arePostbackDisabled) {
+            if (this.arePostbacksDisabled) {
                 reject({ type: 'handler' })
             }
 
@@ -1019,7 +1019,7 @@ class DotVVM {
         // but not in SPA mode, since we'll need them for the next page
         // and user might want to try another postback in case this navigation hangs
         if (!this.getSpaPlaceHolder()) {
-            this.arePostbackDisabled = true
+            this.arePostbacksDisabled = true
         }
     }
 
