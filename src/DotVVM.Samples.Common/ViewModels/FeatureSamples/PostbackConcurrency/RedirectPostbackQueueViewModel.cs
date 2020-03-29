@@ -14,7 +14,7 @@ namespace DotVVM.Samples.Common.ViewModels.FeatureSamples.PostbackConcurrency
 
         public override async Task Init()
         {
-            if (Context.Query.ContainsKey("time"))
+            if (!Context.IsPostBack && Context.Query.ContainsKey("time"))
             {
                 await Task.Delay(5000);
             }
