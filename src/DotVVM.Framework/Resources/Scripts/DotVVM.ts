@@ -1010,8 +1010,10 @@ class DotVVM {
 
     private disablePostbacks() {
         this.lastStartedPostack = -1 // this stops further commits
-        for (const q in Object.keys(this.postbackQueues)) {
-            this.postbackQueues[q].queue.length = 0
+        for (const q in this.postbackQueues) {
+            if (this.postbackQueues.hasOwnProperty(q)) {
+                this.postbackQueues[q].queue.length = 0
+            }
         }
         // disable all other postbacks
         // but not in SPA mode, since we'll need them for the next page

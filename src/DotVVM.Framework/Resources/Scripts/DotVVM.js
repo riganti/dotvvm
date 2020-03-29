@@ -1,26 +1,20 @@
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
 };
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -37,8 +31,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
         while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
+            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [0, t.value];
             switch (op[0]) {
                 case 0: case 1: t = op; break;
                 case 4: _.label++; return { value: op[1], done: false };
@@ -661,7 +655,7 @@ var DotvvmSerialization = /** @class */ (function () {
             unwrappedTarget[prop + "$options"] = __assign({}, unwrappedTarget[prop + "$options"], { isDate: true });
         }
         // update the property
-        if (ko.isObservable(deserialized)) { //deserialized is observable <=> its input target is observable
+        if (ko.isObservable(deserialized)) {
             if (deserialized() !== unwrappedTarget[prop]()) {
                 unwrappedTarget[prop] = this.extendToObservableArrayIfRequired(unwrappedTarget[prop]);
                 unwrappedTarget[prop](deserialized());
@@ -918,6 +912,8 @@ var DotVVM = /** @class */ (function () {
         var _this = this;
         this.postBackCounter = 0;
         this.lastStartedPostack = 0;
+        // when we perform redirect, we also disable all new postbacks to prevent strange behavior
+        this.arePostbackDisabled = false;
         this.resourceSigns = {};
         this.isViewModelUpdating = true;
         this.spaHistory = new DotvvmSpaHistory();
@@ -1015,12 +1011,15 @@ var DotVVM = /** @class */ (function () {
             dotvvm.updateProgressChangeCounter(dotvvm.updateProgressChangeCounter() + 1);
             var dispatchNext = function (args) {
                 var drop = function () {
-                    queue.noRunning--;
-                    dotvvm.updateProgressChangeCounter(dotvvm.updateProgressChangeCounter() - 1);
-                    if (queue.queue.length > 0) {
-                        var callback = queue.queue.shift();
-                        window.setTimeout(callback, 0);
-                    }
+                    // run the next postback after everything about this one is finished (after, error events, ...)
+                    Promise.resolve().then(function () {
+                        queue.noRunning--;
+                        dotvvm.updateProgressChangeCounter(dotvvm.updateProgressChangeCounter() - 1);
+                        if (queue.queue.length > 0) {
+                            var callback = queue.queue.shift();
+                            callback();
+                        }
+                    });
                 };
                 if (args instanceof DotvvmAfterPostBackWithRedirectEventArgs && args.redirectPromise) {
                     args.redirectPromise.then(drop, drop);
@@ -1250,8 +1249,8 @@ var DotVVM = /** @class */ (function () {
         if (callback === void 0) { callback = function (_) { }; }
         if (errorCallback === void 0) { errorCallback = function (errorInfo) { }; }
         (function () { return __awaiter(_this, void 0, void 0, function () {
-            var csrfToken, err_1, data;
             var _this = this;
+            var csrfToken, err_1, data;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -1358,8 +1357,8 @@ var DotVVM = /** @class */ (function () {
     DotVVM.prototype.sortHandlers = function (handlers) {
         var getHandler = (function () {
             var handlerMap = {};
-            for (var _i = 0, handlers_2 = handlers; _i < handlers_2.length; _i++) {
-                var h = handlers_2[_i];
+            for (var _i = 0, handlers_1 = handlers; _i < handlers_1.length; _i++) {
+                var h = handlers_1[_i];
                 if (h.name != null) {
                     handlerMap[h.name] = h;
                 }
@@ -1367,8 +1366,8 @@ var DotVVM = /** @class */ (function () {
             return function (s) { return typeof s == "string" ? handlerMap[s] : s; };
         })();
         var dependencies = handlers.map(function (handler, i) { return (handler["@sort_index"] = i, ({ handler: handler, deps: (handler.after || []).map(getHandler) })); });
-        for (var _i = 0, handlers_1 = handlers; _i < handlers_1.length; _i++) {
-            var h = handlers_1[_i];
+        for (var _i = 0, handlers_2 = handlers; _i < handlers_2.length; _i++) {
+            var h = handlers_2[_i];
             if (h.before)
                 for (var _a = 0, _b = h.before.map(getHandler); _a < _b.length; _a++) {
                     var before = _b[_a];
@@ -1430,8 +1429,8 @@ var DotVVM = /** @class */ (function () {
     DotVVM.prototype.postbackCore = function (options, path, command, controlUniqueId, context, commandArgs) {
         var _this = this;
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var viewModelName, viewModel, err_2, data, completeViewModel, errorAction;
             var _this = this;
+            var viewModelName, viewModel, err_2, data, completeViewModel, errorAction;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -1449,6 +1448,9 @@ var DotVVM = /** @class */ (function () {
                         reject({ type: 'network', options: options, args: new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, null, options.postbackId) });
                         return [2 /*return*/];
                     case 4:
+                        if (this.arePostbackDisabled) {
+                            reject({ type: 'handler' });
+                        }
                         this.lastStartedPostack = options.postbackId;
                         // perform the postback
                         this.updateDynamicPathFragments(context, path);
@@ -1832,9 +1834,24 @@ var DotVVM = /** @class */ (function () {
         this.events.redirect.trigger(redirectArgs);
         return this.performRedirect(url, replace, resultObject.allowSpa && this.useHistoryApiSpaNavigation);
     };
+    DotVVM.prototype.disablePostbacks = function () {
+        this.lastStartedPostack = -1; // this stops further commits
+        for (var q in this.postbackQueues) {
+            if (this.postbackQueues.hasOwnProperty(q)) {
+                this.postbackQueues[q].queue.length = 0;
+            }
+        }
+        // disable all other postbacks
+        // but not in SPA mode, since we'll need them for the next page
+        // and user might want to try another postback in case this navigation hangs
+        if (!this.getSpaPlaceHolder()) {
+            this.arePostbackDisabled = true;
+        }
+    };
     DotVVM.prototype.performRedirect = function (url, replace, useHistoryApiSpaRedirect) {
         var _this = this;
         return new Promise(function (resolve, reject) {
+            _this.disablePostbacks();
             if (replace) {
                 location.replace(url);
                 resolve();
@@ -2210,8 +2227,8 @@ var DotVVM = /** @class */ (function () {
         ko.virtualElements.allowedBindings["dotvvm-SSR-foreach"] = true;
         ko.bindingHandlers["dotvvm-SSR-foreach"] = {
             init: makeUpdatableChildrenContextHandler(function (bindingContext, rawValue) {
-                var _a;
                 return bindingContext.extend((_a = {}, _a[foreachCollectionSymbol] = rawValue.data, _a));
+                var _a;
             }, function (v) { return v.data != null; })
         };
         ko.virtualElements.allowedBindings["dotvvm-SSR-item"] = true;
@@ -2236,8 +2253,8 @@ var DotVVM = /** @class */ (function () {
         ko.virtualElements.allowedBindings["withGridViewDataSet"] = true;
         ko.bindingHandlers["withGridViewDataSet"] = {
             init: makeUpdatableChildrenContextHandler(function (bindingContext, value) {
-                var _a;
                 return bindingContext.extend((_a = { $gridViewDataSet: value }, _a[foreachCollectionSymbol] = dotvvm.evaluator.getDataSourceItems(value), _a));
+                var _a;
             }, function (_) { return true; })
         };
         ko.bindingHandlers['dotvvmEnable'] = {
@@ -2588,16 +2605,13 @@ var DotvvmEnforceClientFormatValidator = /** @class */ (function (_super) {
     DotvvmEnforceClientFormatValidator.prototype.isValid = function (context, property) {
         // parameters order: AllowNull, AllowEmptyString, AllowEmptyStringOrWhitespaces
         var valid = true;
-        if (!context.parameters[0] && context.valueToValidate == null) // AllowNull
-         {
+        if (!context.parameters[0] && context.valueToValidate == null) {
             valid = false;
         }
-        if (!context.parameters[1] && context.valueToValidate.length === 0) // AllowEmptyString
-         {
+        if (!context.parameters[1] && context.valueToValidate.length === 0) {
             valid = false;
         }
-        if (!context.parameters[2] && this.isEmpty(context.valueToValidate)) // AllowEmptyStringOrWhitespaces
-         {
+        if (!context.parameters[2] && this.isEmpty(context.valueToValidate)) {
             valid = false;
         }
         var metadata = this.getValidationMetadata(property);
