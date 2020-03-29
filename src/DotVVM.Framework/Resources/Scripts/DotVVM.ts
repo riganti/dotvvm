@@ -168,12 +168,15 @@ class DotVVM {
 
         const dispatchNext = (args) => {
             const drop = () => {
-                queue.noRunning--;
-                dotvvm.updateProgressChangeCounter(dotvvm.updateProgressChangeCounter() - 1);
-                if (queue.queue.length > 0) {
-                    const callback = queue.queue.shift()!
-                    window.setTimeout(callback, 0)
-                }
+                // run the next postback after everything about this one is finished (after, error events, ...)
+                Promise.resolve().then(() => {
+                    queue.noRunning--;
+                    dotvvm.updateProgressChangeCounter(dotvvm.updateProgressChangeCounter() - 1);
+                    if (queue.queue.length > 0) {
+                        const callback = queue.queue.shift()!
+                        callback()
+                    }
+                })
             }
             if (args instanceof DotvvmAfterPostBackWithRedirectEventArgs && args.redirectPromise) {
                 args.redirectPromise.then(drop, drop);
