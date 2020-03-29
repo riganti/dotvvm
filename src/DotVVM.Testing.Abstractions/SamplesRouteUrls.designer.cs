@@ -232,6 +232,9 @@ namespace DotVVM.Testing.Abstractions
         public const string FeatureSamples_PostBack_SuppressPostBackHandler = "FeatureSamples/PostBack/SuppressPostBackHandler";
         public const string FeatureSamples_PostBack_UniqueIdGenerationOnPostbackUpdate = "FeatureSamples/PostBack/UniqueIdGenerationOnPostbackUpdate";
         public const string FeatureSamples_PostbackConcurrency_PostbackConcurrencyMode = "FeatureSamples/PostbackConcurrency/PostbackConcurrencyMode";
+        public const string FeatureSamples_PostbackConcurrency_RedirectPostbackQueue = "FeatureSamples/PostbackConcurrency/RedirectPostbackQueue";
+        public const string FeatureSamples_PostbackConcurrency_RedirectPostbackQueueSpa = "FeatureSamples/PostbackConcurrency/RedirectPostbackQueueSpa";
+        public const string FeatureSamples_PostbackConcurrency_StressTest = "FeatureSamples/PostbackConcurrency/StressTest";
         public const string FeatureSamples_Redirect_Redirect = "FeatureSamples/Redirect/Redirect";
         public const string FeatureSamples_Redirect_Redirect_StaticCommand = "FeatureSamples/Redirect/Redirect_StaticCommand";
         public const string FeatureSamples_RenderSettingsModeServer_RenderSettingModeServerProperty = "FeatureSamples/RenderSettingsModeServer/RenderSettingModeServerProperty";
