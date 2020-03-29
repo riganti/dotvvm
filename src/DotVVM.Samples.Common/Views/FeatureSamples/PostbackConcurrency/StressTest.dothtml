@@ -10,9 +10,9 @@
 <body>
 
     <h1>Value: <span class="result-value">{{value: Value}}</span></h1>
-    <p>beforePostback count: <span class="result-rejected">{{value: BeforePostback}}</span></p>
+    <p>beforePostback count: <span class="result-before">{{value: BeforePostback}}</span></p>
     <p>postbackRejected count: <span class="result-rejected">{{value: RejectedCount}}</span></p>
-    <p>afterPostback count: <span class="result-rejected">{{value: AfterPostback}}</span></p>
+    <p>afterPostback count: <span class="result-after">{{value: AfterPostback}}</span></p>
 
     <div PostBack.Concurrency="Default">
         <dot:Button Text="Default Mode" Click="{command: Increment()}" ID="DefaultButton" />
