@@ -21,41 +21,11 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             if (node.Expression?.Type?.IsNullable() == true)
             {
-                if (node.Member.Name == "Value") return node.Expression;
+                if (node.Member.Name == "Value") return Visit(node.Expression);
                 else return base.VisitMember(node);
             }
             else return CheckForNull(Visit(node.Expression), expr =>
                 Expression.MakeMemberAccess(expr, node.Member));
-
-            //var left = Visit(node.Expression);
-            //var nullableType = Nullable.GetUnderlyingType(left.Type);
-            //if ((!left.Type.GetTypeInfo().IsValueType || nullableType != null) && (CanBeNull == null || CanBeNull(left)))
-            //{
-            //    var wrapNullable = node.Type.GetTypeInfo().IsValueType;
-            //    var restype = wrapNullable ? typeof(Nullable<>).MakeGenericType(node.Type) : node.Type;
-            //    var variable = Expression.Parameter(left.Type);
-            //    Expression body;
-            //    Expression condition;
-            //    if (nullableType != null)
-            //    {
-            //        condition = Expression.Property(variable, "HasValue");
-            //        body = node.Update(Expression.Convert(variable, node.Expression.Type));
-            //    }
-            //    else
-            //    {
-            //        condition = Expression.NotEqual(variable, Expression.Constant(null, variable.Type));
-            //        body = node.Update(variable);
-            //    }
-            //    if (wrapNullable)
-            //    {
-            //        body = Expression.Convert(body, restype);
-            //    }
-            //    return Expression.Block(new[] { variable },
-            //        Expression.Assign(variable, left),
-            //        Expression.IfThenElse(condition, body, Expression.Default(restype))
-            //    );
-            //}
-            //else return base.VisitMember(node);
         }
 
         protected override Expression VisitLambda<T>(Expression<T> expression)
@@ -98,24 +68,17 @@ namespace DotVVM.Framework.Compilation.Binding
             }
             else
             {
-                if (true)
-                {
-                    var left = Visit(node.Left);
-                    var right = Visit(node.Right);
-                    var nullable = left.Type.IsNullable() ? left.Type : right.Type;
-                    left = TypeConversion.ImplicitConversion(left, nullable);
-                    right = TypeConversion.ImplicitConversion(right, nullable);
+                var left = Visit(node.Left);
+                var right = Visit(node.Right);
+                var nullable = left.Type.IsNullable() ? left.Type : right.Type;
+                left = TypeConversion.ImplicitConversion(left, nullable);
+                right = TypeConversion.ImplicitConversion(right, nullable);
 
-                    if (right != null && left != null)
-                        return Expression.MakeBinary(node.NodeType, left, right, left.Type.IsNullable() && node.NodeType != ExpressionType.Equal && node.NodeType != ExpressionType.NotEqual, node.Method);
-                    else return CheckForNull(base.Visit(node.Left), left2 =>
-                        createExpr(left2),
-                    checkReferenceTypes: false);
-                }
-                else
-                {
-                    
-                }
+                if (right != null && left != null)
+                    return Expression.MakeBinary(node.NodeType, left, right, left.Type.IsNullable() && node.NodeType != ExpressionType.Equal && node.NodeType != ExpressionType.NotEqual, node.Method);
+                else return CheckForNull(base.Visit(node.Left), left2 =>
+                    createExpr(left2),
+                checkReferenceTypes: false);
             }
         }
 
@@ -129,11 +92,7 @@ namespace DotVVM.Framework.Compilation.Binding
         protected override Expression VisitInvocation(InvocationExpression node)
         {
             return CheckForNull(Visit(node.Expression), target =>
-                CheckForNulls(node.Arguments.Select(Visit).ToArray(), args =>
-                    Expression.Invoke(target, args),
-                    suppressThisOne: (arg, i) => node.Arguments[i].Type.IsNullable() || !arg.Type.GetTypeInfo().IsValueType),
-                suppress: node.Expression.Type.IsNullable()
-            );
+                    Expression.Invoke(target, UnwrapNullableTypes(node.Arguments)));
         }
 
         protected override Expression VisitConditional(ConditionalExpression node)
@@ -154,42 +113,46 @@ namespace DotVVM.Framework.Compilation.Binding
         protected override Expression VisitIndex(IndexExpression node)
         {
             return CheckForNull(Visit(node.Object), target =>
-                CheckForNulls(node.Arguments.Select(Visit).ToArray(), args =>
-                    Expression.MakeIndex(target, node.Indexer, args),
-                    suppressThisOne: (arg, i) => node.Arguments[i].Type.IsNullable() || !arg.Type.GetTypeInfo().IsValueType),
-                suppress: node.Object.Type.IsNullable()
+                Expression.MakeIndex(target, node.Indexer, UnwrapNullableTypes(node.Arguments))
             );
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             return CheckForNull(Visit(node.Object), target =>
-                CheckForNulls(node.Arguments.Select(Visit).ToArray(), args =>
-                    Expression.Call(target, node.Method, args),
-                    suppressThisOne: (arg, i) => node.Arguments[i].Type.IsNullable() || !arg.Type.GetTypeInfo().IsValueType),
+                Expression.Call(target, node.Method, UnwrapNullableTypes(node.Arguments)),
                 suppress: node.Object?.Type?.IsNullable() ?? true
             );
         }
 
         protected override Expression VisitNew(NewExpression node)
         {
-            return CheckForNulls(node.Arguments.Select(Visit).ToArray(), args =>
-                    Expression.New(node.Constructor, args),
-                suppressThisOne: (arg, i) => node.Arguments[i].Type.IsNullable() || !arg.Type.GetTypeInfo().IsValueType);
+            return Expression.New(node.Constructor, UnwrapNullableTypes(node.Arguments));
         }
 
-        protected Expression CheckForNulls(Expression[] parameters, Func<Expression[], Expression> callback, Func<Expression, int, bool> suppressThisOne = null)
+        protected Expression[] UnwrapNullableTypes(IEnumerable<Expression> uncheckedArguments) =>
+            uncheckedArguments.Select(UnwrapNullableType).ToArray();
+        protected Expression UnwrapNullableType(Expression expression) =>
+            UnwrapNullableType(Visit(expression), expression.Type, expression.ToString());
+        protected Expression UnwrapNullableType(Expression expression, Type expectedType, string formattedExpression)
         {
-            if (parameters.Length == 0) return callback(new Expression[0]);
-            var list = new List<Expression>();
-            Func<Expression, Expression> cc = e => { list.Add(e); return callback(list.ToArray()); };
-            for (var i = parameters.Length - 1; i >= 1; i--)
+            if (expression.Type == expectedType)
+                return expression;
+            else if (expression.Type == typeof(Nullable<>).MakeGenericType(expectedType))
             {
-                var iCopy = i;
-                var ccc = cc;
-                cc = e => { list.Add(e); return CheckForNull(parameters[iCopy], ccc, suppress: suppressThisOne?.Invoke(parameters[iCopy], iCopy) ?? false); };
+                var tmp = Expression.Parameter(expression.Type);
+                var nreCtor = typeof(NullReferenceException).GetConstructor(new [] { typeof(string) });
+                return Expression.Block(new [] { tmp },
+                    Expression.Assign(tmp, expression),
+                    Expression.Condition(
+                        Expression.Property(tmp, "HasValue"),
+                        Expression.Property(tmp, "Value"),
+                        Expression.Throw(Expression.New(nreCtor, Expression.Constant($"Binding expression '{formattedExpression}' of type '{expectedType}' has evaluated to null.")), expectedType)
+                    )
+                );
             }
-            return CheckForNull(parameters[0], cc, suppress: suppressThisOne?.Invoke(parameters[0], 0) ?? false);
+            else
+                throw new Exception($"Type mismatch: {expectedType} was expected, got {expression.Type}");
         }
 
         private int tmpCounter;
