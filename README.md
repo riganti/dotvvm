@@ -2,7 +2,7 @@
 Compilation Status Page is a site that allows you to easily check what views, controls and masterpages are broken due to compilation errors.
 
 ## How it works
-DotVVM views are compiled on demand when the page requests a dothtml file. This package adds you one diagnostics page to you dotvvm application. When you access this status page all dothtml files registered in DotvvmStartup.cs are requested and compiled.
+DotVVM views are compiled on demand when the page requests a dothtml file. This package adds you one diagnostics page to you dotvvm application. When you access this status page by default on route **_diagnostics/status** all dothtml files registered in DotvvmStartup.cs are requested and compiled.
 
 [sample]: https://raw.githubusercontent.com/riganti/dotvvm-samples-compilation-status-page/42184142d7905be3d2e23661dbb1905c3ed4ba80/docs/sample.PNG ""
 
