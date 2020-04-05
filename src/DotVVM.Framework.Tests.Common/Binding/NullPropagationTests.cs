@@ -245,6 +245,30 @@ namespace DotVVM.Framework.Tests.Common.Binding
             Assert.IsNull(EvalExpression<TestViewModel>(v => Identity(v), null));
             Assert.IsNull(EvalExpression<TestViewModel>(v => Identity(v.LongArray), null));
         }
+
+        [TestMethod]
+        public void Operator()
+        {
+            Assert.IsNull(EvalExpression<TestViewModel>(v => v.LongArray[0] + 1, null));
+            Assert.IsNull(EvalExpression<TestViewModel>(v => v.LongArray[0] + v.TestViewModel2.MyProperty, new TestViewModel()));
+            Assert.IsNull(EvalExpression<TestViewModel>(v => v.TestViewModel2B.ChildObject.SomeString.Length + v.TestViewModel2.MyProperty, new TestViewModel()));
+            Assert.Equals(2, EvalExpression<TestViewModel>(v => v.LongArray[0] + 1, new TestViewModel()));
+        }
+
+        [TestMethod]
+        public void StringConcat()
+        {
+            Assert.Equals("abc", EvalExpression<TestViewModel>(v => v.StringProp + "abc", null));
+        }
+
+        [TestMethod]
+        public void Indexer()
+        {
+            Assert.IsNull(EvalExpression<TestViewModel>(v => v.IntArray[0] + 1, null));
+            Assert.IsNull(EvalExpression<TestViewModel>(v => v.IntArray[0] + 1, new TestViewModel { IntArray = null }));
+            Assert.IsNull(EvalExpression<TestViewModel>(v => v.TestViewModel2.Collection[0].StringValue.Length + 5, new TestViewModel { IntArray = null }));
+            Assert.IsNull(EvalExpression<TestViewModel>(v => v.TestViewModel2.Collection[0].StringValue.Length + 5, new TestViewModel { IntArray = null }));
+        }
     }
 
     public static class EnumerableExtensions
