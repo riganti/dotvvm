@@ -114,6 +114,16 @@ namespace DotVVM.Framework.ResourceManagement
             });
         }
 
+        /// <summary>
+        /// Adds the required inline script.
+        /// </summary>
+        public void AddRequiredInlineScript(string name, string code, params string[] dependentResourceNames)
+        {
+            AddRequiredResourceCore(name, new InlineScriptResource(code) {
+                Dependencies = dependentResourceNames,
+            });
+        }
+
         private static IResourceLocation CreateRelativeResourceLocation(string url)
         {
             return url.StartsWith("~/", StringComparison.Ordinal) ?
@@ -127,6 +137,16 @@ namespace DotVVM.Framework.ResourceManagement
         public void AddRequiredStylesheetFile(string name, string url, params string[] dependentResourceNames)
         {
             AddRequiredResourceCore(name, new StylesheetResource(CreateRelativeResourceLocation(url)) {
+                Dependencies = dependentResourceNames,
+            });
+        }
+
+        /// <summary>
+        /// Adds the required inline stylesheet.
+        /// </summary>
+        public void AddRequiredInlineStylesheet(string name, string code, params string[] dependentResourceNames)
+        {
+            AddRequiredResourceCore(name, new InlineStylesheetResource(code) {
                 Dependencies = dependentResourceNames,
             });
         }
