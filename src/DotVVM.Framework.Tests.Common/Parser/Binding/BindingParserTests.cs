@@ -744,24 +744,96 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual(originalString, node.ToDisplayString());
         }
 
-
         [DataTestMethod]
-        [DataRow("StringProp = StringProp + 1;", DisplayName = "Multiblock expression, bare semicolon at the end.")]
-        [DataRow("StringProp = StringProp + 1; ", DisplayName = "Multiblock expression, semicolon and whitespace at the end.")]
-        public void BindingParser_MultiblockExpression_SemicolonEnd_Invalid(string bindingExpression)
+        [DataRow("A();!IsDisplayed", DisplayName = "Multiblock expression, lot of operators")]
+        [DataRow("A[];++number", DisplayName = "Multiblock expression, lot of operators 2")]
+        public void BindingParser_MultiblockExpression_LotOfOperators_Valid(string bindingExpression)
         {
             var parser = bindingParserNodeFactory.SetupParser(bindingExpression);
             var node = parser.ReadExpression();
 
-            var lastId = node.As<BlockBindingParserNode>()?.SecondExpression
-                             .As<VoidBindingParserNode>();
+            var firstExpression =
+                node.As<BlockBindingParserNode>()
+                ?.FirstExpression.As<FunctionCallBindingParserNode>();
 
-            Assert.IsNotNull(lastId, "Expected path was not found in the expression tree.");
+            var secondExpression = node.As<BlockBindingParserNode>()
+                ?.SecondExpression.As<UnaryOperatorBindingParserNode>();
+
+            Assert.IsNotNull(firstExpression, "Expected path was not found in the expression tree.");
+            Assert.IsNotNull(secondExpression, "Expected path was not found in the expression tree.");
+
+            Assert.AreEqual(0, node.StartPosition);
+            Assert.AreEqual(node.EndPosition, secondExpression.EndPosition);
+            Assert.AreEqual(firstExpression.EndPosition + 1, secondExpression.StartPosition);
+
 
             //display string does not really deal with whitespace tokens, we dont care about those.
             //Just making sure the expression syntax itself remains the same
             Assert.AreEqual(bindingExpression.Trim(), node.ToDisplayString().Trim());
         }
+
+        [DataTestMethod]
+        [DataRow("StringProp = StringProp + 1;", 0, DisplayName = "Multiblock expression, bare semicolon at the end.")]
+        [DataRow("StringProp = StringProp + 1; ", 1, DisplayName = "Multiblock expression, semicolon and whitespace at the end.")]
+        public void BindingParser_MultiblockExpression_SemicolonEnd_Invalid(string bindingExpression, int lastBlockExpectedLenght)
+        {
+            var parser = bindingParserNodeFactory.SetupParser(bindingExpression);
+            var node = parser.ReadExpression();
+
+            var firstExpression =
+                node.As<BlockBindingParserNode>()
+                ?.FirstExpression.As<BinaryOperatorBindingParserNode>();
+
+            var secondExpression = node.As<BlockBindingParserNode>()
+                ?.SecondExpression.As<VoidBindingParserNode>();
+
+            Assert.IsNotNull(firstExpression, "Expected path was not found in the expression tree.");
+            Assert.IsNotNull(secondExpression, "Expected path was not found in the expression tree.");
+
+            Assert.AreEqual(0, node.StartPosition);
+            Assert.AreEqual(node.EndPosition, secondExpression.EndPosition);
+            Assert.AreEqual(firstExpression.EndPosition + 1, secondExpression.StartPosition);
+            Assert.AreEqual(lastBlockExpectedLenght, secondExpression.Length);
+
+
+            //display string does not really deal with whitespace tokens, we dont care about those.
+            //Just making sure the expression syntax itself remains the same
+            Assert.AreEqual(bindingExpression.Trim(), node.ToDisplayString().Trim());
+        }
+
+        [DataTestMethod]
+        [DataRow("StringProp = StringProp + 1;;test", 0, DisplayName = "Multiblock expression, bare semicolon at the end.")]
+        [DataRow("StringProp = StringProp + 1; ;test", 1, DisplayName = "Multiblock expression, semicolon and whitespace at the end.")]
+        public void BindingParser_MultiblockExpression_EmptyBlockMiddle_Invalid(string bindingExpression, int voidBlockExpectedLenght)
+        {
+            var parser = bindingParserNodeFactory.SetupParser(bindingExpression);
+            var node = parser.ReadExpression();
+
+            var firstExpression =
+                node.As<BlockBindingParserNode>()
+                ?.FirstExpression.As<BinaryOperatorBindingParserNode>();
+
+            var middleExpression = firstExpression
+                ?.SecondExpression.As<BlockBindingParserNode>()
+                ?.FirstExpression.As<VoidBindingParserNode>();
+
+            var lastExpression = firstExpression
+                ?.SecondExpression.As<BlockBindingParserNode>()
+                ?.SecondExpression.As<BindingParserNode>();
+
+            Assert.IsNotNull(firstExpression, "Expected path was not found in the expression tree.");
+            Assert.IsNotNull(middleExpression, "Expected path was not found in the expression tree.");
+            Assert.IsNotNull(lastExpression, "Expected path was not found in the expression tree.");
+
+            Assert.AreEqual(firstExpression.EndPosition + 1, middleExpression.StartPosition);
+            Assert.AreEqual(middleExpression.EndPosition + 1, lastExpression.StartPosition);
+            Assert.AreEqual(node.EndPosition + 1, lastExpression.EndPosition);
+            Assert.AreEqual(voidBlockExpectedLenght, middleExpression.Length);
+
+            Assert.AreEqual(SkipWhitespaces(bindingExpression), SkipWhitespaces(node.ToDisplayString()));
+        }
+
+        private static string SkipWhitespaces(string str) => string.Join("", str.Where(c => !char.IsWhiteSpace(c)));
 
         private static void CheckTokenTypes(IEnumerable<BindingToken> bindingTokens, IEnumerable<BindingTokenType> expectedTokenTypes)
         {
