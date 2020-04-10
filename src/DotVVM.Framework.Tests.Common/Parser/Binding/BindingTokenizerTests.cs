@@ -221,7 +221,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
 
             Assert.AreEqual(index, tokens.Count);
         }
-         
+
         [TestMethod]
         public void BindingTokenizer_MultiblockExpression_BunchingOperators_Valid()
         {
@@ -237,6 +237,21 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual(index, tokens.Count);
         }
 
+        [TestMethod]
+        public void BindingTokenizer_UnaryOperator_BunchingOperators_Valid()
+        {
+            var tokens = Tokenize("A(!IsDisplayed)");
+
+            var index = 0;
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.OpenParenthesis, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.NotOperator, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.CloseParenthesis, tokens[index++].Type);
+
+            Assert.AreEqual(index, tokens.Count);
+        }
+
         [DataTestMethod]
         [DataRow("test;", false)]
         [DataRow("test; ", true)]
@@ -248,7 +263,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual(BindingTokenType.Identifier, tokens[index++].Type);
             Assert.AreEqual(BindingTokenType.Semicolon, tokens[index++].Type);
 
-            if(voidWhitespace)
+            if (voidWhitespace)
             {
                 Assert.AreEqual(BindingTokenType.WhiteSpace, tokens[index++].Type);
             }
