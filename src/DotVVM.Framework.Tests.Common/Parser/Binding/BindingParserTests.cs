@@ -745,8 +745,8 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [DataTestMethod]
-        [DataRow("A();!IsDisplayed", DisplayName = "Multiblock expression, lot of operators")]
-        [DataRow("A[];++number", DisplayName = "Multiblock expression, lot of operators 2")]
+        [DataRow("A();!IsDisplayed", DisplayName = "Multiblock expression, Operator bunching - no whitespaces")]
+        [DataRow("A(); !IsDisplayed", DisplayName = "Multiblock expression, Operator bunching - with whitespaces")]
         public void BindingParser_MultiblockExpression_LotOfOperators_Valid(string bindingExpression)
         {
             var parser = bindingParserNodeFactory.SetupParser(bindingExpression);
@@ -769,7 +769,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
 
             //display string does not really deal with whitespace tokens, we dont care about those.
             //Just making sure the expression syntax itself remains the same
-            Assert.AreEqual(bindingExpression.Trim(), node.ToDisplayString().Trim());
+            Assert.AreEqual(SkipWhitespaces(bindingExpression), SkipWhitespaces(node.ToDisplayString()));
         }
 
         [DataTestMethod]
@@ -813,12 +813,14 @@ namespace DotVVM.Framework.Tests.Parser.Binding
                 node.As<BlockBindingParserNode>()
                 ?.FirstExpression.As<BinaryOperatorBindingParserNode>();
 
-            var middleExpression = firstExpression
-                ?.SecondExpression.As<BlockBindingParserNode>()
+            var secondBlock =
+                node.As<BlockBindingParserNode>()
+                ?.SecondExpression.As<BlockBindingParserNode>();
+
+            var middleExpression = secondBlock
                 ?.FirstExpression.As<VoidBindingParserNode>();
 
-            var lastExpression = firstExpression
-                ?.SecondExpression.As<BlockBindingParserNode>()
+            var lastExpression = secondBlock
                 ?.SecondExpression.As<BindingParserNode>();
 
             Assert.IsNotNull(firstExpression, "Expected path was not found in the expression tree.");
