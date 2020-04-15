@@ -47,7 +47,7 @@ namespace DotVVM.Framework.Controls
     /// <summary>
     /// Represents a base class for all DotVVM controls.
     /// </summary>
-    public abstract class DotvvmControl : DotvvmBindableObject, IDotvvmControlLike
+    public abstract class DotvvmControl : DotvvmBindableObject, IDotvvmControl
     {
         /// <summary>
         /// Gets the child controls.
@@ -113,7 +113,11 @@ namespace DotVVM.Framework.Controls
             set { SetValue(IncludeInPageProperty, value); }
         }
 
-        DotvvmControl IDotvvmControlLike.Self => this;
+        DotvvmControlCollection IDotvvmControl.Children => throw new NotImplementedException();
+
+        ClientIDMode IDotvvmControl.ClientIDMode { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        string IDotvvmControl.ID { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        DotvvmBindableObject? IDotvvmControl.Parent { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public static readonly DotvvmProperty IncludeInPageProperty =
             DotvvmProperty.Register<bool, DotvvmControl>(t => t.IncludeInPage, true);
@@ -598,6 +602,6 @@ namespace DotVVM.Framework.Controls
             return Children;
         }
 
-        void IRenderable.Render(IHtmlWriter writer, IDotvvmRequestContext context) => throw new NotImplementedException();
+        IEnumerable<DotvvmBindableObject> IDotvvmControl.GetAllAncestors(bool incudingThis) => this.GetAllAncestors(incudingThis);
     }
 }
