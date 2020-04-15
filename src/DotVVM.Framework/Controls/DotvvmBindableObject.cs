@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Controls
 {
     [ContainsDotvvmProperties]
     [ControlMarkupOptions(AllowContent = true)]
-    public abstract class DotvvmBindableObject: IDotvvmBindableObjectLike
+    public abstract class DotvvmBindableObject
     {
 
         private static readonly ConcurrentDictionary<Type, DotvvmProperty[]> declaredProperties = new ConcurrentDictionary<Type, DotvvmProperty[]>();
@@ -73,9 +73,6 @@ namespace DotVVM.Framework.Controls
             get { return GetValue(DataContextProperty); }
             set { SetValue(DataContextProperty, value); }
         }
-
-        DotvvmBindableObject IDotvvmBindableObjectLike.Self => this;
-
         public static readonly DotvvmProperty DataContextProperty =
             DotvvmProperty.Register<object, DotvvmBindableObject>(c => c.DataContext, isValueInherited: true);
 
