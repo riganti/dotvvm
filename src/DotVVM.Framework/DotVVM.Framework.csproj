@@ -126,6 +126,9 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="1.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="1.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="1.0.0" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <Reference Include="System" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
