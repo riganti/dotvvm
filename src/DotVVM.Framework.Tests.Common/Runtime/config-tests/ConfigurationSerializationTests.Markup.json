@@ -35,6 +35,7 @@
     ],
     "defaultExtensionParameters": [
       {
+        "$type": "DotVVM.Framework.Compilation.ControlTree.InjectedServiceExtensionParameter, DotVVM.Framework",
         "Identifier": "myService",
         "ParameterType": {
           "$type": "DotVVM.Framework.Compilation.ControlTree.Resolved.ResolvedTypeDescriptor, DotVVM.Framework",
@@ -47,13 +48,14 @@
         "Inherit": true
       },
       {
+        "$type": "DotVVM.Framework.Compilation.ControlTree.InjectedServiceExtensionParameter, DotVVM.Framework",
         "Identifier": "secondService",
         "ParameterType": {
           "$type": "DotVVM.Framework.Compilation.ControlTree.Resolved.ResolvedTypeDescriptor, DotVVM.Framework",
-          "Type": "System.Func`1[[System.Collections.Generic.IEnumerable`1[[System.Lazy`1[[System.IServiceProvider, System.ComponentModel, Version=4.0.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a]], System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e",
+          "Type": "System.Func`1[[System.Collections.Generic.IEnumerable`1[[System.Lazy`1[[System.IServiceProvider, System.ComponentModel, Version=4.0.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a]], System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e",
           "Name": "Func`1",
           "Namespace": "System",
-          "Assembly": "System.Func`1[[System.Collections.Generic.IEnumerable`1[[System.Lazy`1[[System.IServiceProvider, System.ComponentModel, Version=4.0.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a]], System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e",
+          "Assembly": "System.Func`1[[System.Collections.Generic.IEnumerable`1[[System.Lazy`1[[System.IServiceProvider, System.ComponentModel, Version=4.0.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a]], System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e",
           "FullName": "System.Func`1"
         },
         "Inherit": true
