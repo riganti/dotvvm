@@ -196,7 +196,6 @@ namespace DotVVM.Framework.Controls
             var index = 0;
             if (dataSource != null)
             {
-                var itemBinding = GetItemBinding();
                 foreach (var item in GetIEnumerableFromDataSource()!)
                 {
                     // create row

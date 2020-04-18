@@ -88,13 +88,15 @@ There is also [dotnet new template](https://www.dotvvm.com/docs/tutorials/how-to
 
 **DotVVM** is used in production by hundreds of developers and companies. The first stable release was in June 2016.
 
-|                         | ASP.NET Core              | OWIN                |
-|-------------------------|---------------------------|---------------------|
-| Current stable version  | `DotVVM.AspNetCore 2.3`   | `DotVVM.Owin 2.3`   |
-| Minimum runtime version | `.NET Core 2.0`           | `.NET 4.5.1`        | 
-| Minimum ASP.NET version | `ASP.NET Core 2.0`        | `OWIN 3.0.1`        |
+|                         | ASP.NET Core                | OWIN                  |
+|-------------------------|-----------------------------|-----------------------|
+| Current stable version  | `DotVVM.AspNetCore 2.4.0.1` | `DotVVM.Owin 2.4.0.1` |
+| Minimum runtime version | `.NET Core 2.0`             | `.NET 4.5.1`          | 
+| Minimum ASP.NET version | `ASP.NET Core 2.0`          | `OWIN 3.0.1`          |
 
 You can find the plans for next releases in the [roadmap](roadmap.md).
+
+We have already started development of **DotVVM 3.0** - everything is happenning in the [v3-master](https://github.com/riganti/dotvvm/tree/v3-master) branch.
 
 ## Commercial components & tools
 

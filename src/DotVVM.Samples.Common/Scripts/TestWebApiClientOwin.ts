@@ -482,6 +482,54 @@
         }
     }
     
+    export class ResetClient extends ClientBase {
+        private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+        private baseUrl: string;
+        protected jsonParseReviver: (key: string, value: any) => any = undefined;
+    
+        constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+            super();
+            this.http = http ? http : <any>window;
+            this.baseUrl = baseUrl ? baseUrl : "http://localhost:61453";
+        }
+    
+        /**
+         * @return No Content
+         */
+        resetData(): Promise<void> {
+            let url_ = this.baseUrl + "/api/reset/reset";
+            url_ = url_.replace(/[?&]$/, "");
+    
+            let options_ = <RequestInit>{
+                method: "POST",
+                headers: new Headers({
+                    "Content-Type": "application/json", 
+                })
+            };
+    
+            return this.transformOptions(options_).then(transformedOptions_ => {
+                return this.http.fetch(url_, transformedOptions_);
+            }).then((_response: Response) => {
+                return this.processResetData(_response);
+            });
+        }
+    
+        protected processResetData(response: Response): Promise<void> {
+            const status = response.status;
+            let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
+            if (status === 204) {
+                return response.text().then((_responseText) => {
+                return;
+                });
+            } else if (status !== 200 && status !== 204) {
+                return response.text().then((_responseText) => {
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+                });
+            }
+            return Promise.resolve<void>(<any>null);
+        }
+    }
+    
     export class CompanyOfString implements ICompanyOfString {
         Id?: number;
         Name?: string;

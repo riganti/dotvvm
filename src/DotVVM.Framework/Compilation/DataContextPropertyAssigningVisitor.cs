@@ -20,10 +20,5 @@ namespace DotVVM.Framework.Compilation
             }
             base.VisitControl(control);
         }
-
-        public override void VisitPropertyBinding(ResolvedPropertyBinding propertyBinding)
-        {
-            base.VisitPropertyBinding(propertyBinding);
-        }
     }
 }

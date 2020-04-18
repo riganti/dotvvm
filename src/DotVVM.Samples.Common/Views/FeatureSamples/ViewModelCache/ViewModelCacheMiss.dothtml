@@ -1,0 +1,36 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.ViewModelCache.ViewModelCacheMissViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h1>ViewModel - Server-Side cache - simulate missing entry</h1>
+    
+    <p>Server-side cache enabled: <span class="cacheEnabled">{{resource: Context.Configuration.ExperimentalFeatures.ServerSideViewModelCache.IsEnabledForRoute(Context.Route.RouteName)}}</span></p>
+    
+    <p>Value: <span class="result">{{value: Value}}</span></p>
+    <p>Requests: <span class="requestCount" data-bind="text: RequestCount"></span></p>
+    
+    <dot:Button Text="Increment" Click="{command: Increment()}" />
+    
+    <input type="button" value="Invalidate cache ID" onclick="javascript: dotvvm.viewModels.root.viewModelCacheId = 'nonexistent_id';" />
+
+    <dot:InlineScript Dependencies="dotvvm">
+        var RequestCount = ko.observable(0);
+        
+        var origPostJSON = dotvvm.postJSON;
+        dotvvm.postJSON = function() {
+            RequestCount(RequestCount() + 1);
+            origPostJSON.apply(this, arguments);
+        };
+    </dot:InlineScript>
+
+</body>
+</html>
+
+
