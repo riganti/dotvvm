@@ -50,12 +50,15 @@
     <None Remove="Views\Errors\ResourceCircularDependency.dothtml" />
     <None Remove="Views\FeatureSamples\Caching\CachedValues.dothtml" />
     <None Remove="Views\FeatureSamples\Localization\Globalize.dothtml" />
+    <None Remove="Views\FeatureSamples\PostbackConcurrency\RedirectPostbackQueue.dothtml" />
+    <None Remove="Views\FeatureSamples\PostbackConcurrency\StressTest.dothtml" />
     <None Remove="Views\FeatureSamples\PostBack\RecursiveTextRepeater.dotcontrol" />
     <None Remove="Views\FeatureSamples\PostBack\RecursiveTextRepeater2.dotcontrol" />
     <None Remove="Views\FeatureSamples\PostBack\UniqueIdGenerationOnPostbackUpdate.dothtml" />
     <None Remove="Views\FeatureSamples\Redirect\Redirect_StaticCommand.dothtml" />
     <None Remove="Views\FeatureSamples\Resources\LocationFallback.dothtml" />
     <None Remove="Views\FeatureSamples\Resources\RequiredOnPostback.dothtml" />
+    <None Remove="Views\FeatureSamples\Serialization\DeserializationVirtualElements.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_ArrayAssigment.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_LoadComplexDataFromService.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_NullAssignment.dothtml" />

@@ -294,6 +294,7 @@ interface IDotvvmPostbackHandlerCollection {
 declare class DotVVM {
     private postBackCounter;
     private lastStartedPostack;
+    private arePostbacksDisabled;
     private fakeRedirectAnchor;
     private resourceSigns;
     private isViewModelUpdating;
@@ -360,6 +361,7 @@ declare class DotVVM {
     private getSpaPlaceHolder;
     private navigateCore;
     private handleRedirect;
+    private disablePostbacks;
     private performRedirect;
     private fixSpaUrlPrefix;
     private removeVirtualDirectoryFromUrl;

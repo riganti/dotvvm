@@ -65,7 +65,7 @@ namespace DotVVM.Framework.Controls
         };
 
         public static void Place(
-            IDotvvmControl control,
+            DotvvmControl control,
             DotvvmControlCollection container,
             IValueBinding? value,
             ValidatorPlacement placement)

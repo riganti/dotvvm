@@ -10,11 +10,9 @@ namespace DotVVM.Framework.ResourceManagement
     /// <summary>
     /// Reference to a javascript file.
     /// </summary>
-    [ResourceConfigurationCollectionName("scripts")] 
+    [ResourceConfigurationCollectionName("scripts")]
     public class ScriptResource : LinkResourceBase, IPreloadResource
     {
-        private const string CdnFallbackScript = "if (typeof {0} === 'undefined') {{ document.write(\"<script src='{1}' type='text/javascript'><\\/script>\"); }}";
-
         public ScriptResource(IResourceLocation location)
             : base(ResourceRenderPosition.Body, "text/javascript", location)
         { }

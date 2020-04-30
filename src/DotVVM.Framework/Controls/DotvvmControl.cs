@@ -47,7 +47,7 @@ namespace DotVVM.Framework.Controls
     /// <summary>
     /// Represents a base class for all DotVVM controls.
     /// </summary>
-    public abstract class DotvvmControl : DotvvmBindableObject, IDotvvmControl
+    public abstract class DotvvmControl : DotvvmBindableObject, IDotvvmControlLike
     {
         /// <summary>
         /// Gets the child controls.
@@ -113,11 +113,7 @@ namespace DotVVM.Framework.Controls
             set { SetValue(IncludeInPageProperty, value); }
         }
 
-        DotvvmControlCollection IDotvvmControl.Children => throw new NotImplementedException();
-
-        ClientIDMode IDotvvmControl.ClientIDMode { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        string IDotvvmControl.ID { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        DotvvmBindableObject? IDotvvmControl.Parent { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        DotvvmControl IDotvvmControlLike.Self => this;
 
         public static readonly DotvvmProperty IncludeInPageProperty =
             DotvvmProperty.Register<bool, DotvvmControl>(t => t.IncludeInPage, true);
@@ -293,36 +289,6 @@ namespace DotVVM.Framework.Controls
 
             RenderAfterControl(in r, writer);
         }
-
-        private void RenderBeginWithDataBindAttribute(IHtmlWriter writer)
-        {
-            // if the DataContext is set, render the "with" binding
-            if (GetValueBinding(DataContextProperty) is IValueBinding dcBinding)
-            {
-                var parent = Parent ?? throw new DotvvmControlException(this, "Can not set DataContext binding on the root control");
-                writer.WriteKnockoutWithComment(dcBinding.GetKnockoutBindingExpression(parent));
-            }
-
-            // if the IncludeInPage has binding, render the "if" binding
-            if (HasValueBinding(IncludeInPageProperty))
-            {
-                writer.WriteKnockoutDataBindComment("if", this, IncludeInPageProperty);
-            }
-        }
-
-        private void RenderEndWithDataBindAttribute(IHtmlWriter writer)
-        {
-            if (HasValueBinding(IncludeInPageProperty))
-            {
-                writer.WriteKnockoutDataBindEndComment();
-            }
-
-            if (HasBinding(DataContextProperty))
-            {
-                writer.WriteKnockoutDataBindEndComment();
-            }
-        }
-
 
         /// <summary>
         /// Adds all attributes that should be added to the control begin tag.
@@ -632,6 +598,6 @@ namespace DotVVM.Framework.Controls
             return Children;
         }
 
-        IEnumerable<DotvvmBindableObject> IDotvvmControl.GetAllAncestors(bool incudingThis) => this.GetAllAncestors(incudingThis);
+        void IRenderable.Render(IHtmlWriter writer, IDotvvmRequestContext context) => throw new NotImplementedException();
     }
 }
