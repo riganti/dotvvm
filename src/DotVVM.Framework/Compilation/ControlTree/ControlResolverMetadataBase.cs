@@ -36,7 +36,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             return Properties.TryGetValue(name, out value);
         }
 
-        public bool IsContentAllowed => (attribute?.AllowContent ?? true) && Type.IsAssignableTo(new ResolvedTypeDescriptor(typeof(IDotvvmControlLike)));
+        public bool IsContentAllowed => (attribute?.AllowContent ?? true) && Type.IsAssignableTo(new ResolvedTypeDescriptor(typeof(IDotvvmControl)));
 
         [JsonIgnore]
         public IPropertyDescriptor DefaultContentProperty
