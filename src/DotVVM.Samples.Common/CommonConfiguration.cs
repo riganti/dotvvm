@@ -10,6 +10,7 @@ using DotVVM.Samples.Common.Api.AspNetCore;
 using DotVVM.Samples.Common.Api.Owin;
 using DotVVM.Samples.Common.Utilities;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
+using DotVVM.Samples.Common.ViewModels.FeatureSamples.PostBack;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.StaticCommand;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -100,6 +101,12 @@ namespace DotVVM.Samples.Common
                 defer: true,
                 location: new FileResourceLocation($"~/Scripts/{nameof(ErrorCountPostbackHandler)}.js")) {
                 Dependencies = new[] { "dotvvm" }
+            });
+
+            resources.Register(nameof(PostBackHandlerCommandTypes), new ScriptResource(
+                defer: true,
+                location: new FileResourceLocation($"~/Scripts/{nameof(PostBackHandlerCommandTypes)}.js")) {
+                    Dependencies = new [] { "dotvvm"}
             });
 
             // dev files

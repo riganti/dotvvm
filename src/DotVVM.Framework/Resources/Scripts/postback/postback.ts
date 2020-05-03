@@ -111,7 +111,7 @@ export async function applyPostbackHandlers(
     viewModel = context.$root
 ): Promise<DotvvmAfterPostBackEventArgs> {
     const saneNext = (o: PostbackOptions) => {
-        return wrapCommitFunction(next(o), o)
+        return wrapCommitFunction(next(o), o);
     }
 
     const options: PostbackOptions = {
