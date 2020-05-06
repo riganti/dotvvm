@@ -1,0 +1,17 @@
+{
+  "applicationPhysicalPath": "/opt/myApp",
+  "markup": {
+    "importedNamespaces": [
+      {
+        "namespace": "DotVVM.Framework.Binding.HelperNamespace"
+      }
+    ]
+  },
+  "resources": {},
+  "security": {},
+  "runtime": {},
+  "defaultCulture": "cs-CZ",
+  "clientSideValidation": false,
+  "experimentalFeatures": {},
+  "debug": true
+}
