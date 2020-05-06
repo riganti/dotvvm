@@ -1,4 +1,6 @@
-﻿using DotVVM.Framework.Configuration;
+﻿using DotVVM.Diagnostics.StatusPage.Sample.Presenter;
+using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +21,13 @@ namespace DotVVM.Diagnostics.StatusPage.Sample
         {
             config.RouteTable.Add("Default", "", "Views/default.dothtml");
             config.RouteTable.AutoDiscoverRoutes(new DefaultRouteStrategy(config));
+            config.RouteTable.AddGroup("Group1", "group1", "virtualGroup", s =>
+            {
+                s.Add("group1_rout1", "gr1", b => new NoPresenter());
+            });
+            config.RouteTable.Add("noPresenter", "presenter/no", b => new NoPresenter());
+            config.RouteTable.Add("LocalizablePresenter", "presenter/localizable", "Views/default.dothtml", LocalizablePresenter.BasedOnQuery("lang"));
+
         }
 
         private void ConfigureControls(DotvvmConfiguration config, string applicationPath)

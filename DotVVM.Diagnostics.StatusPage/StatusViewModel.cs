@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Controls.Infrastructure;
+using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Routing;
 using DotVVM.Framework.ViewModel;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,7 +16,7 @@ namespace DotVVM.Diagnostics.StatusPage
     public class StatusViewModel : DotvvmViewModelBase
     {
         private readonly StatusPageOptions _statusPageOptions;
-
+        private readonly Type DotvvmPresenterType = typeof(DotvvmPresenter);
         public List<DotHtmlFileInfo> Routes { get; set; }
 
         public List<DotHtmlFileInfo> Controls { get; set; }
@@ -56,9 +58,9 @@ namespace DotVVM.Diagnostics.StatusPage
                     VirtualPath = r.VirtualPath,
                     Url = r.Url,
                     HasParameters = r.ParameterNames.Any(),
-                    DefaultValues = r.DefaultValues,
+                    DefaultValues = r.DefaultValues.Select(s=> s.Key + ":" + s.Value?.ToString()).ToList(),
                     RouteName = r.RouteName,
-                    Status = string.IsNullOrWhiteSpace(r.VirtualPath)
+                    Status = (string.IsNullOrWhiteSpace(r.VirtualPath) || !IsDotvvmPresenter(r))
                         ? CompilationState.NonCompilable
                         : CompilationState.None
                 }).ToList();
@@ -75,6 +77,12 @@ namespace DotVVM.Diagnostics.StatusPage
             }
 
             return base.Load();
+        }
+
+        private bool IsDotvvmPresenter(RouteBase r)
+        {
+            var presenter = r.GetPresenter(Context.Services);
+            return presenter.GetType().IsAssignableFrom(DotvvmPresenterType);
         }
 
         public override Task PreRender()
@@ -172,7 +180,7 @@ namespace DotVVM.Diagnostics.StatusPage
         public string RouteName { get; set; }
 
         /// <summary>Gets the default values of the optional parameters.</summary>
-        public IDictionary<string, object> DefaultValues { get; set; }
+        public List<string> DefaultValues { get; set; }
 
         /// <summary>Gets or sets the virtual path to the view.</summary>
         public string VirtualPath { get; set; }
@@ -186,6 +194,7 @@ namespace DotVVM.Diagnostics.StatusPage
         InProcess = 2,
         CompletedSuccessfully = 3,
         CompilationFailed = 4,
+        CompilationWarning = 5,
         NonCompilable = 6
     }
 }
