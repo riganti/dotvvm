@@ -251,7 +251,7 @@ namespace DotVVM.Framework.Configuration
             config.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "dot", Namespace = "DotVVM.Framework.Controls", Assembly = "DotVVM.Framework" });
 
             RegisterConstraints(config);
-            RegisterResources(config);
+            RegisterResources(config, serviceProvider);
 
             ConfigureOptions(config.RouteTable, serviceProvider);
             ConfigureOptions(config.Markup, serviceProvider);
@@ -318,7 +318,7 @@ namespace DotVVM.Framework.Configuration
             }));
         }
 
-        private static void RegisterResources(DotvvmConfiguration configuration)
+        private static void RegisterResources(DotvvmConfiguration configuration, IServiceProvider serviceProvider)
         {
             configuration.Resources.Register(ResourceConstants.PolyfillBundleResourceName,
                 new ScriptModuleResource(defer: true, location: null,
@@ -372,6 +372,8 @@ namespace DotVVM.Framework.Configuration
                     "DotVVM.Framework.Resources.Scripts.DotVVM.FileUpload.css")));
 
             RegisterGlobalizeResources(configuration);
+
+            configuration.Resources.RegisterNamedParent(ResourceConstants.DotvvmClientModuleResourceNamePrefix, serviceProvider.GetService<ClientModuleResourceRepository>());
         }
 
         private static void RegisterGlobalizeResources(DotvvmConfiguration configuration)

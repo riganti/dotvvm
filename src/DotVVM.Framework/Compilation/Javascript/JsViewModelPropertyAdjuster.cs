@@ -35,7 +35,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 var containsObservables = true;
                 if (propAnnotation.SerializationMap == null && target?.Annotation<ViewModelInfoAnnotation>() is ViewModelInfoAnnotation targetAnnotation)
                 {
-                    propAnnotation.SerializationMap = targetAnnotation.SerializationMap.Properties.FirstOrDefault(p => p.PropertyInfo == propAnnotation.MemberInfo);
+                    propAnnotation.SerializationMap = targetAnnotation.SerializationMap?.Properties.FirstOrDefault(p => p.PropertyInfo == propAnnotation.MemberInfo);
                     containsObservables = targetAnnotation.ContainsObservables;
                 }
                 if (propAnnotation.SerializationMap is ViewModelPropertyMap propertyMap)

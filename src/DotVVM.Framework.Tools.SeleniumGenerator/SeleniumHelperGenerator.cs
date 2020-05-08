@@ -6,6 +6,7 @@ using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Tools.SeleniumGenerator.Generators;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -113,7 +114,8 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
             var rootNode = parser.Parse(tokenizer.Tokens);
 
             var treeResolver = dotvvmConfiguration.ServiceLocator.GetService<IControlTreeResolver>();
-            return treeResolver.ResolveTree(rootNode, filePath);
+            var markupFileLoader = dotvvmConfiguration.ServiceLocator.GetService<IMarkupFileLoader>();
+            return treeResolver.ResolveTree(rootNode, markupFileLoader.GetMarkup(dotvvmConfiguration, filePath));
         }
     }
 }

@@ -16,6 +16,8 @@ using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Utils;
 using System.Collections.ObjectModel;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
@@ -26,6 +28,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
     {
         protected readonly IControlResolver controlResolver;
         protected readonly IAbstractTreeBuilder treeBuilder;
+        private readonly IClientModuleCompiler clientModuleCompiler;
 
         protected Lazy<IControlResolverMetadata> rawLiteralMetadata;
         protected Lazy<IControlResolverMetadata> literalMetadata;
@@ -34,10 +37,11 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Initializes a new instance of the <see cref="ControlTreeResolverBase"/> class.
         /// </summary>
-        public ControlTreeResolverBase(IControlResolver controlResolver, IAbstractTreeBuilder treeBuilder)
+        public ControlTreeResolverBase(IControlResolver controlResolver, IAbstractTreeBuilder treeBuilder, IClientModuleCompiler clientModuleCompiler)
         {
             this.controlResolver = controlResolver;
             this.treeBuilder = treeBuilder;
+            this.clientModuleCompiler = clientModuleCompiler;
 
             rawLiteralMetadata = new Lazy<IControlResolverMetadata>(() => controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(RawLiteral))));
             literalMetadata = new Lazy<IControlResolverMetadata>(() => controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(Literal))));
@@ -55,31 +59,59 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Resolves the control tree.
         /// </summary>
-        public virtual IAbstractTreeRoot ResolveTree(DothtmlRootNode root, string fileName)
+        public virtual IAbstractTreeRoot ResolveTree(DothtmlRootNode root, MarkupFile file)
         {
             var directives = ProcessDirectives(root);
-            var wrapperType = ResolveWrapperType(directives, fileName);
-            var viewModelType = ResolveViewModelType(directives, root, fileName);
+            var wrapperType = ResolveWrapperType(directives, file.FileName);
+            var viewModelType = ResolveViewModelType(directives, root, file.FileName);
             var namespaceImports = ResolveNamespaceImports(directives, root);
             var injectedServices = ResolveInjectDirectives(directives);
 
             // We need to call BuildControlMetadata instead of ResolveControl. The control builder for the control doesn't have to be compiled yet so the
             // metadata would be incomplete and ResolveControl caches them internally. BuildControlMetadata just builds the metadata and the control is
             // actually resolved when the control builder is ready and the metadata are complete.
-            var viewMetadata = controlResolver.BuildControlMetadata(CreateControlType(wrapperType, fileName));
+            var viewMetadata = controlResolver.BuildControlMetadata(CreateControlType(wrapperType, file.FileName));
 
-            var dataContextTypeStack = CreateDataContextTypeStack(viewModelType, null, namespaceImports, new BindingExtensionParameter[] {
-                new CurrentMarkupControlExtensionParameter(wrapperType),
-                new BindingPageInfoExtensionParameter(),
-                new BindingApiExtensionParameter()
-            }.Concat(injectedServices).ToArray());
+            var bindingExtensionParameters = new BindingExtensionParameter[] {
+                    new CurrentMarkupControlExtensionParameter(wrapperType),
+                    new BindingPageInfoExtensionParameter(),
+                    new BindingApiExtensionParameter()
+                }.Concat(injectedServices)
+                .ToList();
+
+            var clientModuleNode = ResolveClientModuleNode(root);
+            if (clientModuleNode != null)
+            {
+                bindingExtensionParameters.Add(clientModuleCompiler.GetClientModuleExtensionParameter(file, viewMetadata, viewModelType, namespaceImports, injectedServices, clientModuleNode));
+            }
+
+            var dataContextTypeStack = CreateDataContextTypeStack(viewModelType, null, namespaceImports, bindingExtensionParameters);
 
             var view = treeBuilder.BuildTreeRoot(this, viewMetadata, root, dataContextTypeStack, directives);
-            view.FileName = fileName;
+            view.FileName = file.FileName;
 
             ResolveRootContent(root, view, viewMetadata);
 
+            if (clientModuleNode != null)
+            {
+                clientModuleCompiler.PrepareClientModuleResource(viewMetadata, dataContextTypeStack);
+            }
+
             return view;
+        }
+
+        private DothtmlElementNode ResolveClientModuleNode(DothtmlRootNode root)
+        {
+            var modules = root.Content.OfType<DothtmlElementNode>()
+                .Where(e => string.Equals(e.TagPrefix, "dot", StringComparison.OrdinalIgnoreCase) && string.Equals(e.TagName, nameof(ClientModule), StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            if (modules.Count > 1)
+            {
+                throw new DotvvmCompilationException("There can be only one <dot:ClientModule> control in the page.", modules[1].Tokens);
+            }
+
+            return modules.FirstOrDefault();
         }
 
         /// <summary>

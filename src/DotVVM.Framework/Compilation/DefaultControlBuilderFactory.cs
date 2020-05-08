@@ -69,9 +69,9 @@ namespace DotVVM.Framework.Compilation
             {
                 if (controlBuilders.ContainsKey(file)) return controlBuilders[file];
 
-                var namespaceName = GetNamespaceFromFileName(file.FileName, file.LastWriteDateTimeUtc);
+                var namespaceName = NamingHelper.GetNamespaceFromFileName(file.FileName, file.LastWriteDateTimeUtc, "DotvvmGeneratedViews");
                 var assemblyName = namespaceName;
-                var className = GetClassFromFileName(file.FileName) + "ControlBuilder";
+                var className = NamingHelper.GetClassFromFileName(file.FileName) + "ControlBuilder";
                 void editCompilationException(DotvvmCompilationException ex)
                 {
                     if (ex.FileName == null)
@@ -83,7 +83,7 @@ namespace DotVVM.Framework.Compilation
                 }
                 try
                 {
-                    var (descriptor, factory) = ViewCompilerFactory().CompileView(file.ContentsReaderFactory(), file.FileName, assemblyName, namespaceName, className);
+                    var (descriptor, factory) = ViewCompilerFactory().CompileView(file.ContentsReaderFactory(), file, assemblyName, namespaceName, className);
                     return (descriptor, new Lazy<IControlBuilder>(() => {
                         try { return factory(); }
                         catch (DotvvmCompilationException ex)
@@ -99,46 +99,6 @@ namespace DotVVM.Framework.Compilation
                     throw;
                 }
             }
-        }
-
-        /// <summary>
-        /// Gets the name of the class from the file name.
-        /// </summary>
-        public static string GetClassFromFileName(string fileName)
-        {
-            return GetValidIdentifier(Path.GetFileNameWithoutExtension(fileName));
-        }
-
-        protected static string GetValidIdentifier(string identifier)
-        {
-            if (string.IsNullOrEmpty(identifier)) return "_";
-            var arr = identifier.ToCharArray();
-            for (int i = 0; i < arr.Length; i++)
-            {
-                if (!char.IsLetterOrDigit(arr[i]))
-                {
-                    arr[i] = '_';
-                }
-            }
-            identifier = new string(arr);
-            if (char.IsDigit(arr[0])) identifier = "C" + identifier;
-            if (csharpKeywords.Contains(identifier)) identifier += "0";
-            return identifier;
-        }
-
-        /// <summary>
-        /// Gets the name of the namespace from the file name.
-        /// </summary>
-        public static string GetNamespaceFromFileName(string fileName, DateTime lastWriteDateTimeUtc)
-        {
-            // TODO: make sure crazy directory names are ok, it should also work on linux :)
-
-            // replace \ and / for .
-            var parts = fileName.Split(new[] { '/', '\\' });
-            parts[parts.Length - 1] = Path.GetFileNameWithoutExtension(parts[parts.Length - 1]);
-
-            fileName = string.Join(".", parts.Select(GetValidIdentifier));
-            return "DotvvmGeneratedViews" + fileName + "_" + lastWriteDateTimeUtc.Ticks;
         }
 
         public void LoadCompiledViewsAssembly(string filePath)
@@ -216,15 +176,5 @@ namespace DotVVM.Framework.Compilation
                          throw new Exception($"Could not load markup file {file}.");
             controlBuilders.TryAdd(markup, (new ControlBuilderDescriptor(builder.DataContextType, builder.ControlType), new Lazy<IControlBuilder>(() => builder)));
         }
-
-        private static readonly HashSet<string> csharpKeywords = new HashSet<string>(new[]
-        {
-            "abstract", "as", "base", "bool", "break", "byte", "case", "catch", "char", "checked", "class", "const", "continue", "decimal", "default", "delegate", "do", "double", "else",
-            "enum", "event", "explicit", "extern", "false", "finally", "fixed", "float", "for", "foreach", "goto", "if", "implicit", "in", "int", "interface", "internal", "is", "lock",
-            "long", "namespace", "new", "null", "object", "operator", "out", "override", "params", "private", "protected", "public", "readonly", "ref", "return", "sbyte", "sealed",
-            "short", "sizeof", "stackalloc", "static", "string", "struct", "switch", "this", "throw", "true", "try", "typeof", "uint", "ulong", "unchecked", "unsafe", "ushort",
-            "using", "virtual", "void", "volatile", "while", "add", "alias", "ascending", "async", "await", "descending", "dynamic", "from", "get", "global", "group", "into",
-            "join", "let", "orderby", "partial", "remove", "select", "set", "value", "var", "where", "where", "yield"
-        });
     }
 }

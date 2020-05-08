@@ -19,18 +19,19 @@ namespace DotVVM.Framework.Compilation
     {
         protected readonly DefaultViewCompilerCodeEmitter emitter;
         protected readonly IBindingCompiler bindingCompiler;
+        private readonly IClientModuleCompiler clientModuleCompiler;
 
         protected int currentTemplateIndex;
         protected string className;
         protected ControlResolverMetadata lastMetadata;
         protected string controlName;
 
-        public ViewCompilingVisitor(DefaultViewCompilerCodeEmitter emitter, IBindingCompiler bindingCompiler,
-            string className)
+        public ViewCompilingVisitor(DefaultViewCompilerCodeEmitter emitter, IBindingCompiler bindingCompiler, IClientModuleCompiler clientModuleCompiler, string className)
         {
             this.emitter = emitter;
             this.className = className;
             this.bindingCompiler = bindingCompiler;
+            this.clientModuleCompiler = clientModuleCompiler;
         }
 
         public override void VisitView(ResolvedTreeRoot view)
@@ -77,6 +78,11 @@ namespace DotVVM.Framework.Compilation
             controlName = pageName;
 
             base.VisitView(view);
+
+            if (clientModuleCompiler.TryGetClientModuleResourceName(view.Metadata) is string resourceName)
+            {
+                emitter.EmitSetDotvvmProperty(pageName, Internal.ClientModuleResourceNameProperty, resourceName);
+            }
 
             emitter.CommitDotvvmProperties(pageName);
 

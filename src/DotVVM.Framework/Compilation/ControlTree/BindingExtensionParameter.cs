@@ -178,4 +178,33 @@ namespace DotVVM.Framework.Compilation.ControlTree
             return new JsObjectExpression();
         }
     }
+
+    public class ClientModuleExtensionParameter : BindingExtensionParameter
+    {
+        private Type Type => ResolvedTypeDescriptor.ToSystemType(ParameterType);
+
+
+        public ClientModuleExtensionParameter(ITypeDescriptor moduleType) : base("_client", moduleType, true)
+        {
+        }
+
+        public override Expression GetServerEquivalent(Expression controlParameter)
+        {
+            return Expression.New(Type);
+        }
+
+        public override JsExpression GetJsTranslation(JsExpression dataContext)
+        {
+            return new JsIdentifierExpression("dotvvm").Member("clientModules").Indexer(new JsLiteral("_root"));
+        }
+
+        public void RegisterJavascriptTranslations(JavascriptTranslatableMethodCollection methods)
+        {
+            foreach (var method in Type.GetMethods(BindingFlags.Public | BindingFlags.Instance))
+            {
+                methods.AddMethodTranslator(method, new GenericMethodCompiler(args =>
+                    GetJsTranslation(null).Member(method.Name).Invoke(args.Skip(1))));
+            }
+        }
+    }
 }

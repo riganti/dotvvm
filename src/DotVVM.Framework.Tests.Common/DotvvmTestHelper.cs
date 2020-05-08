@@ -110,7 +110,8 @@ namespace DotVVM.Framework.Tests
 
             var controlTreeResolver = configuration.ServiceProvider.GetRequiredService<IControlTreeResolver>();
             var validator = ActivatorUtilities.CreateInstance<ControlUsageValidationVisitor>(configuration.ServiceProvider);
-            return controlTreeResolver.ResolveTree(tree, fileName)
+            var markupFileLoader = configuration.ServiceProvider.GetRequiredService<IMarkupFileLoader>();
+            return controlTreeResolver.ResolveTree(tree, markupFileLoader.GetMarkup(configuration, fileName))
                 .CastTo<ResolvedTreeRoot>()
                 .ApplyAction(new DataContextPropertyAssigningVisitor().VisitView)
                 .ApplyAction(x => { if (checkErrors) CheckForErrors(x.DothtmlNode); })
