@@ -1,6 +1,6 @@
 /// <reference path="../Scripts/typings/jasmine/jasmine.d.ts" />
 /// <reference path="../../DotVVM.Framework/Resources/scripts/typings/knockout/knockout.d.ts" />
-/// <reference path="../../DotVVM.Framework/Resources/Scripts/DotVVM.d.ts" />
+/// <reference path="DotVVM.d.ts" />
 declare var dotvvm: DotVVM;
 declare var assertObservable: (object: any) => any;
 declare var assertNotObservable: (object: any) => any;

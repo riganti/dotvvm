@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Binding.HelperNamespace
         {
             methods.AddMethodTranslator(typeof(BindingApi), nameof(RefreshOnChange),
                 new GenericMethodCompiler(a =>
-                    new JsIdentifierExpression("dotvvm").Member("apiRefreshOn").Invoke(
+                    new JsIdentifierExpression("dotvvm").Member("api").Member("refreshOn").Invoke(
                             a[1].WithAnnotation(ShouldBeObservableAnnotation.Instance),
                             a[2].WithAnnotation(ObservableTransformationAnnotation.EnsureWrapped))
                         .WithAnnotation(a[1].Annotation<ResultIsObservableAnnotation>())
@@ -30,7 +30,7 @@ namespace DotVVM.Framework.Binding.HelperNamespace
                 ));
             methods.AddMethodTranslator(typeof(BindingApi), nameof(RefreshOnEvent),
                 new GenericMethodCompiler(a =>
-                    new JsIdentifierExpression("dotvvm").Member("apiRefreshOn").Invoke(
+                    new JsIdentifierExpression("dotvvm").Member("api").Member("refreshOn").Invoke(
                             a[1].WithAnnotation(ShouldBeObservableAnnotation.Instance),
                             new JsIdentifierExpression("dotvvm").Member("eventHub").Member("get").Invoke(a[2]))
                         .WithAnnotation(a[1].Annotation<ResultIsObservableAnnotation>())

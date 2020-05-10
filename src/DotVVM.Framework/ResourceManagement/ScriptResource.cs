@@ -11,11 +11,14 @@ namespace DotVVM.Framework.ResourceManagement
     /// Reference to a javascript file.
     /// </summary>
     [ResourceConfigurationCollectionName("scripts")]
-    public class ScriptResource : LinkResourceBase, IPreloadResource
+    public class ScriptResource : LinkResourceBase, IPreloadResource, IDeferableResource
     {
-        public ScriptResource(IResourceLocation location)
-            : base(ResourceRenderPosition.Body, "text/javascript", location)
-        { }
+        public bool Defer { get; }
+        public ScriptResource(IResourceLocation location, bool defer = false)
+            : base(defer ? ResourceRenderPosition.Anywhere : ResourceRenderPosition.Body, "text/javascript", location)
+        {
+            this.Defer = defer;
+        }
 
         /// <summary>Location property is required!</summary>
         public ScriptResource()
@@ -25,7 +28,10 @@ namespace DotVVM.Framework.ResourceManagement
         public override void RenderLink(IResourceLocation location, IHtmlWriter writer, IDotvvmRequestContext context, string resourceName)
         {
             AddSrcAndIntegrity(writer, context, location.GetUrl(context, resourceName), "src");
-            writer.AddAttribute("type", MimeType);
+            if (MimeType != "text/javascript") // this is the default, no need to write it
+                writer.AddAttribute("type", MimeType);
+            if (Defer)
+                writer.AddAttribute("defer", null);
             writer.RenderBeginTag("script");
             writer.RenderEndTag();
         }

@@ -103,12 +103,12 @@ namespace DotVVM.Framework.Controls
 
         protected virtual void WriteEnabledBinding(IHtmlWriter writer, bool binding)
         {
-            writer.AddKnockoutDataBind("dotvvmEnable", binding.ToString().ToLower());
+            writer.AddKnockoutDataBind("dotvvm-enable", binding.ToString().ToLower());
         }
 
         protected virtual void WriteEnabledBinding(IHtmlWriter writer, IValueBinding binding)
         {
-            writer.AddKnockoutDataBind("dotvvmEnable", binding.GetKnockoutBindingExpression(this));
+            writer.AddKnockoutDataBind("dotvvm-enable", binding.GetKnockoutBindingExpression(this));
         }
 
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)

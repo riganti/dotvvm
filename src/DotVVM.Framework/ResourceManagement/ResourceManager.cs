@@ -7,6 +7,7 @@ using System.Threading;
 using DotVVM.Framework.Compilation.Parser;
 using System.Globalization;
 using System.Text;
+using System.Diagnostics;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -28,6 +29,7 @@ namespace DotVVM.Framework.ResourceManagement
 
         internal bool HeadRendered;
         internal bool BodyRendered;
+        private HashSet<string> renderedResources = new HashSet<string>();
 
 
         /// <summary>
@@ -37,6 +39,25 @@ namespace DotVVM.Framework.ResourceManagement
         {
             this.repository = repository;
         }
+
+        internal void MarkRendered(NamedResource resource)
+        {
+            renderedResources.Add(resource.Name);
+            switch (resource.Resource.RenderPosition)
+            {
+                case ResourceRenderPosition.Head:
+                    Debug.Assert(HeadRendered);
+                    break;
+                case ResourceRenderPosition.Body:
+                    Debug.Assert(BodyRendered);
+                    break;
+                case ResourceRenderPosition.Anywhere:
+                    Debug.Assert(HeadRendered);
+                    break;
+            }
+        }
+
+        public bool IsRendered(string resourceName) => renderedResources.Contains(resourceName);
 
         /// <summary>
         /// Adds the required resource with specified name.
@@ -102,14 +123,15 @@ namespace DotVVM.Framework.ResourceManagement
         /// Checks whether the resource position is already rendered.
         private bool IsAlreadyRendered(ResourceRenderPosition position) =>
             position == ResourceRenderPosition.Head && HeadRendered ||
-            position == ResourceRenderPosition.Body && BodyRendered;
+            (position == ResourceRenderPosition.Body || position == ResourceRenderPosition.Anywhere) && BodyRendered;
 
         /// <summary>
         /// Adds the required script file.
         /// </summary>
         public void AddRequiredScriptFile(string name, string url, params string[] dependentResourceNames)
         {
-            AddRequiredResourceCore(name, new ScriptResource(CreateRelativeResourceLocation(url)) {
+            var defer = dependentResourceNames.Any(IsDeferred);
+            AddRequiredResourceCore(name, new ScriptResource(defer: defer, location: CreateRelativeResourceLocation(url)) {
                 Dependencies = dependentResourceNames,
             });
         }
@@ -131,12 +153,15 @@ namespace DotVVM.Framework.ResourceManagement
             });
         }
 
+        bool IsDeferred(string name) => this.FindResource(name) is IDeferableResource r && r.Defer;
+
         /// <summary>
         /// Adds the specified piece of javascript that will be executed when the page is loaded.
         /// </summary>
         public void AddStartupScript(string name, string javascriptCode, params string[] dependentResourceNames)
         {
-            AddRequiredResourceCore(name, new InlineScriptResource(javascriptCode) { Dependencies = dependentResourceNames });
+            var defer = dependentResourceNames.Any(IsDeferred);
+            AddRequiredResourceCore(name, new InlineScriptResource(javascriptCode, defer: defer) { Dependencies = dependentResourceNames });
         }
 
         /// <summary>
@@ -144,7 +169,8 @@ namespace DotVVM.Framework.ResourceManagement
         /// </summary>
         public void AddStartupScript(string javascriptCode, params string[] dependentResourceNames)
         {
-            AddRequiredResourceCore(new InlineScriptResource(javascriptCode) { Dependencies = dependentResourceNames });
+            var defer = dependentResourceNames.Any(IsDeferred);
+            AddRequiredResourceCore(new InlineScriptResource(javascriptCode, defer: defer) { Dependencies = dependentResourceNames });
         }
 
         /// <summary>
