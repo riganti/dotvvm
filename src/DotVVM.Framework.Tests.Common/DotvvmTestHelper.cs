@@ -18,6 +18,7 @@ using DotVVM.Framework.Utils;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Compilation.Validation;
+using static DotVVM.Framework.Tests.Runtime.DotvvmControlTestBase;
 
 namespace DotVVM.Framework.Tests
 {
@@ -110,13 +111,14 @@ namespace DotVVM.Framework.Tests
 
             var controlTreeResolver = configuration.ServiceProvider.GetRequiredService<IControlTreeResolver>();
             var validator = ActivatorUtilities.CreateInstance<ControlUsageValidationVisitor>(configuration.ServiceProvider);
-            var markupFileLoader = configuration.ServiceProvider.GetRequiredService<IMarkupFileLoader>();
-            return controlTreeResolver.ResolveTree(tree, markupFileLoader.GetMarkup(configuration, fileName))
+            var loader = new StaticContentMarkupLoader(markup);
+            return controlTreeResolver.ResolveTree(tree, loader.GetMarkup(configuration, "file.dothtml"))
                 .CastTo<ResolvedTreeRoot>()
                 .ApplyAction(new DataContextPropertyAssigningVisitor().VisitView)
                 .ApplyAction(x => { if (checkErrors) CheckForErrors(x.DothtmlNode); })
                 .ApplyAction(new StylingVisitor(configuration).VisitView)
                 .ApplyAction(x => { if (checkErrors) validator.VisitAndAssert(x); else validator.VisitView(x); });
         }
+        
     }
 }
