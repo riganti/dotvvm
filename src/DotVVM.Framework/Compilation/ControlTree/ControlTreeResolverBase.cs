@@ -102,16 +102,25 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         private DothtmlElementNode ResolveClientModuleNode(DothtmlRootNode root)
         {
-            var modules = root.Content.OfType<DothtmlElementNode>()
-                .Where(e => string.Equals(e.TagPrefix, "dot", StringComparison.OrdinalIgnoreCase) && string.Equals(e.TagName, nameof(ClientModule), StringComparison.OrdinalIgnoreCase))
+            var modules = root.EnumerateNodes().OfType<DothtmlElementNode>()
+                .Where(e => !e.IsClosingTag && string.Equals(e.TagPrefix, "dot", StringComparison.OrdinalIgnoreCase) && string.Equals(e.TagName, nameof(ClientModule), StringComparison.OrdinalIgnoreCase))
                 .ToList();
 
             if (modules.Count > 1)
             {
                 throw new DotvvmCompilationException("There can be only one <dot:ClientModule> control in the page.", modules[1].Tokens);
             }
+            else if (modules.Count == 0)
+            {
+                return null;
+            }
 
-            return modules.FirstOrDefault();
+            var module = modules[0];
+            if (module.ParentNode != root)
+            {
+                throw new DotvvmCompilationException("The <dot:ClientModule> must be used only in the document root and cannot be nested in any HTML element.", modules[1].Tokens);
+            }
+            return module;
         }
 
         /// <summary>

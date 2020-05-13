@@ -173,5 +173,23 @@ namespace DotVVM.Framework.Tests.Common.Runtime.ControlTree
 
             // TODO: check exception message
         }
+
+        [TestMethod]
+        public void ClientModule_SingleOccurenceOnly()
+        {
+            var exception = Assert.ThrowsException<DotvvmCompilationException>(() =>
+                ParseControl("<dot:ClientModule></dot:ClientModule> <dot:ClientModule></dot:ClientModule>"));
+
+            // TODO: check exception message
+        }
+
+        [TestMethod]
+        public void ClientModule_InRootScopeOnly()
+        {
+            var exception = Assert.ThrowsException<DotvvmCompilationException>(() =>
+                ParseControl("<div><dot:ClientModule></dot:ClientModule></div>"));
+
+            // TODO: check exception message
+        }
     }
 }

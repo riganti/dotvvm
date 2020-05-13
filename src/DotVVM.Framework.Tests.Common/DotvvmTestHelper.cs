@@ -19,6 +19,8 @@ using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Compilation.Validation;
 using static DotVVM.Framework.Tests.Runtime.DotvvmControlTestBase;
+using System.Collections.Immutable;
+using DotVVM.Framework.Compilation.Parser;
 
 namespace DotVVM.Framework.Tests
 {
@@ -56,6 +58,7 @@ namespace DotVVM.Framework.Tests
             }
         }
 
+
         public static void RegisterMoqServices(IServiceCollection services)
         {
             services.TryAddSingleton<IViewModelProtector, FakeProtector>();
@@ -64,6 +67,7 @@ namespace DotVVM.Framework.Tests
 
         private static Lazy<DotvvmConfiguration> _defaultConfig = new Lazy<DotvvmConfiguration>(() => {
             var config = CreateConfiguration();
+            config.Markup.AddAssembly(typeof(DotvvmTestHelper).Assembly.GetName().Name);
             config.Freeze();
             return config;
         });
@@ -119,6 +123,31 @@ namespace DotVVM.Framework.Tests
                 .ApplyAction(new StylingVisitor(configuration).VisitView)
                 .ApplyAction(x => { if (checkErrors) validator.VisitAndAssert(x); else validator.VisitView(x); });
         }
-        
+
+        public static CompiledClientModule CompileClientModule(string code, Type viewModelType, string[] usings = null, DotvvmConfiguration configuration = null)
+        {
+            configuration = configuration ?? DefaultConfig;
+
+            var tokenizer = new DothtmlTokenizer();
+            tokenizer.Tokenize($"<dot:ClientModule>{code}</dot:ClientModule>");
+            var parser = new DothtmlParser();
+            var tree = parser.Parse(tokenizer.Tokens);
+
+            var compiler = (DefaultClientModuleCompiler)configuration.ServiceProvider.GetRequiredService<IClientModuleCompiler>();
+            var loader = new StaticContentMarkupLoader(code);
+            var markupFile = loader.GetMarkup(configuration, "file.dothtml");
+            var importDirectives = (usings ?? new string[] { }).Select(u => new NamespaceImport(u)).ToImmutableList();
+            var node = tree.EnumerateNodes().OfType<DothtmlElementNode>().First();
+
+            return compiler.GetCompiledModuleCore(markupFile, ResolvedTypeDescriptor.Create(viewModelType), importDirectives, node);
+        }
+
+        public static string TranslateClientModule(CompiledClientModule module, Type viewModelType, DotvvmConfiguration configuration = null)
+        {
+            configuration = configuration ?? DefaultConfig;
+
+            var compiler = (DefaultClientModuleCompiler)configuration.ServiceProvider.GetRequiredService<IClientModuleCompiler>();
+            return compiler.TranslateMembers(module.Type, module.Members, DataContextStack.Create(viewModelType));
+        }
     }
 }

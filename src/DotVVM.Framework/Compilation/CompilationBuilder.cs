@@ -106,7 +106,7 @@ namespace DotVVM.Framework.Compilation
                 }
                 else
                 {
-                    throw new Exception("The compilation failed! This is most probably bug in the DotVVM framework.\r\n\r\n"
+                    throw new DotvvmCompilationException("The compilation failed! This is most probably bug in the DotVVM framework.\r\n\r\n"
                                         + string.Join("\r\n", result.Diagnostics)
                                         + "\r\n\r\n" + compilation.SyntaxTrees[0].GetRoot().NormalizeWhitespace() + "\r\n\r\n"
                                         + "References: " + string.Join("\r\n", compilation.ReferencedAssemblyNames.Select(n => n.Name)));

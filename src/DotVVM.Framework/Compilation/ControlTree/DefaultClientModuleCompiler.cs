@@ -42,36 +42,39 @@ namespace DotVVM.Framework.Compilation.ControlTree
         
         private CompiledClientModule GetCompiledModule(MarkupFile file, IControlResolverMetadata viewMetadata, ITypeDescriptor viewModelType, ImmutableList<NamespaceImport> namespaceImports, DothtmlElementNode clientModuleNode)
         {
-            return compiledModules.GetOrAdd(viewMetadata, _ => {
-                var namespaceName = NamingHelper.GetNamespaceFromFileName(file.FileName, file.LastWriteDateTimeUtc, "DotvvmClientModules");
-                var assemblyName = namespaceName;
-                var className = NamingHelper.GetClassFromFileName(file.FileName) + "ClientModule";
-                var usings = BuildUsings(viewModelType, namespaceImports);
+            return compiledModules.GetOrAdd(viewMetadata, _ => GetCompiledModuleCore(file, viewModelType, namespaceImports, clientModuleNode));
+        }
 
-                // emit C# code
-                var emitter = new DefaultClientModuleCompilerCodeEmitter();
-                var code = string.Join(string.Empty, clientModuleNode.EnumerateChildNodes().OfType<DothtmlLiteralNode>().SelectMany(n => n.Tokens).Select(t => t.Text));
-                var members = GetMembers(usings, namespaceName, className, code);
-                emitter.AddMembers(members);
+        internal CompiledClientModule GetCompiledModuleCore(MarkupFile file, ITypeDescriptor viewModelType, ImmutableList<NamespaceImport> namespaceImports, DothtmlElementNode clientModuleNode)
+        {
+            var namespaceName = NamingHelper.GetNamespaceFromFileName(file.FileName, file.LastWriteDateTimeUtc, "DotvvmClientModules");
+            var assemblyName = namespaceName;
+            var className = NamingHelper.GetClassFromFileName(file.FileName) + "ClientModule";
+            var usings = BuildUsings(viewModelType, namespaceImports);
 
-                // build assembly
-                var compilationBuilder = new CompilationBuilder(configuration.Markup, assemblyName);
-                var trees = emitter.BuildTree(namespaceName, className, usings);
-                compilationBuilder.AddToCompilation(trees, emitter.UsedAssemblies);
-                var assembly = compilationBuilder.BuildAssembly();
-                var compiledType = assembly.GetType(namespaceName + "." + className);
+            // emit C# code
+            var emitter = new DefaultClientModuleCompilerCodeEmitter();
+            var code = string.Join(string.Empty, clientModuleNode.EnumerateChildNodes().OfType<DothtmlLiteralNode>().SelectMany(n => n.Tokens).Select(t => t.Text));
+            var members = GetMembers(usings, namespaceName, className, code);
+            emitter.AddMembers(members);
 
-                var clientModuleExtensionParameter = new ClientModuleExtensionParameter(new ResolvedTypeDescriptor(compiledType));
-                clientModuleExtensionParameter.RegisterJavascriptTranslations(configuration.Markup.JavascriptTranslator.MethodCollection);
+            // build assembly
+            var compilationBuilder = new CompilationBuilder(configuration.Markup, assemblyName);
+            var trees = emitter.BuildTree(namespaceName, className, usings);
+            compilationBuilder.AddToCompilation(trees, emitter.UsedAssemblies);
+            var assembly = compilationBuilder.BuildAssembly();
+            var compiledType = assembly.GetType(namespaceName + "." + className);
 
-                return new CompiledClientModule() {
-                    Assembly = assembly,
-                    Type = compiledType,
-                    BindingExtensionParameter = clientModuleExtensionParameter,
-                    Members = members,
-                    ResourceName = "_root"
-                };
-            });
+            var clientModuleExtensionParameter = new ClientModuleExtensionParameter(new ResolvedTypeDescriptor(compiledType));
+            clientModuleExtensionParameter.RegisterJavascriptTranslations(configuration.Markup.JavascriptTranslator.MethodCollection);
+
+            return new CompiledClientModule() {
+                Assembly = assembly,
+                Type = compiledType,
+                BindingExtensionParameter = clientModuleExtensionParameter,
+                Members = members,
+                ResourceName = "_root"
+            };
         }
 
         private List<UsingDirectiveSyntax> BuildUsings(ITypeDescriptor viewModelType, ImmutableList<NamespaceImport> namespaceImports)
@@ -141,7 +144,7 @@ namespace {namespaceName} {{
             return preparedResources[clientModuleName];
         }
 
-        private string TranslateMembers(Type moduleType, List<MemberDeclarationSyntax> members, DataContextStack dataContext)
+        internal string TranslateMembers(Type moduleType, List<MemberDeclarationSyntax> members, DataContextStack dataContext)
         {
             var sb = new StringBuilder();
             sb.AppendLine("dotvvm.clientModules = dotvvm.clientModules || {};");
