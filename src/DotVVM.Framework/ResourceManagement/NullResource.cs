@@ -8,7 +8,6 @@ namespace DotVVM.Framework.ResourceManagement
     /// <summary>
     /// A resource that is not rendered. Use this class if you load the scripts or styles yourself using the script or style element in the page.
     /// </summary>
-    [ResourceConfigurationCollectionName("null")]
     public class NullResource : ResourceBase
     {
         public NullResource() : base(ResourceRenderPosition.Body)
