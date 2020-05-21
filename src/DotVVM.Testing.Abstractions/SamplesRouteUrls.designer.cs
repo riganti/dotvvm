@@ -142,6 +142,7 @@ namespace DotVVM.Testing.Abstractions
         public const string ControlSamples_UpdateProgress_UpdateProgressRedirect2 = "ControlSamples/UpdateProgress/UpdateProgressRedirect2";
         public const string ControlSamples_UpdateProgress_UpdateProgressRedirectSPA1 = "ControlSamples/UpdateProgress/UpdateProgressRedirectSPA1";
         public const string ControlSamples_UpdateProgress_UpdateProgressRedirectSPA2 = "ControlSamples/UpdateProgress/UpdateProgressRedirectSPA2";
+        public const string ControlSamples_ValidationSummary_HideWhenValid = "ControlSamples/ValidationSummary/HideWhenValid";
         public const string ControlSamples_ValidationSummary_IncludeErrorsFromTarget_PropertyPathNotNull = "ControlSamples/ValidationSummary/IncludeErrorsFromTarget_PropertyPathNotNull";
         public const string ControlSamples_ValidationSummary_IncludeErrorsFromTarget_PropertyPathNull = "ControlSamples/ValidationSummary/IncludeErrorsFromTarget_PropertyPathNull";
         public const string ControlSamples_ValidationSummary_MessagesRendering = "ControlSamples/ValidationSummary/MessagesRendering";
