@@ -306,7 +306,7 @@ class DotvvmValidation {
                         element.appendChild(item);
                     }
 
-                    if (binding.hideWhenValid == true) {
+                    if (binding.hideWhenValid) {
                         if (errors.length > 0) {
                             element.style.display = "";
                         }
