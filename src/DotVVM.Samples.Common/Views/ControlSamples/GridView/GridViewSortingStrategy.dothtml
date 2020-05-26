@@ -1,0 +1,27 @@
+@viewModel DotVVM.Samples.Common.ViewModels.ControlSamples.GridView.GridViewSortingStrategyViewModel, DotVVM.Samples.Common
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+    <style type="text/css">
+        .alternate {
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>GridView with custom SortingStrategy</h1>
+		<h2>Sort by country names is always ascending. The rest is default</h2>
+		
+		<dot:GridView DataSource="{value: CountriesDataSet}" class="table table-bordered">
+			<Columns>
+                <dot:GridViewTextColumn HeaderText="Country" ValueBinding="{value: Name}" AllowSorting="True" />
+                <dot:GridViewTextColumn HeaderText="Population" ValueBinding="{value: Population}" AllowSorting="True" />
+				<dot:GridViewTextColumn HeaderText="Area in km^2" ValueBinding="{value: Area}" AllowSorting="True" />
+            </Columns>
+		</dot:GridView>
+		
+    </div>
+</body>
+</html>
