@@ -412,9 +412,14 @@ namespace DotVVM.Framework.Controls
             head?.Render(writer, context);
 
             // render body
-            if (!RenderOnServer)
+            var foreachBinding = GetForeachDataBindExpression().GetKnockoutBindingExpression(this);
+            if (RenderOnServer)
             {
-                writer.AddKnockoutForeachDataBind("dotvvm.evaluator.getDataSourceItems($gridViewDataSet)");
+                writer.AddKnockoutDataBind("dotvvm-SSR-foreach", "{data:" + foreachBinding + "}");
+            }
+            else
+            {
+                writer.AddKnockoutForeachDataBind(foreachBinding);
             }
             writer.RenderBeginTag("tbody");
 
@@ -439,14 +444,17 @@ namespace DotVVM.Framework.Controls
                     var primaryKeyProperty = ResolvePrimaryKeyProperty();
                     var primaryKeyPropertyName = propertySerialization.ResolveName(primaryKeyProperty);
 
+
                     var placeholder = new DataItemContainer { DataContext = null };
                     placeholder.SetDataContextTypeFromDataSource(GetBinding(DataSourceProperty).NotNull());
                     placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
                     placeholder.SetValue(Internal.ClientIDFragmentProperty, GetValueRaw(Internal.CurrentIndexBindingProperty));
-                    writer.WriteKnockoutDataBindComment("if", "ko.unwrap(ko.unwrap($gridViewDataSet).RowEditOptions().EditRowId) " +
-                        $"!== ko.unwrap($data['{primaryKeyPropertyName}'])");
-                    CreateTemplates(context, placeholder);
                     Children.Add(placeholder);
+                    CreateTemplates(context, placeholder);
+
+                    var gridViewDataSetExpr = GetValueBinding(DataSourceProperty).GetKnockoutBindingExpression(placeholder, unwrapped: true);
+                    writer.WriteKnockoutDataBindComment("if", $"({gridViewDataSetExpr}).RowEditOptions().EditRowId() " +
+                        $"!== ko.unwrap($data['{primaryKeyPropertyName}'])");
                     placeholder.Render(writer, context);
                     writer.WriteKnockoutDataBindEndComment();
 
@@ -454,7 +462,7 @@ namespace DotVVM.Framework.Controls
                     placeholderEdit.SetDataContextTypeFromDataSource(GetBinding(DataSourceProperty).NotNull());
                     placeholderEdit.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
                     placeholderEdit.SetValue(Internal.ClientIDFragmentProperty, GetValueRaw(Internal.CurrentIndexBindingProperty));
-                    writer.WriteKnockoutDataBindComment("if", "ko.unwrap(ko.unwrap($gridViewDataSet).RowEditOptions().EditRowId) " +
+                    writer.WriteKnockoutDataBindComment("if", $"({gridViewDataSetExpr}).RowEditOptions().EditRowId() " +
                         $"=== ko.unwrap($data['{primaryKeyPropertyName}'])");
                     CreateTemplates(context, placeholderEdit, true);
                     Children.Add(placeholderEdit);
@@ -514,7 +522,6 @@ namespace DotVVM.Framework.Controls
 
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            writer.AddKnockoutDataBind("withGridViewDataSet", GetDataSourceBinding().GetKnockoutBindingExpression(this));
             base.AddAttributesToRender(writer, context);
         }
 

@@ -1,26 +1,20 @@
 {
-  "name": "dotvvm.framework",
-  "version": "1.0.0",
-  "private": true,
   "devDependencies": {
-    "uglify-js": "3.5.2",
-    "typescript": "^3.3.4",
-    "concurrently": "^3.5.1",
-    "onchange": "^3.3.0"
+    "rollup": "^1.25.2",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-livereload": "^1.0.4",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "@rollup/plugin-replace": "^2.2.0",
+    "rollup-plugin-terser": "^5.1.2",
+    "rollup-plugin-typescript": "^1.0.1",
+    "tslib": "^1.10.0",
+    "typescript": "^3.7.1-rc",
+    "systemjs": "^6.1.9"
   },
   "scripts": {
-    "build": "npm run compile:ts && npm run minify:dotvvm:js && npm run bundle:polyfill:js",
-    "compile:ts": "tsc",
-    "minify:dotvvm:js": "uglifyjs -o Resources/Scripts/DotVVM.min.js -c -m -- Resources/Scripts/DotVVM.js",
-    "bundle:polyfill:js": "uglifyjs -o Resources/Scripts/Polyfills/polyfill.bundle.js -c -m -- Resources/Scripts/Polyfills/promise.js Resources/Scripts/Polyfills/fetch.js",
-    "watch": "concurrently --kill-others \"npm run watch:ts\" \"npm run watch:js\"",
-    "watch:ts": "npm run compile:ts -- -w",
-    "watch:js": "onchange \"Resources/Scripts/DotVVM.js\" -p -- npm run minify:dotvvm:js"
-  },
-  "-vs-binding": {
-    "BeforeBuild": [
-      "build"
-    ]
-  },
-  "dependencies": {}
+    "build": "npm run build-production && npm run build-polyfills",
+    "build-production": "rollup -c --environment BUILD:production",
+    "tsc-build": "tsc -p .",
+    "build-polyfills": "terser -o obj/javascript/polyfill.bundle.js -c -m -- Resources/Scripts/Polyfills/promise.js Resources/Scripts/Polyfills/fetch.js node_modules/systemjs/dist/system.js"
+  }
 }

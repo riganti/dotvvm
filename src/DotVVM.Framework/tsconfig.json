@@ -1,28 +1,21 @@
 {
   "compilerOptions": {
-    "noImplicitAny": false,
-    "noEmitOnError": true,
+    "noImplicitAny": true,
+    "strictFunctionTypes": true,
+    "strict": true,
+    "noImplicitThis": true,
+    "noEmitOnError": false,
     "removeComments": false,
     "sourceMap": true,
-    "target": "es5",
-    "outFile": "Resources/Scripts/DotVVM.js",
+    "target": "es2018",
+    // "outDir": "obj/typescript-raw-build",
     "declaration": true,
     "strictNullChecks": true,
-    "lib": ["dom", "es2015.promise", "es5"]
+    "lib": ["dom", "es2015.promise", "es5", "es6"],
+    "module": "System",
+
+    "outFile": "obj/typescript-raw-build-file"
   },
-  "files": [
-    "Resources/Scripts/DotVVM.Polyfills.ts",
-    "Resources/Scripts/DotVVM.DomUtils.ts",
-    "Resources/Scripts/DotVVM.SpaHistory.ts",
-    "Resources/Scripts/DotVVM.Events.ts",
-    "Resources/Scripts/DotVVM.FileUpload.ts",
-    "Resources/Scripts/DotVVM.Globalize.ts",
-    "Resources/Scripts/DotVVM.PostBackHandlers.ts",
-    "Resources/Scripts/DotVVM.Serialization.ts",
-    "Resources/Scripts/DotVVM.Validation.ts",
-    "Resources/Scripts/DotVVM.ts",
-    "Resources/Scripts/DotVVM.Evaluator.ts",
-    "Resources/Scripts/DotVVM.Api.ts"
-  ],
+  "exclude": ["obj/**", "Resources/Scripts/dotvvm-light.ts"],
   "compileOnSave": true
 }
