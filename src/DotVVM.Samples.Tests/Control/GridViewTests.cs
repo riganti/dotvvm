@@ -6,6 +6,7 @@ using Riganti.Selenium.Core.Abstractions;
 using Riganti.Selenium.DotVVM;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace DotVVM.Samples.Tests.Control
 {
@@ -18,8 +19,7 @@ namespace DotVVM.Samples.Tests.Control
         [Fact]
         public void Control_GridView_GridViewInlineEditingValidation()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditingValidation);
                 browser.Driver.Manage().Window.Maximize();
 
@@ -73,8 +73,7 @@ namespace DotVVM.Samples.Tests.Control
         [Fact]
         public void Control_GridView_GridViewStaticCommand()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewStaticCommand);
                 browser.Wait();
 
@@ -94,8 +93,7 @@ namespace DotVVM.Samples.Tests.Control
         [Fact]
         public void Control_GridView_GridViewInlineEditingValidation_GridViewInlineEditingFormat()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditingValidation);
 
                 //Get rows
@@ -123,8 +121,7 @@ namespace DotVVM.Samples.Tests.Control
         [Fact]
         public void Control_GridView_GridViewInlineEditingPrimaryKeyGuid()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditingPrimaryKeyGuid);
                 //Get rows
                 var rows = browser.First("table tbody");
@@ -168,8 +165,7 @@ namespace DotVVM.Samples.Tests.Control
         [Fact]
         public void Control_GridView_GridViewInlineEditingPrimaryKeyString()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditingPrimaryKeyString);
                 //Get rows
                 var rows = browser.First("table tbody");
@@ -217,8 +213,7 @@ namespace DotVVM.Samples.Tests.Control
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing))]
         public void Control_GridView_GridViewInlineEditing(string path, int tableID)
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(path);
 
                 // get table
@@ -261,8 +256,7 @@ namespace DotVVM.Samples.Tests.Control
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing))]
         public void Control_GridView_GridViewInlineEditing_PagingWhenEditing(string path, int tableID)
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.Refresh();
                 browser.NavigateToUrl(path);
 
@@ -313,13 +307,11 @@ namespace DotVVM.Samples.Tests.Control
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_GridView_GridViewServerRender))]
         public void Control_GridView_GridViewPagingSortingBase(string path)
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(path);
                 browser.ActionWaitTime = 500;
 
-                System.Action performTest = () =>
-                {
+                System.Action performTest = () => {
                     //// make sure that thirs row's first cell is yellow
                     AssertUI.ClassAttribute(browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0), s => s.Equals(""));
                     AssertUI.ClassAttribute(browser.ElementAt("table", 0).ElementAt("tr", 2).ElementAt("td", 0), s => s.Equals("alternate"));
@@ -391,8 +383,7 @@ namespace DotVVM.Samples.Tests.Control
         [Fact]
         public void Control_GridView_GridViewRowDecorators()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewRowDecorators);
                 browser.ElementAt("table", 0).FindElements("tr").ThrowIfDifferentCountThan(6);
                 browser.ElementAt("table", 1).FindElements("tr").ThrowIfDifferentCountThan(6);
@@ -436,8 +427,7 @@ namespace DotVVM.Samples.Tests.Control
         [SampleReference(nameof(SamplesRouteUrls.ControlSamples_GridView_GridViewRowDecorators))]
         public void Control_GridView_GridViewRowDecorators_ClickPropagation()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewRowDecorators);
                 browser.Wait();
 
@@ -472,8 +462,7 @@ namespace DotVVM.Samples.Tests.Control
         [Fact]
         public void Control_GridView_ColumnVisible()
         {
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_ColumnVisible);
                 browser.Wait();
 
@@ -518,8 +507,7 @@ namespace DotVVM.Samples.Tests.Control
             const int ColumnCount = 28;
             const string FirstCell = "FirstName0";
             const string LastCell = "DataZ999";
-            RunInAllBrowsers(browser =>
-            {
+            RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_LargeGrid);
 
                 // Check Row and Column count
@@ -612,6 +600,41 @@ namespace DotVVM.Samples.Tests.Control
                 checkBox.Click();
                 gridview.First("save-button", SelectByDataUi).Click();
                 browser.WaitFor(() => AssertUI.HasClass(gridview.First(".is-standalone > span"), "invalid"), 1000);
+            });
+        }
+
+        [Fact]
+        public void Control_GridView_SortingStrategy()
+        {
+            void CheckNthColumnSorted(int index, bool descending, IBrowserWrapper browser)
+            {
+                var previous = string.Empty;
+                foreach (var element in browser.ElementAt("table", 0).FindElements("tr").Skip(1))
+                {
+                    var current = element.ElementAt("td", index).Children.First().GetText();
+                    if (previous != string.Empty)
+                    {
+                        if ((descending && string.Compare(previous, current) == -1) || (!descending && string.Compare(previous, current) == 1))
+                            throw new XunitException("Columns not ordered properly.");
+                    }
+
+                    previous = current;
+                }
+            }
+
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewSortingStrategy);
+                browser.WaitUntilDotvvmInited();
+
+                // Sort by first column
+                browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 0).ElementAt("a", 0).Click();
+                browser.Wait();
+                CheckNthColumnSorted(0, descending: false, browser);
+
+                // First column is always sorted in ascending order
+                browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 0).ElementAt("a", 0).Click();
+                browser.Wait();
+                CheckNthColumnSorted(0, descending: false, browser);
             });
         }
     }
