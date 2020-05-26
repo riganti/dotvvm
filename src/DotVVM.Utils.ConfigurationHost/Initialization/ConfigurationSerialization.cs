@@ -7,7 +7,8 @@ namespace DotVVM.Utils.ConfigurationHost.Initialization
         public static void PreInit()
         {
             var converter = new OfflineResourceRepositoryJsonConverter();
-            converter.GetResourceTypeNames();
+            //TODO: verify whether this init is needed or not
+            //converter.GetResourceTypeNames();
         }
     }
 }
