@@ -1,4 +1,5 @@
-﻿using DotVVM.Samples.Tests.Base;
+﻿using System.Threading;
+using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Riganti.Selenium.Core;
 using Riganti.Selenium.Core.Abstractions.Attributes;
@@ -118,6 +119,129 @@ namespace DotVVM.Samples.Tests.Feature
                     AssertUI.InnerTextEquals(postbackIndexSpan, "1");
                     AssertUI.InnerTextEquals(lastActionSpan, "long");
                 }, 6000);
+            });
+        }
+
+        [Fact]
+        [SampleReference(SamplesRouteUrls.FeatureSamples_PostbackConcurrency_StressTest)]
+        public void Feature_PostbackConcurrency_StressTest_Default()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostbackConcurrency_StressTest);
+
+                browser.ElementAt("input[type=button]", 1).Click();
+
+                Thread.Sleep(10000);
+                var before = int.Parse(browser.Single(".result-before").GetInnerText().Trim());
+                var rejected = int.Parse(browser.Single(".result-rejected").GetInnerText().Trim());
+                var after = int.Parse(browser.Single(".result-after").GetInnerText().Trim());
+                var value = int.Parse(browser.Single(".result-value").GetInnerText().Trim());
+
+                Assert.True(0 < value && value <= 100);
+                Assert.Equal(100, before);
+                Assert.Equal(100, after);
+                Assert.Equal(0, rejected);
+            });
+        }
+
+        [Fact]
+        [SampleReference(SamplesRouteUrls.FeatureSamples_PostbackConcurrency_StressTest)]
+        public void Feature_PostbackConcurrency_StressTest_Deny()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostbackConcurrency_StressTest);
+
+                browser.ElementAt("input[type=button]", 3).Click();
+
+                Thread.Sleep(10000);
+                var before = int.Parse(browser.Single(".result-before").GetInnerText().Trim());
+                var rejected = int.Parse(browser.Single(".result-rejected").GetInnerText().Trim());
+                var after = int.Parse(browser.Single(".result-after").GetInnerText().Trim());
+                var value = int.Parse(browser.Single(".result-value").GetInnerText().Trim());
+
+                Assert.True(0 < value && value <= 100);
+                Assert.Equal(100, before + rejected);
+                Assert.Equal(100, after);
+            });
+        }
+
+        [Fact]
+        [SampleReference(SamplesRouteUrls.FeatureSamples_PostbackConcurrency_StressTest)]
+        public void Feature_PostbackConcurrency_StressTest_Queue()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostbackConcurrency_StressTest);
+
+                browser.ElementAt("input[type=button]", 5).Click();
+
+                Thread.Sleep(10000);
+                var before = int.Parse(browser.Single(".result-before").GetInnerText().Trim());
+                var rejected = int.Parse(browser.Single(".result-rejected").GetInnerText().Trim());
+                var after = int.Parse(browser.Single(".result-after").GetInnerText().Trim());
+                var value = int.Parse(browser.Single(".result-value").GetInnerText().Trim());
+
+                Assert.Equal(100, value);
+                Assert.Equal(100, before);
+                Assert.Equal(100, after);
+                Assert.Equal(0, rejected);
+            });
+        }
+
+        [Fact]
+        public void Feature_PostbackConcurrency_RedirectPostbackQueue()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostbackConcurrency_RedirectPostbackQueue);
+
+                browser.ElementAt("input[type=button]", 0).Click();
+                browser.ElementAt("input[type=button]", 1).Click();
+
+                while (!browser.CurrentUrl.Contains("?time"))
+                {
+                    Thread.Sleep(100);
+                    AssertUI.TextNotEquals(browser.Single(".result"), "1");
+                }
+            });
+        }
+
+        [Fact]
+        public void Feature_PostbackConcurrency_RedirectPostbackQueueSpa_PostbackDuringRedirect()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostbackConcurrency_RedirectPostbackQueueSpa);
+
+                browser.ElementAt("input[type=button]", 0).Click();
+                browser.ElementAt("input[type=button]", 1).Click();
+
+                while (!browser.CurrentUrl.Contains("?time"))
+                {
+                    Thread.Sleep(100);
+                    AssertUI.TextNotEquals(browser.Single(".result"), "1");
+                }
+            });
+        }
+
+        [Fact]
+        [SampleReference(SamplesRouteUrls.FeatureSamples_PostbackConcurrency_RedirectPostbackQueueSpa)]
+        public void Feature_PostbackConcurrency_RedirectPostbackQueueSpa_PostbackFromPreviousPage()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostbackConcurrency_RedirectPostbackQueueSpa);
+
+                browser.ElementAt("input[type=button]", 0).Click();
+                browser.ElementAt("input[type=button]", 2).Click();
+
+                while (!browser.CurrentUrl.Contains("?time"))
+                {
+                    Thread.Sleep(100);
+                    AssertUI.TextNotEquals(browser.Single(".result"), "1");
+                }
+
+                for (int i = 0; i < 8; i++)
+                {
+                    AssertUI.TextNotEquals(browser.Single(".result"), "1");
+                    Thread.Sleep(1000);
+                }
             });
         }
     }

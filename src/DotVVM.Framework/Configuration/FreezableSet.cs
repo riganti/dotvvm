@@ -22,7 +22,7 @@ namespace DotVVM.Framework.Configuration
             }
         }
     }
-    sealed class FreezableSet<T> : ISet<T>
+    sealed class FreezableSet<T> : ISet<T>, IReadOnlyCollection<T>
     {
         private readonly HashSet<T> set;
         private bool isFrozen;
