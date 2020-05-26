@@ -1,3 +1,5 @@
+using DotVVM.Framework.ViewModel;
+
 namespace DotVVM.Framework.Controls
 {
     /// <summary>
@@ -14,5 +16,11 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the name of the property that is used for sorting. Null means the grid should not be sorted.
         /// </summary>
         public string? SortExpression { get; set; }
+
+        /// <summary>
+        /// Gets or sets a custom sorting strategy
+        /// </summary>
+        [Bind(Direction.None)]
+        public ISortingStrategy? SortingStrategy { get; set; } = new SortingStrategy();
     }
 }

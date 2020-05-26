@@ -14,5 +14,10 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the name of the property that is used for sorting. Null means the grid should not be sorted.
         /// </summary>
         string? SortExpression { get; set; }
+
+        /// <summary>
+        /// Gets or sets a custom sorting strategy.
+        /// </summary>
+        ISortingStrategy? SortingStrategy { get; set; }
     }
 }

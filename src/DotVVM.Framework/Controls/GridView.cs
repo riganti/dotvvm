@@ -166,22 +166,20 @@ namespace DotVVM.Framework.Controls
             var dataSourceBinding = GetDataSourceBinding();
             var dataSource = DataSource;
 
-            var sortCommand =
-                dataSource is ISortableGridViewDataSet sortableSet && sortableSet.SortingOptions is ISortingOptions sortOptions ?
-                    expr => {
-                        if (sortOptions.SortExpression == expr)
-                        {
-                            sortOptions.SortDescending ^= true;
-                        }
-                        else
-                        {
-                            sortOptions.SortExpression = expr;
-                            sortOptions.SortDescending = false;
-                        }
-                        (sortableSet as IPageableGridViewDataSet)?.GoToFirstPage();
-                    }
-            :
-                    SortChanged;
+            var sortCommand = null as Action<string?>;
+            if (dataSource is ISortableGridViewDataSet sortableSet && sortableSet.SortingOptions is ISortingOptions sortOptions)
+            {
+                if (sortOptions.SortingStrategy == null)
+                {
+                    sortOptions.SortingStrategy = new SortingStrategy();
+                }
+
+                sortCommand = (expr) => sortOptions.SortingStrategy!.Apply(sortableSet, expr);
+            }
+            else
+            {
+                sortCommand = SortChanged;
+            }
 
             // WORKAROUND: DataSource is null => don't throw exception
             if (sortCommand == null && dataSource == null)
