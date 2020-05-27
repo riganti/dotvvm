@@ -1,4 +1,5 @@
-﻿using DotVVM.Framework.Configuration;
+﻿using System.Text;
+using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Security;

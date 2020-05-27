@@ -8,12 +8,11 @@
     <title></title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <style>
-    .table-danger {
-        color: #de1212;
-        font-weight: bold;
-        font-size: 0.9rem;
-    }
-
+        .table-danger {
+            color: #de1212;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
     .table-success .status {
         color: green;
     }
