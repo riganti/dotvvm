@@ -18,7 +18,7 @@ namespace DotVVM.Diagnostics.StatusPage
 {
     public class DotvvmViewCompilationService : IDotvvmViewCompilationService
     {
-        //this will be removed durring integration of this service into DotVVM
+        //this will be removed during integration of this service into DotVVM
         public bool BuildInParallel { get; set; }
         private readonly DotvvmConfiguration dotvvmConfiguration;
 
