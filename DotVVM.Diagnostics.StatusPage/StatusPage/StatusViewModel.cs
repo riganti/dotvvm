@@ -17,9 +17,11 @@ namespace DotVVM.Diagnostics.StatusPage
     {
         private readonly StatusPageOptions _statusPageOptions;
         private readonly IDotvvmViewCompilationService viewCompilationService;
+        [Protect(ProtectMode.SignData)]
         public List<DotHtmlFileInfo> Routes => viewCompilationService.GetRoutes();
+        [Protect(ProtectMode.SignData)]
         public List<DotHtmlFileInfo> MasterPages => viewCompilationService.GetMasterPages();
-
+        [Protect(ProtectMode.SignData)]
         public List<DotHtmlFileInfo> Controls => viewCompilationService.GetControls();
         public string ApplicationPath { get; set; }
         public bool CompileAfterLoad { get; set; }
