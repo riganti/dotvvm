@@ -15,19 +15,21 @@ namespace DotVVM.Framework.Compilation
     {
         private readonly DotvvmConfiguration dotvvmConfiguration;
 
-        private bool EverythingIsCompiled => controls != null && routes != null && masterPages != null && masterPages.Concat(controls).Concat(routes).All(t => t.Status != CompilationState.None);
-        public IEnumerable<DotHtmlFileInfo> FilesWithErrors => !EverythingIsCompiled ? Enumerable.Empty<DotHtmlFileInfo>() :
-            masterPages.Concat(controls).Concat(routes).Where(t => t.Status == CompilationState.CompilationFailed);
+        public IEnumerable<DotHtmlFileInfo> GetFilesWithFailedCompilation()
+        {
+            return GetMasterPages().Concat(GetControls()).Concat(GetRoutes())
+                .Where(t => t.Status == CompilationState.CompilationFailed);
+        }
 
         private List<DotHtmlFileInfo> masterPages;
         public List<DotHtmlFileInfo> GetMasterPages()
         {
-
             if (masterPages == null) InitMasterPagesCollection();
             return masterPages;
         }
 
         private List<DotHtmlFileInfo> controls;
+        private static object loadControlsLocker = new object();
         public List<DotHtmlFileInfo> GetControls()
         {
             if (controls == null)
@@ -50,6 +52,7 @@ namespace DotVVM.Framework.Compilation
         }
 
         protected List<DotHtmlFileInfo> routes;
+        private static object loadRoutesLocker = new object();
         public List<DotHtmlFileInfo> GetRoutes()
         {
             if (routes == null)
@@ -92,10 +95,7 @@ namespace DotVVM.Framework.Compilation
                 }
             }
         }
-
-        private static object loadControlsLocker = new object();
-        private static object loadRoutesLocker = new object();
-
+        
         private bool IsDotvvmPresenter(RouteBase r)
         {
             var presenter = r.GetPresenter(dotvvmConfiguration.ServiceProvider);
@@ -104,9 +104,6 @@ namespace DotVVM.Framework.Compilation
 
         public async Task<bool> CompileAll(bool buildInParallel=true, bool forceRecompile = false)
         {
-            if (EverythingIsCompiled && !forceRecompile)
-                return !FilesWithErrors.Any();
-
             List<DotHtmlFileInfo> controlsToCompile;
             List<DotHtmlFileInfo> routesToCompile;
             if (forceRecompile)
@@ -119,8 +116,7 @@ namespace DotVVM.Framework.Compilation
                 routesToCompile = routes.Where(t => t.Status == CompilationState.None).ToList();
                 controlsToCompile = controls.Where(t => t.Status == CompilationState.None).ToList();
             }
-
-
+            
             var tempMasterPages = new ConcurrentBag<DotHtmlFileInfo>();
             var compileTasks = routesToCompile.Select(a => new Task(() => BuildView(a, tempMasterPages))).ToList();
 
@@ -140,7 +136,7 @@ namespace DotVVM.Framework.Compilation
             }
 
             OrderByErrors();
-            return !FilesWithErrors.Any();
+            return !GetFilesWithFailedCompilation().Any();
         }
 
         private async Task ExecuteCompileTasks(List<Task> compileTasks, bool buildInParallel)
@@ -165,7 +161,7 @@ namespace DotVVM.Framework.Compilation
             controls = controls.OrderByDescending(c => c.Status).ToList();
         }
 
-        public bool BuildView(DotHtmlFileInfo file, ConcurrentBag<DotHtmlFileInfo> tempList)
+        public bool BuildView(DotHtmlFileInfo file, ConcurrentBag<DotHtmlFileInfo> foundMasterpages=null)
         {
 
             if (file.Status != CompilationState.NonCompilable)
@@ -178,14 +174,13 @@ namespace DotVVM.Framework.Compilation
 
                     var compiledControl = pageBuilder.builder.Value.BuildControl(controlFactory, dotvvmConfiguration.ServiceProvider);
 
-                    if (compiledControl is DotvvmView view && view.Directives.TryGetValue(
-                        ParserConstants.MasterPageDirective,
-                        out var masterPage))
+                    if (compiledControl is DotvvmView view && foundMasterpages!=null &&
+                        view.Directives.TryGetValue(ParserConstants.MasterPageDirective,out var masterPage))
                     {
                         if (masterPages.All(s => s.VirtualPath != masterPage) &&
-                            tempList.All(s => s.VirtualPath != masterPage))
+                            foundMasterpages.All(s => s.VirtualPath != masterPage))
                         {
-                            tempList.Add(new DotHtmlFileInfo() {
+                            foundMasterpages.Add(new DotHtmlFileInfo() {
                                 VirtualPath = masterPage
                             });
                         }
