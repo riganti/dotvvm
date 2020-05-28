@@ -18,6 +18,8 @@ namespace DotVVM.Framework.Controls
     {
         public static void WriteRouteLinkHrefAttribute(RouteLink control, IHtmlWriter writer, IDotvvmRequestContext context)
         {
+            EnsureUsesOnlyDefinedParameters(control, context);
+
             // Render client-side knockout expression only if there exists a parameter with value binding
             var containsBinding =
                 control.QueryParameters.RawValues.Any(p => p.Value is IValueBinding) ||
@@ -34,6 +36,18 @@ namespace DotVVM.Framework.Controls
             if (control.RenderOnServer || !containsBinding)
             {
                 writer.AddAttribute("href", EvaluateRouteUrl(control.RouteName, control, context));
+            }
+        }
+
+        private static void EnsureUsesOnlyDefinedParameters(RouteLink control, IDotvvmRequestContext context)
+        {
+            var undefinedParams = (context.Route!.ParameterNames == null) ? control.Params :
+                control.Params.Where(param => !context.Configuration.RouteTable[control.RouteName].ParameterNames.Contains(param.Key));
+
+            if (undefinedParams.Any())
+            {
+                var parameters = string.Join(", ", undefinedParams.Select(kv => kv.Key));
+                throw new DotvvmRouteException($"The following parameters are not present in route {control.RouteName}: {parameters}");
             }
         }
 
