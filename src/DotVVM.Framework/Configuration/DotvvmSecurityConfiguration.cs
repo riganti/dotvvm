@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 namespace DotVVM.Framework.Configuration
@@ -30,6 +31,7 @@ namespace DotVVM.Framework.Configuration
         /// Gets or sets name of HTTP cookie used for Session ID
         /// </summary>
         [JsonProperty("sessionIdCookieName", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [DefaultValue("dotvvm_sid_{0}")]
         public string SessionIdCookieName
         {
             get => sessionIdCookieName;

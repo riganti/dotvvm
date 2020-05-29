@@ -43,8 +43,11 @@ namespace DotVVM.Framework.ResourceManagement
                 InlineScriptContentGuard(value);
                 this.resourceLocation = new InlineResourceLocation(value);
                 this.code = new Lazy<string>(() => value);
+                _ = this.code.Value;
             }
         }
+
+        public bool ShouldSerializeCode() => code?.IsValueCreated == true;
 
         internal static void InlineScriptContentGuard(string? code)
         {

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net461</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
@@ -11,13 +11,13 @@
     <PackageReference Include="System.ValueTuple" Version="4.4.0" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1" />
-    <PackageReference Include="Riganti.Selenium.Coordinator.Client" Version="2.0.5-preview04-final" />
-    <PackageReference Include="Riganti.Selenium.Core" Version="2.0.5-preview04-final" />
-    <PackageReference Include="Riganti.Selenium.Core.Abstractions" Version="2.0.5-preview04-final" />
-    <PackageReference Include="Riganti.Selenium.DotVVM" Version="2.0.5-preview04-final" />
-    <PackageReference Include="Riganti.Selenium.AssertApi" Version="2.0.5-preview04-final" />
-    <PackageReference Include="Riganti.Selenium.xUnitIntegration" Version="2.0.5-preview04-final" />
-    <PackageReference Include="Riganti.Selenium.Validators" Version="2.0.5-preview04-final" />
+    <PackageReference Include="Riganti.Selenium.Coordinator.Client" Version="2.0.6.2" />
+    <PackageReference Include="Riganti.Selenium.Core" Version="2.0.6.2" />
+    <PackageReference Include="Riganti.Selenium.Core.Abstractions" Version="2.0.6.2" />
+    <PackageReference Include="Riganti.Selenium.DotVVM" Version="2.0.6.2" />
+    <PackageReference Include="Riganti.Selenium.AssertApi" Version="2.0.6.2" />
+    <PackageReference Include="Riganti.Selenium.xUnitIntegration" Version="2.0.6.2" />
+    <PackageReference Include="Riganti.Selenium.Validators" Version="2.0.6.2" />
   </ItemGroup>
 
   <ItemGroup>
