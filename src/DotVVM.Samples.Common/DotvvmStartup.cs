@@ -27,7 +27,7 @@ namespace DotVVM.Samples.BasicSamples
 {
     public class DotvvmStartup : IDotvvmStartup, IDotvvmServiceConfigurator
     {
-        
+
         public void Configure(DotvvmConfiguration config, string applicationPath)
         {
             config.DefaultCulture = "en-US";
@@ -66,7 +66,7 @@ namespace DotVVM.Samples.BasicSamples
 
             var profiles = json.Value<JArray>("profiles");
             var profile = profiles.Single(p => p.Value<string>("name") == activeProfile);
-            
+
             JsonConvert.PopulateObject(profile.Value<JObject>("config").ToString(), config);
 
             SampleConfiguration.Initialize(
