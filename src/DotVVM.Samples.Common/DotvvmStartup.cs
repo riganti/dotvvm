@@ -131,6 +131,7 @@ namespace DotVVM.Samples.BasicSamples
             config.RouteTable.AutoDiscoverRoutes(new DefaultRouteStrategy(config));
 
             config.RouteTable.Add("ControlSamples_RouteLink_RouteLinkUndefinedParams-PageDetail", "ControlSamples/RouteLink/RouteLinkUndefinedParams/{Id}", "Views/ControlSamples/RouteLink/RouteLinkUndefinedParams.dothtml", new { Id = 0 });
+            config.RouteTable.Add("ControlSamples_Repeater_RouteLinkQuery-PageDetail", "ControlSamples/Repeater/RouteLinkQuery/{Id}", "Views/ControlSamples/Repeater/RouteLinkQuery.dothtml", new { Id = 0 });
             config.RouteTable.Add("RepeaterRouteLink-PageDetail", "ControlSamples/Repeater/RouteLink/{Id}", "Views/ControlSamples/Repeater/RouteLink.dothtml", new { Id = 0 });
             config.RouteTable.Add("RepeaterRouteLink-PageDetail_IdOptional", "ControlSamples/Repeater/RouteLink/{Id?}", "Views/ControlSamples/Repeater/RouteLink.dothtml");
             config.RouteTable.Add("RepeaterRouteLink-PageDetail_IdOptionalPrefixed", "ControlSamples/Repeater/RouteLink/id-{Id?}", "Views/ControlSamples/Repeater/RouteLink.dothtml");
