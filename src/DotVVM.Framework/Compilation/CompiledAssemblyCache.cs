@@ -40,6 +40,12 @@ namespace DotVVM.Framework.Compilation
             {
                 GetAssemblyMetadata(assembly);
             }
+
+            if (Instance == null)
+            {
+                // normally, the constructor is not called multiple times as this service is singleton; only in unit tests, we create it multiple times
+                Instance = this;
+            }
         }
 
         private IEnumerable<Assembly> BuildReferencedAssembliesCache()
