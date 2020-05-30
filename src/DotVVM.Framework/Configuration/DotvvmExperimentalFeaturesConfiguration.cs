@@ -15,7 +15,7 @@ namespace DotVVM.Framework.Configuration
         [JsonProperty("serverSideViewModelCache")]
         public DotvvmExperimentalFeatureFlag ServerSideViewModelCache { get; private set; } = new DotvvmExperimentalFeatureFlag();
 
-        [JsonProperty("disableMarkupAssemblyDiscovery", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonProperty("disableMarkupAssemblyDiscovery")]
         public DotvvmGlobalExperimentalFeatureFlag DisableMarkupAssemblyDiscovery { get; private set; } = new DotvvmGlobalExperimentalFeatureFlag();
 
         public void Freeze()

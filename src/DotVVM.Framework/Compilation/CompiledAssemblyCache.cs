@@ -43,11 +43,11 @@ namespace DotVVM.Framework.Compilation
                 GetAssemblyMetadata(assembly);
             }
 
-            if (Instance != null)
+            if (Instance == null)
             {
-                throw new InvalidOperationException("The CompiledAssemblyCache cannot be created multiple times!");
+                // normally, the constructor is not called multiple times as this service is singleton; only in unit tests, we create it multiple times
+                Instance = this;
             }
-            Instance = this;
         }
 
         private IEnumerable<Assembly> BuildReferencedAssembliesCache()

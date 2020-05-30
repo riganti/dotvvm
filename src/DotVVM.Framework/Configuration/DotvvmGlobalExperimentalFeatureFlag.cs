@@ -6,7 +6,7 @@ namespace DotVVM.Framework.Configuration
     public class DotvvmGlobalExperimentalFeatureFlag
     {
 
-        [JsonProperty("enabled", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonProperty("enabled")]
         public bool Enabled
         {
             get => _enabled;
