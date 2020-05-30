@@ -19,43 +19,11 @@ namespace DotVVM.Framework.ResourceManagement
     public class ResourceRepositoryJsonConverter : JsonConverter
     {
         public static Type? UnknownResourceType = null;
-        private static readonly object _resourceTypeNamesLock = new object();
-        static ConcurrentDictionary<string, Type>? _resourceTypeNames;
-
-        /// <summary>
-        /// Finds all types derived from IResource and creates a dictionary of their names, full names and names in <see cref="ResourceConfigurationCollectionNameAttribute"/>
-        /// </summary>
-        public virtual ConcurrentDictionary<string, Type> GetResourceTypeNames()
-        {
-            if (_resourceTypeNames == null)
-            {
-                lock (_resourceTypeNamesLock)
-                {
-                    if (_resourceTypeNames == null)
-                    {
-
-                        _resourceTypeNames = new ConcurrentDictionary<string, Type>();
-                        var dict = _resourceTypeNames;
-                        var dotvvmAssembly = typeof(DotvvmConfiguration).GetTypeInfo().Assembly.FullName.NotNull();
-                        var resourceBaseType = typeof(IResource);
-
-                        var types = ResolveAllTypesDerivedFromIResource(dotvvmAssembly, resourceBaseType);
-                        foreach (var type in types)
-                        {
-                            var attr = type.GetTypeInfo().GetCustomAttribute<ResourceConfigurationCollectionNameAttribute>();
-                            // name from attribute
-                            if (attr != null) dict.TryAdd(attr.Name, type);
-                            // full name of type
-                            dict.TryAdd(type.FullName.NotNull(), type);
-                            // simple name of type if not already occupied
-                            if (!dict.ContainsKey(type.Name)) dict.TryAdd(type.Name, type);
-                        }
-                    }
-                }
-            }
-
-            return _resourceTypeNames;
-        }
+        static (string name, Type type)[] resourceTypeAliases = new [] {
+            ("scripts", typeof(ScriptResource)),
+            ("stylesheets", typeof(StylesheetResource)),
+            ("null", typeof(NullResource))
+        };
 
         protected virtual IEnumerable<Type> ResolveAllTypesDerivedFromIResource(string dotvvmAssembly, Type resourceBaseType)
         {
@@ -89,9 +57,13 @@ namespace DotVVM.Framework.ResourceManagement
             var repo = existingValue as DotvvmResourceRepository ?? new DotvvmResourceRepository();
             foreach (var prop in jobj)
             {
-                if (GetResourceTypeNames().TryGetValue(prop.Key, out var type))
+                if (resourceTypeAliases.FirstOrDefault(x => x.name == prop.Key) is var r && r.type != null)
                 {
-                    DeserializeResources((JObject)prop.Value, type, serializer, repo);
+                    DeserializeResources((JObject)prop.Value, r.type, serializer, repo);
+                }
+                else if (ReflectionUtils.FindType(prop.Key) is Type resourceType)
+                {
+                    DeserializeResources((JObject)prop.Value, resourceType, serializer, repo);
                 }
                 else if (UnknownResourceType != null)
                 {
@@ -131,11 +103,15 @@ namespace DotVVM.Framework.ResourceManagement
         {
             writer.WriteStartObject();
             var resources = value as DotvvmResourceRepository ?? throw new NotSupportedException();
-            foreach (var group in resources.Resources.GroupBy(k => k.Value.GetType()))
+            foreach (var (name, group) in (
+                from k in resources.Resources
+                orderby k.Key
+                group k by k.Value.GetType() into g
+                let niceName = resourceTypeAliases.FirstOrDefault(k => k.type == g.Key).name
+                let name = niceName ?? g.Key.FullName
+                orderby name
+                select (name, g)))
             {
-                var name = GetResourceTypeNames().FirstOrDefault(k => k.Value == group.Key).Key;
-                if (name == null) continue;
-
                 writer.WritePropertyName(name);
                 writer.WriteStartObject();
                 foreach (var resource in group)

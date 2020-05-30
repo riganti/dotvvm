@@ -50,6 +50,8 @@ interface IDotvvmPostbackHandlerCollection {
 class DotVVM {
     private postBackCounter = 0;
     private lastStartedPostack = 0;
+    // when we perform redirect, we also disable all new postbacks to prevent strange behavior
+    private arePostbacksDisabled = false;
     private fakeRedirectAnchor: HTMLAnchorElement;
     private resourceSigns: { [name: string]: boolean } = {}
     private isViewModelUpdating: boolean = true;
@@ -168,12 +170,15 @@ class DotVVM {
 
         const dispatchNext = (args) => {
             const drop = () => {
-                queue.noRunning--;
-                dotvvm.updateProgressChangeCounter(dotvvm.updateProgressChangeCounter() - 1);
-                if (queue.queue.length > 0) {
-                    const callback = queue.queue.shift()!
-                    window.setTimeout(callback, 0)
-                }
+                // run the next postback after everything about this one is finished (after, error events, ...)
+                Promise.resolve().then(() => {
+                    queue.noRunning--;
+                    dotvvm.updateProgressChangeCounter(dotvvm.updateProgressChangeCounter() - 1);
+                    if (queue.queue.length > 0) {
+                        const callback = queue.queue.shift()!
+                        callback()
+                    }
+                })
             }
             if (args instanceof DotvvmAfterPostBackWithRedirectEventArgs && args.redirectPromise) {
                 args.redirectPromise.then(drop, drop);
@@ -579,6 +584,10 @@ class DotVVM {
             catch (err) {
                 reject({ type: 'network', options: options, args: new DotvvmErrorEventArgs(options.sender, viewModel, viewModelName, null, options.postbackId) });
                 return;
+            }
+
+            if (this.arePostbacksDisabled) {
+                reject({ type: 'handler' })
             }
 
             this.lastStartedPostack = options.postbackId
@@ -999,8 +1008,24 @@ class DotVVM {
         return this.performRedirect(url, replace, resultObject.allowSpa && this.useHistoryApiSpaNavigation);
     }
 
+    private disablePostbacks() {
+        this.lastStartedPostack = -1 // this stops further commits
+        for (const q in this.postbackQueues) {
+            if (this.postbackQueues.hasOwnProperty(q)) {
+                this.postbackQueues[q].queue.length = 0
+            }
+        }
+        // disable all other postbacks
+        // but not in SPA mode, since we'll need them for the next page
+        // and user might want to try another postback in case this navigation hangs
+        if (!this.getSpaPlaceHolder()) {
+            this.arePostbacksDisabled = true
+        }
+    }
+
     private performRedirect(url: string, replace: boolean, useHistoryApiSpaRedirect?: boolean): Promise<DotvvmNavigationEventArgs> {
         return new Promise((resolve, reject) => {
+            this.disablePostbacks()
             if (replace) {
                 location.replace(url);
                 resolve();

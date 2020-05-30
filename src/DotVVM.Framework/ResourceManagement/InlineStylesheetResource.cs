@@ -31,7 +31,10 @@ namespace DotVVM.Framework.ResourceManagement
         {
             InlineStyleContentGuard(code);
             this.code = new Lazy<string>(() => code);
+            _ = this.code.Value;
         }
+
+        public bool ShouldSerializeCode() => code?.IsValueCreated == true;
 
         internal static void InlineStyleContentGuard(string code)
         {
