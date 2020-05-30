@@ -1,47 +1,39 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 
 namespace DotVVM.Framework.Compilation
 {
-    public class DotHtmlFileInfo
+    public sealed class DotHtmlFileInfo
     {
-        public CompilationState Status { get; set; }
-        public string Exception { get; set; }
-        public string TagName { get; set; }
-        public string Namespace { get; set; }
-        public string Assembly { get; set; }
-        public string TagPrefix { get; set; }
-        public string Url { get; set; }
-
-        /// <summary>Gets key of route.</summary>
-        public string RouteName { get; set; }
-
-        /// <summary>Gets the default values of the optional parameters.</summary>
-        public List<string> DefaultValues { get; set; }
+        public CompilationState Status { get; internal set; }
+        public string Exception { get; internal set; }
 
         /// <summary>Gets or sets the virtual path to the view.</summary>
-        public string VirtualPath { get; set; }
+        public string VirtualPath { get; }
 
-        public bool HasParameters { get; set; }
+        public string TagName { get; }
+        public string Namespace { get; }
+        public string Assembly { get; }
+        public string TagPrefix { get; }
+        public string Url { get; }
+        public string RouteName { get; }
+        public ImmutableArray<string>? DefaultValues { get; }
+        public bool? HasParameters { get; }
 
-
-        private sealed class VirtualPathEqualityComparer : IEqualityComparer<DotHtmlFileInfo>
+        public DotHtmlFileInfo(string virtualPath, string tagName = null, string nameSpace = null, string assembly = null, string tagPrefix = null, string url = null, string routeName = null, ImmutableArray<string>? defaultValues = null, bool? hasParameters = null)
         {
-            public bool Equals(DotHtmlFileInfo x, DotHtmlFileInfo y)
-            {
-                if (ReferenceEquals(x, y)) return true;
-                if (ReferenceEquals(x, null)) return false;
-                if (ReferenceEquals(y, null)) return false;
-                if (x.GetType() != y.GetType()) return false;
-                return x.VirtualPath == y.VirtualPath;
-            }
+            VirtualPath = virtualPath;
+            Status = !string.IsNullOrWhiteSpace(virtualPath) ? CompilationState.None : CompilationState.NonCompilable;
 
-            public int GetHashCode(DotHtmlFileInfo obj)
-            {
-                return (obj.VirtualPath != null ? obj.VirtualPath.GetHashCode() : 0);
-            }
+            TagName = tagName;
+            Namespace = nameSpace;
+            Assembly = assembly;
+            TagPrefix = tagPrefix;
+            Url = url;
+            RouteName = routeName;
+            DefaultValues = defaultValues;
+            HasParameters = hasParameters;
         }
-
-        public static IEqualityComparer<DotHtmlFileInfo> VirtualPathComparer { get; } = new VirtualPathEqualityComparer();
     }
 }

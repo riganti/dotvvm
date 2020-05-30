@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Compilation
@@ -9,38 +10,30 @@ namespace DotVVM.Framework.Compilation
         /// <summary>
         /// Gets all DotHtmlFileInfos with Status CompilationFailed from last compilation.
         /// </summary>
-        IEnumerable<DotHtmlFileInfo> GetFilesWithFailedCompilation();
-
+        ImmutableArray<DotHtmlFileInfo> GetFilesWithFailedCompilation();
+        
         /// <summary>
         /// Returns all currently known masterpages.
         /// </summary>
-        List<DotHtmlFileInfo> GetMasterPages();
+        ImmutableArray<DotHtmlFileInfo> GetMasterPages();
 
         /// <summary>
         /// Returns all discovered controls.
         /// </summary>
-        List<DotHtmlFileInfo> GetControls();
+        ImmutableArray<DotHtmlFileInfo> GetControls();
 
         /// <summary>
         /// Returns all discovered routes.
         /// </summary>
         /// <returns></returns>
-        List<DotHtmlFileInfo> GetRoutes();
-
+        ImmutableArray<DotHtmlFileInfo> GetRoutes();
+        
         /// <summary>
-        /// Compiles all routes,controls and masterpages which have been not compiled before.
+        /// Compiles all view which have not been compiled yet.
         /// </summary>
-        /// <param name="buildInParallel">Compilation would run in parallel if set to true.</param>
-        /// <param name="forceRecompile">Everything will be recompiled if set to true.</param>
-        /// <returns>False if any errors are found</returns>
-        Task<bool> CompileAll(bool buildInParallel, bool forceRecompile = false);
-
-        /// <summary>
-        /// Builds given DotHtml file.
-        /// </summary>
-        /// <param name="file">File to compile</param>
-        /// <param name="foundMasterpages">All found masterpages would be added to this collection during file compilation.</param>
-        /// <returns></returns>
-        bool BuildView(DotHtmlFileInfo file, ConcurrentBag<DotHtmlFileInfo> foundMasterpages = null);
+        /// <param name="buildInParallel">If set, than the compilations will be performed in parallel.</param>
+        /// <param name="forceRecompile">If set, than everything will be recompiled.</param>
+        /// <returns>Returns whether compilation was successful.</returns>
+        Task<bool> CompileAll(bool buildInParallel=true, bool forceRecompile = false);
     }
 }
