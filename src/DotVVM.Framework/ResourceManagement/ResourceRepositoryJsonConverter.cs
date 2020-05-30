@@ -61,7 +61,7 @@ namespace DotVVM.Framework.ResourceManagement
                 {
                     DeserializeResources((JObject)prop.Value, r.type, serializer, repo);
                 }
-                else if (ReflectionUtils.FindType(prop.Key) is Type resourceType)
+                else if (CompiledAssemblyCache.Instance!.FindType(prop.Key) is Type resourceType)
                 {
                     DeserializeResources((JObject)prop.Value, resourceType, serializer, repo);
                 }

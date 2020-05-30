@@ -26,6 +26,8 @@ namespace DotVVM.Framework.Compilation
 
         private readonly DotvvmConfiguration configuration;
 
+        public static CompiledAssemblyCache? Instance { get; private set; }
+
         public CompiledAssemblyCache(DotvvmConfiguration configuration)
         {
             this.configuration = configuration;
@@ -40,6 +42,12 @@ namespace DotVVM.Framework.Compilation
             {
                 GetAssemblyMetadata(assembly);
             }
+
+            if (Instance != null)
+            {
+                throw new InvalidOperationException("The CompiledAssemblyCache cannot be created multiple times!");
+            }
+            Instance = this;
         }
 
         private IEnumerable<Assembly> BuildReferencedAssembliesCache()
@@ -118,10 +126,10 @@ namespace DotVVM.Framework.Compilation
             {
 #if DotNetCore
                 // auto-loads all referenced assemblies recursively
-                return DependencyContext.Default.GetDefaultAssemblyNames().Select(Assembly.Load).ToArray();
+                return DependencyContext.Default.GetDefaultAssemblyNames().Select(Assembly.Load).Where(a => !a.IsDynamic).ToArray();
 #else
                 // this doesn't load new assemblies, but it is done in InvokeStaticConstructorsOnAllControls
-                return AppDomain.CurrentDomain.GetAssemblies();
+                return AppDomain.CurrentDomain.GetAssemblies().Where(a => !a.IsDynamic).ToArray();
 #endif
             }
         }

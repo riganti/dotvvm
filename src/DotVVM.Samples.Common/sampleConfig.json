@@ -1,5 +1,5 @@
 {
-  "activeProfile": "ServerSideViewModelCache",
+  "activeProfile": "DisableMarkupAssemblyDiscovery",
   "profiles": [
     {
       "name": "Default",
@@ -22,6 +22,16 @@
       "config": {
         "experimentalFeatures": {
           "serverSideViewModelCache": {
+            "enabled": true
+          }
+        }
+      }
+    },
+    {
+      "name": "DisableMarkupAssemblyDiscovery",
+      "config": {
+        "experimentalFeatures": {
+          "disableMarkupAssemblyDiscovery": {
             "enabled": true
           }
         }
