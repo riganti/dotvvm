@@ -2,6 +2,19 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <OutputType>Exe</OutputType>
+    <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>dotvvm-startup-perf</ToolCommandName>
+    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
+    <PackageId>DotVVM.Tools.StartupPerf</PackageId>
+    <PackageVersion>2.4.0.2-preview02-76679</PackageVersion>
+    <Authors>RIGANTI</Authors>
+    <Description>Command-line tool for measuring startup performance of DotVVM apps.</Description>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageTags>dotvvm;asp.net;mvvm;owin;dotnetcore;dnx;cli</PackageTags>
+    <PackageIconUrl>https://dotvvm.com/Content/images/icons/icon-blue-64x64.png</PackageIconUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="system.commandline" Version="2.0.0-beta1.20253.1" />
