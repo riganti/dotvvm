@@ -41,8 +41,7 @@ namespace DotVVM.Framework.Controls
 
         private static void EnsureUsesOnlyDefinedParameters(RouteLink control, IDotvvmRequestContext context)
         {
-            var undefinedParams = (context.Route!.ParameterNames == null) ? control.Params :
-                control.Params.Where(param => !context.Configuration.RouteTable[control.RouteName].ParameterNames.Contains(param.Key));
+            var undefinedParams = control.Params.Where(param => !context.Configuration.RouteTable[control.RouteName].ParameterNames.Contains(param.Key));
 
             if (undefinedParams.Any())
             {
