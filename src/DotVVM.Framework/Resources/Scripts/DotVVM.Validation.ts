@@ -171,7 +171,8 @@ type DotvvmValidationElementUpdateFunctions = {
 type ValidationSummaryBinding = {
     target: KnockoutObservable<any>,
     includeErrorsFromChildren: boolean,
-    includeErrorsFromTarget: boolean
+    includeErrorsFromTarget: boolean,
+    hideWhenValid: boolean
 }
 
 class DotvvmValidation {
@@ -303,6 +304,15 @@ class DotvvmValidation {
                         let item = document.createElement("li");
                         item.innerText = error.errorMessage;
                         element.appendChild(item);
+                    }
+
+                    if (binding.hideWhenValid) {
+                        if (errors.length > 0) {
+                            element.style.display = "";
+                        }
+                        else {
+                            element.style.display = "none";
+                        }
                     }
                 });
             }

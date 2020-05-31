@@ -23,10 +23,11 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
@@ -217,22 +218,22 @@ var DotvvmAfterPostBackEventArgs = /** @class */ (function () {
     }
     Object.defineProperty(DotvvmAfterPostBackEventArgs.prototype, "postbackClientId", {
         get: function () { return this.postbackOptions.postbackId; },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     Object.defineProperty(DotvvmAfterPostBackEventArgs.prototype, "viewModelName", {
         get: function () { return this.postbackOptions.viewModelName; },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     Object.defineProperty(DotvvmAfterPostBackEventArgs.prototype, "viewModel", {
         get: function () { return this.postbackOptions.viewModel; },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     Object.defineProperty(DotvvmAfterPostBackEventArgs.prototype, "sender", {
         get: function () { return this.postbackOptions.sender; },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     return DotvvmAfterPostBackEventArgs;
@@ -247,7 +248,7 @@ var DotvvmAfterPostBackWithRedirectEventArgs = /** @class */ (function (_super) 
     }
     Object.defineProperty(DotvvmAfterPostBackWithRedirectEventArgs.prototype, "redirectPromise", {
         get: function () { return this._redirectPromise; },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     return DotvvmAfterPostBackWithRedirectEventArgs;
@@ -658,7 +659,7 @@ var DotvvmSerialization = /** @class */ (function () {
         var deserialized = this.deserialize(ko.unwrap(value), unwrappedTarget[prop], deserializeAll);
         if (value instanceof Date) {
             // if we get Date value from API, it was converted to string, but we should note that it was date to convert it back
-            unwrappedTarget[prop + "$options"] = __assign({}, unwrappedTarget[prop + "$options"], { isDate: true });
+            unwrappedTarget[prop + "$options"] = __assign(__assign({}, unwrappedTarget[prop + "$options"]), { isDate: true });
         }
         // update the property
         if (ko.isObservable(deserialized)) { //deserialized is observable <=> its input target is observable
@@ -680,7 +681,7 @@ var DotvvmSerialization = /** @class */ (function () {
         }
     };
     DotvvmSerialization.prototype.copyPropertyMetadata = function (unwrappedTarget, prop, viewModel) {
-        unwrappedTarget[prop] = __assign({}, unwrappedTarget[prop], viewModel[prop]);
+        unwrappedTarget[prop] = __assign(__assign({}, unwrappedTarget[prop]), viewModel[prop]);
         var originalName = prop.substring(0, prop.length - "$options".length);
         if (typeof unwrappedTarget[originalName] === "undefined") {
             unwrappedTarget[originalName] = ko.observable();
@@ -1294,11 +1295,11 @@ var DotVVM = /** @class */ (function () {
                                     }
                                 }
                                 var result = responseObj.result;
-                                dotvvm.events.staticCommandMethodInvoked.trigger(__assign({}, data, { result: result, xhr: response }));
+                                dotvvm.events.staticCommandMethodInvoked.trigger(__assign(__assign({}, data), { result: result, xhr: response }));
                                 callback(result);
                             }
                             catch (error) {
-                                dotvvm.events.staticCommandMethodFailed.trigger(__assign({}, data, { xhr: response, error: error }));
+                                dotvvm.events.staticCommandMethodFailed.trigger(__assign(__assign({}, data), { xhr: response, error: error }));
                                 errorCallback({ xhr: response, error: error });
                             }
                             finally {
@@ -1318,7 +1319,7 @@ var DotVVM = /** @class */ (function () {
                             _this.events.error.trigger(new DotvvmErrorEventArgs(sender, _this.viewModels[viewModelName].viewModel, viewModelName, xhr, null));
                             console.warn("StaticCommand postback failed: " + xhr.status + " - " + xhr.statusText, xhr);
                             errorCallback({ xhr: xhr });
-                            dotvvm.events.staticCommandMethodFailed.trigger(__assign({}, data, { xhr: xhr }));
+                            dotvvm.events.staticCommandMethodFailed.trigger(__assign(__assign({}, data), { xhr: xhr }));
                         }, function (xhr) {
                             xhr.setRequestHeader("X-PostbackType", "StaticCommand");
                         });
@@ -2832,6 +2833,14 @@ var DotvvmValidation = /** @class */ (function () {
                         var item = document.createElement("li");
                         item.innerText = error.errorMessage;
                         element.appendChild(item);
+                    }
+                    if (binding.hideWhenValid == true) {
+                        if (errors.length > 0) {
+                            element.style.display = "";
+                        }
+                        else {
+                            element.style.display = "none";
+                        }
                     }
                 });
             }
