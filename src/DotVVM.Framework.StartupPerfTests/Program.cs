@@ -36,15 +36,20 @@ namespace DotVVM.Framework.StartupPerfTests
                     () => 1,
                     "How many times the operation should be repeated."
                 ),
+                new Option<string>(
+                    new [] { "-u", "--url" },
+                    () => "",
+                    "Relative URL in the app that should be tested."
+                ),
                 new Option<bool>(
                     new [] { "-v", "--verbose" },
                     () => false,
                     "Diagnostics output"
                 )
             }; 
-            rootCommand.Handler = CommandHandler.Create<FileInfo, TestTarget, int, bool>((project, type, repeat, verbose) =>
+            rootCommand.Handler = CommandHandler.Create<FileInfo, TestTarget, int, string, bool>((project, type, repeat, url, verbose) =>
             {
-                new StartupPerformanceTest(project, type, repeat, verbose).HandleCommand();
+                new StartupPerformanceTest(project, type, repeat, url, verbose).HandleCommand();
             });
             rootCommand.Invoke(args);
         }

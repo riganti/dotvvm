@@ -10,16 +10,18 @@ namespace DotVVM.Framework.StartupPerfTests
 {
     public class StartupPerformanceTest
     {
-        private FileInfo project;
-        private TestTarget type;
-        private int repeat;
-        private bool verbose;
+        private readonly FileInfo project;
+        private readonly TestTarget type;
+        private readonly int repeat;
+        private readonly string url;
+        private readonly bool verbose;
 
-        public StartupPerformanceTest(FileInfo project, TestTarget type, int repeat, bool verbose)
+        public StartupPerformanceTest(FileInfo project, TestTarget type, int repeat, string url, bool verbose)
         {
             this.project = project;
             this.type = type;
             this.repeat = repeat;
+            this.url = url;
             this.verbose = verbose;
         }
 
@@ -35,7 +37,7 @@ namespace DotVVM.Framework.StartupPerfTests
 
             // find a random port
             var port = NetworkingHelpers.FindRandomPort();
-            var urlToTest = $"http://localhost:{port}/";
+            var urlToTest = $"http://localhost:{port}/{url.TrimStart('/')}";
 
             // prepare directories
             var dir = Path.GetDirectoryName(projectPath);
