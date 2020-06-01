@@ -41,11 +41,15 @@ namespace DotVVM.Framework.Controls
 
         private static void EnsureUsesOnlyDefinedParameters(RouteLink control, IDotvvmRequestContext context)
         {
-            var undefinedParams = control.Params.Where(param => !context.Configuration.RouteTable[control.RouteName].ParameterNames.Contains(param.Key));
+            var parameterReferences = control.Params;
+            var parameterDefinitions = context.Configuration.RouteTable[control.RouteName].ParameterNames;           
 
-            if (undefinedParams.Any())
+            var invalidReferences = parameterReferences.Where(param =>
+                !parameterDefinitions.Contains(param.Key, StringComparer.InvariantCultureIgnoreCase));
+
+            if (invalidReferences.Any())
             {
-                var parameters = string.Join(", ", undefinedParams.Select(kv => kv.Key));
+                var parameters = string.Join(", ", invalidReferences.Select(kv => kv.Key));
                 throw new DotvvmRouteException($"The following parameters are not present in route {control.RouteName}: {parameters}");
             }
         }
