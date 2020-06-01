@@ -26,9 +26,10 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="dotvvm_serialized_config.json.tmp" />
+    <None Remove="StatusPage\Status.dothtml" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Status.dothtml" />
+    <EmbeddedResource Include="StatusPage\Status.dothtml" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="DotVVM" Version="2.4.0" />

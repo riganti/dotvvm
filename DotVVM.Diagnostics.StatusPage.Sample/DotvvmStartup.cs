@@ -64,6 +64,7 @@ namespace DotVVM.Diagnostics.StatusPage.Sample
         public void ConfigureServices(IDotvvmServiceCollection options)
         {
             options.AddStatusPage();
+            options.AddStatusPageApi();
             options.AddDefaultTempStorages("Temp");
         }
     }
