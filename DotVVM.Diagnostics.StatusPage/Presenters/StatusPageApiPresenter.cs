@@ -40,7 +40,7 @@ namespace DotVVM.Diagnostics.StatusPage
             if (authorized || options.NonAuthorizedApiAccessMode == NonAuthorizedApiAccessMode.DetailedResponse)
             {
                 response.ContentType = "application/json";
-                await response.WriteAsync(JsonConvert.SerializeObject(compilationService.FilesWithErrors));
+                await response.WriteAsync(JsonConvert.SerializeObject(compilationService.GetFilesWithFailedCompilation()));
             }
         }
     }

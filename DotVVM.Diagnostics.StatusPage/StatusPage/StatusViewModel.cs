@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using DotVVM.Framework.Compilation;
@@ -17,12 +18,9 @@ namespace DotVVM.Diagnostics.StatusPage
     {
         private readonly StatusPageOptions _statusPageOptions;
         private readonly IDotvvmViewCompilationService viewCompilationService;
-        [Protect(ProtectMode.SignData)]
-        public List<DotHtmlFileInfo> Routes => viewCompilationService.GetRoutes();
-        [Protect(ProtectMode.SignData)]
-        public List<DotHtmlFileInfo> MasterPages => viewCompilationService.GetMasterPages();
-        [Protect(ProtectMode.SignData)]
-        public List<DotHtmlFileInfo> Controls => viewCompilationService.GetControls();
+        public ImmutableArray<DotHtmlFileInfo> Routes => viewCompilationService.GetRoutes();
+        public ImmutableArray<DotHtmlFileInfo> MasterPages => viewCompilationService.GetMasterPages();
+        public ImmutableArray<DotHtmlFileInfo> Controls => viewCompilationService.GetControls();
         public string ApplicationPath { get; set; }
         public bool CompileAfterLoad { get; set; }
 
@@ -51,12 +49,12 @@ namespace DotVVM.Diagnostics.StatusPage
 
         public async Task CompileAll()
         {
-            await viewCompilationService.CompileAll(true);
+            await viewCompilationService.CompileAll(true,true);
         }
 
         public void BuildView(DotHtmlFileInfo file)
         {
-            viewCompilationService.BuildView(file, new ConcurrentBag<DotHtmlFileInfo>(MasterPages));
+            viewCompilationService.BuildView(file, out _);
         }
     }
 }
