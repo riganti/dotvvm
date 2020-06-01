@@ -21,8 +21,8 @@ namespace DotVVM.Framework.Compilation
             this.dotvvmConfiguration = dotvvmConfiguration;
             this.controlBuilderFactory = controlBuilderFactory;
             masterPages = new Lazy<ConcurrentDictionary<string, DotHtmlFileInfo>>(InitMasterPagesCollection);
-            controls = new Lazy<ConcurrentBag<DotHtmlFileInfo>>(InitControls);
-            routes = new Lazy<ConcurrentBag<DotHtmlFileInfo>>(InitRoutes);
+            controls = new Lazy<ImmutableArray<DotHtmlFileInfo>>(InitControls);
+            routes = new Lazy<ImmutableArray<DotHtmlFileInfo>>(InitRoutes);
         }
 
         public ImmutableArray<DotHtmlFileInfo> GetFilesWithFailedCompilation()
@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Compilation
                 .Where(t => t.Status == CompilationState.CompilationFailed).ToImmutableArray();
         }
 
-        private Lazy<ConcurrentDictionary<string, DotHtmlFileInfo>> masterPages;
+        private readonly Lazy<ConcurrentDictionary<string, DotHtmlFileInfo>> masterPages;
         private ConcurrentDictionary<string, DotHtmlFileInfo> InitMasterPagesCollection()
         {
             return new ConcurrentDictionary<string, DotHtmlFileInfo>();
@@ -41,34 +41,34 @@ namespace DotVVM.Framework.Compilation
             return masterPages.Value.Values.ToImmutableArray();
         }
 
-        private Lazy<ConcurrentBag<DotHtmlFileInfo>> controls;
-        private ConcurrentBag<DotHtmlFileInfo> InitControls()
+        private readonly Lazy<ImmutableArray<DotHtmlFileInfo>> controls;
+        private ImmutableArray<DotHtmlFileInfo> InitControls()
         {
-            return new ConcurrentBag<DotHtmlFileInfo>(
+            return 
                 dotvvmConfiguration.Markup.Controls.Where(s => !string.IsNullOrWhiteSpace(s.Src))
                     .Select(s => new DotHtmlFileInfo(s.Src, tagPrefix: s.TagPrefix, tagName: s.TagName,
-                        nameSpace: s.Namespace, assembly: s.Assembly)));
+                        nameSpace: s.Namespace, assembly: s.Assembly)).ToImmutableArray();
         }
 
         public ImmutableArray<DotHtmlFileInfo> GetControls()
         {
-            return controls.Value.ToImmutableArray();
+            return controls.Value;
         }
 
-        private Lazy<ConcurrentBag<DotHtmlFileInfo>> routes;
-        private ConcurrentBag<DotHtmlFileInfo> InitRoutes()
+        private readonly Lazy<ImmutableArray<DotHtmlFileInfo>> routes;
+        private ImmutableArray<DotHtmlFileInfo> InitRoutes()
         {
-            return new ConcurrentBag<DotHtmlFileInfo>(dotvvmConfiguration.RouteTable.Select(r =>
+            return dotvvmConfiguration.RouteTable.Select(r =>
                 new DotHtmlFileInfo(r.VirtualPath,
                     url: r.Url,
                     hasParameters: r.ParameterNames.Any(),
                     defaultValues: r.DefaultValues.Select(s => s.Key + ":" + s.Value).ToImmutableArray(),
-                    routeName: r.RouteName)));
+                    routeName: r.RouteName)).ToImmutableArray();
         }
 
         public ImmutableArray<DotHtmlFileInfo> GetRoutes()
         {
-            return routes.Value.ToImmutableArray();
+            return routes.Value;
         }
         private IEnumerable<DotHtmlFileInfo> GetFilesToBeCompiled()
         {
@@ -103,20 +103,17 @@ namespace DotVVM.Framework.Compilation
                 var discoveredMasterPages = new ConcurrentDictionary<string, DotHtmlFileInfo>();
 
 
-                Func<DotHtmlFileInfo, Task> CreateCompilationTask()
-                {
-                    return t => new Task(() => {
-                        BuildView(t, out var masterPage);
-                        if (masterPage != null && masterPage.Status == CompilationState.None) discoveredMasterPages.TryAdd(masterPage.VirtualPath, masterPage);
-                    });
-                }
+                Func<DotHtmlFileInfo, Action> compilationTaskFactory = t=>new Action(() => {
+                    BuildView(t, out var masterPage);
+                    if (masterPage != null && masterPage.Status == CompilationState.None) discoveredMasterPages.TryAdd(masterPage.VirtualPath, masterPage);
+                });
 
-                var compileTasks = filesToCompile.Select(CreateCompilationTask()).ToArray();
+                var compileTasks = filesToCompile.Select(compilationTaskFactory).ToArray();
                 await ExecuteCompileTasks(compileTasks, buildInParallel);
 
                 while (discoveredMasterPages.Any())
                 {
-                    compileTasks = discoveredMasterPages.ToArray().Select(t => t.Value).Select(CreateCompilationTask()).ToArray();
+                    compileTasks = discoveredMasterPages.Values.Select(compilationTaskFactory).ToArray();
                     discoveredMasterPages = new ConcurrentDictionary<string, DotHtmlFileInfo>();
 
                     await ExecuteCompileTasks(compileTasks, buildInParallel);
@@ -130,21 +127,17 @@ namespace DotVVM.Framework.Compilation
             return !GetFilesWithFailedCompilation().Any();
         }
 
-        private async Task ExecuteCompileTasks(ICollection<Task> compileTasks, bool buildInParallel)
+        private async Task ExecuteCompileTasks(Action[] compileTasks, bool buildInParallel)
         {
             if (buildInParallel)
             {
-                foreach (var task in compileTasks)
-                {
-                    task.Start();
-                }
-                await Task.WhenAll(compileTasks.ToArray());
+                await Task.WhenAll(compileTasks.Select(Task.Run));
             }
             else
             {
                 foreach (var task in compileTasks)
                 {
-                    task.RunSynchronously();
+                    task();
                 }
             }
         }
