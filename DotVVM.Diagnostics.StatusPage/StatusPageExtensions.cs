@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using DotVVM.Framework.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -6,6 +7,17 @@ namespace DotVVM.Diagnostics.StatusPage
 {
     public static class StatusPageExtensions
     {
+        /// <summary>
+        /// Adds Compilation Status Page to the application.
+        /// </summary>
+        public static IDotvvmServiceCollection AddStatusPage(this IDotvvmServiceCollection services, Action<StatusPageOptions> configure)
+        {
+            var options = StatusPageOptions.CreateDefaultOptions();
+            configure?.Invoke(options);
+
+            return services.AddStatusPage(options);
+        }
+
         /// <summary>
         /// Adds Compilation Status Page to the application.
         /// </summary>
@@ -27,7 +39,16 @@ namespace DotVVM.Diagnostics.StatusPage
             return services;
         }
 
+        /// <summary>
+        /// Adds Compilation Status Page to the application.
+        /// </summary>
+        public static IDotvvmServiceCollection AddStatusPageApi(this IDotvvmServiceCollection services, Action<StatusPageApiOptions> configure)
+        {
+            var options = StatusPageApiOptions.CreateDefaultOptions();
+            configure?.Invoke(options);
 
+            return services.AddStatusPageApi(options);
+        }
         /// <summary>
         /// Adds Compilation Status Page to the application.
         /// </summary>
