@@ -9,7 +9,7 @@
         /// Applies custom properties before sorting
         /// </summary>
         /// <param name="sortableDataSet">DataSet to sort</param>
-        /// <param name="expression">Expression to sort by</param>
+        /// <param name="expression">Expression to sort by. When null, no sorting should be performed.</param>
         void Apply(ISortableGridViewDataSet sortableDataSet, string? expression);
     }
 }

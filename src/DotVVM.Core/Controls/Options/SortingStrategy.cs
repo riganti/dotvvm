@@ -9,9 +9,9 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     public class SortingStrategy : ISortingStrategy
     {
-        public Action<ISortableGridViewDataSet, string?>? Strategy { get; set; }
+        public Action<ISortableGridViewDataSet, string?> Strategy { get; set; } = GetDefaultSortingStrategy();
 
-        private Action<ISortableGridViewDataSet, string?> GetDefaultSortingStrategy()
+        static Action<ISortableGridViewDataSet, string?> GetDefaultSortingStrategy()
         {
             return (sortableSet, expr) => {
                 var options = sortableSet.SortingOptions;
@@ -34,14 +34,9 @@ namespace DotVVM.Framework.Controls
         /// Applies custom properties before sorting
         /// </summary>
         /// <param name="sortableDataSet">DataSet to sort</param>
-        /// <param name="expression">Expression to sort by</param>
+        /// <param name="expression">Expression to sort by. When null, no sorting should be performed.</param>
         public void Apply(ISortableGridViewDataSet sortableDataSet, string? expression)
         {
-            if (Strategy == null)
-            {
-                Strategy = GetDefaultSortingStrategy();
-            }
-
             Strategy(sortableDataSet, expression);
         }
     }
