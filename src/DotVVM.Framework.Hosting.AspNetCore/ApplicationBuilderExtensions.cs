@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Hosting.Middlewares;
@@ -73,6 +74,13 @@ namespace Microsoft.AspNetCore.Builder
                 new DotvvmReturnedFileMiddleware(),
                 new DotvvmRoutingMiddleware()
             }.Where(t => t != null).ToArray());
+
+            var compilationConfiguration = config.Markup.ViewCompilation;
+            if (compilationConfiguration.Mode != ViewCompilationMode.Lazy)
+            {
+                compilationConfiguration.Precompile(config);
+            }
+
             return config;
         }
     }

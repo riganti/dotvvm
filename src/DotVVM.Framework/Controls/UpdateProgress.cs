@@ -93,7 +93,7 @@ namespace DotVVM.Framework.Controls
             {
                 if ((int)delayProperty.Value < 0)
                 {
-                    yield return new ControlUsageError("Delay cannot be set to negative number.");
+                    yield return new ControlUsageError("BackgroundCompilationDelay cannot be set to negative number.");
                 }
             }
 

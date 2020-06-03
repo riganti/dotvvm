@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Hosting.Middlewares;
@@ -87,6 +90,13 @@ namespace Owin
                 new DotvvmReturnedFileMiddleware(),
                 new DotvvmRoutingMiddleware()
             }.Where(t => t != null).ToArray());
+            
+            var compilationConfiguration = config.Markup.ViewCompilationConfiguration;
+            if (compilationConfiguration.ViewCompilationMode!=ViewCompilationMode.Lazy)
+            {
+                compilationConfiguration.Precompile(config);
+            }
+
             return config;
         }
     }
