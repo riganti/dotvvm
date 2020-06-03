@@ -7,6 +7,9 @@ namespace DotVVM.Framework.Configuration
     {
         private bool isFrozen = false;
         private ViewCompilationMode mode;
+        /// <summary>
+        /// Gets or sets the mode under which the view compilation (pages, controls, ... ) is done.
+        /// </summary>
         public ViewCompilationMode Mode
         {
             get => mode;
@@ -17,6 +20,9 @@ namespace DotVVM.Framework.Configuration
         }
 
         private TimeSpan? backgroundCompilationDelay;
+        /// <summary>
+        /// Gets or sets the delay before view compilation will be done. This compilation delay can be set only in precompilation modes.
+        /// </summary>
         public TimeSpan? BackgroundCompilationDelay
         {
             get => backgroundCompilationDelay;
