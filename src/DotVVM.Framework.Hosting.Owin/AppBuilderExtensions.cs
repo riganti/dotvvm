@@ -91,8 +91,9 @@ namespace Owin
                 new DotvvmRoutingMiddleware()
             }.Where(t => t != null).ToArray());
             
-            var compilationConfiguration = config.Markup.ViewCompilationConfiguration;
-            if (compilationConfiguration.ViewCompilationMode!=ViewCompilationMode.Lazy)
+            var compilationConfiguration = config.Markup.ViewCompilation;
+            compilationConfiguration.Validate();
+            if (compilationConfiguration.Mode!=ViewCompilationMode.Lazy)
             {
                 compilationConfiguration.Precompile(config);
             }

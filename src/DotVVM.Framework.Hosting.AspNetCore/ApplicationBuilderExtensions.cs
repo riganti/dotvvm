@@ -76,6 +76,7 @@ namespace Microsoft.AspNetCore.Builder
             }.Where(t => t != null).ToArray());
 
             var compilationConfiguration = config.Markup.ViewCompilation;
+            compilationConfiguration.Validate();
             if (compilationConfiguration.Mode != ViewCompilationMode.Lazy)
             {
                 compilationConfiguration.Precompile(config);
