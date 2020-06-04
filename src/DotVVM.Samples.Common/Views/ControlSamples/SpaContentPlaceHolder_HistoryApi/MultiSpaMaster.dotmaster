@@ -1,0 +1,53 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.SpaContentPlaceHolder_HistoryApi.MultiSpaMasterViewModel, DotVVM.Samples.Common
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>SPA test application</title>
+    <style>
+        .completed {
+            color: maroon;
+            text-decoration: line-through;
+        }
+        form 
+		{
+			border: solid 3px red;
+		}
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <menu>
+            <li>
+                <dot:RouteLink RouteName="ControlSamples_SpaContentPlaceHolder_HistoryApi_Spa1PageA" Text="SPA1: Page A" />
+            </li>
+            <li>
+                <dot:RouteLink RouteName="ControlSamples_SpaContentPlaceHolder_HistoryApi_Spa1PageB" Text="SPA1: Page B" />
+            </li>
+            <li>
+                <dot:RouteLink RouteName="ControlSamples_SpaContentPlaceHolder_HistoryApi_Spa2PageA" Text="SPA2: Page A" />
+            </li>
+            <li>
+                <dot:RouteLink RouteName="ControlSamples_SpaContentPlaceHolder_HistoryApi_Spa2PageB" Text="SPA2: Page B" />
+            </li>
+        </menu>
+
+        <form>
+            <h3>First SPA</h3>
+            <dot:SpaContentPlaceHolder ID="FirstSpa" />
+            <h3>First SPA</h3>
+        </form>
+
+        </br>
+
+        <form>
+            <h3>Second SPA</h3>
+            <dot:SpaContentPlaceHolder ID="SecondSpa" />
+            <h3>Second SPA</h3>
+        </form>
+
+    </div>
+</body>
+</html>
