@@ -8,27 +8,30 @@ import { DotvvmPostbackError } from '../shared-classes';
 export const isSpaReady = ko.observable(false);
 
 export function init(): void {
-    const spaPlaceHolder = getSpaPlaceHolder();
-    if (spaPlaceHolder == null) {
-        throw new Error("The SpaContentPlaceHolder control was not found!");
+    const spaPlaceHolders = getSpaPlaceHolders();
+    if (!spaPlaceHolders) {
+        throw new Error("No SpaContentPlaceHolder control was found!");
     }
 
-    window.addEventListener("hashchange", event => handleHashChangeWithHistory(spaPlaceHolder, false));
-    handleHashChangeWithHistory(spaPlaceHolder, true);
+    spaPlaceHolders.forEach(function (spa) {
+        window.addEventListener("hashchange", event => handleHashChangeWithHistory(spa, false));
+        handleHashChangeWithHistory(spa, true);
 
-    window.addEventListener('popstate', event => handlePopState(event, spaPlaceHolder != null));
+        window.addEventListener('popstate', event => handlePopState(event, spa != null));
+    });
 }
 
-function getSpaPlaceHolder(): HTMLElement | null {
-    const elements = document.getElementsByName("__dot_SpaContentPlaceHolder");
-    if (elements.length == 1) {
-        return <HTMLElement> elements[0];
-    }
-    return null;
+function getSpaPlaceHolders(): NodeListOf<HTMLElement> | null {
+    return document.getElementsByName("__dot_SpaContentPlaceHolder");
 }
 
-export function getSpaPlaceHolderUniqueId(): string {
-    return getSpaPlaceHolder()!.getAttribute("data-dotvvm-spacontentplaceholder")!;
+export function getSpaPlaceHoldersUniqueId(): string {  
+    let identifier = "";
+    getSpaPlaceHolders()!.forEach(function (element) {
+        identifier += element.getAttribute("data-dotvvm-spacontentplaceholder")?.valueOf();
+    });
+
+    return identifier;
 }
 
 function handlePopState(event: PopStateEvent, inSpaPage: boolean) {
