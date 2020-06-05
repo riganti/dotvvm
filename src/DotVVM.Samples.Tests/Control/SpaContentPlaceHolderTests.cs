@@ -231,6 +231,37 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
+        [Fact]
+        public void Control_SpaContentPlaceHolder_SpaContentPlaceHolder_HistoryApi_MultipleSpas()
+        {
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_HistoryApi_MultiSpaDefault);
+                browser.Wait();
+
+                var defaultUrl = browser.CurrentUrl;
+                var baseUrl = browser.CurrentUrl.Substring(0, browser.CurrentUrlPath.LastIndexOf('/'));
+                var routeLinks = browser.FindElements("a");
+
+                routeLinks.First().Click().Wait();
+                AssertUI.UrlEquals(browser, $"{baseUrl}/Spa1PageA");
+                routeLinks.Skip(1).First().Click().Wait();
+                AssertUI.UrlEquals(browser, $"{baseUrl}/Spa1PageB");
+                routeLinks.Skip(2).First().Click().Wait();
+                AssertUI.UrlEquals(browser, $"{baseUrl}/Spa2PageA");
+                routeLinks.Skip(3).First().Click().Wait();
+                AssertUI.UrlEquals(browser, $"{baseUrl}/Spa2PageB");
+
+                browser.NavigateBack();
+                AssertUI.UrlEquals(browser, $"{baseUrl}/Spa2PageA");
+                browser.NavigateBack();
+                AssertUI.UrlEquals(browser, $"{baseUrl}/Spa1PageB");
+                browser.NavigateBack();
+                AssertUI.UrlEquals(browser, $"{baseUrl}/Spa1PageA");
+                browser.NavigateBack();
+                AssertUI.UrlEquals(browser, defaultUrl);
+            });
+        }
+
         public SpaContentPlaceHolderTests(ITestOutputHelper output) : base(output)
         {
         }
