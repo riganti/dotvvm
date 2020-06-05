@@ -24,7 +24,7 @@ namespace DotVVM.Framework.Configuration
             }
         }
     }
-    sealed class FreezableDictionary<K, V> : IDictionary<K, V>
+    sealed class FreezableDictionary<K, V> : IDictionary<K, V>, IReadOnlyCollection<KeyValuePair<K, V>>
         where K : notnull
     {
         private readonly Dictionary<K, V> dict;
