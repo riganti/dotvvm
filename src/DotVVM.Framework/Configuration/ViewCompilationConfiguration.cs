@@ -1,5 +1,6 @@
 using System;
 using DotVVM.Framework.Compilation;
+using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -10,6 +11,7 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// Gets or sets the mode under which the view compilation (pages, controls, ... ) is done.
         /// </summary>
+        [JsonProperty("mode")]
         public ViewCompilationMode Mode
         {
             get => mode;
@@ -23,6 +25,7 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// Gets or sets the delay before view compilation will be done. This compilation delay can be set only in precompilation modes.
         /// </summary>
+        [JsonProperty("backgroundCompilationDelay")]
         public TimeSpan? BackgroundCompilationDelay
         {
             get => backgroundCompilationDelay;
@@ -36,6 +39,7 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// Gets or sets whether the view compilation will be performed in parallel or in series.
         /// </summary>
+        [JsonProperty("compileInParallel")]
         public bool CompileInParallel
         {
             get => compileInParallel;
