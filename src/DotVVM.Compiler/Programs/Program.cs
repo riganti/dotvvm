@@ -25,10 +25,12 @@ namespace DotVVM.Compiler.Programs
                 }
 #endif
                 Program2.ContinueMain(args);
+                Program2.Exit(0);
             }
             catch (Exception e)
             {
                 Console.WriteLine(@"!#" + e);
+                Program2.Exit(1);
             }
         }
     }

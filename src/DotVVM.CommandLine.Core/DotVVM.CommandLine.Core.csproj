@@ -1,0 +1,90 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net451</TargetFrameworks>
+    <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' != 'net451' ">
+    <DefineConstants>$(DefineConstants);DotNetCore</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Templates\SeleniumConfigJson.tt">
+      <LastGenOutput>SeleniumConfigJson.cs</LastGenOutput>
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+    </None>
+    <None Update="Templates\ControlCodeBehindTemplate.tt">
+      <LastGenOutput>ControlCodeBehindTemplate.cs</LastGenOutput>
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+    </None>
+    <None Update="Templates\ControlTemplate.tt">
+      <LastGenOutput>ControlTemplate.cs</LastGenOutput>
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+    </None>
+    <None Update="Templates\PageTemplate.tt">
+      <LastGenOutput>PageTemplate.cs</LastGenOutput>
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+    </None>
+    <None Update="Templates\AppSeleniumTestTemplate.tt">
+      <LastGenOutput>seleniumconfig.json.cs</LastGenOutput>
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+    </None>
+    <None Update="Templates\TestProjectTemplate.tt">
+      <LastGenOutput>TestProjectTemplate.cs</LastGenOutput>
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+    </None>
+    <None Update="Templates\ViewModelTemplate.tt">
+      <LastGenOutput>ViewModelTemplate.cs</LastGenOutput>
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Templates\AppSeleniumTestTemplate.cs">
+      <DependentUpon>AppSeleniumTestTemplate.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Update="Templates\ControlCodeBehindTemplate.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ControlCodeBehindTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Templates\ControlTemplate.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ControlTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Templates\PageTemplate.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>PageTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Templates\TestProjectTemplate.cs">
+      <DependentUpon>TestProjectTemplate.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Update="Templates\SeleniumConfigJson.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SeleniumConfigJson.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Templates\ViewModelTemplate.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ViewModelTemplate.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+</Project>

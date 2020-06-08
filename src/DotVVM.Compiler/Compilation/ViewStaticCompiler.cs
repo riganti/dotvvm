@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using DotVVM.Compiler.Initialization;
 using DotVVM.Compiler.Programs;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation;
@@ -150,7 +149,7 @@ namespace DotVVM.Compiler.Compilation
                 catch (DotvvmCompilationException exception)
                 {
                     result.Files.Add(file, new FileCompilationResult {
-                        Errors = new List<Exception>() { exception }
+                        Errors = new List<Exception>() { exception },
                     });
                 }
             }
@@ -186,6 +185,9 @@ namespace DotVVM.Compiler.Compilation
         protected ViewCompilationResult CompileView(string fileName)
         {
             var file = fileLoader.GetMarkup(configuration, fileName);
+
+            if (file == null)
+                throw new DotvvmCompilationException($"File '{fileName}' does not exist.");
 
             // parse the document
             var tokenizer = new DothtmlTokenizer();

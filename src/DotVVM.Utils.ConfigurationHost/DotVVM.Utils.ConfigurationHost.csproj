@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net451;netstandard2.0</TargetFrameworks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\DotVVM.Utils.ProjectService\Lookup\TargetFramework.cs" Link="TargetFramework.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
+  </ItemGroup>
+</Project>

@@ -69,7 +69,7 @@ namespace DotVVM.CommandLine.Commands.Logic
                 var extensionData = definition.Value.ExtensionData;
                 if (extensionData != null && extensionData.TryGetValue(ApiConstants.DotvvmKnownTypeKey, out var type))
                 {
-                    pairs.TryAdd(definition.Key, type.ToString());
+                    pairs.Add(definition.Key, type.ToString());
                 }
             }
         }
@@ -77,7 +77,7 @@ namespace DotVVM.CommandLine.Commands.Logic
         private static bool IsGenericType(string typeName) => typeName.Contains('<');
 
         private static string CreateTypeName(string typeName, IEnumerable<string> parameters)
-            => typeName + '<' + string.Join(',', parameters) + '>';
+            => $"{typeName}<{string.Join(",", parameters)}>";
 
         private static (string TypeName, string[] Parameters) RetrieveGenericParameters(string type)
         {

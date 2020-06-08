@@ -4,7 +4,8 @@
   "rootNamespace": "DotVVM.Samples.BasicSamples.AspNetCore",
   "uiTestProjectPath": null,
   "uiTestProjectRootNamespace": null,
-  "apiClients": [
-
-  ]
+  "metadataFilePath": "C:\\dev\\dotvvm\\src\\DotVVM.Samples.BasicSamples.AspNetCoreLatest\\.dotvvm.json",
+  "projectDirectory": "C:\\dev\\dotvvm\\src\\DotVVM.Samples.BasicSamples.AspNetCoreLatest",
+  "webAssemblyPath": null,
+  "apiClients": []
 }

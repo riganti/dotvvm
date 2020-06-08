@@ -3,15 +3,15 @@
   <PropertyGroup>
     <AssemblyTitle>DotVVM.CommandLine</AssemblyTitle>
     <AssemblyName>dotnet-dotvvm</AssemblyName>
-    <VersionPrefix>3.0.0-preview01-76100-alpha01</VersionPrefix>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <VersionPrefix>2.4.0-preview01-50213-unstable</VersionPrefix>
+    <TargetFrameworks>netcoreapp2.1;net461</TargetFrameworks>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dotvvm</ToolCommandName>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>DotVVM.CommandLine</PackageId>
-    <PackageVersion>3.0.0-preview01-76100-alpha01</PackageVersion>
+    <PackageVersion>3.0.0</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>Command-line tools for DotVVM.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
@@ -35,57 +35,26 @@
     <None Remove="Templates\TypeScript\FetchClient.liquid" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\DotVVM.Compiler\DTOs\CompilerOptions.cs" Link="Commands\Logic\Compiler\CompilerOptions.cs" />
+    <Compile Include="..\DotVVM.Compiler\CompilerConstants.cs" Link="Commands\Logic\Compiler\CompilerConstants.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <EmbeddedResource Include="Templates\CSharp\Client.Class.liquid" />
     <EmbeddedResource Include="Templates\TypeScript\Client.RequestUrl.liquid" />
     <EmbeddedResource Include="Templates\TypeScript\FetchClient.liquid" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\DotVVM.CommandLine.Core\DotVVM.CommandLine.Core.csproj" />
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="Commands\Templates\ControlCodeBehindTemplate.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>ControlCodeBehindTemplate.cs</LastGenOutput>
-    </None>
-    <None Update="Commands\Templates\ControlTemplate.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>ControlTemplate.cs</LastGenOutput>
-    </None>
-    <None Update="Commands\Templates\PageTemplate.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>PageTemplate.cs</LastGenOutput>
-    </None>
-    <None Update="Commands\Templates\ViewModelTemplate.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>ViewModelTemplate.cs</LastGenOutput>
-    </None>
+    <ProjectReference Include="..\DotVVM.Utils.ProjectService\DotVVM.Utils.ProjectService.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="Commands\Templates\ControlCodeBehindTemplate.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>ControlCodeBehindTemplate.tt</DependentUpon>
-    </Compile>
-    <Compile Update="Commands\Templates\ControlTemplate.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>ControlTemplate.tt</DependentUpon>
-    </Compile>
-    <Compile Update="Commands\Templates\PageTemplate.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>PageTemplate.tt</DependentUpon>
-    </Compile>
-    <Compile Update="Commands\Templates\ViewModelTemplate.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>ViewModelTemplate.tt</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
+    <PackageReference Include="Microsoft.Build" Version="15.9.20" ExcludeAssets="runtime"/>
+    <PackageReference Include="Microsoft.Build.Framework" Version="15.9.20" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.Build.Locator" Version="1.2.6"/>
     <PackageReference Include="NSwag.CodeGeneration" Version="11.14.1" />
     <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="11.14.1" />
     <PackageReference Include="NSwag.CodeGeneration.Typescript" Version="11.14.1" />
