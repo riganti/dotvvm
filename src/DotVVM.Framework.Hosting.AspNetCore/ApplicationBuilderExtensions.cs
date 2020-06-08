@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
@@ -66,7 +67,7 @@ namespace Microsoft.AspNetCore.Builder
 
             modifyConfiguration?.Invoke(config);
             config.Freeze();
-
+            
             app.UseMiddleware<DotvvmMiddleware>(config, new List<IMiddleware> {
                 ActivatorUtilities.CreateInstance<DotvvmCsrfTokenMiddleware>(config.ServiceProvider),
                 ActivatorUtilities.CreateInstance<DotvvmLocalResourceMiddleware>(app.ApplicationServices),
@@ -76,11 +77,7 @@ namespace Microsoft.AspNetCore.Builder
             }.Where(t => t != null).ToArray());
 
             var compilationConfiguration = config.Markup.ViewCompilation;
-            compilationConfiguration.Validate();
-            if (compilationConfiguration.Mode != ViewCompilationMode.Lazy)
-            {
-                compilationConfiguration.Precompile(config);
-            }
+            compilationConfiguration.HandleViewCompilation(config);
 
             return config;
         }

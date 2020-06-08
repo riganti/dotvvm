@@ -82,7 +82,7 @@ namespace Owin
 
             modifyConfiguration?.Invoke(config);
             config.Freeze();
-
+            
             app.Use<DotvvmMiddleware>(config, new List<IMiddleware> {
                 ActivatorUtilities.CreateInstance<DotvvmCsrfTokenMiddleware>(config.ServiceProvider),
                 ActivatorUtilities.CreateInstance<DotvvmLocalResourceMiddleware>(config.ServiceProvider),
@@ -90,13 +90,9 @@ namespace Owin
                 new DotvvmReturnedFileMiddleware(),
                 new DotvvmRoutingMiddleware()
             }.Where(t => t != null).ToArray());
-            
+
             var compilationConfiguration = config.Markup.ViewCompilation;
-            compilationConfiguration.Validate();
-            if (compilationConfiguration.Mode!=ViewCompilationMode.Lazy)
-            {
-                compilationConfiguration.Precompile(config);
-            }
+            compilationConfiguration.HandleViewCompilation(config);
 
             return config;
         }

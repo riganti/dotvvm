@@ -32,6 +32,19 @@ namespace DotVVM.Framework.Configuration
                 backgroundCompilationDelay = value;
             }
         }
+        private bool compileInParallel = true;
+        /// <summary>
+        /// Gets or sets whether the view compilation will be performed in parallel or in series.
+        /// </summary>
+        public bool CompileInParallel
+        {
+            get => compileInParallel;
+            set
+            {
+                ThrowIfFrozen();
+                compileInParallel = value;
+            }
+        }
 
         public void Validate()
         {
@@ -40,6 +53,13 @@ namespace DotVVM.Framework.Configuration
                 throw new Exception($"{nameof(BackgroundCompilationDelay)} is not supported in {nameof(ViewCompilationMode.Lazy)} {nameof(Mode)}.");
             }
         }
+        
+        public void Freeze()
+        {
+            Validate();
+            this.isFrozen = true;
+        }
+
         private void ThrowIfFrozen()
         {
             if (isFrozen)

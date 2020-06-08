@@ -176,7 +176,10 @@ namespace DotVVM.Framework.Configuration
         public void Freeze()
         {
             this.isFrozen = true;
+
+            ViewCompilation.Freeze();
             _controls.Freeze();
+            
             foreach (var c in this.Controls)
                 c.Freeze();
             _assemblies.Freeze();
@@ -184,11 +187,6 @@ namespace DotVVM.Framework.Configuration
             foreach (var t in this.HtmlAttributeTransforms)
                 t.Value.Freeze();
             _defaultDirectives.Freeze();
-        }
-
-        public void Validate()
-        {
-            ViewCompilation.Validate();
         }
     }
 }
