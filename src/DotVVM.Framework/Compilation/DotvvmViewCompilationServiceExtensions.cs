@@ -21,17 +21,13 @@ namespace DotVVM.Framework.Compilation
             });
         }
 
-        public static void HandleViewCompilation(this ViewCompilationConfiguration compilationConfiguration,
-            DotvvmConfiguration config)
+        public static void HandleViewCompilation(this ViewCompilationConfiguration compilationConfiguration, DotvvmConfiguration config)
         {
+            if (compilationConfiguration.Mode == ViewCompilationMode.Lazy)
+                return;
+
             var getCompilationTask = compilationConfiguration.Precompile(config);
-            if (compilationConfiguration.Mode == ViewCompilationMode.AfterStartup)
-            {
-#pragma warning disable 4014
-                getCompilationTask.ConfigureAwait(false);
-#pragma warning restore 4014
-            }
-            else if (compilationConfiguration.Mode == ViewCompilationMode.DuringStartup)
+            if (compilationConfiguration.Mode == ViewCompilationMode.DuringApplicationStart)
             {
                 getCompilationTask.Wait();
             }

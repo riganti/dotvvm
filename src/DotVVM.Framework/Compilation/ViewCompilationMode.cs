@@ -11,11 +11,11 @@ namespace DotVVM.Framework.Compilation
         /// Compilation will run during application startup.
         /// Application will start after compilation is done.
         /// </summary>
-        DuringStartup,
+        DuringApplicationStart,
         
         /// <summary>
-        /// Compilation will run after application startup.
+        /// Compilation will run after application started.
         /// </summary>
-        AfterStartup
+        AfterApplicationStart
     }
 }
