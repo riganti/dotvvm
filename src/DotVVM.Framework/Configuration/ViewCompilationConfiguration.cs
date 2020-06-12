@@ -52,9 +52,9 @@ namespace DotVVM.Framework.Configuration
 
         public void Validate()
         {
-            if (BackgroundCompilationDelay.HasValue && Mode == ViewCompilationMode.Lazy)
+            if (BackgroundCompilationDelay.HasValue && (Mode == ViewCompilationMode.Lazy || Mode==ViewCompilationMode.DuringStartup))
             {
-                throw new Exception($"{nameof(BackgroundCompilationDelay)} is not supported in {nameof(ViewCompilationMode.Lazy)} {nameof(Mode)}.");
+                throw new Exception($"{nameof(BackgroundCompilationDelay)} must be null in {nameof(ViewCompilationMode.Lazy)} {nameof(Mode)}.");
             }
         }
         
