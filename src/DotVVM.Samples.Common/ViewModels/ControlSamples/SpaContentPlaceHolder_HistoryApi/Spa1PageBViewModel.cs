@@ -6,6 +6,5 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.SpaContentPlaceH
 {
     public class Spa1PageBViewModel : MultiSpaMasterViewModel
     {
-        public string Text { get; set; } = "Text from SPA1 PageB";
     }
 }

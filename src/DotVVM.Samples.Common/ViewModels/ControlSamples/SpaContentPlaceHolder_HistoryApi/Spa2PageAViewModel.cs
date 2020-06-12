@@ -6,6 +6,5 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.SpaContentPlaceH
 {
     public class Spa2PageAViewModel : MultiSpaMasterViewModel
     {
-        public DateTime Date { get; set; }
     }
 }
