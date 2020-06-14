@@ -22,15 +22,28 @@ namespace DotVVM.Samples.Tests.Feature
                 var text = browser.Single("[data-ui='value']");
                 AssertUI.InnerTextEquals(text, "Nothing here");
 
-                browser.Single("[data-ui='button1'] button").Click();
+                browser.Single("[data-ui='button1'] button").Click().Wait();
                 var alert = browser.GetAlert();
                 alert.SendKeys(Value);
                 alert.Accept();
 
                 browser.Wait();
                 AssertUI.InnerTextEquals(text, Value);
+            });
+        }
 
-                browser.Single("[data-ui='button2'] input[type=text]").SendKeys(Value);
+        [Fact]
+        public void Feature_CommandArguments_CommandArgumentTypes()
+        {
+            const string Value = "testing value";
+
+            RunInAllBrowsers(browser => {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_CommandArguments_CommandArgumentTypes);
+
+                var text = browser.Single("[data-ui='value']");
+                AssertUI.InnerTextEquals(text, "Nothing here");
+
+                browser.Single("[data-ui='button2'] input[type=text]").Clear().SendKeys(Value);
                 browser.Single("[data-ui='button2'] button").Click();
                 browser.Wait();
                 AssertUI.InnerTextEquals(text, Value + "(from second button)");

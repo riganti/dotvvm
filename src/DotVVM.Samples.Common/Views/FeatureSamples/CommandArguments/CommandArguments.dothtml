@@ -15,12 +15,5 @@
             Button Parametrized by string
         </cc:PromptButton>
     </div>
-
-    <div data-ui="button2">
-        <dot:TextBox Text={value: Parameter.MyProperty} />
-        <cc:ParametrizedButton Click={command: Command(obj.MyProperty + "(from second button)")} Parameter={value: Parameter}>
-            Button Parametrized by an object
-        </cc:ParametrizedButton>
-    </div>
 </body>
 </html>
