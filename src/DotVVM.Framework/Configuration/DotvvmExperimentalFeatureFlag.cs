@@ -19,6 +19,7 @@ namespace DotVVM.Framework.Configuration
                 _enabled = value;
             }
         }
+
         private bool _enabled = false;
 
         [JsonProperty("includedRoutes")]
@@ -31,6 +32,7 @@ namespace DotVVM.Framework.Configuration
                 _includedRoutes = value;
             }
         }
+
         private ISet<string> _includedRoutes = new FreezableSet<string>();
 
         [JsonProperty("excludedRoutes")]
@@ -43,6 +45,7 @@ namespace DotVVM.Framework.Configuration
                 _excludedRoutes = value;
             }
         }
+
         private ISet<string> _excludedRoutes = new FreezableSet<string>();
 
         public void EnableForAllRoutes()
@@ -90,11 +93,13 @@ namespace DotVVM.Framework.Configuration
         }
 
         private bool isFrozen = false;
+
         private void ThrowIfFrozen()
         {
             if (isFrozen)
                 FreezableUtils.Error(nameof(DotvvmExperimentalFeatureFlag));
         }
+
         public void Freeze()
         {
             this.isFrozen = true;
@@ -103,3 +108,4 @@ namespace DotVVM.Framework.Configuration
         }
     }
 }
+

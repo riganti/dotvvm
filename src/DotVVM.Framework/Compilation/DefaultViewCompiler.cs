@@ -43,7 +43,6 @@ namespace DotVVM.Framework.Compilation
         private readonly IBindingCompiler bindingCompiler;
         private readonly ViewCompilerConfiguration config;
         private readonly Func<Validation.ControlUsageValidationVisitor> controlValidatorFactory;
-
         /// <summary>
         /// Compiles the view and returns a function that can be invoked repeatedly. The function builds full control tree and activates the page.
         /// </summary>

@@ -26,6 +26,8 @@ namespace DotVVM.Framework.Compilation
 
         private readonly DotvvmConfiguration configuration;
 
+        public static CompiledAssemblyCache? Instance { get; private set; }
+
         public CompiledAssemblyCache(DotvvmConfiguration configuration)
         {
             this.configuration = configuration;

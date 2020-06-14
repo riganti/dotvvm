@@ -8,11 +8,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
+using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
-using DotVVM.Framework.Compilation;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -61,7 +61,7 @@ namespace DotVVM.Framework.ResourceManagement
                 {
                     DeserializeResources((JObject)prop.Value, r.type, serializer, repo);
                 }
-                else if (ReflectionUtils.FindType(prop.Key) is Type resourceType)
+                else if (CompiledAssemblyCache.Instance.FindType(prop.Key) is Type resourceType)
                 {
                     DeserializeResources((JObject)prop.Value, resourceType, serializer, repo);
                 }

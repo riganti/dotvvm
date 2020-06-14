@@ -13,7 +13,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Globalization;
 using System.Collections.Concurrent;
-using DotVVM.Framework.Compilation;
 
 namespace DotVVM.Framework.Utils
 {
