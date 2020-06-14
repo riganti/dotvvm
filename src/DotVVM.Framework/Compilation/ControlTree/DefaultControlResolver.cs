@@ -56,7 +56,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         {
             var dotvvmAssembly = typeof(DotvvmControl).GetTypeInfo().Assembly.GetName().Name;
 
-            if (configuration.ExperimentalFeatures.DisableMarkupAssemblyDiscovery.Enabled)
+            if (configuration.ExperimentalFeatures.ExplicitAssemblyLoading.Enabled)
             {
                 // use only explicitly specified assemblies from configuration
                 // and do not call GetTypeInfo to prevent unnecessary dependent assemblies from loading

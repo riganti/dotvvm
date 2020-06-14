@@ -118,7 +118,7 @@ namespace DotVVM.Framework.Compilation
 
         public Assembly[] GetAllAssemblies()
         {
-            if (configuration.ExperimentalFeatures.DisableMarkupAssemblyDiscovery.Enabled)
+            if (configuration.ExperimentalFeatures.ExplicitAssemblyLoading.Enabled)
             {
                 return cachedAssemblies.Values.ToArray();
             }

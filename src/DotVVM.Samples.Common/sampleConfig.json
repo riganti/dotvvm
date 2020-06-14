@@ -1,5 +1,5 @@
 {
-  "activeProfile": "ServerSideViewModelCache",
+  "activeProfile": "ExplicitAssemblyLoading",
   "profiles": [
     {
       "name": "Default",
@@ -22,6 +22,16 @@
       "config": {
         "experimentalFeatures": {
           "serverSideViewModelCache": {
+            "enabled": true
+          }
+        }
+      }
+    },
+    {
+      "name": "ExplicitAssemblyLoading",
+      "config": {
+        "experimentalFeatures": {
+          "explicitAssemblyLoading": {
             "enabled": true
           }
         }
