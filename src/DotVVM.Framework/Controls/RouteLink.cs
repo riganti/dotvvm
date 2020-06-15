@@ -150,10 +150,19 @@ namespace DotVVM.Framework.Controls
         [ControlUsageValidator]
         public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control, DotvvmConfiguration configuration)
         {
-            if ((control.GetValue(RouteNameProperty).As<ResolvedPropertyValue>()) == null)
+            var routeNameProperty = control.GetValue(RouteNameProperty);
+            if ((routeNameProperty.As<ResolvedPropertyValue>()) == null)
                 yield break;
 
-            var routeName = (string)control.GetValue(RouteNameProperty).CastTo<ResolvedPropertyValue>().Value;
+            var routeName = (string)routeNameProperty.CastTo<ResolvedPropertyValue>().Value;
+            if (!configuration.RouteTable.Contains(routeName))
+            {
+                yield return new ControlUsageError(
+                    $"RouteName \"{routeName}\" does not exist.",
+                    routeNameProperty.DothtmlNode);
+                yield break;
+            }
+
             var parameterDefinitions = configuration.RouteTable[routeName].ParameterNames;
             var parameterReferences = control.Properties.Where(i => i.Key is GroupedDotvvmProperty p && p.PropertyGroup == ParamsGroupDescriptor);
 
@@ -166,9 +175,9 @@ namespace DotVVM.Framework.Controls
 
             if (undefinedReferences.Any())
             {
-                var message = string.Join(", ", undefinedReferences.Select(reference => reference.parameterGroupName));
+                var parameters = string.Join(", ", undefinedReferences.Select(reference => reference.parameterGroupName));
                 yield return new ControlUsageError(
-                    $"Undefined parameter references: {message}.",
+                    $"The following parameters are not present in route {routeName}: {parameters}",
                     undefinedReferences.Select(reference => reference.parameterNode));
             }
         }
