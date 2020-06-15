@@ -13,12 +13,10 @@ export function init(): void {
         throw new Error("No SpaContentPlaceHolder control was found!");
     }
 
-    spaPlaceHolders.forEach(function (spa) {
-        window.addEventListener("hashchange", event => handleHashChangeWithHistory(spa, false));
-        handleHashChangeWithHistory(spa, true);
+    window.addEventListener("hashchange", event => handleHashChangeWithHistory(spaPlaceHolders, false));
+    handleHashChangeWithHistory(spaPlaceHolders, true);
 
-        window.addEventListener('popstate', event => handlePopState(event, spa != null));
-    });
+    window.addEventListener('popstate', event => handlePopState(event, spaPlaceHolders[0] != null));
 }
 
 function getSpaPlaceHolders(): NodeListOf<HTMLElement> | null {
@@ -47,7 +45,7 @@ function handlePopState(event: PopStateEvent, inSpaPage: boolean) {
     }
 }
 
-function handleHashChangeWithHistory(spaPlaceHolder: HTMLElement, isInitialPageLoad: boolean) {
+function handleHashChangeWithHistory(spaPlaceHolders: NodeListOf<HTMLElement>, isInitialPageLoad: boolean) {
     if (document.location.hash.indexOf("#!/") === 0) {
         // the user requested navigation to another SPA page
         navigateCore(
@@ -56,7 +54,9 @@ function handleHashChangeWithHistory(spaPlaceHolder: HTMLElement, isInitialPageL
         );
     } else {
         isSpaReady(true);
-        spaPlaceHolder.style.display = "";
+        spaPlaceHolders.forEach(function (element) {
+            element.style.display = "";
+        });
 
         const currentRelativeUrl = location.pathname + location.search + location.hash
         replacePage(currentRelativeUrl);
