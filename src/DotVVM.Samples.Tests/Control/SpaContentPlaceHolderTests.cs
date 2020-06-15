@@ -7,6 +7,7 @@ using DotVVM.Samples.Tests.Base;
 using DotVVM.Testing.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Riganti.Selenium.Core;
+using Riganti.Selenium.Core.Abstractions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -234,6 +235,9 @@ namespace DotVVM.Samples.Tests.Control
         [Fact]
         public void Control_SpaContentPlaceHolder_SpaContentPlaceHolder_HistoryApi_MultipleSpas()
         {
+            void CheckOnlyOneSpaRouteLink(IBrowserWrapper browser)
+                => Xunit.Assert.StrictEqual(1, browser.FindElements("a").Where(elem => elem.GetText().Contains(": Go to ")).Count());
+
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_SpaContentPlaceHolder_HistoryApi_MultiSpaDefault);
                 browser.Wait();
@@ -244,13 +248,31 @@ namespace DotVVM.Samples.Tests.Control
 
                 routeLinks.First().Click().Wait();
                 AssertUI.UrlEquals(browser, $"{baseUrl}/Spa1PageA");
+                CheckOnlyOneSpaRouteLink(browser);
+                browser.FindElements("a").Single(elem => elem.GetText() == "SPA1: Go to Second Page");
+
                 routeLinks.Skip(1).First().Click().Wait();
                 AssertUI.UrlEquals(browser, $"{baseUrl}/Spa1PageB");
+                CheckOnlyOneSpaRouteLink(browser);
+                browser.FindElements("a").Single(elem => elem.GetText() == "SPA1: Go to First Page");
+
                 routeLinks.Skip(2).First().Click().Wait();
                 AssertUI.UrlEquals(browser, $"{baseUrl}/Spa2PageA");
+                CheckOnlyOneSpaRouteLink(browser);
+                browser.FindElements("a").Single(elem => elem.GetText() == "SPA2: Go to Second Page");
+
                 routeLinks.Skip(3).First().Click().Wait();
                 AssertUI.UrlEquals(browser, $"{baseUrl}/Spa2PageB");
+                CheckOnlyOneSpaRouteLink(browser);
+                browser.FindElements("a").Single(elem => elem.GetText().Contains("SPA2: Go to First Page"));
 
+                routeLinks.Skip(4).First().Click().Wait();
+                AssertUI.UrlEquals(browser, $"{baseUrl}/Spa1Spa2Page");
+                browser.FindElements("span").Single(elem => elem.GetText() == "SPA1: Hello World!");
+                browser.FindElements("span").Single(elem => elem.GetText() == "SPA2: Hello World!");
+
+                browser.NavigateBack();
+                AssertUI.UrlEquals(browser, $"{baseUrl}/Spa2PageB");
                 browser.NavigateBack();
                 AssertUI.UrlEquals(browser, $"{baseUrl}/Spa2PageA");
                 browser.NavigateBack();

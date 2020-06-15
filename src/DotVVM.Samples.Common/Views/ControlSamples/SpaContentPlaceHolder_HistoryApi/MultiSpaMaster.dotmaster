@@ -32,11 +32,16 @@
             <li>
                 <dot:RouteLink RouteName="ControlSamples_SpaContentPlaceHolder_HistoryApi_Spa2PageB" Text="SPA2: Page B" />
             </li>
+            <li>
+                <dot:RouteLink RouteName="ControlSamples_SpaContentPlaceHolder_HistoryApi_Spa1Spa2Page" Text="Spa1 + Spa2" />
+            </li>
         </menu>
 
         <form>
             <h3>First SPA</h3>
-            <dot:SpaContentPlaceHolder ID="FirstSpa" />
+            <dot:SpaContentPlaceHolder ID="FirstSpa">
+                Default SPA1 content
+            </dot:SpaContentPlaceHolder>
             <h3>First SPA</h3>
         </form>
 
@@ -44,7 +49,9 @@
 
         <form>
             <h3>Second SPA</h3>
-            <dot:SpaContentPlaceHolder ID="SecondSpa" />
+            <dot:SpaContentPlaceHolder ID="SecondSpa">
+                Default SPA2 content
+            </dot:SpaContentPlaceHolder>
             <h3>Second SPA</h3>
         </form>
 
