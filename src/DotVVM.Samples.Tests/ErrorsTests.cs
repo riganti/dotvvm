@@ -427,7 +427,7 @@ namespace DotVVM.Samples.Tests
             RunInAllBrowsers(browser => {
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_UndefinedRouteLinkParameters);
 
-                AssertUI.TextEquals(browser.First("exceptionType", By.ClassName), "DotVVM.Framework.Routing.DotvvmRouteException");
+                AssertUI.TextEquals(browser.First("exceptionType", By.ClassName), "DotVVM.Framework.Compilation.DotvvmCompilationException");
                 AssertUI.InnerText(browser.First(".exceptionMessage"),
                     s => s.Contains("The following parameters are not present in route", StringComparison.OrdinalIgnoreCase),
                     "Exception should contain information about the route name and undefined parameters");
