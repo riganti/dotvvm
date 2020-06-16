@@ -10,6 +10,7 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using System.Collections;
 using DotVVM.Framework.Utils;
+using System.Runtime.CompilerServices;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
@@ -146,8 +147,16 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
         }
 
+        static void RunClassConstructor(Type type)
+        {
+            RuntimeHelpers.RunClassConstructor(type.TypeHandle);
+            if (type.BaseType != typeof(object))
+                RunClassConstructor(type.BaseType);
+        }
+
         public static IEnumerable<DotvvmPropertyGroup > GetPropertyGroups(Type controlType)
         {
+            RunClassConstructor(controlType);
             foreach (var property in controlType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
             {
                 if (property.IsDefined(typeof(PropertyGroupAttribute)))
