@@ -90,7 +90,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             return generatedProperties.GetOrAdd(name, n => GroupedDotvvmProperty.Create(this, name));
         }
 
-        public static Tuple<Type, MethodBase> GetValueType(Type declaringType)
+        public static (Type valueType, MethodBase constructor) GetValueType(Type declaringType)
         {
             var collectionCtors = (from ctor in declaringType.GetConstructors()
                                   let parameters = ctor.GetParameters()
@@ -103,7 +103,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                                   select new { ctor, parameters, valueType }).ToArray();
             if (collectionCtors.Length >= 1)
             {
-                return new Tuple<Type, MethodBase>(collectionCtors[0].valueType, collectionCtors[0].ctor);
+                return (collectionCtors[0].valueType, collectionCtors[0].ctor);
             }
 
             throw new NotSupportedException($"Could not initialize {declaringType.Name} as property group collection - no suitable constructor found");
@@ -113,10 +113,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public static DotvvmPropertyGroup  Create(PropertyInfo propertyInfo, object defaultValue)
         {
-            return descriptorDictionary.GetOrAdd(propertyInfo.DeclaringType.Name + "," + propertyInfo.Name, fullName =>
+            return descriptorDictionary.GetOrAdd(propertyInfo.DeclaringType.Name + "." + propertyInfo.Name, fullName =>
             {
                 var attribute = propertyInfo.GetCustomAttribute<PropertyGroupAttribute>();
-                var valueType = attribute.ValueType ?? GetValueType(propertyInfo.PropertyType).Item1;
+                var valueType = attribute.ValueType ?? GetValueType(propertyInfo.PropertyType).valueType;
                 return new DotvvmPropertyGroup (propertyInfo, attribute.Prefixes, valueType, defaultValue);
             });
         }
@@ -128,8 +128,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
         {
             return descriptorDictionary.GetOrAdd(declaringType.Name + "." + name, fullName =>
             {
-                var field = declaringType.GetField(name + "GroupDescriptor", BindingFlags.Public | BindingFlags.Static);
-                if (field == null) throw new InvalidOperationException($"Could not declare property group '{fullName}' because backing field was not found.");
+                var fieldName = name + "GroupDescriptor";
+                var field = declaringType.GetField(fieldName, BindingFlags.Public | BindingFlags.Static);
+                if (field == null) throw new InvalidOperationException($"Could not declare property group '{fullName}' because backing field {fieldName} was not found.");
                 return new DotvvmPropertyGroup (prefixes, valueType, field, name, defaultValue);
             });
         }
@@ -185,7 +186,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
     public enum PropertyGroupMode: byte
     {
+        /// <summary> Property group that is set into a real property with a Dictionary or so. Something like a virtual dotvvm property. </summary>
         ValueCollection,
+        /// <summary> Properties are backend in DotvvmControl.properties and accessed through VirtualPropertyGroupDictionary </summary>
         GeneratedDotvvmProperty
     }
 }
